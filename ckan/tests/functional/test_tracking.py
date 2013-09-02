@@ -492,6 +492,7 @@ class TestTracking(object):
         assert packages[2]['name'] == 'consider_phlebas'
 
     def test_popular_package(self):
+        # TODO
         # Test that a package with > 10 views is marked as 'popular'.
         # Currently the popular logic is in the templates, will have to move
         # that into the logic and add 'popular': True/False to package dicts
@@ -502,6 +503,7 @@ class TestTracking(object):
         pass
 
     def test_popular_resource(self):
+        # TODO
         # Test that a resource with > 10 views is marked as 'popular'.
         # Currently the popular logic is in the templates, will have to move
         # that into the logic and add 'popular': True/False to resource dicts
@@ -512,12 +514,14 @@ class TestTracking(object):
         pass
 
     def test_same_user_visiting_different_pages_on_same_day(self):
+        # TODO
         # Test that if the same user visits multiple pages on the same say,
         # each visit gets counted (this should not get throttled)
         # (May need to test for packages, resources and pages separately)
         pass
 
     def test_same_user_visiting_same_page_on_different_days(self):
+        # TODO
         # Test that if the same user visits the same page on different days,
         # each visit gets counted (this should not get throttled)
         # (May need to test for packages, resources and pages separately)
@@ -526,7 +530,7 @@ class TestTracking(object):
         pass
 
     def test_posting_bad_data_to_tracking(self):
-        # Test how /_tracking handles unexpected and invalid data.
+        # TODO: Test how /_tracking handles unexpected and invalid data.
         pass
 
     def _export_tracking_summary(self):
@@ -553,6 +557,7 @@ class TestTracking(object):
         pass
 
     def test_tracking_urls_with_languages(self):
+        # TODO
         # Test that posting to eg /de/dataset/foo is counted the same as
         # /dataset/foo.
         # May need to test for dataset pages, resource previews, resource
@@ -560,18 +565,21 @@ class TestTracking(object):
         pass
 
     def test_templates_tracking_enabled(self):
+        # TODO
         # Test the the page view tracking JS is in the templates when
         # ckan.tracking_enabled = true.
         # Test that the sort by populatiy option is shown on the datasets page.
         pass
 
     def test_templates_tracking_disabled(self):
+        # TODO
         # Test the the page view tracking JS is not in the templates when
         # ckan.tracking_enabled = false.
         # Test that the sort by populatiy option is not on the datasets page.
         pass
 
     def test_tracking_disabled(self):
+        # TODO
         # Just to make sure, set ckan.tracking_enabled = false and then post
         # a bunch of stuff to /_tracking and test that no tracking data is
         # recorded. Maybe /_tracking should return something other than 200,
