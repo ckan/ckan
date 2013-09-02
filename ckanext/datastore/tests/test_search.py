@@ -34,12 +34,14 @@ class TestDatastoreSearch(tests.WsgiAppCase):
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
                        {'id': 'published'},
-                       {'id': u'characters', u'type': u'_text'}],
+                       {'id': u'characters', u'type': u'_text'},
+                       {'id': 'rating with %'}],
             'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
                         'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}],
-                        u'characters': [u'Princess Anna', u'Sergius']},
+                        u'characters': [u'Princess Anna', u'Sergius'],
+                        'rating with %': '60%'},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a': 'b'}}
+                        'nested': {'a': 'b'}, 'rating with %': '99%'}
                        ]
         }
         postparams = '%s=1' % json.dumps(cls.data)
@@ -49,18 +51,26 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
+        # Make an organization, because private datasets must belong to one.
+        cls.organization = tests.call_action_api(
+            cls.app, 'organization_create',
+            name='test_org',
+            apikey=cls.sysadmin_user.apikey)
+
         cls.expected_records = [{u'published': u'2005-03-01T00:00:00',
                                  u'_id': 1,
                                  u'nested': [u'b', {u'moo': u'moo'}],
                                  u'b\xfck': u'annakarenina',
                                  u'author': u'tolstoy',
-                                 u'characters': [u'Princess Anna', u'Sergius']},
+                                 u'characters': [u'Princess Anna', u'Sergius'],
+                                 u'rating with %': u'60%'},
                                 {u'published': None,
                                  u'_id': 2,
                                  u'nested': {u'a': u'b'},
                                  u'b\xfck': u'warandpeace',
                                  u'author': u'tolstoy',
-                                 u'characters': None}]
+                                 u'characters': None,
+                                 u'rating with %': u'99%'}]
 
         engine = db._get_engine(
                 {'connection_url': pylons.config['ckan.datastore.write_url']}
@@ -100,11 +110,13 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         group = self.dataset.get_groups()[0]
         context = {
             'user': self.sysadmin_user.name,
+            'ignore_auth': True,
             'model': model}
         package = p.toolkit.get_action('package_create')(
             context,
             {'name': 'privatedataset',
              'private': True,
+             'owner_org' : self.organization['id'],
              'groups': [{
                  'id': group.id
              }]})
@@ -341,9 +353,10 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         result = res_dict['result']
         assert result['total'] == 1
 
-        results = [extract(result['records'][0],
-            [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters'])]
-        assert results == [self.expected_records[0]], result['records']
+        results = [extract(result['records'][0], [
+            u'_id', u'author', u'b\xfck', u'nested',
+            u'published', u'characters', u'rating with %'])]
+        assert results == [self.expected_records[0]], results['records']
 
         data = {'resource_id': self.data['resource_id'],
                 'q': 'tolstoy'}
@@ -355,9 +368,10 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         result = res_dict['result']
         assert result['total'] == 2
         results = [extract(
-                record,
-                [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters']
-            ) for record in result['records']]
+            record,
+            [u'_id', u'author', u'b\xfck', u'nested',
+             u'published', u'characters', u'rating with %']
+        ) for record in result['records']]
         assert results == self.expected_records, result['records']
 
         expected_fields = [{u'type': u'int4', u'id': u'_id'},
@@ -381,10 +395,10 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         result = res_dict['result']
         assert result['total'] == 1
         results = [extract(
-                result['records'][0],
-                [u'_id', u'author', u'b\xfck', u'nested', u'published', u'characters']
-            )]
-        assert results == [self.expected_records[0]], result['records']
+            result['records'][0],
+            [u'_id', u'author', u'b\xfck', u'nested', u'published',
+             u'characters', u'rating with %'])]
+        assert results == [self.expected_records[0]], results['records']
 
         for field in expected_fields:
             assert field in result['fields'], field
@@ -474,8 +488,9 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         plugin = p.load('datastore')
-        plugin.configure(pylons.config)
         if plugin.legacy_mode:
+            # make sure we undo adding the plugin
+            p.unload('datastore')
             raise nose.SkipTest("SQL tests are not supported in legacy mode")
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -502,6 +517,12 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                            extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
+        
+        # Make an organization, because private datasets must belong to one.
+        cls.organization = tests.call_action_api(
+            cls.app, 'organization_create',
+            name='test_org',
+            apikey=cls.sysadmin_user.apikey)
 
         cls.expected_records = [{u'_full_text': u"'annakarenina':1 'b':3 'moo':4 'tolstoy':2",
                                  u'_id': 1,
@@ -630,11 +651,13 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         group = self.dataset.get_groups()[0]
         context = {
             'user': self.sysadmin_user.name,
+            'ignore_auth': True,
             'model': model}
         package = p.toolkit.get_action('package_create')(
             context,
             {'name': 'privatedataset',
              'private': True,
+             'owner_org': self.organization['id'],
              'groups': [{
                  'id': group.id
              }]})
@@ -668,11 +691,13 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         group = self.dataset.get_groups()[0]
         context = {
             'user': self.sysadmin_user.name,
+            'ignore_auth': True,
             'model': model}
         package = p.toolkit.get_action('package_create')(
             context,
             {'name': 'privatedataset2',
              'private': False,
+             'owner_org': self.organization['id'],
              'groups': [{
                  'id': group.id
              }]})
@@ -693,9 +718,9 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         # Test public resource
         query = 'SELECT * FROM "{0}"'.format(resource['id'])
         data = {'sql': query}
-        postparams = json.dumps(data)
+        postparams_sql = json.dumps(data)
         auth = {'Authorization': str(self.normal_user.apikey)}
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
@@ -707,7 +732,22 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         package = p.toolkit.get_action('package_update')(context, package)
 
         # Test private
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
+                            extra_environ=auth, status=403)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error']['__type'] == 'Authorization Error'
+
+        postparams = json.dumps({'resource_id': resource['id']})
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=403)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error']['__type'] == 'Authorization Error'
+
+        # we should not be able to make the private resource it public
+        postparams = json.dumps({'resource_id': resource['id']})
+        res = self.app.post('/api/action/datastore_make_public', params=postparams,
                             extra_environ=auth, status=403)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
@@ -720,7 +760,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         package = p.toolkit.get_action('package_update')(context, package)
 
         # Test public again
-        res = self.app.post('/api/action/datastore_search_sql', params=postparams,
+        res = self.app.post('/api/action/datastore_search_sql', params=postparams_sql,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True

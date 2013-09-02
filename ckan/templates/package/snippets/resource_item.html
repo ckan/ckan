@@ -24,14 +24,24 @@
       {% block resource_item_explore_links %}
       <li>
         <a href="{{ url }}">
-          <i class="icon-bar-chart"></i>
-          {{ _('Preview') }}
+          {% if res.can_be_previewed %}
+            <i class="icon-bar-chart"></i>
+            {{ _('Preview') }}
+          {% else %}
+            <i class="icon-info-sign"></i>
+            {{ _('More information') }}
+          {% endif %}
         </a>
       </li>
       <li>
         <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
-          <i class="icon-download"></i>
-          {{ _('Download') }}
+          {% if res.can_be_previewed %}
+            <i class="icon-download"></i>
+            {{ _('Download') }}
+          {% else %}
+            <i class="icon-external-link"></i>
+            {{ _('Go to resource') }}
+          {% endif %}
         </a>
       </li>
       {% endblock %}

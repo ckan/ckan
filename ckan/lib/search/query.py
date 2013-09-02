@@ -279,11 +279,12 @@ class PackageSearchQuery(SearchQuery):
             data = json.loads(solr_response)
 
             if data['response']['numFound'] == 0:
-             raise SearchError('Dataset not found in the search index: %s' % reference)
+                raise SearchError('Dataset not found in the search index: %s' % reference)
             else:
                 return data['response']['docs'][0]
         except Exception, e:
-            log.exception(e)
+            if not isinstance(e, SearchError):
+                log.exception(e)
             raise SearchError(e)
         finally:
             conn.close()

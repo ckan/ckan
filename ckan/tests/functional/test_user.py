@@ -99,9 +99,10 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'Don\'t have an OpenID' in res, res
 
     def test_logout(self):
-        res = self.app.get('/user/logout')
+        res = self.app.get('/user/_logout')
         res2 = res.follow()
-        res2 = res2.follow()
+        while res2.status == 302:
+            res2 = res2.follow()
         assert 'You have logged out successfully.' in res2, res2
 
     def _get_cookie_headers(self, res):
@@ -141,6 +142,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                res.header('Location').startswith('/user/logged_in')
 
         # then get redirected to user's dashboard
+        res = res.follow()
         res = res.follow()
         assert_equal(res.status, 302)
         assert res.header('Location').startswith('http://localhost/dashboard') or \
@@ -213,6 +215,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                res.header('Location').startswith('/user/logged_in')
 
         # then get redirected to login
+        res = res.follow()
         res = res.follow()
         assert_equal(res.status, 302)
         assert res.header('Location').startswith('http://localhost/user/login') or \
@@ -336,9 +339,10 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         assert 'logout' in res.body, res.body
 
         # logout and login as user B
-        res = self.app.get('/user/logout')
+        res = self.app.get('/user/_logout')
         res2 = res.follow()
-        res2 = res2.follow()
+        while res2.status == 302:
+            res2 = res2.follow()
         assert 'You have logged out successfully.' in res2, res2
         offset = url_for(controller='user', action='login')
         res = self.app.get(offset)

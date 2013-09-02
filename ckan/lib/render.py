@@ -7,6 +7,10 @@ import ckan.lib.config as lib_config
 
 _template_info_cache = {}
 
+def reset_template_info_cache():
+    '''Reset the template cache'''
+    _template_info_cache.clear()
+
 def find_template(template_name):
     ''' looks through the possible template paths to find a template
     returns the full path is it exists. '''

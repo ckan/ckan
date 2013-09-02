@@ -20,8 +20,27 @@ DEFAULT_LOADABLE_IFRAME = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml',
 log = logging.getLogger(__name__)
 
 
+def direct():
+    ''' Directly embeddable formats.'''
+    direct_embed = config.get('ckan.preview.direct', '').split()
+    return direct_embed or DEFAULT_DIRECT_EMBED
+
+
+def loadable():
+    ''' Iframe loadable formats. '''
+    loadable_in_iframe = config.get('ckan.preview.loadable', '').split()
+    return loadable_in_iframe or DEFAULT_LOADABLE_IFRAME
+
+
+def res_format(resource):
+    ''' The assumed resource format in lower case. '''
+    if not resource['url']:
+        return None
+    return (resource['format'] or resource['url'].split('.')[-1]).lower()
+
+
 def compare_domains(urls):
-    ''' Return True if the domains of the provided are the same.
+    ''' Return True if the domains of the provided urls are the same.
     '''
     first_domain = None
     for url in urls:
@@ -52,12 +71,15 @@ def _on_same_domain(data_dict):
     return compare_domains([ckan_url, resource_url])
 
 
-def get_preview_plugin(data_dict):
+def get_preview_plugin(data_dict, return_first=False):
     '''Determines whether there is an extension that can preview the resource.
 
     :param data_dict: contains a resource and package dict.
         The resource dict has to have a value for ``on_same_domain``
     :type data_dict: dictionary
+
+    :param return_first: If True return the first plugin that can preview
+    :type return_first: bool
 
     Returns a dict of plugins that can preview or ones that are fixable'''
 
@@ -76,6 +98,8 @@ def get_preview_plugin(data_dict):
             p_info.update(data)
         # if we can preview
         if p_info['can_preview']:
+            if return_first:
+                plugin
             plugins_that_can_preview.append(p_info)
         elif p_info.get('fixable'):
             plugins_fixable.append(p_info)

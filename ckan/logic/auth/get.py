@@ -100,6 +100,8 @@ def package_show(context, data_dict):
         auth = new_authz.is_authorized('package_update',
                                        context, data_dict)
         authorized = auth.get('success')
+    elif package.owner_org is None and package.state == 'active':
+        return {'success': True}
     else:
         # anyone can see a public package
         if not package.private and package.state == 'active':
@@ -252,14 +254,17 @@ def followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
+@logic.auth_audit_exempt
 def user_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
+@logic.auth_audit_exempt
 def dataset_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
+@logic.auth_audit_exempt
 def group_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 

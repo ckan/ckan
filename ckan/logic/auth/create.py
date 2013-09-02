@@ -6,10 +6,12 @@ from ckan.common import _
 
 def package_create(context, data_dict=None):
     user = context['user']
-    if not new_authz.auth_is_registered_user():
+
+    if new_authz.auth_is_anon_user(context):
         check1 = new_authz.check_config_permission('anon_create_dataset')
     else:
         check1 = new_authz.check_config_permission('create_dataset_if_not_in_organization') \
+            or new_authz.check_config_permission('create_unowned_dataset') \
             or new_authz.has_user_permission_for_some_org(user, 'create_dataset')
 
     if not check1:
@@ -27,9 +29,10 @@ def package_create(context, data_dict=None):
         return {'success': False, 'msg': _('User %s not authorized to add dataset to this organization') % user}
     return {'success': True}
 
+
 def file_upload(context, data_dict=None):
     user = context['user']
-    if not new_authz.auth_is_registered_user():
+    if new_authz.auth_is_anon_user(context):
         return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
     return {'success': True}
 

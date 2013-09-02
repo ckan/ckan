@@ -17,8 +17,6 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IDatasetForm, inherit=True)
     plugins.implements(plugins.IGenshiStreamFilter)
 
-    active = False
-
     def is_fallback(self):
         return False
 
@@ -70,29 +68,25 @@ class MockVocabTagsPlugin(plugins.SingletonPlugin):
         })
         return schema
 
-    def set_active(self, state):
-        self.active = state
-
     def filter(self, stream):
-        if self.active:
-            routes = request.environ.get('pylons.routes_dict')
-            if routes.get('controller') == 'package' \
-                and routes.get('action') == 'read':
-                    # add vocab tags to the bottom of the page
-                    tags = c.pkg_dict.get('vocab_tags_selected', [])
-                    for tag in tags:
-                        stream = stream | Transformer('body')\
-                            .append(HTML('<p>%s</p>' % tag))
-            if routes.get('controller') == 'package' \
-                and routes.get('action') == 'edit':
-                    # add vocabs tag select box to edit page
-                    html = '<select id="vocab_tags" name="vocab_tags" size="60" multiple="multiple">'
-                    selected_tags = c.pkg_dict.get('vocab_tags_selected', [])
-                    for tag in c.vocab_tags:
-                        if tag in selected_tags:
-                            html += '<option selected="selected" value="%s">%s</option>' % (tag, tag)
-                        else:
-                            html += '<option value="%s">%s</option>' % (tag, tag)
-                    html += '</select>'
-                    stream = stream | Transformer('fieldset[@id="basic-information"]').append(HTML(html))
+        routes = request.environ.get('pylons.routes_dict')
+        if routes.get('controller') == 'package' \
+            and routes.get('action') == 'read':
+                # add vocab tags to the bottom of the page
+                tags = c.pkg_dict.get('vocab_tags_selected', [])
+                for tag in tags:
+                    stream = stream | Transformer('body')\
+                        .append(HTML('<p>%s</p>' % tag))
+        if routes.get('controller') == 'package' \
+            and routes.get('action') == 'edit':
+                # add vocabs tag select box to edit page
+                html = '<select id="vocab_tags" name="vocab_tags" size="60" multiple="multiple">'
+                selected_tags = c.pkg_dict.get('vocab_tags_selected', [])
+                for tag in c.vocab_tags:
+                    if tag in selected_tags:
+                        html += '<option selected="selected" value="%s">%s</option>' % (tag, tag)
+                    else:
+                        html += '<option value="%s">%s</option>' % (tag, tag)
+                html += '</select>'
+                stream = stream | Transformer('fieldset[@id="basic-information"]').append(HTML(html))
         return stream
