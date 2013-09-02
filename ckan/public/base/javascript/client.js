@@ -38,7 +38,7 @@
      *
      */
     call: function(type, path, data, fn, error) {
-      var url = this.url('/api/action/' + path);
+      var url = this.url('/action/' + path);
       var error = ( error == 'undefined' ) ? function() {} : error;
       var options = {
         contentType: 'application/json',
@@ -76,7 +76,7 @@
      * Returns a jqXHR promise object.
      */
     getTemplate: function (filename, params, success, error) {
-      var url = this.url('/api/1/util/snippet/' + encodeURIComponent(filename));
+      var url = this.url('/1/util/snippet/' + encodeURIComponent(filename));
 
       // Allow function to be called without params argument.
       if (typeof params === 'function') {
@@ -102,7 +102,7 @@
      * Returns a jQuery xhr promise.
      */
     getLocaleData: function (locale, success, error) {
-      var url = this.url('/api/i18n/' + (locale || ''));
+      var url = this.url('/i18n/' + (locale || ''));
       return jQuery.getJSON(url).then(success, error);
     },
 
@@ -260,7 +260,7 @@
       }
 
       return jQuery.ajax({
-        url: this.url('/api/storage/auth/form/' + key),
+        url: this.url('/storage/auth/form/' + key),
         success: success,
         error: error
       });
@@ -288,7 +288,7 @@
       }
 
       return jQuery.ajax({
-        url: this.url('/api/storage/metadata/' + key),
+        url: this.url('/storage/metadata/' + key),
         success: success,
         error: error
       });

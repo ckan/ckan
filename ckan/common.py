@@ -11,6 +11,13 @@ from pylons.i18n import _, ungettext
 from pylons import g, c, request, session, response
 import simplejson as json
 
+# importing a part of ckan here is bad as we risk recreating circular import
+# issues.  However the config is quite nice to be easily accessed and is
+# quite self contained code
+import ckan.lib.config_obj as _config_obj
+ckan_config = _config_obj.ckan_config
+del _config_obj
+
 try:
     from collections import OrderedDict  # from python 2.7
 except ImportError:

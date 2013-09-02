@@ -1,16 +1,16 @@
-from pylons import config
-
 import urllib
 import urllib2
+
+from ckan.common import ckan_config
 
 def check_recaptcha(request):
     '''Check a user\'s recaptcha submission is valid, and raise CaptchaError
     on failure.'''
-    recaptcha_private_key = config.get('ckan.recaptcha.privatekey', '')
+    recaptcha_private_key = ckan_config['ckan.recaptcha.privatekey']
     if not recaptcha_private_key:
         # Recaptcha not enabled
         return
-    
+
     client_ip_address = request.environ.get('REMOTE_ADDR', 'Unknown IP Address')
     recaptcha_challenge_field = request.params.get('recaptcha_challenge_field')
     recaptcha_response_field = request.params.get('recaptcha_response_field',
@@ -33,4 +33,3 @@ def check_recaptcha(request):
 
 class CaptchaError(ValueError):
     pass
-

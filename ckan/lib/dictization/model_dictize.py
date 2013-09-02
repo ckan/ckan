@@ -1,7 +1,6 @@
 import datetime
 import urlparse
 
-from pylons import config
 from sqlalchemy.sql import select
 
 import ckan.logic as logic
@@ -10,6 +9,8 @@ import ckan.lib.helpers as h
 import ckan.lib.dictization as d
 import ckan.new_authz as new_authz
 import ckan.lib.search as search
+
+from ckan.common import ckan_config
 
 ## package save
 
@@ -527,7 +528,7 @@ def package_to_api(pkg, context):
     dictized['ratings_count'] = len(pkg.ratings)
     dictized['notes_rendered'] = h.render_markdown(pkg.notes)
 
-    site_url = config.get('ckan.site_url', None)
+    site_url = ckan_config['ckan.site_url']
     if site_url:
         dictized['ckan_url'] = '%s/dataset/%s' % (site_url, pkg.name)
 

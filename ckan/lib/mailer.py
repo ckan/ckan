@@ -7,14 +7,11 @@ from email.header import Header
 from email import Utils
 from urlparse import urljoin
 
-from pylons import config
-import paste.deploy.converters
-
 import ckan
 import ckan.model as model
 import ckan.lib.helpers as h
 
-from ckan.common import _, g
+from ckan.common import _, g, ckan_config
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +26,7 @@ def add_msg_niceties(recipient_name, body, sender_name, sender_url):
 def _mail_recipient(recipient_name, recipient_email,
         sender_name, sender_url, subject,
         body, headers={}):
-    mail_from = config.get('smtp.mail_from')
+    mail_from = ckan_config['smtp.mail_from']
     body = add_msg_niceties(recipient_name, body, sender_name, sender_url)
     msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
     for k, v in headers.items(): msg[k] = v
@@ -43,19 +40,18 @@ def _mail_recipient(recipient_name, recipient_email,
 
     # Send the email using Python's smtplib.
     smtp_connection = smtplib.SMTP()
-    if 'smtp.test_server' in config:
+    if ckan_config['smtp.test_server']:
         # If 'smtp.test_server' is configured we assume we're running tests,
         # and don't use the smtp.server, starttls, user, password etc. options.
-        smtp_server = config['smtp.test_server']
+        smtp_server = ckan_config['smtp.test_server']
         smtp_starttls = False
         smtp_user = None
         smtp_password = None
     else:
-        smtp_server = config.get('smtp.server', 'localhost')
-        smtp_starttls = paste.deploy.converters.asbool(
-                config.get('smtp.starttls'))
-        smtp_user = config.get('smtp.user')
-        smtp_password = config.get('smtp.password')
+        smtp_server = ckan_config['smtp.server']
+        smtp_starttls = ckan_config['smtp.starttls']
+        smtp_user = ckan_config['smtp.user']
+        smtp_password = ckan_config['smtp.password']
     smtp_connection.connect(smtp_server)
     try:
         #smtp_connection.set_debuglevel(True)

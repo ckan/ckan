@@ -52,7 +52,7 @@ class AdminController(base.BaseController):
                 name = item['name']
                 app_globals.delete_global(name)
             # reset to values in config
-            app_globals.reset()
+            app_globals.reset_globals()
             h.redirect_to(controller='admin', action='config')
 
         return base.render('admin/confirm_reset.html')
@@ -67,7 +67,7 @@ class AdminController(base.BaseController):
                 name = item['name']
                 if name in data:
                     app_globals.set_global(name, data[name])
-            app_globals.reset()
+            app_globals.reset_globals()
             h.redirect_to(controller='admin', action='config')
 
         data = {}

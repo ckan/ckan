@@ -9,7 +9,7 @@ from ckan.tests.pylons_controller import PylonsTestCase
 from ckan.tests.mock_mail_server import SmtpServerHarness
 from ckan.lib.mailer import mail_recipient, mail_user, send_reset_link, add_msg_niceties, MailerException, get_reset_link_body, get_reset_link
 from ckan.lib.create_test_data import CreateTestData
-from ckan.lib.base import g
+from ckan.common import g, ckan_config
 
 class TestMailer(SmtpServerHarness, PylonsTestCase):
     @classmethod
@@ -19,6 +19,9 @@ class TestMailer(SmtpServerHarness, PylonsTestCase):
             host, port = smtp_server.split(':')
             port = int(port) + int(str(hashlib.md5(cls.__name__).hexdigest())[0], 16)
             config['smtp.test_server'] = '%s:%s' % (host, port)
+            ckan_config.store_for_tests()
+            ckan_config.update_for_tests({'smtp_test_server': '%s:%s' % (host, port)})
+
         CreateTestData.create_user(name='bob', email='bob@bob.net')
         CreateTestData.create_user(name='mary') #NB No email addr provided
         SmtpServerHarness.setup_class()
@@ -28,6 +31,7 @@ class TestMailer(SmtpServerHarness, PylonsTestCase):
     def teardown_class(cls):
         SmtpServerHarness.teardown_class()
         model.repo.rebuild_db()
+        ckan_config.restore_for_tests()
 
     def setup(self):
         self.clear_smtp_messages()

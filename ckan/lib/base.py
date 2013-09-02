@@ -30,14 +30,11 @@ import ckan.lib.maintain as maintain
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
 # plugins.toolkit for extensions.
-from ckan.common import json, _, ungettext, c, g, request, response
+from ckan.common import json, _, ungettext, c, g, request, response, ckan_config
 
 log = logging.getLogger(__name__)
 
 PAGINATE_ITEMS_PER_PAGE = 50
-
-APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
-APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
 ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
@@ -117,7 +114,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
             del globs['tmpl_context']
 
         log.debug('rendering %s [%s]' % (template_path, template_type))
-        if config.get('debug'):
+        if ckan_config['debug']:
             context_vars = globs.get('c')
             if context_vars:
                 context_vars = dir(context_vars)
@@ -186,7 +183,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     if allow_cache:
         response.headers["Cache-Control"] = "public"
         try:
-            cache_expire = int(config.get('ckan.cache_expires', 0))
+            cache_expire = ckan_config['ckan.cache_expires']
             response.headers["Cache-Control"] += \
                 ", max-age=%s, must-revalidate" % cache_expire
         except ValueError:
@@ -368,8 +365,7 @@ class BaseController(WSGIController):
             "X-CKAN-API-KEY, Authorization, Content-Type"
 
     def _get_user_for_apikey(self):
-        apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,
-                                        APIKEY_HEADER_NAME_DEFAULT)
+        apikey_header_name = ckan_config['apikey_header_name']
         apikey = request.headers.get(apikey_header_name, '')
         if not apikey:
             apikey = request.environ.get(apikey_header_name, '')

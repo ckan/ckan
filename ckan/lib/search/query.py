@@ -1,15 +1,15 @@
 import re
 import logging
 
-from pylons import config
 from solr import SolrException
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict
 
-from ckan.common import json
 from ckan.lib.search.common import make_connection, SearchError, SearchQueryError
 import ckan.logic as logic
 import ckan.model as model
+
+from ckan.common import json, ckan_config
 
 log = logging.getLogger(__name__)
 
@@ -250,7 +250,7 @@ class PackageSearchQuery(SearchQuery):
         Return a list of the IDs of all indexed packages.
         """
         query = "*:*"
-        fq = "+site_id:\"%s\" " % config.get('ckan.site_id')
+        fq = "+site_id:\"%s\" " % ckan_config['ckan.site_id']
         fq += "+state:active "
 
         conn = make_connection()
@@ -266,7 +266,7 @@ class PackageSearchQuery(SearchQuery):
             'rows': 1,
             'q': 'name:%s OR id:%s' % (reference,reference),
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id')}
+            'fq': 'site_id:"%s"' % ckan_config['ckan.site_id']}
 
         conn = make_connection()
         log.debug('Package query: %r' % query)
@@ -323,7 +323,7 @@ class PackageSearchQuery(SearchQuery):
         # show only results from this CKAN instance
         fq = query.get('fq', '')
         if not '+site_id:' in fq:
-            fq += ' +site_id:"%s"' % config.get('ckan.site_id')
+            fq += ' +site_id:"%s"' % ckan_config['ckan.site_id']
 
         # filter for package status
         if not '+state:' in fq:
@@ -335,7 +335,7 @@ class PackageSearchQuery(SearchQuery):
 
         # faceting
         query['facet'] = query.get('facet', 'true')
-        query['facet.limit'] = query.get('facet.limit', config.get('search.facets.limit', '50'))
+        query['facet.limit'] = query.get('facet.limit', ckan_config['search.facets.limit'])
         query['facet.mincount'] = query.get('facet.mincount', 1)
 
         # return the package ID and search scores

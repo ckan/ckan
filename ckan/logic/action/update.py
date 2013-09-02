@@ -4,9 +4,7 @@ import logging
 import datetime
 import json
 
-from pylons import config
 from vdm.sqlalchemy.base import SQLAlchemySession
-import paste.deploy.converters as converters
 
 import ckan.plugins as plugins
 import ckan.logic as logic
@@ -20,7 +18,7 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.email_notifications as email_notifications
 import ckan.lib.search as search
 
-from ckan.common import _, request
+from ckan.common import _, request, ckan_config
 
 log = logging.getLogger(__name__)
 
@@ -458,8 +456,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
     # when editing an org we do not want to update the packages if using the
     # new templates.
     if ((not is_org)
-            and not converters.asbool(
-                config.get('ckan.legacy_templates', False))
+            and not ckan_config['ckan.legacy_templates']
             and 'api_version' not in context):
         context['prevent_packages_update'] = True
     group = model_save.group_dict_save(data, context)
@@ -1020,10 +1017,9 @@ def send_email_notifications(context, data_dict):
     if not request.environ.get('paste.command_request'):
         _check_access('send_email_notifications', context, data_dict)
 
-    if not converters.asbool(
-            config.get('ckan.activity_streams_email_notifications')):
-        raise ValidationError('ckan.activity_streams_email_notifications'
-                              ' is not enabled in config')
+    if not ckan_config['ckan.activity_streams_email_notifications']:
+        raise logic.ParameterError('ckan.activity_streams_email_notifications'
+                ' is not enabled in config')
 
     email_notifications.get_and_send_notifications_for_all_users()
 
@@ -1119,7 +1115,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
             'q': q,
             'fl': 'data_dict',
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+            'fq': 'site_id:"%s"' % ckan_config['ckan.site_id'],
             'rows': BATCH_SIZE
         }
 

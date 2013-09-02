@@ -2,9 +2,6 @@
 
 import logging
 
-from pylons import config
-import paste.deploy.converters
-
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 import ckan.rating as ratings
@@ -16,7 +13,7 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 
-from ckan.common import _
+from ckan.common import _, ckan_config
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship
@@ -926,7 +923,6 @@ def activity_create(context, activity_dict, **kw):
     :rtype: dictionary
 
     '''
-
     # this action had a ignore_auth param which has been removed
     # removed in 2.2
     if 'ignore_auth' in kw:
@@ -934,8 +930,7 @@ def activity_create(context, activity_dict, **kw):
                         'ignore_auth must be passed in the context not as '
                         'a param')
 
-    if not paste.deploy.converters.asbool(
-            config.get('ckan.activity_streams_enabled', 'true')):
+    if not ckan_config['ckan.activity_streams_enabled']:
         return
 
     model = context['model']

@@ -2,9 +2,8 @@ import copy
 import formencode as fe
 import inspect
 import json
-from pylons import config
 
-from ckan.common import _
+from ckan.common import _, ckan_config
 
 class Missing(object):
     def __unicode__(self):
@@ -231,7 +230,7 @@ def validate(data, schema, context=None):
     converted_data = unflatten(converted_data)
 
     # check config for partial update fix option
-    if config.get('ckan.fix_partial_updates', True):
+    if ckan_config['ckan.fix_partial_updates']:
         # repopulate the empty lists
         for key in empty_lists:
             if key not in converted_data:

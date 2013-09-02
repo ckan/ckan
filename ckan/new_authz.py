@@ -2,11 +2,9 @@ import sys
 import re
 from logging import getLogger
 
-from pylons import config
-from paste.deploy.converters import asbool
-
 import ckan.plugins as p
 import ckan.model as model
+import ckan.lib.config as lib_config
 from ckan.common import OrderedDict, _, c
 
 import ckan.lib.maintain as maintain
@@ -308,33 +306,10 @@ def get_user_id_for_username(user_name, allow_none=False):
     raise Exception('Not logged in user')
 
 
-CONFIG_PERMISSIONS_DEFAULTS = {
-    # permission and default
-    # these are prefixed with ckan.auth. in config to override
-    'anon_create_dataset': False,
-    'create_dataset_if_not_in_organization': True,
-    'create_unowned_dataset': True,
-    'user_create_groups': True,
-    'user_create_organizations': True,
-    'user_delete_groups': True,
-    'user_delete_organizations': True,
-    'create_user_via_api': False,
-}
-
-CONFIG_PERMISSIONS = {}
-
-
 def check_config_permission(permission):
     ''' Returns the permission True/False based on config '''
-    # set up perms if not already done
-    if not CONFIG_PERMISSIONS:
-        for perm in CONFIG_PERMISSIONS_DEFAULTS:
-            key = 'ckan.auth.' + perm
-            default = CONFIG_PERMISSIONS_DEFAULTS[perm]
-            CONFIG_PERMISSIONS[perm] = asbool(config.get(key, default))
-    if permission in CONFIG_PERMISSIONS:
-        return CONFIG_PERMISSIONS[permission]
-    return False
+    return lib_config.get_config('auth_%s' % permission)
+
 
 @maintain.deprecated('Use auth_is_loggedin_user instead')
 def auth_is_registered_user():

@@ -5,8 +5,6 @@ import warnings
 import xml.dom.minidom
 import urllib2
 
-from pylons import config
-from paste.deploy.converters import asbool
 
 import ckan.model as model
 import ckan.plugins as p
@@ -17,6 +15,8 @@ from common import (SearchIndexError, SearchError, SearchQueryError,
 from index import PackageSearchIndex, NoopSearchIndex
 from query import (TagSearchQuery, ResourceSearchQuery, PackageSearchQuery,
                    QueryOptions, convert_legacy_parameters_to_solr)
+
+from ckan.common import ckan_config
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ def text_traceback():
         ).strip()
     return res
 
-SIMPLE_SEARCH = asbool(config.get('ckan.simple_search', False))
+SIMPLE_SEARCH = ckan_config['ckan.simple_search']
 
 SUPPORTED_SCHEMA_VERSIONS = ['2.0']
 

@@ -4,13 +4,10 @@ import logging
 import collections
 import json
 from dateutil.parser import parse
-
 import re
 
 import solr
 
-from pylons import config
-from paste.deploy.converters import asbool
 
 from common import SearchIndexError, make_connection
 from ckan.model import PackageRelationship
@@ -20,6 +17,8 @@ from ckan.plugins import (PluginImplementations,
 import ckan.logic as logic
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.navl.dictization_functions
+
+from ckan.common import ckan_config
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +47,7 @@ def escape_xml_illegal_chars(val, replacement=''):
 def clear_index():
     import solr.core
     conn = make_connection()
-    query = "+site_id:\"%s\"" % (config.get('ckan.site_id'))
+    query = "+site_id:\"%s\"" % ckan_config['ckan.site_id']
     try:
         conn.delete_query(query)
         conn.commit()
@@ -238,7 +237,7 @@ class PackageSearchIndex(SearchIndex):
         pkg_dict['metadata_modified'] += 'Z'
 
         # mark this CKAN instance as data source:
-        pkg_dict['site_id'] = config.get('ckan.site_id')
+        pkg_dict['site_id'] = ckan_config['ckan.site_id']
 
         # Strip a selection of the fields.
         # These fields are possible candidates for sorting search results on,
@@ -253,7 +252,7 @@ class PackageSearchIndex(SearchIndex):
 
         # add a unique index_id to avoid conflicts
         import hashlib
-        pkg_dict['index_id'] = hashlib.md5('%s%s' % (pkg_dict['id'],config.get('ckan.site_id'))).hexdigest()
+        pkg_dict['index_id'] = hashlib.md5('%s%s' % (pkg_dict['id'],ckan_config['ckan.site_id'])).hexdigest()
 
         for item in PluginImplementations(IPackageController):
             pkg_dict = item.before_index(pkg_dict)
@@ -264,7 +263,7 @@ class PackageSearchIndex(SearchIndex):
         try:
             conn = make_connection()
             commit = not defer_commit
-            if not asbool(config.get('ckan.search.solr_commit', 'true')):
+            if not ckan_config['ckan.search.solr_commit']:
                 commit = False
             conn.add_many([pkg_dict], _commit=commit)
         except solr.core.SolrException, e:
@@ -297,10 +296,10 @@ class PackageSearchIndex(SearchIndex):
         conn = make_connection()
         query = "+%s:%s (+id:\"%s\" OR +name:\"%s\") +site_id:\"%s\"" % (TYPE_FIELD, PACKAGE_TYPE,
                                                        pkg_dict.get('id'), pkg_dict.get('id'),
-                                                       config.get('ckan.site_id'))
+                                                       ckan_config['ckan.site_id'])
         try:
             conn.delete_query(query)
-            if asbool(config.get('ckan.search.solr_commit', 'true')):
+            if ckan_config['ckan.search.solr_commit']:
                 conn.commit()
         except Exception, e:
             log.exception(e)

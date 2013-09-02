@@ -1,18 +1,19 @@
 import ckan.tests as tests
 from ckan.logic import get_action
 import ckan.model as model
-import ckan.new_authz as new_authz
 import json
 
+from ckan.common import ckan_config
+
 INITIAL_TEST_CONFIG_PERMISSIONS = {
-    'anon_create_dataset': False,
-    'create_dataset_if_not_in_organization': False,
-    'user_create_groups': False,
-    'user_create_organizations': False,
-    'user_delete_groups': False,
-    'user_delete_organizations': False,
-    'create_user_via_api': False,
-    'create_unowned_dataset': False,
+    'auth_anon_create_dataset': False,
+    'auth_create_dataset_if_not_in_organization': False,
+    'auth_user_create_groups': False,
+    'auth_user_create_organizations': False,
+    'auth_user_delete_groups': False,
+    'auth_user_delete_organizations': False,
+    'auth_create_user_via_api': False,
+    'auth_create_unowned_dataset': False,
 }
 
 
@@ -25,19 +26,19 @@ class TestAuth(tests.WsgiAppCase):
         ## add apikeys as they go along
         cls.apikeys = {'sysadmin': admin_api, 'random_key': 'moo'}
 
-        cls.old_perm = new_authz.CONFIG_PERMISSIONS.copy()
-        new_authz.CONFIG_PERMISSIONS.update(INITIAL_TEST_CONFIG_PERMISSIONS)
+        ckan_config.store_for_tests()
+        ckan_config.update_for_tests(INITIAL_TEST_CONFIG_PERMISSIONS)
 
     @classmethod
     def teardown_class(cls):
-        new_authz.CONFIG_PERMISSIONS.update(cls.old_perm)
+        ckan_config.restore_for_tests()
         model.repo.rebuild_db()
 
     def _call_api(self, action, data, user, status=None):
         params = '%s=1' % json.dumps(data)
         return self.app.post('/api/action/%s' % action,
                              params=params,
-                             extra_environ={'Authorization': self.apikeys[user]},
+                             extra_environ={'Authorization': str(self.apikeys[user])},
                              status=status)
 
     def create_user(self, name):
@@ -192,6 +193,22 @@ class TestAuthOrgs(TestAuth):
 
 
 class TestAuthGroups(TestAuth):
+
+    @classmethod
+    def setup_class(cls):
+        admin_api = get_action('get_site_user')(
+            {'model': model, 'ignore_auth': True}, {})['apikey']
+        ## This is a mutable dict on the class level so tests can
+        ## add apikeys as they go along
+        cls.apikeys = {'sysadmin': admin_api, 'random_key': 'moo'}
+
+        ckan_config.store_for_tests()
+        ckan_config.update_for_tests(INITIAL_TEST_CONFIG_PERMISSIONS)
+
+    @classmethod
+    def teardown_class(cls):
+        ckan_config.restore_for_tests()
+        model.repo.rebuild_db()
 
     def test_01_create_groups(self):
         group = {'name': 'group_no_user'}

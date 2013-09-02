@@ -39,7 +39,7 @@ import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 
 from ckan.common import (
-    _, ungettext, g, c, request, session, json, OrderedDict
+    _, ungettext, g, c, request, session, json, OrderedDict, ckan_config
 )
 
 get_available_locales = i18n.get_available_locales
@@ -153,7 +153,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = _routes_default_url_for('/', qualified=True)[:-1]
     # ckan.root_path is defined when we have none standard language
     # position in the url
-    root_path = config.get('ckan.root_path', None)
+    root_path = ckan_config['ckan.root_path']
     if root_path:
         # FIXME this can be written better once the merge
         # into the ecportal core is done - Toby
@@ -741,7 +741,7 @@ _VALID_GRAVATAR_DEFAULTS = ['404', 'mm', 'identicon', 'monsterid',
 
 def gravatar(email_hash, size=100, default=None):
     if default is None:
-        default = config.get('ckan.gravatar_default', 'identicon')
+        default = ckan_config['ckan.gravatar_default']
 
     if not default in _VALID_GRAVATAR_DEFAULTS:
         # treat the default as a url
