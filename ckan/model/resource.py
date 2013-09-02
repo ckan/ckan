@@ -28,14 +28,15 @@ CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
                          'resource_type', 'mimetype', 'mimetype_inner',
                          'size', 'created', 'last_modified', 'cache_url',
                          'cache_last_updated', 'webstore_url',
-                         'webstore_last_updated']
-
+                         'webstore_last_updated', 'url_type']
 
 ##formally package_resource
 resource_table = Table(
     'resource', meta.metadata,
-    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
-    Column('resource_group_id', types.UnicodeText, ForeignKey('resource_group.id')),
+    Column('id', types.UnicodeText, primary_key=True,
+           default=_types.make_uuid),
+    Column('resource_group_id', types.UnicodeText,
+           ForeignKey('resource_group.id')),
     Column('url', types.UnicodeText, nullable=False),
     Column('format', types.UnicodeText),
     Column('description', types.UnicodeText),
@@ -53,30 +54,34 @@ resource_table = Table(
     Column('cache_last_updated', types.DateTime),
     Column('webstore_url', types.UnicodeText),
     Column('webstore_last_updated', types.DateTime),
-    
+    Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
-    )
+)
 
 resource_group_table = Table(
     'resource_group', meta.metadata,
-    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column('id', types.UnicodeText, primary_key=True,
+           default=_types.make_uuid),
     Column('package_id', types.UnicodeText, ForeignKey('package.id')),
     Column('label', types.UnicodeText),
     Column('sort_order', types.UnicodeText),
     Column('extras', _types.JsonDictType),
-    )
+)
 
 vdm.sqlalchemy.make_table_stateful(resource_table)
 resource_revision_table = core.make_revisioned_table(resource_table)
 
 vdm.sqlalchemy.make_table_stateful(resource_group_table)
-resource_group_revision_table = core.make_revisioned_table(resource_group_table)
+resource_group_revision_table = core.make_revisioned_table(
+    resource_group_table)
+
 
 class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
                vdm.sqlalchemy.StatefulObjectMixin,
                domain_object.DomainObject):
     extra_columns = None
-    def __init__(self, resource_group_id=None, url=u'', 
+
+    def __init__(self, resource_group_id=None, url=u'',
                  format=u'', description=u'', hash=u'',
                  extras=None,
                  **kwargs):
@@ -122,18 +127,26 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict[u'format'] = model_dictize._unified_resource_format(self.format)
         return _dict
 
+    def get_package_id(self):
+        '''Returns the package id for a resource. '''
+        query = meta.Session.query(ResourceGroupRevision) \
+            .filter(and_(ResourceGroupRevision.id == self.resource_group_id,
+                         ResourceGroupRevision.state == u'active',
+                         ResourceGroupRevision.current == True))
+        resource_group = query.first()
+        if resource_group is None:
+            return None
+        return resource_group.package_id
+
     @classmethod
     def get(cls, reference):
         '''Returns a resource object referenced by its name or id.'''
-        query = meta.Session.query(ResourceRevision).filter(ResourceRevision.id==reference)
-        query = query.filter(and_(
-            ResourceRevision.state == u'active', ResourceRevision.current == True
-        ))
+        query = meta.Session.query(Resource).filter(Resource.id == reference)
         resource = query.first()
-        if resource == None:
-            resource = cls.by_name(reference)            
+        if resource is None:
+            resource = cls.by_name(reference)
         return resource
-        
+
     @classmethod
     def get_columns(cls, extra_columns=True):
         '''Returns the core editable columns of the resource.'''
@@ -145,7 +158,8 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get_extra_columns(cls):
         if cls.extra_columns is None:
-            cls.extra_columns = config.get('ckan.extra_resource_fields', '').split()
+            cls.extra_columns = config.get(
+                'ckan.extra_resource_fields', '').split()
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
@@ -164,14 +178,17 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
             activity_type = 'deleted'
 
         res_dict = ckan.lib.dictization.table_dictize(self,
-                context={'model':model})
-        return activity.ActivityDetail(activity_id, self.id, u"Resource", activity_type,
-                {'resource': res_dict})
+                                                      context={'model': model})
+        return activity.ActivityDetail(activity_id, self.id, u"Resource",
+                                       activity_type,
+                                       {'resource': res_dict})
+
 
 class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
-               vdm.sqlalchemy.StatefulObjectMixin,
-               domain_object.DomainObject):
+                    vdm.sqlalchemy.StatefulObjectMixin,
+                    domain_object.DomainObject):
     extra_columns = None
+
     def __init__(self, package_id=None, sort_order=u'', label=u'',
                  extras=None, **kwargs):
         if package_id:
@@ -198,7 +215,7 @@ class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
         for k, v in self.extras.items() if self.extras else []:
             _dict[k] = v
         return _dict
-        
+
     @classmethod
     def get_columns(cls, extra_columns=True):
         '''Returns the core editable columns of the resource.'''
@@ -210,16 +227,17 @@ class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get_extra_columns(cls):
         if cls.extra_columns is None:
-            cls.extra_columns = config.get('ckan.extra_resource_group_fields', '').split()
+            cls.extra_columns = config.get(
+                'ckan.extra_resource_group_fields', '').split()
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
-    
 
-## Mappers
+        ## Mappers
 
 meta.mapper(Resource, resource_table, properties={
-    'resource_group':orm.relation(ResourceGroup,
+    'resource_group': orm.relation(
+        ResourceGroup,
         # all resources including deleted
         # formally package_resources_all
         backref=orm.backref('resources_all',
@@ -227,28 +245,28 @@ meta.mapper(Resource, resource_table, properties={
                             cascade='all, delete',
                             order_by=resource_table.c.position,
                             ),
-                       )
-    },
-    order_by=[resource_table.c.resource_group_id],
-    extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
-               extension.PluginMapperExtension(),
-               ],
+    )
+},
+order_by=[resource_table.c.resource_group_id],
+extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
+           extension.PluginMapperExtension(),
+           ],
 )
 
-
 meta.mapper(ResourceGroup, resource_group_table, properties={
-    'package':orm.relation(_package.Package,
+    'package': orm.relation(
+        _package.Package,
         # all resources including deleted
         backref=orm.backref('resource_groups_all',
                             cascade='all, delete, delete-orphan',
                             order_by=resource_group_table.c.sort_order,
                             ),
-                       )
-    },
-    order_by=[resource_group_table.c.package_id],
-    extension=[vdm.sqlalchemy.Revisioner(resource_group_revision_table),
-               extension.PluginMapperExtension(),
-               ],
+    )
+},
+order_by=[resource_group_table.c.package_id],
+extension=[vdm.sqlalchemy.Revisioner(resource_group_revision_table),
+           extension.PluginMapperExtension(),
+           ],
 )
 
 ## VDM
@@ -256,16 +274,23 @@ meta.mapper(ResourceGroup, resource_group_table, properties={
 vdm.sqlalchemy.modify_base_object_mapper(Resource, core.Revision, core.State)
 ResourceRevision = vdm.sqlalchemy.create_object_version(
     meta.mapper, Resource, resource_revision_table)
-    
-vdm.sqlalchemy.modify_base_object_mapper(ResourceGroup, core.Revision, core.State)
+
+vdm.sqlalchemy.modify_base_object_mapper(ResourceGroup, core.Revision,
+                                         core.State)
 ResourceGroupRevision = vdm.sqlalchemy.create_object_version(
     meta.mapper, ResourceGroup, resource_group_revision_table)
 
-ResourceGroupRevision.related_packages = lambda self: [self.continuity.package]
-ResourceRevision.related_packages = lambda self: [self.continuity.resouce_group.package]
+ResourceGroupRevision.related_packages = lambda self: [
+    self.continuity.package
+]
+ResourceRevision.related_packages = lambda self: [
+    self.continuity.resouce_group.package
+]
+
 
 def resource_identifier(obj):
     return obj.id
+
 
 class DictProxy(object):
 
@@ -296,5 +321,3 @@ class DictProxy(object):
 
         proxied_dict = getattr(obj, self.target_dict)
         proxied_dict.pop(self.target_key)
-
-

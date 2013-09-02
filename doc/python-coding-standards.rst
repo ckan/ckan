@@ -1,5 +1,5 @@
 =======================
-Python Coding Standards
+Python coding standards
 =======================
 
 For Python code style follow `PEP 8`_ plus the guidelines below.
@@ -12,15 +12,7 @@ Some good links about Python code style:
 - `Google Python Style Guide <http://google-styleguide.googlecode.com/svn/trunk/pyguide.html>`_
 
 
-Commit Formatting Cleanups on master
-------------------------------------
-
-Clean up formatting and PEP 8 issues on master, not on a feature branch.
-Unless of course you're changing that piece of code anyway.  This will help
-avoid spurious merge conflicts, and aid in reading pull requests.
-
-
-Use Single Quotes
+Use single quotes
 -----------------
 
 Use single-quotes for string literals, e.g. ``'my-identifier'``, *but* use
@@ -61,6 +53,17 @@ Imports
 Logging
 -------
 
+We use `the Python standard library's logging module <http://docs.python.org/2.6/library/logging.html>`_
+to log messages in CKAN, e.g.::
+
+    import logging
+    ...
+    logger = logging.getLogger(__name__)
+    ...
+    logger.debug('some debug message')
+
+When logging:
+
 - Keep log messages short.
 
 - Don't include object representations in the log message.  It *is* useful
@@ -71,10 +74,10 @@ Logging
 
 .. _Python's Logging HOWTO: http://docs.python.org/2/howto/logging.html
 
-String Formatting
+String formatting
 ------------------
 
-Don't use the old `%s` style string formatting, e.g. ``"i am a %s" % sub``.
+Don't use the old ``%s`` style string formatting, e.g. ``"i am a %s" % sub``.
 This kind of string formatting is not helpful for internationalization and is
 going away in Python 3.
 
@@ -100,9 +103,10 @@ as it changes over time. So:
 
 - All modules and all public functions, classes and methods exported by a
   module should normally have docstrings (see `PEP 257`_).
-- Keep docstrings short, describe only what's necessary and no more,
+- Keep docstrings short, describe only what's necessary and no more.
 - Keep docstrings simple: use plain, concise English.
 - Try to avoid repetition.
+
 
 PEP 257 (Docstring Conventions)
 ```````````````````````````````
@@ -115,10 +119,130 @@ CKAN docstrings deviate from PEP 257 in a couple of ways:
 - We use ``'''triple single quotes'''`` around docstrings, not ``"""triple
   double quotes"""`` (put triple single quotes around one-line docstrings as
   well as multi-line ones, it makes them easier to expand later)
+- We use Sphinx domain object cross-references to cross-reference to other
+  code objects (see below)
 - We use Sphinx directives for documenting parameters, exceptions and return
   values (see below)
 
-Sphinx Field Lists
+
+.. _Referencing other code objects:
+
+Referencing other code objects with ``:py:``
+--------------------------------------------
+
+If you want to refer to another Python or JavaScript module, function or class
+etc. in a docstring (or from a ``.rst`` file), use `Sphinx domain object
+cross-references
+<http://sphinx-doc.org/domains.html#cross-referencing-python-objects>`_, for
+example::
+
+    See :py:mod:`ckan.lib.helpers`.
+
+    See :py:func:`ckan.logic.action.create.package_create`.
+
+    See :py:class:`ckan.logic.NotFound`.
+
+For the full list of types of cross-reference,  see the
+`Sphinx docs <http://sphinx-doc.org/domains.html#cross-referencing-python-objects>`_.
+
+
+.. note::
+
+   These kinds of cross-references can also be used to reference other types
+   of object besides Python objects, for example `JavaScript objects <http://sphinx-doc.org/domains.html#the-javascript-domain>`_
+   or even command-line scripts and options and environment variables. See
+   `the Sphinx docs <http://sphinx-doc.org/domains.html>`_ for the full
+   details.
+
+
+Cross-referencing objects like this means that Sphinx will style the reference
+with the right CSS, and hyperlink the reference to the docs for the referenced
+object. Sphinx can also generate error messages when non-existent objects are
+referenced, which helps to keep the docs up to date as the code changes.
+
+.. tip::
+
+   Sphinx will render a cross-reference like
+   ``:py:func:`ckan.logic.action.create.package_create``` as the full name of
+   the function: :py:func:`ckan.logic.action.create.package_create`. If you want the
+   docs to contain only the local name of the function (e.g. just
+   :py:func:`~ckan.logic.action.create.package_create`), put a ``~`` at the
+   start::
+
+    :py:func:`~ckan.logic.action.create.package_create`
+
+   (But you should always use the fully qualified name in your docstring or
+   ``*.rst`` file.)
+
+
+Documenting exceptions raised with ``:raises``
+``````````````````````````````````````````````
+
+There are a few guidelines that CKAN code should follow regarding exceptions:
+
+1. **All public functions that CKAN exports for third-party code to use
+   should document any exceptions they raise**. See below for how to document
+   exceptions raised.
+
+   For example the template helper functions in :py:mod:`ckan.lib.helpers`,
+   anything imported into :py:mod:`ckan.plugins.toolkit`, and all of the
+   action API functions defined in :py:mod:`ckan.logic.action`, should list
+   exceptions raised in their docstrings.
+
+   This is because CKAN themes, extensions and API clients need to be able to
+   call CKAN code without crashing, so they need to know what exceptions they
+   should handle (and extension developers shouldn't have to understand the
+   CKAN core source code).
+
+2. On the other hand, **internal functions that are only used within CKAN
+   shouldn't list exceptions in their docstrings**.
+
+   This is because it would be difficult to keep all the exception lists up to
+   date with the actual code behaviour, so the docstrings would become more
+   misleading than useful.
+
+3. **Code should only raise exceptions from within its allowed set**.
+
+   Each module in CKAN has a set of zero or more exceptions, defined somewhere
+   near the module, that code in that module is allowed to raise. For example
+   ``ckan/logic/__init__.py`` defines a number of exception types for code
+   in ``ckan/logic/`` to use. CKAN code should never raise exceptions types
+   defined elsewhere in CKAN, in third-party code or in the Python standard
+   library.
+
+4. **All code should catch any exceptions raised by called functions**, and
+   either handle the exception, re-raise the exception (if it's from the code's
+   set of allowed exception types), or wrap the exception in an allowed
+   exception type and re-raise it.
+
+   This is to make it easy for a CKAN core developer to look at the source code
+   of an internal function, scan it for the keyword ``raise``, and see what
+   types of exception the function may raise, so they know what exceptions they
+   need to catch if they're going to call the function. Developers shouldn't
+   have to read the source of all the functions that a function calls (and
+   the functions they call...) to find out what exceptions they needs to catch
+   to call a function without crashing.
+
+.. todo::
+
+   Insert examples of how to re-raise and how to wrap-and-re-raise an
+   exception.
+
+Use ``:raises:`` to document exceptions raised by public functions. The
+docstring should say what type of exception is raised and under what
+conditions. Use ``:py:class:`` to reference exception types. For example::
+
+    def member_list(context, data_dict=None):
+        '''Return the members of a group.
+
+        ... (parameters and return values documented here) ...
+
+        :raises: :py:class:`ckan.logic.NotFound`: if the group doesn't exist
+
+        '''
+
+
+Sphinx field lists
 ``````````````````
 
 Use `Sphinx field lists`_ for documenting the parameters, exceptions and
@@ -163,7 +287,6 @@ Example of a longer docstring:
 
         '''
 
-
 The phrases that follow ``:param foo:``, ``:type foo:``, or ``:returns:``
 should not start with capital letters or end with full stops. These should be
 short phrases and not full sentences. If more detail is required put it in the
@@ -182,7 +305,7 @@ You can also use a little inline `reStructuredText markup`_ in docstrings, e.g.
 
 .. _Action API Docstrings:
 
-Action API Docstrings
+Action API docstrings
 `````````````````````
 
 Docstrings from CKAN's action API are processed with `autodoc`_ and
@@ -231,7 +354,7 @@ Example of a ckan.logic.action API docstring:
 .. _Autodoc: http://sphinx.pocoo.org/ext/autodoc.html
 
 
-Some Helpful Tools for Python Code Quality
+Some helpful tools for Python code quality
 ------------------------------------------
 
 There are various tools that can help you to check your Python code for PEP8

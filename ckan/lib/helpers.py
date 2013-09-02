@@ -48,6 +48,28 @@ get_locales_dict = i18n.get_locales_dict
 log = logging.getLogger(__name__)
 
 
+def _datestamp_to_datetime(datetime_):
+    ''' Converts a datestamp to a datetime.  If a datetime is provided it
+    just gets returned.
+
+    :param datetime_: the timestamp
+    :type datetime_: string or datetime
+
+    :rtype: datetime
+    '''
+    if isinstance(datetime_, basestring):
+        try:
+            datetime_ = date_str_to_datetime(datetime_)
+        except TypeError:
+            return None
+        except ValueError:
+            return None
+    # check we are now a datetime
+    if not isinstance(datetime_, datetime.datetime):
+        return None
+    return datetime_
+
+
 def redirect_to(*args, **kw):
     '''A routes.redirect_to wrapper to retain the i18n settings'''
     kw['__ckan_no_root'] = True
@@ -780,26 +802,28 @@ class Page(paginate.Page):
 
 
 def render_datetime(datetime_, date_format=None, with_hours=False):
-    '''Render a datetime object or timestamp string as a pretty string
-    (Y-m-d H:m).
+    '''Render a datetime object or timestamp string as a localised date or
+    in the requested format.
     If timestamp is badly formatted, then a blank string is returned.
+
+    :param datetime_: the date
+    :type datetime_: datetime or ISO string format
+    :param date_format: a date format
+    :type date_format: string
+    :param with_hours: should the `hours:mins` be shown
+    :type with_hours: bool
+
+    :rtype: string
     '''
-    if not date_format:
-        date_format = '%b %d, %Y'
-        if with_hours:
-            date_format += ', %H:%M'
-    if isinstance(datetime_, datetime.datetime):
-        return datetime_.strftime(date_format)
-    elif isinstance(datetime_, basestring):
-        try:
-            datetime_ = date_str_to_datetime(datetime_)
-        except TypeError:
-            return ''
-        except ValueError:
-            return ''
-        return datetime_.strftime(date_format)
-    else:
+    datetime_ = _datestamp_to_datetime(datetime_)
+    if not datetime_:
         return ''
+    # if date_format was supplied we use it
+    if date_format:
+        return datetime_.strftime(date_format)
+    # the localised date
+    return formatters.localised_nice_date(datetime_, show_date=True,
+                                          with_hours=with_hours)
 
 
 def date_str_to_datetime(date_str):
@@ -901,13 +925,31 @@ class _RFC2282TzInfo(datetime.tzinfo):
     def tzname(self, dt):
         return None
 
-
+@maintain.deprecated('h.time_ago_in_words_from_str is deprecated in 2.2 '
+                     'and will be removed.  Please use '
+                     'h.time_ago_from_timestamp instead')
 def time_ago_in_words_from_str(date_str, granularity='month'):
+    '''Deprecated in 2.2 use time_ago_from_timestamp'''
     if date_str:
         return date.time_ago_in_words(date_str_to_datetime(date_str),
                                       granularity=granularity)
     else:
         return _('Unknown')
+
+
+def time_ago_from_timestamp(timestamp):
+    ''' Returns a string like `5 months ago` for a datetime relative to now
+    :param timestamp: the timestamp or datetime
+    :type timestamp: string or datetime
+
+    :rtype: string
+    '''
+    datetime_ = _datestamp_to_datetime(timestamp)
+    if not datetime_:
+        return _('Unknown')
+
+    # the localised date
+    return formatters.localised_nice_date(datetime_, show_date=False)
 
 
 def button_attr(enable, type='primary'):
@@ -1269,18 +1311,24 @@ def popular(type_, number, min=1, title=None):
     return snippet('snippets/popular.html', title=title, number=number, min=min)
 
 
-def groups_available():
-    ''' return a list of available groups '''
-    context = {'model': model, 'session': model.Session,
-               'user': c.user or c.author}
-    data_dict = {'available_only': True}
+def groups_available(am_member=False):
+    '''Return a list of the groups that the user is authorized to edit.
+
+    :param am_member: if True return only the groups the logged-in user is a
+      member of, otherwise return all groups that the user is authorized to
+      edit (for example, sysadmin users are authorized to edit all groups)
+      (optional, default: False)
+    :type am-member: boolean
+
+    '''
+    context = {}
+    data_dict = {'available_only': True, 'am_member': am_member}
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
 def organizations_available(permission='edit_group'):
     ''' return a list of available organizations '''
-    context = {'model': model, 'session': model.Session,
-               'user': c.user}
+    context = {'user': c.user}
     data_dict = {'permission': permission}
     return logic.get_action('organization_list_for_user')(context, data_dict)
 
@@ -1568,6 +1616,19 @@ localised_SI_number = formatters.localised_SI_number
 localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
 
+def new_activities():
+    '''Return the number of activities for the current user.
+
+    See :func:`logic.action.get.dashboard_new_activities_count` for more
+    details.
+
+    '''
+    if not c.userobj:
+        return None
+    action = logic.get_action('dashboard_new_activities_count')
+    return action({}, {})
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1652,6 +1713,8 @@ __allowed_functions__ = [
     'localised_nice_date',
     'localised_filesize',
     'list_dict_filter',
+    'new_activities',
+    'time_ago_from_timestamp',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',

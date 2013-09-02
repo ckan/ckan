@@ -48,7 +48,9 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_name_exists,
                                    role_exists,
                                    url_validator,
-                                   list_of_strings)
+                                   datasets_with_no_organization_cannot_be_private,
+                                   list_of_strings,
+                                   )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,)
@@ -72,6 +74,7 @@ def default_resource_schema():
         'revision_timestamp': [ignore],
         'name': [ignore_missing, unicode],
         'resource_type': [ignore_missing, unicode],
+        'url_type': [ignore_missing, unicode],
         'mimetype': [ignore_missing, unicode],
         'mimetype_inner': [ignore_missing, unicode],
         'webstore_url': [ignore_missing, unicode],
@@ -137,7 +140,8 @@ def default_create_package_schema():
         'type': [ignore_missing, unicode],
         'owner_org': [owner_org_validator, unicode],
         'log_message': [ignore_missing, unicode, no_http],
-        'private': [ignore_missing, boolean_validator],
+        'private': [ignore_missing, boolean_validator,
+            datasets_with_no_organization_cannot_be_private],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),
@@ -207,6 +211,7 @@ def default_show_package_schema():
         'webstore_url': [],
         'mimetype_inner': [],
         'resource_type': [],
+        'url_type': [],
     })
 
     schema.update({
@@ -235,6 +240,7 @@ def default_show_package_schema():
     # validation doesn't strip the keys from the package dicts.
     schema['metadata_created'] = []
     schema['metadata_modified'] = []
+    schema['creator_user_id'] = []
     schema['num_resources'] = []
     schema['num_tags'] = []
     schema['organization'] = []

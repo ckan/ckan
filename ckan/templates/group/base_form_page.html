@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-    <h1 class="hide-heading">{% block page_heading %}{{ _('Group Form') }}{% endblock %}</h1>
+    <h1 class="{% block page_heading_class %}page-heading{% endblock %}">{% block page_heading %}{{ _('Group Form') }}{% endblock %}</h1>
     {% block form %}
       {{ c.form | safe }}
     {% endblock %}

@@ -66,7 +66,7 @@ describe('ckan.module.CustomFieldsModule()', function () {
 
       this.module.newField();
 
-      assert.ok(jQuery.contains(this.module.el, element));
+      assert.ok(jQuery.contains(this.module.el[0], element));
     });
   });
 

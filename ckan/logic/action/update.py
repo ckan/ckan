@@ -167,12 +167,12 @@ def related_update(context, data_dict):
     activity_create_context = {
         'model': model,
         'user': context['user'],
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
 
-    _get_action('activity_create')(activity_create_context, activity_dict,
-                                   ignore_auth=True)
+    _get_action('activity_create')(activity_create_context, activity_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -207,31 +207,26 @@ def resource_update(context, data_dict):
         raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
+    del context["resource"]
 
-    if 'schema' in context:
-        schema = context['schema']
+    package_id = resource.resource_group.package.id
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+
+    for n, p in enumerate(pkg_dict['resources']):
+        if p['id'] == id:
+            break
     else:
-        package_plugin = lib_plugins.lookup_package_plugin(
-            resource.resource_group.package.type)
-        schema = package_plugin.update_package_schema()['resources']
+        logging.error('Could not find resource ' + id)
+        raise NotFound(_('Resource was not found.'))
+    pkg_dict['resources'][n] = data_dict
 
-    data, errors = _validate(data_dict, schema, context)
-    if errors:
-        model.Session.rollback()
+    try:
+        pkg_dict = _get_action('package_update')(context, pkg_dict)
+    except ValidationError, e:
+        errors = e.error_dict['resources'][n]
         raise ValidationError(errors)
 
-    rev = model.repo.new_revision()
-    rev.author = user
-    if 'message' in context:
-        rev.message = context['message']
-    else:
-        rev.message = _(u'REST API: Update object %s') % data.get("name", "")
-
-    resource = model_save.resource_dict_save(data, context)
-    if not context.get('defer_commit'):
-        model.repo.commit()
-    return model_dictize.resource_dictize(resource, context)
-
+    return pkg_dict['resources'][n]
 
 
 def package_update(context, data_dict):
@@ -303,6 +298,11 @@ def package_update(context, data_dict):
         rev.message = context['message']
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
+
+    #avoid revisionioning by updating directly
+    model.Session.query(model.Package).filter_by(id=pkg.id).update(
+        {"metadata_modified": datetime.datetime.utcnow()})
+    model.Session.refresh(pkg)
 
     pkg = model_save.package_dict_save(data, context)
 
@@ -520,11 +520,11 @@ def _group_or_org_update(context, data_dict, is_org=False):
         activity_create_context = {
             'model': model,
             'user': user,
-            'defer_commit':True,
+            'defer_commit': True,
+            'ignore_auth': True,
             'session': session
         }
-        _get_action('activity_create')(activity_create_context, activity_dict,
-                ignore_auth=True)
+        _get_action('activity_create')(activity_create_context, activity_dict)
         # TODO: Also create an activity detail recording what exactly changed
         # in the group.
 
@@ -611,10 +611,11 @@ def user_update(context, data_dict):
     activity_create_context = {
         'model': model,
         'user': user,
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
-    _get_action('activity_create')(activity_create_context, activity_dict, ignore_auth=True)
+    _get_action('activity_create')(activity_create_context, activity_dict)
     # TODO: Also create an activity detail recording what exactly changed in
     # the user.
 
@@ -772,8 +773,9 @@ def term_translation_update_many(context, data_dict):
 
     context['defer_commit'] = True
 
+    action = _get_action('term_translation_update')
     for num, row in enumerate(data_dict['data']):
-        term_translation_update(context, row)
+        action(context, row)
 
     model.Session.commit()
 

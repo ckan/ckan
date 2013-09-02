@@ -1,4 +1,4 @@
-{% extends "group/read_base.html" %}
+{% extends "page.html" %}
 
 {% set group = c.group_dict %}
 
@@ -17,4 +17,8 @@
 {% block content_primary_nav %}
   {{ h.build_nav_icon('group_edit', _('Edit'), id=c.group_dict.name) }}
   {{ h.build_nav_icon('group_members', _('Members'), id=c.group_dict.name) }}
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet "group/snippets/info.html", group=c.group_dict, show_nums=false %}
 {% endblock %}
