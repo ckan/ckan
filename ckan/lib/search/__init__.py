@@ -8,9 +8,11 @@ import urllib2
 from pylons import config
 from paste.deploy.converters import asbool
 
+import ckan
 import ckan.model as model
 import ckan.plugins as p
 import ckan.logic as logic
+import ckan.lib.util as util
 
 from common import (SearchIndexError, SearchError, SearchQueryError,
                     make_connection, is_available, SolrSettings)
@@ -31,8 +33,6 @@ def text_traceback():
     return res
 
 SIMPLE_SEARCH = asbool(config.get('ckan.simple_search', False))
-
-SUPPORTED_SCHEMA_VERSIONS = ['2.0']
 
 DEFAULT_OPTIONS = {
     'limit': 20,
@@ -300,8 +300,12 @@ def check_solr_schema_version(schema_file=None):
         raise SearchError('Could not extract version info from the SOLR'
                           ' schema, using file: \n%s' % url)
 
-    if not version in SUPPORTED_SCHEMA_VERSIONS:
-        raise SearchError('SOLR schema version not supported: %s. Supported'
-                          ' versions are [%s]'
-                          % (version, ', '.join(SUPPORTED_SCHEMA_VERSIONS)))
+    # The solr version must equal or higher.  We allow solr schemas that are
+    # later versions than the ckan version so that it does not cause
+    # problems for developers working on multiple ckan versions.
+    ckan_version = util.version_str_2_list(ckan.__version__)
+    if util.version_str_2_list(version) < ckan_version:
+        raise SearchError('SOLR schema version not supported: %s. '
+                          'Please Upgrade to %s'
+                          % (version, '.'.join(map(str, ckan_version))))
     return True

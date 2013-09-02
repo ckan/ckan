@@ -1,9 +1,11 @@
 import inspect
 import os
-import re
 
 import paste.deploy.converters as converters
 import webhelpers.html.tags
+
+import ckan.lib.util as util
+
 
 __all__ = ['toolkit']
 
@@ -190,23 +192,16 @@ class _Toolkit(object):
         ckan.lib.fanstatic_resources.create_library(name, absolute_path)
 
     @classmethod
-    def _version_str_2_list(cls, v_str):
-        ''' convert a version string into a list of ints
-        eg 1.6.1b --> [1, 6, 1] '''
-        v_str = re.sub(r'[^0-9.]', '', v_str)
-        return [int(part) for part in v_str.split('.')]
-
-    @classmethod
     def _check_ckan_version(cls, min_version=None, max_version=None):
         ''' Check that the ckan version is correct for the plugin. '''
-        current = cls._version_str_2_list(cls.ckan.__version__)
+        current = util.version_str_2_list(cls.ckan.__version__)
 
         if min_version:
-            min_required = cls._version_str_2_list(min_version)
+            min_required = util.version_str_2_list(min_version)
             if current < min_required:
                 return False
         if max_version:
-            max_required = cls._version_str_2_list(max_version)
+            max_required = util.version_str_2_list(max_version)
             if current > max_required:
                 return False
         return True
