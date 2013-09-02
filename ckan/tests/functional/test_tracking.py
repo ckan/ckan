@@ -3,6 +3,7 @@
 import tempfile
 import csv
 import datetime
+import routes
 
 import ckan.tests as tests
 
@@ -138,8 +139,6 @@ class TestTracking(object):
                 "been viewed should have 0 total views")
 
     def test_package_with_one_view(self):
-        import routes
-
         app = self._get_app()
         sysadmin_user, apikey = self._create_sysadmin(app)
         package = self._create_package(app, apikey)
@@ -167,8 +166,6 @@ class TestTracking(object):
                 "not increase the total views of the package's resources")
 
     def test_resource_with_one_preview(self):
-        import routes
-
         app = self._get_app()
         sysadmin_user, apikey = self._create_sysadmin(app)
         package = self._create_package(app, apikey)
@@ -254,8 +251,6 @@ class TestTracking(object):
                     "page is always 0")
 
     def test_package_with_many_views(self):
-        import routes
-
         app = self._get_app()
         sysadmin_user, apikey = self._create_sysadmin(app)
         package = self._create_package(app, apikey)
@@ -361,8 +356,6 @@ class TestTracking(object):
         day, only one view should get counted.
 
         '''
-        import routes
-
         app = self._get_app()
         sysadmin_user, apikey = self._create_sysadmin(app)
         package = self._create_package(app, apikey)
@@ -412,7 +405,6 @@ class TestTracking(object):
     def test_sorting_datasets_by_recent_views(self):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
-        import routes
         import ckan.lib.search
 
         tests.setup_test_search_index()
@@ -453,7 +445,6 @@ class TestTracking(object):
     def test_sorting_datasets_by_total_views(self):
         # FIXME: Have some datasets with different numbers of recent and total
         # views, to make this a better test.
-        import routes
         import ckan.lib.search
 
         tests.setup_test_search_index()
@@ -546,15 +537,48 @@ class TestTracking(object):
         import ckan.model
         f = tempfile.NamedTemporaryFile()
         ckan.lib.cli.Tracking('Tracking').export_tracking(
-                engine=ckan.model.meta.engine, output_filename=f.name)
-        lines = csv.DictReader(open(f.name, 'r'))
+            engine=ckan.model.meta.engine, output_filename=f.name)
+        lines = [line for line in csv.DictReader(open(f.name, 'r'))]
         return lines
 
     def test_export(self):
-        # Create some packages and resources, visit them and some other pages,
-        # export all the tracking data to CSV and check that the exported
-        # values are correct.
-        pass
+        '''`paster tracking export` should export tracking data for all
+        datasets in CSV format.
+
+        Only dataset tracking data is output to CSV file, not resource or page
+        views.
+
+        '''
+        app = self._get_app()
+        sysadmin_user, apikey = self._create_sysadmin(app)
+
+        # Create a couple of packages.
+        package_1 = self._create_package(app, apikey)
+        package_2 = self._create_package(app, apikey, name='another_package')
+
+        # View the package_1 three times from different IPs.
+        url = routes.url_for(controller='package', action='read',
+                             id=package_1['name'])
+        self._post_to_tracking(app, url, ip='111.222.333.44')
+        self._post_to_tracking(app, url, ip='111.222.333.55')
+        self._post_to_tracking(app, url, ip='111.222.333.66')
+
+        # View the package_2 twice from different IPs.
+        url = routes.url_for(controller='package', action='read',
+                             id=package_2['name'])
+        self._post_to_tracking(app, url, ip='111.222.333.44')
+        self._post_to_tracking(app, url, ip='111.222.333.55')
+
+        self._update_tracking_summary()
+        lines = self._export_tracking_summary()
+
+        assert len(lines) == 2
+        package_1_data = lines[0]
+        assert package_1_data['total views'] == '3'
+        assert package_1_data['recent views (last 2 weeks)'] == '3'
+        package_2_data = lines[1]
+        assert package_2_data['total views'] == '2'
+        assert package_2_data['recent views (last 2 weeks)'] == '2'
 
     def test_tracking_urls_with_languages(self):
         # TODO
