@@ -32,7 +32,7 @@ class TestTracking(object):
         # user.
         import ckan.model as model
         user = model.User(name='joeadmin', email='joe@admin.net',
-            password='joe rules')
+                          password='joe rules')
         user.sysadmin = True
         model.Session.add(user)
         model.repo.commit_and_remove()
@@ -43,16 +43,17 @@ class TestTracking(object):
         '''Create a package via the action api.'''
 
         return tests.call_action_api(app, 'package_create', apikey=apikey,
-                name=name)
+                                     name=name)
 
     def _create_resource(self, app, package, apikey):
         '''Create a resource via the action api.'''
 
         return tests.call_action_api(app, 'resource_create', apikey=apikey,
-                package_id=package['id'], url='http://example.com')
+                                     package_id=package['id'],
+                                     url='http://example.com')
 
     def _post_to_tracking(self, app, url, type_='page', ip='199.204.138.90',
-            browser='firefox'):
+                          browser='firefox'):
         '''Post some data to /_tracking directly.
 
         This simulates what's supposed when you view a page with tracking
@@ -61,13 +62,13 @@ class TestTracking(object):
         '''
         params = {'url': url, 'type': type_}
         app.post('/_tracking', params=params,
-                extra_environ={
-                    # The tracking middleware crashes if these aren't present.
-                    'HTTP_USER_AGENT': browser,
-                    'REMOTE_ADDR': ip,
-                    'HTTP_ACCEPT_LANGUAGE': 'en',
-                    'HTTP_ACCEPT_ENCODING': 'gzip, deflate',
-                    })
+                 extra_environ={
+                     # The tracking middleware crashes if these aren't present.
+                     'HTTP_USER_AGENT': browser,
+                     'REMOTE_ADDR': ip,
+                     'HTTP_ACCEPT_LANGUAGE': 'en',
+                     'HTTP_ACCEPT_ENCODING': 'gzip, deflate',
+                     })
 
     def _update_tracking_summary(self):
         '''Update CKAN's tracking summary data.
@@ -81,9 +82,9 @@ class TestTracking(object):
         import ckan.lib.cli
         import ckan.model
         date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(
-                '%Y-%m-%d')
+            '%Y-%m-%d')
         ckan.lib.cli.Tracking('Tracking').update_all(
-                engine=ckan.model.meta.engine, start_date=date)
+            engine=ckan.model.meta.engine, start_date=date)
 
     def _rebuild_search_index(self):
         '''Rebuild CKAN's search index.
@@ -103,12 +104,14 @@ class TestTracking(object):
         # The API should return 0 recent views and 0 total views for the
         # unviewed package.
         package = tests.call_action_api(app, 'package_show',
-                id=package['name'])
+                                        id=package['name'])
         tracking_summary = package['tracking_summary']
         assert tracking_summary['recent'] == 0, ("A package that has not "
-                "been viewed should have 0 recent views")
+                                                 "been viewed should have 0 "
+                                                 "recent views")
         assert tracking_summary['total'] == 0, ("A package that has not "
-                "been viewed should have 0 total views")
+                                                "been viewed should have 0 "
+                                                "total views")
 
     def test_resource_with_0_views(self):
         app = self._get_app()
@@ -119,24 +122,28 @@ class TestTracking(object):
         # The package_show() API should return 0 recent views and 0 total
         # views for the unviewed resource.
         package = tests.call_action_api(app, 'package_show',
-                id=package['name'])
+                                        id=package['name'])
         assert len(package['resources']) == 1
         resource = package['resources'][0]
         tracking_summary = resource['tracking_summary']
         assert tracking_summary['recent'] == 0, ("A resource that has not "
-                "been viewed should have 0 recent views")
+                                                 "been viewed should have 0 "
+                                                 "recent views")
         assert tracking_summary['total'] == 0, ("A resource that has not "
-                "been viewed should have 0 total views")
+                                                "been viewed should have 0 "
+                                                "total views")
 
         # The resource_show() API should return 0 recent views and 0 total
         # views for the unviewed resource.
         resource = tests.call_action_api(app, 'resource_show',
-                id=resource['id'])
+                                         id=resource['id'])
         tracking_summary = resource['tracking_summary']
         assert tracking_summary['recent'] == 0, ("A resource that has not "
-                "been viewed should have 0 recent views")
+                                                 "been viewed should have 0 "
+                                                 "recent views")
         assert tracking_summary['total'] == 0, ("A resource that has not "
-                "been viewed should have 0 total views")
+                                                "been viewed should have 0 "
+                                                "total views")
 
     def test_package_with_one_view(self):
         app = self._get_app()
@@ -145,7 +152,7 @@ class TestTracking(object):
         self._create_resource(app, package, apikey)
 
         url = routes.url_for(controller='package', action='read',
-                id=package['name'])
+                             id=package['name'])
         self._post_to_tracking(app, url)
 
         self._update_tracking_summary()
@@ -153,17 +160,22 @@ class TestTracking(object):
         package = tests.call_action_api(app, 'package_show', id=package['id'])
         tracking_summary = package['tracking_summary']
         assert tracking_summary['recent'] == 1, ("A package that has been "
-                "viewed once should have 1 recent view.")
+                                                 "viewed once should have 1 "
+                                                 "recent view.")
         assert tracking_summary['total'] == 1, ("A package that has been "
-                "viewed once should have 1 total view")
+                                                "viewed once should have 1 "
+                                                "total view")
 
         assert len(package['resources']) == 1
         resource = package['resources'][0]
         tracking_summary = resource['tracking_summary']
         assert tracking_summary['recent'] == 0, ("Viewing a package should "
-                "not increase the recent views of the package's resources")
+                                                 "not increase the recent "
+                                                 "views of the package's "
+                                                 "resources")
         assert tracking_summary['total'] == 0, ("Viewing a package should "
-                "not increase the total views of the package's resources")
+                                                "not increase the total views "
+                                                "of the package's resources")
 
     def test_resource_with_one_preview(self):
         app = self._get_app()
@@ -172,7 +184,7 @@ class TestTracking(object):
         resource = self._create_resource(app, package, apikey)
 
         url = routes.url_for(controller='package', action='resource_read',
-                id=package['name'], resource_id=resource['id'])
+                             id=package['name'], resource_id=resource['id'])
         self._post_to_tracking(app, url)
 
         self._update_tracking_summary()
@@ -182,14 +194,26 @@ class TestTracking(object):
         resource = package['resources'][0]
 
         assert package['tracking_summary']['recent'] == 0, ("Previewing a "
-                "resource should not increase the package's recent views")
+                                                            "resource should "
+                                                            "not increase the "
+                                                            "package's recent "
+                                                            "views")
         assert package['tracking_summary']['total'] == 0, ("Previewing a "
-                "resource should not increase the package's total views")
+                                                           "resource should "
+                                                           "not increase the "
+                                                           "package's total "
+                                                           "views")
         # Yes, previewing a resource does _not_ increase its view count.
         assert resource['tracking_summary']['recent'] == 0, ("Previewing a "
-                "resource should not increase the resource's recent views")
+                                                             "resource should "
+                                                             "not increase "
+                                                             "the resource's "
+                                                             "recent views")
         assert resource['tracking_summary']['total'] == 0, ("Previewing a "
-                "resource should not increase the resource's recent views")
+                                                            "resource should "
+                                                            "not increase the "
+                                                            "resource's "
+                                                            "recent views")
 
     def test_resource_with_one_download(self):
         app = self._get_app()
@@ -203,23 +227,29 @@ class TestTracking(object):
         package = tests.call_action_api(app, 'package_show', id=package['id'])
         assert len(package['resources']) == 1
         resource = package['resources'][0]
-        assert package['tracking_summary']['recent'] == 0, ("Downloading a "
-                "resource should not increase the package's recent views")
-        assert package['tracking_summary']['total'] == 0, ("Downloading a "
-                "resource should not increase the package's total views")
-        assert resource['tracking_summary']['recent'] == 1, ("Downloading a "
-                "resource should increase the resource's recent views")
-        assert resource['tracking_summary']['total'] == 1, ("Downloading a "
-                "resource should increase the resource's total views")
+        assert package['tracking_summary']['recent'] == 0, (
+            "Downloading a resource should not increase the package's recent "
+            "views")
+        assert package['tracking_summary']['total'] == 0, (
+            "Downloading a resource should not increase the package's total "
+            "views")
+        assert resource['tracking_summary']['recent'] == 1, (
+            "Downloading a resource should increase the resource's recent "
+            "views")
+        assert resource['tracking_summary']['total'] == 1, (
+            "Downloading a resource should increase the resource's total "
+            "views")
 
         # The resource_show() API should return the same result.
         resource = tests.call_action_api(app, 'resource_show',
-                id=resource['id'])
+                                         id=resource['id'])
         tracking_summary = resource['tracking_summary']
-        assert tracking_summary['recent'] == 1, ("Downloading a "
-                "resource should increase the resource's recent views")
-        assert tracking_summary['total'] == 1, ("Downloading a "
-                "resource should increase the resource's total views")
+        assert tracking_summary['recent'] == 1, (
+            "Downloading a resource should increase the resource's recent "
+            "views")
+        assert tracking_summary['total'] == 1, (
+            "Downloading a resource should increase the resource's total "
+            "views")
 
     def test_view_page(self):
         app = self._get_app()
@@ -242,13 +272,14 @@ class TestTracking(object):
             q = q.filter_by(url=url)
             tracking_summary = q.one()
             assert tracking_summary.count == 1, ("Viewing a page should "
-                    "increase the page's view count")
+                                                 "increase the page's view "
+                                                 "count")
             # For pages (as opposed to datasets and resources) recent_views and
             # running_total always stay at 1. Shrug.
-            assert tracking_summary.recent_views == 0, ("recent_views for a "
-                    "page is always 0")
-            assert tracking_summary.running_total == 0, ("running_total for a "
-                    "page is always 0")
+            assert tracking_summary.recent_views == 0, (
+                "recent_views for a page is always 0")
+            assert tracking_summary.running_total == 0, (
+                "running_total for a page is always 0")
 
     def test_package_with_many_views(self):
         app = self._get_app()
@@ -257,7 +288,7 @@ class TestTracking(object):
         self._create_resource(app, package, apikey)
 
         url = routes.url_for(controller='package', action='read',
-                id=package['name'])
+                             id=package['name'])
 
         # View the package three times from different IPs.
         self._post_to_tracking(app, url, ip='111.222.333.44')
@@ -268,18 +299,21 @@ class TestTracking(object):
 
         package = tests.call_action_api(app, 'package_show', id=package['id'])
         tracking_summary = package['tracking_summary']
-        assert tracking_summary['recent'] == 3, ("A package that has been "
-                "viewed 3 times recently should have 3 recent views")
-        assert tracking_summary['total'] == 3, ("A package that has been "
-                "viewed 3 times should have 3 total views")
+        assert tracking_summary['recent'] == 3, (
+            "A package that has been viewed 3 times recently should have 3 "
+            "recent views")
+        assert tracking_summary['total'] == 3, (
+            "A package that has been viewed 3 times should have 3 total views")
 
         assert len(package['resources']) == 1
         resource = package['resources'][0]
         tracking_summary = resource['tracking_summary']
-        assert tracking_summary['recent'] == 0, ("Viewing a package should "
-                "not increase the recent views of the package's resources")
-        assert tracking_summary['total'] == 0, ("Viewing a package should "
-                "not increase the total views of the package's resources")
+        assert tracking_summary['recent'] == 0, (
+            "Viewing a package should not increase the recent views of the "
+            "package's resources")
+        assert tracking_summary['total'] == 0, (
+            "Viewing a package should not increase the total views of the "
+            "package's resources")
 
     def test_resource_with_many_downloads(self):
         app = self._get_app()
@@ -299,16 +333,20 @@ class TestTracking(object):
         assert len(package['resources']) == 1
         resource = package['resources'][0]
         tracking_summary = resource['tracking_summary']
-        assert tracking_summary['recent'] == 3, ("A resource that has been "
-                "downloaded 3 times recently should have 3 recent downloads")
-        assert tracking_summary['total'] == 3, ("A resource that has been "
-                "downloaded 3 times should have 3 total downloads")
+        assert tracking_summary['recent'] == 3, (
+            "A resource that has been downloaded 3 times recently should have "
+            "3 recent downloads")
+        assert tracking_summary['total'] == 3, (
+            "A resource that has been downloaded 3 times should have 3 total "
+            "downloads")
 
         tracking_summary = package['tracking_summary']
-        assert tracking_summary['recent'] == 0, ("Downloading a resource "
-                "should not increase the resource's package's recent views")
-        assert tracking_summary['total'] == 0, ("Downloading a resource "
-                "should not increase the resource's package's total views")
+        assert tracking_summary['recent'] == 0, (
+            "Downloading a resource should not increase the resource's "
+            "package's recent views")
+        assert tracking_summary['total'] == 0, (
+            "Downloading a resource should not increase the resource's "
+            "package's total views")
 
     def test_page_with_many_views(self):
         app = self._get_app()
@@ -319,7 +357,7 @@ class TestTracking(object):
             self._post_to_tracking(app, url='', type_='page', ip=ip)
             # Visit the /organization page.
             self._post_to_tracking(app, url='/organization', type_='page',
-                    ip=ip)
+                                   ip=ip)
             # Visit the /about page.
             self._post_to_tracking(app, url='/about', type_='page', ip=ip)
 
@@ -333,14 +371,15 @@ class TestTracking(object):
             q = model.Session.query(model.TrackingSummary)
             q = q.filter_by(url=url)
             tracking_summary = q.one()
-            assert tracking_summary.count == 3, ("A page that has been "
-                    "viewed three times should have view count 3")
+            assert tracking_summary.count == 3, (
+                "A page that has been viewed three times should have view "
+                "count 3")
             # For pages (as opposed to datasets and resources) recent_views and
             # running_total always stay at 1. Shrug.
             assert tracking_summary.recent_views == 0, ("recent_views for "
-                    "pages is always 0")
+                                                        "pages is always 0")
             assert tracking_summary.running_total == 0, ("running_total for "
-                    "pages is always 0")
+                                                         "pages is always 0")
 
     def test_recent_views_expire(self):
         # TODO
@@ -361,7 +400,7 @@ class TestTracking(object):
         package = self._create_package(app, apikey)
         self._create_resource(app, package, apikey)
         url = routes.url_for(controller='package', action='read',
-                id=package['name'])
+                             id=package['name'])
 
         # Visit the dataset three times from the same IP.
         self._post_to_tracking(app, url)
@@ -373,9 +412,10 @@ class TestTracking(object):
         package = tests.call_action_api(app, 'package_show', id=package['id'])
         tracking_summary = package['tracking_summary']
         assert tracking_summary['recent'] == 1, ("Repeat dataset views should "
-                "not add to recent views count")
+                                                 "not add to recent views "
+                                                 "count")
         assert tracking_summary['total'] == 1, ("Repeat dataset views should "
-                "not add to total views count")
+                                                "not add to total views count")
 
     def test_resource_download_count_throttling(self):
         '''If the same user downloads the same resource multiple times on the
@@ -395,12 +435,12 @@ class TestTracking(object):
         self._update_tracking_summary()
 
         resource = tests.call_action_api(app, 'resource_show',
-                id=resource['id'])
+                                         id=resource['id'])
         tracking_summary = resource['tracking_summary']
-        assert tracking_summary['recent'] == 1, ("Repeat resource downloads "
-            "should not add to recent views count")
-        assert tracking_summary['total'] == 1, ("Repeat resource downloads "
-            "should not add to total views count")
+        assert tracking_summary['recent'] == 1, (
+            "Repeat resource downloads should not add to recent views count")
+        assert tracking_summary['total'] == 1, (
+            "Repeat resource downloads should not add to total views count")
 
     def test_sorting_datasets_by_recent_views(self):
         # FIXME: Have some datasets with different numbers of recent and total
@@ -416,16 +456,16 @@ class TestTracking(object):
         self._create_package(app, apikey, name='use_of_weapons')
 
         url = routes.url_for(controller='package', action='read',
-                id='consider_phlebas')
+                             id='consider_phlebas')
         self._post_to_tracking(app, url)
 
         url = routes.url_for(controller='package', action='read',
-                id='the_player_of_games')
+                             id='the_player_of_games')
         self._post_to_tracking(app, url, ip='111.11.111.111')
         self._post_to_tracking(app, url, ip='222.22.222.222')
 
         url = routes.url_for(controller='package', action='read',
-                id='use_of_weapons')
+                             id='use_of_weapons')
         self._post_to_tracking(app, url, ip='111.11.111.111')
         self._post_to_tracking(app, url, ip='222.22.222.222')
         self._post_to_tracking(app, url, ip='333.33.333.333')
@@ -434,7 +474,7 @@ class TestTracking(object):
         ckan.lib.search.rebuild()
 
         response = tests.call_action_api(app, 'package_search',
-                sort='views_recent desc')
+                                         sort='views_recent desc')
         assert response['count'] == 3
         assert response['sort'] == 'views_recent desc'
         packages = response['results']
@@ -456,16 +496,16 @@ class TestTracking(object):
         self._create_package(app, apikey, name='use_of_weapons')
 
         url = routes.url_for(controller='package', action='read',
-                id='consider_phlebas')
+                             id='consider_phlebas')
         self._post_to_tracking(app, url)
 
         url = routes.url_for(controller='package', action='read',
-                id='the_player_of_games')
+                             id='the_player_of_games')
         self._post_to_tracking(app, url, ip='111.11.111.111')
         self._post_to_tracking(app, url, ip='222.22.222.222')
 
         url = routes.url_for(controller='package', action='read',
-                id='use_of_weapons')
+                             id='use_of_weapons')
         self._post_to_tracking(app, url, ip='111.11.111.111')
         self._post_to_tracking(app, url, ip='222.22.222.222')
         self._post_to_tracking(app, url, ip='333.33.333.333')
@@ -474,7 +514,7 @@ class TestTracking(object):
         ckan.lib.search.rebuild()
 
         response = tests.call_action_api(app, 'package_search',
-                sort='views_total desc')
+                                         sort='views_total desc')
         assert response['count'] == 3
         assert response['sort'] == 'views_total desc'
         packages = response['results']
