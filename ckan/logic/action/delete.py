@@ -73,8 +73,10 @@ def resource_delete(context, data_dict):
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
-    if 'resources' in pkg_dict and id in pkg_dict['resources']:
-        pkg_dict['resources'].remove(id)
+    for res in pkg_dict.get('resources', []):
+        if res['id'] == id:
+            pkg_dict['resources'].remove(res)
+            break
     try:
         pkg_dict = _get_action('package_update')(context, pkg_dict)
     except ValidationError, e:
