@@ -1,0 +1,10 @@
+{% ckan_extends %}
+
+{% block secondary_content %}
+
+  {{ h.recently_changed_packages_activity_stream() }}
+
+  {% snippet 'snippets/package_item.html',
+             package=h.example_theme_dataset_of_the_day() %}
+
+{% endblock %}

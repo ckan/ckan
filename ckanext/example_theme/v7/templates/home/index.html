@@ -1,0 +1,11 @@
+{% ckan_extends %}
+
+{% block secondary_content %}
+  {{ h.recently_changed_packages_activity_stream() }}
+
+  <p>
+    <b>Dataset of the day</b>:
+    {{ h.example_theme_dataset_of_the_day().title }}
+  </p>
+
+{% endblock %}

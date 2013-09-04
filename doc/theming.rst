@@ -1,3 +1,5 @@
+.. _Jinja2: http://jinja.pocoo.org/
+
 =======
 Theming
 =======
@@ -7,22 +9,25 @@ Theming
    Add more to :doc:`getting-started`, is there more that can be done in the
    config file, e.g. site logo?
 
-:doc:`getting-started` documents some simple CKAN configuration settings that
-you can use to, for example, change the title of your CKAN site. For those who
-want more control over their CKAN site's frontend, this document covers
-everything you need to know to develop a custom CKAN theme, including how to
-customize CKAN's HTML templates, CSS and |javascript|. The sections below will
-walk you through the process of creating a simple, example CKAN theme that
+The CKAN frontend can be fully customized by developing a CKAN theme.
+If you just want to do some simple customizations such as changing the title
+of your CKAN site, or making some small CSS customizations,
+:doc:`getting-started` documents some simple configuration settings you can
+use.
+If you want more control, follow the tutorial below to learn how to develop
+your custom CKAN theme.
+
+
+----------------
+Theming tutorial
+----------------
+
+This tutorial walks you through the process of creating a CKAN theme, and
 demonstrates all of the main features of CKAN theming.
 
-.. todo::
 
-   Insert link to the completed example theme here.
-
-
----------------
 Installing CKAN
----------------
+===============
 
 Before you can start developing a CKAN theme, you’ll need a working source
 install of CKAN on your system. If you don’t have a CKAN source install
@@ -30,90 +35,399 @@ already, follow the instructions in :doc:`install-from-source` before
 continuing.
 
 
--------------------------
 Creating a CKAN extension
--------------------------
+=========================
 
-A CKAN theme must be contained within a CKAN extension, so we'll begin by
-creating an extension to hold our theme. As documented in
-:doc:`writing-extensions`, extensions can customize and extend CKAN's features
-in many powerful ways, but in this example we'll use our extension only to hold
-our theme.
+A CKAN theme is simply a CKAN plugin that contains some custom templates and
+static files, so before getting started on our CKAN theme we'll have to create
+an extension and plugin. For a detailed explanation of the steps below, see
+:doc:`writing-extensions`.
 
-.. todo::
+1. Use the ``paster create`` command to create an empty extension:
 
-   This stuff is duplicated from the writing extensions docs, do a Sphinx
-   include here instead.
+   .. parsed-literal::
 
-First, use the ``paster create`` command to create an empty extension:
+      |activate|
+      cd |virtualenv|/src
+      paster --plugin=ckan create -t ckanext ckanext-example_theme
 
-.. parsed-literal::
+2. Create the file ``ckanext-example_theme/ckanext/example_theme/plugin.py``
+   with the following contents:
 
-   |activate|
-   cd |virtualenv|/src
-   paster --plugin=ckan create -t ckanext ckanext-example_theme
+   .. literalinclude:: ../ckanext/example_theme/v1/plugin.py
 
-The command will ask you to answer a few questions. The answers you give will
-end up in your extension's ``setup.py`` file (where you can edit them later if
-you want).
-
-(See :doc:`writing-extensions` for full documentation on creating CKAN
-extensions and plugins.)
-
-Now create the file ``ckanext-example_theme/ckanext/example_theme/plugin.py``
-with the following contents:
-
-.. literalinclude:: ../ckanext/example_theme/plugin.py
-
-Now let's add our plugin to the ``entry_points`` in ``setup.py``.  This
-identifies the plugin to CKAN once the extension is installed in CKAN's
-virtualenv. Edit ``ckanext-example_theme/setup.py`` and add a line to the
-``entry_points`` section like this::
+3. Edit the ``entry_points`` in ``ckanext-example_theme/setup.py``::
 
     entry_points='''
         [ckan.plugins]
         example_theme=ckanext.example_theme.plugin:ExampleThemePlugin
     ''',
 
-Install the ``example_theme`` extension:
+4. Run ``python setup.py develop``:
 
-.. parsed-literal::
+   .. parsed-literal::
 
-   |activate|
-   cd |virtualenv|/src/ckanext-example_theme
-   python setup.py develop
+    |activate|
+    cd |virtualenv|/src/ckanext-example_theme
+    python setup.py develop
 
-Finally, enable the plugin in your CKAN config file. Edit |development.ini| and
-add ``example_theme`` to the ``ckan.plugins`` line, for example::
+5. Add the plugin to the ``ckan.plugins`` setting in your |development.ini|
+   file::
 
     ckan.plugins = stats text_preview recline_preview example_theme
 
-You should now be able to start CKAN in the development web server and have it
-start up without any problems:
+6. Start CKAN in the development web server:
 
-.. parsed-literal::
+   .. parsed-literal::
 
     $ paster serve |development.ini|
     Starting server in PID 13961.
     serving on 0.0.0.0:5000 view at http://127.0.0.1:5000
 
-If your plugin is in the :ref:`ckan.plugins` setting and CKAN starts without
-crashing, then your plugin is installed and CKAN can find it. Of course, your
-plugin doesn't *do* anything yet.
+   If your plugin is in the :ref:`ckan.plugins` setting and CKAN starts without
+   crashing, then your plugin is installed and CKAN can find it. Of course,
+   your plugin doesn't *do* anything yet.
 
 
---------------------------------------------
-Customizing CKAN's HTML and Jinja2 templates
---------------------------------------------
+Customizing CKAN's HTML with Jinja2
+===================================
+
+
+Replacing a default template file
+---------------------------------
+
+Every CKAN page is generated by rendering a particular template. For each
+page of a CKAN site there's a corresponding template file. For example the
+front page is generated from the ``ckan/templates/home/index.html`` file, the
+``/about`` page is generated from ``ckan/templates/home/about.html``, the
+datasets page at ``/dataset`` is generated from
+``ckan/templates/package/search.html``, etc.
 
 .. todo::
 
-   * Introduce Bootstrap here. A lot of Bootstrap stuff can be done just using
-     HTML. It should also get mentioned in other sections (CSS, JavaScript..)
-   * HTML (which version?)
-   * Jinja2
-   * CKAN's custom Jinja2 tags and form macros
+   Explain how to find out which template file is used for a given page.
 
+To customize pages, our plugin needs to register its own custom template
+directory containing templates file that override the default ones.
+Edit the ``plugin.py`` file that we created earlier, so that it looks like
+this:
+
+.. literalinclude:: ../ckanext/example_theme/v2/plugin.py
+
+This new code does a few things:
+
+1. It imports CKAN's *plugins toolkit* module:
+
+   .. literalinclude:: ../ckanext/example_theme/plugin_v2.py
+      :start-after: import ckan.plugins as plugins
+      :end-before: class ExampleThemePlugin(plugins.SingletonPlugin):
+
+   The plugins toolkit is a Python module containing core functions, classes
+   and exceptions for CKAN plugins to use. For more about the plugins toolkit,
+   see :doc:`writing-extensions`.
+
+2. It calls :py:func:`~ckan.plugins.core.implements` to declare that it
+   implements the :py:class:`~ckan.plugins.interfaces.IConfigurer` plugin
+   interface. This tells CKAN that our
+   :py:class:`~ckanext.example_theme.plugin_v2.ExampleThemePlugin` class
+   implements the methods declared in the
+   :py:class:`~ckan.plugins.interfaces.IConfigurer` interface. CKAN will call
+   these methods of our plugin class at the appropriate times.
+
+3. It implements the
+   :py:meth:`~ckan.plugins.interfaces.IConfigurer.update_config` method, which
+   is the only method declated in the
+   :py:class:`~ckan.plugins.interfaces.IConfigurer` interface. CKAN will call
+   this method when it starts up, to give our plugin a chance to modify CKAN's
+   configuration settings.
+
+4. Finally, our
+   :py:meth:`~ckanext.example_theme.plugin_v2.ExampleThemePlugin.update_config`
+   method calls :py:func:`~ckan.plugins.toolkit.add_template_directory` to
+   register its custom template directory with CKAN:
+
+   .. literalinclude:: ../ckanext/example_theme/plugin_v2.py
+      :start-after: # that CKAN will use this plugin's custom templates.
+
+   This tells CKAN to look for template files in the
+   ``ckanext-example_theme/ckanext/example_theme/templates/`` whenever it
+   renders a page. Any template file in this directory that has the same name
+   as one of CKAN's default template files, will be used instead of the default
+   file.
+
+Now, let's customize the CKAN front page. Create the
+``ckanext-example_theme/ckanext/example_theme/templates/`` directory, create a
+``home`` directory inside the ``templates`` directory, and create an empty
+``index.html`` file inside the ``home`` directory::
+
+    ckanext-example_theme/
+      ckanext/
+        example_theme/
+          templates/
+            home/
+              index.html  <-- An empty file.
+
+Restart the development server (``paster serve development.ini``), and open the
+CKAN front page (`127.0.0.1:5000 <http://127.0.0.1:5000/>`_ by default) in your
+web browser.  You should see an empty page, because we've replaced the template
+file for the front page with an empty file.
+
+
+Extending default templates with ``{% ckan_extends %}``
+-------------------------------------------------------
+
+CKAN template files are written in the `Jinja2`_ templating language. Jinja
+template files, such as our ``index.html`` file, are simply text files that,
+when processed, generate any text-based output format such as ``HTML``,
+``XML``, ``CSV``, etc. Most of the templates file in CKAN generate ``HTML``.
+
+In Jinja templates snippets of text like ``{% ... %}`` are
+Jinja tags that control the logic of the template. For example, CKAN provides
+a custom Jinja tag ``{% ckan_extends %}`` that we can use to declare that our
+``home/index.html`` template extends the default ``home/index.html`` template.
+Edit the empty ``index.html`` file you just created, and add one line:
+
+.. literalinclude:: ../ckanext/example_theme/v3/templates/home/index.html
+
+If you now restart the development server and reload the CKAN front page in
+your browser, you should see the normal front page appear again. When CKAN
+processes our ``index.html`` file, the ``{% ckan_extends %}`` tag tells it to
+process the default ``index.html`` file first.
+
+
+Replacing template blocks with ``{% block %}``
+----------------------------------------------
+
+Jinja templates can contain *blocks* that child templates can override.  For
+example, CKAN's default ``home/index.html`` template has a block that contains
+the Jinja and HTML code for the "featured groups" that appear on the front page
+by default::
+
+  {% block secondary_content %}
+    <div class="row group-listing">
+        {% for group in c.group_package_stuff %}
+        <div class="span6">
+            <div class="box">
+            {% snippet 'snippets/group_item.html', group=group.group_dict, truncate=50, truncate_title=35 %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+  {% endblock %}
+
+.. todo::
+
+   Fix ``c.group_package_stuff`` above (stupid name).
+
+.. todo:: Fix the line wrapping in the code sample above
+
+.. todo:: Insert screenshot of the part of the page that this template renders?
+
+When a custom template file extends one of CKAN's default template files using
+``{% ckan_extends %}``, it can replace any of the blocks from the default
+template with its own code by using ``{% block %}``. Edit your ``index.html``
+file again and change the contents to:
+
+.. literalinclude:: ../ckanext/example_theme/v4/templates/home/index.html
+
+Restart the development server, and reload the CKAN front page in your browser.
+You should see that the featured groups section of the page has been replaced,
+but the rest of the page remains intact.
+
+.. topic:: Extending parent blocks with Jinja's ``{{ super() }}``
+
+   If you want to add some code to a block but don't want to replace the entire
+   block, you can use Jinja's ``{{ super() }}`` tag::
+
+    {% ckan_extends %}
+
+    {% block secondary_content %}
+        {{ super() }}
+        Hello block world!
+    {% endblock %}
+
+   When the child block above is rendered, Jinja will replace the
+   ``{{ super() }}`` tag with the contents of the parent block.
+
+   .. todo:: Make the ``super()`` example above into a proper included example.
+
+.. todo:: Need something here about what variables are available to templates:
+   c, h, g. etc. plus anything explicitly passed in by the controller or parent
+   template.
+
+Template helper functions
+-------------------------
+
+Now let's put some interesting content into our custom template block.
+One way for templates to get content out of CKAN is by calling CKAN's
+*template helper functions*.
+
+For example, let's replace the featured groups on the front page with an
+activity stream of the site's recently created, updated and deleted datasets.
+Change the code in ``index.html`` to this:
+
+.. literalinclude:: ../ckanext/example_theme/v6/templates/home/index.html
+
+Reload the CKAN front page in your browser (it shouldn't be necessary to
+restart the web server, if you've only made changes to template files) and
+you should see a new activity stream on the front page.
+
+To call a template helper function we use a Jinja2 *expression* (code wrapped
+in ``{{ ... }}`` brackets), and we use the global variable ``h`` (available
+to all templates) to access the helper:
+
+.. literalinclude:: ../ckanext/example_theme/v6/templates/home/index.html
+   :start-after: {% block secondary_content %}
+   :end-before: {% endblock %}
+
+To see what other template helper functions are available, look at the
+:doc:`template helper functions reference docs <template-helper-functions>`.
+
+
+Adding your own template helper functions
+-----------------------------------------
+
+Plugins can add their own template helper functions by implementing CKAN's
+:py:class:`~ckan.plugins.interfaces.ITemplateHelpers` plugin interface.
+(see :doc:`writing-extensions` for a detailed explanation of CKAN plugins and
+plugin interfaces).
+
+Let's add another item to our custom front page: a "dataset of the day". We'll
+add a custom template helper function to select the dataset to be shown.
+First, in our ``plugin.py`` file we need to implement
+:py:class:`~ckan.plugins.interfaces.ITemplateHelpers` and provide our helper
+function. Change the contents of
+``ckanext-example_theme/ckanext/example_theme/plugin.py`` to look like this:
+
+.. literalinclude:: ../ckanext/example_theme/v7/plugin.py
+
+.. todo:: Explain exactly what the new lines above do.
+
+   Mention why the helper is named as it is.
+
+Now that we've registered our helper function, we need to call it from our
+template. As with CKAN's default template helpers, templates access custom
+helpers via the global variable ``h``.
+Edit ``ckanext-example_theme/ckanext/example_theme/home/index.html`` to look
+like this:
+
+.. literalinclude:: ../ckanext/example_theme/v7/templates/home/index.html
+
+Now restart your web server and reload your CKAN front page in your browser.
+You should see the name of a random dataset appear on the page, and each time
+you reload the page you'll get a different name.
+
+Simply displaying the name of a dataset isn't very good. We want to show the
+dataset's title not its name, have the title be hyperlinked to the dataset's
+page, and also show some other information about the dataset such as its notes
+and file formats. To display our dataset of the day nicely, we'll use CKAN's
+*template snippets*.
+
+
+Template snippets
+-----------------
+
+*Template snippets* are small snippets of template code that, just like helper
+functions, can be called from any template file. To call a snippet, you use
+another of CKAN's custom Jinja2 tags: ``{% snippet %}``. CKAN comes with a
+selection of snippets, which you can find in the various ``snippets``
+directories in ``ckan/templates/``, such as ``ckan/templates/snippets/``
+and ``ckan/templates/package/snippets/``.
+
+.. todo::
+
+   Autodoc all the default snippets, link to reference docs.
+
+For example, ``ckan/templates/snippets/package_item.html`` is a snippet that
+renders a dataset nicely. The default CKAN templates use this snippet whenever
+they want to show a list of packages, for example on the datasets page,
+a group's page, an organization's page or a user's page:
+
+.. literalinclude:: ../ckan/templates/snippets/package_item.html
+   :end-before: #}
+
+Let's change our ``index.html`` file to call this snippet:
+
+.. literalinclude:: ../ckanext/example_theme/v8/templates/home/index.html
+
+The ``{% snippet %}`` tag takes one or more arguments. The first argument is
+the name of the snippet to call. Any further arguments will be passed into
+the snippet as parameters. As in the ``package_item.html`` docstring above,
+each snippet's docstring should document the parameters it requires. In this
+example was pass just one parameter to the snippet: the dataset to be rendered.
+
+If you reload your CKAN front page in your web browser now, you should see the
+dataset of the day rendered nicely.
+
+
+Adding your own template snippets
+---------------------------------
+
+Just as plugins can add their own template helper functions, they can also add
+their own snippets. To add template snippets, all a plugin needs to do is add a
+``snippets`` directory in its ``templates`` directory, and start adding files.
+The snippets will be callable from other templates immediately.
+
+Let's add a custom snippet to change how our dataset of the day is displayed.
+Create a new directory ``ckanext-example_theme/templates/snippets/`` containing
+a file named ``example_theme_dataset_of_the_day.html`` with these contents:
+
+.. literalinclude:: ../ckanext/example_theme/v9/templates/snippets/example_theme_dataset_of_the_day.html
+
+Now edit your ``index.html`` file and change to use our new snippet:
+
+.. literalinclude:: ../ckanext/example_theme/v9/templates/home/index.html
+
+Restart your web server and reload your CKAN front page in your browser, and
+you should see the display of the dataset of the day change.
+
+.. todo::
+
+   Make the snippet better, and explain the snippet line-by-line.
+
+.. warning:: Snippet overriding
+
+   If a plugin adds a snippet with the same name as one of CKAN's default
+   snippets, the plugin's snippet will override the default snippet wherever
+   the default snippet is used.
+
+   Also if two plugins both have snippets with the same name, one of the
+   snippets will override the other. <-- TODO: Verify whether this is true
+
+   .. todo::
+
+      Exactly what order are ``snippets`` directories read in, and what
+      overrides what?
+
+.. note::
+
+   Snippets don't have access to the global template context, so global
+   variables such as ``c``, ``h`` and ``g`` that are available to templates
+   are not available to snippets.
+
+   The only variables available to snippets are those explicitly passed into
+   the snippet by the parent template, when it calls the snippet using a
+   ``{% snippet %}`` tag.
+
+   Keeping snippets "modular" in this way makes debugging template problems
+   much easier.
+
+   .. todo:: Verify whether this is completely true.
+
+
+Bootstrap
+---------
+
+
+Jinja2 basics
+-------------
+
+
+.. Link to reference docs for CKAN's custom Jinja2 tags and form macros.
+
+
+CKAN custom Jinja2 tags reference
+---------------------------------
 
 ---------------------------------------------------------------------
 Adding CSS, JavaScript, images and other static files using Fanstatic
@@ -131,6 +445,8 @@ Adding CSS, JavaScript, images and other static files using Fanstatic
 Customizing CKAN's CSS
 ----------------------
 
+.. Use the styles block in base.html to add a global css file
+
 .. todo::
 
    * Introduce CSS?
@@ -145,96 +461,11 @@ Customizing CKAN's CSS
 Customizing CKAN's JavaScript
 -----------------------------
 
+.. Use the scripts block in base.html to add a global javascript file
+
 .. todo::
 
    * How to load JavaScript modules
    * jQuery
    * Bootstrap's JavaScript stuff
    * Other stuff in javascript-module-tutorial.rst
-
-
-
-
-
-----
-
-Create Custom Extension
------------------------
-
-This method is best for you want to customize the HTML templates of you CKAN
-instance. It's also more extensible and means you can make sure you keep your
-custom theme as seperate from CKAN core as possible.
-
-Here follows the main topics you'll need in order to understand how to write
-a custom extension in order to customize your CKAN instance.
-
-
-Customizing the HTML
-~~~~~~~~~~~~~~~~~~~~
-
-The main templates within CKAN use the templating language `Jinja2`_. Jinja2
-has template inheritance which means that you don't have to re-write a whole
-template in order to change small elements within templates.
-
-For more information on how to exactly change the HTML of your CKAN instance: 
-please read the `Templating > Templating within extensions`_ documentation.
-
-
-Including custom Stylesheets, JavaScript and images
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Within CKAN we use a resource manager to handle the static resources that are
-required by any given template. In order to include a stylesheet or a
-JavaScript document you should tell the resource manager of its existence and
-then include it within your template.
-
-For more information on how resources work within CKAN and how to add custom
-resources to your extension: please read the 
-`Resources > Resources within extensions`_ documentation.
-
-.. Note::
-    The main CKAN theme is a heavily customized version of `Bootstrap`_.
-    However the core of Bootstrap is no different in CKAN and therefore people
-    familiar with Bootstrap should feel right at home writing custom HTML and
-    CSS for CKAN.
-
-
-Customizing the JavaScript
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Within CKAN core we have a concept of JavaScript modules which allow you to
-simply attach JavaScript to DOM elements via HTML5 data attributes.
-
-For more information on what a JavaScript module is and how to build one:
-please read the `Building a JavaScript Module`_ documentation.
-
-
-Customizing the CSS
-~~~~~~~~~~~~~~~~~~~
-
-To customize your CSS all you really need to know is how to add a stylesheet as
-a resource. Beyond that it's purely writing your own CSS and making sure it's
-included on the correct pages.
-
-For more information on how CSS works in CKAN core: please read the
-`Front End Documentation > Stylesheets`_ documentation.
-
-.. Note::
-    In CKAN core we use `LESS`_ to pre-process our main CSS document. We do
-    this to make the core CSS more maintainable (as well as to offer different
-    basic colour styles on our default theme). It's not necessary that you do
-    the same, but we'd recommend using something like it if you plan on
-    customizing your CKAN instance heavily.
-
-
-.. _Bootstrap: http://getbootstrap.com/
-.. _Jinja2: http://Jinja2.pocoo.org/
-.. _markdown: http://daringfireball.net/projects/markdown/
-.. _LESS: http://lesscss.org/
-.. _Templating > Templating within extensions: ./templating.html#templating-within-extensions
-.. _Resources > Resources within extensions: ./resources.html#resources-within-extensions
-.. _Building a JavaScript Module: ./javascript-module-tutorial.html
-.. _Front End Documentation > Stylesheets: ./frontend-development.html#stylesheets
-.. _CKAN Configuration Options > Front-End Settings: ./configuration.html#front-end-settings
-.. _CKAN Configuration Options > Theming Settings: ./configuration.html#theming-settings
-
