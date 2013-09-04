@@ -4,11 +4,6 @@
 Theming
 =======
 
-.. todo::
-
-   Add more to :doc:`getting-started`, is there more that can be done in the
-   config file, e.g. site logo?
-
 The CKAN frontend can be fully customized by developing a CKAN theme.
 If you just want to do some simple customizations such as changing the title
 of your CKAN site, or making some small CSS customizations,
