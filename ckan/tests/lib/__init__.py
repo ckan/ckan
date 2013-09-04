@@ -9,7 +9,7 @@ def check_search_results(terms, expected_count, expected_packages=[]):
     # of the default AND
     query = {
         'q': unicode(terms),
-        'extras': {'ext_boolean': 'any'}
+        'extras': {'ext_boolean': 'all'}
     }
     result = search.query_for(model.Package).run(query)
     pkgs = result['results']
