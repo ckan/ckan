@@ -1,5 +1,7 @@
 .. _Jinja2: http://jinja.pocoo.org/
 
+.. |extension_dir| replace:: ckanext-example_theme
+
 =======
 Theming
 =======
@@ -44,14 +46,14 @@ an extension and plugin. For a detailed explanation of the steps below, see
 
       |activate|
       cd |virtualenv|/src
-      paster --plugin=ckan create -t ckanext ckanext-example_theme
+      paster --plugin=ckan create -t ckanext |extension_dir|
 
-2. Create the file ``ckanext-example_theme/ckanext/example_theme/plugin.py``
+2. Create the file ``|extension_dir|/ckanext/example_theme/plugin.py``
    with the following contents:
 
    .. literalinclude:: ../ckanext/example_theme/v1/plugin.py
 
-3. Edit the ``entry_points`` in ``ckanext-example_theme/setup.py``::
+3. Edit the ``entry_points`` in ``|extension_dir|/setup.py``::
 
     entry_points='''
         [ckan.plugins]
@@ -63,7 +65,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
    .. parsed-literal::
 
     |activate|
-    cd |virtualenv|/src/ckanext-example_theme
+    cd |virtualenv|/src/|extension_dir|
     python setup.py develop
 
 5. Add the plugin to the ``ckan.plugins`` setting in your |development.ini|
@@ -145,17 +147,17 @@ This new code does a few things:
       :start-after: # that CKAN will use this plugin's custom templates.
 
    This tells CKAN to look for template files in the
-   ``ckanext-example_theme/ckanext/example_theme/templates/`` whenever it
+   ``|extension_dir|/ckanext/example_theme/templates/`` whenever it
    renders a page. Any template file in this directory that has the same name
    as one of CKAN's default template files, will be used instead of the default
    file.
 
 Now, let's customize the CKAN front page. Create the
-``ckanext-example_theme/ckanext/example_theme/templates/`` directory, create a
+``|extension_dir|/ckanext/example_theme/templates/`` directory, create a
 ``home`` directory inside the ``templates`` directory, and create an empty
 ``index.html`` file inside the ``home`` directory::
 
-    ckanext-example_theme/
+    |extension_dir|/
       ckanext/
         example_theme/
           templates/
@@ -292,7 +294,7 @@ add a custom template helper function to select the dataset to be shown.
 First, in our ``plugin.py`` file we need to implement
 :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` and provide our helper
 function. Change the contents of
-``ckanext-example_theme/ckanext/example_theme/plugin.py`` to look like this:
+``|extension_dir|/ckanext/example_theme/plugin.py`` to look like this:
 
 .. literalinclude:: ../ckanext/example_theme/v7/plugin.py
 
@@ -303,7 +305,7 @@ function. Change the contents of
 Now that we've registered our helper function, we need to call it from our
 template. As with CKAN's default template helpers, templates access custom
 helpers via the global variable ``h``.
-Edit ``ckanext-example_theme/ckanext/example_theme/home/index.html`` to look
+Edit ``|extension_dir|/ckanext/example_theme/home/index.html`` to look
 like this:
 
 .. literalinclude:: ../ckanext/example_theme/v7/templates/home/index.html
@@ -364,7 +366,7 @@ their own snippets. To add template snippets, all a plugin needs to do is add a
 The snippets will be callable from other templates immediately.
 
 Let's add a custom snippet to change how our dataset of the day is displayed.
-Create a new directory ``ckanext-example_theme/templates/snippets/`` containing
+Create a new directory ``|extension_dir|/templates/snippets/`` containing
 a file named ``example_theme_dataset_of_the_day.html`` with these contents:
 
 .. literalinclude:: ../ckanext/example_theme/v9/templates/snippets/example_theme_dataset_of_the_day.html
