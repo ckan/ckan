@@ -300,10 +300,6 @@ def package_dictize(pkg, context):
     result_dict['metadata_created'] = pkg.metadata_created.isoformat() \
         if pkg.metadata_created else None
 
-    if context.get('for_view'):
-        for item in plugins.PluginImplementations( plugins.IPackageController):
-            result_dict = item.before_view(result_dict)
-
     return result_dict
 
 def _get_members(context, group, member_type):
