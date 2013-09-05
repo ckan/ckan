@@ -49,7 +49,9 @@
           <ul class="unstyled">
             {% block header_account_notlogged %}
             <li>{% link_for _('Log in'), controller='user', action='login' %}</li>
-            <li>{% link_for _('Register'), controller='user', action='register', class_='sub' %}</li>
+            {% if h.check_access('user_create') %}
+              <li>{% link_for _('Register'), controller='user', action='register', class_='sub' %}</li>
+            {% endif %}
             {% endblock %}
           </ul>
         </nav>

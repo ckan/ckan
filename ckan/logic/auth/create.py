@@ -103,14 +103,22 @@ def rating_create(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
 
-def user_create(context, data_dict=None):
-    user = context['user']
 
-    if ('api_version' in context
-            and not new_authz.check_config_permission('create_user_via_api')):
-        return {'success': False, 'msg': _('User %s not authorized to create users') % user}
-    else:
-        return {'success': True}
+def user_create(context, data_dict=None):
+    # create_user_via_api is deprecated
+    using_api = 'api_version' in context
+    create_user_via_api = new_authz.check_config_permission(
+            'create_user_via_api')
+    create_user_via_web = new_authz.check_config_permission(
+            'create_user_via_web')
+
+    if using_api and not create_user_via_api:
+        return {'success': False, 'msg': _('User {user} not authorized to '
+            'create users via the API').format(user=context.get('user'))}
+    if not using_api and not create_user_via_web:
+        return {'success': False, 'msg': _('Not authorized to '
+            'create users')}
+    return {'success': True}
 
 
 def _check_group_auth(context, data_dict):
