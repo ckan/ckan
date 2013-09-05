@@ -46,6 +46,7 @@ config_details = {
     'ckan.dumps_format': {},
     'ckan.api_url': {},
     'ofs.impl': {'name': 'ofs_impl'},
+    'ckan.homepage_style': {'default': '1'},
 
     # split string
     'search.facets': {'default': 'organization groups tags res_format license_id',

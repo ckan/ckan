@@ -1,6 +1,7 @@
 import logging
 
 import ckan.plugins as p
+import ckan.model as model
 
 log = logging.getLogger(__name__)
 
@@ -72,8 +73,22 @@ class HomepagePlugin(p.SingletonPlugin):
 
         return groups_data
 
+    def get_site_statistics(self):
+        stats = {}
+        stats['dataset_count'] = p.toolkit.get_action('package_search')({}, {"rows": 1})['count']
+        stats['group_count'] = len(p.toolkit.get_action('group_list')({}, {}))
+        stats['organization_count'] = len(p.toolkit.get_action('organization_list')({}, {}))
+        result =model.Session.execute(
+            '''select count(*) from related r
+               left join related_dataset rd on r.id = rd.related_id
+               where rd.status = 'active' or rd.id is null''').first()[0]
+        stats['related_count'] = len(p.toolkit.get_action('organization_list')({}, {}))
+
+        return stats
+
     def get_helpers(self):
         return {
             'get_featured_organizations': self.get_featured_organizations,
             'get_featured_groups': self.get_featured_groups,
+            'get_site_statistics': self.get_site_statistics,
         }
