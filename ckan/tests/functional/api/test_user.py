@@ -1,20 +1,26 @@
+import paste
+from pylons import config
 from nose.tools import assert_equal
 
 import ckan.logic as logic
+import ckan.new_authz as new_authz
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import TestController as ControllerTestCase
+from ckan.tests.pylons_controller import PylonsTestCase
 from ckan.tests import url_for
+import ckan.config.middleware
+from ckan.common import json
 
 class TestUserApi(ControllerTestCase):
     @classmethod
     def setup_class(cls):
         CreateTestData.create()
-                
+
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        
+
     def test_autocomplete(self):
         response = self.app.get(
             url=url_for(controller='api', action='user_autocomplete', ver=2),
@@ -51,8 +57,55 @@ class TestUserApi(ControllerTestCase):
         print response.json
         assert_equal(len(response.json), 1)
 
+    def test_user_create_default(self):
+        params = {
+            'name': 'testinganewuser',
+            'email': 'testinganewuser@ckan.org',
+            'password': 'random',
+        }
+        res = self.app.post('/api/3/action/user_create', json.dumps(params),
+                expect_errors=True)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+
+class TestCreateUser(PylonsTestCase):
+    '''Tests for the creating user when anon_create_user is false.
+
+    '''
+    @classmethod
+    def setup_class(cls):
+        cls._original_config = config.copy()
+        config['ckan.auth.anon_create_user'] = False
+        new_authz.clear_auth_functions_cache()
+        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
+                **config)
+        cls.app = paste.fixture.TestApp(wsgiapp)
+        PylonsTestCase.setup_class()
+
+    @classmethod
+    def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
+        new_authz.clear_auth_functions_cache()
+        PylonsTestCase.teardown_class()
+
+        model.repo.rebuild_db()
+
+    def test_user_create_disabled(self):
+        params = {
+            'name': 'testinganewuser',
+            'email': 'testinganewuser@ckan.org',
+            'password': 'random',
+        }
+        res = self.app.post('/api/3/action/user_create', json.dumps(params),
+                expect_errors=True)
+        res_dict = res.json
+        assert res_dict['success'] is False
+
+
 class TestUserActions(object):
-    
+
     @classmethod
     def setup_class(cls):
         CreateTestData.create()

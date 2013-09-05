@@ -1,16 +1,24 @@
 import json
+import paste
 from pprint import pprint
 from nose.tools import assert_equal, assert_raises
-import ckan.lib.search as search
+from pylons import config
 
+import ckan.lib.search as search
 import ckan.model as model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import WsgiAppCase
 from ckan.tests import StatusCodes
+from ckan.config.middleware import make_app
+
 
 class TestAction(WsgiAppCase):
     @classmethod
     def setup_class(cls):
+        cls._original_config = config.copy()
+        config['ckan.auth.anon_create_user'] = False
+        wsgiapp = make_app(config['global_conf'], **config)
+        cls.app = paste.fixture.TestApp(wsgiapp)
         search.clear()
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -19,6 +27,8 @@ class TestAction(WsgiAppCase):
 
     @classmethod
     def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
         model.repo.rebuild_db()
 
     def test_06a_tag_list(self):
@@ -145,13 +155,13 @@ class TestAction(WsgiAppCase):
         assert_equal(pkg['isopen'], False)
 
     def test_08_user_create_not_authorized(self):
-        postparams = '%s=1' % json.dumps({'name':'test_create_from_action_api', 'password':'testpass'})
+        postparams = '%s=1' % json.dumps(
+                {'name':'test_create_from_action_api', 'password':'testpass'})
         res = self.app.post('/api/action/user_create', params=postparams,
                             status=StatusCodes.STATUS_403_ACCESS_DENIED)
         res_obj = json.loads(res.body)
         assert res_obj['help'].startswith("Create a new user.")
         assert res_obj['success'] is False
-        assert res_obj['error'] == {'message': 'Access denied', '__type': 'Authorization Error'}
 
     def test_09_user_create(self):
         user_dict = {'name':'test_create_from_action_api',

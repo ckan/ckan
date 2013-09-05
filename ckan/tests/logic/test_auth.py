@@ -6,13 +6,14 @@ import json
 
 INITIAL_TEST_CONFIG_PERMISSIONS = {
     'anon_create_dataset': False,
+    'anon_create_user': False,
     'create_dataset_if_not_in_organization': False,
     'user_create_groups': False,
     'user_create_organizations': False,
     'user_delete_groups': False,
     'user_delete_organizations': False,
-    'create_user_via_api': False,
     'create_unowned_dataset': False,
+    'create_user_via_api': False,
 }
 
 

@@ -99,10 +99,19 @@ class _Helpers(object):
             return self.null_function
 
 
+def _warn_deprecated_configs(app_conf):
+    if 'ckan.auth.create_user_via_api' in app_conf:
+        log.warn('Configuration `ckan.auth.create_user_via_api` is deprecated '
+                 'and will be removed soon. Please use '
+                 '`ckan.auth.anon_create_user` instead.')
+
+
 def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config``
     object.  This code should only need to be run once.
     """
+
+    _warn_deprecated_configs(app_conf)
 
     ######  Pylons monkey-patch
     # this must be run at a time when the env is semi-setup, thus inlined here.

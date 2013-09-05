@@ -255,6 +255,21 @@ Default value: ``False``
 Allow users to create datasets without registering and logging in.
 
 
+.. _ckan.auth.anon_create_user:
+
+ckan.auth.anon_create_user
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.anon_create_user = True
+
+Default value: ``True``
+
+
+Allow visitors to create user accounts.
+
+
 .. _ckan.auth.create_unowned_dataset:
 
 ckan.auth.create_unowned_dataset
@@ -345,6 +360,10 @@ Allow users to delete organizations.
 
 ckan.auth.create_user_via_api
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. deprecated:: 2.2
+   It's not possible to disable user creation just through the API anymore.
+   See :ref:`ckan.auth.anon_create_user`.
 
 Example::
 

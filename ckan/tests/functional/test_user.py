@@ -11,6 +11,7 @@ import ckan.model as model
 from base import FunctionalTestCase
 from ckan.lib.mailer import get_reset_link, create_reset_key
 
+
 class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, SmtpServerHarness):
     @classmethod
     def setup_class(cls):

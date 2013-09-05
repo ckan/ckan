@@ -86,6 +86,7 @@ del AuthFunctions
 
 def clear_auth_functions_cache():
     _AuthFunctions.clear()
+    CONFIG_PERMISSIONS.clear()
 
 
 def auth_functions_list():
@@ -312,6 +313,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     # permission and default
     # these are prefixed with ckan.auth. in config to override
     'anon_create_dataset': False,
+    'anon_create_user': True,
     'create_dataset_if_not_in_organization': True,
     'create_unowned_dataset': True,
     'user_create_groups': True,
