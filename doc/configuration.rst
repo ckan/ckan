@@ -355,6 +355,20 @@ Default value: ``False``
 
 Allow new user accounts to be created via the API.
 
+.. _ckan.auth.create_user_via_web:
+
+ckan.auth.create_user_via_api
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.create_user_via_web = True
+
+Default value: ``True``
+
+
+Allow new user accounts to be created via the Web.
+
 .. end_config-authorization
 
 
