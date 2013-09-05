@@ -357,7 +357,7 @@ Allow new user accounts to be created via the API.
 
 .. _ckan.auth.create_user_via_web:
 
-ckan.auth.create_user_via_api
+ckan.auth.create_user_via_web
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::

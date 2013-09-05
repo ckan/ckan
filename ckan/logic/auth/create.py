@@ -105,7 +105,6 @@ def rating_create(context, data_dict):
 
 
 def user_create(context, data_dict=None):
-    # create_user_via_api is deprecated
     using_api = 'api_version' in context
     create_user_via_api = new_authz.check_config_permission(
             'create_user_via_api')
