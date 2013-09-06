@@ -177,6 +177,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         # actually did, but is now far simpler.
         results =  meta.Session.query(Group.id, Group.name, Group.title).\
                      filter_by(type=type).\
+                     filter_by(state='active').\
                      join(Member, Member.table_id == Group.id).\
                      filter_by(group=self).\
                      filter_by(table_name='group').\

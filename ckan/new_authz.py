@@ -354,7 +354,7 @@ def check_config_permission(permission):
             key = 'ckan.auth.' + perm
             default = CONFIG_PERMISSIONS_DEFAULTS[perm]
             CONFIG_PERMISSIONS[perm] = config.get(key, default)
-            if isinstance(perm, bool):
+            if isinstance(default, bool):
                 CONFIG_PERMISSIONS[perm] = asbool(CONFIG_PERMISSIONS[perm])
     if permission in CONFIG_PERMISSIONS:
         return CONFIG_PERMISSIONS[permission]

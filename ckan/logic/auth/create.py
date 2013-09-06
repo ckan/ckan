@@ -114,6 +114,13 @@ def user_create(context, data_dict=None):
 
 
 def _check_group_auth(context, data_dict):
+    '''Has this user got update permission for all of the given groups?
+    If there is a package in the context then ignore that package's groups.
+    :returns: False if not allowed to update one (or more) of the given groups.
+              True otherwise. i.e. True is the default. A blank data_dict
+              mentions no groups, so it returns True.
+
+    '''
     # FIXME This code is shared amoung other logic.auth files and should be
     # somewhere better
     if not data_dict:

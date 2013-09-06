@@ -24,6 +24,10 @@ class TestGroup(FunctionalTestCase):
         model.Session.remove()
         CreateTestData.create()
 
+        # reduce extraneous logging
+        from ckan.lib import activity_streams_session_extension
+        activity_streams_session_extension.logger.level = 100
+
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
@@ -102,17 +106,21 @@ class TestGroup(FunctionalTestCase):
     def test_sorting(self):
         model.repo.rebuild_db()
 
+        testsysadmin = model.User(name=u'testsysadmin')
+        testsysadmin.sysadmin = True
+        model.Session.add(testsysadmin)
+
         pkg1 = model.Package(name="pkg1")
         pkg2 = model.Package(name="pkg2")
         model.Session.add(pkg1)
         model.Session.add(pkg2)
 
         CreateTestData.create_groups([{'name': "alpha", 'packages': []},
-                                       {'name': "beta",
-                                        'packages': ["pkg1", "pkg2"]},
-                                       {'name': "delta",
-                                        'packages': ["pkg1"]},
-                                       {'name': "gamma", 'packages': []}],
+                                      {'name': "beta",
+                                       'packages': ["pkg1", "pkg2"]},
+                                      {'name': "delta",
+                                       'packages': ["pkg1"]},
+                                      {'name': "gamma", 'packages': []}],
                                      admin_user_name='testsysadmin')
 
         context = {'model': model, 'session': model.Session,
