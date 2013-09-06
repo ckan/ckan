@@ -221,19 +221,23 @@ class CreateTestData(object):
                             group = model.Group.by_name(unicode(group_name))
                             if not group:
                                 if not group_name in new_groups:
-                                    group = model.Group(name=unicode(group_name))
+                                    group = model.Group(name=
+                                                        unicode(group_name))
                                     model.Session.add(group)
                                     new_group_names.add(group_name)
                                     new_groups[group_name] = group
                                 else:
-                                    # If adding multiple packages with the same group name,
-                                    # model.Group.by_name will not find the group as the
-                                    # session has not yet been committed at this point.
-                                    # Fetch from the new_groups dict instead.
+                                    # If adding multiple packages with the same
+                                    # group name, model.Group.by_name will not
+                                    # find the group as the session has not yet
+                                    # been committed at this point.  Fetch from
+                                    # the new_groups dict instead.
                                     group = new_groups[group_name]
-                            capacity = 'organization' if group.is_organization \
+                            capacity = 'organization' if group.is_organization\
                                        else 'public'
-                            member = model.Member(group=group, table_id=pkg.id, table_name='package', capacity=capacity)
+                            member = model.Member(group=group, table_id=pkg.id,
+                                                  table_name='package',
+                                                  capacity=capacity)
                             model.Session.add(member)
                             if group.is_organization:
                                 pkg.owner_org = group.id
@@ -338,8 +342,8 @@ class CreateTestData(object):
                                 'type', 'is_organization'))
         for group_dict in group_dicts:
             if model.Group.by_name(unicode(group_dict['name'])):
-                log.warning('Cannot create group "%s" as it already exists.' % \
-                                (group_dict['name']))
+                log.warning('Cannot create group "%s" as it already exists.' %
+                            group_dict['name'])
                 continue
             pkg_names = group_dict.pop('packages', [])
             group = model.Group(name=unicode(group_dict['name']))
@@ -353,18 +357,19 @@ class CreateTestData(object):
             for pkg_name in pkg_names:
                 pkg = model.Package.by_name(unicode(pkg_name))
                 assert pkg, pkg_name
-                member = model.Member(group=group, table_id=pkg.id, table_name='package')
+                member = model.Member(group=group, table_id=pkg.id,
+                                      table_name='package')
                 model.Session.add(member)
             model.Session.add(group)
-            admins = [model.User.by_name(user_name) \
-                      for user_name in group_dict.get('admins', [])] \
-                      + admin_users
+            admins = [model.User.by_name(user_name)
+                      for user_name in group_dict.get('admins', [])] + \
+                     admin_users
             for admin in admins:
                 member = model.Member(group=group, table_id=admin.id,
                                       table_name='user', capacity='admin')
                 model.Session.add(member)
-            editors = [model.User.by_name(user_name) \
-                      for user_name in group_dict.get('editors', [])]
+            editors = [model.User.by_name(user_name)
+                       for user_name in group_dict.get('editors', [])]
             for editor in editors:
                 member = model.Member(group=group, table_id=editor.id,
                                       table_name='user', capacity='editor')
@@ -400,7 +405,8 @@ class CreateTestData(object):
  * Associated tags, etc etc
 '''
         if auth_profile == "publisher":
-            organization_group = model.Group(name=u"organization_group", type="organization")
+            organization_group = model.Group(name=u"organization_group",
+                                             type="organization")
 
         cls.pkg_names = [u'annakarenina', u'warandpeace']
         pkg1 = model.Package(name=cls.pkg_names[0], type=package_type)
@@ -525,7 +531,6 @@ left arrow <
 
         model.repo.commit_and_remove()
 
-
     # method used in DGU and all good tests elsewhere
     @classmethod
     def create_users(cls, user_dicts):
@@ -539,9 +544,11 @@ left arrow <
 
     @classmethod
     def _create_user_without_commit(cls, name='', **user_dict):
-        if model.User.by_name(name) or (user_dict.get('open_id') and model.User.by_openid(user_dict.get('openid'))):
-            log.warning('Cannot create user "%s" as it already exists.' % \
-                            (name or user_dict['name']))
+        if model.User.by_name(name) or \
+                (user_dict.get('open_id') and
+                 model.User.by_openid(user_dict.get('openid'))):
+            log.warning('Cannot create user "%s" as it already exists.' %
+                        name or user_dict['name'])
             return
         # User objects are not revisioned so no need to create a revision
         user_ref = name or user_dict['openid']

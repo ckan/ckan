@@ -103,14 +103,18 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
     def __unicode__(self):
         # refer to objects by name, not ID, to help debugging
         if self.table_name == 'package':
-            table_info = 'package=%s' % meta.Session.query(_package.Package).get(self.table_id).name
+            table_info = 'package=%s' % meta.Session.query(_package.Package).\
+                get(self.table_id).name
         elif self.table_name == 'group':
-            table_info = 'group=%s' % meta.Session.query(Group).get(self.table_id).name
+            table_info = 'group=%s' % meta.Session.query(Group).\
+                get(self.table_id).name
         else:
-            table_info = 'table_name=%s table_id=%s' % (self.table_name, self.table_id)
+            table_info = 'table_name=%s table_id=%s' % (self.table_name,
+                                                        self.table_id)
         return u'<Member group=%s %s capacity=%s state=%s>' % \
                (self.group.name if self.group else repr(self.group),
                 table_info, self.capacity, self.state)
+
 
 class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             vdm.sqlalchemy.StatefulObjectMixin,
@@ -172,10 +176,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         '''Returns the groups one level underneath this group in the hierarchy.
         Groups come in a list of dicts, each keyed by "id", "name" and "title".
         '''
-        # The original intention of this method was to provide the full depth of
-        # the tree, but the CTE was incorrect. This new query does what that old CTE
-        # actually did, but is now far simpler.
-        results =  meta.Session.query(Group.id, Group.name, Group.title).\
+        # The original intention of this method was to provide the full depth
+        # of the tree, but the CTE was incorrect. This new query does what that
+        # old CTE actually did, but is now far simpler.
+        results = meta.Session.query(Group.id, Group.name, Group.title).\
                      filter_by(type=type).\
                      filter_by(state='active').\
                      join(Member, Member.table_id == Group.id).\
@@ -184,12 +188,13 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                      filter_by(state='active').\
                      all()
 
-        return [{'id':id_, 'name': name, 'title': title}
+        return [{'id': id_, 'name': name, 'title': title}
                 for id_, name, title in results]
 
     def get_children_group_hierarchy(self, type='group'):
-        '''Returns the groups in all levels underneath this group in the hierarchy.
-        The ordering is such that children always come after their parent.
+        '''Returns the groups in all levels underneath this group in the 
+        hierarchy. The ordering is such that children always come after their
+        parent.
 
         :rtype: a list of tuples, each one a Group and the ID its their parent
         group.
@@ -200,14 +205,16 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
               (<Group newport-ccg>, u'd2e25b41-720c-4ba7-bc8f-bb34b185b3dd')]
         '''
         results = meta.Session.query(Group, 'parent_id').\
-            from_statement(HIERARCHY_DOWNWARDS_CTE).params(id=self.id, type=type).all()
+            from_statement(HIERARCHY_DOWNWARDS_CTE).\
+            params(id=self.id, type=type).all()
         return results
 
     def get_parent_group_hierarchy(self, type='group'):
-        '''Returns this group's parent, parent's parent, parent's parent's parent
-        etc.. Sorted with the top level parent first.'''
+        '''Returns this group's parent, parent's parent, parent's parent's 
+        parent etc.. Sorted with the top level parent first.'''
         return meta.Session.query(Group).\
-            from_statement(HIERARCHY_UPWARDS_CTE).params(id=self.id, type=type).all()
+            from_statement(HIERARCHY_UPWARDS_CTE).\
+            params(id=self.id, type=type).all()
 
     @classmethod
     def get_top_level_groups(cls, type='group'):
@@ -215,12 +222,12 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         no parent groups. Groups are sorted by title.
         '''
         return meta.Session.query(cls).\
-           outerjoin(Member, Member.table_id == Group.id and \
-                     Member.table_name == 'group' and \
-                     Member.state == 'active').\
-           filter(Member.id==None).\
-           filter(Group.type==type).\
-           order_by(Group.title).all()
+            outerjoin(Member, Member.table_id == Group.id and
+                      Member.table_name == 'group' and
+                      Member.state == 'active').\
+            filter(Member.id == None).\
+            filter(Group.type == type).\
+            order_by(Group.title).all()
 
     def packages(self, with_private=False, limit=None,
             return_query=False, context=None):
@@ -381,7 +388,6 @@ MemberRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Member,
 MemberRevision.related_packages = lambda self: [self.continuity.package]
 
 
-
 HIERARCHY_DOWNWARDS_CTE = """WITH RECURSIVE child AS
 (
     -- non-recursive term
@@ -404,7 +410,8 @@ HIERARCHY_UPWARDS_CTE = """WITH RECURSIVE parenttree(depth) AS (
     UNION
     -- recursive term
     SELECT PG.depth + 1, M.* FROM parenttree PG, public.member M
-    WHERE PG.group_id = M.table_id AND M.table_name = 'group' AND M.state = 'active'
+    WHERE PG.group_id = M.table_id AND M.table_name = 'group'
+          AND M.state = 'active'
     )
 
 SELECT G.*, PT.depth FROM parenttree AS PT

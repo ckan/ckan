@@ -213,7 +213,9 @@ def get_roles_with_permission(permission):
 
 def has_user_permission_for_group_or_org(group_id, user_name, permission):
     ''' Check if the user has the given permissions for the group,
-    allowing for sysadmin rights and permission cascading down groups. '''
+    allowing for sysadmin rights and permission cascading down groups.
+
+    '''
     if not group_id:
         return False
     group = model.Group.get(group_id)
@@ -234,15 +236,19 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
     # in the group hierarchy for permission.
     for capacity in check_config_permission('roles_that_cascade_to_sub_groups'):
         parent_groups = group.get_parent_group_hierarchy(type=group.type)
-        group_ids = [group.id for group in parent_groups]
+        group_ids = [group_.id for group_ in parent_groups]
         if _has_user_permission_for_groups(user_id, permission, group_ids,
                                            capacity=capacity):
             return True
     return False
 
-def _has_user_permission_for_groups(user_id, permission, group_ids, capacity=None):
+
+def _has_user_permission_for_groups(user_id, permission, group_ids,
+                                    capacity=None):
     ''' Check if the user has the given permissions for the particular
-    group. Can also be filtered by a particular capacity'''
+    group. Can also be filtered by a particular capacity.
+
+    '''
     # get any roles the user has for the group
     q = model.Session.query(model.Member) \
         .filter(model.Member.group_id.in_(group_ids)) \
