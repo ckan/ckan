@@ -108,26 +108,8 @@ in this example, that inherits from CKAN's
 
 .. note::
 
-   Every CKAN plugin class must inherit from either
-   :py:class:`~ckan.plugins.core.Plugin`
-   or :py:class:`~ckan.plugins.core.SingletonPlugin`
-   If you inherit from ``SingletonPlugin`` then only one object instance of
-   your plugin class will be created when CKAN starts up, and whenever CKAN
-   calls one of your plugin class's methods the method will be called on this
-   single object instance. Most plugin classes should inherit from
-   ``SingletonPlugin``, only inherit from ``Plugin`` if you need multiple
-   instances of your class to be created.
-
-.. todo:: Improve the note about Plugin vs SingletonPlugin.
-
-   *Why* should you use SingletonPlugin? What does it get you?  eg. Can you
-   save stuff against self? Is it really one object instance or is it one per
-   thread? What does "when CKAN starts up" mean in the context of Apache? Does
-   CKAN start up for each http request? Or only when you restart Apache?
-
-   And why might you inherit from Plugin/why might you need multiple instances
-   of your class?
-
+   Every CKAN plugin class should inherit from
+   :py:class:`~ckan.plugins.core.SingletonPlugin`.
 
 
 .. _setup.py:
