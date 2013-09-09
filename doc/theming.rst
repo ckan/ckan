@@ -4,6 +4,7 @@
 .. |extension_dir| replace:: ``ckanext-example_theme``
 .. |setup.py| replace:: ``ckanext-example_theme/setup.py`` ``ckan.plugins``
 .. |plugin.py| replace:: ``ckanext-example_theme/ckanext/example_theme/plugin.py``
+.. |templates_dir| replace:: ``ckanext-example_theme/ckanext/example_theme/templates``
 .. |index.html| replace:: ``ckanext-example_theme/ckanext/example_theme/templates/home/index.html``
 .. |snippets_dir| replace:: ``ckanext-example_theme/ckanext/example_theme/templates/snippets``
 
