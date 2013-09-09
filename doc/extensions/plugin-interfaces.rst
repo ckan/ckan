@@ -4,7 +4,7 @@ Plugin interfaces reference
 :py:mod:`ckan.plugins` contains a few core classes and functions for plugins
 to use:
 
-.. rubric::
+.. rubric:: ``ckan.plugins``
 
 .. autoclass:: ckan.plugins.SingletonPlugin
 
