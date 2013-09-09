@@ -28,6 +28,7 @@ extensions.
    tutorial
    testing-extensions
    best-practices
+   adding-custom-fields
    plugin-interfaces
    plugins-toolkit
    converters
