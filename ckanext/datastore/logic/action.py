@@ -359,7 +359,7 @@ def datastore_search_sql(context, data_dict):
     this action. Use :meth:`~ckanext.datastore.logic.action.datastore_search` instead.
 
     .. note:: This action is only available when using PostgreSQL 9.X and using a read-only user on the database.
-        It is not available in :ref:`legacy mode<legacy_mode>`.
+        It is not available in :ref:`legacy mode<legacy-mode>`.
 
     :param sql: a single SQL select statement
     :type sql: string

@@ -960,7 +960,7 @@ Example::
 
 Default value: ``file/``
 
-This setting will change the prefix for the uploaded files.
+This setting will change the prefix for the uploaded files. This is only for ``pairtree``.
 
 .. _ckan.storage.max_content_length:
 
@@ -1075,10 +1075,10 @@ Example::
 
 .. todo:: Expand
 
-.. _ckan.datapusher.url
+.. _ckan.datapusher.url:
 
 ckan.datapusher.url
-^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^
 
 Example::
   ckan.datapusher.url = http://datapusher.ckan.org/
