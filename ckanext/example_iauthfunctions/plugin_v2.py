@@ -6,7 +6,7 @@ def group_create(context, data_dict=None):
 
 
 class ExampleIAuthFunctionsPlugin(plugins.SingletonPlugin):
-    plugins.implements(plugins.IAuthFunctions, inherit=False)
+    plugins.implements(plugins.IAuthFunctions)
 
     def get_auth_functions(self):
         return {'group_create': group_create}

@@ -280,10 +280,6 @@ file so that it looks like this:
 
 .. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v2.py
 
-.. todo::
-
-   ``inherit=False`` or ``True`` or not at all?
-
 Our :py:class:`~ckanext.example_iauthfunctions.plugin_v2.ExampleIAuthFunctionsPlugin`
 class now calls :func:`~ckan.plugins.core.implements` to tell CKAN that it
 implements the :class:`~ckan.plugins.interfaces.IAuthFunctions` interface, and
