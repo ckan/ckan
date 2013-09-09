@@ -59,7 +59,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
 
 2. Create the file |plugin.py| with the following contents:
 
-   .. literalinclude:: ../ckanext/example_theme/v1/plugin.py
+   .. literalinclude:: ../ckanext/example_theme/v1_empty_extension/plugin.py
 
 3. Edit the ``entry_points`` in |setup.py|::
 
@@ -114,13 +114,13 @@ directory containing templates file that override the default ones.
 Edit the |plugin.py| file that we created earlier, so that it looks like
 this:
 
-.. literalinclude:: ../ckanext/example_theme/v2/plugin.py
+.. literalinclude:: ../ckanext/example_theme/v2_empty_template/plugin.py
 
 This new code does a few things:
 
 1. It imports CKAN's *plugins toolkit* module:
 
-   .. literalinclude:: ../ckanext/example_theme/v2/plugin.py
+   .. literalinclude:: ../ckanext/example_theme/v2_empty_template/plugin.py
       :start-after: import ckan.plugins as plugins
       :end-before: class ExampleThemePlugin(plugins.SingletonPlugin):
 
@@ -132,7 +132,7 @@ This new code does a few things:
    implements the :py:class:`~ckan.plugins.interfaces.IConfigurer` plugin
    interface:
 
-   .. literalinclude:: ../ckanext/example_theme/v2/plugin.py
+   .. literalinclude:: ../ckanext/example_theme/v2_empty_template/plugin.py
       :start-after: # Declare that this class implements IConfigurer.
       :end-before: def update_config(
 
@@ -148,7 +148,7 @@ This new code does a few things:
    is the only method declated in the
    :py:class:`~ckan.plugins.interfaces.IConfigurer` interface:
 
-   .. literalinclude:: ../ckanext/example_theme/v2/plugin.py
+   .. literalinclude:: ../ckanext/example_theme/v2_empty_template/plugin.py
       :pyobject: ExampleThemePlugin.update_config
 
    CKAN will call this method when it starts up, to give our plugin a chance to
@@ -229,7 +229,7 @@ declare that our ``home/index.html`` template extends the default
 ``home/index.html`` template, instead of completely replacing it.
 Edit the empty ``index.html`` file you just created, and add one line:
 
-.. literalinclude:: ../ckanext/example_theme/v3/templates/home/index.html
+.. literalinclude:: ../ckanext/example_theme/v3_ckan_extends/templates/home/index.html
 
 If you now reload the `CKAN front page`_ in your browser, you should see the
 normal front page appear again. When CKAN processes our ``index.html`` file,
@@ -269,7 +269,7 @@ When a custom template file extends one of CKAN's default template files using
 template with its own code by using ``{% block %}``. Edit your ``index.html``
 file again and change the contents to:
 
-.. literalinclude:: ../ckanext/example_theme/v4/templates/home/index.html
+.. literalinclude:: ../ckanext/example_theme/v4_block/templates/home/index.html
 
 Reload the `CKAN front page`_ in your browser.
 You should see that the featured groups section of the page has been replaced,
@@ -287,7 +287,7 @@ Extending parent blocks with Jinja's ``{{ super() }}``
 If you want to add some code to a block but don't want to replace the entire
 block, you can use Jinja's ``{{ super() }}`` tag:
 
-.. literalinclude:: ../ckanext/example_theme/v5/templates/home/index.html
+.. literalinclude:: ../ckanext/example_theme/v5_super/templates/home/index.html
 
 When the child block above is rendered, Jinja will replace the
 ``{{ super() }}`` tag with the contents of the parent block.
@@ -305,7 +305,7 @@ For example, let's replace the featured groups on the front page with an
 activity stream of the site's recently created, updated and deleted datasets.
 Change the code in |index.html| to this:
 
-.. literalinclude:: ../ckanext/example_theme/v6/templates/home/index.html
+.. literalinclude:: ../ckanext/example_theme/v6_helper_function/templates/home/index.html
 
 Reload the `CKAN front page`_ in your browser and you should see a new activity
 stream.
@@ -314,7 +314,7 @@ To call a template helper function we use a Jinja2 *expression* (code wrapped
 in ``{{ ... }}`` brackets), and we use the global variable ``h`` (available
 to all templates) to access the helper:
 
-.. literalinclude:: ../ckanext/example_theme/v6/templates/home/index.html
+.. literalinclude:: ../ckanext/example_theme/v6_helper_function/templates/home/index.html
    :start-after: {% block secondary_content %}
    :end-before: {% endblock %}
 
@@ -338,12 +338,12 @@ function. Change the contents of ``plugin.py`` to look like this:
 
 .. todo: This probably breaks when the site has no datasets.
 
-.. literalinclude:: ../ckanext/example_theme/v7/plugin.py
+.. literalinclude:: ../ckanext/example_theme/v7_custom_helper_function/plugin.py
 
 We've added a number of new features to ``plugin.py``. First, we defined a
 function to get the dataset of the day from CKAN:
 
-.. literalinclude:: ../ckanext/example_theme/v7/plugin.py
+.. literalinclude:: ../ckanext/example_theme/v7_custom_helper_function/plugin.py
    :pyobject: dataset_of_the_day
 
 This function uses CKAN's *action functions* to get the dataset from CKAN.
@@ -352,7 +352,7 @@ See :doc:`writing-extensions` for more about action functions.
 Next, we called :py:func:`~ckan.plugins.implements` to declare that your class
 now implements :py:class:`~ckan.plugins.interfaces.ITemplateHelpers`:
 
-.. literalinclude:: ../ckanext/example_theme/v7/plugin.py
+.. literalinclude:: ../ckanext/example_theme/v7_custom_helper_function/plugin.py
    :start-after: # Declare that this plugin will implement ITemplateHelpers.
    :end-before: def update_config(self, config):
 
@@ -361,7 +361,7 @@ Finally, we implemented the
 :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` to register our function
 as a template helper:
 
-.. literalinclude:: ../ckanext/example_theme/v7/plugin.py
+.. literalinclude:: ../ckanext/example_theme/v7_custom_helper_function/plugin.py
    :pyobject: ExampleThemePlugin.get_helpers
 
 Now that we've registered our helper function, we need to call it from our
@@ -369,7 +369,7 @@ template. As with CKAN's default template helpers, templates access custom
 helpers via the global variable ``h``.
 Edit |index.html| to look like this:
 
-.. literalinclude:: ../ckanext/example_theme/v7/templates/home/index.html
+.. literalinclude:: ../ckanext/example_theme/v7_custom_helper_function/templates/home/index.html
 
 Now reload your `CKAN front page`_ in your browser. You should see the title of
 a random dataset appear on the page, and each time you reload the page you'll
@@ -407,7 +407,7 @@ a group's page, an organization's page or a user's page:
 
 Let's change our |index.html| file to call this snippet:
 
-.. literalinclude:: ../ckanext/example_theme/v8/templates/home/index.html
+.. literalinclude:: ../ckanext/example_theme/v8_snippet/templates/home/index.html
 
 The ``{% snippet %}`` tag takes one or more arguments. The first argument is
 the name of the snippet to call. Any further arguments will be passed into
@@ -431,11 +431,11 @@ Let's add a custom snippet to change how our dataset of the day is displayed.
 Create a new directory |snippets_dir| containing a file named
 ``example_theme_dataset_of_the_day.html`` with these contents:
 
-.. literalinclude:: ../ckanext/example_theme/v9/templates/snippets/example_theme_dataset_of_the_day.html
+.. literalinclude:: ../ckanext/example_theme/v9_custom_snippet/templates/snippets/example_theme_dataset_of_the_day.html
 
 Now edit your |index.html| file and change to use our new snippet:
 
-.. literalinclude:: ../ckanext/example_theme/v9/templates/home/index.html
+.. literalinclude:: ../ckanext/example_theme/v9_custom_snippet/templates/home/index.html
 
 Reload your `CKAN front page`_ in your browser, and you should see the display
 of the dataset of the day change.

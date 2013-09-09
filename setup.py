@@ -122,14 +122,15 @@ setup(
     recline_preview=ckanext.reclinepreview.plugin:ReclinePreview
     example_itemplatehelpers=ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin
     example_idatasetform=ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin
-    example_theme_v1=ckanext.example_theme.v1.plugin:ExampleThemePlugin
-    example_theme_v2=ckanext.example_theme.v2.plugin:ExampleThemePlugin
-    example_theme_v3=ckanext.example_theme.v3.plugin:ExampleThemePlugin
-    example_theme_v4=ckanext.example_theme.v4.plugin:ExampleThemePlugin
-    example_theme_v6=ckanext.example_theme.v6.plugin:ExampleThemePlugin
-    example_theme_v7=ckanext.example_theme.v7.plugin:ExampleThemePlugin
-    example_theme_v8=ckanext.example_theme.v8.plugin:ExampleThemePlugin
-    example_theme_v9=ckanext.example_theme.v9.plugin:ExampleThemePlugin
+    example_theme_v1=ckanext.example_theme.v1_empty_extension.plugin:ExampleThemePlugin
+    example_theme_v2=ckanext.example_theme.v2_empty_template.plugin:ExampleThemePlugin
+    example_theme_v3=ckanext.example_theme.v3_ckan_extends.plugin:ExampleThemePlugin
+    example_theme_v4=ckanext.example_theme.v4_block.plugin:ExampleThemePlugin
+    example_theme_v5=ckanext.example_theme.v5_super.plugin:ExampleThemePlugin
+    example_theme_v6=ckanext.example_theme.v6_helper_function.plugin:ExampleThemePlugin
+    example_theme_v7=ckanext.example_theme.v7_custom_helper_function.plugin:ExampleThemePlugin
+    example_theme_v8=ckanext.example_theme.v8_snippet.plugin:ExampleThemePlugin
+    example_theme_v9=ckanext.example_theme.v9_custom_snippet.plugin:ExampleThemePlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
