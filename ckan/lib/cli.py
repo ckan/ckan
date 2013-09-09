@@ -61,6 +61,9 @@ class MockTranslator(object):
         return singular
 
 class CkanCommand(paste.script.command.Command):
+    '''Base class for classes that implement CKAN paster commands to inherit.
+
+    '''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
             default='development.ini', help='Config file to use.')
