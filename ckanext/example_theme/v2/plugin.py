@@ -1,10 +1,15 @@
+'''plugin.py
+
+'''
 import ckan.plugins as plugins
+import ckan.plugins.toolkit as toolkit
 
 
 class ExampleThemePlugin(plugins.SingletonPlugin):
     '''An example theme plugin.
 
     '''
+    # Declare that this class implements IConfigurer.
     plugins.implements(plugins.IConfigurer)
 
     def update_config(self, config):
