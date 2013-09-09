@@ -61,7 +61,7 @@ To add a tag vocabulary to a site, a CKAN sysadmin must:
    vocabulary and tags. See :doc:`api`.
 
 2. Implement an ``IDatasetForm`` plugin to add a new field for the tag
-   vocabulary to the dataset schema. See :doc:`writing-extensions`.
+   vocabulary to the dataset schema. See :doc:`extensions/index`.
 
 3. Provide custom dataset templates to display the new field to users when
    adding, updating or viewing datasets in the CKAN web interface.

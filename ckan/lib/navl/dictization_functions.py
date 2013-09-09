@@ -38,6 +38,10 @@ class DictizationError(Exception):
         return ''
 
 class Invalid(DictizationError):
+    '''Exception raised by some validator, converter and dictization functions
+    when the given value is invalid.
+
+    '''
     def __init__(self, error, key=None):
         self.error = error
 
