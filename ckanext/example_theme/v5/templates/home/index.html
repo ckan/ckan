@@ -1,0 +1,14 @@
+{% ckan_extends %}
+
+{% block secondary_content %}
+
+  <p>This paragraph will be added to the top of the
+  <code>secondary_content</code> block.</p>
+
+  {# Insert the contents of the original secondary_content block: #}
+  {{ super() }}
+
+  <p>This paragraph will be added to the bottom of the
+  <code>secondary_content</code> block.</p>
+
+{% endblock %}
