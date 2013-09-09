@@ -169,20 +169,26 @@ def register_group_plugins(map):
 
 
 class DefaultDatasetForm(object):
-    '''The default implementation of IDatasetForm.
+    '''The default implementation of
+    :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
 
-    See ckan.plugins.interfaces.IDatasetForm.
+    This class serves two purposes:
 
-    This class has two purposes:
+    1. It provides a base class for plugin classes that implement
+       :py:class:`~ckan.plugins.interfaces.IDatasetForm` to inherit from, so
+       they can inherit the default behavior and just modify the bits they
+       need to.
 
-    1. It provides a base class for IDatasetForm implementations to inherit
-       from.
+    2. It is used as the default fallback plugin when no registered
+       :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugin handles the
+       given dataset type and no other plugin has registered itself as the
+       fallback plugin.
 
-    2. It is used as the default fallback plugin, if no IDatasetForm plugin
-       registers itself as the fallback.
+    .. note::
 
-    Note - this isn't a plugin implementation. This is deliberate, as we
-           don't want this being registered.
+       :py:class:`~ckan.plugins.toolkit.DefaultDatasetForm` doesn't call
+       :py:func:`~ckan.plugins.core.implements`, because we don't want it
+       being registered.
 
     '''
     def create_package_schema(self):

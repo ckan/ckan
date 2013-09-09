@@ -122,6 +122,10 @@ setup(
     recline_preview=ckanext.reclinepreview.plugin:ReclinePreview
     example_itemplatehelpers=ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin
     example_idatasetform=ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin
+    example_iauthfunctions_v1=ckanext.example_iauthfunctions.plugin_v1:ExampleIAuthFunctionsPlugin
+    example_iauthfunctions_v2=ckanext.example_iauthfunctions.plugin_v2:ExampleIAuthFunctionsPlugin
+    example_iauthfunctions_v3=ckanext.example_iauthfunctions.plugin_v3:ExampleIAuthFunctionsPlugin
+    example_iauthfunctions=ckanext.example_iauthfunctions.plugin:ExampleIAuthFunctionsPlugin
     example_theme_v1=ckanext.example_theme.v1_empty_extension.plugin:ExampleThemePlugin
     example_theme_v2=ckanext.example_theme.v2_empty_template.plugin:ExampleThemePlugin
     example_theme_v3=ckanext.example_theme.v3_ckan_extends.plugin:ExampleThemePlugin

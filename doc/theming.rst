@@ -48,7 +48,7 @@ Creating a CKAN extension
 A CKAN theme is simply a CKAN plugin that contains some custom templates and
 static files, so before getting started on our CKAN theme we'll have to create
 an extension and plugin. For a detailed explanation of the steps below, see
-:doc:`writing-extensions`.
+:doc:`extensions/tutorial`.
 
 1. Use the ``paster create`` command to create an empty extension:
 
@@ -127,7 +127,7 @@ This new code does a few things:
 
    The plugins toolkit is a Python module containing core functions, classes
    and exceptions for CKAN plugins to use. For more about the plugins toolkit,
-   see :doc:`writing-extensions`.
+   see :doc:`extensions/tutorial`.
 
 2. It calls :py:func:`~ckan.plugins.core.implements` to declare that it
    implements the :py:class:`~ckan.plugins.interfaces.IConfigurer` plugin
@@ -328,7 +328,7 @@ Adding your own template helper functions
 
 Plugins can add their own template helper functions by implementing CKAN's
 :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` plugin interface.
-(see :doc:`writing-extensions` for a detailed explanation of CKAN plugins and
+(see :doc:`extensions/tutorial` for a detailed explanation of CKAN plugins and
 plugin interfaces).
 
 Let's add another item to our custom front page: a "dataset of the day". We'll
@@ -348,7 +348,7 @@ function to get the dataset of the day from CKAN:
    :pyobject: dataset_of_the_day
 
 This function uses CKAN's *action functions* to get the dataset from CKAN.
-See :doc:`writing-extensions` for more about action functions.
+See :doc:`extensions/tutorial` for more about action functions.
 
 Next, we called :py:func:`~ckan.plugins.implements` to declare that your class
 now implements :py:class:`~ckan.plugins.interfaces.ITemplateHelpers`:
