@@ -10,7 +10,7 @@ def upgrade(migrate_engine):
 
 
 def downgrade(migrate_engine):
-    migrate_engine.exeecute(
+    migrate_engine.execute(
         '''
         ALTER TABLE "user" DROP COLUMN "state"
         '''
