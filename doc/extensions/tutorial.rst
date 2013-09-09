@@ -52,6 +52,12 @@ Now run the ``paster create`` command to create your extension::
 
     paster --plugin=ckan create -t ckanext ckanext-iauthfunctions
 
+.. note::
+
+   The last argument to the ``paster create`` command
+   (``ckanext-iauthfunctions`` in this example) is the name for your next
+   extension. CKAN extension names *have* to begin with ``ckanext-``.
+
 The command will ask you to answer a few questions. The answers you give will
 end up in your extension's ``setup.py`` file (where you can edit them later if
 you want).
