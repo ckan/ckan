@@ -89,9 +89,9 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def __unicode__(self):
         if self.table_name == 'package':
-            table_info = 'package=%s' % Session.query(Package).get(self.table_id).name
+            table_info = 'package=%s' % meta.Session.query(_package.Package).get(self.table_id).name
         elif self.table_name == 'group':
-            table_info = 'group=%s' % Session.query(Group).get(self.table_id).name
+            table_info = 'group=%s' % meta.Session.query(Group).get(self.table_id).name
         else:
             table_info = 'table_name=%s table_id=%s' % (self.table_name, self.table_id)
         return u'<Member group=%s %s capacity=%s state=%s>' % \
