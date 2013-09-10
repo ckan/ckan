@@ -1,26 +1,26 @@
 import datetime
 
-from sqlalchemy import orm
+from sqlalchemy import orm, types, schema, Table, Column, ForeignKey
 
-from meta import *
-from types import make_uuid
-from types import JsonDictType
-from core import *
+import meta
+import core
+import types as _types
+import domain_object
 from package import *
 
 __all__ = ['DataCache', 'data_cache_table']
 
 data_cache_table = Table(
-    'data_cache', metadata,
-    Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+    'data_cache', meta.metadata,
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('object_id', types.UnicodeText),
     Column('key', types.UnicodeText),
     Column('value', types.UnicodeText),
-    Column('created', DateTime, default=datetime.datetime.now),
+    Column('created', types.DateTime, default=datetime.datetime.now),
 )
 
 
-class DataCache(DomainObject):
+class DataCache(domain_object.DomainObject):
     """
     DataCache provides simple caching of pre-calculated values for queries that
     would take too long to run in real time.  It allows background tasks to determine
@@ -52,7 +52,7 @@ class DataCache(DomainObject):
         """
         if not object_id or not key:
             return None, None
-        item = Session.query(cls).filter(cls.key==key).filter(cls.object_id==object_id).first()
+        item = meta.Session.query(cls).filter(cls.key==key).filter(cls.object_id==object_id).first()
         if not item:
             return (None, None,)
         td = datetime.datetime.now() - item.created
@@ -67,7 +67,7 @@ class DataCache(DomainObject):
         this function returns None.
         """
         import json
-        from ckan.lib.jsonp import DateTimeJsonDecoder
+        from ckan.lib.json import DateTimeJsonDecoder
 
         val, age = cls.get(objectid, key)
         if not val:
@@ -90,15 +90,15 @@ class DataCache(DomainObject):
         if not object_id or not key:
             return False
 
-        item = Session.query(cls).filter(cls.key==key).filter(cls.object_id==object_id).first()
+        item = meta.Session.query(cls).filter(cls.key==key).filter(cls.object_id==object_id).first()
         if item == None:
             item = DataCache(object_id=object_id, key=key, value=value)
         else:
             item.value = value
             item.created = datetime.datetime.now()
 
-        Session.add(item)
-        Session.flush()
+        model.Session.add(item)
+        model.Session.flush()
         return True
 
-mapper(DataCache, data_cache_table)
+meta.mapper(DataCache, data_cache_table)
