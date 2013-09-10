@@ -97,8 +97,8 @@ class DataCache(domain_object.DomainObject):
             item.value = value
             item.created = datetime.datetime.now()
 
-        model.Session.add(item)
-        model.Session.flush()
+        meta.Session.add(item)
+        meta.Session.flush()
         return True
 
 meta.mapper(DataCache, data_cache_table)
