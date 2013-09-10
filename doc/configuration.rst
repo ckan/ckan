@@ -506,7 +506,7 @@ Specify which CKAN plugins are to be enabled.
 
 .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
-Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`writing-extensions`.
+Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions/index`.
 
 .. _ckan.datastore.enabled:
 

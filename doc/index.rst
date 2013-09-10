@@ -19,7 +19,7 @@ advanced documentation last:
   beyond those that just work out of the box.  These are for **sysadmins** who
   want to learn how to manage and get more out of their CKAN site.
 
-* :doc:`writing-extensions`, :doc:`theming` and :doc:`api` are advanced docs
+* :doc:`extensions/index`, :doc:`theming` and :doc:`api` are advanced docs
   for **developers** who want to develop an extension, theme or API app using
   CKAN.
 
@@ -39,7 +39,7 @@ advanced documentation last:
    upgrading
    getting-started
    features
-   writing-extensions
+   extensions/index
    theming
    api
    contributing
