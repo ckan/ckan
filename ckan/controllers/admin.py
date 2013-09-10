@@ -33,7 +33,8 @@ class AdminController(base.BaseController):
                   {'text': 'Fuchsia', 'value': '/base/css/fuchsia.css'}]
 
         homepages = [{'value': '1', 'text': 'Introductory area, search, featured group and featured organization'},
-                     {'value': '2', 'text': 'Search, featured dataset, stats and featured organization'}]
+                     {'value': '2', 'text': 'Search, stats, introductory area, featured organization and featured group'},
+                     {'value': '3', 'text': 'Search, introductory area and stats'}]
 
         items = [
             {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': ''},

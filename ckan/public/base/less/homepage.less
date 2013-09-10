@@ -2,6 +2,7 @@
 
   [role=main] {
     padding: 20px 0;
+    min-height: 0;
   }
 
   .row {
@@ -10,7 +11,7 @@
 
   .module-search {
     padding: 5px;
-    margin-bottom: 0;
+    margin: 0;
     color: @mastheadTextColor;
     background: @layoutTrimBackgroundColor;
     .search-giant {
@@ -53,17 +54,49 @@
     margin: 0;
   }
 
-  &.layout-1 {
-    .row1 .col2 {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      .module-search {
-        bottom: 0;
-        left: 0;
-        right: 0;
+  .box .inner {
+    padding: @gutterY @gutterX;
+  }
+
+  .stats {
+    h3 {
+      margin: 0 0 10px 0;
+    }
+    ul {
+      .unstyled;
+      .clearfix;
+      li {
+        float: left;
+        width: 25%;
+        font-weight: 300;
+        a {
+          display: block;
+          b {
+            display: block;
+            font-size: @fontSizeLarge*2;
+            line-height: 1.5;
+          }
+          &:hover {
+            text-decoration: none;
+          }
+        }
       }
     }
+  }
+
+  &.layout-1 .row1 .col2 {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    .module-search {
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+  }
+
+  &.layout-2 .stats {
+    margin-top: @gutterY;
   }
 
 }
