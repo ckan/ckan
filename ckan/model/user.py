@@ -6,8 +6,10 @@ from hashlib import sha1, md5
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table
+import vdm.sqlalchemy
 
 import meta
+import core
 import types as _types
 import domain_object
 
@@ -28,8 +30,11 @@ user_table = Table('user', meta.metadata,
         Column('sysadmin', types.Boolean, default=False),
         )
 
+vdm.sqlalchemy.make_table_stateful(user_table)
 
-class User(domain_object.DomainObject):
+
+class User(vdm.sqlalchemy.StatefulObjectMixin,
+           domain_object.DomainObject):
 
     VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")
     DOUBLE_SLASH = re.compile(':\/([^/])')
@@ -161,6 +166,9 @@ class User(domain_object.DomainObject):
         q = meta.Session.query(model.PackageRole)
         q = q.filter_by(user=self, role=model.Role.ADMIN)
         return q.count()
+
+    def is_deleted(self):
+        return self.state == core.State.DELETED
 
     def is_in_group(self, group):
         return group in self.get_group_ids()

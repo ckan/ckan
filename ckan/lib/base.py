@@ -314,8 +314,9 @@ class BaseController(WSGIController):
         if c.user:
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
-            if c.userobj is None:
-                # This occurs when you are logged in, clean db
+            if c.userobj is None or c.userobj.is_deleted():
+                # This occurs when a user that was still logged in is deleted,
+                # or when you are logged in, clean db
                 # and then restart (or when you change your username)
                 # There is no user object, so even though repoze thinks you
                 # are logged in and your cookie has ckan_display_name, we
