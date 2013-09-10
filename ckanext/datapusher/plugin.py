@@ -10,7 +10,7 @@ import ckan.model as model
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
-DEFAULT_FORMATS = []
+DEFAULT_FORMATS = ['csv', 'xls', 'application/csv', 'application/vnd.ms-excel']
 
 
 class DatastoreException(Exception):
@@ -31,7 +31,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
 
-        datapusher_formats = config.get('ckan.datapusher.formats', '').split()
+        datapusher_formats = config.get('ckan.datapusher.formats', '').lower().split()
         self.datapusher_formats = datapusher_formats or DEFAULT_FORMATS
 
         datapusher_url = config.get('ckan.datapusher.url')
@@ -46,16 +46,23 @@ class DatapusherPlugin(p.SingletonPlugin):
                 # if operation is None, resource URL has been changed, as
                 # the notify function in IResourceUrlChange only takes
                 # 1 parameter
-                context = {'model': model, 'ignore_auth': True}
+                context = {'model': model, 'ignore_auth': True, 'defer_commit': True}
                 package = p.toolkit.get_action('package_show')(context, {
                     'id': entity.get_package_id()
                 })
-                if (not package['private'] and
-                        entity.format in self.datapusher_formats and
+                if (not package['private'] and entity.format and
+                        entity.format.lower() in self.datapusher_formats and
                         entity.url_type != 'datapusher'):
-                    p.toolkit.get_action('datapusher_submit')(context, {
-                        'resource_id': entity.id
-                    })
+                    try:
+                        p.toolkit.get_action('datapusher_submit')(context, {
+                            'resource_id': entity.id
+                        })
+                    except p.toolkit.ValidationError, e:
+                        # If datapusher is offline want to catch error instead of
+                        # raising otherwise resource save will fail with 500
+                        log.critical(e)
+                        pass
+
 
     def get_actions(self):
         return {'datapusher_submit': action.datapusher_submit,
