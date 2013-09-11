@@ -465,6 +465,10 @@ the default one:
    Also if two plugins both have snippets with the same name, one of the
    snippets will override the other. <-- TODO: Verify whether this is true
 
+   To avoid unintended conflicts, we recommend that snippet filenames begin
+   with the name of the extension they belong to, e.g.
+   ``snippets/example_theme_*.html``.
+
    .. todo::
 
       Exactly what order are ``snippets`` directories read in, and what
