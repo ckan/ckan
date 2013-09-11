@@ -146,7 +146,7 @@ This new code does a few things:
 
 3. It implements the
    :py:meth:`~ckan.plugins.interfaces.IConfigurer.update_config` method, which
-   is the only method declated in the
+   is the only method declared in the
    :py:class:`~ckan.plugins.interfaces.IConfigurer` interface:
 
    .. literalinclude:: ../ckanext/example_theme/v2_empty_template/plugin.py
@@ -377,7 +377,7 @@ a random dataset appear on the page, and each time you reload the page you'll
 get a different name.
 
 Simply displaying the title of a dataset isn't very good. We want the dataset
-to be hyperlinked to the it's page, and also to show some other information
+to be hyperlinked to its page, and also to show some other information
 about the dataset such as its notes and file formats. To display our dataset of
 the day nicely, we'll use CKAN's *template snippets*.
 
