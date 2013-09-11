@@ -213,15 +213,121 @@ an empty file.
 Jinja2
 ------
 
-.. todo:: Brief introduction to Jinja2 here.
-
 CKAN template files are written in the `Jinja2`_ templating language. Jinja
 template files, such as our ``index.html`` file, are simply text files that,
 when processed, generate any text-based output format such as ``HTML``,
 ``XML``, ``CSV``, etc. Most of the templates file in CKAN generate ``HTML``.
 
-In Jinja templates snippets of text like ``{% ... %}`` are Jinja *tags* that
-control the logic of the template.
+We'll introduce some Jinja2 basics below. Jinja2 templates have many more
+features than these, for full details see the
+`Jinja2 docs <http://jinja.pocoo.org/docs/templates/>`_.
+
+
+Expressions and variables
+`````````````````````````
+
+Jinja2 *expressions* are snippets of code between ``{{ ... }}`` delimiters,
+when a template is rendered any expressions are evaluated and replaced with
+the resulting value.
+
+The simplest use of an expression is to display the value of a variable, for
+example ``{{ foo }}`` in a template file will be replaced with the value of the
+variable ``foo`` when the template is rendered.
+
+.. _Pylons app_globals object: http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/glossary.html#term-app-globals
+
+CKAN makes a number of global variables available to all templates. One such
+variable is ``app_globals``, the `Pylons app_globals object`_, which can be
+used to access certain global attributes including some of the settings from
+your CKAN config file. For example, to display the value of the
+:ref:`ckan.site_title` setting from your config file you would put this code in
+any template file:
+
+.. todo:: Move these examples into separate files.
+
+.. todo:: Should we be using ``app_globals`` or ``g``?
+
+::
+
+ <p>The title of this site is: {{ app_globals.site_title }}.</p>
+
+.. note::
+
+   Not all config settings are available to templates via ``app_globals``.
+   The :ref:`sqlalchemy.url` setting, for example, contains your database
+   password, so making that variable available to templates might be a security
+   risk.
+
+   If you've added your own custom options to your config file, these will not
+   be available in ``app_globals``.
+
+   .. todo:: Insert cross-ref to custom config options section.
+
+.. note::
+
+   Jinja2 expressions can do much more than print out the values of variables,
+   for example
+   they can call Jinja2's `global functions <http://jinja.pocoo.org/docs/templates/#list-of-global-functions>`_,
+   CKAN's :ref:`template helper functions <template helper functions>` and any
+   :ref:`custom template helper functions <custom template helper functions>`
+   provided by your extension,
+   and use any of the 
+   `literals and operators <http://jinja.pocoo.org/docs/templates/#expressions>`_
+   that Jinja provides.
+
+   See :doc:`theming/variables-and-functions` for a list of variables and
+   functions available to templates.
+
+
+Tags
+````
+
+:ref:`ckan.site_title` is an example of a simple string variable.
+Some variables, such as :ref:`ckan.plugins`, are lists, and can be looped over
+using Jinja's ``{% for %}`` tag.
+
+Jinja *tags* are snippets of code between ``{% ... %}`` delimiters that control
+the logic of the template. For example, we can output a list of the currently
+enabled plugins with this code in any template file:
+
+::
+
+  <p>The currently enabled plugins are:</p>
+  <ul>
+    {% for plugin in app_globals.plugins %}
+      <li>{{ plugin }}</li>
+    {% endfor %}
+  </ul>
+
+Other variables, such as :ref:`ckan.tracking_enabled`, are booleans, and can be
+tested using Jinja's ``{% if %}`` tag:
+
+::
+
+  {% if g.tracking_enabled %}
+    <p>CKAN's page-view tracking feature is enabled.</p>
+  {% else %}
+    <p>CKAN's page-view tracking feature is <i>not</i> enabled.</p>
+  {% endif %}
+
+
+Comments
+````````
+
+Finally, any text between ``{# ... #}`` delimiters in a Jinja2 template is a
+*comment*, and will not be output when the template is rendered:
+
+::
+
+  {# This text will not appear in the output when this template is rendered. #}
+
+.. todo::
+
+   *  Mention what happens if you try to access a variable or attribute
+      that doesn't exist.
+
+   *  Mention filters. And can ckan template helper functions be used as
+      filters?
 
 
 Extending templates with ``{% ckan_extends %}``
@@ -297,6 +403,8 @@ When the child block above is rendered, Jinja will replace the
 The ``{{ super() }}`` tag can be placed anywhere in the block.
 
 
+.. _template helper functions:
+
 Template helper functions
 -------------------------
 
@@ -324,6 +432,8 @@ to all templates) to access the helper:
 To see what other template helper functions are available, look at the
 :doc:`template helper functions reference docs <template-helper-functions>`.
 
+
+.. _custom template helper functions:
 
 Adding your own template helper functions
 -----------------------------------------
