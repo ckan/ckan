@@ -282,14 +282,12 @@ def check_access(action, context, data_dict=None):
                 context['auth_user_obj'] = model.User.by_name(context['user'])
             context['__auth_user_obj_checked'] = True
 
-    if action:
+    context = _prepopulate_context(context)
 
-        context = _prepopulate_context(context)
-
-        logic_authorization = new_authz.is_authorized(action, context, data_dict)
-        if not logic_authorization['success']:
-            msg = logic_authorization.get('msg', '')
-            raise NotAuthorized(msg)
+    logic_authorization = new_authz.is_authorized(action, context, data_dict)
+    if not logic_authorization['success']:
+        msg = logic_authorization.get('msg', '')
+        raise NotAuthorized(msg)
 
     log.debug('Access OK.')
     return True
