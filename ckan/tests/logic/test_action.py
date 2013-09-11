@@ -1206,6 +1206,23 @@ class TestAction(WsgiAppCase):
         assert error['__type'] == 'Validation Error'
         assert error['extras_validation'] == ['Duplicate key "foo"']
 
+    def test_package_update_remove_org_error(self):
+        import ckan.tests
+        import paste.fixture
+        import pylons.test
+
+        app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        org = ckan.tests.call_action_api(app, 'organization_create',
+                apikey=self.sysadmin_user.apikey, name='myorganization')
+        package = ckan.tests.call_action_api(app, 'package_create',
+                apikey=self.sysadmin_user.apikey, name='foobarbaz', owner_org=org['id'])
+
+        assert package['owner_org']
+        package['owner_org'] = ''
+        res = ckan.tests.call_action_api(app, 'package_update',
+                apikey=self.sysadmin_user.apikey, **package)
+        assert not res['owner_org'], res['owner_org']
+
     def test_package_update_duplicate_extras_error(self):
         import ckan.tests
         import paste.fixture
