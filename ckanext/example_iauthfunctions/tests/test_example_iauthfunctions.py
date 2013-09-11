@@ -164,20 +164,19 @@ class TestExampleIAuthFunctionsPluginV3(TestExampleIAuthFunctionsPlugin):
                             'message': 'Not found'}
 
     def test_group_create_with_visitor(self):
-        '''Test that group_create crashes when no one is logged in.
+        '''Test that group_create returns 403 when no one is logged in.
 
-        With this version of the plugin group_create crashes with an exception
-        when the site _does_ have a curators group but no user is logged-in.
-
+        Since #1210 non-logged in requests are automatically rejected, unless
+        the auth function has the appropiate decorator
         '''
-        import nose.tools
 
         noncurator, curator, curators_group = self._make_curators_group()
-
-        nose.tools.assert_raises(toolkit.Invalid, tests.call_action_api,
+        response = tests.call_action_api(
                                  self.app, 'group_create',
                                  name='this_group_should_not_be_created',
                                  status=403)
+        assert response == {'__type': 'Authorization Error',
+                            'message': 'Access denied'}
 
 
 class TestExampleIAuthFunctionsPluginV2(TestExampleIAuthFunctionsPlugin):
