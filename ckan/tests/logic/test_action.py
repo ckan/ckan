@@ -1377,6 +1377,48 @@ class TestActionPackageSearch(WsgiAppCase):
         assert_equal(result['count'], 1)
         assert_equal(result['results'][0]['name'], 'annakarenina')
 
+    def test_1_facet_limit(self):
+        params = {
+                'q':'*:*',
+                'facet.field': ['groups', 'tags', 'res_format', 'license'],
+                'rows': 20,
+                'start': 0,
+            }
+        postparams = '%s=1' % json.dumps(params)
+        res = self.app.post('/api/action/package_search', params=postparams)
+        res = json.loads(res.body)
+        assert_equal(res['success'], True)
+
+        assert_equal(len(res['result']['search_facets']['groups']['items']), 2)
+
+        params = {
+                'q':'*:*',
+                'facet.field': ['groups', 'tags', 'res_format', 'license'],
+                'facet.limit': 1,
+                'rows': 20,
+                'start': 0,
+            }
+        postparams = '%s=1' % json.dumps(params)
+        res = self.app.post('/api/action/package_search', params=postparams)
+        res = json.loads(res.body)
+        assert_equal(res['success'], True)
+
+        assert_equal(len(res['result']['search_facets']['groups']['items']), 1)
+
+        params = {
+                'q':'*:*',
+                'facet.field': ['groups', 'tags', 'res_format', 'license'],
+                'facet.limit': -1, # No limit
+                'rows': 20,
+                'start': 0,
+            }
+        postparams = '%s=1' % json.dumps(params)
+        res = self.app.post('/api/action/package_search', params=postparams)
+        res = json.loads(res.body)
+        assert_equal(res['success'], True)
+
+        assert_equal(len(res['result']['search_facets']['groups']['items']), 2)
+
     def test_1_basic_no_params(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/package_search', params=postparams)
