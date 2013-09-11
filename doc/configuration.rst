@@ -506,7 +506,7 @@ Specify which CKAN plugins are to be enabled.
 
 .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
-Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`writing-extensions`.
+Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions/index`.
 
 .. _ckan.datastore.enabled:
 
@@ -960,7 +960,7 @@ Example::
 
 Default value: ``file/``
 
-This setting will change the prefix for the uploaded files.
+This setting will change the prefix for the uploaded files. This is only for ``pairtree``.
 
 .. _ckan.storage.max_content_length:
 
@@ -1058,6 +1058,30 @@ Example::
 Default value:  ``None``
 
 Only used with the Google storage backend.
+
+.. todo:: Expand
+
+
+DataPusher Settings
+-------------------
+
+.. _datapusher.formats:
+
+datapusher.formats
+^^^^^^^^^^^^^^^^^^
+
+Example::
+  datapusher.formats = csv xls xlsx
+
+.. todo:: Expand
+
+.. _datapusher.url:
+
+datapusher.url
+^^^^^^^^^^^^^^
+
+Example::
+  datapusher.url = http://datapusher.ckan.org/
 
 .. todo:: Expand
 
