@@ -428,22 +428,32 @@ their own snippets. To add template snippets, all a plugin needs to do is add a
 ``snippets`` directory in its ``templates`` directory, and start adding files.
 The snippets will be callable from other templates immediately.
 
-Let's add a custom snippet to change how our dataset of the day is displayed.
+Let's create a custom snippet to display our dataset of the day, and put the
+``<h3>Dataset of the day</h3>`` heading and the code to call the helper
+function to retrieve the dataset into the snippet, so that we can reuse the
+whole thing on different parts of the site if we want to.
+
 Create a new directory |snippets_dir| containing a file named
 ``example_theme_dataset_of_the_day.html`` with these contents:
 
 .. literalinclude:: ../ckanext/example_theme/v9_custom_snippet/templates/snippets/example_theme_dataset_of_the_day.html
 
-Now edit your |index.html| file and change to use our new snippet:
+As you can see, snippets can call other snippets - our custom snippet actually
+calls the default snippet to render the dataset itself:
 
-.. literalinclude:: ../ckanext/example_theme/v9_custom_snippet/templates/home/index.html
-
-Reload your `CKAN front page`_ in your browser, and you should see the display
-of the dataset of the day change.
+.. literalinclude:: ../ckanext/example_theme/v9_custom_snippet/templates/snippets/example_theme_dataset_of_the_day.html
+   :start-after: {# Call the core package_item.html snippet to render the dataset. #}
+   :end-before: %}
 
 .. todo::
 
-   Make the snippet better, and explain the snippet line-by-line.
+   Explain the HTML and CSS being used in the snippet above, and where it comes
+   from.
+
+Now edit your |index.html| file and change it to use our new snippet instead of
+the default one:
+
+.. literalinclude:: ../ckanext/example_theme/v9_custom_snippet/templates/home/index.html
 
 .. warning:: Snippet overriding
 
