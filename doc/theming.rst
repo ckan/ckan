@@ -476,19 +476,14 @@ the default one:
 
 .. note::
 
-   Snippets don't have access to the global template context, so global
-   variables such as ``c``, ``h`` and ``g`` that are available to templates
-   are not available to snippets.
+   Snippets don't have access to the global template context variable,
+   ``c`` (see :ref:`global variables`). Snippets *can* access other
+   global variables such as ``h``, ``app_globals`` and ``request``, as well as
+   any variables explicitly passed into the snippet by the parent template when
+   it calls the snippet with a ``{% snippet %}`` tag.
 
-   The only variables available to snippets are those explicitly passed into
-   the snippet by the parent template, when it calls the snippet using a
-   ``{% snippet %}`` tag.
 
-   Keeping snippets "modular" in this way makes debugging template problems
-   much easier.
-
-   .. todo:: Verify whether this is completely true.
-
+.. _global variables:
 
 Global variables available to templates
 ---------------------------------------
