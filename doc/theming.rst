@@ -107,6 +107,8 @@ datasets page at ``/dataset`` is generated from
 ``ckan/templates/package/search.html``, etc.
 
 
+.. _template overriding:
+
 Replacing a default template file
 ---------------------------------
 
@@ -427,6 +429,12 @@ Just as plugins can add their own template helper functions, they can also add
 their own snippets. To add template snippets, all a plugin needs to do is add a
 ``snippets`` directory in its ``templates`` directory, and start adding files.
 The snippets will be callable from other templates immediately.
+
+.. note::
+
+   For CKAN to find your plugins' snippets directories, you should already have
+   added your plugin's custom template directory to CKAN, see :ref:`template
+   overriding`.
 
 Let's create a custom snippet to display our dataset of the day, and put the
 ``<h3>Dataset of the day</h3>`` heading and the code to call the helper
