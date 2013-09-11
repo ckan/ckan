@@ -455,8 +455,9 @@ the default one:
 
 .. literalinclude:: ../ckanext/example_theme/v9_custom_snippet/templates/home/index.html
 
-.. warning:: Snippet overriding
+.. warning::
 
+   Default snippets can be overridden.
    If a plugin adds a snippet with the same name as one of CKAN's default
    snippets, the plugin's snippet will override the default snippet wherever
    the default snippet is used.
