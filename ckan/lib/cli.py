@@ -844,7 +844,6 @@ class DatasetCmd(CkanCommand):
         dataset = self._get_dataset(dataset_ref)
         old_state = dataset.state
 
-        plugins.load('synchronous_search')
         rev = model.repo.new_revision()
         dataset.delete()
         model.repo.commit_and_remove()
@@ -857,7 +856,6 @@ class DatasetCmd(CkanCommand):
         dataset = self._get_dataset(dataset_ref)
         name = dataset.name
 
-        plugins.load('synchronous_search')
         rev = model.repo.new_revision()
         dataset.purge()
         model.repo.commit_and_remove()
@@ -1284,7 +1282,6 @@ class CreateTestDataCommand(CkanCommand):
         self._load_config()
         self._setup_app()
         from ckan import plugins
-        plugins.load('synchronous_search') # so packages get indexed
         from create_test_data import CreateTestData
 
         if self.args:
