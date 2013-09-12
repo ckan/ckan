@@ -202,7 +202,7 @@ class _Toolkit(object):
             else:
                 error = 'Requires ckan version between %s and %s' % \
                             (min_version, max_version)
-            raise cls.CkanVersionException(error)
+            raise CkanVersionException(error)
 
     def __getattr__(self, name):
         ''' return the function/object requested '''
