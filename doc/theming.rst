@@ -522,11 +522,18 @@ Let's change our |index.html| file to call this snippet:
 
 .. literalinclude:: ../ckanext/example_theme/v8_snippet/templates/home/index.html
 
-The ``{% snippet %}`` tag takes one or more arguments. The first argument is
-the name of the snippet to call. Any further arguments will be passed into
-the snippet as parameters. As in the ``package_item.html`` docstring above,
-each snippet's docstring should document the parameters it requires. In this
-example was pass just one parameter to the snippet: the dataset to be rendered.
+Here we pass two arguments to the ``{% snippet %}`` tag:
+
+.. literalinclude:: ../ckanext/example_theme/v8_snippet/templates/home/index.html
+   :start-after: {# Call the package_item.html snippet. #}
+   :end-before: {% endblock %}
+
+the first argument is the name of the snippet file to call. The second
+argument, separated by a comma, is the package to pass into the snippet.  After
+the filename you can pass any number of variables into a snippet, and these
+will all be available to the snippet code as top-level global variables.  As in
+the ``package_item.html`` docstring above, each snippet's docstring should
+document the parameters it requires.
 
 If you reload your `CKAN front page`_ in your web browser now, you should see
 the dataset of the day rendered nicely.
