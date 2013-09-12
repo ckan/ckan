@@ -228,6 +228,8 @@ features than these, for full details see the
 `Jinja2 docs <http://jinja.pocoo.org/docs/templates/>`_.
 
 
+.. _expressions and variables:
+
 Expressions and variables
 `````````````````````````
 
@@ -448,26 +450,25 @@ Plugins can add their own template helper functions by implementing CKAN's
 (see :doc:`extensions/tutorial` for a detailed explanation of CKAN plugins and
 plugin interfaces).
 
-Let's add another item to our custom front page: a "dataset of the day". We'll
-add a custom template helper function to select the dataset to be shown.
-First, in our ``plugin.py`` file we need to implement
+Let's add another item to our custom front page: a list of the most "popular"
+groups on the site (the groups with the most datasets).  We'll add a custom
+template helper function to select the groups to be shown.  First, in our
+``plugin.py`` file we need to implement
 :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` and provide our helper
 function. Change the contents of ``plugin.py`` to look like this:
-
-.. todo: This probably breaks when the site has no datasets.
 
 .. literalinclude:: ../ckanext/example_theme/v7_custom_helper_function/plugin.py
 
 We've added a number of new features to ``plugin.py``. First, we defined a
-function to get the dataset of the day from CKAN:
+function to get the most popular groups from CKAN:
 
 .. literalinclude:: ../ckanext/example_theme/v7_custom_helper_function/plugin.py
-   :pyobject: dataset_of_the_day
+   :pyobject: most_popular_groups
 
-This function uses CKAN's *action functions* to get the dataset from CKAN.
-See :doc:`extensions/tutorial` for more about action functions.
+This function calls one of CKAN's *action functions* to get the groups from
+CKAN.  See :doc:`extensions/tutorial` for more about action functions.
 
-Next, we called :py:func:`~ckan.plugins.implements` to declare that your class
+Next, we called :py:func:`~ckan.plugins.implements` to declare that our class
 now implements :py:class:`~ckan.plugins.interfaces.ITemplateHelpers`:
 
 .. literalinclude:: ../ckanext/example_theme/v7_custom_helper_function/plugin.py
@@ -489,14 +490,13 @@ Edit |index.html| to look like this:
 
 .. literalinclude:: ../ckanext/example_theme/v7_custom_helper_function/templates/home/index.html
 
-Now reload your `CKAN front page`_ in your browser. You should see the title of
-a random dataset appear on the page, and each time you reload the page you'll
-get a different name.
+Now reload your `CKAN front page`_ in your browser. You should see a list of
+the most popular groups appear on the page.
 
-Simply displaying the title of a dataset isn't very good. We want the dataset
-to be hyperlinked to its page, and also to show some other information
-about the dataset such as its notes and file formats. To display our dataset of
-the day nicely, we'll use CKAN's *template snippets*.
+Simply displaying a list of group titles isn't very good. We want the groups to
+be hyperlinked to their pages, and also to show some other information about
+the group such as its description and logo image. To display our groups nicely,
+we'll use CKAN's *template snippets*.
 
 
 Template snippets
@@ -506,22 +506,21 @@ Template snippets
 functions, can be called from any template file. To call a snippet, you use
 another of CKAN's custom Jinja2 tags: ``{% snippet %}``. CKAN comes with a
 selection of snippets, which you can find in the various ``snippets``
-directories in ``ckan/templates/``, such as ``ckan/templates/snippets/``
-and ``ckan/templates/package/snippets/``.
+directories in ``ckan/templates/``, such as ``ckan/templates/snippets/`` and
+``ckan/templates/package/snippets/``.
 
 .. todo::
 
    Autodoc all the default snippets, link to reference docs.
 
-For example, ``ckan/templates/snippets/package_item.html`` is a snippet that
-renders a dataset nicely. The default CKAN templates use this snippet whenever
-they want to show a list of packages, for example on the datasets page,
-a group's page, an organization's page or a user's page:
+``ckan/templates/group/snippets/group_list.html`` is a snippet that renders a
+list of groups nicely (it's used to render the groups on CKAN's ``/group`` page
+and one user dashboard pages, for example):
 
-.. literalinclude:: ../ckan/templates/snippets/package_item.html
-   :end-before: #}
+.. literalinclude:: ../ckan/templates/group/snippets/group_list.html
 
-.. todo:: Fix this docstring.
+(As you can see, this snippet calls another snippet, ``group_item.html``, to
+render each individual group.)
 
 Let's change our |index.html| file to call this snippet:
 
@@ -530,15 +529,15 @@ Let's change our |index.html| file to call this snippet:
 Here we pass two arguments to the ``{% snippet %}`` tag:
 
 .. literalinclude:: ../ckanext/example_theme/v8_snippet/templates/home/index.html
-   :start-after: {# Call the package_item.html snippet. #}
+   :start-after: {# Call the group_list.html snippet. #}
    :end-before: {% endblock %}
 
 the first argument is the name of the snippet file to call. The second
-argument, separated by a comma, is the package to pass into the snippet.  After
-the filename you can pass any number of variables into a snippet, and these
-will all be available to the snippet code as top-level global variables.  As in
-the ``package_item.html`` docstring above, each snippet's docstring should
-document the parameters it requires.
+argument, separated by a comma, is the list of groups to pass into the snippet.
+After the filename you can pass any number of variables into a snippet, and
+these will all be available to the snippet code as top-level global variables.
+As in the ``group_list.html`` docstring above, each snippet's docstring
+should document the parameters it requires.
 
 If you reload your `CKAN front page`_ in your web browser now, you should see
 the dataset of the day rendered nicely.
@@ -558,22 +557,15 @@ The snippets will be callable from other templates immediately.
    added your plugin's custom template directory to CKAN, see :ref:`template
    overriding`.
 
-Let's create a custom snippet to display our dataset of the day, and put the
-``<h3>Dataset of the day</h3>`` heading and the code to call the helper
-function to retrieve the dataset into the snippet, so that we can reuse the
+Let's create a custom snippet to display our most popular groups, and put the
+``<h3>Most popular groups</h3>`` heading and the code to call the helper
+function to retrieve the groups into the snippet, so that we can reuse the
 whole thing on different parts of the site if we want to.
 
 Create a new directory |snippets_dir| containing a file named
-``example_theme_dataset_of_the_day.html`` with these contents:
+``example_theme_most_popular_groups.html`` with these contents:
 
-.. literalinclude:: ../ckanext/example_theme/v9_custom_snippet/templates/snippets/example_theme_dataset_of_the_day.html
-
-As you can see, snippets can call other snippets - our custom snippet actually
-calls the default snippet to render the dataset itself:
-
-.. literalinclude:: ../ckanext/example_theme/v9_custom_snippet/templates/snippets/example_theme_dataset_of_the_day.html
-   :start-after: {# Call the core package_item.html snippet to render the dataset. #}
-   :end-before: %}
+.. literalinclude:: ../ckanext/example_theme/v9_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
 
 .. todo::
 

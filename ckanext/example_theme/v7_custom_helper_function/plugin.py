@@ -1,24 +1,19 @@
-import random
-
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
 
-def dataset_of_the_day():
-    '''Return the dataset of the day.
+def most_popular_groups():
+    '''Return a sorted list of the groups with the most datasets.'''
 
-    '''
-    # Get a list of the names of all of the site's datasets.
-    dataset_names = toolkit.get_action('package_list')(data_dict={})
+    # Get a list of all the site's groups from CKAN, sorted by number of
+    # datasets.
+    groups = toolkit.get_action('group_list')(
+            data_dict={'sort': 'packages desc', 'all_fields': True})
 
-    # Choose one dataset name at random.
-    dataset_name = random.choice(dataset_names)
+    # Truncate the list to the 10 most popular groups only.
+    groups = groups[:10]
 
-    # Get the full dictionary object for the chosen dataset.
-    dataset = toolkit.get_action('package_show')(
-        data_dict={'id': dataset_name})
-
-    return dataset
+    return groups
 
 
 class ExampleThemePlugin(plugins.SingletonPlugin):
@@ -37,11 +32,11 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
         toolkit.add_template_directory(config, 'templates')
 
     def get_helpers(self):
-        '''Register the dataset_of_the_day() function above as a template
+        '''Register the most_popular_groups() function above as a template
         helper function.
 
         '''
         # Template helper function names should begin with the name of the
         # extension they belong to, to avoid clashing with functions from
         # other extensions.
-        return {'example_theme_dataset_of_the_day': dataset_of_the_day}
+        return {'example_theme_most_popular_groups': most_popular_groups}
