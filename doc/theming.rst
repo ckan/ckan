@@ -41,6 +41,11 @@ install of CKAN on your system. If you don’t have a CKAN source install
 already, follow the instructions in :doc:`install-from-source` before
 continuing.
 
+.. todo::
+
+   Insert section about installing the extra dependencies needed for frontend
+   development, and running less.
+
 
 Creating a CKAN extension
 =========================
