@@ -1416,10 +1416,14 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
             context, {'offset': offset})
 
 
-def recently_changed_packages_activity_stream():
+def recently_changed_packages_activity_stream(limit=None):
+    if limit:
+        data_dict = {'limit': limit}
+    else:
+        data_dict = {}
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action('recently_changed_packages_activity_list_html')(
-        context, {})
+        context, data_dict)
 
 
 def escape_js(str_to_escape):
