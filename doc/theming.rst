@@ -700,13 +700,6 @@ Now reload your `CKAN front page`_ in your browser, you should see the activity
 stream and groups lists layed out and styled nicely.
 
 
-Jinja2 basics
--------------
-
-
-.. Link to reference docs for CKAN's custom Jinja2 tags and form macros.
-
-
 CKAN custom Jinja2 tags reference
 ---------------------------------
 
