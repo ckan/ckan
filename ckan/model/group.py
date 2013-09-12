@@ -404,7 +404,7 @@ HIERARCHY_DOWNWARDS_CTE = """WITH RECURSIVE child AS
     WHERE m.table_id = c.group_id AND m.table_name = 'group'
           AND m.state = 'active'
 )
-SELECT G.*, child.group_id as parent_id FROM child
+SELECT G.*, child.table_id as parent_id FROM child
     INNER JOIN public.group G ON G.id = child.group_id
     WHERE G.type = :type AND G.state='active';"""
 

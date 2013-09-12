@@ -116,6 +116,15 @@ class TestHierarchy:
         assert_in(res[0]['name'], ('national-health-service', 'food-standards-agency'))
         assert_in(res[0]['title'], ('National Health Service', 'Food Standards Agency'))
 
+    def test_get_children_group_hierarchy__from_top_2(self):
+        groups = model.Group.by_name(u'department-of-health').\
+                get_children_group_hierarchy(type=group_type)
+        # the first group must be NHS or Food Standards Agency - i.e. on the
+        # first level down
+        nhs = groups[0]
+        assert_in(nhs[0].name, ('national-health-service', 'food-standards-agency'))
+        assert_equal(model.Group.get(nhs[1]).name, 'department-of-health')
+
     def test_get_children_group_hierarchy__from_top(self):
         assert_equal(name_set_from_group_tuple(model.Group.by_name(u'department-of-health').\
                                        get_children_group_hierarchy(type=group_type)),
