@@ -945,20 +945,7 @@ Example::
 
 Default value:  ``None``
 
-This setting will change the bucket name for the uploaded files.
-
-.. _ckan.storage.key_prefix:
-
-ckan.storage.key_prefix
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.storage.key_prefix = ckan-file/
-
-Default value: ``file/``
-
-This setting will change the prefix for the uploaded files. This is only for ``pairtree``.
+This changes the bucket name for the uploaded files.
 
 .. _ckan.storage.max_content_length:
 
@@ -999,6 +986,19 @@ Default value:  ``None``
 
 Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
 
+.. _ckan.storage.key_prefix:
+
+ckan.storage.key_prefix
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.storage.key_prefix = ckan-file/
+
+Default value: ``file/``
+
+Only used with the local storage backend. This changes the prefix for the uploaded files.
+
 .. _ofs.aws_access_key_id:
 
 ofs.aws_access_key_id
@@ -1006,13 +1006,11 @@ ofs.aws_access_key_id
 
 Example::
 
-  ofs.aws_access_key_id = your_key_id_here
+  ofs.aws_access_key_id = 022QF06E7MXBSH9DHM02
 
 Default value:  ``None``
 
-Only used with the Amazon S3 storage backend.
-
-.. todo:: Expand
+Only used with the Amazon S3 storage backend. Configure with your AWS Access Key ID.
 
 .. _ofs.aws_secret_access_key:
 
@@ -1021,13 +1019,11 @@ ofs.aws_secret_access_key
 
 Example::
 
-  ofs.aws_secret_access_key = your_secret_access_key_here
+  ofs.aws_secret_access_key = kWcrlUX5JEDGM/LtmEENI/aVmYvHNif5zB+d9+ct
 
 Default value:  ``None``
 
-Only used with the Amazon S3 storage backend.
-
-.. todo:: Expand
+Only used with the Amazon S3 storage backend. Configure with your AWS Secret Access Key.
 
 .. _ofs.gs_access_key_id:
 
@@ -1036,13 +1032,12 @@ ofs.gs_access_key_id
 
 Example::
 
-  ofs.gs_access_key_id = your_key_id_here
+  ofs.gs_access_key_id = GOOGTS7C7FUP3AIRVJTE
 
 Default value:  ``None``
 
-Only used with the Google storage backend.
-
-.. todo:: Expand
+Only used with the Google storage backend. Configure with your Google Storage
+Access Key ID.
 
 .. _ofs.gs_secret_access_key:
 
@@ -1051,13 +1046,12 @@ ofs.gs_secret_access_key
 
 Example::
 
-  ofs.gs_secret_access_key = your_secret_access_key_here
+  ofs.gs_secret_access_key = bGoa+V7g/yqDXvKRqq+JTFn4uQZbPiQJo4pf9RzJ
 
 Default value:  ``None``
 
-Only used with the Google storage backend.
-
-.. todo:: Expand
+Only used with the Google storage backend. Configure with your Google Storage
+Secret Access Key.
 
 
 DataPusher Settings
