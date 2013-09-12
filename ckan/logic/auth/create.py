@@ -15,8 +15,7 @@ def package_create(context, data_dict=None):
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
     else:
-
-        check2 = _check_group_auth(context,data_dict)
+        check2 = _check_group_auth(context,data_dict, 'create_dataset')
         if not check2:
             return {'success': False, 'msg': _('User %s not authorized to edit these groups') % str(user)}
 
@@ -105,7 +104,7 @@ def user_create(context, data_dict=None):
         return {'success': True}
 
 
-def _check_group_auth(context, data_dict):
+def _check_group_auth(context, data_dict, permission='update'):
     if not data_dict:
         return True
 
@@ -139,7 +138,7 @@ def _check_group_auth(context, data_dict):
         groups = groups - set(pkg_groups)
 
     for group in groups:
-        if not new_authz.has_user_permission_for_group_or_org(group.id, user, 'update'):
+        if not new_authz.has_user_permission_for_group_or_org(group.id, user, permission):
             return False
 
     return True
