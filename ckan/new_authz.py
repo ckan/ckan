@@ -103,7 +103,7 @@ def clean_action_name(action_name):
 
 
 def is_sysadmin(username):
-    ''' returns True is username is a sysadmin '''
+    ''' returns True if username is a sysadmin '''
     if not username:
         return False
     # see if we can authorise without touching the database
@@ -212,8 +212,8 @@ def get_roles_with_permission(permission):
 
 
 def has_user_permission_for_group_or_org(group_id, user_name, permission):
-    ''' Check if the user has the given permissions for the group,
-    allowing for sysadmin rights and permission cascading down groups.
+    ''' Check if the user has the given permissions for the group, allowing for
+    sysadmin rights and permission cascading down a group hierarchy.
 
     '''
     if not group_id:
@@ -246,9 +246,11 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
 def _has_user_permission_for_groups(user_id, permission, group_ids,
                                     capacity=None):
     ''' Check if the user has the given permissions for the particular
-    group. Can also be filtered by a particular capacity.
-
+    group (ignoring permissions cascading in a group hierarchy).
+    Can also be filtered by a particular capacity.
     '''
+    if not group_ids:
+        return False
     # get any roles the user has for the group
     q = model.Session.query(model.Member) \
         .filter(model.Member.group_id.in_(group_ids)) \
@@ -267,7 +269,10 @@ def _has_user_permission_for_groups(user_id, permission, group_ids,
 
 
 def users_role_for_group_or_org(group_id, user_name):
-    ''' Check if the user role for the group '''
+    ''' Returns the user's role for the group. (Ignores privileges that cascade
+    in a group hierarchy.)
+
+    '''
     if not group_id:
         return None
     group_id = model.Group.get(group_id).id
@@ -288,7 +293,7 @@ def users_role_for_group_or_org(group_id, user_name):
 
 
 def has_user_permission_for_some_org(user_name, permission):
-    ''' Check if the user has the given permission for the group '''
+    ''' Check if the user has the given permission for any organization. '''
     user_id = get_user_id_for_username(user_name, allow_none=True)
     if not user_id:
         return False

@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import orm, types, Column, Table, ForeignKey, or_
+from sqlalchemy import orm, types, Column, Table, ForeignKey, or_, and_
 import vdm.sqlalchemy
 
 import meta
@@ -64,8 +64,9 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
                    (see ckan.logic.action.package_owner_org_update)
     * User - the User is granted permissions for the Group
                  - capacity is 'admin', 'editor' or 'member'
-    * Group - the Group (Member.group_id) is a child of the Group (Member.id)
+    * Group - the Group (Member.group_id) is a parent of the Group (Member.id)
               in a hierarchy.
+                 - capacity is 'parent'
     '''
     def __init__(self, group=None, table_id=None, group_id=None,
                  table_name=None, capacity='public', state='active'):
@@ -182,8 +183,8 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         results = meta.Session.query(Group.id, Group.name, Group.title).\
                      filter_by(type=type).\
                      filter_by(state='active').\
-                     join(Member, Member.table_id == Group.id).\
-                     filter_by(group=self).\
+                     join(Member, Member.group_id == Group.id).\
+                     filter_by(table_id=self.id).\
                      filter_by(table_name='group').\
                      filter_by(state='active').\
                      all()
@@ -222,9 +223,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         no parent groups. Groups are sorted by title.
         '''
         return meta.Session.query(cls).\
-            outerjoin(Member, Member.table_id == Group.id and
-                      Member.table_name == 'group' and
-                      Member.state == 'active').\
+            outerjoin(Member,
+                      and_(Member.group_id == Group.id,
+                           Member.table_name == 'group',
+                           Member.state == 'active')).\
             filter(Member.id == None).\
             filter(Group.type == type).\
             order_by(Group.title).all()
@@ -318,7 +320,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             meta.Session.add(member)
 
     def get_groups(self, group_type=None, capacity=None):
-        """ Get all groups that this group is within """
+        """ Get all groups that this group is within (i.e. this group's child
+        groups)
+
+        """
         import ckan.model as model
         # DR: Why is this cached? Surely the members can change in the
         #     lifetime of this Group?
@@ -392,29 +397,29 @@ HIERARCHY_DOWNWARDS_CTE = """WITH RECURSIVE child AS
 (
     -- non-recursive term
     SELECT * FROM member
-    WHERE group_id = :id AND table_name = 'group' AND state = 'active'
+    WHERE table_id = :id AND table_name = 'group' AND state = 'active'
     UNION ALL
     -- recursive term
     SELECT m.* FROM member AS m, child AS c
-    WHERE m.group_id = c.table_id AND m.table_name = 'group'
+    WHERE m.table_id = c.group_id AND m.table_name = 'group'
           AND m.state = 'active'
 )
 SELECT G.*, child.group_id as parent_id FROM child
-    INNER JOIN public.group G ON G.id = child.table_id
+    INNER JOIN public.group G ON G.id = child.group_id
     WHERE G.type = :type AND G.state='active';"""
 
 HIERARCHY_UPWARDS_CTE = """WITH RECURSIVE parenttree(depth) AS (
     -- non-recursive term
     SELECT 0, M.* FROM public.member AS M
-    WHERE table_id = :id AND M.table_name = 'group' AND M.state = 'active'
+    WHERE group_id = :id AND M.table_name = 'group' AND M.state = 'active'
     UNION
     -- recursive term
     SELECT PG.depth + 1, M.* FROM parenttree PG, public.member M
-    WHERE PG.group_id = M.table_id AND M.table_name = 'group'
+    WHERE PG.table_id = M.group_id AND M.table_name = 'group'
           AND M.state = 'active'
     )
 
 SELECT G.*, PT.depth FROM parenttree AS PT
-    INNER JOIN public.group G ON G.id = PT.group_id
+    INNER JOIN public.group G ON G.id = PT.table_id
     WHERE G.type = :type AND G.state='active'
     ORDER BY PT.depth DESC;"""

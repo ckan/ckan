@@ -386,7 +386,7 @@ class CreateTestData(object):
             if 'parent' in group_dict:
                 parent = model.Group.by_name(unicode(group_dict['parent']))
                 assert parent, group_dict['parent']
-                member = model.Member(group=parent, table_id=group.id,
+                member = model.Member(group=group, table_id=parent.id,
                                       table_name='group', capacity='parent')
                 model.Session.add(member)
             #model.setup_default_user_roles(group, admin_users)
@@ -527,8 +527,10 @@ left arrow <
         roger = model.Group.by_name(u'roger')
         model.setup_default_user_roles(david, [russianfan])
         model.setup_default_user_roles(roger, [russianfan])
-        model.add_user_to_role(visitor, model.Role.ADMIN, roger)
 
+        # in new_authz you can't give a visitor permissions to a
+        # group it seems, so this is a bit meaningless
+        model.add_user_to_role(visitor, model.Role.ADMIN, roger)
         model.repo.commit_and_remove()
 
     # method used in DGU and all good tests elsewhere

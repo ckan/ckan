@@ -74,7 +74,7 @@ class TestGroup(FunctionalTestCase):
         rev = model.repo.new_revision()
         rev.author = "none"
 
-        member = model.Member(group_id=parent.id, table_id=group.id,
+        member = model.Member(group_id=group.id, table_id=parent.id,
                               table_name='group', capacity='member')
         model.Session.add(member)
         model.repo.commit_and_remove()
