@@ -598,8 +598,8 @@ the default one:
 
 .. note::
 
-   Snippets don't have access to the global template context variable,
-   ``c`` (see :ref:`global variables`). Snippets *can* access other
+   Snippets don't have access to the global template context variable, ``c``
+   (see :doc:`theming/variables-and-functions`). Snippets *can* access other
    global variables such as ``h``, ``app_globals`` and ``request``, as well as
    any variables explicitly passed into the snippet by the parent template when
    it calls the snippet with a ``{% snippet %}`` tag.
