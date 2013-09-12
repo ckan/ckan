@@ -135,6 +135,7 @@ setup(
     example_theme_v7=ckanext.example_theme.v7_custom_helper_function.plugin:ExampleThemePlugin
     example_theme_v8=ckanext.example_theme.v8_snippet.plugin:ExampleThemePlugin
     example_theme_v9=ckanext.example_theme.v9_custom_snippet.plugin:ExampleThemePlugin
+    example_theme_v10=ckanext.example_theme.v10_HTML_and_CSS.plugin:ExampleThemePlugin
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension

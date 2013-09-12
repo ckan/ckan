@@ -1,5 +1,6 @@
 .. _Jinja2: http://jinja.pocoo.org/
 .. _CKAN front page: http://127.0.0.1:5000
+.. _bootstrap: http://getbootstrap.com/2.3.2/
 
 .. |extension_dir| replace:: ``ckanext-example_theme``
 .. |setup.py| replace:: ``ckanext-example_theme/setup.py`` ``ckan.plugins``
@@ -605,110 +606,98 @@ the default one:
    it calls the snippet with a ``{% snippet %}`` tag.
 
 
-.. _global variables:
-
-Global variables available to templates
----------------------------------------
-
-.. _Pylons app_globals object: http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/glossary.html#term-app-globals
-
-CKAN passes a number of variables that templates can use in Jinja statements or
-expressions. For example, one such variable is ``app_globals``, the `Pylons
-app_globals object`_, which can be used to access global attributes including
-the config settings from the CKAN config file.
-
-.. todo:: Move these examples into a separate file.
-
-.. todo:: Change this example to use custom config settings,
-   dataset of the day, datasets of the day, show dataset of the day.
-
-::
-
-    {% ckan_extends %}
-
-    {% block secondary_content %}
-
-      <p>Site title: {{ g.site_title }}</p>
-
-    {% endblock %}
-
-``{{ g.site_title }}`` will output the :ref:`ckan.site_title` setting from your
-config file (a string) into the web page.
-
-Some variables, such as :ref:`ckan.plugins`, are lists. We can use a
-``{% for %}`` loop to print out the list of currently enabled plugins::
-
-    <p>Plugins enabled:</p>
-    <ul>
-    {% for plugin in g.plugins %}
-        <li>{{ plugin }}</li>
-    {% endfor %}
-    </ul>
-
-.. todo:: Mention what happens if you try to access a variable or attribute
-   that doesn't exist.
-
-.. todo:: Mention filters. And can ckan template helper functions be used as
-   filters?
-
-.. todo:: Mention tests.
-
-The following global variables are available to all templates:
+HTML tags and CSS classes
+-------------------------
 
 .. todo::
 
-   Add explanation of template variables and examples of how to use them in
-   Jinja2 templates.
+   We should probably remove any CSS classes from earlier examples and leave
+   them unstyled, introduce CSS for the first time here.
 
+In the custom snippet example above we used some HTML tags and CSS classes to
+make the most popular groups look good and fit into the rest of the CKAN theme,
+for example we used ``<div class="box">``, ``<section class="module">`` and
+``<header class="module-heading">``. You might be wondering where these tags
+and classes come from, and how a theme developer knows what CSS classes are
+available in CKAN and what HTML and CSS they should use to make their custom
+templates fit into the CKAN theme as a whole.
 
-``c``
- ``pylons.util.AttribSafeContextObj``
+There are two places to look for CSS classes available in CKAN:
 
- Using this is discouraged, better to use ``h``.
- ``c`` is not available to snippets (but I think the rest are?)
+1. The `Bootstrap 2.3.2 docs <bootstrap>`_. All of the HTML, CSS and JavaScript
+   provided by Bootstrap is available to use in CKAN.
 
-``h``
- ``ckan.config.environment._Helpers`` object
+2. CKAN's development primer page, which can be found on any CKAN site at
+   ``/development/primer.html``, for example
+   `demo.ckan.org/development/primer.html <http://demo.ckan.org/development/primer.html>`_.
 
-``app_globals``
- ``ckan.lib.app_globals._Globals`` object
-
-``request``
- ``Request`` object
-
-``response``
- ``Response`` object
-
- .. todo:: Remove this? Doesn't appear to be used.
-
-``session``
- .. todo:: Remove this? Doesn't appear to be used.
-
-``N_``
- function ``gettext_noop``
-
-``_``
- function ``ugettext``
-
-``translator``
- ``gettext.NullTranslations`` instance
-
-``ungettext``
- function ``ungettext``
-
-``actions``
- class ``ckan.model.authz.Action``
-
- .. todo:: Remove this? Doesn't appear to be used and doesn't look like
-           something we want.
+   The primer page demonstrates many of the HTML and CSS elements available in
+   CKAN, and by viewing the source of the page you can see what HTML tags and
+   CSS classes they use.
 
 .. todo::
 
-   Mention that any more variables explicitly passed in by the controller or
-   parent template are also available.
+   Insert a link to the frontend style guide when it's finished, which will
+   be much better than the primer.
 
-Bootstrap
----------
+Let's make our recently changed datasets activity stream and most popular
+groups look better by laying them out and styling them. Change your
+``home/index.html`` template to look like this:
+
+.. todo::
+
+   This example needs fixing. The activity stream should be in a snippet like
+   the groups are. The ``group_item.html`` snippet is not really meant to be
+   used the way it's being used here and as a result the CSS is wrong
+   (also the template crashes unless you hack it).
+
+.. literalinclude:: ../ckanext/example_theme/v10_HTML_and_CSS/templates/home/index.html
+
+This new template uses `Bootstrap's grid system <http://getbootstrap.com/2.3.2/scaffolding.html#gridSystem>`_
+to layout the two main elements. Bootstrap's grid system lays out the main
+elements of a page using rows and columns. You define a row with a
+``<div class="row">`` tag, and then within the row you define columns with
+``<div class="span6">`` tags::
+
+    <div class="row">
+      <div class="span6">
+        <!-- Contents of the left column go here. -->
+      </div>
+      <div class="span6">
+        <!-- Contents of the right column go here. -->
+      </div>
+    </div>
+
+(The number in ``span6`` defines the width of the column, it can be anything
+from ``span1`` to ``span12``, but all of the columns in a given row cannot add
+up to more than 12.)
+
+Within the left column, we use some CKAN CSS classes ``box``, ``module``,
+``module-heading`` and ``module-content``, this uses CKAN's system of CSS
+*modules* to draw the elements in nice, visually distinct sections with
+associated titles::
+
+  <div class="box">
+    <section class="module">
+      <header class="module-heading">
+        <h3>Recent activity</h3>
+      </header>
+      <div class="module-content">
+        {{ h.recently_changed_packages_activity_stream(limit=5) }}
+      </div>
+    </section>
+  </div>
+
+Change your ``snippets/example_theme_most_popular_groups.html`` template to
+look like this:
+
+.. literalinclude:: ../ckanext/example_theme/v10_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html
+
+This uses the same ``box`` and ``module-heading`` classes to draw a box around
+the most popular groups.
+
+Now reload your `CKAN front page`_ in your browser, you should see the activity
+stream and groups lists layed out and styled nicely.
 
 
 Jinja2 basics
