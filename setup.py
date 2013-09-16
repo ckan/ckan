@@ -103,6 +103,8 @@ setup(
             ('ckanext/ecportal/templates/js_strings.html', 'ignore', None),
             ('ckanext/ecportal/templates/package/authz.html', 'ignore', None),
             ('ckanext/ecportal/templates/package/edit.html', 'ignore', None),
+            ('ckanext/ecportal/templates/package/editresources.html',
+             'ignore', None),
             ('ckanext/ecportal/templates/package/layout.html', 'ignore', None),
             ('ckanext/ecportal/templates/package/new.html', 'ignore', None),
             ('ckanext/ecportal/templates/package/new_package_form.html',
