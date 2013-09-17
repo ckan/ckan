@@ -212,9 +212,9 @@ Some problems that can be found during the install:
 
     <dataDir>${dataDir}</dataDir>
 
-* When running Solr it says ``Unable to find a javac compiler; com.sun.tools.javac.Main is not on the classpath. Perhaps ``JAVA_HOME`` does not point to the JDK.``
+* When running Solr it says ``Unable to find a javac compiler; com.sun.tools.javac.Main is not on the classpath. Perhaps JAVA_HOME does not point to the JDK.``
 
-  See the note above about JAVA_HOME. Alternatively you may not have installed the JDK. Check by seeing if javac is installed::
+  See the note above about ``JAVA_HOME``. Alternatively you may not have installed the JDK. Check by seeing if javac is installed::
    
      which javac
 
