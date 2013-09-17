@@ -193,11 +193,11 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                 for id_, name, title in results]
 
     def get_children_group_hierarchy(self, type='group'):
-        '''Returns the groups in all levels underneath this group in the 
+        '''Returns the groups in all levels underneath this group in the
         hierarchy. The ordering is such that children always come after their
         parent.
 
-        :rtype: a list of tuples, each one a Group and the ID its their parent
+        :rtype: a list of tuples, each one a Group and the ID of its parent
         group.
 
         e.g. >>> dept-health.get_children_group_hierarchy()
@@ -211,7 +211,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         return results
 
     def get_parent_group_hierarchy(self, type='group'):
-        '''Returns this group's parent, parent's parent, parent's parent's 
+        '''Returns this group's parent, parent's parent, parent's parent's
         parent etc.. Sorted with the top level parent first.'''
         return meta.Session.query(Group).\
             from_statement(HIERARCHY_UPWARDS_CTE).\
@@ -230,6 +230,22 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             filter(Member.id == None).\
             filter(Group.type == type).\
             order_by(Group.title).all()
+
+    def groups_allowed_to_be_its_parent(self, type='group'):
+        '''Returns a list of the groups (of the specified type) which are
+        allowed to be this group's parent. It excludes ones which would
+        create a loop in the hierarchy, causing the recursive CTE to
+        be in an infinite loop.
+
+        :returns: A list of group objects ordered by group title
+
+        '''
+        all_groups = self.all(group_type=type)
+        excluded_groups = set(group.name for group, id_ in
+                              self.get_children_group_hierarchy(type=type))
+        excluded_groups.add(self.name)
+        return [group for group in all_groups
+                if group.name not in excluded_groups]
 
     def packages(self, with_private=False, limit=None,
             return_query=False, context=None):
@@ -319,28 +335,6 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                             table_name='package')
             meta.Session.add(member)
 
-    def get_groups(self, group_type=None, capacity=None):
-        """ Get all groups that this group is within (i.e. this group's child
-        groups)
-
-        """
-        import ckan.model as model
-        # DR: Why is this cached? Surely the members can change in the
-        #     lifetime of this Group?
-        if '_groups' not in self.__dict__:
-            self._groups = meta.Session.query(model.Group).\
-                join(model.Member, model.Member.group_id == model.Group.id and
-                     model.Member.table_name == 'group').\
-                filter(model.Member.state == 'active').\
-                filter(model.Member.table_id == self.id).all()
-
-        groups = self._groups
-        if group_type:
-            groups = [g for g in groups if g.type == group_type]
-        if capacity:
-            groups = [g for g in groups if g.capacity == capacity]
-        return groups
-
     @property
     def all_related_revisions(self):
         '''Returns chronological list of all object revisions related to
@@ -368,7 +362,6 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
     def __repr__(self):
         return '<Group %s>' % self.name
 
-
 meta.mapper(Group, group_table,
             extension=[vdm.sqlalchemy.Revisioner(group_revision_table), ], )
 
@@ -393,20 +386,21 @@ MemberRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Member,
 MemberRevision.related_packages = lambda self: [self.continuity.package]
 
 
-HIERARCHY_DOWNWARDS_CTE = """WITH RECURSIVE child AS
+HIERARCHY_DOWNWARDS_CTE = """WITH RECURSIVE child(depth) AS
 (
     -- non-recursive term
-    SELECT * FROM member
+    SELECT 0, * FROM member
     WHERE table_id = :id AND table_name = 'group' AND state = 'active'
     UNION ALL
     -- recursive term
-    SELECT m.* FROM member AS m, child AS c
+    SELECT c.depth + 1, m.* FROM member AS m, child AS c
     WHERE m.table_id = c.group_id AND m.table_name = 'group'
           AND m.state = 'active'
 )
-SELECT G.*, child.table_id as parent_id FROM child
+SELECT G.*, child.depth, child.table_id as parent_id FROM child
     INNER JOIN public.group G ON G.id = child.group_id
-    WHERE G.type = :type AND G.state='active';"""
+    WHERE G.type = :type AND G.state='active'
+    ORDER BY child.depth ASC;"""
 
 HIERARCHY_UPWARDS_CTE = """WITH RECURSIVE parenttree(depth) AS (
     -- non-recursive term

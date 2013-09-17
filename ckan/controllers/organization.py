@@ -26,8 +26,10 @@ class OrganizationController(group.GroupController):
         into a format suitable for the form (optional)'''
         pass
 
-    def _setup_template_variables(self, context, data_dict, group_type=None):
-        pass
+    # This is commented so that the Group controller method runs instead,
+    # allowing a group plugins to setup template variables.
+    #def _setup_template_variables(self, context, data_dict, group_type=None):
+    #    pass
 
     def _new_template(self, group_type):
         return 'organization/new.html'

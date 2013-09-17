@@ -408,7 +408,6 @@ def _group_or_org_update(context, data_dict, is_org=False):
     user = context['user']
     session = context['session']
     id = _get_or_bust(data_dict, 'id')
-    parent = context.get('parent', None)
 
     group = model.Group.get(id)
     context["group"] = group
@@ -463,23 +462,6 @@ def _group_or_org_update(context, data_dict, is_org=False):
             and 'api_version' not in context):
         context['prevent_packages_update'] = True
     group = model_save.group_dict_save(data, context)
-
-    if parent:
-        parent_group = model.Group.get( parent )
-        if parent_group and not parent_group in group.get_groups(group.type):
-            # Delete all of this groups memberships
-            current = session.query(model.Member).\
-               filter(model.Member.table_id == group.id).\
-               filter(model.Member.table_name == "group").all()
-            if current:
-                log.debug('Parents of group %s deleted: %r', group.name,
-                          [membership.group.name for membership in current])
-            for c in current:
-                session.delete(c)
-            member = model.Member(group=parent_group, table_id=group.id, table_name='group')
-            session.add(member)
-            log.debug('Group %s is made child of group %s',
-                      group.name, parent_group.name)
 
     if is_org:
         plugin_type = plugins.IOrganizationController

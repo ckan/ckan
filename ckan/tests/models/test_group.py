@@ -165,6 +165,15 @@ class TestHierarchy:
                                        get_top_level_groups(type=group_type)),
                      ['cabinet-office', 'department-of-health'])
 
+    def test_groups_allowed_to_be_its_parent(self):
+        groups = model.Group.by_name(u'national-health-service').\
+            groups_allowed_to_be_its_parent(type=group_type)
+        names = names_from_groups(groups)
+        assert_in('department-of-health', names)
+        assert_in('cabinet-office', names)
+        assert_not_in('natonal-health-service', names)
+        assert_not_in('nhs-wirral-ccg', names)
+
 class TestGroupRevisions:
     @classmethod
     def setup_class(self):

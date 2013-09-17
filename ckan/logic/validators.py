@@ -649,3 +649,22 @@ def list_of_strings(key, data, errors, context):
         if not isinstance(x, basestring):
             raise Invalid('%s: %s' % (_('Not a string'), x))
 
+def no_loops_in_hierarchy(key, data, errors, context):
+    '''Checks that the parent groups specified in the data would not cause
+    a loop in the group hierarchy, and therefore cause the recursion up/down
+    the hierarchy to get into an infinite loop.
+    '''
+    if not 'id' in data:
+        # Must be a new group - has no children, so no chance of loops
+        return
+    group = context['model'].Group.get(data['id'])
+    allowable_parents = group.\
+                        groups_allowed_to_be_its_parent(type=group.type)
+    for parent in data['groups']:
+        parent_name = parent['name']
+        # a blank name signifies top level, which is always allowed
+        if parent_name and context['model'].Group.get(parent_name) \
+                not in allowable_parents:
+            raise Invalid(_('This parent would create a loop in the '
+                            'hierarchy'))
+ 

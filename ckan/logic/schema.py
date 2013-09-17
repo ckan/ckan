@@ -50,6 +50,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    url_validator,
                                    datasets_with_no_organization_cannot_be_private,
                                    list_of_strings,
+                                   no_loops_in_hierarchy,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
@@ -275,18 +276,13 @@ def default_group_schema():
             "name":[ignore_missing, unicode],
             "__extras": [ignore]
         },
-         'groups': {
-            "name": [not_empty, unicode],
-            "capacity": [ignore_missing],
-            "__extras": [ignore]
-        },
         'users': {
             "name": [not_empty, unicode],
             "capacity": [ignore_missing],
             "__extras": [ignore]
         },
         'groups': {
-            "name": [not_empty, unicode],
+            "name": [not_empty, no_loops_in_hierarchy, unicode],
             "capacity": [ignore_missing],
             "__extras": [ignore]
         }
