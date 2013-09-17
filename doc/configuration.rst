@@ -914,8 +914,6 @@ To customise the display of CKAN you can supply replacements for the Genshi temp
 
 For more information on theming, see :doc:`theming`.
 
-.. note:: This is only for legacy code, and shouldn't be used anymore.
-
 .. _extra_public_paths:
 
 extra_public_paths
@@ -928,8 +926,6 @@ Example::
 To customise the display of CKAN you can supply replacements for static files such as HTML, CSS, script and PNG files. Use this option to specify where CKAN should look for additional files, before reverting to the ``ckan/public`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
 For more information on theming, see :doc:`theming`.
-
-.. note:: This is only for legacy code, and shouldn't be used anymore.
 
 .. end_config-theming
 
