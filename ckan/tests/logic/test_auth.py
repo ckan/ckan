@@ -210,7 +210,7 @@ ORG_HIERARCHY_PERMISSIONS = {
 
 class TestAuthOrgHierarchy(TestAuth):
     # Tests are in the same vein as TestAuthOrgs, testing the cases where the
-    # group hierarchy provices extra permissions through cascading
+    # group hierarchy provides extra permissions through cascading
 
     @classmethod
     def setup_class(cls):
@@ -224,7 +224,7 @@ class TestAuthOrgHierarchy(TestAuth):
                              'groups': ['national-health-service']}],
             extra_user_names=['john'])
 
-    def _reset_adatasets_owner_org(self):
+    def _reset_a_datasets_owner_org(self):
         rev = model.repo.new_revision()
         get_action('package_owner_org_update')(
             {'model': model, 'ignore_auth': True},
@@ -304,7 +304,7 @@ class TestAuthOrgHierarchy(TestAuth):
         try:
             self._call_api('package_update', dataset, 'nhsadmin', 200)
         finally:
-            self._reset_adatasets_owner_org()
+            self._reset_a_datasets_owner_org()
 
     def test_08_update_datasets_4(self):
         dataset = {'name': 'adataset', 'owner_org': 'department-of-health'}
@@ -315,7 +315,7 @@ class TestAuthOrgHierarchy(TestAuth):
         try:
             self._call_api('package_update', dataset, 'nhseditor', 200)
         finally:
-            self._reset_adatasets_owner_org()
+            self._reset_a_datasets_owner_org()
 
     def test_08_update_datasets_6(self):
         dataset = {'name': 'adataset', 'owner_org': 'nhs-wirral-ccg'}

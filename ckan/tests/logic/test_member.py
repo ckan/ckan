@@ -171,7 +171,7 @@ class TestMemberLogic(object):
         return logic.get_action('member_create')(ctx, dd)
 
     def _member_create_as_user(self, obj, obj_type, capacity, user):
-        '''Makes the griven object a member of cls.group using privileges of
+        '''Makes the given object a member of cls.group using privileges of
         the given user.'''
         ctx, dd = self._build_context(obj, obj_type, capacity, user=user)
         return logic.get_action('member_create')(ctx, dd)
