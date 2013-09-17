@@ -212,7 +212,7 @@ Some problems that can be found during the install:
 
     <dataDir>${dataDir}</dataDir>
 
-* When running Solr it says ``Unable to find a javac compiler; com.sun.tools.javac.Main is not on the classpath. Perhaps JAVA_HOME does not point to the JDK.``
+* When running Solr it says ``Unable to find a javac compiler; com.sun.tools.javac.Main is not on the classpath. Perhaps ``JAVA_HOME`` does not point to the JDK.``
 
   See the note above about JAVA_HOME. Alternatively you may not have installed the JDK. Check by seeing if javac is installed::
    
@@ -222,7 +222,7 @@ Some problems that can be found during the install:
 
      sudo apt-get install openjdk-6-jdk
 
-  and restart SOLR.
+  and restart Solr.
 
 Handling changes in the CKAN schema
 -----------------------------------
