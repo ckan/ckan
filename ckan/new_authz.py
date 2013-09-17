@@ -387,7 +387,7 @@ def check_config_permission(permission):
             CONFIG_PERMISSIONS[perm] = config.get(key, default)
             if isinstance(default, bool):
                 CONFIG_PERMISSIONS[perm] = asbool(CONFIG_PERMISSIONS[perm])
-            elif isinstance(default, list):
+            elif isinstance(default, list) and key in config:
                 CONFIG_PERMISSIONS[perm] = \
                     CONFIG_PERMISSIONS[perm].split(' ') \
                     if CONFIG_PERMISSIONS[perm] else []
