@@ -293,6 +293,8 @@ def member_list(context, data_dict=None):
 
     :rtype: list of (id, type, capacity) tuples
 
+    :raises: :class:`ckan.logic.NotFound`: if the group doesn't exist
+
     '''
     model = context['model']
 
@@ -911,6 +913,10 @@ def _group_or_org_show(context, data_dict, is_org=False):
     context['group'] = group
 
     if group is None:
+        raise NotFound
+    if is_org and not group.is_organization:
+        raise NotFound
+    if not is_org and group.is_organization:
         raise NotFound
 
     if is_org:

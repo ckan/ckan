@@ -1206,6 +1206,23 @@ class TestAction(WsgiAppCase):
         assert error['__type'] == 'Validation Error'
         assert error['extras_validation'] == ['Duplicate key "foo"']
 
+    def test_package_update_remove_org_error(self):
+        import ckan.tests
+        import paste.fixture
+        import pylons.test
+
+        app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        org = ckan.tests.call_action_api(app, 'organization_create',
+                apikey=self.sysadmin_user.apikey, name='myorganization')
+        package = ckan.tests.call_action_api(app, 'package_create',
+                apikey=self.sysadmin_user.apikey, name='foobarbaz', owner_org=org['id'])
+
+        assert package['owner_org']
+        package['owner_org'] = ''
+        res = ckan.tests.call_action_api(app, 'package_update',
+                apikey=self.sysadmin_user.apikey, **package)
+        assert not res['owner_org'], res['owner_org']
+
     def test_package_update_duplicate_extras_error(self):
         import ckan.tests
         import paste.fixture
@@ -1651,3 +1668,110 @@ class TestBulkActions(WsgiAppCase):
 
         res = self.app.get('/api/action/package_search?q=*:*')
         assert json.loads(res.body)['result']['count'] == 0
+
+
+class TestGroupOrgView(WsgiAppCase):
+
+    @classmethod
+    def setup_class(cls):
+        model.Session.add_all([
+            model.User(name=u'sysadmin', apikey=u'sysadmin',
+                       password=u'sysadmin', sysadmin=True),
+        ])
+        model.Session.commit()
+
+        org_dict = '%s=1' % json.dumps({
+            'name': 'org',
+        })
+        res = cls.app.post('/api/action/organization_create',
+                            extra_environ={'Authorization': 'sysadmin'},
+                            params=org_dict)
+        cls.org_id = json.loads(res.body)['result']['id']
+
+        group_dict = '%s=1' % json.dumps({
+            'name': 'group',
+        })
+        res = cls.app.post('/api/action/group_create',
+                            extra_environ={'Authorization': 'sysadmin'},
+                            params=group_dict)
+        cls.group_id = json.loads(res.body)['result']['id']
+
+    @classmethod
+    def teardown_class(self):
+        model.repo.rebuild_db()
+
+    def test_1_view_org(self):
+        res = self.app.get('/api/action/organization_show',
+                params={'id': self.org_id})
+        res_json = json.loads(res.body)
+        assert res_json['success'] is True
+
+        res = self.app.get('/api/action/group_show',
+                params={'id': self.org_id}, expect_errors=True)
+        res_json = json.loads(res.body)
+        assert res_json['success'] is False
+
+    def test_2_view_group(self):
+        res = self.app.get('/api/action/group_show',
+                params={'id': self.group_id})
+        res_json = json.loads(res.body)
+        assert res_json['success'] is True
+
+        res = self.app.get('/api/action/organization_show',
+                params={'id': self.group_id}, expect_errors=True)
+        res_json = json.loads(res.body)
+        assert res_json['success'] is False
+
+
+class TestResourceAction(WsgiAppCase):
+
+    sysadmin_user = None
+
+    normal_user = None
+
+    @classmethod
+    def setup_class(cls):
+        search.clear()
+        CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def _add_basic_package(self, package_name=u'test_package', **kwargs):
+        package = {
+            'name': package_name,
+            'title': u'A Novel By Tolstoy',
+            'resources': [{
+                'description': u'Full text.',
+                'format': u'plain text',
+                'url': u'http://www.annakarenina.com/download/'
+            }]
+        }
+        package.update(kwargs)
+
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+        return json.loads(res.body)['result']
+
+    def test_01_delete_resource(self):
+        res_dict = self._add_basic_package()
+        pkg_id = res_dict['id']
+
+        resource_count = len(res_dict['resources'])
+        id = res_dict['resources'][0]['id']
+        url = '/api/action/resource_delete'
+
+        # Use the sysadmin user because this package doesn't belong to an org
+        res = self.app.post(url, params=json.dumps({'id': id}),
+                extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        url = '/api/action/package_show'
+        res = self.app.get(url, {'id': pkg_id})
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        assert len(res_dict['result']['resources']) == resource_count - 1

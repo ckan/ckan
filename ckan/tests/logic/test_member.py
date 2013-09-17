@@ -198,6 +198,7 @@ class TestMemberLogic(object):
         ctx = {'model': model,
                'session': model.Session,
                'user': user or self.user.id}
+        ctx['auth_user_obj'] = model.User.get(ctx['user'])
         dd = {'id': group_id or self.group.name,
               'object': obj,
               'object_type': obj_type,

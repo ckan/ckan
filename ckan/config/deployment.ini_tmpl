@@ -67,7 +67,6 @@ ckan.auth.user_delete_groups = true
 ckan.auth.user_delete_organizations = true
 ckan.auth.create_user_via_api = false
 
-
 ## Search Settings
 
 ckan.site_id = default
@@ -132,6 +131,15 @@ ckan.feeds.author_link =
 #ofs.impl = s3
 #ofs.aws_access_key_id = ....
 #ofs.aws_secret_access_key = ....
+
+# 'Bucket' to use for file storage
+#ckan.storage.bucket = default
+
+# Prefix for uploaded files (only used for pairtree)
+#ckan.storage.key_prefix = file/
+
+# The maximum content size, in bytes, for uploads
+#ckan.storage.max_content_length = 50000000
 
 ## Datapusher settings
 
