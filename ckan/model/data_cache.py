@@ -1,26 +1,29 @@
 import datetime
 
 from sqlalchemy import orm
-
-from meta import *
-from types import make_uuid
-from types import JsonDictType
-from core import *
-from package import *
+from sqlalchemy import types, Column, Table
+import meta
+import types as _types
+import domain_object
+#from meta import *
+#from types import make_uuid
+#from types import JsonDictType
+#from core import *
+#from package import *
 
 __all__ = ['DataCache', 'data_cache_table']
 
 data_cache_table = Table(
-    'data_cache', metadata,
-    Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+    'data_cache', meta.metadata,
+    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
     Column('object_id', types.UnicodeText),
     Column('key', types.UnicodeText),
     Column('value', types.UnicodeText),
-    Column('created', DateTime, default=datetime.datetime.now),
+    Column('created', types.DateTime, default=datetime.datetime.now),
 )
 
 
-class DataCache(DomainObject):
+class DataCache(domain_object.DomainObject):
     """
     DataCache provides simple caching of pre-calculated values for queries that
     would take too long to run in real time.  It allows background tasks to determine
@@ -101,4 +104,4 @@ class DataCache(DomainObject):
         Session.flush()
         return True
 
-mapper(DataCache, data_cache_table)
+meta.mapper(DataCache, data_cache_table)
