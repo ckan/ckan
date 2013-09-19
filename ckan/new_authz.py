@@ -125,6 +125,7 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
         return False
     group_id = model.Group.get(group_id).id
 
+
     # Sys admins can do anything
     if is_sysadmin(user_name):
         return True

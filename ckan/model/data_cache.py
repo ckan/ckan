@@ -1,15 +1,11 @@
 import datetime
 
-from sqlalchemy import orm
-from sqlalchemy import types, Column, Table
+from sqlalchemy import orm, types, schema, Table, Column, ForeignKey
+
 import meta
+import core
 import types as _types
 import domain_object
-#from meta import *
-#from types import make_uuid
-#from types import JsonDictType
-#from core import *
-#from package import *
 
 __all__ = ['DataCache', 'data_cache_table']
 
@@ -55,7 +51,7 @@ class DataCache(domain_object.DomainObject):
         """
         if not object_id or not key:
             return None, None
-        item = Session.query(cls).filter(cls.key==key).filter(cls.object_id==object_id).first()
+        item = meta.Session.query(cls).filter(cls.key==key).filter(cls.object_id==object_id).first()
         if not item:
             return (None, None,)
         td = datetime.datetime.now() - item.created
@@ -70,7 +66,7 @@ class DataCache(domain_object.DomainObject):
         this function returns None.
         """
         import json
-        from ckan.lib.jsonp import DateTimeJsonDecoder
+        from ckan.lib.json import DateTimeJsonDecoder
 
         val, age = cls.get(objectid, key)
         if not val:
@@ -93,15 +89,15 @@ class DataCache(domain_object.DomainObject):
         if not object_id or not key:
             return False
 
-        item = Session.query(cls).filter(cls.key==key).filter(cls.object_id==object_id).first()
+        item = meta.Session.query(cls).filter(cls.key==key).filter(cls.object_id==object_id).first()
         if item == None:
             item = DataCache(object_id=object_id, key=key, value=value)
         else:
             item.value = value
             item.created = datetime.datetime.now()
 
-        Session.add(item)
-        Session.flush()
+        meta.Session.add(item)
+        meta.Session.flush()
         return True
 
 meta.mapper(DataCache, data_cache_table)

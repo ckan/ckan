@@ -116,7 +116,7 @@ class CachedReports(CkanCommand):
 
         list - Lists all of the registered reports
 
-        generate - Will generate all of the reports, or if a 
+        generate - Will generate all of the reports, or if a
         comma-separated list is supplied will run only those reports
 
     Example,
@@ -141,6 +141,8 @@ class CachedReports(CkanCommand):
         super(CachedReports,self).__init__(name)
 
     def command(self):
+        import logging
+
         self._load_config()
         self.log = logging.getLogger("ckan.lib.cli")
 
@@ -160,7 +162,7 @@ class CachedReports(CkanCommand):
                     report_list = [s.strip() for s in self.args[1].split(',')]
                     self.log.info("Running reports => %s", report_list)
                 self._generate(report_list)
-        
+
     def _list(self):
         import ckan.plugins as p
         for plugin in p.PluginImplementations(p.ICachedReport):

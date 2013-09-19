@@ -914,7 +914,6 @@ class PackageController(BaseController):
             data_dict['type'] = package_type
             context['message'] = data_dict.get('log_message', '')
             pkg_dict = get_action('package_create')(context, data_dict)
-
             if ckan_phase:
                 # redirect to add dataset resources
                 url = h.url_for(controller='package',
@@ -924,6 +923,7 @@ class PackageController(BaseController):
 
             self._form_save_redirect(pkg_dict['name'], 'new', package_type=package_type)
         except NotAuthorized:
+            raise
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:
             abort(404, _('Dataset not found'))

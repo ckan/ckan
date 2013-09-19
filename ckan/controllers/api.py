@@ -633,7 +633,7 @@ class ApiController(base.BaseController):
             limit = 20
         limit = min(50, limit)
 
-        query = model.Group.search_by_name_or_title(q, t)
+        query = model.Group.search_by_name_or_title(q, t, is_org=(t == 'organization'))
 
         def convert_to_dict(user):
             out = {}
