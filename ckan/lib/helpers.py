@@ -48,8 +48,49 @@ get_locales_dict = i18n.get_locales_dict
 log = logging.getLogger(__name__)
 
 
+def _datestamp_to_datetime(datetime_):
+    ''' Converts a datestamp to a datetime.  If a datetime is provided it
+    just gets returned.
+
+    :param datetime_: the timestamp
+    :type datetime_: string or datetime
+
+    :rtype: datetime
+    '''
+    if isinstance(datetime_, basestring):
+        try:
+            datetime_ = date_str_to_datetime(datetime_)
+        except TypeError:
+            return None
+        except ValueError:
+            return None
+    # check we are now a datetime
+    if not isinstance(datetime_, datetime.datetime):
+        return None
+    return datetime_
+
+
 def redirect_to(*args, **kw):
-    '''A routes.redirect_to wrapper to retain the i18n settings'''
+    '''Issue a redirect: return an HTTP response with a ``302 Moved`` header.
+
+    This is a wrapper for :py:func:`routes.redirect_to` that maintains the
+    user's selected language when redirecting.
+
+    The arguments to this function identify the route to redirect to, they're
+    the same arguments as :py:func:`ckan.plugins.toolkit.url_for` accepts,
+    for example::
+
+        import ckan.plugins.toolkit as toolkit
+
+        # Redirect to /dataset/my_dataset.
+        toolkit.redirect_to(controller='package', action='read',
+                            id='my_dataset')
+
+    Or, using a named route::
+
+        toolkit.redirect_to('dataset_read', id='changed')
+
+    '''
     kw['__ckan_no_root'] = True
     if are_there_flash_messages():
         kw['__no_cache__'] = True
@@ -65,8 +106,24 @@ def url(*args, **kw):
 
 
 def url_for(*args, **kw):
-    '''Create url adding i18n information if selected
-    wrapper for routes.url_for'''
+    '''Return the URL for the given controller, action, id, etc.
+
+    Usage::
+
+        import ckan.plugins.toolkit as toolkit
+
+        url = toolkit.url_for(controller='package', action='read',
+                              id='my_dataset')
+        => returns '/dataset/my_dataset'
+
+    Or, using a named route::
+
+        toolkit.url_for('dataset_read', id='changed')
+
+    This is a wrapper for :py:func:`routes.url_for` that adds some extra
+    features that CKAN needs.
+
+    '''
     locale = kw.pop('locale', None)
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
@@ -793,15 +850,8 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
 
     :rtype: string
     '''
-    if isinstance(datetime_, basestring):
-        try:
-            datetime_ = date_str_to_datetime(datetime_)
-        except TypeError:
-            return ''
-        except ValueError:
-            return ''
-    # check we are now a datetime
-    if not isinstance(datetime_, datetime.datetime):
+    datetime_ = _datestamp_to_datetime(datetime_)
+    if not datetime_:
         return ''
     # if date_format was supplied we use it
     if date_format:
@@ -910,13 +960,31 @@ class _RFC2282TzInfo(datetime.tzinfo):
     def tzname(self, dt):
         return None
 
-
+@maintain.deprecated('h.time_ago_in_words_from_str is deprecated in 2.2 '
+                     'and will be removed.  Please use '
+                     'h.time_ago_from_timestamp instead')
 def time_ago_in_words_from_str(date_str, granularity='month'):
+    '''Deprecated in 2.2 use time_ago_from_timestamp'''
     if date_str:
         return date.time_ago_in_words(date_str_to_datetime(date_str),
                                       granularity=granularity)
     else:
         return _('Unknown')
+
+
+def time_ago_from_timestamp(timestamp):
+    ''' Returns a string like `5 months ago` for a datetime relative to now
+    :param timestamp: the timestamp or datetime
+    :type timestamp: string or datetime
+
+    :rtype: string
+    '''
+    datetime_ = _datestamp_to_datetime(timestamp)
+    if not datetime_:
+        return _('Unknown')
+
+    # the localised date
+    return formatters.localised_nice_date(datetime_, show_date=False)
 
 
 def button_attr(enable, type='primary'):
@@ -1575,7 +1643,7 @@ def SI_number_span(number):
         output = literal('<span>')
     else:
         output = literal('<span title="' + formatters.localised_number(number) + '">')
-    return output + formatters.localised_SI_number(number) + literal('<span>')
+    return output + formatters.localised_SI_number(number) + literal('</span>')
 
 # add some formatter functions
 localised_number = formatters.localised_number
@@ -1681,6 +1749,7 @@ __allowed_functions__ = [
     'localised_filesize',
     'list_dict_filter',
     'new_activities',
+    'time_ago_from_timestamp',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',

@@ -5,6 +5,6 @@
   <i class="icon icon-{{ activity.icon }}"></i>
   <p>
     {{ h.literal(activity.msg.format(**activity.data)) }}
-    <span class="date">{{ h.time_ago_in_words_from_str(activity.timestamp, 'hour') }} ago</span>
+    <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">{{ h.time_ago_from_timestamp(activity.timestamp) }}</span>
   </p>
 </li>

@@ -3,11 +3,11 @@ import ckan.new_authz as new_authz
 
 from ckan.common import _
 
-
-@logic.auth_sysadmins_check
+@logic.auth_allow_anonymous_access
 def package_create(context, data_dict=None):
     user = context['user']
-    if not new_authz.auth_is_registered_user():
+
+    if new_authz.auth_is_anon_user(context):
         check1 = new_authz.check_config_permission('anon_create_dataset')
     else:
         check1 = new_authz.check_config_permission('create_dataset_if_not_in_organization') \
@@ -32,7 +32,7 @@ def package_create(context, data_dict=None):
 
 def file_upload(context, data_dict=None):
     user = context['user']
-    if not new_authz.auth_is_registered_user():
+    if new_authz.auth_is_anon_user(context):
         return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
     return {'success': True}
 
@@ -103,6 +103,7 @@ def rating_create(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def user_create(context, data_dict=None):
     user = context['user']
 

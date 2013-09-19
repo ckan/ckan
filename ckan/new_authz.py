@@ -9,6 +9,8 @@ import ckan.plugins as p
 import ckan.model as model
 from ckan.common import OrderedDict, _, c
 
+import ckan.lib.maintain as maintain
+
 log = getLogger(__name__)
 
 
@@ -56,6 +58,16 @@ class AuthFunctions:
             for key, v in module.__dict__.items():
                 if not key.startswith('_'):
                     key = clean_action_name(key)
+                    # Whitelist all auth functions defined in
+                    # logic/auth/get.py as not requiring an authorized user,
+                    # as well as ensuring that the rest do. In both cases, do
+                    # nothing if a decorator has already been used to define
+                    # the behaviour
+                    if not hasattr(v, 'auth_allow_anonymous_access'):
+                        if auth_module_name == 'get':
+                            v.auth_allow_anonymous_access = True
+                        else:
+                            v.auth_allow_anonymous_access = False
                     self._functions[key] = v
 
         # Then overwrite them with any specific ones in the plugins:
@@ -152,6 +164,16 @@ def is_authorized(action, context, data_dict=None):
         if is_sysadmin(context.get('user')):
             if not getattr(auth_function, 'auth_sysadmins_check', False):
                 return {'success': True}
+
+        # If the auth function is flagged as not allowing anonymous access,
+        # and an existing user object is not provided in the context, deny
+        # access straight away
+        if not getattr(auth_function, 'auth_allow_anonymous_access', False) \
+           and not context.get('auth_user_obj'):
+            return {'success': False,
+                    'msg': '{0} requires an authenticated user'
+                            .format(auth_function)
+                   }
 
         return auth_function(context, data_dict)
     else:
@@ -334,11 +356,34 @@ def check_config_permission(permission):
         return CONFIG_PERMISSIONS[permission]
     return False
 
-
+@maintain.deprecated('Use auth_is_loggedin_user instead')
 def auth_is_registered_user():
+    '''
+    This function is deprecated, please use the auth_is_loggedin_user instead
+    '''
+    return auth_is_loggedin_user()
+
+def auth_is_loggedin_user():
     ''' Do we have a logged in user '''
     try:
         context_user = c.user
     except TypeError:
         context_user = None
     return bool(context_user)
+
+def auth_is_anon_user(context):
+    ''' Is this an anonymous user?
+        eg Not logged in if a web request and not user defined in context
+        if logic functions called directly
+
+        See ckan/lib/base.py:232 for pylons context object logic
+    '''
+    try:
+        is_anon_user = (not bool(c.user) and bool(c.author))
+    except TypeError:
+        # No c object set, this is not a call done via the web interface,
+        # but directly, eg from an extension
+        context_user = context.get('user')
+        is_anon_user = not bool(context_user)
+
+    return is_anon_user

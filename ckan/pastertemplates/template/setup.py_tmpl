@@ -4,28 +4,27 @@ import sys, os
 version = {{repr(version or "0.0")}}
 
 setup(
-	name='ckanext-{{project}}',
-	version=version,
-	description="{{description or ''}}",
-	long_description="""\
-	""",
-	classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-	keywords='',
-	author={{repr(author or '')}},
-	author_email={{repr(author_email or '')}},
-	url={{repr(url or '')}},
-	license={{repr(license_name or '')}},
-	packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
-	namespace_packages=['ckanext', 'ckanext.{{project}}'],
-	include_package_data=True,
-	zip_safe=False,
-	install_requires=[
-		# -*- Extra requirements: -*-
-	],
-	entry_points=\
-	"""
+    name='ckanext-{{project}}',
+    version=version,
+    description="{{description or ''}}",
+    long_description='''
+    ''',
+    classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    keywords='',
+    author={{repr(author or '')}},
+    author_email={{repr(author_email or '')}},
+    url={{repr(url or '')}},
+    license={{repr(license_name or '')}},
+    packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+    namespace_packages=['ckanext', 'ckanext.{{project}}'],
+    include_package_data=True,
+    zip_safe=False,
+    install_requires=[
+        # -*- Extra requirements: -*-
+    ],
+    entry_points='''
         [ckan.plugins]
-	# Add plugins here, eg
-	# myplugin=ckanext.{{project}}:PluginClass
-	""",
+        # Add plugins here, e.g.
+        # myplugin=ckanext.{{project}}.plugin:PluginClass
+    ''',
 )

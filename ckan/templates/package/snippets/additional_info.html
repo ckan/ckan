@@ -54,6 +54,7 @@
           </tr>
         {% endif %}
 
+      {% block extras scoped %}
         {% for extra in h.sorted_extras(pkg_dict.extras) %}
           {% set key, value = extra %}
           <tr rel="dc:relation" resource="_:extra{{ i }}">
@@ -61,6 +62,8 @@
             <td class="dataset-details" property="rdf:value">{{ value }}</td>
           </tr>
         {% endfor %}
+      {% endblock %}
+
       {% endblock %}
     </tbody>
   </table>
