@@ -1643,7 +1643,7 @@ def SI_number_span(number):
         output = literal('<span>')
     else:
         output = literal('<span title="' + formatters.localised_number(number) + '">')
-    return output + formatters.localised_SI_number(number) + literal('<span>')
+    return output + formatters.localised_SI_number(number) + literal('</span>')
 
 # add some formatter functions
 localised_number = formatters.localised_number
