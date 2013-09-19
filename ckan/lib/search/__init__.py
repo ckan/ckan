@@ -204,6 +204,7 @@ def commit():
     package_index.commit()
     log.info('Commited pending changes on the search index')
 
+
 def check():
     package_query = query_for(model.Package)
 
@@ -257,7 +258,6 @@ def check_solr_schema_version(schema_file=None):
         :schema_file: Absolute path to an alternative schema file. Should
                       be only used for testing purposes (Default is None)
     '''
-
 
     if SIMPLE_SEARCH:
         # Not using the SOLR search backend
