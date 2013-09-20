@@ -42,3 +42,4 @@ class DatastoreController(base.BaseController):
         for record in result['records']:
             wr.writerow([record[column] for column in header])
         return f.getvalue()
+

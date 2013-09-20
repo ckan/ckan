@@ -246,7 +246,7 @@ def make_map():
                   action='resource_read')
         m.connect('/dataset/{id}/resource_delete/{resource_id}',
                   action='resource_delete')
-        m.connect('/dataset/{id}/resource_edit/{resource_id}',
+        m.connect('resource_edit', '/dataset/{id}/resource_edit/{resource_id}',
                   action='resource_edit')
         m.connect('/dataset/{id}/resource/{resource_id}/download',
                   action='resource_download')

@@ -51,6 +51,29 @@ def datapusher_submit(context, data_dict):
 
     user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
 
+    task = {
+        'entity_id': res_id,
+        'entity_type': 'resource',
+        'task_type': 'datapusher',
+        'last_updated': str(datetime.datetime.now()),
+        'state': 'submitting',
+        'key': 'datapusher',
+        'value': '{}',
+        'error': '{}',
+    }
+    try:
+        task_id = p.toolkit.get_action('task_status_show')(context, {
+            'entity_id': res_id,
+            'task_type': 'datapusher',
+            'key': 'datapusher'
+        })['id']
+        task['id'] = task_id
+    except logic.NotFound:
+        pass
+
+    result = p.toolkit.get_action('task_status_update')(context, task)
+    task_id = result['id']
+
     try:
         r = requests.post(
             urlparse.urljoin(datapusher_url, 'job'),
@@ -69,36 +92,37 @@ def datapusher_submit(context, data_dict):
             }))
         r.raise_for_status()
     except requests.exceptions.ConnectionError, e:
-        raise p.toolkit.ValidationError({'datapusher': {
-            'message': 'Could not connect to DataPusher.',
-            'details': str(e)}})
+        error = {'message': 'Could not connect to DataPusher.',
+                 'details': str(e)}
+        task['error'] = json.dumps(error)
+        task['state'] = 'error'
+        task['last_updated'] = str(datetime.datetime.now()),
+        p.toolkit.get_action('task_status_update')(context, task)
+        raise p.toolkit.ValidationError(error)
+
     except requests.exceptions.HTTPError, e:
         m = 'An Error occurred while sending the job: {0}'.format(e.message)
         try:
             body = e.response.json()
         except ValueError:
             body = e.response.text
-        raise p.toolkit.ValidationError({'datapusher': {
-            'message': m,
-            'details': body,
-            'status_code': r.status_code}})
+        error = {'message': m,
+                 'details': body,
+                 'status_code': r.status_code}
+        task['error'] = json.dumps(error)
+        task['state'] = 'error'
+        task['last_updated'] = str(datetime.datetime.now()),
+        p.toolkit.get_action('task_status_update')(context, task)
+        raise p.toolkit.ValidationError(error)
 
-    empty_task = {
-        'entity_id': res_id,
-        'entity_type': 'resource',
-        'task_type': 'datapusher',
-        'last_updated': str(datetime.datetime.now()),
-        'state': 'pending'
-    }
-
-    tasks = []
-    for (k, v) in [('job_id', r.json()['job_id']),
-                   ('job_key', r.json()['job_key'])]:
-        t = empty_task.copy()
-        t['key'] = k
-        t['value'] = v
-        tasks.append(t)
-    p.toolkit.get_action('task_status_update_many')(context, {'data': tasks})
+    value = json.dumps(
+            {'job_id': r.json()['job_id'],
+             'job_key': r.json()['job_key']}
+            )
+    task['value'] = value
+    task['state'] = 'pending'
+    task['last_updated'] = str(datetime.datetime.now()),
+    p.toolkit.get_action('task_status_update')(context, task)
 
     return True
 
@@ -111,30 +135,20 @@ def datapusher_hook(context, data_dict):
     '''
 
     # TODO: use a schema to validate
-
     p.toolkit.check_access('datapusher_submit', context, data_dict)
 
     res_id = data_dict['metadata']['resource_id']
 
-    task_id = p.toolkit.get_action('task_status_show')(context, {
+    task = p.toolkit.get_action('task_status_show')(context, {
         'entity_id': res_id,
         'task_type': 'datapusher',
-        'key': 'job_id'
+        'key': 'datapusher'
     })
 
-    task_key = p.toolkit.get_action('task_status_show')(context, {
-        'entity_id': res_id,
-        'task_type': 'datapusher',
-        'key': 'job_key'
-    })
+    task['state'] = data_dict['status']
+    task['last_updated'] = str(datetime.datetime.now())
 
-    tasks = [task_id, task_key]
-
-    for task in tasks:
-        task['state'] = data_dict['status']
-        task['last_updated'] = str(datetime.datetime.now())
-
-    p.toolkit.get_action('task_status_update_many')(context, {'data': tasks})
+    p.toolkit.get_action('task_status_update')(context, task)
 
 
 def datapusher_status(context, data_dict):
@@ -151,16 +165,10 @@ def datapusher_status(context, data_dict):
         data_dict['resource_id'] = data_dict['id']
     res_id = _get_or_bust(data_dict, 'resource_id')
 
-    task_id = p.toolkit.get_action('task_status_show')(context, {
+    task = p.toolkit.get_action('task_status_show')(context, {
         'entity_id': res_id,
         'task_type': 'datapusher',
-        'key': 'job_id'
-    })
-
-    task_key = p.toolkit.get_action('task_status_show')(context, {
-        'entity_id': res_id,
-        'task_type': 'datapusher',
-        'key': 'job_key'
+        'key': 'datapusher'
     })
 
     datapusher_url = pylons.config.get('ckan.datapusher.url')
@@ -168,11 +176,26 @@ def datapusher_status(context, data_dict):
         raise p.toolkit.ValidationError(
             {'configuration': ['DataPusher not configured.']})
 
-    url = urlparse.urljoin(datapusher_url, 'job' + '/' + task_id['value'])
+    value = json.loads(task['value'])
+    job_key = value.get('job_key')
+    job_id = value.get('job_id')
+    url = None
+    job_detail = None
+    if job_id:
+        url = urlparse.urljoin(datapusher_url, 'job' + '/' + job_id)
+        try:
+            r = requests.get(url, headers={'Content-Type': 'application/json',
+                                           'Authorization': job_key})
+            job_detail = r.json()
+        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
+            job_detail = {'error': 'cannot connect to datapusher'}
+
     return {
-        'status': task_id['state'],
-        'job_id': task_id['value'],
+        'status': task['state'],
+        'job_id': job_id,
         'job_url': url,
-        'last_updated': task_id['last_updated'],
-        'job_key': task_key['value']
+        'last_updated': task['last_updated'],
+        'job_key': job_key,
+        'task_info': job_detail,
+        'error': json.loads(task['error'])
     }

@@ -1,11 +1,14 @@
 import logging
 
 import ckan.plugins as p
+import ckan.lib.base as base
+import ckan.lib.helpers as core_helpers
 import ckanext.datapusher.logic.action as action
 import ckanext.datapusher.logic.auth as auth
 import ckanext.datapusher.helpers as helpers
 import ckan.logic as logic
 import ckan.model as model
+from ckan.common import c, _, request
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -16,6 +19,48 @@ DEFAULT_FORMATS = ['csv', 'xls', 'application/csv', 'application/vnd.ms-excel']
 class DatastoreException(Exception):
     pass
 
+class ResourceDataController(base.BaseController):
+
+    def resource_data(self, id, resource_id):
+
+        if request.method == 'POST':
+            result = request.POST
+            try:
+                c.pkg_dict = p.toolkit.get_action('datapusher_submit')(
+                    None, {'resource_id': resource_id}
+                )
+            except logic.ValidationError:
+                pass
+
+            base.redirect(core_helpers.url_for(
+                 controller='ckanext.datapusher.plugin:ResourceDataController',
+                 action='resource_data',
+                 id=id,
+                 resource_id=resource_id)
+            )
+
+        try:
+            c.pkg_dict = p.toolkit.get_action('package_show')(
+                None, {'id': id}
+            )
+            c.resource = p.toolkit.get_action('resource_show')(
+                None, {'id': resource_id}
+            )
+        except logic.NotFound:
+            base.abort(404, _('Resource not found'))
+        except logic.NotAuthorized:
+            base.abort(401, _('Unauthorized to edit this resource'))
+
+        try:
+            datapusher_status = p.toolkit.get_action('datapusher_status')(
+                None, {'resource_id': resource_id}
+            )
+        except logic.NotFound:
+            datapusher_status = {}
+
+        return base.render('package/resource_data.html',
+                            extra_vars={'status': datapusher_status})
+
 
 class DatapusherPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
@@ -24,6 +69,7 @@ class DatapusherPlugin(p.SingletonPlugin):
     p.implements(p.IResourceUrlChange)
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.ITemplateHelpers)
+    p.implements(p.IRoutes, inherit=True)
 
     legacy_mode = False
     resource_show_action = None
@@ -38,6 +84,11 @@ class DatapusherPlugin(p.SingletonPlugin):
         if not datapusher_url:
             raise Exception(
                 'Config option `ckan.datapusher.url` has to be set.')
+
+        self.datapusher_secret_key = config.get('ckan.datapusher.secret_key', '')
+        if not datapusher_url:
+            raise Exception(
+                'Config option `ckan.datapusher.secret_key` has to be set.')
 
     def notify(self, entity, operation=None):
         if isinstance(entity, model.Resource):
@@ -63,6 +114,11 @@ class DatapusherPlugin(p.SingletonPlugin):
                         log.critical(e)
                         pass
 
+    def before_map(self, m):
+        m.connect('resource_data', '/dataset/{id}/resource_data/{resource_id}',
+                  controller='ckanext.datapusher.plugin:ResourceDataController',
+                  action='resource_data')
+        return m
 
     def get_actions(self):
         return {'datapusher_submit': action.datapusher_submit,

@@ -29,8 +29,16 @@
 {% endblock %}
 
 {% block primary_content %}
-  {% if pkg_dict and pkg_dict.state != 'draft' %}
-    <header class="module-content page-header"></header>
+  {% set res = c.resource %}
+  {% if pkg_dict and pkg_dict.state != 'draft' and res %}
+    <header class="module-content page-header">
+      <ul class="nav nav-tabs">
+      {{ h.build_nav_icon('resource_edit', _('Edit Resource'), id=pkg_dict.id, resource_id=res.id) }}
+      {% if 'datapusher' in g.plugins %}
+          {{ h.build_nav_icon('resource_data', _('Resource Data'), id=pkg_dict.id, resource_id=res.id) }}
+      {% endif %}
+      </ul>
+    </header>
   {% endif %}
   {{ super() }}
 {% endblock %}
