@@ -419,8 +419,16 @@ def member_create(context, data_dict=None):
     else:
         rev.message = _(u'REST API: Create member object %s') % data_dict.get("name", "")
 
-    group = model.Group.get(data_dict.get('id', ''))
-    obj_id, obj_type, capacity = _get_or_bust(data_dict, ['object', 'object_type', 'capacity'])
+    group_id, obj_id, obj_type, capacity = _get_or_bust(data_dict, ['id', 'object', 'object_type', 'capacity'])
+
+    group = model.Group.get(group_id)
+    if not group:
+        raise NotFound('Group was not found.')
+
+    obj_class = ckan.logic.model_name_to_class(model, obj_type)
+    obj = obj_class.get(obj_id)
+    if not obj:
+        raise NotFound('%s was not found.' % obj_type.title())
 
     # User must be able to update the group to add a member to it
     _check_access('group_update', context, data_dict)
@@ -428,14 +436,14 @@ def member_create(context, data_dict=None):
     # Look up existing, in case it exists
     member = model.Session.query(model.Member).\
             filter(model.Member.table_name == obj_type).\
-            filter(model.Member.table_id == obj_id).\
+            filter(model.Member.table_id == obj.id).\
             filter(model.Member.group_id == group.id).\
             filter(model.Member.state == "active").first()
     if member:
         member.capacity = capacity
     else:
         member = model.Member(table_name = obj_type,
-                              table_id = obj_id,
+                              table_id = obj.id,
                               group_id = group.id,
                               state = 'active',
                               capacity=capacity)
@@ -449,7 +457,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
     session = context['session']
-    parent = context.get('parent', None)
     data_dict['is_organization'] = is_org
 
 
@@ -488,14 +495,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     group = model_save.group_dict_save(data, context)
-
-    if parent:
-        parent_group = model.Group.get( parent )
-        if parent_group:
-            member = model.Member(group=parent_group, table_id=group.id, table_name='group')
-            session.add(member)
-            log.debug('Group %s is made child of group %s',
-                      group.name, parent_group.name)
 
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
@@ -1102,11 +1101,14 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
 
     username = _get_or_bust(data_dict, 'username')
     role = data_dict.get('role')
-    group_id = data_dict.get('id')
+    group_id = _get_or_bust(data_dict, 'id')
     group = model.Group.get(group_id)
     result = session.query(model.User).filter_by(name=username).first()
     if result:
         user_id = result.id
+    else:
+        message = _(u'User {username} does not exist.').format(username=username)
+        raise ValidationError({'message': message}, error_summary=message)
     member_dict = {
         'id': group.id,
         'object': user_id,

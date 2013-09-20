@@ -13,6 +13,7 @@ INITIAL_TEST_CONFIG_PERMISSIONS = {
     'user_delete_organizations': False,
     'create_user_via_api': False,
     'create_unowned_dataset': False,
+    'roles_that_cascade_to_sub_groups': ['admin'],
 }
 
 
@@ -127,7 +128,7 @@ class TestAuthOrgs(TestAuth):
 
         #not able to add dataset to org admin does not belong to.
         dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_no_user'}
-        self._call_api('package_create', dataset, user, 409)
+        self._call_api('package_create', dataset, user, 403)
 
         #admin not able to make dataset not owned by a org
         dataset = {'name': user + '_dataset_bad'}
@@ -135,7 +136,7 @@ class TestAuthOrgs(TestAuth):
 
         #not able to add org to not existant org
         dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_not_exist'}
-        self._call_api('package_create', dataset, user, 409)
+        self._call_api('package_create', dataset, user, 403)
 
     def test_07_add_datasets(self):
         self._add_datasets('org_admin')

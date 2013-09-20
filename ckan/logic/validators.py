@@ -12,14 +12,14 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_VERSION_MAX_LENGTH,
                         VOCABULARY_NAME_MAX_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
-import ckan.new_authz
+import ckan.new_authz as new_authz
 
 def owner_org_validator(key, data, errors, context):
 
     value = data.get(key)
 
     if value is missing or not value:
-        if not ckan.new_authz.check_config_permission('create_unowned_dataset'):
+        if not new_authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('A organization must be supplied'))
         data.pop(key, None)
         raise StopOnError
@@ -31,7 +31,9 @@ def owner_org_validator(key, data, errors, context):
     group_id = group.id
     user = context['user']
     user = model.User.get(user)
-    if not(user.sysadmin or user.is_in_group(group_id)):
+    if not(user.sysadmin or
+           new_authz.has_user_permission_for_group_or_org(
+               group_id, user.name, 'create_dataset')):
         raise Invalid(_('You cannot add a dataset to this organization'))
     data[key] = group_id
 
@@ -394,7 +396,7 @@ def ignore_not_package_admin(key, data, errors, context):
     if 'ignore_auth' in context:
         return
 
-    if user and ckan.new_authz.is_sysadmin(user):
+    if user and new_authz.is_sysadmin(user):
         return
 
     authorized = False
@@ -421,7 +423,7 @@ def ignore_not_group_admin(key, data, errors, context):
     model = context['model']
     user = context.get('user')
 
-    if user and ckan.new_authz.is_sysadmin(user):
+    if user and new_authz.is_sysadmin(user):
         return
 
     authorized = False
@@ -592,6 +594,26 @@ def user_name_exists(user_name, context):
 
 
 def role_exists(role, context):
-    if role not in ckan.new_authz.ROLE_PERMISSIONS:
+    if role not in new_authz.ROLE_PERMISSIONS:
         raise Invalid(_('role does not exist.'))
     return role
+
+def no_loops_in_hierarchy(key, data, errors, context):
+    '''Checks that the parent groups specified in the data would not cause
+    a loop in the group hierarchy, and therefore cause the recursion up/down
+    the hierarchy to get into an infinite loop.
+    '''
+    if not 'id' in data:
+        # Must be a new group - has no children, so no chance of loops
+        return
+    group = context['model'].Group.get(data['id'])
+    allowable_parents = group.\
+                        groups_allowed_to_be_its_parent(type=group.type)
+    for parent in data['groups']:
+        parent_name = parent['name']
+        # a blank name signifies top level, which is always allowed
+        if parent_name and context['model'].Group.get(parent_name) \
+                not in allowable_parents:
+            raise Invalid(_('This parent would create a loop in the '
+                            'hierarchy'))
+

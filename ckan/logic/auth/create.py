@@ -23,7 +23,7 @@ def package_create(context, data_dict=None):
 
     # If an organization is given are we able to add a dataset to it?
     data_dict = data_dict or {}
-    org_id = data_dict.get('organization_id')
+    org_id = data_dict.get('owner_org')
     if org_id and not new_authz.has_user_permission_for_group_or_org(
             org_id, user, 'create_dataset'):
         return {'success': False, 'msg': _('User %s not authorized to add dataset to this organization') % user}
@@ -130,6 +130,13 @@ def user_create(context, data_dict=None):
 
 
 def _check_group_auth(context, data_dict, permission='update'):
+    '''Has this user got update permission for all of the given groups?
+    If there is a package in the context then ignore that package's groups.
+    :returns: False if not allowed to update one (or more) of the given groups.
+              True otherwise. i.e. True is the default. A blank data_dict
+              mentions no groups, so it returns True.
+
+    '''
     if not data_dict:
         return True
 
@@ -139,26 +146,24 @@ def _check_group_auth(context, data_dict, permission='update'):
 
     api_version = context.get('api_version') or '1'
 
-    if 'organization' in data_dict:
-        groups = [model.Group.get(data_dict['organization'])]
-    else:
-        group_blobs = data_dict.get("groups", [])
-        groups = set()
-        for group_blob in group_blobs:
-            # group_blob might be a dict or a group_ref
-            if isinstance(group_blob, dict):
-                if api_version == '1':
-                    id = group_blob.get('name')
-                else:
-                    id = group_blob.get('id')
-                if not id:
-                    continue
+    group_blobs = data_dict.get('organization', []) or \
+                  data_dict.get('groups', [])
+    groups = set()
+    for group_blob in group_blobs:
+        # group_blob might be a dict or a group_ref
+        if isinstance(group_blob, dict):
+            if api_version == '1':
+                id = group_blob.get('name')
             else:
-                id = group_blob
-            grp = model.Group.get(id)
-            if grp is None:
-                raise logic.NotFound(_('Group was not found.'))
-            groups.add(grp)
+                id = group_blob.get('id')
+            if not id:
+                continue
+        else:
+            id = group_blob
+        grp = model.Group.get(id)
+        if grp is None:
+            raise logic.NotFound(_('Group was not found.'))
+        groups.add(grp)
 
     if pkg:
         pkg_groups = pkg.get_groups()

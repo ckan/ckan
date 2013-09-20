@@ -44,10 +44,13 @@ from ckan.logic.validators import (package_id_not_changed,
                                    owner_org_validator,
                                    user_name_exists,
                                    role_exists,
-                                   url_validator)
+                                   url_validator,
+                                   no_loops_in_hierarchy,
+                                   )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
-                                   convert_group_name_or_id_to_id,)
+                                   convert_group_name_or_id_to_id,
+                                   )
 from formencode.validators import OneOf
 import ckan.model
 import ckan.lib.maintain as maintain
@@ -268,18 +271,13 @@ def default_group_schema():
             "name":[ignore_missing, unicode],
             "__extras": [ignore]
         },
-         'groups': {
-            "name": [not_empty, unicode],
-            "capacity": [ignore_missing],
-            "__extras": [ignore]
-        },
         'users': {
             "name": [not_empty, unicode],
             "capacity": [ignore_missing],
             "__extras": [ignore]
         },
         'groups': {
-            "name": [not_empty, unicode],
+            "name": [not_empty, no_loops_in_hierarchy, unicode],
             "capacity": [ignore_missing],
             "__extras": [ignore]
         }

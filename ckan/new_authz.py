@@ -24,7 +24,7 @@ def clear_auth_functions_cache():
     AuthFunctions._functions.clear()
 
 def is_sysadmin(username):
-    ''' returns True is username is a sysadmin '''
+    ''' returns True if username is a sysadmin '''
     if not username:
         return False
     # see if we can authorise without touching the database
@@ -120,11 +120,16 @@ def get_roles_with_permission(permission):
 
 
 def has_user_permission_for_group_or_org(group_id, user_name, permission):
-    ''' Check if the user has the given permission for the group '''
+    ''' Check if the user has the given permissions for the group, allowing for
+    sysadmin rights and permission cascading down a group hierarchy.
+
+    '''
     if not group_id:
         return False
-    group_id = model.Group.get(group_id).id
-
+    group = model.Group.get(group_id)
+    if not group:
+        return False
+    group_id = group.id
 
     # Sys admins can do anything
     if is_sysadmin(user_name):
@@ -133,12 +138,35 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
     user_id = get_user_id_for_username(user_name, allow_none=True)
     if not user_id:
         return False
+    if _has_user_permission_for_groups(user_id, permission, [group_id]):
+        return True
+    # Handle when permissions cascade. Check the user's roles on groups higher
+    # in the group hierarchy for permission.
+    for capacity in check_config_permission('roles_that_cascade_to_sub_groups'):
+        parent_groups = group.get_parent_group_hierarchy(type=group.type)
+        group_ids = [group_.id for group_ in parent_groups]
+        if _has_user_permission_for_groups(user_id, permission, group_ids,
+                                           capacity=capacity):
+            return True
+    return False
+
+
+def _has_user_permission_for_groups(user_id, permission, group_ids,
+                                    capacity=None):
+    ''' Check if the user has the given permissions for the particular
+    group (ignoring permissions cascading in a group hierarchy).
+    Can also be filtered by a particular capacity.
+    '''
+    if not group_ids:
+        return False
     # get any roles the user has for the group
     q = model.Session.query(model.Member) \
-        .filter(model.Member.group_id == group_id) \
+        .filter(model.Member.group_id.in_(group_ids)) \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_id == user_id)
+    if capacity:
+        q = q.filter(model.Member.capacity == capacity)
     # see if any role has the required permission
     # admin permission allows anything for the group
     for row in q.all():
@@ -149,7 +177,10 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
 
 
 def users_role_for_group_or_org(group_id, user_name):
-    ''' Check if the user role for the group '''
+    ''' Returns the user's role for the group. (Ignores privileges that cascade
+    in a group hierarchy.)
+
+    '''
     if not group_id:
         return None
     group_id = model.Group.get(group_id).id
@@ -169,7 +200,7 @@ def users_role_for_group_or_org(group_id, user_name):
     return None
 
 def has_user_permission_for_some_org(user_name, permission):
-    ''' Check if the user has the given permission for the group '''
+    ''' Check if the user has the given permission for any organization. '''
     user_id = get_user_id_for_username(user_name, allow_none=True)
     if not user_id:
         return False
@@ -283,18 +314,25 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'user_delete_groups': True,
     'user_delete_organizations': True,
     'create_user_via_api': False,
+    'roles_that_cascade_to_sub_groups': ['admin'],
 }
 
 CONFIG_PERMISSIONS = {}
 
 def check_config_permission(permission):
-    ''' Returns the permission True/False based on config '''
+    ''' Returns the permission configuration, usually True/False '''
     # set up perms if not already done
     if not CONFIG_PERMISSIONS:
         for perm in CONFIG_PERMISSIONS_DEFAULTS:
             key = 'ckan.auth.' + perm
             default = CONFIG_PERMISSIONS_DEFAULTS[perm]
-            CONFIG_PERMISSIONS[perm] = asbool(config.get(key, default))
+            CONFIG_PERMISSIONS[perm] = config.get(key, default)
+            if isinstance(default, bool):
+                CONFIG_PERMISSIONS[perm] = asbool(CONFIG_PERMISSIONS[perm])
+            elif isinstance(default, list) and key in config:
+                CONFIG_PERMISSIONS[perm] = \
+                    CONFIG_PERMISSIONS[perm].split(' ') \
+                    if CONFIG_PERMISSIONS[perm] else []
     if permission in CONFIG_PERMISSIONS:
         return CONFIG_PERMISSIONS[permission]
     return False
