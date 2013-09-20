@@ -152,4 +152,4 @@ class AdminController(base.BaseController):
 
             for msg in msgs:
                 h.flash_error(msg)
-            h.redirect_to(h.url_for('ckanadmin', action='trash'))
+            h.redirect_to(controller='admin', action='trash')
