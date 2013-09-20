@@ -128,6 +128,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'resource_id': resource.id
         })
 
+        context.pop('task_status', None)
+
         task = p.toolkit.get_action('task_status_show')(context, {
             'entity_id': resource.id,
             'task_type': 'datapusher',
