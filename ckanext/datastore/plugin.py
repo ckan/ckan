@@ -25,7 +25,6 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IResourceUrlChange)
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
-    p.implements(p.IResourceController, inherit=True)
 
     legacy_mode = False
     resource_show_action = None
@@ -102,36 +101,11 @@ class DatastorePlugin(p.SingletonPlugin):
             self.resource_show_action = new_resource_show
 
     def notify(self, entity, operation=None):
-        '''
-        if not isinstance(entity, model.Resource):
-            return
-        if operation:
-            if operation == model.domain_object.DomainObjectOperation.new:
-                self._create_datastorer_task(entity)
-        else:
-            # if operation is None, resource URL has been changed, as the
-            # notify function in IResourceUrlChange only takes 1 parameter
-            self._create_datastorer_task(entity)
-        '''
-        context = {'model': model, 'ignore_auth': True}
-        if isinstance(entity, model.Resource):
-            if (operation == model.domain_object.DomainObjectOperation.new
-                    or not operation):
-                # if operation is None, resource URL has been changed, as
-                # the notify function in IResourceUrlChange only takes
-                # 1 parameter
-                package = p.toolkit.get_action('package_show')(context, {
-                    'id': entity.get_package_id()
-                })
-                if (not package['private'] and
-                        entity.format in self.datapusher_formats):
-                    p.toolkit.get_action('datapusher_submit')(context, {
-                        'resource_id': entity.id
-                    })
         if not isinstance(entity, model.Package) or self.legacy_mode:
             return
         # if a resource is new, it cannot have a datastore resource, yet
         if operation == model.domain_object.DomainObjectOperation.changed:
+            context = {'model': model, 'ignore_auth': True}
             if entity.private:
                 func = p.toolkit.get_action('datastore_make_private')
             else:
@@ -158,7 +132,7 @@ class DatastorePlugin(p.SingletonPlugin):
             self._log_or_raise('CKAN and DataStore database '
                                'cannot be the same.')
 
-        # in legacy mode, the read and write url are ths same (both write url)
+        # in legacy mode, the read and write url are the same (both write url)
         # consequently the same url check and and write privilege check
         # don't make sense
         if not self.legacy_mode:
@@ -256,8 +230,6 @@ class DatastorePlugin(p.SingletonPlugin):
                    'datastore_upsert': action.datastore_upsert,
                    'datastore_delete': action.datastore_delete,
                    'datastore_search': action.datastore_search,
-                   'datapusher_submit': action.datapusher_submit,
-                   'datapusher_hook': action.datapusher_hook,
                    'resource_show': self.resource_show_action,
                   }
         if not self.legacy_mode:
@@ -272,21 +244,10 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
                 'datastore_search': auth.datastore_search,
-                'datastore_change_permissions': auth.datastore_change_permissions,
-                'datapusher_submit': auth.datapusher_submit}
+                'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
         m.connect('/datastore/dump/{resource_id}',
                   controller='ckanext.datastore.controller:DatastoreController',
                   action='dump')
         return m
-
-    def before_show(self, resource_dict):
-        ''' Modify the resource url of datastore resources so that
-        they link to the datastore dumps.
-        '''
-        if resource_dict['url_type'] == 'datastore':
-            resource_dict['url'] = p.toolkit.url_for(
-                controller='ckanext.datastore.controller:DatastoreController',
-                action='dump', resource_id=resource_dict['id'])
-        return resource_dict
