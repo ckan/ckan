@@ -131,7 +131,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         task = p.toolkit.get_action('task_status_show')(context, {
             'entity_id': resource.id,
             'task_type': 'datapusher',
-            'key': 'job_id'
+            'key': 'datapusher'
         })
 
         assert task['state'] == 'pending', task
@@ -148,18 +148,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             'entity_id': resource.id,
             'entity_type': 'resource',
             'task_type': 'datapusher',
-            'key': 'job_id',
-            'value': 'my_id',
-            'last_updated': str(datetime.datetime.now()),
-            'state': 'pending'
-        })
-
-        p.toolkit.get_action('task_status_update')(context, {
-            'entity_id': resource.id,
-            'entity_type': 'resource',
-            'task_type': 'datapusher',
-            'key': 'job_key',
-            'value': 'my_key',
+            'key': 'datapusher',
+            'value': '{"job_id": "my_id", "job_key":"my_key"}',
             'last_updated': str(datetime.datetime.now()),
             'state': 'pending'
         })
@@ -181,12 +171,12 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         task = tests.call_action_api(
             self.app, 'task_status_show', entity_id=resource.id,
-            task_type='datapusher', key='job_id')
+            task_type='datapusher', key='datapusher')
 
         assert task['state'] == 'success', task
 
         task = tests.call_action_api(
             self.app, 'task_status_show', entity_id=resource.id,
-            task_type='datapusher', key='job_key')
+            task_type='datapusher', key='datapusher')
 
         assert task['state'] == 'success', task

@@ -115,10 +115,9 @@ def datapusher_submit(context, data_dict):
         p.toolkit.get_action('task_status_update')(context, task)
         raise p.toolkit.ValidationError(error)
 
-    value = json.dumps(
-            {'job_id': r.json()['job_id'],
-             'job_key': r.json()['job_key']}
-            )
+    value = json.dumps({'job_id': r.json()['job_id'],
+                        'job_key': r.json()['job_key']})
+
     task['value'] = value
     task['state'] = 'pending'
     task['last_updated'] = str(datetime.datetime.now()),
@@ -187,7 +186,8 @@ def datapusher_status(context, data_dict):
             r = requests.get(url, headers={'Content-Type': 'application/json',
                                            'Authorization': job_key})
             job_detail = r.json()
-        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError), e:
+        except (requests.exceptions.ConnectionError,
+                requests.exceptions.HTTPError), e:
             job_detail = {'error': 'cannot connect to datapusher'}
 
     return {

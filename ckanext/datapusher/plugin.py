@@ -19,6 +19,7 @@ DEFAULT_FORMATS = ['csv', 'xls', 'application/csv', 'application/vnd.ms-excel']
 class DatastoreException(Exception):
     pass
 
+
 class ResourceDataController(base.BaseController):
 
     def resource_data(self, id, resource_id):
@@ -33,10 +34,10 @@ class ResourceDataController(base.BaseController):
                 pass
 
             base.redirect(core_helpers.url_for(
-                 controller='ckanext.datapusher.plugin:ResourceDataController',
-                 action='resource_data',
-                 id=id,
-                 resource_id=resource_id)
+                controller='ckanext.datapusher.plugin:ResourceDataController',
+                action='resource_data',
+                id=id,
+                resource_id=resource_id)
             )
 
         try:
@@ -59,7 +60,7 @@ class ResourceDataController(base.BaseController):
             datapusher_status = {}
 
         return base.render('package/resource_data.html',
-                            extra_vars={'status': datapusher_status})
+                           extra_vars={'status': datapusher_status})
 
 
 class DatapusherPlugin(p.SingletonPlugin):
@@ -77,15 +78,14 @@ class DatapusherPlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
 
-        datapusher_formats = config.get('ckan.datapusher.formats', '').lower().split()
-        self.datapusher_formats = datapusher_formats or DEFAULT_FORMATS
+        datapusher_formats = config.get('ckan.datapusher.formats', '').lower()
+        self.datapusher_formats = datapusher_formats.split() or DEFAULT_FORMATS
 
         datapusher_url = config.get('ckan.datapusher.url')
         if not datapusher_url:
             raise Exception(
                 'Config option `ckan.datapusher.url` has to be set.')
 
-        self.datapusher_secret_key = config.get('ckan.datapusher.secret_key', '')
         if not datapusher_url:
             raise Exception(
                 'Config option `ckan.datapusher.secret_key` has to be set.')
@@ -97,7 +97,8 @@ class DatapusherPlugin(p.SingletonPlugin):
                 # if operation is None, resource URL has been changed, as
                 # the notify function in IResourceUrlChange only takes
                 # 1 parameter
-                context = {'model': model, 'ignore_auth': True, 'defer_commit': True}
+                context = {'model': model, 'ignore_auth': True,
+                           'defer_commit': True}
                 package = p.toolkit.get_action('package_show')(context, {
                     'id': entity.get_package_id()
                 })
@@ -109,15 +110,16 @@ class DatapusherPlugin(p.SingletonPlugin):
                             'resource_id': entity.id
                         })
                     except p.toolkit.ValidationError, e:
-                        # If datapusher is offline want to catch error instead of
-                        # raising otherwise resource save will fail with 500
+                        # If datapusher is offline want to catch error instead
+                        # of raising otherwise resource save will fail with 500
                         log.critical(e)
                         pass
 
     def before_map(self, m):
-        m.connect('resource_data', '/dataset/{id}/resource_data/{resource_id}',
-                  controller='ckanext.datapusher.plugin:ResourceDataController',
-                  action='resource_data')
+        m.connect(
+            'resource_data', '/dataset/{id}/resource_data/{resource_id}',
+            controller='ckanext.datapusher.plugin:ResourceDataController',
+            action='resource_data')
         return m
 
     def get_actions(self):
