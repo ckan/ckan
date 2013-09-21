@@ -12,21 +12,21 @@ Example:
 <section id="dataset-resources" class="resources">
   <h3>{{ _('Data and Resources') }}</h3>
   {% block resource_list %}
-  {% if resources %}
-    <ul class="resource-list">
-      {% block resource_list_inner %}
-      {% for resource in resources %}
-        {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource %}
-      {% endfor %}
-      {% endblock %}
-    </ul>
-  {% else %}
-    <p>
-      {# Comment out "add some" as action doesn't exist yet #}
-      {% trans url=h.url_for(controller='package', action='new_resource', id=pkg.name) %}
-      <p class="empty">This dataset has no data, <a href="{{ url }}">why not add some?</a>
-      {% endtrans %}
-    </p>
-  {% endif %}
-  {% endblock %}
+    {% if resources %}
+      <ul class="resource-list">
+        {% block resource_list_inner %}
+          {% for resource in resources %}
+            {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource %}
+          {% endfor %}
+        {% endblock %}
+      </ul>
+    {% else %}
+      <p>
+        {# Comment out "add some" as action doesn't exist yet #}
+        {% trans url=h.url_for(controller='package', action='new_resource', id=pkg.name) %}
+          <p class="empty">This dataset has no data, <a href="{{ url }}">why not add some?</a>
+        {% endtrans %}
+      </p>
+    {% endif %}
+    {% endblock %}
 </section>
