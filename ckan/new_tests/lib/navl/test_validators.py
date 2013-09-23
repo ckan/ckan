@@ -110,38 +110,36 @@ def removes_key_from_data_dict(message):
     return decorator
 
 
-def does_not_modify_other_keys_in_data_dict(message):
+def does_not_modify_other_keys_in_data_dict(validator):
     '''A decorator that asserts that the decorated validator doesn't add,
     modify the value of, or remove any other keys from its ``data`` dict param.
 
     The function *may* modify its own data dict key.
 
-    :param message: the message that will be printed if the function does
-        modify another key in the data dict and the assert fails
+    :param validator: the validator function to decorate
     :type message: string
 
     Usage:
 
-        @does_not_modify_other_keys_in_data_dict('user_name_validator() '
-            'should not modify other keys in the data dict')
+        @does_not_modify_other_keys_in_data_dict
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
         call_validator(key, data, errors)
 
     '''
-    def decorator(validator):
-        def call_and_assert(key, data, errors, context=None):
-            if context is None:
-                context = {}
-            # Make a copy of the data dict so we can assert against it later.
-            original_data_dict = copy.deepcopy(data)
-            if key in original_data_dict:
-                del original_data_dict[key]
-            result = validator(key, data, errors, context=context)
-            assert data == original_data_dict, message
-            return result
-        return call_and_assert
-    return decorator
+    def call_and_assert(key, data, errors, context=None):
+        if context is None:
+            context = {}
+        # Make a copy of the data dict so we can assert against it later.
+        original_data_dict = copy.deepcopy(data)
+        if key in original_data_dict:
+            del original_data_dict[key]
+        result = validator(key, data, errors, context=context)
+        assert data == original_data_dict, (
+            "Should not modify other keys in data_dict, when given a "
+            "value of {value}".format(value=repr(value)))
+        return result
+    return call_and_assert
 
 
 def does_not_modify_errors_dict(message):
@@ -201,10 +199,7 @@ class TestValidators(object):
             errors = factories.validator_errors_dict()
             errors[key] = []
 
-            @does_not_modify_other_keys_in_data_dict(
-                'When given a value of {value} ignore_missing() should '
-                'not modify other items in the data dict'.format(
-                    value=repr(value)))
+            @does_not_modify_other_keys_in_data_dict
             @does_not_modify_errors_dict(
                 'When given a value of {value} ignore_missing() should not '
                 'modify the errors dict'.format(value=repr(value)))
