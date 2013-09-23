@@ -9,34 +9,40 @@ import nose.tools
 import ckan.new_tests.factories as factories
 
 
-def returns_None(message):
+def returns_None(function):
     '''A decorator that asserts that the decorated function returns None.
 
-    :param message: the message that will be printed if the function doesn't
-        return None and the assert fails
-    :type message: string
+    :param function: the function to decorate
+    :type function: function
 
     Usage:
 
-        @returns_None('user_name_validator() should return None when given '
-                       'valid input')
+        @returns_None
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
         call_validator(key, data, errors)
 
     '''
-    def decorator(function):
-        def call_and_assert(*args, **kwargs):
-            result = function(*args, **kwargs)
-            assert result is None, message
-            return result
-        return call_and_assert
-    return decorator
+    def call_and_assert(*args, **kwargs):
+        original_args = copy.deepcopy(args)
+        original_kwargs = copy.deepcopy(kwargs)
+
+        result = function(*args, **kwargs)
+
+        assert result is None, (
+            'Should return None when called with args: {args} and '
+            'kwargs: {kwargs}'.format(args=original_args,
+                                      kwargs=original_kwargs))
+        return result
+    return call_and_assert
 
 
 def raises_StopOnError(function):
     '''A decorator that asserts that the decorated function raises
     dictization_functions.StopOnError.
+
+    :param function: the function to decorate
+    :type function: function
 
     Usage:
 
@@ -52,62 +58,72 @@ def raises_StopOnError(function):
     return call_and_assert
 
 
-def does_not_modify_data_dict(message):
+def does_not_modify_data_dict(validator):
     '''A decorator  that asserts that the decorated validator doesn't modify
     its `data` dict param.
 
-    :param message: the message that will be printed if the function does
-        modify the data dict and the assert fails
-    :type message: string
+    :param validator: the validator function to decorate
+    :type validator: function
 
     Usage:
 
-        @does_not_modify_data_dict('user_name_validator() should not modify '
-                                   'the data dict')
+        @does_not_modify_data_dict
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
         call_validator(key, data, errors)
 
     '''
-    def decorator(validator):
-        def call_and_assert(key, data, errors, context=None):
-            if context is None:
-                context = {}
-            # Make a copy of the data dict so we can assert against it later.
-            original_data_dict = copy.deepcopy(data)
-            result = validator(key, data, errors, context=context)
-            assert data == original_data_dict, message
-            return result
-        return call_and_assert
-    return decorator
+    def call_and_assert(key, data, errors, context=None):
+        if context is None:
+            context = {}
+        original_data = copy.deepcopy(data)
+        original_errors = copy.deepcopy(errors)
+        original_context = copy.deepcopy(context)
+
+        result = validator(key, data, errors, context=context)
+
+        assert data == original_data, (
+            'Should not modify data dict when called with '
+            'key: {key}, data: {data}, errors: {errors}, '
+            'context: {context}'.format(key=key, data=original_data,
+                                        errors=original_errors,
+                                        context=original_context))
+        return result
+    return call_and_assert
 
 
-def removes_key_from_data_dict(message):
+def removes_key_from_data_dict(validator):
     '''A decorator  that asserts that the decorated validator removes its key
     from the data dict.
 
-    :param message: the message that will be printed if the function does not
-        remove its key and the assert fails
-    :type message: string
+    :param validator: the validator function to decorate
+    :type validator: function
 
     Usage:
 
-        @removes_key_from_data_dict('user_name_validator() should remove its '
-                                    'key from the data dict')
+        @removes_key_from_data_dict
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
         call_validator(key, data, errors)
 
     '''
-    def decorator(validator):
-        def call_and_assert(key, data, errors, context=None):
-            if context is None:
-                context = {}
-            result = validator(key, data, errors, context=context)
-            assert key not in data, message
-            return result
-        return call_and_assert
-    return decorator
+    def call_and_assert(key, data, errors, context=None):
+        if context is None:
+            context = {}
+        original_data = copy.deepcopy(data)
+        original_errors = copy.deepcopy(errors)
+        original_context = copy.deepcopy(context)
+
+        result = validator(key, data, errors, context=context)
+
+        assert key not in data, (
+            'Should remove key from data dict when called with: '
+            'key: {key}, data: {data}, errors: {errors}, '
+            'context: {context} '.format(key=key, data=original_data,
+                                         errors=original_errors,
+                                         context=original_context))
+        return result
+    return call_and_assert
 
 
 def does_not_modify_other_keys_in_data_dict(validator):
@@ -117,7 +133,7 @@ def does_not_modify_other_keys_in_data_dict(validator):
     The function *may* modify its own data dict key.
 
     :param validator: the validator function to decorate
-    :type message: string
+    :type validator: function
 
     Usage:
 
@@ -130,46 +146,68 @@ def does_not_modify_other_keys_in_data_dict(validator):
     def call_and_assert(key, data, errors, context=None):
         if context is None:
             context = {}
-        # Make a copy of the data dict so we can assert against it later.
-        original_data_dict = copy.deepcopy(data)
-        if key in original_data_dict:
-            del original_data_dict[key]
+        original_data = copy.deepcopy(data)
+        original_errors = copy.deepcopy(errors)
+        original_context = copy.deepcopy(context)
+
         result = validator(key, data, errors, context=context)
-        assert data == original_data_dict, (
-            "Should not modify other keys in data_dict, when given a "
-            "value of {value}".format(value=repr(value)))
+
+        # The validator function is allowed to modify its own key, so remove
+        # that key from both dicts for the purposes of the assertions below.
+        if key in data:
+            del data[key]
+        if key in original_data:
+            del original_data[key]
+
+        assert data.keys() == original_data.keys(), (
+            'Should not add or remove keys from data dict when called with '
+            'key: {key}, data: {data}, errors: {errors}, '
+            'context: {context}'.format(key=key, data=original_data,
+                                        errors=original_errors,
+                                        context=original_context))
+        for key_ in data:
+            assert data[key_] == original_data[key_], (
+                'Should not modify other keys in data dict when called with '
+                'key: {key}, data: {data}, errors: {errors}, '
+                'context: {context}'.format(key=key, data=original_data,
+                                            errors=original_errors,
+                                            context=original_context))
         return result
     return call_and_assert
 
 
-def does_not_modify_errors_dict(message):
+def does_not_modify_errors_dict(validator):
     '''A decorator that asserts that the decorated validator doesn't modify its
     `errors` dict param.
 
-    :param message: the message that will be printed if the function does
-        modify the errors dict and the assert fails
-    :type message: string
+    :param validator: the validator function to decorate
+    :type validator: function
 
     Usage:
 
-        @does_not_modify_errors_dict('user_name_validator() should not modify '
-                                     'the errors dict')
+        @does_not_modify_errors_dict
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
         call_validator(key, data, errors)
 
     '''
-    def decorator(validator):
-        def call_and_assert(key, data, errors, context=None):
-            if context is None:
-                context = {}
-            # Make a copy of the errors dict so we can assert against it later.
-            original_errors_dict = copy.deepcopy(errors)
-            result = validator(key, data, errors, context=context)
-            assert errors == original_errors_dict, message
-            return result
-        return call_and_assert
-    return decorator
+    def call_and_assert(key, data, errors, context=None):
+        if context is None:
+            context = {}
+        original_data = copy.deepcopy(data)
+        original_errors = copy.deepcopy(errors)
+        original_context = copy.deepcopy(context)
+
+        result = validator(key, data, errors, context=context)
+
+        assert errors == original_errors, (
+            'Should not modify errors dict when called with key: {key}, '
+            'data: {data}, errors: {errors}, '
+            'context: {context}'.format(key=key, data=original_data,
+                                        errors=original_errors,
+                                        context=original_context))
+        return result
+    return call_and_assert
 
 
 class TestValidators(object):
@@ -200,12 +238,8 @@ class TestValidators(object):
             errors[key] = []
 
             @does_not_modify_other_keys_in_data_dict
-            @does_not_modify_errors_dict(
-                'When given a value of {value} ignore_missing() should not '
-                'modify the errors dict'.format(value=repr(value)))
-            @removes_key_from_data_dict(
-                'When given a value of {value} ignore_missing() should remove '
-                'the item from the data dict'.format(value=repr(value)))
+            @does_not_modify_errors_dict
+            @removes_key_from_data_dict
             @raises_StopOnError
             def call_validator(*args, **kwargs):
                 return validators.ignore_missing(*args, **kwargs)
@@ -224,12 +258,9 @@ class TestValidators(object):
         errors = factories.validator_errors_dict()
         errors[key] = []
 
-        @returns_None('When called with (non-missing) value, ignore_missing() '
-                      'should return None')
-        @does_not_modify_data_dict("ignore_missing() shouldn't modify the "
-                                   'data dict')
-        @does_not_modify_errors_dict("ignore_missing() shouldn't modify the "
-                                     'errors dict')
+        @returns_None
+        @does_not_modify_data_dict
+        @does_not_modify_errors_dict
         def call_validator(*args, **kwargs):
             return validators.ignore_missing(*args, **kwargs)
         call_validator(key=key, data=data, errors=errors, context={})
