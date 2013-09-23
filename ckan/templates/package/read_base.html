@@ -3,8 +3,8 @@
 {% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
 
 {% block links -%}
-    {{ super() }}
-    <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg.id, format='rdf', qualified=True) }}"/>
+  {{ super() }}
+  <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg.id, format='rdf', qualified=True) }}"/>
 {% endblock -%}
 
 {% block head_extras -%}
