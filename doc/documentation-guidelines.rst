@@ -386,6 +386,9 @@ or to define a URL once and then link to it in multiple places, do::
 
 see `Hyperlinks <http://sphinx-doc.org/rest.html#hyperlinks>`_ for details.
 
+Use ``:py:`` to reference other Python or JavaScript functions, modules,
+classes, etc. See :ref:`Referencing other code objects`.
+
 
 .. _sphinx substitutions:
 
@@ -459,7 +462,7 @@ therefore more likely to be kept up to date.
 Whenever you're writing reference documentation for modules, classes, functions
 or methods, exceptions, attributes, etc. you should probably be using autodoc.
 For example, we use autodoc for the :ref:`api-reference`, the
-:ref:`plugin-reference`, etc.
+:doc:`extensions/plugin-interfaces`, etc.
 
 For how to write docstrings, see :ref:`docstrings`.
 

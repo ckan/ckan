@@ -44,6 +44,7 @@ For contributing translations to CKAN, see
 
    i18n
 
+.. _coding standards:
 
 ----------------
 Coding Standards

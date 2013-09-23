@@ -23,19 +23,25 @@ def owner_org_validator(key, data, errors, context):
 
     value = data.get(key)
 
-    if value is missing or not value:
+    if value is missing or value is None:
         if not new_authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('A organization must be supplied'))
         data.pop(key, None)
         raise df.StopOnError
 
     model = context['model']
+    user = context['user']
+    user = model.User.get(user)
+    if value == '':
+        # only sysadmins can remove datasets from org
+        if not user.sysadmin:
+            raise Invalid(_('You cannot remove a dataset from an existing organization'))
+        return
+
     group = model.Group.get(value)
     if not group:
         raise Invalid(_('Organization does not exist'))
     group_id = group.id
-    user = context['user']
-    user = model.User.get(user)
     if not(user.sysadmin or user.is_in_group(group_id)):
         raise Invalid(_('You cannot add a dataset to this organization'))
     data[key] = group_id

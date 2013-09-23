@@ -71,7 +71,26 @@ def _datestamp_to_datetime(datetime_):
 
 
 def redirect_to(*args, **kw):
-    '''A routes.redirect_to wrapper to retain the i18n settings'''
+    '''Issue a redirect: return an HTTP response with a ``302 Moved`` header.
+
+    This is a wrapper for :py:func:`routes.redirect_to` that maintains the
+    user's selected language when redirecting.
+
+    The arguments to this function identify the route to redirect to, they're
+    the same arguments as :py:func:`ckan.plugins.toolkit.url_for` accepts,
+    for example::
+
+        import ckan.plugins.toolkit as toolkit
+
+        # Redirect to /dataset/my_dataset.
+        toolkit.redirect_to(controller='package', action='read',
+                            id='my_dataset')
+
+    Or, using a named route::
+
+        toolkit.redirect_to('dataset_read', id='changed')
+
+    '''
     kw['__ckan_no_root'] = True
     if are_there_flash_messages():
         kw['__no_cache__'] = True
@@ -87,8 +106,24 @@ def url(*args, **kw):
 
 
 def url_for(*args, **kw):
-    '''Create url adding i18n information if selected
-    wrapper for routes.url_for'''
+    '''Return the URL for the given controller, action, id, etc.
+
+    Usage::
+
+        import ckan.plugins.toolkit as toolkit
+
+        url = toolkit.url_for(controller='package', action='read',
+                              id='my_dataset')
+        => returns '/dataset/my_dataset'
+
+    Or, using a named route::
+
+        toolkit.url_for('dataset_read', id='changed')
+
+    This is a wrapper for :py:func:`routes.url_for` that adds some extra
+    features that CKAN needs.
+
+    '''
     locale = kw.pop('locale', None)
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
@@ -1608,7 +1643,7 @@ def SI_number_span(number):
         output = literal('<span>')
     else:
         output = literal('<span title="' + formatters.localised_number(number) + '">')
-    return output + formatters.localised_SI_number(number) + literal('<span>')
+    return output + formatters.localised_SI_number(number) + literal('</span>')
 
 # add some formatter functions
 localised_number = formatters.localised_number
