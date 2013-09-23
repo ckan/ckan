@@ -37,6 +37,7 @@ Usage::
 
 '''
 import factory
+import mock
 
 import ckan.model
 import ckan.logic
@@ -47,6 +48,18 @@ def _generate_email(user):
     '''Return an email address for the given User factory stub object.'''
 
     return '{0}@ckan.org'.format(user.name).lower()
+
+
+def _generate_reset_key(user):
+    '''Return a reset key for the given User factory stub object.'''
+
+    return '{0}_reset_key'.format(user.name).lower()
+
+
+def _generate_user_id(user):
+    '''Return a user id for the given User factory stub object.'''
+
+    return '{0}_user_id'.format(user.name).lower()
 
 
 class User(factory.Factory):
@@ -84,6 +97,33 @@ class User(factory.Factory):
             assert False, "Positional args aren't supported, use keyword args."
         user_dict = helpers.call_action('user_create', **kwargs)
         return user_dict
+
+
+class MockUser(factory.Factory):
+    '''A factory class for creating mock CKAN users using the mock library.'''
+
+    FACTORY_FOR = mock.MagicMock
+
+    fullname = 'Mr. Mock User'
+    password = 'pass'
+    about = 'Just another mock user.'
+    name = factory.Sequence(lambda n: 'mock_user_{n}'.format(n=n))
+    email = factory.LazyAttribute(_generate_email)
+    reset_key = factory.LazyAttribute(_generate_reset_key)
+    id = factory.LazyAttribute(_generate_user_id)
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+        mock_user = mock.MagicMock()
+        for name, value in kwargs.items():
+            setattr(mock_user, name, value)
+        return mock_user
 
 
 def validator_data_dict():

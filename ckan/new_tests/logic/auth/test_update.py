@@ -4,6 +4,7 @@
 import mock
 
 import ckan.new_tests.helpers as helpers
+import ckan.new_tests.factories as factories
 
 
 class TestUpdate(object):
@@ -12,11 +13,7 @@ class TestUpdate(object):
         '''Visitors should not be able to update users' accounts.'''
 
         # Make a mock ckan.model.User object, Fred.
-        fred = mock.MagicMock()
-        # Give the mock user object some attributes it's going to need.
-        fred.reset_key = 'fred_reset_key'
-        fred.id = 'fred_user_id'
-        fred.name = 'fred'
+        fred = factories.MockUser(name='fred')
 
         # Make a mock ckan.model object.
         mock_model = mock.MagicMock()
@@ -51,11 +48,7 @@ class TestUpdate(object):
         # 1. Setup.
 
         # Make a mock ckan.model.User object, Fred.
-        fred = mock.MagicMock()
-        # Give the mock user object some attributes it's going to need.
-        fred.reset_key = 'fred_reset_key'
-        fred.id = 'fred_user_id'
-        fred.name = 'fred'
+        fred = factories.MockUser(name='fred')
 
         # Make a mock ckan.model object.
         mock_model = mock.MagicMock()
@@ -93,11 +86,7 @@ class TestUpdate(object):
         '''Users should be authorized to update their own accounts.'''
 
         # Make a mock ckan.model.User object, Fred.
-        fred = mock.MagicMock()
-        # Give the mock user object some attributes it's going to need.
-        fred.reset_key = 'fred_reset_key'
-        fred.id = 'fred_user_id'
-        fred.name = 'fred'
+        fred = factories.MockUser(name='fred')
 
         # Make a mock ckan.model object.
         mock_model = mock.MagicMock()
@@ -125,11 +114,7 @@ class TestUpdate(object):
     def test_user_update_with_no_user_in_context(self):
 
         # Make a mock ckan.model.User object.
-        mock_user = mock.MagicMock()
-        # Give the mock user object some attributes it's going to need.
-        mock_user.reset_key = 'mock reset key'
-        mock_user.id = 'mock user id'
-        mock_user.name = 'mock_user'
+        mock_user = factories.MockUser(name='fred')
 
         # Make a mock ckan.model object.
         mock_model = mock.MagicMock()
