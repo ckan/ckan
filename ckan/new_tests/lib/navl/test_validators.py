@@ -138,8 +138,6 @@ def does_not_modify_other_keys_in_data_dict(message):
             if key in original_data_dict:
                 del original_data_dict[key]
             result = validator(key, data, errors, context=context)
-            # Copy the data dict because we don't want to modify it.
-            data = copy.deepcopy(data)
             assert data == original_data_dict, message
             return result
         return call_and_assert
