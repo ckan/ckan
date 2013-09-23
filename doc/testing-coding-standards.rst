@@ -78,15 +78,6 @@ Clear
 
   * Test methods and helper functions should have docstrings.
 
-  * Assert statements in tests should have assert messages to explain why the
-    test is doing this assert, e.g.::
-
-      assert result['success'] is False, ("Users shouldn't be able to update "
-                                          "other users' accounts")
-
-    Assert messages are printed out when tests fail, so the user can often see
-    what went wrong without even having to look into the test file.
-
 Easy to find
   It should be easy to know where to add new tests for some new or changed
   code, or to find the existing tests for some code.
