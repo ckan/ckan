@@ -250,6 +250,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                            Member.state == 'active')).\
             filter(Member.id == None).\
             filter(Group.type == type).\
+            filter(Group.state == 'active').\
             order_by(Group.title).all()
 
     def groups_allowed_to_be_its_parent(self, type='group'):
