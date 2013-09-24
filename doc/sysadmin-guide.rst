@@ -14,11 +14,9 @@ configuration options using the site's "config" file, documented in
 
 .. warning::
 
-A sysadmin user can access and edit any Organizations, view and change user
-details, and permanently delete datasets. You should carefully consider who has
-access to a sysadmin account on your CKAN system.
-
-.. contents::
+    A sysadmin user can access and edit any Organizations, view and change user
+    details, and permanently delete datasets. You should carefully consider who has
+    access to a sysadmin account on your CKAN system.
 
 ===========================
 Creating a sysadmin account
