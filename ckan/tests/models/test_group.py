@@ -1,4 +1,4 @@
-from ckan.tests import assert_equal, assert_not_in, assert_in
+from nose.tools import assert_equal, assert_in, assert_not_in
 
 import ckan.model as model
 from ckan.tests import *
@@ -108,13 +108,13 @@ class TestHierarchy:
         res = model.Group.by_name(u'department-of-health').\
               get_children_groups(type=group_type)
         # check groups
-        assert_equal(name_set_from_dicts(res),
+        assert_equal(name_set_from_groups(res),
                      set(('national-health-service',
                           'food-standards-agency')))
-        # check each group is expressed as a small dict
-        assert_equal(set(res[0].keys()), set(('id', 'name', 'title')))
-        assert_in(res[0]['name'], ('national-health-service', 'food-standards-agency'))
-        assert_in(res[0]['title'], ('National Health Service', 'Food Standards Agency'))
+        # check each group is a Group
+        assert isinstance(res[0], model.Group)
+        assert_in(res[0].name, ('national-health-service', 'food-standards-agency'))
+        assert_in(res[0].title, ('National Health Service', 'Food Standards Agency'))
 
     def test_get_children_group_hierarchy__from_top_2(self):
         groups = model.Group.by_name(u'department-of-health').\
@@ -143,6 +143,21 @@ class TestHierarchy:
         assert_equal(name_set_from_group_tuple(model.Group.by_name(u'nhs-wirral-ccg').\
                                        get_children_group_hierarchy(type=group_type)),
                      set())
+
+    def test_get_parents__top(self):
+        assert_equal(names_from_groups(model.Group.by_name(u'department-of-health').\
+                get_parent_groups(type=group_type)),
+                    [])
+
+    def test_get_parents__tier_two(self):
+        assert_equal(names_from_groups(model.Group.by_name(u'national-health-service').\
+                get_parent_groups(type=group_type)),
+                    ['department-of-health'])
+
+    def test_get_parents__tier_three(self):
+        assert_equal(names_from_groups(model.Group.by_name(u'nhs-wirral-ccg').\
+                get_parent_groups(type=group_type)),
+                    ['national-health-service'])
 
     def test_get_parent_groups_up_hierarchy__from_top(self):
         assert_equal(names_from_groups(model.Group.by_name(u'department-of-health').\
