@@ -113,7 +113,7 @@ ask for the following:
 
 * *Password* -- enter the same password in both boxes
 
-.. image:: http://farm4.staticflickr.com/3680/9096223468_a8fde8de23_z.jpg
+.. image:: images/register_account.jpg
 
 If there are problems with any of the fields, CKAN will tell you the problem
 and enable you to correct it. When the fields are filled in correctly, CKAN
@@ -177,7 +177,7 @@ actual data will be added in step 4.)
       only one Organization. If this is you, CKAN will have chosen your Organization
       by default and you need not do anything.)
 
-.. image:: http://farm4.staticflickr.com/3785/9093997647_afd26f6c50_z.jpg
+.. image:: images/add_dataset_1.jpg
 
 .. note::
 
@@ -193,7 +193,7 @@ in.)
 
 **Step 4**. CKAN will display the "Add data" screen.
 
-.. image:: http://farm4.staticflickr.com/3716/9096225054_0759a4233e_z.jpg
+.. image:: images/add_dataset_2.jpg
 
 This is where you will add one or more "resources" which contain the data for
 this dataset. Choose a file or link for your data resource and select the
@@ -246,7 +246,7 @@ select "Next: Additional Info".
     * *Group* -- Moderated collection of datasets. You can add the dataset to
       an existing group here.
 
-.. image:: http://farm6.staticflickr.com/5349/9093997235_910e725a52_z.jpg
+.. image:: images/add_dataset_3.jpg
 
 .. note::
 
@@ -281,7 +281,7 @@ Organization, then any registered user can edit it.)
 
 #. When you have finished, select the "Update dataset" button to save your changes.
 
-.. image:: http://farm4.staticflickr.com/3773/9093996355_35ce6b2495_z.jpg
+.. image:: images/edit_dataset.jpg
 
 
 Adding, deleting and editing resources
@@ -347,7 +347,7 @@ To create an organization:
 #. Select the "Create Organization" button. CKAN creates your Organization and
    displays its home page. Initially, of course, the Organization has no datasets.
 
-.. image:: http://farm6.staticflickr.com/5338/9093996867_d4640f158d_z.jpg
+.. image:: images/create_organization.jpg
 
 You can now change the access privileges to the organization for other users -
 see :ref:`managing_an_organization` below. You can also create datasets owned by the
@@ -376,7 +376,7 @@ admin page. This page has two tabs:
 * *Members* -- Here you can add, remove and change access roles for different
   users in the Organization. Note: you will need to know their username on CKAN.
 
-.. image:: http://farm4.staticflickr.com/3792/9093996089_372c44d739_z.jpg
+.. image:: images/manage_organization.jpg
 
 By default CKAN allows members of Organizations with three roles:
 
@@ -414,7 +414,7 @@ If datasets are tagged by geographical area, it is also possible to run CKAN
 with an extension which allows searching and filtering of datasets by selecting
 an area on a map.
 
-.. image:: http://farm3.staticflickr.com/2827/9093995825_ae5ff329c8_z.jpg
+.. image:: images/search_the_site.jpg
 
 
 Searching within an Organization
@@ -449,7 +449,7 @@ display the dataset page. This includes
 
 * Links to and brief descriptions of each of the resources
 
-.. image:: http://farm3.staticflickr.com/2831/9096224166_5794daefc5_z.jpg
+.. image:: images/exploring_datasets.jpg
 
 The resource descriptions link to a dedicated page for each resource. This
 resource page includes information about the resource, and enables it to be
@@ -489,7 +489,7 @@ dashboard symbol shows the number of new notifications in your News feed since
 you last looked at it. As well as datasets and Organizations, it is possible to
 follow individual users (to be notified of changes that they make to datasets).
 
-.. image:: http://farm4.staticflickr.com/3810/9093996225_461182be69_z.jpg
+.. image:: images/manage_news_feed.jpg
 
 If you want to stop following a dataset (or Organization or user), go to the
 dataset's page (e.g. by selecting a link to it in your News feed) and select
@@ -504,7 +504,7 @@ your profile when you edit a dataset or upload data to an Organization that
 they are following.) To do this, select the gearwheel symbol at the top of any
 page.
 
-.. image:: http://farm4.staticflickr.com/3819/9093995675_7e75eacfc5_z.jpg
+.. image:: images/manage_user_profile.jpg
 
 CKAN displays the user settings page. Here you can change:
 

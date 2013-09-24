@@ -38,7 +38,7 @@ Customizing look and feel
 Some simple customizations to customize the 'look and feel' of your CKAN site
 are available via the UI, at ``http://<my-ckan-url>/ckan-admin/config/``.
 
-.. image:: http://farm6.staticflickr.com/5487/9731703724_ddaaba24e4.jpg
+.. image:: images/customize_look_and_feel.jpg
 
 Here you can edit the following:
 
@@ -99,7 +99,7 @@ Moving a dataset between Organizations
 To move a dataset between Organizations, visit the dataset's Edit page. Choose
 the appropriate entry from the "Organization" drop-down list, and press "Save".
 
-.. image:: http://farm8.staticflickr.com/7341/9731703624_bdf1712191.jpg
+.. image:: images/move_dataset_between_organizations.jpg
 
 =============================
 Permanently deleting datasets
@@ -142,7 +142,7 @@ On their user profile, you will see an "Edit" button. CKAN displays the user
 settings page. You can change any settings for the user, including their
 username, name and password.
 
-.. image:: http://farm3.staticflickr.com/2859/9728870203_764d22fbda.jpg
+.. image:: images/manage_users.jpg
 
 .. note::
 
