@@ -38,7 +38,7 @@ see will be individual datasets.
 A dataset contains two things:
 
 * Information or "metadata" about the data. For example, the title and
-  publisher, date, what formats it is available in, what licence it is released
+  publisher, date, what formats it is available in, what license it is released
   under, etc.
 
 * A number of "resources", which hold the data itself. CKAN does not mind what
@@ -167,9 +167,9 @@ actual data will be added in step 4.)
       Anglia". Hit the <return> key between tags. If you enter a tag wrongly, you can
       use its delete button to remove it before saving the dataset.
 
-    * *License* -- it is important to include licence information so that people know
+    * *License* -- it is important to include license information so that people know
       how they can use the data. This field should be a drop-down box. If you need to
-      use a licence not on the list, contact your site administrator.
+      use a license not on the list, contact your site administrator.
 
     * *Organization* - If you are a member of any Organizations, this drop-down will
       enable you to choose which one should own the dataset. Ensure the default
@@ -183,7 +183,7 @@ actual data will be added in step 4.)
 
     By default, the only required field on this page is the title. However, it
     is good practice to include, at the minimum, a short description and, if
-    possible, the licence information. You should ensure that you choose the
+    possible, the license information. You should ensure that you choose the
     correct Organization for the dataset, since at present, this cannot be changed
     later. You can edit or add to the other fields later.
 
