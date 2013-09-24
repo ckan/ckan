@@ -224,7 +224,24 @@ def _prepopulate_context(context):
 
 
 def check_access(action, context, data_dict=None):
-    '''Raise :py:exc:`~ckan.plugins.toolkit.NotAuthorized` if the user is not
+    '''Calls the authorization function for the provided action
+
+    This is the only function that should be called to determine whether a
+    user (or an anonymous request) is allowed to perform a particular action.
+
+    The function accepts a context object, which should contain a 'user' key
+    with the name of the user performing the action, and optionally a
+    dictionary with extra data to be passed to the authorization function.
+
+    For example::
+
+        check_access('package_update', context, data_dict)
+
+    If not already there, the function will add an `auth_user_obj` key to the
+    context object with the actual User object (in case it exists in the
+    database). This check is only performed once per context object.
+
+    Raise :py:exc:`~ckan.plugins.toolkit.NotAuthorized` if the user is not
     authorized to call the named action function.
 
     If the user *is* authorized to call the action, return ``True``.
@@ -256,22 +273,20 @@ def check_access(action, context, data_dict=None):
     user = context.get('user')
     log.debug('check access - user %r, action %s' % (user, action))
 
-    if action:
-        #if action != model.Action.READ and user in
-        # (model.PSEUDO_USER__VISITOR, ''):
-        #    # TODO Check the API key is valid at some point too!
-        #    log.debug('Valid API key needed to make changes')
-        #    raise NotAuthorized
+    if not 'auth_user_obj' in context:
+        context['auth_user_obj'] = None
 
-        context = _prepopulate_context(context)
+    if not context.get('ignore_auth'):
+        if not context.get('__auth_user_obj_checked'):
+            if context.get('user') and not context.get('auth_user_obj'):
+                context['auth_user_obj'] = model.User.by_name(context['user'])
+            context['__auth_user_obj_checked'] = True
 
-        logic_authorization = new_authz.is_authorized(action, context, data_dict)
-        if not logic_authorization['success']:
-            msg = logic_authorization.get('msg', '')
-            raise NotAuthorized(msg)
-    elif not user:
-        msg = _('No valid API key provided.')
-        log.debug(msg)
+    context = _prepopulate_context(context)
+
+    logic_authorization = new_authz.is_authorized(action, context, data_dict)
+    if not logic_authorization['success']:
+        msg = logic_authorization.get('msg', '')
         raise NotAuthorized(msg)
 
     log.debug('Access OK.')
@@ -355,9 +370,10 @@ def get_action(action):
 
                     # Whitelist all actions defined in logic/action/get.py as
                     # being side-effect free.
-                    # FIXME This looks wrong should it be an 'or' not 'and'
-                    v.side_effect_free = getattr(v, 'side_effect_free', True)\
-                        and action_module_name == 'get'
+                    if action_module_name == 'get' and \
+                       not hasattr(v, 'side_effect_free'):
+                        v.side_effect_free = True
+
 
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
@@ -546,6 +562,33 @@ def auth_audit_exempt(action):
     def wrapper(context, data_dict):
         return action(context, data_dict)
     wrapper.auth_audit_exempt = True
+    return wrapper
+
+def auth_allow_anonymous_access(action):
+    ''' Flag an auth function as not requiring a logged in user
+
+    This means that check_access won't automatically raise a NotAuthorized
+    exception if an authenticated user is not provided in the context. (The
+    auth function can still return False if for some reason access is not
+    granted).
+    '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_allow_anonymous_access = True
+    return wrapper
+
+def auth_disallow_anonymous_access(action):
+    ''' Flag an auth function as requiring a logged in user
+
+    This means that check_access will automatically raise a NotAuthorized
+    exception if an authenticated user is not provided in the context, without
+    calling the actual auth function.
+    '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_allow_anonymous_access = False
     return wrapper
 
 class UnknownValidator(Exception):

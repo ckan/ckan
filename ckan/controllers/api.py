@@ -52,7 +52,8 @@ class ApiController(base.BaseController):
 
         self._identify_user()
         try:
-            context = {'model': model, 'user': c.user or c.author}
+            context = {'model': model, 'user': c.user or c.author,
+                       'auth_user_obj': c.userobj}
             logic.check_access('site_read', context)
         except NotAuthorized:
             response_msg = self._finish(403,
@@ -161,7 +162,7 @@ class ApiController(base.BaseController):
                 _('Action name not known: %s') % logic_function)
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver}
+                   'api_version': ver, 'auth_user_obj': c.userobj}
         model.Session()._context = context
         return_dict = {'help': function.__doc__}
         try:
@@ -248,7 +249,8 @@ class ApiController(base.BaseController):
 
     def list(self, ver=None, register=None, subregister=None, id=None):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user, 'api_version': ver}
+                   'user': c.user, 'api_version': ver,
+                   'auth_user_obj': c.userobj}
         log.debug('listing: %s' % context)
         action_map = {
             'revision': 'revision_list',
@@ -292,7 +294,7 @@ class ApiController(base.BaseController):
             action_map[('dataset', type)] = 'package_relationships_list'
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver}
+                   'api_version': ver, 'auth_user_obj': c.userobj}
         data_dict = {'id': id, 'id2': id2, 'rel': subregister}
 
         log.debug('show: %s' % context)
@@ -327,7 +329,7 @@ class ApiController(base.BaseController):
             action_map[('dataset', type)] = 'package_relationship_create_rest'
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver}
+                   'api_version': ver, 'auth_user_obj': c.userobj}
         log.debug('create: %s' % (context))
         try:
             request_data = self._get_request_data()
@@ -390,7 +392,7 @@ class ApiController(base.BaseController):
             action_map[('dataset', type)] = 'package_relationship_update_rest'
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'id': id}
+                   'api_version': ver, 'id': id, 'auth_user_obj': c.userobj}
         log.debug('update: %s' % (context))
         try:
             request_data = self._get_request_data()
@@ -442,7 +444,7 @@ class ApiController(base.BaseController):
             action_map[('dataset', type)] = 'package_relationship_delete_rest'
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver}
+                   'api_version': ver, 'auth_user_obj': c.userobj}
 
         data_dict = {'id': id, 'id2': id2, 'rel': subregister}
 
@@ -597,7 +599,7 @@ class ApiController(base.BaseController):
         c.q = request.params.get('q', '')
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
         tag_names = get_action('tag_list')(context, {})
         results = []
@@ -632,7 +634,7 @@ class ApiController(base.BaseController):
         user_list = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
             data_dict = {'q': q, 'limit': limit}
 
@@ -696,7 +698,7 @@ class ApiController(base.BaseController):
         package_dicts = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
             data_dict = {'q': q, 'limit': limit}
 
@@ -712,7 +714,7 @@ class ApiController(base.BaseController):
         tag_names = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
             data_dict = {'q': q, 'limit': limit}
 
@@ -731,7 +733,7 @@ class ApiController(base.BaseController):
         formats = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
             data_dict = {'q': q, 'limit': limit}
             formats = get_action('format_autocomplete')(context, data_dict)
 

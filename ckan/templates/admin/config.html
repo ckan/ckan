@@ -7,8 +7,8 @@
     {{ autoform.generate(form_items, data, errors) }}
     <div class="form-actions">
       {% set locale = h.dump_json({'content': _('Are you sure you want to reset the config?')}) %}
-        <a href="{% url_for controller='admin', action='reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-i18n="{{ locale }}">{{ _('Reset') }}</a>
-        <button type="submit" class="btn btn-primary" name="save">{{ _('Update') }}</button>
+      <a href="{% url_for controller='admin', action='reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-i18n="{{ locale }}">{{ _('Reset') }}</a>
+      <button type="submit" class="btn btn-primary" name="save">{{ _('Update') }}</button>
     </div>
   </form>
 {% endblock %}
