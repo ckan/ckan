@@ -636,3 +636,7 @@ def user_following_dataset_dictize(follower, context):
 
 def user_following_group_dictize(follower, context):
     return d.table_dictize(follower, context)
+
+
+def resource_view_dictize(resource_view, context):
+    return d.table_dictize(resource_view, context)

@@ -262,6 +262,40 @@ def resource_create(context, data_dict):
     return pkg_dict['resources'][-1]
 
 
+def resource_view_create(context, data_dict):
+    '''Creates a new resource view.
+
+    :param resource_id: id of the resource
+    :type resource_id: string
+    :param view_type: type of view
+    :type view_type: string
+    :param view_number: a number denoting the position of this view in the
+        list of views for the resource (optional)
+    :type view_number: int
+    :param config: options necessary to recreate a view state (optional)
+    :type config: JSON string
+
+    :returns: the newly created resource view
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+    schema = (context.get('schema') or
+              ckan.logic.schema.default_resource_view_schema())
+
+    data, errors = _validate(data_dict, schema, context)
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    _check_access('resource_view_create', context, data_dict)
+
+    resource_view = model_save.resource_view_dict_save(data, context)
+    if not context.get('defer_commit'):
+        model.repo.commit()
+    return model_dictize.resource_view_dictize(resource_view, context)
+
+
 def related_create(context, data_dict):
     '''Add a new related item to a dataset.
 

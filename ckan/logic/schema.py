@@ -10,6 +10,7 @@ from ckan.lib.navl.validators import (ignore_missing,
 from ckan.logic.validators import (package_id_not_changed,
                                    package_id_exists,
                                    package_id_or_name_exists,
+                                   resource_id_exists,
                                    extras_unicode_convert,
                                    name_validator,
                                    package_name_validator,
@@ -563,4 +564,15 @@ def create_schema_for_required_keys(keys):
     each key from keys is validated against ``not_missing``.
     '''
     schema = dict([(x, [not_missing]) for x in keys])
+    return schema
+
+
+def default_resource_view_schema():
+    schema = {
+        'id': [ignore_missing, unicode],
+        'resource_id': [not_empty, resource_id_exists],
+        'view_type': [not_empty, unicode],
+        'view_number': [not_empty, natural_number_validator],
+        'config': [ignore_missing]
+    }
     return schema

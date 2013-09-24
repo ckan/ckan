@@ -1225,6 +1225,45 @@ class TestAction(WsgiAppCase):
         assert error['__type'] == 'Validation Error'
         assert error['extras_validation'] == ['Duplicate key "foo"']
 
+    def test_resource_view_create(self):
+        resource_id = model.Package.by_name(u'annakarenina').resources[0].id
+        resource_view = {'resource_id': resource_id,
+                         'view_type': u'test',
+                         'view_number': 1,
+                         'config': json.dumps({'config-key': u'test'})}
+        postparams = '%s=1' % json.dumps(resource_view)
+        res = self.app.post(
+            '/api/action/resource_view_create', params=postparams,
+            extra_environ={'Authorization': str(self.normal_user.apikey)})
+        resource_view_created = json.loads(res.body)['result']
+
+        assert 'id' in resource_view_created
+        for field in resource_view:
+            assert resource_view[field] == resource_view_created[field], \
+                (field, resource_view[field], resource_view_created[field])
+
+    def test_resource_view_create_invalid_resource_id(self):
+        resource_view = {'resource_id': u'bad-resource-id',
+                         'view_type': u'test',
+                         'view_number': 1,
+                         'config': json.dumps({'config-key': u'test'})}
+        postparams = '%s=1' % json.dumps(resource_view)
+        self.app.post(
+            '/api/action/resource_view_create', params=postparams,
+            extra_environ={'Authorization': str(self.normal_user.apikey)},
+            status=409)
+
+    def test_resource_view_create_not_authorized_if_not_logged_in(self):
+        resource_id = model.Package.by_name(u'annakarenina').resources[0].id
+        resource_view = {'resource_id': resource_id,
+                         'view_type': u'test',
+                         'view_number': 1,
+                         'config': json.dumps({'config-key': u'test'})}
+        postparams = '%s=1' % json.dumps(resource_view)
+        self.app.post('/api/action/resource_view_create', params=postparams,
+                      status=403)
+
+
 class TestActionTermTranslation(WsgiAppCase):
 
     @classmethod
