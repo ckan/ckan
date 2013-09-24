@@ -218,15 +218,16 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         hierarchy. The ordering is such that children always come after their
         parent.
 
-        :rtype: a list of tuples, each one a Group and the ID of its parent
-        group.
+        :rtype: a list of tuples, each one a Group ID, name and title and then
+        the ID of its parent group.
 
-        e.g. >>> dept-health.get_children_group_hierarchy()
-             [(<Group nhs>, u'8a163ba7-5146-4325-90c8-fe53b25e28d0'),
-              (<Group wirral-ccg>, u'06e6dbf5-d801-40a1-9dc0-6785340b2ab4'),
-              (<Group newport-ccg>, u'd2e25b41-720c-4ba7-bc8f-bb34b185b3dd')]
+        e.g. 
+        >>> dept-health.get_children_group_hierarchy()
+        [(u'8ac0...', u'national-health-service', u'National Health Service', u'e041...'), 
+         (u'b468...', u'nhs-wirral-ccg', u'NHS Wirral CCG', u'8ac0...')]
         '''
-        results = meta.Session.query(Group, 'parent_id').\
+        results = meta.Session.query(Group.id, Group.name, Group.title,
+                                     'parent_id').\
             from_statement(HIERARCHY_DOWNWARDS_CTE).\
             params(id=self.id, type=type).all()
         return results
@@ -263,7 +264,8 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
 
         '''
         all_groups = self.all(group_type=type)
-        excluded_groups = set(group.name for group, id_ in
+        excluded_groups = set(group_name
+                              for group_id, group_name, group_title, parent in
                               self.get_children_group_hierarchy(type=type))
         excluded_groups.add(self.name)
         return [group for group in all_groups
@@ -436,7 +438,7 @@ HIERARCHY_DOWNWARDS_CTE = """WITH RECURSIVE child(depth) AS
     WHERE m.table_id = c.group_id AND m.table_name = 'group'
           AND m.state = 'active'
 )
-SELECT G.*, child.depth, child.table_id as parent_id FROM child
+SELECT G.id, G.name, G.title, child.depth, child.table_id as parent_id FROM child
     INNER JOIN public.group G ON G.id = child.group_id
     WHERE G.type = :type AND G.state='active'
     ORDER BY child.depth ASC;"""
