@@ -35,6 +35,8 @@ advanced documentation last:
 .. toctree::
    :maxdepth: 2
 
+   user-guide
+   sysadmin-guide
    installing
    upgrading
    getting-started
