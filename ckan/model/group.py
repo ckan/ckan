@@ -196,12 +196,12 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def get_children_groups(self, type='group'):
         '''Returns the groups one level underneath this group in the hierarchy.
-        Groups come in a list of dicts, each keyed by "id", "name" and "title".
         '''
         # The original intention of this method was to provide the full depth
         # of the tree, but the CTE was incorrect. This new query does what that
-        # old CTE actually did, but is now far simpler.
-        results = meta.Session.query(Group.id, Group.name, Group.title).\
+        # old CTE actually did, but is now far simpler, and returns Group objects
+        # instead of a dict.
+        return meta.Session.query(Group).\
                      filter_by(type=type).\
                      filter_by(state='active').\
                      join(Member, Member.group_id == Group.id).\
@@ -209,9 +209,6 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                      filter_by(table_name='group').\
                      filter_by(state='active').\
                      all()
-
-        return [{'id': id_, 'name': name, 'title': title}
-                for id_, name, title in results]
 
     def get_children_group_hierarchy(self, type='group'):
         '''Returns the groups in all levels underneath this group in the
@@ -231,6 +228,21 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             from_statement(HIERARCHY_DOWNWARDS_CTE).\
             params(id=self.id, type=type).all()
         return results
+
+    def get_parent_groups(self, type='group'):
+        '''Returns this group's parent groups.
+        Returns a list. Will have max 1 value for organizations.
+
+        '''
+        return meta.Session.query(Group).\
+            join(Member,
+                 and_(Member.table_id == Group.id,
+                      Member.table_name == 'group',
+                      Member.state == 'active')).\
+            filter(Member.group_id == self.id).\
+            filter(Group.type == type).\
+            filter(Group.state == 'active').\
+            all()
 
     def get_parent_group_hierarchy(self, type='group'):
         '''Returns this group's parent, parent's parent, parent's parent's
