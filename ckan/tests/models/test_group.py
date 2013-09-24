@@ -93,7 +93,7 @@ class TestGroup(object):
         return set([group.name for group in results])
 
 name_set_from_dicts = lambda groups: set([group['name'] for group in groups])
-name_set_from_group_tuple = lambda tuples: set([t[0].name for t in tuples])
+name_set_from_group_tuple = lambda tuples: set([t[1] for t in tuples])
 name_set_from_groups = lambda groups: set([group.name for group in groups])
 names_from_groups = lambda groups: [group.name for group in groups]
 
@@ -122,8 +122,8 @@ class TestHierarchy:
         # the first group must be NHS or Food Standards Agency - i.e. on the
         # first level down
         nhs = groups[0]
-        assert_in(nhs[0].name, ('national-health-service', 'food-standards-agency'))
-        assert_equal(model.Group.get(nhs[1]).name, 'department-of-health')
+        assert_in(nhs[1], ('national-health-service', 'food-standards-agency'))
+        assert_equal(model.Group.get(nhs[3]).name, 'department-of-health')
 
     def test_get_children_group_hierarchy__from_top(self):
         assert_equal(name_set_from_group_tuple(model.Group.by_name(u'department-of-health').\
