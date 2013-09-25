@@ -850,6 +850,30 @@ def resource_show(context, data_dict):
 
     return resource_dict
 
+
+def resource_view_show(context, data_dict):
+    '''
+    Return the metadata of a resource_view.
+
+    :param id: the id of the resource_view
+    :type id: string
+
+    :rtype: dictionary
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    resource_view = model.ResourceView.get(id)
+    if not resource_view:
+        raise NotFound
+
+    context['resource_view'] = resource_view
+    context['resource'] = model.Resource.get(resource_view.resource_id)
+
+    _check_access('resource_view_show', context, data_dict)
+    return model_dictize.resource_view_dictize(resource_view, context)
+
+
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
 
