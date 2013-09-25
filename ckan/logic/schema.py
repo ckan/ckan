@@ -576,3 +576,9 @@ def default_resource_view_schema():
         'config': [ignore_missing]
     }
     return schema
+
+
+def default_update_resource_view_schema():
+    schema = default_resource_view_schema()
+    schema.update({'id': [not_missing, not_empty, unicode]})
+    return schema

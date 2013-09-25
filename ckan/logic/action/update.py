@@ -229,6 +229,45 @@ def resource_update(context, data_dict):
     return pkg_dict['resources'][n]
 
 
+def resource_view_update(context, data_dict):
+    '''Update a resource view.
+
+    To update a resource_view you must be authorized to update the resource
+    that the resource_view belongs to.
+
+    For further parameters see ``resource_view_create()``.
+
+    :param id: the id of the resource_view to update
+    :type id: string
+
+    :returns: the updated resource_view
+    :rtype: string
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, "id")
+    schema = (context.get('schema') or
+              ckan.logic.schema.default_update_resource_view_schema())
+
+    data, errors = _validate(data_dict, schema, context)
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    resource_view = model.ResourceView.get(id)
+    if not resource_view:
+        raise NotFound
+
+    context["resource_view"] = resource_view
+    context['resource'] = model.Resource.get(resource_view.resource_id)
+    _check_access('resource_view_update', context, data_dict)
+
+    resource_view = model_save.resource_view_dict_save(data, context)
+    if not context.get('defer_commit'):
+        model.repo.commit()
+    return model_dictize.resource_view_dictize(resource_view, context)
+
+
 def package_update(context, data_dict):
     '''Update a dataset (package).
 
