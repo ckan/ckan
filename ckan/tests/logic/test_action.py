@@ -1781,3 +1781,52 @@ class TestResourceAction(WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
         assert len(res_dict['result']['resources']) == resource_count - 1
+
+
+class TestMember(WsgiAppCase):
+
+    sysadmin = None
+
+    group = None
+
+    def setup(self):
+        username = 'sysadmin'
+        groupname = 'test group'
+        organization_name = 'test organization'
+        CreateTestData.create_user('sysadmin', **{ 'sysadmin': True })
+        CreateTestData.create_groups([{ 'name': groupname },
+                                      { 'name': organization_name,
+                                        'type': 'organization'}])
+        self.sysadmin = model.User.get(username)
+        self.group = model.Group.get(groupname)
+
+    def teardown(self):
+        model.repo.rebuild_db()
+
+    def test_group_member_create_works_user_id_and_group_id(self):
+        self._assert_we_can_add_user_to_group(self.sysadmin.id, self.group.id)
+
+    def test_group_member_create_works_with_user_id_and_group_name(self):
+        self._assert_we_can_add_user_to_group(self.sysadmin.id, self.group.name)
+
+    def test_group_member_create_works_with_user_name_and_group_name(self):
+        self._assert_we_can_add_user_to_group(self.sysadmin.name, self.group.name)
+
+    def _assert_we_can_add_user_to_group(self, user_id, group_id):
+        user = model.User.get(user_id)
+        group = model.Group.get(group_id)
+        url = '/api/action/group_member_create'
+        role = 'member'
+        postparams = '%s=1' % json.dumps({
+            'id': group_id,
+            'username': user_id,
+            'role': role})
+
+        res = self.app.post(url, params=postparams,
+                            extra_environ={'Authorization': str(user.apikey)})
+
+        res = json.loads(res.body)
+        groups = user.get_groups(group.type, role)
+        group_ids = [g.id for g in groups]
+        assert res['success'] is True, res
+        assert group.id in group_ids, (group, user_groups)
