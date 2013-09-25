@@ -98,6 +98,7 @@ class PackageSearchIndex(SearchIndex):
         self.index_package(pkg_dict, defer_commit)
 
     def index_package(self, pkg_dict, defer_commit=False):
+        import solr.core
         if pkg_dict is None:
             return
         pkg_dict['data_dict'] = json.dumps(pkg_dict)
@@ -250,6 +251,14 @@ class PackageSearchIndex(SearchIndex):
             if not asbool(config.get('ckan.search.solr_commit', 'true')):
                 commit = False
             conn.add_many([pkg_dict], _commit=commit)
+        except socket.error, e:
+            err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
+            log.error(err)
+            raise SearchIndexError(err)
+        except solr.core.SolrException, e:
+            err = 'SOLR %r exception: %r' % (conn.url, e)
+            log.error(err)
+            raise SearchIndexError(err)
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)
