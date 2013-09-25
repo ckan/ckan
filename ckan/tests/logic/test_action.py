@@ -877,6 +877,12 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'id': resource.id})
         res = self.app.post('/api/action/resource_show', params=postparams)
         result = json.loads(res.body)['result']
+
+        # Remove tracking data from the result dict. This tracking data is
+        # added by the logic, so the other resource dict taken straight from
+        # resource_dictize() won't have it.
+        del result['tracking_summary']
+
         resource_dict = resource_dictize(resource, {'model': model})
         assert result == resource_dict, (result, resource_dict)
 
@@ -1723,6 +1729,60 @@ class TestGroupOrgView(WsgiAppCase):
         assert res_json['success'] is False
 
 
+class TestResourceAction(WsgiAppCase):
+
+    sysadmin_user = None
+
+    normal_user = None
+
+    @classmethod
+    def setup_class(cls):
+        search.clear()
+        CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def _add_basic_package(self, package_name=u'test_package', **kwargs):
+        package = {
+            'name': package_name,
+            'title': u'A Novel By Tolstoy',
+            'resources': [{
+                'description': u'Full text.',
+                'format': u'plain text',
+                'url': u'http://www.annakarenina.com/download/'
+            }]
+        }
+        package.update(kwargs)
+
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+        return json.loads(res.body)['result']
+
+    def test_01_delete_resource(self):
+        res_dict = self._add_basic_package()
+        pkg_id = res_dict['id']
+
+        resource_count = len(res_dict['resources'])
+        id = res_dict['resources'][0]['id']
+        url = '/api/action/resource_delete'
+
+        # Use the sysadmin user because this package doesn't belong to an org
+        res = self.app.post(url, params=json.dumps({'id': id}),
+                extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        url = '/api/action/package_show'
+        res = self.app.get(url, {'id': pkg_id})
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        assert len(res_dict['result']['resources']) == resource_count - 1
+
+
 class TestMember(WsgiAppCase):
 
     sysadmin = None
@@ -1770,4 +1830,3 @@ class TestMember(WsgiAppCase):
         group_ids = [g.id for g in groups]
         assert res['success'] is True, res
         assert group.id in group_ids, (group, user_groups)
-
