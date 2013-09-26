@@ -46,11 +46,11 @@ Example
         {% if item.extra_info %}{{ form.info(item.extra_info) }}{% endif %}
       {% endcall %}
     {% elif control == 'html' %}
-    <div class="control-group control-medium">
-      <div class="controls">
-        {{ item.html }}
+      <div class="control-group control-medium">
+        <div class="controls">
+          {{ item.html }}
+        </div>
       </div>
-    </div>
     {% else %}
       {% call form[control](name, id=id, label=label, placeholder=placeholder, value=value, error=error, classes=classes) %}
         {% if item.extra_info %}{{ form.info(item.extra_info) }}{% endif %}

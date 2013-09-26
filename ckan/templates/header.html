@@ -29,18 +29,18 @@
                 </a>
               </li>
               {% block header_account_settings_link %}
-              <li>
-                <a href="{{ h.url_for(controller='user', action='edit', id=c.userobj.name) }}" title="{{ _('Edit settings') }}">
-                  <i class="icon-cog"></i>
-                </a>
-              </li>
+                <li>
+                  <a href="{{ h.url_for(controller='user', action='edit', id=c.userobj.name) }}" title="{{ _('Edit settings') }}">
+                    <i class="icon-cog"></i>
+                  </a>
+                </li>
               {% endblock %}
               {% block header_account_log_out_link %}
-              <li>
-                <a href="{{ h.url_for('/user/_logout') }}" title="{{ _('Log out') }}">
-                  <i class="icon-signout"></i>
-                </a>
-              </li>
+                <li>
+                  <a href="{{ h.url_for('/user/_logout') }}" title="{{ _('Log out') }}">
+                    <i class="icon-signout"></i>
+                  </a>
+                </li>
               {% endblock %}
               {% endblock %}
             </ul>
@@ -61,9 +61,9 @@
 {% endblock %}
 <header class="masthead">
   {% block header_debug %}
-  {% if g.debug and not g.debug_supress_header %}
-    <div class="debug">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
-  {% endif %}
+    {% if g.debug and not g.debug_supress_header %}
+      <div class="debug">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
+    {% endif %}
   {% endblock %}
   <div class="container">
     {# The .header-image class hides the main text and uses image replacement for the title #}
@@ -88,12 +88,12 @@
         <nav class="section navigation">
           <ul class="nav nav-pills">
             {% block header_site_navigation_tabs %}
-            {{ h.build_nav_main(
-              ('search', _('Datasets')),
-              ('organizations_index', _('Organizations')),
-              ('group_index', _('Groups')),
-              ('about', _('About'))
-            ) }}
+              {{ h.build_nav_main(
+                ('search', _('Datasets')),
+                ('organizations_index', _('Organizations')),
+                ('group_index', _('Groups')),
+                ('about', _('About'))
+              ) }}
             {% endblock %}
           </ul>
         </nav>

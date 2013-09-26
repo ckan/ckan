@@ -64,6 +64,8 @@ class _Toolkit(object):
         'get_or_bust',          # helpful for actions
         'side_effect_free',     # actions can be accessed via api
         'auth_sysadmins_check', # allow auth functions to be checked for sysadmins
+        'auth_allow_anonymous_access', # allow anonymous access to an auth function
+        'auth_disallow_anonymous_access', # disallow anonymous access to an auth function
 
         ## Fully defined in this file ##
         'add_template_directory',
@@ -190,6 +192,8 @@ content type, cookies, etc.
         t['get_or_bust'] = logic.get_or_bust
         t['side_effect_free'] = logic.side_effect_free
         t['auth_sysadmins_check'] = logic.auth_sysadmins_check
+        t['auth_allow_anonymous_access'] = logic.auth_allow_anonymous_access
+        t['auth_disallow_anonymous_access'] = logic.auth_disallow_anonymous_access
 
         # class functions
         t['render_snippet'] = self._render_snippet

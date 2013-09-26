@@ -3,7 +3,7 @@ import ckan.plugins.toolkit as toolkit
 
 
 def group_create(context, data_dict=None):
-
+#    from nose.tools import set_trace; set_trace()
     # Get the user name of the logged-in user.
     user_name = context['user']
 
