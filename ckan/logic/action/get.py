@@ -20,6 +20,7 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.new_authz as new_authz
+from paste.deploy.converters import asbool
 
 log = logging.getLogger('ckan.logic')
 
@@ -912,6 +913,116 @@ def group_package_show(context, data_dict):
         result.append(model_dictize.package_dictize(pkg_rev, context))
 
     return result
+
+def group_search(context, data_dict):
+    '''Return a list of groups whose title is or contains a given string.
+
+    :param query: the string to search for
+    :type query: string
+    :param exact: whether an exact match is required, or whether the query
+                  just needs to be contained in the title.
+    :type exact: boolean
+    :param limit: the maximum number of groups to return
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start returning groups
+        from
+    :type offset: int
+
+    :returns: A dictionary with the following keys:
+
+      ``'count'``
+        The number of groups in the result.
+
+      ``'results'``
+        The list of groups whose name or title contain the given string,
+        a list of dictionaries.
+
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+
+    query = data_dict.get('query') or data_dict.get('q')
+    if query:
+        query = query.strip()
+    term = query
+
+    offset = data_dict.get('offset')
+    limit = data_dict.get('limit')
+    exact = asbool(data_dict.get('exact', False))
+
+    # TODO: should we check for user authentication first?
+    q = model.Session.query(model.Group) \
+        .filter_by(state='active')
+
+    escaped_term = misc.escape_sql_like_special_characters(term,
+                                                           escape='\\')
+
+    if exact:
+        q = q.filter(model.Group.title==escaped_term)
+    else:
+        q = q.filter(model.Group.title.ilike('%' + escaped_term.lower() + '%'))
+
+    count = q.count()
+    q = q.offset(offset)
+    q = q.limit(limit)
+    groups, count = q.all(), count
+    return {'count': count,
+            'results': [_table_dictize(group, context) for group in groups]}
+
+
+def group_abbreviation_search(context, data_dict):
+    '''Return a list of groups whose abbreviation matches the search term.
+
+    :param query: the string to search for
+    :type query: string
+    :param limit: the maximum number of groups to return
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start returning groups
+        from
+    :type offset: int
+
+    :returns: A dictionary with the following keys:
+
+      ``'count'``
+        The number of groups in the result.
+
+      ``'results'``
+        The list of groups whose abbreviation contains the given string,
+        a list of dictionaries.
+
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+
+    query = data_dict.get('query') or data_dict.get('q')
+    if query:
+        query = query.strip()
+    term = query
+
+    if not term:
+        return {'count': 0,
+                'results': []}
+
+    offset = data_dict.get('offset', 0)
+    limit = data_dict.get('limit', 20)
+
+    q = model.Session.query(model.Group).join(model.GroupExtra)\
+        .filter(model.Group.state=='active')
+
+    escaped_term = misc.escape_sql_like_special_characters(term,
+                                                           escape='\\')
+
+    q = q.filter(model.GroupExtra.key=='abbreviation')\
+            .filter(model.GroupExtra.value.ilike(escaped_term))
+    count = q.count()
+    q = q.offset(offset)
+    q = q.limit(limit)
+    groups, count = q.all(), count
+    return {'count': count,
+            'results': [_table_dictize(group, context) for group in groups]}
+
 
 def tag_show(context, data_dict):
     '''Return the details of a tag and all its datasets.
@@ -1980,6 +2091,116 @@ def group_activity_list(context, data_dict):
     activity_objects = model.activity.group_activity_list(group_id,
             limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
+
+def group_search(context, data_dict):
+    '''Return a list of groups whose title is or contains a given string.
+
+    :param query: the string to search for
+    :type query: string
+    :param exact: whether an exact match is required, or whether the query
+                  just needs to be contained in the title.
+    :type exact: boolean
+    :param limit: the maximum number of groups to return
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start returning groups
+        from
+    :type offset: int
+
+    :returns: A dictionary with the following keys:
+
+      ``'count'``
+        The number of groups in the result.
+
+      ``'results'``
+        The list of groups whose name or title contain the given string,
+        a list of dictionaries.
+
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+
+    query = data_dict.get('query') or data_dict.get('q')
+    if query:
+        query = query.strip()
+    term = query
+
+    offset = data_dict.get('offset')
+    limit = data_dict.get('limit')
+    exact = asbool(data_dict.get('exact', False))
+
+    # TODO: should we check for user authentication first?
+    q = model.Session.query(model.Group) \
+        .filter_by(state='active')
+
+    escaped_term = misc.escape_sql_like_special_characters(term,
+                                                           escape='\\')
+
+    if exact:
+        q = q.filter(model.Group.title==escaped_term)
+    else:
+        q = q.filter(model.Group.title.ilike('%' + escaped_term.lower() + '%'))
+
+    count = q.count()
+    q = q.offset(offset)
+    q = q.limit(limit)
+    groups, count = q.all(), count
+    return {'count': count,
+            'results': [_table_dictize(group, context) for group in groups]}
+
+
+def group_abbreviation_search(context, data_dict):
+    '''Return a list of groups whose abbreviation matches the search term.
+
+    :param query: the string to search for
+    :type query: string
+    :param limit: the maximum number of groups to return
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start returning groups
+        from
+    :type offset: int
+
+    :returns: A dictionary with the following keys:
+
+      ``'count'``
+        The number of groups in the result.
+
+      ``'results'``
+        The list of groups whose abbreviation contains the given string,
+        a list of dictionaries.
+
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+
+    query = data_dict.get('query') or data_dict.get('q')
+    if query:
+        query = query.strip()
+    term = query
+
+    if not term:
+        return {'count': 0,
+                'results': []}
+
+    offset = data_dict.get('offset', 0)
+    limit = data_dict.get('limit', 20)
+
+    q = model.Session.query(model.Group).join(model.GroupExtra)\
+        .filter(model.Group.state=='active')
+
+    escaped_term = misc.escape_sql_like_special_characters(term,
+                                                           escape='\\')
+
+    q = q.filter(model.GroupExtra.key=='abbreviation')\
+            .filter(model.GroupExtra.value.ilike(escaped_term))
+    count = q.count()
+    q = q.offset(offset)
+    q = q.limit(limit)
+    groups, count = q.all(), count
+    return {'count': count,
+            'results': [_table_dictize(group, context) for group in groups]}
+
 
 def organization_activity_list(context, data_dict):
     '''Return a organization's activity stream.
