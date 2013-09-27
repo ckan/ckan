@@ -195,16 +195,19 @@ def flatten_to_string_key(dict):
 
 
 def check_access(action, context, data_dict=None):
+    '''Returns whether this user is allowed to do an action.
+
+    This is a wrapper for new_authz.is_authorized but raises an exception if
+    not successful. Therefore this should be used for all normal purposes -
+    controllers, lib/helpers, logic/actions and logic/auths.
+
+    '''
+
     user = context.get('user')
 
     log.debug('check access - user %r, action %s' % (user, action))
 
     if action:
-        #if action != model.Action.READ and user in
-        # (model.PSEUDO_USER__VISITOR, ''):
-        #    # TODO Check the API key is valid at some point too!
-        #    log.debug('Valid API key needed to make changes')
-        #    raise NotAuthorized
         logic_authorization = is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')

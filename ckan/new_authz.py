@@ -60,6 +60,13 @@ def is_authorized_boolean(action, context, data_dict=None):
     return outcome.get('success', False)
 
 def is_authorized(action, context, data_dict=None):
+    '''Returns whether this user is allowed to do an action.
+   
+    The response is a dict, so not suitable for most purposes. ALL calling
+    methods instead should use the logic/check_access wrapper. check_access
+    raises NotAuthorized, which is more pythonic.
+
+    '''
     if context.get('ignore_auth'):
         return {'success': True}
 
