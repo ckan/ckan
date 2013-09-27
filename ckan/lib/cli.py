@@ -704,7 +704,8 @@ class UserCmd(CkanCommand):
                                         Field can be: apikey
                                                       password
                                                       email
-      user setpass USERNAME           - set user password (prompts)
+      user setpass USERNAME [PASSWORD] - set user password (prompts if not
+                                         supplied)
       user remove USERNAME            - removes user from users
       user search QUERY               - searches for a user name
     '''
@@ -765,7 +766,14 @@ class UserCmd(CkanCommand):
         user = model.User.get(username)
         print('Editing user: %r' % user.name)
 
-        password = self.password_prompt()
+        if len(self.args) == 2:
+            password = self.password_prompt()
+        elif len(self.args) == 3:
+            password = self.args[2]
+        else:
+            print 'Error: Too many arguments'
+            print self.usage
+            sys.exit(1)
         user.password = password
         model.repo.commit_and_remove()
         print 'Done'
