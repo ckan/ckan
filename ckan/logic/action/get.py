@@ -331,6 +331,7 @@ def member_list(context, data_dict=None):
 def _group_or_org_list(context, data_dict, is_org=False):
 
     model = context['model']
+    user = context['user']
     api = context.get('api_version')
     groups = data_dict.get('groups')
     ref_group_by = 'id' if api == 2 else 'name'
@@ -460,7 +461,7 @@ def group_list_authz(context, data_dict):
     _check_access('group_list_authz',context, data_dict)
 
     sysadmin = new_authz.is_sysadmin(user)
-    roles = ckan.new_authz.get_roles_with_permission('edit_group')
+    roles = ckan.new_authz.get_roles_with_permission('manage_group')
     if not roles:
         return []
     user_id = new_authz.get_user_id_for_username(user, allow_none=True)

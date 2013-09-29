@@ -230,6 +230,7 @@ def make_map():
                       'history_ajax',
                       'follow',
                       'activity',
+                      'groups',
                       'unfollow',
                       'delete',
                       'api_data',
@@ -239,6 +240,8 @@ def make_map():
         m.connect('dataset_activity', '/dataset/activity/{id}',
                   action='activity', ckan_icon='time')
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
+        m.connect('dataset_groups', '/dataset/groups/{id}',
+                  action='groups', ckan_icon='group')
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('dataset_read', '/dataset/{id}', action='read',
                   ckan_icon='sitemap')

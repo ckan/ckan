@@ -1,0 +1,32 @@
+{% import 'macros/form.html' as form %}
+{% extends "package/read_base.html" %}
+
+{% block primary_content_inner %}
+  <h2 class="hide-heading">{% block page_heading %}{{ _('Groups {dataset} belongs to.').format(dataset=h.dataset_display_name(c.pkg)) }}{% endblock %}</h2>
+
+  {% if c.group_dropdown %}
+  <form class="module-content form-horizontal" method='post'>
+    <select id="field-add_group" name="group_added">
+      {% for option in c.group_dropdown %}
+        <option value="{{ option[0] }}"> {{ option[1] }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit"> <span>Add Group</span></button>
+  </form>
+  {% endif %}
+  
+  <ul class="unstyled">
+  {% for group in c.pkg_dict.groups %}
+  <li class="dataset-item"> {{group.display_name}}   
+     <form class="unstyled" method='post'>
+         {% if group.user_member %}
+             <button name="group_removed" value="{{group.id}}" type="submit"> <span>Remove Group</span> </button>
+         {% endif %}
+     </form> 
+  </li> 
+
+  {% endfor %}
+  </ul>
+
+
+{% endblock %}
