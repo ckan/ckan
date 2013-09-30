@@ -134,6 +134,7 @@ def _check_group_auth(context, data_dict, permission='update'):
     when a user is saving a package and and trying to attach it to groups.) If
     there is a package in the context then ignore that package's groups. (No
     need to boot the package out of its existing groups.)
+    (owner_org is checked elsewhere.)
 
     :returns: False if not allowed to update one (or more) of the given groups.
               True otherwise. i.e. True is the default. A blank data_dict
@@ -149,10 +150,7 @@ def _check_group_auth(context, data_dict, permission='update'):
 
     api_version = context.get('api_version') or '1'
 
-    if data_dict.get('organization'):
-        group_blobs = [data_dict['organization']]
-    else:
-        group_blobs = data_dict.get('groups', [])
+    group_blobs = data_dict.get('groups', [])
     groups = set()
     for group_blob in group_blobs:
         # group_blob might be a dict or a group_ref
