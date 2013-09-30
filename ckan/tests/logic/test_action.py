@@ -1412,6 +1412,58 @@ class TestAction(WsgiAppCase):
         self.app.post('/api/action/resource_view_update', params=postparams,
                       status=403)
 
+    def test_resource_view_delete(self):
+        resource_id = model.Package.by_name(u'annakarenina').resources[0].id
+        resource_view = {'resource_id': resource_id,
+                         'view_type': u'test',
+                         'view_number': 1,
+                         'config': {'config-key': u'test'}}
+        postparams = '%s=1' % json.dumps(resource_view)
+        res = self.app.post(
+            '/api/action/resource_view_create', params=postparams,
+            extra_environ={'Authorization': str(self.normal_user.apikey)})
+        resource_view_created = json.loads(res.body)['result']
+
+        postparams = '%s=1' % json.dumps({'id': resource_view_created['id']})
+        res = self.app.post(
+            '/api/action/resource_view_delete', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        assert json.loads(res.body)['success']
+
+        postparams = '%s=1' % json.dumps({'id': resource_view_created['id']})
+        self.app.post('/api/action/resource_view_show',
+                      params=postparams, status=404)
+
+    def test_resource_view_delete_invalid_auth(self):
+        resource_id = model.Package.by_name(u'annakarenina').resources[0].id
+        resource_view = {'resource_id': resource_id,
+                         'view_type': u'test',
+                         'view_number': 1,
+                         'config': {'config-key': u'test'}}
+        postparams = '%s=1' % json.dumps(resource_view)
+        res = self.app.post(
+            '/api/action/resource_view_create', params=postparams,
+            extra_environ={'Authorization': str(self.normal_user.apikey)})
+        resource_view_created = json.loads(res.body)['result']
+
+        postparams = '%s=1' % json.dumps({'id': resource_view_created['id']})
+        self.app.post('/api/action/resource_view_delete', params=postparams,
+                      status=403)
+
+    def test_resource_view_delete_missing_resource_view_id(self):
+        postparams = '%s=1' % json.dumps({})
+        self.app.post(
+            '/api/action/resource_view_delete', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=409)
+
+    def test_resource_view_delete_invalid_resource_view_id(self):
+        postparams = '%s=1' % json.dumps({'id': u'bad-resource-view-id'})
+        self.app.post(
+            '/api/action/resource_view_delete', params=postparams,
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            status=404)
+
 
 class TestActionTermTranslation(WsgiAppCase):
 
