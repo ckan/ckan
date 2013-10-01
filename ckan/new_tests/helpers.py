@@ -1,6 +1,6 @@
 '''This is a collection of helper functions for use in tests.
 
-We want to avoid using sharing test helper functions between test modules as
+We want to avoid sharing test helper functions between test modules as
 much as possible, and we definitely don't want to share test fixtures between
 test modules, or to introduce a complex hierarchy of test class subclasses,
 etc.
@@ -42,12 +42,12 @@ def reset_db():
 
 
 def call_action(action_name, context=None, **kwargs):
-    '''Call the named ``ckan.logic.action`` and return the result.
+    '''Call the named ``ckan.logic.action`` function and return the result.
 
     For example::
 
-        call_action('user_create', name='seanh', email='seanh@seanh.com',
-                    password='pass')
+        user_dict = call_action('user_create', name='seanh',
+                                email='seanh@seanh.com', password='pass')
 
     Any keyword arguments given will be wrapped in a dict and passed to the
     action function as its ``data_dict`` argument.

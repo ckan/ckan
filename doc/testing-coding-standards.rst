@@ -219,7 +219,7 @@ How detailed should tests be?
 
 Generally, what we're trying to do is test the *interfaces* between modules in
 a way that supports modularization: if you change the code within a function,
-method, class or module, if you don't break any of that code's unit tests you
+method, class or module, if you don't break any of that code's tests you
 should be able to expect that CKAN as a whole will not be broken.
 
 As a general guideline, the tests for a function or method should:
