@@ -1139,11 +1139,11 @@ class TestBasicDictize:
 
         # Check sensitive data is available
         assert 'apikey' in user_dict
-        assert 'reset_key' in user_dict
         assert 'email' in user_dict
 
-        # Passwords should never be available
+        # Passwords and reset keys should never be available
         assert 'password' not in user_dict
+        assert 'reset_key' not in user_dict
 
     def test_23_user_dictize_as_same_user(self):
         '''User should be able to see their own sensitive data.'''
@@ -1163,11 +1163,11 @@ class TestBasicDictize:
 
         # Check sensitive data is available
         assert 'apikey' in user_dict
-        assert 'reset_key' in user_dict
         assert 'email' in user_dict
 
-        # Passwords should never be available
+        # Passwords and reset keys should never be available
         assert 'password' not in user_dict
+        assert 'reset_key' not in user_dict
 
     def test_24_user_dictize_as_other_user(self):
         '''User should not be able to see other's sensitive data.'''

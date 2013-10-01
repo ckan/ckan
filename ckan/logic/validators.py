@@ -281,20 +281,39 @@ def extras_unicode_convert(extras, context):
     return extras
 
 name_match = re.compile('[a-z0-9_\-]*$')
-def name_validator(val, context):
+def name_validator(value, context):
+    '''Return the given value if it's a valid name, otherwise raise Invalid.
+
+    If it's a valid name, the given value will be returned unmodified.
+
+    This function applies general validation rules for names of packages,
+    groups, users, etc.
+
+    Most schemas also have their own custom name validator function to apply
+    custom validation rules after this function, for example a
+    ``package_name_validator()`` to check that no package with the given name
+    already exists.
+
+    :raises ckan.lib.navl.dictization_functions.Invalid: if ``value`` is not
+        a valid name
+
+    '''
+    if not isinstance(value, basestring):
+        raise Invalid(_('Names must be strings'))
+
     # check basic textual rules
-    if val in ['new', 'edit', 'search']:
+    if value in ['new', 'edit', 'search']:
         raise Invalid(_('That name cannot be used'))
 
-    if len(val) < 2:
+    if len(value) < 2:
         raise Invalid(_('Name must be at least %s characters long') % 2)
-    if len(val) > PACKAGE_NAME_MAX_LENGTH:
+    if len(value) > PACKAGE_NAME_MAX_LENGTH:
         raise Invalid(_('Name must be a maximum of %i characters long') % \
                       PACKAGE_NAME_MAX_LENGTH)
-    if not name_match.match(val):
+    if not name_match.match(value):
         raise Invalid(_('Url must be purely lowercase alphanumeric '
                         '(ascii) characters and these symbols: -_'))
-    return val
+    return value
 
 def package_name_validator(key, data, errors, context):
     model = context["model"]
@@ -480,20 +499,37 @@ def ignore_not_group_admin(key, data, errors, context):
     data.pop(key)
 
 def user_name_validator(key, data, errors, context):
-    model = context["model"]
-    session = context["session"]
-    user = context.get("user_obj")
+    '''Validate a new user name.
 
-    query = session.query(model.User.name).filter_by(name=data[key])
-    if user:
-        user_id = user.id
-    else:
-        user_id = data.get(key[:-1] + ("id",))
-    if user_id and user_id is not missing:
-        query = query.filter(model.User.id <> user_id)
-    result = query.first()
-    if result:
-        errors[key].append(_('That login name is not available.'))
+    Append an error message to ``errors[key]`` if a user named ``data[key]``
+    already exists. Otherwise, do nothing.
+
+    :raises ckan.lib.navl.dictization_functions.Invalid: if ``data[key]`` is
+        not a string
+    :rtype: None
+
+    '''
+    model = context['model']
+    new_user_name = data[key]
+
+    if not isinstance(new_user_name, basestring):
+        raise Invalid(_('User names must be strings'))
+
+    user = model.User.get(new_user_name)
+    if user is not None:
+        # A user with new_user_name already exists in the database.
+
+        user_obj_from_context = context.get('user_obj')
+        if user_obj_from_context and user_obj_from_context.id == user.id:
+            # If there's a user_obj in context with the same id as the user
+            # found in the db, then we must be doing a user_update and not
+            # updating the user name, so don't return an error.
+            return
+        else:
+            # Otherwise return an error: there's already another user with that
+            # name, so you can create a new user with that name or update an
+            # existing user's name to that name.
+            errors[key].append(_('That login name is not available.'))
 
 def user_both_passwords_entered(key, data, errors, context):
 
@@ -507,7 +543,13 @@ def user_both_passwords_entered(key, data, errors, context):
 def user_password_validator(key, data, errors, context):
     value = data[key]
 
-    if not value == '' and not isinstance(value, Missing) and not len(value) >= 4:
+    if isinstance(value, Missing):
+        pass
+    elif not isinstance(value, basestring):
+        errors[('password',)].append(_('Passwords must be strings'))
+    elif value == '':
+        pass
+    elif len(value) < 4:
         errors[('password',)].append(_('Your password must be 4 characters or longer'))
 
 def user_passwords_match(key, data, errors, context):
