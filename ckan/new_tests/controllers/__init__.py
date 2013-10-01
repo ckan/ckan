@@ -1,4 +1,5 @@
 '''
+Controller tests probably shouldn't use mocking.
 
 .. todo::
 

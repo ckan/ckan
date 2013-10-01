@@ -41,9 +41,6 @@ Guidelines for writing new-style tests
 We want the tests in :mod:`ckan.new_tests` to be:
 
 Fast
-  * Use the ``mock`` library to avoid pulling in other parts of CKAN
-    (especially the database), see :ref:`mock`.
-
   * Don't share setup code between tests (e.g. in test class ``setup()`` or
     ``setup_class()`` methods, saved against the ``self`` attribute of test
     classes, or in test helper modules).
@@ -51,6 +48,9 @@ Fast
     Instead write helper functions that create test objects and return them,
     and have each test method call just the helpers it needs to do the setup
     that it needs.
+
+  * Where appropriate, use the ``mock`` library to avoid pulling in other parts
+    of CKAN (especially the database), see :ref:`mock`.
 
 Independent
   * Each test module, class and method should be able to be run on its own.
@@ -269,6 +269,30 @@ faster (especially when :py:mod:`ckan.model` is mocked out so that the tests
 don't touch the database). With mock objects we can also make assertions about
 what methods the function called on the mock object and with which arguments.
 
+.. note::
+
+   Overuse of mocking is discouraged as it can make tests difficult to
+   understand and maintain. Mocking can be useful and make tests both faster
+   and simpler when used appropriately. Some rules of thumb:
+
+   * Don't mock out more than one or two objects in a single test method.
+
+   * Don't use mocking in more functional-style tests. For example the action
+     function tests in :py:mod:`ckan.new_tests.logic.action` and the
+     frontend tests in :py:mod:`ckan.new_tests.controllers` are functional
+     tests, and probably shouldn't do any mocking.
+
+   * Do use mocking in more unit-style tests. For example the authorization
+     function tests in :py:mod:`ckan.new_tests.logic.auth`, the converter and
+     validator tests in :py:mod:`ckan.new_tests.logic.auth`, and most (all?)
+     lib tests in :py:mod:`ckan.new_tests.lib` are unit tests and should use
+     mocking when necessary (often it's possible to unit test a method in
+     isolation from other CKAN code without doing any mocking, which is ideal).
+
+     In these kind of tests we can often mock one or two objects in a simple
+     and easy to understand way, and make the test both simpler and faster.
+
+
 A mock object is a special object that allows user code to access any attribute
 name or call any method name (and pass any parameters) on the object, and the
 code will always get another mock object back:
@@ -300,16 +324,6 @@ out :py:mod:`ckan.model`:
 .. literalinclude:: ../ckan/new_tests/logic/auth/test_update.py
    :start-after: ## START-AFTER
    :end-before: ## END-BEFORE
-
-Here's a much more complex example that patches a number of CKAN modules with
-mock modules, replaces CKAN functions with mock functions with mock behavior,
-and makes assertions about how CKAN called the mock objects (you shouldn't
-have to do mocking as complex as this too often!):
-
-.. literalinclude:: ../ckan/new_tests/logic/action/test_update.py
-   :language: python
-   :start-after: ## START-COMPLEX-MOCK-EXAMPLE
-   :end-before: ## END-COMPLEX-MOCK-EXAMPLE
 
 ----
 

@@ -3,7 +3,8 @@
 Most action function tests will be high-level tests that both test the code in
 the action function itself, and also indirectly test the code in
 :mod:`ckan.lib`, :mod:`ckan.model`, :mod:`ckan.logic.schema` etc. that the
-action function calls.
+action function calls. This means that most action function tests should *not*
+use mocking.
 
 Tests for action functions should use the
 :func:`ckan.new_tests.helpers.call_action` function to call the action
