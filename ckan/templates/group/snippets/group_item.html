@@ -11,7 +11,8 @@ Example:
       {% endfor %}
     </ul>
 #}
-{% set url = h.url_for(group.type ~ '_read', action='read', id=group.name) %}
+{% set type = group.type or 'group' %}
+{% set url = h.url_for(type ~ '_read', action='read', id=group.name) %}
 <li class="media-item">
   {% block image %}
     <img src="{{ group.image_url or '/base/images/placeholder-group.png' }}" alt="{{ group.name }}" class="media-image">
@@ -36,6 +37,9 @@ Example:
   <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}" class="media-view">
     <span>{{ _('View {name}').format(name=group.display_name) }}</span>
   </a>
+  {% if group.user_member %}
+    <button name="group_removed" value="{{ group.id }}" type="submit" class="btn btn-danger btn-small media-edit" title="{{ _('Remove this group from dataset') }}">{{ _('Remove') }}</button>
+  {% endif %}
 </li>
 {% if position is divisibleby 3 %}
   <li class="clearfix js-hide"></li>
