@@ -187,7 +187,12 @@ give the following recipe for all unit test methods to follow:
 3. Make assertions about the return value, and / or any side effects.
 4. Do absolutely nothing else.
 
-Most CKAN tests should follow this form.
+Most CKAN tests should follow this form. Here's an example of a simple action
+function test demonstrating the recipe:
+
+.. literalinclude:: ../ckan/new_tests/logic/action/test_update.py
+   :start-after: ## START-AFTER
+   :end-before: ## END-BEFORE
 
 One common exception is when you want to use a ``for`` loop to call the
 function being tested multiple times, passing it lots of different arguments
