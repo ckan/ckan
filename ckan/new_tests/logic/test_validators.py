@@ -8,16 +8,12 @@ import mock
 import nose.tools
 
 import ckan.new_tests.factories as factories
-# Import some test helper functions from another module directly.
+# Import some test helper functions from another module.
 # This is bad (test modules shouldn't share code with eachother) but because of
 # the way validator functions are organised in CKAN (in different modules in
 # different places in the code) we have to either do this or introduce a shared
 # test helper functions module (which we also don't want to do).
-from ckan.new_tests.lib.navl.test_validators import (
-    returns_None,
-    does_not_modify_data_dict,
-    does_not_modify_errors_dict,
-    )
+import ckan.new_tests.lib.navl.test_validators as t
 
 
 def returns_arg(function):
@@ -261,7 +257,7 @@ class TestValidators(object):
             errors = factories.validator_errors_dict()
             errors[key] = []
 
-            @does_not_modify_data_dict
+            @t.does_not_modify_data_dict
             @raises_Invalid
             def call_validator(*args, **kwargs):
                 return validators.user_name_validator(*args, **kwargs)
@@ -288,8 +284,8 @@ class TestValidators(object):
         errors[key] = []
 
         @does_not_modify_other_keys_in_errors_dict
-        @does_not_modify_data_dict
-        @returns_None
+        @t.does_not_modify_data_dict
+        @t.returns_None
         @adds_message_to_errors_dict('That login name is not available.')
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
@@ -312,9 +308,9 @@ class TestValidators(object):
         # user with that name exists in the database.
         mock_model.User.get.return_value = None
 
-        @does_not_modify_errors_dict
-        @does_not_modify_data_dict
-        @returns_None
+        @t.does_not_modify_errors_dict
+        @t.does_not_modify_data_dict
+        @t.returns_None
         def call_validator(*args, **kwargs):
             return validators.user_name_validator(*args, **kwargs)
         call_validator(key, data, errors, context={'model': mock_model})
