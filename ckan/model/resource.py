@@ -15,7 +15,6 @@ import types as _types
 import extension
 import activity
 import domain_object
-import tracking as _tracking
 import ckan.lib.dictization
 
 __all__ = ['Resource', 'resource_table',
@@ -28,7 +27,7 @@ CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
                          'resource_type', 'mimetype', 'mimetype_inner',
                          'size', 'created', 'last_modified', 'cache_url',
                          'cache_last_updated', 'webstore_url',
-                         'webstore_last_updated']
+                         'webstore_last_updated', 'url_type']
 
 ##formally package_resource
 resource_table = Table(
@@ -54,7 +53,7 @@ resource_table = Table(
     Column('cache_last_updated', types.DateTime),
     Column('webstore_url', types.UnicodeText),
     Column('webstore_last_updated', types.DateTime),
-
+    Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
 )
 
@@ -120,8 +119,6 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
             _dict[k] = v
         if self.resource_group and not core_columns_only:
             _dict["package_id"] = self.resource_group.package_id
-        tracking = _tracking.TrackingSummary.get_for_resource(self.url)
-        _dict['tracking_summary'] = tracking
         # FIXME format unification needs doing better
         import ckan.lib.dictization.model_dictize as model_dictize
         _dict[u'format'] = model_dictize._unified_resource_format(self.format)

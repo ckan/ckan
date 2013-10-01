@@ -299,6 +299,11 @@ def package_update(context, data_dict):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
+    #avoid revisioning by updating directly
+    model.Session.query(model.Package).filter_by(id=pkg.id).update(
+        {"metadata_modified": datetime.datetime.utcnow()})
+    model.Session.refresh(pkg)
+
     pkg = model_save.package_dict_save(data, context)
 
     context_org_update = context.copy()
@@ -768,8 +773,9 @@ def term_translation_update_many(context, data_dict):
 
     context['defer_commit'] = True
 
+    action = _get_action('term_translation_update')
     for num, row in enumerate(data_dict['data']):
-        term_translation_update(context, row)
+        action(context, row)
 
     model.Session.commit()
 
@@ -1064,7 +1070,7 @@ def package_owner_org_update(context, data_dict):
             member_obj.state = 'deleted'
             member_obj.save()
 
-    # add the organization to memeber table
+    # add the organization to member table
     if org and need_update:
         member_obj = model.Member(table_id=pkg.id,
                                   table_name='package',

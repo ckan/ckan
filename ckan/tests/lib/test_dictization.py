@@ -65,6 +65,7 @@ class TestBasicDictize:
             'isopen': True,
             'license_id': u'other-open',
             'license_title': u'Other (Open)',
+            'creator_user_id': None,
             'owner_org': None,
             'private': False,
             'organization': None,
@@ -89,8 +90,8 @@ class TestBasicDictize:
                             u'resource_type': None,
                             u'size': None,
                             u'size_extra': u'123',
+                             'url_type': None,
                             u'state': u'active',
-                            u'tracking_summary': {'total': 0, 'recent': 0},
                             u'url': u'http://www.annakarenina.com/download/x=1&y=2',
                             u'webstore_last_updated': None,
                             u'webstore_url': None},
@@ -106,10 +107,10 @@ class TestBasicDictize:
                             u'name': None,
                             u'position': 1,
                             u'resource_type': None,
+                             'url_type': None,
                             u'size': None,
                             u'size_extra': u'345',
                             u'state': u'active',
-                            u'tracking_summary': {'total': 0, 'recent': 0},
                             u'url': u'http://www.annakarenina.com/index.json',
                             u'webstore_last_updated': None,
                             u'webstore_url': None}],
@@ -122,7 +123,6 @@ class TestBasicDictize:
                      {'name': u'tolstoy', 'display_name': u'tolstoy',
                          'state': u'active'}],
             'title': u'A Novel By Tolstoy',
-            'tracking_summary': {'total': 0, 'recent': 0},
             'url': u'http://www.annakarenina.com',
             'version': u'0.7a',
             'num_tags': 3,
@@ -137,7 +137,7 @@ class TestBasicDictize:
 
     def remove_changable_columns(self, dict):
         for key, value in dict.items():
-            if key.endswith('id') and key <> 'license_id':
+            if key.endswith('id') and key not in ('license_id', 'creator_user_id'):
                 dict.pop(key)
             if key == 'created':
                 dict.pop(key)
@@ -174,6 +174,7 @@ class TestBasicDictize:
             'author': None,
             'author_email': None,
             'license_id': u'other-open',
+            'creator_user_id': None,
             'maintainer': None,
             'maintainer_email': None,
             'name': u'annakarenina',
@@ -212,8 +213,8 @@ class TestBasicDictize:
              'size': None,
              u'size_extra': u'123',
              'state': u'active',
-            u'tracking_summary': {'total': 0, 'recent': 0},
              'url': u'http://www.annakarenina.com/download/x=1&y=2',
+             'url_type': None,
              'webstore_last_updated': None,
              'webstore_url': None
             }, pprint(result)
@@ -743,9 +744,9 @@ class TestBasicDictize:
             u'name': None,
             u'position': 2,
             u'resource_type': None,
+            u'url_type': None,
             u'size': None,
             u'state': u'active',
-            u'tracking_summary': {'total': 0, 'recent': 0},
             u'url': u'http://newurl',
             u'webstore_last_updated': None,
             u'webstore_url': None})
@@ -778,7 +779,6 @@ class TestBasicDictize:
             'hash': u'abc123',
             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
             'format': u'plain text',
-            'tracking_summary': {'recent': 0, 'total': 0},
             'url': u'http://test_new',
             'cache_url': None,
             'webstore_url': None,
@@ -786,6 +786,7 @@ class TestBasicDictize:
             'state': u'active',
             'mimetype_inner': None,
             'webstore_last_updated': None,
+            'url_type': None,
             'last_modified': None,
             'position': 0,
             'size': None,
@@ -957,6 +958,7 @@ class TestBasicDictize:
                                   'capacity' : 'in',
                                   'title': u'A Novel By Tolstoy',
                                   'private': False,
+                                  'creator_user_id': None,
                                   'owner_org': None,
                                   'url': u'http://www.annakarenina.com',
                                   'version': u'0.7a'},
@@ -973,6 +975,7 @@ class TestBasicDictize:
                                   'state': u'active',
                                   'title': u'A Novel By Tolstoy',
                                   'private': False,
+                                  'creator_user_id': None,
                                   'owner_org': None,
                                   'url': u'http://www.annakarenina.com',
                                   'version': u'0.7a'}],

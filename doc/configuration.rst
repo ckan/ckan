@@ -217,19 +217,6 @@ Default value: ``3600``
 
 Controls CKAN static files' cache max age, if we're serving and caching them.
 
-.. _moderated:
-
-moderated
-^^^^^^^^^
-
-Example::
-
-  moderated = True
-
-Default value: (none)
-
-This controls if new datasets will require moderation approval before going public.
-
 .. _ckan.tracking_enabled:
 
 ckan.tracking_enabled
@@ -519,7 +506,7 @@ Specify which CKAN plugins are to be enabled.
 
 .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
-Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`writing-extensions`.
+Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions/index`.
 
 .. _ckan.datastore.enabled:
 
@@ -927,8 +914,6 @@ To customise the display of CKAN you can supply replacements for the Genshi temp
 
 For more information on theming, see :doc:`theming`.
 
-.. note:: This is only for legacy code, and shouldn't be used anymore.
-
 .. _extra_public_paths:
 
 extra_public_paths
@@ -941,8 +926,6 @@ Example::
 To customise the display of CKAN you can supply replacements for static files such as HTML, CSS, script and PNG files. Use this option to specify where CKAN should look for additional files, before reverting to the ``ckan/public`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
 For more information on theming, see :doc:`theming`.
-
-.. note:: This is only for legacy code, and shouldn't be used anymore.
 
 .. end_config-theming
 
@@ -973,7 +956,7 @@ Example::
 
 Default value: ``file/``
 
-This setting will change the prefix for the uploaded files.
+This setting will change the prefix for the uploaded files. This is only for ``pairtree``.
 
 .. _ckan.storage.max_content_length:
 
@@ -1071,6 +1054,30 @@ Example::
 Default value:  ``None``
 
 Only used with the Google storage backend.
+
+.. todo:: Expand
+
+
+DataPusher Settings
+-------------------
+
+.. _datapusher.formats:
+
+datapusher.formats
+^^^^^^^^^^^^^^^^^^
+
+Example::
+  datapusher.formats = csv xls xlsx
+
+.. todo:: Expand
+
+.. _datapusher.url:
+
+datapusher.url
+^^^^^^^^^^^^^^
+
+Example::
+  datapusher.url = http://datapusher.ckan.org/
 
 .. todo:: Expand
 

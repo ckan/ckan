@@ -1,7 +1,7 @@
 import functools
 import logging
-import types
 import re
+import sys
 
 import formencode.validators
 
@@ -40,15 +40,32 @@ class ActionError(Exception):
 
 
 class NotFound(ActionError):
+    '''Exception raised by logic functions when a given object is not found.
+
+    For example :py:func:`~ckan.logic.action.get.package_show` raises
+    :py:exc:`~ckan.plugins.toolkit.ObjectNotFound` if no package with the
+    given ``id`` exists.
+
+    '''
     pass
 
 
 class NotAuthorized(ActionError):
+    '''Exception raised when the user is not authorized to call the action.
+
+    For example :py:func:`~ckan.logic.action.create.package_create` raises
+    :py:exc:`~ckan.plugins.toolkit.NotAuthorized` if the user is not authorized
+    to create packages.
+
+    '''
     pass
 
 
 class ValidationError(ActionError):
+    '''Exception raised by action functions when validating their given
+    ``data_dict`` fails.
 
+    '''
     def __init__(self, error_dict, error_summary=None, extra_msg=None):
         if not isinstance(error_dict, dict):
             error_dict = {'message': error_dict}
@@ -193,24 +210,83 @@ def flatten_to_string_key(dict):
     return untuplize_dict(flattented)
 
 
-def check_access(action, context, data_dict=None):
-    user = context.get('user')
+def _prepopulate_context(context):
+    if context is None:
+        context = {}
+    context.setdefault('model', model)
+    context.setdefault('session', model.Session)
+    try:
+        context.setdefault('user', c.user or c.author)
+    except TypeError:
+        # c not registered
+        pass
+    return context
 
+
+def check_access(action, context, data_dict=None):
+    '''Calls the authorization function for the provided action
+
+    This is the only function that should be called to determine whether a
+    user (or an anonymous request) is allowed to perform a particular action.
+
+    The function accepts a context object, which should contain a 'user' key
+    with the name of the user performing the action, and optionally a
+    dictionary with extra data to be passed to the authorization function.
+
+    For example::
+
+        check_access('package_update', context, data_dict)
+
+    If not already there, the function will add an `auth_user_obj` key to the
+    context object with the actual User object (in case it exists in the
+    database). This check is only performed once per context object.
+
+    Raise :py:exc:`~ckan.plugins.toolkit.NotAuthorized` if the user is not
+    authorized to call the named action function.
+
+    If the user *is* authorized to call the action, return ``True``.
+
+    :param action: the name of the action function, eg. ``'package_create'``
+    :type action: string
+
+    :param context:
+    :type context: dict
+
+    :param data_dict:
+    :type data_dict: dict
+
+    :raises: :py:exc:`~ckan.plugins.toolkit.NotAuthorized` if the user is not
+        authorized to call the named action
+
+    '''
+    action = new_authz.clean_action_name(action)
+
+    # Auth Auditing.  We remove this call from the __auth_audit stack to show
+    # we have called the auth function
+    try:
+        audit = context.get('__auth_audit', [])[-1]
+    except IndexError:
+        audit = ''
+    if audit and audit[0] == action:
+        context['__auth_audit'].pop()
+
+    user = context.get('user')
     log.debug('check access - user %r, action %s' % (user, action))
 
-    if action:
-        #if action != model.Action.READ and user in
-        # (model.PSEUDO_USER__VISITOR, ''):
-        #    # TODO Check the API key is valid at some point too!
-        #    log.debug('Valid API key needed to make changes')
-        #    raise NotAuthorized
-        logic_authorization = new_authz.is_authorized(action, context, data_dict)
-        if not logic_authorization['success']:
-            msg = logic_authorization.get('msg', '')
-            raise NotAuthorized(msg)
-    elif not user:
-        msg = _('No valid API key provided.')
-        log.debug(msg)
+    if not 'auth_user_obj' in context:
+        context['auth_user_obj'] = None
+
+    if not context.get('ignore_auth'):
+        if not context.get('__auth_user_obj_checked'):
+            if context.get('user') and not context.get('auth_user_obj'):
+                context['auth_user_obj'] = model.User.by_name(context['user'])
+            context['__auth_user_obj_checked'] = True
+
+    context = _prepopulate_context(context)
+
+    logic_authorization = new_authz.is_authorized(action, context, data_dict)
+    if not logic_authorization['success']:
+        msg = logic_authorization.get('msg', '')
         raise NotAuthorized(msg)
 
     log.debug('Access OK.')
@@ -221,47 +297,50 @@ _actions = {}
 def clear_actions_cache():
     _actions.clear()
 
+
 def get_action(action):
-    '''Return the ckan.logic.action function named by the given string.
+    '''Return the named :py:mod:`ckan.logic.action` function.
 
-    For example:
+    For example ``get_action('package_create')`` will normally return the
+    :py:func:`ckan.logic.action.create.package_create()` function.
 
-        get_action('package_create')
+    For documentation of the available action functions, see
+    :ref:`api-reference`.
 
-    will normally return the ckan.logic.action.create.py:package_create()
-    function.
+    You should always use ``get_action()`` instead of importing an action
+    function directly, because :py:class:`~ckan.plugins.interfaces.IActions`
+    plugins can override action functions, causing ``get_action()`` to return a
+    plugin-provided function instead of the default one.
 
-    Rather than importing a ckan.logic.action function and calling it directly,
-    you should always fetch the function via get_action():
+    Usage::
+
+        import ckan.plugins.toolkit as toolkit
 
         # Call the package_create action function:
-        get_action('package_create')(context, data_dict)
+        toolkit.get_action('package_create')(context, data_dict)
 
-    This is because CKAN plugins can override action functions using the
-    IActions plugin interface, causing get_action() to return a plugin-provided
-    function instead of the default one.
-
-    As the context parameter passed to an action function is commonly:
+    As the context parameter passed to an action function is commonly::
 
         context = {'model': ckan.model, 'session': ckan.model.Session,
                    'user': pylons.c.user or pylons.c.author}
 
-    an action function returned by get_action() will automatically add these
-    parameters to the context if they are not defined.  This is especially
-    useful for extensions as they should not really be importing parts of ckan
-    eg ckan.model and as such do not have access to model or model.Session.
+    an action function returned by ``get_action()`` will automatically add
+    these parameters to the context if they are not defined.  This is
+    especially useful for plugins as they should not really be importing parts
+    of ckan eg :py:mod:`ckan.model` and as such do not have access to ``model``
+    or ``model.Session``.
 
-    If a context of None is passed to the action function then the context dict
-    will be created.
+    If a ``context`` of ``None`` is passed to the action function then the
+    default context dict will be created.
 
-    :param action: name of the action function to return
+    :param action: name of the action function to return,
+        eg. ``'package_create'``
     :type action: string
 
     :returns: the named action function
     :rtype: callable
 
     '''
-
     # clean the action names
     action = new_authz.clean_action_name(action)
 
@@ -281,15 +360,20 @@ def get_action(action):
             module = getattr(module, part)
         for k, v in module.__dict__.items():
             if not k.startswith('_'):
-                # Only load functions from the action module.
-                if isinstance(v, types.FunctionType):
+                # Only load functions from the action module or already
+                # replaced functions.
+                if (hasattr(v, '__call__')
+                        and (v.__module__ == module_path
+                             or hasattr(v, '__replaced'))):
                     k = new_authz.clean_action_name(k)
                     _actions[k] = v
 
                     # Whitelist all actions defined in logic/action/get.py as
                     # being side-effect free.
-                    v.side_effect_free = getattr(v, 'side_effect_free', True)\
-                        and action_module_name == 'get'
+                    if action_module_name == 'get' and \
+                       not hasattr(v, 'side_effect_free'):
+                        v.side_effect_free = True
+
 
     # Then overwrite them with any specific ones in the plugins:
     resolved_action_plugins = {}
@@ -306,6 +390,9 @@ def get_action(action):
                 )
             log.debug('Auth function %r was inserted', plugin.name)
             resolved_action_plugins[name] = plugin.name
+            # Extensions are exempted from the auth audit for now
+            # This needs to be resolved later
+            auth_function.auth_audit_exempt = True
             fetched_actions[name] = auth_function
     # Use the updated ones in preference to the originals.
     _actions.update(fetched_actions)
@@ -317,17 +404,38 @@ def get_action(action):
                 if kw:
                     log.critical('%s was pass extra keywords %r'
                                  % (_action.__name__, kw))
-                if context is None:
-                    context = {}
-                context.setdefault('model', model)
-                context.setdefault('session', model.Session)
+
+                context = _prepopulate_context(context)
+
+                # Auth Auditing
+                # store this action name in the auth audit so we can see if
+                # check access was called on the function we store the id of
+                # the action incase the action is wrapped inside an action
+                # of the same name.  this happens in the datastore
+                context.setdefault('__auth_audit', [])
+                context['__auth_audit'].append((action_name, id(_action)))
+
+                # check_access(action_name, context, data_dict=None)
+                result = _action(context, data_dict, **kw)
                 try:
-                    context.setdefault('user', c.user or c.author)
-                except TypeError:
-                    # c not registered
+                    audit = context['__auth_audit'][-1]
+                    if audit[0] == action_name and audit[1] == id(_action):
+                        if action_name not in new_authz.auth_functions_list():
+                            log.debug('No auth function for %s' % action_name)
+                        elif not getattr(_action, 'auth_audit_exempt', False):
+                            raise Exception('Action Auth Audit: %s' % action_name)
+                        # remove from audit stack
+                        context['__auth_audit'].pop()
+                except IndexError:
                     pass
-                return _action(context, data_dict, **kw)
+                return result
             return wrapped
+
+        # If we have been called multiple times for example during tests then
+        # we need to make sure that we do not rewrap the actions.
+        if hasattr(_action, '__replaced'):
+            _actions[action_name] = _action.__replaced
+            continue
 
         fn = make_wrapped(_action, action_name)
         # we need to mirror the docstring
@@ -337,21 +445,46 @@ def get_action(action):
             fn.side_effect_free = True
         _actions[action_name] = fn
 
+
+        def replaced_action(action_name):
+            def warn(context, data_dict):
+                log.critical('Action `%s` is being called directly '
+                             'all action calls should be accessed via '
+                             'logic.get_action' % action_name)
+                return get_action(action_name)(context, data_dict)
+            return warn
+
+        # Store our wrapped function so it is available.  This is to prevent
+        # rewrapping of actions
+        module = sys.modules[_action.__module__]
+        r = replaced_action(action_name)
+        r.__replaced = fn
+        module.__dict__[action_name] = r
+
     return _actions.get(action)
 
 
 def get_or_bust(data_dict, keys):
-    '''Try and get values from dictionary and if they are not there
-    raise a validation error.
+    '''Return the value(s) from the given data_dict for the given key(s).
 
-    data_dict: a dictionary
-    keys: either a single string key in which case will return a single value,
-    or a iterable which will return a tuple for unpacking purposes.
+    Usage::
 
-    e.g single_value = get_or_bust(data_dict, 'a_key')
+        single_value = get_or_bust(data_dict, 'a_key')
         value_1, value_2 = get_or_bust(data_dict, ['key1', 'key2'])
-    '''
 
+    :param data_dict: the dictionary to return the values from
+    :type data_dict: dictionary
+
+    :param keys: the key(s) for the value(s) to return
+    :type keys: either a string or a list
+
+    :returns: a single value from the dict if a single key was given,
+        or a tuple of values if a list of keys was given
+
+    :raises: :py:exc:`ckan.logic.ValidationError` if one of the given keys is
+        not in the given dictionary
+
+    '''
     if isinstance(keys, basestring):
         keys = [keys]
 
@@ -371,16 +504,29 @@ def get_or_bust(data_dict, keys):
 
 
 def side_effect_free(action):
-    '''A decorator that marks the given action as side-effect-free.
+    '''A decorator that marks the given action function as side-effect-free.
 
-    The consequence of which is that the action becomes available through a
-    GET request in the action API.
+    Action functions decorated with this decorator can be called with an HTTP
+    GET request to the :doc:`Action API </api>`. Action functions that don't
+    have this decorator must be called with a POST request.
 
-    This decorator is for users defining their own actions through the IAction
-    interface, and they want to expose their action with a GET request as well
-    as the usual POST request.
+    If your CKAN extension defines its own action functions using the
+    :py:class:`~ckan.plugins.interfaces.IActions` plugin interface, you can use
+    this decorator to make your actions available with GET requests instead of
+    just with POST requests.
+
+    Example::
+
+        import ckan.plugins.toolkit as toolkit
+
+        @toolkit.side_effect_free
+        def my_custom_action_function(context, data_dict):
+            ...
+
+    (Then implement :py:class:`~ckan.plugins.interfaces.IActions` to register
+    your action function with CKAN.)
+
     '''
-
     @functools.wraps(action)
     def wrapper(context, data_dict):
         return action(context, data_dict)
@@ -390,8 +536,18 @@ def side_effect_free(action):
 
 
 def auth_sysadmins_check(action):
-    ''' Prevent sysadmins from automatically being authenticated.  Instead
-    they are treated like any other user and the auth function is called.
+    '''A decorator that prevents sysadmins from being automatically authorized
+    to call an action function.
+
+    Normally sysadmins are allowed to call any action function (for example
+    when they're using the :doc:`Action API </api>` or the web interface),
+    if the user is a sysadmin the action function's authorization function
+    will not even be called.
+
+    If an action function is decorated with this decorator, then its
+    authorization function will always be called, even if the user is a
+    sysadmin.
+
     '''
     @functools.wraps(action)
     def wrapper(context, data_dict):
@@ -400,8 +556,45 @@ def auth_sysadmins_check(action):
     return wrapper
 
 
+def auth_audit_exempt(action):
+    ''' Dirty hack to stop auth audit being done '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_audit_exempt = True
+    return wrapper
+
+def auth_allow_anonymous_access(action):
+    ''' Flag an auth function as not requiring a logged in user
+
+    This means that check_access won't automatically raise a NotAuthorized
+    exception if an authenticated user is not provided in the context. (The
+    auth function can still return False if for some reason access is not
+    granted).
+    '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_allow_anonymous_access = True
+    return wrapper
+
+def auth_disallow_anonymous_access(action):
+    ''' Flag an auth function as requiring a logged in user
+
+    This means that check_access will automatically raise a NotAuthorized
+    exception if an authenticated user is not provided in the context, without
+    calling the actual auth function.
+    '''
+    @functools.wraps(action)
+    def wrapper(context, data_dict):
+        return action(context, data_dict)
+    wrapper.auth_allow_anonymous_access = False
+    return wrapper
 
 class UnknownValidator(Exception):
+    '''Exception raised when a requested validator function cannot be found.
+
+    '''
     pass
 
 
@@ -411,13 +604,21 @@ def clear_validators_cache():
     _validators_cache.clear()
 
 
+# This function exists mainly so that validators can be made available to
+# extensions via ckan.plugins.toolkit.
 def get_validator(validator):
-    '''Return a validator by name or UnknownValidator exception if the
-    validator is not found.  This is mainly so that validators can be made
-    available to extensions via the plugin toolkit.
+    '''Return a validator function by name.
 
-    :param validator: name of the validator requested
+    :param validator: the name of the validator function to return,
+        eg. ``'package_name_exists'``
     :type validator: string
+
+    :raises: :py:exc:`~ckan.plugins.toolkit.UnknownValidator` if the named
+        validator is not found
+
+    :returns: the named validator function
+    :rtype: ``types.FunctionType``
+
     '''
     if  not _validators_cache:
         validators = _import_module_functions('ckan.lib.navl.validators')
@@ -432,6 +633,9 @@ def get_validator(validator):
 
 
 class UnknownConverter(Exception):
+    '''Exception raised when a requested converter function cannot be found.
+
+    '''
     pass
 
 
@@ -441,13 +645,21 @@ def clear_converters_cache():
     _converters_cache.clear()
 
 
+# This function exists mainly so that converters can be made available to
+# extensions via ckan.plugins.toolkit.
 def get_converter(converter):
-    '''Return a converter by name or UnknownConverter exception if the
-    converter is not found.  This is mainly so that validators can be made
-    available to extensions via the plugin toolkit.
+    '''Return a converter function by name.
 
-    :param converter: name of the converter requested
+    :param converter: the name of the converter function to return,
+        eg. ``'convert_to_extras'``
     :type converter: string
+
+    :raises: :py:exc:`~ckan.plugins.toolkit.UnknownConverter` if the named
+        converter is not found
+
+    :returns: the named converter function
+    :rtype: ``types.FunctionType``
+
     '''
     if not _converters_cache:
         converters = _import_module_functions('ckan.logic.converters')

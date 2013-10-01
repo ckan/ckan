@@ -559,7 +559,7 @@ def vocabulary_tag_list_save(new_tag_dicts, vocabulary_obj, context):
 
     # First delete any tags not in new_tag_dicts.
     for tag in vocabulary_obj.tags:
-        if tag.name not in [tag['name'] for tag in new_tag_dicts]:
+        if tag.name not in [t['name'] for t in new_tag_dicts]:
             tag.delete()
     # Now add any new tags.
     for tag_dict in new_tag_dicts:

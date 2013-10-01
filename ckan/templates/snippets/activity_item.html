@@ -1,10 +1,10 @@
 <li class="item {{ activity.type|lower }}">
-	{% if activity.is_new %}
-	<span class="new" title="{{ _('New activity item') }}">{{ _('New activity item') }}</span>
-	{% endif %}
-	<i class="icon icon-{{ activity.icon }}"></i>
-	<p>
-		{{ h.literal(activity.msg.format(**activity.data)) }}
-		<span class="date">{{ h.time_ago_in_words_from_str(activity.timestamp, 'hour') }} ago</span>
-	</p>
+  {% if activity.is_new %}
+    <span class="new" title="{{ _('New activity item') }}">{{ _('New activity item') }}</span>
+  {% endif %}
+  <i class="icon icon-{{ activity.icon }}"></i>
+  <p>
+    {{ h.literal(activity.msg.format(**activity.data)) }}
+    <span class="date" title="{{ h.render_datetime(activity.timestamp, with_hours=True) }}">{{ h.time_ago_from_timestamp(activity.timestamp) }}</span>
+  </p>
 </li>

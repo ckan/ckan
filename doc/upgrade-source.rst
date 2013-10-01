@@ -27,7 +27,13 @@ CKAN release you're upgrading to:
    checkout newer versions of the extensions at this point as well. Refer to
    the documentation for each extension.
 
-#. Update CKAN's dependencies::
+#. Update CKAN's dependencies:
+
+   .. versionchanged:: 2.1
+      In CKAN 2.0 and earlier the requirements file was called
+      ``pip-requirements.txt``, not ``requirements.txt`` as below.
+
+   ::
 
      pip install --upgrade -r requirements.txt
 
@@ -46,6 +52,12 @@ CKAN release you're upgrading to:
 
      sudo rm /etc/solr/conf/schema.xml
      sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
+
+   You will need to restart Jetty for the changes to take effect:
+
+   .. parsed-literal::
+
+    sudo service jetty restart
 
 #. If you are upgrading to a new :ref:`major release <releases>` update your
    CKAN database's schema using the ``db upgrade`` command.

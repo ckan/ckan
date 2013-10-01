@@ -4,6 +4,7 @@ import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 import ckan.model as model
+import ckan.logic as logic
 import ckan.new_authz
 
 c = base.c
@@ -19,8 +20,10 @@ class AdminController(base.BaseController):
     def __before__(self, action, **params):
         super(AdminController, self).__before__(action, **params)
         context = {'model': model,
-                   'user': c.user}
-        if not ckan.new_authz.is_authorized('sysadmin', context, {})['success']:
+                   'user': c.user, 'auth_user_obj': c.userobj}
+        try:
+            logic.check_access('sysadmin', context, {})
+        except logic.NotAuthorized:
             base.abort(401, _('Need to be system administrator to administer'))
         c.revision_change_state_allowed = True
 
@@ -155,4 +158,4 @@ class AdminController(base.BaseController):
 
             for msg in msgs:
                 h.flash_error(msg)
-            h.redirect_to(h.url_for('ckanadmin', action='trash'))
+            h.redirect_to(controller='admin', action='trash')
