@@ -93,7 +93,7 @@ Deprecated and removed:
    one. Please update your config files if using it. (#226)
 
 Known issues:
- * Under certain authorization setups the forntend for the groups functionality
+ * Under certain authorization setups the frontend for the groups functionality
    may not work as expected (See #1176 #1175).
 
 

@@ -31,7 +31,7 @@ provide instructions for how to enable each extension.
 It is also possible for developers to create new extensions that can preview
 different types of resources.
 For more information on this topic see
-`Writing Extensions <writing-extensions.html>`_.
+`Writing Extensions <extensions/index>`_.
 
 
 .. _image-preview:

@@ -61,6 +61,9 @@ class MockTranslator(object):
         return singular
 
 class CkanCommand(paste.script.command.Command):
+    '''Base class for classes that implement CKAN paster commands to inherit.
+
+    '''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
             default='development.ini', help='Config file to use.')
@@ -2003,5 +2006,7 @@ class FrontEndBuildCommand(CkanCommand):
         cmd.options = self.options
         root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
         root = os.path.abspath(root)
-        cmd.args = (root,)
+        ckanext = os.path.join(os.path.dirname(__file__), '..', '..', 'ckanext')
+        ckanext = os.path.abspath(ckanext)
+        cmd.args = (root, ckanext)
         cmd.command()

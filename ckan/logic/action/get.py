@@ -293,6 +293,8 @@ def member_list(context, data_dict=None):
 
     :rtype: list of (id, type, capacity) tuples
 
+    :raises: :class:`ckan.logic.NotFound`: if the group doesn't exist
+
     '''
     model = context['model']
 
@@ -797,6 +799,20 @@ def package_show(context, data_dict):
         package_dict = model_dictize.package_dictize(pkg, context)
         package_dict_validated = False
 
+    # Add page-view tracking summary data to the package dict.
+    # If the package_dict came from the Solr cache then it will already have a
+    # potentially outdated tracking_summary, this will overwrite it with a
+    # current one.
+    package_dict['tracking_summary'] = model.TrackingSummary.get_for_package(
+        package_dict['id'])
+
+    # Add page-view tracking summary data to the package's resource dicts.
+    # If the package_dict came from the Solr cache then each resource dict will
+    # already have a potentially outdated tracking_summary, this will overwrite
+    # it with a current one.
+    for resource_dict in package_dict['resources']:
+        _add_tracking_summary_to_resource_dict(resource_dict, model)
+
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
             package_dict = item.before_view(package_dict)
@@ -824,6 +840,15 @@ def package_show(context, data_dict):
     return package_dict
 
 
+def _add_tracking_summary_to_resource_dict(resource_dict, model):
+    '''Add page-view tracking summary data to the given resource dict.
+
+    '''
+    tracking_summary = model.TrackingSummary.get_for_resource(
+        resource_dict['url'])
+    resource_dict['tracking_summary'] = tracking_summary
+
+
 def resource_show(context, data_dict):
     '''Return the metadata of a resource.
 
@@ -844,6 +869,8 @@ def resource_show(context, data_dict):
 
     _check_access('resource_show', context, data_dict)
     resource_dict = model_dictize.resource_dictize(resource, context)
+
+    _add_tracking_summary_to_resource_dict(resource_dict, model)
 
     for item in plugins.PluginImplementations(plugins.IResourceController):
         resource_dict = item.before_show(resource_dict)
