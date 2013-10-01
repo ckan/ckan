@@ -10,9 +10,6 @@ class HomepagePlugin(p.SingletonPlugin):
     p.implements(p.ITemplateHelpers, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
 
-    featured_groups_cache = None
-    featured_orgs_cache = None
-
     def configure(self, config):
         groups = config.get('ckan.featured_groups', '')
         if groups:
@@ -29,16 +26,14 @@ class HomepagePlugin(p.SingletonPlugin):
                                        list_action='organization_list',
                                        count=count,
                                        items=self.orgs)
-        self.featured_orgs_cache = orgs
-        return self.featured_orgs_cache
+        return orgs
 
     def get_featured_groups(self, count=1):
         groups = self.featured_group_org(get_action='group_show',
                                          list_action='group_list',
                                          count=count,
                                          items=self.groups)
-        self.featured_groups_cache = groups
-        return self.featured_groups_cache
+        return groups
 
     def featured_group_org(self, items, get_action, list_action, count):
         def get_group(id):
