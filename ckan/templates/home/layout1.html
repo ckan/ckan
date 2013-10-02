@@ -1,30 +1,24 @@
-{% extends 'home/index_base.html' %}
-
-{% block homepage_layout_class %} layout-1{% endblock %}
-
-{% block primary_content %}
-  <div role="main" class="hero">
-    <div class="container">
-      <div class="row row1">
-        <div class="span6 col1">
-          {% snippet 'home/snippets/promoted.html' %}
-        </div>
-        <div class="span6 col2">
-          {% snippet 'home/snippets/search.html' %}
-        </div>
+<div role="main" class="hero">
+  <div class="container">
+    <div class="row row1">
+      <div class="span6 col1">
+        {% snippet 'home/snippets/promoted.html' %}
+      </div>
+      <div class="span6 col2">
+        {% snippet 'home/snippets/search.html' %}
       </div>
     </div>
   </div>
-  <div role="main">
-    <div class="container">
-      <div class="row row2">
-        <div class="span6 col1">
-          {% snippet 'home/snippets/featured_group.html' %}
-        </div>
-        <div class="span6 col2">
-          {% snippet 'home/snippets/featured_organization.html' %}
-        </div>
+</div>
+<div role="main">
+  <div class="container">
+    <div class="row row2">
+      <div class="span6 col1">
+        {% snippet 'home/snippets/featured_group.html' %}
+      </div>
+      <div class="span6 col2">
+        {% snippet 'home/snippets/featured_organization.html' %}
       </div>
     </div>
   </div>
-{% endblock %}
+</div>
