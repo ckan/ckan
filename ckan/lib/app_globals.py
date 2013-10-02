@@ -29,6 +29,7 @@ auto_update = [
     'ckan.site_about',
     'ckan.site_intro_text',
     'ckan.site_custom_css',
+    'ckan.homepage_style',
 ]
 
 config_details = {

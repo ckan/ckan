@@ -179,8 +179,7 @@ class HomeController(base.BaseController):
 
         # END OF DIRTYNESS
 
-        template = 'home/layout{0}.html'.format(g.homepage_style)
-        return base.render(template, cache_force=True)
+        return base.render('home/index.html', cache_force=True)
 
     def license(self):
         return base.render('home/license.html')

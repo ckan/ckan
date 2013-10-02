@@ -810,6 +810,20 @@ Defines a list of group names or group ids. This setting is used to display
 groups and datasets from each group on the home page in the default templates
 (2 groups and 2 datasets for each group are displayed).
 
+.. _ckan.featured_organizations:
+
+ckan.featured_orgs
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.featured_orgs = org_one org_two
+
+Default Value: (empty)
+
+Defines a list of organization names or ids. This setting is used to display
+organization and datasets from each group on the home page in the default
+templates (2 groups and 2 datasets for each group are displayed).
 
 .. _ckan.gravatar_default:
 
