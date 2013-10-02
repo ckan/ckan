@@ -125,12 +125,16 @@ update the templates. Add an additional line to make the plugin implement the
 IConfigurer interface
 
 .. code-block:: python
-
-    plugins.implements(plugins.IConfigurer)
+   :emphasize-lines: 3
+   
+    class ExtraFieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
+        p.implements(p.IDatasetForm)
+        p.implements(p.IConfigurer)
 
 This interface allows to implement a function ``update_config`` that allows us
 to update the CKAN config, in our case we want to add an additional location
 for CKAN to look for templates. Add the following code to your plugin. 
+
 .. code-block:: python
 
     def update_config(self, config):
@@ -198,9 +202,75 @@ You're done! Make sure you have your plugin installed and setup as in the
 an additional field called "Custom Text" when displaying and adding/editing a 
 dataset.
 
+Tag Vocabularies
+----------------
+If you need to add a custom field where the input options are restrcited to a
+provide list of options, you can use tag vocabularies `/tag-vocabularies`
 
-.. todo:: resouces below
-
---------------------------------- 
 Adding Custom Fields to Resources
 ---------------------------------
+
+In order to customize the fields in a resource the schema for resources needs
+to be modified in a similar way to the packages. Before we do, we can clean up
+the ``create_package_schema`` and ``update_package_schema``. There is a bit of
+duplication that we could remove. Replace the two functions with
+
+.. code-block:: python
+
+    def _modify_package_schema(self, schema):
+        schema.update({
+            'custom_text': [tk.get_validator('ignore_missing'),
+                tk.get_converter('convert_to_extras')]
+        })
+        return schema
+
+    def create_package_schema(self):
+        schema = super(ExtraFieldsPlugin, self).create_package_schema()
+        schema = self._modify_package_schema(schema)
+        return schema
+
+    def update_package_schema(self):
+        schema = super(ExtraFieldsPlugin, self).update_package_schema()
+        schema = self._modify_package_schema(schema)
+        return schema
+
+Now we can add our additional field to the resource schema. The resource schema
+is nested in the package dict as package['resources']. We modify this dict in
+a similar way to the package schema. Change ``_modify_package_schema`` to the 
+following.
+
+.. code-block:: python
+
+    def _modify_package_schema(self, schema):
+        schema.update({
+            'custom_text': [tk.get_validator('ignore_missing'),
+                tk.get_converter('convert_to_extras')]
+        })
+        schema['resources'].update({
+            'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
+        })
+        return schema
+
+Update ``show_package_schema`` similarly
+
+.. code-block:: python
+
+    def show_package_schema(self):
+        schema = super(CustomFieldsPlugins, self).show_package_schema()
+        schema.update({
+            'custom_text': [tk.get_converter('convert_from_extras'),
+                tk.get_validator('ignore_missing')]
+        })
+        schema['resources'].update({
+                'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
+        })
+        return schema
+        
+Save and reload your development server
+
+.. topic:: Details
+
+   CKAN will take any additional keys from the resource schema and save
+   them the it's extras field. This is a Postgres Json datatype field, any
+   additional keys get saved there. The templates will automatically check
+   this field and display them in the resource_read page.
