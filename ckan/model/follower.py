@@ -1,7 +1,6 @@
 import meta
 import datetime
 import sqlalchemy
-import vdm.sqlalchemy
 
 import core
 import ckan.model
@@ -78,14 +77,16 @@ class ModelFollowingModel(domain_object.DomainObject):
         object_id = object_id or cls.object_id
 
         query = meta.Session.query(cls, follower_alias, object_alias)\
-                .filter(sqlalchemy.and_(follower_alias.id == follower_id,\
-                cls.follower_id == follower_alias.id,\
-                cls.object_id == object_alias.id,\
-                follower_alias.state != core.State.DELETED,\
-                object_alias.state != core.State.DELETED,\
+            .filter(sqlalchemy.and_(
+                follower_alias.id == follower_id,
+                cls.follower_id == follower_alias.id,
+                cls.object_id == object_alias.id,
+                follower_alias.state != core.State.DELETED,
+                object_alias.state != core.State.DELETED,
                 object_alias.id == object_id))
 
         return query
+
 
 class UserFollowingUser(ModelFollowingModel):
     '''A many-many relationship between users.

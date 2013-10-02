@@ -841,6 +841,7 @@ def user_create(context, data_dict):
     log.debug('Created user {name}'.format(name=user.name))
     return user_dict
 
+
 def user_invite(context, data_dict):
     '''Invite a new user.
 
@@ -889,12 +890,14 @@ def user_invite(context, data_dict):
             if 'name' not in e.error_dict:
                 raise e
 
+
 def _get_random_username_from_email(email):
     localpart = email.split('@')[0]
     cleaned_localpart = re.sub(r'[^\w]', '-', localpart)
     random_number = random.SystemRandom().random() * 10000
     name = '%s-%d' % (cleaned_localpart, random_number)
     return name
+
 
 ## Modifications for rest api
 

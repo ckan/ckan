@@ -18,6 +18,7 @@ _check_access = ckan.logic.check_access
 _get_or_bust = ckan.logic.get_or_bust
 _get_action = ckan.logic.get_action
 
+
 def user_delete(context, data_dict):
     '''Delete a user.
 
