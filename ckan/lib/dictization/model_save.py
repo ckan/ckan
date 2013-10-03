@@ -408,7 +408,7 @@ def group_dict_save(group_dict, context):
     # Under the new org rules we do not want to be able to update datasets
     # via group edit so we need a way to prevent this.  It may be more
     # sensible in future to send a list of allowed/disallowed updates for
-    # groups, users, tabs etc.
+    # groups, users, tags etc.
     if not prevent_packages_update:
         pkgs_edited = group_member_save(context, group_dict, 'packages')
     else:
@@ -419,7 +419,7 @@ def group_dict_save(group_dict, context):
     group_users_changed = group_member_save(context, group_dict, 'users')
     group_groups_changed = group_member_save(context, group_dict, 'groups')
     group_tags_changed = group_member_save(context, group_dict, 'tags')
-    log.debug('Group save membership changes - Packages: %r  Users: %r  '
+    log.error('Group save membership changes - Packages: %r  Users: %r  '
             'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
             group_groups_changed, group_tags_changed)
 
