@@ -4,6 +4,8 @@
 
 {% block breadcrumb_content_selected %}{% endblock %}
 
+{% block subtitle %}{{ _('Edit') }} - {{ super() }}{% endblock %}
+
 {% block breadcrumb_content %}
   {{ super() }}
   <li class="active">{% link_for _('Edit'), controller='package', action='edit', id=pkg.name %}</li>

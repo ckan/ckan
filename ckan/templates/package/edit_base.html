@@ -1,0 +1,5 @@
+{% extends "package/base.html" %}
+
+{% set pkg = c.pkg_dict %}
+
+{% block subtitle %}{{ pkg.title or pkg.name }} - {{ super() }}{% endblock %}
