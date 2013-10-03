@@ -2,6 +2,14 @@
 
 {% block package_metadata_fields %}
 
+  {% block package_metadata_fields_url %}
+    {{ form.input('url', label=_('Source'), id='field-url', placeholder=_('http://example.com/dataset.json'), value=data.url, error=errors.url, classes=['control-medium']) }}
+  {% endblock %}
+
+  {% block package_metadata_fields_version %}
+    {{ form.input('version', label=_('Version'), id='field-version', placeholder=_('1.0'), value=data.version, error=errors.version, classes=['control-medium']) }}
+  {% endblock %}
+
   {% block package_metadata_author %}
     {{ form.input('author', label=_('Author'), id='field-author', placeholder=_('Joe Bloggs'), value=data.author, error=errors.author, classes=['control-medium']) }}
 
