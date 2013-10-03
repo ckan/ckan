@@ -10,9 +10,9 @@
 {% endblock %}
 
 {% block content_action %}
-{% if h.check_access('user_update', user) %}
-  {% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}
-{% endif %}
+  {% if h.check_access('user_update', user) %}
+    {% link_for _('Manage'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}
+  {% endif %}
 {% endblock %}
 
 {% block content_primary_nav %}
