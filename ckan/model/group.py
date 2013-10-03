@@ -400,6 +400,11 @@ MemberRevision = vdm.sqlalchemy.create_object_version(meta.mapper, Member,
 #TODO
 MemberRevision.related_packages = lambda self: [self.continuity.package]
 
+# Should there arise a bug that allows loops in the group hierarchy, then it
+# will lead to infinite recursion, tieing up postgres processes at 100%, and
+# the server will suffer. To avoid ever failing this badly, we put in this
+# limit on recursion.
+MAX_RECURSES = 8
 
 HIERARCHY_DOWNWARDS_CTE = """WITH RECURSIVE child(depth) AS
 (
@@ -410,12 +415,12 @@ HIERARCHY_DOWNWARDS_CTE = """WITH RECURSIVE child(depth) AS
     -- recursive term
     SELECT c.depth + 1, m.* FROM member AS m, child AS c
     WHERE m.table_id = c.group_id AND m.table_name = 'group'
-          AND m.state = 'active'
+          AND m.state = 'active' AND c.depth < {max_recurses}
 )
 SELECT G.id, G.name, G.title, child.depth, child.table_id as parent_id FROM child
     INNER JOIN public.group G ON G.id = child.group_id
     WHERE G.type = :type AND G.state='active'
-    ORDER BY child.depth ASC;"""
+    ORDER BY child.depth ASC;""".format(max_recurses=MAX_RECURSES)
 
 HIERARCHY_UPWARDS_CTE = """WITH RECURSIVE parenttree(depth) AS (
     -- non-recursive term
@@ -425,10 +430,11 @@ HIERARCHY_UPWARDS_CTE = """WITH RECURSIVE parenttree(depth) AS (
     -- recursive term
     SELECT PG.depth + 1, M.* FROM parenttree PG, public.member M
     WHERE PG.table_id = M.group_id AND M.table_name = 'group'
-          AND M.state = 'active'
+          AND M.state = 'active' AND PG.depth < {max_recurses}
     )
 
 SELECT G.*, PT.depth FROM parenttree AS PT
     INNER JOIN public.group G ON G.id = PT.table_id
     WHERE G.type = :type AND G.state='active'
-    ORDER BY PT.depth DESC;"""
+    ORDER BY PT.depth DESC;""".format(max_recurses=MAX_RECURSES)
+
