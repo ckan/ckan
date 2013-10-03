@@ -132,11 +132,6 @@ def resource_dictize(res, context):
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
-    #tracking
-    if not context.get('for_edit'):
-        model = context['model']
-        tracking = model.TrackingSummary.get_for_resource(res.url)
-        resource['tracking_summary'] = tracking
     resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
@@ -241,9 +236,6 @@ def package_dictize(pkg, context):
     q = select([extra_rev]).where(extra_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, extra_rev, context)
     result_dict["extras"] = extras_list_dictize(result, context)
-    #tracking
-    tracking = model.TrackingSummary.get_for_package(pkg.id)
-    result_dict['tracking_summary'] = tracking
     #groups
     member_rev = model.member_revision_table
     group = model.group_table
@@ -451,6 +443,7 @@ def user_dictize(user, context):
         result_dict = d.table_dictize(user, context)
 
     del result_dict['password']
+    del result_dict['reset_key']
 
     result_dict['display_name'] = user.display_name
     result_dict['email_hash'] = user.email_hash

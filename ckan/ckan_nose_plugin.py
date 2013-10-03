@@ -17,6 +17,10 @@ class CkanNose(Plugin):
         # import needs to be here or setup happens too early
         import ckan.model as model
 
+        if 'new_tests' in repr(ctx):
+            # We don't want to do the stuff below for new-style tests.
+            return
+
         if isclass(ctx):
             if hasattr(ctx, "no_db") and ctx.no_db:
                 return
@@ -38,7 +42,7 @@ class CkanNose(Plugin):
             from ckan.plugins.interfaces import IConfigurable
             for plugin in PluginImplementations(IConfigurable):
                 plugin.configure(config)
-            
+
             model.repo.init_db()
 
     def options(self, parser, env):

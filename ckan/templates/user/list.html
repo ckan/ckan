@@ -13,17 +13,17 @@
         {% block page_heading %}{{ _('Users') }}{% endblock %}
       </h1>
       {% block users_list %}
-      <ul class="user-list">
-        {% block users_list_inner %}
-        {% for user in c.page.items %}
-          <li>{{ h.linked_user(user['name'], maxlength=20) }}</li>
-        {% endfor %}
-        {% endblock %}
-      </ul>
+        <ul class="user-list">
+          {% block users_list_inner %}
+            {% for user in c.page.items %}
+              <li>{{ h.linked_user(user['name'], maxlength=20) }}</li>
+            {% endfor %}
+          {% endblock %}
+        </ul>
       {% endblock %}
     </div>
     {% block page_pagination %}
-    {{ c.page.pager(q=c.q, order_by=c.order_by) }}
+      {{ c.page.pager(q=c.q, order_by=c.order_by) }}
     {% endblock %}
   </article>
 {% endblock %}
