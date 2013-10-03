@@ -1,5 +1,7 @@
 {% extends "page.html" %}
 
+{% block subtitle %}{{ _('Manage') }} - {{ c.group_dict.display_name }} - {{ _('Groups') }}{% endblock %}
+
 {% set group = c.group_dict %}
 
 {% block breadcrumb_content %}
