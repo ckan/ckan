@@ -51,8 +51,12 @@ def empty(key, data, errors, context):
     value = data.pop(key, None)
     
     if value and value is not missing:
+        key_name = key[-1]
+        if key_name == '__junk':
+            # for junked fields, the field name is contained in the value
+            key_name = value.keys()
         errors[key].append(_(
-            'The input field %(name)s was not expected.') % {"name": key[-1]})
+            'The input field %(name)s was not expected.') % {"name": key_name})
 
 def ignore(key, data, errors, context):
 
