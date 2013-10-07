@@ -1,0 +1,37 @@
+{% ckan_extends %}
+
+{% block home_image_content %}
+  <a class="media-image" href="#">
+    <img src="featured-image.jpg" alt="Featured image"
+         width="420" height="220" />
+  </a>
+{% endblock %}
+
+{% block home_image_caption %}
+  {{ _("This is a customized featured section") }}
+{% endblock %}
+
+{% block secondary_content %}
+
+  <div class="row">
+
+    <div class="span6">
+      <div class="box">
+        <section class="module">
+          <header class="module-heading">
+            <h3>Recent activity</h3>
+          </header>
+          <div class="module-content">
+            {{ h.recently_changed_packages_activity_stream(limit=10) }}
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="span6">
+      {% snippet 'snippets/example_theme_most_popular_groups.html' %}
+    </div>
+
+  </div>
+
+{% endblock %}
