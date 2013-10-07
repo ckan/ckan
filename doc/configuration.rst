@@ -508,9 +508,32 @@ Specify which CKAN plugins are to be enabled.
 
 Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions/index`.
 
-The order that plugin names are specified influences the order that plugins are loaded. Plugins in separate python modules are loaded in exactly the order specified, but plugins in the same module will always be loaded in the order their classes appear in the module.
+.. note::
 
-Plugin load order is important for plugins that add templates directories: Templates found in template directories added earlier will override templates in template directories added later.
+    The order of the plugin names in the configuration file influences the
+    order that CKAN will load the plugins in. As long as each plugin class is
+    implemented in a separate Python module (i.e. in a separate Python source
+    code file), the plugins will be loaded in the order given in the
+    configuration file.
+
+    When multiple plugins are implemented in the same Python module, CKAN will
+    process the plugins in the order that they're given in the config file, but as
+    soon as it reaches one plugin from a given Python module, CKAN will load all
+    plugins from that Python module, in the order that the plugin classes are
+    defined in the module.
+
+    For simplicity, we recommend implementing each plugin class in its own Python
+    module.
+
+    Plugin loading order can be important, for example for plugins that add custom
+    template files: templates found in template directories added earlier will
+    override templates in template directories added later.
+
+    .. todo::
+
+        Fix CKAN's plugin loading order to simply load all plugins in the order
+        they're given in the config file, regardless of which Python modules
+        they're implemented in.
 
 .. _ckan.datastore.enabled:
 
