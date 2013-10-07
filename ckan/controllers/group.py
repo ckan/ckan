@@ -428,6 +428,7 @@ class GroupController(BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
             context['allow_partial_update'] = True
+            context['prevent_packages_update'] = True
             group = self._action('group_update')(context, data_dict)
 
             if id != group['name']:

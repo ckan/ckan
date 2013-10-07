@@ -124,9 +124,10 @@ class UserController(base.BaseController):
 
         # The legacy templates have the user's activity stream on the user
         # profile page, new templates do not.
-        if h.asbool(config.get('ckan.legacy_templates', False)):
-            c.user_activity_stream = get_action('user_activity_list_html')(
-                context, {'id': c.user_dict['id']})
+        #Disabled for DGU
+        #if h.asbool(config.get('ckan.legacy_templates', False)):
+        #    c.user_activity_stream = get_action('user_activity_list_html')(
+        #        context, {'id': c.user_dict['id']})
 
         return render('user/read.html')
 
