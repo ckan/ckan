@@ -578,7 +578,7 @@ class IAuthFunctions(Interface):
         be decorated with the ``auth_allow_anonymous_access`` decorator, available
         on the plugins toolkit.
 
-        For example:
+        For example::
 
             import ckan.plugins as p
 

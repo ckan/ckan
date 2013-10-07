@@ -446,6 +446,7 @@ def user_dictize(user, context):
         result_dict = d.table_dictize(user, context)
 
     del result_dict['password']
+    del result_dict['reset_key']
 
     result_dict['display_name'] = user.display_name
     result_dict['email_hash'] = user.email_hash
