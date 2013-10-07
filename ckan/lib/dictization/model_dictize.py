@@ -204,6 +204,9 @@ def package_dictize(pkg, context):
     if not result:
         raise logic.NotFound
     result_dict = d.table_dictize(result, context)
+    #strip whitespace from title
+    if result_dict.get('title'):
+        result_dict['title'] = result_dict['title'].strip()
     #resources
     res_rev = model.resource_revision_table
     resource_group = model.resource_group_table
@@ -443,6 +446,7 @@ def user_dictize(user, context):
         result_dict = d.table_dictize(user, context)
 
     del result_dict['password']
+    del result_dict['reset_key']
 
     result_dict['display_name'] = user.display_name
     result_dict['email_hash'] = user.email_hash

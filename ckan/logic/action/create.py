@@ -1141,7 +1141,7 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     role = data_dict.get('role')
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
-    result = session.query(model.User).filter_by(name=username).first()
+    result = model.User.get(username)
     if result:
         user_id = result.id
     else:

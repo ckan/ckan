@@ -1139,11 +1139,11 @@ class TestBasicDictize:
 
         # Check sensitive data is available
         assert 'apikey' in user_dict
-        assert 'reset_key' in user_dict
         assert 'email' in user_dict
 
-        # Passwords should never be available
+        # Passwords and reset keys should never be available
         assert 'password' not in user_dict
+        assert 'reset_key' not in user_dict
 
     def test_23_user_dictize_as_same_user(self):
         '''User should be able to see their own sensitive data.'''
@@ -1163,11 +1163,11 @@ class TestBasicDictize:
 
         # Check sensitive data is available
         assert 'apikey' in user_dict
-        assert 'reset_key' in user_dict
         assert 'email' in user_dict
 
-        # Passwords should never be available
+        # Passwords and reset keys should never be available
         assert 'password' not in user_dict
+        assert 'reset_key' not in user_dict
 
     def test_24_user_dictize_as_other_user(self):
         '''User should not be able to see other's sensitive data.'''
@@ -1216,3 +1216,21 @@ class TestBasicDictize:
 
         # Passwords should never be available
         assert 'password' not in user_dict
+
+    def test_26_package_dictize_whitespace_strippped_from_title(self):
+
+        context = {"model": model,
+                   "session": model.Session}
+
+        pkg = model.Session.query(model.Package).first()
+        original_title = pkg.title
+        pkg.title = "     whitespace title    \t"
+        model.Session.add(pkg)
+        model.Session.commit()
+
+        result = package_dictize(pkg, context)
+        assert result['title'] == 'whitespace title'
+        pkg.title = original_title
+        model.Session.add(pkg)
+        model.Session.commit()
+
