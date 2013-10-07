@@ -20,7 +20,7 @@ in CKAN from one release to the next don't break your extension.
 Don't edit CKAN's database tables
 =================================
 
-An extension can create its own tables in the CKAN database, but it should
+An extension can create its own tables in the CKAN database, but it should *not*
 write to core CKAN tables directly, add columns to core tables, or use foreign
 keys against core tables.
 

@@ -378,7 +378,6 @@ class TestAction(WsgiAppCase):
         result = res_obj['result']
         assert result['name'] == 'annafan'
         assert 'apikey' in result
-        assert 'reset_key' in result
 
         # Sysadmin user can see everyone's api key
         res = self.app.post('/api/action/user_show', params=postparams,
@@ -388,7 +387,6 @@ class TestAction(WsgiAppCase):
         result = res_obj['result']
         assert result['name'] == 'annafan'
         assert 'apikey' in result
-        assert 'reset_key' in result
 
     def test_05_user_show_edits(self):
         postparams = '%s=1' % json.dumps({'id':'tester'})
@@ -454,113 +452,6 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] is False
         assert res_obj['error'] == { '__type': 'Validation Error',
                 'password': ['Your password must be 4 characters or longer']}
-
-    def test_12_user_update(self):
-        normal_user_dict = {'id': self.normal_user.id,
-                            'name': self.normal_user.name,
-                            'fullname': 'Updated normal user full name',
-                            'email': 'me@test.org',
-                            'about':'Updated normal user about'}
-
-        sysadmin_user_dict = {'id': self.sysadmin_user.id,
-                            'fullname': 'Updated sysadmin user full name',
-                            'email': 'me@test.org',
-                            'about':'Updated sysadmin user about'}
-
-        #Normal users can update themselves
-        postparams = '%s=1' % json.dumps(normal_user_dict)
-        res = self.app.post('/api/action/user_update', params=postparams,
-                            extra_environ={'Authorization': str(self.normal_user.apikey)})
-
-        res_obj = json.loads(res.body)
-        assert res_obj['help'].startswith("Update a user account.")
-        assert res_obj['success'] == True
-        result = res_obj['result']
-        assert result['id'] == self.normal_user.id
-        assert result['name'] == self.normal_user.name
-        assert result['fullname'] == normal_user_dict['fullname']
-        assert result['about'] == normal_user_dict['about']
-        assert 'apikey' in result
-        assert 'created' in result
-        assert 'display_name' in result
-        assert 'number_administered_packages' in result
-        assert 'number_of_edits' in result
-        assert not 'password' in result
-
-        #Sysadmin users can update themselves
-        postparams = '%s=1' % json.dumps(sysadmin_user_dict)
-        res = self.app.post('/api/action/user_update', params=postparams,
-                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-
-        res_obj = json.loads(res.body)
-        assert res_obj['help'].startswith("Update a user account.")
-        assert res_obj['success'] == True
-        result = res_obj['result']
-        assert result['id'] == self.sysadmin_user.id
-        assert result['name'] == self.sysadmin_user.name
-        assert result['fullname'] == sysadmin_user_dict['fullname']
-        assert result['about'] == sysadmin_user_dict['about']
-
-        #Sysadmin users can update all users
-        postparams = '%s=1' % json.dumps(normal_user_dict)
-        res = self.app.post('/api/action/user_update', params=postparams,
-                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-
-        res_obj = json.loads(res.body)
-        assert res_obj['help'].startswith("Update a user account.")
-        assert res_obj['success'] == True
-        result = res_obj['result']
-        assert result['id'] == self.normal_user.id
-        assert result['name'] == self.normal_user.name
-        assert result['fullname'] == normal_user_dict['fullname']
-        assert result['about'] == normal_user_dict['about']
-
-        #Normal users can not update other users
-        postparams = '%s=1' % json.dumps(sysadmin_user_dict)
-        res = self.app.post('/api/action/user_update', params=postparams,
-                            extra_environ={'Authorization': str(self.normal_user.apikey)},
-                            status=StatusCodes.STATUS_403_ACCESS_DENIED)
-
-        res_obj = json.loads(res.body)
-        assert res_obj['help'].startswith("Update a user account.")
-        assert res_obj['error'] == {
-                '__type': 'Authorization Error',
-                'message': 'Access denied'
-            }
-        assert res_obj['success'] is False
-
-    def test_12_user_update_errors(self):
-        test_calls = (
-            # Empty name
-                {'user_dict': {'id': self.normal_user.id,
-                          'name':'',
-                          'email':'test@test.com'},
-                 'messages': [('name','Name must be at least 2 characters long')]},
-
-            # Invalid characters in name
-                {'user_dict': {'id': self.normal_user.id,
-                          'name':'i++%',
-                          'email':'test@test.com'},
-                 'messages': [('name','Url must be purely lowercase alphanumeric')]},
-            # Existing name
-                {'user_dict': {'id': self.normal_user.id,
-                          'name':self.sysadmin_user.name,
-                          'email':'test@test.com'},
-                 'messages': [('name','That login name is not available')]},
-            # Missing email
-                {'user_dict': {'id': self.normal_user.id,
-                          'name':self.normal_user.name},
-                 'messages': [('email','Missing value')]},
-                 )
-
-        for test_call in test_calls:
-            postparams = '%s=1' % json.dumps(test_call['user_dict'])
-            res = self.app.post('/api/action/user_update', params=postparams,
-                                extra_environ={'Authorization': str(self.normal_user.apikey)},
-                                status=StatusCodes.STATUS_409_CONFLICT)
-            res_obj = json.loads(res.body)
-            for expected_message in test_call['messages']:
-                assert expected_message[1] in ''.join(res_obj['error'][expected_message[0]])
 
     def test_13_group_list(self):
         postparams = '%s=1' % json.dumps({})
@@ -877,6 +768,12 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'id': resource.id})
         res = self.app.post('/api/action/resource_show', params=postparams)
         result = json.loads(res.body)['result']
+
+        # Remove tracking data from the result dict. This tracking data is
+        # added by the logic, so the other resource dict taken straight from
+        # resource_dictize() won't have it.
+        del result['tracking_summary']
+
         resource_dict = resource_dictize(resource, {'model': model})
         assert result == resource_dict, (result, resource_dict)
 
@@ -1205,6 +1102,23 @@ class TestAction(WsgiAppCase):
                     {'key': 'foo', 'value': 'gar'}])
         assert error['__type'] == 'Validation Error'
         assert error['extras_validation'] == ['Duplicate key "foo"']
+
+    def test_package_update_remove_org_error(self):
+        import ckan.tests
+        import paste.fixture
+        import pylons.test
+
+        app = paste.fixture.TestApp(pylons.test.pylonsapp)
+        org = ckan.tests.call_action_api(app, 'organization_create',
+                apikey=self.sysadmin_user.apikey, name='myorganization')
+        package = ckan.tests.call_action_api(app, 'package_create',
+                apikey=self.sysadmin_user.apikey, name='foobarbaz', owner_org=org['id'])
+
+        assert package['owner_org']
+        package['owner_org'] = ''
+        res = ckan.tests.call_action_api(app, 'package_update',
+                apikey=self.sysadmin_user.apikey, **package)
+        assert not res['owner_org'], res['owner_org']
 
     def test_package_update_duplicate_extras_error(self):
         import ckan.tests
@@ -1705,3 +1619,105 @@ class TestGroupOrgView(WsgiAppCase):
         res_json = json.loads(res.body)
         assert res_json['success'] is False
 
+
+class TestResourceAction(WsgiAppCase):
+
+    sysadmin_user = None
+
+    normal_user = None
+
+    @classmethod
+    def setup_class(cls):
+        search.clear()
+        CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def _add_basic_package(self, package_name=u'test_package', **kwargs):
+        package = {
+            'name': package_name,
+            'title': u'A Novel By Tolstoy',
+            'resources': [{
+                'description': u'Full text.',
+                'format': u'plain text',
+                'url': u'http://www.annakarenina.com/download/'
+            }]
+        }
+        package.update(kwargs)
+
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+        return json.loads(res.body)['result']
+
+    def test_01_delete_resource(self):
+        res_dict = self._add_basic_package()
+        pkg_id = res_dict['id']
+
+        resource_count = len(res_dict['resources'])
+        id = res_dict['resources'][0]['id']
+        url = '/api/action/resource_delete'
+
+        # Use the sysadmin user because this package doesn't belong to an org
+        res = self.app.post(url, params=json.dumps({'id': id}),
+                extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+
+        url = '/api/action/package_show'
+        res = self.app.get(url, {'id': pkg_id})
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        assert len(res_dict['result']['resources']) == resource_count - 1
+
+
+class TestMember(WsgiAppCase):
+
+    sysadmin = None
+
+    group = None
+
+    def setup(self):
+        username = 'sysadmin'
+        groupname = 'test group'
+        organization_name = 'test organization'
+        CreateTestData.create_user('sysadmin', **{ 'sysadmin': True })
+        CreateTestData.create_groups([{ 'name': groupname },
+                                      { 'name': organization_name,
+                                        'type': 'organization'}])
+        self.sysadmin = model.User.get(username)
+        self.group = model.Group.get(groupname)
+
+    def teardown(self):
+        model.repo.rebuild_db()
+
+    def test_group_member_create_works_user_id_and_group_id(self):
+        self._assert_we_can_add_user_to_group(self.sysadmin.id, self.group.id)
+
+    def test_group_member_create_works_with_user_id_and_group_name(self):
+        self._assert_we_can_add_user_to_group(self.sysadmin.id, self.group.name)
+
+    def test_group_member_create_works_with_user_name_and_group_name(self):
+        self._assert_we_can_add_user_to_group(self.sysadmin.name, self.group.name)
+
+    def _assert_we_can_add_user_to_group(self, user_id, group_id):
+        user = model.User.get(user_id)
+        group = model.Group.get(group_id)
+        url = '/api/action/group_member_create'
+        role = 'member'
+        postparams = '%s=1' % json.dumps({
+            'id': group_id,
+            'username': user_id,
+            'role': role})
+
+        res = self.app.post(url, params=postparams,
+                            extra_environ={'Authorization': str(user.apikey)})
+
+        res = json.loads(res.body)
+        groups = user.get_groups(group.type, role)
+        group_ids = [g.id for g in groups]
+        assert res['success'] is True, res
+        assert group.id in group_ids, (group, user_groups)
