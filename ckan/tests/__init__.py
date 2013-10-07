@@ -312,11 +312,11 @@ class TestSearchIndexer:
         return [model.Package.get(pkg_index.package_id).name for pkg_index in model.Session.query(model.PackageSearch)]
 
 def setup_test_search_index():
-    from ckan import plugins
+    #from ckan import plugins
     if not is_search_supported():
         raise SkipTest("Search not supported")
     search.clear()
-    plugins.load('synchronous_search')
+    #plugins.load('synchronous_search')
 
 def is_search_supported():
     is_supported_db = not model.engine_is_sqlite()

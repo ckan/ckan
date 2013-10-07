@@ -4,7 +4,7 @@ class _MockPlugin(object):
     """
     MockPlugin tracks method calls via __getattr__ for rapid mocking of
     plugins.
-    
+
     Use MockPlugin.calls or MockPlugin.<methodname>.calls to access
     call information
     """
@@ -19,8 +19,8 @@ class _MockPlugin(object):
         def __call__(self, *args, **kwargs):
             self.boundto.calls.append((self.name, args, kwargs))
             self.calls.append((args, kwargs))
-            
-    def __init__(self):
+
+    def __init__(self, *arg, **kw):
         self.calls = []
         self.__mockmethods__ = {}
 
@@ -35,6 +35,7 @@ class _MockPlugin(object):
         """
         for mockmethod in self.MockMethod.registry.values():
             mockmethod.calls = []
+        self.__mockmethods__ = {}
         self.calls = []
 
 class MockPlugin(_MockPlugin, Plugin):

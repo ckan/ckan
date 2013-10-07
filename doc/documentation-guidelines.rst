@@ -54,12 +54,18 @@ Create a `Python virtual environment <http://pypi.python.org/pypi/virtualenv>`_
 (virtualenv), activate it, install CKAN into the virtual environment, and
 install the dependencies necessary for building CKAN. In this example we'll
 create a virtualenv in a folder called ``pyenv``. Run these commands in a
-terminal::
+terminal:
+
+.. versionchanged:: 2.1
+   In CKAN 2.0 and earlier the requirements file was called
+   ``pip-requirements-docs.txt``, not ``dev-requirements.txt`` as below.
+
+::
 
     virtualenv --no-site-packages pyenv
     . pyenv/bin/activate
     pip install -e 'git+https://github.com/okfn/ckan.git#egg=ckan'
-    pip install -r pyenv/src/ckan/pip-requirements-docs.txt
+    pip install -r pyenv/src/ckan/dev-requirements.txt
 
 
 b. Fetch CKAN's git submodules
@@ -380,6 +386,9 @@ or to define a URL once and then link to it in multiple places, do::
 
 see `Hyperlinks <http://sphinx-doc.org/rest.html#hyperlinks>`_ for details.
 
+Use ``:py:`` to reference other Python or JavaScript functions, modules,
+classes, etc. See :ref:`Referencing other code objects`.
+
 
 .. _sphinx substitutions:
 
@@ -453,7 +462,7 @@ therefore more likely to be kept up to date.
 Whenever you're writing reference documentation for modules, classes, functions
 or methods, exceptions, attributes, etc. you should probably be using autodoc.
 For example, we use autodoc for the :ref:`api-reference`, the
-:ref:`plugin-reference`, etc.
+:doc:`extensions/plugin-interfaces`, etc.
 
 For how to write docstrings, see :ref:`docstrings`.
 

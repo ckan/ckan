@@ -1,3 +1,4 @@
+import sys
 import logging
 
 import ckan.plugins as p
@@ -10,6 +11,8 @@ import ckan.model as model
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
+DEFAULT_FORMATS = []
+
 
 class DatastoreException(Exception):
     pass
@@ -19,10 +22,13 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IActions)
     p.implements(p.IAuthFunctions)
+    p.implements(p.IResourceUrlChange)
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
+    p.implements(p.IResourceController, inherit=True)
 
     legacy_mode = False
+    resource_show_action = None
 
     def configure(self, config):
         self.config = config
@@ -36,9 +42,11 @@ class DatastorePlugin(p.SingletonPlugin):
         # datastore runs on PG prior to 9.0 (for example 8.4).
         self.legacy_mode = 'ckan.datastore.read_url' not in self.config
 
+        datapusher_formats = config.get('datapusher.formats', '').split()
+        self.datapusher_formats = datapusher_formats or DEFAULT_FORMATS
+
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
-        import sys
         if sys.argv[0].split('/')[-1] == 'paster' and 'datastore' in sys.argv[1:]:
             log.warn('Omitting permission checks because you are '
                      'running paster commands.')
@@ -70,42 +78,60 @@ class DatastorePlugin(p.SingletonPlugin):
 
             self._create_alias_table()
 
-        ## Do light wrapping around action function to add datastore_active
-        ## to resource dict.  Not using IAction extension as this prevents
-        ## other plugins from having a custom resource_show.
+        # update the resource_show action to have datastore_active property
+        if self.resource_show_action is None:
+            resource_show = p.toolkit.get_action('resource_show')
 
-        # Make sure actions are cached
-        resource_show = p.toolkit.get_action('resource_show')
+            @logic.side_effect_free
+            def new_resource_show(context, data_dict):
+                new_data_dict = resource_show(context, data_dict)
+                try:
+                    connection = read_engine.connect()
+                    result = connection.execute(
+                        'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
+                        new_data_dict['id']
+                    ).fetchone()
+                    if result:
+                        new_data_dict['datastore_active'] = True
+                    else:
+                        new_data_dict['datastore_active'] = False
+                finally:
+                    connection.close()
+                return new_data_dict
 
-        @logic.side_effect_free
-        def new_resource_show(context, data_dict):
-            new_data_dict = resource_show(context, data_dict)
-            try:
-                connection = read_engine.connect()
-                result = connection.execute(
-                    'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
-                    new_data_dict['id']
-                ).fetchone()
-                if result:
-                    new_data_dict['datastore_active'] = True
-                else:
-                    new_data_dict['datastore_active'] = False
-            finally:
-                connection.close()
-            return new_data_dict
+            self.resource_show_action = new_resource_show
 
-        ## Make sure do not run many times if configure is called repeatedly
-        ## as in tests.
-        if not hasattr(resource_show, '_datastore_wrapped'):
-            new_resource_show._datastore_wrapped = True
-            logic._actions['resource_show'] = new_resource_show
-
-    def notify(self, entity, operation):
+    def notify(self, entity, operation=None):
+        '''
+        if not isinstance(entity, model.Resource):
+            return
+        if operation:
+            if operation == model.domain_object.DomainObjectOperation.new:
+                self._create_datastorer_task(entity)
+        else:
+            # if operation is None, resource URL has been changed, as the
+            # notify function in IResourceUrlChange only takes 1 parameter
+            self._create_datastorer_task(entity)
+        '''
+        context = {'model': model, 'ignore_auth': True}
+        if isinstance(entity, model.Resource):
+            if (operation == model.domain_object.DomainObjectOperation.new
+                    or not operation):
+                # if operation is None, resource URL has been changed, as
+                # the notify function in IResourceUrlChange only takes
+                # 1 parameter
+                package = p.toolkit.get_action('package_show')(context, {
+                    'id': entity.get_package_id()
+                })
+                if (not package['private'] and
+                        entity.format in self.datapusher_formats):
+                    p.toolkit.get_action('datapusher_submit')(context, {
+                        'resource_id': entity.id
+                    })
         if not isinstance(entity, model.Package) or self.legacy_mode:
             return
         # if a resource is new, it cannot have a datastore resource, yet
         if operation == model.domain_object.DomainObjectOperation.changed:
-            context = {'model': model, 'ignore_auth': True}
             if entity.private:
                 func = p.toolkit.get_action('datastore_make_private')
             else:
@@ -229,7 +255,11 @@ class DatastorePlugin(p.SingletonPlugin):
         actions = {'datastore_create': action.datastore_create,
                    'datastore_upsert': action.datastore_upsert,
                    'datastore_delete': action.datastore_delete,
-                   'datastore_search': action.datastore_search}
+                   'datastore_search': action.datastore_search,
+                   'datapusher_submit': action.datapusher_submit,
+                   'datapusher_hook': action.datapusher_hook,
+                   'resource_show': self.resource_show_action,
+                  }
         if not self.legacy_mode:
             actions.update({
                 'datastore_search_sql': action.datastore_search_sql,
@@ -242,11 +272,21 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
                 'datastore_search': auth.datastore_search,
-                'datastore_change_permissions': auth.datastore_change_permissions}
+                'datastore_change_permissions': auth.datastore_change_permissions,
+                'datapusher_submit': auth.datapusher_submit}
 
     def before_map(self, m):
-        print "Load mapping"
         m.connect('/datastore/dump/{resource_id}',
                   controller='ckanext.datastore.controller:DatastoreController',
                   action='dump')
         return m
+
+    def before_show(self, resource_dict):
+        ''' Modify the resource url of datastore resources so that
+        they link to the datastore dumps.
+        '''
+        if resource_dict['url_type'] == 'datastore':
+            resource_dict['url'] = p.toolkit.url_for(
+                controller='ckanext.datastore.controller:DatastoreController',
+                action='dump', resource_id=resource_dict['id'])
+        return resource_dict

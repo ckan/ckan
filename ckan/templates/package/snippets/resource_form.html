@@ -19,45 +19,48 @@
   <div class="control-group dataset-form-resource-types">
     {% block basic_fields %}
 
-    {% block basic_fields_data %}
-      <div class="controls"{% if allow_upload %} data-module="resource-upload-field"{% endif %}>
-        {#
-        This block uses a slightly odd pattern. Unlike the rest of the radio
-        buttons which are wrapped _inside_ the labels here we place the label
-        after the input. This enables us to style the label based on the state
-        of the radio using css. eg. input[type=radio]+label {}
-        #}
-        <i class="ckan-icon ckan-icon-link-file"></i>
-        <input id="field-resource-type-file" type="radio" name="resource_type" checked="checked" value="file" />
-        <label class="radio inline" for="field-resource-type-file">{{ _('Link to a file') }}</label>
-        <i class="ckan-icon ckan-icon-link-plugin"></i>
-        <input id="field-resource-type-api" type="radio" name="resource_type" value="api" />
-        <label class="radio inline" for="field-resource-type-api">{{ _('Link to an API') }}</label>
+      {% block basic_fields_data %}
+        <div class="controls"{% if allow_upload %} data-module="resource-upload-field"{% endif %}>
+          {#
+          This block uses a slightly odd pattern. Unlike the rest of the radio
+          buttons which are wrapped _inside_ the labels here we place the label
+          after the input. This enables us to style the label based on the state
+          of the radio using css. eg. input[type=radio]+label {}
+          #}
+          <i class="ckan-icon ckan-icon-link-file"></i>
+          <input id="field-resource-type-file" type="radio" name="resource_type" checked="checked" value="file" />
+          <label class="radio inline" for="field-resource-type-file">{{ _('Link to a file') }}</label>
+          <i class="ckan-icon ckan-icon-link-plugin"></i>
+          <input id="field-resource-type-api" type="radio" name="resource_type" value="api" />
+          <label class="radio inline" for="field-resource-type-api">{{ _('Link to an API') }}</label>
+        </div>
       </div>
-    </div>
-    {% endblock %}
+      {% endblock %}
 
     {% block basic_fields_url %}
-    {{ form.input('url', id='field-url', label=_('Resource'), placeholder=_('eg. http://example.com/gold-prices-jan-2011.json'), value=data.url, error=errors.url, classes=['control-full', 'control-large']) }}
+      {{ form.input('url', id='field-url', label=_('Resource'), placeholder=_('eg. http://example.com/gold-prices-jan-2011.json'), value=data.url, error=errors.url, classes=['control-full', 'control-large'], is_required=true) }}
     {% endblock %}
 
     {% block basic_fields_name %}
-    {{ form.input('name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, classes=['control-full']) }}
+      {{ form.input('name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, classes=['control-full']) }}
     {% endblock %}
 
     {% block basic_fields_description %}
-    {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
+      {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
     {% endblock %}
 
     {% block basic_fields_format %}
-    {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/resource/format_autocomplete?incomplete=?'} %}
-    {% call form.input('format', id='field-format', label=_('Format'), placeholder=_('eg. CSV, XML or JSON'), value=data.format, error=errors.format, classes=['control-medium'], attrs=format_attrs) %}
-    <span class="info-block info-block-small">
-      <i class="icon-info-sign"></i>
-      {{ _('This is generated automatically. You can edit if you wish') }}
-    </span>
-    {% endcall %}
+      {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/resource/format_autocomplete?incomplete=?'} %}
+      {% call form.input('format', id='field-format', label=_('Format'), placeholder=_('eg. CSV, XML or JSON'), value=data.format, error=errors.format, classes=['control-medium'], attrs=format_attrs) %}
+        <span class="info-block info-block-small">
+          <i class="icon-info-sign"></i>
+          {{ _('This is generated automatically. You can edit if you wish') }}
+        </span>
+      {% endcall %}
     {% endblock %}
+
+    {{ form.required_message() }}
+
   {% endblock %}
 
   {% block metadata_fields %}
@@ -85,13 +88,13 @@
       {% endif %}
     {% endblock %}
     {% if stage %}
-    {% block previous_button %}
-      <button class="btn" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
-    {% endblock %}
-    {% block again_button %}
-      <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
-    {% endblock %}
-    <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Next: Additional Info') }}{% endblock %}</button>
+      {% block previous_button %}
+        <button class="btn" name="save" value="go-dataset" type="submit">{{ _('Previous') }}</button>
+      {% endblock %}
+      {% block again_button %}
+        <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
+        {% endblock %}
+      <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Next: Additional Info') }}{% endblock %}</button>
     {% else %}
       <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>
     {% endif %}
