@@ -147,6 +147,12 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
                 cache_max_age=static_max_age)
         static_parsers = [static_app, app]
 
+        storage_directory = config.get('ckan.storage_path')
+        if storage_directory:
+            storage_app = StaticURLParser(storage_directory,
+                cache_max_age=static_max_age)
+            static_parsers.insert(0, storage_app)
+
         # Configurable extra static file paths
         extra_static_parsers = []
         for public_path in config.get('extra_public_paths', '').split(','):

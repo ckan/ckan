@@ -1663,6 +1663,10 @@ def new_activities():
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
 
+def uploads_enabled():
+    if config.get('ckan.storage_path'):
+        return True
+    return False
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -1761,4 +1765,5 @@ __allowed_functions__ = [
     'radio',
     'submit',
     'asbool',
+    'uploads_enabled',
 ]

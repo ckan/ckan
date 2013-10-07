@@ -262,6 +262,7 @@ def default_group_schema():
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
         'image_url': [ignore_missing, unicode],
+        'image_display_url': [ignore_missing, unicode],
         'type': [ignore_missing, unicode],
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],

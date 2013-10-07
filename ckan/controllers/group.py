@@ -1,14 +1,18 @@
 import re
+import os
 import logging
 import genshi
+import cgi
 import datetime
 from urllib import urlencode
 
 from pylons.i18n import get_lang
+from pylons import config
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.maintain as maintain
+import ckan.lib.uploader as uploader
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.lib.search as search
@@ -421,6 +425,9 @@ class GroupController(base.BaseController):
             return self._save_new(context, group_type)
 
         data = data or {}
+        if not data.get('image_url', '').startswith('http'):
+            data.pop('image_url', None)
+
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
@@ -445,10 +452,17 @@ class GroupController(base.BaseController):
             return self._save_edit(id, context)
 
         try:
+            ## only needs removing when form repopulates
+            if data and not data.get('image_url', '').startswith('http'):
+                data.pop('image_url', None)
             old_data = self._action('group_show')(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
             data = data or old_data
+            image_url = data.get('image_url')
+            if image_url and not image_url.startswith('http'):
+                data['upload_file'] =  image_url
+                data['image_url'] = ''
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
@@ -456,6 +470,7 @@ class GroupController(base.BaseController):
 
         group = context.get("group")
         c.group = group
+        context.pop('for_edit')
         c.group_dict = self._action('group_show')(context, data_dict)
 
         try:
@@ -483,12 +498,17 @@ class GroupController(base.BaseController):
 
     def _save_new(self, context, group_type=None):
         try:
+            upload = uploader.Upload('group')
+            upload.register_request(request, 'image_url',
+                                    'image_upload', 'clear_upload')
+
             data_dict = clean_dict(dict_fns.unflatten(
                 tuplize_dict(parse_params(request.params))))
             data_dict['type'] = group_type or 'group'
             context['message'] = data_dict.get('log_message', '')
             data_dict['users'] = [{'name': c.user, 'capacity': 'admin'}]
             group = self._action('group_create')(context, data_dict)
+            upload.upload()
 
             # Redirect to the appropriate _read route for the type of group
             h.redirect_to(group['type'] + '_read', id=group['name'])
@@ -514,13 +534,19 @@ class GroupController(base.BaseController):
 
     def _save_edit(self, id, context):
         try:
+            old_group = self._action('group_show')(context, {"id": id})
+            old_image_url = old_group.get('image_url')
+            upload = uploader.Upload('group', old_image_url)
+            upload.register_request(request, 'image_url',
+                                    'image_upload', 'clear_upload')
+
             data_dict = clean_dict(dict_fns.unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
             context['allow_partial_update'] = True
             group = self._action('group_update')(context, data_dict)
-
+            upload.upload()
             if id != group['name']:
                 self._force_reindex(group)
 
