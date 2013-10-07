@@ -36,4 +36,4 @@ If you have a source installation of CKAN you can test the multilingual extensio
 
   nosetests --ckan ckanext/multilingual/tests
 
-See :ref:`basic-tests` for more information.
+See :doc:`test` for more information.

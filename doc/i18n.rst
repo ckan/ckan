@@ -27,8 +27,9 @@ Adding a New Language
 If you want to add an entirely new language to CKAN, you have two options.
 
 * :ref:`i18n-transifex`. Creating translation files using Transifex, the open source translation software. 
-* :ref:`i18n-manual`. Creating translation files manually.
+* :ref:`i18n-manual`. Creating translation files manually in your own branch.
 
+.. note:: Translating CKAN in Transifex is only enabled when a 'call for translations' is issued.
 
 .. _i18n-transifex:
 
@@ -63,8 +64,6 @@ The Transifex workflow is as follows:
 
 Manual Setup
 ------------
-
-If you prefer not to use Transifex, you can create translation files manually. 
 
 .. note:: Please keep the CKAN core developers aware of new languages created in this way.
 
@@ -106,13 +105,13 @@ We recommend using a translation tool, such as `poedit <http://www.poedit.net/>`
 3. Commit the Translation
 ++++++++++++++++++++++++++
 
-When the po is complete, commit it to the CKAN i18n repo::
-
+When the po is complete, create a branch in your source, then commit it to the CKAN i18n repo::
+ 
+ git checkout master
+ git branch translation-YOUR_LANGUAGE
  git add ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po
  git commit -m '[i18n]: New language po added: YOUR_LANGUAGE' ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po
- git push
-
-.. note:: You need to be given credentials to do this - to request these, contact the `ckan-discuss <http://lists.okfn.org/mailman/listinfo/ckan-discuss>`_ list.
+ git push origin translation-YOUR_LANGUAGE
 
 4. Compile a Translation
 ++++++++++++++++++++++++
