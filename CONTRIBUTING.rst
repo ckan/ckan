@@ -60,12 +60,14 @@ When writing code for CKAN, try to respect our coding standards:
    html-coding-standards
    css-coding-standards
    javascript-coding-standards
+   testing-coding-standards
 
-* `CKAN Coding Standards <http://docs.ckan.org/en/latest/ckan-coding-standards.html>`_
-* `Python Coding Standards <http://docs.ckan.org/en/latest/python-coding-standards.html>`_
-* `HTML Coding Standards <http://docs.ckan.org/en/latest/html-coding-standards.html>`_
-* `CSS Coding Standards <http://docs.ckan.org/en/latest/css-coding-standards.html>`_
-* `JavaScript Coding Standards <http://docs.ckan.org/en/latest/javascript-coding-standards.html>`_
+* `CKAN coding standards <http://docs.ckan.org/en/latest/ckan-coding-standards.html>`_
+* `Python coding standards <http://docs.ckan.org/en/latest/python-coding-standards.html>`_
+* `HTML coding standards <http://docs.ckan.org/en/latest/html-coding-standards.html>`_
+* `CSS coding standards <http://docs.ckan.org/en/latest/css-coding-standards.html>`_
+* `JavaScript coding standards <http://docs.ckan.org/en/latest/javascript-coding-standards.html>`_
+* `Testing coding standards <http://docs.ckan.org/en/latest/testing-coding-standards.html>`_
 
 
 ---------------

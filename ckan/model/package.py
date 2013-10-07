@@ -221,10 +221,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         import ckan.lib.helpers as h
         _dict['notes_rendered'] = h.render_markdown(self.notes)
         _dict['type'] = self.type or u'dataset'
-        #tracking
-        import ckan.model as model
-        tracking = model.TrackingSummary.get_for_package(self.id)
-        _dict['tracking_summary'] = tracking
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):
