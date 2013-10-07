@@ -551,7 +551,10 @@ def get_facet_title(name):
 
 
 def get_param_int(name, default=10):
-    return int(request.params.get(name, default))
+    try:
+        return int(request.params.get(name, default))
+    except ValueError:
+        return default
 
 
 def _url_with_params(url, params):
