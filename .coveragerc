@@ -1,3 +1,3 @@
 [run]
-omit = /ckan/migration/*
+omit = /ckan/migration/*, /ckan/tests/*, */tests/*
 source = ckan, ckanext
