@@ -70,6 +70,8 @@ When writing code for CKAN, try to respect our coding standards:
 * `Testing coding standards <http://docs.ckan.org/en/latest/testing-coding-standards.html>`_
 
 
+.. _commit messages:
+
 ---------------
 Commit Messages
 ---------------
