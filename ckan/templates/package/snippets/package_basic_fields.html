@@ -86,8 +86,9 @@
         <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
         <div class="controls">
           <select id="field-private" name="private">
+            {% set check = true if data.private == "True" else false %}
             {% for option in [(true, _('Private')), (false, _('Public'))] %}
-            <option value="{{ option[0] }}" {% if option[0] == data.private %}selected="selected"{% endif %}>{{ option[1] }}</option>
+             <option value="{{ option[0] }}"{% if option[0] == check %} selected="selected"{% endif %}>{{ option[1] }}</option>
             {% endfor %}
           </select>
         </div>
