@@ -4,6 +4,7 @@ import urllib2
 import logging
 import json
 import hashlib
+import os
 
 import sqlalchemy as sa
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -149,7 +150,13 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
         storage_directory = config.get('ckan.storage_path')
         if storage_directory:
-            storage_app = StaticURLParser(storage_directory,
+            path = os.path.join(storage_directory, 'storage')
+            try:
+                os.makedirs(path)
+            except OSError, e:
+                pass
+
+            storage_app = StaticURLParser(path,
                 cache_max_age=static_max_age)
             static_parsers.insert(0, storage_app)
 

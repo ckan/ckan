@@ -19,14 +19,13 @@
 
     {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=_('A little information about my group...'), value=data.description, error=errors.description) }}
 
-    {{ form.input('image_url', label=_('Image URL'), id='field-image-url', type='url', placeholder=_('http://example.com/my-image.jpg'), value=data.image_url, error=errors.image_url, classes=['control-full']) }}
+    {{ form.input('image_url', label=_('Image URL'), id='field-image-url', placeholder=_('http://example.com/my-image.jpg'), value=data.image_url, error=errors.image_url, classes=['control-full']) }}
 
 
     {% if h.uploads_enabled() %}
     {{ form.input('image_upload', label=_('Image Upload'), id='field-image-upload', type='file', placeholder='', value=data.image_url, error='', classes=['control-full']) }}
-      {% set upload_file = data.get('upload_file', '') %}
-      {% if upload_file %}
-        {{ form.checkbox('clear_upload', label=_('Clear Upload') + ' ' + upload_file, id='field-clear-upload', value='true', error='', classes=['control-full']) }}
+      {% if data.image_url and not data.image_url.startswith('http') %}
+        {{ form.checkbox('clear_upload', label=_('Clear Upload'), id='field-clear-upload', value='true', error='', classes=['control-full']) }}
       {% endif %}
     {% endif %}
 

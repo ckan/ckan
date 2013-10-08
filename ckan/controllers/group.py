@@ -452,17 +452,10 @@ class GroupController(base.BaseController):
             return self._save_edit(id, context)
 
         try:
-            ## only needs removing when form repopulates
-            if data and not data.get('image_url', '').startswith('http'):
-                data.pop('image_url', None)
             old_data = self._action('group_show')(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
             data = data or old_data
-            image_url = data.get('image_url')
-            if image_url and not image_url.startswith('http'):
-                data['upload_file'] =  image_url
-                data['image_url'] = ''
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:

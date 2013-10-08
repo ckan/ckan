@@ -365,16 +365,16 @@ def group_dictize(group, context):
         for item in plugins.PluginImplementations(plugin):
             result_dict = item.before_view(result_dict)
 
-    if not context.get('for_edit'):
-        image_url = result_dict.get('image_url')
-        result_dict['image_display_url'] = image_url
-        if image_url and not image_url.startswith('http'):
-            #munge here should not have an effect only doing it incase
-            #of potential vulnerability of dodgy api input
-            image_url = munge.munge_filename(image_url)
-            result_dict['image_display_url'] = h.url_for_static(
-                'uploads/group/%s' % result_dict.get('image_url')
-            )
+    image_url = result_dict.get('image_url')
+    result_dict['image_display_url'] = image_url
+    if image_url and not image_url.startswith('http'):
+        #munge here should not have an effect only doing it incase
+        #of potential vulnerability of dodgy api input
+        image_url = munge.munge_filename(image_url)
+        result_dict['image_display_url'] = h.url_for_static(
+            'uploads/group/%s' % result_dict.get('image_url'),
+            qualified = True
+        )
     return result_dict
 
 def tag_list_dictize(tag_list, context):
