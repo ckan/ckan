@@ -119,7 +119,7 @@ class DatapusherPlugin(p.SingletonPlugin):
         m.connect(
             'resource_data', '/dataset/{id}/resource_data/{resource_id}',
             controller='ckanext.datapusher.plugin:ResourceDataController',
-            action='resource_data')
+            action='resource_data', ckan_icon='cloud-upload')
         return m
 
     def get_actions(self):

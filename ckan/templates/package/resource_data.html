@@ -1,45 +1,39 @@
-{% extends "package/new_resource.html" %}
+{% extends "package/resource_edit_base.html" %}
 
-{% set pkg_dict = c.pkg_dict %}
-{% set res = c.resource %}
+{% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ h.resource_display_name(res) }}{% endblock %}
 
-{% block subtitle %}{{ h.dataset_display_name(pkg_dict) }} - {{ h.resource_display_name(res) }}{% endblock %}
+{% block primary_content_inner %}
 
-{% block breadcrumb_content_selected %}{% endblock %}
+  {% set action = h.url_for(controller='ckanext.datapusher.plugin:ResourceDataController', action='resource_data', id=pkg.name, resource_id=res.id) %}
 
-{% block breadcrumb_content %}
-  {{ super() }}
-  <li class="active"><a href="">{{ _('Edit') }}</a></li>
-{% endblock %}
+  <form method="post" action="{{ action }}" >
 
-{% block content_action %}
-  {% link_for _('View resource'), controller='package', action='resource_read', id=pkg_dict.name, resource_id=res.id, class_='btn', icon='eye-open' %}
-{% endblock %}
+    <button class="btn btn-primary" name="save" type="submit">
+      {{ _('Upload Data') }}
+    </button>
 
-{# logged_in is defined in new_resource.html #}
-{% block form %}
+    <h3>
+      {{ _('Status:') }}
+      {{ status.status.capitalize() if status.status else _('Not Uploaded Yet') }}
+    </h3>
 
-   {% set action = h.url_for(controller='ckanext.datapusher.plugin:ResourceDataController', action='resource_data', id=pkg_dict.id, resource_id=res.id) %}
+    {% if status.error and status.error.message %}
+      <div class="alert alert-error">
+        <strong>{{ _('Upload Error') }}</strong> &mdash; {{ status.error.message }}
+      </div>
+    {% endif %}
 
-   <form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" >
-      <h3> {{ _('Last Upload Status:') }} {% if status.status %} {{ status.status.capitalize() }} {% else %} {{ _('Not Uploaded Yet') }}  {% endif %} </h3>
-      {% if status.error and status.error.message %}  
-        <h3>  {{ _('Upload Error:') }} {{ status.error.message }} </h3>
-      {% endif %} 
-      {% if status.status %}  
-        <h3>   {{ _('Last Updated: ') }} {{ h.time_ago_from_timestamp(status.last_updated) }} </h3>
-      {% endif %} 
+    {% if status.status %}
+      <h3>{{ _('Last Updated: ') }} {{ h.time_ago_from_timestamp(status.last_updated) }} </h3>
+    {% endif %}
 
-      <button class="btn" name="save" value="go-dataset" type="submit">{{ _('Upload Data') }}</button>
-      {% if status.status and status.task_info %}  
-        <h3>   {{ _('Upload Log ') }} </h3>
-        {{ h.debug_inspect(status.task_info.logs) }}
-      {% endif %} 
-      {{ status }}
-   </form>
+    {% if status.status and status.task_info %}
+      <h3>{{ _('Upload Log') }}</h3>
+      {{ h.debug_inspect(status.task_info.logs) }}
+    {% endif %} 
+    
+    {{ status }}
 
-{% endblock %}
+  </form>
 
-{% block secondary_content %}
-  {% snippet 'package/snippets/info.html', pkg=pkg_dict, active=pkg_dict.id, action='resource_edit' %}
 {% endblock %}

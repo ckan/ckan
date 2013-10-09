@@ -2,33 +2,29 @@
 Displays a sidebard module with information for given package
 
 pkg    - The package dict that owns the resources.
-active - The active resource.
-action - The action that this is coming from.
 
 Example:
 
   {% snippet "package/snippets/info.html", pkg=pkg %}
 
 #}
-{% if pkg and h.check_access('package_update', {'id':pkg.id }) %}
+{% if pkg %}
   <section class="module module-narrow">
-    <h2 class="module-heading"><i class="icon-sitemap"></i> {{ _("Edit Dataset") }}</h2>
-    <ul class="unstyled nav nav-simple">
-      <li class="nav-item{% if action == 'package_edit' %} active{% endif %}">
-        {% link_for h.dataset_display_name(pkg)|truncate(30), controller='package', action='edit', id=pkg.name %}
-      </li>
-    </ul>
-    {% set resources = pkg.resources or [] %}
-    <h2 class="module-heading"><i class="icon-reorder"></i> {{ _("Edit Resources") }}</h2>
-    <ul class="unstyled nav nav-simple">
-      {% block package_resource_list %}
-      {% for resource in resources %}
-        <li class="nav-item{{ ' active' if active == resource.id }}">
-          {% link_for h.resource_display_name(resource)|truncate(30), controller='package', action='resource_edit', id=pkg.name, resource_id=resource.id, inner_span=true %}
-        </li>
-      {% endfor %}
-      {% endblock %}
-      <li class="nav-btn"><a href="{{ h.url_for(controller='package', action='new_resource', id=pkg.name)  }}" class="btn{% if action == 'resource_new' %} disabled{% endif %}"><i class="icon-plus"></i> {{ _('Add New Resource') }}</a></li>
-    </ul>
+    <div class="module context-info">
+      <div class="module-content">
+        <h1 class="heading">{{ pkg.title or pkg.name }}</h1>
+        <div class="nums">
+          <dl>
+            <dt>{{ _('Followers') }}</dt>
+            <dd>{{ h.SI_number_span(h.get_action('dataset_follower_count', {'id': pkg.id})) }}</dd>
+          </dl>
+        </div>
+        {% if not hide_follow_button %}
+          <div class="follow_button">
+            {{ h.follow_button('dataset', pkg.name) }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
   </section>
 {% endif %}

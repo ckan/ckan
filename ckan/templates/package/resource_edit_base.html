@@ -1,0 +1,24 @@
+{% extends "package/edit_base.html" %}
+
+{% set logged_in = true if c.userobj else false %}
+{% set res = c.resource %}
+
+{% block content_primary_nav %}
+  {{ h.build_nav_icon('resource_edit', _('Edit Resource'), id=pkg.name, resource_id=res.id) }}
+  {% if 'datapusher' in g.plugins %}
+    {{ h.build_nav_icon('resource_data', _('Resource Data'), id=pkg.name, resource_id=res.id) }}
+  {% endif %}
+{% endblock %}
+
+{% block content_action %}
+  {% link_for _('View resource'), controller='package', action='resource_read', id=pkg_dict.name, resource_id=res.id, class_='btn', icon='eye-open' %}
+{% endblock %}
+
+{% block primary_content_inner %}
+  {% block form %}{% endblock %}
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {% resource 'vendor/fileupload' %}
+{% endblock %}

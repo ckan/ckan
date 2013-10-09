@@ -1,0 +1,15 @@
+{% extends 'package/base.html' %}
+
+{% set pkg = c.pkg_dict %}
+{% set pkg_dict = c.pkg_dict %}
+
+{% block breadcrumb_content_selected %}{% endblock %}
+
+{% block breadcrumb_content %}
+  {{ super() }}
+  <li class="active">{% link_for _('Edit'), controller='package', action='edit', id=pkg.name %}</li>
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet 'package/snippets/info.html', pkg=pkg, hide_follow_button=true %}
+{% endblock %}
