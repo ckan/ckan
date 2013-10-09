@@ -1,5 +1,7 @@
 {% extends 'package/edit_base.html' %}
 
+{% block subtitle %}{{ _('Edit') }} - {{ h.dataset_display_name(pkg) }}{% endblock %}
+
 {% block primary_content_inner %}
    {% block form %}{{ c.form | safe }}{% endblock %}
 {% endblock %}
