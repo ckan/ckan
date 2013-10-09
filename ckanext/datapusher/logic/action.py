@@ -71,6 +71,7 @@ def datapusher_submit(context, data_dict):
     except logic.NotFound:
         pass
 
+    context['ignore_auth'] = True
     result = p.toolkit.get_action('task_status_update')(context, task)
     task_id = result['id']
 
