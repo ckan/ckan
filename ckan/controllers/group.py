@@ -12,7 +12,6 @@ from pylons import config
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.maintain as maintain
-import ckan.lib.uploader as uploader
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.lib.search as search
@@ -491,17 +490,12 @@ class GroupController(base.BaseController):
 
     def _save_new(self, context, group_type=None):
         try:
-            upload = uploader.Upload('group')
-            upload.register_request(request, 'image_url',
-                                    'image_upload', 'clear_upload')
-
             data_dict = clean_dict(dict_fns.unflatten(
                 tuplize_dict(parse_params(request.params))))
             data_dict['type'] = group_type or 'group'
             context['message'] = data_dict.get('log_message', '')
             data_dict['users'] = [{'name': c.user, 'capacity': 'admin'}]
             group = self._action('group_create')(context, data_dict)
-            upload.upload()
 
             # Redirect to the appropriate _read route for the type of group
             h.redirect_to(group['type'] + '_read', id=group['name'])
@@ -529,17 +523,12 @@ class GroupController(base.BaseController):
         try:
             old_group = self._action('group_show')(context, {"id": id})
             old_image_url = old_group.get('image_url')
-            upload = uploader.Upload('group', old_image_url)
-            upload.register_request(request, 'image_url',
-                                    'image_upload', 'clear_upload')
-
             data_dict = clean_dict(dict_fns.unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
             context['allow_partial_update'] = True
             group = self._action('group_update')(context, data_dict)
-            upload.upload()
             if id != group['name']:
                 self._force_reindex(group)
 

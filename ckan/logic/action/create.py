@@ -15,6 +15,7 @@ import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
+import ckan.lib.uploader as uploader
 
 from ckan.common import _
 
@@ -446,6 +447,7 @@ def member_create(context, data_dict=None):
     if not obj:
         raise NotFound('%s was not found.' % obj_type.title())
 
+
     # User must be able to update the group to add a member to it
     _check_access('group_update', context, data_dict)
 
@@ -475,7 +477,9 @@ def _group_or_org_create(context, data_dict, is_org=False):
     parent = context.get('parent', None)
     data_dict['is_organization'] = is_org
 
-
+    upload = uploader.Upload('group')
+    upload.update_data_dict(data_dict, 'image_url',
+                           'image_upload', 'clear_upload')
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(
             group_type=data_dict.get('type'))
@@ -561,6 +565,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     logic.get_action('activity_create')(activity_create_context,
             activity_dict)
 
+    upload.upload()
     if not context.get('defer_commit'):
         model.repo.commit()
     context["group"] = group
