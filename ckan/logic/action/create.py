@@ -235,6 +235,10 @@ def resource_create(context, data_dict):
     :type cache_last_updated: iso date string
     :param webstore_last_updated: (optional)
     :type webstore_last_updated: iso date string
+    :param upload: (optional)
+    :type upload: FieldStorage (optional) needs multipart/form-data
+    :param clear_upload: (optional)
+    :type clear_upload: boolean (optional) set to true to remove uplaoded file
 
     :returns: the newly created resource
     :rtype: dictionary
@@ -252,15 +256,24 @@ def resource_create(context, data_dict):
 
     if not 'resources' in pkg_dict:
         pkg_dict['resources'] = []
+
+    upload = uploader.ResourceUpload(data_dict)
+
     pkg_dict['resources'].append(data_dict)
 
     try:
+        context['defer_commit'] = True
+        context['use_cache'] = False
         pkg_dict = _get_action('package_update')(context, pkg_dict)
     except ValidationError, e:
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
-    return pkg_dict['resources'][-1]
+    resource = pkg_dict['resources'][-1]
+    upload.upload(resource)
+    model.repo.commit()
+
+    return resource
 
 
 def related_create(context, data_dict):

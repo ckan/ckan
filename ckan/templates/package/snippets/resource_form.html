@@ -4,7 +4,7 @@
 {% set errors = errors or {} %}
 {% set action = form_action or h.url_for(controller='package', action='new_resource', id=pkg_name) %}
 
-<form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form resource-form">
+<form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
   {% block stages %}
     {# An empty stages variable will not show the stages #}
     {% if stage %}
@@ -39,6 +39,15 @@
 
     {% block basic_fields_url %}
       {{ form.input('url', id='field-url', label=_('Resource'), placeholder=_('eg. http://example.com/gold-prices-jan-2011.json'), value=data.url, error=errors.url, classes=['control-full', 'control-large'], is_required=true) }}
+    {% endblock %}
+
+    {% block basic_fields_upload %}
+      {% if h.uploads_enabled() %}
+        {{ form.input('upload', label=_('Resource Upload'), id='field-upload', type='file', placeholder='', error='', classes=['control-full']) }}
+          {% if data.url_type == 'upload' %}
+            {{ form.checkbox('clear_upload', label=_('Clear Upload'), id='field-clear-upload', value='true', error='', classes=['control-full']) }}
+          {% endif %}
+      {% endif %}
     {% endblock %}
 
     {% block basic_fields_name %}

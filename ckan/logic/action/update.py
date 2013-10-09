@@ -219,15 +219,23 @@ def resource_update(context, data_dict):
     else:
         logging.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
+
+    upload = uploader.ResourceUpload(data_dict)
+
     pkg_dict['resources'][n] = data_dict
 
     try:
+        context['defer_commit'] = True
+        context['use_cache'] = False
         pkg_dict = _get_action('package_update')(context, pkg_dict)
     except ValidationError, e:
         errors = e.error_dict['resources'][n]
         raise ValidationError(errors)
 
-    return pkg_dict['resources'][n]
+    resource = pkg_dict['resources'][n]
+    upload.upload(resource)
+    model.repo.commit()
+    return resource
 
 
 def package_update(context, data_dict):

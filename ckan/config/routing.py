@@ -250,6 +250,8 @@ def make_map():
                   action='resource_edit')
         m.connect('/dataset/{id}/resource/{resource_id}/download',
                   action='resource_download')
+        m.connect('/dataset/{id}/resource/{resource_id}/download/{filename}',
+                  action='resource_download')
         m.connect('/dataset/{id}/resource/{resource_id}/embed',
                   action='resource_embedded_dataviewer')
         m.connect('/dataset/{id}/resource/{resource_id}/viewer',

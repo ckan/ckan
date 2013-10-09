@@ -139,14 +139,27 @@ def _unified_resource_format(format_):
     return format_new
 
 def resource_dictize(res, context):
+    model = context['model']
     resource = d.table_dictize(res, context)
+    resource_group_id = resource['resource_group_id']
+    resource_group = model.Session.query(
+        model.ResourceGroup).get(resource_group_id)
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
     resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
-    if not urlparse.urlsplit(url).scheme:
+    if resource.get('url_type') == 'upload' and not context.get('for_edit'):
+        last_part = url.split('/')[-1]
+        cleaned_name = munge.munge_filename(last_part)
+        resource['url'] = h.url_for(controller='package',
+                                    action='resource_download',
+                                    id=resource_group.package_id,
+                                    resource_id=res.id,
+                                    filename=cleaned_name,
+                                    qualified=True)
+    elif not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
         resource['url'] = u'http://' + url.lstrip('/')
     return resource
 
