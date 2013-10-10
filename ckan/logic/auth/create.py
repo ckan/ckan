@@ -24,7 +24,10 @@ def package_create(context, data_dict=None):
     # If an organization is given are we able to add a dataset to it?
     data_dict = data_dict or {}
     org_id = data_dict.get('owner_org')
-    if org_id and not new_authz.has_user_permission_for_group_or_org(
+    # org_id=' ' is a special value that comes from the DGU form. It has to be
+    # allowed, so that you can submit a blank create form and get validation
+    # errors. Validation must be used to check the owner instead in this case.
+    if org_id and org_id != ' ' and not new_authz.has_user_permission_for_group_or_org(
             org_id, user, 'create_dataset'):
         return {'success': False, 'msg': _('User %s not authorized to add dataset to this organization') % user}
     return {'success': True}
