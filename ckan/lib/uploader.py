@@ -4,10 +4,12 @@ import pylons
 import datetime
 import ckan.lib.munge as munge
 
+
 class Upload(object):
     def __init__(self, object_type, old_filename=None):
         path = pylons.config.get('ckan.storage_path', '/tmp')
-        self.storage_path = os.path.join(path, 'storage', 'uploads', object_type)
+        self.storage_path = os.path.join(path, 'storage',
+                                         'uploads', object_type)
         try:
             os.makedirs(self.storage_path)
         except OSError, e:
@@ -22,7 +24,7 @@ class Upload(object):
     def update_data_dict(self, data_dict, url_field, file_field, clear_field):
         self.url = data_dict.get(url_field, '')
         self.clear = data_dict.pop(clear_field, None)
-        self.upload_field_storage =  data_dict.pop(file_field, None)
+        self.upload_field_storage = data_dict.pop(file_field, None)
 
         if isinstance(self.upload_field_storage, cgi.FieldStorage):
             self.filename = self.upload_field_storage.filename
@@ -39,13 +41,13 @@ class Upload(object):
             if self.clear and self.url == self.old_filename:
                 data_dict[url_field] = ''
 
-
     def upload(self):
         if self.filename:
             output_file = open(self.tmp_filepath, 'wb')
             self.upload_file.seek(0)
             while True:
-                data = self.upload_file.read(2 ** 20) #mb chuncks
+                # mb chuncks
+                data = self.upload_file.read(2 ** 20)
                 if not data:
                     break
                 output_file.write(data)
@@ -54,7 +56,7 @@ class Upload(object):
             self.clear = True
 
         if (self.clear and self.old_filename
-            and not self.old_filename.startswith('http')):
+                and not self.old_filename.startswith('http')):
             try:
                 os.remove(self.old_filepath)
             except OSError, e:
