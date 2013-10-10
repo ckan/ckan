@@ -368,8 +368,11 @@ def group_list(context, data_dict):
 
     '''
     _check_access('group_list', context, data_dict)
-    data_dict['type'] = 'group'
-    return _group_or_org_list(context, data_dict)
+
+    #data_dict['type'] = 'group'
+    #return _group_or_org_list(context, data_dict)
+    data_dict['type'] = 'organization'
+    return _group_or_org_list(context, data_dict, is_org=True)
 
 
 def organization_list(context, data_dict):
