@@ -865,23 +865,23 @@ def user_invite(context, data_dict):
         'group_id': [validators.not_empty],
         'role': [validators.not_empty],
     }
-    _, errors = _validate(data_dict, user_invite_schema, context)
+    data, errors = _validate(data_dict, user_invite_schema, context)
     if errors:
         raise ValidationError(errors)
 
     while True:
         try:
-            name = _get_random_username_from_email(data_dict['email'])
+            name = _get_random_username_from_email(data['email'])
             password = str(random.SystemRandom().random())
-            data_dict['name'] = name
-            data_dict['password'] = password
-            data_dict['state'] = ckan.model.State.PENDING
-            user_dict = _get_action('user_create')(context, data_dict)
+            data['name'] = name
+            data['password'] = password
+            data['state'] = ckan.model.State.PENDING
+            user_dict = _get_action('user_create')(context, data)
             user = ckan.model.User.get(user_dict['id'])
             member_dict = {
                 'username': user.id,
-                'id': data_dict['group_id'],
-                'role': data_dict['role']
+                'id': data['group_id'],
+                'role': data['role']
             }
             _get_action('group_member_create')(context, member_dict)
             mailer.send_invite(user)
