@@ -109,7 +109,7 @@ class TestOpenIDAuthenticator(object):
 
         assert self.authenticate(environ, identity) is None
 
-    def test_authenticate_fails_if_user_is_deleted(self):
+    def test_authenticate_fails_if_user_is_pending(self):
         environ = {}
         openid = 'some-openid-key'
         user = CreateTestData.create_user('a_user', **{'openid': openid})
