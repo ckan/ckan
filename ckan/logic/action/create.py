@@ -860,12 +860,8 @@ def user_invite(context, data_dict):
     '''
     _check_access('user_invite', context, data_dict)
 
-    user_invite_schema = {
-        'email': [validators.not_empty, unicode],
-        'group_id': [validators.not_empty],
-        'role': [validators.not_empty],
-    }
-    data, errors = _validate(data_dict, user_invite_schema, context)
+    schema = context.get('schema') or ckan.logic.schema.default_user_invite_schema()
+    data, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 

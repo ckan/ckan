@@ -424,6 +424,14 @@ def default_update_user_schema():
 
     return schema
 
+def default_user_invite_schema():
+    schema = {
+        'email': [not_empty, unicode],
+        'group_id': [not_empty],
+        'role': [not_empty],
+    }
+    return schema
+
 def default_task_status_schema():
     schema = {
         'id': [ignore],
