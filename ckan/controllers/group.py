@@ -614,7 +614,7 @@ class GroupController(base.BaseController):
                 data_dict['id'] = id
 
                 email = data_dict.get('email')
-                if email and email != '':
+                if email:
                     user_data_dict = {
                         'email': email,
                         'group_id': data_dict['id'],
