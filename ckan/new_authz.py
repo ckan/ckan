@@ -58,6 +58,16 @@ class AuthFunctions:
             for key, v in module.__dict__.items():
                 if not key.startswith('_'):
                     key = clean_action_name(key)
+                    # Whitelist all auth functions defined in
+                    # logic/auth/get.py as not requiring an authorized user,
+                    # as well as ensuring that the rest do. In both cases, do
+                    # nothing if a decorator has already been used to define
+                    # the behaviour
+                    if not hasattr(v, 'auth_allow_anonymous_access'):
+                        if auth_module_name == 'get':
+                            v.auth_allow_anonymous_access = True
+                        else:
+                            v.auth_allow_anonymous_access = False
                     self._functions[key] = v
 
         # Then overwrite them with any specific ones in the plugins:
@@ -162,6 +172,16 @@ def is_authorized(action, context, data_dict=None):
             elif user.sysadmin:
                 if not getattr(auth_function, 'auth_sysadmins_check', False):
                     return {'success': True}
+
+        # If the auth function is flagged as not allowing anonymous access,
+        # and an existing user object is not provided in the context, deny
+        # access straight away
+        if not getattr(auth_function, 'auth_allow_anonymous_access', False) \
+           and not context.get('auth_user_obj'):
+            return {'success': False,
+                    'msg': '{0} requires an authenticated user'
+                            .format(auth_function)
+                   }
 
         return auth_function(context, data_dict)
     else:

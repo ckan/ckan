@@ -3,7 +3,7 @@ import ckan.new_authz as new_authz
 
 from ckan.common import _
 
-
+@logic.auth_allow_anonymous_access
 def package_create(context, data_dict=None):
     user = context['user']
 
@@ -103,6 +103,7 @@ def rating_create(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def user_create(context, data_dict=None):
     user = context['user']
 
