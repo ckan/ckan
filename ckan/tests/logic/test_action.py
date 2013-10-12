@@ -613,8 +613,8 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] is False, res_obj
         assert 'email' in res_obj['error'], res_obj
 
-    @mock.patch('ckan.logic.action.create._get_random_username_from_email')
-    def test_user_invite_should_work_even_if_tried_username_already_exists(self, random_username_mock):
+    @mock.patch('random.SystemRandom')
+    def test_user_invite_should_work_even_if_tried_username_already_exists(self, system_random_mock):
         patcher = mock.patch('ckan.lib.mailer.mail_user')
         patcher.start()
         email = 'invited_user@email.com'
@@ -628,8 +628,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps(params)
         extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
 
-        usernames = ['first', 'first', 'second']
-        random_username_mock.side_effect = lambda email: usernames.pop(0)
+        system_random_mock.return_value.random.side_effect = [1000, 1000, 2000, 3000]
 
         for _ in range(2):
             res = self.app.post('/api/action/user_invite', params=postparams,

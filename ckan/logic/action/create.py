@@ -865,34 +865,31 @@ def user_invite(context, data_dict):
     if errors:
         raise ValidationError(errors)
 
-    while True:
-        try:
-            name = _get_random_username_from_email(data['email'])
-            password = str(random.SystemRandom().random())
-            data['name'] = name
-            data['password'] = password
-            data['state'] = ckan.model.State.PENDING
-            user_dict = _get_action('user_create')(context, data)
-            user = ckan.model.User.get(user_dict['id'])
-            member_dict = {
-                'username': user.id,
-                'id': data['group_id'],
-                'role': data['role']
-            }
-            _get_action('group_member_create')(context, member_dict)
-            mailer.send_invite(user)
-            return model_dictize.user_dictize(user, context)
-        except ValidationError as e:
-            if 'name' not in e.error_dict:
-                raise e
+    name = _get_random_username_from_email(data['email'])
+    password = str(random.SystemRandom().random())
+    data['name'] = name
+    data['password'] = password
+    data['state'] = ckan.model.State.PENDING
+    user_dict = _get_action('user_create')(context, data)
+    user = ckan.model.User.get(user_dict['id'])
+    member_dict = {
+        'username': user.id,
+        'id': data['group_id'],
+        'role': data['role']
+    }
+    _get_action('group_member_create')(context, member_dict)
+    mailer.send_invite(user)
+    return model_dictize.user_dictize(user, context)
 
 
 def _get_random_username_from_email(email):
     localpart = email.split('@')[0]
     cleaned_localpart = re.sub(r'[^\w]', '-', localpart)
-    random_number = random.SystemRandom().random() * 10000
-    name = '%s-%d' % (cleaned_localpart, random_number)
-    return name
+    while True:
+        random_number = random.SystemRandom().random() * 10000
+        name = '%s-%d' % (cleaned_localpart, random_number)
+        if not ckan.model.User.get(name):
+            return name
 
 
 ## Modifications for rest api
