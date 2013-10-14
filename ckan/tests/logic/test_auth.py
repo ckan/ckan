@@ -11,8 +11,9 @@ INITIAL_TEST_CONFIG_PERMISSIONS = {
     'user_create_organizations': False,
     'user_delete_groups': False,
     'user_delete_organizations': False,
-    'create_user_via_api': False,
     'create_unowned_dataset': False,
+    'create_user_via_api': False,
+    'create_user_via_web': True,
 }
 
 
