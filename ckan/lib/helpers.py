@@ -37,6 +37,7 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
+import ckan.lib.uploader as uploader
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -1664,7 +1665,7 @@ def new_activities():
     return action({}, {})
 
 def uploads_enabled():
-    if config.get('ckan.storage_path'):
+    if uploader.get_storage_path():
         return True
     return False
 
