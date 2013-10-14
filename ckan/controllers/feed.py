@@ -31,6 +31,7 @@ from ckan import model
 from ckan.lib.base import BaseController, c, request, response, json, abort, g
 from ckan.lib.helpers import date_str_to_datetime, url_for
 from ckan.logic import get_action, NotFound
+import ckan.lib.search as search
 
 # TODO make the item list configurable
 ITEMS_LIMIT = 20
@@ -296,7 +297,10 @@ class FeedController(BaseController):
             'sort': request.params.get('sort', None),
         }
 
-        item_count, results = _package_search(data_dict)
+        try:
+            item_count, results = _package_search(data_dict)
+        except:
+            abort(400, _('Failed to process the search request'))
 
         navigation_urls = self._navigation_urls(request.params,
                                                 item_count=item_count,
