@@ -83,7 +83,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
 
         model.repo.rebuild_db()
 
-    def test_user_create_api_disabled_sysadmin(self):
+    def test_user_create_api_enabled_sysadmin(self):
         params = {
             'name': 'testinganewusersysadmin',
             'email': 'testinganewuser@ckan.org',
@@ -93,7 +93,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
                 extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
                 expect_errors=True)
         res_dict = res.json
-        assert res_dict['success'] is False
+        assert res_dict['success'] is True
 
     def test_user_create_api_disabled_anon(self):
         params = {
@@ -190,7 +190,6 @@ class TestCreateUserWebDisabled(PylonsTestCase):
             'password': 'random',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params),
-                extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
                 expect_errors=True)
         res_dict = res.json
         assert res_dict['success'] is False
@@ -229,7 +228,6 @@ class TestCreateUserWebEnabled(PylonsTestCase):
             'password': 'random',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params),
-                extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
                 expect_errors=True)
         res_dict = res.json
         assert res_dict['success'] is False
