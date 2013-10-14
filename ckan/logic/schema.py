@@ -539,7 +539,7 @@ def default_package_search_schema():
         'qf': [ignore_missing, unicode],
         'facet': [ignore_missing, unicode],
         'facet.mincount': [ignore_missing, natural_number_validator],
-        'facet.limit': [ignore_missing, natural_number_validator],
+        'facet.limit': [ignore_missing, int_validator],
         'facet.field': [ignore_missing, list_of_strings],
         'extras': [ignore_missing]  # Not used by Solr, but useful for extensions
     }
