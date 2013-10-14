@@ -249,6 +249,7 @@ class ApiController(base.BaseController):
         action_map = {
             'revision': 'revision_list',
             'group': 'group_list',
+            'organization': 'organization_list',
             'dataset': 'package_list',
             'tag': 'tag_list',
             'related': 'related_list',
