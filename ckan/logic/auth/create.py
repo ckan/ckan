@@ -104,6 +104,7 @@ def rating_create(context, data_dict):
     return {'success': True}
 
 
+@logic.auth_sysadmins_check
 def user_create(context, data_dict=None):
     using_api = 'api_version' in context
     create_user_via_api = new_authz.check_config_permission(
