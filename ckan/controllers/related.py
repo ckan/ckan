@@ -24,7 +24,8 @@ class RelatedController(base.BaseController):
     def dashboard(self):
         """ List all related items regardless of dataset """
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'for_view': True}
         data_dict = {
             'type_filter': base.request.params.get('type', ''),
             'sort': base.request.params.get('sort', ''),
@@ -77,6 +78,7 @@ class RelatedController(base.BaseController):
     def read(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
+                   'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id}
 
@@ -101,6 +103,7 @@ class RelatedController(base.BaseController):
         """ List all related items for a specific dataset """
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
+                   'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id}
 
@@ -128,7 +131,8 @@ class RelatedController(base.BaseController):
         and try and do as much up front as possible.
         """
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'for_view': True}
         data_dict = {}
 
         if is_edit:
@@ -204,7 +208,7 @@ class RelatedController(base.BaseController):
                           id=id, related_id=related_id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
         try:
             if base.request.method == 'POST':

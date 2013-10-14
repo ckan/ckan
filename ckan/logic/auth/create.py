@@ -3,7 +3,7 @@ import ckan.new_authz as new_authz
 
 from ckan.common import _
 
-
+@logic.auth_allow_anonymous_access
 def package_create(context, data_dict=None):
     user = context['user']
 
@@ -104,6 +104,7 @@ def rating_create(context, data_dict):
     return {'success': True}
 
 
+@logic.auth_allow_anonymous_access
 @logic.auth_sysadmins_check
 def user_create(context, data_dict=None):
     using_api = 'api_version' in context

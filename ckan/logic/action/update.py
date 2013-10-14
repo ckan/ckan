@@ -299,7 +299,7 @@ def package_update(context, data_dict):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
-    #avoid revisionioning by updating directly
+    #avoid revisioning by updating directly
     model.Session.query(model.Package).filter_by(id=pkg.id).update(
         {"metadata_modified": datetime.datetime.utcnow()})
     model.Session.refresh(pkg)
@@ -1070,7 +1070,7 @@ def package_owner_org_update(context, data_dict):
             member_obj.state = 'deleted'
             member_obj.save()
 
-    # add the organization to memeber table
+    # add the organization to member table
     if org and need_update:
         member_obj = model.Member(table_id=pkg.id,
                                   table_name='package',
