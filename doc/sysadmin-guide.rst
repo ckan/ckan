@@ -1,6 +1,6 @@
-******************
-The Sysadmin Guide
-******************
+**************
+Sysadmin guide
+**************
 
 This guide covers the administration features of CKAN 2.0, such as managing
 users and datasets. These features are available via the web user interface to
@@ -73,7 +73,7 @@ Custom CSS
     the ``<head>`` of every page.
 
 ===================================
-Managing Organizations and datasets
+Managing organizations and datasets
 ===================================
 
 A sysadmin user has full access to user accounts, organizations and datasets.
@@ -93,7 +93,7 @@ that are private to an Organization. They will show up when doing a dataset
 search.
 
 --------------------------------------
-Moving a dataset between Organizations
+Moving a dataset between organizations
 --------------------------------------
 
 To move a dataset between Organizations, visit the dataset's Edit page. Choose

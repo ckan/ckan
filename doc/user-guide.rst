@@ -1,6 +1,6 @@
-**************
-The User Guide
-**************
+**********
+User guide
+**********
 
 This user guide covers using CKAN's web interface to organize, publish and find
 data. CKAN also has a powerful API (machine interface), which makes it easy to
@@ -50,7 +50,7 @@ A dataset contains two things:
   they might contain the same data in different formats.
 
 --------------------------------------
-Users, Organizations and authorization
+Users, organizations and authorization
 --------------------------------------
 
 CKAN users can register user accounts and log in. Normally (depending on the
@@ -321,7 +321,7 @@ Deleting a dataset
 
 .. _creating_an_organization:
 
-Creating an Organization
+Creating an organization
 ========================
 
 In general, each dataset is owned by one Organization. Each Organization
@@ -362,7 +362,7 @@ Organization; see :ref:`adding_a_new_dataset` above.
 
 .. _managing_an_organization:
 
-Managing an Organization
+Managing an organization
 ========================
 
 When you create an Organization, CKAN automatically makes you an "Admin" of the
@@ -417,7 +417,7 @@ an area on a map.
 .. image:: images/search_the_site.jpg
 
 
-Searching within an Organization
+Searching within an organization
 ================================
 
 If you want to look for data owned by a particular Organization, you can search
