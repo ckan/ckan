@@ -158,9 +158,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
             module._last.abort();
           }
 
-          module._last = module.getCompletions(term, function (terms) {
-            fn(terms);
-          });
+          module._last = module.getCompletions(term, fn);
         }, this.options.interval);
 
         // This forces the ajax throbber to appear, because we've called the
