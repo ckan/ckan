@@ -897,6 +897,8 @@ def _get_random_username_from_email(email):
         if not ckan.model.User.get(name):
             return name
 
+    return cleaned_localpart
+
 
 ## Modifications for rest api
 
