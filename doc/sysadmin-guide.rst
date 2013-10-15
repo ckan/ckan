@@ -25,7 +25,7 @@ Creating a sysadmin account
 Normally, a sysadmin account is created as part of the process of setting up
 CKAN. If one does not already exist, you will need to create a sysadmin user,
 or give sysadmin rights to an existing user. To do this requires access to the
-server; see :doc:`paster` for details.  If another organization is hosting
+server; see :ref:`create-admin-user` for details.  If another organization is hosting
 CKAN, you will need to ask them to create a sysadmin user.
 
 Adding more sysadmin accounts is done in the same way. It cannot be done via

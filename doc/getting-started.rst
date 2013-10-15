@@ -4,8 +4,8 @@ Getting Started
 
 Once you've finished :doc:`installing CKAN <installing>`, this section
 will walk you through getting started with your new CKAN website, including
-creating a CKAN sysadmin user and some test data, and the basics of
-administering and configuring your CKAN site.
+creating a CKAN sysadmin user, some test data, and the basics of configuring
+your CKAN site.
 
 
 .. _create-admin-user:
@@ -46,6 +46,8 @@ For a list of other command line commands for managing sysadmins, run::
 
  paster sysadmin --help
 
+Read the :doc:`sysadmin-guide` to learn what you can do as a CKAN sysadmin.
+
 .. _create-test-data:
 
 ------------------
@@ -66,22 +68,6 @@ database, you can use the ``db clean`` command, see :ref:`paster db`.
 For a list of other command line commands for creating tests data, run::
 
  paster create-test-data --help
-
-
---------------
-The Admin Page
---------------
-
-If you login with a sysadmin account (see :ref:`create-admin-user`) you'll see
-a link in the top-right corner of the site to the administration page:
-
-.. image :: images/admin-page.png
-   :align: center
-   :alt: The admin page
-
-From the admin page you can set various CKAN options including the site title
-and logo, the about page text, the intro text on the front page, custom CSS,
-etc.
 
 
 ---------------
