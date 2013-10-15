@@ -14,7 +14,7 @@ configuration options using the site's "config" file, documented in
 
 .. warning::
 
-    A sysadmin user can access and edit any Organizations, view and change user
+    A sysadmin user can access and edit any organizations, view and change user
     details, and permanently delete datasets. You should carefully consider who has
     access to a sysadmin account on your CKAN system.
 
@@ -77,27 +77,27 @@ Managing organizations and datasets
 ===================================
 
 A sysadmin user has full access to user accounts, organizations and datasets.
-For example, you have access to every Organization as if you were a member of
-that Organization. Thus most management operations are done in exactly the same
+For example, you have access to every organization as if you were a member of
+that organization. Thus most management operations are done in exactly the same
 way as in the normal web interface.
 
-For example, to add or delete users to an Organization, change a user's role in
-the Organization, delete the Organization or edit its description, etc, visit
-the Organization's home page. You will see the 'Admin' button as if you were a
-member of the Organization. You can use this to perform all Organization admin
+For example, to add or delete users to an organization, change a user's role in
+the organization, delete the organization or edit its description, etc, visit
+the organization's home page. You will see the 'Admin' button as if you were a
+member of the organization. You can use this to perform all organization admin
 functions. For details, see the :doc:`user-guide`.
 
 Similarly, to edit, update or delete a dataset, go to the dataset page and use
 the 'Edit' button. As an admin user you can see all datasets including those
-that are private to an Organization. They will show up when doing a dataset
+that are private to an organization. They will show up when doing a dataset
 search.
 
 --------------------------------------
 Moving a dataset between organizations
 --------------------------------------
 
-To move a dataset between Organizations, visit the dataset's Edit page. Choose
-the appropriate entry from the "Organization" drop-down list, and press "Save".
+To move a dataset between organizations, visit the dataset's Edit page. Choose
+the appropriate entry from the "organization" drop-down list, and press "Save".
 
 .. image:: images/move_dataset_between_organizations.jpg
 
@@ -122,7 +122,7 @@ This page shows all deleted datasets and allows you to delete them permanently.
 
 .. note::
 
-    At present, it is not possible to purge Organizations or groups using the
+    At present, it is not possible to purge organizations or groups using the
     web UI. This can only be done with access to the server, by directly deleting
     them from CKAN's database.
 

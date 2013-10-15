@@ -58,24 +58,24 @@ site setup), login is not needed to search for and find data, but is needed for
 all publishing functions: datasets can be created, edited, etc by users with
 the appropriate permissions.
 
-Normally, each dataset is owned by an "Organization". A CKAN instance can have
-any number of Organizations. For example, if CKAN is being used as a data
-portal by a national government, the Organizations might be different
-government departments, each of which publishes data. Each Organization can
+Normally, each dataset is owned by an "organization". A CKAN instance can have
+any number of organizations. For example, if CKAN is being used as a data
+portal by a national government, the organizations might be different
+government departments, each of which publishes data. Each organization can
 have its own workflow and authorizations, allowing it to manage its own
 publishing process.
 
-An Organization's administrators can add add individual users to it, with
+An organization's administrators can add add individual users to it, with
 different roles depending on the level of authorization needed. A user in an
-Organization can create a dataset owned by that Organization. In the default
+organization can create a dataset owned by that organization. In the default
 setup, this dataset is initially private, and visible only to other users in
-the same Organization. When it is ready for publication, it can be published at
+the same organization. When it is ready for publication, it can be published at
 the press of a button. This may require a higher authorization level within the
-Organization.
+organization.
 
-Datasets cannot normally be created except within Organizations. It is
+Datasets cannot normally be created except within organizations. It is
 possible, however, to set up CKAN to allow datasets not owned by any
-Organization. Such datasets can be edited by any logged-in user, creating the
+organization. Such datasets can be edited by any logged-in user, creating the
 possibility of a wiki-like datahub.
 
 .. note::
@@ -84,7 +84,7 @@ possibility of a wiki-like datahub.
     In practice, depending on how the site is configured, some of these functions
     may be slightly different or unavailable. For example, in an official CKAN
     instance in a production setting, the site administrator will probably have
-    made it impossible for users to create new Organizations via the UI. You can
+    made it impossible for users to create new organizations via the UI. You can
     try out all the features described at http://demo.ckan.org.
 
 ==========
@@ -136,10 +136,10 @@ Adding a new dataset
 
 .. note::
 
-    You may need to be a member of an Organization in order to add and edit
+    You may need to be a member of an organization in order to add and edit
     datsets. See the section :ref:`creating_an_organization` below. On
-    http://demo.ckan.org, you can add a dataset without being in an Organization,
-    but dataset features relating to authorization and Organizations will not be
+    http://demo.ckan.org, you can add a dataset without being in an organization,
+    but dataset features relating to authorization and organizations will not be
     available.
 
 **Step 1**. You can access CKAN's "Create dataset" screen in two ways.
@@ -147,9 +147,9 @@ Adding a new dataset
     a) Select the "Datasets" link at the top of any page. From this, above the
        search box, select the "Add Dataset" button.
 
-    b) Alternatively, select the "Organizations" link at the top of a page. Now
-       select the page for the Organization that should own your new dataset. Provided
-       that you are a member of this Organization, you can now select the "Add
+    b) Alternatively, select the "organizations" link at the top of a page. Now
+       select the page for the organization that should own your new dataset. Provided
+       that you are a member of this organization, you can now select the "Add
        Dataset" button above the search box.
 
 **Step 2**. CKAN will ask for the following information about your data. (The
@@ -171,10 +171,10 @@ actual data will be added in step 4.)
       how they can use the data. This field should be a drop-down box. If you need to
       use a license not on the list, contact your site administrator.
 
-    * *Organization* - If you are a member of any Organizations, this drop-down will
+    * *Organization* - If you are a member of any organizations, this drop-down will
       enable you to choose which one should own the dataset. Ensure the default
       chosen is the correct one before you proceed. (Probably most users will be in
-      only one Organization. If this is you, CKAN will have chosen your Organization
+      only one organization. If this is you, CKAN will have chosen your organization
       by default and you need not do anything.)
 
 .. image:: images/add_dataset_1.jpg
@@ -184,7 +184,7 @@ actual data will be added in step 4.)
     By default, the only required field on this page is the title. However, it
     is good practice to include, at the minimum, a short description and, if
     possible, the license information. You should ensure that you choose the
-    correct Organization for the dataset, since at present, this cannot be changed
+    correct organization for the dataset, since at present, this cannot be changed
     later. You can edit or add to the other fields later.
 
 **Step 3**. When you have filled in the information on this page, select the "Next: Add
@@ -225,7 +225,7 @@ select "Next: Additional Info".
 **Step 7**. CKAN displays the "Additional data" screen.
 
     * *Visibility* -- a ``Public`` dataset is public and can be seen by any user of the
-      site. A ``Private`` dataset can only be seen by members of the Organization owning
+      site. A ``Private`` dataset can only be seen by members of the organization owning
       the dataset and will not show up in searches by other users.
 
     * *Author* -- The name of the person or organization responsible for producing
@@ -267,8 +267,8 @@ Editing a dataset
 =================
 
 You can edit the dataset you have created, or any dataset owned by an
-Organization that you are a member of. (If a dataset is not owned by any
-Organization, then any registered user can edit it.)
+organization that you are a member of. (If a dataset is not owned by any
+organization, then any registered user can edit it.)
 
 #. Go to the dataset's page. You can find it by entering the title in the search box on any page.
 
@@ -324,12 +324,12 @@ Deleting a dataset
 Creating an organization
 ========================
 
-In general, each dataset is owned by one Organization. Each Organization
+In general, each dataset is owned by one organization. Each organization
 includes certain users, who can modify its datasets and create new ones.
-Different levels of access privileges within an Organization can be given to
+Different levels of access privileges within an organization can be given to
 users, e.g. some users might be able to edit datasets but not create new ones,
-or to create datasets but not publish them. Each Organization has a home page,
-where users can find some information about the Organization and search within
+or to create datasets but not publish them. Each organization has a home page,
+where users can find some information about the organization and search within
 its datasets. This allows different data publishing departments, bodies, etc to
 control their own publishing policies.
 
@@ -341,22 +341,22 @@ To create an organization:
 
 #. CKAN displays the "Create an Organization" page.
 
-#. Enter a name for the Organization, and, optionally, a description and image
-   URL for the Organization's home page.
+#. Enter a name for the organization, and, optionally, a description and image
+   URL for the organization's home page.
 
-#. Select the "Create Organization" button. CKAN creates your Organization and
-   displays its home page. Initially, of course, the Organization has no datasets.
+#. Select the "Create Organization" button. CKAN creates your organization and
+   displays its home page. Initially, of course, the organization has no datasets.
 
 .. image:: images/create_organization.jpg
 
 You can now change the access privileges to the organization for other users -
 see :ref:`managing_an_organization` below. You can also create datasets owned by the
-Organization; see :ref:`adding_a_new_dataset` above.
+organization; see :ref:`adding_a_new_dataset` above.
 
 .. note::
 
     Depending on how CKAN is set up, you may not be authorized to create new
-    Organizations. In this case, if you need a new Organization, you will need to
+    organizations. In this case, if you need a new organization, you will need to
     contact your site administrator.
 
 
@@ -365,26 +365,26 @@ Organization; see :ref:`adding_a_new_dataset` above.
 Managing an organization
 ========================
 
-When you create an Organization, CKAN automatically makes you an "Admin" of the
-Organization. From the Organization's page you should see an "Admin" button
-above the search box. When you select this, CKAN displays the Organization
-admin page. This page has two tabs:
+When you create an organization, CKAN automatically makes you its "Admin".
+From the organization's page you should see an "Admin" button above the search
+box. When you select this, CKAN displays the organization admin page. This page
+has two tabs:
 
-* *Info* -- Here you can edit the information supplied when the Organization
+* *Info* -- Here you can edit the information supplied when the organization
   was created (title, description and image).
 
 * *Members* -- Here you can add, remove and change access roles for different
-  users in the Organization. Note: you will need to know their username on CKAN.
+  users in the organization. Note: you will need to know their username on CKAN.
 
 .. image:: images/manage_organization.jpg
 
-By default CKAN allows members of Organizations with three roles:
+By default CKAN allows members of organizations with three roles:
 
-* *Member* -- can see the Organization's private datasets
+* *Member* -- can see the organization's private datasets
 
 * *Editor* -- can edit and publish datasets
 
-* *Admin* -- can add, remove and change roles for Organization members
+* *Admin* -- can add, remove and change roles for organization members
 
 .. _finding_data:
 
@@ -420,22 +420,22 @@ an area on a map.
 Searching within an organization
 ================================
 
-If you want to look for data owned by a particular Organization, you can search
-within that Organization from its home page in CKAN.
+If you want to look for data owned by a particular organization, you can search
+within that organization from its home page in CKAN.
 
 #. Select the "Organizations" link at the top of any page.
 
-#. Select the Organization you are interested in. CKAN will display your
-   Organization's home page.
+#. Select the organization you are interested in. CKAN will display your
+   organization's home page.
 
 #. Type your search query in the main search box on the page.
 
 CKAN will return search results as normal, but restricted to datasets from the
-Organization.
+organization.
 
-If the Organization is of interest, you can opt to be notified of changes to it
+If the organization is of interest, you can opt to be notified of changes to it
 (such as new datasets and modifications to datasets) by using the "Follow"
-button on the Organization page. See the section :ref:`managing_your_news_feed`
+button on the organization page. See the section :ref:`managing_your_news_feed`
 below. You must have a user account and be logged in to use this feature.
 
 
@@ -484,14 +484,14 @@ Managing your news feed
 
 At the top of any page, select the dashboard symbol (next to your name). CKAN
 displays your News feed. This shows changes to datasets that you follow, and
-any changed or new datasets in Organizations that you follow. The number by the
+any changed or new datasets in organizations that you follow. The number by the
 dashboard symbol shows the number of new notifications in your News feed since
-you last looked at it. As well as datasets and Organizations, it is possible to
+you last looked at it. As well as datasets and organizations, it is possible to
 follow individual users (to be notified of changes that they make to datasets).
 
 .. image:: images/manage_news_feed.jpg
 
-If you want to stop following a dataset (or Organization or user), go to the
+If you want to stop following a dataset (or organization or user), go to the
 dataset's page (e.g. by selecting a link to it in your News feed) and select
 the "Unfollow" button.
 
@@ -500,7 +500,7 @@ Managing your user profile
 
 You can change the information that CKAN holds about you, including what other
 users see about you by editing your user profile. (Users are most likely to see
-your profile when you edit a dataset or upload data to an Organization that
+your profile when you edit a dataset or upload data to an organization that
 they are following.) To do this, select the gearwheel symbol at the top of any
 page.
 
