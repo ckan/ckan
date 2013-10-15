@@ -1,8 +1,5 @@
 /* Image Upload
  * 
- *
- * Options
- * - id: what's the id of the context?
  */  
 this.ckan.module('image-upload', function($, _) {
   return {
@@ -42,41 +39,49 @@ this.ckan.module('image-upload', function($, _) {
       this.field_url = $('input[name="image_url"]', this.el).parents('.control-group');
       this.field_image = this.input.parents('.control-group');
 
+      // Is there a clear checkbox on the form already?
       var checkbox = $('input[name="clear_upload"]', this.el);
       if (checkbox.length > 0) {
         options.has_image = true;
         checkbox.parents('.control-group').remove();
       }
 
+      // Adds the hidden clear input to the form
       this.field_clear = $('<input type="hidden" name="clear_upload">')
         .appendTo(this.el);
 
+      // Button to set the field to be a URL
       this.button_url = $('<a href="javascript:;" class="btn"><i class="icon-globe"></i> '+this.i18n('url')+'</a>')
         .on('click', this._onFromWeb)
         .insertAfter(this.input);
 
+      // Button to attach local file to the form
       this.button_upload = $('<a href="javascript:;" class="btn"><i class="icon-cloud-upload"></i>'+this.i18n('upload')+'</a>')
         .insertAfter(this.input);
 
+      // Button to reset the form back to the first from when there is a image uploaded
       this.button_remove = $('<a href="javascript:;" class="btn btn-danger" />')
         .text(this.i18n('remove'))
         .on('click', this._onRemove)
         .insertAfter(this.button_upload);
 
+      // Button for resetting the form when there is a URL set
       $('<a href="javascript:;" class="btn btn-danger btn-remove-url"><i class="icon-remove"></i></a>')
         .prop('title', this.i18n('remove_tooltip'))
         .on('click', this._onRemove)
         .insertBefore($('input', this.field_url));
 
+      // Update the main label
       $('label[for="field-image-upload"]').text(this.i18n('label'));
 
+      // Setup the file input
       this.input
         .on('mouseover', this._onInputMouseOver)
         .on('mouseout', this._onInputMouseOut)
         .on('change', this._onInputChange)
-        .css('width', this.button_upload.outerWidth())
-        .hide();
+        .css('width', this.button_upload.outerWidth());
 
+      // Fields storage. Used in this.changeState
       this.fields = $('<i />')
         .add(this.button_remove)
         .add(this.button_upload)
@@ -85,6 +90,7 @@ this.ckan.module('image-upload', function($, _) {
         .add(this.field_url)
         .add(this.field_image);
 
+      // Setup the initial state
       if (options.is_url) {
         this.changeState(this.state.web);
       } else if (options.has_image) {
@@ -95,6 +101,16 @@ this.ckan.module('image-upload', function($, _) {
 
     },
 
+    /* Method to change the display state of the image fields
+     *
+     * state - Pseudo constant for passing the state we should be in now
+     *
+     * Examples
+     *
+     *   this.changeState(this.state.web); // Sets the state in URL mode
+     *
+     * Returns nothing.
+     */
     changeState: function(state) {
       this.fields.hide();
       if (state == this.state.blank) {
@@ -113,6 +129,10 @@ this.ckan.module('image-upload', function($, _) {
       }
     },
 
+    /* Event listener for when someone sets the field to URL mode
+     *
+     * Returns nothing.
+     */
     _onFromWeb: function() {
       this.changeState(this.state.web);
       $('input', this.field_url).focus();
@@ -121,6 +141,10 @@ this.ckan.module('image-upload', function($, _) {
       }
     },
 
+    /* Event listener for resetting the field back to the blank state
+     *
+     * Returns nothing.
+     */
     _onRemove: function() {
       this.changeState(this.state.blank);
       $('input', this.field_url).val('');
@@ -129,16 +153,28 @@ this.ckan.module('image-upload', function($, _) {
       }
     },
 
+    /* Event listener for when someone chooses a file to upload
+     *
+     * Returns nothing.
+     */
     _onInputChange: function() {
       this.file_name = this.input.val();
       this.field_clear.val('');
       this.changeState(this.state.attached);
     },
 
+    /* Event listener for when a user mouseovers the hidden file input
+     *
+     * Returns nothing.
+     */
     _onInputMouseOver: function() {
       this.button_upload.addClass('hover');
     },
 
+    /* Event listener for when a user mouseouts the hidden file input
+     *
+     * Returns nothing.
+     */
     _onInputMouseOut: function() {
       this.button_upload.removeClass('hover');
     }
