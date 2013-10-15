@@ -144,38 +144,38 @@ Adding a new dataset
 
 **Step 1**. You can access CKAN's "Create dataset" screen in two ways.
 
-    a) Select the "Datasets" link at the top of any page. From this, above the
-       search box, select the "Add Dataset" button.
+a) Select the "Datasets" link at the top of any page. From this, above the
+   search box, select the "Add Dataset" button.
 
-    b) Alternatively, select the "organizations" link at the top of a page. Now
-       select the page for the organization that should own your new dataset. Provided
-       that you are a member of this organization, you can now select the "Add
-       Dataset" button above the search box.
+b) Alternatively, select the "organizations" link at the top of a page. Now
+   select the page for the organization that should own your new dataset. Provided
+   that you are a member of this organization, you can now select the "Add
+   Dataset" button above the search box.
 
 **Step 2**. CKAN will ask for the following information about your data. (The
 actual data will be added in step 4.)
 
-    * *Title* -- this title will be unique across CKAN, so make it brief but specific.
-      E.g. "UK population density by region" is better than "Population figures".
+* *Title* -- this title will be unique across CKAN, so make it brief but specific.
+  E.g. "UK population density by region" is better than "Population figures".
 
-    * *Description* -- You can add a longer description of the dataset here, including
-      information such as where the data is from and any information that people will
-      need to know when using the data.
+* *Description* -- You can add a longer description of the dataset here, including
+  information such as where the data is from and any information that people will
+  need to know when using the data.
 
-    * *Tags* -- here you may add tags that will help people find the data and link it
-      with other related data. Examples could be "population", "crime", "East
-      Anglia". Hit the <return> key between tags. If you enter a tag wrongly, you can
-      use its delete button to remove it before saving the dataset.
+* *Tags* -- here you may add tags that will help people find the data and link it
+  with other related data. Examples could be "population", "crime", "East
+  Anglia". Hit the <return> key between tags. If you enter a tag wrongly, you can
+  use its delete button to remove it before saving the dataset.
 
-    * *License* -- it is important to include license information so that people know
-      how they can use the data. This field should be a drop-down box. If you need to
-      use a license not on the list, contact your site administrator.
+* *License* -- it is important to include license information so that people know
+  how they can use the data. This field should be a drop-down box. If you need to
+  use a license not on the list, contact your site administrator.
 
-    * *Organization* - If you are a member of any organizations, this drop-down will
-      enable you to choose which one should own the dataset. Ensure the default
-      chosen is the correct one before you proceed. (Probably most users will be in
-      only one organization. If this is you, CKAN will have chosen your organization
-      by default and you need not do anything.)
+* *Organization* - If you are a member of any organizations, this drop-down will
+  enable you to choose which one should own the dataset. Ensure the default
+  chosen is the correct one before you proceed. (Probably most users will be in
+  only one organization. If this is you, CKAN will have chosen your organization
+  by default and you need not do anything.)
 
 .. image:: images/add_dataset_1.jpg
 
@@ -199,24 +199,24 @@ This is where you will add one or more "resources" which contain the data for
 this dataset. Choose a file or link for your data resource and select the
 appropriate choice at the top of the screen:
 
-    * If you are giving CKAN a link to the data, like
-      ``http://example.com/mydata.csv``, then select "Link to a file" or "Link to an
-      API". (If you don't know what an API is, you don't need to worry about this
-      option - select "Link to a file".)
+* If you are giving CKAN a link to the data, like
+  ``http://example.com/mydata.csv``, then select "Link to a file" or "Link to an
+  API". (If you don't know what an API is, you don't need to worry about this
+  option - select "Link to a file".)
 
-    * If the data to be added to CKAN is in a file on your computer, select "Upload
-      a file". CKAN will give you a file browser to select it.
+* If the data to be added to CKAN is in a file on your computer, select "Upload
+  a file". CKAN will give you a file browser to select it.
 
 **Step 5**. Add the other information on the page. CKAN does not require this
 information, but it is good practice to add it:
 
-    * *Name* -- a name for this resource, e.g. "Population density 2011, CSV".
-      Different resources in the dataset should have different names.
+* *Name* -- a name for this resource, e.g. "Population density 2011, CSV".
+  Different resources in the dataset should have different names.
 
-    * *Description* -- a short description of the resource.
+* *Description* -- a short description of the resource.
 
-    * *Format* -- the file format of the resource, e.g. CSV (comma-separated
-      values), XLS, JSON, PDF, etc.
+* *Format* -- the file format of the resource, e.g. CSV (comma-separated
+  values), XLS, JSON, PDF, etc.
 
 **Step 6**. If you have more resources (files or links) to add to the dataset, select
 the "Save & add another" button. When you have finished adding resources,
@@ -224,27 +224,27 @@ select "Next: Additional Info".
 
 **Step 7**. CKAN displays the "Additional data" screen.
 
-    * *Visibility* -- a ``Public`` dataset is public and can be seen by any user of the
-      site. A ``Private`` dataset can only be seen by members of the organization owning
-      the dataset and will not show up in searches by other users.
+* *Visibility* -- a ``Public`` dataset is public and can be seen by any user of the
+  site. A ``Private`` dataset can only be seen by members of the organization owning
+  the dataset and will not show up in searches by other users.
 
-    * *Author* -- The name of the person or organization responsible for producing
-      the data.
+* *Author* -- The name of the person or organization responsible for producing
+  the data.
 
-    * *Author e-mail* -- an e-mail address for the author, to which queries about
-      the data should be sent.
+* *Author e-mail* -- an e-mail address for the author, to which queries about
+  the data should be sent.
 
-    * *Maintainer / maintainer e-mail* -- If necessary, details for a second person
-      responsible for the data.
+* *Maintainer / maintainer e-mail* -- If necessary, details for a second person
+  responsible for the data.
 
-    * *Custom fields* -- If you want the dataset to have another field, you can add
-      the field name and value here. E.g. "Year of publication". Note that if there
-      is an extra field that is needed for a large number of datasets, you should
-      talk to your site administrator about changing the default schema and dataset
-      forms.
+* *Custom fields* -- If you want the dataset to have another field, you can add
+  the field name and value here. E.g. "Year of publication". Note that if there
+  is an extra field that is needed for a large number of datasets, you should
+  talk to your site administrator about changing the default schema and dataset
+  forms.
 
-    * *Group* -- Moderated collection of datasets. You can add the dataset to
-      an existing group here.
+* *Group* -- Moderated collection of datasets. You can add the dataset to
+  an existing group here.
 
 .. image:: images/add_dataset_3.jpg
 
