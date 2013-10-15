@@ -1395,11 +1395,8 @@ def package_search(context, data_dict):
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
 
-        try:
-            query = search.query_for(model.Package)
-            query.run(data_dict)
-        except:
-            log.error("Failed to run the query")
+        query = search.query_for(model.Package)
+        query.run(data_dict)
 
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
