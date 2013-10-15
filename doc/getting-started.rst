@@ -1,5 +1,5 @@
 ===============
-Getting Started
+Getting started
 ===============
 
 Once you've finished :doc:`installing CKAN <installing>`, this section
@@ -11,7 +11,7 @@ your CKAN site.
 .. _create-admin-user:
 
 ------------------------
-Creating a Sysadmin User
+Creating a sysadmin user
 ------------------------
 
 You have to use CKAN's command line interface to create your first sysadmin
@@ -51,7 +51,7 @@ Read the :doc:`sysadmin-guide` to learn what you can do as a CKAN sysadmin.
 .. _create-test-data:
 
 ------------------
-Creating Test Data
+Creating test data
 ------------------
 
 It can be handy to have some test data to start with, to quickly check that
@@ -69,10 +69,9 @@ For a list of other command line commands for creating tests data, run::
 
  paster create-test-data --help
 
-
----------------
-The Config File
----------------
+-----------
+Config file
+-----------
 
 All of the options that can be set in the admin page and many more can be set
 by editing CKAN's config file. By default, the config file is located at

@@ -205,7 +205,7 @@ from the config. You can find a complete example in the
 
 .. _embed-previews:
 
-Embedding Previews In Other Web Pages
+Embedding previews in other web pages
 -------------------------------------
 
 .. versionchanged:: 2.0
