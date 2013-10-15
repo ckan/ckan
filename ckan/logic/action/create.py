@@ -860,7 +860,8 @@ def user_invite(context, data_dict):
     '''
     _check_access('user_invite', context, data_dict)
 
-    schema = context.get('schema') or ckan.logic.schema.default_user_invite_schema()
+    schema = context.get('schema',
+                         ckan.logic.schema.default_user_invite_schema())
     data, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
@@ -885,7 +886,12 @@ def user_invite(context, data_dict):
 def _get_random_username_from_email(email):
     localpart = email.split('@')[0]
     cleaned_localpart = re.sub(r'[^\w]', '-', localpart)
-    while True:
+
+    # if we can't create a unique user name within this many attempts
+    # then something else is probably wrong and we should give up
+    max_name_creation_attempts = 100
+
+    for i in range(max_name_creation_attempts):
         random_number = random.SystemRandom().random() * 10000
         name = '%s-%d' % (cleaned_localpart, random_number)
         if not ckan.model.User.get(name):
