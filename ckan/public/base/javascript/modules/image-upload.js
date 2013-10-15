@@ -7,6 +7,9 @@ this.ckan.module('image-upload', function($, _) {
     options: {
       is_url: true,
       has_image: false,
+      field_upload: 'input[name="image_upload"]',
+      field_url: 'input[name="image_url"]',
+      field_clear: 'input[name="clear_upload"]',
       i18n: {
         upload: _('From computer'),
         url: _('From web'),
@@ -35,12 +38,12 @@ this.ckan.module('image-upload', function($, _) {
       var options = this.options;
 
       // firstly setup the fields
-      this.input = $('input[name="image_upload"]', this.el);
-      this.field_url = $('input[name="image_url"]', this.el).parents('.control-group');
+      this.input = $(options.field_upload, this.el);
+      this.field_url = $(options.field_url, this.el).parents('.control-group');
       this.field_image = this.input.parents('.control-group');
 
       // Is there a clear checkbox on the form already?
-      var checkbox = $('input[name="clear_upload"]', this.el);
+      var checkbox = $(options.field_clear, this.el);
       if (checkbox.length > 0) {
         options.has_image = true;
         checkbox.parents('.control-group').remove();
@@ -148,9 +151,7 @@ this.ckan.module('image-upload', function($, _) {
     _onRemove: function() {
       this.changeState(this.state.blank);
       $('input', this.field_url).val('');
-      if (this.options.has_image) {
-        this.field_clear.val('true');
-      }
+      this.field_clear.val('true');
     },
 
     /* Event listener for when someone chooses a file to upload
