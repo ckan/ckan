@@ -324,16 +324,14 @@ def group_dictize(group, context):
 
     context['with_capacity'] = True
 
-    result_dict['packages'] = d.obj_list_dictize(
-        _get_members(context, group, 'packages'),
-        context)
-
     query = search.PackageSearchQuery()
     if group.is_organization:
-        q = {'q': 'owner_org:"%s" +capacity:public' % group.id, 'rows': 1}
+        q = {'q': 'owner_org:"%s" +capacity:public' % group.id, 'fl': 'id,name'}
     else:
-        q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
-    result_dict['package_count'] = query.run(q)['count']
+        q = {'q': 'groups:"%s" +capacity:public' % group.name, 'fl': 'id,name'}
+    search_results = query.run(q)
+    result_dict['packages'] = search_results['results']
+    result_dict['package_count'] = search_results['count']
 
     result_dict['tags'] = tag_list_dictize(
         _get_members(context, group, 'tags'),
