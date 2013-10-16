@@ -395,6 +395,7 @@ def default_user_schema():
         'apikey': [ignore],
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing],
+        'state': [ignore_missing],
     }
     return schema
 
@@ -421,6 +422,14 @@ def default_update_user_schema():
     schema['name'] = [ignore_missing, name_validator, user_name_validator, unicode]
     schema['password'] = [user_password_validator,ignore_missing, unicode]
 
+    return schema
+
+def default_user_invite_schema():
+    schema = {
+        'email': [not_empty, unicode],
+        'group_id': [not_empty],
+        'role': [not_empty],
+    }
     return schema
 
 def default_task_status_schema():
