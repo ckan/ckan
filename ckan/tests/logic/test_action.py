@@ -6,7 +6,9 @@ from nose.tools import assert_equal, assert_raises
 from nose.plugins.skip import SkipTest
 from pylons import config
 import datetime
+import mock
 
+import vdm.sqlalchemy
 import ckan
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib.dictization.model_dictize import resource_dictize
@@ -341,6 +343,11 @@ class TestAction(WsgiAppCase):
 
 
     def test_04_user_list(self):
+        # Create deleted user to make sure he won't appear in the user_list
+        deleted_user = CreateTestData.create_user('deleted_user')
+        deleted_user.delete()
+        model.repo.commit()
+
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/user_list', params=postparams)
         res_obj = json.loads(res.body)
@@ -378,7 +385,6 @@ class TestAction(WsgiAppCase):
         result = res_obj['result']
         assert result['name'] == 'annafan'
         assert 'apikey' in result
-        assert 'reset_key' in result
 
         # Sysadmin user can see everyone's api key
         res = self.app.post('/api/action/user_show', params=postparams,
@@ -388,7 +394,6 @@ class TestAction(WsgiAppCase):
         result = res_obj['result']
         assert result['name'] == 'annafan'
         assert 'apikey' in result
-        assert 'reset_key' in result
 
     def test_05_user_show_edits(self):
         postparams = '%s=1' % json.dumps({'id':'tester'})
@@ -562,6 +567,102 @@ class TestAction(WsgiAppCase):
             for expected_message in test_call['messages']:
                 assert expected_message[1] in ''.join(res_obj['error'][expected_message[0]])
 
+    @mock.patch('ckan.lib.mailer.send_invite')
+    def test_user_invite(self, send_invite):
+        email_username = 'invited_user$ckan'
+        email = '%s@email.com' % email_username
+        organization_name = 'an_organization'
+        CreateTestData.create_groups([{'name': organization_name}])
+        role = 'member'
+        organization = model.Group.get(organization_name)
+        params = {'email': email,
+                  'group_id': organization.id,
+                  'role': role}
+        postparams = '%s=1' % json.dumps(params)
+        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
+
+        res = self.app.post('/api/action/user_invite', params=postparams,
+                            extra_environ=extra_environ)
+
+        res_obj = json.loads(res.body)
+        user = model.User.get(res_obj['result']['id'])
+        assert res_obj['success'] is True, res_obj
+        assert user.email == email, (user.email, email)
+        assert user.is_pending(), user
+        expected_username = email_username.replace('$', '-')
+        assert user.name.startswith(expected_username), (user.name,
+                                                         expected_username)
+        group_ids = user.get_group_ids(capacity=role)
+        assert organization.id in group_ids, (group_ids, organization.id)
+        assert send_invite.called
+        assert send_invite.call_args[0][0].id == res_obj['result']['id']
+
+    @mock.patch('ckan.lib.mailer.mail_user')
+    def test_user_invite_without_email_raises_error(self, mail_user):
+        user_dict = {}
+        postparams = '%s=1' % json.dumps(user_dict)
+        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
+
+        res = self.app.post('/api/action/user_invite', params=postparams,
+                            extra_environ=extra_environ,
+                            status=StatusCodes.STATUS_409_CONFLICT)
+
+        res_obj = json.loads(res.body)
+        assert res_obj['success'] is False, res_obj
+        assert 'email' in res_obj['error'], res_obj
+
+    @mock.patch('random.SystemRandom')
+    def test_user_invite_should_work_even_if_tried_username_already_exists(self, system_random_mock):
+        patcher = mock.patch('ckan.lib.mailer.mail_user')
+        patcher.start()
+        email = 'invited_user@email.com'
+        organization_name = 'an_organization'
+        CreateTestData.create_groups([{'name': organization_name}])
+        role = 'member'
+        organization = model.Group.get(organization_name)
+        params = {'email': email,
+                  'group_id': organization.id,
+                  'role': role}
+        postparams = '%s=1' % json.dumps(params)
+        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
+
+        system_random_mock.return_value.random.side_effect = [1000, 1000, 2000, 3000]
+
+        for _ in range(2):
+            res = self.app.post('/api/action/user_invite', params=postparams,
+                                extra_environ=extra_environ)
+
+            res_obj = json.loads(res.body)
+            assert res_obj['success'] is True, res_obj
+        patcher.stop()
+
+    def test_user_delete(self):
+        name = 'normal_user'
+        CreateTestData.create_user(name)
+        user = model.User.get(name)
+        user_dict = {'id': user.id}
+        postparams = '%s=1' % json.dumps(user_dict)
+
+        res = self.app.post('/api/action/user_delete', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+
+        res_obj = json.loads(res.body)
+        deleted_user = model.User.get(name)
+        assert res_obj['success'] is True
+        assert deleted_user.is_deleted(), deleted_user
+
+    def test_user_delete_requires_data_dict_with_key_id(self):
+        user_dict = {'name': 'normal_user'}
+        postparams = '%s=1' % json.dumps(user_dict)
+
+        res = self.app.post('/api/action/user_delete', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+                            status=StatusCodes.STATUS_409_CONFLICT)
+
+        res_obj = json.loads(res.body)
+        assert res_obj['success'] is False
+        assert res_obj['error']['id'] == ['Missing value']
+
     def test_13_group_list(self):
         postparams = '%s=1' % json.dumps({})
         res = self.app.post('/api/action/group_list', params=postparams)
@@ -640,6 +741,11 @@ class TestAction(WsgiAppCase):
         assert res_obj['success'] is False
 
     def test_16_user_autocomplete(self):
+        # Create deleted user to make sure he won't appear in the user_list
+        deleted_user = CreateTestData.create_user('joe')
+        deleted_user.delete()
+        model.repo.commit()
+
         #Empty query
         postparams = '%s=1' % json.dumps({})
         res = self.app.post(
@@ -1382,6 +1488,48 @@ class TestActionPackageSearch(WsgiAppCase):
         assert_equal(res['success'], True)
         assert_equal(result['count'], 1)
         assert_equal(result['results'][0]['name'], 'annakarenina')
+
+    def test_1_facet_limit(self):
+        params = {
+                'q':'*:*',
+                'facet.field': ['groups', 'tags', 'res_format', 'license'],
+                'rows': 20,
+                'start': 0,
+            }
+        postparams = '%s=1' % json.dumps(params)
+        res = self.app.post('/api/action/package_search', params=postparams)
+        res = json.loads(res.body)
+        assert_equal(res['success'], True)
+
+        assert_equal(len(res['result']['search_facets']['groups']['items']), 2)
+
+        params = {
+                'q':'*:*',
+                'facet.field': ['groups', 'tags', 'res_format', 'license'],
+                'facet.limit': 1,
+                'rows': 20,
+                'start': 0,
+            }
+        postparams = '%s=1' % json.dumps(params)
+        res = self.app.post('/api/action/package_search', params=postparams)
+        res = json.loads(res.body)
+        assert_equal(res['success'], True)
+
+        assert_equal(len(res['result']['search_facets']['groups']['items']), 1)
+
+        params = {
+                'q':'*:*',
+                'facet.field': ['groups', 'tags', 'res_format', 'license'],
+                'facet.limit': -1, # No limit
+                'rows': 20,
+                'start': 0,
+            }
+        postparams = '%s=1' % json.dumps(params)
+        res = self.app.post('/api/action/package_search', params=postparams)
+        res = json.loads(res.body)
+        assert_equal(res['success'], True)
+
+        assert_equal(len(res['result']['search_facets']['groups']['items']), 2)
 
     def test_1_basic_no_params(self):
         postparams = '%s=1' % json.dumps({})
