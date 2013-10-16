@@ -163,7 +163,9 @@ this.ckan.module('autocomplete', function (jQuery, _) {
 
         // This forces the ajax throbber to appear, because we've called the
         // callback already and that hides the throbber
-        $('.select2-search input', this._select2.dropdown).addClass('select2-active');
+        if (this._select2) {
+          $('.select2-search input', this._select2.dropdown).addClass('select2-active');
+        }
       }
     },
 

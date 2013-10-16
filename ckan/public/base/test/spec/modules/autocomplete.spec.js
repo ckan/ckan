@@ -155,7 +155,7 @@ describe('ckan.modules.AutocompleteModule()', function () {
     });
 
     it('should set the _lastTerm property', function () {
-      this.module.lookup('term');
+      this.module.lookup('term', function(){});
       assert.equal(this.module._lastTerm, 'term');
     });
 
