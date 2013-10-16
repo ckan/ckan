@@ -3,8 +3,10 @@ def upgrade(migrate_engine):
         CREATE TABLE resource_view (
             id text NOT NULL,
             resource_id text,
+            title text,
+            description text,
             view_type text NOT NULL,
-            view_number integer NOT NULL,
+            "order" integer NOT NULL,
             config text
         );
 

@@ -1229,7 +1229,9 @@ class TestAction(WsgiAppCase):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
                          'view_type': u'test',
-                         'view_number': 1,
+                         'title': u'View',
+                         'description': u'A nice view',
+                         'order': 1,
                          'config': {'config-key': u'test'}}
         postparams = '%s=1' % json.dumps(resource_view)
         res = self.app.post(
@@ -1237,7 +1239,8 @@ class TestAction(WsgiAppCase):
             extra_environ={'Authorization': str(self.normal_user.apikey)})
         resource_view_created = json.loads(res.body)['result']
 
-        assert 'id' in resource_view_created
+        resource_view_created.pop('id')
+        assert len(resource_view) == len(resource_view_created)
         for field in resource_view:
             assert resource_view[field] == resource_view_created[field], \
                 (field, resource_view[field], resource_view_created[field])
@@ -1253,7 +1256,7 @@ class TestAction(WsgiAppCase):
             status=409)
 
         resource_view = {'resource_id': resource_id,
-                         'view_number': 2}
+                         'order': 2}
         postparams = '%s=1' % json.dumps(resource_view)
         self.app.post(
             '/api/action/resource_view_create', params=postparams,
@@ -1263,7 +1266,7 @@ class TestAction(WsgiAppCase):
     def test_resource_view_create_invalid_resource_id(self):
         resource_view = {'resource_id': u'bad-resource-id',
                          'view_type': u'test',
-                         'view_number': 1,
+                         'order': 1,
                          'config': {'config-key': u'test'}}
         postparams = '%s=1' % json.dumps(resource_view)
         self.app.post(
@@ -1275,7 +1278,7 @@ class TestAction(WsgiAppCase):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
                          'view_type': u'test',
-                         'view_number': 1,
+                         'order': 1,
                          'config': {'config-key': u'test'}}
         postparams = '%s=1' % json.dumps(resource_view)
         self.app.post('/api/action/resource_view_create', params=postparams,
@@ -1285,7 +1288,9 @@ class TestAction(WsgiAppCase):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
                          'view_type': u'test',
-                         'view_number': 1,
+                         'title': u'View',
+                         'description': u'A nice view',
+                         'order': 1,
                          'config': {'config-key': u'test'}}
         postparams = '%s=1' % json.dumps(resource_view)
         res = self.app.post(
@@ -1315,7 +1320,9 @@ class TestAction(WsgiAppCase):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
                          'view_type': u'test',
-                         'view_number': 1,
+                         'title': u'View',
+                         'description': u'A nice view',
+                         'order': 1,
                          'config': {'config-key': u'test'}}
         postparams = '%s=1' % json.dumps(resource_view)
         res = self.app.post(
@@ -1325,7 +1332,7 @@ class TestAction(WsgiAppCase):
 
         resource_view.update({'id': resource_view_created['id'],
                               'view_type': u'new_view_type',
-                              'view_number': 2,
+                              'order': 2,
                               'config': {'config-key': u'new-config-value'}})
         postparams = '%s=1' % json.dumps(resource_view)
         res = self.app.post(
@@ -1339,7 +1346,7 @@ class TestAction(WsgiAppCase):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
                          'view_type': u'test',
-                         'view_number': 1,
+                         'order': 1,
                          'config': {'config-key': u'test'}}
         postparams = '%s=1' % json.dumps(resource_view)
         res = self.app.post(
@@ -1350,7 +1357,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({
             'id': resource_view_created['id'],
             'resource_id': resource_id,
-            'view_number': 0
+            'order': 0
         })
         self.app.post(
             '/api/action/resource_view_update', params=postparams,
@@ -1378,7 +1385,7 @@ class TestAction(WsgiAppCase):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
                          'view_type': u'test',
-                         'view_number': 1,
+                         'order': 1,
                          'config': {'config-key': u'test'}}
         postparams = '%s=1' % json.dumps(resource_view)
         self.app.post(
@@ -1396,7 +1403,7 @@ class TestAction(WsgiAppCase):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
                          'view_type': u'test',
-                         'view_number': 1,
+                         'order': 1,
                          'config': {'config-key': u'test'}}
         postparams = '%s=1' % json.dumps(resource_view)
         res = self.app.post(
@@ -1406,7 +1413,7 @@ class TestAction(WsgiAppCase):
 
         resource_view.update({'id': resource_view_created['id'],
                               'view_type': u'new_view_type',
-                              'view_number': 2,
+                              'order': 2,
                               'config': {'config-key': u'new-config-value'}})
         postparams = '%s=1' % json.dumps(resource_view)
         self.app.post('/api/action/resource_view_update', params=postparams,
@@ -1416,7 +1423,7 @@ class TestAction(WsgiAppCase):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
                          'view_type': u'test',
-                         'view_number': 1,
+                         'order': 1,
                          'config': {'config-key': u'test'}}
         postparams = '%s=1' % json.dumps(resource_view)
         res = self.app.post(
@@ -1438,7 +1445,7 @@ class TestAction(WsgiAppCase):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
                          'view_type': u'test',
-                         'view_number': 1,
+                         'order': 1,
                          'config': {'config-key': u'test'}}
         postparams = '%s=1' % json.dumps(resource_view)
         res = self.app.post(

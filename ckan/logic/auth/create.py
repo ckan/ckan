@@ -66,7 +66,7 @@ def resource_create(context, data_dict):
 
 
 def resource_view_create(context, data_dict):
-    return new_authz.is_authorized('package_create', context, data_dict)
+    return resource_create(context, data_dict)
 
 
 def package_relationship_create(context, data_dict):

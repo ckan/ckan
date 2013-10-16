@@ -13,8 +13,10 @@ resource_view_table = sa.Table(
               default=_types.make_uuid),
     sa.Column('resource_id', sa.types.UnicodeText,
               sa.ForeignKey('resource.id')),
+    sa.Column('title', sa.types.UnicodeText, nullable=True),
+    sa.Column('description', sa.types.UnicodeText, nullable=True),
     sa.Column('view_type', sa.types.UnicodeText, nullable=False),
-    sa.Column('view_number', sa.types.Integer, nullable=False),
+    sa.Column('order', sa.types.Integer, nullable=False),
     sa.Column('config', _types.JsonDictType))
 
 

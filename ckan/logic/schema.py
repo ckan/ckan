@@ -571,8 +571,10 @@ def default_resource_view_schema():
     schema = {
         'id': [ignore_missing, unicode],
         'resource_id': [not_empty, resource_id_exists],
+        'title': [ignore_missing, unicode],
+        'description': [ignore_missing, unicode],
         'view_type': [not_empty, unicode],
-        'view_number': [not_empty, natural_number_validator],
+        'order': [not_empty, natural_number_validator],
         'config': [ignore_missing]
     }
     return schema

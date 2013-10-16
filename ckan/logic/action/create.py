@@ -267,9 +267,13 @@ def resource_view_create(context, data_dict):
 
     :param resource_id: id of the resource
     :type resource_id: string
+    :param title: the title of the view (optional)
+    :type title: string
+    :param description: a description of the view (optional)
+    :type description: string
     :param view_type: type of view
     :type view_type: string
-    :param view_number: a number denoting the position of this view in the
+    :param order: a number denoting the position of this view in the
         list of views for the resource (optional)
     :type view_number: int
     :param config: options necessary to recreate a view state (optional)
