@@ -612,6 +612,19 @@ class GroupController(base.BaseController):
                 data_dict = clean_dict(dict_fns.unflatten(
                     tuplize_dict(parse_params(request.params))))
                 data_dict['id'] = id
+
+                email = data_dict.get('email')
+                if email:
+                    user_data_dict = {
+                        'email': email,
+                        'group_id': data_dict['id'],
+                        'role': data_dict['role']
+                    }
+                    del data_dict['email']
+                    user_dict = self._action('user_invite')(context,
+                            user_data_dict)
+                    data_dict['username'] = user_dict['name']
+
                 c.group_dict = self._action('group_member_create')(context, data_dict)
                 self._redirect_to(controller='group', action='members', id=id)
             else:
