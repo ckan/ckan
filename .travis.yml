@@ -5,8 +5,6 @@ python:
 env:
   - PGVERSION=9.1
   - PGVERSION=8.4
-install:
-  - pip install coveralls --use-mirrors
 script: ./bin/travis-build
 notifications:
   irc:
