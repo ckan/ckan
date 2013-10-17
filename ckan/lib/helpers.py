@@ -1738,6 +1738,17 @@ def get_site_statistics():
     return stats
 
 
+def group_package_show(group=None, limit=None):
+    '''
+    Given a group name, it returns the packages in the group
+    '''
+    if group is None:
+        return []
+    data_dict = {'id': group, 'limit': limit}
+    packages = logic.get_action('group_package_show')({}, data_dict)
+    return packages
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1824,6 +1835,7 @@ __allowed_functions__ = [
     'list_dict_filter',
     'new_activities',
     'time_ago_from_timestamp',
+    'group_package_show',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',
