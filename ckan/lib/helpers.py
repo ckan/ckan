@@ -1745,7 +1745,11 @@ def group_package_show(group=None, limit=None):
     if group is None:
         return []
     data_dict = {'id': group, 'limit': limit}
-    packages = logic.get_action('group_package_show')({}, data_dict)
+    try:
+        packages = logic.get_action('group_package_show')({}, data_dict)
+    except Exception as e:
+        log.exception(e)
+        return []
     return packages
 
 
