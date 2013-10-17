@@ -243,6 +243,8 @@ def make_map():
                   action='activity', ckan_icon='time')
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
         m.connect('/dataset/{id}.{format}', action='read')
+        m.connect('dataset_resources', '/dataset/resources/{id}',
+                  action='resources', ckan_icon='reorder')
         m.connect('dataset_read', '/dataset/{id}', action='read',
                   ckan_icon='sitemap')
         m.connect('/dataset/{id}/resource/{resource_id}',
@@ -362,6 +364,7 @@ def make_map():
                   action='followers', ckan_icon='group')
         m.connect('user_edit', '/user/edit/{id:.*}', action='edit',
                   ckan_icon='cog')
+        m.connect('user_delete', '/user/delete/{id}', action='delete')
         m.connect('/user/reset/{id:.*}', action='perform_reset')
         m.connect('register', '/user/register', action='register')
         m.connect('login', '/user/login', action='login')

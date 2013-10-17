@@ -56,6 +56,39 @@ class TestUser:
         assert out
         assert out.fullname == u'Sandra'
 
+    def test_is_deleted(self):
+        user = CreateTestData._create_user_without_commit('a_user')
+        user.state = 'some-state'
+        assert not user.is_deleted(), user
+        user.delete()
+        assert user.is_deleted(), user
+
+    def test_user_is_active_by_default(self):
+        user = CreateTestData._create_user_without_commit('a_user')
+        assert user.is_active(), user
+
+    def test_activate(self):
+        user = CreateTestData._create_user_without_commit('a_user')
+        user.state = 'some-state'
+        assert not user.is_active(), user
+        user.activate()
+        assert user.is_active(), user
+
+    def test_activate(self):
+        user = CreateTestData._create_user_without_commit('a_user')
+        user.state = 'some-state'
+        assert not user.is_active(), user
+        user.activate()
+        assert user.is_active(), user
+
+    def test_is_pending(self):
+        user = CreateTestData._create_user_without_commit('a_user')
+        user.state = 'some-state'
+        assert not user.is_pending(), user
+        user.set_pending()
+        assert user.is_pending(), user
+
+
 def to_names(domain_obj_list):
     '''Takes a list of domain objects and returns a corresponding list
     of their names.'''

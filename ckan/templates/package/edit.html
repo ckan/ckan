@@ -1,32 +1,5 @@
-{% extends 'package/base.html' %}
-
-{% set pkg = c.pkg_dict %}
-
-{% block breadcrumb_content_selected %}{% endblock %}
-
-{% block content_action %}
-  {% link_for _('View dataset'), controller='package', action='read', id=pkg.name, class_='btn', icon='eye-open' %}
-{% endblock %}
-
-{% block content_primary_nav %}
-  {{ h.build_nav_icon('dataset_edit', _('Edit'), id=pkg.name) }}
-  {{ h.build_nav_icon('dataset_resource', _('Resources'), id=pkg.name) }}
-{% endblock %}
+{% extends 'package/edit_base.html' %}
 
 {% block primary_content_inner %}
   {% block form %}{{ c.form | safe }}{% endblock %}
 {% endblock %}
-
-{% block breadcrumb_content %}
-  {{ super() }}
-  <li class="active">{% link_for _('Edit'), controller='package', action='edit', id=pkg.name %}</li>
-{% endblock %}
-
-{% block resources_module %}
-  {% snippet 'package/snippets/resources.html', pkg=pkg, action='resource_edit' %}
-{% endblock %}
-
-{% block secondary_content %}
-  {% snippet 'package/snippets/info.html', pkg=pkg, show_resources=true, hide_follow_button=true %}
-{% endblock %}
-

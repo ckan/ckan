@@ -61,6 +61,9 @@ class MockTranslator(object):
         return singular
 
 class CkanCommand(paste.script.command.Command):
+    '''Base class for classes that implement CKAN paster commands to inherit.
+
+    '''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
             default='development.ini', help='Config file to use.')
@@ -839,12 +842,10 @@ class DatasetCmd(CkanCommand):
         pprint.pprint(dataset.as_dict())
 
     def delete(self, dataset_ref):
-        from ckan import plugins
         import ckan.model as model
         dataset = self._get_dataset(dataset_ref)
         old_state = dataset.state
 
-        plugins.load('synchronous_search')
         rev = model.repo.new_revision()
         dataset.delete()
         model.repo.commit_and_remove()
@@ -852,12 +853,10 @@ class DatasetCmd(CkanCommand):
         print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
 
     def purge(self, dataset_ref):
-        from ckan import plugins
         import ckan.model as model
         dataset = self._get_dataset(dataset_ref)
         name = dataset.name
 
-        plugins.load('synchronous_search')
         rev = model.repo.new_revision()
         dataset.purge()
         model.repo.commit_and_remove()
@@ -1283,8 +1282,6 @@ class CreateTestDataCommand(CkanCommand):
     def command(self):
         self._load_config()
         self._setup_app()
-        from ckan import plugins
-        plugins.load('synchronous_search') # so packages get indexed
         from create_test_data import CreateTestData
 
         if self.args:
@@ -2003,5 +2000,7 @@ class FrontEndBuildCommand(CkanCommand):
         cmd.options = self.options
         root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
         root = os.path.abspath(root)
-        cmd.args = (root,)
+        ckanext = os.path.join(os.path.dirname(__file__), '..', '..', 'ckanext')
+        ckanext = os.path.abspath(ckanext)
+        cmd.args = (root, ckanext)
         cmd.command()

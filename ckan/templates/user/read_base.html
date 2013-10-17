@@ -67,20 +67,24 @@
           {% endif %}
         </dl>
         {% if c.is_myself %}
-        <dl>
-          <dt>{{ _('Email') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
-          <dd>{{ user.email }}</dd>
-        </dl>
+          <dl>
+            <dt>{{ _('Email') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+            <dd>{{ user.email }}</dd>
+          </dl>
         {% endif %}
         <dl>
           <dt>{{ _('Member Since') }}</dt>
           <dd>{{ h.render_datetime(user.created) }}</dd>
         </dl>
-        {% if c.is_myself %}
         <dl>
-          <dt class="key">{{ _('API Key') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
-          <dd class="value"><code>{{ user.apikey }}</code></dd>
+          <dt>{{ _('State') }}</dt>
+          <dd>{{ user.state }}</dd>
         </dl>
+        {% if c.is_myself %}
+          <dl>
+            <dt class="key">{{ _('API Key') }} <span class="label" title="{{ _('This means only you can see this') }}">{{ _('Private') }}</span></dt>
+            <dd class="value"><code>{{ user.apikey }}</code></dd>
+          </dl>
         {% endif %}
       </div>
     {% endblock %}
