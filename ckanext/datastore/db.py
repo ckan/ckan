@@ -835,7 +835,10 @@ def _insert_links(data_dict, limit, offset):
     data_dict['_links'] = {}
 
     # get the url from the request
-    urlstring = toolkit.request.environ['CKAN_CURRENT_URL']
+    try:
+        urlstring = toolkit.request.environ['CKAN_CURRENT_URL']
+    except TypeError:
+        return # no links required for local actions
 
     # change the offset in the url
     parsed = list(urlparse.urlparse(urlstring))
