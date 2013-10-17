@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 
 _storage_path = None
 
+
 def get_storage_path():
     '''Function to cache storage path'''
     global _storage_path
@@ -27,21 +28,24 @@ def get_storage_path():
             _storage_path = ofs_storage_dir
             return _storage_path
         elif ofs_impl:
-            log.critical('''We only support local file storage form version 2.2 of ckan
-                          please specify ckan.storage_path in your config for your uploads''')
+            log.critical('''We only support local file storage form version 2.2
+                         of ckan please specify ckan.storage_path in your
+                         config for your uploads''')
             _storage_path = False
         else:
-            log.critical('''Please specify a ckan.storage_path in your config for your uploads''')
+            log.critical('''Please specify a ckan.storage_path in your config
+                         for your uploads''')
             _storage_path = False
 
     return _storage_path
 
 
-
 class Upload(object):
     def __init__(self, object_type, old_filename=None):
-        ''' Setup upload by creating  a subdirectory of the storage directory of name
-        object_type. old_filename is the name of the file in the url field last time'''
+        ''' Setup upload by creating  a subdirectory of the storage directory
+        of name object_type. old_filename is the name of the file in the url
+        field last time'''
+
         self.storage_path = None
         self.filename = None
         self.filepath = None
@@ -60,19 +64,20 @@ class Upload(object):
             self.old_filepath = os.path.join(self.storage_path, old_filename)
 
     def update_data_dict(self, data_dict, url_field, file_field, clear_field):
-        ''' Manipulate data from the data_dict.  url_field is the name of the field
-        where the upload is going to be. file_field is name of the key where the
-        FieldStorage is kept (i.e the field where the file data actually is). clear_field
-        is the name of a boolean field which requests the upload to be deleted.  This needs
-        to be called before it reaches any validators'''
-
-        if not self.storage_path:
-            return
+        ''' Manipulate data from the data_dict.  url_field is the name of the
+        field where the upload is going to be. file_field is name of the key
+        where the FieldStorage is kept (i.e the field where the file data
+        actually is). clear_field is the name of a boolean field which
+        requests the upload to be deleted.  This needs to be called before
+        it reaches any validators'''
 
         self.url = data_dict.get(url_field, '')
         self.clear = data_dict.pop(clear_field, None)
         self.file_field = file_field
         self.upload_field_storage = data_dict.pop(file_field, None)
+
+        if not self.storage_path:
+            return
 
         if isinstance(self.upload_field_storage, cgi.FieldStorage):
             self.filename = self.upload_field_storage.filename
@@ -90,9 +95,11 @@ class Upload(object):
                 data_dict[url_field] = ''
 
     def upload(self, max_size=2):
-        ''' Actually upload the file.  This should happen just before a commit but after
-        the data has been validated and flushed to the db.  This is so we do not store anything
-        unless the request is actually good. Max_size is size in MB maximum of the file'''
+        ''' Actually upload the file.
+        This should happen just before a commit but after the data has
+        been validated and flushed to the db. This is so we do not store
+        anything unless the request is actually good.
+        max_size is size in MB maximum of the file'''
 
         if self.filename:
             output_file = open(self.tmp_filepath, 'wb')
