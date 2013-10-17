@@ -1,3 +1,5 @@
+import mock
+
 import ckan.tests as tests
 from ckan.logic import get_action
 import ckan.model as model
@@ -48,8 +50,43 @@ class TestAuth(tests.WsgiAppCase):
         self.apikeys[name] = str(json.loads(res.body)['result']['apikey'])
 
 
-class TestAuthOrgs(TestAuth):
+class TestAuthUsers(TestAuth):
+    @mock.patch('ckan.logic.auth.create.group_member_create')
+    def test_invite_user_prepares_context_and_delegates_to_group_member_create(self, group_member_create):
+        context = {'group_id': 42}
+        group_member_create_context = context
+        group_member_create_context['id'] = context['group_id']
 
+        new_authz.is_authorized_boolean('user_invite', context)
+
+        group_member_create.assert_called(group_member_create_context, None)
+
+    def test_only_sysadmins_can_delete_users(self):
+        username = 'username'
+        user = {'id': username}
+        self.create_user(username)
+
+        self._call_api('user_delete', user, username, 403)
+        self._call_api('user_delete', user, 'sysadmin', 200)
+
+    def test_auth_deleted_users_are_always_unauthorized(self):
+        always_success = lambda x,y: {'success': True}
+        new_authz._AuthFunctions._build()
+        new_authz._AuthFunctions._functions['always_success'] = always_success
+        # We can't reuse the username with the other tests because we can't
+        # rebuild_db(), because in the setup_class we get the sysadmin. If we
+        # rebuild the DB, we would delete the sysadmin as well.
+        username = 'deleted_user'
+        self.create_user(username)
+        user = model.User.get(username)
+        user.delete()
+
+        assert not new_authz.is_authorized_boolean('always_success', {'user': username})
+
+        del new_authz._AuthFunctions._functions['always_success']
+
+
+class TestAuthOrgs(TestAuth):
     def test_01_create_users(self):
         # actual roles assigned later
         self.create_user('org_admin')

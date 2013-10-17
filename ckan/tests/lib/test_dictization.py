@@ -933,6 +933,7 @@ class TestBasicDictize:
                     'users': [{'about': u'I love reading Annakarenina. My site: http://anna.com',
                               'display_name': u'annafan',
                               'capacity' : 'public',
+                              'state': 'active',
                               'sysadmin': False,
                               'email_hash': 'd41d8cd98f00b204e9800998ecf8427e',
                               'fullname': None,

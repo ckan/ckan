@@ -152,10 +152,11 @@ describe('ckan.modules.AutocompleteModule()', function () {
     beforeEach(function () {
       sinon.stub(this.module, 'getCompletions');
       this.target = sinon.spy();
+      this.module.setupAutoComplete();
     });
 
     it('should set the _lastTerm property', function () {
-      this.module.lookup('term');
+      this.module.lookup('term', this.target);
       assert.equal(this.module._lastTerm, 'term');
     });
 
