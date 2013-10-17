@@ -15,6 +15,7 @@ import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.navl.dictization_functions
+import ckan.model as model
 import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
@@ -688,6 +689,9 @@ def user_list(context, data_dict):
                  else_=model.User.fullname)
         )
 
+    # Filter deleted users
+    query = query.filter(model.User.state != model.State.DELETED)
+
     ## hack for pagination
     if context.get('return_query'):
         return query
@@ -1266,7 +1270,9 @@ def user_autocomplete(context, data_dict):
     q = data_dict['q']
     limit = data_dict.get('limit', 20)
 
-    query = model.User.search(q).limit(limit)
+    query = model.User.search(q)
+    query = query.filter(model.User.state != model.State.DELETED)
+    query = query.limit(limit)
 
     user_list = []
     for user in query.all():
@@ -1314,8 +1320,9 @@ def package_search(context, data_dict):
     :param facet.mincount: the minimum counts for facet fields should be
         included in the results.
     :type facet.mincount: int
-    :param facet.limit: the maximum number of constraint counts that should be
-        returned for the facet fields. A negative value means unlimited
+    :param facet.limit: the maximum number of values the facet fields return.
+        A negative value means unlimited. This can be set instance-wide with
+        the :ref:`search.facets.limit` config option. Default is 50.
     :type facet.limit: int
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.

@@ -195,8 +195,8 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
 
         query = meta.Session.query(_package.Package).\
             filter(
-                or_(_package.Package.state == vdm.sqlalchemy.State.ACTIVE,
-                    _package.Package.state == vdm.sqlalchemy.State.PENDING)). \
+                or_(_package.Package.state == core.State.ACTIVE,
+                    _package.Package.state == core.State.PENDING)). \
             filter(group_table.c.id == self.id).\
             filter(member_table.c.state == 'active')
 
