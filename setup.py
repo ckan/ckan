@@ -5,7 +5,8 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, find_packages
 
-from ckan import __version__, __description__, __long_description__, __license__
+from ckan import (__version__, __description__, __long_description__,
+                  __license__)
 
 setup(
     name='ckan',
@@ -16,7 +17,7 @@ setup(
     url='http://ckan.org/',
     description=__description__,
     keywords='data packaging component tool server',
-    long_description =__long_description__,
+    long_description=__long_description__,
     zip_safe=False,
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages=['ckanext', 'ckanext.stats'],
@@ -28,7 +29,7 @@ setup(
         'migration/tests/test_dumps/*',
         'migration/versions/*',
     ]},
-    message_extractors = {
+    message_extractors={
         'ckan': [
             ('**.py', 'python', None),
             ('**.js', 'javascript', None),
