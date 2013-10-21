@@ -4898,16 +4898,6 @@ a.tag:hover {
 .module-heading:after {
   clear: both;
 }
-.module-heading .action {
-  float: right;
-  color: #888888;
-  font-size: 12px;
-  line-height: 20px;
-  text-decoration: underline;
-}
-.module-heading .action:hover {
-  color: #444444;
-}
 .module-content {
   padding: 0 25px;
   margin: 20px 0;
@@ -6129,6 +6119,34 @@ textarea {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
+}
+.add-member-form .control-label {
+  width: 100%;
+  text-align: left;
+}
+.add-member-form .controls {
+  margin-left: auto;
+}
+.add-member-or {
+  float: left;
+  margin-top: 75px;
+  width: 7%;
+  text-align: center;
+  text-transform: uppercase;
+  color: #999999;
+  font-weight: bold;
+}
+.add-member-form .row-fluid .control-group {
+  float: left;
+  width: 45%;
+}
+.add-member-form .row-fluid .select2-container,
+.add-member-form .row-fluid input {
+  width: 100% !important;
+}
+#recaptcha_table {
+  table-layout: inherit;
+  line-height: 1;
 }
 .dataset-item {
   border-bottom: 1px dotted #dddddd;
@@ -8245,11 +8263,6 @@ iframe {
 }
 .ie7 .module-heading .media-content {
   position: relative;
-}
-.ie7 .module-heading .action {
-  position: absolute;
-  top: 9px;
-  right: 10px;
 }
 .ie7 .module-heading .media-image img {
   float: left;
