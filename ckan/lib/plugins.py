@@ -42,7 +42,8 @@ def lookup_group_plugin(group_type=None):
     """
     if group_type is None:
         return _default_group_plugin
-    return _group_plugins.get(group_type, _default_group_plugin)
+    return _group_plugins.get(group_type, _default_organization_plugin
+        if group_type == 'organization' else _default_group_plugin)
 
 
 def register_package_plugins(map):
@@ -394,3 +395,36 @@ class DefaultGroupForm(object):
                 c.auth_for_change_state = True
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
+
+
+class DefaultOrganizationForm(DefaultGroupForm):
+    def group_form(self):
+        return 'organization/new_organization_form.html'
+
+    def setup_template_variables(self, context, data_dict):
+        pass
+
+    def new_template(self):
+        return 'organization/new.html'
+
+    def about_template(self):
+        return 'organization/about.html'
+
+    def index_template(self):
+        return 'organization/index.html'
+
+    def admins_template(self):
+        return 'organization/admins.html'
+
+    def read_template(self):
+        return 'organization/read.html'
+
+    # don't override history_template - use group template for history
+
+    def edit_template(self):
+        return 'organization/edit.html'
+
+    def activity_template(self):
+        return 'organization/activity_stream.html'
+
+_default_organization_plugin = DefaultOrganizationForm()
