@@ -279,7 +279,12 @@ class FeedController(BaseController):
                 search_params[param] = value
                 fq += ' %s:"%s"' % (param, value)
 
-        search_url_params = urlencode(search_params)
+
+        # Make sure we have text encoding in utf-8
+        sparams = {}
+        for k, v in search_params.iteritems():
+            sparams[k] = unicode(v).encode('utf-8')
+        search_url_params = urlencode(sparams)
 
         try:
             page = int(request.params.get('page', 1))
