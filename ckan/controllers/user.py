@@ -88,7 +88,8 @@ class UserController(base.BaseController):
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
-        context = {'return_query': True}
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'return_query': True}
 
         data_dict = {'q': c.q,
                      'order_by': c.order_by}
