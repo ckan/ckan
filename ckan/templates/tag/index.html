@@ -11,17 +11,17 @@
     <div class="module-content">
       <h1 class="page-heading">{% block page_heading %}{{ _('Tags') }}{% endblock %}</h1>
       {% block tags_list %}
-      <ul class="unstyled">
-        {% block tags_list_inner %}
-        {% for tag in c.page.items %}
-          <li>{{ h.link_to(tag.display_name, h.url_for(controller='package', action='search', tags=tag.name), class_='tag') }}</li>
-        {% endfor %}
-        {% endblock %}
-      </ul>
+        <ul class="unstyled">
+          {% block tags_list_inner %}
+            {% for tag in c.page.items %}
+              <li>{{ h.link_to(tag.display_name, h.url_for(controller='package', action='search', tags=tag.name), class_='tag') }}</li>
+            {% endfor %}
+          {% endblock %}
+        </ul>
       {% endblock %}
     </div>
     {% block page_pagination %}
-    {{ c.page.pager(q=c.q) }}
+      {{ c.page.pager(q=c.q) }}
     {% endblock %}
   </article>
 {% endblock %}

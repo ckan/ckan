@@ -3,8 +3,8 @@
 {% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
 
 {% block links -%}
-    {{ super() }}
-    <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg.id, format='rdf', qualified=True) }}"/>
+  {{ super() }}
+  <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg.id, format='rdf', qualified=True) }}"/>
 {% endblock -%}
 
 {% block head_extras -%}
@@ -50,20 +50,7 @@
   {% block secondary_help_content %}{% endblock %}
 
   {% block package_info %}
-    <div class="module context-info">
-      <div class="module-content">
-        <h1 class="heading">{{ pkg.title or pkg.name }}</h1>
-        <div class="nums">
-          <dl>
-            <dt>{{ _('Followers') }}</dt>
-            <dd>{{ h.SI_number_span(h.get_action('dataset_follower_count', {'id': pkg.id})) }}</dd>
-          </dl>
-        </div>
-        <div class="follow_button">
-          {{ h.follow_button('dataset', pkg.name) }}
-        </div>
-      </div>
-    </div>
+    {% snippet 'package/snippets/info.html', pkg=pkg %}
   {% endblock %}
 
   {% block package_organization %}

@@ -10,7 +10,7 @@ from ckan.logic.auth.create import _check_group_auth
 def make_latest_pending_package_active(context, data_dict):
     return new_authz.is_authorized('package_update', context, data_dict)
 
-
+@logic.auth_allow_anonymous_access
 def package_update(context, data_dict):
     user = context.get('user')
     package = logic_auth.get_package_object(context, data_dict)
@@ -180,6 +180,7 @@ def group_edit_permissions(context, data_dict):
         return {'success': True}
 
 
+@logic.auth_allow_anonymous_access
 def user_update(context, data_dict):
     user = context['user']
 

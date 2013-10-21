@@ -15,7 +15,8 @@ class RevisionController(base.BaseController):
     def __before__(self, action, **env):
         base.BaseController.__before__(self, action, **env)
 
-        context = {'model': model, 'user': c.user or c.author}
+        context = {'model': model, 'user': c.user or c.author,
+                   'auth_user_obj': c.userobj}
         if c.user:
             try:
                 logic.check_access('revision_change_state', context)

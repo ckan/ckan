@@ -1,16 +1,16 @@
 {% set controller = obj_type %}
 {% if controller == 'dataset' %}
-	{% set controller = 'package' %}
+  {% set controller = 'package' %}
 {% endif %}
 
 {% if following %}
-<a href="{{ h.url_for(controller=controller, action='unfollow', id=obj_id) }}" class="btn btn-danger" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="unfollow">
-	<i class="icon-remove-sign"></i>
-	{{ _('Unfollow') }}
-</a>
+  <a href="{{ h.url_for(controller=controller, action='unfollow', id=obj_id) }}" class="btn btn-danger" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="unfollow">
+    <i class="icon-remove-sign"></i>
+    {{ _('Unfollow') }}
+  </a>
 {% else %}
-<a href="{{ h.url_for(controller=controller, action='follow', id=obj_id) }}" class="btn btn-success" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="follow">
-	<i class="icon-plus-sign"></i>
-	{{ _('Follow') }}
-</a>
+  <a href="{{ h.url_for(controller=controller, action='follow', id=obj_id) }}" class="btn btn-success" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="follow">
+    <i class="icon-plus-sign"></i>
+    {{ _('Follow') }}
+  </a>
 {% endif %}

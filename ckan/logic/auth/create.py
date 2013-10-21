@@ -3,7 +3,7 @@ import ckan.new_authz as new_authz
 
 from ckan.common import _
 
-
+@logic.auth_allow_anonymous_access
 def package_create(context, data_dict=None):
     user = context['user']
 
@@ -109,6 +109,7 @@ def rating_create(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
 
+@logic.auth_allow_anonymous_access
 def user_create(context, data_dict=None):
     user = context['user']
 
@@ -118,6 +119,9 @@ def user_create(context, data_dict=None):
     else:
         return {'success': True}
 
+def user_invite(context, data_dict=None):
+    context['id'] = context.get('group_id')
+    return group_member_create(context, data_dict)
 
 def _check_group_auth(context, data_dict):
     # FIXME This code is shared amoung other logic.auth files and should be

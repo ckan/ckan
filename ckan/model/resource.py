@@ -15,7 +15,6 @@ import types as _types
 import extension
 import activity
 import domain_object
-import tracking as _tracking
 import ckan.lib.dictization
 
 __all__ = ['Resource', 'resource_table',
@@ -120,8 +119,6 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
             _dict[k] = v
         if self.resource_group and not core_columns_only:
             _dict["package_id"] = self.resource_group.package_id
-        tracking = _tracking.TrackingSummary.get_for_resource(self.url)
-        _dict['tracking_summary'] = tracking
         # FIXME format unification needs doing better
         import ckan.lib.dictization.model_dictize as model_dictize
         _dict[u'format'] = model_dictize._unified_resource_format(self.format)

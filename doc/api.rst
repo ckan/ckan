@@ -93,7 +93,7 @@ The response is a JSON dictionary with three keys:
    The API aims to always return ``200 OK`` as the status code of its HTTP
    response, whether there were errors with the request or not, so it's
    important to always check the value of the ``"success"`` key in the response
-   dictionary and (if success is ``False``) check the value of the ``"error"``
+   dictionary and (if success is ``false``) check the value of the ``"error"``
    key.
 
 .. note::
@@ -231,6 +231,8 @@ different sites running different versions of CKAN, the result of an API
 request that doesn't specify the API version number cannot be relied on.
 
 
+.. _api authentication:
+
 ---------------------------
 Authentication and API Keys
 ---------------------------
@@ -315,6 +317,28 @@ http://demo.ckan.org/api/3/action/package_show?id=adur_district_spending&callbac
 --------------------
 Action API Reference
 --------------------
+
+.. note::
+
+   If you call one of the action functions listed below and the function
+   raises an exception, the API will return a JSON dictionary with keys
+   ``"success": false`` and and an ``"error"`` key indicating the exception
+   that was raised.
+
+   For example :py:func:`~ckan.logic.action.get.member_list` (which returns a
+   list of the members of a group) raises :py:class:`~ckan.logic.NotFound` if
+   the group doesn't exist. If you called it over the API, you'd get back a
+   JSON dict like this::
+
+    {
+        "success": false
+        "error": {
+            "__type": "Not Found Error",
+            "message": "Not found"
+        },
+        "help": "...",
+    }
+
 
 ckan.logic.action.get
 =====================

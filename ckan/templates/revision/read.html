@@ -20,15 +20,15 @@
       >
       <li>
         {% if rev.state != 'deleted' %}
-        <button type="submit" name="action" value="delete" class="btn btn-danger">
-          <i class="icon-trash"></i> {{ _('Delete') }}
-        </button>
+          <button type="submit" name="action" value="delete" class="btn btn-danger">
+            <i class="icon-trash"></i> {{ _('Delete') }}
+          </button>
         {% endif %}
         {% if rev.state == 'deleted' %}
-        <button type="submit" name="action" value="undelete" class="btn btn-danger">
-          <i class="icon-trash"></i>
-          {{ _('Undelete') }}
-        </button>
+          <button type="submit" name="action" value="undelete" class="btn btn-danger">
+            <i class="icon-trash"></i>
+            {{ _('Undelete') }}
+          </button>
         {% endif %}
       </li>
     </form>
