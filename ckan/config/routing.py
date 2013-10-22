@@ -235,8 +235,6 @@ def make_map():
                   ])))
         m.connect('dataset_edit', '/dataset/edit/{id}', action='edit',
                   ckan_icon='edit')
-        m.connect('dataset_resources', '/dataset/resources/{id}',
-                  action='resources', ckan_icon='time')
         m.connect('dataset_followers', '/dataset/followers/{id}',
                   action='followers', ckan_icon='group')
         m.connect('dataset_activity', '/dataset/activity/{id}',

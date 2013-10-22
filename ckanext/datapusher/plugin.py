@@ -8,7 +8,7 @@ import ckanext.datapusher.logic.auth as auth
 import ckanext.datapusher.helpers as helpers
 import ckan.logic as logic
 import ckan.model as model
-from ckan.common import c, _, request
+import ckan.plugins.toolkit as toolkit
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -24,10 +24,9 @@ class ResourceDataController(base.BaseController):
 
     def resource_data(self, id, resource_id):
 
-        if request.method == 'POST':
-            result = request.POST
+        if toolkit.request.method == 'POST':
             try:
-                c.pkg_dict = p.toolkit.get_action('datapusher_submit')(
+                toolkit.c.pkg_dict = p.toolkit.get_action('datapusher_submit')(
                     None, {'resource_id': resource_id}
                 )
             except logic.ValidationError:
@@ -41,10 +40,10 @@ class ResourceDataController(base.BaseController):
             )
 
         try:
-            c.pkg_dict = p.toolkit.get_action('package_show')(
+            toolkit.c.pkg_dict = p.toolkit.get_action('package_show')(
                 None, {'id': id}
             )
-            c.resource = p.toolkit.get_action('resource_show')(
+            toolkit.c.resource = p.toolkit.get_action('resource_show')(
                 None, {'id': resource_id}
             )
         except logic.NotFound:
@@ -85,10 +84,6 @@ class DatapusherPlugin(p.SingletonPlugin):
         if not datapusher_url:
             raise Exception(
                 'Config option `ckan.datapusher.url` has to be set.')
-
-        if not datapusher_url:
-            raise Exception(
-                'Config option `ckan.datapusher.secret_key` has to be set.')
 
     def notify(self, entity, operation=None):
         if isinstance(entity, model.Resource):

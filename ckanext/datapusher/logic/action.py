@@ -131,13 +131,18 @@ def datapusher_hook(context, data_dict):
     ''' Update datapusher task. This action is typically called by the
     datapusher whenever the status of a job changes.
 
-    Expects a job with ``status`` and ``metadata`` with a ``resource_id``.
+    :param metadata: metadata produced by datapuser service must have
+       resource_id property.
+    :type metadata: dict
+    :param status: status of the job from the datapusher service
+    :type status: string
     '''
 
-    # TODO: use a schema to validate
+    metadata, status = _get_or_bust(data_dict, ['metadata', 'status'])
+
     p.toolkit.check_access('datapusher_submit', context, data_dict)
 
-    res_id = data_dict['metadata']['resource_id']
+    res_id = metadata.get('resource_id')
 
     task = p.toolkit.get_action('task_status_show')(context, {
         'entity_id': res_id,
@@ -145,7 +150,7 @@ def datapusher_hook(context, data_dict):
         'key': 'datapusher'
     })
 
-    task['state'] = data_dict['status']
+    task['state'] = status
     task['last_updated'] = str(datetime.datetime.now())
 
     p.toolkit.get_action('task_status_update')(context, task)
@@ -174,7 +179,7 @@ def datapusher_status(context, data_dict):
     datapusher_url = pylons.config.get('ckan.datapusher.url')
     if not datapusher_url:
         raise p.toolkit.ValidationError(
-            {'configuration': ['DataPusher not configured.']})
+            {'configuration': ['ckan.datapusher.url not in config file']})
 
     value = json.loads(task['value'])
     job_key = value.get('job_key')
