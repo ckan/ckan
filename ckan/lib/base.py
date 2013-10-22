@@ -128,8 +128,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         try:
             template_path, template_type = render_.template_info(template_name)
         except render_.TemplateNotFound:
-            template_type = 'genshi'
-            template_path = ''
+            raise
 
         # snippets should not pass the context
         # but allow for legacy genshi templates
@@ -227,6 +226,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         raise ckan.exceptions.CkanUrlException(
             '\nAn Exception has been raised for template %s\n%s' %
             (template_name, e.message))
+    except render_.TemplateNotFound:
+        raise
 
 
 class ValidationException(Exception):
