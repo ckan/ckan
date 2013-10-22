@@ -123,17 +123,20 @@ class TestAuthOrgs(TestAuth):
         self._call_api('package_create', dataset, 'no_org', 403)
 
     def test_04_create_dataset_with_org(self):
-
+        org_with_user = self._call_api('organization_show', {'id':
+            'org_with_user'}, 'sysadmin')
         dataset = {'name': 'admin_create_with_user',
-                   'owner_org': 'org_with_user'}
+                   'owner_org': org_with_user.json['result']['id']}
         self._call_api('package_create', dataset, 'sysadmin', 200)
 
+        org_no_user = self._call_api('organization_show', {'id':
+            'org_no_user'}, 'sysadmin')
         dataset = {'name': 'sysadmin_create_no_user',
-                   'owner_org': 'org_no_user'}
+                   'owner_org': org_no_user.json['result']['id']}
         self._call_api('package_create', dataset, 'sysadmin', 200)
 
         dataset = {'name': 'user_create_with_org',
-                   'owner_org': 'org_with_user'}
+                   'owner_org': org_with_user.json['result']['id']}
         self._call_api('package_create', dataset, 'no_org', 403)
 
     def test_05_add_users_to_org(self):
@@ -164,7 +167,7 @@ class TestAuthOrgs(TestAuth):
 
         #not able to add dataset to org admin does not belong to.
         dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_no_user'}
-        self._call_api('package_create', dataset, user, 409)
+        self._call_api('package_create', dataset, user, 403)
 
         #admin not able to make dataset not owned by a org
         dataset = {'name': user + '_dataset_bad'}
@@ -172,7 +175,7 @@ class TestAuthOrgs(TestAuth):
 
         #not able to add org to not existant org
         dataset = {'name': user + '_dataset_bad', 'owner_org': 'org_not_exist'}
-        self._call_api('package_create', dataset, user, 409)
+        self._call_api('package_create', dataset, user, 403)
 
     def test_07_add_datasets(self):
         self._add_datasets('org_admin')
