@@ -27,7 +27,6 @@ to update CKAN's default package schema to include our custom field.
     class ExtraFieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         p.implements(p.IDatasetForm)
 
-
 Updating the CKAN Schema
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -94,7 +93,6 @@ field to be converted *from* an extras field. So we want to use the
     will seemlessly appear as part of the schema. This means it appears as a 
     top level attribute for our package in our templates and API calls whilst 
     letting CKAN handle the conversion and saving to the package_extra table. 
-
 
 Package Types
 ^^^^^^^^^^^^^
@@ -202,18 +200,12 @@ You're done! Make sure you have your plugin installed and setup as in the
 an additional field called "Custom Text" when displaying and adding/editing a 
 dataset.
 
-Tag Vocabularies
-----------------
-If you need to add a custom field where the input options are restrcited to a
-provide list of options, you can use tag vocabularies `/tag-vocabularies`
+Cleaning up the code
+^^^^^^^^^^^^^^^^^^^^
 
-Adding Custom Fields to Resources
----------------------------------
-
-In order to customize the fields in a resource the schema for resources needs
-to be modified in a similar way to the packages. Before we do, we can clean up
-the ``create_package_schema`` and ``update_package_schema``. There is a bit of
-duplication that we could remove. Replace the two functions with
+Before we continue further, we can clean up the ``create_package_schema``
+and ``update_package_schema``. There is a bit of duplication that we could
+remove. Replace the two functions with
 
 .. code-block:: python
 
@@ -234,7 +226,141 @@ duplication that we could remove. Replace the two functions with
         schema = self._modify_package_schema(schema)
         return schema
 
-Now we can add our additional field to the resource schema. The resource schema
+Tag Vocabularies
+----------------
+If you need to add a custom field where the input options are restrcited to a
+provide list of options, you can use tag vocabularies `/tag-vocabularies`. We
+will need to create our vocabulary first. By calling vocabulary_create. Add a
+function to your plugin.py above your plugin class.
+
+.. code-block:: python
+
+        def create_country_codes():
+            user = tk.get_action('get_site_user')({'ignore_auth': True}, {})
+            context = {'user': user['name']}
+            try:
+                data = {'id': 'country_codes'}
+                tk.get_action('vocabulary_show')(context, data)
+            except tk.ObjectNotFound:
+                data = {'name': 'country_codes'}
+                vocab = tk.get_action('vocabulary_create')(context, data)
+                for tag in (u'uk', u'ie', u'de', u'fr', u'es'):
+                    data = {'name': tag, 'vocabulary_id': vocab['id']}
+                    tk.get_action('tag_create')(context, data)
+
+This codeblock is taken from the ``example_idatsetform plugin``.
+``create_country_codes`` tries to fetch the vocabulary country_codes using
+``vocabulary_show``. If it is not found it will create it and iterate over
+the list of countries 'uk', 'ie', 'de', 'fr', 'es'. For each of these
+a vocabulary tag is created using ``tag_create``, belonging to the vocabulary
+``country_code``. 
+
+Although we have only defined five tags here, additional tags can be created
+at any point by a sysadmin user by calling ``tag_create`` using the API or action
+functions. Add a second function below ``create_country_codes``
+
+.. code-block:: python
+
+    def country_codes():
+        create_country_codes()
+        try:
+            country_codes = tk.get_action('tag_list')(
+                    data_dict={'vocabulary_id': 'country_codes'})
+            return country_codes
+        except tk.ObjectNotFound:
+            return None
+
+country_codes will call ``create_country_codes`` so that the ``country_codes``
+vocabulary is created if it does not exist. Then it calls tag_list to return
+all of our vocabulary tags together. Now we have a way of retrieving our tag
+vocabularies and creating them if they do not exist. We just need our plugin
+to call this code.  
+
+Adding Tags to the Schema
+^^^^^^^^^^^^^^^^^^^^^^^^^
+Update ``_modify_package_schema`` and ``show_package_schema``
+
+.. code-block:: python
+   :emphasize-lines: 8,19-24
+
+    def _modify_package_schema(self, schema):
+        schema.update({
+            'custom_text': [tk.get_validator('ignore_missing'),
+                tk.get_converter('convert_to_extras')]
+        })
+        schema.update({
+                'country_code': [tk.get_validator('ignore_missing'),
+                    tk.get_converter('convert_to_tags')('country_codes')]
+                })
+        return schema
+
+    def show_package_schema(self):
+        schema = super(CustomFieldsPlugins, self).show_package_schema()
+        schema.update({
+            'custom_text': [tk.get_converter('convert_from_extras'),
+                tk.get_validator('ignore_missing')]
+        })
+
+        schema['tags']['__extras'].append(tk.get_converter('free_tags_only'))
+        schema.update({
+            'country_code': [
+                tk.get_converter('convert_from_tags')('country_codes'),
+                tk.get_validator('ignore_missing')]
+            })
+        return schema
+
+We are adding our tag to our plugin's schema. A converter is required to
+convert the field in to our tag in a similar way to how we converted our field
+to extras earlier. In ``show_package_schema`` we convert from the tag back again
+but we have an additional line with another converter containing 
+``free_tags_only``. We include this line so that vocab tags are not shown mixed
+with normal free tags.
+
+Adding Tags to Templates
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Add an additional plugin.implements line to to your plugin
+to implement the ``ITemplateHelpers``, we will need to add a ``get_helpers``
+function defined for this interface.
+
+.. code-block:: python
+
+    plugins.implements(plugins.ITemplateHelpers, inherit=False)
+
+    def get_helpers(self):
+        return {'country_codes': country_codes}
+
+Our intention here is to tie our country_code fetching/creation to when they
+are used in the templates. Add the code below to
+``package/snippets/package_metadata_fields.html``
+
+.. code-block:: jinja 
+
+    {% block package_metadata_fields %}
+
+      <div class="control-group">
+        <label class="control-label" for="field-country_code">{{ _("Country Code") }}</label>
+        <div class="controls">
+          <select id="field-country_code" name="country_code" data-module="autocomplete">
+            {% for country_code in h.country_codes()  %}
+              <option value="{{ country_code }}" {% if country_code in data.get('country_code', []) %}selected="selected"{% endif %}>{{ country_code }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      {{ super() }}
+
+    {% endblock %}
+
+This adds our country code to our template, here we are using the additional
+helper country_codes that we defined in our get_helpers function in our plugin.
+
+Adding Custom Fields to Resources
+---------------------------------
+
+In order to customize the fields in a resource the schema for resources needs
+to be modified in a similar way to the packages. The resource schema
 is nested in the package dict as package['resources']. We modify this dict in
 a similar way to the package schema. Change ``_modify_package_schema`` to the 
 following.
@@ -271,6 +397,6 @@ Save and reload your development server
 .. topic:: Details
 
    CKAN will take any additional keys from the resource schema and save
-   them the it's extras field. This is a Postgres Json datatype field, any
-   additional keys get saved there. The templates will automatically check
-   this field and display them in the resource_read page.
+   them the it's extras field. This is a Postgres Json datatype field, 
+   The templates will automatically check this field and display them in the 
+   resource_read page.
