@@ -8,12 +8,14 @@
 {% block breadcrumb_content %}
   {{ super() }}
   <li>{% link_for h.resource_display_name(res)|truncate(30), controller='package', action='resource_read', id=pkg.name, resource_id=res.id %}</li>
-  <li class="active"><a href="">Edit</a></li>
+  <li class="active"><a href="">{{ _('Edit') }}</a></li>
 {% endblock %}
 
 {% block content_action %}
   {% link_for _('All resources'), controller='package', action='resources', id=pkg.name, class_='btn', icon='arrow-left' %}
-  {% link_for _('View resource'), controller='package', action='resource_read', id=pkg.name, resource_id=res.id, class_='btn', icon='eye-open' %}
+  {% if res %}
+    {% link_for _('View resource'), controller='package', action='resource_read', id=pkg.name, resource_id=res.id, class_='btn', icon='eye-open' %}
+  {% endif %}
 {% endblock %}
 
 {% block content_primary_nav %}
