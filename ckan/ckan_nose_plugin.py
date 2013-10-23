@@ -19,6 +19,8 @@ class CkanNose(Plugin):
 
         if 'new_tests' in repr(ctx):
             # We don't want to do the stuff below for new-style tests.
+            if CkanNose.settings.keep_database:
+                model.repo.tables_created_and_initialised = True
             return
 
         if isclass(ctx):

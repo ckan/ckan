@@ -38,7 +38,7 @@ def reset_db():
     # This prevents CKAN from hanging waiting for some unclosed connection.
     model.Session.close_all()
 
-    model.repo.clean_db()
+    model.repo.rebuild_db()
 
 
 def call_action(action_name, context=None, **kwargs):
