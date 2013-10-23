@@ -96,15 +96,13 @@ def datastore_create(context, data_dict):
 
         # create resource from file
         if has_url:
-            try:
-                p.toolkit.get_action('datapusher_submit')(context, {
-                    'resource_id': res['id'],
-                    'set_url_type': True
-                })
-            except KeyError:
+            if not 'datapusher' in pylons.config.get('plugins'):
                 raise p.toolkit.ValidationError({'resource': [
                     'The datapusher has to be enabled.']})
-
+            p.toolkit.get_action('datapusher_submit')(context, {
+                'resource_id': res['id'],
+                'set_url_type': True
+            })
             # since we'll overwrite the datastore resource anyway, we
             # don't need to create it here
             return

@@ -186,11 +186,13 @@ def datapusher_status(context, data_dict):
     job_id = value.get('job_id')
     url = None
     job_detail = None
+
     if job_id:
         url = urlparse.urljoin(datapusher_url, 'job' + '/' + job_id)
         try:
             r = requests.get(url, headers={'Content-Type': 'application/json',
                                            'Authorization': job_key})
+            r.raise_for_status()
             job_detail = r.json()
         except (requests.exceptions.ConnectionError,
                 requests.exceptions.HTTPError), e:
