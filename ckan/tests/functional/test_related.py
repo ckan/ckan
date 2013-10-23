@@ -498,4 +498,5 @@ class TestRelatedActionAPI(apibase.BaseModelApiTestCase):
                             extra_environ=extra)
         r = json.loads(res.body)
         assert r['success'] == False, r
-        assert r[u'error'][u'message'] == u'Access denied' , r
+        error_msg = u'Access denied: Only the owner can delete a related item'
+        assert r[u'error'][u'message'] == error_msg, r

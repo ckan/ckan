@@ -523,9 +523,11 @@ class TestAction(WsgiAppCase):
 
         res_obj = json.loads(res.body)
         assert res_obj['help'].startswith("Update a user account.")
+        error_msg = u'Access denied: User annafan not authorized to edit user {0}'.format(
+            sysadmin_user_dict['id'])
         assert res_obj['error'] == {
                 '__type': 'Authorization Error',
-                'message': 'Access denied'
+                'message': error_msg,
             }
         assert res_obj['success'] is False
 
@@ -787,7 +789,9 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert res_obj['help'].startswith("Update a task status.")
         assert res_obj['success'] is False
-        assert res_obj['error'] == {'message': 'Access denied', '__type': 'Authorization Error'}
+        error_msg = (u'Access denied: User annafan not authorized to update '
+            'task_status table')
+        assert res_obj['error'] == {'message': error_msg, '__type': 'Authorization Error'}
 
     def test_23_task_status_validation(self):
         task_status = {}
