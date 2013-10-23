@@ -1,5 +1,5 @@
 ============================
-Adding Custom Fields to CKAN
+Adding custom fields to CKAN
 ============================
 
 CKAN by default allows users to enter custom fields and values into datasets in
@@ -9,7 +9,7 @@ customize this handling so that your metadata is more integrated with the form
 and API. In this tutorial we are assuming that you have read the
 :doc:`/extensions/tutorial`
 
-Adding Custom Fields to Packages
+Adding custom fields to packages
 --------------------------------
 
 Create a new plugin named ``ckanext-extrafields`` and create a class named
@@ -27,7 +27,7 @@ to update CKAN's default package schema to include our custom field.
     class ExtraFieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         p.implements(p.IDatasetForm)
 
-Updating the CKAN Schema
+Updating the CKAN schema
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``create_package_schema`` function is used whenever a new package is
@@ -94,7 +94,7 @@ field to be converted *from* an extras field. So we want to use the
     top level attribute for our package in our templates and API calls whilst 
     letting CKAN handle the conversion and saving to the package_extra table. 
 
-Package Types
+Package types
 ^^^^^^^^^^^^^
 
 The ``package_types`` function defines a list of package types that this plugin
@@ -115,7 +115,7 @@ handler, we update the plugin code to contain the following
         # registers itself as the default (above).
         return []
 
-Updating Templates
+Updating templates
 ^^^^^^^^^^^^^^^^^^
 
 In order for our new field to be visible on the CKAN front-end, we need to
@@ -226,7 +226,7 @@ remove. Replace the two functions with
         schema = self._modify_package_schema(schema)
         return schema
 
-Tag Vocabularies
+Tag vocabularies
 ----------------
 If you need to add a custom field where the input options are restrcited to a
 provide list of options, you can use tag vocabularies `/tag-vocabularies`. We
@@ -276,7 +276,7 @@ all of our vocabulary tags together. Now we have a way of retrieving our tag
 vocabularies and creating them if they do not exist. We just need our plugin
 to call this code.  
 
-Adding Tags to the Schema
+Adding tags to the schema
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 Update ``_modify_package_schema`` and ``show_package_schema``
 
@@ -316,7 +316,7 @@ but we have an additional line with another converter containing
 ``free_tags_only``. We include this line so that vocab tags are not shown mixed
 with normal free tags.
 
-Adding Tags to Templates
+Adding tags to templates
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add an additional plugin.implements line to to your plugin
@@ -356,7 +356,7 @@ are used in the templates. Add the code below to
 This adds our country code to our template, here we are using the additional
 helper country_codes that we defined in our get_helpers function in our plugin.
 
-Adding Custom Fields to Resources
+Adding custom fields to resources
 ---------------------------------
 
 In order to customize the fields in a resource the schema for resources needs
