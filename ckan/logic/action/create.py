@@ -6,6 +6,7 @@ import re
 
 from pylons import config
 import paste.deploy.converters
+from sqlalchemy import func
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
@@ -277,9 +278,6 @@ def resource_view_create(context, data_dict):
     :type description: string
     :param view_type: type of view
     :type view_type: string
-    :param order: a number denoting the position of this view in the
-        list of views for the resource (optional)
-    :type view_number: int
     :param config: options necessary to recreate a view state (optional)
     :type config: JSON string
 
@@ -297,6 +295,15 @@ def resource_view_create(context, data_dict):
         raise ValidationError(errors)
 
     _check_access('resource_view_create', context, data_dict)
+
+    max_order = model.Session.query(
+        func.max(model.ResourceView.order)
+        ).filter_by(resource_id=data['resource_id']).first()
+
+    order = 0
+    if max_order[0]:
+        order = max_order[0] + 1
+    data['order'] = order
 
     resource_view = model_save.resource_view_dict_save(data, context)
     if not context.get('defer_commit'):

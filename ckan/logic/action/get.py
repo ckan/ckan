@@ -15,7 +15,6 @@ import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.navl.dictization_functions
-import ckan.model as model
 import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
@@ -904,6 +903,25 @@ def resource_view_show(context, data_dict):
     _check_access('resource_view_show', context, data_dict)
     return model_dictize.resource_view_dictize(resource_view, context)
 
+def resource_view_list(context, data_dict):
+    '''
+    Return the metadata of a resource_view.
+
+    :param id: the id of the resource
+    :type id: string
+
+    :rtype: lost of dictioniaries.
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+    resource = model.Resource.get(id)
+    if not resource:
+        raise NotFound
+    context['resource'] = resource
+    _check_access('resource_view_list', context, data_dict)
+    q = model.Session.query(model.ResourceView).filter_by(resource_id=id)
+    resource_views = q.order_by(model.ResourceView.order).all()
+    return model_dictize.resource_view_list_dictize(resource_views, context)
 
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.

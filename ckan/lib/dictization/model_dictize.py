@@ -635,4 +635,13 @@ def user_following_group_dictize(follower, context):
 
 
 def resource_view_dictize(resource_view, context):
-    return d.table_dictize(resource_view, context)
+    dictized = d.table_dictize(resource_view, context)
+    dictized.pop('order')
+    return dictized
+
+def resource_view_list_dictize(resource_views, context):
+    resource_view_dicts = []
+    for view in resource_views:
+        resource_view_dicts.append(resource_view_dictize(view, context))
+    return resource_view_dicts
+

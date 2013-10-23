@@ -583,7 +583,6 @@ def default_resource_view_schema():
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
         'view_type': [not_empty, unicode],
-        'order': [not_empty, natural_number_validator],
         'config': [ignore_missing]
     }
     return schema
@@ -592,4 +591,7 @@ def default_resource_view_schema():
 def default_update_resource_view_schema():
     schema = default_resource_view_schema()
     schema.update({'id': [not_missing, not_empty, unicode]})
+    schema.update({'resource_id': [ignore_missing, resource_id_exists ]})
+    schema.update({'view_type': [ignore_missing, unicode ]})
     return schema
+
