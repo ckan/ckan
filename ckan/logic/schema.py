@@ -331,6 +331,15 @@ def default_related_schema():
     return schema
 
 
+def default_update_related_schema():
+    schema = default_related_schema()
+    schema['id'] = [not_empty, unicode]
+    schema['title'] = [ignore_missing, unicode]
+    schema['type'] = [ignore_missing, unicode]
+    schema['owner_id'] = [ignore_missing, unicode]
+    return schema
+
+
 def default_extras_schema():
 
     schema = {
