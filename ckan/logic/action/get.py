@@ -733,6 +733,7 @@ def package_show(context, data_dict):
     use_cache = (context.get('use_cache', True)
         and not 'revision_id' in context
         and not 'revision_date' in context)
+
     if use_cache:
         try:
             search_result = search.show(name_or_id)
@@ -741,6 +742,7 @@ def package_show(context, data_dict):
         else:
             use_validated_cache = 'schema' not in context
             if use_validated_cache and 'validated_data_dict' in search_result:
+                log.info("Using package data from search_results")
                 package_dict = json.loads(search_result['validated_data_dict'])
                 package_dict_validated = True
             else:
