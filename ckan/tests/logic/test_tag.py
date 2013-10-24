@@ -151,8 +151,7 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert res_obj['help'].startswith("Create a new user.")
         assert res_obj['success'] is False
-        error_msg = 'Access denied: User  not authorized to create users'
-        assert res_obj['error'] == {'message': error_msg, '__type': 'Authorization Error'}
+        assert res_obj['error']['__type'] == 'Authorization Error'
 
     def test_09_user_create(self):
         user_dict = {'name':'test_create_from_action_api',
