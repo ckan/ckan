@@ -2013,7 +2013,7 @@ class TestRelatedAction(WsgiAppCase):
                             extra_environ={'Authorization': 'tester'})
         return json.loads(res.body)['result']
 
-    def test_01_update_add_related_item(self):
+    def test_update_add_related_item(self):
         package = self._add_basic_package()
         related_item = {
             "description": "Testing a Description",
@@ -2025,17 +2025,22 @@ class TestRelatedAction(WsgiAppCase):
             "dataset_id": package['id'],
         }
         related_item_json = json.dumps(related_item)
-        res_create = self.app.post('/api/action/related_create', params=related_item_json,
-                            extra_environ={'Authorization': 'tester'})
-        assert res_create.json['success'] == True
+        res_create = self.app.post('/api/action/related_create',
+                                   params=related_item_json,
+                                   extra_environ={'Authorization': 'tester'})
+        assert res_create.json['success']
 
         related_update = res_create.json['result']
         related_update = {'id': related_update['id'], 'title': 'Updated'}
         related_update_json = json.dumps(related_update)
-        res_update = self.app.post('/api/action/related_update', params=related_update_json,
-                            extra_environ={'Authorization': 'tester'})
-        assert res_update.json['success'] == True
+        res_update = self.app.post('/api/action/related_update',
+                                   params=related_update_json,
+                                   extra_environ={'Authorization': 'tester'})
+        assert res_update.json['success']
         res_update_json = res_update.json['result']
         assert res_update_json['title'] == related_update['title']
 
-
+        related_item.pop('title')
+        related_item.pop('dataset_id')
+        for field in related_item:
+            assert related_item[field] == res_update_json[field]
