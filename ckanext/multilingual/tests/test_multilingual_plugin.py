@@ -3,6 +3,7 @@ import ckanext.multilingual.plugin as mulilingual_plugin
 import ckan.lib.helpers
 import ckan.lib.create_test_data
 import ckan.logic.action.update
+import ckan.model as model
 import ckan.tests
 import ckan.tests.html_check
 import routes
@@ -22,6 +23,21 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
         ckan.plugins.load('multilingual_tag')
         ckan.tests.setup_test_search_index()
         _create_test_data.CreateTestData.create_translations_test_data()
+
+        cls.sysadmin_user = model.User.get('testsysadmin')
+        cls.org = {'name': 'test_org',
+                   'title': 'russian',
+                   'description': 'Roger likes these books.'}
+        ckan.tests.call_action_api(cls.app, 'organization_create',
+                                   apikey=cls.sysadmin_user.apikey,
+                                   **cls.org)
+        dataset = {'name': 'test_org_dataset',
+                   'title': 'A Novel By Tolstoy',
+                   'owner_org': cls.org['name']}
+        ckan.tests.call_action_api(cls.app, 'package_create',
+                                   apikey=cls.sysadmin_user.apikey,
+                                   **dataset)
+
         # Add translation terms that match a couple of group names and package
         # names. Group names and package names should _not_ get translated even
         # if there are terms matching them, because they are used to form URLs.
@@ -175,6 +191,28 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                 assert '%s?tags=%s' % (offset, tag_name) in response
             assert 'this should not be rendered' not in response
 
+    def test_org_read_translation(self):
+        for (lang_code, translations) in (
+                ('de', _create_test_data.german_translations),
+                ('fr', _create_test_data.french_translations),
+                ('en', _create_test_data.english_translations),
+                ('pl', {})):
+            offset = '/{0}/organization/{1}'.format(
+                lang_code, self.org['name'])
+            response = self.app.get(offset, status=200)
+            terms = ('A Novel By Tolstoy',
+                     'russian',
+                     'Roger likes these books.')
+            for term in terms:
+                if term in translations:
+                    assert translations[term] in response
+                elif term in _create_test_data.english_translations:
+                    assert (_create_test_data.english_translations[term]
+                            in response)
+                else:
+                    assert term in response
+            assert 'this should not be rendered' not in response
+
     def test_dataset_index_translation(self):
         for (lang_code, translations) in (
                 ('de', _create_test_data.german_translations),
@@ -224,6 +262,26 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                     assert term in response
             for group_name in ('david', 'roger'):
                 assert '/%s/group/%s' % (lang_code, group_name) in response
+            assert 'this should not be rendered' not in response
+
+    def test_org_index_translation(self):
+        for (lang_code, translations) in (
+                ('de', _create_test_data.german_translations),
+                ('fr', _create_test_data.french_translations),
+                ('en', _create_test_data.english_translations),
+                ('pl', {})):
+            offset = '/{0}/organization'.format(lang_code)
+            response = self.app.get(offset, status=200)
+            for term in ('russian', 'Roger likes these books.'):
+                if term in translations:
+                    assert translations[term] in response
+                elif term in _create_test_data.english_translations:
+                    assert (_create_test_data.english_translations[term]
+                            in response)
+                else:
+                    assert term in response, response
+            assert ('/{0}/organization/{1}'.format(lang_code, self.org['name'])
+                    in response)
             assert 'this should not be rendered' not in response
 
     def test_tag_index_translation(self):
