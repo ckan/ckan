@@ -96,7 +96,7 @@ def datastore_create(context, data_dict):
 
         # create resource from file
         if has_url:
-            if not 'datapusher' in pylons.config.get('plugins'):
+            if not 'datapusher' in pylons.config.get('ckan.plugins', ''):
                 raise p.toolkit.ValidationError({'resource': [
                     'The datapusher has to be enabled.']})
             p.toolkit.get_action('datapusher_submit')(context, {
