@@ -6,8 +6,10 @@ from hashlib import sha1, md5
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table
+import vdm.sqlalchemy
 
 import meta
+import core
 import types as _types
 import domain_object
 
@@ -28,8 +30,11 @@ user_table = Table('user', meta.metadata,
         Column('sysadmin', types.Boolean, default=False),
         )
 
+vdm.sqlalchemy.make_table_stateful(user_table)
 
-class User(domain_object.DomainObject):
+
+class User(vdm.sqlalchemy.StatefulObjectMixin,
+           domain_object.DomainObject):
 
     VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")
     DOUBLE_SLASH = re.compile(':\/([^/])')
@@ -38,6 +43,10 @@ class User(domain_object.DomainObject):
     def by_openid(cls, openid):
         obj = meta.Session.query(cls).autoflush(False)
         return obj.filter_by(openid=openid).first()
+
+    @classmethod
+    def by_email(cls, email):
+        return meta.Session.query(cls).filter_by(email=email).all()
 
     @classmethod
     def get(cls, user_reference):
@@ -162,20 +171,35 @@ class User(domain_object.DomainObject):
         q = q.filter_by(user=self, role=model.Role.ADMIN)
         return q.count()
 
-    def is_in_group(self, group):
-        return group in self.get_group_ids()
+    def activate(self):
+        ''' Activate the user '''
+        self.state = core.State.ACTIVE
 
-    def is_in_groups(self, groupids):
+    def set_pending(self):
+        ''' Set the user as pending '''
+        self.state = core.State.PENDING
+
+    def is_deleted(self):
+        return self.state == core.State.DELETED
+
+    def is_pending(self):
+        return self.state == core.State.PENDING
+
+    def is_in_group(self, group_id):
+        return group_id in self.get_group_ids()
+
+    def is_in_groups(self, group_ids):
         ''' Given a list of group ids, returns True if this user is in
         any of those groups '''
         guser = set(self.get_group_ids())
-        gids = set(groupids)
+        gids = set(group_ids)
 
         return len(guser.intersection(gids)) > 0
 
-    def get_group_ids(self, group_type=None):
+    def get_group_ids(self, group_type=None, capacity=None):
         ''' Returns a list of group ids that the current user belongs to '''
-        return [g.id for g in self.get_groups(group_type=group_type)]
+        return [g.id for g in
+                self.get_groups(group_type=group_type, capacity=capacity)]
 
     def get_groups(self, group_type=None, capacity=None):
         import ckan.model as model

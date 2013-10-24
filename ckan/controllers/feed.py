@@ -47,7 +47,7 @@ def _package_search(data_dict):
      * unless overridden, sets a default item limit
     """
     context = {'model': model, 'session': model.Session,
-               'user': c.user or c.author}
+               'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
     if 'sort' not in data_dict or not data_dict['sort']:
         data_dict['sort'] = 'metadata_modified desc'
@@ -170,7 +170,7 @@ class FeedController(base.BaseController):
     def group(self, id):
         try:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
             group_dict = logic.get_action('group_show')(context, {'id': id})
         except logic.NotFound:
             base.abort(404, _('Group not found'))
