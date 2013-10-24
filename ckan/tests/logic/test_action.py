@@ -528,10 +528,7 @@ class TestAction(WsgiAppCase):
 
         res_obj = json.loads(res.body)
         assert res_obj['help'].startswith("Update a user account.")
-        assert res_obj['error'] == {
-                '__type': 'Authorization Error',
-                'message': 'Access denied'
-            }
+        assert res_obj['error']['__type'] == 'Authorization Error'
         assert res_obj['success'] is False
 
     def test_12_user_update_errors(self):
@@ -893,7 +890,7 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert res_obj['help'].startswith("Update a task status.")
         assert res_obj['success'] is False
-        assert res_obj['error'] == {'message': 'Access denied', '__type': 'Authorization Error'}
+        assert res_obj['error']['__type'] == 'Authorization Error'
 
     def test_23_task_status_validation(self):
         task_status = {}
