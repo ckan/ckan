@@ -115,6 +115,7 @@ setup(
     organizations=ckanext.organizations.forms:OrganizationForm
     organizations_dataset=ckanext.organizations.forms:OrganizationDatasetForm
     datastore=ckanext.datastore.plugin:DatastorePlugin
+    datapusher=ckanext.datapusher.plugin:DatapusherPlugin
     test_tag_vocab_plugin=ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin
     resource_proxy=ckanext.resourceproxy.plugin:ResourceProxy
     text_preview=ckanext.textpreview.plugin:TextPreview

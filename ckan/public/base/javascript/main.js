@@ -36,6 +36,7 @@ this.ckan = this.ckan || {};
       ckan.i18n.load(data);
       ckan.module.initialize();
     });
+    jQuery('[data-target="popover"]').popover();
   };
 
   /* Returns a full url for the current site with the provided path appended.

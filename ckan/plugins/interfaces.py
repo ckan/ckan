@@ -443,7 +443,6 @@ class IPackageController(Interface):
 class IResourceController(Interface):
     """
     Hook into the resource controller.
-    (see IGroupController)
     """
 
     def before_show(self, resource_dict):

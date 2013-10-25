@@ -11,7 +11,7 @@ import ckan.model as model
 import ckan.tests as tests
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs
+from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 
 class TestDatastoreUpsert(tests.WsgiAppCase):
@@ -26,6 +26,8 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
@@ -249,6 +251,8 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
@@ -349,6 +353,8 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
         resource = model.Package.get('annakarenina').resources[0]
         hhguide = u"hitchhiker's guide to the galaxy"
         cls.data = {

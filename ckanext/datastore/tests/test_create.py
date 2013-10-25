@@ -17,7 +17,7 @@ import ckan.tests as tests
 import ckan.config.middleware as middleware
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs
+from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 
 # avoid hanging tests https://github.com/gabrielfalcao/HTTPretty/issues/34
@@ -44,6 +44,8 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
     @classmethod
     def teardown_class(cls):
@@ -535,144 +537,6 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is True, res_dict
-
-    def test_create_ckan_resource_in_package(self):
-        package = model.Package.get('annakarenina')
-        data = {
-            'resource': {'package_id': package.id}
-        }
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth, status=200)
-        res_dict = json.loads(res.body)
-
-        assert 'resource_id' in res_dict['result']
-        assert len(model.Package.get('annakarenina').resources) == 3
-
-        res = tests.call_action_api(
-            self.app, 'resource_show', id=res_dict['result']['resource_id'])
-        assert res['url'] == '/datastore/dump/' + res['id'], res
-
-    @httpretty.activate
-    def test_providing_res_with_url_calls_datapusher_correctly(self):
-        pylons.config['datapusher.url'] = 'http://datapusher.ckan.org'
-        httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.POST,
-            'http://datapusher.ckan.org/job',
-            content_type='application/json',
-            body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
-
-        package = model.Package.get('annakarenina')
-
-        tests.call_action_api(
-            self.app, 'datastore_create', apikey=self.sysadmin_user.apikey,
-            resource=dict(package_id=package.id, url='demo.ckan.org'))
-
-        assert len(package.resources) == 4, len(package.resources)
-        resource = package.resources[3]
-        data = json.loads(httpretty.last_request().body)
-        assert data['metadata']['resource_id'] == resource.id, data
-        assert data['result_url'].endswith('/action/datapusher_hook'), data
-        assert data['result_url'].startswith('http://'), data
-
-    def test_cant_provide_resource_and_resource_id(self):
-        package = model.Package.get('annakarenina')
-        resource = package.resources[0]
-        data = {
-            'resource_id': resource.id,
-            'resource': {'package_id': package.id}
-        }
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-
-        assert res_dict['error']['__type'] == 'Validation Error'
-
-    @httpretty.activate
-    def test_send_datapusher_creates_task(self):
-        httpretty.HTTPretty.register_uri(
-            httpretty.HTTPretty.POST,
-            'http://datapusher.ckan.org/job',
-            content_type='application/json',
-            body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
-
-        package = model.Package.get('annakarenina')
-        resource = package.resources[0]
-
-        context = {
-            'ignore_auth': True,
-            'user': self.sysadmin_user.name
-        }
-
-        p.toolkit.get_action('datapusher_submit')(context, {
-            'resource_id': resource.id
-        })
-
-        task = p.toolkit.get_action('task_status_show')(context, {
-            'entity_id': resource.id,
-            'task_type': 'datapusher',
-            'key': 'job_id'
-        })
-
-        assert task['state'] == 'pending', task
-
-    def test_datapusher_hook(self):
-        package = model.Package.get('annakarenina')
-        resource = package.resources[0]
-
-        context = {
-            'user': self.sysadmin_user.name
-        }
-
-        p.toolkit.get_action('task_status_update')(context, {
-            'entity_id': resource.id,
-            'entity_type': 'resource',
-            'task_type': 'datapusher',
-            'key': 'job_id',
-            'value': 'my_id',
-            'last_updated': str(datetime.datetime.now()),
-            'state': 'pending'
-        })
-
-        p.toolkit.get_action('task_status_update')(context, {
-            'entity_id': resource.id,
-            'entity_type': 'resource',
-            'task_type': 'datapusher',
-            'key': 'job_key',
-            'value': 'my_key',
-            'last_updated': str(datetime.datetime.now()),
-            'state': 'pending'
-        })
-
-        data = {
-            'status': 'success',
-            'metadata': {
-                'resource_id': resource.id
-            }
-        }
-        postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datapusher_hook', params=postparams,
-                            extra_environ=auth, status=200)
-        print res.body
-        res_dict = json.loads(res.body)
-
-        assert res_dict['success'] is True
-
-        task = tests.call_action_api(
-            self.app, 'task_status_show', entity_id=resource.id,
-            task_type='datapusher', key='job_id')
-
-        assert task['state'] == 'success', task
-
-        task = tests.call_action_api(
-            self.app, 'task_status_show', entity_id=resource.id,
-            task_type='datapusher', key='job_key')
-
-        assert task['state'] == 'success', task
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
