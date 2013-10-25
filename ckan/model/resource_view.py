@@ -27,5 +27,9 @@ class ResourceView(domain_object.DomainObject):
         query = meta.Session.query(cls).filter(cls.id == reference)
         return query.first()
 
+    @classmethod
+    def get_columns(cls):
+        return resource_view_table.columns.keys()
+
 
 meta.mapper(ResourceView, resource_view_table)

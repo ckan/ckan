@@ -121,3 +121,13 @@ def get_preview_plugin(data_dict, return_first=False):
         preview_plugin = max(plugins_that_can_preview,
                              key=lambda x: x['quality'])['plugin']
     return preview_plugin
+
+def get_view_plugin(view_type):
+
+    for plugin in p.PluginImplementations(p.IResourceView):
+        info = plugin.info()
+        name = info.get('name')
+        if name == view_type:
+            return plugin
+
+

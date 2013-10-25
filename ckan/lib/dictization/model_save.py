@@ -623,4 +623,11 @@ def resource_view_dict_save(data_dict, context):
     resource_view = context.get('resource_view')
     if resource_view:
         data_dict['id'] = resource_view.id
+    config = {}
+    for key, value in data_dict.iteritems():
+        if key not in model.ResourceView.get_columns():
+            config[key]  = value
+    data_dict['config'] = config
+
+
     return d.table_dict_save(data_dict, model.ResourceView, context)

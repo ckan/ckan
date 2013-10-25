@@ -130,6 +130,7 @@ setup(
 
     [ckan.system_plugins]
     domain_object_mods = ckan.model.modification:DomainObjectModificationExtension
+    image_view = ckanext.imageview.plugin:ImageView
 
     [ckan.test_plugins]
     routes_plugin=tests.ckantestplugins:RoutesPlugin

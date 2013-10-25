@@ -20,6 +20,7 @@ import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
+import ckan.lib.datapreview as datapreview
 
 from ckan.common import _
 
@@ -289,10 +290,22 @@ def resource_view_create(context, data_dict):
     schema = (context.get('schema') or
               ckan.logic.schema.default_resource_view_schema())
 
+    view_type = data_dict.get('view_type', '')
+    view_plugin = datapreview.get_view_plugin(view_type)
+    if not view_plugin:
+        raise ValidationError(
+            {"view_type":"No plugin found for view_type {view_type}".format(
+                view_type=view_type)
+            }
+        )
+    plugin_schema = view_plugin.info().get('schema', {})
+    schema.update(plugin_schema)
+
     data, errors = _validate(data_dict, schema, context)
     if errors:
         model.Session.rollback()
         raise ValidationError(errors)
+
 
     _check_access('resource_view_create', context, data_dict)
 

@@ -14,6 +14,7 @@ __all__ = [
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
     'IResourcePreview',
+    'IResourceView',
     'IResourceController',
     'IGroupForm',
     'ITagController',
@@ -195,10 +196,15 @@ class IResourceUrlChange(Interface):
         pass
 
 
-class IResourcePreview(Interface):
-    '''Add custom data previews for resource file-types.
+class IResourceView(Interface):
+    '''Add custom data view for resource file-types.
 
     '''
+    def info(self):
+        '''Return configuration for the view.
+        '''
+        return {'name': self.__class__.__name__}
+
     def can_preview(self, data_dict):
         '''Return info on whether the plugin can preview the resource.
 
@@ -246,6 +252,9 @@ class IResourcePreview(Interface):
         rendered for the read page.
         The ``data_dict`` contains the resource and the package.
         '''
+
+class IResourcePreview(Interface):
+    ''' For backwards compatibility with the old resource preview code. '''
 
 
 class ITagController(Interface):
