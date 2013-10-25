@@ -13,16 +13,10 @@
 {% block form %}{% snippet 'package/snippets/resource_form.html', data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage, allow_upload=g.ofs_impl and logged_in %}{% endblock %}
 
 {% block secondary_content %}
-  <section class="module module-narrow module-shallow">
-    <h2 class="module-heading"><i class="icon-info-sign"></i> {{ _('What\'s a resource?') }}</h2>
-    <div class="module-content">
-      <p>{{ _('A resource can be any file or link to a file containing useful data.') }}</p>
-    </div>
-  </section>
+  {% snippet 'package/snippets/resource_help.html' %}
 {% endblock %}
 
 {% block scripts %}
   {{ super() }}
   {% resource 'vendor/fileupload' %}
 {% endblock %}
-
