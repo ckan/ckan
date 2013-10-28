@@ -1868,10 +1868,10 @@ def task_status_show(context, data_dict):
 
     context['task_status'] = task_status
 
+    _check_access('task_status_show', context, data_dict)
+
     if task_status is None:
         raise NotFound
-
-    _check_access('task_status_show', context, data_dict)
 
     task_status_dict = model_dictize.task_status_dictize(task_status, context)
     return task_status_dict

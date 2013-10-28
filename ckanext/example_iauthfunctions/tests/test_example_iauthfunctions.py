@@ -103,8 +103,7 @@ class TestExampleIAuthFunctionsPlugin(object):
         result = tests.call_action_api(self.app, 'group_create',
                                        name='this_group_should_not_be_created',
                                        status=403)
-        assert result == {'__type': 'Authorization Error',
-                          'message': 'Access denied'}
+        assert result['__type'] == 'Authorization Error'
 
     def test_group_create_with_non_curator(self):
         '''A user who isn't a member of the curators group should not be able
@@ -116,8 +115,7 @@ class TestExampleIAuthFunctionsPlugin(object):
                                        name='this_group_should_not_be_created',
                                        apikey=noncurator['apikey'],
                                        status=403)
-        assert result == {'__type': 'Authorization Error',
-                          'message': 'Access denied'}
+        assert result['__type'] == 'Authorization Error'
 
     def test_group_create_with_curator(self):
         '''A member of the curators group should be able to create a group.
@@ -174,8 +172,7 @@ class TestExampleIAuthFunctionsPluginV3(TestExampleIAuthFunctionsPlugin):
         response = tests.call_action_api(self.app, 'group_create',
                                          name='this_group_shouldnt_be_created',
                                          status=403)
-        assert response == {'__type': 'Authorization Error',
-                            'message': 'Access denied'}
+        assert response['__type'] == 'Authorization Error'
 
 
 class TestExampleIAuthFunctionsPluginV2(TestExampleIAuthFunctionsPlugin):
@@ -203,5 +200,4 @@ class TestExampleIAuthFunctionsPluginV2(TestExampleIAuthFunctionsPlugin):
                                        name='this_group_should_not_be_created',
                                        apikey=curator['apikey'],
                                        status=403)
-        assert result == {'__type': 'Authorization Error',
-                          'message': 'Access denied'}
+        assert result['__type'] == 'Authorization Error'
