@@ -108,7 +108,7 @@ class PackageSearchIndex(SearchIndex):
 
         pkg_dict['data_dict'] = json.dumps(pkg_dict)
 
-        if config.get('ckan.cache_validated_datasets', True):
+        if asbool(config.get('ckan.cache_validated_datasets', True)):
             package_plugin = lib_plugins.lookup_package_plugin(
                 pkg_dict.get('type'))
 

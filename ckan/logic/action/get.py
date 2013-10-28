@@ -738,6 +738,7 @@ def package_show(context, data_dict):
         try:
             search_result = search.show(name_or_id)
         except (search.SearchError, socket.error):
+            log.debug('package_show solr cache MISS %s', name_or_id)
             pass
         else:
             use_validated_cache = 'schema' not in context
@@ -745,9 +746,12 @@ def package_show(context, data_dict):
                 log.info("Using package data from search_results")
                 package_dict = json.loads(search_result['validated_data_dict'])
                 package_dict_validated = True
+                log.debug('package_show solr cache HIT')
             else:
                 package_dict = json.loads(search_result['data_dict'])
                 package_dict_validated = False
+                log.debug('package_show solr cache HIT %s',
+                          '(to validate)' if use_validated_cache else '')
             if pkg.revision_id != package_dict.get('revision_id'):
                 package_dict = None
 
