@@ -646,11 +646,8 @@ class GroupController(BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id': id}
-
         try:
-            c.group_dict = get_action('group_show')(context, data_dict)
-            c.group = context['group']
+            c.group_dict = self._get_group_dict(id)
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
@@ -660,10 +657,9 @@ class GroupController(BaseController):
 
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html template to retrieve later.
-        c.group_activity_stream = get_action('group_activity_list_html')(
-                context, {'id': c.group_dict['id'], 'offset': offset})
+        c.group_activity_stream = self._action('group_activity_list_html')(
+            context, {'id': c.group_dict['id'], 'offset': offset})
 
-        #return render('group/activity_stream.html')
         return render(self._activity_template(c.group_dict['type']))
 
     def follow(self, id):
@@ -732,7 +728,7 @@ class GroupController(BaseController):
                    'user': c.user or c.author,
                    'for_view': True}
         try:
-            return get_action('group_show')(context, {'id': id})
+            return self._action('group_show')(context, {'id': id})
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
