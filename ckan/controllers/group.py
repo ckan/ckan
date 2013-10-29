@@ -344,6 +344,9 @@ class GroupController(base.BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
 
+        self._setup_template_variables(context, {'id':id},
+            group_type=group_type)
+
     def bulk_process(self, id):
         ''' Allow bulk processing of datasets for an organization.  Make
         private/public or delete. For organization admins.'''
@@ -828,7 +831,9 @@ class GroupController(base.BaseController):
 
     def about(self, id):
         c.group_dict = self._get_group_dict(id)
-        return render(self._about_template(c.group_dict['type']))
+        group_type = c.group_dict['type']
+        self._setup_template_variables({}, {'id': id}, group_type=group_type)
+        return render(self._about_template(group_type))
 
     def _get_group_dict(self, id):
         ''' returns the result of group_show action or aborts if there is a
