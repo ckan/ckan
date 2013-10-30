@@ -1,0 +1,35 @@
+{% import 'macros/form.html' as form %}
+{% extends "package/resource_edit_base.html" %}
+
+{% block subtitle %}{{ _('View') }} - {{ h.resource_display_name(res) }}{% endblock %}
+
+{% block page_primary_action %}
+
+<form action={{ h.url_for(controller='package', action='edit_view', id=c.pkg_dict.name, resource_id=c.resource.id) }}>
+  <select id="field-view_type" name="view_type" data-module="autocomplete">
+    {% for option in h.get_allowed_view_types(c.resource, c.pkg_dict)  %}
+      <option value="{{ option[0] }}"> {{ option[1] }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-primary" type="submit"> {{ _('New View') }}</button>
+</form>
+
+{% endblock %}
+
+{% block primary_content_inner %}
+
+  {% if c.views %}
+    <ul class="resource-list">
+      {% for view in c.views %}
+      <li> 
+        <a href="{{h.url_for(controller='package', action='edit_view', id=pkg.name, resource_id=view.resource_id, view_id=view.id)}}">
+            {{ view.title }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+  <p class="empty">{{ _('This Resource has no Views') }}</p>
+  {% endif %}
+
+{% endblock %}

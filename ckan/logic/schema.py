@@ -576,19 +576,19 @@ def create_schema_for_required_keys(keys):
     return schema
 
 
-def default_resource_view_schema():
+def default_create_resource_view_schema():
     schema = {
-        'id': [ignore_missing, unicode],
         'resource_id': [not_empty, resource_id_exists],
-        'title': [ignore_missing, unicode],
+        'title': [not_empty, unicode],
         'description': [ignore_missing, unicode],
         'view_type': [not_empty, unicode],
+        '__extras': [empty],
     }
     return schema
 
 
 def default_update_resource_view_schema():
-    schema = default_resource_view_schema()
+    schema = default_create_resource_view_schema()
     schema.update({'id': [not_missing, not_empty, unicode]})
     schema.update({'resource_id': [ignore_missing, resource_id_exists ]})
     schema.update({'view_type': [ignore]}) #can not change after create

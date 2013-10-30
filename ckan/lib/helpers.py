@@ -1613,6 +1613,17 @@ def resource_preview(resource, package):
                    resource_url=url,
                    raw_resource_url=resource.get('url'))
 
+def get_allowed_view_types(resource, package):
+    data_dict = {'resource': resource, 'package': package}
+    plugins = datapreview.get_allowed_view_plugins(data_dict)
+
+    allowed_view_types = []
+    for plugin in plugins:
+        info = plugin.info()
+        allowed_view_types.append((info['name'],
+                                   info.get('title', info['name'])))
+    allowed_view_types.sort(key=lambda item: item[1])
+    return allowed_view_types
 
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
@@ -1838,4 +1849,5 @@ __allowed_functions__ = [
     'get_featured_organizations',
     'get_featured_groups',
     'get_site_statistics',
+    'get_allowed_view_types',
 ]

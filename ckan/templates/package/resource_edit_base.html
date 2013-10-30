@@ -23,6 +23,7 @@
   {% if 'datapusher' in g.plugins %}
     {{ h.build_nav_icon('resource_data', _('Resource Data'), id=pkg.name, resource_id=res.id) }}
   {% endif %}
+  {{ h.build_nav_icon('views', _('Views'), id=pkg.name, resource_id=res.id) }}
 {% endblock %}
 
 {% block primary_content_inner %}

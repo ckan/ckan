@@ -310,7 +310,7 @@ class PackageController(base.BaseController):
         data_dict = {'id': id}
 
         try:
-            check_access('package_update', context)
+            check_access('package_update', context, data_dict)
         except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
         # check if package exists
@@ -1377,6 +1377,130 @@ class PackageController(base.BaseController):
                     not k.endswith(recline_state['currentView']):
                 recline_state.pop(k)
         return recline_state
+
+    def resource_views(self, id, resource_id):
+        package_type = self._get_package_type(id.split('@')[0])
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj}
+        data_dict = {'id': id}
+
+        try:
+            check_access('package_update', context, data_dict)
+        except NotAuthorized, e:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+        # check if package exists
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg = context['package']
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
+        try:
+            c.resource = get_action('resource_show')(context,
+                                                     {'id': resource_id})
+            c.views = get_action('resource_view_list')(context,
+                                                       {'id': resource_id})
+
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        self._setup_template_variables(context, {'id': id},
+                                       package_type=package_type)
+
+        return render('package/resource_views.html')
+
+    def edit_view(self, id, resource_id, view_id=None):
+        package_type = self._get_package_type(id.split('@')[0])
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj}
+
+        # update resource should tell us early if the user has privilages.
+        try:
+            check_access('resource_update', context, {'id': resource_id})
+        except NotAuthorized, e:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+
+        # get resource and package data
+        try:
+            c.pkg_dict = get_action('package_show')(context, {'id': id})
+            c.pkg = context['package']
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+        try:
+            c.resource = get_action('resource_show')(context,
+                                                     {'id': resource_id})
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        data = {}
+        errors = {}
+        error_summary = {}
+        view_type = None
+
+        if request.method == 'POST':
+            request.POST.pop('save', None)
+            to_delete = request.POST.pop('delete', None)
+            data = clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
+                request.params, ignore_keys=CACHE_PARAMETERS))))
+            data['resource_id'] = resource_id
+            try:
+                if to_delete:
+                    data['id'] = view_id
+                    get_action('resource_view_delete')(context, data)
+                elif view_id:
+                    data['id'] = view_id
+                    get_action('resource_view_update')(context, data)
+                else:
+                    get_action('resource_view_create')(context, data)
+            except ValidationError, e:
+                errors = e.error_dict
+                error_summary = e.error_summary
+            except NotAuthorized:
+                ## This should never happen unless the user maliciously changed
+                ## the resource_id in the url.
+                abort(401, _('Unauthorized to edit resource'))
+            else:
+                redirect(h.url_for(controller='package',
+                                   action='resource_views',
+                                   id=id, resource_id=resource_id))
+
+        if view_id:
+            try:
+                old_data = get_action('resource_view_show')(context,
+                                                            {'id': view_id})
+                data = data or old_data
+                view_type = old_data.get('view_type')
+            except NotFound:
+                abort(404, _('View not found'))
+            except NotAuthorized:
+                abort(401, _('Unauthorized to view View %s') % view_id)
+
+
+        view_type = view_type or request.GET.get('view_type')
+        view_plugin = datapreview.get_view_plugin(view_type)
+        if not view_plugin:
+            abort(404, _('View Type Not found'))
+
+        self._setup_template_variables(context, {'id': id},
+                                       package_type=package_type)
+
+        vars = {'form_template': view_plugin.info().get('form_template'),
+                'data': data, 'errors': errors, 'error_summary': error_summary}
+
+        if view_id:
+             return render('package/edit_view.html', extra_vars = vars)
+        return render('package/new_view.html', extra_vars = vars)
+
 
     def resource_datapreview(self, id, resource_id):
         '''

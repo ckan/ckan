@@ -18,7 +18,7 @@ DEFAULT_IMAGE_FORMATS = ['png', 'jpeg', 'jpg', 'gif']
 class ImageView(p.SingletonPlugin):
     '''This extenstion makes views of images'''
 
-    p.implements(p.IConfigurable, inherit=True)
+    p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
 
     def update_config(self, config):
@@ -26,9 +26,9 @@ class ImageView(p.SingletonPlugin):
 
     def info(self):
         return {'name': 'image',
+                'title': 'Image',
                 'schema': {'image_url': [ignore_empty, unicode]},
-                'form_template': 'image_form.html'
-               }
+                'form_template': 'image_form.html'}
 
     def can_preview(self, data_dict):
         return True

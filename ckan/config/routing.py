@@ -260,6 +260,13 @@ def make_map():
                   height="800")
         m.connect('/dataset/{id}/resource/{resource_id}/preview',
                   action='resource_datapreview')
+        m.connect('views', '/dataset/{id}/resource/{resource_id}/views',
+                  action='resource_views', ckan_icon='reorder')
+        m.connect('new_view', '/dataset/{id}/resource/{resource_id}/new_view',
+                  action='edit_view', ckan_icon='edit')
+        m.connect('edit_view',
+                  '/dataset/{id}/resource/{resource_id}/edit_view/{view_id}',
+                  action='edit_view', ckan_icon='edit')
 
     # group
     map.redirect('/groups', '/group')
