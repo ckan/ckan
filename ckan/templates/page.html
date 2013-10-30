@@ -23,11 +23,13 @@
           {% block flash %}
             {% set flash_messages = h.flash.pop_messages() | list %}
             <div class="flash-messages">
-              {% for message in flash_messages %}
-                <div class="alert fade in {{ message.category }}">
-                  {{ h.literal(message) }}
-                </div>
-              {% endfor %}
+              {% block flash_inner %}
+                {% for message in flash_messages %}
+                  <div class="alert fade in {{ message.category }}">
+                    {{ h.literal(message) }}
+                  </div>
+                {% endfor %}
+              {% endblock %}
             </div>
           {% endblock %}
 
