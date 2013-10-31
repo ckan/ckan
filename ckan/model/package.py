@@ -86,7 +86,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             return []
 
         assert len(self.resource_groups_all) == 1, "can only use resources on packages if there is only one resource_group"
-        return [resource for resource in 
+        return [resource for resource in
                 self.resource_groups_all[0].resources_all
                 if resource.state <> 'deleted']
 
@@ -461,7 +461,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                         if obj_class.__name__ == 'PackageTag':
                             display_id = to_obj_rev.tag.name
                         elif obj_class.__name__ == 'PackageExtra':
-                            display_id = to_obj_rev.key
+                            if not to_obj_rev:
+                                display_id = 'No extra in revision'
+                            else:
+                                display_id = to_obj_rev.key
                         else:
                             display_id = related_obj_id[:4]
                         key = '%s-%s-%s' % (obj_class.__name__, display_id, col)
