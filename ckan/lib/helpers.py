@@ -1614,6 +1614,20 @@ def resource_preview(resource, package):
                    raw_resource_url=resource.get('url'))
 
 
+def rendered_resource_view(resource_view, resource, package):
+    '''
+    Returns a rendered resource view snippet.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    context = {}
+    data_dict = {'resource_view': resource_view,
+                 'resource': resource,
+                 'package': package}
+    vars = view_plugin.setup_template_variables(context, data_dict) or {}
+    template = view_plugin.preview_template(context, data_dict)
+    return snippet(template, **vars)
+
+
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
     item has a matching value for a supplied key
@@ -1816,6 +1830,7 @@ __allowed_functions__ = [
     'render_markdown',
     'format_resource_items',
     'resource_preview',
+    'rendered_resource_view',
     'SI_number_span',
     'localised_number',
     'localised_SI_number',

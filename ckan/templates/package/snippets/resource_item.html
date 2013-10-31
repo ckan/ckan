@@ -28,7 +28,7 @@
       {% block resource_item_explore_links %}
       <li>
         <a href="{{ url }}">
-          {% if res.can_be_previewed %}
+          {% if res.has_views %}
             <i class="icon-bar-chart"></i>
             {{ _('Preview') }}
           {% else %}
@@ -39,7 +39,7 @@
       </li>
       <li>
         <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
-          {% if res.can_be_previewed %}
+          {% if res.has_views %}
             <i class="icon-download"></i>
             {{ _('Download') }}
           {% else %}

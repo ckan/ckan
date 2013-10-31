@@ -1,0 +1,6 @@
+{% set rendered_resource_view = h.rendered_resource_view(resource_view, resource, package) %}
+
+<h1>{{resource_view['title']}}</h1>
+<div class="resource-view-description">{{resource_view['description']}}</div>
+
+{{rendered_resource_view}}
