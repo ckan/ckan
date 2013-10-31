@@ -4,6 +4,7 @@ import uuid
 import logging
 import json
 import datetime
+import socket
 
 from pylons import config
 import sqlalchemy
@@ -747,7 +748,24 @@ def package_show(context, data_dict):
 
     _check_access('package_show', context, data_dict)
 
-    package_dict = model_dictize.package_dictize(pkg, context)
+    package_dict = None
+    no_cache_context = ['revision_id', 'revision_date', 'schema']
+    use_cache = (context.get('use_cache', True)
+        and not any(k in context for k in no_cache_context))
+    if use_cache:
+        try:
+            package_dict = json.loads(search.show(name_or_id)['data_dict'])
+            if pkg.revision_id != package_dict.get('revision_id'):
+                package_dict = None
+        except (search.SearchError, socket.error):
+            pass
+
+    if not package_dict:
+        package_dict = model_dictize.package_dictize(pkg, context)
+
+    if context.get('for_view'):
+        for item in plugins.PluginImplementations(plugins.IPackageController):
+            package_dict = item.before_view(package_dict)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
@@ -999,16 +1017,11 @@ def user_show(context, data_dict):
             ).filter_by(author=user_obj.name)
 
     revisions_list = []
-    for revision in revisions_q.limit(20).all():
-        revision_dict = revision_show(context,{'id':revision.id})
-        revision_dict['state'] = revision.state
-        revisions_list.append(revision_dict)
-    user_dict['activity'] = revisions_list
 
     user_dict['datasets'] = []
     dataset_q = model.Session.query(model.Package).join(model.PackageRole
             ).filter_by(user=user_obj, role=model.Role.ADMIN
-            ).limit(50)
+            ).limit(5)
 
     for dataset in dataset_q:
         try:
@@ -1374,6 +1387,7 @@ def package_search(context, data_dict):
 
         count = query.count
         facets = query.facets
+        facet_ranges = query.facet_ranges
     else:
         count = 0
         facets = {}
@@ -1382,6 +1396,7 @@ def package_search(context, data_dict):
     search_results = {
         'count': count,
         'facets': facets,
+        'facet_ranges': facet_ranges,
         'results': results,
         'sort': data_dict['sort']
     }

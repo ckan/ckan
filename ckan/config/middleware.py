@@ -55,6 +55,22 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     # The Pylons WSGI app
     app = PylonsApp()
+
+    if asbool(config.get('profile', False)):
+        from repoze.profile import ProfileMiddleware
+        import os
+        if not os.path.isdir('profile'):
+            os.mkdir('profile')
+        app = ProfileMiddleware(
+           app,
+           log_filename='profile/ckan.profile.log',
+           cachegrind_filename='profile/cachegrind.out.ckan',
+           discard_first_request=True,
+           flush_at_shutdown=False,
+           path='/__profile__',
+           unwind=False,
+           )
+
     # set pylons globals
     app_globals.reset()
 

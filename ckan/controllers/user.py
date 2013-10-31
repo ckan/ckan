@@ -327,7 +327,7 @@ class UserController(base.BaseController):
                 vars = {}
             return render('user/login.html', extra_vars=vars)
         else:
-            return render('user/logout_first.html')
+            return h.redirect_to(controller='user', action='logged_in')
 
     def logged_in(self):
         # redirect if needed
