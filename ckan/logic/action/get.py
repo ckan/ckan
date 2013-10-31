@@ -903,6 +903,7 @@ def resource_view_show(context, data_dict):
     _check_access('resource_view_show', context, data_dict)
     return model_dictize.resource_view_dictize(resource_view, context)
 
+
 def resource_view_list(context, data_dict):
     '''
     Return the metadata of a resource_view.
@@ -922,6 +923,7 @@ def resource_view_list(context, data_dict):
     q = model.Session.query(model.ResourceView).filter_by(resource_id=id)
     resource_views = q.order_by(model.ResourceView.order).all()
     return model_dictize.resource_view_list_dictize(resource_views, context)
+
 
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.

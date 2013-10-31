@@ -253,6 +253,7 @@ class IResourceView(Interface):
         The ``data_dict`` contains the resource and the package.
         '''
 
+
 class IResourcePreview(Interface):
     ''' For backwards compatibility with the old resource preview code. '''
 

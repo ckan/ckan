@@ -122,12 +122,13 @@ def get_preview_plugin(data_dict, return_first=False):
                              key=lambda x: x['quality'])['plugin']
     return preview_plugin
 
-def get_view_plugin(view_type):
 
+def get_view_plugin(view_type):
+    '''
+    Returns the IResourceView plugin associated with the given view_type.
+    '''
     for plugin in p.PluginImplementations(p.IResourceView):
         info = plugin.info()
         name = info.get('name')
         if name == view_type:
             return plugin
-
-

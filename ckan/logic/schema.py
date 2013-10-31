@@ -589,8 +589,9 @@ def default_resource_view_schema():
 
 def default_update_resource_view_schema():
     schema = default_resource_view_schema()
-    schema.update({'id': [not_missing, not_empty, unicode]})
-    schema.update({'resource_id': [ignore_missing, resource_id_exists ]})
-    schema.update({'view_type': [ignore]}) #can not change after create
+    schema.update({
+        'id': [not_missing, not_empty, unicode],
+        'resource_id': [ignore_missing, resource_id_exists],
+        'view_type': [ignore]  # can not change after create
+    })
     return schema
-
