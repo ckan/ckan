@@ -133,7 +133,7 @@ class TestCreateUserApiEnabled(PylonsTestCase):
 
         model.repo.rebuild_db()
 
-    def test_user_create_api_disabled_sysadmin(self):
+    def test_user_create_api_enabled_sysadmin(self):
         params = {
             'name': 'testinganewusersysadmin',
             'email': 'testinganewuser@ckan.org',
@@ -145,14 +145,13 @@ class TestCreateUserApiEnabled(PylonsTestCase):
         res_dict = res.json
         assert res_dict['success'] is True
 
-    def test_user_create_api_disabled_anon(self):
+    def test_user_create_api_enabled_anon(self):
         params = {
             'name': 'testinganewuseranon',
             'email': 'testinganewuser@ckan.org',
             'password': 'random',
         }
-        res = self.app.post('/api/3/action/user_create', json.dumps(params),
-                expect_errors=True)
+        res = self.app.post('/api/3/action/user_create', json.dumps(params))
         res_dict = res.json
         assert res_dict['success'] is True
 
