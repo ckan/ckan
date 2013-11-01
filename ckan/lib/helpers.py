@@ -597,7 +597,8 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    facet_titles = {'groups': _('Groups'),
+    facet_titles = {'organization': _('Organizations'),
+                    'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
                     'license': _('License'), }

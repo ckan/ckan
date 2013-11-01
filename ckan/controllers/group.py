@@ -278,7 +278,8 @@ class GroupController(base.BaseController):
 
             facets = OrderedDict()
 
-            default_facet_titles = {'groups': _('Groups'),
+            default_facet_titles = {'organization': _('Organizations'),
+                                    'groups': _('Groups'),
                                     'tags': _('Tags'),
                                     'res_format': _('Formats'),
                                     'license_id': _('License')}
