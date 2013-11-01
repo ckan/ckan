@@ -57,7 +57,9 @@ class Upload(object):
         try:
             os.makedirs(self.storage_path)
         except OSError, e:
-            pass
+            ## errno 17 is file already exists
+            if e.errno != 17:
+                raise
         self.object_type = object_type
         self.old_filename = old_filename
         if old_filename:
