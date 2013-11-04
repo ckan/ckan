@@ -16,6 +16,7 @@ Because CKAN uses WSGI, a standard interface between web servers and Python web
 applications, CKAN can be used with a number of different web server and
 deployment configurations including:
 
+* Apache_ with the modwsgi Apache module proxied with Nginx_ for caching
 * Apache_ with the modwsgi Apache module
 * Apache_ with paster and reverse proxy
 * Nginx_ with paster and reverse proxy
@@ -24,8 +25,9 @@ deployment configurations including:
 .. _Apache: http://httpd.apache.org/
 .. _Nginx: http://nginx.org/
 
-This guide explains how to deploy CKAN using Apache and modwsgi on an Ubuntu
-server. These instructions have been tested on Ubuntu 12.04.
+This guide explains how to deploy CKAN using Apache and modwsgi and proxied
+with Nginx on an Ubuntu server. These instructions have been tested on Ubuntu
+12.04.
 
 If run into any problems following these instructions, see `Troubleshooting`_
 below.
@@ -51,11 +53,20 @@ support to Apache)::
 
   sudo apt-get install apache2 libapache2-mod-wsgi
 
-.. _modwsgi: https://code.google.com/p/modwsgi/ 
+.. _modwsgi: https://code.google.com/p/modwsgi/
 
+
+----------------
+3. Install Nginx
+----------------
+
+Install Nginx_ (a web server) which will proxy the content from Apache_ and add
+a layer of caching::
+
+    sudo apt-get install nginx
 
 --------------------------
-3. Install an Email Server
+4. Install an Email Server
 --------------------------
 
 If one isn't installed already, install an email server to enable CKAN's email
@@ -71,7 +82,7 @@ return.
 
 
 ------------------------------
-4. Create the WSGI Script File
+5. Create the WSGI Script File
 ------------------------------
 
 Create your site's WSGI script file |apache.wsgi| with the following
@@ -96,7 +107,7 @@ CKAN to run in).
 
 
 --------------------------------
-5. Create the Apache Config File
+6. Create the Apache Config File
 --------------------------------
 
 Create your site's Apache config file at |apache_config_file|, with the
@@ -104,7 +115,7 @@ following contents:
 
 .. parsed-literal::
 
-    <VirtualHost 0.0.0.0:80>
+    <VirtualHost 0.0.0.0:8080>
         ServerName default.ckanhosted.com
         ServerAlias www.default.ckanhosted.com
         WSGIScriptAlias / |apache.wsgi|
@@ -128,9 +139,34 @@ This tells the Apache modwsgi module to redirect any requests to the web server
 to the WSGI script that you created above. Your WSGI script in turn directs the
 requests to your CKAN instance.
 
+-------------------------------
+7. Create the Nginx Config File
+-------------------------------
+
+.. parsed-literal::
+
+    proxy_cache_path /tmp/nginx_cache levels=1:2 keys_zone=cache:30m max_size=250m;
+    proxy_temp_path /tmp/nginx_proxy 1 2;
+
+    server {
+        client_max_body_size 100M;
+        location / {
+            proxy_pass http://127.0.0.1:8080/;
+            proxy_set_header Host $host;
+            proxy_cache cache;
+            proxy_cache_bypass $cookie_auth_tkt;
+            proxy_no_cache $cookie_auth_tkt;
+            proxy_cache_valid 30m;
+            proxy_cache_key $host$scheme$proxy_host$request_uri;
+            # In emergency comment out line to force caching
+            # proxy_ignore_headers X-Accel-Expires Expires Cache-Control;
+        }
+
+    }
+
 
 ------------------------
-6. Enable Your CKAN Site
+8. Enable Your CKAN Site
 ------------------------
 
 Finally, enable your CKAN site in Apache:
