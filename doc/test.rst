@@ -65,6 +65,13 @@ The speed of the PostgreSQL tests can be improved by running PostgreSQL in
 memory and turning off durability, as described
 `in the PostgreSQL documentation <http://www.postgresql.org/docs/9.0/static/non-durability.html>`_. 
 
+By default the tests will drop the database and recreate it at the beginning of
+each test run. To prevent this you can use the ``keep-database`` option::
+
+     nosetests --ckan --keep-database --with-pylons=test-core.ini ckan
+
+If you are have the ``ckan-migration`` option on, ``keep-database`` will have
+no effect.
 
 .. _migrationtesting:
 
@@ -75,7 +82,7 @@ Migration testing
 If you're a CKAN developer or extension developer and your new code requires a
 change to CKAN's model, you'll need to write a migration script. To ensure that
 the migration script itself gets tested, you should run the tests with
-they ``--ckan-migration`` option, for example::
+the ``--ckan-migration`` option, for example::
 
      nosetests --ckan --ckan-migration --with-pylons=test-core.ini ckan ckanext
 

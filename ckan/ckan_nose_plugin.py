@@ -19,12 +19,20 @@ class CkanNose(Plugin):
 
         if 'new_tests' in repr(ctx):
             # We don't want to do the stuff below for new-style tests.
+            if CkanNose.settings.keep_database:
+                model.repo.tables_created_and_initialised = True
             return
 
         if isclass(ctx):
             if hasattr(ctx, "no_db") and ctx.no_db:
                 return
-            if self.is_first_test or CkanNose.settings.ckan_migration:
+            if (CkanNose.settings.keep_database 
+                    and not CkanNose.settings.ckan_migration):
+                model.Session.close_all()
+                model.repo.tables_created_and_initialised = True
+                model.repo.rebuild_db()
+                self.is_first_test = False
+            elif self.is_first_test or CkanNose.settings.ckan_migration:
                 model.Session.close_all()
                 model.repo.clean_db()
                 self.is_first_test = False
@@ -66,6 +74,11 @@ class CkanNose(Plugin):
             dest='segments',
             help='A string containing a hex digits that represent which of'
                  'the 16 test segments to run. i.e 15af will run segments 1,5,a,f')
+        parser.add_option(
+            '--keep-database',
+            action='store_true',
+            dest='keep_database',
+            help='do not drop database before tests are run')
 
     def wantClass(self, cls):
         name = cls.__name__
