@@ -10,6 +10,8 @@ import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import sqlalchemy as sa
+import urlparse
+import routes
 
 import paste.script
 from paste.registry import Registry
@@ -98,6 +100,12 @@ class CkanCommand(paste.script.command.Command):
         import pylons
         self.translator_obj = MockTranslator()
         self.registry.register(pylons.translator, self.translator_obj)
+
+        ## give routes enough information to run url_for
+        parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
+        request_config = routes.request_config()
+        request_config.host = parsed.netloc + parsed.path
+        request_config.protocol = parsed.scheme
 
     def _setup_app(self):
         cmd = paste.script.appinstall.SetupCommand('setup-app')
