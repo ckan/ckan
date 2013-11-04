@@ -155,7 +155,9 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             try:
                 os.makedirs(path)
             except OSError, e:
-                pass
+                ## errno 17 is file already exists
+                if e.errno != 17:
+                    raise
 
             storage_app = StaticURLParser(path,
                 cache_max_age=static_max_age)
