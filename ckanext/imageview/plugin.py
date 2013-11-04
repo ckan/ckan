@@ -20,14 +20,13 @@ class ImageView(p.SingletonPlugin):
     def info(self):
         return {'name': 'image',
                 'title': 'Image',
-                'schema': {'image_url': [ignore_empty, unicode]},
-                'form_template': 'image_form.html'}
+                'schema': {'image_url': [ignore_empty, unicode]}}
 
-    def can_preview(self, data_dict):
+    def can_view(self, data_dict):
         return True
 
-    def setup_template_variables(self, context, data_dict):
-        return {'image_url': data_dict['resource_view']['image_url']}
-
-    def preview_template(self, context, data_dict):
+    def view_template(self, context, data_dict):
         return 'image_view.html'
+
+    def form_template(self, context, data_dict):
+        return 'image_form.html'
