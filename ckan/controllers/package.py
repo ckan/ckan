@@ -381,8 +381,12 @@ class PackageController(base.BaseController):
 
         # can the resources be previewed?
         for resource in c.pkg_dict['resources']:
-            resource['can_be_previewed'] = self._resource_preview(
-                {'resource': resource, 'package': c.pkg_dict})
+            try:
+                get_action('resource_view_list')(
+                    context, {'id': resource['id']})
+                resource['has_views'] = True
+            except NotFound:
+                resource['has_views'] = False
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
@@ -1194,15 +1198,16 @@ class PackageController(base.BaseController):
 
         c.related_count = c.pkg.related_count
 
-        c.resource['can_be_previewed'] = self._resource_preview(
-            {'resource': c.resource, 'package': c.package})
-        return render('package/resource_read.html')
+        vars = {}
+        try:
+            vars['resource_views'] = get_action('resource_view_list')(
+                context, {'id': resource_id})
+            c.resource['has_views'] = True
+        except NotFound:
+            vars['resource_views'] = []
+            c.resource['has_views'] = False
 
-    def _resource_preview(self, data_dict):
-        return bool(datapreview.res_format(data_dict['resource'])
-                    in datapreview.direct() + datapreview.loadable()
-                    or datapreview.get_preview_plugin(
-                        data_dict, return_first=True))
+        return render('package/resource_read.html', extra_vars=vars)
 
     def resource_download(self, id, resource_id):
         """

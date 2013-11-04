@@ -3,14 +3,7 @@ import logging
 import ckan.plugins as p
 from ckan.lib.navl.validators import ignore_empty
 
-from ckan.common import json
-
 log = logging.getLogger(__name__)
-
-try:
-    import ckanext.resourceproxy.plugin as proxy
-except ImportError:
-    pass
 
 DEFAULT_IMAGE_FORMATS = ['png', 'jpeg', 'jpg', 'gif']
 
@@ -34,7 +27,7 @@ class ImageView(p.SingletonPlugin):
         return True
 
     def setup_template_variables(self, context, data_dict):
-        return
+        return {'image_url': data_dict['resource_view']['image_url']}
 
     def preview_template(self, context, data_dict):
-        return 'image.html'
+        return 'image_view.html'
