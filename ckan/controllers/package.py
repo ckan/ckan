@@ -1501,7 +1501,6 @@ class PackageController(base.BaseController):
             except NotAuthorized:
                 abort(401, _('Unauthorized to view View %s') % view_id)
 
-
         view_type = view_type or request.GET.get('view_type')
         view_plugin = datapreview.get_view_plugin(view_type)
         if not view_plugin:
@@ -1514,17 +1513,19 @@ class PackageController(base.BaseController):
                      'resource_view': data}
 
         view_plugin.setup_template_variables(context, data_dict)
-        preview_template = view_plugin.preview_template(context, data_dict)
+        view_template = view_plugin.view_template(context, data_dict)
+        form_template = view_plugin.form_template(context, data_dict)
 
-        vars = {'form_template': view_plugin.info().get('form_template'),
-                'preview_template': preview_template,
-                'data': data, 'errors': errors, 'error_summary': error_summary,
+        vars = {'form_template': form_template,
+                'view_template': view_template,
+                'data': data,
+                'errors': errors,
+                'error_summary': error_summary,
                 'to_preview': to_preview}
 
         if view_id:
-             return render('package/edit_view.html', extra_vars = vars)
-        return render('package/new_view.html', extra_vars = vars)
-
+            return render('package/edit_view.html', extra_vars=vars)
+        return render('package/new_view.html', extra_vars=vars)
 
     def resource_datapreview(self, id, resource_id):
         '''

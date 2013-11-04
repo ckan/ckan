@@ -133,11 +133,10 @@ def get_view_plugin(view_type):
         if name == view_type:
             return plugin
 
+
 def get_allowed_view_plugins(data_dict):
-
-    can_preview = []
-
+    can_view = []
     for plugin in p.PluginImplementations(p.IResourceView):
-        if plugin.can_preview(data_dict):
-            can_preview.append(plugin)
-    return can_preview
+        if plugin.can_view(data_dict):
+            can_view.append(plugin)
+    return can_view

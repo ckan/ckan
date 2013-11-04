@@ -225,24 +225,30 @@ class IResourceView(Interface):
 
     def setup_template_variables(self, context, data_dict):
         '''
-        Add variables to c just prior to the template being rendered.
-        The ``data_dict`` contains the resource and the package.
+        Add variables to the ``data_dict`` that is passed to the
+        template being rendered.
+        Should return a new dict instead of updating the input ``data_dict``.
 
-        Change the url to a proxied domain if necessary.
+        The ``data_dict`` contains: ``resource_view``, ``resource`` and
+        ``package``.
         '''
 
     def view_template(self, context, data_dict):
         '''
         Returns a string representing the location of the template to be
         rendered for the read page.
-        The ``data_dict`` contains the resource and the package.
+
+        The ``data_dict`` contains: ``resource_view``, ``resource`` and
+        ``package``.
         '''
 
     def form_template(self, context, data_dict):
         '''
         Returns a string representing the location of the template to be
         rendered for the read page.
-        The ``data_dict`` contains the resource and the package.
+
+        The ``data_dict`` contains: ``resource_view``, ``resource`` and
+        ``package``.
         '''
 
 
@@ -253,7 +259,7 @@ class IResourcePreview(IResourceView):
         return self.can_view(data_dict)
 
     def preview_template(self, context, data_dict):
-        return self.preview_template(context, data_dict)
+        return self.view_template(context, data_dict)
 
 
 class ITagController(Interface):

@@ -1613,6 +1613,7 @@ def resource_preview(resource, package):
                    resource_url=url,
                    raw_resource_url=resource.get('url'))
 
+
 def get_allowed_view_types(resource, package):
     data_dict = {'resource': resource, 'package': package}
     plugins = datapreview.get_allowed_view_plugins(data_dict)
@@ -1625,6 +1626,7 @@ def get_allowed_view_types(resource, package):
     allowed_view_types.sort(key=lambda item: item[1])
     return allowed_view_types
 
+
 def rendered_resource_view(resource_view, resource, package):
     '''
     Returns a rendered resource view snippet.
@@ -1635,7 +1637,7 @@ def rendered_resource_view(resource_view, resource, package):
                  'resource': resource,
                  'package': package}
     vars = view_plugin.setup_template_variables(context, data_dict) or {}
-    template = view_plugin.preview_template(context, data_dict)
+    template = view_plugin.view_template(context, data_dict)
     data_dict.update(vars)
     return snippet(template, **data_dict)
 
