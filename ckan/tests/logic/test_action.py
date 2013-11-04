@@ -1378,10 +1378,10 @@ class TestAction(WsgiAppCase):
                          'title': u'View',
                          'description': u'A nice view'}
         postparams = '%s=1' % json.dumps(resource_view)
-        res = self.app.post(
+        self.app.post(
             '/api/action/resource_view_create', params=postparams,
             extra_environ={'Authorization': str(self.normal_user.apikey)},
-            status = 409)
+            status=409)
 
     def test_resource_view_create_missing_required_fields(self):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
@@ -1412,6 +1412,7 @@ class TestAction(WsgiAppCase):
     def test_resource_view_create_not_authorized_if_not_logged_in(self):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
+                         'title': u'Resource View',
                          'view_type': u'image',
                          'image_url': 'url'}
         postparams = '%s=1' % json.dumps(resource_view)
@@ -1457,7 +1458,6 @@ class TestAction(WsgiAppCase):
             extra_environ=extra_environ)
         resource_id_1 = json.loads(res.body)['result']['id']
 
-
         #### Make second view ####
         resource_view['title'] = 'View2'
         postparams = '%s=1' % json.dumps(resource_view)
@@ -1476,8 +1476,9 @@ class TestAction(WsgiAppCase):
         assert result[1]['title'] == 'View2', result[1]['title']
 
         ### Reorder Views
-        postparams = '%s=1' % json.dumps({'id': resource_id,
-                                          'order': [resource_id_2, resource_id_1]})
+        postparams = '%s=1' % json.dumps({
+            'id': resource_id,
+            'order': [resource_id_2, resource_id_1]})
         res = self.app.post('/api/action/resource_view_reorder',
                             params=postparams, extra_environ=extra_environ)
         result = json.loads(res.body)['result']
@@ -1508,7 +1509,6 @@ class TestAction(WsgiAppCase):
 
         assert result[0]['title'] == 'View', result[0]['title']
         assert result[1]['title'] == 'View2', result[1]['title']
-
 
     def test_resource_view_show_missing_resource_view_id(self):
         postparams = '%s=1' % json.dumps({})
@@ -1553,6 +1553,7 @@ class TestAction(WsgiAppCase):
     def test_resource_view_update_invalid_resource_view_id(self):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
+                         'title': u'Resource View',
                          'view_type': u'image',
                          'image_url': 'url'}
         postparams = '%s=1' % json.dumps(resource_view)
@@ -1570,6 +1571,7 @@ class TestAction(WsgiAppCase):
     def test_resource_view_update_invalid_auth(self):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
+                         'title': u'Resource View',
                          'view_type': u'image',
                          'image_url': 'url'}
         postparams = '%s=1' % json.dumps(resource_view)
@@ -1587,6 +1589,7 @@ class TestAction(WsgiAppCase):
     def test_resource_view_delete(self):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
+                         'title': u'Resource View',
                          'view_type': u'image',
                          'image_url': 'url'}
         postparams = '%s=1' % json.dumps(resource_view)
@@ -1608,6 +1611,7 @@ class TestAction(WsgiAppCase):
     def test_resource_view_delete_invalid_auth(self):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
+                         'title': u'Resource View',
                          'view_type': u'image',
                          'image_url': 'url'}
         postparams = '%s=1' % json.dumps(resource_view)

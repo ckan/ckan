@@ -1,9 +1,8 @@
 import logging
-
 import ckan.plugins as p
-from ckan.lib.navl.validators import ignore_empty
 
 log = logging.getLogger(__name__)
+ignore_empty = p.toolkit.get_validator('ignore_empty')
 
 DEFAULT_IMAGE_FORMATS = ['png', 'jpeg', 'jpg', 'gif']
 
