@@ -1642,6 +1642,14 @@ def rendered_resource_view(resource_view, resource, package):
     return snippet(template, **data_dict)
 
 
+def view_resource_url(resource_view, resource, package, **kw):
+    '''
+    Returns url for resource. made to be overridden by extensions. i.e
+    by resource proxy.
+    '''
+    return resource['url']
+
+
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
     item has a matching value for a supplied key
