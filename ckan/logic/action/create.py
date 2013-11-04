@@ -306,8 +306,10 @@ def resource_view_create(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-
     _check_access('resource_view_create', context, data_dict)
+
+    if context.get('preview'):
+        return data
 
     max_order = model.Session.query(
         func.max(model.ResourceView.order)

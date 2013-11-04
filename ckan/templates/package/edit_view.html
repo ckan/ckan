@@ -12,6 +12,7 @@
   {% snippet 'package/snippets/view_form.html', data=data, errors=errors, error_summary=error_summary, form_template=form_template %}
   <div class="form-actions">
       <button class="btn btn-danger pull-left" name="delete" value="Delete"> {{ _('Delete') }} </button>
+      <button class="btn btn-primary" name="preview" value="True" type="submit">{{ _('Preview Update') }}</button>
       <button class="btn btn-primary" name="save" value="Save" type="submit">{{ _('Update') }}</button>
   </div>
 </form>

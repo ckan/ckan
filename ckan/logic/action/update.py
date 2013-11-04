@@ -269,6 +269,9 @@ def resource_view_update(context, data_dict):
 
     _check_access('resource_view_update', context, data_dict)
 
+    if context.get('preview'):
+        return data
+
     resource_view = model_save.resource_view_dict_save(data, context)
     if not context.get('defer_commit'):
         model.repo.commit()

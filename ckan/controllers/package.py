@@ -1446,9 +1446,13 @@ class PackageController(base.BaseController):
         errors = {}
         error_summary = {}
         view_type = None
+        to_preview = False
 
         if request.method == 'POST':
             request.POST.pop('save', None)
+            to_preview = request.POST.pop('preview', False)
+            if to_preview:
+                context['preview'] = True
             to_delete = request.POST.pop('delete', None)
             data = clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                 request.params, ignore_keys=CACHE_PARAMETERS))))
@@ -1463,6 +1467,8 @@ class PackageController(base.BaseController):
                 else:
                     get_action('resource_view_create')(context, data)
             except ValidationError, e:
+                ## Could break preview if validation error
+                to_preview = False
                 errors = e.error_dict
                 error_summary = e.error_summary
             except NotAuthorized:
@@ -1470,16 +1476,21 @@ class PackageController(base.BaseController):
                 ## the resource_id in the url.
                 abort(401, _('Unauthorized to edit resource'))
             else:
-                redirect(h.url_for(controller='package',
-                                   action='resource_views',
-                                   id=id, resource_id=resource_id))
+                if not to_preview:
+                    redirect(h.url_for(controller='package',
+                                       action='resource_views',
+                                       id=id, resource_id=resource_id))
 
+        ## view_id exists only when updating
         if view_id:
             try:
                 old_data = get_action('resource_view_show')(context,
                                                             {'id': view_id})
                 data = data or old_data
                 view_type = old_data.get('view_type')
+                ## might as well preview when loading good existing view
+                if not errors:
+                    to_preview = True
             except NotFound:
                 abort(404, _('View not found'))
             except NotAuthorized:
@@ -1494,8 +1505,16 @@ class PackageController(base.BaseController):
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
 
+        data_dict = {'package': c.pkg_dict, 'resource': c.resource,
+                     'view': data}
+
+        view_plugin.setup_template_variables(context, data_dict)
+        preview_template = view_plugin.preview_template(context, data_dict)
+
         vars = {'form_template': view_plugin.info().get('form_template'),
-                'data': data, 'errors': errors, 'error_summary': error_summary}
+                'preview_template': preview_template,
+                'data': data, 'errors': errors, 'error_summary': error_summary,
+                'to_preview': to_preview}
 
         if view_id:
              return render('package/edit_view.html', extra_vars = vars)
