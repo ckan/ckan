@@ -218,7 +218,7 @@ class IResourceView(Interface):
         '''
         return {'name': self.__class__.__name__}
 
-    def can_preview(self, data_dict):
+    def can_view(self, data_dict):
         '''Return info on whether the plugin can preview the resource.
         return ``True`` or ``False``.
         '''
@@ -231,7 +231,14 @@ class IResourceView(Interface):
         Change the url to a proxied domain if necessary.
         '''
 
-    def preview_template(self, context, data_dict):
+    def view_template(self, context, data_dict):
+        '''
+        Returns a string representing the location of the template to be
+        rendered for the read page.
+        The ``data_dict`` contains the resource and the package.
+        '''
+
+    def form_template(self, context, data_dict):
         '''
         Returns a string representing the location of the template to be
         rendered for the read page.
@@ -239,8 +246,14 @@ class IResourceView(Interface):
         '''
 
 
-class IResourcePreview(Interface):
+class IResourcePreview(IResourceView):
     ''' For backwards compatibility with the old resource preview code. '''
+
+    def can_preview(self, data_dict):
+        return self.can_view(data_dict)
+
+    def preview_template(self, context, data_dict):
+        return self.preview_template(context, data_dict)
 
 
 class ITagController(Interface):

@@ -1636,7 +1636,8 @@ def rendered_resource_view(resource_view, resource, package):
                  'package': package}
     vars = view_plugin.setup_template_variables(context, data_dict) or {}
     template = view_plugin.preview_template(context, data_dict)
-    return snippet(template, **vars)
+    data_dict.update(vars)
+    return snippet(template, **data_dict)
 
 
 def list_dict_filter(list_, search_field, output_field, value):

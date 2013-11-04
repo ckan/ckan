@@ -1511,7 +1511,7 @@ class PackageController(base.BaseController):
                                        package_type=package_type)
 
         data_dict = {'package': c.pkg_dict, 'resource': c.resource,
-                     'view': data}
+                     'resource_view': data}
 
         view_plugin.setup_template_variables(context, data_dict)
         preview_template = view_plugin.preview_template(context, data_dict)
