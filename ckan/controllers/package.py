@@ -1502,6 +1502,7 @@ class PackageController(base.BaseController):
                 abort(401, _('Unauthorized to view View %s') % view_id)
 
         view_type = view_type or request.GET.get('view_type')
+        data['view_type'] = view_type
         view_plugin = datapreview.get_view_plugin(view_type)
         if not view_plugin:
             abort(404, _('View Type Not found'))
