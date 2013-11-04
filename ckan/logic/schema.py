@@ -86,6 +86,7 @@ def default_resource_schema():
         'cache_last_updated': [ignore_missing, isodate],
         'webstore_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
+        'datastore_active': [ignore],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
@@ -327,6 +328,15 @@ def default_related_schema():
     return schema
 
 
+def default_update_related_schema():
+    schema = default_related_schema()
+    schema['id'] = [not_empty, unicode]
+    schema['title'] = [ignore_missing, unicode]
+    schema['type'] = [ignore_missing, unicode]
+    schema['owner_id'] = [ignore_missing, unicode]
+    return schema
+
+
 def default_extras_schema():
 
     schema = {
@@ -391,6 +401,7 @@ def default_user_schema():
         'apikey': [ignore],
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing],
+        'state': [ignore_missing],
     }
     return schema
 
@@ -417,6 +428,14 @@ def default_update_user_schema():
     schema['name'] = [ignore_missing, name_validator, user_name_validator, unicode]
     schema['password'] = [user_password_validator,ignore_missing, unicode]
 
+    return schema
+
+def default_user_invite_schema():
+    schema = {
+        'email': [not_empty, unicode],
+        'group_id': [not_empty],
+        'role': [not_empty],
+    }
     return schema
 
 def default_task_status_schema():
@@ -535,7 +554,7 @@ def default_package_search_schema():
         'qf': [ignore_missing, unicode],
         'facet': [ignore_missing, unicode],
         'facet.mincount': [ignore_missing, natural_number_validator],
-        'facet.limit': [ignore_missing, natural_number_validator],
+        'facet.limit': [ignore_missing, int_validator],
         'facet.field': [ignore_missing, list_of_strings],
         'extras': [ignore_missing]  # Not used by Solr, but useful for extensions
     }

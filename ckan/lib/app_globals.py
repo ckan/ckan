@@ -29,6 +29,7 @@ auto_update = [
     'ckan.site_about',
     'ckan.site_intro_text',
     'ckan.site_custom_css',
+    'ckan.homepage_style',
 ]
 
 config_details = {
@@ -38,7 +39,6 @@ config_details = {
         # has been setup in load_environment():
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
-    'ckan.recaptcha.privatekey': {'name': 'recaptcha_publickey'},
     'ckan.template_title_deliminater': {'default': '-'},
     'ckan.template_head_end': {},
     'ckan.template_footer_end': {},
@@ -46,6 +46,7 @@ config_details = {
     'ckan.dumps_format': {},
     'ckan.api_url': {},
     'ofs.impl': {'name': 'ofs_impl'},
+    'ckan.homepage_style': {'default': '1'},
 
     # split string
     'search.facets': {'default': 'organization groups tags res_format license_id',

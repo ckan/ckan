@@ -18,9 +18,9 @@
       {% snippet 'snippets/search_form.html', type='dataset', query=c.q, sorting_selected=c.sort_by_selected, count=c.page.item_count, facets=facets, placeholder=_('Search datasets...'), show_empty=request.params %}
     {% endblock %}
   {% block packages_list %}
-      {% if c.page.items %}
-        {{ h.snippet('snippets/package_list.html', packages=c.page.items) }}
-      {% endif %}
+    {% if c.page.items %}
+      {{ h.snippet('snippets/package_list.html', packages=c.page.items) }}
+    {% endif %}
   {% endblock %}
   {% block page_pagination %}
     {{ c.page.pager(q=c.q) }}
@@ -29,6 +29,6 @@
 
 {% block organization_facets %}
   {% for facet in c.facet_titles %}
-      {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':c.group_dict.id}) }}
+    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet, extras={'id':c.group_dict.id}) }}
   {% endfor %}
 {% endblock %}

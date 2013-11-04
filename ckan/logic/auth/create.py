@@ -113,6 +113,9 @@ def user_create(context, data_dict=None):
     else:
         return {'success': True}
 
+def user_invite(context, data_dict=None):
+    context['id'] = context.get('group_id')
+    return group_member_create(context, data_dict)
 
 def _check_group_auth(context, data_dict):
     '''Has this user got update permission for all of the given groups?

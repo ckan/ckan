@@ -12,9 +12,9 @@ class OpenIDAuthenticator(object):
 
     def authenticate(self, environ, identity):
         if 'repoze.who.plugins.openid.userid' in identity:
-            openid = identity.get('repoze.who.plugins.openid.userid')
+            openid = identity['repoze.who.plugins.openid.userid']
             user = User.by_openid(openid)
-            if user is None:
+            if user is None or not user.is_active():
                 return None
             else:
                 return user.name
@@ -25,14 +25,20 @@ class UsernamePasswordAuthenticator(object):
     implements(IAuthenticator)
 
     def authenticate(self, environ, identity):
-        if not 'login' in identity or not 'password' in identity:
+        if not ('login' in identity and 'password' in identity):
             return None
-        user = User.by_name(identity.get('login'))
+
+        login = identity['login']
+        user = User.by_name(login)
+
         if user is None:
-            log.debug('Login failed - username %r not found', identity.get('login'))
-            return None
-        if user.validate_password(identity.get('password')):
+            log.debug('Login failed - username %r not found', login)
+        elif not user.is_active():
+            log.debug('Login as %r failed - user isn\'t active', login)
+        elif not user.validate_password(identity['password']):
+            log.debug('Login as %r failed - password not valid', login)
+        else:
             return user.name
-        log.debug('Login as %r failed - password not valid', identity.get('login'))
+
         return None
 

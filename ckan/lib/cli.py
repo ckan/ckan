@@ -842,7 +842,6 @@ class DatasetCmd(CkanCommand):
         pprint.pprint(dataset.as_dict())
 
     def delete(self, dataset_ref):
-        from ckan import plugins
         import ckan.model as model
         dataset = self._get_dataset(dataset_ref)
         old_state = dataset.state
@@ -854,7 +853,6 @@ class DatasetCmd(CkanCommand):
         print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
 
     def purge(self, dataset_ref):
-        from ckan import plugins
         import ckan.model as model
         dataset = self._get_dataset(dataset_ref)
         name = dataset.name

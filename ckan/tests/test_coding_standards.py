@@ -827,7 +827,6 @@ class TestPep8(object):
         'ckanext/example_idatasetform/plugin.py',
         'ckanext/example_itemplatehelpers/plugin.py',
         'ckanext/multilingual/plugin.py',
-        'ckanext/multilingual/tests/test_multilingual_plugin.py',
         'ckanext/reclinepreview/plugin.py',
         'ckanext/reclinepreview/tests/test_preview.py',
         'ckanext/resourceproxy/plugin.py',

@@ -34,6 +34,11 @@ class AdminController(base.BaseController):
                   {'text': 'Green', 'value': '/base/css/green.css'},
                   {'text': 'Maroon', 'value': '/base/css/maroon.css'},
                   {'text': 'Fuchsia', 'value': '/base/css/fuchsia.css'}]
+
+        homepages = [{'value': '1', 'text': 'Introductory area, search, featured group and featured organization'},
+                     {'value': '2', 'text': 'Search, stats, introductory area, featured organization and featured group'},
+                     {'value': '3', 'text': 'Search, introductory area and stats'}]
+
         items = [
             {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': ''},
             {'name': 'ckan.main_css', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': ''},
@@ -42,6 +47,7 @@ class AdminController(base.BaseController):
             {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
             {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
             {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
+            {'name': 'ckan.homepage_style', 'control': 'select', 'options': homepages, 'label': _('Homepage'), 'placeholder': ''},
         ]
         return items
 
@@ -152,4 +158,4 @@ class AdminController(base.BaseController):
 
             for msg in msgs:
                 h.flash_error(msg)
-            h.redirect_to(h.url_for('ckanadmin', action='trash'))
+            h.redirect_to(controller='admin', action='trash')

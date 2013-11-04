@@ -466,14 +466,14 @@ Default value:  ``false``
 Controls whether the default search page (``/dataset``) should show only
 standard datasets or also custom dataset types.
 
-.. _search.facets.limits:
+.. _search.facets.limit:
 
-search.facets.limits
-^^^^^^^^^^^^^^^^^^^^
+search.facets.limit
+^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- search.facets.limits = 100
+ search.facets.limit = 100
 
 Default value:  ``50``
 
@@ -523,6 +523,33 @@ Specify which CKAN plugins are to be enabled.
 .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
 Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions/index`.
+
+.. note::
+
+    The order of the plugin names in the configuration file influences the
+    order that CKAN will load the plugins in. As long as each plugin class is
+    implemented in a separate Python module (i.e. in a separate Python source
+    code file), the plugins will be loaded in the order given in the
+    configuration file.
+
+    When multiple plugins are implemented in the same Python module, CKAN will
+    process the plugins in the order that they're given in the config file, but as
+    soon as it reaches one plugin from a given Python module, CKAN will load all
+    plugins from that Python module, in the order that the plugin classes are
+    defined in the module.
+
+    For simplicity, we recommend implementing each plugin class in its own Python
+    module.
+
+    Plugin loading order can be important, for example for plugins that add custom
+    template files: templates found in template directories added earlier will
+    override templates in template directories added later.
+
+    .. todo::
+
+        Fix CKAN's plugin loading order to simply load all plugins in the order
+        they're given in the config file, regardless of which Python modules
+        they're implemented in.
 
 .. _ckan.datastore.enabled:
 
@@ -826,6 +853,20 @@ Defines a list of group names or group ids. This setting is used to display
 groups and datasets from each group on the home page in the default templates
 (2 groups and 2 datasets for each group are displayed).
 
+.. _ckan.featured_organizations:
+
+ckan.featured_orgs
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.featured_orgs = org_one org_two
+
+Default Value: (empty)
+
+Defines a list of organization names or ids. This setting is used to display
+organization and datasets from each group on the home page in the default
+templates (2 groups and 2 datasets for each group are displayed).
 
 .. _ckan.gravatar_default:
 
@@ -904,6 +945,8 @@ Example (showing insertion of Google Analytics code)::
     </script>
     <!-- /Google Analytics -->
 
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
 .. _ckan.template_title_deliminater:
 
 ckan.template_title_deliminater
@@ -959,20 +1002,7 @@ Example::
 
 Default value:  ``None``
 
-This setting will change the bucket name for the uploaded files.
-
-.. _ckan.storage.key_prefix:
-
-ckan.storage.key_prefix
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.storage.key_prefix = ckan-file/
-
-Default value: ``file/``
-
-This setting will change the prefix for the uploaded files. This is only for ``pairtree``.
+This changes the bucket name for the uploaded files.
 
 .. _ckan.storage.max_content_length:
 
@@ -1013,6 +1043,19 @@ Default value:  ``None``
 
 Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
 
+.. _ckan.storage.key_prefix:
+
+ckan.storage.key_prefix
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.storage.key_prefix = ckan-file/
+
+Default value: ``file/``
+
+Only used with the local storage backend. This changes the prefix for the uploaded files.
+
 .. _ofs.aws_access_key_id:
 
 ofs.aws_access_key_id
@@ -1020,13 +1063,11 @@ ofs.aws_access_key_id
 
 Example::
 
-  ofs.aws_access_key_id = your_key_id_here
+  ofs.aws_access_key_id = 022QF06E7MXBSH9DHM02
 
 Default value:  ``None``
 
-Only used with the Amazon S3 storage backend.
-
-.. todo:: Expand
+Only used with the Amazon S3 storage backend. Configure with your AWS Access Key ID.
 
 .. _ofs.aws_secret_access_key:
 
@@ -1035,13 +1076,11 @@ ofs.aws_secret_access_key
 
 Example::
 
-  ofs.aws_secret_access_key = your_secret_access_key_here
+  ofs.aws_secret_access_key = kWcrlUX5JEDGM/LtmEENI/aVmYvHNif5zB+d9+ct
 
 Default value:  ``None``
 
-Only used with the Amazon S3 storage backend.
-
-.. todo:: Expand
+Only used with the Amazon S3 storage backend. Configure with your AWS Secret Access Key.
 
 .. _ofs.gs_access_key_id:
 
@@ -1050,13 +1089,12 @@ ofs.gs_access_key_id
 
 Example::
 
-  ofs.gs_access_key_id = your_key_id_here
+  ofs.gs_access_key_id = GOOGTS7C7FUP3AIRVJTE
 
 Default value:  ``None``
 
-Only used with the Google storage backend.
-
-.. todo:: Expand
+Only used with the Google storage backend. Configure with your Google Storage
+Access Key ID.
 
 .. _ofs.gs_secret_access_key:
 
@@ -1065,35 +1103,34 @@ ofs.gs_secret_access_key
 
 Example::
 
-  ofs.gs_secret_access_key = your_secret_access_key_here
+  ofs.gs_secret_access_key = bGoa+V7g/yqDXvKRqq+JTFn4uQZbPiQJo4pf9RzJ
 
 Default value:  ``None``
 
-Only used with the Google storage backend.
-
-.. todo:: Expand
+Only used with the Google storage backend. Configure with your Google Storage
+Secret Access Key.
 
 
 DataPusher Settings
 -------------------
 
-.. _datapusher.formats:
+.. _ckan.datapusher.formats:
 
-datapusher.formats
+ckan.datapusher.formats
 ^^^^^^^^^^^^^^^^^^
 
 Example::
-  datapusher.formats = csv xls xlsx
+  ckan.datapusher.formats = csv xls xlsx
 
 .. todo:: Expand
 
-.. _datapusher.url:
+.. _ckan.datapusher.url:
 
-datapusher.url
-^^^^^^^^^^^^^^
+ckan.datapusher.url
+^^^^^^^^^^^^^^^^^^^
 
 Example::
-  datapusher.url = http://datapusher.ckan.org/
+  ckan.datapusher.url = http://datapusher.ckan.org/
 
 .. todo:: Expand
 

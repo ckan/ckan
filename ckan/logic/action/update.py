@@ -132,7 +132,7 @@ def related_update(context, data_dict):
     id = _get_or_bust(data_dict, "id")
 
     session = context['session']
-    schema = context.get('schema') or schema_.default_related_schema()
+    schema = context.get('schema') or schema_.default_update_related_schema()
 
     related = model.Related.get(id)
     context["related"] = related
