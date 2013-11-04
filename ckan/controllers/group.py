@@ -7,7 +7,6 @@ import datetime
 from urllib import urlencode
 
 from pylons.i18n import get_lang
-from pylons import config
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -462,7 +461,6 @@ class GroupController(base.BaseController):
 
         group = context.get("group")
         c.group = group
-        context.pop('for_edit')
         c.group_dict = self._action('group_show')(context, data_dict)
 
         try:
@@ -521,8 +519,6 @@ class GroupController(base.BaseController):
 
     def _save_edit(self, id, context):
         try:
-            old_group = self._action('group_show')(context, {"id": id})
-            old_image_url = old_group.get('image_url')
             data_dict = clean_dict(dict_fns.unflatten(
                 tuplize_dict(parse_params(request.params))))
             context['message'] = data_dict.get('log_message', '')
