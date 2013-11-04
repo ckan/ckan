@@ -2046,6 +2046,7 @@ def vocabulary_show(context, data_dict):
     vocabulary_dict = model_dictize.vocabulary_dictize(vocabulary, context)
     return vocabulary_dict
 
+@logic.validate(logic.schema.default_activity_list_schema)
 def user_activity_list(context, data_dict):
     '''Return a user's public activity stream.
 
@@ -2071,12 +2072,12 @@ def user_activity_list(context, data_dict):
 
     model = context['model']
 
-    user_ref = _get_or_bust(data_dict, 'id')  # May be user name or id.
+    user_ref = data_dict.get('id')  # May be user name or id.
     user = model.User.get(user_ref)
     if user is None:
         raise logic.NotFound
 
-    offset = int(data_dict.get('offset', 0))
+    offset = data_dict.get('offset', 0)
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 

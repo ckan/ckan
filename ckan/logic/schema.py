@@ -540,6 +540,12 @@ def default_dashboard_activity_list_schema():
     return schema
 
 
+def default_activity_list_schema():
+    schema = default_pagination_schema()
+    schema['id'] = [not_missing, unicode]
+    return schema
+
+
 def default_autocomplete_schema():
     schema = {
         'q': [not_missing, unicode],
