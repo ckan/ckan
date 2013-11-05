@@ -1649,6 +1649,13 @@ def view_resource_url(resource_view, resource, package, **kw):
     '''
     return resource['url']
 
+def resource_view_is_iframed(resource_view):
+    '''
+    Returns true if the given resource view should be displayed in an iframe.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    return view_plugin.info().get('iframed', True)
+
 
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
@@ -1853,6 +1860,7 @@ __allowed_functions__ = [
     'format_resource_items',
     'resource_preview',
     'rendered_resource_view',
+    'resource_view_is_iframed',
     'SI_number_span',
     'localised_number',
     'localised_SI_number',

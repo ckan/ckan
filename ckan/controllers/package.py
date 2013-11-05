@@ -381,12 +381,9 @@ class PackageController(base.BaseController):
 
         # can the resources be previewed?
         for resource in c.pkg_dict['resources']:
-            try:
-                get_action('resource_view_list')(
-                    context, {'id': resource['id']})
-                resource['has_views'] = True
-            except NotFound:
-                resource['has_views'] = False
+            resource_views = get_action('resource_view_list')(
+                context, {'id': resource['id']})
+            resource['has_views'] = len(resource_views) > 0
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
@@ -1198,14 +1195,10 @@ class PackageController(base.BaseController):
 
         c.related_count = c.pkg.related_count
 
-        vars = {}
-        try:
-            vars['resource_views'] = get_action('resource_view_list')(
-                context, {'id': resource_id})
-            c.resource['has_views'] = True
-        except NotFound:
-            vars['resource_views'] = []
-            c.resource['has_views'] = False
+        resource_views = get_action('resource_view_list')(
+            context, {'id': resource_id})
+        vars = {'resource_views': resource_views}
+        c.resource['has_views'] = len(resource_views) > 0
 
         return render('package/resource_read.html', extra_vars=vars)
 
