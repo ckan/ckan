@@ -1394,7 +1394,7 @@ class PackageController(base.BaseController):
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
+            abort(401, _('Unauthorized to read dataset %s') % id)
 
         try:
             c.resource = get_action('resource_show')(context,
@@ -1431,7 +1431,7 @@ class PackageController(base.BaseController):
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
+            abort(401, _('Unauthorized to read dataset %s') % id)
         try:
             c.resource = get_action('resource_show')(context,
                                                      {'id': resource_id})
@@ -1520,6 +1520,46 @@ class PackageController(base.BaseController):
         if view_id:
             return render('package/edit_view.html', extra_vars=vars)
         return render('package/new_view.html', extra_vars=vars)
+
+    def resource_view(self, id, resource_id, view_id):
+        '''
+        Embeded page for a resource view.
+
+        Depending on the type, different views are loaded. This could be an
+        img tag where the image is loaded directly or an iframe that embeds a
+        webpage, recline or a pdf preview.
+        '''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user or c.author,
+                   'auth_user_obj': c.userobj}
+
+        try:
+            package = get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read dataset %s') % id)
+
+        try:
+            resource = get_action('resource_show')(
+                context, {'id': resource_id})
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % resource_id)
+
+        try:
+            view = get_action('resource_view_show')(context, {'id': view_id})
+        except NotFound:
+            abort(404, _('Resource view not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource view %s') % view_id)
+
+        vars = {'resource_view': view,
+                'resource': resource,
+                'package': package}
+        return render('package/snippets/resource_view.html', extra_vars=vars)
 
     def resource_datapreview(self, id, resource_id):
         '''
