@@ -74,6 +74,7 @@ def package_list(context, data_dict):
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state=='active')
     query = query.filter(model.PackageRevision.current==True)
+    query = query.filter(model.PackageRevision.private==False)
 
     packages = query.all()
     return [getattr(p, ref_package_by) for p in packages]

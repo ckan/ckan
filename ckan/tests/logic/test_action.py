@@ -20,6 +20,7 @@ from ckan.tests import TestRoles
 import ckan.lib.search as search
 
 from ckan import plugins
+from ckan import tests
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 
 class TestAction(WsgiAppCase):
@@ -72,6 +73,36 @@ class TestAction(WsgiAppCase):
         assert len(res['result']) == 2
         assert 'warandpeace' in res['result']
         assert 'annakarenina' in res['result']
+
+    def test_01_package_list_private(self):
+        tests.call_action_api(self.app, 'organization_create',
+                                        name='test_org_2',
+                                        apikey=self.sysadmin_user.apikey)
+
+        tests.call_action_api(self.app, 'package_create',
+                                        name='public_dataset',
+                                        owner_org='test_org_2',
+                                        apikey=self.sysadmin_user.apikey)
+
+        res = tests.call_action_api(self.app, 'package_list')
+
+        assert len(res) == 3
+        assert 'warandpeace' in res
+        assert 'annakarenina' in res
+        assert 'public_dataset' in res
+
+        tests.call_action_api(self.app, 'package_create',
+                                        name='private_dataset',
+                                        owner_org='test_org_2',
+                                        private=True,
+                                        apikey=self.sysadmin_user.apikey)
+
+        res = tests.call_action_api(self.app, 'package_list')
+        assert len(res) == 3
+        assert 'warandpeace' in res
+        assert 'annakarenina' in res
+        assert 'public_dataset' in res
+        assert not 'private_dataset' in res
 
     def test_01_package_show(self):
         anna_id = model.Package.by_name(u'annakarenina').id
