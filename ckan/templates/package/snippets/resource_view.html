@@ -1,6 +1,28 @@
-{% set rendered_resource_view = h.rendered_resource_view(resource_view, resource, package) %}
-
-<h1>{{resource_view['title']}}</h1>
+<h1 class="resource-view-title">{{resource_view['title']}}</h1>
 <div class="resource-view-description">{{resource_view['description']}}</div>
 
-{{rendered_resource_view}}
+<div class="module-content ckanext-datapreview">
+  {% if not h.resource_view_is_iframed(resource_view) %}
+    {{ h.rendered_resource_view(resource_view, resource, package) }}
+  {% else %}
+    <div class="data-viewer-error js-hide">
+      <p class="text-error">
+        <i class="icon-info-sign"></i>
+        {{ _('This resource view is not available at the moment.') }}
+        <a href="#" data-toggle="collapse" data-target="#data-view-error">
+          {{ _('Click here for more information.') }}
+        </a>
+      </p>
+      <p id="data-view-error" class="collapse"></p>
+      <p>
+        <a href="{{ raw_resource_url }}" class="btn btn-large resource-url-analytics" target="_blank">
+          <i class="icon-large icon-download"></i>
+          {{ _('Download resource') }}
+        </a>
+      </p>
+    </div>
+    <iframe src="" frameborder="0" width="100%" data-module="data-viewer">
+      <p>{{ _('Your browser does not support iframes.') }}</p>
+    </iframe>
+  {% endif %}
+</div>

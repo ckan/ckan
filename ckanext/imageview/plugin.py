@@ -19,7 +19,8 @@ class ImageView(p.SingletonPlugin):
     def info(self):
         return {'name': 'image',
                 'title': 'Image',
-                'schema': {'image_url': [ignore_empty, unicode]}}
+                'schema': {'image_url': [ignore_empty, unicode]},
+                'iframed': False}
 
     def can_view(self, data_dict):
         return True
