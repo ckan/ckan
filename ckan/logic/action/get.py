@@ -91,8 +91,11 @@ def package_list(context, data_dict):
     col = (package_revision_table.c.id
         if api == 2 else package_revision_table.c.name)
     query = _select([col])
-    query = query.where(_and_(package_revision_table.c.state=='active',
-        package_revision_table.c.current==True))
+    query = query.where(_and_(
+                package_revision_table.c.state=='active',
+                package_revision_table.c.current==True,
+                package_revision_table.c.private==False,
+                ))
     query = query.order_by(col)
 
     limit = data_dict.get('limit')
