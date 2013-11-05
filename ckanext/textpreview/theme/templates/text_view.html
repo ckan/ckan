@@ -1,5 +1,7 @@
 {% extends 'dataviewer/base.html' %}
 
+{% block subtitle %}{% endblock %}
+
 {% block page %}
   <div>
     <pre data-module="textpreview">
@@ -10,9 +12,9 @@
   </div>
 
   {% block scripts %}
-    {{ super() }}
     <script>
-      var preview_metadata = {{ h.literal(c.preview_metadata) }};
+      var preload_resource = {{ h.literal(resource_json) }};
+      var preview_metadata = {{ h.literal(preview_metadata) }};
     </script>
   {% endblock %}
 

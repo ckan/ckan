@@ -21,7 +21,7 @@
         </a>
       </p>
     </div>
-    <iframe src="" frameborder="0" width="100%" data-module="data-viewer">
+    <iframe src="{{ h.url(controller='package', action='resource_view', id=package['name'], resource_id=resource['id'], view_id=resource_view['id']) }}" frameborder="0" width="100%" data-module="data-viewer">
       <p>{{ _('Your browser does not support iframes.') }}</p>
     </iframe>
   {% endif %}

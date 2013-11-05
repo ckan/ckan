@@ -1556,10 +1556,7 @@ class PackageController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource view %s') % view_id)
 
-        vars = {'resource_view': view,
-                'resource': resource,
-                'package': package}
-        return render('package/snippets/resource_view.html', extra_vars=vars)
+        return h.rendered_resource_view(view, resource, package)
 
     def resource_datapreview(self, id, resource_id):
         '''

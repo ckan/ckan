@@ -1639,7 +1639,9 @@ def rendered_resource_view(resource_view, resource, package):
     vars = view_plugin.setup_template_variables(context, data_dict) or {}
     template = view_plugin.view_template(context, data_dict)
     data_dict.update(vars)
-    return snippet(template, **data_dict)
+
+    import ckan.lib.base as base
+    return literal(base.render(template, extra_vars=data_dict))
 
 
 def view_resource_url(resource_view, resource, package, **kw):
@@ -1648,6 +1650,7 @@ def view_resource_url(resource_view, resource, package, **kw):
     by resource proxy.
     '''
     return resource['url']
+
 
 def resource_view_is_iframed(resource_view):
     '''
