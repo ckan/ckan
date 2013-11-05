@@ -434,12 +434,6 @@ front-end javascript.
 All Util APIs are read-only. The response format is JSON. Javascript calls may
 want to use the JSONP formatting.
 
-.. Note::
-
-  Some CKAN deployments have the API deployed at a different domain to the main CKAN website. To make sure that the AJAX calls in the Web UI work, you'll need to configue the ckan.api_url. e.g.::
-
-    ckan.api_url = http://api.example.com/
-
 
 dataset autocomplete
 ````````````````````
