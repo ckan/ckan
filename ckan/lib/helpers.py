@@ -1642,6 +1642,13 @@ def rendered_resource_view(resource_view, resource, package):
     return snippet(template, **data_dict)
 
 
+def view_resource_url(resource_view, resource, package, **kw):
+    '''
+    Returns url for resource. made to be overridden by extensions. i.e
+    by resource proxy.
+    '''
+    return resource['url']
+
 def resource_view_is_iframed(resource_view):
     '''
     Returns true if the given resource view should be displayed in an iframe.
