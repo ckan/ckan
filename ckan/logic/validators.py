@@ -68,7 +68,13 @@ def int_validator(value, context):
 def natural_number_validator(value, context):
     value = int_validator(value, context)
     if value < 0:
-        raise Invalid(_('Must be natural number'))
+        raise Invalid(_('Must be a natural number'))
+    return value
+
+def is_positive_integer(value, context):
+    value = int_validator(value, context)
+    if value < 1:
+        raise Invalid(_('Must be a postive integer'))
     return value
 
 def boolean_validator(value, context):

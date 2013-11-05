@@ -502,7 +502,7 @@ def get_or_bust(data_dict, keys):
         return values[0]
     return tuple(values)
 
-def validate(schema_func, check_schema_in_context=False, can_skip_validator=False):
+def validate(schema_func, can_skip_validator=False):
     ''' A decorator that validates an action function against a given schema
     '''
     def action_decorator(action):
@@ -512,11 +512,7 @@ def validate(schema_func, check_schema_in_context=False, can_skip_validator=Fals
                 if context.get('skip_validation'):
                     return action(context, data_dict)
 
-            if not check_schema_in_context:
-                schema = schema_func()
-            else:
-                schema = context.get('schema') or schema()
-
+            schema = context.get('schema', schema_func())
             data_dict, errors = _validate(data_dict, schema, context)
             if errors:
                 raise ValidationError(errors)

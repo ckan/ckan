@@ -32,6 +32,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    isodate,
                                    int_validator,
                                    natural_number_validator,
+                                   is_positive_integer,
                                    boolean_validator,
                                    user_about_validator,
                                    vocabulary_name_validator,
@@ -521,7 +522,7 @@ def default_package_list_schema():
     schema = {
         'limit': [ignore_missing, natural_number_validator],
         'offset': [ignore_missing, natural_number_validator],
-        'page': [ignore_missing, natural_number_validator]
+        'page': [ignore_missing, is_positive_integer]
     }
     return schema
 
