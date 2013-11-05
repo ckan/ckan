@@ -12,6 +12,7 @@ from ckan.tests import url_for
 import ckan.config.middleware
 from ckan.common import json
 
+
 class TestUserApi(ControllerTestCase):
     @classmethod
     def setup_class(cls):
@@ -68,8 +69,8 @@ class TestCreateUserApiDisabled(PylonsTestCase):
         CreateTestData.create()
         cls._original_config = config.copy()
         new_authz.clear_auth_functions_cache()
-        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
-                **config)
+        wsgiapp = ckan.config.middleware.make_app(
+            config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()
@@ -89,9 +90,11 @@ class TestCreateUserApiDisabled(PylonsTestCase):
             'email': 'testinganewuser@ckan.org',
             'password': 'random',
         }
-        res = self.app.post('/api/3/action/user_create', json.dumps(params),
-                extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
-                expect_errors=True)
+        res = self.app.post(
+            '/api/3/action/user_create',
+            json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
+            expect_errors=True)
         res_dict = res.json
         assert res_dict['success'] is True
 
@@ -102,7 +105,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
             'password': 'random',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params),
-                expect_errors=True)
+                            expect_errors=True)
         res_dict = res.json
         assert res_dict['success'] is False
 
@@ -118,8 +121,8 @@ class TestCreateUserApiEnabled(PylonsTestCase):
         cls._original_config = config.copy()
         config['ckan.auth.create_user_via_api'] = True
         new_authz.clear_auth_functions_cache()
-        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
-                **config)
+        wsgiapp = ckan.config.middleware.make_app(
+            config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         PylonsTestCase.setup_class()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -139,9 +142,10 @@ class TestCreateUserApiEnabled(PylonsTestCase):
             'email': 'testinganewuser@ckan.org',
             'password': 'random',
         }
-        res = self.app.post('/api/3/action/user_create', json.dumps(params),
-                extra_environ={'Authorization':
-                    str(self.sysadmin_user.apikey)})
+        res = self.app.post(
+            '/api/3/action/user_create',
+            json.dumps(params),
+            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
         res_dict = res.json
         assert res_dict['success'] is True
 
@@ -167,8 +171,8 @@ class TestCreateUserWebDisabled(PylonsTestCase):
         cls._original_config = config.copy()
         config['ckan.auth.create_user_via_web'] = False
         new_authz.clear_auth_functions_cache()
-        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
-                **config)
+        wsgiapp = ckan.config.middleware.make_app(
+            config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()
@@ -189,7 +193,7 @@ class TestCreateUserWebDisabled(PylonsTestCase):
             'password': 'random',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params),
-                expect_errors=True)
+                            expect_errors=True)
         res_dict = res.json
         assert res_dict['success'] is False
 
@@ -205,8 +209,8 @@ class TestCreateUserWebEnabled(PylonsTestCase):
         cls._original_config = config.copy()
         config['ckan.auth.create_user_via_web'] = True
         new_authz.clear_auth_functions_cache()
-        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
-                **config)
+        wsgiapp = ckan.config.middleware.make_app(
+            config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()
@@ -227,7 +231,7 @@ class TestCreateUserWebEnabled(PylonsTestCase):
             'password': 'random',
         }
         res = self.app.post('/api/3/action/user_create', json.dumps(params),
-                expect_errors=True)
+                            expect_errors=True)
         res_dict = res.json
         assert res_dict['success'] is False
 
