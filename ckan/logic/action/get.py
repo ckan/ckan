@@ -2085,6 +2085,7 @@ def user_activity_list(context, data_dict):
             offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+@logic.validate(logic.schema.default_activity_list_schema)
 def package_activity_list(context, data_dict):
     '''Return a package's activity stream.
 
@@ -2109,7 +2110,7 @@ def package_activity_list(context, data_dict):
 
     model = context['model']
 
-    package_ref = _get_or_bust(data_dict, 'id')  # May be name or ID.
+    package_ref = data_dict.get('id')  # May be name or ID.
     package = model.Package.get(package_ref)
     if package is None:
         raise logic.NotFound
@@ -2122,6 +2123,7 @@ def package_activity_list(context, data_dict):
             limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+@logic.validate(logic.schema.default_activity_list_schema)
 def group_activity_list(context, data_dict):
     '''Return a group's activity stream.
 
@@ -2145,8 +2147,8 @@ def group_activity_list(context, data_dict):
     _check_access('group_show', context, data_dict)
 
     model = context['model']
-    group_id = _get_or_bust(data_dict, 'id')
-    offset = int(data_dict.get('offset', 0))
+    group_id = data_dict.get('id')
+    offset = data_dict.get('offset', 0)
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
@@ -2158,6 +2160,7 @@ def group_activity_list(context, data_dict):
             limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+@logic.validate(logic.schema.default_activity_list_schema)
 def organization_activity_list(context, data_dict):
     '''Return a organization's activity stream.
 
@@ -2172,8 +2175,8 @@ def organization_activity_list(context, data_dict):
     _check_access('organization_show', context, data_dict)
 
     model = context['model']
-    org_id = _get_or_bust(data_dict, 'id')
-    offset = int(data_dict.get('offset', 0))
+    org_id = data_dict.get('id')
+    offset = data_dict.get('offset', 0)
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
@@ -2185,6 +2188,7 @@ def organization_activity_list(context, data_dict):
             limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+@logic.validate(logic.schema.default_activity_list_schema)
 def recently_changed_packages_activity_list(context, data_dict):
     '''Return the activity stream of all recently added or changed packages.
 
@@ -2202,7 +2206,7 @@ def recently_changed_packages_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     model = context['model']
-    offset = int(data_dict.get('offset', 0))
+    offset = data_dict.get('offset', 0)
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
