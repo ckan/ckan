@@ -120,7 +120,9 @@ setup(
     resource_proxy=ckanext.resourceproxy.plugin:ResourceProxy
     text_preview=ckanext.textpreview.plugin:TextPreview
     pdf_preview=ckanext.pdfpreview.plugin:PdfPreview
-    recline_preview=ckanext.reclinepreview.plugin:ReclinePreview
+    recline_grid=ckanext.reclinepreview.plugin:ReclineGrid
+    recline_graph=ckanext.reclinepreview.plugin:ReclineGraph
+    recline_map=ckanext.reclinepreview.plugin:ReclineMap
     example_itemplatehelpers=ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin
     example_idatasetform=ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin
     example_iauthfunctions_v1=ckanext.example_iauthfunctions.plugin_v1:ExampleIAuthFunctionsPlugin

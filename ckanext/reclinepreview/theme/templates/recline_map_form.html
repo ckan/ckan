@@ -1,0 +1,5 @@
+{% import 'macros/form.html' as form %}
+
+{{ form.input('offset', id='field-offset', label=_('Row offset'), placeholder=_('eg: 0'), value=data.offset, error=errors.offset, classes=['control-medium']) }}
+{{ form.input('limit', id='field-limit', label=_('Number of rows'), placeholder=_('eg: 100'), value=data.limit, error=errors.limit, classes=['control-medium']) }}
+
