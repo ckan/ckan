@@ -1519,9 +1519,10 @@ class PackageController(base.BaseController):
 
         if view_id:
             return render('package/edit_view.html', extra_vars=vars)
+
         return render('package/new_view.html', extra_vars=vars)
 
-    def resource_view(self, id, resource_id, view_id):
+    def resource_view(self, id, resource_id, view_id=None):
         '''
         Embeded page for a resource view.
 
@@ -1549,12 +1550,21 @@ class PackageController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % resource_id)
 
-        try:
-            view = get_action('resource_view_show')(context, {'id': view_id})
-        except NotFound:
-            abort(404, _('Resource view not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read resource view %s') % view_id)
+        if view_id:
+            try:
+                view = get_action('resource_view_show')(
+                    context, {'id': view_id})
+            except NotFound:
+                abort(404, _('Resource view not found'))
+            except NotAuthorized:
+                abort(401, _('Unauthorized to read resource view %s') % view_id)
+        else:
+            try:
+                view = json.loads(request.params.get('resource_view', ''))
+            except ValueError, e:
+                abort(409, _('Bad resource view data'))
+            if not view or not isinstance(view, dict):
+                abort(404, _('Resource view not supplied'))
 
         return h.rendered_resource_view(view, resource, package)
 

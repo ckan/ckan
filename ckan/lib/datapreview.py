@@ -63,7 +63,7 @@ def compare_domains(urls):
     return True
 
 
-def _on_same_domain(data_dict):
+def on_same_domain(data_dict):
     # compare CKAN domain and resource URL
     ckan_url = config.get('ckan.site_url', '//localhost:5000')
     resource_url = data_dict['resource']['url']
@@ -83,7 +83,7 @@ def get_preview_plugin(data_dict, return_first=False):
 
     Returns a dict of plugins that can preview or ones that are fixable'''
 
-    data_dict['resource']['on_same_domain'] = _on_same_domain(data_dict)
+    data_dict['resource']['on_same_domain'] = on_same_domain(data_dict)
 
     plugins_that_can_preview = []
     plugins_fixable = []

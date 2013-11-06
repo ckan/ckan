@@ -51,7 +51,7 @@ ckan.module('textpreview', function (jQuery, _) {
         p = this.options.parameters.text;
       }
 
-      jQuery.ajax(preload_resource['url'], {
+      jQuery.ajax(resource_url, {
         type: 'GET',
         contentType: p.contentType,
         dataType: p.dataType,

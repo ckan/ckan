@@ -1887,4 +1887,5 @@ __allowed_functions__ = [
     'get_featured_groups',
     'get_site_statistics',
     'get_allowed_view_types',
+    'urlencode',
 ]

@@ -3,6 +3,7 @@ import logging
 from ckan.common import json
 import ckan.plugins as p
 import ckanext.resourceproxy.plugin as proxy
+import ckan.lib.datapreview as datapreview
 
 log = logging.getLogger(__name__)
 
@@ -42,26 +43,16 @@ class TextPreview(p.SingletonPlugin):
         p.toolkit.add_template_directory(config, 'theme/templates')
         p.toolkit.add_resource('theme/public', 'ckanext-textpreview')
 
-    def configure(self, config):
-        self.proxy_is_enabled = config.get('ckan.resource_proxy_enabled')
-
     def info(self):
         return {'name': 'text', 'title': 'Text'}
 
     def can_view(self, data_dict):
         resource = data_dict['resource']
         format_lower = resource['format'].lower()
-
-        if format_lower in self.jsonp_formats:
+        proxy_enabled = p.plugin_loaded('resource_proxy')
+        same_domain = datapreview.on_same_domain(data_dict)
+        if format_lower in self.jsonp_formats or proxy_enabled or same_domain:
             return True
-        elif format_lower in self.no_jsonp_formats:
-            return True
-            # if self.proxy_is_enabled or resource['on_same_domain']:
-            #     return {'can_preview': True, 'quality': quality}
-            # else:
-            #     return {'can_preview': False,
-            #             'fixable': 'Enable resource_proxy',
-            #             'quality': quality}
         return False
 
     def setup_template_variables(self, context, data_dict):
@@ -69,14 +60,15 @@ class TextPreview(p.SingletonPlugin):
                     'json_formats': self.json_formats,
                     'jsonp_formats': self.jsonp_formats,
                     'xml_formats': self.xml_formats}
+
+        url = proxy.get_proxified_resource_url(data_dict)
+        format_lower = data_dict['resource']['format'].lower()
+        if format_lower in self.jsonp_formats:
+            url = data_dict['resource']['url']
+
         return {'preview_metadata': json.dumps(metadata),
-                'resource_json': json.dumps(data_dict['resource'])}
-        # resource = data_dict['resource']
-        # format_lower = resource['format'].lower()
-        # if (format_lower in self.no_jsonp_formats and
-        #         self.proxy_is_enabled and not resource['on_same_domain']):
-        #     url = proxy.get_proxified_resource_url(data_dict)
-        #     p.toolkit.c.resource['url'] = url
+                'resource_json': json.dumps(data_dict['resource']),
+                'resource_url': json.dumps(url)}
 
     def view_template(self, context, data_dict):
         return 'text_view.html'
