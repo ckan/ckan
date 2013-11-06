@@ -1,4 +1,4 @@
-{% extends "dataviewer/base.html" %}
+{% extends "base.html" %}
 
 {% block page %}
   <div data-module="reclinepreview" data-module-site_url="{{ h.dump_json(h.url('/', locale='default', qualified=true)) }}">
@@ -10,3 +10,13 @@
 
   {% resource 'ckanext-reclinepreview/main' %}
 {% endblock %}
+
+{% block scripts %}
+  <script>
+    var preload_resource = {{ h.literal(resource_json) }};
+    var preload_resource_view = {{ h.literal(resource_view_json) }};
+  </script>
+{% endblock %}
+
+{% block styles %}{% endblock %}
+{% block custom_styles %}{% endblock %}
