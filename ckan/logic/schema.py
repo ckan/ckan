@@ -319,7 +319,7 @@ def default_show_group_schema():
     schema['num_followers'] = []
     schema['created'] = []
     schema['display_name'] = []
-    schema['extras'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['extras']['__extras'] = [ckan.lib.navl.validators.keep_extras]
     schema['package_count'] = []
     schema['packages'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
     schema['revision_id'] = []
