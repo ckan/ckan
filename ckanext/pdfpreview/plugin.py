@@ -1,6 +1,7 @@
 import logging
 
 import ckan.plugins as p
+import ckan.lib.datapreview as datapreview
 
 log = logging.getLogger(__name__)
 
@@ -14,10 +15,13 @@ class PdfPreview(p.SingletonPlugin):
     '''This extension previews PDFs. '''
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
-    p.implements(p.IResourcePreview, inherit=True)
+    p.implements(p.IResourceView, inherit=True)
 
     PDF = ['pdf', 'x-pdf', 'acrobat', 'vnd.pdf']
     proxy_is_enabled = False
+
+    def info(self):
+        return {'name': 'pdf', 'title': 'Pdf'}
 
     def update_config(self, config):
         p.toolkit.add_public_directory(config, 'theme/public')
@@ -28,23 +32,17 @@ class PdfPreview(p.SingletonPlugin):
         enabled = config.get('ckan.resource_proxy_enabled', False)
         self.proxy_is_enabled = enabled
 
-    def can_preview(self, data_dict):
+    def can_view(self, data_dict):
         resource = data_dict['resource']
         format_lower = resource['format'].lower()
+
+        proxy_enabled = p.plugin_loaded('resource_proxy')
+        same_domain = datapreview.on_same_domain(data_dict)
+
         if format_lower in self.PDF:
-            if resource['on_same_domain'] or self.proxy_is_enabled:
-                return {'can_preview': True, 'quality': 2}
-            else:
-                return {'can_preview': False,
-                        'fixable': 'Enable resource_proxy',
-                        'quality': 2}
-        return {'can_preview': False}
+            if same_domain or proxy_enabled:
+                return True
+        return False
 
-    def setup_template_variables(self, context, data_dict):
-        if (self.proxy_is_enabled
-                and not data_dict['resource']['on_same_domain']):
-            url = proxy.get_proxified_resource_url(data_dict)
-            p.toolkit.c.resource['url'] = url
-
-    def preview_template(self, context, data_dict):
+    def view_template(self, context, data_dict):
         return 'pdf.html'

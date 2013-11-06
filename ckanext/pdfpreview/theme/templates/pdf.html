@@ -171,6 +171,7 @@
   {{ super() }}
 
   <script>
+    var resource_url = "{{ h.view_resource_url(resource_view, resource, package) }}";
     var pdfjs_workerSrc = "{{ h.urls_for_resource('ckanext-pdfpreview/vendor/pdfjs/pdf.js')[-1] }}";
   </script>
   {% resource 'ckanext-pdfpreview/vendor/pdfjs/pdf.js' %}

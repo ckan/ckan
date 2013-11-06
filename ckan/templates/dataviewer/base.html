@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block subtitle %}{{ h.dataset_display_name(c.package) }} - {{h.resource_display_name(c.resource) }}{% endblock %}
+{% block subtitle %}{{ h.dataset_display_name(package) }} - {{h.resource_display_name(resource) }}{% endblock %}
 
 {# remove any scripts #}
 {% block scripts %}
   <script>
-    var preload_resource = {{ h.literal(c.resource_json) }};
+    var preload_resource = {{ h.literal(h.dump_json(resource)) }};
   </script>
 {% endblock %}
 

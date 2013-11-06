@@ -51,8 +51,11 @@ class TextPreview(p.SingletonPlugin):
         format_lower = resource['format'].lower()
         proxy_enabled = p.plugin_loaded('resource_proxy')
         same_domain = datapreview.on_same_domain(data_dict)
-        if format_lower in self.jsonp_formats or proxy_enabled or same_domain:
+        if format_lower in self.jsonp_formats:
             return True
+        if format_lower in self.no_jsonp_formats:
+            if proxy_enabled or same_domain:
+                return True
         return False
 
     def setup_template_variables(self, context, data_dict):

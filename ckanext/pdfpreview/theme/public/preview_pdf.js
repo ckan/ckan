@@ -6,7 +6,7 @@ ckan.module('pdfpreview', function () {
       PDFJS.workerSrc = pdfjs_workerSrc;
 
       var params = {
-        file: preload_resource['url']
+        file: resource_url
       };
 
       loadPdfJsView(params);
