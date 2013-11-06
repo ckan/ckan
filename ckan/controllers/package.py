@@ -1566,7 +1566,7 @@ class PackageController(base.BaseController):
             if not view or not isinstance(view, dict):
                 abort(404, _('Resource view not supplied'))
 
-        return h.rendered_resource_view(view, resource, package)
+        return h.rendered_resource_view(view, resource, package, embed=True)
 
     def resource_datapreview(self, id, resource_id):
         '''

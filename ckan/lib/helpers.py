@@ -1627,7 +1627,7 @@ def get_allowed_view_types(resource, package):
     return allowed_view_types
 
 
-def rendered_resource_view(resource_view, resource, package):
+def rendered_resource_view(resource_view, resource, package, embed=False):
     '''
     Returns a rendered resource view snippet.
     '''
@@ -1639,6 +1639,9 @@ def rendered_resource_view(resource_view, resource, package):
     vars = view_plugin.setup_template_variables(context, data_dict) or {}
     template = view_plugin.view_template(context, data_dict)
     data_dict.update(vars)
+
+    if not view_plugin.info().get('iframed', True) and embed:
+        template = "package/snippets/resource_view_embed.html"
 
     import ckan.lib.base as base
     return literal(base.render(template, extra_vars=data_dict))
