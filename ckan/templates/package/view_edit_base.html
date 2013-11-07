@@ -19,7 +19,7 @@
 {% block primary_content_inner %}
   {% block form %}{% endblock %}
   {% if to_preview %}
-    {% snippet 'package/snippets/resource_view.html', resource_view=data, resource=c.resource, package=c.pkg_dict %}
+    {% include 'package/snippets/resource_view.html' %}
   {% endif %}
 {% endblock %}
 

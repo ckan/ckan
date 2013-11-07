@@ -1385,7 +1385,7 @@ class PackageController(base.BaseController):
 
         try:
             check_access('package_update', context, data_dict)
-        except NotAuthorized, e:
+        except NotAuthorized:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
         # check if package exists
         try:
@@ -1504,18 +1504,19 @@ class PackageController(base.BaseController):
                                        package_type=package_type)
 
         data_dict = {'package': c.pkg_dict, 'resource': c.resource,
-                     'resource_view': data}
+                     'data': data}
 
-        view_plugin.setup_template_variables(context, data_dict)
         view_template = view_plugin.view_template(context, data_dict)
         form_template = view_plugin.form_template(context, data_dict)
 
         vars = {'form_template': form_template,
                 'view_template': view_template,
-                'data': data,
                 'errors': errors,
                 'error_summary': error_summary,
                 'to_preview': to_preview}
+        vars.update(
+            view_plugin.setup_template_variables(context, data_dict) or {})
+        vars.update(data_dict)
 
         if view_id:
             return render('package/edit_view.html', extra_vars=vars)
@@ -1557,11 +1558,12 @@ class PackageController(base.BaseController):
             except NotFound:
                 abort(404, _('Resource view not found'))
             except NotAuthorized:
-                abort(401, _('Unauthorized to read resource view %s') % view_id)
+                abort(401,
+                      _('Unauthorized to read resource view %s') % view_id)
         else:
             try:
                 view = json.loads(request.params.get('resource_view', ''))
-            except ValueError, e:
+            except ValueError:
                 abort(409, _('Bad resource view data'))
             if not view or not isinstance(view, dict):
                 abort(404, _('Resource view not supplied'))
