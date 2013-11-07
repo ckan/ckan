@@ -36,7 +36,7 @@ class ReclineView(p.SingletonPlugin):
 
     def setup_template_variables(self, context, data_dict):
         return {'resource_json': json.dumps(data_dict['resource']),
-                'resource_view_json': json.dumps(data_dict['resource_view'])}
+                'resource_view_json': json.dumps(data_dict['data'])}
 
     def view_template(self, context, data_dict):
         return 'recline_view.html'
@@ -61,10 +61,28 @@ class ReclineGraph(ReclineView):
     This extension views resources using a Recline graph.
     '''
 
+    graph_types = [{'value': 'lines-and-points',
+                    'text': 'Lines and points'},
+                   {'value': 'lines', 'text': 'Lines'},
+                   {'value': 'points', 'text': 'Points'},
+                   {'value': 'bars', 'text': 'Bars'},
+                   {'value': 'columns', 'text': 'Columns'}]
+
     def info(self):
+        # TODO: add validators
+        self.schema.update({
+            'graph_type': [ignore_empty],
+            'group_column': [ignore_empty],
+            'series_a': [ignore_empty]
+        })
         return {'name': 'recline_graph',
                 'title': 'Graph',
                 'schema': self.schema}
+
+    def setup_template_variables(self, context, data_dict):
+        vars = ReclineView.setup_template_variables(self, context, data_dict)
+        vars.update({'graph_types': self.graph_types})
+        return vars
 
     def form_template(self, context, data_dict):
         return 'recline_graph_form.html'
