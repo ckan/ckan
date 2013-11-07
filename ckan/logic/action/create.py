@@ -83,7 +83,7 @@ def package_create(context, data_dict):
     :param extras: the dataset's extras (optional), extras are arbitrary
         (key: value) metadata items that can be added to datasets, each extra
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
-        string), and optionally ``'deleted'``
+        string)
     :type extras: list of dataset extra dictionaries
     :param relationships_as_object: see ``package_relationship_create()`` for
         the format of relationship dictionaries (optional)
