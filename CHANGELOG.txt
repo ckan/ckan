@@ -2,6 +2,19 @@ CKAN CHANGELOG
 ++++++++++++++
 
 
+v2.0.3 2013-11-8
+================
+
+Bug fixes:
+ * Fix errors on preview on non-root locations (#960)
+ * Don't accept invalid URLs in resource proxy (#1106)
+ * Make sure came_from url is local (#1039)
+ * Fix logout redirect in non-root locations (#1025)
+ * Don't return private datasets on package_list (#1295)
+ * Stop tracking failing when no lang/encoding headers (#1192)
+ * Fix for paster db clean command getting frozen
+
+
 v2.0.2 2013-08-13
 =================
 
