@@ -67,7 +67,7 @@ class UserController(base.BaseController):
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
-            h.redirect_to(controller='user', action='login', id=None)
+            abort(404, _('User not found'))
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
         c.user_dict = user_dict
@@ -114,10 +114,6 @@ class UserController(base.BaseController):
                    'user': c.user or c.author, 'for_view': True}
         data_dict = {'id': id,
                      'user_obj': c.userobj}
-        try:
-            check_access('user_show', context, data_dict)
-        except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
 
         context['with_related'] = True
 
