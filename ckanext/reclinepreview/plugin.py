@@ -5,7 +5,7 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 
 log = getLogger(__name__)
-ignore_missing = p.toolkit.get_validator('ignore_missing')
+ignore_empty = p.toolkit.get_validator('ignore_empty')
 natural_number_validator = p.toolkit.get_validator('natural_number_validator')
 
 
@@ -17,8 +17,8 @@ class ReclineView(p.SingletonPlugin):
     p.implements(p.IResourceView, inherit=True)
 
     # schema fields that apply to all Recline views
-    schema = {'offset': [ignore_missing, natural_number_validator],
-              'limit': [ignore_missing, natural_number_validator]}
+    schema = {'offset': [ignore_empty, natural_number_validator],
+              'limit': [ignore_empty, natural_number_validator]}
 
     def update_config(self, config):
         '''
