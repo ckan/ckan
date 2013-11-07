@@ -8593,9 +8593,9 @@ textarea {
   -webkit-border-radius: 100px;
   -moz-border-radius: 100px;
   border-radius: 100px;
-  -webkit-box-shadow: inset 0 1px 2 x rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: inset 0 1px 2 x rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 1px 2 x rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: inset 0 1px 2x rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: inset 0 1px 2x rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 2x rgba(0, 0, 0, 0.2);
 }
 .popover-followee .nav li a:hover i {
   background-color: #000;
