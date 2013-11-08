@@ -16,6 +16,7 @@ class PdfPreview(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IResourceView, inherit=True)
+    p.implements(p.IPackageController, inherit=True)
 
     PDF = ['pdf', 'x-pdf', 'acrobat', 'vnd.pdf']
     proxy_is_enabled = False
@@ -46,3 +47,22 @@ class PdfPreview(p.SingletonPlugin):
 
     def view_template(self, context, data_dict):
         return 'pdf.html'
+
+    def add_default_views(self, context, data_dict):
+        resources = datapreview.get_new_resources(context, data_dict)
+        for resource in resources:
+            if self.can_view({'package':data_dict, 'resource':resource}):
+                view = {'title': 'PDF View',
+                        'description': 'PDF view of the resource.',
+                        'resource_id': resource['id'],
+                        'view_type': 'pdf'}
+                context['defer_commit'] = True
+                p.toolkit.get_action('resource_view_create')(context, view)
+                context.pop('defer_commit')
+
+
+    def after_update(self, context, data_dict):
+        self.add_default_views(context, data_dict)
+
+    def after_create(self, context, data_dict):
+        self.add_default_views(context, data_dict)
