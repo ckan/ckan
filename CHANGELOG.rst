@@ -16,6 +16,22 @@ API changes and deprecations:
   called when updating a resource using the web frontend or the
   resource_update API action [#1052]
 
+v2.1.1 2013-11-8
+================
+
+Bug fixes:
+ * Fix errors on preview on non-root locations (#960)
+ * Fix place-holder images on non-root locations (#1309)
+ * Don't accept invalid URLs in resource proxy (#1106)
+ * Make sure came_from url is local (#1039)
+ * Fix logout redirect in non-root locations (#1025)
+ * Wrong auth checks for sysadmins on package_create (#1184)
+ * Don't return private datasets on package_list (#1295)
+ * Stop tracking failing when no lang/encoding headers (#1192)
+ * Fix for paster db clean command getting frozen
+ * Fix organization not set when editing a dataset (#1199)
+ * Fix PDF previews (#1194)
+ * Fix preview failing on private datastore resources (#1221)
 
 v2.1 2013-08-13
 ===============
@@ -95,6 +111,18 @@ Deprecated and removed:
 Known issues:
  * Under certain authorization setups the frontend for the groups functionality
    may not work as expected (See #1176 #1175).
+
+v2.0.3 2013-11-8
+================
+
+Bug fixes:
+ * Fix errors on preview on non-root locations (#960)
+ * Don't accept invalid URLs in resource proxy (#1106)
+ * Make sure came_from url is local (#1039)
+ * Fix logout redirect in non-root locations (#1025)
+ * Don't return private datasets on package_list (#1295)
+ * Stop tracking failing when no lang/encoding headers (#1192)
+ * Fix for paster db clean command getting frozen
 
 
 v2.0.2 2013-08-13
