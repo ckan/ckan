@@ -11,6 +11,7 @@ v2.1.1 2013-11-8
 ================
 
 Bug fixes:
+ * Fix place-holder images on non-root locations (#1309)
  * Fix errors on preview on non-root locations (#960)
  * Don't accept invalid URLs in resource proxy (#1106)
  * Make sure came_from url is local (#1039)
