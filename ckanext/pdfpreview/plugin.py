@@ -5,11 +5,6 @@ import ckan.lib.datapreview as datapreview
 
 log = logging.getLogger(__name__)
 
-try:
-    import ckanext.resourceproxy.plugin as proxy
-except ImportError:
-    pass
-
 
 class PdfPreview(p.SingletonPlugin):
     '''This extension previews PDFs. '''

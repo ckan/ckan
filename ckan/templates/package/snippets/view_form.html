@@ -10,7 +10,5 @@
 
 {# form template is defined in ResouceView extention point #} 
 {% if form_template %}
-    {% snippet form_template, data=data, errors=errors %}
+  {% include form_template %}
 {% endif %}
-
-
