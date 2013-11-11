@@ -61,6 +61,7 @@ When writing code for CKAN, try to respect our coding standards:
    css-coding-standards
    javascript-coding-standards
    testing-coding-standards
+   upgrading-dependencies
 
 * `CKAN coding standards <http://docs.ckan.org/en/latest/ckan-coding-standards.html>`_
 * `Python coding standards <http://docs.ckan.org/en/latest/python-coding-standards.html>`_
@@ -68,6 +69,7 @@ When writing code for CKAN, try to respect our coding standards:
 * `CSS coding standards <http://docs.ckan.org/en/latest/css-coding-standards.html>`_
 * `JavaScript coding standards <http://docs.ckan.org/en/latest/javascript-coding-standards.html>`_
 * `Testing coding standards <http://docs.ckan.org/en/latest/testing-coding-standards.html>`_
+* `Upgrading CKAN's dependencies <http://docs.ckan.org/en/latest/upgrading-dependencies.html>`_
 
 
 ---------------
@@ -236,65 +238,3 @@ Merging a Pull Request
 If you're reviewing a pull request for CKAN, when merging a branch into master:
 
 - Use the ``--no-ff`` option in the ``git merge`` command,
-
-
---------------------------
-Upgrading the dependencies
---------------------------
-
-CKAN's dependencies are pinned to specific versions, so we can guarantee that
-no matter when you install it, you'll always get the same dependencies'
-versions our code was tested with.
-
-We couldn't simply leave everything in our requirements.txt file, though.
-Sometimes, we discover that one dependency releases a new version that's
-incompatible with CKAN, so we need a way to enforce that we won't upgrade it
-unexpectedly in the future. We also split between dev and non-dev requirements,
-so production servers don't need to install dependencies only used for testing,
-for example.
-
-Our dependencies are split in 3 files: ``requirements.in``,
-``requirements.txt``, and ``dev-requirements.txt``.
-
-requirements.in
-  Contains our direct dependencies (i.e. not our dependencies' dependencies),
-  with loosely defined versions. For example, ``apachemiddleware>=0.1.1,<0.2``.
-
-requirements.txt
-  Contains every dependency, including indirect, pinned to a specific
-  version. Created with ``pip freeze``. For example, ``simplejson==3.3.1``.
-
-dev-requirements.txt
-  Contains our development dependencies, pinned to a specific version. For
-  example, ``factory-boy==2.1.1``.
-
-We haven't created a ``dev-requirement.in`` because we have too few dev
-dependencies, we don't update them often, and none of them have a known
-incompatible version.
-
-Steps to upgrade
-================
-
-#. Create a new virtualenv: ``virtualenv --no-site-packages upgrading``
-
-#. Install the requirements with unpinned versions: ``pip install -r
-   requirements.in``
-
-#. Save the new dependencies versions: ``pip freeze > requirements.txt``. We
-   have to do this before installing the other dependencies so we get only what
-   was in ``requirements.in``
-
-#. Install CKAN: ``python setup.py develop``
-
-#. Install the development dependencies: ``pip install -r
-   dev-requirements.txt``
-
-#. Run the tests to make sure everything still works (see :doc:`test`).
-
-   - If not, try to fix the problem. If it's too complicated, pinpoint which
-     dependency's version broke our tests, find an older version that still
-     works, and add it to ``requirements.in``. Go back to step 1.
-
-#. Navigate a bit on CKAN to make sure the tests didn't miss anything. Review
-   the dependencies changes and their changelogs. If everything seems fine, go
-   ahead and fill a pull request (see :ref:`making a pull request`).
