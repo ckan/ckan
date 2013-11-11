@@ -12,6 +12,8 @@ v2.2
 
 API changes and deprecations:
 
+
+* The `ckan.api_url` has been completely removed and it can no longer be used
 * The edit() and after_update() methods of IPackageController plugins are now
   called when updating a resource using the web frontend or the
   resource_update API action [#1052]

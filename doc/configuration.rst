@@ -130,24 +130,6 @@ site use this setting.
 
   This setting should not have a trailing / on the end.
 
-.. _ckan.api_url:
-
-ckan.api_url
-^^^^^^^^^^^^
-
-.. deprecated:: 2
-   No longer used.
-
-Example::
-
- ckan.api_url = http://scotdata.ckan.net/api
-
-Default value:  ``/api``
-
-The URL that resolves to the CKAN API part of the site. This is useful if the
-API is hosted on a different domain, for example when a third-party site uses
-the forms API.
-
 .. _apikey_header_name:
 
 apikey_header_name
