@@ -50,7 +50,9 @@ Steps to upgrade
 
    - If not, try to fix the problem. If it's too complicated, pinpoint which
      dependency's version broke our tests, find an older version that still
-     works, and add it to ``requirements.in``. Go back to step 1.
+     works, and add it to ``requirements.in`` (i.e., if ``python-dateutil``
+     2.0.0 broke CKAN, you'd add ``python-dateutil>=1.5.0,<2.0.0``). Go back to
+     step 1.
 
 #. Navigate a bit on CKAN to make sure the tests didn't miss anything. Review
    the dependencies changes and their changelogs. If everything seems fine, go
