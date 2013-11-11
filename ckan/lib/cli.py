@@ -1030,14 +1030,25 @@ class Tracking(CkanCommand):
         '''
         return dict([r for r in engine.execute(sql).fetchall()])
 
+    def _tracking_period(self, engine):
+        start_sql = 'SELECT MIN(tracking_date) FROM tracking_summary'
+        start = engine.execute(start_sql).first()
+        start = str(start[0]) if start else 'unknown date'
+        end_sql = 'SELECT MAX(tracking_date) FROM tracking_summary'
+        end = engine.execute(end_sql).first()
+        end = str(end[0]) if end else 'unknown date'
+        return start, end
+
     def export_tracking(self, engine, output_filename):
         '''Write tracking summary to a csv file.'''
+
+        start, end = self._tracking_period(engine)
 
         HEADINGS = [
             "dataset id",
             "dataset name",
             "publisher name",
-            "total views",
+            "total views ({start} to {end})".format(start=start, end=end),
             "recent views (last 2 weeks)",
         ]
 
