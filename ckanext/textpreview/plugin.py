@@ -90,7 +90,7 @@ class TextPreview(p.SingletonPlugin):
                 view = {
                     'title': 'Text View',
                     'description': 'View of the {format} file'.format(
-                        format=format
+                        format=format.upper()
                     ),
                     'resource_id': resource['id'],
                     'view_type': 'text'

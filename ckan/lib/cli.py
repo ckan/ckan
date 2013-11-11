@@ -9,6 +9,7 @@ import re
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.lib.fanstatic_resources as fanstatic_resources
+import ckan.plugins as p
 import sqlalchemy as sa
 
 import paste.script
@@ -46,6 +47,41 @@ def parse_db_config(config_key='sqlalchemy.url'):
         raise Exception('Could not extract db details from url: %r' % url)
     db_details = db_details_match.groupdict()
     return db_details
+
+
+## from http://code.activestate.com/recipes/577058/ MIT licence.
+## Written by Trent Mick
+def query_yes_no(question, default="yes"):
+    """Ask a yes/no question via raw_input() and return their answer.
+
+    "question" is a string that is presented to the user.
+    "default" is the presumed answer if the user just hits <Enter>.
+        It must be "yes" (the default), "no" or None (meaning
+        an answer is required of the user).
+
+    The "answer" return value is one of "yes" or "no".
+    """
+    valid = {"yes":"yes",   "y":"yes",  "ye":"yes",
+             "no":"no",     "n":"no"}
+    if default == None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
+
+    while 1:
+        sys.stdout.write(question + prompt)
+        choice = raw_input().lower()
+        if default is not None and choice == '':
+            return default
+        elif choice in valid.keys():
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes' or 'no' "\
+                             "(or 'y' or 'n').\n")
 
 
 class MockTranslator(object):
@@ -2004,3 +2040,230 @@ class FrontEndBuildCommand(CkanCommand):
         ckanext = os.path.abspath(ckanext)
         cmd.args = (root, ckanext)
         cmd.command()
+
+class ViewsCommand(CkanCommand):
+    '''Manage resource views.
+
+    Usage:
+
+        paster views create all                 - Create views for all types.
+        paster views create [type1] [type2] ... - Create views for specified types.
+        paster views clean                      - Perminantly delete views for all types no longer in config.
+
+    Supported types are pdf, text, webpage, image.  Make sure the relevent extensions
+    are loaded otherwise is will cause an error.
+    '''
+
+    summary = __doc__.split('\n')[0]
+    usage = __doc__
+    min_args = 1
+
+    def command(self):
+        self._load_config()
+        if not self.args:
+            print self.usage
+        elif self.args[0] == 'create':
+            self.create_views(self.args[1:])
+        elif self.args[0] == 'clean':
+            self.clean_views()
+        else:
+            print self.usage
+
+    def create_views(self, view_types):
+        supported_types = ['text','webpage', 'pdf', 'image']
+        if not view_types:
+            print self.usage
+            return
+        if view_types[0] == 'all':
+            view_types = supported_types
+        else:
+            for view_type in view_types:
+                if view_type not in supported_types:
+                    print "View type {view} not supported in this command".format(view=view_type)
+                    return
+
+        for view_type in view_types:
+            create_function_name = 'create_%s_views' % view_type
+            create_function = getattr(self, create_function_name)
+            create_function()
+
+    def clean_views(self):
+        import ckan.model as model
+        names = []
+        for plugin in p.PluginImplementations(p.IResourceView):
+            names.append(str(plugin.info()['name']))
+
+        results = model.Session.execute(
+            '''select view_type, count(*)
+               from resource_view where view_type not in %s group by 1
+            ''' % str(tuple(names))
+        ).fetchall()
+
+        if not results:
+            print 'No resource views to delete'
+            return
+
+        print 'This command will delete.\n'
+        for row in results:
+            print '%s of type %s' % (row[1], row[0])
+
+        result = query_yes_no('Are you want to delete these resource views:', default='no')
+
+        if result == "no":
+            print 'Not Deleting.'
+            return
+
+        results = model.Session.execute(
+            '''delete from resource_view where view_type not in %s
+            ''' % str(tuple(names))
+        )
+        model.Session.commit()
+        print 'Deleted resource views.'
+
+    def create_text_views(self):
+        import ckan.model as model
+        import ckan.logic as logic
+
+        if not p.plugin_loaded('text_preview'):
+            print 'text_preview plugin is not enabled cannot create text previews'
+            return
+
+        if not p.plugin_loaded('resource_proxy'):
+            print 'resource_proxy plugin is not enabled cannot create text previews'
+            return
+
+        print '''text resource views are being created'''
+
+        import ckanext.textpreview.plugin as textplugin
+
+        formats = tuple(textplugin.DEFAULT_TEXT_FORMATS + textplugin.DEFAULT_XML_FORMATS +
+                        textplugin.DEFAULT_JSON_FORMATS + textplugin.DEFAULT_JSONP_FORMATS)
+
+        results = model.Session.execute(
+            '''select resource.id, format
+               from resource
+               left join resource_view on resource.id = resource_view.resource_id
+               where lower(format) in %s and resource_view.id is null
+            ''' % str(formats)
+        )
+
+        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        context = {'model': model, 'session': model.Session, 'user': user['name']}
+
+        count = 0
+        for row in results:
+            count += 1
+            resource_view = {'title': 'Text View',
+                             'description': 'View of the {format} file'.format(
+                              format=row[1].upper()),
+                             'resource_id': row[0],
+                             'view_type': 'text'}
+
+            logic.get_action('resource_view_create')(context, resource_view)
+
+        print '''%s text resource views created!''' % count
+
+
+    def create_image_views(self):
+        import ckan.model as model
+        import ckan.logic as logic
+
+        import ckanext.imageview.plugin as imagevewplugin
+        formats = tuple(imagevewplugin.DEFAULT_IMAGE_FORMATS)
+
+        print '''image resource views are being created'''
+
+        results = model.Session.execute(
+            '''select resource.id, format
+               from resource
+               left join resource_view on resource.id = resource_view.resource_id
+               where lower(format) in %s and resource_view.id is null
+            ''' % str(formats)
+        )
+
+        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        context = {'model': model, 'session': model.Session, 'user': user['name']}
+
+        count = 0
+        for row in results:
+            count += 1
+            resource_view = {'title': 'Resource Image',
+                             'description': 'View of the Image',
+                             'resource_id': row[0],
+                             'view_type': 'image'}
+
+            logic.get_action('resource_view_create')(context, resource_view)
+
+        print '''%s image resource views created!''' % count
+
+    def create_webpage_views(self):
+        import ckan.model as model
+        import ckan.logic as logic
+
+        formats = tuple(['html', 'htm'])
+
+        print '''webpage resource views are being created'''
+
+        results = model.Session.execute(
+            '''select resource.id, format
+               from resource
+               left join resource_view on resource.id = resource_view.resource_id
+               where lower(format) in %s and resource_view.id is null
+            ''' % str(formats)
+        )
+
+        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        context = {'model': model, 'session': model.Session, 'user': user['name']}
+
+        count = 0
+        for row in results:
+            count += 1
+            resource_view = {'title': 'Web Page View',
+                             'description': 'View of the webpage',
+                             'resource_id': row[0],
+                             'view_type': 'webpage'}
+
+            logic.get_action('resource_view_create')(context, resource_view)
+
+        print '''%s webpage resource views created!''' % count
+
+    def create_pdf_views(self):
+
+        import ckan.model as model
+        import ckan.logic as logic
+
+        if not p.plugin_loaded('pdf_preview'):
+            print 'pdf_preview plugin is not enabled cannot create pdf previews'
+            return
+
+        if not p.plugin_loaded('resource_proxy'):
+            print 'resource_proxy plugin is not enabled cannot create text previews'
+            return
+
+        print '''pdf resource views are being created'''
+
+        import ckanext.pdfpreview.plugin as pdfplugin
+
+        results = model.Session.execute(
+            '''select resource.id, format
+               from resource
+               left join resource_view on resource.id = resource_view.resource_id
+               where lower(format) = 'pdf' and resource_view.id is null
+            '''
+        )
+
+        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        context = {'model': model, 'session': model.Session, 'user': user['name']}
+
+        count = 0
+        for row in results:
+            count += 1
+            resource_view = {'title': 'PDF View',
+                             'description': 'PDF view of the resource.',
+                             'resource_id': row[0],
+                             'view_type': 'pdf'}
+
+            logic.get_action('resource_view_create')(context, resource_view)
+
+        print '''%s pdf resource views created!''' % count
+

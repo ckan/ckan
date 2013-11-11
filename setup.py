@@ -86,6 +86,7 @@ setup(
     less = ckan.lib.cli:LessCommand
     datastore = ckanext.datastore.commands:SetupDatastoreCommand
     front-end-build = ckan.lib.cli:FrontEndBuildCommand
+    views = ckan.lib.cli:ViewsCommand
 
 
     [console_scripts]
