@@ -18,15 +18,17 @@
 {% endblock %}
 
 {% block secondary_content %}
-  <section class="module module-narrow module-shallow">
-    <h2 class="module-heading">{{ _('Need an Account?') }}</h2>
-    <div class="module-content">
-      <p>{% trans %}Then sign right up, it only takes a minute.{% endtrans %}</p>
-      <p class="action">
-        <a class="btn" href="{{ h.url_for(controller='user', action='register') }}">{{ _('Create an Account') }}</a>
-      </p>
-    </div>
-  </section>
+  {% if h.check_access('user_create') %}
+    <section class="module module-narrow module-shallow">
+      <h2 class="module-heading">{{ _('Need an Account?') }}</h2>
+      <div class="module-content">
+        <p>{% trans %}Then sign right up, it only takes a minute.{% endtrans %}</p>
+        <p class="action">
+          <a class="btn" href="{{ h.url_for(controller='user', action='register') }}">{{ _('Create an Account') }}</a>
+        </p>
+      </div>
+    </section>
+  {% endif %}
 
   <section class="module module-narrow module-shallow">
     <h2 class="module-heading">{{ _('Forgotten your password?') }}</h2>

@@ -85,6 +85,7 @@ def default_resource_schema():
         'cache_last_updated': [ignore_missing, isodate],
         'webstore_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
+        'datastore_active': [ignore],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
@@ -262,6 +263,7 @@ def default_group_schema():
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
         'image_url': [ignore_missing, unicode],
+        'image_display_url': [ignore_missing, unicode],
         'type': [ignore_missing, unicode],
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],
@@ -328,6 +330,15 @@ def default_related_schema():
         'created': [ignore],
         'featured': [ignore_missing, int],
     }
+    return schema
+
+
+def default_update_related_schema():
+    schema = default_related_schema()
+    schema['id'] = [not_empty, unicode]
+    schema['title'] = [ignore_missing, unicode]
+    schema['type'] = [ignore_missing, unicode]
+    schema['owner_id'] = [ignore_missing, unicode]
     return schema
 
 
