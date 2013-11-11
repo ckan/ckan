@@ -1,7 +1,7 @@
 import sets
 import ckan
 from ckan.plugins import SingletonPlugin, implements, IPackageController
-from ckan.plugins import IGroupController, ITagController
+from ckan.plugins import IGroupController, IOrganizationController, ITagController
 import pylons
 import ckan.logic.action.get as action_get
 from pylons import config
@@ -253,6 +253,7 @@ class MultilingualGroup(SingletonPlugin):
 
     '''
     implements(IGroupController, inherit=True)
+    implements(IOrganizationController, inherit=True)
 
     def before_view(self, data_dict):
         translated_data_dict = translate_data_dict(data_dict)

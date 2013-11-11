@@ -598,7 +598,8 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    facet_titles = {'groups': _('Groups'),
+    facet_titles = {'organization': _('Organizations'),
+                    'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
                     'license': _('License'), }
@@ -1669,6 +1670,80 @@ def uploads_enabled():
         return True
     return False
 
+def get_featured_organizations(count=1):
+    '''Returns a list of favourite organization in the form
+    of organization_list action function
+    '''
+    config_orgs = config.get('ckan.featured_orgs', '').split()
+    orgs = featured_group_org(get_action='organization_show',
+                              list_action='organization_list',
+                              count=count,
+                              items=config_orgs)
+    return orgs
+
+
+def get_featured_groups(count=1):
+    '''Returns a list of favourite group the form
+    of organization_list action function
+    '''
+    config_groups = config.get('ckan.featured_groups', '').split()
+    groups = featured_group_org(get_action='group_show',
+                                list_action='group_list',
+                                count=count,
+                                items=config_groups)
+    return groups
+
+
+def featured_group_org(items, get_action, list_action, count):
+    def get_group(id):
+        context = {'ignore_auth': True,
+                   'limits': {'packages': 2},
+                   'for_view': True}
+        data_dict = {'id': id}
+
+        try:
+            out = logic.get_action(get_action)(context, data_dict)
+        except logic.ObjectNotFound:
+            return None
+        return out
+
+    groups_data = []
+
+    extras = logic.get_action(list_action)({}, {})
+
+    # list of found ids to prevent duplicates
+    found = []
+    for group_name in items + extras:
+        group = get_group(group_name)
+        if not group:
+            continue
+        # check if duplicate
+        if group['id'] in found:
+            continue
+        found.append(group['id'])
+        groups_data.append(group)
+        if len(groups_data) == count:
+            break
+
+    return groups_data
+
+
+def get_site_statistics():
+    stats = {}
+    stats['dataset_count'] = logic.get_action('package_search')(
+        {}, {"rows": 1})['count']
+    stats['group_count'] = len(logic.get_action('group_list')({}, {}))
+    stats['organization_count'] = len(
+        logic.get_action('organization_list')({}, {}))
+    result = model.Session.execute(
+        '''select count(*) from related r
+           left join related_dataset rd on r.id = rd.related_id
+           where rd.status = 'active' or rd.id is null''').first()[0]
+    stats['related_count'] = result
+
+    return stats
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1767,4 +1842,7 @@ __allowed_functions__ = [
     'submit',
     'asbool',
     'uploads_enabled',
+    'get_featured_organizations',
+    'get_featured_groups',
+    'get_site_statistics',
 ]

@@ -1,6 +1,8 @@
 '''API functions for adding data to CKAN.'''
 
 import logging
+import random
+import re
 
 from pylons import config
 import paste.deploy.converters
@@ -16,6 +18,8 @@ import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
 import ckan.lib.uploader as uploader
+import ckan.lib.navl.validators as validators
+import ckan.lib.mailer as mailer
 
 from ckan.common import _
 
@@ -87,7 +91,7 @@ def package_create(context, data_dict):
     :param extras: the dataset's extras (optional), extras are arbitrary
         (key: value) metadata items that can be added to datasets, each extra
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
-        string), and optionally ``'deleted'``
+        string)
     :type extras: list of dataset extra dictionaries
     :param relationships_as_object: see ``package_relationship_create()`` for
         the format of relationship dictionaries (optional)
@@ -841,6 +845,65 @@ def user_create(context, data_dict):
 
     log.debug('Created user {name}'.format(name=user.name))
     return user_dict
+
+
+def user_invite(context, data_dict):
+    '''Invite a new user.
+
+    You must be authorized to create group members.
+
+    :param email: the email of the user to be invited to the group
+    :type email: string
+    :param group_id: the id or name of the group
+    :type group_id: string
+    :param role: role of the user in the group. One of ``member``, ``editor``,
+        or ``admin``
+    :type role: string
+
+    :returns: the newly created yser
+    :rtype: dictionary
+    '''
+    _check_access('user_invite', context, data_dict)
+
+    schema = context.get('schema',
+                         ckan.logic.schema.default_user_invite_schema())
+    data, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    name = _get_random_username_from_email(data['email'])
+    password = str(random.SystemRandom().random())
+    data['name'] = name
+    data['password'] = password
+    data['state'] = ckan.model.State.PENDING
+    user_dict = _get_action('user_create')(context, data)
+    user = ckan.model.User.get(user_dict['id'])
+    member_dict = {
+        'username': user.id,
+        'id': data['group_id'],
+        'role': data['role']
+    }
+    _get_action('group_member_create')(context, member_dict)
+    mailer.send_invite(user)
+    return model_dictize.user_dictize(user, context)
+
+
+def _get_random_username_from_email(email):
+    localpart = email.split('@')[0]
+    cleaned_localpart = re.sub(r'[^\w]', '-', localpart)
+
+    # if we can't create a unique user name within this many attempts
+    # then something else is probably wrong and we should give up
+    max_name_creation_attempts = 100
+
+    for i in range(max_name_creation_attempts):
+        random_number = random.SystemRandom().random() * 10000
+        name = '%s-%d' % (cleaned_localpart, random_number)
+        if not ckan.model.User.get(name):
+            return name
+
+    return cleaned_localpart
+
 
 ## Modifications for rest api
 
