@@ -1,6 +1,8 @@
 import re
+import os
 import logging
 import genshi
+import cgi
 import datetime
 from urllib import urlencode
 
@@ -425,6 +427,9 @@ class GroupController(base.BaseController):
             return self._save_new(context, group_type)
 
         data = data or {}
+        if not data.get('image_url', '').startswith('http'):
+            data.pop('image_url', None)
+
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
@@ -524,7 +529,6 @@ class GroupController(base.BaseController):
             data_dict['id'] = id
             context['allow_partial_update'] = True
             group = self._action('group_update')(context, data_dict)
-
             if id != group['name']:
                 self._force_reindex(group)
 
