@@ -1019,20 +1019,16 @@ class Tracking(CkanCommand):
                     sql, measure_from=str(measure_from)
                 ).fetchall()]
 
-    def _publisher_names(self, dataset_ids):
-        import ckan.model as model
-        import ckan.logic as logic
-
-        user = logic.get_action('get_site_user')(
-            {'model': model, 'ignore_auth': True}, {}
-        )
-        context = {'model': model,
-                   'session': model.Session,
-                   'user': user['name']}
-
-        dataset = logic.get_action('package_show')
-        return dict((id, dataset(context, {'id': id}).get('published_by', ''))
-                    for id in dataset_ids)
+    def _publisher_names(self, engine):
+        sql = '''
+            SELECT package.id, "group".name
+            FROM package
+            INNER JOIN member ON member.table_id=package.id
+            INNER JOIN "group" ON member.group_id="group".id
+            WHERE member.table_name='package'
+            AND "group".type='organization'
+        '''
+        return dict([r for r in engine.execute(sql).fetchall()])
 
     def export_tracking(self, engine, output_filename):
         '''Write tracking summary to a csv file.'''
@@ -1048,7 +1044,7 @@ class Tracking(CkanCommand):
         measure_from = datetime.date.today() - datetime.timedelta(days=14)
         recent_views = self._recent_views(engine, measure_from)
         total_views = self._total_views(engine)
-        publisher_names = self._publisher_names([r.id for r in recent_views])
+        publisher_names = self._publisher_names(engine)
 
         with open(output_filename, 'w') as fh:
             f_out = csv.writer(fh)
