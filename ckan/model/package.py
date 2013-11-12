@@ -104,6 +104,14 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             **kw)
         )
 
+    def get_organization(self):
+        """ Returns the model for this package's owning organization if
+            one is set up. Will return None otherwise """
+        import ckan.model as model
+        if self.owner_org:
+            return model.Group.get(self.owner_org)
+        return None
+
     def add_tag(self, tag):
         import ckan.model as model
         if tag in self.get_tags(tag.vocabulary):
