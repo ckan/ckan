@@ -19,7 +19,10 @@
 
     {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=_('A little information about my organization...'), value=data.description, error=errors.description) }}
 
-    {{ form.image_upload(data, errors, image_url=c.group_dict.image_display_url, is_upload_enabled=h.uploads_enabled()) }}
+    {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
+    {% set is_url = data.image_url and data.image_url.startswith('http') %}
+
+    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload) }}
 
   {% endblock %}
 

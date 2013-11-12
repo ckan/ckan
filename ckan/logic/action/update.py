@@ -233,7 +233,7 @@ def resource_update(context, data_dict):
         raise ValidationError(errors)
 
     resource = pkg_dict['resources'][n]
-    upload.upload(resource)
+    upload.upload(resource['id'])
     model.repo.commit()
     return resource
 
