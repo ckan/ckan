@@ -268,14 +268,19 @@ def resource_create(context, data_dict):
     try:
         context['defer_commit'] = True
         context['use_cache'] = False
-        pkg_dict = _get_action('package_update')(context, pkg_dict)
+        _get_action('package_update')(context, pkg_dict)
     except ValidationError, e:
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
-    resource = pkg_dict['resources'][-1]
-    upload.upload(resource)
+    ## Get out resource_id resource from model as it will not appear in
+    ## package_show until after commit
+    upload.upload(context['package'].resources[-1].id)
     model.repo.commit()
+
+    ##  Run package show again to get out actual last_resource
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    resource = pkg_dict['resources'][-1]
 
     return resource
 

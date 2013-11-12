@@ -133,14 +133,16 @@ class Upload(object):
 
 class ResourceUpload(object):
     def __init__(self, resource):
-        path = pylons.config.get('ckan.storage_path')
+        path = get_storage_path()
         if not path:
             return
         self.storage_path = os.path.join(path, 'resources')
         try:
             os.makedirs(self.storage_path)
         except OSError, e:
-            pass
+            ## errno 17 is file already exists
+            if e.errno != 17:
+                raise
         self.filename = None
 
         url = resource.get('url')
@@ -168,23 +170,31 @@ class ResourceUpload(object):
         return filepath
 
 
-    def upload(self, resource):
-        id = resource['id']
+    def upload(self, id, max_size=10):
         directory = self.get_directory(id)
         filepath = self.get_path(id)
         if self.filename:
             try:
                 os.makedirs(directory)
             except OSError, e:
-                pass
+                ## errno 17 is file already exists
+                if e.errno != 17:
+                    raise
             tmp_filepath = filepath + '~'
             output_file = open(tmp_filepath, 'wb+')
             self.upload_file.seek(0)
+            current_size = 0
             while True:
+                current_size = current_size + 1
                 data = self.upload_file.read(2 ** 20) #mb chuncks
                 if not data:
                     break
                 output_file.write(data)
+                if current_size > max_size:
+                    os.remove(self.tmp_filepath)
+                    raise logic.ValidationError(
+                        {'upload': ['File upload too large']}
+                    )
             output_file.close()
             os.rename(tmp_filepath, filepath)
 
