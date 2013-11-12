@@ -23,6 +23,7 @@ from fanstatic import Fanstatic
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
 from ckan.lib.i18n import get_locales_from_config
+import ckan.lib.uploader as uploader
 
 from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
@@ -148,13 +149,15 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
                 cache_max_age=static_max_age)
         static_parsers = [static_app, app]
 
-        storage_directory = config.get('ckan.storage_path')
+        storage_directory = uploader.get_storage_path()
         if storage_directory:
             path = os.path.join(storage_directory, 'storage')
             try:
                 os.makedirs(path)
             except OSError, e:
-                pass
+                ## errno 17 is file already exists
+                if e.errno != 17:
+                    raise
 
             storage_app = StaticURLParser(path,
                 cache_max_age=static_max_age)

@@ -29,13 +29,13 @@ this.ckan = this.ckan || {};
 
     ckan.SITE_ROOT   = getRootFromData('siteRoot');
     ckan.LOCALE_ROOT = getRootFromData('localeRoot');
-    ckan.API_ROOT    = getRootFromData('apiRoot');
 
     // Load the localisations before instantiating the modules.
     ckan.sandbox().client.getLocaleData(locale).done(function (data) {
       ckan.i18n.load(data);
       ckan.module.initialize();
     });
+    jQuery('[data-target="popover"]').popover();
   };
 
   /* Returns a full url for the current site with the provided path appended.

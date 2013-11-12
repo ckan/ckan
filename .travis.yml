@@ -5,7 +5,8 @@ python:
 env:
   - PGVERSION=9.1
   - PGVERSION=8.4
-script: ./bin/travis-build
+install: ./bin/travis-install-dependencies
+script: ./bin/travis-run-tests
 notifications:
   irc:
     channels:
@@ -14,3 +15,5 @@ notifications:
     on_failure: change
     template:
       - "%{repository} %{branch} %{commit} %{build_url} %{author}: %{message}"
+after_success:
+  - coveralls

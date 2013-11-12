@@ -228,6 +228,9 @@ def package_dictize(pkg, context):
     if not result:
         raise logic.NotFound
     result_dict = d.table_dictize(result, context)
+    #strip whitespace from title
+    if result_dict.get('title'):
+        result_dict['title'] = result_dict['title'].strip()
     #resources
     res_rev = model.resource_revision_table
     resource_group = model.resource_group_table

@@ -114,8 +114,10 @@ class ApiController(base.BaseController):
 
         return self._finish(status_int, response_data, content_type)
 
-    def _finish_not_authz(self):
+    def _finish_not_authz(self, extra_msg=None):
         response_data = _('Access denied')
+        if extra_msg:
+            response_data = '%s - %s' % (response_data, extra_msg)
         return self._finish(403, response_data, 'json')
 
     def _finish_not_found(self, extra_msg=None):
@@ -194,10 +196,14 @@ class ApiController(base.BaseController):
                                     'data': request_data}
             return_dict['success'] = False
             return self._finish(400, return_dict, content_type='json')
-        except NotAuthorized:
+        except NotAuthorized, e:
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
             return_dict['success'] = False
+            
+            if e.extra_msg:
+                return_dict['error']['message'] += ': %s' % e.extra_msg
+
             return self._finish(403, return_dict, content_type='json')
         except NotFound, e:
             return_dict['error'] = {'__type': 'Not Found Error',
@@ -277,8 +283,9 @@ class ApiController(base.BaseController):
         except NotFound, e:
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)
-        except NotAuthorized:
-            return self._finish_not_authz()
+        except NotAuthorized, e:
+            extra_msg = e.extra_msg
+            return self._finish_not_authz(extra_msg)
 
     def show(self, ver=None, register=None, subregister=None,
              id=None, id2=None):
@@ -308,8 +315,9 @@ class ApiController(base.BaseController):
         except NotFound, e:
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)
-        except NotAuthorized:
-            return self._finish_not_authz()
+        except NotAuthorized, e:
+            extra_msg = e.extra_msg
+            return self._finish_not_authz(extra_msg)
 
     def _represent_package(self, package):
         return package.as_dict(ref_package_by=self.ref_package_by,
@@ -354,8 +362,9 @@ class ApiController(base.BaseController):
                                           data_dict.get("id")))
             return self._finish_ok(response_data,
                                    resource_location=location)
-        except NotAuthorized:
-            return self._finish_not_authz()
+        except NotAuthorized, e:
+            extra_msg = e.extra_msg
+            return self._finish_not_authz(extra_msg)
         except NotFound, e:
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)
@@ -410,8 +419,9 @@ class ApiController(base.BaseController):
         try:
             response_data = action(context, data_dict)
             return self._finish_ok(response_data)
-        except NotAuthorized:
-            return self._finish_not_authz()
+        except NotAuthorized, e:
+            extra_msg = e.extra_msg
+            return self._finish_not_authz(extra_msg)
         except NotFound, e:
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)
@@ -458,8 +468,9 @@ class ApiController(base.BaseController):
         try:
             response_data = action(context, data_dict)
             return self._finish_ok(response_data)
-        except NotAuthorized:
-            return self._finish_not_authz()
+        except NotAuthorized, e:
+            extra_msg = e.extra_msg
+            return self._finish_not_authz(extra_msg)
         except NotFound, e:
             extra_msg = e.extra_msg
             return self._finish_not_found(extra_msg)

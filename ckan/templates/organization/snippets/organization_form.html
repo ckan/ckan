@@ -19,14 +19,7 @@
 
     {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=_('A little information about my organization...'), value=data.description, error=errors.description) }}
 
-    {{ form.input('image_url', label=_('Image URL'), id='field-image-url', placeholder=_('http://example.com/my-image.jpg'), value=data.image_url, error=errors.image_url, classes=['control-full']) }}
-
-    {% if h.uploads_enabled() %}
-    {{ form.input('image_upload', label=_('Image Upload'), id='field-image-upload', type='file', placeholder='', value=data.image_url, error='', classes=['control-full']) }}
-      {% if data.image_url and not data.image_url.startswith('http') %}
-        {{ form.checkbox('clear_upload', label=_('Clear Upload'), id='field-clear-upload', value='true', error='', classes=['control-full']) }}
-      {% endif %}
-    {% endif %}
+    {{ form.image_upload(data, errors, image_url=c.group_dict.image_display_url, is_upload_enabled=h.uploads_enabled()) }}
 
   {% endblock %}
 
@@ -78,8 +71,8 @@
   {% endblock %}
   #}
 
-  <div class="form-actions">
     {{ form.required_message() }}
+  <div class="form-actions">
       {% block delete_button %}
         {% if h.check_access('organization_delete', {'id': data.id})  %}
           {% set locale = h.dump_json({'content': _('Are you sure you want to delete this Organization? This will delete all the public and private datasets belonging to this organization.')}) %}

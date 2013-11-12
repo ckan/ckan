@@ -370,7 +370,7 @@
   });
 
   ckan.sandbox.setup(function (instance) {
-    instance.client = new Client({endpoint: ckan.API_ROOT});
+    instance.client = new Client({endpoint: ckan.SITE_ROOT});
   });
 
   ckan.Client = Client;

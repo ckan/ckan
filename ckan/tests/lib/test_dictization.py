@@ -923,6 +923,7 @@ class TestBasicDictize:
                                'capacity' : 'public',
                                'display_name': u'simple',
                                'image_url': u'',
+                               'image_display_url': u'',
                                'name': u'simple',
                                'packages': 0,
                                'state': u'active',
@@ -933,6 +934,7 @@ class TestBasicDictize:
                     'users': [{'about': u'I love reading Annakarenina. My site: http://anna.com',
                               'display_name': u'annafan',
                               'capacity' : 'public',
+                              'state': 'active',
                               'sysadmin': False,
                               'email_hash': 'd41d8cd98f00b204e9800998ecf8427e',
                               'fullname': None,
@@ -944,6 +946,7 @@ class TestBasicDictize:
                     'name': u'help',
                     'display_name': u'help',
                     'image_url': u'',
+                    'image_display_url': u'',
                     'package_count': 2,
                     'is_organization': False,
                     'packages': [{'author': None,
@@ -1216,3 +1219,21 @@ class TestBasicDictize:
 
         # Passwords should never be available
         assert 'password' not in user_dict
+
+    def test_26_package_dictize_whitespace_strippped_from_title(self):
+
+        context = {"model": model,
+                   "session": model.Session}
+
+        pkg = model.Session.query(model.Package).first()
+        original_title = pkg.title
+        pkg.title = "     whitespace title    \t"
+        model.Session.add(pkg)
+        model.Session.commit()
+
+        result = package_dictize(pkg, context)
+        assert result['title'] == 'whitespace title'
+        pkg.title = original_title
+        model.Session.add(pkg)
+        model.Session.commit()
+
