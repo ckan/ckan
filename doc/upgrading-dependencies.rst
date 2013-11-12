@@ -32,6 +32,9 @@ incompatible version.
 Steps to upgrade
 ================
 
+These steps will upgrade all of CKAN's dependencies to the latest versions that
+work with CKAN:
+
 #. Create a new virtualenv: ``virtualenv --no-site-packages upgrading``
 
 #. Install the requirements with unpinned versions: ``pip install -r
