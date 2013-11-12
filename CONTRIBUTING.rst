@@ -61,6 +61,7 @@ When writing code for CKAN, try to respect our coding standards:
    css-coding-standards
    javascript-coding-standards
    testing-coding-standards
+   upgrading-dependencies
 
 * `CKAN coding standards <http://docs.ckan.org/en/latest/ckan-coding-standards.html>`_
 * `Python coding standards <http://docs.ckan.org/en/latest/python-coding-standards.html>`_
@@ -68,6 +69,7 @@ When writing code for CKAN, try to respect our coding standards:
 * `CSS coding standards <http://docs.ckan.org/en/latest/css-coding-standards.html>`_
 * `JavaScript coding standards <http://docs.ckan.org/en/latest/javascript-coding-standards.html>`_
 * `Testing coding standards <http://docs.ckan.org/en/latest/testing-coding-standards.html>`_
+* `Upgrading CKAN's dependencies <http://docs.ckan.org/en/latest/upgrading-dependencies.html>`_
 
 
 ---------------
