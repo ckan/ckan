@@ -30,6 +30,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         cls.resource = cls.dataset.resources[0]
         cls.data = {
             'resource_id': cls.resource.id,
+            'force': True,
             'aliases': 'books3',
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
@@ -116,7 +117,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
             context,
             {'name': 'privatedataset',
              'private': True,
-             'owner_org' : self.organization['id'],
+             'owner_org': self.organization['id'],
              'groups': [{
                  'id': group.id
              }]})
@@ -128,6 +129,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
         postparams = '%s=1' % json.dumps({
             'resource_id': resource['id'],
+            'force': True
         })
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
@@ -425,6 +427,7 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = dict(
             resource_id=resource.id,
+            force=True,
             fields=[
               {'id': 'id'},
               {'id': 'date', 'type':'date'},
@@ -499,6 +502,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         resource = cls.dataset.resources[0]
         cls.data = {
             'resource_id': resource.id,
+            'force': True,
             'aliases': 'books4',
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},
@@ -517,7 +521,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                            extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
-        
+
         # Make an organization, because private datasets must belong to one.
         cls.organization = tests.call_action_api(
             cls.app, 'organization_create',
@@ -669,6 +673,7 @@ class TestDatastoreSQL(tests.WsgiAppCase):
 
         postparams = '%s=1' % json.dumps({
             'resource_id': resource['id'],
+            'force': True
         })
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
@@ -708,7 +713,9 @@ class TestDatastoreSQL(tests.WsgiAppCase):
              'package_id': package['id']})
 
         postparams = '%s=1' % json.dumps({
-            'resource_id': resource['id']})
+            'resource_id': resource['id'],
+            'force': True
+        })
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_create', params=postparams,
                             extra_environ=auth)
