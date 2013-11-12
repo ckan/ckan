@@ -1504,13 +1504,14 @@ class PackageController(base.BaseController):
                                        package_type=package_type)
 
         data_dict = {'package': c.pkg_dict, 'resource': c.resource,
-                     'data': data}
+                     'resource_view': data}
 
         view_template = view_plugin.view_template(context, data_dict)
         form_template = view_plugin.form_template(context, data_dict)
 
         vars = {'form_template': form_template,
                 'view_template': view_template,
+                'data': data,
                 'errors': errors,
                 'error_summary': error_summary,
                 'to_preview': to_preview}

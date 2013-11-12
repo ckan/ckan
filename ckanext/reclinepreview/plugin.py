@@ -36,7 +36,7 @@ class ReclineView(p.SingletonPlugin):
 
     def setup_template_variables(self, context, data_dict):
         return {'resource_json': json.dumps(data_dict['resource']),
-                'resource_view_json': json.dumps(data_dict['data'])}
+                'resource_view_json': json.dumps(data_dict['resource_view'])}
 
     def view_template(self, context, data_dict):
         return 'recline_view.html'

@@ -1633,7 +1633,7 @@ def rendered_resource_view(resource_view, resource, package, embed=False):
     '''
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     context = {}
-    data_dict = {'data': resource_view,
+    data_dict = {'resource_view': resource_view,
                  'resource': resource,
                  'package': package}
     vars = view_plugin.setup_template_variables(context, data_dict) or {}
