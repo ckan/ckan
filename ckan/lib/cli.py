@@ -2070,7 +2070,7 @@ class ViewsCommand(CkanCommand):
             print self.usage
 
     def create_views(self, view_types):
-        supported_types = ['text','webpage', 'pdf', 'image']
+        supported_types = ['text','webpage', 'pdf', 'image', 'grid']
         if not view_types:
             print self.usage
             return
@@ -2242,8 +2242,6 @@ class ViewsCommand(CkanCommand):
 
         print '''pdf resource views are being created'''
 
-        import ckanext.pdfpreview.plugin as pdfplugin
-
         results = model.Session.execute(
             '''select resource.id, format
                from resource
@@ -2266,4 +2264,45 @@ class ViewsCommand(CkanCommand):
             logic.get_action('resource_view_create')(context, resource_view)
 
         print '''%s pdf resource views created!''' % count
+
+    def create_grid_views(self):
+        import ckan.model as model
+        import ckan.logic as logic
+        import ckanext.datastore.db as db
+        import pylons
+        import sqlalchemy
+
+        if not p.plugin_loaded('datastore'):
+            print 'Datastore needs to loaded to make the grid views.'
+            return
+
+        if not p.plugin_loaded('recline_grid'):
+            print 'Please enable recline_grid extension to make the grid views.'
+            return
+
+        print '''Grid resource views are being created'''
+
+        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+        context = {'model': model, 'session': model.Session, 'user': user['name']}
+
+        data_dict = {}
+        data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
+
+        resources_sql = sqlalchemy.text(u'''SELECT name FROM "_table_metadata"
+                                            WHERE alias_of is null''')
+        results = db._get_engine(data_dict).execute(resources_sql)
+
+        count = 0
+        for row in results:
+            res = logic.get_action('resource_view_list')(context, {'id': row[0]})
+            if res:
+                continue
+            count += 1
+            resource_view = {'resource_id': row[0],
+                             'view_type': 'recline_grid',
+                             'title': 'Grid view',
+                             'description': 'View of data within the DataStore'}
+            logic.get_action('resource_view_create')(context, resource_view)
+
+        print '''%s grid resource views created!''' % count
 

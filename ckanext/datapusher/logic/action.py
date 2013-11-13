@@ -153,6 +153,20 @@ def datapusher_hook(context, data_dict):
     task['state'] = status
     task['last_updated'] = str(datetime.datetime.now())
 
+
+    if status == 'complete' and p.plugin_loaded('recline_grid'):
+        view_list = p.toolkit.get_action('resource_view_list')(context, {
+                                        'id': res_id})
+
+        if not view_list:
+            view = {'resource_id': res_id,
+                    'view_type': 'recline_grid',
+                    'title': 'Grid view',
+                    'description': 'View of data within the DataStore'
+                     }
+            view_list = p.toolkit.get_action('resource_view_create')(context,
+                                                                     view)
+
     p.toolkit.get_action('task_status_update')(context, task)
 
 
