@@ -6,9 +6,13 @@ import ckan.lib.munge as munge
 import logging
 import ckan.logic as logic
 
+
+config = pylons.config
 log = logging.getLogger(__name__)
 
 _storage_path = None
+_max_resource_size = None
+_max_image_size = None
 
 
 def get_storage_path():
@@ -17,9 +21,9 @@ def get_storage_path():
 
     #None means it has not been set. False means not in config.
     if _storage_path is None:
-        storage_path = pylons.config.get('ckan.storage_path')
-        ofs_impl = pylons.config.get('ofs.impl')
-        ofs_storage_dir = pylons.config.get('ofs.storage_dir')
+        storage_path = config.get('ckan.storage_path')
+        ofs_impl = config.get('ofs.impl')
+        ofs_storage_dir = config.get('ofs.storage_dir')
         if storage_path:
             _storage_path = storage_path
         elif ofs_impl == 'pairtree' and ofs_storage_dir:
@@ -38,6 +42,18 @@ def get_storage_path():
             _storage_path = False
 
     return _storage_path
+
+def get_max_image_size():
+    global _max_image_size
+    if _max_image_size is None:
+        _max_image_size = int(config.get('ckan.max_image_size', 2))
+    return _max_image_size
+
+def get_max_resource_size():
+    global _max_resource_size
+    if _max_resource_size is None:
+        _max_resource_size = int(config.get('ckan.max_resource_size', 10))
+    return _max_resource_size
 
 
 class Upload(object):
@@ -191,7 +207,7 @@ class ResourceUpload(object):
                     break
                 output_file.write(data)
                 if current_size > max_size:
-                    os.remove(self.tmp_filepath)
+                    os.remove(tmp_filepath)
                     raise logic.ValidationError(
                         {'upload': ['File upload too large']}
                     )

@@ -233,7 +233,7 @@ def resource_update(context, data_dict):
         raise ValidationError(errors)
 
     resource = pkg_dict['resources'][n]
-    upload.upload(resource['id'])
+    upload.upload(resource['id'], uploader.get_max_resource_size())
     model.repo.commit()
     return resource
 
@@ -541,7 +541,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
         # TODO: Also create an activity detail recording what exactly changed
         # in the group.
 
-    upload.upload()
+    upload.upload(uploader.get_max_image_size())
     if not context.get('defer_commit'):
         model.repo.commit()
 

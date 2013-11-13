@@ -275,7 +275,8 @@ def resource_create(context, data_dict):
 
     ## Get out resource_id resource from model as it will not appear in
     ## package_show until after commit
-    upload.upload(context['package'].resources[-1].id)
+    upload.upload(context['package'].resources[-1].id,
+                  uploader.get_max_resource_size())
     model.repo.commit()
 
     ##  Run package show again to get out actual last_resource
@@ -587,7 +588,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     logic.get_action('activity_create')(activity_create_context,
             activity_dict)
 
-    upload.upload()
+    upload.upload(uploader.get_max_image_size())
     if not context.get('defer_commit'):
         model.repo.commit()
     context["group"] = group
