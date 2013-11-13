@@ -14,7 +14,7 @@ Example:
 {% set url = h.url_for(group.type + '_read', action='read', id=group.name) %}
 <li class="media-item">
   {% block image %}
-    <img src="{{ group.image_url or '/base/images/placeholder-group.png' }}" alt="{{ group.name }}" class="media-image">
+    <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image">
   {% endblock %}
   {% block title %}
     <h3 class="media-heading">{{ group.display_name }}</h3>

@@ -1157,7 +1157,7 @@ class TestNew(TestPackageForm):
         prefix = ''
         fv[prefix + 'name'] = 'annakarenina'
         self.pkg_names.append('annakarenina')
-        res = fv.submit('save')
+        res = fv.submit('save', extra_environ=self.extra_environ_tester)
         assert not 'Error' in res, res
 
     def test_new_bad_name(self):
