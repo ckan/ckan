@@ -983,6 +983,8 @@ Default value:  ``None``
 
 This defines the location of where CKAN will store all uploaded data.
 
+.. _ckan.max_resource_size:
+
 ckan.max_resource_size
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -993,6 +995,8 @@ Default value: ``10``
 
 The maximum in megabytes a resources upload can be.
 
+.. _ckan.max_image_size:
+
 ckan.max_image_size
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -1002,20 +1006,6 @@ Example::
 Default value: ``2``
 
 The maximum in megabytes an image upload can be.
-
-.. _ckan.storage.bucket:
-
-ckan.storage.max_content_length
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.storage.max_content_length = 500000
-
-Default value: ``50000000``
-
-This defines the maximum content size, in bytes, for uploads.
-Depricated, please use ckan.max_resource_size_instead
 
 .. _ofs.impl:
 
@@ -1046,7 +1036,7 @@ Default value:  ``None``
 
 Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
 
-Depricated, please use ckan.storage_path
+Depricated, please use ckan.storage_path.
 
 
 
