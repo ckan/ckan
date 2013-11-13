@@ -1552,7 +1552,13 @@ class PackageController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % resource_id)
 
-        if view_id:
+        view = None
+        if request.params.get('resource_view', ''):
+            try:
+                view = json.loads(request.params.get('resource_view', ''))
+            except ValueError:
+                abort(409, _('Bad resource view data'))
+        elif view_id:
             try:
                 view = get_action('resource_view_show')(
                     context, {'id': view_id})
@@ -1561,13 +1567,9 @@ class PackageController(base.BaseController):
             except NotAuthorized:
                 abort(401,
                       _('Unauthorized to read resource view %s') % view_id)
-        else:
-            try:
-                view = json.loads(request.params.get('resource_view', ''))
-            except ValueError:
-                abort(409, _('Bad resource view data'))
-            if not view or not isinstance(view, dict):
-                abort(404, _('Resource view not supplied'))
+
+        if not view or not isinstance(view, dict):
+            abort(404, _('Resource view not supplied'))
 
         return h.rendered_resource_view(view, resource, package, embed=True)
 
