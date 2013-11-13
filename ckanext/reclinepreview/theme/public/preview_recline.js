@@ -70,7 +70,9 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       if(reclineView.view_type === "recline_graph") {
         view = new recline.View.Graph({
           model: dataset,
-          el: this.el
+          state: {"graphType": reclineView.graph_type,
+                  "group": reclineView.group,
+                  "series": [reclineView.series]}
         });
       } else if(reclineView.view_type == "recline_map") {
         view = new recline.View.Map({
@@ -79,13 +81,17 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         });
       } else {
         view = new recline.View.SlickGrid({
-          model: dataset,
-          el: this.el
+          model: dataset
         });
       }
 
+      this.el.replaceWith(view.el);
       view.visible = true;
       view.render();
+
+      if(reclineView.view_type === "recline_graph") {
+        view.redraw();
+      }
     },
 
     normalizeUrl: function (url) {

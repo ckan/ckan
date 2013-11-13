@@ -4,5 +4,5 @@
 {{ form.input('limit', id='field-limit', label=_('Number of rows'), placeholder=_('eg: 100'), value=data.limit, error=errors.limit, classes=['control-medium']) }}
 
 {{ form.select('graph_type', label=_('Graph type'), options=graph_types, selected=data.graph_type, error=errors.graph_type) }}
-{{ form.select('group_column', label=_('Group column (Axis 1)'), options=columns, selected=data.group_column, error=errors.graph_column) }}
-{{ form.select('series_a', label=_('Series A (Axis 2)'), options=columns, selected=data.series_a, error=errors.series_a) }}
+{{ form.select('group', label=_('Group (Axis 1)'), options=graph_fields, selected=data.group, error=errors.group) }}
+{{ form.select('series', label=_('Series (Axis 2)'), options=graph_fields, selected=data.series, error=errors.series) }}
