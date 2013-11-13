@@ -33,6 +33,7 @@ advanced documentation last:
 ----
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
 
    installing
