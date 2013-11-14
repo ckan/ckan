@@ -419,7 +419,7 @@ def group_dict_save(group_dict, context):
     group_users_changed = group_member_save(context, group_dict, 'users')
     group_groups_changed = group_member_save(context, group_dict, 'groups')
     group_tags_changed = group_member_save(context, group_dict, 'tags')
-    log.error('Group save membership changes - Packages: %r  Users: %r  '
+    log.debug('Group save membership changes - Packages: %r  Users: %r  '
             'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
             group_groups_changed, group_tags_changed)
 
