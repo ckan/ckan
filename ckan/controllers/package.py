@@ -779,7 +779,7 @@ class PackageController(BaseController):
 
     def resource_read(self, id, resource_id):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'for_view': True}
 
         try:
             c.resource = get_action('resource_show')(context,
