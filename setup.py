@@ -76,6 +76,7 @@ setup(
     user = ckan.lib.cli:UserCmd
     group = ckan.lib.cli:GroupCmd
     dataset = ckan.lib.cli:DatasetCmd
+    resource = ckan.lib.cli:ResourceCmd
     search-index = ckan.lib.cli:SearchIndexCommand
     ratings = ckan.lib.cli:Ratings
     notify = ckan.lib.cli:Notification
