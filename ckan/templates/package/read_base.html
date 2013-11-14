@@ -62,16 +62,22 @@
   {% block package_groups %}
     {% if pkg.groups %}
       <div class="module module-narrow">
-        <h2 class="module-heading"><i class="icon-folder-open"></i> {{ _('Groups') }}</h2>
-        <ul class="nav nav-simple">
-          {% for group in pkg.groups %}
-            <li class="nav-item">
-              <a href="{{ h.url_for(controller='group', action='read', id=group.name) }}">
-                {{ group.title or group.name }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
+        {% block package_groups_title %}
+          <h2 class="module-heading"><i class="icon-folder-open"></i> {{ _('Groups') }}</h2>
+        {% endblock %}
+        {% block package_groups_nav %}
+          <ul class="nav nav-simple">
+            {% block package_groups_nav_inner %}
+              {% for group in pkg.groups %}
+                <li class="nav-item">
+                  <a href="{{ h.url_for(controller='group', action='read', id=group.name) }}">
+                    {{ group.title or group.name }}
+                  </a>
+                </li>
+              {% endfor %}
+            {% endblock %}
+          </ul>
+        {% endblock %}
       </div>
     {% endif %}
   {% endblock %}
