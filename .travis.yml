@@ -5,8 +5,7 @@ python:
 env:
   - PGVERSION=9.1
   - PGVERSION=8.4
-install: ./bin/travis-install-dependencies
-script: ./bin/travis-run-tests
+script: ./bin/travis-build
 notifications:
   irc:
     channels:
