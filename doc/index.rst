@@ -45,3 +45,4 @@ advanced documentation last:
    test
    configuration
    changelog
+   howtos/index
