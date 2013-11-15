@@ -1,3 +1,4 @@
+===========================
 Installing CKAN from Source
 ===========================
 
@@ -12,8 +13,9 @@ wiki page.
 From source is also the right installation method for developers who want to
 work on CKAN.
 
+--------------------------------
 1. Install the required packages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
@@ -42,8 +44,9 @@ OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/instal
 
 .. _install-ckan-in-virtualenv:
 
+-------------------------------------------------
 2. Install CKAN into a Python virtual environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------
 
 .. tip::
 
@@ -122,8 +125,9 @@ d. Deactivate and reactivate your virtualenv, to make sure you're using the
 
 .. _postgres-setup:
 
+------------------------------
 3. Setup a PostgreSQL database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 List existing databases::
 
@@ -149,9 +153,9 @@ database user you just created:
 
     sudo -u postgres createdb -O |database_user| |database| -E utf-8
 
-
+----------------------------
 4. Create a CKAN config file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 Create a directory to contain the site's config files:
 
@@ -197,8 +201,9 @@ site_id
 
 .. _setup solr:
 
+-------------
 5. Setup Solr
-~~~~~~~~~~~~~
+-------------
 
 CKAN uses Solr_ as its search platform, and uses a customized Solr schema file
 that takes into account CKAN's specific search needs. Now that we have CKAN
@@ -332,8 +337,9 @@ below.
 
 .. _postgres-init:
 
+-------------------------
 6. Create database tables
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Create the |postgres| database tables that CKAN needs:
 
@@ -350,8 +356,9 @@ You should see ``Initialising DB: SUCCESS``.
     ``sqlalchemy.url`` option in your CKAN configuration file properly.
     See `4. Create a CKAN config file`_.
 
+-----------------------
 7. Set up the DataStore
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 .. note ::
   Setting up the DataStore is optional. However, if you do skip this step,
@@ -362,8 +369,10 @@ Follow the instructions in :doc:`datastore` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
 
+
+----------------------
 8. Link to ``who.ini``
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 ``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
 same directory as your CKAN config file, so create a symlink to it:
@@ -372,8 +381,9 @@ same directory as your CKAN config file, so create a symlink to it:
 
     ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
 
+---------------
 9. You're done!
-~~~~~~~~~~~~~~~
+---------------
 
 You can now use the Paste development server to serve CKAN from the
 command-line.  This is a simple and lightweight way to serve CKAN that is
