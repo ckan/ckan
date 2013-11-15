@@ -3,7 +3,6 @@ Full table of contents
 ======================
 
 .. toctree::
-   :maxdepth: 2
 
    index
    installing
