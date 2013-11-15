@@ -6126,6 +6126,7 @@ textarea {
 }
 .js .image-upload .btn-remove-url .icon-remove {
   margin-right: 0;
+}
 .add-member-form .control-label {
   width: 100%;
   text-align: left;
@@ -7716,6 +7717,9 @@ h4 small {
   -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
+.activity .item.no-avatar p {
+  margin-left: 40px;
+}
 .activity .load-less {
   margin-bottom: 15px;
 }
@@ -7733,8 +7737,27 @@ h4 small {
   float: right;
   text-decoration: none;
 }
+.popover .popover-content {
+  font-size: 14px;
+  line-height: 20px;
+  color: #444444;
+  word-break: break-all;
+}
+.popover .popover-content dl {
+  margin: 0;
+}
+.popover .popover-content dl dd {
+  margin-left: 0;
+  margin-bottom: 10px;
+}
 .activity .item .icon {
   background-color: #999999;
+}
+.activity .item.failure .icon {
+  background-color: #b95252;
+}
+.activity .item.success .icon {
+  background-color: #69a67a;
 }
 .activity .item.added-tag .icon {
   background-color: #6995a6;
@@ -7985,6 +8008,21 @@ h4 small {
   display: block;
   font-size: 16px;
   margin: 3px 0;
+}
+.datapusher-status-link:hover {
+  text-decoration: none;
+}
+.datapusher-status.status-unknown {
+  color: #bbb;
+}
+.datapusher-status.status-pending {
+  color: #FFCC00;
+}
+.datapusher-status.status-error {
+  color: red;
+}
+.datapusher-status.status-complete {
+  color: #009900;
 }
 body {
   background: #005d7a url("../../../base/images/bg.png");
