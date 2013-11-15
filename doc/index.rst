@@ -29,19 +29,3 @@ advanced documentation last:
 * Finally, :doc:`configuration` and :doc:`changelog` are **reference** docs
   covering CKAN's config file options and the differences between CKAN
   releases.
-
-.. toctree::
-   :hidden:
-   :maxdepth: 2
-
-   installing
-   upgrading
-   getting-started
-   features
-   extensions/index
-   theming
-   api
-   contributing
-   test
-   configuration
-   changelog
