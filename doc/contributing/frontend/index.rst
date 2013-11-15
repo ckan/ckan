@@ -2,6 +2,15 @@
 Frontend Development Guidelines
 ===============================
 
+.. toctree::
+   :maxdepth: 1
+
+   templating
+   resources
+   template-tutorial
+   template-blocks
+   javascript-module-tutorial
+
 ------------------------------
 Install front end dependencies
 ------------------------------

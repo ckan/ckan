@@ -4,6 +4,14 @@ Documentation guidelines
 
 .. _docs.ckan.org: http://docs.ckan.org
 
+The quickest and easiest way to contribute documentation to CKAN is to sign up
+for a free GitHub account and simply edit the `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_.
+Docs started on the wiki can make it onto `docs.ckan.org`_ later.
+
+**Tip**: Use the reStructuredText markup format when creating a wiki page,
+since reStructuredText is the format that docs.ckan.org uses, this will make
+moving the documentation from the wiki into docs.ckan.org later easier.
+
 This section gives some guidelines to help us to write consistent and good
 quality documentation for CKAN.
 
@@ -106,7 +114,7 @@ again (``python setup.py build_sphinx``) and open the HTML files in a web
 browser to preview your changes.
 
 Once your docs are ready to submit to the CKAN project, follow the steps in
-:ref:`making a pull request`.
+:doc`/contributing/pull-requests`.
 
 .. _structure:
 
@@ -368,7 +376,7 @@ see `Cross-referencing arbitrary locations <http://sphinx-doc.org/markup/inline.
 With both ``:doc:`` and ``:ref:`` if you want the link text to be different
 from the title of the section you're referencing, do this::
 
-    :doc:`the theming document <theming>`
+    :doc:`the theming document </theming>`
 
     :ref:`the getting started section <getting-started>`
 
@@ -462,7 +470,7 @@ therefore more likely to be kept up to date.
 Whenever you're writing reference documentation for modules, classes, functions
 or methods, exceptions, attributes, etc. you should probably be using autodoc.
 For example, we use autodoc for the :ref:`api-reference`, the
-:doc:`extensions/plugin-interfaces`, etc.
+:doc:`/extensions/plugin-interfaces`, etc.
 
 For how to write docstrings, see :ref:`docstrings`.
 

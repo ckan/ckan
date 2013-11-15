@@ -7,7 +7,7 @@ Best practices for writing extensions
 Follow CKAN's coding standards
 ------------------------------
 
-See :ref:`coding standards`.
+See :doc:`/contributing/coding-standards/index`.
 
 
 -------------------------------------------------

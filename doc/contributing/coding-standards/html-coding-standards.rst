@@ -1,6 +1,8 @@
-HTML Coding Standards
+=====================
+HTML coding standards
 =====================
 
+----------
 Formatting
 ----------
 
@@ -17,6 +19,7 @@ HTML5 elements should be used where appropriate reserving ``<div>`` and ``<span>
 elements for situations where there is no semantic value (such as wrapping
 elements to provide styling hooks).
 
+------------------
 Doctype and layout
 ------------------
 
@@ -34,6 +37,7 @@ have a ``"lang"`` attribute. The ``<head>`` should also at a minimum include
       <body></body>
     </html>
 
+-----
 Forms
 -----
 
@@ -70,6 +74,7 @@ Wufoo provides an `excellent reference`_ for these attributes.
 
 .. _excellent reference: http://wufoo.com/html5/
 
+-------------------
 Including meta data
 -------------------
 
@@ -98,6 +103,7 @@ Will become: ::
     jQuery('.btn').data('fileFormat'); //=> "csv"
     jQuery('.btn').data(); => {fileFormat: "csv"}
 
+---------------------------
 Targeting Internet Explorer
 ---------------------------
 
@@ -132,6 +138,7 @@ These can then be used within the CSS: ::
         zoom: 1; /* For IE 6/7 (trigger hasLayout) */
     }
 
+----
 i18n
 ----
 
