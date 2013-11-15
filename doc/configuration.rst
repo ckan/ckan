@@ -392,7 +392,7 @@ solr_url
 
 Example::
 
- solr_url = http://solr.okfn.org:8983/solr/ckan-schema-2.0
+ solr_url = http://solr.okfn.org:8983/solr/ckan_default
 
 Default value:  ``http://solr.okfn.org:8983/solr``
 

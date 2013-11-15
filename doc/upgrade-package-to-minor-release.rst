@@ -77,7 +77,8 @@ respectively.
    to find out) you need to update your Solr schema symlink.
 
    When :ref:`setting up solr` you created a symlink
-   ``/etc/solr/conf/schema.xml`` linking to a CKAN Solr schema file such as
+   ``/etc/solr/ckan_default/conf/schema.xml`` linking to a CKAN Solr schema
+   file such as
    |virtualenv|/src/ckan/ckan/config/solr/schema-2.0.xml. This symlink
    should be updated to point to the latest schema file in
    |virtualenv|/src/ckan/ckan/config/solr/, if it doesn't already.
@@ -86,8 +87,8 @@ respectively.
 
    .. parsed-literal::
 
-     sudo rm /etc/solr/conf/schema.xml
-     sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
+     sudo rm /etc/solr/ckan_default/conf/schema.xml
+     sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/ckan_default/conf/schema.xml
 
    You will need to restart Jetty for the changes to take effect:
 
