@@ -424,36 +424,36 @@ class TestFollow(object):
             error = ckan.tests.call_action_api(self.app, 'follow_user',
                     id=self.russianfan['id'], apikey=apikey,
                     status=403)
-            assert error['message'] == 'Access denied'
+            assert error['__type'] == 'Authorization Error'
 
     def test_01_user_follow_dataset_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
             error = ckan.tests.call_action_api(self.app, 'follow_dataset',
                     id=self.warandpeace['id'], apikey=apikey,
                     status=403)
-            assert error['message'] == 'Access denied'
+            assert error['__type'] == 'Authorization Error'
 
     def test_01_user_follow_group_bad_apikey(self):
         for apikey in ('bad api key', '', '     ', 'None', '3', '35.7', 'xxx'):
             error = ckan.tests.call_action_api(self.app, 'follow_group',
                     id=self.rogers_group['id'], apikey=apikey,
                     status=403)
-            assert error['message'] == 'Access denied'
+            assert error['__type'] == 'Authorization Error'
 
     def test_01_user_follow_user_missing_apikey(self):
         error = ckan.tests.call_action_api(self.app, 'follow_user',
                 id=self.russianfan['id'], status=403)
-        assert error['message'] == 'Access denied'
+        assert error['__type'] == 'Authorization Error'
 
     def test_01_user_follow_dataset_missing_apikey(self):
         error = ckan.tests.call_action_api(self.app, 'follow_dataset',
                 id=self.warandpeace['id'], status=403)
-        assert error['message'] == 'Access denied'
+        assert error['__type'] == 'Authorization Error'
 
     def test_01_user_follow_group_missing_apikey(self):
         error = ckan.tests.call_action_api(self.app, 'follow_group',
                 id=self.rogers_group['id'], status=403)
-        assert error['message'] == 'Access denied'
+        assert error['__type'] == 'Authorization Error'
 
     def test_01_follow_bad_object_id(self):
         for action in ('follow_user', 'follow_dataset', 'follow_group'):
@@ -878,14 +878,14 @@ class TestFollowerDelete(object):
                     'xxx'):
                 error = ckan.tests.call_action_api(self.app, action,
                         apikey=apikey, status=403, id=self.joeadmin['id'])
-                assert error['message'] == 'Access denied'
+                assert error['__type'] == 'Authorization Error'
 
     def test_01_unfollow_missing_apikey(self):
         '''Test error response when calling unfollow_* without api key.'''
         for action in ('unfollow_user', 'unfollow_dataset', 'unfollow_group'):
             error = ckan.tests.call_action_api(self.app, action, status=403,
                     id=self.joeadmin['id'])
-            assert error['message'] == 'Access denied'
+            assert error['__type'] == 'Authorization Error'
 
     def test_01_unfollow_bad_object_id(self):
         '''Test error response when calling unfollow_* with bad object id.'''

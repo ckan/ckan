@@ -1,6 +1,8 @@
 import re
+import os
 import logging
 import genshi
+import cgi
 import datetime
 from urllib import urlencode
 
@@ -278,7 +280,8 @@ class GroupController(base.BaseController):
 
             facets = OrderedDict()
 
-            default_facet_titles = {'groups': _('Groups'),
+            default_facet_titles = {'organization': _('Organizations'),
+                                    'groups': _('Groups'),
                                     'tags': _('Tags'),
                                     'res_format': _('Formats'),
                                     'license_id': _('License')}
@@ -343,6 +346,9 @@ class GroupController(base.BaseController):
             c.query_error = True
             c.facets = {}
             c.page = h.Page(collection=[])
+
+        self._setup_template_variables(context, {'id':id},
+            group_type=group_type)
 
     def bulk_process(self, id):
         ''' Allow bulk processing of datasets for an organization.  Make
@@ -421,6 +427,9 @@ class GroupController(base.BaseController):
             return self._save_new(context, group_type)
 
         data = data or {}
+        if not data.get('image_url', '').startswith('http'):
+            data.pop('image_url', None)
+
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
@@ -520,7 +529,6 @@ class GroupController(base.BaseController):
             data_dict['id'] = id
             context['allow_partial_update'] = True
             group = self._action('group_update')(context, data_dict)
-
             if id != group['name']:
                 self._force_reindex(group)
 
@@ -612,6 +620,19 @@ class GroupController(base.BaseController):
                 data_dict = clean_dict(dict_fns.unflatten(
                     tuplize_dict(parse_params(request.params))))
                 data_dict['id'] = id
+
+                email = data_dict.get('email')
+                if email:
+                    user_data_dict = {
+                        'email': email,
+                        'group_id': data_dict['id'],
+                        'role': data_dict['role']
+                    }
+                    del data_dict['email']
+                    user_dict = self._action('user_invite')(context,
+                            user_data_dict)
+                    data_dict['username'] = user_dict['name']
+
                 c.group_dict = self._action('group_member_create')(context, data_dict)
                 self._redirect_to(controller='group', action='members', id=id)
             else:
@@ -815,7 +836,9 @@ class GroupController(base.BaseController):
 
     def about(self, id):
         c.group_dict = self._get_group_dict(id)
-        return render(self._about_template(c.group_dict['type']))
+        group_type = c.group_dict['type']
+        self._setup_template_variables({}, {'id': id}, group_type=group_type)
+        return render(self._about_template(group_type))
 
     def _get_group_dict(self, id):
         ''' returns the result of group_show action or aborts if there is a

@@ -128,8 +128,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         try:
             template_path, template_type = render_.template_info(template_name)
         except render_.TemplateNotFound:
-            template_type = 'genshi'
-            template_path = ''
+            raise
 
         # snippets should not pass the context
         # but allow for legacy genshi templates
@@ -227,6 +226,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         raise ckan.exceptions.CkanUrlException(
             '\nAn Exception has been raised for template %s\n%s' %
             (template_name, e.message))
+    except render_.TemplateNotFound:
+        raise
 
 
 class ValidationException(Exception):
@@ -314,8 +315,9 @@ class BaseController(WSGIController):
         if c.user:
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
-            if c.userobj is None:
-                # This occurs when you are logged in, clean db
+            if c.userobj is None or not c.userobj.is_active():
+                # This occurs when a user that was still logged in is deleted,
+                # or when you are logged in, clean db
                 # and then restart (or when you change your username)
                 # There is no user object, so even though repoze thinks you
                 # are logged in and your cookie has ckan_display_name, we

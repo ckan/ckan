@@ -1,28 +1,5 @@
-{% extends 'package/base_form_page.html' %}
+{% extends 'package/edit_base.html' %}
 
-{% set pkg = c.pkg_dict %}
-
-{% block breadcrumb_content_selected %}{% endblock %}
-
-{% block breadcrumb_content %}
-  {{ super() }}
-  <li class="active">{% link_for _('Edit'), controller='package', action='edit', id=pkg.name %}</li>
+{% block primary_content_inner %}
+  {% block form %}{{ c.form | safe }}{% endblock %}
 {% endblock %}
-
-{% block resources_module %}
-  {% snippet 'package/snippets/resources.html', pkg=pkg, action='resource_edit' %}
-{% endblock %}
-
-{% block content_action %}
-  {% link_for _('View dataset'), controller='package', action='read', id=pkg.name, class_='btn', icon='eye-open' %}
-{% endblock %}
-
-{% block secondary_content %}
-  {% snippet 'package/snippets/info.html', pkg=pkg, action='package_edit' %}
-{% endblock %}
-
-{% block primary_content %}
-  <header class="module-content page-header"></header>
-  {{ super() }}
-{% endblock %}
-

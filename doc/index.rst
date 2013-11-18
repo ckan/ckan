@@ -30,9 +30,8 @@ advanced documentation last:
   covering CKAN's config file options and the differences between CKAN
   releases.
 
-----
-
 .. toctree::
+   :hidden:
    :maxdepth: 2
 
    installing
