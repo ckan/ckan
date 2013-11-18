@@ -1430,7 +1430,7 @@ def package_search(context, data_dict):
     results = []
     if not abort:
         # return a list of package ids
-        data_dict['fl'] = 'id data_dict'
+        data_dict['fl'] = 'id validated_data_dict'
 
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
@@ -1452,7 +1452,8 @@ def package_search(context, data_dict):
 
         for package in query.results:
             # get the package object
-            package, package_dict = package['id'], package.get('data_dict')
+            package, package_dict = package['id'], package.get(
+                'validated_data_dict')
             pkg_query = session.query(model.PackageRevision)\
                 .filter(model.PackageRevision.id == package)\
                 .filter(_and_(
