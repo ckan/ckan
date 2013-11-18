@@ -29,7 +29,9 @@ this.ckan = this.ckan || {};
 
     ckan.SITE_ROOT   = getRootFromData('siteRoot');
     ckan.LOCALE_ROOT = getRootFromData('localeRoot');
-    ckan.API_ROOT    = getRootFromData('apiRoot');
+
+    // Not used, kept for backwards compatibility
+    ckan.API_ROOT    = body.data('apiRoot') || ckan.SITE_ROOT;
 
     // Load the localisations before instantiating the modules.
     ckan.sandbox().client.getLocaleData(locale).done(function (data) {

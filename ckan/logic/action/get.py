@@ -77,8 +77,11 @@ def package_list(context, data_dict):
     col = (package_revision_table.c.id
         if api == 2 else package_revision_table.c.name)
     query = _select([col])
-    query = query.where(_and_(package_revision_table.c.state=='active',
-        package_revision_table.c.current==True))
+    query = query.where(_and_(
+                package_revision_table.c.state=='active',
+                package_revision_table.c.current==True,
+                package_revision_table.c.private==False,
+                ))
     query = query.order_by(col)
     return list(zip(*query.execute())[0])
 
@@ -749,19 +752,28 @@ def package_show(context, data_dict):
     _check_access('package_show', context, data_dict)
 
     package_dict = None
-    no_cache_context = ['revision_id', 'revision_date', 'schema']
     use_cache = (context.get('use_cache', True)
-        and not any(k in context for k in no_cache_context))
+        and not 'revision_id' in context
+        and not 'revision_date' in context)
     if use_cache:
         try:
-            package_dict = json.loads(search.show(name_or_id)['data_dict'])
-            if pkg.revision_id != package_dict.get('revision_id'):
-                package_dict = None
+            search_result = search.show(name_or_id)
         except (search.SearchError, socket.error):
             pass
+        else:
+            use_validated_cache = 'schema' not in context
+            if use_validated_cache and 'validated_data_dict' in search_result:
+                package_dict = json.loads(search_result['validated_data_dict'])
+                package_dict_validated = True
+            else:
+                package_dict = json.loads(search_result['data_dict'])
+                package_dict_validated = False
+            if pkg.revision_id != package_dict.get('revision_id'):
+                package_dict = None
 
     if not package_dict:
         package_dict = model_dictize.package_dictize(pkg, context)
+        package_dict_validated = False
 
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -770,14 +782,16 @@ def package_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
-    package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
-    if 'schema' in context:
-        schema = context['schema']
-    else:
-        schema = package_plugin.show_package_schema()
+    if not package_dict_validated:
+        package_plugin = lib_plugins.lookup_package_plugin(package_dict['type'])
+        if 'schema' in context:
+            schema = context['schema']
+        else:
+            schema = package_plugin.show_package_schema()
 
-    if schema and context.get('validate', True):
-        package_dict, errors = _validate(package_dict, schema, context=context)
+            if schema and context.get('validate', True):
+                package_dict, errors = _validate(package_dict, schema,
+                    context=context)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
