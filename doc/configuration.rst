@@ -1046,7 +1046,7 @@ DataPusher Settings
 .. _ckan.datapusher.formats:
 
 ckan.datapusher.formats
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
   ckan.datapusher.formats = csv xls xlsx
