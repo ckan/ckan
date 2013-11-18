@@ -805,3 +805,75 @@ Customizing CKAN's JavaScript
    * Bootstrap's JavaScript stuff
    * Other stuff in javascript-module-tutorial.rst
 
+.. _fanstatic tutorial:
+
+------------------------------------------------
+Adding |javascript| and CSS file using Fanstatic
+------------------------------------------------
+
+If you're adding |javascript| or CSS files to your theme, you can add them
+using `Fanstatic <http://www.fanstatic.org/>`_ rather than the simple
+:ref:`extra_public_paths` method described above. Using Fanstatic to add
+|javascript| and CSS files allows you to take advantage of Fanstatic's
+features, such as automatically serving minified files in production, caching
+and bundling files together to reduce page load times, specifying
+dependencies between files so that the files a page needs (and only the files
+it needs) are always loaded, and other tricks to optimize page load times.
+
+.. note::
+
+   CKAN will only serve ``*.js`` and ``*.css`` files as Fanstatic resources,
+   other types of static files (eg. image files, PDF files) must be added
+   using the :ref:`extra_public_paths` method described above.
+
+Adding a custom |javascript| or CSS file to CKAN is using Fanstatic is simple:
+
+.. todo:: Turn this into a real working example.
+
+1. First, create a fanstatic directory in your extension with the CSS and
+   |javascript| files in it::
+
+    ckanext-example_theme/
+      fanstatic/
+        my_style.css
+        my_script.js
+
+2. Use CKAN's ``add_resource()`` function to register your fanstatic
+   directory with CKAN. Edit the ``update_config()`` method in your
+   ``plugin.py`` file::
+
+        def update_config(self, config):
+
+            # Add this plugin's templates dir to CKAN's extra_template_paths, so
+            # that CKAN will use this plugin's custom templates.
+            toolkit.add_template_directory(config, 'templates')
+
+            # Add this plugin's public dir to CKAN's extra_public_paths, so
+            # that CKAN will use this plugin's custom static files.
+            toolkit.add_public_directory(config, 'public')
+
+            toolkit.add_resource('fanstatic', 'example_theme')
+
+   The second argument to ``add_resource()``, ``'example_theme'``, is the name
+   that you'll need to use to refer to your custom Fanstatic library from
+   templates (you can pass whatever name you want here).
+
+3. Finally, use CKAN's custom Jinja2 tag ``{% resource %}`` to import the file
+   in the template that needs it::
+
+     {% resource 'example_theme/my_script.js' %}
+     {% resource 'example_theme/my_style.css' %}
+
+   You can put the ``{% resource %}`` tag anywhere in the template, and
+   Fanstatic will insert and necessary ``<style>`` and ``<script>`` tags to
+   include your |javascript| and CSS files and their dependencies in the right
+   places in the HTML output (CSS files in the HTML ``<head>``, |javascript|
+   files at the bottom of the page).
+
+.. todo:: Add a note about Fanstatic resource configuration file.
+
+Fanstatic resource troubleshooting
+==================================
+
+``AttributeError``
+------------------
