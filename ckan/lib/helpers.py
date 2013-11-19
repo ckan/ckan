@@ -37,6 +37,7 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
+import ckan.lib.uploader as uploader
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -1664,6 +1665,10 @@ def new_activities():
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
 
+def uploads_enabled():
+    if uploader.get_storage_path():
+        return True
+    return False
 
 def get_featured_organizations(count=1):
     '''Returns a list of favourite organization in the form
@@ -1836,6 +1841,7 @@ __allowed_functions__ = [
     'radio',
     'submit',
     'asbool',
+    'uploads_enabled',
     'get_featured_organizations',
     'get_featured_groups',
     'get_site_statistics',
