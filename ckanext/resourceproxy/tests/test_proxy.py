@@ -6,14 +6,12 @@ import httpretty
 import paste.fixture
 from pylons import config
 
-import ckan.logic as logic
 import ckan.model as model
 import ckan.tests as tests
-import ckan.plugins as plugins
+import ckan.plugins as p
 import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
 import ckanext.resourceproxy.controller as controller
-
 import ckanext.resourceproxy.plugin as proxy
 
 
@@ -32,14 +30,16 @@ def set_resource_url(url):
         'user': model.User.get('testsysadmin').name
     }
 
-    resource = logic.get_action('resource_show')(context, {'id': testpackage.resources[0].id})
-    package = logic.get_action('package_show')(context, {'id': testpackage.id})
+    resource = p.toolkit.get_action('resource_show')(
+        context, {'id': testpackage.resources[0].id})
+    package = p.toolkit.get_action('package_show')(
+        context, {'id': testpackage.id})
 
     resource['url'] = url
-    logic.action.update.resource_update(context, resource)
+    p.toolkit.get_action('resource_update')(context, resource)
 
     testpackage = model.Package.get('annakarenina')
-    assert testpackage.resources[0].url == resource['url'], testpackage.resources[0].url
+    assert testpackage.resources[0].url == resource['url']
 
     return {'resource': resource, 'package': package}
 
@@ -54,8 +54,6 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         config['ckan.plugins'] = 'resource_proxy'
         wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
-
-        # create test resource
         create_test_data.CreateTestData.create()
 
     @classmethod
@@ -69,8 +67,10 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         self.data_dict = set_resource_url(self.url)
 
     def register(self, *args, **kwargs):
-        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.GET, *args, **kwargs)
-        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.HEAD, *args, **kwargs)
+        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.GET, *args,
+                                         **kwargs)
+        httpretty.HTTPretty.register_uri(httpretty.HTTPretty.HEAD, *args,
+                                         **kwargs)
 
     @httpretty.activate
     def test_resource_proxy_on_200(self):
@@ -137,7 +137,6 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         result = self.app.get(proxied_url, status='*')
         assert result.status == 409, result.status
         assert 'Invalid URL' in result.body, result.body
-
 
     def test_non_existent_url(self):
         self.data_dict = set_resource_url('http://foo.bar')
