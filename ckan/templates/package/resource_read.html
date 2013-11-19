@@ -21,6 +21,7 @@
 {% block pre_primary %}
   {% block resource %}
     <section class="module module-resource">
+      {% block resource_inner %}
       <div class="module-content">
         <div class="actions">
           {% block resource_actions %}
@@ -75,6 +76,7 @@
       {% block data_preview %}
         {{ h.resource_preview(c.resource, c.package) }}
       {% endblock %}
+      {% endblock %}
     </section>
   {% endblock %}
 {% endblock %}
@@ -83,6 +85,7 @@
   {% block resource_additional_information %}
     {% if res %}
       <section class="module">
+        {% block resource_additional_information_inner %}
         <div class="module-content">
           <h2>{{ _('Additional Information') }}</h2>
           <table class="table table-striped table-bordered table-condensed" data-module="table-toggle-more">
@@ -115,6 +118,7 @@
             </tbody>
           </table>
         </div>
+        {% endblock %}
       </section>
     {% endif %}
   {% endblock %}
