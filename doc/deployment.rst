@@ -140,8 +140,11 @@ to the WSGI script that you created above. Your WSGI script in turn directs the
 requests to your CKAN instance.
 
 -------------------------------
-7. Create the Nginx Config File
+7. Create the Nginx config file
 -------------------------------
+
+Create your site's Nginx config file at |nginx_config_file|, with the
+following contents:
 
 .. parsed-literal::
 
@@ -174,7 +177,9 @@ Finally, enable your CKAN site in Apache:
 .. parsed-literal::
 
     sudo a2ensite ckan_default
+    sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan_default
     |reload_apache|
+    |reload_nginx|
 
 You should now be able to visit your server in a web browser and see your new
 CKAN instance.
