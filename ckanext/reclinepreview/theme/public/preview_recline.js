@@ -68,21 +68,31 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       var view;
 
       if(reclineView.view_type === "recline_graph") {
-        view = new recline.View.Graph({
-          model: dataset,
-          state: {"graphType": reclineView.graph_type,
-                  "group": reclineView.group,
-                  "series": [reclineView.series]}
-        });
-      } else if(reclineView.view_type == "recline_map") {
-        view = new recline.View.Map({
-          model: dataset,
-          el: this.el
-        });
+        var state = {
+          "graphType": reclineView.graph_type,
+          "group": reclineView.group,
+          "series": [reclineView.series]
+        };
+        view = new recline.View.Graph({model: dataset, state: state});
+      } else if(reclineView.view_type === "recline_map") {
+        var state = {
+          geomField: null,
+          latField: null,
+          lonField: null,
+          autoZoom: Boolean(reclineView.auto_zoom),
+          cluster: Boolean(reclineView.cluster_markers)
+        };
+
+        if(reclineView.map_field_type === "geojson") {
+          state.geomField = reclineView.geojson_field;
+        } else {
+          state.latField = reclineView.latitude_field;
+          state.lonField = reclineView.longitude_field;
+        }
+
+        view = new recline.View.Map({model: dataset, state: state});
       } else {
-        view = new recline.View.SlickGrid({
-          model: dataset
-        });
+        view = new recline.View.SlickGrid({model: dataset});
       }
 
       this.el.replaceWith(view.el);

@@ -3,12 +3,11 @@ from logging import getLogger
 from ckan.common import json
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
-import ckan.lib.navl.dictization_functions as df
 
 log = getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
 natural_number_validator = p.toolkit.get_validator('natural_number_validator')
-Invalid = df.Invalid
+Invalid = p.toolkit.Invalid
 
 
 def in_list(list_possible_values):
@@ -24,6 +23,22 @@ def in_list(list_possible_values):
         if not data[key] in list_possible_values():
             raise Invalid('"{0}" is not a valid parameter'.format(data[key]))
     return validate
+
+
+def datastore_fields(resource, valid_field_types):
+    '''
+    Return a list of all datastore fields for a given resource, as long as
+    the datastore field type is in valid_field_types.
+
+    :param resource: resource dict
+    :type resource: dict
+    :param valid_field_types: field types to include in returned list
+    :type valid_field_types: list of strings
+    '''
+    data = {'resource_id': resource['id'], 'limit': 0}
+    fields = toolkit.get_action('datastore_search')({}, data)['fields']
+    return [{'value': f['id'], 'text': f['id']} for f in fields
+            if f['type'] in valid_field_types]
 
 
 class ReclineView(p.SingletonPlugin):
@@ -78,8 +93,6 @@ class ReclineGraph(ReclineView):
     This extension views resources using a Recline graph.
     '''
 
-    graph_field_types = ['numeric', 'int4', 'timestamp']
-
     graph_types = [{'value': 'lines-and-points',
                     'text': 'Lines and points'},
                    {'value': 'lines', 'text': 'Lines'},
@@ -89,10 +102,18 @@ class ReclineGraph(ReclineView):
 
     datastore_fields = []
 
+    datastore_field_types = ['numeric', 'int4', 'timestamp']
+
+    def list_graph_types(self):
+        return [t['value'] for t in self.graph_types]
+
+    def list_datastore_fields(self):
+        return [t['value'] for t in self.datastore_fields]
+
     def info(self):
         # in_list validator here is passed functions because this
         # method does not know what the possible values of the
-        # datastore fields are (requires datastore search)
+        # datastore fields are (requires a datastore search)
         self.schema.update({
             'graph_type': [ignore_empty, in_list(self.list_graph_types)],
             'group': [ignore_empty, in_list(self.list_datastore_fields)],
@@ -102,20 +123,9 @@ class ReclineGraph(ReclineView):
                 'title': 'Graph',
                 'schema': self.schema}
 
-    def list_graph_types(self):
-        return [t['value'] for t in self.graph_types]
-
-    def list_datastore_fields(self):
-        return [t['value'] for t in self.datastore_fields]
-
-    def _datastore_fields(self, resource):
-        data = {'resource_id': resource['id'], 'limit': 0}
-        fields = toolkit.get_action('datastore_search')({}, data)['fields']
-        return [{'value': f['id'], 'text': f['id']} for f in fields
-                if f['type'] in self.graph_field_types]
-
     def setup_template_variables(self, context, data_dict):
-        self.datastore_fields = self._datastore_fields(data_dict['resource'])
+        self.datastore_fields = datastore_fields(data_dict['resource'],
+                                                 self.datastore_field_types)
         vars = ReclineView.setup_template_variables(self, context, data_dict)
         vars.update({'graph_types': self.graph_types,
                      'graph_fields': self.datastore_fields})
@@ -130,10 +140,47 @@ class ReclineMap(ReclineView):
     This extension views resources using a Recline map.
     '''
 
+    map_field_types = [{'value': 'lat_long',
+                        'text': 'Latitude / Longitude fields'},
+                       {'value': 'geojson', 'text': 'GeoJSON'}]
+
+    datastore_fields = []
+
+    datastore_field_types = ['numeric']
+
+    def list_map_field_types(self):
+        return [t['value'] for t in self.map_field_types]
+
+    def list_datastore_fields(self):
+        return [t['value'] for t in self.datastore_fields]
+
     def info(self):
+        # in_list validator here is passed functions because this
+        # method does not know what the possible values of the
+        # datastore fields are (requires a datastore search)
+        self.schema.update({
+            'map_field_type': [ignore_empty,
+                               in_list(self.list_map_field_types)],
+            'latitude_field': [ignore_empty,
+                               in_list(self.list_datastore_fields)],
+            'longitude_field': [ignore_empty,
+                                in_list(self.list_datastore_fields)],
+            'geojson_field': [ignore_empty,
+                              in_list(self.list_datastore_fields)],
+            'auto_zoom': [ignore_empty],
+            'cluster_markers': [ignore_empty]
+        })
         return {'name': 'recline_map',
                 'title': 'Map',
                 'schema': self.schema}
+
+    def setup_template_variables(self, context, data_dict):
+        self.datastore_fields = datastore_fields(data_dict['resource'],
+                                                 self.datastore_field_types)
+        vars = ReclineView.setup_template_variables(self, context, data_dict)
+        vars.update({'map_field_types': self.map_field_types,
+                     'map_fields': self.datastore_fields})
+        return vars
 
     def form_template(self, context, data_dict):
         return 'recline_map_form.html'
