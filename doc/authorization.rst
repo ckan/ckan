@@ -1,6 +1,6 @@
-=============
-Authorization
-=============
+===============================
+Organizations and authorization
+===============================
 
 .. versionchanged:: 2.0
    Previous versions of CKAN used a different authorization system.
