@@ -228,12 +228,12 @@ def resource_update(context, data_dict):
         context['defer_commit'] = True
         context['use_cache'] = False
         pkg_dict = _get_action('package_update')(context, pkg_dict)
+        context.pop('defer_commit')
     except ValidationError, e:
         errors = e.error_dict['resources'][n]
         raise ValidationError(errors)
 
-    resource = pkg_dict['resources'][n]
-    upload.upload(resource['id'], uploader.get_max_resource_size())
+    upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
     return _get_action('resource_show')(context, {'id': id})
 
