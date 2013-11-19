@@ -94,9 +94,13 @@
       {% block again_button %}
         <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
         {% endblock %}
+      {% block save_button %}
       <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Next: Additional Info') }}{% endblock %}</button>
+      {% endblock %}
     {% else %}
+      {% block add_button %}
       <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>
+      {% endblock %}
     {% endif %}
   </div>
 </form>
