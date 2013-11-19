@@ -22,7 +22,7 @@ def _create_test_view(view_type):
                      'view_type': view_type,
                      'title': u'Test View',
                      'description': u'A nice test view'}
-    p.toolkit.get_action('resource_view_create')(
+    resource_view = p.toolkit.get_action('resource_view_create')(
         context, resource_view)
     return resource_view, package, resource_id
 
