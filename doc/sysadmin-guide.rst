@@ -1,6 +1,6 @@
-**************
+==============
 Sysadmin guide
-**************
+==============
 
 This guide covers the administration features of CKAN 2.0, such as managing
 users and datasets. These features are available via the web user interface to
@@ -18,9 +18,9 @@ configuration options using the site's "config" file, documented in
     details, and permanently delete datasets. You should carefully consider who has
     access to a sysadmin account on your CKAN system.
 
-===========================
+---------------------------
 Creating a sysadmin account
-===========================
+---------------------------
 
 Normally, a sysadmin account is created as part of the process of setting up
 CKAN. If one does not already exist, you will need to create a sysadmin user,
@@ -31,9 +31,9 @@ CKAN, you will need to ask them to create a sysadmin user.
 Adding more sysadmin accounts is done in the same way. It cannot be done via
 the web UI.
 
-=========================
+-------------------------
 Customizing look and feel
-=========================
+-------------------------
 
 Some simple customizations to customize the 'look and feel' of your CKAN site
 are available via the UI, at ``http://<my-ckan-url>/ckan-admin/config/``.
@@ -72,9 +72,9 @@ Custom CSS
     For simple style changes, you can add CSS code here which will be added to
     the ``<head>`` of every page.
 
-===================================
+-----------------------------------
 Managing organizations and datasets
-===================================
+-----------------------------------
 
 A sysadmin user has full access to user accounts, organizations and datasets.
 For example, you have access to every organization as if you were a member of
@@ -92,18 +92,17 @@ the 'Edit' button. As an admin user you can see all datasets including those
 that are private to an organization. They will show up when doing a dataset
 search.
 
---------------------------------------
 Moving a dataset between organizations
---------------------------------------
+======================================
 
 To move a dataset between organizations, visit the dataset's Edit page. Choose
 the appropriate entry from the "organization" drop-down list, and press "Save".
 
 .. image:: images/move_dataset_between_organizations.jpg
 
-=============================
+-----------------------------
 Permanently deleting datasets
-=============================
+-----------------------------
 
 A dataset which has been deleted is not permanently removed from CKAN; it is
 simply marked as 'deleted' and will no longer show up in search, etc. The
@@ -126,9 +125,9 @@ This page shows all deleted datasets and allows you to delete them permanently.
     web UI. This can only be done with access to the server, by directly deleting
     them from CKAN's database.
 
-==============
+--------------
 Managing users
-==============
+--------------
 
 To find a user's profile, go to ``http://<my-ckan-url>/user/``. You can search
 for users in the search box provided.

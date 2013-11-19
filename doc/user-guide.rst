@@ -1,6 +1,6 @@
-**********
+==========
 User guide
-**********
+==========
 
 This user guide covers using CKAN's web interface to organize, publish and find
 data. CKAN also has a powerful API (machine interface), which makes it easy to
@@ -10,9 +10,9 @@ documented in :doc:`api`.
 Some web UI features relating to site administration are available only to
 users with sysadmin status, and are documented in :doc:`sysadmin-guide`.
 
-=============
+-------------
 What is CKAN?
-=============
+-------------
 
 CKAN is a tool for making open data websites. (Think of a content management
 system like WordPress - but for data, instead of pages and blog posts.) It
@@ -25,9 +25,8 @@ browse and find the data they need, and preview it using maps, graphs and
 tables - whether they are developers, journalists, researchers, NGOs, citizens,
 or even your own staff.
 
-----------------------
 Datasets and resources
-----------------------
+======================
 
 For CKAN purposes, data is published in units called "datasets". A dataset is a
 parcel of data - for example, it could be the crime statistics for a region,
@@ -49,9 +48,8 @@ A dataset contains two things:
   example, different resources might contain the data for different years, or
   they might contain the same data in different formats.
 
---------------------------------------
 Users, organizations and authorization
---------------------------------------
+======================================
 
 CKAN users can register user accounts and log in. Normally (depending on the
 site setup), login is not needed to search for and find data, but is needed for
@@ -87,13 +85,12 @@ possibility of a wiki-like datahub.
     made it impossible for users to create new organizations via the UI. You can
     try out all the features described at http://demo.ckan.org.
 
-==========
+----------
 Using CKAN
-==========
+----------
 
---------------------------
 Registering and logging in
---------------------------
+==========================
 
 .. note::
 
@@ -125,14 +122,13 @@ will create your user account and automatically log you in.
     same e-mail address. For this reason, choose a username you will remember, as
     you will need it when logging in.
 
------------------------
 Features for publishers
------------------------
+=======================
 
 .. _adding_a_new_dataset:
 
 Adding a new dataset
-====================
+--------------------
 
 .. note::
 
@@ -264,7 +260,7 @@ instance. For more information about finding data, see the section
 
 
 Editing a dataset
-=================
+-----------------
 
 You can edit the dataset you have created, or any dataset owned by an
 organization that you are a member of. (If a dataset is not owned by any
@@ -285,7 +281,7 @@ organization, then any registered user can edit it.)
 
 
 Adding, deleting and editing resources
-======================================
+--------------------------------------
 
 #. Go to the dataset's "Edit dataset" page (steps 1-2 above).
 
@@ -301,7 +297,7 @@ Adding, deleting and editing resources
 
 
 Deleting a dataset
-==================
+------------------
 
 #. Go to the dataset's "Edit dataset" page (see "Editing a dataset", above).
 
@@ -322,7 +318,7 @@ Deleting a dataset
 .. _creating_an_organization:
 
 Creating an organization
-========================
+------------------------
 
 In general, each dataset is owned by one organization. Each organization
 includes certain users, who can modify its datasets and create new ones.
@@ -363,7 +359,7 @@ organization; see :ref:`adding_a_new_dataset` above.
 .. _managing_an_organization:
 
 Managing an organization
-========================
+------------------------
 
 When you create an organization, CKAN automatically makes you its "Admin".
 From the organization's page you should see an "Admin" button above the search
@@ -388,12 +384,11 @@ By default CKAN allows members of organizations with three roles:
 
 .. _finding_data:
 
-------------
 Finding data
-------------
+============
 
 Searching the site
-==================
+------------------
 
 To find datasets in CKAN, type any combination of search words (e.g. "health",
 "transport", etc) in the search box on any page. CKAN displays the first page
@@ -418,7 +413,7 @@ an area on a map.
 
 
 Searching within an organization
-================================
+--------------------------------
 
 If you want to look for data owned by a particular organization, you can search
 within that organization from its home page in CKAN.
@@ -440,7 +435,7 @@ below. You must have a user account and be logged in to use this feature.
 
 
 Exploring datasets
-==================
+------------------
 
 When you have found a dataset you are interested and selected it, CKAN will
 display the dataset page. This includes
@@ -470,9 +465,8 @@ using the "Follow" button on the dataset page. See the section
 :ref:`managing_your_news_feed` below. You must have a user account and be
 logged in to use this feature.
 
----------------
 Personalization
----------------
+===============
 
 CKAN provides features to personalize the experience of both searching for and
 publishing data. You must be logged in to use these features.
@@ -480,7 +474,7 @@ publishing data. You must be logged in to use these features.
 .. _managing_your_news_feed:
 
 Managing your news feed
-=======================
+-----------------------
 
 At the top of any page, select the dashboard symbol (next to your name). CKAN
 displays your News feed. This shows changes to datasets that you follow, and
@@ -496,7 +490,7 @@ dataset's page (e.g. by selecting a link to it in your News feed) and select
 the "Unfollow" button.
 
 Managing your user profile
-==========================
+--------------------------
 
 You can change the information that CKAN holds about you, including what other
 users see about you by editing your user profile. (Users are most likely to see
