@@ -151,6 +151,7 @@ class ResourceUpload(object):
     def __init__(self, resource):
         path = get_storage_path()
         if not path:
+            self.storage_path = None
             return
         self.storage_path = os.path.join(path, 'resources')
         try:
@@ -187,6 +188,8 @@ class ResourceUpload(object):
 
 
     def upload(self, id, max_size=10):
+        if not self.storage_path:
+            return
         directory = self.get_directory(id)
         filepath = self.get_path(id)
         if self.filename:

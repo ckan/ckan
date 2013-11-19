@@ -235,7 +235,7 @@ def resource_update(context, data_dict):
     resource = pkg_dict['resources'][n]
     upload.upload(resource['id'], uploader.get_max_resource_size())
     model.repo.commit()
-    return resource
+    return _get_action('resource_show')(context, {'id': id})
 
 
 def package_update(context, data_dict):

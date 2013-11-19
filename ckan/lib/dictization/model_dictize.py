@@ -142,8 +142,6 @@ def resource_dictize(res, context):
     model = context['model']
     resource = d.table_dictize(res, context)
     resource_group_id = resource['resource_group_id']
-    resource_group = model.Session.query(
-        model.ResourceGroup).get(resource_group_id)
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
@@ -151,6 +149,8 @@ def resource_dictize(res, context):
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
+        resource_group = model.Session.query(
+            model.ResourceGroup).get(resource_group_id)
         last_part = url.split('/')[-1]
         cleaned_name = munge.munge_filename(last_part)
         resource['url'] = h.url_for(controller='package',
