@@ -141,6 +141,7 @@ def get_allowed_view_plugins(data_dict):
             can_view.append(plugin)
     return can_view
 
+
 def get_new_resources(context, data_dict):
     ''' Get out all new resources in this commit,
     needs to be run in extension point after_create and after_update '''
@@ -148,5 +149,5 @@ def get_new_resources(context, data_dict):
     model = context['model']
     new_objs = model.Session()._object_cache['new']
     new_resources = [obj for obj in new_objs
-                    if isinstance(obj, model.Resource)]
+                     if isinstance(obj, model.Resource)]
     return model_dictize.resource_list_dictize(new_resources, context)

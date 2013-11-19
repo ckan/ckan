@@ -1,5 +1,4 @@
 import paste.fixture
-
 import pylons.config as config
 
 import ckan.model as model
@@ -7,8 +6,8 @@ import ckan.tests as tests
 import ckan.plugins as p
 import ckan.lib.helpers as h
 import ckanext.reclinepreview.plugin as previewplugin
-from ckan.lib.create_test_data import CreateTestData
-from ckan.config.middleware import make_app
+import ckan.lib.create_test_data as create_test_data
+import ckan.config.middleware as middleware
 
 
 def _create_test_view(view_type):
@@ -34,13 +33,13 @@ class TestReclineGrid(tests.WsgiAppCase):
     def setup_class(cls):
         cls.config_templates = config['ckan.legacy_templates']
         config['ckan.legacy_templates'] = 'false'
-        wsgiapp = make_app(config['global_conf'], **config)
+        wsgiapp = middleware.make_app(config['global_conf'], **config)
         p.load(cls.view_type)
 
         cls.app = paste.fixture.TestApp(wsgiapp)
         cls.p = previewplugin.ReclineGrid()
 
-        CreateTestData.create()
+        create_test_data.CreateTestData.create()
 
         cls.resource_view, cls.package, cls.resource_id = \
             _create_test_view(cls.view_type)

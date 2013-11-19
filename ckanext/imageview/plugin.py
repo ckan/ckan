@@ -45,7 +45,6 @@ class ImageView(p.SingletonPlugin):
                 p.toolkit.get_action('resource_view_create')(context, view)
                 context.pop('defer_commit')
 
-
     def after_update(self, context, data_dict):
         self.add_default_views(context, data_dict)
 

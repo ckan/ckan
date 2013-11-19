@@ -35,7 +35,7 @@ class WebPageView(p.SingletonPlugin):
         resources = datapreview.get_new_resources(context, data_dict)
         for resource in resources:
             if (resource.get('format', '').lower() in ['html', 'htm'] or
-                resource['url'].split('.')[-1] in ['html', 'htm']):
+                    resource['url'].split('.')[-1] in ['html', 'htm']):
                 view = {'title': 'Web Page View',
                         'description': 'View of the webpage',
                         'resource_id': resource['id'],
@@ -43,7 +43,6 @@ class WebPageView(p.SingletonPlugin):
                 context['defer_commit'] = True
                 p.toolkit.get_action('resource_view_create')(context, view)
                 context.pop('defer_commit')
-
 
     def after_update(self, context, data_dict):
         self.add_default_views(context, data_dict)
