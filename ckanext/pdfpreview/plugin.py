@@ -46,7 +46,7 @@ class PdfPreview(p.SingletonPlugin):
     def add_default_views(self, context, data_dict):
         resources = datapreview.get_new_resources(context, data_dict)
         for resource in resources:
-            if self.can_view({'package':data_dict, 'resource':resource}):
+            if self.can_view({'package': data_dict, 'resource': resource}):
                 view = {'title': 'PDF View',
                         'description': 'PDF view of the resource.',
                         'resource_id': resource['id'],
@@ -54,7 +54,6 @@ class PdfPreview(p.SingletonPlugin):
                 context['defer_commit'] = True
                 p.toolkit.get_action('resource_view_create')(context, view)
                 context.pop('defer_commit')
-
 
     def after_update(self, context, data_dict):
         self.add_default_views(context, data_dict)
