@@ -52,7 +52,7 @@ class DatasetActivitySessionExtension(SessionExtension):
             revision = session.revision
         except AttributeError:
             logger.debug('session had no _object_cache or no revision,'
-                    ' skipping this commit', exc_info=True)
+                    ' skipping this commit')
             return
 
         if revision.user:
