@@ -65,6 +65,15 @@ The speed of the PostgreSQL tests can be improved by running PostgreSQL in
 memory and turning off durability, as described
 `in the PostgreSQL documentation <http://www.postgresql.org/docs/9.0/static/non-durability.html>`_. 
 
+By default the tests will keep the database between test runs. If you wish to
+drop and reinitialize the database before the run you can use the ``reset-db``
+option::
+
+     nosetests --ckan --reset-db --with-pylons=test-core.ini ckan
+
+If you are have the ``ckan-migration`` option on the tests will reset the
+reset the database before the test run.
+
 
 .. _migrationtesting:
 

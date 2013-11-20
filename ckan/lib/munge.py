@@ -105,6 +105,13 @@ def munge_tag(tag):
     tag = _munge_to_length(tag, model.MIN_TAG_LENGTH, model.MAX_TAG_LENGTH)
     return tag
 
+def munge_filename(filename):
+    filename = substitute_ascii_equivalents(filename)
+    filename = filename.lower().strip()
+    filename = re.sub(r'[^a-zA-Z0-9. ]', '', filename).replace(' ', '-')
+    filename = _munge_to_length(filename, 3, 100)
+    return filename
+
 def _munge_to_length(string, min_length, max_length):
     '''Pad/truncates a string'''
     if len(string) < min_length:

@@ -103,15 +103,22 @@ def rating_create(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
 
+
 @logic.auth_allow_anonymous_access
 def user_create(context, data_dict=None):
-    user = context['user']
+    using_api = 'api_version' in context
+    create_user_via_api = new_authz.check_config_permission(
+            'create_user_via_api')
+    create_user_via_web = new_authz.check_config_permission(
+            'create_user_via_web')
 
-    if ('api_version' in context
-            and not new_authz.check_config_permission('create_user_via_api')):
-        return {'success': False, 'msg': _('User %s not authorized to create users') % user}
-    else:
-        return {'success': True}
+    if using_api and not create_user_via_api:
+        return {'success': False, 'msg': _('User {user} not authorized to '
+            'create users via the API').format(user=context.get('user'))}
+    if not using_api and not create_user_via_web:
+        return {'success': False, 'msg': _('Not authorized to '
+            'create users')}
+    return {'success': True}
 
 def user_invite(context, data_dict=None):
     context['id'] = context.get('group_id')

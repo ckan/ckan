@@ -96,6 +96,7 @@ del AuthFunctions
 
 def clear_auth_functions_cache():
     _AuthFunctions.clear()
+    CONFIG_PERMISSIONS.clear()
 
 
 def auth_functions_list():
@@ -350,6 +351,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'user_delete_groups': True,
     'user_delete_organizations': True,
     'create_user_via_api': False,
+    'create_user_via_web': True,
 }
 
 CONFIG_PERMISSIONS = {}
