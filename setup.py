@@ -92,6 +92,7 @@ entry_points = {
         'example_theme_v11 = ckanext.example_theme.v11_extra_public_directory.plugin:ExampleThemePlugin',
         'example_theme_v12 = ckanext.example_theme.v12_custom_css.plugin:ExampleThemePlugin',
         'example_theme_v13 = ckanext.example_theme.v13_more_custom_css.plugin:ExampleThemePlugin',
+        'example_theme_v14 = ckanext.example_theme.v14_initialize_a_javascript_module.plugin:ExampleThemePlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
