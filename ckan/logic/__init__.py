@@ -507,7 +507,7 @@ def validate(schema_func, can_skip_validator=False):
     '''
     def action_decorator(action):
         @functools.wraps(action)
-        def wrapper(context, data_dict, **kwargs):
+        def wrapper(context, data_dict):
             if can_skip_validator:
                 if context.get('skip_validation'):
                     return action(context, data_dict)
