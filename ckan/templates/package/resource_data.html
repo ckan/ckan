@@ -1,0 +1,68 @@
+{% extends "package/resource_edit_base.html" %}
+
+{% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ h.resource_display_name(res) }}{% endblock %}
+
+{% block primary_content_inner %}
+
+  {% set action = h.url_for(controller='ckanext.datapusher.plugin:ResourceDataController', action='resource_data', id=pkg.name, resource_id=res.id) %}
+  {% set show_table = true %}
+
+  <form method="post" action="{{ action }}" >
+    <button class="btn btn-primary" name="save" type="submit">
+      <i class="icon-cloud-upload"></i> {{ _('Upload Data') }}
+    </button>
+  </form>
+
+  {% if status.error and status.error.message %}
+    {% set show_table = false %}
+    <div class="alert alert-error">
+      <strong>{{ _('Upload error:') }}</strong> {{ status.error.message }}
+    </div>
+  {% elif status.task_info and status.task_info.error %}
+    {% set show_table = false %}
+    <div class="alert alert-error">
+      <strong>{{ _('Error:') }}</strong> {{ status.task_info.error }}
+    </div>
+  {% endif %}
+
+  <table class="table table-bordered">
+    <colgroup>
+      <col width="150">
+      <col>
+    </colgroup>
+    <tr>
+      <th>{{ _('Status') }}</th>
+      <td>{{ status.status.capitalize() if status.status else _('Not Uploaded Yet') }}</td>
+    </tr>
+    <tr>
+      <th>{{ _('Last updated') }}</th>
+      <td>{{ h.time_ago_from_timestamp(status.last_updated) if status.status else _('Never') }}</td>
+    </tr>
+  </table>
+
+  {% if status.status and status.task_info and show_table %}
+    <h3>{{ _('Upload Log') }}</h3>
+    <ul class="activity">
+      {% for item in status.task_info.logs %}
+        {% set icon = 'ok' if item.level == 'INFO' else 'exclamation' %}
+        {% set class = ' failure' if icon == 'exclamation' else ' success' %}
+        {% set popover_content = 'test' %}
+        <li class="item no-avatar{{ class }}">
+          <i class="icon icon-{{ icon }}"></i>
+          <p>
+            {{ item.message | urlize }}<br>
+            <span class="date">
+              {{ h.time_ago_from_timestamp(item.timestamp) }}
+              <a href="#" data-target="popover" data-content="<dl>{% for key, value in item.iteritems() %}<dt>{{ key }}</dt><dd>{{ value }}</dd>{% endfor %}</dl>" data-html="true">more info</a>
+            </span>
+          </p>
+        </li>
+      {% endfor %}
+      <li class="item no-avatar">
+        <i class="icon icon-info"></i>
+        <p class="muted">{{ _('End of log') }}</p>
+      </li>
+    </ul>
+  {% endif %}
+
+{% endblock %}

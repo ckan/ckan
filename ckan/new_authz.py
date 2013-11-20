@@ -96,6 +96,7 @@ del AuthFunctions
 
 def clear_auth_functions_cache():
     _AuthFunctions.clear()
+    CONFIG_PERMISSIONS.clear()
 
 
 def auth_functions_list():
@@ -243,7 +244,10 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
     ''' Check if the user has the given permission for the group '''
     if not group_id:
         return False
-    group_id = model.Group.get(group_id).id
+    group = model.Group.get(group_id)
+    if not group:
+        return False
+    group_id = group.id
 
     # Sys admins can do anything
     if is_sysadmin(user_name):
@@ -347,6 +351,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'user_delete_groups': True,
     'user_delete_organizations': True,
     'create_user_via_api': False,
+    'create_user_via_web': True,
 }
 
 CONFIG_PERMISSIONS = {}

@@ -91,8 +91,11 @@ def package_list(context, data_dict):
     col = (package_revision_table.c.id
         if api == 2 else package_revision_table.c.name)
     query = _select([col])
-    query = query.where(_and_(package_revision_table.c.state=='active',
-        package_revision_table.c.current==True))
+    query = query.where(_and_(
+                package_revision_table.c.state=='active',
+                package_revision_table.c.current==True,
+                package_revision_table.c.private==False,
+                ))
     query = query.order_by(col)
 
     limit = data_dict.get('limit')
@@ -1868,10 +1871,10 @@ def task_status_show(context, data_dict):
 
     context['task_status'] = task_status
 
+    _check_access('task_status_show', context, data_dict)
+
     if task_status is None:
         raise NotFound
-
-    _check_access('task_status_show', context, data_dict)
 
     task_status_dict = model_dictize.task_status_dictize(task_status, context)
     return task_status_dict
@@ -2326,7 +2329,16 @@ def organization_activity_list_html(context, data_dict):
 
     '''
     activity_stream = organization_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict.get('offset', 0))
+    extra_vars = {
+        'controller': 'organization',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset,
+        }
+
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.

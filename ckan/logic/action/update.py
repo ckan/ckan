@@ -19,6 +19,7 @@ import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.email_notifications as email_notifications
 import ckan.lib.search as search
+import ckan.lib.uploader as uploader
 
 from ckan.common import _, request
 
@@ -132,7 +133,7 @@ def related_update(context, data_dict):
     id = _get_or_bust(data_dict, "id")
 
     session = context['session']
-    schema = context.get('schema') or schema_.default_related_schema()
+    schema = context.get('schema') or schema_.default_update_related_schema()
 
     related = model.Related.get(id)
     context["related"] = related
@@ -424,6 +425,10 @@ def _group_or_org_update(context, data_dict, is_org=False):
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
+    upload = uploader.Upload('group', group.image_url)
+    upload.update_data_dict(data_dict, 'image_url',
+                           'image_upload', 'clear_upload')
+
     if is_org:
         _check_access('organization_update', context, data_dict)
     else:
@@ -528,8 +533,10 @@ def _group_or_org_update(context, data_dict, is_org=False):
         # TODO: Also create an activity detail recording what exactly changed
         # in the group.
 
+    upload.upload()
     if not context.get('defer_commit'):
         model.repo.commit()
+
 
     return model_dictize.group_dictize(group, context)
 

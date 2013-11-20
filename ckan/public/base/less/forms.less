@@ -680,6 +680,39 @@ textarea {
   }
 }
 
+.js .image-upload {
+  #field-image-upload {
+    cursor: pointer;
+    position: absolute;
+    z-index: 1;
+    .opacity(0);
+  }
+  .controls {
+    position: relative;
+  }
+  .btn {
+    position: relative;
+    top: 0;
+    margin-right: 10px;
+    &.hover {
+      color: @grayDark;
+      text-decoration: none;
+      background-position: 0 -15px;
+      .transition(background-position .1s linear);
+    }
+  }
+  .btn-remove-url {
+    position: absolute;
+    margin-right: 0;
+    top: 4px;
+    right: 5px;
+    padding: 0 4px;
+    .border-radius(100px);
+    .icon-remove {
+      margin-right: 0;
+    }
+  }
+}
 .add-member-form .control-label {
   width: 100%;
   text-align: left;
