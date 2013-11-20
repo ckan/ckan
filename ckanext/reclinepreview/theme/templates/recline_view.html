@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
 {% block page %}
+  <div id="recline-controls"></div>
+
   <div data-module="reclinepreview" data-module-site_url="{{ h.dump_json(h.url('/', locale='default', qualified=true)) }}">
     <h4 class="loading-dialog">
       <div class="loading-spinner"></div>
