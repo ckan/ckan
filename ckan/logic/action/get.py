@@ -1364,6 +1364,9 @@ def package_search(context, data_dict):
         "count", "display_name" and "name" entries.  The display_name is a
         form of the name that can be used in titles.
     :type search_facets: nested dict of dicts.
+    :param use_default_schema: use default package schema instead of
+        a custom schema defined with an IDatasetForm plugin (default: False)
+    :type use_default_schema: bool
 
     An example result: ::
 
@@ -1429,8 +1432,10 @@ def package_search(context, data_dict):
 
     results = []
     if not abort:
+        data_source = 'data_dict' if data_dict.get('use_default_schema',
+            False) else 'validated_data_dict'
         # return a list of package ids
-        data_dict['fl'] = 'id validated_data_dict'
+        data_dict['fl'] = 'id {0}'.format(data_source)
 
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
@@ -1452,8 +1457,7 @@ def package_search(context, data_dict):
 
         for package in query.results:
             # get the package object
-            package, package_dict = package['id'], package.get(
-                'validated_data_dict')
+            package, package_dict = package['id'], package.get(data_source)
             pkg_query = session.query(model.PackageRevision)\
                 .filter(model.PackageRevision.id == package)\
                 .filter(_and_(
