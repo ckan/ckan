@@ -34,7 +34,7 @@ class TestBadLimitQueryParameters(object):
                 id='test_user', limit=-1, offset=-1)
 
     def test_package_search_facet_field_is_json(self):
-        kwargs = {'facet.field' : 'notjson'}
+        kwargs = {'facet.field': 'notjson'}
         nose.tools.assert_raises(
             logic.ValidationError, helpers.call_action, 'package_search',
             **kwargs)
