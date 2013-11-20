@@ -43,11 +43,13 @@ def get_storage_path():
 
     return _storage_path
 
+
 def get_max_image_size():
     global _max_image_size
     if _max_image_size is None:
         _max_image_size = int(config.get('ckan.max_image_size', 2))
     return _max_image_size
+
 
 def get_max_resource_size():
     global _max_resource_size
@@ -175,17 +177,15 @@ class ResourceUpload(object):
         elif self.clear:
             resource['url_type'] = ''
 
-
     def get_directory(self, id):
         directory = os.path.join(self.storage_path,
-                                id[0:3], id[3:6])
+                                 id[0:3], id[3:6])
         return directory
 
     def get_path(self, id):
         directory = self.get_directory(id)
         filepath = os.path.join(directory, id[6:])
         return filepath
-
 
     def upload(self, id, max_size=10):
         if not self.storage_path:
@@ -205,7 +205,8 @@ class ResourceUpload(object):
             current_size = 0
             while True:
                 current_size = current_size + 1
-                data = self.upload_file.read(2 ** 20) #mb chuncks
+                #MB chunks
+                data = self.upload_file.read(2 ** 20)
                 if not data:
                     break
                 output_file.write(data)
