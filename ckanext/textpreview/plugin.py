@@ -22,6 +22,10 @@ class TextPreview(p.SingletonPlugin):
     p.implements(p.IPackageController, inherit=True)
 
     proxy_is_enabled = False
+    text_formats = []
+    xml_formats = []
+    json_formats = []
+    jsonp_formats = []
 
     def update_config(self, config):
         text_formats = config.get('ckan.preview.text_formats', '').split()

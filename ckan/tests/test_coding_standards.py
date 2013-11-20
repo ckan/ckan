@@ -830,7 +830,6 @@ class TestPep8(object):
         'ckanext/multilingual/plugin.py',
         'ckanext/multilingual/tests/test_multilingual_plugin.py',
         'ckanext/resourceproxy/plugin.py',
-        'ckanext/resourceproxy/tests/test_proxy.py',
         'ckanext/stats/controller.py',
         'ckanext/stats/plugin.py',
         'ckanext/stats/stats.py',
