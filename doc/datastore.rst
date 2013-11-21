@@ -218,6 +218,23 @@ The set-up for legacy mode is analogous to the normal set-up as described above 
 
 There is no need for a read-only user or special permissions. Therefore the legacy mode can be used for simple set-ups as well.
 
+.. _datapusher:
+
+---------------------------------------------------
+DataPusher: Automatically Add Data to the DataStore
+---------------------------------------------------
+
+Often, one wants data that is added to CKAN (whether it is linked to or
+uploaded to the :doc:`FileStore <filestore>`) to be automatically added to the
+DataStore. This requires some processing, to extract the data from your files
+and to add it to the DataStore in the format the DataStore can handle.
+
+This task of automatically parsing and then adding data to the DataStore is
+performed by a DataPusher, a service that runs asynchronously and can be installed
+allongside CKAN.
+
+To install this please look at the docs here: http://datapusher.readthedocs.org
+
 
 -----------------
 The DataStore API
@@ -413,18 +430,3 @@ oid
     The PostgreSQL object ID of the table that belongs to name.
 
 
-.. _datastorer:
-
----------------------------------------------------
-DataStorer: Automatically Add Data to the DataStore
----------------------------------------------------
-
-Often, one wants data that is added to CKAN (whether it is linked to or
-uploaded to the :doc:`FileStore <filestore>`) to be automatically added to the
-DataStore. This requires some processing, to extract the data from your files
-and to add it to the DataStore in the format the DataStore can handle.
-
-This task of automatically parsing and then adding data to the DataStore is
-performed by a DataStorer, a queue process that runs asynchronously and can be
-triggered by uploads or other activities. The DataStorer is an extension and can
-be found, along with installation instructions, at: https://github.com/okfn/ckanext-datastorer
