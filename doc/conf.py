@@ -58,6 +58,10 @@ rst_epilog = '''
 .. |javascript| replace:: JavaScript
 .. |apache| replace:: Apache
 
+.. _Jinja2: http://jinja.pocoo.org/
+.. _CKAN front page: http://127.0.0.1:5000
+.. _bootstrap: http://getbootstrap.com/2.3.2/
+
 '''
 
 # Add any Sphinx extension module names here, as strings. They can be extensions

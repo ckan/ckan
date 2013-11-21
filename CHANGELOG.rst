@@ -194,7 +194,7 @@ Organizations based authorization (see :doc:`authorization`):
  * New authorization ini file options
 
 
-New frontend (see :doc:`theming`):
+New frontend (see :doc:`theming/index`):
  CKAN's frontend has been completely redesigned, inside and out. There is
  a new default theme and the template engine has moved from Genshi to
  Jinja2. Any custom templates using Genshi will need to be updated, although
