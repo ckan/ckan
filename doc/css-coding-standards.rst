@@ -1,4 +1,4 @@
-CSS Coding Standards
+CSS coding standards
 ====================
 
 .. Note::

@@ -1,5 +1,5 @@
 ===================
-DataStore Extension
+DataStore extension
 ===================
 
 
@@ -114,7 +114,7 @@ if necessary, for example:
 Replace ``pass`` with the passwords you created for your |database_user| and
 |datastore_user| database users.
 
-Set Permissions
+Set permissions
 ---------------
 
 .. tip:: See :ref:`legacy-mode` if these steps continue to fail or seem too complicated for your set-up. However, keep in mind that the legacy mode is limited in its capabilities.
@@ -259,7 +259,7 @@ associated CKAN resource. If data is stored in the DataStore, it will automatica
 previewed by the :ref:`recline preview extension <data-explorer>`.
 
 
-Making a DataStore API Request
+Making a DataStore API request
 ==============================
 
 Making a DataStore API request is the same as making an Action API request: you
@@ -267,7 +267,7 @@ post a JSON dictionary in an HTTP POST request to an API URL, and the API also
 returns its response in a JSON dictionary. See the :doc:`api` for details.
 
 
-API Reference
+API reference
 =============
 
 .. note:: Lists can always be expressed in different ways. It is possible to use lists, comma separated strings or single items. These are valid lists: ``['foo', 'bar']``, ``'foo, bar'``, ``"foo", "bar"`` and ``'foo'``. Additionally, there are several ways to define a boolean value. ``True``, ``on`` and ``1`` are all vaid boolean values.
@@ -383,7 +383,7 @@ A resource in the DataStore can have multiple aliases that are easier to remembe
 
 .. _datastore_search_htsql:
 
-HTSQL Support
+HTSQL support
 -------------
 
 
@@ -428,5 +428,3 @@ name
     Contains the name of the alias if alias_of is not null. Otherwise, this is the resource id of the CKAN resource for the DataStore resource.
 oid
     The PostgreSQL object ID of the table that belongs to name.
-
-

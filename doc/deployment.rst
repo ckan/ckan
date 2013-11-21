@@ -1,5 +1,5 @@
 ==========================
-Deploying a Source Install
+Deploying a source install
 ==========================
 
 Once you've installed CKAN from source by following the instructions in
@@ -66,7 +66,7 @@ a layer of caching::
     sudo apt-get install nginx
 
 --------------------------
-4. Install an Email Server
+4. Install an email server
 --------------------------
 
 If one isn't installed already, install an email server to enable CKAN's email
@@ -82,7 +82,7 @@ return.
 
 
 ------------------------------
-5. Create the WSGI Script File
+5. Create the WSGI script file
 ------------------------------
 
 Create your site's WSGI script file |apache.wsgi| with the following
@@ -107,7 +107,7 @@ CKAN to run in).
 
 
 --------------------------------
-6. Create the Apache Config File
+6. Create the Apache config file
 --------------------------------
 
 Create your site's Apache config file at |apache_config_file|, with the
@@ -169,7 +169,7 @@ following contents:
 
 
 ------------------------
-8. Enable Your CKAN Site
+8. Enable your CKAN site
 ------------------------
 
 Finally, enable your CKAN site in Apache:
@@ -189,7 +189,7 @@ CKAN instance.
 Troubleshooting
 ---------------
 
-Default Apache Welcome Page
+Default Apache welcome page
 ===========================
 
 If you see a default Apache welcome page where your CKAN front page should be,
@@ -233,7 +233,7 @@ not allowed to write to stdout. Possible solutions include:
 
 Also see https://code.google.com/p/modwsgi/wiki/ApplicationIssues
 
-Log Files
+Log files
 =========
 
 In general, if it's not working look in the log files in ``/var/log/apache2``
