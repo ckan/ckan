@@ -26,7 +26,7 @@ this.ckan.module('resource-reorder', function($, _) {
       form_actions: [
         '<div class="form-actions">',
         '<a href="javascript:;" class="cancel btn pull-left"></a>',
-        '<a href="javascript:;" class="save btn btn-primary disabled"></a>',
+        '<a href="javascript:;" class="save btn btn-primary"></a>',
         '</div>'
       ].join('\n'),
       handle: [
@@ -65,7 +65,6 @@ this.ckan.module('resource-reorder', function($, _) {
 
       this.el
         .sortable()
-        .on('change', this._onSortOrderChanged)
         .sortable('disable');
 
     },
@@ -96,10 +95,6 @@ this.ckan.module('resource-reorder', function($, _) {
         $('.page_primary_action').show();
         this.is_reordering = false;
       }
-    },
-
-    _onSortOrderChanged: function() {
-      $('.save', this.html_form_actions).removeClass('disabled')
     },
 
     _onHandleSave: function() {
