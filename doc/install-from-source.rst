@@ -1,3 +1,4 @@
+===========================
 Installing CKAN from Source
 ===========================
 
@@ -12,13 +13,14 @@ wiki page.
 From source is also the right installation method for developers who want to
 work on CKAN.
 
+--------------------------------
 1. Install the required packages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
 
-    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core solr-jetty openjdk-6-jdk
+    sudo apt-get install python-dev postgresql libpq-dev python-pip python-virtualenv git-core
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
@@ -42,8 +44,9 @@ OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/instal
 
 .. _install-ckan-in-virtualenv:
 
+-------------------------------------------------
 2. Install CKAN into a Python virtual environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------
 
 .. tip::
 
@@ -122,8 +125,9 @@ d. Deactivate and reactivate your virtualenv, to make sure you're using the
 
 .. _postgres-setup:
 
+------------------------------
 3. Setup a PostgreSQL database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 List existing databases::
 
@@ -149,9 +153,9 @@ database user you just created:
 
     sudo -u postgres createdb -O |database_user| |database| -E utf-8
 
-
+----------------------------
 4. Create a CKAN config file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 Create a directory to contain the site's config files:
 
@@ -195,28 +199,149 @@ site_id
 
    ckan.site_id = default
 
+.. _setup solr:
 
+-------------
 5. Setup Solr
-~~~~~~~~~~~~~
+-------------
 
-Follow the instructions in :ref:`solr-single` or :ref:`solr-multi-core` to
-setup Solr, then change the ``solr_url`` option in your CKAN config file to
-point to your Solr server, for example::
+CKAN uses Solr_ as its search platform, and uses a customized Solr schema file
+that takes into account CKAN's specific search needs. Now that we have CKAN
+installed, we need to install and configure Solr.
 
-       solr_url=http://127.0.0.1:8983/solr
+.. _Solr: http://lucene.apache.org/solr/
 
-.. toctree::
-   :hidden:
+.. note::
 
-   solr-setup
+   These instructions explain how to deploy Solr using the Jetty web
+   server, but CKAN doesn't require Jetty - you can deploy Solr to another web
+   server, such as Tomcat, if that's convenient on your operating system.
+
+#. Install Solr::
+
+    sudo apt-get install solr-jetty openjdk-6-jdk
+
+   Edit the Jetty configuration file (``/etc/default/jetty``) and change the
+   following variables::
+
+    NO_START=0            # (line 4)
+    JETTY_HOST=127.0.0.1  # (line 15)
+    JETTY_PORT=8983       # (line 18)
+
+   Start the Jetty server::
+
+    sudo service jetty start
+
+   You should now see a welcome page from Solr if you open
+   http://localhost:8983/solr/ in your web browser (replace localhost with
+   your server address if needed).
+
+   .. note::
+
+    If you get the message ``Could not start Jetty servlet engine because no
+    Java Development Kit (JDK) was found.`` then you will have to edit the
+    ``JAVA_HOME`` setting in ``/etc/default/jetty`` to point to your machine's
+    JDK install location. For example::
+
+        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
+
+    or::
+
+        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-i386/
+
+#. Create the file ``/usr/share/solr/solr.xml``, with the following contents::
+
+    <solr persistent="true" sharedLib="lib">
+        <cores adminPath="/admin/cores">
+            <core name="ckan_default" instanceDir="ckan_default"> 
+                <property name="dataDir" value="/var/lib/solr/data/ckan_default" />
+            </core>
+        </cores>
+    </solr>
+
+   This file lists the different Solr cores, in this example we have just a
+   single core called ``ckan_default``.
+
+   .. note::
+
+    Solr can also be set up to have multiple configurations and search indexes
+    on the same machine. Each configuration is called a Solr *core*. Having
+    multiple cores is useful when you want different applications or different
+    versions of CKAN to share the same Solr instance. Each core will
+    have a different URL, for example::
+
+      http://localhost:8983/solr/ckan_default
+      http://localhost:8983/solr/some-other-site
+
+    If you've setup a second CKAN instance on the same machine and want to
+    create a second Solr core for it,
+    see :doc:`/howtos/create-a-second-solr-core`.
+
+#. Create the data directory for your Solr core, run this command in a
+   terminal::
+
+    sudo -u jetty mkdir /var/lib/solr/data/ckan_default
+
+   This is the directory where Solr will store the search index files for
+   our core.
+
+#. Create the directory ``/etc/solr/ckan_default``, and move the
+   ``/etc/solr/conf`` directory into it::
+
+    sudo mkdir /etc/solr/ckan_default
+    sudo mv /etc/solr/conf /etc/solr/ckan_default/
+
+   This directory holds the configuration files for your Solr core.
+
+#. Replace the ``/etc/solr/ckan_default/schema.xml`` file with a symlink to
+   CKAN's ``schema.xml`` file::
+
+    sudo mv /etc/solr/ckan_default/conf/schema.xml /etc/solr/ckan_default/conf/schema.xml.bak
+    sudo ln -s /usr/lib/ckan/default/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/ckan_default/conf/schema.xml
+
+#. Edit ``/etc/solr/ckan_default/conf/solrconfig.xml`` and change the
+   ``<dataDir>`` tag to this::
+
+    <dataDir>${dataDir}</dataDir>
+
+   This configures our ``ckan_default`` core to use the data directory you
+   specified for it in ``solr.xml``.
+
+#. Create the directory ``/usr/share/solr/ckan_default`` and put a symlink
+   to the ``conf`` directory in it::
+
+    sudo mkdir /usr/share/solr/ckan_default
+    sudo ln -s /etc/solr/ckan_default/conf /usr/share/solr/ckan_default/conf
+
+   .. todo:: What is this directory for?
+
+#. Restart jetty::
+
+    sudo service jetty restart
+
+   You should now see your newly created ``ckan_default`` core if you open
+   http://localhost:8983/solr/ckan_default/admin/ in your web browser.
+   You can click on the *schema* link on this page to check that the core is
+   using the right schema (you should see ``<schema name="ckan" version="2.0">``
+   near the top of the ``schema.xml`` file). The http://localhost:8983/solr/
+   page will list all of your configured Solr cores.
+
+#. Finally, change the ``solr_url`` setting in your |development.ini| or
+   |production.ini| file to point to your new Solr core, for example::
+
+    solr_url = http://127.0.0.1:8983/solr/ckan_default
+
+If you have trouble when setting up Solr, see :ref:`solr troubleshooting`
+below.
+
 
 .. _postgres-init:
 
+-------------------------
 6. Create database tables
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
-Now that you have a configuration file that has the correct settings for your
-database, you can create the database tables:
+Create the |postgres| database tables that CKAN needs:
 
 .. parsed-literal::
 
@@ -231,8 +356,9 @@ You should see ``Initialising DB: SUCCESS``.
     ``sqlalchemy.url`` option in your CKAN configuration file properly.
     See `4. Create a CKAN config file`_.
 
+-----------------------
 7. Set up the DataStore
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 .. note ::
   Setting up the DataStore is optional. However, if you do skip this step,
@@ -243,8 +369,10 @@ Follow the instructions in :doc:`datastore` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
 
+
+----------------------
 8. Link to ``who.ini``
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 ``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
 same directory as your CKAN config file, so create a symlink to it:
@@ -253,8 +381,9 @@ same directory as your CKAN config file, so create a symlink to it:
 
     ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
 
+---------------
 9. You're done!
-~~~~~~~~~~~~~~~
+---------------
 
 You can now use the Paste development server to serve CKAN from the
 command-line.  This is a simple and lightweight way to serve CKAN that is
@@ -277,3 +406,53 @@ Now that you've installed CKAN, you should:
   as Apache or Nginx. See :doc:`deployment`.
 
 * Begin using and customizing your site, see :doc:`/getting-started`.
+
+------------------------------
+Source install troubleshooting
+------------------------------
+
+.. _solr troubleshooting:
+
+Solr setup troubleshooting
+==========================
+
+Solr requests and errors are logged in the web server log.
+
+* For jetty servers, they are located in::
+
+    /var/log/jetty/<date>.stderrout.log
+
+* For Tomcat servers, they are located in::
+
+    /var/log/tomcat6/catalina.<date>.log
+
+Some problems that can be found during the install:
+
+* When setting up a multi-core Solr instance, no cores are shown when visiting the
+  Solr index page, and the admin interface returns a 404 error.
+
+  Check the web server error log if you can find an error similar to this one::
+
+      WARNING: [iatiregistry.org] Solr index directory '/usr/share/solr/iatiregistry.org/data/index' doesn't exist. Creating new index...
+      07-Dec-2011 18:06:33 org.apache.solr.common.SolrException log
+      SEVERE: java.lang.RuntimeException: Cannot create directory: /usr/share/solr/iatiregistry.org/data/index
+            [...]
+
+  The ``dataDir`` is not properly configured. With our setup the data directory should
+  be under ``/var/lib/solr/data``. Make sure that you defined the correct ``dataDir``
+  in the ``solr.xml`` file and that in the ``solrconfig.xml`` file you have the
+  following configuration option::
+
+    <dataDir>${dataDir}</dataDir>
+
+* When running Solr it says ``Unable to find a javac compiler; com.sun.tools.javac.Main is not on the classpath. Perhaps JAVA_HOME does not point to the JDK.``
+
+  See the note above about ``JAVA_HOME``. Alternatively you may not have installed the JDK. Check by seeing if javac is installed::
+
+     which javac
+
+  If it isn't do::
+
+     sudo apt-get install openjdk-6-jdk
+
+  and restart Solr.
