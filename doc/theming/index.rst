@@ -19,6 +19,23 @@ your custom CKAN theme.
   already, follow the instructions in :doc:`/install-from-source` before
   continuing.
 
+
+.. note::
+
+   CKAN theme development is a technical topic, for web developers.
+   The tutorials below assume basic knowledge of:
+
+   * `The Python programming language <http://www.python.org/>`_
+   * `HTML <https://developer.mozilla.org/en-US/docs/Web/HTML>`_
+   * `CSS <https://developer.mozilla.org/en-US/docs/Web/CSS>`_
+   * `JavaScript <https://developer.mozilla.org/en-US/docs/Web/JavaScript>`_
+
+   We also recommend familiarizing yourself with:
+
+   * `Jinja2 templates <http://jinja.pocoo.org/docs/templates/>`_
+   * `Bootstrap <http://getbootstrap.com/2.3.2/>`_
+   * `jQuery <http://jquery.com/>`_
+
 .. toctree::
    :maxdepth: 2
 
