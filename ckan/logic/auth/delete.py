@@ -4,6 +4,12 @@ from ckan.logic.auth import get_package_object, get_group_object, get_related_ob
 from ckan.logic.auth import get_resource_object
 from ckan.lib.base import _
 
+
+def user_delete(context, data_dict):
+    # sysadmins only
+    return {'success': False}
+
+
 def package_delete(context, data_dict):
     user = context['user']
     package = get_package_object(context, data_dict)

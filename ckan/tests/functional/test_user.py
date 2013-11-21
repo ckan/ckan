@@ -64,6 +64,25 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                                  'rel="nofollow"')
         assert 'Edit Profile' not in main_res, main_res
 
+    def test_user_delete_redirects_to_user_index(self):
+        user = CreateTestData.create_user('a_user')
+        url = url_for(controller='user', action='delete', id=user.id)
+        extra_environ = {'REMOTE_USER': 'testsysadmin'}
+
+        redirect_url = url_for(controller='user', action='index',
+                qualified=True)
+        res = self.app.get(url, status=302, extra_environ=extra_environ)
+
+        assert user.is_deleted(), user
+        assert res.header('Location').startswith(redirect_url), res.header('Location')
+
+    def test_user_delete_by_unauthorized_user(self):
+        user = model.User.by_name(u'annafan')
+        url = url_for(controller='user', action='delete', id=user.id)
+        extra_environ = {'REMOTE_USER': 'an_unauthorized_user'}
+
+        self.app.get(url, status=401, extra_environ=extra_environ)
+
     def test_user_read_without_id(self):
         offset = '/user/'
         res = self.app.get(offset, status=302)
@@ -936,3 +955,39 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                          id='randomness',  # i.e. incorrect
                          key='randomness')
         res = self.app.get(offset, status=404)
+
+    def test_perform_reset_activates_pending_user(self):
+        password = 'password'
+        params = { 'password1': password, 'password2': password }
+        user = CreateTestData.create_user(name='pending_user',
+                                          email='user@email.com')
+        user.set_pending()
+        create_reset_key(user)
+        assert user.is_pending(), user.state
+
+        offset = url_for(controller='user',
+                         action='perform_reset',
+                         id=user.id,
+                         key=user.reset_key)
+        res = self.app.post(offset, params=params, status=302)
+
+        user = model.User.get(user.id)
+        assert user.is_active(), user
+
+    def test_perform_reset_doesnt_activate_deleted_user(self):
+        password = 'password'
+        params = { 'password1': password, 'password2': password }
+        user = CreateTestData.create_user(name='deleted_user',
+                                          email='user@email.com')
+        user.delete()
+        create_reset_key(user)
+        assert user.is_deleted(), user.state
+
+        offset = url_for(controller='user',
+                         action='perform_reset',
+                         id=user.id,
+                         key=user.reset_key)
+        res = self.app.post(offset, params=params, status=302)
+
+        user = model.User.get(user.id)
+        assert user.is_deleted(), user

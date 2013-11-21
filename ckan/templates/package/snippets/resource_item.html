@@ -1,4 +1,7 @@
-{% set url = h.url_for(controller='package', action='resource_read', id=pkg.name, resource_id=res.id) %}
+{% set can_edit = h.check_access('package_update', {'id':pkg.id }) %}
+{% set url_action = 'resource_edit' if url_is_edit and can_edit else 'resource_read' %}
+{% set url = h.url_for(controller='package', action=url_action, id=pkg.name, resource_id=res.id) %}
+
 <li class="resource-item">
   {% block resource_item_title %}
   <a class="heading" href="{{ url }}" title="{{ res.name or res.description }}">
@@ -14,6 +17,7 @@
     {% endif %}
   </p>
   {% block resource_item_explore %}
+  {% if not url_is_edit %}
   <div class="dropdown btn-group">
     <a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
       <i class="icon-share-alt"></i>
@@ -44,8 +48,17 @@
           {% endif %}
         </a>
       </li>
+      {% if can_edit %}
+      <li>
+        <a href="{{ h.url_for(controller='package', action='resource_edit', id=pkg.name, resource_id=res.id) }}">
+          <i class="icon-edit"></i>
+          {{ _('Edit') }}
+        </a>
+      </li>
+      {% endif %}
       {% endblock %}
     </ul>
   </div>
+  {% endif %}
   {% endblock %}
 </li>

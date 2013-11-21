@@ -1,6 +1,7 @@
 import re
 
 from nose.tools import assert_equal
+import mock
 
 import ckan.tests.test_plugins as test_plugins
 import ckan.model as model
@@ -660,3 +661,32 @@ class TestRevisions(FunctionalTestCase):
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
+
+class TestMemberInvite(FunctionalTestCase):
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def teardown(self):
+        model.repo.rebuild_db()
+
+    @mock.patch('ckan.lib.mailer.mail_user')
+    def test_member_new_invites_user_if_received_email(self, mail_user):
+        user = CreateTestData.create_user('a_user', sysadmin=True)
+        group_name = 'a_group'
+        CreateTestData.create_groups([{'name': group_name}], user.name)
+        group = model.Group.get(group_name)
+        url = url_for(controller='group', action='member_new', id=group.id)
+        email = 'invited_user@mailinator.com'
+        role = 'member'
+
+        params = {'email': email, 'role': role}
+        res = self.app.post(url, params,
+                            extra_environ={'REMOTE_USER': str(user.name)})
+
+        users = model.User.by_email(email)
+        assert len(users) == 1, users
+        user = users[0]
+        assert user.email == email, user
+        assert group.id in user.get_group_ids(capacity=role)

@@ -68,7 +68,7 @@ class UserController(base.BaseController):
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
-            h.redirect_to(controller='user', action='login', id=None)
+            abort(404, _('User not found'))
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
         c.user_dict = user_dict
@@ -117,10 +117,6 @@ class UserController(base.BaseController):
                    'for_view': True}
         data_dict = {'id': id,
                      'user_obj': c.userobj}
-        try:
-            check_access('user_show', context, data_dict)
-        except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
 
         context['with_related'] = True
 
@@ -182,6 +178,22 @@ class UserController(base.BaseController):
         c.is_sysadmin = new_authz.is_sysadmin(c.user)
         c.form = render(self.new_user_form, extra_vars=vars)
         return render('user/new.html')
+
+    def delete(self, id):
+        '''Delete user with id passed as parameter'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user,
+                   'auth_user_obj': c.userobj}
+        data_dict = {'id': id}
+
+        try:
+            get_action('user_delete')(context, data_dict)
+            user_index = h.url_for(controller='user', action='index')
+            h.redirect_to(user_index)
+        except NotAuthorized:
+            msg = _('Unauthorized to delete user with id "{user_id}".')
+            abort(401, msg.format(user_id=id))
 
     def _save_new(self, context):
         try:
@@ -392,6 +404,9 @@ class UserController(base.BaseController):
         if request.method == 'POST':
             id = request.params.get('user')
 
+            context = {'model': model,
+                       'user': c.user}
+
             data_dict = {'id': id}
             user_obj = None
             try:
@@ -435,11 +450,8 @@ class UserController(base.BaseController):
         # FIXME We should reset the reset key when it is used to prevent
         # reuse of the url
         context = {'model': model, 'session': model.Session,
-                   'user': c.user,
-                   'auth_user_obj': c.userobj,
+                   'user': id,
                    'keep_sensitive_data': True}
-
-        data_dict = {'id': id}
 
         try:
             check_access('user_reset', context)
@@ -447,6 +459,7 @@ class UserController(base.BaseController):
             abort(401, _('Unauthorized to reset password.'))
 
         try:
+            data_dict = {'id': id}
             user_dict = get_action('user_show')(context, data_dict)
 
             # Be a little paranoid, and get rid of sensitive data that's
@@ -468,6 +481,7 @@ class UserController(base.BaseController):
                 new_password = self._get_form_password()
                 user_dict['password'] = new_password
                 user_dict['reset_key'] = c.reset_key
+                user_dict['state'] = model.State.ACTIVE
                 user = get_action('user_update')(context, user_dict)
 
                 h.flash_success(_("Your password has been reset."))
