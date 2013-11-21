@@ -77,7 +77,7 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'contents'
 
 # General information about the project.
 project = u'CKAN'
@@ -234,7 +234,7 @@ htmlhelp_basename = 'ComprehensiveKnowledgeArchiveNetworkCKANdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'ComprehensiveKnowledgeArchiveNetworkCKAN.tex', ur'Comprehensive Knowledge Archive Network (CKAN) Developer Documentation',
+  ('contents', 'ComprehensiveKnowledgeArchiveNetworkCKAN.tex', ur'Comprehensive Knowledge Archive Network (CKAN) Developer Documentation',
    ur'Open Knowledge Foundation', 'manual'),
 ]
 
