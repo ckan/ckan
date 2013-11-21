@@ -1,6 +1,6 @@
 :orphan:
 
-{# Some common substitutions included by rst files in this directory. #}
+.. Some common substitutions included by rst files in this directory.
 
 .. |extension_dir| replace:: ``ckanext-example_theme``
 .. |setup.py| replace:: ``ckanext-example_theme/setup.py`` ``ckan.plugins``
