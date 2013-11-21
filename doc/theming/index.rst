@@ -2,7 +2,7 @@
 Theming
 =======
 
-The CKAN web interface's HTML, CSS and JavaScript is fully customizable by
+The CKAN web interface's HTML, CSS and JavaScript are fully customizable by
 creating a CKAN theme.
 If you just want to do some simple customizations such as changing the title
 of your CKAN site, or making some small CSS customizations,
