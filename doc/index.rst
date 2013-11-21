@@ -51,3 +51,4 @@ advanced documentation last:
    test
    configuration
    changelog
+   appendices/index
