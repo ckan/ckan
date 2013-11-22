@@ -168,5 +168,5 @@ DataStore Integration
 ---------------------
 
 It is also possible to have uploaded files (if of a suitable format) stored in
-the DataStore which will then provides an API to the data. See :ref:`datastorer` for more details.
+the DataStore which will then provides an API to the data. See :ref:`datapusher` for more details.
 

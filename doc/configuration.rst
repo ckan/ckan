@@ -394,7 +394,7 @@ Example::
 
  solr_url = http://solr.okfn.org:8983/solr/ckan-schema-2.0
 
-Default value:  ``http://solr.okfn.org:8983/solr``
+Default value:  ``http://127.0.0.1:8983/solr``
 
 This configures the Solr server used for search. The Solr schema found at that URL must be one of the ones in ``ckan/config/solr`` (generally the most recent one). A check of the schema version number occurs when CKAN starts.
 
