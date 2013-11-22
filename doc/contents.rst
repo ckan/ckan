@@ -16,4 +16,4 @@ Full table of contents
    test
    configuration
    changelog
-
+   appendices/index
