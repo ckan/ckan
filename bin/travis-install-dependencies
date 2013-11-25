@@ -21,7 +21,8 @@ sudo apt-get install postgresql-$PGVERSION solr-jetty libcommons-fileupload-java
 echo "##### Restart Postgres #####"
 sudo service postgresql restart
 
-sudo netstat -plnt | grep 543
+echo "##### postgres conf files grep#####"
+sudo grep 543 /etc/postgresql/*/main/*
 
 echo "##### Setup postgres' users and databases #####"
 sudo -u postgres psql -c "CREATE USER ckan_default WITH PASSWORD 'pass';"
