@@ -761,6 +761,9 @@ def package_show(context, data_dict):
 
     :param id: the id or name of the dataset
     :type id: string
+    :param use_default_schema: use default package schema instead of
+        a custom schema defined with an IDatasetForm plugin (default: False)
+    :type use_default_schema: bool
 
     :rtype: dictionary
 
@@ -777,6 +780,9 @@ def package_show(context, data_dict):
     context['package'] = pkg
 
     _check_access('package_show', context, data_dict)
+
+    if data_dict.get('use_default_schema', False):
+        context['schema'] = ckan.logic.schema.default_show_package_schema()
 
     package_dict = None
     use_cache = (context.get('use_cache', True)
