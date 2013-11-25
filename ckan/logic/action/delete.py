@@ -18,6 +18,29 @@ _check_access = ckan.logic.check_access
 _get_or_bust = ckan.logic.get_or_bust
 _get_action = ckan.logic.get_action
 
+
+def user_delete(context, data_dict):
+    '''Delete a user.
+
+    Only sysadmins can delete users.
+
+    :param id: the id or usernamename of the user to delete
+    :type id: string
+    '''
+
+    _check_access('user_delete', context, data_dict)
+
+    model = context['model']
+    user_id = _get_or_bust(data_dict, 'id')
+    user = model.User.get(user_id)
+
+    if user is None:
+        raise NotFound('User "{id}" was not found.'.format(id=user_id))
+
+    user.delete()
+    model.repo.commit()
+
+
 def package_delete(context, data_dict):
     '''Delete a dataset (package).
 
@@ -73,8 +96,9 @@ def resource_delete(context, data_dict):
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
-    if 'resources' in pkg_dict and id in pkg_dict['resources']:
-        pkg_dict['resources'].remove(id)
+    if pkg_dict.get('resources'):
+        pkg_dict['resources'] = [r for r in pkg_dict['resources'] if not
+                r['id'] == id]
     try:
         pkg_dict = _get_action('package_update')(context, pkg_dict)
     except ValidationError, e:

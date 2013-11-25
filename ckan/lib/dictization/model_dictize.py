@@ -10,6 +10,7 @@ import ckan.lib.helpers as h
 import ckan.lib.dictization as d
 import ckan.new_authz as new_authz
 import ckan.lib.search as search
+import ckan.lib.munge as munge
 
 ## package save
 
@@ -40,6 +41,16 @@ def group_list_dictize(obj_list, context,
             continue
 
         group_dict['display_name'] = obj.display_name
+
+        image_url = group_dict.get('image_url')
+        group_dict['image_display_url'] = image_url
+        if image_url and not image_url.startswith('http'):
+            #munge here should not have an effect only doing it incase
+            #of potential vulnerability of dodgy api input
+            image_url = munge.munge_filename(image_url)
+            group_dict['image_display_url'] = h.url_for_static(
+                'uploads/group/%s' % group_dict.get('image_url')
+            )
 
         if obj.is_organization:
             group_dict['packages'] = query.facets['owner_org'].get(obj.id, 0)
@@ -132,11 +143,6 @@ def resource_dictize(res, context):
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
-    #tracking
-    if not context.get('for_edit'):
-        model = context['model']
-        tracking = model.TrackingSummary.get_for_resource(res.url)
-        resource['tracking_summary'] = tracking
     resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
@@ -209,6 +215,9 @@ def package_dictize(pkg, context):
     if not result:
         raise logic.NotFound
     result_dict = d.table_dictize(result, context)
+    #strip whitespace from title
+    if result_dict.get('title'):
+        result_dict['title'] = result_dict['title'].strip()
     #resources
     res_rev = model.resource_revision_table
     resource_group = model.resource_group_table
@@ -241,9 +250,6 @@ def package_dictize(pkg, context):
     q = select([extra_rev]).where(extra_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, extra_rev, context)
     result_dict["extras"] = extras_list_dictize(result, context)
-    #tracking
-    tracking = model.TrackingSummary.get_for_package(pkg.id)
-    result_dict['tracking_summary'] = tracking
     #groups
     member_rev = model.member_revision_table
     group = model.group_table
@@ -362,6 +368,16 @@ def group_dictize(group, context):
         for item in plugins.PluginImplementations(plugin):
             result_dict = item.before_view(result_dict)
 
+    image_url = result_dict.get('image_url')
+    result_dict['image_display_url'] = image_url
+    if image_url and not image_url.startswith('http'):
+        #munge here should not have an effect only doing it incase
+        #of potential vulnerability of dodgy api input
+        image_url = munge.munge_filename(image_url)
+        result_dict['image_display_url'] = h.url_for_static(
+            'uploads/group/%s' % result_dict.get('image_url'),
+            qualified = True
+        )
     return result_dict
 
 def tag_list_dictize(tag_list, context):
@@ -451,6 +467,7 @@ def user_dictize(user, context):
         result_dict = d.table_dictize(user, context)
 
     del result_dict['password']
+    del result_dict['reset_key']
 
     result_dict['display_name'] = user.display_name
     result_dict['email_hash'] = user.email_hash

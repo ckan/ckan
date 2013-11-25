@@ -37,6 +37,7 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
+import ckan.lib.uploader as uploader
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -71,7 +72,26 @@ def _datestamp_to_datetime(datetime_):
 
 
 def redirect_to(*args, **kw):
-    '''A routes.redirect_to wrapper to retain the i18n settings'''
+    '''Issue a redirect: return an HTTP response with a ``302 Moved`` header.
+
+    This is a wrapper for :py:func:`routes.redirect_to` that maintains the
+    user's selected language when redirecting.
+
+    The arguments to this function identify the route to redirect to, they're
+    the same arguments as :py:func:`ckan.plugins.toolkit.url_for` accepts,
+    for example::
+
+        import ckan.plugins.toolkit as toolkit
+
+        # Redirect to /dataset/my_dataset.
+        toolkit.redirect_to(controller='package', action='read',
+                            id='my_dataset')
+
+    Or, using a named route::
+
+        toolkit.redirect_to('dataset_read', id='changed')
+
+    '''
     kw['__ckan_no_root'] = True
     if are_there_flash_messages():
         kw['__no_cache__'] = True
@@ -87,8 +107,24 @@ def url(*args, **kw):
 
 
 def url_for(*args, **kw):
-    '''Create url adding i18n information if selected
-    wrapper for routes.url_for'''
+    '''Return the URL for the given controller, action, id, etc.
+
+    Usage::
+
+        import ckan.plugins.toolkit as toolkit
+
+        url = toolkit.url_for(controller='package', action='read',
+                              id='my_dataset')
+        => returns '/dataset/my_dataset'
+
+    Or, using a named route::
+
+        toolkit.url_for('dataset_read', id='changed')
+
+    This is a wrapper for :py:func:`routes.url_for` that adds some extra
+    features that CKAN needs.
+
+    '''
     locale = kw.pop('locale', None)
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
@@ -562,7 +598,8 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    facet_titles = {'groups': _('Groups'),
+    facet_titles = {'organization': _('Organizations'),
+                    'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
                     'license': _('License'), }
@@ -1608,7 +1645,7 @@ def SI_number_span(number):
         output = literal('<span>')
     else:
         output = literal('<span title="' + formatters.localised_number(number) + '">')
-    return output + formatters.localised_SI_number(number) + literal('<span>')
+    return output + formatters.localised_SI_number(number) + literal('</span>')
 
 # add some formatter functions
 localised_number = formatters.localised_number
@@ -1627,6 +1664,84 @@ def new_activities():
         return None
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
+
+def uploads_enabled():
+    if uploader.get_storage_path():
+        return True
+    return False
+
+def get_featured_organizations(count=1):
+    '''Returns a list of favourite organization in the form
+    of organization_list action function
+    '''
+    config_orgs = config.get('ckan.featured_orgs', '').split()
+    orgs = featured_group_org(get_action='organization_show',
+                              list_action='organization_list',
+                              count=count,
+                              items=config_orgs)
+    return orgs
+
+
+def get_featured_groups(count=1):
+    '''Returns a list of favourite group the form
+    of organization_list action function
+    '''
+    config_groups = config.get('ckan.featured_groups', '').split()
+    groups = featured_group_org(get_action='group_show',
+                                list_action='group_list',
+                                count=count,
+                                items=config_groups)
+    return groups
+
+
+def featured_group_org(items, get_action, list_action, count):
+    def get_group(id):
+        context = {'ignore_auth': True,
+                   'limits': {'packages': 2},
+                   'for_view': True}
+        data_dict = {'id': id}
+
+        try:
+            out = logic.get_action(get_action)(context, data_dict)
+        except logic.ObjectNotFound:
+            return None
+        return out
+
+    groups_data = []
+
+    extras = logic.get_action(list_action)({}, {})
+
+    # list of found ids to prevent duplicates
+    found = []
+    for group_name in items + extras:
+        group = get_group(group_name)
+        if not group:
+            continue
+        # check if duplicate
+        if group['id'] in found:
+            continue
+        found.append(group['id'])
+        groups_data.append(group)
+        if len(groups_data) == count:
+            break
+
+    return groups_data
+
+
+def get_site_statistics():
+    stats = {}
+    stats['dataset_count'] = logic.get_action('package_search')(
+        {}, {"rows": 1})['count']
+    stats['group_count'] = len(logic.get_action('group_list')({}, {}))
+    stats['organization_count'] = len(
+        logic.get_action('organization_list')({}, {}))
+    result = model.Session.execute(
+        '''select count(*) from related r
+           left join related_dataset rd on r.id = rd.related_id
+           where rd.status = 'active' or rd.id is null''').first()[0]
+    stats['related_count'] = result
+
+    return stats
 
 
 # these are the functions that will end up in `h` template helpers
@@ -1726,4 +1841,8 @@ __allowed_functions__ = [
     'radio',
     'submit',
     'asbool',
+    'uploads_enabled',
+    'get_featured_organizations',
+    'get_featured_groups',
+    'get_site_statistics',
 ]

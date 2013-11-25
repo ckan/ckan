@@ -31,7 +31,7 @@ provide instructions for how to enable each extension.
 It is also possible for developers to create new extensions that can preview
 different types of resources.
 For more information on this topic see
-`Writing Extensions <writing-extensions.html>`_.
+`Writing Extensions <extensions/index>`_.
 
 
 .. _image-preview:
@@ -205,7 +205,7 @@ from the config. You can find a complete example in the
 
 .. _embed-previews:
 
-Embedding Previews In Other Web Pages
+Embedding previews in other web pages
 -------------------------------------
 
 .. versionchanged:: 2.0
