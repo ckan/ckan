@@ -18,16 +18,17 @@ echo "##### Install postgres and solr #####"
 sudo apt-get update -qq
 sudo apt-get install postgresql-$PGVERSION solr-jetty libcommons-fileupload-java:amd64=1.2.2-1
 
+sudo sed -i -e 's/port = 5433/post = 5432/g' /etc/postgresql/8.4/main/postgresql.conf
+
 echo "##### Restart Postgres #####"
 sudo service postgresql restart
 
-PG_PORT=$(grep ^port /etc/postgresql/$PGVERSION/main/postgresql.conf | awk '{print $3}')
 
 echo "##### Setup postgres' users and databases #####"
-sudo -u postgres psql -p $PG_PORT -c "CREATE USER ckan_default WITH PASSWORD 'pass';"
-sudo -u postgres psql -p $PG_PORT -c "CREATE USER datastore_default WITH PASSWORD 'pass';"
-sudo -u postgres psql -p $PG_PORT -c 'CREATE DATABASE ckan_test WITH OWNER ckan_default;'
-sudo -u postgres psql -p $PG_PORT -c 'CREATE DATABASE datastore_test WITH OWNER ckan_default;'
+sudo -u postgres psql  -c "CREATE USER ckan_default WITH PASSWORD 'pass';"
+sudo -u postgres psql  -c "CREATE USER datastore_default WITH PASSWORD 'pass';"
+sudo -u postgres psql  -c 'CREATE DATABASE ckan_test WITH OWNER ckan_default;'
+sudo -u postgres psql  -c 'CREATE DATABASE datastore_test WITH OWNER ckan_default;'
 
 echo "##### Install Python requirements #####"
 export PIP_USE_MIRRORS=true
