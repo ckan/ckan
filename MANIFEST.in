@@ -5,9 +5,24 @@ recursive-include ckan/config *.xml
 recursive-include ckan/i18n *
 recursive-include ckan/templates *
 recursive-include ckan *.ini
-recursive-include ckanext/**/public *
-recursive-include ckanext/**/templates *
-recursive-include ckanext/**/i18n *
+
+##------------------------------------------------------------
+## Warning: ``**`` glob patterns are equivalent to ``*``,
+## they *do not* match any level of sub-directories but
+## just one. We need to list all the directories
+## explicitly for this to work!
+##------------------------------------------------------------
+
+#recursive-include ckanext/**/public *
+#recursive-include ckanext/**/templates *
+#recursive-include ckanext/**/i18n *
+
+recursive-include ckanext/*/i18n *
+recursive-include ckanext/*/public *
+recursive-include ckanext/*/templates *
+recursive-include ckanext/*/theme/public *
+recursive-include ckanext/*/theme/templates *
+
 prune .git
 include CHANGELOG.txt
 include ckan/migration/migrate.cfg
