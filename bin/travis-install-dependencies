@@ -13,8 +13,6 @@ then
 fi
 
 # Install postgres and solr
-# We need this ppa so we can install postgres-8.4
-sudo add-apt-repository -yy ppa:pitti/postgresql
 sudo apt-get update -qq
 sudo apt-get install postgresql-$PGVERSION solr-jetty libcommons-fileupload-java:amd64=1.2.2-1
 
