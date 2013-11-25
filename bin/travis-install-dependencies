@@ -18,7 +18,7 @@ echo "##### Install postgres and solr #####"
 sudo apt-get update -qq
 sudo apt-get install postgresql-$PGVERSION solr-jetty libcommons-fileupload-java:amd64=1.2.2-1
 
-sudo sed -i -e 's/port = 5433/post = 5432/g' /etc/postgresql/8.4/main/postgresql.conf
+sudo sed -i -e 's/port = 5433/port = 5432/g' /etc/postgresql/8.4/main/postgresql.conf
 
 echo "##### Restart Postgres #####"
 sudo service postgresql restart
