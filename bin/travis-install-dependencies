@@ -7,34 +7,40 @@ set -e
 TRAVIS_PGVERSION='9.1'
 if [ $PGVERSION != $TRAVIS_PGVERSION ]
 then
+  echo "##### Drop Travis' postgres cluster as we are not using its postgres version #####"
   sudo -u postgres pg_dropcluster --stop $TRAVIS_PGVERSION main
   # Make psql use $PGVERSION
   export PGCLUSTER=$PGVERSION/main
 fi
 
-# Install postgres and solr
+echo "##### Install postgres and solr #####"
 sudo apt-get update -qq
 sudo apt-get install postgresql-$PGVERSION solr-jetty libcommons-fileupload-java:amd64=1.2.2-1
 
+echo "##### Restart Postgres #####"
 sudo service postgresql restart
 
-# Setup postgres' users and databases
+echo "##### Setup postgres' users and databases #####"
 sudo -u postgres psql -c "CREATE USER ckan_default WITH PASSWORD 'pass';"
 sudo -u postgres psql -c "CREATE USER datastore_default WITH PASSWORD 'pass';"
 sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckan_default;'
 sudo -u postgres psql -c 'CREATE DATABASE datastore_test WITH OWNER ckan_default;'
 
+echo "##### Install Python requirements #####"
 export PIP_USE_MIRRORS=true
 pip install -r requirements.txt
 pip install -r dev-requirements.txt
 
+echo "##### Run setup.py develop #####"
 python setup.py develop
 
-# Install npm dpes for mocha
+echo "##### Install npm dependencies for mocha #####"
 npm install -g mocha-phantomjs phantomjs
 
+echo "##### Init CKAN database #####"
 paster db init -c test-core.ini
 
+echo "##### Set up datastore permissions #####"
 # If Postgres >= 9.0, we don't need to use datastore's legacy mode.
 if [ $PGVERSION != '8.4' ]
 then
@@ -44,4 +50,5 @@ else
   sed -i -e 's/.*datastore.read_url.*//' test-core.ini
 fi
 
+echo "##### test-core.ini contents #####"
 cat test-core.ini
