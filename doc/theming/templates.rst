@@ -385,11 +385,11 @@ Now let's put some interesting content into our custom template block.
 One way for templates to get content out of CKAN is by calling CKAN's
 *template helper functions*.
 
-For example, let's replace the featured groups on the front page with an
+For example, let's replace the featured group on the front page with an
 activity stream of the site's recently created, updated and deleted datasets.
-Change the code in |index.html| to this:
+Change the code in |layout1.html| to this:
 
-.. literalinclude:: /../ckanext/example_theme/v07_helper_function/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v07_helper_function/templates/home/layout1.html
 
 Reload the `CKAN front page`_ in your browser and you should see a new activity
 stream.
@@ -398,8 +398,8 @@ To call a template helper function we use a Jinja2 *expression* (code wrapped
 in ``{{ ... }}`` brackets), and we use the global variable ``h`` (available
 to all templates) to access the helper:
 
-.. literalinclude:: /../ckanext/example_theme/v07_helper_function/templates/home/index.html
-   :start-after: {% block secondary_content %}
+.. literalinclude:: /../ckanext/example_theme/v07_helper_function/templates/home/layout1.html
+   :start-after: {% block featured_group %}
    :end-before: {% endblock %}
 
 To see what other template helper functions are available, look at the
