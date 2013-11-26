@@ -31,6 +31,8 @@ CKAN, you will need to ask them to create a sysadmin user.
 Adding more sysadmin accounts is done in the same way. It cannot be done via
 the web UI.
 
+.. _admin page:
+
 -------------------------
 Customizing look and feel
 -------------------------

@@ -338,8 +338,17 @@ code for the "featured group" that appears on the front page:
    :start-after: {# Start template block example. #}
    :end-before: {# End template block example. #}
 
-This code calls a :ref:`template snippet <snippets>` that contains the actual
-Jinja and HTML code for the featured group, more on snippets later.
+.. note::
+
+   This code calls a :ref:`template snippet <snippets>` that contains the
+   actual Jinja and HTML code for the featured group, more on snippets later.
+
+.. note::
+
+   The CKAN front page supports a number of different layouts: layout1,
+   layout2, layout3, etc. The layout can be chosen by a sysadmin using the
+   :ref:`admin page <admin page>`. This tutorial assumes your CKAN is set to
+   use the first (default) layout.
 
 When a custom template file extends one of CKAN's default template files using
 ``{% ckan_extends %}``, it can replace any of the blocks from the default
