@@ -4,32 +4,45 @@
 {% block subtitle %}{{ _('View') }} - {{ h.resource_display_name(res) }}{% endblock %}
 
 {% block page_primary_action %}
-
-<form action={{ h.url_for(controller='package', action='edit_view', id=c.pkg_dict.name, resource_id=c.resource.id) }}>
-  <select id="field-view_type" name="view_type" data-module="autocomplete">
-    {% for option in h.get_allowed_view_types(c.resource, c.pkg_dict)  %}
-      <option value="{{ option[0] }}"> {{ option[1] }}</option>
-    {% endfor %}
-  </select>
-  <button class="btn btn-primary" type="submit"> {{ _('New View') }}</button>
-</form>
-
+  <div class="btn-group">
+    <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
+      <i class="icon-plus-sign-alt"></i>
+      {{ _('New view') }}
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+      {% for option in h.get_allowed_view_types(c.resource, c.pkg_dict)  %}
+        {% set url = h.url_for(controller='package', action='edit_view', id=c.pkg_dict.name, resource_id=c.resource.id, view_type=option[0]) %}
+        <li><a href="{{ url }}">{{ option[1] }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
 {% endblock %}
 
 {% block primary_content_inner %}
-
+  <hr>
   {% if c.views %}
-    <ul class="resource-list">
+    <ul class="view-list">
       {% for view in c.views %}
-      <li> 
-        <a href="{{h.url_for(controller='package', action='edit_view', id=pkg.name, resource_id=view.resource_id, view_id=view.id)}}">
-            {{ view.title }}
-        </a>
-      </li>
+        {% set icon = view.icon or 'picture' %}
+        <li>
+          <a href="{{ h.url_for(controller='package', action='edit_view', id=pkg.name, resource_id=view.resource_id, view_id=view.id) }}">
+            <span class="icon">
+              <i class="icon icon-{{ icon }}"></i>
+            </span>
+            <h3>{{ view.title }}</h3>
+            <p class="description">
+              {% if view.description %}
+                {{ view.description }}
+              {% else %}
+                <span class="empty">No description for this resource</span>
+              {% endif %}
+            </p>
+          </a>
+        </li>
       {% endfor %}
     </ul>
   {% else %}
-  <p class="empty">{{ _('This Resource has no Views') }}</p>
+    <p class="empty">{{ _('This resource has no views') }}</p>
   {% endif %}
-
 {% endblock %}

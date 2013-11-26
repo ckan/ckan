@@ -73,11 +73,11 @@
         </div>
       </div>
       {% block resource_views %}
-      <div class="resource-views">
-        {% for resource_view in resource_views %}
-          {% snippet 'package/snippets/resource_view.html', resource_view=resource_view, resource=c.resource, package=c.package %}
-        {% endfor %}
-      </div>
+        <div class="resource-views" data-module="resource-views">
+          {% for resource_view in resource_views %}
+            {% snippet 'package/snippets/resource_view.html', resource_view=resource_view, resource=c.resource, package=c.package %}
+          {% endfor %}
+        </div>
       {% endblock %}
     </section>
   {% endblock %}

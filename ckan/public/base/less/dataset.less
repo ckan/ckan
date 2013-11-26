@@ -210,3 +210,57 @@
 .label[data-format*=turtle] {
   background-color: #0b4498;
 }
+
+// Views
+.view-list {
+  .unstyled;
+  li {
+    margin-bottom: 10px;
+    a {
+      display: block;
+      min-height: 50px;
+      padding: 10px;
+      border: 1px solid @moduleHeadingBorderColor;
+      overflow: hidden;
+      .border-radius(3px);
+      .icon {
+        float: left;
+        width: 50px;
+        height: 50px;
+        overflow: hidden;
+        margin-right: 10px;
+        color: @layoutTextColor;
+        background-color: @layoutBackgroundColor;
+        .border-radius(3px);
+        i {
+          display: block;
+          text-align: center;
+          font-size: 28px;
+          line-height: 50px;
+        }
+      }
+      h3 {
+        font-weight: bold;
+        color: @layoutBoldColor;
+        font-weight: bold;
+        font-size: 16px;
+        margin: 0 0 3px 0;
+      }
+      p {
+        margin: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        color: @layoutTextColor;
+      }
+      &:hover {
+        text-decoration: none;
+        border-color: @layoutLinkColor;
+        .icon {
+          background-color: @layoutLinkColor;
+          color: @navActiveBackgroundColor;
+        }
+      }
+    }
+  }
+}

@@ -8,7 +8,7 @@
 {% block breadcrumb_content %}
   {{ super() }}
   <li>{% link_for h.resource_display_name(res)|truncate(30), controller='package', action='resource_read', id=pkg.name, resource_id=res.id %}</li>
-  <li class="active"><a href="">{{ _('Edit') }}</a></li>
+  <li{% block breadcrumb_edit_selected %} class="active"{% endblock %}><a href="">{{ _('Edit') }}</a></li>
 {% endblock %}
 
 {% block content_action %}
