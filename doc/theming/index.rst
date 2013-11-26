@@ -46,3 +46,4 @@ your custom CKAN theme.
    jinja-tags
    variables-and-functions
    template-helper-functions
+   template-snippets

@@ -484,29 +484,28 @@ Template snippets
 functions, can be called from any template file. To call a snippet, you use
 another of CKAN's custom Jinja2 tags: ``{% snippet %}``. CKAN comes with a
 selection of snippets, which you can find in the various ``snippets``
-directories in ``ckan/templates/``, such as ``ckan/templates/snippets/`` and
-``ckan/templates/package/snippets/``.
-
-.. todo::
-
-   Autodoc all the default snippets, link to reference docs.
+directories in `ckan/templates/ <https://github.com/okfn/ckan/tree/master/ckan/templates>`_,
+such as `ckan/templates/snippets/ <https://github.com/okfn/ckan/tree/master/ckan/templates/snippets>`_
+and `ckan/templates/package/snippets/ <https://github.com/okfn/ckan/tree/master/ckan/templates/package/snippets>`_.
+For a complete list of the default snippets available to templates, see
+:doc:`template-snippets`.
 
 ``ckan/templates/group/snippets/group_list.html`` is a snippet that renders a
 list of groups nicely (it's used to render the groups on CKAN's ``/group`` page
-and one user dashboard pages, for example):
+and on user dashboard pages, for example):
 
 .. literalinclude:: /../ckan/templates/group/snippets/group_list.html
 
 (As you can see, this snippet calls another snippet, ``group_item.html``, to
 render each individual group.)
 
-Let's change our |index.html| file to call this snippet:
+Let's change our |layout1.html| file to call this snippet:
 
-.. literalinclude:: /../ckanext/example_theme/v09_snippet/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v09_snippet/templates/home/layout1.html
 
 Here we pass two arguments to the ``{% snippet %}`` tag:
 
-.. literalinclude:: /../ckanext/example_theme/v09_snippet/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v09_snippet/templates/home/layout1.html
    :start-after: {# Call the group_list.html snippet. #}
    :end-before: {% endblock %}
 
@@ -518,7 +517,7 @@ As in the ``group_list.html`` docstring above, each snippet's docstring
 should document the parameters it requires.
 
 If you reload your `CKAN front page`_ in your web browser now, you should see
-the dataset of the day rendered nicely.
+the groups rendered nicely.
 
 
 ---------------------------------
