@@ -105,7 +105,9 @@ class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
 
     @search_related
     def test_search_escape_chars(self):
-        payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk&search=Search+Packages+%C2%BB'
+        payload = '?q=fjdkf%2B%C2%B4gfhgfkgf%7Bg%C2%B4pk' \
+                  '&search=Search+Packages+%C2%BB' \
+                  '&%E5=f'
         offset = url_for(controller='package', action='search') + payload
         results_page = self.app.get(offset)
         assert 'Search - ' in results_page, results_page

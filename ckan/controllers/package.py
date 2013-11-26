@@ -196,6 +196,10 @@ class PackageController(BaseController):
                 if param not in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
+                        # DGU has no fields with non-ascii, but not sure how to cope
+                        # with SOLR params with non-ascii - not sure what encoding would
+                        # be, so ignore.
+                        param = param.decode('ascii', 'ignore')
                         c.fields.append((param, value))
                         fq += ' %s:"%s"' % (param, value)
                         if param not in c.fields_grouped:
