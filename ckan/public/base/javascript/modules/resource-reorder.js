@@ -7,6 +7,7 @@ this.ckan.module('resource-reorder', function($, _) {
       i18n: {
         label: _('Reorder resources'),
         save: _('Save order'),
+        saving: _('Saving...'),
         cancel: _('Cancel')
       }
     },
@@ -28,6 +29,12 @@ this.ckan.module('resource-reorder', function($, _) {
         '<a href="javascript:;" class="handle">',
         '<i class="icon-move"></i>',
         '</a>'
+      ].join('\n'),
+      saving: [
+        '<span class="saving muted m-right">',
+        '<i class="icon-spinner icon-spin"></i>',
+        '<span></span>',
+        '</span>'
       ].join('\n')
     },
     is_reordering: false,
@@ -59,6 +66,11 @@ this.ckan.module('resource-reorder', function($, _) {
         .hide()
         .appendTo($('.resource-item', this.el));
 
+      this.html_saving = $(this.template.saving)
+        .hide()
+        .insertBefore($('.save', this.html_form_actions));
+      $('span', this.html_saving).text(this.i18n('saving'));
+
       this.cache = this.el.html();
 
       this.el
@@ -82,7 +94,10 @@ this.ckan.module('resource-reorder', function($, _) {
     },
 
     _onHandleCancel: function() {
-      if (this.is_reordering) {
+      if (
+        this.is_reordering
+        && !$('.cancel', this.html_form_actions).hasClass('disabled')
+      ) {
         this.reset();
         this.is_reordering = false;
         this.el.html(this.cache)
@@ -93,17 +108,25 @@ this.ckan.module('resource-reorder', function($, _) {
     },
 
     _onHandleSave: function() {
-      var order = [];
-      $('.resource-item', this.el).each(function() {
-        order.push($(this).data('id'));
-      });
-      this.sandbox.client.call('POST', 'package_resource_reorder', {
-        id: this.options.id,
-        order: order
-      });
-      this.cache = this.el.html();
-      this.reset();
-      this.is_reordering = false;
+      if (!$('.save', this.html_form_actions).hasClass('disabled')) {
+        var module = this;
+        module.html_saving.show();
+        $('.save, .cancel', module.html_form_actions).addClass('disabled');
+        var order = [];
+        $('.resource-item', module.el).each(function() {
+          order.push($(this).data('id'));
+        });
+        module.sandbox.client.call('POST', 'package_resource_reorder', {
+          id: module.options.id,
+          order: order
+        }, function() {
+          module.html_saving.hide();
+          $('.save, .cancel', module.html_form_actions).removeClass('disabled');
+          module.cache = module.el.html();
+          module.reset();
+          module.is_reordering = false;
+        });
+      }
     },
 
     reset: function() {
