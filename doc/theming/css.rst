@@ -13,11 +13,10 @@ Add this CSS into the ``example_theme.css`` file, to change the color of CKAN's
 "account masthead" (the bar across the top of the site that shows the logged-in
 user's account info):
 
-.. literalinclude:: /../ckanext/example_theme/v12_custom_css/public/example_theme.css
+.. literalinclude:: /../ckanext/example_theme/v13_custom_css/public/example_theme.css
 
-If your restart the development web server (kill the server using Ctrl-c, then
-run the ``paster serve`` command again) you should be able to open this file at
-http://127.0.0.1:5000/example_theme.css in a web browser.
+If you restart the development web server  you should be able to open this file
+at http://127.0.0.1:5000/example_theme.css in a web browser.
 
 To make CKAN use our custom CSS we need to override the ``base.html`` template,
 this is the base template which the templates for all CKAN pages extend, so if
@@ -30,7 +29,7 @@ every page of your CKAN site. Create the file::
 
 and put this Jinja code in it:
 
-.. literalinclude:: /../ckanext/example_theme/v12_custom_css/templates/base.html
+.. literalinclude:: /../ckanext/example_theme/v13_custom_css/templates/base.html
 
 The default ``base.html`` template defines a ``styles`` block which can be
 extended to link to custom CSS files (any code in the styles block will appear
@@ -55,7 +54,7 @@ Let's add a bit more code to our ``example_theme.css`` file. This CSS
 implements a partial imitation of the `datahub.io <http://datahub.io/>`_ theme
 (circa 2013):
 
-.. literalinclude:: /../ckanext/example_theme/v13_more_custom_css/public/example_theme.css
+.. literalinclude:: /../ckanext/example_theme/v14_more_custom_css/public/example_theme.css
 
 .. todo::
 

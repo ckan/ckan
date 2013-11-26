@@ -1,1 +1,0 @@
-../v9_custom_snippet/plugin.py

@@ -1,1 +1,0 @@
-../v2_empty_template/plugin.py

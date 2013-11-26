@@ -20,7 +20,7 @@ To get CKAN to call some custom JavaScript code, we need to:
    Create the file ``ckanext-example_theme/fanstatic/favorite.js``, with these
    contents:
 
-   .. literalinclude:: /../ckanext/example_theme/v14_initialize_a_javascript_module/fanstatic/favorite.js
+   .. literalinclude:: /../ckanext/example_theme/v15_initialize_a_javascript_module/fanstatic/favorite.js
 
    This bit of |javascript| calls the ``ckan.module()`` function to register a
    new JavaScript module with CKAN. ``ckan.module()`` takes two arguments: the
@@ -40,7 +40,7 @@ To get CKAN to call some custom JavaScript code, we need to:
    ``ckanext-example_theme/templates/snippets/package_item.html`` with these
    contents:
 
-   .. literalinclude:: /../ckanext/example_theme/v14_initialize_a_javascript_module/templates/snippets/package_item.html
+   .. literalinclude:: /../ckanext/example_theme/v15_initialize_a_javascript_module/templates/snippets/package_item.html
 
    .. todo:: Link to something about HTML data-* attributes.
 

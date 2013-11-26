@@ -4,8 +4,9 @@
 Customizing CKAN's templates
 ============================
 
-This tutorial walks you through the process of creating an example CKAN theme
-that demonstrates all of the main features of CKAN theming.
+CKAN pages are generated from Jinja2_ template files. This tutorial will walk
+you through the process of writing your own template files to modify and
+replace the default ones, and change the layout and content of CKAN pages.
 
 
 -------------------------
@@ -27,9 +28,9 @@ an extension and plugin. For a detailed explanation of the steps below, see
 
 2. Create the file |plugin.py| with the following contents:
 
-   .. literalinclude:: /../ckanext/example_theme/v1_empty_extension/plugin.py
+   .. literalinclude:: /../ckanext/example_theme/v01_empty_extension/plugin.py
 
-3. Edit the ``entry_points`` in |setup.py|::
+3. Edit the ``entry_points`` in |setup.py| to look like this::
 
     entry_points='''
         [ckan.plugins]
@@ -40,8 +41,7 @@ an extension and plugin. For a detailed explanation of the steps below, see
 
    .. parsed-literal::
 
-    |activate|
-    cd |virtualenv|/src/|extension_dir|
+    cd |extension_dir|
     python setup.py develop
 
 5. Add the plugin to the ``ckan.plugins`` setting in your |development.ini|
@@ -77,17 +77,17 @@ datasets page at ``/dataset`` is generated from
 ``ckan/templates/package/search.html``, etc.
 
 To customize pages, our plugin needs to register its own custom template
-directory containing templates file that override the default ones.
+directory containing template files that override the default ones.
 Edit the |plugin.py| file that we created earlier, so that it looks like
 this:
 
-.. literalinclude:: /../ckanext/example_theme/v2_empty_template/plugin.py
+.. literalinclude:: /../ckanext/example_theme/v02_empty_template/plugin.py
 
 This new code does a few things:
 
 1. It imports CKAN's *plugins toolkit* module:
 
-   .. literalinclude:: /../ckanext/example_theme/v2_empty_template/plugin.py
+   .. literalinclude:: /../ckanext/example_theme/v02_empty_template/plugin.py
       :start-after: import ckan.plugins as plugins
       :end-before: class ExampleThemePlugin(plugins.SingletonPlugin):
 
@@ -95,11 +95,11 @@ This new code does a few things:
    and exceptions for CKAN plugins to use. For more about the plugins toolkit,
    see :doc:`/extensions/tutorial`.
 
-2. It calls :py:func:`~ckan.plugins.core.implements` to declare that it
+2. It calls :py:func:`~ckan.plugins.implements` to declare that it
    implements the :py:class:`~ckan.plugins.interfaces.IConfigurer` plugin
    interface:
 
-   .. literalinclude:: /../ckanext/example_theme/v2_empty_template/plugin.py
+   .. literalinclude:: /../ckanext/example_theme/v02_empty_template/plugin.py
       :start-after: # Declare that this class implements IConfigurer.
       :end-before: def update_config(
 
@@ -115,7 +115,7 @@ This new code does a few things:
    is the only method declared in the
    :py:class:`~ckan.plugins.interfaces.IConfigurer` interface:
 
-   .. literalinclude:: /../ckanext/example_theme/v2_empty_template/plugin.py
+   .. literalinclude:: /../ckanext/example_theme/v02_empty_template/plugin.py
       :pyobject: ExampleThemePlugin.update_config
 
    CKAN will call this method when it starts up, to give our plugin a chance to
@@ -143,9 +143,10 @@ debug footer. The debug footer displays various information useful for CKAN
 frontend development and debugging, including the name of the template file
 that was used to render the current page:
 
-.. todo:: Insert a screenshot of the debug link.
+.. image:: /images/debug-footer.png
+   :alt: The debug footer
 
-::
+The first template file listed is the one we're interested in::
 
  Template name: home/index.html
  Template path: /usr/lib/ckan/default/src/ckan/ckan/templates/home/index.html
@@ -169,9 +170,19 @@ inside the ``home`` directory:
            home/
              index.html  <-- An empty file.
 
-If you now reload the `CKAN front page`_ in your web browser, you should see
-an empty page, because we've replaced the template file for the front page with
-an empty file.
+If you now restart the development web server (kill the server using Ctrl-c,
+then run the ``paster serve`` command again) and reload the `CKAN front page`_
+in your web browser, you should see an empty page, because we've replaced the
+template file for the front page with an empty file.
+
+
+.. note::
+
+   If you run ``paster serve`` with the ``--reload`` option, then it isn't
+   usually necessary to restart the server after editing a Python file,
+   a template file, your CKAN config file, or any other CKAN file. If you've
+   added a new file or directory, however, you need to restart the server
+   manually.
 
 
 ------
@@ -181,11 +192,11 @@ Jinja2
 CKAN template files are written in the `Jinja2`_ templating language. Jinja
 template files, such as our ``index.html`` file, are simply text files that,
 when processed, generate any text-based output format such as ``HTML``,
-``XML``, ``CSV``, etc. Most of the templates file in CKAN generate ``HTML``.
+``XML``, ``CSV``, etc. Most of the template files in CKAN generate ``HTML``.
 
 We'll introduce some Jinja2 basics below. Jinja2 templates have many more
 features than these, for full details see the
-`Jinja2 docs <http://jinja.pocoo.org/docs/templates/>`_.
+`Jinja2 docs`_.
 
 
 .. _expressions and variables:
@@ -210,13 +221,9 @@ your CKAN config file. For example, to display the value of the
 :ref:`ckan.site_title` setting from your config file you would put this code in
 any template file:
 
-.. todo:: Move these examples into separate files.
-
-.. todo:: Should we be using ``app_globals`` or ``g``?
-
-::
-
- <p>The title of this site is: {{ app_globals.site_title }}.</p>
+.. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+   :start-after: Jinja variable example
+   :end-before: End example
 
 .. note::
 
@@ -257,25 +264,16 @@ Jinja *tags* are snippets of code between ``{% ... %}`` delimiters that control
 the logic of the template. For example, we can output a list of the currently
 enabled plugins with this code in any template file:
 
-::
-
-  <p>The currently enabled plugins are:</p>
-  <ul>
-    {% for plugin in app_globals.plugins %}
-      <li>{{ plugin }}</li>
-    {% endfor %}
-  </ul>
+.. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+   :start-after: Jinja for-loop example
+   :end-before: End example
 
 Other variables, such as :ref:`ckan.tracking_enabled`, are booleans, and can be
 tested using Jinja's ``{% if %}`` tag:
 
-::
-
-  {% if g.tracking_enabled %}
-    <p>CKAN's page-view tracking feature is enabled.</p>
-  {% else %}
-    <p>CKAN's page-view tracking feature is <i>not</i> enabled.</p>
-  {% endif %}
+.. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+   :start-after: Jinja if example
+   :end-before: End example
 
 
 Comments
@@ -284,9 +282,9 @@ Comments
 Finally, any text between ``{# ... #}`` delimiters in a Jinja2 template is a
 *comment*, and will not be output when the template is rendered:
 
-::
-
-  {# This text will not appear in the output when this template is rendered. #}
+.. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+   :start-after: Jinja comment example
+   :end-before: End example
 
 .. todo::
 
@@ -306,7 +304,7 @@ declare that our ``home/index.html`` template extends the default
 ``home/index.html`` template, instead of completely replacing it.
 Edit the empty ``index.html`` file you just created, and add one line:
 
-.. literalinclude:: /../ckanext/example_theme/v3_ckan_extends/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v04_ckan_extends/templates/home/index.html
 
 If you now reload the `CKAN front page`_ in your browser, you should see the
 normal front page appear again. When CKAN processes our ``index.html`` file,
@@ -347,7 +345,7 @@ When a custom template file extends one of CKAN's default template files using
 template with its own code by using ``{% block %}``. Edit your ``index.html``
 file again and change the contents to:
 
-.. literalinclude:: /../ckanext/example_theme/v4_block/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v05_block/templates/home/index.html
 
 Reload the `CKAN front page`_ in your browser.
 You should see that the featured groups section of the page has been replaced,
@@ -366,7 +364,7 @@ Extending parent blocks with Jinja's ``{{ super() }}``
 If you want to add some code to a block but don't want to replace the entire
 block, you can use Jinja's ``{{ super() }}`` tag:
 
-.. literalinclude:: /../ckanext/example_theme/v5_super/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v06_super/templates/home/index.html
 
 When the child block above is rendered, Jinja will replace the
 ``{{ super() }}`` tag with the contents of the parent block.
@@ -387,7 +385,7 @@ For example, let's replace the featured groups on the front page with an
 activity stream of the site's recently created, updated and deleted datasets.
 Change the code in |index.html| to this:
 
-.. literalinclude:: /../ckanext/example_theme/v6_helper_function/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v07_helper_function/templates/home/index.html
 
 Reload the `CKAN front page`_ in your browser and you should see a new activity
 stream.
@@ -396,7 +394,7 @@ To call a template helper function we use a Jinja2 *expression* (code wrapped
 in ``{{ ... }}`` brackets), and we use the global variable ``h`` (available
 to all templates) to access the helper:
 
-.. literalinclude:: /../ckanext/example_theme/v6_helper_function/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v07_helper_function/templates/home/index.html
    :start-after: {% block secondary_content %}
    :end-before: {% endblock %}
 
@@ -422,12 +420,12 @@ template helper function to select the groups to be shown.  First, in our
 :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` and provide our helper
 function. Change the contents of ``plugin.py`` to look like this:
 
-.. literalinclude:: /../ckanext/example_theme/v7_custom_helper_function/plugin.py
+.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/plugin.py
 
 We've added a number of new features to ``plugin.py``. First, we defined a
 function to get the most popular groups from CKAN:
 
-.. literalinclude:: /../ckanext/example_theme/v7_custom_helper_function/plugin.py
+.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/plugin.py
    :pyobject: most_popular_groups
 
 This function calls one of CKAN's *action functions* to get the groups from
@@ -436,7 +434,7 @@ CKAN.  See :doc:`/extensions/tutorial` for more about action functions.
 Next, we called :py:func:`~ckan.plugins.implements` to declare that our class
 now implements :py:class:`~ckan.plugins.interfaces.ITemplateHelpers`:
 
-.. literalinclude:: /../ckanext/example_theme/v7_custom_helper_function/plugin.py
+.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/plugin.py
    :start-after: # Declare that this plugin will implement ITemplateHelpers.
    :end-before: def update_config(self, config):
 
@@ -445,7 +443,7 @@ Finally, we implemented the
 :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` to register our function
 as a template helper:
 
-.. literalinclude:: /../ckanext/example_theme/v7_custom_helper_function/plugin.py
+.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/plugin.py
    :pyobject: ExampleThemePlugin.get_helpers
 
 Now that we've registered our helper function, we need to call it from our
@@ -453,7 +451,7 @@ template. As with CKAN's default template helpers, templates access custom
 helpers via the global variable ``h``.
 Edit |index.html| to look like this:
 
-.. literalinclude:: /../ckanext/example_theme/v7_custom_helper_function/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/templates/home/index.html
 
 Now reload your `CKAN front page`_ in your browser. You should see a list of
 the most popular groups appear on the page.
@@ -490,11 +488,11 @@ render each individual group.)
 
 Let's change our |index.html| file to call this snippet:
 
-.. literalinclude:: /../ckanext/example_theme/v8_snippet/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v09_snippet/templates/home/index.html
 
 Here we pass two arguments to the ``{% snippet %}`` tag:
 
-.. literalinclude:: /../ckanext/example_theme/v8_snippet/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v09_snippet/templates/home/index.html
    :start-after: {# Call the group_list.html snippet. #}
    :end-before: {% endblock %}
 
@@ -532,7 +530,7 @@ whole thing on different parts of the site if we want to.
 Create a new directory |snippets_dir| containing a file named
 ``example_theme_most_popular_groups.html`` with these contents:
 
-.. literalinclude:: /../ckanext/example_theme/v9_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
+.. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
 
 .. todo::
 
@@ -542,7 +540,7 @@ Create a new directory |snippets_dir| containing a file named
 Now edit your |index.html| file and change it to use our new snippet instead of
 the default one:
 
-.. literalinclude:: /../ckanext/example_theme/v9_custom_snippet/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/home/index.html
 
 .. warning::
 
@@ -618,7 +616,7 @@ groups look better by laying them out and styling them. Change your
    used the way it's being used here and as a result the CSS is wrong
    (also the template crashes unless you hack it).
 
-.. literalinclude:: /../ckanext/example_theme/v10_HTML_and_CSS/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v11_HTML_and_CSS/templates/home/index.html
 
 This new template uses `Bootstrap's grid system <http://getbootstrap.com/2.3.2/scaffolding.html#gridSystem>`_
 to layout the two main elements. Bootstrap's grid system lays out the main
@@ -658,7 +656,7 @@ associated titles::
 Change your ``snippets/example_theme_most_popular_groups.html`` template to
 look like this:
 
-.. literalinclude:: /../ckanext/example_theme/v10_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html
+.. literalinclude:: /../ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html
 
 This uses the same ``box`` and ``module-heading`` classes to draw a box around
 the most popular groups.

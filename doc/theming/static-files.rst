@@ -32,7 +32,7 @@ First, create a ``public`` directory in your extension with a
 ``promoted-image.jpg`` should be a 420x220px JPEG image file. You could use
 this image file for example:
 
-.. image:: /../ckanext/example_theme/v11_extra_public_directory/public/promoted-image.jpg
+.. image:: /../ckanext/example_theme/v12_extra_public_dir/public/promoted-image.jpg
    :alt: An example promoted image
    :height: 220px
    :width: 420px
@@ -42,7 +42,7 @@ the :py:func:`~ckan.plugins.toolkit.add_public_directory` function. Add this
 line to the :py:func:`~ckan.ckanext.example_theme.v11_extra_public_directory.plugin.update_config`
 function:
 
-.. literalinclude:: /../ckanext/example_theme/v11_extra_public_directory/plugin.py
+.. literalinclude:: /../ckanext/example_theme/v12_extra_public_dir/plugin.py
    :pyobject: ExampleThemePlugin.update_config
 
 If you now browse to `127.0.0.1:5000/promoted-image.jpg <http://127.0.0.1:5000/promoted-image.jpg>`_,
@@ -60,7 +60,7 @@ and file::
 
 Edit your new ``promoted.html`` snippet, and insert these contents:
 
-.. literalinclude:: /../ckanext/example_theme/v11_extra_public_directory/templates/home/snippets/promoted.html
+.. literalinclude:: /../ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html
 
 After calling ``{% ckan_extends %}`` to declare that it extends (rather than
 completely replaces) the default ``promoted.html`` snippet, this custom snippet
@@ -68,7 +68,7 @@ overrides two of ``promoted.html``'s template blocks. The first block replaces
 the caption text of the promoted image. The second block replaces the ``<img>``
 tag itself, pointing it at our custom static image file:
 
-.. literalinclude:: /../ckanext/example_theme/v11_extra_public_directory/templates/home/snippets/promoted.html
+.. literalinclude:: /../ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html
    :start-after: {# Replace the promoted image. #}
 
 If you now reload the `CKAN front page`_ in your browser, you should see the
