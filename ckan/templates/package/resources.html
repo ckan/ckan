@@ -10,7 +10,7 @@
 
 {% block primary_content_inner %}
   {% if pkg.resources %}
-    <ul class="resource-list"{% if has_reorder %} data-module="resource-reorder"{% endif %}>
+    <ul class="resource-list"{% if has_reorder %} data-module="resource-reorder" data-module-id="{{ pkg.id }}"{% endif %}>
       {% for resource in pkg.resources %}
         {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, url_is_edit=true %}
       {% endfor %}

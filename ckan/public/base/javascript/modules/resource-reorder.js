@@ -1,14 +1,9 @@
-/* Module for the resource form. Handles validation and updating the form
- * with external data such as from a file upload.
+/* Module for reordering resources
  */
 this.ckan.module('resource-reorder', function($, _) {
   return {
     options: {
-      form: {
-        method: 'POST',
-        file: 'file',
-        params: []
-      },
+      id: false,
       i18n: {
         label: _('Reorder resources'),
         save: _('Save order'),
@@ -36,6 +31,7 @@ this.ckan.module('resource-reorder', function($, _) {
       ].join('\n')
     },
     is_reordering: false,
+    cache: false,
 
     initialize: function() {
       jQuery.proxyAll(this, /_on/);
@@ -63,6 +59,8 @@ this.ckan.module('resource-reorder', function($, _) {
         .hide()
         .appendTo($('.resource-item', this.el));
 
+      this.cache = this.el.html();
+
       this.el
         .sortable()
         .sortable('disable');
@@ -85,26 +83,38 @@ this.ckan.module('resource-reorder', function($, _) {
 
     _onHandleCancel: function() {
       if (this.is_reordering) {
-        this.html_form_actions
-          .add(this.html_handles)
-          .add(this.html_title)
-          .hide();
-        this.el
-          .removeClass('reordering')
-          .sortable('disable');
-        $('.page_primary_action').show();
+        this.reset();
         this.is_reordering = false;
+        this.el.html(this.cache)
+          .sortable()
+          .sortable('disable');
+        this.html_handles = $('.handle', this.el);
       }
     },
 
     _onHandleSave: function() {
-      if (!$('.save', this.html_form_actions).hasClass('disabled')) {
-        var order = [];
-        $('.resource-item', this.el).each(function() {
-          order.push($(this).data('id'));
-        });
-        console.log(order);
-      }
+      var order = [];
+      $('.resource-item', this.el).each(function() {
+        order.push($(this).data('id'));
+      });
+      this.sandbox.client.call('POST', 'package_resource_reorder', {
+        id: this.options.id,
+        order: order
+      });
+      this.cache = this.el.html();
+      this.reset();
+      this.is_reordering = false;
+    },
+
+    reset: function() {
+      this.html_form_actions
+        .add(this.html_handles)
+        .add(this.html_title)
+        .hide();
+      this.el
+        .removeClass('reordering')
+        .sortable('disable');
+      $('.page_primary_action').show();
     }
 
   };
