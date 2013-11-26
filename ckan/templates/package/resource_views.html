@@ -22,26 +22,7 @@
 {% block primary_content_inner %}
   <hr>
   {% if c.views %}
-    <ul class="view-list">
-      {% for view in c.views %}
-        {% set icon = view.icon or 'picture' %}
-        <li>
-          <a href="{{ h.url_for(controller='package', action='edit_view', id=pkg.name, resource_id=view.resource_id, view_id=view.id) }}">
-            <span class="icon">
-              <i class="icon icon-{{ icon }}"></i>
-            </span>
-            <h3>{{ view.title }}</h3>
-            <p class="description">
-              {% if view.description %}
-                {{ view.description }}
-              {% else %}
-                <span class="empty">No description for this resource</span>
-              {% endif %}
-            </p>
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
+    {% snippet "package/snippets/resource_views_list.html", views=c.views, pkg=pkg %}
   {% else %}
     <p class="empty">{{ _('This resource has no views') }}</p>
   {% endif %}

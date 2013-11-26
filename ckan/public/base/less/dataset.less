@@ -215,6 +215,7 @@
 .view-list {
   .unstyled;
   li {
+    position: relative;
     margin-bottom: 10px;
     a {
       display: block;
@@ -253,6 +254,7 @@
         text-overflow: ellipsis;
         color: @layoutTextColor;
       }
+      &.active,
       &:hover {
         text-decoration: none;
         border-color: @layoutLinkColor;
@@ -262,5 +264,39 @@
         }
       }
     }
+    .arrow {
+      position: absolute;
+      display: none;
+      border: 8px solid transparent;
+      border-top-color: @layoutLinkColor;
+      left: 50%;
+      bottom: -15px;
+      margin-left: -4px;
+    }
+    &.active {
+      a {
+        text-decoration: none;
+        border-color: @layoutLinkColor;
+        .icon {
+          background-color: @layoutLinkColor;
+          color: @navActiveBackgroundColor;
+        }
+      }
+      .arrow {
+        display: block;
+      }
+    }
   }
+  &.stacked {
+    .clearfix;
+    li {
+      float: left;
+      width: 250px;
+      margin-right: 10px;
+    }
+  }
+}
+
+.resource-view {
+  
 }
