@@ -453,12 +453,12 @@ as a template helper:
 Now that we've registered our helper function, we need to call it from our
 template. As with CKAN's default template helpers, templates access custom
 helpers via the global variable ``h``.
-Edit |index.html| to look like this:
+Edit |layout1.html| to look like this:
 
-.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/templates/home/layout1.html
 
-Now reload your `CKAN front page`_ in your browser. You should see a list of
-the most popular groups appear on the page.
+Now reload your `CKAN front page`_ in your browser. You should see the featured
+organization section replaced with a list of the most popular groups.
 
 Simply displaying a list of group titles isn't very good. We want the groups to
 be hyperlinked to their pages, and also to show some other information about
