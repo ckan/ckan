@@ -368,7 +368,7 @@ Extending parent blocks with Jinja's ``{{ super() }}``
 If you want to add some code to a block but don't want to replace the entire
 block, you can use Jinja's ``{{ super() }}`` tag:
 
-.. literalinclude:: /../ckanext/example_theme/v06_super/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v06_super/templates/home/layout1.html
 
 When the child block above is rendered, Jinja will replace the
 ``{{ super() }}`` tag with the contents of the parent block.
