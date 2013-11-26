@@ -140,8 +140,8 @@ Set :ref:`debug` to ``true`` in your |development.ini| file::
 Reload the `CKAN front page`_ in your browser, and you should see a *Debug*
 link in the footer at the bottom of the page. Click on this link to open the
 debug footer. The debug footer displays various information useful for CKAN
-frontend development and debugging, including the name of the template file
-that was used to render the current page:
+frontend development and debugging, including the names of the template files
+that were used to render the current page:
 
 .. image:: /images/debug-footer.png
    :alt: The debug footer
@@ -151,10 +151,23 @@ The first template file listed is the one we're interested in::
  Template name: home/index.html
  Template path: /usr/lib/ckan/default/src/ckan/ckan/templates/home/index.html
 
-This tells us that ``home/index.html`` is the main template file used to render
+This tells us that ``home/index.html`` is the root template file used to render
 the front page. The debug footer appears at the bottom of every CKAN page, and
-can always be used to find the page's template, and other information about the
-page.
+can always be used to find the page's template files, and other information
+about the page.
+
+.. note::
+
+   Most CKAN pages are rendered from multiple template files.
+   The first file listed in the debug footer is the root template file of the
+   page. All other template files used to render the page (listed further down
+   in the debug footer) are either included by the root file, or included by
+   another file that is included by the root file.
+
+   To figure out which template file renders a particular part of the page you
+   have to inspect the
+   `source code of the template files <https://github.com/okfn/ckan/tree/master/ckan/templates>`_,
+   starting with the root file.
 
 Now let's override ``home/index.html`` using our plugins' custom ``templates``
 directory. Create the |templates_dir| directory, create a ``home`` directory
@@ -317,44 +330,35 @@ Replacing template blocks with ``{% block %}``
 ----------------------------------------------
 
 Jinja templates can contain *blocks* that child templates can override.  For
-example, CKAN's default ``home/index.html`` template has a block that contains
-the Jinja and HTML code for the "featured groups" that appear on the front page
-by default::
+example, CKAN's default ``home/layout1.html`` template (one of the files used
+to render the CKAN front page) has a block that contains the Jinja and HTML
+code for the "featured group" that appears on the front page:
 
-  {% block secondary_content %}
-    <div class="row group-listing">
-        {% for group in c.group_package_stuff %}
-        <div class="span6">
-            <div class="box">
-            {% snippet 'snippets/group_item.html', group=group.group_dict,
-                       truncate=50, truncate_title=35 %}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-  {% endblock %}
+.. literalinclude:: /../ckan/templates/home/layout1.html
+   :start-after: {# Start template block example. #}
+   :end-before: {# End template block example. #}
 
-.. todo::
-
-   Fix ``c.group_package_stuff`` above (stupid name).
-
-.. todo:: Insert screenshot of the part of the page that this template renders?
+This code calls a :ref:`template snippet <snippets>` that contains the actual
+Jinja and HTML code for the featured group, more on snippets later.
 
 When a custom template file extends one of CKAN's default template files using
 ``{% ckan_extends %}``, it can replace any of the blocks from the default
-template with its own code by using ``{% block %}``. Edit your ``index.html``
-file again and change the contents to:
+template with its own code by using ``{% block %}``. Create the file
+|layout1.html| with these contents:
 
-.. literalinclude:: /../ckanext/example_theme/v05_block/templates/home/index.html
+.. literalinclude:: /../ckanext/example_theme/v05_block/templates/home/layout1.html
 
-Reload the `CKAN front page`_ in your browser.
-You should see that the featured groups section of the page has been replaced,
-but the rest of the page remains intact.
+This file extends the default ``layout1.html`` template, and overrides the
+``featured_group`` block.  Reload the `CKAN front page`_ in your browser.  You
+should see that the featured groups section of the page has been replaced, but
+the rest of the page remains intact.
 
-.. todo::
+.. note::
 
-   Explain how to find out what blocks a given template provides.
-   Do you have to just look at the source?
+   Most template files in CKAN contain multiple blocks.
+   To find out what blocks a template has, and which block renders a particular
+   part of the page, you have to look at the
+   `source code of the default template files <https://github.com/okfn/ckan/tree/master/ckan/templates>`_.
 
 
 ------------------------------------------------------
@@ -461,6 +465,7 @@ be hyperlinked to their pages, and also to show some other information about
 the group such as its description and logo image. To display our groups nicely,
 we'll use CKAN's *template snippets*.
 
+.. _snippets:
 
 -----------------
 Template snippets
