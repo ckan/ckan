@@ -288,9 +288,12 @@
     }
   }
   &.stacked {
-    .clearfix;
+    overflow-y: hidden;
+    overflow-x: auto;
+    height: 100px;
+    white-space: nowrap;
     li {
-      float: left;
+      display: inline-block;
       width: 250px;
       margin-right: 10px;
     }

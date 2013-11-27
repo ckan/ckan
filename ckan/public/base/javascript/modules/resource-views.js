@@ -3,13 +3,6 @@
  */
 this.ckan.module('resource-views', function($, _) {
   return {
-    /* options object can be extended using data-module-* attributes */
-    options: {
-      view: false,
-      i18n: {
-        show_more: _('Show more')
-      }
-    },
 
     /* Initialises the module setting up elements and event listeners.
      *
@@ -17,19 +10,25 @@ this.ckan.module('resource-views', function($, _) {
      */
     initialize: function () {
       $.proxyAll(this, /_/);
+
+      this.view = false;
       $('nav', this.el).removeClass('hide');
-      if (!this.options.view) {
-        this.options.view = $('.resource-view:first', this.el).data('id');
+      $(window).on('hashchange', this._handleHash);
+
+      if (window.location.hash.indexOf('#view-') === 0) {
+        this._handleHash();
+        var position = $('.view-list li.active').position();
+        $('.view-list', this.el).scrollLeft(position.left);
+      } else {
+        this.view = $('.resource-view:first', this.el).data('id');
+        this._show();
       }
-      $(window).on('hashchange', this._handleView);
-      this._handleView();
-      this._show();
     },
 
-    _handleView: function () {
+    _handleHash: function () {
       var hash = window.location.hash;
       if (hash.indexOf('#view-') === 0) {
-        this.options.view = hash.substring(6);
+        this.view = hash.substring(6);
         this._show();
       }
     },
@@ -38,10 +37,10 @@ this.ckan.module('resource-views', function($, _) {
       // Hide all the other views
       $('.resource-view', this.el).hide();
       // Now show the relevant one
-      $('#view-' + this.options.view).show();
+      $('#view-' + this.view).show();
       // Now do the same for the nav
       $('.view-list li', this.el).removeClass('active');
-      $('.view-list a[data-id="' + this.options.view + '"]', this.el).parent().addClass('active');
+      $('.view-list a[data-id="' + this.view + '"]', this.el).parent().addClass('active');
     }
 
   }
