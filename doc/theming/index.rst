@@ -43,6 +43,7 @@ your custom CKAN theme.
    static-files
    css
    javascript
+   best-practices
    jinja-tags
    variables-and-functions
    template-helper-functions
