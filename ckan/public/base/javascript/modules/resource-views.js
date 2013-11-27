@@ -17,8 +17,10 @@ this.ckan.module('resource-views', function($, _) {
 
       if (window.location.hash.indexOf('#view-') === 0) {
         this._handleHash();
-        var position = $('.view-list li.active').position();
-        $('.view-list', this.el).scrollLeft(position.left);
+        var position = $('.view-list li.active', this.el).position();
+        if (position.left > 800) {
+          $('.view-list', this.el).scrollLeft(position.left);
+        }
       } else {
         this.view = $('.resource-view:first', this.el).data('id');
         this._show();

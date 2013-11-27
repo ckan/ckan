@@ -1,6 +1,6 @@
 <div id="view-{{ resource_view['id'] }}" class="resource-view" data-id="{{ resource_view['id'] }}" data-title="{{ resource_view['title'] }}" data-description="{{ resource_view['descripion'] }}">
-  <h1>{{ resource_view['title'] }}</h1>
-  <p class="desc">{{ resource_view['description'] }}</p>
+  <h1 class="js-hide">{{ resource_view['title'] }}</h1>
+  <p class="desc js-hide">{{ resource_view['description'] }}</p>
   <div class="ckanext-datapreview">
     {% if not h.resource_view_is_iframed(resource_view) %}
       {{ h.rendered_resource_view(resource_view, resource, package) }}

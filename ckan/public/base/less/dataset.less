@@ -296,10 +296,30 @@
       display: inline-block;
       width: 250px;
       margin-right: 10px;
+      &:last-child {
+        margin-right: 0;
+      }
     }
+
+    &::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 10px;
+      background-color: @navActiveBackgroundColor;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      background-color: darken(@navActiveBackgroundColor, 20%);
+      &:hover {
+        background-color: @layoutLinkColor;
+      }
+    }
+
   }
 }
 
 .resource-view {
-  
+  margin-top: 20px;
 }
