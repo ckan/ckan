@@ -18,5 +18,5 @@
   </header>
   {% set list_class = "unstyled dataset-list" %}
   {% set item_class = "dataset-item module-content" %}
-  {% snippet 'snippets/package_list.html', packages=organization.packages, list_class=list_class, item_class=item_class, truncate=120 %}
+  {% snippet 'snippets/package_list.html', packages=h.organization_package_show(organization.id, 2), list_class=list_class, item_class=item_class, truncate=120 %}
 </section>

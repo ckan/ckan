@@ -1744,19 +1744,37 @@ def get_site_statistics():
     return stats
 
 
-def group_package_show(group=None, limit=None):
+def _group_or_org_package_show(group=None, limit=None, is_org=False):
     '''
-    Given a group name, it returns the packages in the group
+    Given a group or organization name or id, it returns the packages in the
+    group or organization
     '''
+    action_function = 'group_package_show'
+    if is_org:
+        action_function = 'organization_package_show'
     if group is None:
         return []
     data_dict = {'id': group, 'limit': limit}
     try:
-        packages = logic.get_action('group_package_show')({}, data_dict)
+        packages = logic.get_action(action_function)({}, data_dict)
     except Exception as e:
         log.exception(e)
         return []
     return packages
+
+
+def organization_package_show(org=None, limit=None):
+    '''
+    Given an organization name, it returns the packages in the organization
+    '''
+    return _group_or_org_package_show(org, limit, is_org=True)
+
+
+def group_package_show(group=None, limit=None):
+    '''
+    Given a group name, it returns the packages in the group
+    '''
+    return _group_or_org_package_show(group, limit, is_org=False)
 
 
 # these are the functions that will end up in `h` template helpers
@@ -1846,6 +1864,7 @@ __allowed_functions__ = [
     'new_activities',
     'time_ago_from_timestamp',
     'group_package_show',
+    'organization_package_show',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',
