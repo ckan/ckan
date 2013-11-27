@@ -372,11 +372,9 @@ class TestUpdate(object):
                                            "http://a.html",
                                            "http://b.html"]
 
-        reorder = {'id': dataset['id'], 'order':
-                   [mapping["http://b.html"],
-                    mapping["http://c.html"],
-                    mapping["http://a.html"]]
-                  }
+        reorder = {'id': dataset['id'], 'order': [mapping["http://b.html"],
+                                                  mapping["http://c.html"],
+                                                  mapping["http://a.html"]]}
 
         helpers.call_action('package_resource_reorder', **reorder)
         dataset = helpers.call_action('package_show', id=dataset['id'])
