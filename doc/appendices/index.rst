@@ -1,0 +1,7 @@
+==========
+Appendices
+==========
+
+.. toctree::
+
+   solr-multicore

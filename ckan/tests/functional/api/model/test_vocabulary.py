@@ -399,7 +399,7 @@ class TestVocabulary(object):
                 params=param_string,
                 status=403)
         assert response.json['success'] is False
-        assert response.json['error']['message'] == 'Access denied'
+        assert response.json['error']['__type'] == 'Authorization Error'
 
     def test_vocabulary_create_not_authorized(self):
         '''Test that users who are not authorized cannot create vocabs.'''
@@ -412,7 +412,7 @@ class TestVocabulary(object):
                     str(self.normal_user.apikey)},
                 status=403)
         assert response.json['success'] is False
-        assert response.json['error']['message'] == 'Access denied'
+        assert response.json['error']['__type'] == 'Authorization Error'
 
     def test_vocabulary_update_id_only(self):
         self._update_vocabulary({'id': self.genre_vocab['id']},
@@ -494,7 +494,7 @@ class TestVocabulary(object):
                 params=param_string,
                 status=403)
         assert response.json['success'] is False
-        assert response.json['error']['message'] == 'Access denied'
+        assert response.json['error']['__type'] == 'Authorization Error'
 
     def test_vocabulary_update_with_tags(self):
         tags = [
@@ -630,7 +630,7 @@ class TestVocabulary(object):
                 params=param_string,
                 status=403)
         assert response.json['success'] is False
-        assert response.json['error']['message'] == 'Access denied'
+        assert response.json['error']['__type'] == 'Authorization Error'
 
     def test_vocabulary_delete_not_authorized(self):
         '''Test that users who are not authorized cannot delete vocabs.'''
@@ -642,7 +642,7 @@ class TestVocabulary(object):
                     str(self.normal_user.apikey)},
                 status=403)
         assert response.json['success'] is False
-        assert response.json['error']['message'] == 'Access denied'
+        assert response.json['error']['__type'] == 'Authorization Error'
 
     def test_add_tag_to_vocab(self):
         '''Test that a tag can be added to and then retrieved from a vocab.'''
@@ -781,7 +781,7 @@ class TestVocabulary(object):
                 params=tag_string,
                 status=403)
         assert response.json['success'] is False
-        assert response.json['error']['message'] == 'Access denied'
+        assert response.json['error']['__type'] == 'Authorization Error'
 
     def test_add_tag_not_authorized(self):
         tag_dict = {
@@ -795,7 +795,7 @@ class TestVocabulary(object):
                         str(self.normal_user.apikey)},
                 status=403)
         assert response.json['success'] is False
-        assert response.json['error']['message'] == 'Access denied'
+        assert response.json['error']['__type'] == 'Authorization Error'
 
     def test_add_vocab_tag_to_dataset(self):
         '''Test that a tag belonging to a vocab can be added to a dataset,
@@ -1116,8 +1116,8 @@ class TestVocabulary(object):
                 params=helpers.json.dumps(params),
                 status=403)
         assert response.json['success'] is False
-        msg = response.json['error']['message']
-        assert msg == u"Access denied", msg
+        error = response.json['error']['__type']
+        assert error == u"Authorization Error", error
 
     def test_delete_tag_not_authorized(self):
         vocab = self.genre_vocab
@@ -1131,5 +1131,5 @@ class TestVocabulary(object):
                     str(self.normal_user.apikey)},
                 status=403)
         assert response.json['success'] is False
-        msg = response.json['error']['message']
-        assert msg == u"Access denied"
+        msg = response.json['error']['__type']
+        assert msg == u"Authorization Error"

@@ -19,6 +19,7 @@ import ckan.model as model
 import ckan.lib.datapreview as datapreview
 import ckan.lib.plugins
 import ckan.plugins as p
+import ckan.lib.render
 
 from ckan.common import OrderedDict, _, json, request, c, g, response
 from home import CACHE_PARAMETERS
@@ -391,7 +392,15 @@ class PackageController(base.BaseController):
         template = self._read_template(package_type)
         template = template[:template.index('.') + 1] + format
 
-        return render(template, loader_class=loader)
+        try:
+            return render(template, loader_class=loader)
+        except ckan.lib.render.TemplateNotFound:
+            msg = _("Viewing {package_type} datasets in {format} format is "
+                    "not supported (template file {file} not found).".format(
+                    package_type=package_type, format=format, file=template))
+            abort(404, msg)
+
+        assert False, "We should never get here"
 
     def history(self, id):
         package_type = self._get_package_type(id.split('@')[0])
