@@ -472,7 +472,7 @@ organization section replaced with a list of the most popular groups.
 Simply displaying a list of group titles isn't very good. We want the groups to
 be hyperlinked to their pages, and also to show some other information about
 the group such as its description and logo image. To display our groups nicely,
-we'll use CKAN's *template snippets*.
+we'll use CKAN's *template snippets*...
 
 .. _snippets:
 
@@ -517,7 +517,11 @@ As in the ``group_list.html`` docstring above, each snippet's docstring
 should document the parameters it requires.
 
 If you reload your `CKAN front page`_ in your web browser now, you should see
-the groups rendered nicely.
+the most popular groups rendered in the same style as the list of groups on
+the ``/groups`` page.
+
+This style isn't really what we want for our front page, each group is too big.
+To render the groups in a custom style, we can define a custom snippet...
 
 
 ---------------------------------
@@ -545,15 +549,30 @@ Create a new directory |snippets_dir| containing a file named
 
 .. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
 
-.. todo::
+This code uses a Jinja2 ``for`` loop to render each of the groups, and calls a
+number of CKAN's template helper functions:
 
-   Explain the HTML and CSS being used in the snippet above, and where it comes
-   from.
+* To hyperlink each group's name to the group's page, it calls
+  :py:func:`~ckan.lib.helpers.url_for`.
 
-Now edit your |index.html| file and change it to use our new snippet instead of
-the default one:
+* If the group has a description, it calls
+  :py:func:`~ckan.lib.helpers.markdown_extract` to render the description
+  nicely.
 
-.. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/home/index.html
+* If the group doesn't have a description, it uses the :py:func:`_` function to
+  mark the ``'This group has no description'`` message for translation.
+  When the page is rendered in a user's web browser, this string will be shown
+  in the user's language (if there's a translation of the string into that
+  language).
+
+* When rendering the group's number of datasets, it uses the
+  :py:func:`ungettext` function to mark the message for translation with
+  localized handling of plural forms.
+
+Now edit your |layout1.html| file and change it to use our new snippet instead
+of the default one:
+
+.. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/home/layout1.html
 
 .. warning::
 
@@ -576,11 +595,12 @@ the default one:
 
 .. note::
 
-   Snippets don't have access to the global template context variable, ``c``
-   (see :doc:`variables-and-functions`). Snippets *can* access other
-   global variables such as ``h``, ``app_globals`` and ``request``, as well as
-   any variables explicitly passed into the snippet by the parent template when
-   it calls the snippet with a ``{% snippet %}`` tag.
+   Snippets don't have access to the global template context variable,
+   :py:data:`c` (see :doc:`variables-and-functions`).
+   Snippets *can* access other global variables such as :py:data:`h`,
+   :py:data:`app_globals` and :py:data:`request`, as well as any variables
+   explicitly passed into the snippet by the parent template when it calls the
+   snippet with a ``{% snippet %}`` tag.
 
 
 -------------------------
