@@ -35,9 +35,9 @@ The default ``base.html`` template defines a ``styles`` block which can be
 extended to link to custom CSS files (any code in the styles block will appear
 in the ``<head>`` of the HTML page).
 
-Restart the development web server, and you should see the background color of
-the account masthead change. This custom color should appear on all pages of
-your CKAN site.
+Restart the development web server and reload the CKAN page in your browser,
+and you should see the background color of the account masthead change. This
+custom color should appear on all pages of your CKAN site.
 
 Now that we have CKAN using our CSS file, we can add more CSS rules to the file
 and customize CKAN's CSS as much as we want. There's nothing special about CSS
