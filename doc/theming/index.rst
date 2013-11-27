@@ -2,6 +2,10 @@
 Theming
 =======
 
+.. versionchanged:: 2.0
+   The CKAN frontend was completely rewritten for CKAN 2.0, so most of the
+   tutorials below don't apply to earlier versions of CKAN.
+
 The CKAN web interface's HTML, CSS and JavaScript are fully customizable by
 creating a CKAN theme.
 If you just want to do some simple customizations such as changing the title

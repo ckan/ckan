@@ -2,8 +2,6 @@
 Adding CSS and |javascript| files using Fanstatic
 =================================================
 
-.. versionadded:: 2.0
-
 If you're adding CSS files to your theme, you can add them
 using `Fanstatic <http://www.fanstatic.org/>`_ rather than the simple
 :ref:`extra_public_paths` method described in :doc:`static-files`.
