@@ -147,8 +147,14 @@ def group_show(context, data_dict):
     # anyone can see a group
     return {'success': True}
 
+def group_package_show(context, data_dict):
+    return {'success': True}
+
 def organization_show(context, data_dict):
     # anyone can see a organization
+    return {'success': True}
+
+def organization_package_show(context, data_dict):
     return {'success': True}
 
 def tag_show(context, data_dict):

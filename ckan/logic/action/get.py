@@ -1027,8 +1027,6 @@ def _group_or_org_package_show(context, data_dict, is_org=True):
     if not is_org and group.is_organization:
         raise NotFound
 
-    _check_access('group_show', context, data_dict)
-
     result = []
     for pkg_rev in group.packages(limit=limit,
             return_query=context.get('return_query')):
@@ -1048,6 +1046,8 @@ def group_package_show(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('group_package_show', context, data_dict)
+
     return _group_or_org_package_show(context, data_dict, is_org=False)
 
 
@@ -1062,6 +1062,8 @@ def organization_package_show(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('organization_package_show', context, data_dict)
+
     return _group_or_org_package_show(context, data_dict, is_org=True)
 
 
