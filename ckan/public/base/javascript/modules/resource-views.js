@@ -21,25 +21,27 @@ this.ckan.module('resource-views', function($, _) {
       if (!this.options.view) {
         this.options.view = $('.resource-view:first', this.el).data('id');
       }
-      $('.view-list a').on('click', this._handleView);
+      $(window).on('hashchange', this._handleView);
+      this._handleView();
       this._show();
     },
 
-    _handleView: function (e) {
-      e.preventDefault();
-      this.options.view = $(e.currentTarget).data('id');
-      this._show();
+    _handleView: function () {
+      var hash = window.location.hash;
+      if (hash.indexOf('#view-') === 0) {
+        this.options.view = hash.substring(6);
+        this._show();
+      }
     },
 
     _show: function () {
-      var selector = '[data-id="' + this.options.view + '"]';
       // Hide all the other views
       $('.resource-view', this.el).hide();
       // Now show the relevant one
-      $('.resource-view' + selector).show();
+      $('#view-' + this.options.view).show();
       // Now do the same for the nav
       $('.view-list li', this.el).removeClass('active');
-      $('.view-list a' + selector, this.el).parent().addClass('active');
+      $('.view-list a[data-id="' + this.options.view + '"]', this.el).parent().addClass('active');
     }
 
   }

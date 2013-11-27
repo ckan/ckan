@@ -1,7 +1,5 @@
-{% set action = action or 'edit_view' %}
-
 <ul class="view-list {{ extra_class }}">
   {% for view in views %}
-    {% snippet "package/snippets/resource_views_list_item.html", view=view, pkg=pkg, action=action %}
+    {% snippet "package/snippets/resource_views_list_item.html", view=view, pkg=pkg, is_edit=is_edit %}
   {% endfor %}
 </ul>

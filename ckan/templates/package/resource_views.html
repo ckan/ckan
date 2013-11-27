@@ -22,7 +22,7 @@
 {% block primary_content_inner %}
   <hr>
   {% if c.views %}
-    {% snippet "package/snippets/resource_views_list.html", views=c.views, pkg=pkg %}
+    {% snippet "package/snippets/resource_views_list.html", views=c.views, pkg=pkg, is_edit=true %}
   {% else %}
     <p class="empty">{{ _('This resource has no views') }}</p>
   {% endif %}

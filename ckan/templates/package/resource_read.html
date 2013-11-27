@@ -76,7 +76,7 @@
         <div class="module-content" data-module="resource-views" data-module-id="{{ view_id }}">
           {% block resource_views_nav %}
             <nav class="hide">
-              {% snippet "package/snippets/resource_views_list.html", views=resource_views, pkg=pkg, action='resource_read', extra_class='stacked' %}
+              {% snippet "package/snippets/resource_views_list.html", views=resource_views, pkg=pkg, is_edit=false, extra_class='stacked' %}
             </nav>
           {% endblock %}
           {% block resource_views_views %}
