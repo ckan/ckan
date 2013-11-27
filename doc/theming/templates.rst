@@ -607,18 +607,9 @@ of the default one:
 HTML tags and CSS classes
 -------------------------
 
-.. todo::
-
-   We should probably remove any CSS classes from earlier examples and leave
-   them unstyled, introduce CSS for the first time here.
-
-In the custom snippet example above we used some HTML tags and CSS classes to
-make the most popular groups look good and fit into the rest of the CKAN theme,
-for example we used ``<div class="box">``, ``<section class="module">`` and
-``<header class="module-heading">``. You might be wondering where these tags
-and classes come from, and how a theme developer knows what CSS classes are
-available in CKAN and what HTML and CSS they should use to make their custom
-templates fit into the CKAN theme as a whole.
+Our additions to the front page so far don't look very good or fit in very well
+with the CKAN theme. Let's make them look better by tweaking our template to
+use the right HTML tags and CSS classes.
 
 There are two places to look for CSS classes available in CKAN:
 
@@ -633,66 +624,18 @@ There are two places to look for CSS classes available in CKAN:
    CKAN, and by viewing the source of the page you can see what HTML tags and
    CSS classes they use.
 
-.. todo::
-
-   Insert a link to the frontend style guide when it's finished, which will
-   be much better than the primer.
-
-Let's make our recently changed datasets activity stream and most popular
-groups look better by laying them out and styling them. Change your
-``home/index.html`` template to look like this:
-
-.. todo::
-
-   This example needs fixing. The activity stream should be in a snippet like
-   the groups are. The ``group_item.html`` snippet is not really meant to be
-   used the way it's being used here and as a result the CSS is wrong
-   (also the template crashes unless you hack it).
-
-.. literalinclude:: /../ckanext/example_theme/v11_HTML_and_CSS/templates/home/index.html
-
-This new template uses `Bootstrap's grid system <http://getbootstrap.com/2.3.2/scaffolding.html#gridSystem>`_
-to layout the two main elements. Bootstrap's grid system lays out the main
-elements of a page using rows and columns. You define a row with a
-``<div class="row">`` tag, and then within the row you define columns with
-``<div class="span6">`` tags::
-
-    <div class="row">
-      <div class="span6">
-        <!-- Contents of the left column go here. -->
-      </div>
-      <div class="span6">
-        <!-- Contents of the right column go here. -->
-      </div>
-    </div>
-
-(The number in ``span6`` defines the width of the column, it can be anything
-from ``span1`` to ``span12``, but all of the columns in a given row cannot add
-up to more than 12.)
-
-Within the left column, we use some CKAN CSS classes ``box``, ``module``,
-``module-heading`` and ``module-content``, this uses CKAN's system of CSS
-*modules* to draw the elements in nice, visually distinct sections with
-associated titles::
-
-  <div class="box">
-    <section class="module">
-      <header class="module-heading">
-        <h3>Recent activity</h3>
-      </header>
-      <div class="module-content">
-        {{ h.recently_changed_packages_activity_stream(limit=5) }}
-      </div>
-    </section>
-  </div>
-
-Change your ``snippets/example_theme_most_popular_groups.html`` template to
-look like this:
+Edit your ``example_theme_most_popular_groups.html`` file to look like this:
 
 .. literalinclude:: /../ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html
 
-This uses the same ``box`` and ``module-heading`` classes to draw a box around
-the most popular groups.
+This simply wraps the code in a ``<div class="box">``,
+a ``<header class="module-heading">``,
+and a ``<section class="module-content">``. We also added Bootstrap's
+``class="unstyled"`` to the ``<ul>`` tag to get rid of the bullet points.
+If you reload the `CKAN front page`_, the most popular groups should look much
+better.
 
-Now reload your `CKAN front page`_ in your browser, you should see the activity
-stream and groups lists layed out and styled nicely.
+To wrap your activity stream in a similar box, edit ``layout1.html`` to look
+like this:
+
+.. literalinclude:: /../ckanext/example_theme/v11_HTML_and_CSS/templates/home/layout1.html

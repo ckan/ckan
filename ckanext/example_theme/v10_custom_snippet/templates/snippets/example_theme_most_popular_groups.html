@@ -12,12 +12,12 @@
           {{ h.markdown_extract(group.description, extract_length=80) }}
         </p>
       {% else %}
-        <p class="empty">{{ _('This group has no description') }}</p>
+        <p>{{ _('This group has no description') }}</p>
       {% endif %}
       {% if group.packages %}
-        <strong class="count">{{ ungettext('{num} Dataset', '{num} Datasets', group.packages).format(num=group.packages) }}</strong>
+        <strong>{{ ungettext('{num} Dataset', '{num} Datasets', group.packages).format(num=group.packages) }}</strong>
       {% else %}
-        <span class="count">{{ _('0 Datasets') }}</span>
+        <span>{{ _('0 Datasets') }}</span>
       {% endif %}
     </li>
   {% endfor %}
