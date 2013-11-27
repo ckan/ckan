@@ -42,6 +42,7 @@ your custom CKAN theme.
    templates
    static-files
    css
+   fanstatic
    javascript
    best-practices
    jinja-tags
