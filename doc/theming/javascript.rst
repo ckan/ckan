@@ -2,6 +2,10 @@
 Customizing CKAN's JavaScript
 =============================
 
+.. warning::
+
+   This is a draft |javascript| tutorial! It's nowhere near finished yet.
+
 .. todo:: Link to an introductory JavaScript tutorial.
 
 .. todo:: Introduce the example we're doing here: starring datasets using a
