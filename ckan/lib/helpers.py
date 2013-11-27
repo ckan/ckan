@@ -1662,6 +1662,12 @@ def resource_view_is_iframed(resource_view):
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('iframed', True)
 
+def resource_view_icon(resource_view):
+    '''
+    Returns the icon for a particular view type.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    return view_plugin.info().get('icon', 'picture')
 
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
@@ -1867,6 +1873,7 @@ __allowed_functions__ = [
     'resource_preview',
     'rendered_resource_view',
     'resource_view_is_iframed',
+    'resource_view_icon',
     'SI_number_span',
     'localised_number',
     'localised_SI_number',

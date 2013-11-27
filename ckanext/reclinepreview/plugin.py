@@ -82,7 +82,8 @@ class ReclineGrid(ReclineView):
     def info(self):
         return {'name': 'recline_grid',
                 'title': 'Grid',
-                'schema': self.schema}
+                'schema': self.schema,
+                'icon': 'table'}
 
     def form_template(self, context, data_dict):
         return 'recline_grid_form.html'
@@ -172,7 +173,8 @@ class ReclineMap(ReclineView):
         })
         return {'name': 'recline_map',
                 'title': 'Map',
-                'schema': self.schema}
+                'schema': self.schema,
+                'icon': 'map-marker'}
 
     def setup_template_variables(self, context, data_dict):
         self.datastore_fields = datastore_fields(data_dict['resource'],

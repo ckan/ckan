@@ -1,10 +1,9 @@
-{% set icon = view.icon or 'picture' %}
 {% set url = h.url_for(controller='package', action='edit_view', id=pkg.name, resource_id=view.resource_id, view_id=view.id) if is_edit else '#view-' ~ view.id %}
 
 <li>
   <a href="{{ url }}" data-id="{{ view.id }}">
     <span class="icon">
-      <i class="icon icon-{{ icon }}"></i>
+      <i class="icon icon-{{ h.resource_view_icon(view) }}"></i>
     </span>
     <h3>{{ view.title }}</h3>
     <p class="description">

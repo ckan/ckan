@@ -49,7 +49,7 @@ class TextPreview(p.SingletonPlugin):
         p.toolkit.add_resource('theme/public', 'ckanext-textpreview')
 
     def info(self):
-        return {'name': 'text', 'title': 'Text'}
+        return {'name': 'text', 'title': 'Text', 'icon': 'file-text-alt'}
 
     def can_view(self, data_dict):
         resource = data_dict['resource']

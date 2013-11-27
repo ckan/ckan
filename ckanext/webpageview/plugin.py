@@ -20,7 +20,8 @@ class WebPageView(p.SingletonPlugin):
         return {'name': 'webpage',
                 'title': 'Web Page',
                 'schema': {'page_url': [ignore_empty, unicode]},
-                'iframed': False}
+                'iframed': False,
+                'icon': 'link'}
 
     def can_view(self, data_dict):
         return True

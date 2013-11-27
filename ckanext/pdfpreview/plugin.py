@@ -17,7 +17,7 @@ class PdfPreview(p.SingletonPlugin):
     proxy_is_enabled = False
 
     def info(self):
-        return {'name': 'pdf', 'title': 'Pdf'}
+        return {'name': 'pdf', 'title': 'Pdf', 'icon': 'file-text'}
 
     def update_config(self, config):
         p.toolkit.add_public_directory(config, 'theme/public')
