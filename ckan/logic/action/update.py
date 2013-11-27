@@ -373,6 +373,7 @@ def package_resource_reorder(context, data_dict):
     new_resources = ordered_resources + existing_resources
     package_dict['resources'] = new_resources
 
+    _check_access('package_resource_reorder', context, package_dict)
     _get_action('package_update')(context, package_dict)
 
     return {'id': id, 'order': [resource['id'] for resource in new_resources]}

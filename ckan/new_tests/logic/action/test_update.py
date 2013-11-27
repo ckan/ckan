@@ -344,3 +344,46 @@ class TestUpdate(object):
 
         updated_user = helpers.call_action('user_update', **params)
         assert 'reset_key' not in updated_user
+
+    def test_resource_reorder(self):
+        resource_urls = ["http://a.html", "http://b.html", "http://c.html"]
+        dataset = {"name": "basic",
+                   "resources": [{'url': url} for url in resource_urls]
+                   }
+
+        dataset = helpers.call_action('package_create', **dataset)
+        created_resource_urls = [resource['url'] for resource
+                                 in dataset['resources']]
+        assert created_resource_urls == resource_urls
+        mapping = dict((resource['url'], resource['id']) for resource
+                       in dataset['resources'])
+
+        ## This should put c.html at the front
+        reorder = {'id': dataset['id'], 'order':
+                   [mapping["http://c.html"]]}
+
+        helpers.call_action('package_resource_reorder', **reorder)
+
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+        reordered_resource_urls = [resource['url'] for resource
+                                   in dataset['resources']]
+
+        assert reordered_resource_urls == ["http://c.html",
+                                           "http://a.html",
+                                           "http://b.html"]
+
+        reorder = {'id': dataset['id'], 'order':
+                   [mapping["http://b.html"],
+                    mapping["http://c.html"],
+                    mapping["http://a.html"]]
+                  }
+
+        helpers.call_action('package_resource_reorder', **reorder)
+        dataset = helpers.call_action('package_show', id=dataset['id'])
+
+        reordered_resource_urls = [resource['url'] for resource
+                                   in dataset['resources']]
+
+        assert reordered_resource_urls == ["http://b.html",
+                                           "http://c.html",
+                                           "http://a.html"]
