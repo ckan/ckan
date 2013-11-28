@@ -1286,7 +1286,7 @@ class PackageController(base.BaseController):
     def groups(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
-                   'auth_user_obj': c.userobj}
+                   'auth_user_obj': c.userobj, 'use_cache': False}
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
@@ -1335,10 +1335,7 @@ class PackageController(base.BaseController):
                            group['id'] not in pkg_group_ids]
 
         for group in c.pkg_dict.get('groups', []):
-            ## this could be pushed back to package dictize
-            group['display_name'] = group.get('titile') or group.get('name')
             group['user_member'] = (group['id'] in user_group_ids)
-
 
         return render('package/group_list.html')
 
