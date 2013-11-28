@@ -320,14 +320,6 @@ Finally, any text between ``{# ... #}`` delimiters in a Jinja2 template is a
    :start-after: Jinja comment example
    :end-before: End example
 
-.. todo::
-
-   *  Mention what happens if you try to access a variable or attribute
-      that doesn't exist.
-
-   *  Mention filters. And can ckan template helper functions be used as
-      filters?
-
 
 -----------------------------------------------
 Extending templates with ``{% ckan_extends %}``
