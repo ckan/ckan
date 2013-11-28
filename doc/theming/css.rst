@@ -36,8 +36,12 @@ extended to link to custom CSS files (any code in the styles block will appear
 in the ``<head>`` of the HTML page).
 
 Restart the development web server and reload the CKAN page in your browser,
-and you should see the background color of the account masthead change. This
-custom color should appear on all pages of your CKAN site.
+and you should see the background color of the account masthead change:
+
+.. image:: /images/custom-css.png
+   :alt: The account masthead with some custom CSS.
+
+This custom color should appear on all pages of your CKAN site.
 
 Now that we have CKAN using our CSS file, we can add more CSS rules to the file
 and customize CKAN's CSS as much as we want. There's nothing special about CSS
@@ -53,6 +57,9 @@ CSS.
 Let's add a bit more code to our ``example_theme.css`` file. This CSS
 implements a partial imitation of the `datahub.io <http://datahub.io/>`_ theme
 (circa 2013):
+
+.. image:: /images/more-custom-css.png
+   :alt: A partial imitation of the datahub.io theme, circa 2013.
 
 .. literalinclude:: /../ckanext/example_theme/v14_more_custom_css/public/example_theme.css
 
