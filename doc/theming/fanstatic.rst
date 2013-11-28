@@ -49,7 +49,7 @@ to serve the CSS file with Fanstatic.
 .. note::
 
   You can put ``{% resource %}`` tags anywhere in any template, and Fanstatic
-  will insert and necessary ``<style>`` and ``<script>`` tags to include your
+  will insert the necessary ``<style>`` and ``<script>`` tags to include your
   CSS and |javascript| files and their dependencies in the right places in
   the HTML output (CSS files in the HTML ``<head>``, |javascript| files at
   the bottom of the page).

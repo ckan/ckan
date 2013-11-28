@@ -1,3 +1,5 @@
+.. include:: ./substitutions.rst
+
 ==============================================
 Variables and functions available to templates
 ==============================================
@@ -5,24 +7,59 @@ Variables and functions available to templates
 The following global variables and functions are available to all CKAN
 templates in their top-level namespace:
 
-.. py:data:: c
+.. note::
+
+   In addition to the global variables listed below, each template also has
+   access to variables from a few other sources:
+
+   * Any extra variables explicitly passed into a template by the controller
+     that rendered the template will also be available to that template, in its
+     top-level namespace. Any variables explicitly added to the template
+     context variable :py:data:`c` will also be available to the template as
+     attributes of :py:data:`c`.
+
+     To see which additional global variables and context attributes are
+     available to a given template, use CKAN's
+     :ref:`debug footer <debug footer>`.
+
+   * Any variables explicitly passed into a template snippet in the calling
+     ``{% snippet %}`` tag will be available to the snippet in its top-level
+     namespace. To see these variables, use the
+     :ref:`debug footer <debug footer>`.
+
+   * Jinja2 also makes a number of filters, tests and functions available in
+     each template's global namespace. For a list of these, see the
+     `Jinja2 docs`_.
+
+.. py:data:: tmpl_context
 
    The `Pylons template context object <http://pylonsbook.com/en/1.0/exploring-pylons.html?highlight=template%20context#context-object>`_,
    a thread-safe object that the application can store request-specific
    variables against without the variables associated with one HTTP request
    getting confused with variables from another request.
 
+   ``tmpl_context`` is usually abbreviated to ``c`` (an alias).
+
    Using ``c`` in CKAN is discouraged, use template helper functions instead.
+   See :ref:`don't use c`.
 
    ``c`` is not available to snippets.
+
+.. py:data:: c
+
+   An alias for :py:data:`tmpl_context`.
 
 .. py:data:: app_globals
 
    The `Pylons App Globals object <http://pylonsbook.com/en/1.0/exploring-pylons.html?highlight=template%20context#app-globals-object>`_,
    an instance of the :py:class:`ckan.lib.app_globals.Globals` class.
    The application can store request-independent variables
-   against the ``app_globals`` object.. Variables stored against
+   against the ``app_globals`` object. Variables stored against
    ``app_globals`` are shared between all HTTP requests.
+
+.. py:data:: g
+
+   An alias for :py:data:`app_globals`.
 
 .. py:data:: h
 
@@ -51,7 +88,7 @@ templates in their top-level namespace:
    which contains information stored in the user's currently active session
    cookie.
 
-.. py:function:: _(value)
+.. py:function:: _()
 
    The `pylons.i18n.translation.ugettext(value) <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/modules/i18n_translation.html?highlight=ugettext#pylons.i18n.translation.ugettext>`_ function:
 
@@ -62,7 +99,7 @@ templates in their top-level namespace:
 
      _('This should be in lots of languages')
 
-.. py:function:: N_(value)
+.. py:function:: N_()
 
    The `pylons.i18n.translation.gettext_noop(value) <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/modules/i18n_translation.html?highlight=gettext_noop#pylons.i18n.translation.gettext_noop>`_ function:
 
@@ -113,12 +150,3 @@ templates in their top-level namespace:
 
    .. todo:: Remove this? Doesn't appear to be used and doesn't look like
              something we want.
-
-In addition to the above, any variables explicitly passed into a template by a
-controller action method when it calls ``render()`` will also be available to
-that template, in its top-level namespace.
-
-Any variables explicitly passed into a template snippet in the calling ``{%
-snippet %}`` tag will be available to the snippet in its top-level namespace,
-
-.. todo:: Add links to the default stuff that Jinja provides to all templates.

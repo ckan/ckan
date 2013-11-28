@@ -137,6 +137,8 @@ Set :ref:`debug` to ``true`` in your |development.ini| file::
     # WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
     debug = true
 
+.. _debug footer:
+
 Reload the `CKAN front page`_ in your browser, and you should see a *Debug*
 link in the footer at the bottom of the page. Click on this link to open the
 debug footer. The debug footer displays various information useful for CKAN
@@ -268,7 +270,7 @@ any template file:
 
      {{ a_variable_that_does_not_exist.an_attribute_that_does_not_exist }}
 
-   See the `Jinja2 docs <http://jinja.pocoo.org/docs/templates/#variables>`_
+   See the `Jinja2 variables docs <http://jinja.pocoo.org/docs/templates/#variables>`_
    for details.
 
 .. note::
@@ -371,9 +373,9 @@ template with its own code by using ``{% block %}``. Create the file
 .. literalinclude:: /../ckanext/example_theme/v05_block/templates/home/layout1.html
 
 This file extends the default ``layout1.html`` template, and overrides the
-``featured_group`` block.  Reload the `CKAN front page`_ in your browser.  You
-should see that the featured groups section of the page has been replaced, but
-the rest of the page remains intact.
+``featured_group`` block.  Restart the development web server and reload the
+`CKAN front page`_ in your browser.  You should see that the featured groups
+section of the page has been replaced, but the rest of the page remains intact.
 
 .. note::
 
@@ -582,6 +584,14 @@ number of CKAN's template helper functions:
   :py:func:`ungettext` function to mark the message for translation with
   localized handling of plural forms.
 
+The code also accesses the attributes of each group: ``{{ group.name }}`,
+``{{ group.display_name }}``, ``{{ group.description }}``,
+``{{ group.packages }}``, etc. To see what attributes a group or any other CKAN
+object (packages/datasets, organizations, users...) has, you can use
+:doc:`CKAN's API </api>` to inspect the object. For example to find out what
+attributes a group has, call the :py:func:`~ckan.logic.action.get.group_show`
+function.
+
 Now edit your |layout1.html| file and change it to use our new snippet instead
 of the default one:
 
@@ -600,6 +610,7 @@ of the default one:
    To avoid unintended conflicts, we recommend that snippet filenames begin
    with the name of the extension they belong to, e.g.
    ``snippets/example_theme_*.html``.
+   See :ref:`snippet filenames best practice`.
 
 .. note::
 

@@ -16,7 +16,7 @@ to use our file as the promoted image on the front page.
 
    If you're adding CSS files consider using Fanstatic instead of
    :ref:`extra_public_paths`, to take advantage of extra features.
-   See :doc:`css`. If you're adding |javascript| modules you have to
+   See :doc:`fanstatic`. If you're adding |javascript| modules you have to
    use Fanstatic, see :doc:`javascript`.
 
 First, create a ``public`` directory in your extension with a
@@ -68,5 +68,6 @@ tag itself, pointing it at our custom static image file:
 .. literalinclude:: /../ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html
    :start-after: {# Replace the promoted image. #}
 
-If you now reload the `CKAN front page`_ in your browser, you should see the
-promoted image replaced with our custom one.
+If you now restart the development web server and reload the `CKAN front page`_
+in your browser, you should see the promoted image replaced with our custom
+one.
