@@ -146,7 +146,7 @@ frontend development and debugging, including the names of the template files
 that were used to render the current page:
 
 .. image:: /images/debug-footer.png
-   :alt: The debug footer
+   :alt: The debug footer.
 
 The first template file listed is the one we're interested in::
 
@@ -416,7 +416,10 @@ Change the code in |layout1.html| to this:
 .. literalinclude:: /../ckanext/example_theme/v07_helper_function/templates/home/layout1.html
 
 Reload the `CKAN front page`_ in your browser and you should see a new activity
-stream.
+stream:
+
+.. image:: /images/recently-changed-packages-activity-stream.png
+   :alt: The recently changed packages activity stream.
 
 To call a template helper function we use a Jinja2 *expression* (code wrapped
 in ``{{ ... }}`` brackets), and we use the global variable ``h`` (available
@@ -482,7 +485,10 @@ Edit |layout1.html| to look like this:
 .. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/templates/home/layout1.html
 
 Now reload your `CKAN front page`_ in your browser. You should see the featured
-organization section replaced with a list of the most popular groups.
+organization section replaced with a list of the most popular groups:
+
+.. image:: /images/most-popular-groups.png
+   :alt: The most popular groups.
 
 Simply displaying a list of group titles isn't very good. We want the groups to
 be hyperlinked to their pages, and also to show some other information about
@@ -533,7 +539,10 @@ should document the parameters it requires.
 
 If you reload your `CKAN front page`_ in your web browser now, you should see
 the most popular groups rendered in the same style as the list of groups on
-the ``/groups`` page.
+the ``/groups`` page:
+
+.. image:: /images/most-popular-groups-snippet.png
+   :alt: The most popular groups, rendered by a default snippet.
 
 This style isn't really what we want for our front page, each group is too big.
 To render the groups in a custom style, we can define a custom snippet...
@@ -597,6 +606,12 @@ of the default one:
 
 .. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/home/layout1.html
 
+Restart the development web server and reload the `CKAN front page`_ and you
+should see the most popular groups rendered differently:
+
+.. image:: /images/most-popular-groups-custom-snippet.png
+   :alt: The most popular groups, rendered by a custom snippet.
+
 .. warning::
 
    Default snippets can be overridden.
@@ -658,3 +673,10 @@ To wrap your activity stream in a similar box, edit ``layout1.html`` to look
 like this:
 
 .. literalinclude:: /../ckanext/example_theme/v11_HTML_and_CSS/templates/home/layout1.html
+
+Reload the `CKAN front page`_, and you should see your activity stream and
+most popular groups looking much better:
+
+
+.. image:: /images/html_and_css.png
+   :alt: The activity stream and most popular groups, with better CSS.

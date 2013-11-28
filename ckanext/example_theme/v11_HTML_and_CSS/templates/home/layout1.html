@@ -6,7 +6,7 @@
       <h3>Recent activity</h3>
     </header>
     <div class="module-content">
-      {{ h.recently_changed_packages_activity_stream() }}
+      {{ h.recently_changed_packages_activity_stream(limit=4) }}
     </div>
   </div>
 {% endblock %}
