@@ -1299,7 +1299,7 @@ class PackageController(base.BaseController):
 
         for group in c.pkg_dict.get('groups', []):
             ## this could be pushed back to package dictize
-            group['display_name'] = group.get('titile') or group.get('name')
+            group['display_name'] = group.get('title') or group.get('name')
             group['user_member'] = (group['id'] in user_group_ids)
 
 
