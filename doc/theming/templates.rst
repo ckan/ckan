@@ -252,6 +252,27 @@ any template file:
 
 .. note::
 
+   If a template tries to render a variable or attribute that doesn't exist,
+   rather than crashing or giving an error message, the Jinja2 expression
+   simply evaluates to nothing (an empty string). For example, these Jinja2
+   expressions will output nothing::
+
+     {{ app_globals.an_attribute_that_does_not_exist }}
+
+     {{ a_variable_that_does_not_exist }}
+
+   If, on the other hand, you try to render an attribute of a variable that
+   doesn't exist, then Jinja2 will crash. For example, this Jinja2 expression
+   will crash with an
+   ``UndefinedError: 'a_variable_that_does_not_exist' is undefined``:
+
+     {{ a_variable_that_does_not_exist.an_attribute_that_does_not_exist }}
+
+   See the `Jinja2 docs <http://jinja.pocoo.org/docs/templates/#variables>`_
+   for details.
+
+.. note::
+
    Jinja2 expressions can do much more than print out the values of variables,
    for example
    they can call Jinja2's `global functions <http://jinja.pocoo.org/docs/templates/#list-of-global-functions>`_,
