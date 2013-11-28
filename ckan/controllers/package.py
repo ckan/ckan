@@ -19,6 +19,7 @@ import ckan.model as model
 import ckan.lib.datapreview as datapreview
 import ckan.lib.plugins
 import ckan.plugins as p
+import ckan.lib.render
 
 from ckan.common import OrderedDict, _, json, request, c, g, response
 from home import CACHE_PARAMETERS
@@ -220,7 +221,7 @@ class PackageController(base.BaseController):
                     'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license_id': _('License'),
+                    'license_id': _('Licenses'),
                     }
 
             for facet in g.facets:
@@ -301,6 +302,31 @@ class PackageController(base.BaseController):
         ct, mu, ext = accept.parse_header(request.headers.get('Accept', ''))
         return ct, ext, (NewTextTemplate, MarkupTemplate)[mu]
 
+    def resources(self, id):
+        package_type = self._get_package_type(id.split('@')[0])
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj}
+        data_dict = {'id': id}
+
+        try:
+            check_access('package_update', context)
+        except NotAuthorized, e:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+        # check if package exists
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg = context['package']
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
+        self._setup_template_variables(context, {'id': id},
+                                       package_type=package_type)
+
+        return render('package/resources.html')
+
     def read(self, id, format='html'):
         if not format == 'html':
             ctype, extension, loader = \
@@ -366,7 +392,15 @@ class PackageController(base.BaseController):
         template = self._read_template(package_type)
         template = template[:template.index('.') + 1] + format
 
-        return render(template, loader_class=loader)
+        try:
+            return render(template, loader_class=loader)
+        except ckan.lib.render.TemplateNotFound:
+            msg = _("Viewing {package_type} datasets in {format} format is "
+                    "not supported (template file {file} not found).".format(
+                    package_type=package_type, format=format, file=template))
+            abort(404, msg)
+
+        assert False, "We should never get here"
 
     def history(self, id):
         package_type = self._get_package_type(id.split('@')[0])
@@ -666,11 +700,14 @@ class PackageController(base.BaseController):
             abort(404, _('The dataset {id} could not be found.').format(id=id))
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
+        template = 'package/new_resource_not_draft.html'
         if pkg_dict['state'] == 'draft':
             vars['stage'] = ['complete', 'active']
+            template = 'package/new_resource.html'
         elif pkg_dict['state'] == 'draft-complete':
             vars['stage'] = ['complete', 'active', 'complete']
-        return render('package/new_resource.html', extra_vars=vars)
+            template = 'package/new_resource.html'
+        return render(template, extra_vars=vars)
 
     def new_metadata(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the

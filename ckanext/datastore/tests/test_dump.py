@@ -32,6 +32,7 @@ class TestDatastoreDump(object):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
+            'force': True,
             'aliases': 'books',
             'fields': [{'id': u'b\xfck', 'type': 'text'},
                        {'id': 'author', 'type': 'text'},

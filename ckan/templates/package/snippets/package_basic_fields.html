@@ -64,7 +64,7 @@
   {% endif %}
 
   {% if show_organizations_selector %}
-    {% set existing_org = data.owner_org %}
+    {% set existing_org = data.owner_org or data.group_id %}
     <div class="control-group">
       <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
       <div class="controls">
@@ -86,8 +86,8 @@
         <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
         <div class="controls">
           <select id="field-private" name="private">
-            {% for option in [(true, _('Private')), (false, _('Public'))] %}
-            <option value="{{ option[0] }}" {% if option[0] == data.private %}selected="selected"{% endif %}>{{ option[1] }}</option>
+            {% for option in [('True', _('Private')), ('False', _('Public'))] %}
+            <option value="{{ option[0] }}" {% if option[0] == data.private|trim %}selected="selected"{% endif %}>{{ option[1] }}</option>
             {% endfor %}
           </select>
         </div>
@@ -98,7 +98,5 @@
   {% if show_organizations_selector and show_visibility_selector %}
     </div>
   {% endif %}
-
-  {{ form.required_message() }}
 
 {% endblock %}

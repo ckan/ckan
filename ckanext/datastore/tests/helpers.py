@@ -1,6 +1,8 @@
 import ckan.model as model
 import ckan.lib.cli as cli
 
+import ckan.plugins as p
+
 
 def extract(d, keys):
     return dict((k, d[k]) for k in keys if k in d)
@@ -29,3 +31,12 @@ def rebuild_all_dbs(Session):
         model.repo.tables_created_and_initialised = False
     clear_db(Session)
     model.repo.rebuild_db()
+
+
+def set_url_type(resources, user):
+    context = {'user': user.name}
+    for resource in resources:
+        resource = p.toolkit.get_action('resource_show')(
+            context, {'id': resource.id})
+        resource['url_type'] = 'datastore'
+        p.toolkit.get_action('resource_update')(context, resource)

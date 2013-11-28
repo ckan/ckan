@@ -1,9 +1,12 @@
-{% extends "package/base.html" %}
+{% extends "package/edit_base.html" %}
 
 {% block primary_content %}
   <section class="module">
+    {% block page_header %}{% endblock %}
     <div class="module-content">
-      {% block form %}{{ c.form | safe }}{% endblock %}
+      {% block primary_content_inner %}
+        {% block form %}{{ c.form | safe }}{% endblock %}
+      {% endblock %}
     </div>
   </section>
 {% endblock %}
@@ -15,9 +18,9 @@
       <div class="module-content">
         <p>
           {% trans %}
-          Datasets are simply used to group related pieces of data. These
-          can then be found under a single url with a description and
-          licensing information.
+          A CKAN Dataset is a collection of data resources (such as files),
+          together with a description and other information, at a fixed URL.
+          Datasets are what users see when searching for data.
           {% endtrans %}
         </p>
       </div>

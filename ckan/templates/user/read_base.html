@@ -2,7 +2,7 @@
 
 {% set user = c.user_dict %}
 
-{% block subtitle %}{{ user.display_name }}{% endblock %}
+{% block subtitle %}{{ user.display_name }} - {{ _('Users') }}{% endblock %}
 
 {% block breadcrumb_content %}
   {{ h.build_nav('user_index', _('Users')) }}
@@ -10,9 +10,9 @@
 {% endblock %}
 
 {% block content_action %}
-{% if h.check_access('user_update', user) %}
-  {% link_for _('Edit'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}
-{% endif %}
+  {% if h.check_access('user_update', user) %}
+    {% link_for _('Manage'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}
+  {% endif %}
 {% endblock %}
 
 {% block content_primary_nav %}
@@ -75,6 +75,10 @@
         <dl>
           <dt>{{ _('Member Since') }}</dt>
           <dd>{{ h.render_datetime(user.created) }}</dd>
+        </dl>
+        <dl>
+          <dt>{{ _('State') }}</dt>
+          <dd>{{ user.state }}</dd>
         </dl>
         {% if c.is_myself %}
           <dl>

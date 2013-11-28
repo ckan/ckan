@@ -15,6 +15,7 @@ import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.navl.dictization_functions
+import ckan.model as model
 import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
@@ -90,8 +91,11 @@ def package_list(context, data_dict):
     col = (package_revision_table.c.id
         if api == 2 else package_revision_table.c.name)
     query = _select([col])
-    query = query.where(_and_(package_revision_table.c.state=='active',
-        package_revision_table.c.current==True))
+    query = query.where(_and_(
+                package_revision_table.c.state=='active',
+                package_revision_table.c.current==True,
+                package_revision_table.c.private==False,
+                ))
     query = query.order_by(col)
 
     limit = data_dict.get('limit')
@@ -689,6 +693,9 @@ def user_list(context, data_dict):
                  else_=model.User.fullname)
         )
 
+    # Filter deleted users
+    query = query.filter(model.User.state != model.State.DELETED)
+
     ## hack for pagination
     if context.get('return_query'):
         return query
@@ -1267,7 +1274,9 @@ def user_autocomplete(context, data_dict):
     q = data_dict['q']
     limit = data_dict.get('limit', 20)
 
-    query = model.User.search(q).limit(limit)
+    query = model.User.search(q)
+    query = query.filter(model.User.state != model.State.DELETED)
+    query = query.limit(limit)
 
     user_list = []
     for user in query.all():
@@ -1315,8 +1324,9 @@ def package_search(context, data_dict):
     :param facet.mincount: the minimum counts for facet fields should be
         included in the results.
     :type facet.mincount: int
-    :param facet.limit: the maximum number of constraint counts that should be
-        returned for the facet fields. A negative value means unlimited
+    :param facet.limit: the maximum number of values the facet fields return.
+        A negative value means unlimited. This can be set instance-wide with
+        the :ref:`search.facets.limit` config option. Default is 50.
     :type facet.limit: int
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.
@@ -1862,10 +1872,10 @@ def task_status_show(context, data_dict):
 
     context['task_status'] = task_status
 
+    _check_access('task_status_show', context, data_dict)
+
     if task_status is None:
         raise NotFound
-
-    _check_access('task_status_show', context, data_dict)
 
     task_status_dict = model_dictize.task_status_dictize(task_status, context)
     return task_status_dict
@@ -2320,7 +2330,16 @@ def organization_activity_list_html(context, data_dict):
 
     '''
     activity_stream = organization_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict.get('offset', 0))
+    extra_vars = {
+        'controller': 'organization',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset,
+        }
+
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.

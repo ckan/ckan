@@ -18,6 +18,29 @@ _check_access = ckan.logic.check_access
 _get_or_bust = ckan.logic.get_or_bust
 _get_action = ckan.logic.get_action
 
+
+def user_delete(context, data_dict):
+    '''Delete a user.
+
+    Only sysadmins can delete users.
+
+    :param id: the id or usernamename of the user to delete
+    :type id: string
+    '''
+
+    _check_access('user_delete', context, data_dict)
+
+    model = context['model']
+    user_id = _get_or_bust(data_dict, 'id')
+    user = model.User.get(user_id)
+
+    if user is None:
+        raise NotFound('User "{id}" was not found.'.format(id=user_id))
+
+    user.delete()
+    model.repo.commit()
+
+
 def package_delete(context, data_dict):
     '''Delete a dataset (package).
 

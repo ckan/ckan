@@ -162,5 +162,5 @@ def engine_is_sqlite(sa_engine=None):
 def engine_is_pg(sa_engine=None):
     # Returns true iff the engine is connected to a postgresql database.
     # According to http://docs.sqlalchemy.org/en/latest/core/engines.html#postgresql
-    # all Postgres driver names start with `postgresql`
-    return (sa_engine or engine).url.drivername.startswith('postgresql')
+    # all Postgres driver names start with `postgres`
+    return (sa_engine or engine).url.drivername.startswith('postgres')

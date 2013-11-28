@@ -50,7 +50,6 @@ within_tertiary
         <i class="icon-medium icon-filter"></i>
         {% set title = title or h.get_facet_title(name) %}
         {{ title }}
-        <a href="{{ h.remove_url_param(name, extras=extras, alternative_url=alternative_url) }}" class="action">{{ _('Clear All') }}</a>
       </h2>
       {% if items %}
         <nav>
