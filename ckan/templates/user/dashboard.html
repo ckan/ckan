@@ -1,5 +1,7 @@
 {% extends "user/edit_base.html" %}
 
+{% set user = c.userobj %}
+
 {% block breadcrumb_content %}
   <li class="active"><a href="{{ h.url_for(controller='user', action='dashboard') }}">{{ _('Dashboard') }}</a></li>
 {% endblock %}
