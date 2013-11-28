@@ -70,4 +70,8 @@ tag itself, pointing it at our custom static image file:
 
 If you now restart the development web server and reload the `CKAN front page`_
 in your browser, you should see the promoted image replaced with our custom
-one.
+one:
+
+
+.. image:: /images/extra-public-dir.png
+   :alt: The custom promoted image.
