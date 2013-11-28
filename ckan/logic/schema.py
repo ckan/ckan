@@ -351,6 +351,7 @@ def default_extras_schema():
         'state': [ignore],
         'deleted': [ignore_missing],
         'revision_timestamp': [ignore],
+        '__extras': [ignore],
     }
     return schema
 
