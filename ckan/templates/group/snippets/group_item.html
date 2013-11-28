@@ -38,7 +38,7 @@ Example:
     <span>{{ _('View {name}').format(name=group.display_name) }}</span>
   </a>
   {% if group.user_member %}
-    <button name="group_removed" value="{{ group.id }}" type="submit" class="btn btn-danger btn-small media-edit" title="{{ _('Remove this group from dataset') }}">{{ _('Remove') }}</button>
+    <button name="group_removed" value="{{ group.id }}" type="submit" class="btn btn-danger btn-small media-edit" title="{{ _('Remove dataset from this group') }}">{{ _('Remove') }}</button>
   {% endif %}
 </li>
 {% if position is divisibleby 3 %}
