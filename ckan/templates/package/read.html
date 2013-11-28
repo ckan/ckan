@@ -2,8 +2,6 @@
 
 {% set pkg = c.pkg_dict %}
 
-{% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
-
 {% block primary_content_inner %}
   {{ super() }}
   {% block package_description %}
