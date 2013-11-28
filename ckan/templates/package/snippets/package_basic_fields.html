@@ -64,7 +64,7 @@
   {% endif %}
 
   {% if show_organizations_selector %}
-    {% set existing_org = data.owner_org %}
+    {% set existing_org = data.owner_org or data.group_id %}
     <div class="control-group">
       <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
       <div class="controls">
