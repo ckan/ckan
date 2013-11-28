@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ c.group_dict.display_name }}{% endblock %}
+{% block subtitle %}{{ c.group_dict.display_name }} - {{ _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
@@ -9,7 +9,7 @@
 
 {% block content_action %}
   {% if h.check_access('group_update', {'id': c.group_dict.id}) %}
-    {% link_for _('Edit'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='wrench' %}
+    {% link_for _('Manage'), controller='group', action='edit', id=c.group_dict.name, class_='btn', icon='wrench' %}
   {% endif %}
 {% endblock %}
 
