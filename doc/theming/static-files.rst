@@ -12,12 +12,14 @@ a plugin can make a directory of static files available to be used or linked to
 by templates. Let's add a static image file, and change the home page template
 to use our file as the promoted image on the front page.
 
-.. note::
+.. seealso::
 
-   If you're adding CSS files consider using Fanstatic instead of
-   :ref:`extra_public_paths`, to take advantage of extra features.
-   See :doc:`fanstatic`. If you're adding |javascript| modules you have to
-   use Fanstatic, see :doc:`javascript`.
+   :doc:`fanstatic`
+
+    If you're adding CSS files consider using Fanstatic instead of
+    :ref:`extra_public_paths`, to take advantage of extra features.
+    See :doc:`fanstatic`. If you're adding |javascript| modules you have to
+    use Fanstatic, see :doc:`javascript`.
 
 First, create a ``public`` directory in your extension with a
 ``promoted-image.jpg`` file in it::
