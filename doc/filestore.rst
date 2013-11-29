@@ -95,4 +95,6 @@ there is special boolean field clear_upload to do this::
 
     curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' --form url=http://expample.com --form clear_upload=true --form id=resourceid
 
+It is also possible to have uploaded files (if of a suitable format) stored in
+the DataStore which will then provides an API to the data. See :ref:`datapusher` for more details.
 

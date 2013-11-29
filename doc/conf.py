@@ -50,6 +50,7 @@ rst_epilog = '''
 .. |storage_path| replace:: |storage_parent_dir|/default
 .. |reload_apache| replace:: sudo service apache2 reload
 .. |restart_apache| replace:: sudo service apache2 restart
+.. |restart_solr| replace:: sudo service jetty restart
 .. |solr| replace:: Solr
 .. |restructuredtext| replace:: reStructuredText
 .. |nginx| replace:: Nginx
@@ -58,6 +59,8 @@ rst_epilog = '''
 .. |sqlalchemy| replace:: SQLAlchemy
 .. |javascript| replace:: JavaScript
 .. |apache| replace:: Apache
+.. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan_default
+.. |reload_nginx| replace:: sudo service nginx reload
 
 '''
 
@@ -78,7 +81,7 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'contents'
 
 # General information about the project.
 project = u'CKAN'
@@ -88,7 +91,7 @@ copyright = u'''&copy; 2009-2013, <a href="http://okfn.org/">Open Knowledge Foun
     href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />
     <img src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" alt="CC License Logo" />
-    <a href="http://opendefinition.org/"><img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0" 
+    <a href="http://opendefinition.org/"><img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0"
       alt="{{ _('Open Content') }}" /></a>
   '''
 html_show_sphinx = False
@@ -147,7 +150,7 @@ pygments_style = 'sphinx'
 #'sidebarbgcolor': '#F2F2F2',
 #'sidebartextcolor': 'black',
 #'sidebarlinkcolor': '#355F7C',
-#'headfont': 'Trebuchet MS'    
+#'headfont': 'Trebuchet MS'
 #}
 sys.path.append(os.path.abspath('_themes'))
 html_theme_path = ['_themes']
@@ -235,7 +238,7 @@ htmlhelp_basename = 'ComprehensiveKnowledgeArchiveNetworkCKANdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'ComprehensiveKnowledgeArchiveNetworkCKAN.tex', ur'Comprehensive Knowledge Archive Network (CKAN) Developer Documentation',
+  ('contents', 'ComprehensiveKnowledgeArchiveNetworkCKAN.tex', ur'Comprehensive Knowledge Archive Network (CKAN) Developer Documentation',
    ur'Open Knowledge Foundation', 'manual'),
 ]
 
