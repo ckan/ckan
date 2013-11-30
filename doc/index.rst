@@ -1,6 +1,6 @@
-===============================
-Welcome to CKAN's Documentation
-===============================
+=============================
+Welcome to CKAN Documentation
+=============================
 
 This documentation covers how to set up and manage `CKAN <http://ckan.org>`_.
 For high-level information on what CKAN is, see the
@@ -34,3 +34,22 @@ advanced documentation last:
   covering CKAN's config file options and the differences between CKAN
   releases.
 
+Full Table of Contents
+======================
+
+.. toctree::
+
+   installing
+   upgrading
+   getting-started
+   features
+   extensions/index
+   theming
+   api
+   contributing
+   test
+   configuration
+   changelog
+   appendices/index
+   user-guide
+   syadmin-guide

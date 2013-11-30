@@ -80,7 +80,7 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8'
 
 # The master toctree document.
-master_doc = 'contents'
+master_doc = 'index'
 
 # General information about the project.
 project = u'CKAN'
@@ -155,7 +155,7 @@ sys.path.append(os.path.abspath('_themes'))
 html_theme_path = ['_themes']
 html_theme = 'sphinx-theme-okfn'
 html_theme_options = {
-        'logo_icon': 'ckanlogo.png',
+        'logo_icon': 'http://assets.okfn.org/p/ckan/img/ckan_logo_box.png',
         'show_version': True
     }
 
@@ -170,10 +170,10 @@ html_sidebars = {
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-# html_title = "%s v%s Guide" % (project, release)
+html_title = "%s v%s Docs" % (project, release)
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-# html_short_title = "%s Admin Guide" % (project_short_name)
+html_short_title = "%s Guide" % (project_short_name)
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
@@ -187,7 +187,7 @@ html_sidebars = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
