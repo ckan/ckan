@@ -9,8 +9,9 @@ displayed against groups and organizations.
    Previous versions of CKAN used to allow uploads to remote cloud hosting but
    we have simplified this to only alow local file uploads.  This is to give
    CKAN more control over the files and make access control possible.  If you
-   are already using pairtree local file storage then you should keep your
-   current settings, without change.
+   are already using pairtree local file storage then you must keep your
+   current settings, otherwise users will not be also able to download the old
+   uploaded files.
 
 -------------------------------------------
 Setup File Uploads
@@ -60,7 +61,7 @@ FileStore API
 
 .. versionchanged:: 2.2
     The previous API has been depricated although should still work if you where
-    using loca file storage.
+    using local file storage.
 
 The api is part of the resource_create and resource_update action api
 functions. You can post mutipart/form-data to the api and the key, value

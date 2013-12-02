@@ -241,8 +241,6 @@ def resource_create(context, data_dict):
     :type webstore_last_updated: iso date string
     :param upload: (optional)
     :type upload: FieldStorage (optional) needs multipart/form-data
-    :param clear_upload: (optional)
-    :type clear_upload: boolean (optional) set to true to remove uplaoded file
 
     :returns: the newly created resource
     :rtype: dictionary

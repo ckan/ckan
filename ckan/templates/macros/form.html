@@ -419,7 +419,7 @@ Example
 
   {% if is_upload_enabled %}
     {{ input(field_upload, label=upload_label, id='field-image-upload', type='file', placeholder='', value='', error='', classes=['control-full']) }}
-    {% if is_uploadu%}
+    {% if is_upload %}
       {{ checkbox(field_clear, label=_('Clear Upload'), id='field-clear-upload', value='true', error='', classes=['control-full']) }}
     {% endif %}
   {% endif %}

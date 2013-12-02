@@ -1234,7 +1234,6 @@ class PackageController(base.BaseController):
                status, headers, app_iter = request.call_application(fileapp)
             except OSError:
                abort(404, _('Resource data not found'))
-            status, headers, app_iter = request.call_application(fileapp)
             response.headers.update(dict(headers))
             content_type, content_enc = mimetypes.guess_type(rsc.get('url',''))
             response.headers['Content-Type'] = content_type

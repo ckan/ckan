@@ -148,6 +148,8 @@ def resource_dictize(res, context):
     resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
+    ## for_edit is only called at the times when the dataset is to be edited
+    ## without for_edit the whole qualified resource is returned.
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
         resource_group = model.Session.query(
             model.ResourceGroup).get(resource_group_id)
