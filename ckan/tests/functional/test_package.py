@@ -6,6 +6,7 @@ from difflib import unified_diff
 from nose.tools import assert_equal
 
 from ckan.tests import *
+import ckan.tests as tests
 from ckan.tests.html_check import HtmlCheckMethods
 from ckan.tests.pylons_controller import PylonsTestCase
 from base import FunctionalTestCase
@@ -1505,3 +1506,43 @@ class TestAutocomplete(PylonsTestCase, TestPackageBase):
         expected = ['A Wonderful Story (warandpeace)|warandpeace','annakarenina|annakarenina']
         received = sorted(res.body.split('\n'))
         assert expected == received
+
+class TestResourceListing(TestPackageBase):
+    @classmethod
+    def setup_class(cls):
+
+        CreateTestData.create()
+        cls.tester_user = model.User.by_name(u'tester')
+        cls.extra_environ_admin = {'REMOTE_USER': 'testsysadmin'}
+        cls.extra_environ_tester = {'REMOTE_USER': 'tester'}
+        cls.extra_environ_someone_else = {'REMOTE_USER': 'someone_else'}
+
+        tests.call_action_api(cls.app, 'organization_create',
+                                        name='test_org_2',
+                                        apikey=cls.tester_user.apikey)
+
+        tests.call_action_api(cls.app, 'package_create',
+                                        name='crimeandpunishment',
+                                        owner_org='test_org_2',
+                                        apikey=cls.tester_user.apikey)
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def test_resource_listing_premissions_sysadmin(self):
+        # sysadmin 200
+         self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_admin, status=200)
+
+    def test_resource_listing_premissions_auth_user(self):
+        # auth user 200
+         self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_tester, status=200)
+
+    def test_resource_listing_premissions_non_auth_user(self):
+        # non auth user 401
+         self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_someone_else, status=[302,401])
+
+    def test_resource_listing_premissions_not_logged_in(self):
+        # not logged in 401
+         self.app.get('/dataset/resources/crimeandpunishment', status=[302,401])
+
