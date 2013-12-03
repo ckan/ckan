@@ -85,6 +85,12 @@ textarea {
 
 .form-actions .control-required-message {
   float: left;
+  margin-left: 20px;
+  margin-bottom: 0;
+  line-height: 30px;
+  &:first-child {
+    margin-left: 0;
+  }
 }
 
 .form-actions {
@@ -237,18 +243,21 @@ textarea {
 }
 
 .simple-input .field .btn-search {
-  .ckan-icon;
-  .ckan-icon-search;
   position: absolute;
   display: block;
   height: 17px;
   width: 17px;
+  padding: 0;
   top: 50%;
   right: 0;
-  margin-top: -8px;
+  margin-top: -10px;
   background-color: transparent;
   border: none;
-  text-indent: -999em;
+  color: #999;
+  .transition(color 0.2s ease-in);
+  &:hover {
+    color: #000;
+  }
 }
 
 .editor textarea {
