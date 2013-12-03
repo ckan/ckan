@@ -253,18 +253,13 @@ installed, we need to install and configure Solr.
 
         JAVA_HOME=/usr/lib/jvm/java-6-openjdk-i386/
 
-#. Replace the default ``schema.xml`` file with a symlink to your CKAN schema
-   file.
-   There are multiple versions of CKAN's schema file in
-   |virtualenv|/src/ckan/ckan/config/solr/. Use the newest schema file whose version
-   number is the same as or older than the version of CKAN you're using. For
-   example, if you're using CKAN 2.1.1 then you would use the ``schema-2.0.xml``
-   file (because there is no ``schema-2.1.xml`` file):
+#. Replace the default ``schema.xml`` file with a symlink to the CKAN schema
+   file included in the sources.
 
    .. parsed-literal::
 
       sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
-      sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
+      sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
 
    Now restart Solr:
 
