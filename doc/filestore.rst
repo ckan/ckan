@@ -58,7 +58,7 @@ FileStore API
 -----------------------
 
 .. versionchanged:: 2.2
-    The previous API has been depricated although should still work if you where
+    The previous API has been deprecated although should still work if you where
     using local file storage.
 
 The api is part of the resource_create and resource_update action api
