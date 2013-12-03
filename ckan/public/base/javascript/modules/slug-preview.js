@@ -9,6 +9,8 @@ this.ckan.module('slug-preview-target', {
       el.after(preview);
     });
 
+    // Make sure there isn't a value in the field already...
+    if (el.val() == '') {
     // Once the preview box is modified stop watching it.
     sandbox.subscribe('slug-preview-modified', function () {
       el.off('.slug-preview');
@@ -20,6 +22,7 @@ this.ckan.module('slug-preview-target', {
       sandbox.publish('slug-target-changed', this.value);
       //slug.val(this.value).trigger('change');
     });
+    }
   }
 });
 
