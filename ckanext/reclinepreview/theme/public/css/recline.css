@@ -2,7 +2,7 @@ body {
   background-color: #fff;
 }
 
-.recline-data-explorer{
+.recline-data-explorer {
   position: relative;
   overflow: auto;
 }
@@ -17,6 +17,24 @@ body {
 
 .recline-timeline .vmm-timeline {
   height: 600px;
+}
+
+.recline-pager .pagination {
+  margin: 10px 0 0 0;
+}
+
+.recline-pager .pagination ul {
+  box-shadow: none;
+}
+
+.recline-pager .pagination a {
+  padding: 0 10px;
+}
+
+.recline-pager .pagination input {
+  width: 30px;
+  margin: 0;
+  padding: 2px 4px;
 }
 
 .loading-spinner {
