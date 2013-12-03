@@ -7,11 +7,9 @@ displayed against groups and organizations.
 
 .. versionchanged:: 2.2
    Previous versions of CKAN used to allow uploads to remote cloud hosting but
-   we have simplified this to only alow local file uploads.  This is to give
-   CKAN more control over the files and make access control possible.  If you
-   are already using pairtree local file storage then you must keep your
-   current settings, otherwise users will not be also able to download the old
-   uploaded files.
+   we have simplified this to only alow local file uploads (see below for
+   details on how to migrate). This is to give CKAN more control over the files
+   and make access control possible.
 
 -------------------------------------------
 Setup File Uploads
@@ -98,4 +96,27 @@ there is special boolean field clear_upload to do this::
 
 It is also possible to have uploaded files (if of a suitable format) stored in
 the DataStore which will then provides an API to the data. See :ref:`datapusher` for more details.
+
+--------------------------
+Migration from 2.1 to 2.2
+--------------------------
+
+If you are using pairtree local file storage then you can keep your current settings
+without issue.  The pairtree and new storage can live side by side but you are still
+encouraged to migrate.  If you change your config options to the ones specified in
+this docs you will need to run the migration below.
+
+If you are running remote storage then all previous links will still be accessible
+but if you want to move the remote storage documents to the local storage you will
+run the migration also.
+
+In order to migrate make sure your CKAN instance is running as the script will
+request the data from the instance using apis.  You need to run the following
+on the command line todo the migration::
+
+    paster db migrate-filestore
+
+This may take a long time especially if you have a lot of files remotely.
+If the remote hosting goes down or the job is interrupted it is save to run it again
+and it will try all the unsuccessful ones again.
 
