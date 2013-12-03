@@ -35,7 +35,7 @@ become stable releases.
         <schema name="ckan" version="{version}">
 
     * Update the ``SUPPORTED_SCHEMA_VERSIONS`` list in
-    ``ckan/lib/search/__init__.py``
+      ``ckan/lib/search/__init__.py``
 
 #. During the beta process, all changes to the release branch must be
    cherry-picked from master (or merged from special branches based on the
