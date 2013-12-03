@@ -153,6 +153,7 @@ def datapusher_hook(context, data_dict):
     task['state'] = status
     task['last_updated'] = str(datetime.datetime.now())
 
+    context['ignore_auth'] = True
     p.toolkit.get_action('task_status_update')(context, task)
 
 
