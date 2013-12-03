@@ -13,7 +13,7 @@ import pprint
 import distutils.version
 import sqlalchemy
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
-                            DBAPIError, DataError)
+                            DBAPIError, DataError, SQLAlchemyError)
 import psycopg2.extras
 import ckan.lib.cli as cli
 import ckan.plugins.toolkit as toolkit
@@ -1245,29 +1245,39 @@ def alter_column_name(context, data_dict):
     for field in supplied_fields:
         #check fields we want to change exist
         if field['from'] not in current_fields:
+            context['connection'].close()
             raise ValidationError({
                 'rename_column': ['{0} column does not exist'.format(field)]
             })
         #check names we want to change to are valid
         if not _is_valid_field_name(field['to']):
+            context['connection'].close()
             raise ValidationError({
                 'fields': ['"{0}" is not a valid field name'.format(field)] })
 
-    #delete any previous aliases so we can run the alter table statements
-    previous_aliases = _get_aliases(context, data_dict)
-    for alias in previous_aliases:
-        context['connection'].execute(u'DROP VIEW "{0}"'.format(alias))
 
     resource_id = data_dict['resource_id']
     sql = 'ALTER TABLE "{table}" RENAME COLUMN "{old}" TO "{new}"'
     transaction = context['connection'].begin()
     try:
+        #delete any previous aliases so we can run the alter table statements
+        previous_aliases = _get_aliases(context, data_dict)
+        for alias in previous_aliases:
+            context['connection'].execute(u'DROP VIEW "{0}"'.format(alias))
+
         #TODO: rewrite so it executes as a single alter statement?
         for field in supplied_fields:
             context['connection'].execute(sql.format(table=resource_id,
                 old=field['from'], new=field['to']))
+
+        new_fields = _get_fields(context, data_dict)
+
+        #recreate the aliases we deleted
+        data_dict['aliases'] = previous_aliases
+        create_alias(context, data_dict)
+
         transaction.commit()
-    except ProgrammingError, e:
+    except SQLAlchemyError, e:
         log.critical("Error altering resource tables columns. {0}".format(e.message))
         transaction.rollback()
         raise ValidationError({
@@ -1278,12 +1288,14 @@ def alter_column_name(context, data_dict):
                 'pgcode': e.orig.pgcode
             }
         })
-
-    #recreate the aliases we deleted
-    data_dict['aliases'] = previous_aliases
-    create_alias(context, data_dict)
+    finally:
+        context['connection'].close()
     
-    return _get_fields(context, data_dict)
+    return { 
+        'success': True,
+        'resource_id': resource_id,
+        'fields': new_fields
+    }
 
 def alter_column_type(context, data_dict):
     engine = _get_engine(data_dict)

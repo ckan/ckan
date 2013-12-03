@@ -50,7 +50,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if sys.argv[0].split('/')[-1] == 'paster' and 'datastore' in sys.argv[1:]:
             log.warn('Omitting permission checks because you are '
                      'running paster commands.')
-            return
+            pass
 
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore.write_url']
@@ -208,6 +208,7 @@ class DatastorePlugin(p.SingletonPlugin):
                    'datastore_upsert': action.datastore_upsert,
                    'datastore_delete': action.datastore_delete,
                    'datastore_search': action.datastore_search,
+                   'datastore_rename_column': action.datastore_rename_column,
                   }
         if not self.legacy_mode:
             actions.update({
