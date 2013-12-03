@@ -1234,3 +1234,122 @@ def make_public(context, data_dict):
         trans.commit()
     finally:
         context['connection'].close()
+
+
+def alter_column_name(context, data_dict):
+    engine = _get_engine(data_dict)
+    context['connection'] = engine.connect()
+    supplied_fields = data_dict.get('fields', {})
+
+    current_fields = set([i['id'] for i in _get_fields(context, data_dict)])
+    for field in supplied_fields:
+        #check fields we want to change exist
+        if field['from'] not in current_fields:
+            raise ValidationError({
+                'rename_column': ['{0} column does not exist'.format(field)]
+            })
+        #check names we want to change to are valid
+        if not _is_valid_field_name(field['to']):
+            raise ValidationError({
+                'fields': ['"{0}" is not a valid field name'.format(field)] })
+
+    #delete any previous aliases so we can run the alter table statements
+    previous_aliases = _get_aliases(context, data_dict)
+    for alias in previous_aliases:
+        context['connection'].execute(u'DROP VIEW "{0}"'.format(alias))
+
+    resource_id = data_dict['resource_id']
+    sql = 'ALTER TABLE "{table}" RENAME COLUMN "{old}" TO "{new}"'
+    transaction = context['connection'].begin()
+    try:
+        #TODO: rewrite so it executes as a single alter statement?
+        for field in supplied_fields:
+            context['connection'].execute(sql.format(table=resource_id,
+                old=field['from'], new=field['to']))
+        transaction.commit()
+    except ProgrammingError, e:
+        log.critical("Error altering resource tables columns. {0}".format(e.message))
+        transaction.rollback()
+        raise ValidationError({
+            'alter_column': [u'cannot alter column in table "{0}" '.format(
+                           data_dict['resource_id'])],
+            'info': {
+                'orig': str(e.orig),
+                'pgcode': e.orig.pgcode
+            }
+        })
+
+    #recreate the aliases we deleted
+    data_dict['aliases'] = previous_aliases
+    create_alias(context, data_dict)
+    
+    return _get_fields(context, data_dict)
+
+def alter_column_type(context, data_dict):
+    engine = _get_engine(data_dict)
+    context['connection'] = engine.connect()
+
+    supplied_fields = data_dict.get('fields', [])
+    check_fields(context, supplied_fields)
+    
+    current_fields = dict([(i['id'],i['type'])
+        for i in _get_fields(context, data_dict)])
+
+    # only include fields where the type has changed
+    alter_fields = dict([(i['id'], i['type'])
+        for i in supplied_fields if i['type'] != current_fields[i['id']]
+    ])
+
+    #if not alter_fields:
+    #    raise ValidationError({'fields': 'No fields to alter'})
+    
+    #if supplied fields do not exist in the current
+    if set(alter_fields.keys()) - set(current_fields.keys()):
+        #then supplied field does not exist
+        raise ValidationError({'column': 'field does not exist'})
+
+    #delete any previous aliases so we can run the alter table statements
+    previous_aliases = _get_aliases(context, data_dict)
+    for alias in previous_aliases:
+        context['connection'].execute(u'DROP VIEW "{0}"'.format(alias))
+
+    resource_id = data_dict['resource_id']
+    transaction =  context['connection'].begin()
+    try:
+        for column, type in alter_fields.items():
+            statement = _get_alter_statement(data_dict['resource_id'], column, current_fields[column], type)
+            context['connection'].execute(
+                    statement.format(table=resource_id, column=column, type=type))
+
+        transaction.commit()
+    except ProgrammingError, e:
+        log.critical("Error altering resource tables columns. {0}".format(e.message))
+        transaction.rollback()
+        raise ValidationError({
+            'alter_column': [u'cannot alter column in table "{0}" '.format(
+                           data_dict['resource_id'])],
+            'info': {
+                'orig': str(e.orig),
+                'pgcode': e.orig.pgcode
+            }
+        })
+
+    #recreate the aliases we deleted
+    data_dict['aliases'] = previous_aliases
+    create_alias(context, data_dict)
+
+    return _get_fields(context, data_dict)
+
+
+def _get_alter_statement(table, column, from_type, to_type):
+    statements = {
+        ('numeric', 'text') : '',
+        ('timestamp', 'text') : '',
+        ('text', 'numeric') : 'using nullif("{column}", \'\')::numeric',
+        ('text', 'timestamp') : 'using nullif("{column}", \'\')::timestamp',
+        ('timestamp', 'numeric') : 'using cast(extract(epoch from current_timestamp) as integer)',
+        ('numeric', 'timestamp') : 'using timestamp  \'epoch\' + "{column}" * interval \'1 second\'',
+    }
+    sql = 'ALTER TABLE "{table}" ALTER COLUMN "{column}" TYPE {type}'
+    statement = " ".join([sql, statements[(from_type, to_type)]])
+    return statement.format(table=table, column=column, type=to_type)

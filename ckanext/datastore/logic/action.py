@@ -341,6 +341,35 @@ def datastore_search(context, data_dict):
     result.pop('connection_url')
     return result
 
+def datastore_rename_column(context, data_dict):
+    schema = context.get('schema', dsschema.datastore_rename_column_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise p.toolkit.ValidationError(errors)
+    #_check_access()
+    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
+    return db.alter_column_name(context, data_dict)
+
+
+def datastore_alter_column_type(context, data_dict):
+    schema = context.get('schema', dsschema.datastore_alter_column_schema())
+    data_dict, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise p.toolkit.ValidationError(errors)
+
+    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
+    altered_columns = db.alter_column_type(context, data_dict)
+    model = _get_or_bust(context, 'model')
+    resource = p.toolkit.get_action('resource_show')(context,
+        {'id': data_dict['resource_id']})
+    resource_column_types = dict([ (i['id'], i['type']) for i in altered_columns ])
+    resource['column_types'] = resource_column_types
+    p.toolkit.get_action('resource_update')(context, resource)
+
+    again_resource = p.toolkit.get_action('resource_show')(context,
+        {'id': data_dict['resource_id']})
+    return altered_columns
+
 
 @logic.side_effect_free
 def datastore_search_sql(context, data_dict):
