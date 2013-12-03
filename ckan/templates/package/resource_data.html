@@ -32,7 +32,7 @@
     </colgroup>
     <tr>
       <th>{{ _('Status') }}</th>
-      <td>{{ status.status.capitalize() if status.status else _('Not Uploaded Yet') }}</td>
+      <td>{{ h.datapusher_status_description(status) }}</td>
     </tr>
     <tr>
       <th>{{ _('Last updated') }}</th>
