@@ -336,7 +336,11 @@ def group_dictize(group, context):
     context['with_capacity'] = True
 
     query = search.PackageSearchQuery()
-    q = {'fl': 'id,name'}
+    package_keys = [u'id', u'name', u'author', u'capacity',u'url', u'title',
+            u'notes', u'owner_org', u'private', u'maintainer_email',
+            u'author_email', u'state', u'version', u'license_id',
+            u'maintainer', u'revision_id', u'type', ]
+    q = {'fl': ','.join(package_keys)}
     is_group_member = new_authz.has_user_permission_for_group_or_org(group.id,
             context.get('user'), 'read')
     capacity = ' +capacity:public'
