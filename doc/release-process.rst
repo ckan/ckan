@@ -12,7 +12,7 @@ Doing a Beta Release
 Beta releases are branched off a certain point in master and will eventually
 become stable releases.
 
-1. Create a new release branch::
+#. Create a new release branch::
 
         git checkout -b release-v1.8
 
@@ -26,11 +26,22 @@ become stable releases.
    You will probably need to update the same file on master to increase the
    version number, in this case ending with an *a* (for alpha).
 
-2. During the beta process, all changes to the release branch must be
+#. Check if there have been changes in the |solr| schema at
+   ``ckan/config/solr/schema.xml``, and if so:
+
+    * Update the ``version`` attribute of the ``schema`` with the current CKAN
+      version::
+
+        <schema name="ckan" version="{version}">
+
+    * Update the ``SUPPORTED_SCHEMA_VERSIONS`` list in
+      ``ckan/lib/search/__init__.py``
+
+#. During the beta process, all changes to the release branch must be
    cherry-picked from master (or merged from special branches based on the
    release branch if the original branch was not compatible).
 
-3. As in the master branch, if some commits involving CSS changes are
+#. As in the master branch, if some commits involving CSS changes are
    cherry-picked from master, the less compiling command needs to be run on
    the release branch. This will update the ``main.css`` file::
 
@@ -40,10 +51,10 @@ become stable releases.
 
    There will be a final front-end build before the actual release.
 
-4. The beta staging site (http://beta.ckan.org, currently on s084) should be
+#. The beta staging site (http://beta.ckan.org, currently on s084) should be
    updated regularly to allow user testing.
 
-5. Once the translation freeze is in place (ie no changes to the translatable
+#. Once the translation freeze is in place (ie no changes to the translatable
    strings are allowed), strings need to be extracted and uploaded to
    Transifex_:
 

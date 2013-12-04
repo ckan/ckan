@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
+    THIS FILE IS DEPRECATED
+    Starting from CKAN 2.2 the Solr schema file that should be used is
+    `schema.xml`.
+
+    This file is maintained for backwards compatibility purposes but might
+    be removed in future vesions.
+-->
+<!--
  Licensed to the Apache Software Foundation (ASF) under one or more
  contributor license agreements.  See the NOTICE file distributed with
  this work for additional information regarding copyright ownership.
