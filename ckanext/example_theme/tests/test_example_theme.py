@@ -37,6 +37,7 @@ class TestExampleEmptyPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v01_empty_extension')
+        config['ckan.legacy_templates'] = True
 
     def test_front_page_loads_okay(self):
 
@@ -60,6 +61,7 @@ class TestExampleEmptyTemplatePlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v02_empty_template')
+        config['ckan.legacy_templates'] = True
 
     def test_front_page_is_empty(self):
         offset = toolkit.url_for(controller='home', action='index')
@@ -76,6 +78,7 @@ class TestExampleJinjaPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v03_jinja')
+        config['ckan.legacy_templates'] = True
 
     def test_site_title(self):
         offset = toolkit.url_for(controller='home', action='index')
@@ -114,6 +117,7 @@ class TestExampleCKANExtendsPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v04_ckan_extends')
+        config['ckan.legacy_templates'] = True
 
     def test_front_page(self):
 
@@ -141,6 +145,7 @@ class TestExampleBlockPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v05_block')
+        config['ckan.legacy_templates'] = True
 
     def test_front_page(self):
         offset = toolkit.url_for(controller='home', action='index')
@@ -157,6 +162,7 @@ class TestExampleSuperPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v06_super')
+        config['ckan.legacy_templates'] = True
 
     def test_front_page(self):
         offset = toolkit.url_for(controller='home', action='index')
@@ -198,6 +204,7 @@ class TestExampleHelperFunctionPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v07_helper_function')
+        config['ckan.legacy_templates'] = True
 
     def test_helper_function(self):
 
@@ -227,6 +234,7 @@ class TestExampleCustomHelperFunctionPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v08_custom_helper_function')
+        config['ckan.legacy_templates'] = True
 
     def test_most_popular_groups(self):
 
@@ -269,6 +277,7 @@ class TestExampleSnippetPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v09_snippet')
+        config['ckan.legacy_templates'] = True
 
     def test_snippet(self):
 
@@ -291,6 +300,7 @@ class TestExampleCustomSnippetPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v10_custom_snippet')
+        config['ckan.legacy_templates'] = True
 
     def test_most_popular_groups(self):
 
@@ -337,6 +347,7 @@ class TestExampleHTMLAndCSSPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v11_HTML_and_CSS')
+        config['ckan.legacy_templates'] = True
 
     def test_most_popular_groups(self):
 
@@ -383,6 +394,7 @@ class TestExampleCustomCSSPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v13_custom_css')
+        config['ckan.legacy_templates'] = True
 
     def test_custom_css(self):
 
@@ -409,6 +421,7 @@ class TestExampleMoreCustomCSSPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v14_more_custom_css')
+        config['ckan.legacy_templates'] = True
 
     def test_custom_css(self):
 
@@ -435,6 +448,7 @@ class TestExampleFanstaticPlugin(object):
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_theme_v15_fanstatic')
+        config['ckan.legacy_templates'] = True
 
     def test_fanstatic(self):
 
