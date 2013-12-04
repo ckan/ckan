@@ -1320,10 +1320,28 @@ locale, or ``/de/some/url`` when using the "de" locale, for example. This
 lets you change this. You can use any path that you want, adding ``{{LANG}}``
 where you want the locale code to go.
 
+.. _ckan.resource_formats:
 
+ckan.resource_formats
+^^^^^^^^^^^^^^^^^^^^^
 
+Example::
+    ckan.resource_formats = /path/to/resource_formats
 
+Default value: ckan/config/resource_formats.json
 
+The purpose of this file is to supply a thorough list of resource formats
+and to make sure the formats are normalized when saved to the database
+and presented.
+
+The format of the file is a json object withe following format::
+
+    key:  potential user input value lowercased
+    value:  [canonical mimetype,
+             canonical format,
+             human readable format description]
+
+Please look in ckan/confg/resource_formats.json for a full example.
 
 
 Form Settings

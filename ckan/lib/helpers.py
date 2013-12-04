@@ -9,6 +9,7 @@ import email.utils
 import datetime
 import logging
 import re
+import os
 import urllib
 import pprint
 import copy
@@ -38,6 +39,7 @@ import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
+import ckan.config
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -1742,6 +1744,35 @@ def get_site_statistics():
     stats['related_count'] = result
 
     return stats
+
+_RESOURCE_FORMATS = None
+
+def resource_formats():
+    ''' Format of the data in resource format file.
+    key:  potential user input value
+    value:  [canonical mimetype lowercased, canonical format, human readable form]
+    '''
+    global _RESOURCE_FORMATS
+    if not _RESOURCE_FORMATS:
+        format_file_path = config.get('ckan.resource_formats')
+        if not format_file_path:
+            format_file_path = os.path.join(
+                os.path.dirname(os.path.realpath(ckan.config.__file__)),
+                'resource_formats.json'
+            )
+        with open(format_file_path) as format_file:
+           _RESOURCE_FORMATS = json.loads(format_file.read())
+    return _RESOURCE_FORMATS
+
+
+def unified_resource_format(format):
+    formats = resource_formats()
+    format_clean = format.lower()
+    if format_clean in formats:
+        format_new = formats[format_clean][1]
+    else:
+        format_new = format
+    return format_new
 
 
 # these are the functions that will end up in `h` template helpers
