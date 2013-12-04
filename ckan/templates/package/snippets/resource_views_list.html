@@ -1,5 +1,6 @@
 <ul class="view-list {{ extra_class }}">
   {% for view in views %}
-    {% snippet "package/snippets/resource_views_list_item.html", view=view, pkg=pkg, is_edit=is_edit %}
+  	{% set is_selected = true if view_id == view.id else false %}
+    {% snippet "package/snippets/resource_views_list_item.html", view=view, pkg=pkg, is_edit=is_edit, is_selected=is_selected %}
   {% endfor %}
 </ul>

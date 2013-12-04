@@ -72,17 +72,17 @@
           {% endblock %}
         </div>
       </div>
-      {% block resource_views %}
-        <div class="module-content" data-module="resource-views" data-module-id="{{ view_id }}">
-          {% block resource_views_nav %}
-            <nav class="hide">
-              {% snippet "package/snippets/resource_views_list.html", views=resource_views, pkg=pkg, is_edit=false, extra_class='stacked' %}
-            </nav>
+      {% block resource_view %}
+        <div class="module-content">
+          {% block resource_view_nav %}
+            {% snippet "package/snippets/resource_views_list.html", views=resource_views, pkg=pkg, is_edit=false, extra_class='stacked', view_id=current_resource_view %}
           {% endblock %}
-          {% block resource_views_views %}
-            <div class="resource-views">
+          {% block resource_view_content %}
+            <div class="resource-view">
               {% for resource_view in resource_views %}
-                {% snippet 'package/snippets/resource_view.html', resource_view=resource_view, resource=c.resource, package=c.package %}
+                {% if resource_view.id == current_resource_view %}
+                  {% snippet 'package/snippets/resource_view.html', resource_view=resource_view, resource=c.resource, package=c.package %}
+                {% endif %}
               {% endfor %}
             </div>
           {% endblock %}

@@ -1197,8 +1197,16 @@ class PackageController(base.BaseController):
 
         resource_views = get_action('resource_view_list')(
             context, {'id': resource_id})
-        vars = {'resource_views': resource_views}
-        c.resource['has_views'] = len(resource_views) > 0
+        has_views = len(resource_views) > 0
+        current_resource_view = False
+        if (has_views):
+            if (request.GET.get('view_id')):
+                current_resource_view = request.GET.get('view_id')
+            else:
+                current_resource_view = resource_views[0].get('id')
+        c.resource['has_views'] = has_views
+        vars = {'resource_views': resource_views,
+                'current_resource_view': current_resource_view}
 
         return render('package/resource_read.html', extra_vars=vars)
 
