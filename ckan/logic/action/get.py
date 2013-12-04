@@ -551,7 +551,8 @@ def organization_list_for_user(context, data_dict):
     orgs_list = model_dictize.group_list_dictize(orgs_q.all(), context)
     return orgs_list
 
-def group_revision_list(context, data_dict):
+
+def _group_or_org_revision_list(context, data_dict):
     '''Return a group's revisions.
 
     :param id: the name or id of the group
@@ -566,7 +567,6 @@ def group_revision_list(context, data_dict):
     if group is None:
         raise NotFound
 
-    _check_access('group_revision_list',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in group.all_related_revisions:
@@ -574,6 +574,32 @@ def group_revision_list(context, data_dict):
                                                      include_packages=False,
                                                      include_groups=False))
     return revision_dicts
+
+def group_revision_list(context, data_dict):
+    '''Return a group's revisions.
+
+    :param id: the name or id of the group
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+
+    _check_access('group_revision_list',context, data_dict)
+    return _group_or_org_revision_list(context, data_dict)
+
+def organization_revision_list(context, data_dict):
+    '''Return an organization's revisions.
+
+    :param id: the name or id of the organization
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+
+    _check_access('organization_revision_list',context, data_dict)
+    return _group_or_org_revision_list(context, data_dict)
 
 def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
