@@ -1,7 +1,7 @@
 import ckan.plugins as plugins
 
 
-class ExampleThemePlugin(plugins.SingletonPlugin):
+class ExampleThemeEmptyPlugin(plugins.SingletonPlugin):
     '''An example theme plugin.
 
     '''
