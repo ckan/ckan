@@ -9,7 +9,7 @@ same machine. Each configuration is called a Solr *core*. Having multiple cores
 is useful when you want different applications or different versions of CKAN to
 share the same Solr instance, each application can have its own Solr core so
 each can use a different ``schema.xml`` file. This is necessary, for example,
-if you want to CKAN instances to share the same |solr| server and those two
+if you want two CKAN instances to share the same |solr| server and those two
 instances are running different versions of CKAN that require differemt
 ``schema.xml`` files, or if the two instances have different |solr| schema
 customizations.
@@ -57,7 +57,7 @@ core for it, see :ref:`creating another solr core`.
    CKAN's ``schema.xml`` file::
 
     sudo mv /etc/solr/ckan_default/conf/schema.xml /etc/solr/ckan_default/conf/schema.xml.bak
-    sudo ln -s /usr/lib/ckan/default/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/ckan_default/conf/schema.xml
+    sudo ln -s /usr/lib/ckan/default/src/ckan/ckan/config/solr/schema.xml /etc/solr/ckan_default/conf/schema.xml
 
 #. Edit ``/etc/solr/ckan_default/conf/solrconfig.xml`` and change the
    ``<dataDir>`` tag to this::
@@ -116,7 +116,7 @@ In this example we'll assume that:
 #. You've installed a second instance of CKAN in a second virtual environment
    at /usr/lib/ckan/|ckan|, and now want to setup a second Solr core for it.
 
-You can ofcourse follow these instructions again to setup further Solr cores.
+You can of course follow these instructions again to setup further Solr cores.
 
 #. Add the core to ``/usr/share/solr/solr.xml``. This file should now list
    two cores. For example:
@@ -154,7 +154,7 @@ You can ofcourse follow these instructions again to setup further Solr cores.
    .. parsed-literal::
 
     sudo rm /etc/solr/|core|/conf/schema.xml
-    sudo ln -s /usr/lib/ckan/|ckan|/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/|core|/conf/schema.xml
+    sudo ln -s /usr/lib/ckan/|ckan|/src/ckan/ckan/config/solr/schema.xml /etc/solr/|core|/conf/schema.xml
 
 #. Create the /usr/share/solr/|core| directory and put a symlink to the
    ``conf`` directory in it:
