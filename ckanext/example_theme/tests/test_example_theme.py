@@ -15,7 +15,7 @@ import ckan.plugins.toolkit as toolkit
 import ckan.new_tests.factories as factories
 
 
-def get_test_app(plugin):
+def _get_test_app(plugin):
 
     # Disable the legacy templates feature.
     config['ckan.legacy_templates'] = False
@@ -32,7 +32,7 @@ class TestExampleEmptyPlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v01_empty_extension')
+        cls.app = _get_test_app('example_theme_v01_empty_extension')
 
     @classmethod
     def teardown_class(cls):
@@ -55,7 +55,7 @@ class TestExampleEmptyTemplatePlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v02_empty_template')
+        cls.app = _get_test_app('example_theme_v02_empty_template')
 
     @classmethod
     def teardown_class(cls):
@@ -71,7 +71,7 @@ class TestExampleJinjaPlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v03_jinja')
+        cls.app = _get_test_app('example_theme_v03_jinja')
 
     @classmethod
     def teardown_class(cls):
@@ -109,7 +109,7 @@ class TestExampleCKANExtendsPlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v04_ckan_extends')
+        cls.app = _get_test_app('example_theme_v04_ckan_extends')
 
     @classmethod
     def teardown_class(cls):
@@ -136,7 +136,7 @@ class TestExampleBlockPlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v05_block')
+        cls.app = _get_test_app('example_theme_v05_block')
 
     @classmethod
     def teardown_class(cls):
@@ -152,7 +152,7 @@ class TestExampleSuperPlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v06_super')
+        cls.app = _get_test_app('example_theme_v06_super')
 
     @classmethod
     def teardown_class(cls):
@@ -193,7 +193,7 @@ class TestExampleHelperFunctionPlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v07_helper_function')
+        cls.app = _get_test_app('example_theme_v07_helper_function')
 
     @classmethod
     def teardown_class(cls):
@@ -222,7 +222,7 @@ class TestExampleCustomHelperFunctionPlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v08_custom_helper_function')
+        cls.app = _get_test_app('example_theme_v08_custom_helper_function')
 
     @classmethod
     def teardown_class(cls):
@@ -264,7 +264,7 @@ class TestExampleSnippetPlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v09_snippet')
+        cls.app = _get_test_app('example_theme_v09_snippet')
 
     @classmethod
     def teardown_class(cls):
@@ -286,7 +286,7 @@ class TestExampleCustomSnippetPlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v10_custom_snippet')
+        cls.app = _get_test_app('example_theme_v10_custom_snippet')
 
     @classmethod
     def teardown_class(cls):
@@ -332,7 +332,7 @@ class TestExampleHTMLAndCSSPlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v11_HTML_and_CSS')
+        cls.app = _get_test_app('example_theme_v11_HTML_and_CSS')
 
     @classmethod
     def teardown_class(cls):
@@ -378,7 +378,7 @@ class TestExampleCustomCSSPlugin(object):
 
     @classmethod
     def setup_class(cls):
-        cls.app = get_test_app('example_theme_v13_custom_css')
+        cls.app = _get_test_app('example_theme_v13_custom_css')
 
     @classmethod
     def teardown_class(cls):
