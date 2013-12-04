@@ -45,7 +45,6 @@ class TestExampleEmptyPlugin(object):
         # and loaded the plugin successfully).
         offset = toolkit.url_for(controller='home', action='index')
         result = self.app.get(offset)
-        F
         assert result.status == '200 OK'
 
     def test_that_plugin_is_loaded(self):
