@@ -404,14 +404,7 @@ class TestExampleMoreCustomCSSPlugin(object):
 
     @classmethod
     def setup_class(cls):
-
-        # Disable the legacy templates feature.
-        config['ckan.legacy_templates'] = False
-        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
-                                                  **config)
-        cls.app = webtest.TestApp(wsgiapp)
-
-        plugins.load('example_theme_v14_more_custom_css')
+        cls.app = _get_test_app('example_theme_v14_more_custom_css')
 
     @classmethod
     def teardown_class(cls):
@@ -437,14 +430,7 @@ class TestExampleFanstaticPlugin(object):
 
     @classmethod
     def setup_class(cls):
-
-        # Disable the legacy templates feature.
-        config['ckan.legacy_templates'] = False
-        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
-                                                  **config)
-        cls.app = webtest.TestApp(wsgiapp)
-
-        plugins.load('example_theme_v15_fanstatic')
+        cls.app = _get_test_app('example_theme_v15_fanstatic')
 
     @classmethod
     def teardown_class(cls):
