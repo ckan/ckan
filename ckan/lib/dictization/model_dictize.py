@@ -342,7 +342,7 @@ def group_dictize(group, context):
             u'maintainer', u'revision_id', u'type', ]
     q = {'fl': ','.join(package_keys)}
     is_group_member = new_authz.has_user_permission_for_group_or_org(group.id,
-            context.get('user',''), 'read')
+            context.get('user') or '', 'read')
     capacity = ' +capacity:public'
     if is_group_member:
         capacity = ''
