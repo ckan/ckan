@@ -212,10 +212,11 @@ class TestExampleSuperPlugin(object):
         assert len(matches) == 1
         bottom = matches[0]
 
-        assert snippet_start in top.next_elements, ('The first paragraph '
-            'should appear before the start of the snippet')
-        assert bottom in snippet_end.next_elements, ('The second paragraph '
-            'should appear after the end of the snippet')
+        assert snippet_start in top.next_elements, (
+            'The first paragraph should appear before the start of the '
+            'snippet')
+        assert bottom in snippet_end.next_elements, (
+            'The second paragraph should appear after the end of the snippet')
 
 
 class TestExampleHelperFunctionPlugin(object):
