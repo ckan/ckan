@@ -129,8 +129,8 @@ def datastore_alter_column_schema():
     return {
         'resource_id': [not_missing, not_empty, unicode, resource_id_exists],
         'fields': {
-            'id': [not_empty, unicode],
-            'type': [not_empty, unicode]
+            'id': [not_missing, not_empty, unicode],
+            'type': [not_missing, not_empty, unicode]
         },
         '__junk': [empty],
     }

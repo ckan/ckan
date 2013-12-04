@@ -357,18 +357,15 @@ def datastore_alter_column_type(context, data_dict):
     if errors:
         raise p.toolkit.ValidationError(errors)
 
+    if not data_dict['fields']:
+        raise p.toolkit.ValidationError({'column': 'no fields specified'})
+
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
     altered_columns = db.alter_column_type(context, data_dict)
-    model = _get_or_bust(context, 'model')
-    resource = p.toolkit.get_action('resource_show')(context,
-        {'id': data_dict['resource_id']})
-    resource_column_types = dict([ (i['id'], i['type']) for i in altered_columns ])
-    resource['column_types'] = resource_column_types
-    p.toolkit.get_action('resource_update')(context, resource)
-
-    again_resource = p.toolkit.get_action('resource_show')(context,
-        {'id': data_dict['resource_id']})
-    return altered_columns
+    return {
+        'success': True,
+        'fields': altered_columns
+    }
 
 
 @logic.side_effect_free

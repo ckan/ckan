@@ -204,12 +204,14 @@ class DatastorePlugin(p.SingletonPlugin):
             connection.close()
 
     def get_actions(self):
-        actions = {'datastore_create': action.datastore_create,
-                   'datastore_upsert': action.datastore_upsert,
-                   'datastore_delete': action.datastore_delete,
-                   'datastore_search': action.datastore_search,
-                   'datastore_rename_column': action.datastore_rename_column,
-                  }
+        actions = {
+            'datastore_create': action.datastore_create,
+            'datastore_upsert': action.datastore_upsert,
+            'datastore_delete': action.datastore_delete,
+            'datastore_search': action.datastore_search,
+            'datastore_rename_column': action.datastore_rename_column,
+            'datastore_alter_column_type': action.datastore_alter_column_type,
+        }
         if not self.legacy_mode:
             actions.update({
                 'datastore_search_sql': action.datastore_search_sql,
