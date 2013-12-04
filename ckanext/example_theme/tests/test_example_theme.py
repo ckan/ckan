@@ -165,6 +165,13 @@ class TestExampleSuperPlugin(object):
         config['ckan.legacy_templates'] = True
 
     def test_front_page(self):
+
+        # Create a couple of groups, so we have some featured groups on the
+        # front page.
+        user = factories.User()
+        factories.Group(user=user)
+        factories.Group(user=user)
+
         offset = toolkit.url_for(controller='home', action='index')
         response = self.app.get(offset)
 
@@ -178,6 +185,26 @@ class TestExampleSuperPlugin(object):
         assert len(matches) == 1
         top = matches[0]
 
+        # Find the HTML comment that marks the start of the
+        # featured_groups.html snippet.
+        def is_featured_groups_snippet_start(text):
+            if not isinstance(text, bs4.Comment):
+                return False
+            return 'featured_group.html start' in text
+        matches = soup.find_all(text=is_featured_groups_snippet_start)
+        assert len(matches) == 1
+        snippet_start = matches[0]
+
+        # Find the HTML comment that marks the end of the
+        # featured_groups.html snippet.
+        def is_featured_groups_snippet_end(text):
+            if not isinstance(text, bs4.Comment):
+                return False
+            return 'featured_group.html end' in text
+        matches = soup.find_all(text=is_featured_groups_snippet_end)
+        assert len(matches) == 1
+        snippet_end = matches[0]
+
         # Get the 'This paragraph will be added to the bottom' paragraph.
         matches = [p for p in soup.find_all('p')
                    if p.get_text(' ', strip=True) == 'This paragraph will be '
@@ -185,14 +212,10 @@ class TestExampleSuperPlugin(object):
         assert len(matches) == 1
         bottom = matches[0]
 
-        # Find the featured_groups div.
-        matches = soup.select('#featured_groups')
-        assert len(matches) == 1
-        div = matches[0]
-
-        # Assert that the three elements appear in the order they should.
-        assert div in top.next_elements
-        assert bottom in div.next_elements
+        assert snippet_start in top.next_elements, ('The first paragraph '
+            'should appear before the start of the snippet')
+        assert bottom in snippet_end.next_elements, ('The second paragraph '
+            'should appear after the end of the snippet')
 
 
 class TestExampleHelperFunctionPlugin(object):
@@ -256,9 +279,8 @@ class TestExampleCustomHelperFunctionPlugin(object):
         soup = response.html
 
         # Find the 'most popular groups' list.
-        matches = soup.select('ul#most-popular-groups')
-        assert len(matches) == 1
-        ul = matches[0]
+        h = soup.find('h3', text='Most popular groups')
+        ul = h.find_next_sibling('ul')
 
         # Assert that the three groups are listed in the right order.
         list_items = ul.find_all('li')
