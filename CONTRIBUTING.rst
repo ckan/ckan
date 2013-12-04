@@ -72,6 +72,8 @@ When writing code for CKAN, try to respect our coding standards:
 * `Upgrading CKAN's dependencies <http://docs.ckan.org/en/latest/upgrading-dependencies.html>`_
 
 
+.. _commit messages:
+
 ---------------
 Commit messages
 ---------------

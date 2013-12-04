@@ -24,14 +24,80 @@ an existing feature) should be missing from the docs** (but see `todo`_).
 .. contents::
    :local:
 
-.. _getting-started:
 
-------------------
-1. Getting started
-------------------
+.. _quickstart:
 
-This section will walk you through downloading the source files for CKAN's
-docs, editing them, and submitting your work to the CKAN project.
+-----------------------------------------------
+Editing the docs using the GitHub web interface
+-----------------------------------------------
+
+If you want to get started quickly and contribute some simple changes to the
+CKAN docs, follow this guide to contribute your changes using the GitHub web
+interface. If you want to make bigger changes to the docs, we recommend
+following :ref:`building the docs locally` below.
+
+#. `Sign up for a free account on GitHub <https://github.com/>`_ and
+   `fork CKAN <https://help.github.com/articles/fork-a-repo>`_.
+
+#. `Create a new branch <https://help.github.com/articles/creating-and-deleting-branches-within-your-repository#creating-a-branch>`_
+   on your CKAN fork on GitHub to contain your changes. Give your branch a
+   short name that describes the changes you're making, e.g.
+   *correct-typo-in-installing-docs* or *add-docs-for-user-dashboard-feature*.
+
+   .. note::
+
+      It's important not to save your changes on your ``master`` branch,
+      because you don't want your ``master`` branch to diverge from the
+      original CKAN ``master`` branch. Instead, *create a new branch for each
+      contribution that you make*. New branches should be branched off the
+      ``master`` branch of your fork.
+
+   .. note::
+
+      You need to keep the master branch of your CKAN fork up to date with the
+      master branch of the original CKAN repo. Otherwise the ``rst`` files in
+      your CKAN fork will be out of date, and won't match the documentation
+      you see on docs.ckan.org.
+
+      To update your fork, you can
+      `create a pull request <https://help.github.com/articles/creating-a-pull-request>`_
+      pull the master branch of the original CKAN repo into the master branch
+      of your CKAN fork, and then merge this pull request. You should do this
+      before creating a new branch to save changes on.
+
+#. Edit the ``rst`` files.
+
+   Each page of the CKAN docs has a corresponding ``rst`` file in the
+   ``ckan/doc/`` folder. For example, `installing.html <http://docs.ckan.org/en/latest/installing.html>`_
+   has the `ckan/doc/installing.rst <https://raw.github.com/okfn/ckan/master/doc/installing.rst>`_
+   file. ``rst`` files are simple text files written in `reStructuredText
+   <http://sphinx-doc.org/rest.html>`_ format.
+
+   To make changes to the documentation, just
+   `use GitHub's web interface to edit the rst files <https://help.github.com/articles/creating-and-editing-files-in-your-repository>`_. Make sure to add a good commit summary and description when saving your
+   changes, see :ref:`commit messages`.
+
+#. `Create a pull request <https://help.github.com/articles/creating-a-pull-request>`_,
+   asking us to pull your branch into the ``master`` branch of the original
+   ``okfn/ckan`` repo.
+
+   A member of the CKAN team will review your work and provide feedback on the
+   pull request page on GitHub. The reviewer may ask you to make some changes.
+   Once your pull request has passed the review, the reviewer will merge your
+   docs into the master branch and they will become part of
+   `docs.ckan.org <http://docs.ckan.org/>`_!
+
+
+.. _building the docs locally:
+
+-------------------------
+Building the docs locally
+-------------------------
+
+Follow this guide if you want to make bigger changes to the CKAN docs, it will
+walk you through downloading the source files for CKAN's docs to your computer,
+editing them and previewing your changes, and submitting your work to the CKAN
+project.
 
 CKAN's documentation is created using `Sphinx <http://sphinx-doc.org/>`_,
 which in turn uses `Docutils <http://docutils.sourceforge.net/>`_
@@ -110,9 +176,9 @@ Once your docs are ready to submit to the CKAN project, follow the steps in
 
 .. _structure:
 
--------------------------
-2. Structure and audience
--------------------------
+----------------------
+Structure and audience
+----------------------
 
 :doc:`index` describes the overall structure of the docs, and the intended
 audience for each part. This structure is intended to be clear, simple and
@@ -141,9 +207,9 @@ suggestion for what sections the page should have is:
 
 .. _style:
 
---------
-3. Style
---------
+-----
+Style
+-----
 
 .. 
     http://jacobian.org/writing/great-documentation/technical-style/
@@ -312,9 +378,9 @@ identifiable pieces:
 
 .. _sphinx tips:
 
----------
-4. Sphinx
----------
+------
+Sphinx
+------
 
 This section gives some useful tips about using Sphinx.
 
