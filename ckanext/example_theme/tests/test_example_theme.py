@@ -129,7 +129,7 @@ class TestExampleCKANExtendsPlugin(object):
         # to test that {% ckan_extends %} worked.
         assert ("This is a nice introductory paragraph about CKAN or the site "
                 "in general. We don't have any copy to go here yet but soon "
-                "we will" in [s.strip() for s in soup.strings])
+                "we will" in [s for s in soup.stripped_strings])
 
         # TODO: It would be better if we also tested that the custom template
         # was the template that was rendered, and it didn't just render the
@@ -308,9 +308,10 @@ class TestExampleSnippetPlugin(object):
         soup = response.html
 
         # Just test that the snippet was used.
-        comments = soup.findAll(text=lambda text:isinstance(text, bs4.Comment))
+        comments = soup.find_all(
+            text=lambda text: isinstance(text, bs4.Comment))
         assert 'Snippet group/snippets/group_list.html start' in (
-                comment.strip() for comment in comments)
+            comment.strip() for comment in comments)
 
 
 class TestExampleCustomSnippetPlugin(object):
@@ -345,11 +346,8 @@ class TestExampleCustomSnippetPlugin(object):
 
         # Find the 'most popular groups' list and check that it has the right
         # number of groups in the right order.
-        matches = [h for h in soup.find_all('h3')
-                   if h.text == 'Most popular groups']
-        assert len(matches) == 1
-        h = matches[0]
-        ul = h.find_next_sibling()
+        h = soup.find('h3', text='Most popular groups')
+        ul = h.find_next_sibling('ul')
         list_items = ul.find_all('li')
         assert len(list_items) == 3
         assert (list_items[0].find_all('h3')[0].text
@@ -392,10 +390,7 @@ class TestExampleHTMLAndCSSPlugin(object):
 
         # Find the 'most popular groups' list and check that it has the right
         # number of groups in the right order.
-        matches = [h for h in soup.find_all('h3')
-                   if h.text == 'Most popular groups']
-        assert len(matches) == 1
-        h = matches[0]
+        h = soup.find('h3', text='Most popular groups')
         ul = h.find_next('ul')
         list_items = ul.find_all('li')
         assert len(list_items) == 3
@@ -424,10 +419,7 @@ class TestExampleCustomCSSPlugin(object):
         response = self.app.get(offset)
         soup = response.html
 
-        matches = soup.find_all('link', rel='stylesheet',
-                                href='/example_theme.css')
-        assert len(matches) == 1
-        link = matches[0]
+        link = soup.find('link', rel='stylesheet', href='/example_theme.css')
         url = link['href']
         # FIXME: It looks like static files aren't working in tests?
         response = self.app.get(url)
@@ -451,10 +443,7 @@ class TestExampleMoreCustomCSSPlugin(object):
         response = self.app.get(offset)
         soup = response.html
 
-        matches = soup.find_all('link', rel='stylesheet',
-                                href='/example_theme.css')
-        assert len(matches) == 1
-        link = matches[0]
+        link = soup.find('link', rel='stylesheet', href='/example_theme.css')
         url = link['href']
         # FIXME: It looks like static files aren't working in tests?
         response = self.app.get(url)
@@ -480,10 +469,8 @@ class TestExampleFanstaticPlugin(object):
 
         # Test that Fanstatic has inserted one <link> tag for the
         # example_theme.css file.
-        matches = [link for link in soup.find_all('link', rel='stylesheet')
-                   if 'example_theme.css' in link['href']]
-        assert len(matches) == 1
-        link = matches[0]
+        link = soup.find('link', rel='stylesheet',
+                         href=lambda h: 'example_theme.css' in h)
 
         # Test that there is something at the <link> tag's URL.
         url = link['href']
