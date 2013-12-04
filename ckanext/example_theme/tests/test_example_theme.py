@@ -13,7 +13,6 @@ import ckan.config.middleware
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckan.new_tests.factories as factories
-import ckan.new_tests.helpers as helpers
 
 
 def get_test_app(plugin):
