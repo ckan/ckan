@@ -10,6 +10,7 @@ def datapusher_status(resource_id):
             'status': 'unknown'
         }
 
+
 def datapusher_status_description(status):
     _ = toolkit._
 

@@ -129,5 +129,6 @@ class DatapusherPlugin(p.SingletonPlugin):
     def get_helpers(self):
         return {
             'datapusher_status': helpers.datapusher_status,
-            'datapusher_status_description': helpers.datapusher_status_description,
+            'datapusher_status_description':
+            helpers.datapusher_status_description,
         }
