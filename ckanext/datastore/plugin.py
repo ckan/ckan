@@ -50,7 +50,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if sys.argv[0].split('/')[-1] == 'paster' and 'datastore' in sys.argv[1:]:
             log.warn('Omitting permission checks because you are '
                      'running paster commands.')
-            pass
+            return 
 
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore.write_url']

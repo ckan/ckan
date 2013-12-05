@@ -14,6 +14,7 @@ import ckan.plugins.toolkit as toolkit
 
 import ckanext.datastore.db as db
 
+
 class TestDatastoreRenameColumn(unittest.TestCase):
     @classmethod
     def setup_class(cls):
@@ -29,20 +30,21 @@ class TestDatastoreRenameColumn(unittest.TestCase):
         # Note: test data for this test is created here and in the
         # teardown_class this means test data persists between tests
         package = factories.Package.create()
-        cls.resource = factories.Resource.create(package_id=package['id'],
-            url_type='datastore')
+        cls.resource = factories.Resource.create(
+            package_id=package['id'], url_type='datastore')
 
-        helpers.call_action('datastore_create',
+        helpers.call_action(
+            'datastore_create',
             resource_id=cls.resource['id'],
             fields=[
-                { 'id': 'col1', 'type': 'text', },
-                { 'id': 'col2', 'type': 'text', }
+                {'id': 'col1', 'type': 'text'},
+                {'id': 'col2', 'type': 'text'}
             ],
             records=[
-                { 'col1': 'hello', 'col2': 'hello', },
-                { 'col1': 'hello', 'col2': 'hello', },
+                {'col1': 'hello', 'col2': 'hello'},
+                {'col1': 'hello', 'col2': 'hello'},
             ],
-        ) 
+        )
 
     @classmethod
     def teardown_class(cls):
@@ -51,10 +53,11 @@ class TestDatastoreRenameColumn(unittest.TestCase):
         p.unload('datastore')
 
     def test_alter_name(self):
-        results = helpers.call_action('datastore_rename_column',
+        results = helpers.call_action(
+            'datastore_rename_column',
             resource_id=TestDatastoreRenameColumn.resource['id'],
             fields=[
-                {'from': 'col1', 'to': 'renamed_col1', },
+                {'from': 'col1', 'to': 'renamed_col1'},
             ],
         )
         fields = dict((i['id'], i['type']) for i in results['fields'])
@@ -62,32 +65,36 @@ class TestDatastoreRenameColumn(unittest.TestCase):
         self.assertEquals('col2' in fields, True)
 
         #rename the column back to it's original name
-        helpers.call_action('datastore_rename_column',
+        helpers.call_action(
+            'datastore_rename_column',
             resource_id=TestDatastoreRenameColumn.resource['id'],
             fields=[
-                {'from': 'renamed_col1', 'to': 'col1', },
+                {'from': 'renamed_col1', 'to': 'col1'},
             ],
         )
 
     def test_column_does_not_exist(self):
-        self.assertRaises(toolkit.ValidationError,
+        self.assertRaises(
+            toolkit.ValidationError,
             helpers.call_action,
             'datastore_rename_column',
             resource_id=TestDatastoreRenameColumn.resource['id'],
             fields=[
-                {'from': 'doesnotexist', 'to': 'col', },
+                {'from': 'doesnotexist', 'to': 'col'},
             ],
         )
 
     def test_bad_name_for_to_column(self):
-        self.assertRaises(toolkit.ValidationError,
+        self.assertRaises(
+            toolkit.ValidationError,
             helpers.call_action,
             'datastore_rename_column',
             resource_id=TestDatastoreRenameColumn.resource['id'],
             fields=[
-                {'from': 'col1', 'to': 'col";', },
+                {'from': 'col1', 'to': 'col";'},
             ],
         )
+
 
 class TestDatastoreAlterColumn(unittest.TestCase):
     @classmethod
@@ -104,20 +111,22 @@ class TestDatastoreAlterColumn(unittest.TestCase):
         # Note: test data for this test is created here and in the
         # teardown_class this means test data persists between tests
         package = factories.Package.create()
-        cls.resource = factories.Resource.create(package_id=package['id'],
-            url_type='datastore')
+        cls.resource = factories.Resource.create(
+            package_id=package['id'], url_type='datastore')
 
-        helpers.call_action('datastore_create',
+        helpers.call_action(
+            'datastore_create',
             resource_id=cls.resource['id'],
             fields=[
-                { 'id': 'col1', 'type': 'text', },
-                { 'id': 'col2', 'type': 'text', }
+                {'id': 'col1', 'type': 'text'},
+                {'id': 'col2', 'type': 'text'},
+                {'id': 'col3', 'type': 'text'},
             ],
             records=[
-                { 'col1': '1', 'col2': 'hello', },
-                { 'col1': '', 'col2': 'hello', },
+                {'col1': '1', 'col2': '2011-01-01', 'col3': '2011-01-01'},
+                {'col1': '1', 'col2': '', 'col3': '2011-01-01'},
             ],
-        ) 
+        )
 
     @classmethod
     def teardown_class(cls):
@@ -126,14 +135,15 @@ class TestDatastoreAlterColumn(unittest.TestCase):
         p.unload('datastore')
 
     def test_alter_type(self):
-        results = helpers.call_action('datastore_alter_column_type',
+        results = helpers.call_action(
+            'datastore_alter_column_type',
             resource_id=TestDatastoreAlterColumn.resource['id'],
             fields=[
-                { 'id': 'col1', 'type': 'numeric' }
+                {'id': 'col1', 'type': 'numeric'},
             ],
         )
         fields = dict((i['id'], i['type']) for i in results['fields'])
-        self.assertEquals(fields['col1'], 'numeric') 
+        self.assertEquals(fields['col1'], 'numeric')
 
     def test_empty_fields(self):
         self.assertRaises(
@@ -151,7 +161,7 @@ class TestDatastoreAlterColumn(unittest.TestCase):
             'datastore_alter_column_type',
             resource_id=TestDatastoreAlterColumn.resource['id'],
             fields=[
-                { 'id': 'doesnotexist', 'type': 'numeric' },
+                {'id': 'doesnotexist', 'type': 'numeric'},
             ],
         )
 
@@ -162,6 +172,28 @@ class TestDatastoreAlterColumn(unittest.TestCase):
             'datastore_alter_column_type',
             resource_id=TestDatastoreAlterColumn.resource['id'],
             fields=[
-                { 'id': 'col1', 'type': 'does notexist' },
+                {'id': 'col1', 'type': 'does notexist'},
+            ],
+        )
+
+    def test_date_conversion(self):
+        results = helpers.call_action(
+            'datastore_alter_column_type',
+            resource_id=TestDatastoreAlterColumn.resource['id'],
+            fields=[
+                {'id': 'col2', 'type': 'timestamp', 'format': 'YYYY-MM-DD'}
+            ],
+        )
+        fields = dict((i['id'], i['type']) for i in results['fields'])
+        self.assertEquals(fields['col2'], 'timestamp')
+
+    def test_date_conversion_bad_format(self):
+        self.assertRaises(
+            toolkit.ValidationError,
+            helpers.call_action,
+            'datastore_alter_column_type',
+            resource_id=TestDatastoreAlterColumn.resource['id'],
+            fields=[
+                {'id': 'col3', 'type': 'timestamp', 'format': "';"}
             ],
         )
