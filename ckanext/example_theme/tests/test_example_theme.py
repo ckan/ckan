@@ -10,21 +10,54 @@ import pylons.config as config
 import bs4
 
 import ckan.config.middleware
-import ckan.plugins as plugins
+import ckan.plugins
 import ckan.plugins.toolkit as toolkit
 import ckan.new_tests.factories as factories
+
+
+def _load_plugin(plugin):
+    '''Add the given plugin to the ckan.plugins config setting.
+
+    If the given plugin is already in the ckan.plugins setting, it won't be
+    added a second time.
+
+    :param plugin: the plugin to add, e.g. ``datastore``
+    :type plugin: string
+
+    '''
+    plugins = set(config['ckan.plugins'].strip().split())
+    plugins.add(plugin.strip())
+    config['ckan.plugins'] = ' '.join(plugins)
+
+
+def _unload_plugin(plugin):
+    '''Remove the given plugin from the ckan.plugins config setting.
+
+    If the given plugin is not in the ckan.plugins setting, nothing will be
+    changed.
+
+    :param plugin: the plugin to remove, e.g. ``datastore``
+    :type plugin: string
+
+    '''
+    plugins = set(config['ckan.plugins'].strip().split())
+    try:
+        plugins.remove(plugin.strip())
+    except KeyError:
+        # Looks like the plugin was not in ckan.plugins.
+        pass
+    config['ckan.plugins'] = ' '.join(plugins)
 
 
 def _get_test_app(plugin):
 
     # Disable the legacy templates feature.
     config['ckan.legacy_templates'] = False
-    wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
-                                              **config)
-    app = webtest.TestApp(wsgiapp)
 
-    plugins.load(plugin)
+    _load_plugin(plugin)
 
+    app = ckan.config.middleware.make_app(config['global_conf'], **config)
+    app = webtest.TestApp(app)
     return app
 
 
@@ -36,7 +69,7 @@ class TestExampleEmptyPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v01_empty_extension')
+        _unload_plugin('example_theme_v01_empty_extension')
         config['ckan.legacy_templates'] = True
 
     def test_front_page_loads_okay(self):
@@ -49,7 +82,7 @@ class TestExampleEmptyPlugin(object):
         assert result.status == '200 OK'
 
     def test_that_plugin_is_loaded(self):
-        plugins.plugin_loaded('example_theme_v01_empty_extension')
+        ckan.plugins.plugin_loaded('example_theme_v01_empty_extension')
 
 
 class TestExampleEmptyTemplatePlugin(object):
@@ -60,7 +93,7 @@ class TestExampleEmptyTemplatePlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v02_empty_template')
+        _unload_plugin('example_theme_v02_empty_template')
         config['ckan.legacy_templates'] = True
 
     def test_front_page_is_empty(self):
@@ -77,7 +110,7 @@ class TestExampleJinjaPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v03_jinja')
+        _unload_plugin('example_theme_v03_jinja')
         config['ckan.legacy_templates'] = True
 
     def test_site_title(self):
@@ -116,7 +149,7 @@ class TestExampleCKANExtendsPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v04_ckan_extends')
+        _unload_plugin('example_theme_v04_ckan_extends')
         config['ckan.legacy_templates'] = True
 
     def test_front_page(self):
@@ -144,7 +177,7 @@ class TestExampleBlockPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v05_block')
+        _unload_plugin('example_theme_v05_block')
         config['ckan.legacy_templates'] = True
 
     def test_front_page(self):
@@ -161,7 +194,7 @@ class TestExampleSuperPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v06_super')
+        _unload_plugin('example_theme_v06_super')
         config['ckan.legacy_templates'] = True
 
     def test_front_page(self):
@@ -227,7 +260,7 @@ class TestExampleHelperFunctionPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v07_helper_function')
+        _unload_plugin('example_theme_v07_helper_function')
         config['ckan.legacy_templates'] = True
 
     def test_helper_function(self):
@@ -257,7 +290,7 @@ class TestExampleCustomHelperFunctionPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v08_custom_helper_function')
+        _unload_plugin('example_theme_v08_custom_helper_function')
         config['ckan.legacy_templates'] = True
 
     def test_most_popular_groups(self):
@@ -299,7 +332,7 @@ class TestExampleSnippetPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v09_snippet')
+        _unload_plugin('example_theme_v09_snippet')
         config['ckan.legacy_templates'] = True
 
     def test_snippet(self):
@@ -323,7 +356,7 @@ class TestExampleCustomSnippetPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v10_custom_snippet')
+        _unload_plugin('example_theme_v10_custom_snippet')
         config['ckan.legacy_templates'] = True
 
     def test_most_popular_groups(self):
@@ -367,7 +400,7 @@ class TestExampleHTMLAndCSSPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v11_HTML_and_CSS')
+        _unload_plugin('example_theme_v11_HTML_and_CSS')
         config['ckan.legacy_templates'] = True
 
     def test_most_popular_groups(self):
@@ -411,7 +444,7 @@ class TestExampleCustomCSSPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v13_custom_css')
+        _unload_plugin('example_theme_v13_custom_css')
         config['ckan.legacy_templates'] = True
 
     def test_custom_css(self):
@@ -435,7 +468,7 @@ class TestExampleMoreCustomCSSPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v14_more_custom_css')
+        _unload_plugin('example_theme_v14_more_custom_css')
         config['ckan.legacy_templates'] = True
 
     def test_custom_css(self):
@@ -459,7 +492,7 @@ class TestExampleFanstaticPlugin(object):
 
     @classmethod
     def teardown_class(cls):
-        plugins.unload('example_theme_v15_fanstatic')
+        _unload_plugin('example_theme_v15_fanstatic')
         config['ckan.legacy_templates'] = True
 
     def test_fanstatic(self):
