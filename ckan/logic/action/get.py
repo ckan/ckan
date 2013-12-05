@@ -1008,16 +1008,9 @@ def organization_show(context, data_dict):
     return _group_or_org_show(context, data_dict, is_org=True)
 
 
-def group_package_show(context, data_dict):
-    '''Return the datasets (packages) of a group.
-
-    :param id: the id or name of the group
-    :type id: string
-    :param limit: the maximum number of datasets to return (optional)
-    :type limit: int
-
-    :rtype: list of dictionaries
-
+def _group_or_org_package_show(context, data_dict, is_org=True):
+    '''
+    Return the datasets (packages) of a group or organization.
     '''
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
@@ -1029,8 +1022,10 @@ def group_package_show(context, data_dict):
     context['group'] = group
     if group is None:
         raise NotFound
-
-    _check_access('group_show', context, data_dict)
+    if is_org and not group.is_organization:
+        raise NotFound
+    if not is_org and group.is_organization:
+        raise NotFound
 
     result = []
     for pkg_rev in group.packages(limit=limit,
@@ -1038,6 +1033,39 @@ def group_package_show(context, data_dict):
         result.append(model_dictize.package_dictize(pkg_rev, context))
 
     return result
+
+
+def group_package_show(context, data_dict):
+    '''Return the datasets (packages) of a group.
+
+    :param id: the id or name of the group
+    :type id: string
+    :param limit: the maximum number of datasets to return (optional)
+    :type limit: int
+
+    :rtype: list of dictionaries
+
+    '''
+    _check_access('group_package_show', context, data_dict)
+
+    return _group_or_org_package_show(context, data_dict, is_org=False)
+
+
+def organization_package_show(context, data_dict):
+    '''Return the datasets (packages) of a organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+    :param limit: the maximum number of datasets to return (optional)
+    :type limit: int
+
+    :rtype: list of dictionaries
+
+    '''
+    _check_access('organization_package_show', context, data_dict)
+
+    return _group_or_org_package_show(context, data_dict, is_org=True)
+
 
 def tag_show(context, data_dict):
     '''Return the details of a tag and all its datasets.

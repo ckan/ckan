@@ -350,16 +350,26 @@ def group_dictize(group, context):
 
     context['with_capacity'] = True
 
-    result_dict['packages'] = d.obj_list_dictize(
-        _get_members(context, group, 'packages'),
-        context)
-
     query = search.PackageSearchQuery()
+    package_keys = [u'id', u'name', u'author', u'capacity',u'url', u'title',
+            u'notes', u'owner_org', u'private', u'maintainer_email',
+            u'author_email', u'state', u'version', u'license_id',
+            u'maintainer', u'revision_id', u'type', u'metadata_modified',]
+    q = {'fl': ','.join(package_keys)}
+    q['facet'] = 'false'
+    q['rows'] = 1000
+    is_group_member = new_authz.has_user_permission_for_group_or_org(group.id,
+            context.get('user') or '', 'read')
+    capacity = ' +capacity:public'
+    if is_group_member:
+        capacity = ''
     if group.is_organization:
-        q = {'q': 'owner_org:"%s" +capacity:public' % group.id, 'rows': 1}
+        q['q'] = 'owner_org:"{0}"{1}'.format(group.id, capacity)
     else:
-        q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
-    result_dict['package_count'] = query.run(q)['count']
+        q['q'] = 'groups:"{0}"{1}'.format(group.name, capacity)
+    search_results = query.run(q)
+    result_dict['packages'] = search_results['results']
+    result_dict['package_count'] = search_results['count']
 
     result_dict['tags'] = tag_list_dictize(
         _get_members(context, group, 'tags'),

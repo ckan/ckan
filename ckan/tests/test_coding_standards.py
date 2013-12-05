@@ -928,7 +928,6 @@ class TestActionAuth(object):
         'get: group_activity_list_html',
         'get: group_followee_count',
         'get: group_follower_count',
-        'get: group_package_show',
         'get: member_list',
         'get: organization_activity_list',
         'get: organization_activity_list_html',
