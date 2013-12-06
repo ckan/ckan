@@ -293,15 +293,17 @@ class TestExampleCustomHelperFunctionPlugin(ControllerTestBaseClass):
         # Create three groups with 3, 2 and 1 datasets each.
         user = factories.User()
         most_popular_group = factories.Group(user=user)
-        # FIXME: Add the datasets to the groups!
-        dataset_one = factories.Dataset(user=user)
-        dataset_two = factories.Dataset(user=user)
-        dataset_three = factories.Dataset(user=user)
+        factories.Dataset(user=user, groups=[{'id': most_popular_group['id']}])
+        factories.Dataset(user=user, groups=[{'id': most_popular_group['id']}])
+        factories.Dataset(user=user, groups=[{'id': most_popular_group['id']}])
         second_most_popular_group = factories.Group(user=user)
-        dataset_four = factories.Dataset(user=user)
-        dataset_five = factories.Dataset(user=user)
+        factories.Dataset(user=user,
+                          groups=[{'id': second_most_popular_group['id']}])
+        factories.Dataset(user=user,
+                          groups=[{'id': second_most_popular_group['id']}])
         third_most_popular_group = factories.Group(user=user)
-        dataset_six = factories.Dataset(user=user)
+        factories.Dataset(user=user,
+                          groups=[{'id': third_most_popular_group['id']}])
 
         offset = toolkit.url_for(controller='home', action='index')
         response = self.app.get(offset)
@@ -353,15 +355,17 @@ class TestExampleCustomSnippetPlugin(ControllerTestBaseClass):
         # Create three groups with 3, 2 and 1 datasets each.
         user = factories.User()
         most_popular_group = factories.Group(user=user)
-        # FIXME: Add the datasets to the groups!
-        factories.Dataset(user=user)
-        factories.Dataset(user=user)
-        factories.Dataset(user=user)
+        factories.Dataset(user=user, groups=[{'id': most_popular_group['id']}])
+        factories.Dataset(user=user, groups=[{'id': most_popular_group['id']}])
+        factories.Dataset(user=user, groups=[{'id': most_popular_group['id']}])
         second_most_popular_group = factories.Group(user=user)
-        factories.Dataset(user=user)
-        factories.Dataset(user=user)
+        factories.Dataset(user=user,
+                          groups=[{'id': second_most_popular_group['id']}])
+        factories.Dataset(user=user,
+                          groups=[{'id': second_most_popular_group['id']}])
         third_most_popular_group = factories.Group(user=user)
-        factories.Dataset(user=user)
+        factories.Dataset(user=user,
+                          groups=[{'id': third_most_popular_group['id']}])
 
         offset = toolkit.url_for(controller='home', action='index')
         response = self.app.get(offset)
@@ -394,15 +398,17 @@ class TestExampleHTMLAndCSSPlugin(ControllerTestBaseClass):
         # Create three groups with 3, 2 and 1 datasets each.
         user = factories.User()
         most_popular_group = factories.Group(user=user)
-        # FIXME: Add the datasets to the groups!
-        factories.Dataset(user=user)
-        factories.Dataset(user=user)
-        factories.Dataset(user=user)
+        factories.Dataset(user=user, groups=[{'id': most_popular_group['id']}])
+        factories.Dataset(user=user, groups=[{'id': most_popular_group['id']}])
+        factories.Dataset(user=user, groups=[{'id': most_popular_group['id']}])
         second_most_popular_group = factories.Group(user=user)
-        factories.Dataset(user=user)
-        factories.Dataset(user=user)
+        factories.Dataset(user=user,
+                          groups=[{'id': second_most_popular_group['id']}])
+        factories.Dataset(user=user,
+                          groups=[{'id': second_most_popular_group['id']}])
         third_most_popular_group = factories.Group(user=user)
-        factories.Dataset(user=user)
+        factories.Dataset(user=user,
+                          groups=[{'id': third_most_popular_group['id']}])
 
         offset = toolkit.url_for(controller='home', action='index')
         response = self.app.get(offset)
