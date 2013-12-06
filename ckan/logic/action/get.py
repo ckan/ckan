@@ -926,6 +926,8 @@ def group_show(context, data_dict):
 
     :rtype: dictionary
 
+    .. note:: Only its first 1000 datasets are returned
+
     '''
     return _group_or_org_show(context, data_dict)
 
@@ -937,6 +939,7 @@ def organization_show(context, data_dict):
 
     :rtype: dictionary
 
+    .. note:: Only its first 1000 datasets are returned
     '''
     return _group_or_org_show(context, data_dict, is_org=True)
 
