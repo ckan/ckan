@@ -444,7 +444,6 @@ class TestExampleCustomCSSPlugin(ControllerTestBaseClass):
 
         link = soup.find('link', rel='stylesheet', href='/example_theme.css')
         url = link['href']
-        # FIXME: It looks like static files aren't working in tests?
         response = self.app.get(url)
         assert response.status == '200 OK'
 
@@ -465,7 +464,6 @@ class TestExampleMoreCustomCSSPlugin(ControllerTestBaseClass):
 
         link = soup.find('link', rel='stylesheet', href='/example_theme.css')
         url = link['href']
-        # FIXME: It looks like static files aren't working in tests?
         response = self.app.get(url)
         assert response.status == '200 OK'
 
