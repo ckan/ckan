@@ -350,16 +350,36 @@ def group_dictize(group, context):
 
     context['with_capacity'] = True
 
-    result_dict['packages'] = d.obj_list_dictize(
-        _get_members(context, group, 'packages'),
-        context)
-
-    query = search.PackageSearchQuery()
+    # Get group packages from the search index, but adapt the output to
+    # maintain backwards compatibility
+    q = {
+        'facet': 'false',
+        'rows': 1000, # Only the first 1000 datasets are returned
+    }
     if group.is_organization:
-        q = {'q': 'owner_org:"%s" +capacity:public' % group.id, 'rows': 1}
+        q['fq'] = 'owner_org:"{0}"'.format(group.id)
     else:
-        q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
-    result_dict['package_count'] = query.run(q)['count']
+        q['fq'] = 'groups:"{0}"'.format(group.name)
+
+    is_group_member = (context.get('user') and
+         new_authz.has_user_permission_for_group_or_org(group.id, context.get('user'), 'read'))
+    if not is_group_member:
+        q['fq'] += ' +capacity:public'
+
+    search_results = logic.get_action('package_search')(context, q)
+    keys_to_keep = ['id', 'name', 'author', 'url', 'title',
+            'notes', 'owner_org', 'private', 'maintainer_email',
+            'author_email', 'state', 'version', 'license_id',
+            'maintainer', 'revision_id', 'type', 'metadata_modified',]
+    adapted_results = []
+    for pkg in search_results['results']:
+        new_pkg = {}
+        for key in keys_to_keep:
+            new_pkg[key] = pkg.get(key)
+        adapted_results.append(new_pkg)
+
+    result_dict['packages'] = adapted_results
+    result_dict['package_count'] = search_results['count']
 
     result_dict['tags'] = tag_list_dictize(
         _get_members(context, group, 'tags'),
