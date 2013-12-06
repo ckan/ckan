@@ -15,6 +15,27 @@ import ckan.plugins.toolkit as toolkit
 import ckan.new_tests.factories as factories
 
 
+class ControllerTestBaseClass(object):
+    '''A base class for controller test classes to inherit from.
+
+    If you're overriding methods that this class provides, like setup_class()
+    and teardown_class(), make sure to use super() to call this class's methods
+    at the top of yours!
+
+    '''
+    @classmethod
+    def setup_class(cls):
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        cls.original_config = config.copy()
+
+    @classmethod
+    def teardown_class(cls):
+        # Restore the Pylons config to its original values, in case any tests
+        # changed any config settings.
+        config.clear()
+        config.update(cls.original_config)
+
+
 def _load_plugin(plugin):
     '''Add the given plugin to the ckan.plugins config setting.
 
@@ -49,28 +70,23 @@ def _unload_plugin(plugin):
     config['ckan.plugins'] = ' '.join(plugins)
 
 
-def _get_test_app(plugin):
+def _get_test_app():
+    '''Return a webtests.TestApp for CKAN, with legacy templates disabled.
 
-    # Disable the legacy templates feature.
+    '''
     config['ckan.legacy_templates'] = False
-
-    _load_plugin(plugin)
-
     app = ckan.config.middleware.make_app(config['global_conf'], **config)
     app = webtest.TestApp(app)
     return app
 
 
-class TestExampleEmptyPlugin(object):
+class TestExampleEmptyPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v01_empty_extension')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v01_empty_extension')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleEmptyPlugin, cls).setup_class()
+        _load_plugin('example_theme_v01_empty_extension')
+        cls.app = _get_test_app()
 
     def test_front_page_loads_okay(self):
 
@@ -85,16 +101,13 @@ class TestExampleEmptyPlugin(object):
         ckan.plugins.plugin_loaded('example_theme_v01_empty_extension')
 
 
-class TestExampleEmptyTemplatePlugin(object):
+class TestExampleEmptyTemplatePlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v02_empty_template')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v02_empty_template')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleEmptyTemplatePlugin, cls).setup_class()
+        _load_plugin('example_theme_v02_empty_template')
+        cls.app = _get_test_app()
 
     def test_front_page_is_empty(self):
         offset = toolkit.url_for(controller='home', action='index')
@@ -102,16 +115,13 @@ class TestExampleEmptyTemplatePlugin(object):
         assert result.body == '', 'The front page should be empty'
 
 
-class TestExampleJinjaPlugin(object):
+class TestExampleJinjaPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v03_jinja')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v03_jinja')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleJinjaPlugin, cls).setup_class()
+        _load_plugin('example_theme_v03_jinja')
+        cls.app = _get_test_app()
 
     def test_site_title(self):
         offset = toolkit.url_for(controller='home', action='index')
@@ -141,16 +151,13 @@ class TestExampleJinjaPlugin(object):
                 'is rendered' not in result.body)
 
 
-class TestExampleCKANExtendsPlugin(object):
+class TestExampleCKANExtendsPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v04_ckan_extends')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v04_ckan_extends')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleCKANExtendsPlugin, cls).setup_class()
+        _load_plugin('example_theme_v04_ckan_extends')
+        cls.app = _get_test_app()
 
     def test_front_page(self):
 
@@ -169,16 +176,13 @@ class TestExampleCKANExtendsPlugin(object):
         # default front page template directly.
 
 
-class TestExampleBlockPlugin(object):
+class TestExampleBlockPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v05_block')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v05_block')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleBlockPlugin, cls).setup_class()
+        _load_plugin('example_theme_v05_block')
+        cls.app = _get_test_app()
 
     def test_front_page(self):
         offset = toolkit.url_for(controller='home', action='index')
@@ -186,16 +190,13 @@ class TestExampleBlockPlugin(object):
         assert 'Hello block world!' in result.body
 
 
-class TestExampleSuperPlugin(object):
+class TestExampleSuperPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v06_super')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v06_super')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleSuperPlugin, cls).setup_class()
+        _load_plugin('example_theme_v06_super')
+        cls.app = _get_test_app()
 
     def test_front_page(self):
 
@@ -252,16 +253,13 @@ class TestExampleSuperPlugin(object):
             'The second paragraph should appear after the end of the snippet')
 
 
-class TestExampleHelperFunctionPlugin(object):
+class TestExampleHelperFunctionPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v07_helper_function')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v07_helper_function')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleHelperFunctionPlugin, cls).setup_class()
+        _load_plugin('example_theme_v07_helper_function')
+        cls.app = _get_test_app()
 
     def test_helper_function(self):
 
@@ -282,16 +280,13 @@ class TestExampleHelperFunctionPlugin(object):
                         user=user['fullname'], dataset=dataset['title']))]
 
 
-class TestExampleCustomHelperFunctionPlugin(object):
+class TestExampleCustomHelperFunctionPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v08_custom_helper_function')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v08_custom_helper_function')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleCustomHelperFunctionPlugin, cls).setup_class()
+        _load_plugin('example_theme_v08_custom_helper_function')
+        cls.app = _get_test_app()
 
     def test_most_popular_groups(self):
 
@@ -324,16 +319,13 @@ class TestExampleCustomHelperFunctionPlugin(object):
         assert list_items[2].get_text() == third_most_popular_group['title']
 
 
-class TestExampleSnippetPlugin(object):
+class TestExampleSnippetPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v09_snippet')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v09_snippet')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleSnippetPlugin, cls).setup_class()
+        _load_plugin('example_theme_v09_snippet')
+        cls.app = _get_test_app()
 
     def test_snippet(self):
 
@@ -348,16 +340,13 @@ class TestExampleSnippetPlugin(object):
             comment.strip() for comment in comments)
 
 
-class TestExampleCustomSnippetPlugin(object):
+class TestExampleCustomSnippetPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v10_custom_snippet')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v10_custom_snippet')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleCustomSnippetPlugin, cls).setup_class()
+        _load_plugin('example_theme_v10_custom_snippet')
+        cls.app = _get_test_app()
 
     def test_most_popular_groups(self):
 
@@ -392,16 +381,13 @@ class TestExampleCustomSnippetPlugin(object):
                 == third_most_popular_group['title'])
 
 
-class TestExampleHTMLAndCSSPlugin(object):
+class TestExampleHTMLAndCSSPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v11_HTML_and_CSS')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v11_HTML_and_CSS')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleHTMLAndCSSPlugin, cls).setup_class()
+        _load_plugin('example_theme_v11_HTML_and_CSS')
+        cls.app = _get_test_app()
 
     def test_most_popular_groups(self):
 
@@ -436,16 +422,13 @@ class TestExampleHTMLAndCSSPlugin(object):
                 == third_most_popular_group['title'])
 
 
-class TestExampleCustomCSSPlugin(object):
+class TestExampleCustomCSSPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v13_custom_css')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v13_custom_css')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleCustomCSSPlugin, cls).setup_class()
+        _load_plugin('example_theme_v13_custom_css')
+        cls.app = _get_test_app()
 
     def test_custom_css(self):
 
@@ -460,16 +443,13 @@ class TestExampleCustomCSSPlugin(object):
         assert response.status == '200 OK'
 
 
-class TestExampleMoreCustomCSSPlugin(object):
+class TestExampleMoreCustomCSSPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v14_more_custom_css')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v14_more_custom_css')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleMoreCustomCSSPlugin, cls).setup_class()
+        _load_plugin('example_theme_v14_more_custom_css')
+        cls.app = _get_test_app()
 
     def test_custom_css(self):
 
@@ -484,16 +464,13 @@ class TestExampleMoreCustomCSSPlugin(object):
         assert response.status == '200 OK'
 
 
-class TestExampleFanstaticPlugin(object):
+class TestExampleFanstaticPlugin(ControllerTestBaseClass):
 
     @classmethod
     def setup_class(cls):
-        cls.app = _get_test_app('example_theme_v15_fanstatic')
-
-    @classmethod
-    def teardown_class(cls):
-        _unload_plugin('example_theme_v15_fanstatic')
-        config['ckan.legacy_templates'] = True
+        super(TestExampleFanstaticPlugin, cls).setup_class()
+        _load_plugin('example_theme_v15_fanstatic')
+        cls.app = _get_test_app()
 
     def test_fanstatic(self):
 
