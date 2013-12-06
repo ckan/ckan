@@ -105,7 +105,9 @@ def package_list(context, data_dict):
     offset = data_dict.get('offset')
     if offset:
         query = query.offset(offset)
-    return list(zip(*query.execute())[0])
+
+    ## Returns the first field in each result record
+    return [r[0] for r in query.execute()]
 
 def current_package_list_with_resources(context, data_dict):
     '''Return a list of the site's datasets (packages) and their resources.
