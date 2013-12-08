@@ -118,13 +118,30 @@ class TestDatastoreAlterColumn(unittest.TestCase):
             'datastore_create',
             resource_id=cls.resource['id'],
             fields=[
-                {'id': 'col1', 'type': 'text'},
-                {'id': 'col2', 'type': 'text'},
-                {'id': 'col3', 'type': 'text'},
+                {'id': 'text_to_numeric', 'type': 'text'},
+                {'id': 'numeric_to_text', 'type': 'numeric'},
+                {'id': 'text_to_timestamp', 'type': 'text'},
+                {'id': 'timestamp_to_text', 'type': 'timestamp'},
+                {'id': 'numeric_to_timestamp', 'type': 'numeric'},
+                {'id': 'text', 'type': 'text'},
             ],
             records=[
-                {'col1': '1', 'col2': '2011-01-01', 'col3': '2011-01-01'},
-                {'col1': '1', 'col2': '', 'col3': '2011-01-01'},
+                {
+                    'text_to_numeric': '1',
+                    'numeric_to_text': 100,
+                    'text_to_timestamp': '2010-01-02',
+                    'timestamp_to_text': '2010-01-02',
+                    'numeric_to_timestamp': 20100102,
+                    'text': 'some text',
+                    'timestamp': '2010-01-01',
+                },
+                {
+                    'text_to_numeric': '1',
+                    'numeric_to_text': None,
+                    'text_to_timestamp': None,
+                    'timestamp_to_text': None,
+                    'numeric_to_timestamp': None,
+                },
             ],
         )
 
@@ -134,16 +151,69 @@ class TestDatastoreAlterColumn(unittest.TestCase):
         dshelpers.rebuild_all_dbs(cls.Session)
         p.unload('datastore')
 
-    def test_alter_type(self):
+    def test_from_text_to_numeric(self):
         results = helpers.call_action(
             'datastore_alter_column_type',
             resource_id=TestDatastoreAlterColumn.resource['id'],
             fields=[
-                {'id': 'col1', 'type': 'numeric'},
+                {'id': 'text_to_numeric', 'type': 'numeric'},
             ],
         )
         fields = dict((i['id'], i['type']) for i in results['fields'])
-        self.assertEquals(fields['col1'], 'numeric')
+        self.assertEquals(fields['text_to_numeric'], 'numeric')
+        
+    def test_from_numeric_to_text(self):
+        results = helpers.call_action(
+            'datastore_alter_column_type',
+            resource_id=TestDatastoreAlterColumn.resource['id'],
+            fields=[
+                {'id': 'numeric_to_text', 'type': 'text'},
+            ],
+        )
+        fields = dict((i['id'], i['type']) for i in results['fields'])
+        self.assertEquals(fields['numeric_to_text'], 'text')
+
+    def test_from_text_to_timestamp(self):
+        results = helpers.call_action(
+            'datastore_alter_column_type',
+            resource_id=TestDatastoreAlterColumn.resource['id'],
+            fields=[{
+                    'id': 'text_to_timestamp',
+                    'type': 'timestamp',
+                    'format': 'YYYY-MM-DD',
+            }],
+        )
+        fields = dict((i['id'], i['type']) for i in results['fields'])
+        self.assertEquals(fields['text_to_timestamp'], 'timestamp')
+
+    def test_from_timestamp_to_text(self):
+        results = helpers.call_action(
+            'datastore_alter_column_type',
+            resource_id=TestDatastoreAlterColumn.resource['id'],
+            fields=[
+                {
+                    'id': 'timestamp_to_text',
+                    'type': 'text',
+                    'format': 'YYYY-MM-DD',
+                }
+            ],
+        )
+        fields = dict((i['id'], i['type']) for i in results['fields'])
+        self.assertEquals(fields['timestamp_to_text'], 'text')
+
+    def test_from_numeric_to_timestamp(self):
+        results = helpers.call_action(
+            'datastore_alter_column_type',
+            resource_id=TestDatastoreAlterColumn.resource['id'],
+            fields=[
+                {
+                    'id': 'numeric_to_timestamp',
+                    'type': 'timestamp',
+                }
+            ],
+        )
+        fields = dict((i['id'], i['type']) for i in results['fields'])
+        self.assertEquals(fields['numeric_to_timestamp'], 'timestamp')
 
     def test_empty_fields(self):
         self.assertRaises(
@@ -172,20 +242,9 @@ class TestDatastoreAlterColumn(unittest.TestCase):
             'datastore_alter_column_type',
             resource_id=TestDatastoreAlterColumn.resource['id'],
             fields=[
-                {'id': 'col1', 'type': 'does notexist'},
+                {'id': 'text', 'type': 'does notexist'},
             ],
         )
-
-    def test_date_conversion(self):
-        results = helpers.call_action(
-            'datastore_alter_column_type',
-            resource_id=TestDatastoreAlterColumn.resource['id'],
-            fields=[
-                {'id': 'col2', 'type': 'timestamp', 'format': 'YYYY-MM-DD'}
-            ],
-        )
-        fields = dict((i['id'], i['type']) for i in results['fields'])
-        self.assertEquals(fields['col2'], 'timestamp')
 
     def test_date_conversion_bad_format(self):
         self.assertRaises(

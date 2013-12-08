@@ -342,16 +342,43 @@ def datastore_search(context, data_dict):
     return result
 
 def datastore_rename_column(context, data_dict):
+    '''Rename a column in for a resource in the DataStore
+
+    :param resource_id: id or alias of the resource to be searched
+        against
+    :type resource_id: string
+    :param fields: a list of dictionaries with keys 'from' (the
+        existing column name) and 'to' (the new column name)
+    :type list of dictionaries
+
+
+    **Results:**
+
+    :returns: all current columns for the resource in the datastore.
+    :rtype: dictionary
+    '''
+    p.toolkit.check_access('datastore_rename_column', context, data_dict)
     schema = context.get('schema', dsschema.datastore_rename_column_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
         raise p.toolkit.ValidationError(errors)
-    #_check_access()
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
     return db.alter_column_name(context, data_dict)
 
 
 def datastore_alter_column_type(context, data_dict):
+    '''Alter the type of the columns for a resource in the DataStore
+
+    :param resource_id: id or alias of the resource to be searched
+        against
+    :type resource_id: string
+    :param fields: a list of dictionaries with keys 'id' name of the
+        column, 'type' (type to change the column to) and 'format'
+        (a date format used for the conversion when converting from
+        text to date)
+    :type list of dictionaries
+    '''
+    p.toolkit.check_access('datastore_alter_column_type', context, data_dict)
     schema = context.get('schema', dsschema.datastore_alter_column_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
