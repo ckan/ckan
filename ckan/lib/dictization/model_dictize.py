@@ -467,6 +467,9 @@ def user_list_dictize(obj_list, context,
 
     for obj in obj_list:
         user_dict = user_dictize(obj, context)
+        user_dict.pop('reset_key', None)
+        user_dict.pop('apikey', None)
+        user_dict.pop('email', None)
         result_list.append(user_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
 
@@ -491,13 +494,24 @@ def user_dictize(user, context):
 
     requester = context.get('user')
 
-    if not (new_authz.is_sysadmin(requester) or
-            requester == user.name or
-            context.get('keep_sensitive_data', False)):
-        # If not sysadmin or the same user, strip sensible info
-        result_dict.pop('apikey', None)
-        result_dict.pop('reset_key', None)
-        result_dict.pop('email', None)
+    reset_key = result_dict.pop('reset_key', None)
+    apikey = result_dict.pop('apikey', None)
+    email = result_dict.pop('email', None)
+
+    if context.get('keep_email', False):
+        result_dict['email'] = email
+
+    if context.get('keep_apikey', False):
+        result_dict['apikey'] = email
+
+    if requester == user.name:
+        result_dict['apikey'] = apikey
+        result_dict['email'] = email
+
+    ## this should not really really be needed but tests r it
+    if new_authz.is_sysadmin(requester):
+        result_dict['apikey'] = apikey
+        result_dict['email'] = email
 
     model = context['model']
     session = model.Session
@@ -668,3 +682,20 @@ def user_following_dataset_dictize(follower, context):
 
 def user_following_group_dictize(follower, context):
     return d.table_dictize(follower, context)
+
+    base_columns = set(['id', 'resource_id', 'title', 'description',
+                        'view_type', 'order', 'config'])
+
+def resource_view_dictize(resource_view, context):
+    dictized = d.table_dictize(resource_view, context)
+    dictized.pop('order')
+    config = dictized.pop('config', {})
+    dictized.update(config)
+    return dictized
+
+def resource_view_list_dictize(resource_views, context):
+    resource_view_dicts = []
+    for view in resource_views:
+        resource_view_dicts.append(resource_view_dictize(view, context))
+    return resource_view_dicts
+

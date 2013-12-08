@@ -853,7 +853,8 @@ def user_create(context, data_dict):
     #
     # The context is copied so as not to clobber the caller's context dict.
     user_dictize_context = context.copy()
-    user_dictize_context['keep_sensitive_data'] = True
+    user_dictize_context['keep_apikey'] = True
+    user_dictize_context['keep_email'] = True
     user_dict = model_dictize.user_dictize(user, user_dictize_context)
 
     context['user_obj'] = user
