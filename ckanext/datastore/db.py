@@ -9,11 +9,12 @@ import random
 import string
 import logging
 import pprint
+import collections
 
 import distutils.version
 import sqlalchemy
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
-                            DBAPIError, DataError)
+                            DBAPIError, DataError, SQLAlchemyError)
 import psycopg2.extras
 import ckan.lib.cli as cli
 import ckan.plugins.toolkit as toolkit
@@ -45,6 +46,7 @@ _PG_ERR_CODE = {
     'permission_denied': '42501',
     'duplicate_table': '42P07',
     'duplicate_alias': '42712',
+    'invalid_date_format': '22007',
 }
 
 _DATE_FORMATS = ['%Y-%m-%d',
@@ -59,6 +61,8 @@ _DATE_FORMATS = ['%Y-%m-%d',
 _INSERT = 'insert'
 _UPSERT = 'upsert'
 _UPDATE = 'update'
+
+_Column = collections.namedtuple('_Column', ['type', 'format'])
 
 
 def _strip(input):
@@ -99,6 +103,11 @@ def _is_valid_table_name(name):
     if '%' in name:
         return False
     return _is_valid_field_name(name)
+
+
+def _is_valid_date_format(format):
+    if format:
+        return not '\'' in format
 
 
 def _validate_int(i, field_name, non_negative=False):
@@ -1234,3 +1243,185 @@ def make_public(context, data_dict):
         trans.commit()
     finally:
         context['connection'].close()
+
+
+def alter_column_name(context, data_dict):
+    context['connection'] = _get_engine(data_dict).connect()
+
+    supplied_fields = data_dict.get('fields', {})
+    current_fields = set([i['id'] for i in _get_fields(context, data_dict)])
+    for field in supplied_fields:
+        #check fields we want to change exist
+        if field['from'] not in current_fields:
+            context['connection'].close()
+            raise ValidationError({
+                'rename_column': ['{0} column does not exist'.format(field)]
+            })
+        #check names we want to change to are valid
+        if not _is_valid_field_name(field['to']):
+            context['connection'].close()
+            raise ValidationError({
+                'fields': ['"{0}" is not a valid field name'.format(field)]})
+
+    resource_id = data_dict['resource_id']
+    sql = 'ALTER TABLE "{table}" RENAME COLUMN "{old}" TO "{new}"'
+    transaction = context['connection'].begin()
+    try:
+        #delete any previous aliases so we can run the alter table statements
+        previous_aliases = _get_aliases(context, data_dict)
+        for alias in previous_aliases:
+            context['connection'].execute(u'DROP VIEW :view', view=alias)
+
+        #TODO: rewrite so it executes as a single alter statement?
+        for field in supplied_fields:
+            context['connection'].execute(
+                sql.format(
+                    table=resource_id,
+                    old=field['from'],
+                    new=field['to']
+                )
+            )
+
+        new_fields = _get_fields(context, data_dict)
+
+        #recreate the aliases we deleted
+        data_dict['aliases'] = previous_aliases
+        create_alias(context, data_dict)
+
+        transaction.commit()
+    except SQLAlchemyError, e:
+        log.critical("Error altering resource tables columns. {0}".format(
+            e.message))
+        transaction.rollback()
+        raise ValidationError({
+            'alter_column': [u'cannot alter column in table "{0}" '.format(
+                data_dict['resource_id'])],
+            'info': {
+                'orig': str(e.orig),
+                'pgcode': e.orig.pgcode
+            }
+        })
+    finally:
+        context['connection'].close()
+
+    return {
+        'success': True,
+        'resource_id': resource_id,
+        'fields': new_fields
+    }
+
+
+def alter_column_type(context, data_dict):
+    engine = _get_engine(data_dict)
+    context['connection'] = engine.connect()
+    try:
+        supplied_fields = data_dict['fields']
+        check_fields(context, supplied_fields)
+
+        current_fields = dict(
+            [(i['id'], i['type']) for i in _get_fields(context, data_dict)])
+
+    except SQLAlchemyError, e:
+        context['connection'].close()
+        log.critical("Error altering resource tables columns. {0}".format(
+            e.message))
+        raise ValidationError({
+            'alter_column': [u'cannot alter column in table "{0}" '.format(
+                data_dict['resource_id'])],
+            'info': {
+                'orig': str(e.orig),
+                'pgcode': e.orig.pgcode
+            }
+        })
+
+    alter_fields = dict([
+        (i['id'], _Column(i['type'], i.get('format')))
+        for i in supplied_fields
+    ])
+    if not set(alter_fields.keys()).issubset(current_fields.keys()):
+        context['connection'].close()
+        raise ValidationError({'column': 'field does not exist'})
+
+    for field, type in alter_fields.items():
+        if current_fields[field] == type.type:
+            context['connection'].close()
+            raise ValidationError({'column': 'field is already supplied type'})
+        if type.format:
+            if not _is_valid_date_format(type.format):
+                context['connection'].close()
+                raise ValidationError({'column': 'format type is invalid'})
+
+    try:
+        transaction = context['connection'].begin()
+
+        #delete any previous aliases so we can run the alter table statements
+        previous_aliases = _get_aliases(context, data_dict)
+        for alias in previous_aliases:
+            context['connection'].execute(u'DROP VIEW "{0}"'.format(alias))
+
+        resource_id = data_dict['resource_id']
+        for column, type in alter_fields.items():
+            statement = _get_alter_statement(
+                data_dict['resource_id'],
+                column,
+                current_fields[column],
+                type.type,
+                type.format
+            )
+            context['connection'].execute(
+                statement.format(
+                    table=resource_id,
+                    column=column,
+                    type=type.type,
+                    format=type.format
+                )
+            )
+
+        #recreate the aliases we deleted
+        data_dict['aliases'] = previous_aliases
+        create_alias(context, data_dict)
+
+        transaction.commit()
+    except SQLAlchemyError, e:
+        log.critical("Error altering resource tables columns. {0}".format(
+            e.message))
+        transaction.rollback()
+        if e.orig.pgcode == _PG_ERR_CODE['unique_violation']:
+            raise ValidationError({
+                'alter_column': [u'invalid date format supplied "{0}" '.format(
+                    data_dict['resource_id'])],
+                'info': {
+                    'orig': str(e.orig),
+                    'pgcode': e.orig.pgcode
+                }
+            })
+        raise ValidationError({
+            'alter_column': [u'cannot alter column in table "{0}" '.format(
+                data_dict['resource_id'])],
+            'info': {
+                'orig': str(e.orig),
+                'pgcode': e.orig.pgcode
+            }
+        })
+    else:
+        altered_fields = _get_fields(context, data_dict)
+    finally:
+        context['connection'].close()
+
+    return altered_fields
+
+
+def _get_alter_statement(table, column, from_type, to_type, format=None):
+    statements = {
+        ('numeric', 'text'): '',
+        ('timestamp', 'text'): '',
+        ('text', 'numeric'): 'using nullif("{column}", \'\')::numeric',
+        ('text', 'timestamp'): 'using to_timestamp("{column}", \'{format}\')',
+        ('timestamp', 'numeric'): ('using cast(extract(epoch from'
+                                   'current_timestamp) as integer)'),
+        ('numeric', 'timestamp'): ('using timestamp  \'epoch\' + "{column}"'
+                                   '* interval \'1 second\''),
+    }
+    sql = 'ALTER TABLE "{table}" ALTER COLUMN "{column}" TYPE {type}'
+    statement = " ".join([sql, statements[(from_type, to_type)]])
+    return statement

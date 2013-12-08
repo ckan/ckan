@@ -50,7 +50,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if sys.argv[0].split('/')[-1] == 'paster' and 'datastore' in sys.argv[1:]:
             log.warn('Omitting permission checks because you are '
                      'running paster commands.')
-            return
+            return 
 
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore.write_url']
@@ -204,11 +204,14 @@ class DatastorePlugin(p.SingletonPlugin):
             connection.close()
 
     def get_actions(self):
-        actions = {'datastore_create': action.datastore_create,
-                   'datastore_upsert': action.datastore_upsert,
-                   'datastore_delete': action.datastore_delete,
-                   'datastore_search': action.datastore_search,
-                  }
+        actions = {
+            'datastore_create': action.datastore_create,
+            'datastore_upsert': action.datastore_upsert,
+            'datastore_delete': action.datastore_delete,
+            'datastore_search': action.datastore_search,
+            'datastore_rename_column': action.datastore_rename_column,
+            'datastore_alter_column_type': action.datastore_alter_column_type,
+        }
         if not self.legacy_mode:
             actions.update({
                 'datastore_search_sql': action.datastore_search_sql,
@@ -217,11 +220,15 @@ class DatastorePlugin(p.SingletonPlugin):
         return actions
 
     def get_auth_functions(self):
-        return {'datastore_create': auth.datastore_create,
-                'datastore_upsert': auth.datastore_upsert,
-                'datastore_delete': auth.datastore_delete,
-                'datastore_search': auth.datastore_search,
-                'datastore_change_permissions': auth.datastore_change_permissions}
+        return {
+            'datastore_create': auth.datastore_create,
+            'datastore_upsert': auth.datastore_upsert,
+            'datastore_delete': auth.datastore_delete,
+            'datastore_search': auth.datastore_search,
+            'datastore_change_permissions': auth.datastore_change_permissions,
+            'datastore_rename_column': auth.datastore_rename_column,
+            'datastore_alter_column_type': auth.datastore_alter_column_type,
+        }
 
     def before_map(self, m):
         m.connect('/datastore/dump/{resource_id}',

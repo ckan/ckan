@@ -140,3 +140,35 @@ def validator_errors_dict():
 
     '''
     return {('other key',): ['other error']}
+
+
+class Package(factory.Factory):
+    FACTORY_FOR = ckan.model.Package
+
+    name = factory.Sequence(lambda n: 'package_name_{0}'.format(n))
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+        return helpers.call_action('package_create', **kwargs)
+
+
+class Resource(factory.Factory):
+    FACTORY_FOR = ckan.model.Resource
+
+    url = factory.Sequence(lambda n: 'http://resource_url_{0}'.format(n))
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+        return helpers.call_action('resource_create', **kwargs)

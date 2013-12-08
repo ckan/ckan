@@ -37,3 +37,9 @@ def datastore_search(context, data_dict):
 
 def datastore_change_permissions(context, data_dict):
     return datastore_auth(context, data_dict)
+
+def datastore_rename_column(context, data_dict):
+    return datastore_auth(context, data_dict)
+
+def datastore_alter_column_type(context, data_dict):
+    return datastore_auth(context, data_dict)

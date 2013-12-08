@@ -123,3 +123,27 @@ def datastore_search_schema():
         '__before': [rename('id', 'resource_id')]
     }
     return schema
+
+
+def datastore_alter_column_schema():
+    return {
+        'resource_id': [not_missing, not_empty, unicode, resource_id_exists],
+        'fields': {
+            'id': [not_missing, not_empty, unicode],
+            'type': [not_missing, not_empty, unicode],
+            'format': [ignore_missing, unicode],
+        },
+        '__junk': [empty],
+    }
+
+
+def datastore_rename_column_schema():
+    schema = {
+        'resource_id': [not_missing, not_empty, unicode, resource_id_exists],
+        'fields': {
+            'from': [not_missing, not_empty, list_of_strings_or_string],
+            'to': [not_missing, not_empty, list_of_strings_or_string],
+        },
+        '__junk': [empty],
+    }
+    return schema
