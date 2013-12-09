@@ -39,6 +39,9 @@ def revision_list(context, data_dict):
 def group_revision_list(context, data_dict):
     return group_show(context, data_dict)
 
+def organization_revision_list(context, data_dict):
+    return group_show(context, data_dict)
+
 def package_revision_list(context, data_dict):
     return package_show(context, data_dict)
 
