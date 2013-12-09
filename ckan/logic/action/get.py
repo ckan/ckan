@@ -335,6 +335,7 @@ def member_list(context, data_dict=None):
 def _group_or_org_list(context, data_dict, is_org=False):
 
     model = context['model']
+    user = context['user']
     api = context.get('api_version')
     groups = data_dict.get('groups')
     ref_group_by = 'id' if api == 2 else 'name'
@@ -464,7 +465,7 @@ def group_list_authz(context, data_dict):
     _check_access('group_list_authz',context, data_dict)
 
     sysadmin = new_authz.is_sysadmin(user)
-    roles = ckan.new_authz.get_roles_with_permission('edit_group')
+    roles = ckan.new_authz.get_roles_with_permission('manage_group')
     if not roles:
         return []
     user_id = new_authz.get_user_id_for_username(user, allow_none=True)
@@ -2925,11 +2926,20 @@ def _unpick_search(sort, allowed_fields=None, total=None):
 def member_roles_list(context, data_dict):
     '''Return the possible roles for members of groups and organizations.
 
+    :param group_type: the group type, either "group" or "organization"
+        (optional, default "organization")
+    :type id: string
     :returns: a list of dictionaries each with two keys: "text" (the display
         name of the role, e.g. "Admin") and "value" (the internal name of the
         role, e.g. "admin")
     :rtype: list of dictionaries
 
     '''
+    group_type = data_dict.get('group_type', 'organization')
+    roles_list = new_authz.roles_list()
+    if group_type == 'group':
+        roles_list = [role for role in roles_list
+                      if role['value'] != 'editor']
+
     _check_access('member_roles_list', context, data_dict)
-    return new_authz.roles_list()
+    return roles_list

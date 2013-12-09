@@ -469,9 +469,7 @@ def member_create(context, data_dict=None):
     if not obj:
         raise NotFound('%s was not found.' % obj_type.title())
 
-
-    # User must be able to update the group to add a member to it
-    _check_access('group_update', context, data_dict)
+    _check_access('member_create', context, data_dict)
 
     # Look up existing, in case it exists
     member = model.Session.query(model.Member).\

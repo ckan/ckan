@@ -1302,6 +1302,62 @@ class PackageController(base.BaseController):
 
         return render('package/followers.html')
 
+    def groups(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj, 'use_cache': False}
+        data_dict = {'id': id}
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read dataset %s') % id)
+
+        if request.method == 'POST':
+            new_group = request.POST.get('group_added')
+            if new_group:
+                data_dict = {"id": new_group,
+                             "object": id,
+                             "object_type": 'package',
+                             "capacity": 'public'}
+                try:
+                    get_action('member_create')(context, data_dict)
+                except NotFound:
+                    abort(404, _('Group not found'))
+
+            removed_group = request.POST.get('group_removed')
+            if removed_group:
+                data_dict = {"id": removed_group,
+                             "object": id,
+                             "object_type": 'package'}
+
+                try:
+                    get_action('member_delete')(context, data_dict)
+                except NotFound:
+                    abort(404, _('Group not found'))
+            redirect(h.url_for(controller='package',
+                               action='groups', id=id))
+
+
+
+        context['is_member'] = True
+        users_groups = get_action('group_list_authz')(context, data_dict)
+
+        pkg_group_ids = set(group['id'] for group
+                         in c.pkg_dict.get('groups', []))
+        user_group_ids = set(group['id'] for group
+                          in users_groups)
+
+        c.group_dropdown = [[group['id'], group['display_name']]
+                           for group in users_groups if
+                           group['id'] not in pkg_group_ids]
+
+        for group in c.pkg_dict.get('groups', []):
+            group['user_member'] = (group['id'] in user_group_ids)
+
+        return render('package/group_list.html')
+
     def activity(self, id):
         '''Render this package's public activity stream page.'''
 
