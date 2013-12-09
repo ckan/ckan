@@ -594,7 +594,7 @@ class UserCmd(CkanCommand):
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 4
+    max_args = None
     min_args = 0
 
     def command(self):
