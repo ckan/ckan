@@ -7,9 +7,9 @@ displayed against groups and organizations.
 
 .. versionchanged:: 2.2
    Previous versions of CKAN used to allow uploads to remote cloud hosting but
-   we have simplified this to only alow local file uploads (see below for
-   details on how to migrate). This is to give CKAN more control over the files
-   and make access control possible.
+   we have simplified this to only alow local file uploads (see
+   :ref:`filestore_21_to_22_migration` for details on how to migrate). This is
+   to give CKAN more control over the files and make access control possible.
 
 ------------------
 Setup file uploads
@@ -97,6 +97,8 @@ there is special boolean field clear_upload to do this::
 
 It is also possible to have uploaded files (if of a suitable format) stored in
 the DataStore which will then provides an API to the data. See :ref:`datapusher` for more details.
+
+.. _filestore_21_to_22_migration:
 
 --------------------------
 Migration from 2.1 to 2.2
