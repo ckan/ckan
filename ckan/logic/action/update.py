@@ -344,6 +344,50 @@ def package_update(context, data_dict):
 
     return output
 
+def package_resource_reorder(context, data_dict):
+    '''Reorder resources against datasets.  If only partial resource ids are
+    supplied then these are assumed to be first and the other resources will
+    stay in their original order
+
+    :param id: the id or name of the package to update
+    :type id: string
+    :param order: a list of resource ids in the order needed
+    :type list: list
+    '''
+
+    id = _get_or_bust(data_dict, "id")
+    order = _get_or_bust(data_dict, "order")
+    if not isinstance(order, list):
+        raise ValidationError({'order': 'Must be a list of resource'})
+
+    if len(set(order)) != len(order):
+        raise ValidationError({'order': 'Must supply unique resource_ids'})
+
+    package_dict = _get_action('package_show')(context, {'id': id})
+    existing_resources = package_dict.get('resources', [])
+    ordered_resources = []
+
+    for resource_id in order:
+        for i in range(0, len(existing_resources)):
+            if existing_resources[i]['id'] == resource_id:
+                resource = existing_resources.pop(i)
+                ordered_resources.append(resource)
+                break
+        else:
+            raise ValidationError(
+                {'order':
+                 'resource_id {id} can not be found'.format(id=resource_id)}
+            )
+
+    new_resources = ordered_resources + existing_resources
+    package_dict['resources'] = new_resources
+
+    _check_access('package_resource_reorder', context, package_dict)
+    _get_action('package_update')(context, package_dict)
+
+    return {'id': id, 'order': [resource['id'] for resource in new_resources]}
+
+
 def _update_package_relationship(relationship, comment, context):
     model = context['model']
     api = context.get('api_version')
