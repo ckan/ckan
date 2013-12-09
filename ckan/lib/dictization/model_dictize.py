@@ -349,14 +349,14 @@ def group_dictize(group, context):
 
     context['with_capacity'] = True
 
-    include_packages = context.get('include_group_packages', True)
+    include_datasets = context.get('include_datasets', True)
 
     q = {
         'facet': 'false',
         'rows': 0,
     }
 
-    if include_packages:
+    if include_datasets:
 
         q['rows'] = 1000    # Only the first 1000 datasets are returned
 
@@ -372,7 +372,7 @@ def group_dictize(group, context):
 
     search_results = logic.get_action('package_search')(context, q)
 
-    if include_packages:
+    if include_datasets:
         result_dict['packages'] = search_results['results']
 
     result_dict['package_count'] = search_results['count']

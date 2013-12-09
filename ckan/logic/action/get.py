@@ -944,6 +944,9 @@ def _group_or_org_show(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context['group'] = group
 
+    context['include_datasets'] = (
+        data_dict.get('include_datasets','true').lower() in ('true', '1'))
+
     if group is None:
         raise NotFound
     if is_org and not group.is_organization:
@@ -990,6 +993,9 @@ def group_show(context, data_dict):
 
     :param id: the id or name of the group
     :type id: string
+    :param include_datasets: include a list of the group's datasets
+         (optional, default: ``True``)
+    :type id: boolean
 
     :rtype: dictionary
 
@@ -1003,6 +1009,9 @@ def organization_show(context, data_dict):
 
     :param id: the id or name of the organization
     :type id: string
+    :param include_datasets: include a list of the organization's datasets
+         (optional, default: ``True``)
+    :type id: boolean
 
     :rtype: dictionary
 
