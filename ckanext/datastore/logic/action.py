@@ -318,7 +318,7 @@ def datastore_search_sql(context, data_dict):
                      '(; equals chr(59)) and string concatenation (||). ')]
         })
 
-    p.toolkit.check_access('datastore_search', context, data_dict)
+    p.toolkit.check_access('datastore_search_sql', context, data_dict)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.read_url']
 

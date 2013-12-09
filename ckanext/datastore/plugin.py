@@ -242,6 +242,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
                 'datastore_search': auth.datastore_search,
+                'datastore_search_sql': auth.datastore_search_sql,
                 'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
