@@ -1,11 +1,15 @@
 import logging
 from urllib import urlencode
 import datetime
+import os
+import mimetypes
+import cgi
 
 from pylons import config
 from genshi.template import MarkupTemplate
 from genshi.template.text import NewTextTemplate
 from paste.deploy.converters import asbool
+import paste.fileapp
 
 import ckan.logic as logic
 import ckan.lib.base as base
@@ -18,6 +22,7 @@ import ckan.lib.helpers as h
 import ckan.model as model
 import ckan.lib.datapreview as datapreview
 import ckan.lib.plugins
+import ckan.lib.uploader as uploader
 import ckan.plugins as p
 import ckan.lib.render
 
@@ -221,7 +226,7 @@ class PackageController(base.BaseController):
                     'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license_id': _('License'),
+                    'license_id': _('Licenses'),
                     }
 
             for facet in g.facets:
@@ -310,7 +315,7 @@ class PackageController(base.BaseController):
         data_dict = {'id': id}
 
         try:
-            check_access('package_update', context)
+            check_access('package_update', context, data_dict)
         except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
         # check if package exists
@@ -550,7 +555,7 @@ class PackageController(base.BaseController):
             del data['save']
 
             context = {'model': model, 'session': model.Session,
-                       'api_version': 3,
+                       'api_version': 3, 'for_edit': True,
                        'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
             data['package_id'] = id
@@ -571,7 +576,7 @@ class PackageController(base.BaseController):
                                id=id, resource_id=resource_id))
 
         context = {'model': model, 'session': model.Session,
-                   'api_version': 3,
+                   'api_version': 3, 'for_edit': True,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj}
         pkg_dict = get_action('package_show')(context, {'id': id})
         if pkg_dict['state'].startswith('draft'):
@@ -621,7 +626,8 @@ class PackageController(base.BaseController):
             # see if we have any data that we are trying to save
             data_provided = False
             for key, value in data.iteritems():
-                if value and key != 'resource_type':
+                if ((value or isinstance(value, cgi.FieldStorage))
+                    and key != 'resource_type'):
                     data_provided = True
                     break
 
@@ -1204,10 +1210,10 @@ class PackageController(base.BaseController):
                     or datapreview.get_preview_plugin(
                         data_dict, return_first=True))
 
-    def resource_download(self, id, resource_id):
+    def resource_download(self, id, resource_id, filename=None):
         """
-        Provides a direct download by redirecting the user to the url stored
-        against this resource.
+        Provides a direct download by either redirecting the user to the url stored
+         or downloading an uploaded file directly.
         """
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj}
@@ -1220,7 +1226,20 @@ class PackageController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
 
-        if not 'url' in rsc:
+        if rsc.get('url_type') == 'upload':
+            upload = uploader.ResourceUpload(rsc)
+            filepath = upload.get_path(rsc['id'])
+            fileapp = paste.fileapp.FileApp(filepath)
+            try:
+               status, headers, app_iter = request.call_application(fileapp)
+            except OSError:
+               abort(404, _('Resource data not found'))
+            response.headers.update(dict(headers))
+            content_type, content_enc = mimetypes.guess_type(rsc.get('url',''))
+            response.headers['Content-Type'] = content_type
+            response.status = status
+            return app_iter
+        elif not 'url' in rsc:
             abort(404, _('No download is available'))
         redirect(rsc['url'])
 
@@ -1282,6 +1301,62 @@ class PackageController(base.BaseController):
             abort(401, _('Unauthorized to read package %s') % id)
 
         return render('package/followers.html')
+
+    def groups(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj, 'use_cache': False}
+        data_dict = {'id': id}
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read dataset %s') % id)
+
+        if request.method == 'POST':
+            new_group = request.POST.get('group_added')
+            if new_group:
+                data_dict = {"id": new_group,
+                             "object": id,
+                             "object_type": 'package',
+                             "capacity": 'public'}
+                try:
+                    get_action('member_create')(context, data_dict)
+                except NotFound:
+                    abort(404, _('Group not found'))
+
+            removed_group = request.POST.get('group_removed')
+            if removed_group:
+                data_dict = {"id": removed_group,
+                             "object": id,
+                             "object_type": 'package'}
+
+                try:
+                    get_action('member_delete')(context, data_dict)
+                except NotFound:
+                    abort(404, _('Group not found'))
+            redirect(h.url_for(controller='package',
+                               action='groups', id=id))
+
+
+
+        context['is_member'] = True
+        users_groups = get_action('group_list_authz')(context, data_dict)
+
+        pkg_group_ids = set(group['id'] for group
+                         in c.pkg_dict.get('groups', []))
+        user_group_ids = set(group['id'] for group
+                          in users_groups)
+
+        c.group_dropdown = [[group['id'], group['display_name']]
+                           for group in users_groups if
+                           group['id'] not in pkg_group_ids]
+
+        for group in c.pkg_dict.get('groups', []):
+            group['user_member'] = (group['id'] in user_group_ids)
+
+        return render('package/group_list.html')
 
     def activity(self, id):
         '''Render this package's public activity stream page.'''

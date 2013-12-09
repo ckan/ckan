@@ -4,7 +4,7 @@ import ckan.tests as tests
 from ckan.logic import get_action
 import ckan.model as model
 import ckan.new_authz as new_authz
-from ckan.lib.create_test_data import CreateTestData, group_hierarchy_groups
+from ckan.lib.create_test_data import CreateTestData
 import json
 
 INITIAL_TEST_CONFIG_PERMISSIONS = {
@@ -14,8 +14,9 @@ INITIAL_TEST_CONFIG_PERMISSIONS = {
     'user_create_organizations': False,
     'user_delete_groups': False,
     'user_delete_organizations': False,
-    'create_user_via_api': False,
     'create_unowned_dataset': False,
+    'create_user_via_api': False,
+    'create_user_via_web': True,
     'roles_that_cascade_to_sub_groups': ['admin'],
 }
 

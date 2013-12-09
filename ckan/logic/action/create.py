@@ -17,6 +17,7 @@ import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
+import ckan.lib.uploader as uploader
 import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
 
@@ -90,7 +91,7 @@ def package_create(context, data_dict):
     :param extras: the dataset's extras (optional), extras are arbitrary
         (key: value) metadata items that can be added to datasets, each extra
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
-        string), and optionally ``'deleted'``
+        string)
     :type extras: list of dataset extra dictionaries
     :param relationships_as_object: see ``package_relationship_create()`` for
         the format of relationship dictionaries (optional)
@@ -238,6 +239,8 @@ def resource_create(context, data_dict):
     :type cache_last_updated: iso date string
     :param webstore_last_updated: (optional)
     :type webstore_last_updated: iso date string
+    :param upload: (optional)
+    :type upload: FieldStorage (optional) needs multipart/form-data
 
     :returns: the newly created resource
     :rtype: dictionary
@@ -255,15 +258,31 @@ def resource_create(context, data_dict):
 
     if not 'resources' in pkg_dict:
         pkg_dict['resources'] = []
+
+    upload = uploader.ResourceUpload(data_dict)
+
     pkg_dict['resources'].append(data_dict)
 
     try:
-        pkg_dict = _get_action('package_update')(context, pkg_dict)
+        context['defer_commit'] = True
+        context['use_cache'] = False
+        _get_action('package_update')(context, pkg_dict)
+        context.pop('defer_commit')
     except ValidationError, e:
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
-    return pkg_dict['resources'][-1]
+    ## Get out resource_id resource from model as it will not appear in
+    ## package_show until after commit
+    upload.upload(context['package'].resources[-1].id,
+                  uploader.get_max_resource_size())
+    model.repo.commit()
+
+    ##  Run package show again to get out actual last_resource
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    resource = pkg_dict['resources'][-1]
+
+    return resource
 
 
 def related_create(context, data_dict):
@@ -450,8 +469,7 @@ def member_create(context, data_dict=None):
     if not obj:
         raise NotFound('%s was not found.' % obj_type.title())
 
-    # User must be able to update the group to add a member to it
-    _check_access('group_update', context, data_dict)
+    _check_access('member_create', context, data_dict)
 
     # Look up existing, in case it exists
     member = model.Session.query(model.Member).\
@@ -478,7 +496,9 @@ def _group_or_org_create(context, data_dict, is_org=False):
     session = context['session']
     data_dict['is_organization'] = is_org
 
-
+    upload = uploader.Upload('group')
+    upload.update_data_dict(data_dict, 'image_url',
+                           'image_upload', 'clear_upload')
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(
             group_type=data_dict.get('type'))
@@ -556,6 +576,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     logic.get_action('activity_create')(activity_create_context,
             activity_dict)
 
+    upload.upload(uploader.get_max_image_size())
     if not context.get('defer_commit'):
         model.repo.commit()
     context["group"] = group
@@ -821,7 +842,8 @@ def user_create(context, data_dict):
     #
     # The context is copied so as not to clobber the caller's context dict.
     user_dictize_context = context.copy()
-    user_dictize_context['keep_sensitive_data'] = True
+    user_dictize_context['keep_apikey'] = True
+    user_dictize_context['keep_email'] = True
     user_dict = model_dictize.user_dictize(user, user_dictize_context)
 
     context['user_obj'] = user

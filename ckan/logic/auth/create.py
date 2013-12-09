@@ -1,5 +1,6 @@
 import ckan.logic as logic
 import ckan.new_authz as new_authz
+import ckan.logic.auth as logic_auth
 
 from ckan.common import _
 
@@ -103,15 +104,22 @@ def rating_create(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
 
+
 @logic.auth_allow_anonymous_access
 def user_create(context, data_dict=None):
-    user = context['user']
+    using_api = 'api_version' in context
+    create_user_via_api = new_authz.check_config_permission(
+            'create_user_via_api')
+    create_user_via_web = new_authz.check_config_permission(
+            'create_user_via_web')
 
-    if ('api_version' in context
-            and not new_authz.check_config_permission('create_user_via_api')):
-        return {'success': False, 'msg': _('User %s not authorized to create users') % user}
-    else:
-        return {'success': True}
+    if using_api and not create_user_via_api:
+        return {'success': False, 'msg': _('User {user} not authorized to '
+            'create users via the API').format(user=context.get('user'))}
+    if not using_api and not create_user_via_web:
+        return {'success': False, 'msg': _('Not authorized to '
+            'create users')}
+    return {'success': True}
 
 def user_invite(context, data_dict=None):
     context['id'] = context.get('group_id')
@@ -208,3 +216,23 @@ def organization_member_create(context, data_dict):
 
 def group_member_create(context, data_dict):
     return _group_or_org_member_create(context, data_dict)
+
+def member_create(context, data_dict):
+    group = logic_auth.get_group_object(context, data_dict)
+    user = context['user']
+
+    # User must be able to update the group to add a member to it
+    permission = 'update'
+    # However if the user is member of group then they can add/remove datasets
+    if not group.is_organization and data_dict.get('object_type') == 'package':
+        permission = 'manage_group'
+
+    authorized = new_authz.has_user_permission_for_group_or_org(group.id,
+                                                                user,
+                                                                permission)
+    if not authorized:
+        return {'success': False,
+                'msg': _('User %s not authorized to edit group %s') %
+                        (str(user), group.id)}
+    else:
+        return {'success': True}

@@ -23,7 +23,7 @@ contributions to CKAN.
 
 
 ----------------
-Reporting Issues
+Reporting issues
 ----------------
 
 If you've found a bug in CKAN, open a new issue on CKAN's `GitHub Issues`_ (try
@@ -47,7 +47,7 @@ For contributing translations to CKAN, see
 .. _coding standards:
 
 ----------------
-Coding Standards
+Coding standards
 ----------------
 
 When writing code for CKAN, try to respect our coding standards:
@@ -61,6 +61,7 @@ When writing code for CKAN, try to respect our coding standards:
    css-coding-standards
    javascript-coding-standards
    testing-coding-standards
+   upgrading-dependencies
 
 * `CKAN coding standards <http://docs.ckan.org/en/latest/ckan-coding-standards.html>`_
 * `Python coding standards <http://docs.ckan.org/en/latest/python-coding-standards.html>`_
@@ -68,10 +69,11 @@ When writing code for CKAN, try to respect our coding standards:
 * `CSS coding standards <http://docs.ckan.org/en/latest/css-coding-standards.html>`_
 * `JavaScript coding standards <http://docs.ckan.org/en/latest/javascript-coding-standards.html>`_
 * `Testing coding standards <http://docs.ckan.org/en/latest/testing-coding-standards.html>`_
+* `Upgrading CKAN's dependencies <http://docs.ckan.org/en/latest/upgrading-dependencies.html>`_
 
 
 ---------------
-Commit Messages
+Commit messages
 ---------------
 
 Generally, follow the `commit guidelines from the Pro Git book`_:
@@ -104,7 +106,7 @@ Here's an example of a good CKAN commit message::
 
 
 -------------------------------
-Frontend Development Guidelines
+Frontend development guidelines
 -------------------------------
 
 .. toctree::
@@ -126,7 +128,7 @@ Frontend Development Guidelines
 
 
 ---------------------
-Writing Documentation
+Writing documentation
 ---------------------
 
 The quickest and easiest way to contribute documentation to CKAN is to sign up
@@ -149,7 +151,7 @@ the `documentation guidelines <http://docs.ckan.org/en/latest/documentation-guid
 .. _making a pull request:
 
 ---------------------
-Making a Pull Request
+Making a pull request
 ---------------------
 
 Once you've written some CKAN code or documentation, you can submit it for
@@ -230,7 +232,7 @@ This section will walk you through the steps for making a pull request.
 .. _create a pull request on GitHub: https://help.github.com/articles/creating-a-pull-request
 
 
-Merging a Pull Request
+Merging a pull request
 ======================
 
 If you're reviewing a pull request for CKAN, when merging a branch into master:

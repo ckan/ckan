@@ -68,7 +68,7 @@ class UserController(base.BaseController):
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
-            h.redirect_to(controller='user', action='login', id=None)
+            abort(404, _('User not found'))
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
         c.user_dict = user_dict
@@ -117,10 +117,6 @@ class UserController(base.BaseController):
                    'for_view': True}
         data_dict = {'id': id,
                      'user_obj': c.userobj}
-        try:
-            check_access('user_show', context, data_dict)
-        except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
 
         context['with_related'] = True
 
@@ -455,7 +451,7 @@ class UserController(base.BaseController):
         # reuse of the url
         context = {'model': model, 'session': model.Session,
                    'user': id,
-                   'keep_sensitive_data': True}
+                   'keep_email': True}
 
         try:
             check_access('user_reset', context)
@@ -466,10 +462,6 @@ class UserController(base.BaseController):
             data_dict = {'id': id}
             user_dict = get_action('user_show')(context, data_dict)
 
-            # Be a little paranoid, and get rid of sensitive data that's
-            # not needed.
-            user_dict.pop('apikey', None)
-            user_dict.pop('reset_key', None)
             user_obj = context['user_obj']
         except NotFound, e:
             abort(404, _('User not found'))

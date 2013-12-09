@@ -83,7 +83,7 @@ class AuthFunctions:
                             resolved_auth_function_plugins[name]
                         )
                     )
-                log.debug('Auth function %r was inserted', plugin.name)
+                log.debug('Auth function {0} from plugin {1} was inserted'.format(name, plugin.name))
                 resolved_auth_function_plugins[name] = plugin.name
                 fetched_auth_functions[name] = auth_function
         # Use the updated ones in preference to the originals.
@@ -96,6 +96,7 @@ del AuthFunctions
 
 def clear_auth_functions_cache():
     _AuthFunctions.clear()
+    CONFIG_PERMISSIONS.clear()
 
 
 def auth_functions_list():
@@ -191,8 +192,8 @@ def is_authorized(action, context, data_dict=None):
 # these are the permissions that roles have
 ROLE_PERMISSIONS = OrderedDict([
     ('admin', ['admin']),
-    ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset']),
-    ('member', ['read']),
+    ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset', 'manage_group']),
+    ('member', ['read', 'manage_group']),
 ])
 
 
@@ -379,6 +380,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'user_delete_groups': True,
     'user_delete_organizations': True,
     'create_user_via_api': False,
+    'create_user_via_web': True,
     'roles_that_cascade_to_sub_groups': 'admin',
 }
 

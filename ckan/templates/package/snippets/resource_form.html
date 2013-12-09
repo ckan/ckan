@@ -4,7 +4,7 @@
 {% set errors = errors or {} %}
 {% set action = form_action or h.url_for(controller='package', action='new_resource', id=pkg_name) %}
 
-<form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form resource-form">
+<form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
   {% block stages %}
     {# An empty stages variable will not show the stages #}
     {% if stage %}
@@ -16,29 +16,12 @@
 
   <input name="id" value="{{ data.id }}" type="hidden"/>
 
-  <div class="control-group dataset-form-resource-types">
-    {% block basic_fields %}
-
-      {% block basic_fields_data %}
-        <div class="controls"{% if allow_upload %} data-module="resource-upload-field"{% endif %}>
-          {#
-          This block uses a slightly odd pattern. Unlike the rest of the radio
-          buttons which are wrapped _inside_ the labels here we place the label
-          after the input. This enables us to style the label based on the state
-          of the radio using css. eg. input[type=radio]+label {}
-          #}
-          <i class="ckan-icon ckan-icon-link-file"></i>
-          <input id="field-resource-type-file" type="radio" name="resource_type" checked="checked" value="file" />
-          <label class="radio inline" for="field-resource-type-file">{{ _('Link to a file') }}</label>
-          <i class="ckan-icon ckan-icon-link-plugin"></i>
-          <input id="field-resource-type-api" type="radio" name="resource_type" value="api" />
-          <label class="radio inline" for="field-resource-type-api">{{ _('Link to an API') }}</label>
-        </div>
-      </div>
-      {% endblock %}
 
     {% block basic_fields_url %}
-      {{ form.input('url', id='field-url', label=_('Resource'), placeholder=_('eg. http://example.com/gold-prices-jan-2011.json'), value=data.url, error=errors.url, classes=['control-full', 'control-large'], is_required=true) }}
+      {% set is_upload = (data.url_type == 'upload') %}
+      {{ form.image_upload(data, errors, field_url='url', field_upload='upload', field_clear='clear_upload',
+         is_upload_enabled=h.uploads_enabled(), is_url=data.url and not is_upload, is_upload=is_upload,
+         upload_label=_('File Upload'), url_label=_('URL')) }}
     {% endblock %}
 
     {% block basic_fields_name %}
@@ -61,7 +44,6 @@
 
     {{ form.required_message() }}
 
-  {% endblock %}
 
   {% block metadata_fields %}
     {% if include_metadata %}

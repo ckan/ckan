@@ -1,6 +1,6 @@
 {% extends "package/base.html" %}
 
-{% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
+{% block subtitle %}{{ pkg.title or pkg.name }} - {{ super() }}{% endblock %}
 
 {% block links -%}
   {{ super() }}
@@ -16,12 +16,13 @@
 
 {% block content_action %}
   {% if h.check_access('package_update', {'id':pkg.id }) %}
-    {% link_for _('Edit'), controller='package', action='edit', id=pkg.name, class_='btn', icon='wrench' %}
+    {% link_for _('Manage'), controller='package', action='edit', id=pkg.name, class_='btn', icon='wrench' %}
   {% endif %}
 {% endblock %}
 
 {% block content_primary_nav %}
   {{ h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name) }}
+  {{ h.build_nav_icon('dataset_groups', _('Groups'), id=pkg.name) }}
   {{ h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name) }}
   {{ h.build_nav_icon('related_list', _('Related'), id=pkg.name) }}
 {% endblock %}
@@ -56,23 +57,6 @@
   {% block package_organization %}
     {% if pkg.organization %}
       {% snippet "snippets/organization.html", organization=pkg.organization, has_context_title=true %}
-    {% endif %}
-  {% endblock %}
-
-  {% block package_groups %}
-    {% if pkg.groups %}
-      <div class="module module-narrow">
-        <h2 class="module-heading"><i class="icon-folder-open"></i> {{ _('Groups') }}</h2>
-        <ul class="nav nav-simple">
-          {% for group in pkg.groups %}
-            <li class="nav-item">
-              <a href="{{ h.url_for(controller='group', action='read', id=group.name) }}">
-                {{ group.title or group.name }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
     {% endif %}
   {% endblock %}
 

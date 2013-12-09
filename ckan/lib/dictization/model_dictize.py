@@ -10,22 +10,23 @@ import ckan.lib.helpers as h
 import ckan.lib.dictization as d
 import ckan.new_authz as new_authz
 import ckan.lib.search as search
+import ckan.lib.munge as munge
 
 ## package save
 
 def group_list_dictize(obj_list, context,
-                       sort_key=lambda x:x['display_name'], reverse=False):
+                       sort_key=lambda x:x['display_name'], reverse=False,
+                       with_package_counts=True):
 
     active = context.get('active', True)
     with_private = context.get('include_private_packages', False)
 
-    query = search.PackageSearchQuery()
-
-    q = {'q': '+capacity:public' if not with_private else '*:*',
-         'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
-         'facet.limit': -1, 'rows': 1}
-
-    query.run(q)
+    if with_package_counts:
+        query = search.PackageSearchQuery()
+        q = {'q': '+capacity:public' if not with_private else '*:*',
+             'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
+             'facet.limit': -1, 'rows': 1}
+        query.run(q)
 
     result_list = []
 
@@ -39,12 +40,26 @@ def group_list_dictize(obj_list, context,
         if active and obj.state not in ('active', 'pending'):
             continue
 
-        group_dict['display_name'] = obj.display_name
+        group_dict['display_name'] = (group_dict.get('title') or
+                                      group_dict.get('name'))
 
-        if obj.is_organization:
-            group_dict['packages'] = query.facets['owner_org'].get(obj.id, 0)
-        else:
-            group_dict['packages'] = query.facets['groups'].get(obj.name, 0)
+        image_url = group_dict.get('image_url')
+        group_dict['image_display_url'] = image_url
+        if image_url and not image_url.startswith('http'):
+            #munge here should not have an effect only doing it incase
+            #of potential vulnerability of dodgy api input
+            image_url = munge.munge_filename(image_url)
+            group_dict['image_display_url'] = h.url_for_static(
+                'uploads/group/%s' % group_dict.get('image_url'),
+                qualified=True
+            )
+
+        if with_package_counts:
+            facets = query.facets
+            if obj.is_organization:
+                group_dict['packages'] = facets['owner_org'].get(obj.id, 0)
+            else:
+                group_dict['packages'] = facets['groups'].get(obj.name, 0)
 
         if context.get('for_view'):
             if group_dict['is_organization']:
@@ -128,14 +143,29 @@ def _unified_resource_format(format_):
     return format_new
 
 def resource_dictize(res, context):
+    model = context['model']
     resource = d.table_dictize(res, context)
+    resource_group_id = resource['resource_group_id']
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
     resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
-    if not urlparse.urlsplit(url).scheme:
+    ## for_edit is only called at the times when the dataset is to be edited
+    ## in the frontend. Without for_edit the whole qualified url is returned.
+    if resource.get('url_type') == 'upload' and not context.get('for_edit'):
+        resource_group = model.Session.query(
+            model.ResourceGroup).get(resource_group_id)
+        last_part = url.split('/')[-1]
+        cleaned_name = munge.munge_filename(last_part)
+        resource['url'] = h.url_for(controller='package',
+                                    action='resource_download',
+                                    id=resource_group.package_id,
+                                    resource_id=res.id,
+                                    filename=cleaned_name,
+                                    qualified=True)
+    elif not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
         resource['url'] = u'http://' + url.lstrip('/')
     return resource
 
@@ -248,7 +278,11 @@ def package_dictize(pkg, context):
                 .where(member_rev.c.state == 'active') \
                 .where(group.c.is_organization == False)
     result = _execute_with_revision(q, member_rev, context)
-    result_dict["groups"] = d.obj_list_dictize(result, context)
+    context['with_capacity'] = False
+    ## no package counts as cannot fetch from search index at the same
+    ## time as indexing to it.
+    result_dict["groups"] = group_list_dictize(result, context,
+                                               with_package_counts=False)
     #owning organization
     group_rev = model.group_revision_table
     q = select([group_rev]
@@ -357,6 +391,16 @@ def group_dictize(group, context):
         for item in plugins.PluginImplementations(plugin):
             result_dict = item.before_view(result_dict)
 
+    image_url = result_dict.get('image_url')
+    result_dict['image_display_url'] = image_url
+    if image_url and not image_url.startswith('http'):
+        #munge here should not have an effect only doing it incase
+        #of potential vulnerability of dodgy api input
+        image_url = munge.munge_filename(image_url)
+        result_dict['image_display_url'] = h.url_for_static(
+            'uploads/group/%s' % result_dict.get('image_url'),
+            qualified = True
+        )
     return result_dict
 
 def tag_list_dictize(tag_list, context):
@@ -431,6 +475,9 @@ def user_list_dictize(obj_list, context,
 
     for obj in obj_list:
         user_dict = user_dictize(obj, context)
+        user_dict.pop('reset_key', None)
+        user_dict.pop('apikey', None)
+        user_dict.pop('email', None)
         result_list.append(user_dict)
     return sorted(result_list, key=sort_key, reverse=reverse)
 
@@ -455,13 +502,24 @@ def user_dictize(user, context):
 
     requester = context.get('user')
 
-    if not (new_authz.is_sysadmin(requester) or
-            requester == user.name or
-            context.get('keep_sensitive_data', False)):
-        # If not sysadmin or the same user, strip sensible info
-        result_dict.pop('apikey', None)
-        result_dict.pop('reset_key', None)
-        result_dict.pop('email', None)
+    reset_key = result_dict.pop('reset_key', None)
+    apikey = result_dict.pop('apikey', None)
+    email = result_dict.pop('email', None)
+
+    if context.get('keep_email', False):
+        result_dict['email'] = email
+
+    if context.get('keep_apikey', False):
+        result_dict['apikey'] = email
+
+    if requester == user.name:
+        result_dict['apikey'] = apikey
+        result_dict['email'] = email
+
+    ## this should not really really be needed but tests r it
+    if new_authz.is_sysadmin(requester):
+        result_dict['apikey'] = apikey
+        result_dict['email'] = email
 
     model = context['model']
     session = model.Session
@@ -632,3 +690,20 @@ def user_following_dataset_dictize(follower, context):
 
 def user_following_group_dictize(follower, context):
     return d.table_dictize(follower, context)
+
+    base_columns = set(['id', 'resource_id', 'title', 'description',
+                        'view_type', 'order', 'config'])
+
+def resource_view_dictize(resource_view, context):
+    dictized = d.table_dictize(resource_view, context)
+    dictized.pop('order')
+    config = dictized.pop('config', {})
+    dictized.update(config)
+    return dictized
+
+def resource_view_list_dictize(resource_views, context):
+    resource_view_dicts = []
+    for view in resource_views:
+        resource_view_dicts.append(resource_view_dictize(view, context))
+    return resource_view_dicts
+
