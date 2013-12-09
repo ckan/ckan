@@ -16,6 +16,15 @@ organization.
    :ref:`filestore_21_to_22_migration` for details on how to migrate). This is
    to give CKAN more control over the files and make access control possible.
 
+.. seealso::
+
+   :ref:`datapusher`
+
+    Resource files linked-to from CKAN or uploaded to CKAN's FileStore can
+    also be pushed into CKAN's DataStore, which then enables data previews and
+    a data API for the resources.
+
+
 ------------------
 Setup file uploads
 ------------------
@@ -102,8 +111,6 @@ To replace an uploaded file with a link to a file at a remote URL, use the
 
     curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' --form url=http://expample.com --form clear_upload=true --form id=resourceid
 
-It is also possible to have uploaded files (if of a suitable format) stored in
-the DataStore which will then provides an API to the data. See :ref:`datapusher` for more details.
 
 .. _filestore_21_to_22_migration:
 
