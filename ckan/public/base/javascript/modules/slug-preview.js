@@ -9,17 +9,20 @@ this.ckan.module('slug-preview-target', {
       el.after(preview);
     });
 
-    // Once the preview box is modified stop watching it.
-    sandbox.subscribe('slug-preview-modified', function () {
-      el.off('.slug-preview');
-    });
+    // Make sure there isn't a value in the field already...
+    if (el.val() == '') {
+      // Once the preview box is modified stop watching it.
+      sandbox.subscribe('slug-preview-modified', function () {
+        el.off('.slug-preview');
+      });
 
-    // Watch for updates to the target field and update the hidden slug field
-    // triggering the "change" event manually.
-    el.on('keyup.slug-preview', function (event) {
-      sandbox.publish('slug-target-changed', this.value);
-      //slug.val(this.value).trigger('change');
-    });
+      // Watch for updates to the target field and update the hidden slug field
+      // triggering the "change" event manually.
+      el.on('keyup.slug-preview', function (event) {
+        sandbox.publish('slug-target-changed', this.value);
+        //slug.val(this.value).trigger('change');
+      });
+    }
   }
 });
 

@@ -909,7 +909,6 @@ class TestActionAuth(object):
         'create: follow_dataset',
         'create: follow_group',
         'create: follow_user',
-        'create: member_create',
         'create: package_relationship_create_rest',
         'delete: member_delete',
         'delete: package_relationship_delete_rest',

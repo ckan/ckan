@@ -219,15 +219,23 @@ def resource_update(context, data_dict):
     else:
         logging.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
+
+    upload = uploader.ResourceUpload(data_dict)
+
     pkg_dict['resources'][n] = data_dict
 
     try:
+        context['defer_commit'] = True
+        context['use_cache'] = False
         pkg_dict = _get_action('package_update')(context, pkg_dict)
+        context.pop('defer_commit')
     except ValidationError, e:
         errors = e.error_dict['resources'][n]
         raise ValidationError(errors)
 
-    return pkg_dict['resources'][n]
+    upload.upload(id, uploader.get_max_resource_size())
+    model.repo.commit()
+    return _get_action('resource_show')(context, {'id': id})
 
 
 def package_update(context, data_dict):
@@ -533,7 +541,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
         # TODO: Also create an activity detail recording what exactly changed
         # in the group.
 
-    upload.upload()
+    upload.upload(uploader.get_max_image_size())
     if not context.get('defer_commit'):
         model.repo.commit()
 

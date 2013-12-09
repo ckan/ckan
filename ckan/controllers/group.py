@@ -643,7 +643,7 @@ class GroupController(base.BaseController):
                 else:
                     c.user_role = 'member'
                 c.group_dict = self._action('group_show')(context, {'id': id})
-                c.roles = self._action('member_roles_list')(context, {})
+                c.roles = self._action('member_roles_list')(context, {'group_type': 'group'})
         except NotAuthorized:
             abort(401, _('Unauthorized to add member to group %s') % '')
         except NotFound:
