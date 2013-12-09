@@ -472,7 +472,6 @@ class TestImportStar(object):
         'ckan/tests/lib/test_tag_search.py',
         'ckan/tests/misc/test_sync.py',
         'ckan/tests/models/test_extras.py',
-        'ckan/tests/models/test_group.py',
         'ckan/tests/models/test_misc.py',
         'ckan/tests/models/test_package.py',
         'ckan/tests/models/test_package_relationships.py',

@@ -379,7 +379,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'user_delete_groups': True,
     'user_delete_organizations': True,
     'create_user_via_api': False,
-    'roles_that_cascade_to_sub_groups': ['admin'],
+    'roles_that_cascade_to_sub_groups': 'admin',
 }
 
 CONFIG_PERMISSIONS = {}
@@ -393,12 +393,14 @@ def check_config_permission(permission):
             key = 'ckan.auth.' + perm
             default = CONFIG_PERMISSIONS_DEFAULTS[perm]
             CONFIG_PERMISSIONS[perm] = config.get(key, default)
-            if isinstance(default, bool):
-                CONFIG_PERMISSIONS[perm] = asbool(CONFIG_PERMISSIONS[perm])
-            elif isinstance(default, list) and key in config:
+            if perm == 'roles_that_cascade_to_sub_groups':
+                # this permission is a list of strings (space separated)
                 CONFIG_PERMISSIONS[perm] = \
                     CONFIG_PERMISSIONS[perm].split(' ') \
                     if CONFIG_PERMISSIONS[perm] else []
+            else:
+                # most permissions are boolean
+                CONFIG_PERMISSIONS[perm] = asbool(CONFIG_PERMISSIONS[perm])
     if permission in CONFIG_PERMISSIONS:
         return CONFIG_PERMISSIONS[permission]
     return False
