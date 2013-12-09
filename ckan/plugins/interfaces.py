@@ -770,7 +770,7 @@ class IDatasetForm(Interface):
 
         If the user requests the dataset in a format other than HTML
         (CKAN supports returning datasets in RDF or N3 format by appending .rdf
-        or .n3 to the dataset read URL, see :doc:`linked-data-and-rdf`) then
+        or .n3 to the dataset read URL, see :doc:`/linked-data-and-rdf`) then
         CKAN will try to render
         a template file with the same path as returned by this function,
         but a different filename extension, e.g. ``'package/read.rdf'``.

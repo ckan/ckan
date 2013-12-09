@@ -221,7 +221,7 @@ def get_and_send_notifications_for_user(user):
 
 def get_and_send_notifications_for_all_users():
     context = {'model': model, 'session': model.Session, 'ignore_auth': True,
-            'keep_sensitive_data': True}
+            'keep_email': True}
     users = logic.get_action('user_list')(context, {})
     for user in users:
         get_and_send_notifications_for_user(user)

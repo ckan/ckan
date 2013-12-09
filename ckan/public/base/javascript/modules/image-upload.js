@@ -6,16 +6,16 @@ this.ckan.module('image-upload', function($, _) {
     /* options object can be extended using data-module-* attributes */
     options: {
       is_url: true,
-      has_image: false,
-      field_upload: 'input[name="image_upload"]',
-      field_url: 'input[name="image_url"]',
-      field_clear: 'input[name="clear_upload"]',
+      is_upload: false,
+      field_upload: 'image_upload',
+      field_url: 'image_url',
+      field_clear: 'clear_upload',
+      upload_label: '',
       i18n: {
         upload: _('From computer'),
         url: _('From web'),
         remove: _('Remove'),
-        label: _('Upload image'),
-        label_url: _('Image URL'),
+        upload_label: _('Upload image'),
         remove_tooltip: _('Reset this')
       },
       template: [
@@ -38,14 +38,18 @@ this.ckan.module('image-upload', function($, _) {
       var options = this.options;
 
       // firstly setup the fields
-      this.input = $(options.field_upload, this.el);
-      this.field_url = $(options.field_url, this.el).parents('.control-group');
+      var field_upload = 'input[name="' + options.field_upload + '"]';
+      var field_url = 'input[name="' + options.field_url + '"]';
+      var field_clear = 'input[name="' + options.field_clear + '"]';
+
+      this.input = $(field_upload, this.el);
+      this.field_url = $(field_url, this.el).parents('.control-group');
       this.field_image = this.input.parents('.control-group');
 
       // Is there a clear checkbox on the form already?
-      var checkbox = $(options.field_clear, this.el);
+      var checkbox = $(field_clear, this.el);
       if (checkbox.length > 0) {
-        options.has_image = true;
+        options.is_upload = true;
         checkbox.parents('.control-group').remove();
       }
 
@@ -75,7 +79,7 @@ this.ckan.module('image-upload', function($, _) {
         .insertBefore($('input', this.field_url));
 
       // Update the main label
-      $('label[for="field-image-upload"]').text(this.i18n('label'));
+      $('label[for="field-image-upload"]').text(options.upload_label || this.i18n('upload_label'));
 
       // Setup the file input
       this.input
@@ -96,7 +100,7 @@ this.ckan.module('image-upload', function($, _) {
       // Setup the initial state
       if (options.is_url) {
         this.changeState(this.state.web);
-      } else if (options.has_image) {
+      } else if (options.is_upload) {
         this.changeState(this.state.attached);
       } else {
         this.changeState(this.state.blank);
@@ -139,7 +143,7 @@ this.ckan.module('image-upload', function($, _) {
     _onFromWeb: function() {
       this.changeState(this.state.web);
       $('input', this.field_url).focus();
-      if (this.options.has_image) {
+      if (this.options.is_upload) {
         this.field_clear.val('true');
       }
     },

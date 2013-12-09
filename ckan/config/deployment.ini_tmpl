@@ -121,28 +121,9 @@ ckan.feeds.author_link =
 
 ## Storage Settings
 
-# Local file storage:
-#ofs.impl = pairtree
-#ofs.storage_dir = /var/lib/ckan/default
-
-# Google cloud storage:
-#ofs.impl = google
-#ofs.gs_access_key_id =
-#ofs.gs_secret_access_key =
-
-# S3 cloud storage:
-#ofs.impl = s3
-#ofs.aws_access_key_id = ....
-#ofs.aws_secret_access_key = ....
-
-# 'Bucket' to use for file storage
-#ckan.storage.bucket = default
-
-# Prefix for uploaded files (only used for pairtree)
-#ckan.storage.key_prefix = file/
-
-# The maximum content size, in bytes, for uploads
-#ckan.storage.max_content_length = 50000000
+#ckan.storage_path = /var/lib/ckan
+#ckan.max_resource_size = 10
+#ckan.max_image_size = 2
 
 ## Datapusher settings
 
