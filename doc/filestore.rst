@@ -12,7 +12,7 @@ organization.
 
 .. versionchanged:: 2.2
    Previous versions of CKAN used to allow uploads to remote cloud hosting but
-   we have simplified this to only alow local file uploads (see
+   we have simplified this to only allow local file uploads (see
    :ref:`filestore_21_to_22_migration` for details on how to migrate). This is
    to give CKAN more control over the files and make access control possible.
 
@@ -72,7 +72,7 @@ FileStore API
 Files can be uploaded to the FileStore using the
 :py:func:`~ckan.logic.action.create.resource_create` and
 :py:func:`~ckan.logic.action.update.resource_update` action API
-functions. You can post mutipart/form-data to the API and the key, value
+functions. You can post multipart/form-data to the API and the key, value
 pairs will treated as as if they are a JSON object.
 The extra key ``upload`` is used to actually post the binary data.
 
@@ -129,7 +129,7 @@ run the migration also.
 
 In order to migrate make sure your CKAN instance is running as the script will
 request the data from the instance using APIs.  You need to run the following
-on the command line todo the migration::
+on the command line to do the migration::
 
     paster db migrate-filestore
 
