@@ -315,7 +315,7 @@ class PackageController(base.BaseController):
         data_dict = {'id': id}
 
         try:
-            check_access('package_update', context)
+            check_access('package_update', context, data_dict)
         except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
         # check if package exists
