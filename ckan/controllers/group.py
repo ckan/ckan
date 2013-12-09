@@ -182,7 +182,7 @@ class GroupController(base.BaseController):
         try:
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
-            context['include_group_packages'] = False
+            context['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
@@ -377,7 +377,7 @@ class GroupController(base.BaseController):
         try:
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
-            context['include_group_packages'] = False
+            context['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
