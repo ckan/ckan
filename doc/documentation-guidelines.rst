@@ -161,6 +161,12 @@ customize, initialize, color, etc. There's a list here:
 https://wiki.ubuntu.com/EnglishTranslation/WordSubstitution
 
 
+Spellcheck
+==========
+
+Please spellcheck documentation before merging it into master!
+
+
 Commonly used terms
 ===================
 
@@ -342,12 +348,32 @@ As with Python code, try to limit all lines to a maximum of 79 characters.
 Cross-references and links
 ==========================
 
+Whenever mentioning another page or section in the docs, an external website, a
+configuration setting, or a class, exception or function, etc. try to
+cross-reference it. Using proper Sphinx cross-references is better than just
+typing things like "see above/below" or "see section foo" because Sphinx
+cross-refs are hyperlinked, and because if the thing you're referencing to gets
+moved or deleted Sphinx will update the cross-reference or print a warning.
+
+
+Cross-referencing to another file
+---------------------------------
+
 Use ``:doc:`` to cross-reference to other files by filename::
 
-    See :doc:`theming`
+    See :doc:`configuration`
 
-see `Cross-referencing documents <http://sphinx-doc.org/markup/inline.html#cross-referencing-documents>`_
+If the file you're editing is in a subdir within the ``doc`` dir, you may need
+to use an absolute reference (starting with a ``/``)::
+
+    See :doc:`/configuration`
+
+See `Cross-referencing documents <http://sphinx-doc.org/markup/inline.html#cross-referencing-documents>`_
 for details.
+
+
+Cross-referencing a section within a file
+-----------------------------------------
 
 Use ``:ref:`` to cross-reference to particular sections within the same or
 another file. First you have to add a label before the section you want to
@@ -365,12 +391,58 @@ then from elsewhere cross-reference to the section like this::
 
 see `Cross-referencing arbitrary locations <http://sphinx-doc.org/markup/inline.html#cross-referencing-arbitrary-locations>`_.
 
-With both ``:doc:`` and ``:ref:`` if you want the link text to be different
-from the title of the section you're referencing, do this::
+
+Cross-referencing to CKAN config settings
+-----------------------------------------
+
+Whenever you mention a CKAN config setting, make it link to the docs for that
+setting in :doc:`/configuration` by using ``:ref:`` and the name of the config
+setting::
+
+  :ref:`ckan.site_title`
+
+This works because all CKAN config settings are documented in
+:doc:`/configuration`, and every setting has a Sphinx label that is exactly
+the same as the name of the setting, for example::
+
+    .. _ckan.site_title:
+
+    ckan.site_title
+    ^^^^^^^^^^^^^^^
+
+    Example::
+
+    ckan.site_title = Open Data Scotland
+
+    Default value:  ``CKAN``
+
+    This sets the name of the site, as displayed in the CKAN web interface.
+
+If you add a new config setting to CKAN, make sure to document like this it in
+:doc:`configuration`.
+
+
+Cross-referencing to a Python object
+------------------------------------
+
+Whenever you mention a Python function, method, object, class, exception, etc.
+cross-reference it using a Sphinx domain object cross-reference.
+See :ref:`Referencing other code objects`.
+
+
+Changing the link text of a cross-reference
+-------------------------------------------
+
+With ``:doc:`` ``:ref:`` and other kinds of link, if you want the link text to
+be different from the title of the thing you're referencing, do this::
 
     :doc:`the theming document <theming>`
 
     :ref:`the getting started section <getting-started>`
+
+
+Cross-referencing to an external page
+-------------------------------------
 
 The syntax for linking to external URLs is slightly different from
 cross-referencing, you have to add a trailing underscore::
@@ -385,9 +457,6 @@ or to define a URL once and then link to it in multiple places, do::
     .. _a link: http://example.com/
 
 see `Hyperlinks <http://sphinx-doc.org/rest.html#hyperlinks>`_ for details.
-
-Use ``:py:`` to reference other Python or JavaScript functions, modules,
-classes, etc. See :ref:`Referencing other code objects`.
 
 
 .. _sphinx substitutions:
