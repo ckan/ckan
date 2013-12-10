@@ -45,7 +45,8 @@ def package_create(context, data_dict):
     for the new dataset, you must also be authorized to edit these groups.
 
     Plugins may change the parameters of this function depending on the value
-    of the ``type`` parameter, see the ``IDatasetForm`` plugin interface.
+    of the ``type`` parameter, see the
+    :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugin interface.
 
     :param name: the name of the new dataset, must be between 2 and 100
         characters long and contain only lowercase alphanumeric characters,
@@ -63,8 +64,9 @@ def package_create(context, data_dict):
     :param maintainer_email: the email address of the dataset's maintainer
         (optional)
     :type maintainer_email: string
-    :param license_id: the id of the dataset's license, see ``license_list()``
-        for available values (optional)
+    :param license_id: the id of the dataset's license, see
+        :py:func:`~ckan.logic.action.get.license_list` for available values
+        (optional)
     :type license_id: license id string
     :param notes: a description of the dataset (optional)
     :type notes: string
@@ -78,14 +80,16 @@ def package_create(context, data_dict):
         authorized to change the state of the dataset (optional, default:
         ``'active'``)
     :type state: string
-    :param type: the type of the dataset (optional), ``IDatasetForm`` plugins
+    :param type: the type of the dataset (optional),
+        :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugins
         associate themselves with different dataset types and provide custom
         dataset handling behaviour for these types
     :type type: string
-    :param resources: the dataset's resources, see ``resource_create()``
-        for the format of resource dictionaries (optional)
+    :param resources: the dataset's resources, see
+        :py:func:`resource_create` for the format of resource dictionaries
+        (optional)
     :type resources: list of resource dictionaries
-    :param tags: the dataset's tags, see ``tag_create()`` for the format
+    :param tags: the dataset's tags, see :py:func:`tag_create` for the format
         of tag dictionaries (optional)
     :type tags: list of tag dictionaries
     :param extras: the dataset's extras (optional), extras are arbitrary
@@ -93,26 +97,28 @@ def package_create(context, data_dict):
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
         string)
     :type extras: list of dataset extra dictionaries
-    :param relationships_as_object: see ``package_relationship_create()`` for
-        the format of relationship dictionaries (optional)
+    :param relationships_as_object: see :py:func:`package_relationship_create`
+        for the format of relationship dictionaries (optional)
     :type relationships_as_object: list of relationship dictionaries
-    :param relationships_as_subject: see ``package_relationship_create()`` for
-        the format of relationship dictionaries (optional)
+    :param relationships_as_subject: see :py:func:`package_relationship_create`
+        for the format of relationship dictionaries (optional)
     :type relationships_as_subject: list of relationship dictionaries
     :param groups: the groups to which the dataset belongs (optional), each
         group dictionary should have one or more of the following keys which
         identify an existing group:
         ``'id'`` (the id of the group, string), ``'name'`` (the name of the
         group, string), ``'title'`` (the title of the group, string), to see
-        which groups exist call ``group_list()``
+        which groups exist call :py:func:`~ckan.logic.action.get.group_list`
     :type groups: list of dictionaries
     :param owner_org: the id of the dataset's owning organization, see
-        ``organization_list()`` or ``organization_list_for_user`` for
+        :py:func:`~ckan.logic.action.get.organization_list` or
+        :py:func:`~ckan.logic.action.get.organization_list_for_user` for
         available values (optional)
     :type owner_org: string
 
-    :returns: the newly created dataset (unless 'return_id_only' is set to True
-              in the context, in which case just the dataset id will be returned)
+    :returns: the newly created dataset (unless ``'return_id_only'`` is set to
+              ``True`` in the context, in which case just the dataset id will
+              be returned)
     :rtype: dictionary
 
     '''
@@ -617,7 +623,8 @@ def group_create(context, data_dict):
     You must be authorized to create groups.
 
     Plugins may change the parameters of this function depending on the value
-    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
+    of the ``type`` parameter, see the
+    :py:class:`~ckan.plugins.interfaces.IGroupForm` plugin interface.
 
     :param name: the name of the group, a string between 2 and 100 characters
         long, containing only lowercase alphanumeric characters, ``-`` and
@@ -632,7 +639,8 @@ def group_create(context, data_dict):
     :param image_url: the URL to an image to be displayed on the group's page
         (optional)
     :type image_url: string
-    :param type: the type of the group (optional), ``IGroupForm`` plugins
+    :param type: the type of the group (optional),
+        :py:class:`~ckan.plugins.interfaces.IGroupForm` plugins
         associate themselves with different group types and provide custom
         group handling behaviour for these types
         Cannot be 'organization'
@@ -683,7 +691,8 @@ def organization_create(context, data_dict):
     You must be authorized to create organizations.
 
     Plugins may change the parameters of this function depending on the value
-    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
+    of the ``type`` parameter, see the
+    :py:class:`~ckan.plugins.interfaces.IGroupForm` plugin interface.
 
     :param name: the name of the organization, a string between 2 and 100 characters
         long, containing only lowercase alphanumeric characters, ``-`` and
@@ -962,7 +971,7 @@ def vocabulary_create(context, data_dict):
     :param name: the name of the new vocabulary, e.g. ``'Genre'``
     :type name: string
     :param tags: the new tags to add to the new vocabulary, for the format of
-        tag dictionaries see ``tag_create()``
+        tag dictionaries see :py:func:`tag_create`
     :type tags: list of tag dictionaries
 
     :returns: the newly-created vocabulary
@@ -1001,8 +1010,7 @@ def activity_create(context, activity_dict, **kw):
         ``'my_dataset'``
     :param activity_type: the type of the activity, this must be an activity
         type that CKAN knows how to render, e.g. ``'new package'``,
-        ``'changed user'``, ``'deleted group'`` etc. (for a full list see
-        ``activity_renderers`` in ``ckan/logic/action/get.py``
+        ``'changed user'``, ``'deleted group'`` etc.
     :type activity_type: string
     :param data: any additional data about the activity
     :type data: dictionary
@@ -1066,7 +1074,8 @@ def tag_create(context, data_dict):
 
     You can only use this function to create tags that belong to a vocabulary,
     not to create free tags. (To create a new free tag simply add the tag to
-    a package, e.g. using the ``package_update`` function.)
+    a package, e.g. using the
+    :py:func:`~ckan.logic.action.update.package_update` function.)
 
     :param name: the name for the new tag, a string between 2 and 100
         characters long containing only alphanumeric characters and ``-``,
