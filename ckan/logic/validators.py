@@ -42,7 +42,9 @@ def owner_org_validator(key, data, errors, context):
     if not group:
         raise Invalid(_('Organization does not exist'))
     group_id = group.id
-    if not(user.sysadmin or user.is_in_group(group_id)):
+    if not(user.sysadmin or
+           new_authz.has_user_permission_for_group_or_org(
+               group_id, user.name, 'create_dataset')):
         raise Invalid(_('You cannot add a dataset to this organization'))
     data[key] = group_id
 
@@ -701,3 +703,22 @@ def list_of_strings(key, data, errors, context):
         if not isinstance(x, basestring):
             raise Invalid('%s: %s' % (_('Not a string'), x))
 
+def no_loops_in_hierarchy(key, data, errors, context):
+    '''Checks that the parent groups specified in the data would not cause
+    a loop in the group hierarchy, and therefore cause the recursion up/down
+    the hierarchy to get into an infinite loop.
+    '''
+    if not 'id' in data:
+        # Must be a new group - has no children, so no chance of loops
+        return
+    group = context['model'].Group.get(data['id'])
+    allowable_parents = group.\
+                        groups_allowed_to_be_its_parent(type=group.type)
+    for parent in data['groups']:
+        parent_name = parent['name']
+        # a blank name signifies top level, which is always allowed
+        if parent_name and context['model'].Group.get(parent_name) \
+                not in allowable_parents:
+            raise Invalid(_('This parent would create a loop in the '
+                            'hierarchy'))
+ 

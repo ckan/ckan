@@ -494,7 +494,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
     session = context['session']
-    parent = context.get('parent', None)
     data_dict['is_organization'] = is_org
 
     upload = uploader.Upload('group')
@@ -535,14 +534,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     group = model_save.group_dict_save(data, context)
-
-    if parent:
-        parent_group = model.Group.get( parent )
-        if parent_group:
-            member = model.Member(group=parent_group, table_id=group.id, table_name='group')
-            session.add(member)
-            log.debug('Group %s is made child of group %s',
-                      group.name, parent_group.name)
 
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
