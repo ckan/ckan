@@ -183,7 +183,7 @@ def write_latest_release_file():
 .. |latest_package_name| replace:: {package_name}
 
 '''
-    open('_latest_release.rst', 'w').write(template.format(
+    open(filename, 'w').write(template.format(
         filename=filename,
         latest_tag=latest_release_tag(),
         latest_version=latest_release_version(),
