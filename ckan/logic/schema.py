@@ -32,6 +32,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    isodate,
                                    int_validator,
                                    natural_number_validator,
+                                   is_positive_integer,
                                    boolean_validator,
                                    user_about_validator,
                                    vocabulary_name_validator,
@@ -53,7 +54,9 @@ from ckan.logic.validators import (package_id_not_changed,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
-                                   convert_group_name_or_id_to_id,)
+                                   convert_group_name_or_id_to_id,
+                                   convert_to_json_if_string,
+                                   )
 from formencode.validators import OneOf
 import ckan.model
 import ckan.lib.maintain as maintain
@@ -525,7 +528,7 @@ def default_package_list_schema():
     schema = {
         'limit': [ignore_missing, natural_number_validator],
         'offset': [ignore_missing, natural_number_validator],
-        'page': [ignore_missing, natural_number_validator]
+        'page': [ignore_missing, is_positive_integer]
     }
     return schema
 
@@ -541,6 +544,12 @@ def default_pagination_schema():
 def default_dashboard_activity_list_schema():
     schema = default_pagination_schema()
     schema['id'] = [unicode]
+    return schema
+
+
+def default_activity_list_schema():
+    schema = default_pagination_schema()
+    schema['id'] = [not_missing, unicode]
     return schema
 
 
@@ -563,7 +572,8 @@ def default_package_search_schema():
         'facet': [ignore_missing, unicode],
         'facet.mincount': [ignore_missing, natural_number_validator],
         'facet.limit': [ignore_missing, int_validator],
-        'facet.field': [ignore_missing, list_of_strings],
+        'facet.field': [ignore_missing, convert_to_json_if_string,
+            list_of_strings],
         'extras': [ignore_missing]  # Not used by Solr, but useful for extensions
     }
     return schema

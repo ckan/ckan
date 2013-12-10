@@ -63,6 +63,7 @@ def site_read(context,data_dict=None):
     _check_access('site_read',context,data_dict)
     return True
 
+@logic.validate(logic.schema.default_pagination_schema)
 def package_list(context, data_dict):
     '''Return a list of the names of the site's datasets (packages).
 
@@ -80,12 +81,6 @@ def package_list(context, data_dict):
     api = context.get("api_version", 1)
 
     _check_access('package_list', context, data_dict)
-
-    schema = context.get('schema', logic.schema.default_pagination_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
 
     package_revision_table = model.package_revision_table
     col = (package_revision_table.c.id
@@ -107,6 +102,7 @@ def package_list(context, data_dict):
         query = query.offset(offset)
     return list(zip(*query.execute())[0])
 
+@logic.validate(logic.schema.default_package_list_schema)
 def current_package_list_with_resources(context, data_dict):
     '''Return a list of the site's datasets (packages) and their resources.
 
@@ -125,20 +121,13 @@ def current_package_list_with_resources(context, data_dict):
 
     '''
     model = context["model"]
-    schema = context.get('schema', logic.schema.default_package_list_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     limit = data_dict.get('limit')
-    offset = int(data_dict.get('offset', 0))
+    offset = data_dict.get('offset', 0)
 
     if not 'offset' in data_dict and 'page' in data_dict:
         log.warning('"page" parameter is deprecated.  '
                     'Use the "offset" parameter instead')
-        page = int(data_dict['page'])
-        if page < 1:
-            raise ValidationError(_('Must be larger than 0'))
+        page = data_dict['page']
         if limit:
             offset = (page - 1) * limit
         else:
@@ -1183,6 +1172,7 @@ def tag_show_rest(context, data_dict):
 
     return tag_dict
 
+@logic.validate(logic.schema.default_autocomplete_schema)
 def package_autocomplete(context, data_dict):
     '''Return a list of datasets (packages) that match a string.
 
@@ -1198,11 +1188,6 @@ def package_autocomplete(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    schema = context.get('schema', logic.schema.default_autocomplete_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     model = context['model']
 
     _check_access('package_autocomplete', context, data_dict)
@@ -1234,6 +1219,7 @@ def package_autocomplete(context, data_dict):
 
     return pkg_list
 
+@logic.validate(logic.schema.default_autocomplete_schema)
 def format_autocomplete(context, data_dict):
     '''Return a list of resource formats whose names contain a string.
 
@@ -1246,11 +1232,6 @@ def format_autocomplete(context, data_dict):
     :rtype: list of strings
 
     '''
-    schema = context.get('schema', logic.schema.default_autocomplete_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     model = context['model']
     session = context['session']
 
@@ -1274,6 +1255,7 @@ def format_autocomplete(context, data_dict):
 
     return [resource.format.lower() for resource in query]
 
+@logic.validate(logic.schema.default_autocomplete_schema)
 def user_autocomplete(context, data_dict):
     '''Return a list of user names that contain a string.
 
@@ -1287,11 +1269,6 @@ def user_autocomplete(context, data_dict):
         ``'fullname'``, and ``'id'``
 
     '''
-    schema = context.get('schema', logic.schema.default_autocomplete_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     model = context['model']
     user = context['user']
 
@@ -1419,8 +1396,6 @@ def package_search(context, data_dict):
     # sometimes context['schema'] is None
     schema = (context.get('schema') or
               logic.schema.default_package_search_schema())
-    if isinstance(data_dict.get('facet.field'), basestring):
-        data_dict['facet.field'] = json.loads(data_dict['facet.field'])
     data_dict, errors = _validate(data_dict, schema, context)
     # put the extras back into the data_dict so that the search can
     # report needless parameters
@@ -1559,6 +1534,7 @@ def package_search(context, data_dict):
 
     return search_results
 
+@logic.validate(logic.schema.default_resource_search_schema)
 def resource_search(context, data_dict):
     '''
     Searches for resources satisfying a given search criteria.
@@ -1630,11 +1606,6 @@ def resource_search(context, data_dict):
     :rtype: dict
 
     '''
-    schema = context.get('schema', logic.schema.default_resource_search_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     model = context['model']
 
     # Allow either the `query` or `fields` parameter to be given, but not both.
@@ -2073,6 +2044,7 @@ def vocabulary_show(context, data_dict):
     vocabulary_dict = model_dictize.vocabulary_dictize(vocabulary, context)
     return vocabulary_dict
 
+@logic.validate(logic.schema.default_activity_list_schema)
 def user_activity_list(context, data_dict):
     '''Return a user's public activity stream.
 
@@ -2098,12 +2070,12 @@ def user_activity_list(context, data_dict):
 
     model = context['model']
 
-    user_ref = _get_or_bust(data_dict, 'id')  # May be user name or id.
+    user_ref = data_dict.get('id')  # May be user name or id.
     user = model.User.get(user_ref)
     if user is None:
         raise logic.NotFound
 
-    offset = int(data_dict.get('offset', 0))
+    offset = data_dict.get('offset', 0)
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
@@ -2111,6 +2083,7 @@ def user_activity_list(context, data_dict):
             offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+@logic.validate(logic.schema.default_activity_list_schema)
 def package_activity_list(context, data_dict):
     '''Return a package's activity stream.
 
@@ -2135,7 +2108,7 @@ def package_activity_list(context, data_dict):
 
     model = context['model']
 
-    package_ref = _get_or_bust(data_dict, 'id')  # May be name or ID.
+    package_ref = data_dict.get('id')  # May be name or ID.
     package = model.Package.get(package_ref)
     if package is None:
         raise logic.NotFound
@@ -2148,6 +2121,7 @@ def package_activity_list(context, data_dict):
             limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+@logic.validate(logic.schema.default_activity_list_schema)
 def group_activity_list(context, data_dict):
     '''Return a group's activity stream.
 
@@ -2171,8 +2145,8 @@ def group_activity_list(context, data_dict):
     _check_access('group_show', context, data_dict)
 
     model = context['model']
-    group_id = _get_or_bust(data_dict, 'id')
-    offset = int(data_dict.get('offset', 0))
+    group_id = data_dict.get('id')
+    offset = data_dict.get('offset', 0)
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
@@ -2184,6 +2158,7 @@ def group_activity_list(context, data_dict):
             limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+@logic.validate(logic.schema.default_activity_list_schema)
 def organization_activity_list(context, data_dict):
     '''Return a organization's activity stream.
 
@@ -2198,8 +2173,8 @@ def organization_activity_list(context, data_dict):
     _check_access('organization_show', context, data_dict)
 
     model = context['model']
-    org_id = _get_or_bust(data_dict, 'id')
-    offset = int(data_dict.get('offset', 0))
+    org_id = data_dict.get('id')
+    offset = data_dict.get('offset', 0)
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
@@ -2211,6 +2186,7 @@ def organization_activity_list(context, data_dict):
             limit=limit, offset=offset)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
+@logic.validate(logic.schema.default_pagination_schema)
 def recently_changed_packages_activity_list(context, data_dict):
     '''Return the activity stream of all recently added or changed packages.
 
@@ -2228,7 +2204,7 @@ def recently_changed_packages_activity_list(context, data_dict):
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
     model = context['model']
-    offset = int(data_dict.get('offset', 0))
+    offset = data_dict.get('offset', 0)
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
@@ -2650,6 +2626,7 @@ def group_followee_count(context, data_dict):
             context['model'].UserFollowingGroup)
 
 
+@logic.validate(logic.schema.default_follow_user_schema)
 def followee_list(context, data_dict):
     '''Return the list of objects that are followed by the given user.
 
@@ -2672,11 +2649,6 @@ def followee_list(context, data_dict):
 
     '''
     _check_access('followee_list', context, data_dict)
-    schema = context.get('schema') or (
-            ckan.logic.schema.default_follow_user_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
 
     def display_name(followee):
         '''Return a display name for the given user, group or dataset dict.'''
@@ -2809,6 +2781,7 @@ def group_followee_list(context, data_dict):
     return [model_dictize.group_dictize(group, context) for group in groups]
 
 
+@logic.validate(logic.schema.default_pagination_schema)
 def dashboard_activity_list(context, data_dict):
     '''Return the authorized user's dashboard activity stream.
 
@@ -2829,17 +2802,11 @@ def dashboard_activity_list(context, data_dict):
     :rtype: list of activity dictionaries
 
     '''
-    schema = context.get('schema',
-                         ckan.logic.schema.default_pagination_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     _check_access('dashboard_activity_list', context, data_dict)
 
     model = context['model']
     user_id = model.User.get(context['user']).id
-    offset = int(data_dict.get('offset', 0))
+    offset = data_dict.get('offset', 0)
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
@@ -2866,6 +2833,7 @@ def dashboard_activity_list(context, data_dict):
     return activity_dicts
 
 
+@logic.validate(ckan.logic.schema.default_pagination_schema)
 def dashboard_activity_list_html(context, data_dict):
     '''Return the authorized user's dashboard activity stream as HTML.
 
@@ -2885,15 +2853,9 @@ def dashboard_activity_list_html(context, data_dict):
     :rtype: string
 
     '''
-    schema = context.get(
-        'schema', ckan.logic.schema.default_pagination_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    if errors:
-        raise ValidationError(errors)
-
     activity_stream = dashboard_activity_list(context, data_dict)
     model = context['model']
-    offset = int(data_dict.get('offset', 0))
+    offset = data_dict.get('offset', 0)
     extra_vars = {
         'controller': 'user',
         'action': 'dashboard',
