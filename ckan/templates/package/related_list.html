@@ -2,18 +2,20 @@
 
 {% set pkg = c.pkg %}
 
+{% block subtitle %}{{ _('Related') }} - {{ super() }}{% endblock %}
+
 {% block primary_content_inner %}
-    <h2 class="hide-heading">{% block page_heading %}{{ _('Related Media for {dataset}').format(dataset=h.dataset_display_name(c.pkg)) }}{% endblock %}</h2>
-    {% block related_list %}
+  <h2 class="hide-heading">{% block page_heading %}{{ _('Related Media for {dataset}').format(dataset=h.dataset_display_name(c.pkg)) }}{% endblock %}</h2>
+  {% block related_list %}
     {% if c.pkg.related %}
       {% snippet "related/snippets/related_list.html", related_items=c.pkg.related, pkg_id=c.pkg.name %}
     {% else %}
-    <p class="empty">{{ _('No related items') }}</p>
+      <p class="empty">{{ _('No related items') }}</p>
     {% endif %}
-    {% endblock %}
-    {% block form_actions %}
+  {% endblock %}
+  {% block form_actions %}
     <div class="form-actions">
       {% link_for _('Add Related Item'), controller='related', action='new', id=pkg.name, class_='btn btn-primary' %}
     </div>
-    {% endblock %}
+  {% endblock %}
 {% endblock %}

@@ -1,4 +1,5 @@
-Installing CKAN from Package
+============================
+Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
@@ -8,7 +9,8 @@ development, you should follow :doc:`install-from-source` instead.
 
 .. _run-package-installer:
 
-1. Install the CKAN Package
+---------------------------
+1. Install the CKAN package
 ---------------------------
 
 On your Ubuntu 12.04 system, open a terminal and run these commands to install
@@ -50,6 +52,7 @@ CKAN:
     sudo service apache2 restart
 
 
+------------------------------
 2. Install PostgreSQL and Solr
 ------------------------------
 
@@ -67,8 +70,7 @@ CKAN:
 
      * Not starting jetty - edit /etc/default/jetty and change NO_START to be 0 (or comment it out).
 
-#. Follow the instructions in :ref:`solr-single` or :ref:`solr-multi-core` to
-   setup |solr|.
+#. Follow the instructions in :ref:`setting up solr` to setup |solr|.
 
 #. Follow the instructions in :ref:`postgres-setup` to setup |postgres|,
    then edit the :ref:`sqlalchemy.url` option in your |production.ini| file and
@@ -84,6 +86,7 @@ CKAN:
 #. Also optionally, you can enable file uploads by following the
    instructions in :doc:`filestore`.
 
+---------------
 3. You're done!
 ---------------
 

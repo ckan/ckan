@@ -47,8 +47,10 @@ rst_epilog = '''
 .. |sstore| replace:: |config_dir|/sstore
 .. |storage_parent_dir| replace:: /var/lib/ckan
 .. |storage_dir| replace:: |storage_parent_dir|/default
+.. |storage_path| replace:: |storage_parent_dir|/default
 .. |reload_apache| replace:: sudo service apache2 reload
 .. |restart_apache| replace:: sudo service apache2 restart
+.. |restart_solr| replace:: sudo service jetty restart
 .. |solr| replace:: Solr
 .. |restructuredtext| replace:: reStructuredText
 .. |nginx| replace:: Nginx
@@ -57,6 +59,8 @@ rst_epilog = '''
 .. |sqlalchemy| replace:: SQLAlchemy
 .. |javascript| replace:: JavaScript
 .. |apache| replace:: Apache
+.. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan_default
+.. |reload_nginx| replace:: sudo service nginx reload
 
 '''
 
@@ -77,17 +81,17 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'contents'
 
 # General information about the project.
-project = u'CKAN Documentation'
+project = u'CKAN'
 project_short_name = u'CKAN'
 copyright = u'''&copy; 2009-2013, <a href="http://okfn.org/">Open Knowledge Foundation</a>.
     Licensed under <a
     href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />
     <img src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" alt="CC License Logo" />
-    <a href="http://opendefinition.org/"><img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0" 
+    <a href="http://opendefinition.org/"><img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0"
       alt="{{ _('Open Content') }}" /></a>
   '''
 html_show_sphinx = False
@@ -146,21 +150,18 @@ pygments_style = 'sphinx'
 #'sidebarbgcolor': '#F2F2F2',
 #'sidebartextcolor': 'black',
 #'sidebarlinkcolor': '#355F7C',
-#'headfont': 'Trebuchet MS'    
+#'headfont': 'Trebuchet MS'
 #}
 sys.path.append(os.path.abspath('_themes'))
 html_theme_path = ['_themes']
 html_theme = 'sphinx-theme-okfn'
 html_theme_options = {
-        'logo_icon': 'http://assets.okfn.org/p/opendatahandbook/img/data-wrench-inverted.png',
+        'logo_icon': 'ckanlogo.png',
         'show_version': True
     }
 
 html_sidebars = {
-    '**':  ['relations.html', 'globaltoc.html'],
-    # There's no point in showing the table of contents in the sidebar on the
-    # table of contents page! So:
-    'index': ['relations.html'],
+    '**':  ['globaltoc.html'],
 }
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name
@@ -187,7 +188,7 @@ html_sidebars = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['.static']
+html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -237,7 +238,7 @@ htmlhelp_basename = 'ComprehensiveKnowledgeArchiveNetworkCKANdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'ComprehensiveKnowledgeArchiveNetworkCKAN.tex', ur'Comprehensive Knowledge Archive Network (CKAN) Developer Documentation',
+  ('contents', 'ComprehensiveKnowledgeArchiveNetworkCKAN.tex', ur'Comprehensive Knowledge Archive Network (CKAN) Developer Documentation',
    ur'Open Knowledge Foundation', 'manual'),
 ]
 

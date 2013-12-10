@@ -222,7 +222,6 @@ def make_map():
                   ])))
         m.connect('/dataset/{action}/{id}',
                   requirements=dict(action='|'.join([
-                      'edit',
                       'new_metadata',
                       'new_resource',
                       'history',
@@ -230,25 +229,34 @@ def make_map():
                       'history_ajax',
                       'follow',
                       'activity',
+                      'groups',
                       'unfollow',
                       'delete',
                       'api_data',
                   ])))
+        m.connect('dataset_edit', '/dataset/edit/{id}', action='edit',
+                  ckan_icon='edit')
         m.connect('dataset_followers', '/dataset/followers/{id}',
                   action='followers', ckan_icon='group')
         m.connect('dataset_activity', '/dataset/activity/{id}',
                   action='activity', ckan_icon='time')
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
+        m.connect('dataset_groups', '/dataset/groups/{id}',
+                  action='groups', ckan_icon='group')
         m.connect('/dataset/{id}.{format}', action='read')
+        m.connect('dataset_resources', '/dataset/resources/{id}',
+                  action='resources', ckan_icon='reorder')
         m.connect('dataset_read', '/dataset/{id}', action='read',
                   ckan_icon='sitemap')
         m.connect('/dataset/{id}/resource/{resource_id}',
                   action='resource_read')
         m.connect('/dataset/{id}/resource_delete/{resource_id}',
                   action='resource_delete')
-        m.connect('/dataset/{id}/resource_edit/{resource_id}',
-                  action='resource_edit')
+        m.connect('resource_edit', '/dataset/{id}/resource_edit/{resource_id}',
+                  action='resource_edit', ckan_icon='edit')
         m.connect('/dataset/{id}/resource/{resource_id}/download',
+                  action='resource_download')
+        m.connect('/dataset/{id}/resource/{resource_id}/download/{filename}',
                   action='resource_download')
         m.connect('/dataset/{id}/resource/{resource_id}/embed',
                   action='resource_embedded_dataviewer')
@@ -359,6 +367,7 @@ def make_map():
                   action='followers', ckan_icon='group')
         m.connect('user_edit', '/user/edit/{id:.*}', action='edit',
                   ckan_icon='cog')
+        m.connect('user_delete', '/user/delete/{id}', action='delete')
         m.connect('/user/reset/{id:.*}', action='perform_reset')
         m.connect('register', '/user/register', action='register')
         m.connect('login', '/user/login', action='login')

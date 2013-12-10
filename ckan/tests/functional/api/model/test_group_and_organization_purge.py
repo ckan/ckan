@@ -266,8 +266,7 @@ class TestGroupAndOrganizationPurging(object):
         result = tests.call_action_api(self.app, action, id=group_or_org['id'],
                                        status=403,
                                        )
-        assert result == {'__type': 'Authorization Error',
-                          'message': 'Access denied'}
+        assert result['__type'] == 'Authorization Error'
 
     def test_visitors_cannot_purge_organizations(self):
         '''Visitors (who aren't logged in) should not be authorized to purge

@@ -1,10 +1,10 @@
 {% extends "package/base.html" %}
 
-{% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
+{% block subtitle %}{{ pkg.title or pkg.name }} - {{ super() }}{% endblock %}
 
 {% block links -%}
-    {{ super() }}
-    <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg.id, format='rdf', qualified=True) }}"/>
+  {{ super() }}
+  <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg.id, format='rdf', qualified=True) }}"/>
 {% endblock -%}
 
 {% block head_extras -%}
@@ -16,12 +16,13 @@
 
 {% block content_action %}
   {% if h.check_access('package_update', {'id':pkg.id }) %}
-    {% link_for _('Edit'), controller='package', action='edit', id=pkg.name, class_='btn', icon='wrench' %}
+    {% link_for _('Manage'), controller='package', action='edit', id=pkg.name, class_='btn', icon='wrench' %}
   {% endif %}
 {% endblock %}
 
 {% block content_primary_nav %}
   {{ h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name) }}
+  {{ h.build_nav_icon('dataset_groups', _('Groups'), id=pkg.name) }}
   {{ h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name) }}
   {{ h.build_nav_icon('related_list', _('Related'), id=pkg.name) }}
 {% endblock %}
@@ -50,42 +51,12 @@
   {% block secondary_help_content %}{% endblock %}
 
   {% block package_info %}
-    <div class="module context-info">
-      <div class="module-content">
-        <h1 class="heading">{{ pkg.title or pkg.name }}</h1>
-        <div class="nums">
-          <dl>
-            <dt>{{ _('Followers') }}</dt>
-            <dd>{{ h.SI_number_span(h.get_action('dataset_follower_count', {'id': pkg.id})) }}</dd>
-          </dl>
-        </div>
-        <div class="follow_button">
-          {{ h.follow_button('dataset', pkg.name) }}
-        </div>
-      </div>
-    </div>
+    {% snippet 'package/snippets/info.html', pkg=pkg %}
   {% endblock %}
 
   {% block package_organization %}
     {% if pkg.organization %}
       {% snippet "snippets/organization.html", organization=pkg.organization, has_context_title=true %}
-    {% endif %}
-  {% endblock %}
-
-  {% block package_groups %}
-    {% if pkg.groups %}
-      <div class="module module-narrow">
-        <h2 class="module-heading"><i class="icon-folder-open"></i> {{ _('Groups') }}</h2>
-        <ul class="nav nav-simple">
-          {% for group in pkg.groups %}
-            <li class="nav-item">
-              <a href="{{ h.url_for(controller='group', action='read', id=group.name) }}">
-                {{ group.title or group.name }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
     {% endif %}
   {% endblock %}
 

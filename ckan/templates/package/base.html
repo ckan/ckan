@@ -1,8 +1,10 @@
 {% extends "page.html" %}
 
-{% set pkg = c.pkg_dict %}
+{% set pkg = c.pkg_dict or pkg_dict %}
 
 {% block breadcrumb_content_selected %} class="active"{% endblock %}
+
+{% block subtitle %}{{ _('Datasets') }}{% endblock %}
 
 {% block breadcrumb_content %}
   {% if pkg %}

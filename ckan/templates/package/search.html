@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 {% import 'macros/form.html' as form %}
 
-{% block subtitle %}{{ _("Search for a Dataset") }}{% endblock %}
+{% block subtitle %}{{ _("Datasets") }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li class="active">{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>
@@ -35,12 +35,12 @@
         {% snippet 'snippets/search_form.html', type='dataset', query=c.q, sorting=sorting, sorting_selected=c.sort_by_selected, count=c.page.item_count, facets=facets, show_empty=request.params, error=c.query_error %}
       {% endblock %}
       {% block package_search_results_list %}
-      {{ h.snippet('snippets/package_list.html', packages=c.page.items) }}
+        {{ h.snippet('snippets/package_list.html', packages=c.page.items) }}
       {% endblock %}
     </div>
 
     {% block page_pagination %}
-    {{ c.page.pager(q=c.q) }}
+      {{ c.page.pager(q=c.q) }}
     {% endblock %}
   </section>
 
@@ -68,6 +68,6 @@
 
 {% block secondary_content %}
   {% for facet in c.facet_titles %}
-      {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet) }}
+    {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet) }}
   {% endfor %}
 {% endblock %}

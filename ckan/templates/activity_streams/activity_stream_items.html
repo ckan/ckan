@@ -3,17 +3,17 @@
 
 {% if activities %}
   <ul class="activity" data-module="activity-stream" data-module-more="{{ has_more }}" data-module-context="{{ controller }}" data-module-id="{{ id }}" data-module-offset="{{ offset }}">
-      {% if offset > 0 %}
+    {% if offset > 0 %}
       <li class="load-less"><a href="{{ h.url_for(controller=controller, action=action, id=id, offset=(offset-30 if offset-30 > 0 else 0)) }}" class="btn btn-rounded">{{ _('Load less') }}</a></li>
-      {% endif %}
-  {% for activity in activities %}
+    {% endif %}
+    {% for activity in activities %}
       {% if loop.index <= has_more_length %}
-          {% snippet 'snippets/activity_item.html', activity=activity %}
+        {% snippet 'snippets/activity_item.html', activity=activity %}
       {% endif %}
-  {% endfor %}
-      {% if has_more %}
+    {% endfor %}
+    {% if has_more %}
       <li class="load-more"><a href="{{ h.url_for(controller=controller, action=action, id=id, offset=offset+30) }}" class="btn btn-rounded">{{ _('Load more') }}</a></li>
-      {% endif %}
+    {% endif %}
   </ul>
 {% else %}
   <p class="empty">{{ _('No activities are within this activity stream') }}</p>

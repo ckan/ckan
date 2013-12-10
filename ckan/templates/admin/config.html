@@ -4,11 +4,13 @@
 
 {% block primary_content_inner %}
   <form method='post' action="" class="form-horizontal">
-    {{ autoform.generate(form_items, data, errors) }}
+    {% block admin_form %}
+      {{ autoform.generate(form_items, data, errors) }}
+    {% endblock %}
     <div class="form-actions">
       {% set locale = h.dump_json({'content': _('Are you sure you want to reset the config?')}) %}
-        <a href="{% url_for controller='admin', action='reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-i18n="{{ locale }}">{{ _('Reset') }}</a>
-        <button type="submit" class="btn btn-primary" name="save">{{ _('Update') }}</button>
+      <a href="{% url_for controller='admin', action='reset_config' %}" class="btn btn-danger pull-left" data-module="confirm-action" data-module-i18n="{{ locale }}">{{ _('Reset') }}</a>
+      <button type="submit" class="btn btn-primary" name="save">{{ _('Update Config') }}</button>
     </div>
   </form>
 {% endblock %}
@@ -20,6 +22,7 @@
       {{ _('CKAN config options') }}
     </h2>
     <div class="module-content">
+      {% block admin_form_help %}
       {% set about_url = h.url_for(controller='home', action='about') %}
       {% set home_url = h.url_for(controller='home', action='index') %}
       {% set docs_url = "http://docs.ckan.org/en/{0}/theming.html".format(g.ckan_doc_version) %}
@@ -38,7 +41,10 @@
           <code>&lt;head&gt;</code> tag of every page. If you wish to customize
           the templates more fully we recommend
           <a href="{{ docs_url }}" target="_blank">reading the documentation</a>.</p>
+        <p><strong>Homepage:</strong> This is for choosing a predefined layout for
+           the modules that appear on your homepage.</p>
       {% endtrans %}
+      {% endblock %}
     </div>
   </div>
 {% endblock %}

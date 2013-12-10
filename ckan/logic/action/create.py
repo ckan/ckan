@@ -1,6 +1,8 @@
 '''API functions for adding data to CKAN.'''
 
 import logging
+import random
+import re
 
 from pylons import config
 import paste.deploy.converters
@@ -15,6 +17,9 @@ import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
+import ckan.lib.uploader as uploader
+import ckan.lib.navl.validators as validators
+import ckan.lib.mailer as mailer
 
 from ckan.common import _
 
@@ -86,7 +91,7 @@ def package_create(context, data_dict):
     :param extras: the dataset's extras (optional), extras are arbitrary
         (key: value) metadata items that can be added to datasets, each extra
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
-        string), and optionally ``'deleted'``
+        string)
     :type extras: list of dataset extra dictionaries
     :param relationships_as_object: see ``package_relationship_create()`` for
         the format of relationship dictionaries (optional)
@@ -234,6 +239,8 @@ def resource_create(context, data_dict):
     :type cache_last_updated: iso date string
     :param webstore_last_updated: (optional)
     :type webstore_last_updated: iso date string
+    :param upload: (optional)
+    :type upload: FieldStorage (optional) needs multipart/form-data
 
     :returns: the newly created resource
     :rtype: dictionary
@@ -251,15 +258,31 @@ def resource_create(context, data_dict):
 
     if not 'resources' in pkg_dict:
         pkg_dict['resources'] = []
+
+    upload = uploader.ResourceUpload(data_dict)
+
     pkg_dict['resources'].append(data_dict)
 
     try:
-        pkg_dict = _get_action('package_update')(context, pkg_dict)
+        context['defer_commit'] = True
+        context['use_cache'] = False
+        _get_action('package_update')(context, pkg_dict)
+        context.pop('defer_commit')
     except ValidationError, e:
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
-    return pkg_dict['resources'][-1]
+    ## Get out resource_id resource from model as it will not appear in
+    ## package_show until after commit
+    upload.upload(context['package'].resources[-1].id,
+                  uploader.get_max_resource_size())
+    model.repo.commit()
+
+    ##  Run package show again to get out actual last_resource
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    resource = pkg_dict['resources'][-1]
+
+    return resource
 
 
 def related_create(context, data_dict):
@@ -446,8 +469,7 @@ def member_create(context, data_dict=None):
     if not obj:
         raise NotFound('%s was not found.' % obj_type.title())
 
-    # User must be able to update the group to add a member to it
-    _check_access('group_update', context, data_dict)
+    _check_access('member_create', context, data_dict)
 
     # Look up existing, in case it exists
     member = model.Session.query(model.Member).\
@@ -475,7 +497,9 @@ def _group_or_org_create(context, data_dict, is_org=False):
     parent = context.get('parent', None)
     data_dict['is_organization'] = is_org
 
-
+    upload = uploader.Upload('group')
+    upload.update_data_dict(data_dict, 'image_url',
+                           'image_upload', 'clear_upload')
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(
             group_type=data_dict.get('type'))
@@ -561,6 +585,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     logic.get_action('activity_create')(activity_create_context,
             activity_dict)
 
+    upload.upload(uploader.get_max_image_size())
     if not context.get('defer_commit'):
         model.repo.commit()
     context["group"] = group
@@ -826,7 +851,8 @@ def user_create(context, data_dict):
     #
     # The context is copied so as not to clobber the caller's context dict.
     user_dictize_context = context.copy()
-    user_dictize_context['keep_sensitive_data'] = True
+    user_dictize_context['keep_apikey'] = True
+    user_dictize_context['keep_email'] = True
     user_dict = model_dictize.user_dictize(user, user_dictize_context)
 
     context['user_obj'] = user
@@ -836,6 +862,65 @@ def user_create(context, data_dict):
 
     log.debug('Created user {name}'.format(name=user.name))
     return user_dict
+
+
+def user_invite(context, data_dict):
+    '''Invite a new user.
+
+    You must be authorized to create group members.
+
+    :param email: the email of the user to be invited to the group
+    :type email: string
+    :param group_id: the id or name of the group
+    :type group_id: string
+    :param role: role of the user in the group. One of ``member``, ``editor``,
+        or ``admin``
+    :type role: string
+
+    :returns: the newly created yser
+    :rtype: dictionary
+    '''
+    _check_access('user_invite', context, data_dict)
+
+    schema = context.get('schema',
+                         ckan.logic.schema.default_user_invite_schema())
+    data, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    name = _get_random_username_from_email(data['email'])
+    password = str(random.SystemRandom().random())
+    data['name'] = name
+    data['password'] = password
+    data['state'] = ckan.model.State.PENDING
+    user_dict = _get_action('user_create')(context, data)
+    user = ckan.model.User.get(user_dict['id'])
+    member_dict = {
+        'username': user.id,
+        'id': data['group_id'],
+        'role': data['role']
+    }
+    _get_action('group_member_create')(context, member_dict)
+    mailer.send_invite(user)
+    return model_dictize.user_dictize(user, context)
+
+
+def _get_random_username_from_email(email):
+    localpart = email.split('@')[0]
+    cleaned_localpart = re.sub(r'[^\w]', '-', localpart)
+
+    # if we can't create a unique user name within this many attempts
+    # then something else is probably wrong and we should give up
+    max_name_creation_attempts = 100
+
+    for i in range(max_name_creation_attempts):
+        random_number = random.SystemRandom().random() * 10000
+        name = '%s-%d' % (cleaned_localpart, random_number)
+        if not ckan.model.User.get(name):
+            return name
+
+    return cleaned_localpart
+
 
 ## Modifications for rest api
 
@@ -1141,7 +1226,7 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     role = data_dict.get('role')
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
-    result = session.query(model.User).filter_by(name=username).first()
+    result = model.User.get(username)
     if result:
         user_id = result.id
     else:

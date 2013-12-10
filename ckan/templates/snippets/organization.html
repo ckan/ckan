@@ -20,11 +20,13 @@ Example:
       <h2 class="module-heading"><i class="icon-building"></i> {{ _('Organization') }}</h2>
     {% endif %}
     <section class="module-content">
-      <div class="image">
-        <a href="{{ url }}">
-          <img src="{{ organization.image_url or h.url_for_static('/base/images/placeholder-organization.png') }}" width="200" alt="{{ organization.name }}" />
-        </a>
-      </div>
+      {% block image %}
+        <div class="image">
+          <a href="{{ url }}">
+            <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" width="200" alt="{{ organization.name }}" />
+          </a>
+        </div>
+      {% endblock %}
       <h1 class="heading">{{ organization.title or organization.name }}</h1>
       {% if organization.description %}
         <p>
@@ -39,10 +41,6 @@ Example:
           <dl>
             <dt>{{ _('Followers') }}</dt>
             <dd>{{ h.SI_number_span(organization.num_followers) }}</dd>
-          </dl>
-          <dl>
-            <dt>{{ _('Members') }}</dt>
-            <dd>{{ h.SI_number_span(organization.members|length) }}</dd>
           </dl>
           <dl>
             <dt>{{ _('Datasets') }}</dt>

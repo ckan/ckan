@@ -1,0 +1,22 @@
+{% set intro = g.site_intro_text %}
+
+<div class="module-content box">
+  <header>
+    {% if intro %}
+      {{ h.render_markdown(intro) }}
+    {% else %}
+      <h1 class="page-heading">{{ _("Welcome to CKAN") }}</h1>
+      <p>
+        {% trans %}This is a nice introductory paragraph about CKAN or the site
+        in general. We don't have any copy to go here yet but soon we will
+        {% endtrans %}
+      </p>
+    {% endif %}
+  </header>
+  <section class="featured media-overlay">
+    <h2 class="media-heading">{{ _("This is a featured section") }}</h2>
+    <a class="media-image" href="#">
+      <img src="http://placehold.it/420x220" alt="Placeholder" width="420" height="220" />
+    </a>
+  </section>
+</div>

@@ -8,13 +8,13 @@
   <section class="module span6 offset3">
     <div class="module-content">
       {% block form %}
-      <p>{{ _('Are you sure you want to delete organization - {name}?').format(name=c.group_dict.name) }}</p>
-      <p class="form-actions">
-      <form action="{% url_for controller='organization', action='delete', id=c.group_dict.name %}" method="post">
-        <button class="btn" type="submit" name="cancel" >{{ _('Cancel') }}</button>
-        <button class="btn btn-primary" type="submit" name="delete" >{{ _('Confirm Delete') }}</button>
-      </form>
-      </p>
+        <p>{{ _('Are you sure you want to delete organization - {name}?').format(name=c.group_dict.name) }}</p>
+        <p class="form-actions">
+          <form action="{% url_for controller='organization', action='delete', id=c.group_dict.name %}" method="post">
+            <button class="btn" type="submit" name="cancel" >{{ _('Cancel') }}</button>
+            <button class="btn btn-primary" type="submit" name="delete" >{{ _('Confirm Delete') }}</button>
+          </form>
+        </p>
       {% endblock %}
     </div>
   </section>

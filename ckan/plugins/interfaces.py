@@ -443,7 +443,6 @@ class IPackageController(Interface):
 class IResourceController(Interface):
     """
     Hook into the resource controller.
-    (see IGroupController)
     """
 
     def before_show(self, resource_dict):
@@ -562,7 +561,34 @@ class IAuthFunctions(Interface):
                 else:
                     return {'success': False, 'msg': 'Not allowed to register'}
 
+        The context object will contain a ``model`` that can be used to query
+        the database, a ``user`` containing the name of the user doing the
+        request (or their IP if it is an anonymous web request) and an
+        ``auth_user_obj`` containing the actual model.User object (or None if
+        it is an anonymous request).
+
         See ``ckan/logic/auth/`` for more examples.
+
+        Note that by default, all auth functions provided by extensions are assumed
+        to require a validated user or API key, otherwise a
+        :py:class:`ckan.logic.NotAuthorized`: exception will be raised. This check
+        will be performed *before* calling the actual auth function. If you want
+        to allow anonymous access to one of your actions, its auth function must
+        be decorated with the ``auth_allow_anonymous_access`` decorator, available
+        on the plugins toolkit.
+
+        For example::
+
+            import ckan.plugins as p
+
+            @p.toolkit.auth_allow_anonymous_access
+            def my_search_action(context, data_dict):
+                # Note that you can still return {'success': False} if for some
+                # reason access is denied.
+
+            def my_create_action(context, data_dict):
+                # Unless there is a logged in user or a valid API key provided
+                # NotAuthorized will be raised before reaching this function.
 
         '''
 
@@ -741,6 +767,15 @@ class IDatasetForm(Interface):
 
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/read.html'``.
+
+        If the user requests the dataset in a format other than HTML
+        (CKAN supports returning datasets in RDF or N3 format by appending .rdf
+        or .n3 to the dataset read URL, see :doc:`/linked-data-and-rdf`) then
+        CKAN will try to render
+        a template file with the same path as returned by this function,
+        but a different filename extension, e.g. ``'package/read.rdf'``.
+        If your extension doesn't have this RDF version of the template
+        file, the user will get a 404 error.
 
         :rtype: string
 

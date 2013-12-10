@@ -58,6 +58,16 @@ class AuthFunctions:
             for key, v in module.__dict__.items():
                 if not key.startswith('_'):
                     key = clean_action_name(key)
+                    # Whitelist all auth functions defined in
+                    # logic/auth/get.py as not requiring an authorized user,
+                    # as well as ensuring that the rest do. In both cases, do
+                    # nothing if a decorator has already been used to define
+                    # the behaviour
+                    if not hasattr(v, 'auth_allow_anonymous_access'):
+                        if auth_module_name == 'get':
+                            v.auth_allow_anonymous_access = True
+                        else:
+                            v.auth_allow_anonymous_access = False
                     self._functions[key] = v
 
         # Then overwrite them with any specific ones in the plugins:
@@ -73,7 +83,7 @@ class AuthFunctions:
                             resolved_auth_function_plugins[name]
                         )
                     )
-                log.debug('Auth function %r was inserted', plugin.name)
+                log.debug('Auth function {0} from plugin {1} was inserted'.format(name, plugin.name))
                 resolved_auth_function_plugins[name] = plugin.name
                 fetched_auth_functions[name] = auth_function
         # Use the updated ones in preference to the originals.
@@ -86,6 +96,7 @@ del AuthFunctions
 
 def clear_auth_functions_cache():
     _AuthFunctions.clear()
+    CONFIG_PERMISSIONS.clear()
 
 
 def auth_functions_list():
@@ -103,23 +114,24 @@ def clean_action_name(action_name):
 
 
 def is_sysadmin(username):
-    ''' returns True is username is a sysadmin '''
+    ''' Returns True is username is a sysadmin '''
+    user = _get_user(username)
+    return user and user.sysadmin
+
+
+def _get_user(username):
+    ''' Try to get the user from c, if possible, and fallback to using the DB '''
     if not username:
-        return False
-    # see if we can authorise without touching the database
+        return None
+    # See if we can get the user without touching the DB
     try:
         if c.userobj and c.userobj.name == username:
-            if c.userobj.sysadmin:
-                return True
-            return False
+            return c.userobj
     except TypeError:
         # c is not available
         pass
-    # get user from the database
-    user = model.User.get(username)
-    if user and user.sysadmin:
-        return True
-    return False
+    # Get user from the DB
+    return model.User.get(username)
 
 
 def get_group_or_org_admin_ids(group_id):
@@ -148,12 +160,29 @@ def is_authorized(action, context, data_dict=None):
     action = clean_action_name(action)
     auth_function = _AuthFunctions.get(action)
     if auth_function:
-        # sysadmins can do anything unless the auth_sysadmins_check
-        # decorator was used in which case they are treated like all other
-        # users.
-        if is_sysadmin(context.get('user')):
-            if not getattr(auth_function, 'auth_sysadmins_check', False):
-                return {'success': True}
+        username = context.get('user')
+        user = _get_user(username)
+
+        if user:
+            # deleted users are always unauthorized
+            if user.is_deleted():
+                return {'success': False}
+            # sysadmins can do anything unless the auth_sysadmins_check
+            # decorator was used in which case they are treated like all other
+            # users.
+            elif user.sysadmin:
+                if not getattr(auth_function, 'auth_sysadmins_check', False):
+                    return {'success': True}
+
+        # If the auth function is flagged as not allowing anonymous access,
+        # and an existing user object is not provided in the context, deny
+        # access straight away
+        if not getattr(auth_function, 'auth_allow_anonymous_access', False) \
+           and not context.get('auth_user_obj'):
+            return {'success': False,
+                    'msg': '{0} requires an authenticated user'
+                            .format(auth_function)
+                   }
 
         return auth_function(context, data_dict)
     else:
@@ -163,8 +192,8 @@ def is_authorized(action, context, data_dict=None):
 # these are the permissions that roles have
 ROLE_PERMISSIONS = OrderedDict([
     ('admin', ['admin']),
-    ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset']),
-    ('member', ['read']),
+    ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset', 'manage_group']),
+    ('member', ['read', 'manage_group']),
 ])
 
 
@@ -215,7 +244,10 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
     ''' Check if the user has the given permission for the group '''
     if not group_id:
         return False
-    group_id = model.Group.get(group_id).id
+    group = model.Group.get(group_id)
+    if not group:
+        return False
+    group_id = group.id
 
     # Sys admins can do anything
     if is_sysadmin(user_name):
@@ -319,6 +351,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'user_delete_groups': True,
     'user_delete_organizations': True,
     'create_user_via_api': False,
+    'create_user_via_web': True,
 }
 
 CONFIG_PERMISSIONS = {}

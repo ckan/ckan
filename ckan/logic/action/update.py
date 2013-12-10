@@ -19,6 +19,7 @@ import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.email_notifications as email_notifications
 import ckan.lib.search as search
+import ckan.lib.uploader as uploader
 
 from ckan.common import _, request
 
@@ -132,7 +133,7 @@ def related_update(context, data_dict):
     id = _get_or_bust(data_dict, "id")
 
     session = context['session']
-    schema = context.get('schema') or schema_.default_related_schema()
+    schema = context.get('schema') or schema_.default_update_related_schema()
 
     related = model.Related.get(id)
     context["related"] = related
@@ -218,15 +219,23 @@ def resource_update(context, data_dict):
     else:
         logging.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
+
+    upload = uploader.ResourceUpload(data_dict)
+
     pkg_dict['resources'][n] = data_dict
 
     try:
+        context['defer_commit'] = True
+        context['use_cache'] = False
         pkg_dict = _get_action('package_update')(context, pkg_dict)
+        context.pop('defer_commit')
     except ValidationError, e:
         errors = e.error_dict['resources'][n]
         raise ValidationError(errors)
 
-    return pkg_dict['resources'][n]
+    upload.upload(id, uploader.get_max_resource_size())
+    model.repo.commit()
+    return _get_action('resource_show')(context, {'id': id})
 
 
 def package_update(context, data_dict):
@@ -299,7 +308,7 @@ def package_update(context, data_dict):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
-    #avoid revisionioning by updating directly
+    #avoid revisioning by updating directly
     model.Session.query(model.Package).filter_by(id=pkg.id).update(
         {"metadata_modified": datetime.datetime.utcnow()})
     model.Session.refresh(pkg)
@@ -334,6 +343,50 @@ def package_update(context, data_dict):
             else _get_action('package_show')(context, {'id': data_dict['id']})
 
     return output
+
+def package_resource_reorder(context, data_dict):
+    '''Reorder resources against datasets.  If only partial resource ids are
+    supplied then these are assumed to be first and the other resources will
+    stay in their original order
+
+    :param id: the id or name of the package to update
+    :type id: string
+    :param order: a list of resource ids in the order needed
+    :type list: list
+    '''
+
+    id = _get_or_bust(data_dict, "id")
+    order = _get_or_bust(data_dict, "order")
+    if not isinstance(order, list):
+        raise ValidationError({'order': 'Must be a list of resource'})
+
+    if len(set(order)) != len(order):
+        raise ValidationError({'order': 'Must supply unique resource_ids'})
+
+    package_dict = _get_action('package_show')(context, {'id': id})
+    existing_resources = package_dict.get('resources', [])
+    ordered_resources = []
+
+    for resource_id in order:
+        for i in range(0, len(existing_resources)):
+            if existing_resources[i]['id'] == resource_id:
+                resource = existing_resources.pop(i)
+                ordered_resources.append(resource)
+                break
+        else:
+            raise ValidationError(
+                {'order':
+                 'resource_id {id} can not be found'.format(id=resource_id)}
+            )
+
+    new_resources = ordered_resources + existing_resources
+    package_dict['resources'] = new_resources
+
+    _check_access('package_resource_reorder', context, package_dict)
+    _get_action('package_update')(context, package_dict)
+
+    return {'id': id, 'order': [resource['id'] for resource in new_resources]}
+
 
 def _update_package_relationship(relationship, comment, context):
     model = context['model']
@@ -423,6 +476,10 @@ def _group_or_org_update(context, data_dict, is_org=False):
                                                'context': context})
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
+
+    upload = uploader.Upload('group', group.image_url)
+    upload.update_data_dict(data_dict, 'image_url',
+                           'image_upload', 'clear_upload')
 
     if is_org:
         _check_access('organization_update', context, data_dict)
@@ -528,8 +585,10 @@ def _group_or_org_update(context, data_dict, is_org=False):
         # TODO: Also create an activity detail recording what exactly changed
         # in the group.
 
+    upload.upload(uploader.get_max_image_size())
     if not context.get('defer_commit'):
         model.repo.commit()
+
 
     return model_dictize.group_dictize(group, context)
 
@@ -1070,7 +1129,7 @@ def package_owner_org_update(context, data_dict):
             member_obj.state = 'deleted'
             member_obj.save()
 
-    # add the organization to memeber table
+    # add the organization to member table
     if org and need_update:
         member_obj = model.Member(table_id=pkg.id,
                                   table_name='package',

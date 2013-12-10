@@ -15,6 +15,7 @@ import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.navl.dictization_functions
+import ckan.model as model
 import ckan.model.misc as misc
 import ckan.plugins as plugins
 import ckan.lib.search as search
@@ -90,8 +91,11 @@ def package_list(context, data_dict):
     col = (package_revision_table.c.id
         if api == 2 else package_revision_table.c.name)
     query = _select([col])
-    query = query.where(_and_(package_revision_table.c.state=='active',
-        package_revision_table.c.current==True))
+    query = query.where(_and_(
+                package_revision_table.c.state=='active',
+                package_revision_table.c.current==True,
+                package_revision_table.c.private==False,
+                ))
     query = query.order_by(col)
 
     limit = data_dict.get('limit')
@@ -331,6 +335,7 @@ def member_list(context, data_dict=None):
 def _group_or_org_list(context, data_dict, is_org=False):
 
     model = context['model']
+    user = context['user']
     api = context.get('api_version')
     groups = data_dict.get('groups')
     ref_group_by = 'id' if api == 2 else 'name'
@@ -460,7 +465,7 @@ def group_list_authz(context, data_dict):
     _check_access('group_list_authz',context, data_dict)
 
     sysadmin = new_authz.is_sysadmin(user)
-    roles = ckan.new_authz.get_roles_with_permission('edit_group')
+    roles = ckan.new_authz.get_roles_with_permission('manage_group')
     if not roles:
         return []
     user_id = new_authz.get_user_id_for_username(user, allow_none=True)
@@ -547,7 +552,8 @@ def organization_list_for_user(context, data_dict):
     orgs_list = model_dictize.group_list_dictize(orgs_q.all(), context)
     return orgs_list
 
-def group_revision_list(context, data_dict):
+
+def _group_or_org_revision_list(context, data_dict):
     '''Return a group's revisions.
 
     :param id: the name or id of the group
@@ -562,7 +568,6 @@ def group_revision_list(context, data_dict):
     if group is None:
         raise NotFound
 
-    _check_access('group_revision_list',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in group.all_related_revisions:
@@ -570,6 +575,32 @@ def group_revision_list(context, data_dict):
                                                      include_packages=False,
                                                      include_groups=False))
     return revision_dicts
+
+def group_revision_list(context, data_dict):
+    '''Return a group's revisions.
+
+    :param id: the name or id of the group
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+
+    _check_access('group_revision_list',context, data_dict)
+    return _group_or_org_revision_list(context, data_dict)
+
+def organization_revision_list(context, data_dict):
+    '''Return an organization's revisions.
+
+    :param id: the name or id of the organization
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+
+    _check_access('organization_revision_list',context, data_dict)
+    return _group_or_org_revision_list(context, data_dict)
 
 def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
@@ -688,6 +719,9 @@ def user_list(context, data_dict):
                  else_=model.User.fullname)
         )
 
+    # Filter deleted users
+    query = query.filter(model.User.state != model.State.DELETED)
+
     ## hack for pagination
     if context.get('return_query'):
         return query
@@ -799,6 +833,20 @@ def package_show(context, data_dict):
         package_dict = model_dictize.package_dictize(pkg, context)
         package_dict_validated = False
 
+    # Add page-view tracking summary data to the package dict.
+    # If the package_dict came from the Solr cache then it will already have a
+    # potentially outdated tracking_summary, this will overwrite it with a
+    # current one.
+    package_dict['tracking_summary'] = model.TrackingSummary.get_for_package(
+        package_dict['id'])
+
+    # Add page-view tracking summary data to the package's resource dicts.
+    # If the package_dict came from the Solr cache then each resource dict will
+    # already have a potentially outdated tracking_summary, this will overwrite
+    # it with a current one.
+    for resource_dict in package_dict['resources']:
+        _add_tracking_summary_to_resource_dict(resource_dict, model)
+
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
             package_dict = item.before_view(package_dict)
@@ -826,6 +874,15 @@ def package_show(context, data_dict):
     return package_dict
 
 
+def _add_tracking_summary_to_resource_dict(resource_dict, model):
+    '''Add page-view tracking summary data to the given resource dict.
+
+    '''
+    tracking_summary = model.TrackingSummary.get_for_resource(
+        resource_dict['url'])
+    resource_dict['tracking_summary'] = tracking_summary
+
+
 def resource_show(context, data_dict):
     '''Return the metadata of a resource.
 
@@ -846,6 +903,8 @@ def resource_show(context, data_dict):
 
     _check_access('resource_show', context, data_dict)
     resource_dict = model_dictize.resource_dictize(resource, context)
+
+    _add_tracking_summary_to_resource_dict(resource_dict, model)
 
     for item in plugins.PluginImplementations(plugins.IResourceController):
         resource_dict = item.before_show(resource_dict)
@@ -1241,7 +1300,9 @@ def user_autocomplete(context, data_dict):
     q = data_dict['q']
     limit = data_dict.get('limit', 20)
 
-    query = model.User.search(q).limit(limit)
+    query = model.User.search(q)
+    query = query.filter(model.User.state != model.State.DELETED)
+    query = query.limit(limit)
 
     user_list = []
     for user in query.all():
@@ -1289,8 +1350,9 @@ def package_search(context, data_dict):
     :param facet.mincount: the minimum counts for facet fields should be
         included in the results.
     :type facet.mincount: int
-    :param facet.limit: the maximum number of constraint counts that should be
-        returned for the facet fields. A negative value means unlimited
+    :param facet.limit: the maximum number of values the facet fields return.
+        A negative value means unlimited. This can be set instance-wide with
+        the :ref:`search.facets.limit` config option. Default is 50.
     :type facet.limit: int
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.
@@ -1836,10 +1898,10 @@ def task_status_show(context, data_dict):
 
     context['task_status'] = task_status
 
+    _check_access('task_status_show', context, data_dict)
+
     if task_status is None:
         raise NotFound
-
-    _check_access('task_status_show', context, data_dict)
 
     task_status_dict = model_dictize.task_status_dictize(task_status, context)
     return task_status_dict
@@ -2294,7 +2356,16 @@ def organization_activity_list_html(context, data_dict):
 
     '''
     activity_stream = organization_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict.get('offset', 0))
+    extra_vars = {
+        'controller': 'organization',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset,
+        }
+
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.
@@ -2881,11 +2952,20 @@ def _unpick_search(sort, allowed_fields=None, total=None):
 def member_roles_list(context, data_dict):
     '''Return the possible roles for members of groups and organizations.
 
+    :param group_type: the group type, either "group" or "organization"
+        (optional, default "organization")
+    :type id: string
     :returns: a list of dictionaries each with two keys: "text" (the display
         name of the role, e.g. "Admin") and "value" (the internal name of the
         role, e.g. "admin")
     :rtype: list of dictionaries
 
     '''
+    group_type = data_dict.get('group_type', 'organization')
+    roles_list = new_authz.roles_list()
+    if group_type == 'group':
+        roles_list = [role for role in roles_list
+                      if role['value'] != 'editor']
+
     _check_access('member_roles_list', context, data_dict)
-    return new_authz.roles_list()
+    return roles_list

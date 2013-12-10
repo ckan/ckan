@@ -6,11 +6,10 @@ If you're a CKAN developer, if you're developing an extension for CKAN, or if
 you're just installing CKAN from source, you should make sure that CKAN's tests
 pass for your copy of CKAN. This section explains how to run CKAN's tests.
 
-.. _basic-tests:
 
-----------------------------------
-Installing Additional Dependencies
-----------------------------------
+-------------------------------
+Install additional dependencies
+-------------------------------
 
 Some additional dependencies are needed to run the tests. Make sure you've
 created a config file at |development.ini|, then activate your
@@ -31,45 +30,10 @@ environment:
 
     pip install -r |virtualenv|/src/ckan/dev-requirements.txt
 
--------------------
-Testing with SQLite
--------------------
 
-To run the CKAN tests using SQLite as the database library:
-
-.. parsed-literal::
-
-    cd |virtualenv|/src/ckan
-    nosetests --ckan ckan
-
-You *must* run the tests from the CKAN directory as shown above, otherwise the
-``--ckan`` plugin won't work correctly.
-
-In deployment CKAN uses PostgreSQL, not SQLite. Running the tests with SQLite
-is less thorough but much quicker than with PostgreSQL, good enough for an
-initial check but you should run the tests with PostgreSQL before deploying
-anything or releasing any code.
-
-Testing Core Extensions
-=======================
-
-CKAN's core extensions (those extensions that are kept in the CKAN codebase
-alongside CKAN itself) have their own tests. For example, to run the tests for
-the stats extension do::
-
-    nosetests --ckan ckanext/stats
-
-To run the tests for all of the core extensions at once::
-
-    nosetests --ckan ckanext
-
-Or to run the CKAN tests and the core extensions tests together::
-
-    nosetests --ckan ckan ckanext
-
------------------------
-Testing with PostgreSQL
------------------------
+-------------------------
+Set up the test databases
+-------------------------
 
 .. versionchanged:: 2.1
    Previously |postgres| tests used the databases defined in your
@@ -86,24 +50,35 @@ Create test databases:
 This database connection is specified in the ``test-core.ini`` file by the
 ``sqlalchemy.url`` parameter.
 
-CKAN's default nose configuration file (``test.ini``) specifies SQLite as the
-database library (it also sets ``faster_db_test_hacks``). To run the tests more
-thoroughly with PostgreSQL, specify the ``test-core.ini`` nose configuration
-file instead, for example::
 
-     nosetests --ckan --with-pylons=test-core.ini ckan
-     nosetests --ckan --with-pylons=test-core.ini ckanext/stats
-     nosetests --ckan --with-pylons=test-core.ini ckanext
+-------------
+Run the tests
+-------------
+
+To run CKAN's tests using PostgreSQL as the database, you have to give the
+``--with-pylons=test-core.ini`` option on the command line. This command will
+run the tests for CKAN core and for the core extensions::
+
      nosetests --ckan --with-pylons=test-core.ini ckan ckanext
 
 The speed of the PostgreSQL tests can be improved by running PostgreSQL in
 memory and turning off durability, as described
 `in the PostgreSQL documentation <http://www.postgresql.org/docs/9.0/static/non-durability.html>`_. 
 
+By default the tests will keep the database between test runs. If you wish to
+drop and reinitialize the database before the run you can use the ``reset-db``
+option::
+
+     nosetests --ckan --reset-db --with-pylons=test-core.ini ckan
+
+If you are have the ``ckan-migration`` option on the tests will reset the
+reset the database before the test run.
+
+
 .. _migrationtesting:
 
 -----------------
-Migration Testing
+Migration testing
 -----------------
 
 If you're a CKAN developer or extension developer and your new code requires a
@@ -111,7 +86,7 @@ change to CKAN's model, you'll need to write a migration script. To ensure that
 the migration script itself gets tested, you should run the tests with
 they ``--ckan-migration`` option, for example::
 
-     nosetests --ckan --ckan-migration --with-pylons=test-core.ini ckan
+     nosetests --ckan --ckan-migration --with-pylons=test-core.ini ckan ckanext
 
 By default tests are run using the model defined in ``ckan/model``.
 With the ``--ckan-migration`` option the tests will run using a database that

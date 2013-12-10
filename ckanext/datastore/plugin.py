@@ -61,9 +61,9 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             self.read_url = self.config['ckan.datastore.read_url']
 
-        read_engine = db._get_engine(
+        self.read_engine = db._get_engine(
             {'connection_url': self.read_url})
-        if not model.engine_is_pg(read_engine):
+        if not model.engine_is_pg(self.read_engine):
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
                      'tests will be skipped.')
@@ -75,63 +75,15 @@ class DatastorePlugin(p.SingletonPlugin):
                      'of _table_metadata are skipped.')
         else:
             self._check_urls_and_permissions()
-
             self._create_alias_table()
 
-        # update the resource_show action to have datastore_active property
-        if self.resource_show_action is None:
-            resource_show = p.toolkit.get_action('resource_show')
-
-            @logic.side_effect_free
-            def new_resource_show(context, data_dict):
-                new_data_dict = resource_show(context, data_dict)
-                try:
-                    connection = read_engine.connect()
-                    result = connection.execute(
-                        'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
-                        new_data_dict['id']
-                    ).fetchone()
-                    if result:
-                        new_data_dict['datastore_active'] = True
-                    else:
-                        new_data_dict['datastore_active'] = False
-                finally:
-                    connection.close()
-                return new_data_dict
-
-            self.resource_show_action = new_resource_show
 
     def notify(self, entity, operation=None):
-        '''
-        if not isinstance(entity, model.Resource):
-            return
-        if operation:
-            if operation == model.domain_object.DomainObjectOperation.new:
-                self._create_datastorer_task(entity)
-        else:
-            # if operation is None, resource URL has been changed, as the
-            # notify function in IResourceUrlChange only takes 1 parameter
-            self._create_datastorer_task(entity)
-        '''
-        context = {'model': model, 'ignore_auth': True}
-        if isinstance(entity, model.Resource):
-            if (operation == model.domain_object.DomainObjectOperation.new
-                    or not operation):
-                # if operation is None, resource URL has been changed, as
-                # the notify function in IResourceUrlChange only takes
-                # 1 parameter
-                package = p.toolkit.get_action('package_show')(context, {
-                    'id': entity.get_package_id()
-                })
-                if (not package['private'] and
-                        entity.format in self.datapusher_formats):
-                    p.toolkit.get_action('datapusher_submit')(context, {
-                        'resource_id': entity.id
-                    })
         if not isinstance(entity, model.Package) or self.legacy_mode:
             return
         # if a resource is new, it cannot have a datastore resource, yet
         if operation == model.domain_object.DomainObjectOperation.changed:
+            context = {'model': model, 'ignore_auth': True}
             if entity.private:
                 func = p.toolkit.get_action('datastore_make_private')
             else:
@@ -158,7 +110,7 @@ class DatastorePlugin(p.SingletonPlugin):
             self._log_or_raise('CKAN and DataStore database '
                                'cannot be the same.')
 
-        # in legacy mode, the read and write url are ths same (both write url)
+        # in legacy mode, the read and write url are the same (both write url)
         # consequently the same url check and and write privilege check
         # don't make sense
         if not self.legacy_mode:
@@ -256,9 +208,6 @@ class DatastorePlugin(p.SingletonPlugin):
                    'datastore_upsert': action.datastore_upsert,
                    'datastore_delete': action.datastore_delete,
                    'datastore_search': action.datastore_search,
-                   'datapusher_submit': action.datapusher_submit,
-                   'datapusher_hook': action.datapusher_hook,
-                   'resource_show': self.resource_show_action,
                   }
         if not self.legacy_mode:
             actions.update({
@@ -272,8 +221,8 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
                 'datastore_search': auth.datastore_search,
-                'datastore_change_permissions': auth.datastore_change_permissions,
-                'datapusher_submit': auth.datapusher_submit}
+                'datastore_search_sql': auth.datastore_search_sql,
+                'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
         m.connect('/datastore/dump/{resource_id}',
@@ -282,11 +231,23 @@ class DatastorePlugin(p.SingletonPlugin):
         return m
 
     def before_show(self, resource_dict):
-        ''' Modify the resource url of datastore resources so that
-        they link to the datastore dumps.
-        '''
-        if resource_dict['url_type'] == 'datastore':
+        # Modify the resource url of datastore resources so that
+        # they link to the datastore dumps.
+        if resource_dict.get('url_type') == 'datastore':
             resource_dict['url'] = p.toolkit.url_for(
                 controller='ckanext.datastore.controller:DatastoreController',
                 action='dump', resource_id=resource_dict['id'])
+
+        try:
+            connection = self.read_engine.connect()
+            result = connection.execute(
+                'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
+                resource_dict['id']
+            ).fetchone()
+            if result:
+                resource_dict['datastore_active'] = True
+            else:
+                resource_dict['datastore_active'] = False
+        finally:
+            connection.close()
         return resource_dict

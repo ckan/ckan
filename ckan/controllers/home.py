@@ -22,7 +22,8 @@ class HomeController(base.BaseController):
     def __before__(self, action, **env):
         try:
             base.BaseController.__before__(self, action, **env)
-            context = {'model': model, 'user': c.user or c.author}
+            context = {'model': model, 'user': c.user or c.author,
+                       'auth_user_obj': c.userobj}
             logic.check_access('site_read', context)
         except logic.NotAuthorized:
             base.abort(401, _('Not authorized to see this page'))
@@ -43,7 +44,7 @@ class HomeController(base.BaseController):
         try:
             # package search
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
             data_dict = {
                 'q': '*:*',
                 'facet.field': g.facets,
@@ -66,6 +67,7 @@ class HomeController(base.BaseController):
             c.search_facets = query['search_facets']
 
             c.facet_titles = {
+                'organization': _('Organizations'),
                 'groups': _('Groups'),
                 'tags': _('Tags'),
                 'res_format': _('Formats'),
@@ -129,6 +131,7 @@ class HomeController(base.BaseController):
             context = {'model': model, 'session': model.Session,
                        'ignore_auth': True,
                        'user': c.user or c.author,
+                       'auth_user_obj': c.userobj,
                        'schema': db_to_form_schema(group_type=group_type),
                        'limits': {'packages': 2},
                        'for_view': True}

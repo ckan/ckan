@@ -15,7 +15,7 @@ from paste.deploy.converters import asbool
 from ckan.lib.base import BaseController, c, request, render, config, h, abort
 from ckan.lib.jsonp import jsonpify
 import ckan.model as model
-import ckan.new_authz as new_authz
+import ckan.logic as logic
 
 try:
     from cStringIO import StringIO
@@ -97,9 +97,9 @@ def authorize(method, bucket, key, user, ofs):
         # now check user stuff
         context = {'user': c.user,
                    'model': model}
-        is_authorized = new_authz.is_authorized_boolean(
-            'file_upload', context, {})
-        if not is_authorized:
+        try:
+            logic.check_access('file_upload', context, {})
+        except logic.NotAuthorized:
             h.flash_error('Not authorized to upload files.')
             abort(401)
 

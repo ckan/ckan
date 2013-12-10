@@ -130,24 +130,6 @@ site use this setting.
 
   This setting should not have a trailing / on the end.
 
-.. _ckan.api_url:
-
-ckan.api_url
-^^^^^^^^^^^^
-
-.. deprecated:: 2
-   No longer used.
-
-Example::
-
- ckan.api_url = http://scotdata.ckan.net/api
-
-Default value:  ``/api``
-
-The URL that resolves to the CKAN API part of the site. This is useful if the
-API is hosted on a different domain, for example when a third-party site uses
-the forms API.
-
 .. _apikey_header_name:
 
 apikey_header_name
@@ -355,6 +337,20 @@ Default value: ``False``
 
 Allow new user accounts to be created via the API.
 
+.. _ckan.auth.create_user_via_web:
+
+ckan.auth.create_user_via_web
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.create_user_via_web = True
+
+Default value: ``True``
+
+
+Allow new user accounts to be created via the Web.
+
 .. end_config-authorization
 
 
@@ -398,7 +394,7 @@ Example::
 
  solr_url = http://solr.okfn.org:8983/solr/ckan-schema-2.0
 
-Default value:  ``http://solr.okfn.org:8983/solr``
+Default value:  ``http://127.0.0.1:8983/solr``
 
 This configures the Solr server used for search. The Solr schema found at that URL must be one of the ones in ``ckan/config/solr`` (generally the most recent one). A check of the schema version number occurs when CKAN starts.
 
@@ -450,14 +446,14 @@ Default value:  ``false``
 Controls whether the default search page (``/dataset``) should show only
 standard datasets or also custom dataset types.
 
-.. _search.facets.limits:
+.. _search.facets.limit:
 
-search.facets.limits
-^^^^^^^^^^^^^^^^^^^^
+search.facets.limit
+^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- search.facets.limits = 100
+ search.facets.limit = 100
 
 Default value:  ``50``
 
@@ -507,6 +503,33 @@ Specify which CKAN plugins are to be enabled.
 .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
 Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions/index`.
+
+.. note::
+
+    The order of the plugin names in the configuration file influences the
+    order that CKAN will load the plugins in. As long as each plugin class is
+    implemented in a separate Python module (i.e. in a separate Python source
+    code file), the plugins will be loaded in the order given in the
+    configuration file.
+
+    When multiple plugins are implemented in the same Python module, CKAN will
+    process the plugins in the order that they're given in the config file, but as
+    soon as it reaches one plugin from a given Python module, CKAN will load all
+    plugins from that Python module, in the order that the plugin classes are
+    defined in the module.
+
+    For simplicity, we recommend implementing each plugin class in its own Python
+    module.
+
+    Plugin loading order can be important, for example for plugins that add custom
+    template files: templates found in template directories added earlier will
+    override templates in template directories added later.
+
+    .. todo::
+
+        Fix CKAN's plugin loading order to simply load all plugins in the order
+        they're given in the config file, regardless of which Python modules
+        they're implemented in.
 
 .. _ckan.datastore.enabled:
 
@@ -810,6 +833,20 @@ Defines a list of group names or group ids. This setting is used to display
 groups and datasets from each group on the home page in the default templates
 (2 groups and 2 datasets for each group are displayed).
 
+.. _ckan.featured_organizations:
+
+ckan.featured_orgs
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.featured_orgs = org_one org_two
+
+Default Value: (empty)
+
+Defines a list of organization names or ids. This setting is used to display
+organization and datasets from each group on the home page in the default
+templates (2 groups and 2 datasets for each group are displayed).
 
 .. _ckan.gravatar_default:
 
@@ -888,6 +925,8 @@ Example (showing insertion of Google Analytics code)::
     </script>
     <!-- /Google Analytics -->
 
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
 .. _ckan.template_title_deliminater:
 
 ckan.template_title_deliminater
@@ -914,8 +953,6 @@ To customise the display of CKAN you can supply replacements for the Genshi temp
 
 For more information on theming, see :doc:`theming`.
 
-.. note:: This is only for legacy code, and shouldn't be used anymore.
-
 .. _extra_public_paths:
 
 extra_public_paths
@@ -929,51 +966,46 @@ To customise the display of CKAN you can supply replacements for static files su
 
 For more information on theming, see :doc:`theming`.
 
-.. note:: This is only for legacy code, and shouldn't be used anymore.
-
 .. end_config-theming
 
 Storage Settings
 ----------------
 
-.. _ckan.storage.bucket:
+.. _ckan.storage_path:
 
-ckan.storage.bucket
-^^^^^^^^^^^^^^^^^^^
+ckan.storage_path
+^^^^^^^^^^^^^^^^^
 
 Example::
-
-  ckan.storage.bucket = ckan
+    ckan.storage_path = /var/lib/ckan
 
 Default value:  ``None``
 
-This setting will change the bucket name for the uploaded files.
+This defines the location of where CKAN will store all uploaded data.
 
-.. _ckan.storage.key_prefix:
+.. _ckan.max_resource_size:
 
-ckan.storage.key_prefix
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.storage.key_prefix = ckan-file/
-
-Default value: ``file/``
-
-This setting will change the prefix for the uploaded files. This is only for ``pairtree``.
-
-.. _ckan.storage.max_content_length:
-
-ckan.storage.max_content_length
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ckan.max_resource_size
+^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
+    ckan.max_resource_size = 100
 
-  ckan.storage.max_content_length = 500000
+Default value: ``10``
 
-Default value: ``50000000``
+The maximum in megabytes a resources upload can be.
 
-This defines the maximum content size, in bytes, for uploads.
+.. _ckan.max_image_size:
+
+ckan.max_image_size
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+    ckan.max_image_size = 10
+
+Default value: ``2``
+
+The maximum in megabytes an image upload can be.
 
 .. _ofs.impl:
 
@@ -988,6 +1020,9 @@ Default value:  ``None``
 
 Defines the storage backend used by CKAN: ``pairtree`` for local storage, ``s3`` for Amazon S3 Cloud Storage or ``google`` for Google Cloud Storage. Note that each of these must be accompanied by the relevant settings for each backend described below.
 
+Deprecated, only available option is now pairtree.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
+
+
 .. _ofs.storage_dir:
 
 ofs.storage_dir
@@ -1001,87 +1036,31 @@ Default value:  ``None``
 
 Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
 
-.. _ofs.aws_access_key_id:
+Deprecated, please use ckan.storage_path.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
 
-ofs.aws_access_key_id
-^^^^^^^^^^^^^^^^^^^^^
 
-Example::
-
-  ofs.aws_access_key_id = your_key_id_here
-
-Default value:  ``None``
-
-Only used with the Amazon S3 storage backend.
-
-.. todo:: Expand
-
-.. _ofs.aws_secret_access_key:
-
-ofs.aws_secret_access_key
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.aws_secret_access_key = your_secret_access_key_here
-
-Default value:  ``None``
-
-Only used with the Amazon S3 storage backend.
-
-.. todo:: Expand
-
-.. _ofs.gs_access_key_id:
-
-ofs.gs_access_key_id
-^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.gs_access_key_id = your_key_id_here
-
-Default value:  ``None``
-
-Only used with the Google storage backend.
-
-.. todo:: Expand
-
-.. _ofs.gs_secret_access_key:
-
-ofs.gs_secret_access_key
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.gs_secret_access_key = your_secret_access_key_here
-
-Default value:  ``None``
-
-Only used with the Google storage backend.
-
-.. todo:: Expand
 
 
 DataPusher Settings
 -------------------
 
-.. _datapusher.formats:
+.. _ckan.datapusher.formats:
 
-datapusher.formats
-^^^^^^^^^^^^^^^^^^
+ckan.datapusher.formats
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
-  datapusher.formats = csv xls xlsx
+  ckan.datapusher.formats = csv xls xlsx
 
 .. todo:: Expand
 
-.. _datapusher.url:
+.. _ckan.datapusher.url:
 
-datapusher.url
-^^^^^^^^^^^^^^
+ckan.datapusher.url
+^^^^^^^^^^^^^^^^^^^
 
 Example::
-  datapusher.url = http://datapusher.ckan.org/
+  ckan.datapusher.url = http://datapusher.ckan.org/
 
 .. todo:: Expand
 

@@ -2,8 +2,6 @@
 
 {% set pkg = c.pkg_dict %}
 
-{% block subtitle %}{{ pkg.title or pkg.name }}{% endblock %}
-
 {% block primary_content_inner %}
   {{ super() }}
   {% block package_description %}
@@ -15,18 +13,18 @@
     {% endif %}
     <h1>
       {% block page_heading %}
-      {{ pkg.title or pkg.name }}
-      {% if pkg.state.startswith('draft') %}
-        [{{ _('Draft') }}]
-      {% endif %}
+        {{ pkg.title or pkg.name }}
+        {% if pkg.state.startswith('draft') %}
+          [{{ _('Draft') }}]
+        {% endif %}
       {% endblock %}
     </h1>
     {% block package_notes %}
-    {% if c.pkg_notes_formatted %}
-      <div class="notes embedded-content">
-        {{ c.pkg_notes_formatted }}
-      </div>
-    {% endif %}
+      {% if c.pkg_notes_formatted %}
+        <div class="notes embedded-content">
+          {{ c.pkg_notes_formatted }}
+        </div>
+      {% endif %}
     {% endblock %}
     {# FIXME why is this here? seems wrong #}
     <span class="insert-comment-thread"></span>
