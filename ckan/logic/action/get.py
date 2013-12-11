@@ -879,8 +879,10 @@ def _group_or_org_show(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context['group'] = group
 
-    context['include_datasets'] = (
-        data_dict.get('include_datasets','true').lower() in ('true', '1'))
+    include_datasets = data_dict.get('include_datasets', True)
+    if isinstance(include_datasets, basestring):
+       include_datasets = (include_datasets.lower() in ('true', '1'))
+    context['include_datasets'] = include_datasets
 
     if group is None:
         raise NotFound
