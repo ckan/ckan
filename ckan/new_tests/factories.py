@@ -99,6 +99,79 @@ class User(factory.Factory):
         return user_dict
 
 
+class Group(factory.Factory):
+    '''A factory class for creating CKAN groups.'''
+
+    # This is the class that GroupFactory will create and return instances
+    # of.
+    FACTORY_FOR = ckan.model.Group
+
+    # These are the default params that will be used to create new groups.
+    type = 'group'
+    is_organization = False
+
+    title = 'Test Group'
+    description = 'Just another test group.'
+    image_url = 'http://placekitten.com/g/200/200'
+
+    # Generate a different group name param for each user that gets created.
+    name = factory.Sequence(lambda n: 'test_group_{n}'.format(n=n))
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        #TODO: we will need to be able to define this when creating the instance
+        #      perhaps passing a 'user' param?
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+
+        group_dict = helpers.call_action('group_create', context=context, **kwargs)
+        return group_dict
+
+
+class Organization(factory.Factory):
+    '''A factory class for creating CKAN organizations.'''
+
+    # This is the class that OrganizationFactory will create and return instances
+    # of.
+    FACTORY_FOR = ckan.model.Group
+
+    # These are the default params that will be used to create new organizations.
+    type = 'organization'
+    is_organization = True
+
+    title = 'Test Organization'
+    description = 'Just another test organization.'
+    image_url = 'http://placekitten.com/g/200/100'
+
+    # Generate a different group name param for each user that gets created.
+    name = factory.Sequence(lambda n: 'test_org_{n}'.format(n=n))
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        #TODO: we will need to be able to define this when creating the instance
+        #      perhaps passing a 'user' param?
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+
+        group_dict = helpers.call_action('organization_create', context=context, **kwargs)
+        return group_dict
+
 class MockUser(factory.Factory):
     '''A factory class for creating mock CKAN users using the mock library.'''
 
