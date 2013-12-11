@@ -3,7 +3,6 @@ import re
 from nose.tools import assert_equal
 import mock
 
-import ckan.tests.test_plugins as test_plugins
 import ckan.model as model
 import ckan.lib.search as search
 
@@ -16,7 +15,6 @@ from base import FunctionalTestCase
 from ckan.tests import is_search_supported
 
 
-
 class TestGroup(FunctionalTestCase):
 
     @classmethod
@@ -24,6 +22,10 @@ class TestGroup(FunctionalTestCase):
         search.clear()
         model.Session.remove()
         CreateTestData.create()
+
+        # reduce extraneous logging
+        from ckan.lib import activity_streams_session_extension
+        activity_streams_session_extension.logger.level = 100
 
     @classmethod
     def teardown_class(self):
@@ -56,14 +58,14 @@ class TestGroup(FunctionalTestCase):
         assert '"page" parameter must be a positive integer' in res, res
 
     def test_children(self):
-        if model.engine_is_sqlite() :
+        if model.engine_is_sqlite():
             from nose import SkipTest
             raise SkipTest("Can't use CTE for sqlite")
 
         group_name = 'deletetest'
         CreateTestData.create_groups([{'name': group_name,
                                        'packages': []},
-                                       {'name': "parent_group",
+                                      {'name': "parent_group",
                                        'packages': []}],
                                      admin_user_name='testsysadmin')
 
@@ -73,7 +75,7 @@ class TestGroup(FunctionalTestCase):
         rev = model.repo.new_revision()
         rev.author = "none"
 
-        member = model.Member(group_id=parent.id, table_id=group.id,
+        member = model.Member(group_id=group.id, table_id=parent.id,
                               table_name='group', capacity='member')
         model.Session.add(member)
         model.repo.commit_and_remove()
@@ -103,17 +105,21 @@ class TestGroup(FunctionalTestCase):
     def test_sorting(self):
         model.repo.rebuild_db()
 
+        testsysadmin = model.User(name=u'testsysadmin')
+        testsysadmin.sysadmin = True
+        model.Session.add(testsysadmin)
+
         pkg1 = model.Package(name="pkg1")
         pkg2 = model.Package(name="pkg2")
         model.Session.add(pkg1)
         model.Session.add(pkg2)
 
         CreateTestData.create_groups([{'name': "alpha", 'packages': []},
-                                       {'name': "beta",
-                                        'packages': ["pkg1", "pkg2"]},
-                                       {'name': "delta",
-                                        'packages': ["pkg1"]},
-                                       {'name': "gamma", 'packages': []}],
+                                      {'name': "beta",
+                                       'packages': ["pkg1", "pkg2"]},
+                                      {'name': "delta",
+                                       'packages': ["pkg1"]},
+                                      {'name': "gamma", 'packages': []}],
                                      admin_user_name='testsysadmin')
 
         context = {'model': model, 'session': model.Session,
@@ -147,7 +153,6 @@ class TestGroup(FunctionalTestCase):
         results = get_action('group_list')(context, data_dict)
         assert results[0]['name'] == u'beta', results[0]['name']
         assert results[1]['name'] == u'delta', results[1]['name']
-
 
     def test_mainmenu(self):
         # the home page does a package search so have to skip this test if
@@ -198,14 +203,16 @@ class TestGroup(FunctionalTestCase):
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='read', id=name)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        res = self.app.get(offset,
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert title in res, res
         assert 'edit' in res
         assert name in res
 
     def test_new_page(self):
         offset = url_for(controller='group', action='new')
-        res = self.app.get(offset, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        res = self.app.get(offset,
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Add A Group' in res, res
 
 
@@ -257,7 +264,6 @@ class TestEdit(FunctionalTestCase):
         model.repo.new_revision()
         model.Session.add(model.Package(name=self.packagename))
         model.repo.commit_and_remove()
-
 
     @classmethod
     def teardown_class(self):
@@ -661,6 +667,7 @@ class TestRevisions(FunctionalTestCase):
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
+
 
 class TestMemberInvite(FunctionalTestCase):
     @classmethod

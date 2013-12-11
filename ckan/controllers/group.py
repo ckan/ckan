@@ -168,6 +168,9 @@ class GroupController(base.BaseController):
 
     def read(self, id, limit=20):
         group_type = self._get_group_type(id.split('@')[0])
+        if group_type != self.group_type:
+            abort(404, _('Incorrect group type'))
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'schema': self._db_to_form_schema(group_type=group_type),
@@ -650,7 +653,7 @@ class GroupController(base.BaseController):
                 else:
                     c.user_role = 'member'
                 c.group_dict = self._action('group_show')(context, {'id': id})
-                c.roles = self._action('member_roles_list')(context, {})
+                c.roles = self._action('member_roles_list')(context, {'group_type': 'group'})
         except NotAuthorized:
             abort(401, _('Unauthorized to add member to group %s') % '')
         except NotFound:
