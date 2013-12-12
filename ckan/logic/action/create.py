@@ -469,9 +469,7 @@ def member_create(context, data_dict=None):
     if not obj:
         raise NotFound('%s was not found.' % obj_type.title())
 
-
-    # User must be able to update the group to add a member to it
-    _check_access('group_update', context, data_dict)
+    _check_access('member_create', context, data_dict)
 
     # Look up existing, in case it exists
     member = model.Session.query(model.Member).\
@@ -496,7 +494,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
     session = context['session']
-    parent = context.get('parent', None)
     data_dict['is_organization'] = is_org
 
     upload = uploader.Upload('group')
@@ -537,14 +534,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     group = model_save.group_dict_save(data, context)
-
-    if parent:
-        parent_group = model.Group.get( parent )
-        if parent_group:
-            member = model.Member(group=parent_group, table_id=group.id, table_name='group')
-            session.add(member)
-            log.debug('Group %s is made child of group %s',
-                      group.name, parent_group.name)
 
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
@@ -853,7 +842,8 @@ def user_create(context, data_dict):
     #
     # The context is copied so as not to clobber the caller's context dict.
     user_dictize_context = context.copy()
-    user_dictize_context['keep_sensitive_data'] = True
+    user_dictize_context['keep_apikey'] = True
+    user_dictize_context['keep_email'] = True
     user_dict = model_dictize.user_dictize(user, user_dictize_context)
 
     context['user_obj'] = user
