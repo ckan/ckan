@@ -216,57 +216,67 @@ def related_list(context, data_dict=None):
 
     :param id: id or name of the dataset (optional)
     :type id: string
+
     :param dataset: dataset dictionary of the dataset (optional)
     :type dataset: dictionary
-    :param type_filter: the type of related item to show (optional,
-      default: None, show all items)
+
+    :param type_filter:
+        the type of related item to show (optional, default: None,
+        show all items)
     :type type_filter: string
+
     :param sort: the order to sort the related items in, possible values are
       'view_count_asc', 'view_count_desc', 'created_asc' or 'created_desc'
       (optional)
     :type sort: string
+
     :param featured: whether or not to restrict the results to only featured
       related items (optional, default: False)
     :type featured: bool
 
     :rtype: list of dictionaries
-
     '''
+
     model = context['model']
     dataset = data_dict.get('dataset', None)
 
     if not dataset:
         dataset = model.Package.get(data_dict.get('id'))
 
-    _check_access('related_show',context, data_dict)
+    _check_access('related_show', context, data_dict)
 
-    related_list = []
-    if not dataset:
-        related_list = model.Session.query(model.Related)
-
-        filter_on_type = data_dict.get('type_filter', None)
-        if filter_on_type:
-            related_list = related_list.filter(model.Related.type == filter_on_type)
-
-        sort = data_dict.get('sort', None)
-        if sort:
-            sortables = {
-                'view_count_asc' : model.Related.view_count.asc,
-                'view_count_desc': model.Related.view_count.desc,
-                'created_asc' : model.Related.created.asc,
-                'created_desc': model.Related.created.desc,
-            }
-            s = sortables.get(sort, None)
-            if s:
-                related_list = related_list.order_by( s() )
-
-        if data_dict.get('featured', False):
-            related_list = related_list.filter(model.Related.featured == 1)
-    else:
+    if dataset:
+        ## If a dataset was specified, return its related items only
         relateds = model.Related.get_for_dataset(dataset, status='active')
         related_items = (r.related for r in relateds)
-        related_list = model_dictize.related_list_dictize( related_items, context)
-    return related_list
+        return model_dictize.related_list_dictize(related_items, context)
+
+    related_list = model.Session.query(model.Related)
+
+    ## Apply title filter, if requested to do so..
+    filter_on_type = data_dict.get('type_filter', None)
+    if filter_on_type:
+        related_list = related_list.filter(
+            model.Related.type == filter_on_type)
+
+    ## Apply sorting, if requested to do so..
+    sort = data_dict.get('sort', None)
+    if sort:
+        sortables = {
+            'view_count_asc': model.Related.view_count.asc,
+            'view_count_desc': model.Related.view_count.desc,
+            'created_asc': model.Related.created.asc,
+            'created_desc': model.Related.created.desc,
+        }
+        if sort in sortables:
+            related_list = related_list.order_by(sortables[sort]())
+
+    ## Should we return only featured items?
+    if data_dict.get('featured', False):
+        related_list = related_list.filter(model.Related.featured == 1)
+
+    return [model_dictize.related_dictize(res, context)
+            for res in related_list]
 
 
 def member_list(context, data_dict=None):
