@@ -100,7 +100,9 @@ def package_list(context, data_dict):
     offset = data_dict.get('offset')
     if offset:
         query = query.offset(offset)
-    return list(zip(*query.execute())[0])
+
+    ## Returns the first field in each result record
+    return [r[0] for r in query.execute()]
 
 @logic.validate(logic.schema.default_package_list_schema)
 def current_package_list_with_resources(context, data_dict):
