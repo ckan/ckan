@@ -205,19 +205,20 @@ def check_access(action, context, data_dict=None):
 
     user = context.get('user')
 
-    log.debug('check access - user %r, action %s' % (user, action))
+    log.debug('Access check - %s %s', user, action)
 
     if action:
         logic_authorization = is_authorized(action, context, data_dict)
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')
+            log.debug('Access denied - %s %s (%s)', user, action,
+                      msg.encode('ascii', 'ignore'))
             raise NotAuthorized(msg)
     elif not user:
-        msg = _('No valid API key provided.')
-        log.debug(msg)
-        raise NotAuthorized(msg)
+        log.debug('Access denied - %s %s (no valid API key)', user, action)
+        raise NotAuthorized(_('No valid API key provided.'))
 
-    log.debug('Access OK.')
+    log.debug('Access OK - %s %s', user, action)
     return True
 
 
