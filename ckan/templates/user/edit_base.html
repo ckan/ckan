@@ -1,8 +1,6 @@
 {% extends "page.html" %}
 
-{% set user = c.userobj %}
-
-{% block subtitle %}{{ _('Dashboard') }}{% endblock %}
+{% block subtitle %}{{ _('Manage') }} - {{ c.user_dict.display_name }} - {{ _('Users') }}{% endblock %}
 
 {% block primary_content %}
   <article class="module">

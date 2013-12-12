@@ -12,7 +12,6 @@ accept_types = {
     #   Name         : ContentType,             Is Markup?, Extension
     "text/html": ("text/html; charset=utf-8",  True,  'html'),
     "text/n3": ("text/n3; charset=utf-8",    False, 'n3'),
-    "text/plain": ("text/plain; charset=utf-8", False, 'txt'),
     "application/rdf+xml": ("application/rdf+xml; charset=utf-8", True, 'rdf'),
 }
 accept_by_extension = {

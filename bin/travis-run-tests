@@ -2,8 +2,7 @@
 
 # Configure Solr
 echo "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
-# FIXME the solr schema cannot be hardcoded as it is dependent on the ckan version
-sudo cp ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
+sudo cp ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
 sudo service jetty restart
 
 # Run mocha front-end tests
