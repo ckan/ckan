@@ -698,7 +698,7 @@ def datasets_with_no_organization_cannot_be_private(key, data, errors,
     private = data[key] is True
 
     check_passed = True
-    from nose.tools import set_trace; set_trace()
+
     if not dataset_id and private and owner_org is None:
         # When creating a dataset, enforce it directly
         check_passed = False
