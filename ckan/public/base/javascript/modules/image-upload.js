@@ -12,10 +12,10 @@ this.ckan.module('image-upload', function($, _) {
       field_clear: 'clear_upload',
       upload_label: '',
       i18n: {
-        upload: _('From computer'),
-        url: _('From web'),
+        upload: _('Upload'),
+        url: _('Link'),
         remove: _('Remove'),
-        upload_label: _('Upload image'),
+        upload_label: _('Upload'),
         remove_tooltip: _('Reset this')
       },
       template: [
