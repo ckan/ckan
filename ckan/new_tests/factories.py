@@ -44,6 +44,42 @@ import ckan.logic
 import ckan.new_tests.helpers as helpers
 
 
+def _get_action_user_name(kwargs):
+    '''Return the name of the user that should perform the create action
+
+    When creating an instance of the factory, users can provide an 'auth_user'
+    keyword argument with the name of the user that should perform the action.
+    If they don't provide the 'auth_user' argument the site user will be used
+    (this user is a sysadmin). If the action should be performed anonymously
+    (ie no logged in user), auth_user=None should be provided.
+
+    The user name can be passed on the context['user'] property to the action
+    function.
+
+    Examples:
+
+    * Creating a new group with the site user:
+
+        group = factories.Group()
+
+    * Creating an Organization with the user 'daniel'
+
+        org = factories.Organization(auth_user='daniel')
+
+    * Creating a Dataset anonymously
+
+        org = factories.Organization(auth_user=None)
+
+    '''
+
+    if 'auth_user' in kwargs:
+        user_name = kwargs.get('auth_user')
+    else:
+        user_name = helpers.call_action('get_site_user')['name']
+
+    return user_name
+
+
 def _generate_email(user):
     '''Return an email address for the given User factory stub object.'''
 
@@ -117,11 +153,8 @@ class Resource(factory.Factory):
     def _create(cls, target_class, *args, **kwargs):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
-        if 'user' in kwargs:
-            user = kwargs.pop('user')
-            context = {'user': user['name']}
-        else:
-            context = {}
+
+        context = {'user': _get_action_user_name(kwargs)}
 
         assert kwargs.get('package_id'), 'You must provide a package_id'
 
@@ -173,11 +206,9 @@ class Dataset(factory.Factory):
     def _create(cls, target_class, *args, **kwargs):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
-        if 'user' in kwargs:
-            user = kwargs.pop('user')
-            context = {'user': user['name']}
-        else:
-            context = {}
+
+        context = {'user': _get_action_user_name(kwargs)}
+
         dataset_dict = helpers.call_action('dataset_create', context=context,
                                            **kwargs)
         return dataset_dict
@@ -211,11 +242,7 @@ class Group(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        #TODO: we will need to be able to define this when creating the
-        #      instance perhaps passing a 'user' param?
-        context = {
-            'user': helpers.call_action('get_site_user')['name']
-        }
+        context = {'user': _get_action_user_name(kwargs)}
 
         group_dict = helpers.call_action('group_create',
                                          context=context,
@@ -251,11 +278,7 @@ class Organization(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        #TODO: we will need to be able to define this when creating the
-        #      instance perhaps passing a 'user' param?
-        context = {
-            'user': helpers.call_action('get_site_user')['name']
-        }
+        context = {'user': _get_action_user_name(kwargs)}
 
         group_dict = helpers.call_action('organization_create',
                                          context=context,
