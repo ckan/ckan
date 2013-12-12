@@ -17,7 +17,7 @@ this.ckan.module('image-upload', function($, _) {
         remove: _('Remove'),
         upload_label: _('Image'),
         upload_tooltip: _('Upload a file on your computer'),
-        url_tooltip: _('Link to a URL on the internet (you can also link to a API)'),
+        url_tooltip: _('Link to a URL on the internet (you can also link to an API)'),
         remove_tooltip: _('Reset this')
       },
       template: [
