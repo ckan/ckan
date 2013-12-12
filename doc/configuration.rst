@@ -394,7 +394,7 @@ Example::
 
  solr_url = http://solr.okfn.org:8983/solr/ckan-schema-2.0
 
-Default value:  ``http://solr.okfn.org:8983/solr``
+Default value:  ``http://127.0.0.1:8983/solr``
 
 This configures the Solr server used for search. The Solr schema found at that URL must be one of the ones in ``ckan/config/solr`` (generally the most recent one). A check of the schema version number occurs when CKAN starts.
 
@@ -971,31 +971,41 @@ For more information on theming, see :doc:`theming`.
 Storage Settings
 ----------------
 
-.. _ckan.storage.bucket:
+.. _ckan.storage_path:
 
-ckan.storage.bucket
-^^^^^^^^^^^^^^^^^^^
+ckan.storage_path
+^^^^^^^^^^^^^^^^^
 
 Example::
-
-  ckan.storage.bucket = ckan
+    ckan.storage_path = /var/lib/ckan
 
 Default value:  ``None``
 
-This changes the bucket name for the uploaded files.
+This defines the location of where CKAN will store all uploaded data.
 
-.. _ckan.storage.max_content_length:
+.. _ckan.max_resource_size:
 
-ckan.storage.max_content_length
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ckan.max_resource_size
+^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
+    ckan.max_resource_size = 100
 
-  ckan.storage.max_content_length = 500000
+Default value: ``10``
 
-Default value: ``50000000``
+The maximum in megabytes a resources upload can be.
 
-This defines the maximum content size, in bytes, for uploads.
+.. _ckan.max_image_size:
+
+ckan.max_image_size
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+    ckan.max_image_size = 10
+
+Default value: ``2``
+
+The maximum in megabytes an image upload can be.
 
 .. _ofs.impl:
 
@@ -1010,6 +1020,9 @@ Default value:  ``None``
 
 Defines the storage backend used by CKAN: ``pairtree`` for local storage, ``s3`` for Amazon S3 Cloud Storage or ``google`` for Google Cloud Storage. Note that each of these must be accompanied by the relevant settings for each backend described below.
 
+Deprecated, only available option is now pairtree.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
+
+
 .. _ofs.storage_dir:
 
 ofs.storage_dir
@@ -1023,72 +1036,9 @@ Default value:  ``None``
 
 Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
 
-.. _ckan.storage.key_prefix:
+Deprecated, please use ckan.storage_path.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
 
-ckan.storage.key_prefix
-^^^^^^^^^^^^^^^^^^^^^^^
 
-Example::
-
-  ckan.storage.key_prefix = ckan-file/
-
-Default value: ``file/``
-
-Only used with the local storage backend. This changes the prefix for the uploaded files.
-
-.. _ofs.aws_access_key_id:
-
-ofs.aws_access_key_id
-^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.aws_access_key_id = 022QF06E7MXBSH9DHM02
-
-Default value:  ``None``
-
-Only used with the Amazon S3 storage backend. Configure with your AWS Access Key ID.
-
-.. _ofs.aws_secret_access_key:
-
-ofs.aws_secret_access_key
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.aws_secret_access_key = kWcrlUX5JEDGM/LtmEENI/aVmYvHNif5zB+d9+ct
-
-Default value:  ``None``
-
-Only used with the Amazon S3 storage backend. Configure with your AWS Secret Access Key.
-
-.. _ofs.gs_access_key_id:
-
-ofs.gs_access_key_id
-^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.gs_access_key_id = GOOGTS7C7FUP3AIRVJTE
-
-Default value:  ``None``
-
-Only used with the Google storage backend. Configure with your Google Storage
-Access Key ID.
-
-.. _ofs.gs_secret_access_key:
-
-ofs.gs_secret_access_key
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.gs_secret_access_key = bGoa+V7g/yqDXvKRqq+JTFn4uQZbPiQJo4pf9RzJ
-
-Default value:  ``None``
-
-Only used with the Google storage backend. Configure with your Google Storage
-Secret Access Key.
 
 
 DataPusher Settings

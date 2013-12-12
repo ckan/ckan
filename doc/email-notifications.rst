@@ -1,7 +1,7 @@
 .. _email-notifications:
 
 ===================
-Email Notifications
+Email notifications
 ===================
 
 CKAN can send email notifications to users, for example when a user has new

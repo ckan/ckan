@@ -1,14 +1,33 @@
 ==========================
-FileStore and File Uploads
+FileStore and file uploads
 ==========================
 
-CKAN allows users to upload files directly to file storage either on the local
-file system or to online 'cloud' storage like Amazon S3 or Google Storage. The
-uploaded files will be stored in the configured location.
+When enabled, CKAN's FileStore allows users to upload data files to CKAN
+resources, and to upload logo images for groups and organizations. Users will
+see an upload button when creating or updating a resource, group or
+organization.
 
--------------------------------------------
-Setup the FileStore with Local File Storage
--------------------------------------------
+.. versionadded:: 2.2
+   Uploading logo images for groups and organizations was added in CKAN 2.2.
+
+.. versionchanged:: 2.2
+   Previous versions of CKAN used to allow uploads to remote cloud hosting but
+   we have simplified this to only allow local file uploads (see
+   :ref:`filestore_21_to_22_migration` for details on how to migrate). This is
+   to give CKAN more control over the files and make access control possible.
+
+.. seealso::
+
+   :ref:`datapusher`
+
+    Resource files linked-to from CKAN or uploaded to CKAN's FileStore can
+    also be pushed into CKAN's DataStore, which then enables data previews and
+    a data API for the resources.
+
+
+------------------
+Setup file uploads
+------------------
 
 To setup CKAN's FileStore with local file storage:
 
@@ -16,157 +35,105 @@ To setup CKAN's FileStore with local file storage:
 
    .. parsed-literal::
 
-     sudo mkdir -p |storage_dir|
+     sudo mkdir -p |storage_path|
 
-2. Add the following lines to your CKAN config file, after the ``[app:main]``
+2. Add the following line to your CKAN config file, after the ``[app:main]``
    line:
 
    .. parsed-literal::
 
-      ofs.impl = pairtree
-      ofs.storage_dir = |storage_dir|
+      ckan.storage_path = |storage_path|
 
-3. Set the permissions of the ``storage_dir``. For example if you're running
-   CKAN with Apache, then Apache's user (``www-data`` on Ubuntu) must have
-   read, write and execute permissions for the ``storage_dir``:
+3. Set the permissions of your :ref:`ckan.storage_path` directory.
+   For example if you're running CKAN with Apache, then Apache's user
+   (``www-data`` on Ubuntu) must have read, write and execute permissions for
+   the :ref:`ckan.storage_path`:
 
    .. parsed-literal::
 
-     sudo chown www-data |storage_dir|
-     sudo chmod u+rwx |storage_dir|
+     sudo chown www-data |storage_path|
+     sudo chmod u+rwx |storage_path|
 
-4. Make sure you've set :ref:`ckan.site_url` in your config file.
-
-5. Restart your web server, for example to restart Apache:
+4. Restart your web server, for example to restart Apache:
 
    .. parsed-literal::
 
       |reload_apache|
 
 
---------------------------------------
-Setup the FileStore with Cloud Storage
---------------------------------------
-
-Important: you must install boto library for cloud storage to function::
-
-    pip install boto
-
-In your config for google::
-
-   ## OFS configuration
-   ofs.impl = google
-   ofs.gs_access_key_id = GOOG....
-   ofs.gs_secret_access_key = ....
-
-For S3::
-
-   ## OFS configuration
-   ofs.impl = s3
-   ofs.aws_access_key_id = ....
-   ofs.aws_secret_access_key = ....
-
-
------------------------
-FileStore Web Interface
------------------------
-
-Upload of files to storage is integrated directly into the the Dataset creation
-and editing system with files being associated to Resources.
-
 -------------
 FileStore API
 -------------
 
-CKAN's FileStore API lets you upload files to CKAN's
-:doc:`FileStore <filestore>`. If you're looking for an example,
-`ckanclient <https://github.com/okfn/ckanclient>`_ contains
-`Python code for uploading a file to CKAN using the FileStore API <https://github.com/okfn/ckanclient/blob/master/ckanclient/__init__.py#L546>`_.
+.. versionchanged:: 2.2
+   The FileStore API was redesigned for CKAN 2.2.
+   The previous API has been deprecated.
+
+Files can be uploaded to the FileStore using the
+:py:func:`~ckan.logic.action.create.resource_create` and
+:py:func:`~ckan.logic.action.update.resource_update` action API
+functions. You can post multipart/form-data to the API and the key, value
+pairs will treated as as if they are a JSON object.
+The extra key ``upload`` is used to actually post the binary data.
+
+For example, to create a new CKAN resource and upload a file to it using 
+`curl <http://curl.haxx.se/>`_:
+
+.. parsed-literal::
+
+ curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_create' --form upload=@filetoupload --form package_id=my_dataset
+
+(Curl automatically sends a ``multipart-form-data`` heading with you use the
+``--form`` option.)
+
+To create a new resource and upload a file to it using the Python library
+`requests <http://python-requests.org/>`_:
+
+.. parsed-literal::
+
+ import requests
+ requests.post('http://0.0.0.0:5000/api/action/resource_create',
+               data={"package_id":"my_dataset}",
+               headers={"X-CKAN-API-Key": "21a47217-6d7b-49c5-88f9-72ebd5a4d4bb"},
+               files=[('upload', file('/path/to/file/to/upload.csv'))])
+
+(Requests automatically sends a ``multipart-form-data`` heading when you use the
+``files=`` parameter.)
+
+To overwrite an uploaded file with a new version of the file, post to the
+:py:func:`~ckan.logic.action.update.resource_update` action and use the
+``upload`` field::
+
+    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' --form upload=@newfiletoupload --form id=resourceid
+
+To replace an uploaded file with a link to a file at a remote URL, use the
+``clear_upload`` field::
+
+    curl -H'Authorization: your-api-key' 'http://yourhost/api/action/resource_update' --form url=http://expample.com --form clear_upload=true --form id=resourceid
 
 
-FileStore Metadata API
-======================
+.. _filestore_21_to_22_migration:
 
-The API is located at::
+--------------------------
+Migration from 2.1 to 2.2
+--------------------------
 
-     /api/storage/metadata/{label}
+If you are using pairtree local file storage then you can keep your current settings
+without issue.  The pairtree and new storage can live side by side but you are still
+encouraged to migrate.  If you change your config options to the ones specified in
+this docs you will need to run the migration below.
 
-It supports the following methods:
+If you are running remote storage then all previous links will still be accessible
+but if you want to move the remote storage documents to the local storage you will
+run the migration also.
 
-* GET will return the metadata
-* POST will add/update metadata
-* PUT will replace metadata
+In order to migrate make sure your CKAN instance is running as the script will
+request the data from the instance using APIs.  You need to run the following
+on the command line to do the migration::
 
-Metadata is a json dict of key values which for POST and PUT should be send in body of request.
+    paster db migrate-filestore
 
-A standard response looks like::
-
-    {
-      "_bucket": "ckannet-storage",
-      _content_length: 1074
-      _format: "text/plain"
-      _label: "/file/8630a664-0ae4-485f-99c2-126dae95653a"
-      _last_modified: "Fri, 29 Apr 2011 19:27:31 GMT"
-      _location: "some-location"
-      _owner: null
-      uploaded-by: "bff737ef-b84c-4519-914c-b4285144d8e6"
-    }
-
-Note that values with '_' are standard OFS metadata and are mostly read-only -- _format i.e. content-type can be set).
-
-
-FileStore Form Authentication API
-=================================
-
-Provides credentials for doing operations on storage directly from a client
-(using web form style POSTs).
-
-The API is located at::
-
-    /api/storage/auth/form/{label}
-
-Provide fields for a form upload to storage including authentication::
-
-    :param label: label.
-    :return: json-encoded dictionary with action parameter and fields list.
-
-
-FileStore Request Authentication API
-====================================
-
-Provides credentials for doing operations on storage directly from a client.
-
-.. warning:: This API is currently disabled and will likely be deprecated.
-             Use the form authentication instead.
-
-The API is at::
-
-    /api/storage/auth/request/{label}
-
-Provide authentication information for a request so a client can
-interact with backend storage directly::
-
-    :param label: label.
-    :param kwargs: sent either via query string for GET or json-encoded
-        dict for POST). Interpreted as http headers for request plus an
-        (optional) method parameter (being the HTTP method).
-
-        Examples of headers are:
-
-            Content-Type
-            Content-Encoding (optional)
-            Content-Length
-            Content-MD5
-            Expect (should be '100-Continue')
-
-    :return: is a json hash containing various attributes including a
-    headers dictionary containing an Authorization field which is good for
-    15m.
-
----------------------
-DataStore Integration
----------------------
-
-It is also possible to have uploaded files (if of a suitable format) stored in
-the DataStore which will then provides an API to the data. See :ref:`datastorer` for more details.
+This may take a long time especially if you have a lot of files remotely.
+If the remote hosting goes down or the job is interrupted it is save to run it again
+and it will try all the unsuccessful ones again.
 

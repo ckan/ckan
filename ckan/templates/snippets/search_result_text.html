@@ -13,21 +13,21 @@ Example:
 #}
 {% if type == 'dataset' %}
   {% set text_query = ungettext('{number} dataset found for "{query}"', '{number} datasets found for "{query}"', count) %}
-  {% set text_query_none = _('Sorry no datasets found for "{query}"') %}
+  {% set text_query_none = _('No datasets found for "{query}"') %}
   {% set text_no_query = ungettext('{number} dataset found', '{number} datasets found', count) %}
-  {% set text_no_query_none = _('Sorry no datasets found') %}
+  {% set text_no_query_none = _('No datasets found') %}
 
 {% elif type == 'group' %}
   {% set text_query = ungettext('{number} group found for "{query}"', '{number} groups found for "{query}"', count) %}
-  {% set text_query_none = _('Sorry no groups found for "{query}"') %}
+  {% set text_query_none = _('No groups found for "{query}"') %}
   {% set text_no_query = ungettext('{number} group found', '{number} groups found', count) %}
-  {% set text_no_query_none = _('Sorry no groups found') %}
+  {% set text_no_query_none = _('No groups found') %}
 
 {% elif type == 'organization' %}
   {% set text_query = ungettext('{number} organization found for "{query}"', '{number} organizations found for "{query}"', count) %}
-  {% set text_query_none = _('Sorry no organizations found for "{query}"') %}
+  {% set text_query_none = _('No organizations found for "{query}"') %}
   {% set text_no_query = ungettext('{number} organization found', '{number} organizations found', count) %}
-  {% set text_no_query_none = _('Sorry no organizations found') %}
+  {% set text_no_query_none = _('No organizations found') %}
 {%- endif -%}
 
 {% if query %}

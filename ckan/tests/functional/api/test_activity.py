@@ -573,17 +573,17 @@ class TestActivity:
                 [group['name'] for group in package_dict['groups']],
                 apikey=apikey)
 
-        extras_before = package_dict['extras']
+        import copy
+        extras_before = copy.deepcopy(package_dict['extras'])
         assert len(extras_before) > 0, (
                 "Can't update an extra if the package doesn't have any")
 
         # Update the package's first extra.
-        extras = list(extras_before)
-        if extras[0]['value'] != '"edited"':
-            extras[0]['value'] = '"edited"'
+        if package_dict['extras'][0]['value'] != '"edited"':
+            package_dict['extras'][0]['value'] = '"edited"'
         else:
-            assert extras[0]['value'] != '"edited again"'
-            extras[0]['value'] = '"edited again"'
+            assert package_dict['extras'][0]['value'] != '"edited again"'
+            package_dict['extras'][0]['value'] = '"edited again"'
         updated_package = package_update(self.app, package_dict,
                 user['apikey'])
 

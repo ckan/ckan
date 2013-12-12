@@ -6,9 +6,13 @@ import ckan.lib.munge as munge
 import logging
 import ckan.logic as logic
 
+
+config = pylons.config
 log = logging.getLogger(__name__)
 
 _storage_path = None
+_max_resource_size = None
+_max_image_size = None
 
 
 def get_storage_path():
@@ -17,9 +21,9 @@ def get_storage_path():
 
     #None means it has not been set. False means not in config.
     if _storage_path is None:
-        storage_path = pylons.config.get('ckan.storage_path')
-        ofs_impl = pylons.config.get('ofs.impl')
-        ofs_storage_dir = pylons.config.get('ofs.storage_dir')
+        storage_path = config.get('ckan.storage_path')
+        ofs_impl = config.get('ofs.impl')
+        ofs_storage_dir = config.get('ofs.storage_dir')
         if storage_path:
             _storage_path = storage_path
         elif ofs_impl == 'pairtree' and ofs_storage_dir:
@@ -38,6 +42,20 @@ def get_storage_path():
             _storage_path = False
 
     return _storage_path
+
+
+def get_max_image_size():
+    global _max_image_size
+    if _max_image_size is None:
+        _max_image_size = int(config.get('ckan.max_image_size', 2))
+    return _max_image_size
+
+
+def get_max_resource_size():
+    global _max_resource_size
+    if _max_resource_size is None:
+        _max_resource_size = int(config.get('ckan.max_resource_size', 10))
+    return _max_resource_size
 
 
 class Upload(object):
@@ -127,5 +145,81 @@ class Upload(object):
                 and not self.old_filename.startswith('http')):
             try:
                 os.remove(self.old_filepath)
+            except OSError, e:
+                pass
+
+
+class ResourceUpload(object):
+    def __init__(self, resource):
+        path = get_storage_path()
+        if not path:
+            self.storage_path = None
+            return
+        self.storage_path = os.path.join(path, 'resources')
+        try:
+            os.makedirs(self.storage_path)
+        except OSError, e:
+            ## errno 17 is file already exists
+            if e.errno != 17:
+                raise
+        self.filename = None
+
+        url = resource.get('url')
+        upload_field_storage = resource.pop('upload', None)
+        self.clear = resource.pop('clear_upload', None)
+
+        if isinstance(upload_field_storage, cgi.FieldStorage):
+            self.filename = upload_field_storage.filename
+            self.filename = munge.munge_filename(self.filename)
+            resource['url'] = self.filename
+            resource['url_type'] = 'upload'
+            self.upload_file = upload_field_storage.file
+        elif self.clear:
+            resource['url_type'] = ''
+
+    def get_directory(self, id):
+        directory = os.path.join(self.storage_path,
+                                 id[0:3], id[3:6])
+        return directory
+
+    def get_path(self, id):
+        directory = self.get_directory(id)
+        filepath = os.path.join(directory, id[6:])
+        return filepath
+
+    def upload(self, id, max_size=10):
+        if not self.storage_path:
+            return
+        directory = self.get_directory(id)
+        filepath = self.get_path(id)
+        if self.filename:
+            try:
+                os.makedirs(directory)
+            except OSError, e:
+                ## errno 17 is file already exists
+                if e.errno != 17:
+                    raise
+            tmp_filepath = filepath + '~'
+            output_file = open(tmp_filepath, 'wb+')
+            self.upload_file.seek(0)
+            current_size = 0
+            while True:
+                current_size = current_size + 1
+                #MB chunks
+                data = self.upload_file.read(2 ** 20)
+                if not data:
+                    break
+                output_file.write(data)
+                if current_size > max_size:
+                    os.remove(tmp_filepath)
+                    raise logic.ValidationError(
+                        {'upload': ['File upload too large']}
+                    )
+            output_file.close()
+            os.rename(tmp_filepath, filepath)
+
+        if self.clear:
+            try:
+                os.remove(filepath)
             except OSError, e:
                 pass

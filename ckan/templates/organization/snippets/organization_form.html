@@ -19,7 +19,10 @@
 
     {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=_('A little information about my organization...'), value=data.description, error=errors.description) }}
 
-    {{ form.image_upload(data, errors, image_url=c.group_dict.image_display_url, is_upload_enabled=h.uploads_enabled()) }}
+    {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
+    {% set is_url = data.image_url and data.image_url.startswith('http') %}
+
+    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload) }}
 
   {% endblock %}
 
@@ -73,12 +76,12 @@
 
     {{ form.required_message() }}
   <div class="form-actions">
-      {% block delete_button %}
-        {% if h.check_access('organization_delete', {'id': data.id})  %}
-          {% set locale = h.dump_json({'content': _('Are you sure you want to delete this Organization? This will delete all the public and private datasets belonging to this organization.')}) %}
-          <a class="btn btn-danger pull-left" href="{% url_for controller='organization', action='delete', id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
-        {% endif %}
-      {% endblock %}
+    {% block delete_button %}
+      {% if h.check_access('organization_delete', {'id': data.id})  %}
+        {% set locale = h.dump_json({'content': _('Are you sure you want to delete this Organization? This will delete all the public and private datasets belonging to this organization.')}) %}
+        <a class="btn btn-danger pull-left" href="{% url_for controller='organization', action='delete', id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
+      {% endif %}
+    {% endblock %}
     <button class="btn btn-primary" name="save" type="submit">{% block save_text %}{{ _('Save Organization') }}{% endblock %}</button>
   </div>
 </form>

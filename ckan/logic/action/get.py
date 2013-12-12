@@ -335,6 +335,7 @@ def member_list(context, data_dict=None):
 def _group_or_org_list(context, data_dict, is_org=False):
 
     model = context['model']
+    user = context['user']
     api = context.get('api_version')
     groups = data_dict.get('groups')
     ref_group_by = 'id' if api == 2 else 'name'
@@ -464,7 +465,7 @@ def group_list_authz(context, data_dict):
     _check_access('group_list_authz',context, data_dict)
 
     sysadmin = new_authz.is_sysadmin(user)
-    roles = ckan.new_authz.get_roles_with_permission('edit_group')
+    roles = ckan.new_authz.get_roles_with_permission('manage_group')
     if not roles:
         return []
     user_id = new_authz.get_user_id_for_username(user, allow_none=True)
@@ -551,7 +552,8 @@ def organization_list_for_user(context, data_dict):
     orgs_list = model_dictize.group_list_dictize(orgs_q.all(), context)
     return orgs_list
 
-def group_revision_list(context, data_dict):
+
+def _group_or_org_revision_list(context, data_dict):
     '''Return a group's revisions.
 
     :param id: the name or id of the group
@@ -566,7 +568,6 @@ def group_revision_list(context, data_dict):
     if group is None:
         raise NotFound
 
-    _check_access('group_revision_list',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in group.all_related_revisions:
@@ -574,6 +575,32 @@ def group_revision_list(context, data_dict):
                                                      include_packages=False,
                                                      include_groups=False))
     return revision_dicts
+
+def group_revision_list(context, data_dict):
+    '''Return a group's revisions.
+
+    :param id: the name or id of the group
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+
+    _check_access('group_revision_list',context, data_dict)
+    return _group_or_org_revision_list(context, data_dict)
+
+def organization_revision_list(context, data_dict):
+    '''Return an organization's revisions.
+
+    :param id: the name or id of the organization
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+
+    _check_access('organization_revision_list',context, data_dict)
+    return _group_or_org_revision_list(context, data_dict)
 
 def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
@@ -2340,7 +2367,16 @@ def organization_activity_list_html(context, data_dict):
 
     '''
     activity_stream = organization_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict.get('offset', 0))
+    extra_vars = {
+        'controller': 'organization',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset,
+        }
+
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.
@@ -2927,11 +2963,20 @@ def _unpick_search(sort, allowed_fields=None, total=None):
 def member_roles_list(context, data_dict):
     '''Return the possible roles for members of groups and organizations.
 
+    :param group_type: the group type, either "group" or "organization"
+        (optional, default "organization")
+    :type id: string
     :returns: a list of dictionaries each with two keys: "text" (the display
         name of the role, e.g. "Admin") and "value" (the internal name of the
         role, e.g. "admin")
     :rtype: list of dictionaries
 
     '''
+    group_type = data_dict.get('group_type', 'organization')
+    roles_list = new_authz.roles_list()
+    if group_type == 'group':
+        roles_list = [role for role in roles_list
+                      if role['value'] != 'editor']
+
     _check_access('member_roles_list', context, data_dict)
-    return new_authz.roles_list()
+    return roles_list

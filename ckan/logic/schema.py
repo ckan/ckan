@@ -223,6 +223,8 @@ def default_show_package_schema():
 
     schema['groups'].update({
         'description': [ignore_missing],
+        'display_name': [ignore_missing],
+        'image_display_url': [ignore_missing],
         })
 
     # Remove validators for several keys from the schema so validation doesn't
@@ -351,6 +353,7 @@ def default_extras_schema():
         'state': [ignore],
         'deleted': [ignore_missing],
         'revision_timestamp': [ignore],
+        '__extras': [ignore],
     }
     return schema
 

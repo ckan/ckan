@@ -168,6 +168,9 @@ class GroupController(base.BaseController):
 
     def read(self, id, limit=20):
         group_type = self._get_group_type(id.split('@')[0])
+        if group_type != self.group_type:
+            abort(404, _('Incorrect group type'))
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'schema': self._db_to_form_schema(group_type=group_type),
@@ -643,7 +646,7 @@ class GroupController(base.BaseController):
                 else:
                     c.user_role = 'member'
                 c.group_dict = self._action('group_show')(context, {'id': id})
-                c.roles = self._action('member_roles_list')(context, {})
+                c.roles = self._action('member_roles_list')(context, {'group_type': 'group'})
         except NotAuthorized:
             abort(401, _('Unauthorized to add member to group %s') % '')
         except NotFound:
@@ -760,11 +763,8 @@ class GroupController(base.BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
-        data_dict = {'id': id}
-
         try:
-            c.group_dict = get_action('group_show')(context, data_dict)
-            c.group = context['group']
+            c.group_dict = self._get_group_dict(id)
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
@@ -774,10 +774,9 @@ class GroupController(base.BaseController):
 
         # Add the group's activity stream (already rendered to HTML) to the
         # template context for the group/read.html template to retrieve later.
-        c.group_activity_stream = get_action('group_activity_list_html')(
+        c.group_activity_stream = self._action('group_activity_list_html')(
             context, {'id': c.group_dict['id'], 'offset': offset})
 
-        #return render('group/activity_stream.html')
         return render(self._activity_template(c.group_dict['type']))
 
     def follow(self, id):
@@ -847,7 +846,7 @@ class GroupController(base.BaseController):
                    'user': c.user or c.author,
                    'for_view': True}
         try:
-            return get_action('group_show')(context, {'id': id})
+            return self._action('group_show')(context, {'id': id})
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
