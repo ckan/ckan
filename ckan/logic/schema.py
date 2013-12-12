@@ -277,6 +277,7 @@ def default_group_schema():
         'approval_status': [ignore_missing, unicode],
         'extras': default_extras_schema(),
         '__extras': [ignore],
+        '__junk': [ignore],
         'packages': {
             "id": [not_empty, unicode, package_id_or_name_exists],
             "title":[ignore_missing, unicode],
