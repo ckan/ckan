@@ -21,20 +21,31 @@ Initializing a JavaScript module
 To get CKAN to call some custom JavaScript code, we need to:
 
 1. Implement a |javascript| module, and register it with CKAN.
-   Create the file ``ckanext-example_theme/fanstatic/favorite.js``, with these
+   Create the file ``ckanext-example_theme/fanstatic/example_theme_popover.js``, with these
    contents:
 
-   .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/favorite.js
+   .. todo::
+
+      What is the standard way to name the two arguments to the ``module()``
+      function? I've seen ``jQuery`` and ``$`` and ``i18n`` and ``_``.
+
+   .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
+
+   .. note::
+
+      |javascript| module names should begin with the name of the extension,
+      to avoid conflicting with other modules.
+      See :ref:`javascript module names best practice`.
 
    This bit of |javascript| calls the ``ckan.module()`` function to register a
    new JavaScript module with CKAN. ``ckan.module()`` takes two arguments: the
-   name of the module being registered (``'favorite'`` in this example) and a
-   function that returns the module itself. The function takes two arguments,
-   which we'll look at later. The module is just a |javascript| object with a
-   single attribute, ``initialize``, whose value is a function that CKAN will
-   call to initialize the module. In this example, the initialize function just
-   prints out a confirmation message - this |javascript| module doesn't do
-   anything interesting yet.
+   name of the module being registered (``'example_theme_popover'`` in this
+   example) and a function that returns the module itself. The function takes
+   two arguments, which we'll look at later. The module is just a |javascript|
+   object with a single attribute, ``initialize``, whose value is a function
+   that CKAN will call to initialize the module. In this example, the
+   initialize function just prints out a confirmation message - this
+   |javascript| module doesn't do anything interesting yet.
 
 2. Include the |javascript| module in a page, using Fanstatic, and apply it to
    one or more HTML elements on that page. We'll override CKAN's
@@ -50,7 +61,7 @@ To get CKAN to call some custom JavaScript code, we need to:
 
    If you now restart the development server and open
    http://127.0.0.1:5000/dataset in your web browser, you should see an
-   extra "star this dataset" button next to each dataset shown. If you open a
+   extra info button next to each dataset shown. If you open a
    |javascript| console in your browser, you should see the message that your
    module has printed out.
 
@@ -58,11 +69,13 @@ To get CKAN to call some custom JavaScript code, we need to:
 
    If you have more than one dataset on your page, you'll see the module's
    message printed once for each dataset. The ``package_item.html`` template
-   snippet is rendered once for each dataset that's shown in the list, and
-   CKAN creates a new instance of your |javascript| module for each dataset.
-   If you view the source of your page, however, you'll see that
-   ``favorite.js`` is only included with a ``<script>`` tag once. Fanstatic
-   is smart enough to deduplicate resources.
+   snippet is rendered once for each dataset that's shown in the list, so your
+   ``<button>`` element with the ``data-module="example_theme_popover"``
+   attribute is rendered once for each dataset, and CKAN creates a new instance
+   of your |javascript| module for each of these ``<button>`` elements.  If you
+   view the source of your page, however, you'll see that
+   ``example_theme_popover.js`` is only included with a ``<script>`` tag once.
+   Fanstatic is smart enough to deduplicate resources.
 
    .. note:: |javascript| modules *must* be included as Fanstatic resources,
       you can't add them to a ``public`` directory and include them using your
@@ -76,7 +89,7 @@ Responding to events
 To get our |javascript| module to do something more interesting, we'll use its
 initialize function to register some event handler functions which we'll then
 use to do some actions in response to events such as mouse clicks. Edit your
-``favorite.js`` file to look like this:
+``example_theme_popover.js`` file to look like this:
 
 .. Link to some JavaScript tutorial?
 

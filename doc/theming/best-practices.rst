@@ -60,6 +60,19 @@ For example::
  snippets/example_theme_most_popular_groups.html
 
 
+.. _javascript module names best practice:
+
+----------------------------------------------------------------------
+|javascript| modules names should begin with the name of the extension
+----------------------------------------------------------------------
+
+Namespacing |javascript| modules in this way avoids accidentally overriding, or
+being overridden by, a core module, or a module from another extension.  For
+example: ``fanstatic/example_theme_popover.js``:
+
+.. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
+
+
 --------------------------------------------
 Use ``{% snippet %}``, not ``{% include %}``
 --------------------------------------------
