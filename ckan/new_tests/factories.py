@@ -126,24 +126,27 @@ class Group(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        #TODO: we will need to be able to define this when creating the instance
-        #      perhaps passing a 'user' param?
+        #TODO: we will need to be able to define this when creating the
+        #      instance perhaps passing a 'user' param?
         context = {
             'user': helpers.call_action('get_site_user')['name']
         }
 
-        group_dict = helpers.call_action('group_create', context=context, **kwargs)
+        group_dict = helpers.call_action('group_create',
+                                         context=context,
+                                         **kwargs)
         return group_dict
 
 
 class Organization(factory.Factory):
     '''A factory class for creating CKAN organizations.'''
 
-    # This is the class that OrganizationFactory will create and return instances
-    # of.
+    # This is the class that OrganizationFactory will create and return
+    # instances of.
     FACTORY_FOR = ckan.model.Group
 
-    # These are the default params that will be used to create new organizations.
+    # These are the default params that will be used to create new
+    # organizations.
     type = 'organization'
     is_organization = True
 
@@ -163,14 +166,17 @@ class Organization(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        #TODO: we will need to be able to define this when creating the instance
-        #      perhaps passing a 'user' param?
+        #TODO: we will need to be able to define this when creating the
+        #      instance perhaps passing a 'user' param?
         context = {
             'user': helpers.call_action('get_site_user')['name']
         }
 
-        group_dict = helpers.call_action('organization_create', context=context, **kwargs)
+        group_dict = helpers.call_action('organization_create',
+                                         context=context,
+                                         **kwargs)
         return group_dict
+
 
 class MockUser(factory.Factory):
     '''A factory class for creating mock CKAN users using the mock library.'''
