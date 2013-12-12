@@ -95,6 +95,7 @@ entry_points = {
         'example_theme_v14_more_custom_css = ckanext.example_theme.v14_more_custom_css.plugin:ExampleThemePlugin',
         'example_theme_v15_fanstatic = ckanext.example_theme.v15_fanstatic.plugin:ExampleThemePlugin',
         'example_theme_v16_initialize_a_javascript_module = ckanext.example_theme.v16_initialize_a_javascript_module.plugin:ExampleThemePlugin',
+        'example_theme_v17_popover = ckanext.example_theme.v17_popover.plugin:ExampleThemePlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',

@@ -30,6 +30,7 @@ To get CKAN to call some custom JavaScript code, we need to:
       function? I've seen ``jQuery`` and ``$`` and ``i18n`` and ``_``.
 
    .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
+      :language: javascript
 
    .. note::
 
@@ -56,6 +57,7 @@ To get CKAN to call some custom JavaScript code, we need to:
    contents:
 
    .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/templates/snippets/package_item.html
+      :language: django
 
    .. todo:: Link to something about HTML data-* attributes.
 
@@ -80,6 +82,71 @@ To get CKAN to call some custom JavaScript code, we need to:
    .. note:: |javascript| modules *must* be included as Fanstatic resources,
       you can't add them to a ``public`` directory and include them using your
       own ``<script>`` tags.
+
+
+--------------------------------
+``this.options`` and ``this.el``
+--------------------------------
+
+Now let's start to make our |javascript| module do something useful: show a
+`Bootstrap popover <http://getbootstrap.com/2.3.2/javascript.html#popovers>`_
+with some extra info about the dataset when the user clicks on the info button.
+
+.. todo:: Insert screenshot.
+
+First, we need our Jinja template to pass some of the dataset's fields to our
+|javascript| module as *options*. Change ``package_item.html`` to look like
+this:
+
+.. literalinclude:: /../ckanext/example_theme/v17_popover/templates/snippets/package_item.html
+   :language: django
+
+This adds some ``data-module-*`` attributes to our ``<button>`` element, e.g.
+``data-module-title="{{ package.title }}"`` (``{{ package.title }}`` is a
+:ref:`Jinja2 expression <expressions and variables>` that evaluates to the
+title of the dataset, CKAN passes the Jinja2 variable ``package`` to our
+template).
+
+.. warning::
+
+   Although HTML 5 treats any attribute named ``data-*`` as a data attributes,
+   only attributes named ``data-module-*`` will be passed as options to a CKAN
+   |javascript| module.
+
+Now let's make use of these options in our |javascript| module. Change
+``example_theme_popover.js`` to look like this:
+
+.. literalinclude:: /../ckanext/example_theme/v17_popover/fanstatic/example_theme_popover.js
+   :language: javascript
+
+.. note::
+
+   It's best practice to add a docstring to the top of a |javascript| module,
+   as in the example above, briefly documenting what the module does and what
+   options it takes. See :ref:`javascript module docstrings best practice`.
+
+Any ``data-module-*`` attributes on the HTML element are passed into the
+|javascript| module in the object ``this.options``:
+
+.. literalinclude:: /../ckanext/example_theme/v17_popover/fanstatic/example_theme_popover.js
+   :language: javascript
+   :start-after: // template.
+   :end-before: // Format
+
+A |javascript| module can access the HTML element that it was applied to
+through the ``this.el`` variable. To add a popover to our info button, we call
+Bootstap's ``popover()`` function on the element, passing in an options object
+with some of the options that Bootstrap's popovers accept:
+
+.. FIXME: This should be a literal.
+
+::
+
+ // Add a Bootstrap popover to the HTML element (this.el) that this
+ // JavaScript module was initialized on.
+ this.el.popover({title: this.options.title,
+                  content: content,
+                  placement: 'left'});
 
 
 --------------------

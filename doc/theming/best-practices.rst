@@ -72,6 +72,18 @@ example: ``fanstatic/example_theme_popover.js``:
 
 .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
 
+.. _javascript module docstrings best practice:
+
+-------------------------------------------
+|javascript| modules should have docstrings
+-------------------------------------------
+
+A |javascript| module should have a docstring at the top of the file, briefly
+documentating what the module does and what options it takes. For example:
+
+.. literalinclude:: /../ckanext/example_theme/v17_popover/fanstatic/example_theme_popover.js
+   :language: javascript
+
 
 --------------------------------------------
 Use ``{% snippet %}``, not ``{% include %}``
