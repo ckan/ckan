@@ -338,9 +338,9 @@ class TestValidators(object):
         @t.does_not_modify_data_dict
         @t.returns_None
         def call_validator(*args, **kwargs):
-            return validators.datasets_with_no_organization_cannot_be_private(*args, **kwargs)
+            return validators.datasets_with_no_organization_cannot_be_private(
+                *args, **kwargs)
         call_validator(key, data, errors, context={'model': mock_model})
-
 
     def test_datasets_with_no_org_cannot_be_private_when_creating(self):
 
@@ -357,9 +357,12 @@ class TestValidators(object):
         mock_model = mock.MagicMock()
 
         @t.does_not_modify_data_dict
-        @adds_message_to_errors_dict('Datasets with no organization can\'t be private.')
+        @adds_message_to_errors_dict(
+            "Datasets with no organization can't be private.")
         def call_validator(*args, **kwargs):
-            return validators.datasets_with_no_organization_cannot_be_private(*args, **kwargs)
+            return validators.datasets_with_no_organization_cannot_be_private(
+                *args, **kwargs)
+
         call_validator(key, data, errors, context={'model': mock_model})
 
     def test_datasets_with_org_can_be_private_when_updating(self):
@@ -383,7 +386,8 @@ class TestValidators(object):
         @t.does_not_modify_data_dict
         @t.returns_None
         def call_validator(*args, **kwargs):
-            return validators.datasets_with_no_organization_cannot_be_private(*args, **kwargs)
+            return validators.datasets_with_no_organization_cannot_be_private(
+                *args, **kwargs)
         call_validator(key, data, errors, context={'model': mock_model})
 
     #TODO: Need to test when you are not providing owner_org and the validator
