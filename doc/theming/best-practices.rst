@@ -81,3 +81,4 @@ A snippet should have a docstring comment at the top of the file that briefly
 documents what the snippet does and what parameters it requires. For example:
 
 .. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
+   :language: django

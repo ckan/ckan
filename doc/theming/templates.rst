@@ -238,6 +238,7 @@ example, to display the value of the :ref:`ckan.site_title` setting from your
 config file you would put this code in any template file:
 
 .. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+   :language: django
    :start-after: Jinja variable example
    :end-before: End example
 
@@ -307,6 +308,7 @@ the logic of the template. For example, we can output a list of the currently
 enabled plugins with this code in any template file:
 
 .. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+   :language: django
    :start-after: Jinja for-loop example
    :end-before: End example
 
@@ -314,6 +316,7 @@ Other variables, such as :ref:`ckan.tracking_enabled`, are booleans, and can be
 tested using Jinja's ``{% if %}`` tag:
 
 .. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+   :language: django
    :start-after: Jinja if example
    :end-before: End example
 
@@ -325,6 +328,7 @@ Finally, any text between ``{# ... #}`` delimiters in a Jinja2 template is a
 *comment*, and will not be output when the template is rendered:
 
 .. literalinclude:: /../ckanext/example_theme/v03_jinja/templates/home/index.html
+   :language: django
    :start-after: Jinja comment example
    :end-before: End example
 
@@ -339,6 +343,7 @@ declare that our ``home/index.html`` template extends the default
 Edit the empty ``index.html`` file you just created, and add one line:
 
 .. literalinclude:: /../ckanext/example_theme/v04_ckan_extends/templates/home/index.html
+   :language: django
 
 If you now reload the `CKAN front page`_ in your browser, you should see the
 normal front page appear again. When CKAN processes our ``index.html`` file,
@@ -356,6 +361,7 @@ to render the CKAN front page) has a block that contains the Jinja and HTML
 code for the "featured group" that appears on the front page:
 
 .. literalinclude:: /../ckan/templates/home/layout1.html
+   :language: django
    :start-after: {# Start template block example. #}
    :end-before: {# End template block example. #}
 
@@ -377,6 +383,7 @@ template with its own code by using ``{% block %}``. Create the file
 |layout1.html| with these contents:
 
 .. literalinclude:: /../ckanext/example_theme/v05_block/templates/home/layout1.html
+   :language: django
 
 This file extends the default ``layout1.html`` template, and overrides the
 ``featured_group`` block.  Restart the development web server and reload the
@@ -399,6 +406,7 @@ If you want to add some code to a block but don't want to replace the entire
 block, you can use Jinja's ``{{ super() }}`` tag:
 
 .. literalinclude:: /../ckanext/example_theme/v06_super/templates/home/layout1.html
+   :language: django
 
 When the child block above is rendered, Jinja will replace the
 ``{{ super() }}`` tag with the contents of the parent block.
@@ -420,6 +428,7 @@ activity stream of the site's recently created, updated and deleted datasets.
 Change the code in |layout1.html| to this:
 
 .. literalinclude:: /../ckanext/example_theme/v07_helper_function/templates/home/layout1.html
+   :language: django
 
 Reload the `CKAN front page`_ in your browser and you should see a new activity
 stream:
@@ -432,6 +441,7 @@ in ``{{ ... }}`` brackets), and we use the global variable :py:data:`h`
 (available to all templates) to access the helper:
 
 .. literalinclude:: /../ckanext/example_theme/v07_helper_function/templates/home/layout1.html
+   :language: django
    :start-after: {% block featured_group %}
    :end-before: {% endblock %}
 
@@ -489,6 +499,7 @@ helpers via the global variable :py:data:`h`.
 Edit |layout1.html| to look like this:
 
 .. literalinclude:: /../ckanext/example_theme/v08_custom_helper_function/templates/home/layout1.html
+   :language: django
 
 Now reload your `CKAN front page`_ in your browser. You should see the featured
 organization section replaced with a list of the most popular groups:
@@ -522,6 +533,7 @@ list of groups nicely (it's used to render the groups on CKAN's ``/group`` page
 and on user dashboard pages, for example):
 
 .. literalinclude:: /../ckan/templates/group/snippets/group_list.html
+   :language: django
 
 (As you can see, this snippet calls another snippet, ``group_item.html``, to
 render each individual group.)
@@ -529,10 +541,12 @@ render each individual group.)
 Let's change our |layout1.html| file to call this snippet:
 
 .. literalinclude:: /../ckanext/example_theme/v09_snippet/templates/home/layout1.html
+   :language: django
 
 Here we pass two arguments to the ``{% snippet %}`` tag:
 
 .. literalinclude:: /../ckanext/example_theme/v09_snippet/templates/home/layout1.html
+   :language: django
    :start-after: {# Call the group_list.html snippet. #}
    :end-before: {% endblock %}
 
@@ -578,6 +592,7 @@ Create a new directory |snippets_dir| containing a file named
 ``example_theme_most_popular_groups.html`` with these contents:
 
 .. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
+   :language: django
 
 .. note::
 
@@ -617,6 +632,7 @@ Now edit your |layout1.html| file and change it to use our new snippet instead
 of the default one:
 
 .. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/home/layout1.html
+   :language: django
 
 Restart the development web server and reload the `CKAN front page`_ and you
 should see the most popular groups rendered differently:
@@ -673,6 +689,7 @@ There are two places to look for CSS classes available in CKAN:
 Edit your ``example_theme_most_popular_groups.html`` file to look like this:
 
 .. literalinclude:: /../ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html
+   :language: django
 
 This simply wraps the code in a ``<div class="box">``,
 a ``<header class="module-heading">``,
@@ -685,6 +702,7 @@ To wrap your activity stream in a similar box, edit ``layout1.html`` to look
 like this:
 
 .. literalinclude:: /../ckanext/example_theme/v11_HTML_and_CSS/templates/home/layout1.html
+   :language: django
 
 Reload the `CKAN front page`_, and you should see your activity stream and
 most popular groups looking much better:

@@ -25,6 +25,7 @@ To get CKAN to call some custom JavaScript code, we need to:
    contents:
 
    .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/favorite.js
+      :language: javascript
 
    This bit of |javascript| calls the ``ckan.module()`` function to register a
    new JavaScript module with CKAN. ``ckan.module()`` takes two arguments: the
@@ -45,6 +46,7 @@ To get CKAN to call some custom JavaScript code, we need to:
    contents:
 
    .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/templates/snippets/package_item.html
+      :language: django
 
    .. todo:: Link to something about HTML data-* attributes.
 

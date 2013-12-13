@@ -45,6 +45,7 @@ to serve the CSS file with Fanstatic.
    import the file:
 
    .. literalinclude:: /../ckanext/example_theme/v15_fanstatic/templates/base.html
+      :language: django
 
 .. note::
 

@@ -14,6 +14,7 @@ Add this CSS into the ``example_theme.css`` file, to change the color of CKAN's
 user's account info):
 
 .. literalinclude:: /../ckanext/example_theme/v13_custom_css/public/example_theme.css
+   :language: css
 
 If you restart the development web server  you should be able to open this file
 at http://127.0.0.1:5000/example_theme.css in a web browser.
@@ -30,6 +31,7 @@ every page of your CKAN site. Create the file::
 and put this Jinja code in it:
 
 .. literalinclude:: /../ckanext/example_theme/v13_custom_css/templates/base.html
+   :language: django
 
 The default ``base.html`` template defines a ``styles`` block which can be
 extended to link to custom CSS files (any code in the styles block will appear
@@ -62,6 +64,7 @@ implements a partial imitation of the `datahub.io <http://datahub.io/>`_ theme
    :alt: A partial imitation of the datahub.io theme, circa 2013.
 
 .. literalinclude:: /../ckanext/example_theme/v14_more_custom_css/public/example_theme.css
+   :language: css
 
 .. todo::
 
