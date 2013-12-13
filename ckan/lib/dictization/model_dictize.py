@@ -355,8 +355,6 @@ def group_dictize(group, context):
     result_dict['extras'] = extras_dict_dictize(
         group._extras, context)
 
-    context['with_capacity'] = True
-
     include_datasets = context.get('include_datasets', True)
 
     q = {
@@ -384,6 +382,7 @@ def group_dictize(group, context):
 
     result_dict['package_count'] = search_results['count']
 
+    context['with_capacity'] = True
     result_dict['tags'] = tag_list_dictize(
         _get_members(context, group, 'tags'),
         context)
