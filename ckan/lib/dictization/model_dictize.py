@@ -525,7 +525,7 @@ def user_dictize(user, context):
         result_dict['email'] = email
 
     if context.get('keep_apikey', False):
-        result_dict['apikey'] = email
+        result_dict['apikey'] = apikey
 
     if requester == user.name:
         result_dict['apikey'] = apikey
