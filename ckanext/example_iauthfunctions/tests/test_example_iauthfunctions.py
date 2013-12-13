@@ -16,15 +16,6 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
     '''Tests for the plugin_v5_custom_config_setting module.
 
     '''
-    def setup(self):
-
-        # Access CKAN's model directly (bad) to create a sysadmin user and save
-        # it against self for all test methods to access.
-        self.sysadmin = model.User(name='test_sysadmin', sysadmin=True)
-        model.Session.add(self.sysadmin)
-        model.Session.commit()
-        model.Session.remove()
-
     def _get_app(self, users_can_create_groups):
 
         # Set the custom config option in pylons.config.
@@ -54,9 +45,10 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
 
     def test_sysadmin_can_create_group_when_config_is_False(self):
         app = self._get_app(users_can_create_groups=False)
+        sysadmin = factories.Sysadmin()
 
         tests.call_action_api(app, 'group_create', name='test-group',
-                              apikey=self.sysadmin.apikey)
+                              apikey=sysadmin['apikey'])
 
     def test_user_cannot_create_group_when_config_is_False(self):
         app = self._get_app(users_can_create_groups=False)
@@ -73,9 +65,10 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
 
     def test_sysadmin_can_create_group_when_config_is_True(self):
         app = self._get_app(users_can_create_groups=True)
+        sysadmin = factories.Sysadmin()
 
         tests.call_action_api(app, 'group_create', name='test-group',
-                              apikey=self.sysadmin.apikey)
+                              apikey=sysadmin['apikey'])
 
     def test_user_can_create_group_when_config_is_True(self):
         app = self._get_app(users_can_create_groups=True)
@@ -107,16 +100,6 @@ class TestExampleIAuthFunctionsPluginV4(object):
         # to be tested.
         ckan.plugins.load('example_iauthfunctions_v4')
 
-    def setup(self):
-        '''Nose runs this method before each test method in our test class.'''
-
-        # Access CKAN's model directly (bad) to create a sysadmin user and save
-        # it against self for all test methods to access.
-        self.sysadmin = model.User(name='test_sysadmin', sysadmin=True)
-        model.Session.add(self.sysadmin)
-        model.Session.commit()
-        model.Session.remove()
-
     def teardown(self):
         '''Nose runs this method after each test method in our test class.'''
 
@@ -139,24 +122,18 @@ class TestExampleIAuthFunctionsPluginV4(object):
         the 'curators' group to be created.
 
         '''
+        sysadmin = factories.Sysadmin()
+
         # Create a user who will *not* be a member of the curators group.
-        noncurator = tests.call_action_api(self.app, 'user_create',
-                                           apikey=self.sysadmin.apikey,
-                                           name='noncurator',
-                                           email='email',
-                                           password='password')
+        noncurator = factories.User()
 
         # Create a user who will be a member of the curators group.
-        curator = tests.call_action_api(self.app, 'user_create',
-                                        apikey=self.sysadmin.apikey,
-                                        name='curator',
-                                        email='email',
-                                        password='password')
+        curator = factories.User()
 
         # Create the curators group, with the 'curator' user as a member.
         users = [{'name': curator['name'], 'capacity': 'member'}]
         curators_group = tests.call_action_api(self.app, 'group_create',
-                                               apikey=self.sysadmin.apikey,
+                                               apikey=sysadmin['apikey'],
                                                name='curators',
                                                users=users)
 
@@ -166,12 +143,14 @@ class TestExampleIAuthFunctionsPluginV4(object):
         '''Test that group_create doesn't crash when there's no curators group.
 
         '''
+        sysadmin = factories.Sysadmin()
+
         # Make sure there's no curators group.
         assert 'curators' not in tests.call_action_api(self.app, 'group_list')
 
         # Make our sysadmin user create a group. CKAN should not crash.
         tests.call_action_api(self.app, 'group_create', name='test-group',
-                              apikey=self.sysadmin.apikey)
+                              apikey=sysadmin['apikey'])
 
     def test_group_create_with_visitor(self):
         '''A visitor (not logged in) should not be able to create a group.
@@ -231,11 +210,9 @@ class TestExampleIAuthFunctionsPluginV3(TestExampleIAuthFunctionsPluginV4):
 
         '''
         assert 'curators' not in tests.call_action_api(self.app, 'group_list')
-        user = tests.call_action_api(self.app, 'user_create',
-                                     apikey=self.sysadmin.apikey,
-                                     name='test-user',
-                                     email='email',
-                                     password='password')
+
+        user = factories.User()
+
         response = tests.call_action_api(self.app, 'group_create',
                                          name='test_group',
                                          apikey=user['apikey'], status=404)
