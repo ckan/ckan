@@ -439,7 +439,7 @@ crashing, we'll have to handle the exception that CKAN's
 list the members of a group that doesn't exist. Replace the ``member_list``
 line in your ``plugin.py`` file with these lines:
 
-.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v4.py
     :start-after: # Get a list of the members of the 'curators' group.
     :end-before: # 'members' is a list of (user_id, object_type, capacity) tuples, we're
 
@@ -466,7 +466,7 @@ We need to handle that exception as well, replace the
 ``convert_user_name_or_id_to_id`` line in your ``plugin.py`` file with these
 lines:
 
-.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v4.py
     :start-after: # We have the logged-in user's user name, get their user id.
     :end-before: # Finally, we can test whether the user is a member of the curators group.
 
@@ -476,7 +476,7 @@ We're done!
 
 Here's our final, working ``plugin.py`` module in full:
 
-.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v4.py
 
 In working through this tutorial, you've covered all the key concepts needed
 for writing CKAN extensions, including:
@@ -521,8 +521,3 @@ If you get a ``TypeError`` like this one::
 it means that one of your plugin methods has the wrong number of parameters.
 A plugin has to implement each method in a plugin interface with the same
 parameters as in the interface.
-
-----
-
-.. todo:: Add a section about how to use custom config settings.
-          See :ref:`accessing custom config settings from templates`.

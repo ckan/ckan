@@ -706,6 +706,11 @@ custom config setting, this setting will not be available. If you need to
 access a custom config setting from a template, you can do so by wrapping the
 config setting in a helper function.
 
+.. seealso::
+
+   For more on custom config settings, see
+   :doc:`/extensions/custom-config-settings`.
+
 .. todo::
 
    I'm not sure if making config settings available to templates like this is
@@ -718,17 +723,9 @@ the most popular groups on the front page. First, add a new helper function to
 .. literalinclude:: /../ckanext/example_theme/custom_config_setting/plugin.py
    :language: python
 
-The helper function uses :py:obj:`pylons.config` (imported at the top of the
-file) to access the value from the CKAN config file, and calls
-:py:func:`ckan.plugins.toolkit.asbool` to convert the value from a string to
-``True`` or ``False``:
-
 .. literalinclude:: /../ckanext/example_theme/custom_config_setting/plugin.py
    :language: python
    :pyobject: show_most_popular_groups
-
-There are also :py:func:`ckan.plugins.toolkit.asint` and
-:py:func:`ckan.plugins.toolkit.aslist` functions in the plugins toolkit.
 
 .. note::
 
