@@ -267,7 +267,7 @@ class PackageController(BaseController):
             c.search_facets = query['search_facets']
             c.page.items = query['results']
         except SearchError, se:
-            log.error('Dataset search error %s : %r', request.path, se.args)
+            log.error('Dataset search error %s (%s): %r', request.url, request.environ['HTTP_USER_AGENT'], se.args)
             c.query_error = True
             c.facets = {}
             c.search_facets = {}
@@ -276,7 +276,6 @@ class PackageController(BaseController):
         for facet in c.search_facets.keys():
             limit = int(request.params.get('_%s_limit' % facet, 10))
             c.search_facets_limits[facet] = limit
-
 
         maintain.deprecate_context_item(
           'facets',
