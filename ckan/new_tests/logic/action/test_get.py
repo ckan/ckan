@@ -147,6 +147,48 @@ class TestGet(object):
         assert org_dict['packages'][0]['name'] == 'dataset_1'
         assert org_dict['package_count'] == 1
 
+    def test_user_get(self):
+
+        user = factories.User()
+
+        ## auth_ignored
+        got_user = helpers.call_action('user_show', id=user['id'])
+
+        assert 'password' not in got_user
+        assert 'reset_key' not in got_user
+        assert 'apikey' not in got_user
+        assert 'email' not in got_user
+
+        got_user = helpers.call_action('user_show',
+                                       context={'keep_email': True},
+                                       id=user['id'])
+
+        assert got_user['email'] == user['email']
+        assert 'apikey' not in got_user
+        assert 'password' not in got_user
+        assert 'reset_key' not in got_user
+
+        got_user = helpers.call_action('user_show',
+                                       context={'keep_apikey': True},
+                                       id=user['id'])
+
+
+        assert 'email' not in got_user
+        assert got_user['apikey'] == user['apikey']
+        assert 'password' not in got_user
+        assert 'reset_key' not in got_user
+
+        sysadmin = factories.User(sysadmin=True)
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': sysadmin['name']},
+                                       id=user['id'])
+
+        assert got_user['email'] == user['email']
+        assert got_user['apikey'] == user['apikey']
+        assert 'password' not in got_user
+        assert 'reset_key' not in got_user
+
 
 class TestBadLimitQueryParameters(object):
     '''test class for #1258 non-int query parameters cause 500 errors

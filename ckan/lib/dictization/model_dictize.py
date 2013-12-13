@@ -531,7 +531,7 @@ def user_dictize(user, context):
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 
-    ## this should not really really be needed but tests r it
+    ## this should not really really be needed but tests need it
     if new_authz.is_sysadmin(requester):
         result_dict['apikey'] = apikey
         result_dict['email'] = email
@@ -708,17 +708,3 @@ def user_following_group_dictize(follower, context):
 
     base_columns = set(['id', 'resource_id', 'title', 'description',
                         'view_type', 'order', 'config'])
-
-def resource_view_dictize(resource_view, context):
-    dictized = d.table_dictize(resource_view, context)
-    dictized.pop('order')
-    config = dictized.pop('config', {})
-    dictized.update(config)
-    return dictized
-
-def resource_view_list_dictize(resource_views, context):
-    resource_view_dicts = []
-    for view in resource_views:
-        resource_view_dicts.append(resource_view_dictize(view, context))
-    return resource_view_dicts
-
