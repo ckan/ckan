@@ -243,6 +243,12 @@ config file you would put this code in any template file:
 
 .. note::
 
+   The :py:data:`app_globals` variable is also sometimes called :py:data:`g`
+   (an alias), you may see :py:data:`g` in some CKAN templates.
+   See :doc:`variables-and-functions`.
+
+.. note::
+
    Not all config settings are available to templates via
    :py:data:`app_globals`. The :ref:`sqlalchemy.url` setting, for example,
    contains your database password, so making that variable available to
