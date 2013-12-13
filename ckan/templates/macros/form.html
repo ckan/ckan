@@ -408,7 +408,7 @@ Example
                       url_label='', upload_label='')  %}
   {% set placeholder = placeholder if placeholder else _('http://example.com/my-image.jpg') %}
   {% set url_label = url_label or _('Image URL')  %}
-  {% set upload_label = upload_label or _('Upload Image')  %}
+  {% set upload_label = upload_label or _('Image')  %}
 
   {% if is_upload_enabled %}
   <div class="image-upload" data-module="image-upload" data-module-is_url="{{ 'true' if is_url else 'false' }}" data-module-is_upload="{{ 'true' if is_upload else 'false' }}"

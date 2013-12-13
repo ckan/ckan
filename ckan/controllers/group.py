@@ -168,6 +168,9 @@ class GroupController(base.BaseController):
 
     def read(self, id, limit=20):
         group_type = self._get_group_type(id.split('@')[0])
+        if group_type != self.group_type:
+            abort(404, _('Incorrect group type'))
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'schema': self._db_to_form_schema(group_type=group_type),
@@ -178,6 +181,9 @@ class GroupController(base.BaseController):
         q = c.q = request.params.get('q', '')
 
         try:
+            # Do not query for the group datasets when dictizing, as they will
+            # be ignored and get requested on the controller anyway
+            context['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
@@ -327,6 +333,7 @@ class GroupController(base.BaseController):
                 items_per_page=limit
             )
 
+            c.group_dict['package_count'] = query['count']
             c.facets = query['facets']
             maintain.deprecate_context_item('facets',
                                             'Use `c.search_facets` instead.')
@@ -369,6 +376,9 @@ class GroupController(base.BaseController):
         data_dict = {'id': id}
 
         try:
+            # Do not query for the group datasets when dictizing, as they will
+            # be ignored and get requested on the controller anyway
+            context['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:

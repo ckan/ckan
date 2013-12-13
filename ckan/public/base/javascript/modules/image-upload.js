@@ -12,10 +12,12 @@ this.ckan.module('image-upload', function($, _) {
       field_clear: 'clear_upload',
       upload_label: '',
       i18n: {
-        upload: _('From computer'),
-        url: _('From web'),
+        upload: _('Upload'),
+        url: _('Link'),
         remove: _('Remove'),
-        upload_label: _('Upload image'),
+        upload_label: _('Image'),
+        upload_tooltip: _('Upload a file on your computer'),
+        url_tooltip: _('Link to a URL on the internet (you can also link to an API)'),
         remove_tooltip: _('Reset this')
       },
       template: [
@@ -59,6 +61,7 @@ this.ckan.module('image-upload', function($, _) {
 
       // Button to set the field to be a URL
       this.button_url = $('<a href="javascript:;" class="btn"><i class="icon-globe"></i> '+this.i18n('url')+'</a>')
+        .prop('title', this.i18n('url_tooltip'))
         .on('click', this._onFromWeb)
         .insertAfter(this.input);
 
@@ -86,6 +89,7 @@ this.ckan.module('image-upload', function($, _) {
         .on('mouseover', this._onInputMouseOver)
         .on('mouseout', this._onInputMouseOut)
         .on('change', this._onInputChange)
+        .prop('title', this.i18n('upload_tooltip'))
         .css('width', this.button_upload.outerWidth());
 
       // Fields storage. Used in this.changeState
