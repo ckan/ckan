@@ -159,7 +159,7 @@ class Resource(factory.Factory):
         assert kwargs.get('package_id'), 'You must provide a package_id'
 
         resource_dict = helpers.call_action('resource_create', context=context,
-                                           **kwargs)
+                                            **kwargs)
         return resource_dict
 
 
@@ -185,10 +185,11 @@ class Dataset(factory.Factory):
     url = 'test_dataset.io'
     version = '0.1 beta'
     resources = [
-        {'name': 'test_resource',
-         'description': 'test resource desc',
-         'format': 'res_format',
-         'url': 'http://link.to.some.data',
+        {
+            'name': 'test_resource',
+            'description': 'test resource desc',
+            'format': 'res_format',
+            'url': 'http://link.to.some.data',
         }
     ]
     extras = [
@@ -212,7 +213,6 @@ class Dataset(factory.Factory):
         dataset_dict = helpers.call_action('dataset_create', context=context,
                                            **kwargs)
         return dataset_dict
-
 
 
 class Group(factory.Factory):
