@@ -521,3 +521,8 @@ If you get a ``TypeError`` like this one::
 it means that one of your plugin methods has the wrong number of parameters.
 A plugin has to implement each method in a plugin interface with the same
 parameters as in the interface.
+
+----
+
+.. todo:: Add a section about how to use custom config settings.
+          See :ref:`accessing custom config settings from templates`.

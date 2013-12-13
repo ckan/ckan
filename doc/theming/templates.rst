@@ -255,9 +255,8 @@ config file you would put this code in any template file:
    templates might be a security risk.
 
    If you've added your own custom options to your config file, these will not
-   be available in :py:data:`app_globals`.
-
-   .. todo:: Insert cross-ref to custom config options section.
+   be available in :py:data:`app_globals` automatically.
+   See :ref:`accessing custom config settings from templates`.
 
 .. note::
 
@@ -693,3 +692,57 @@ most popular groups looking much better:
 
 .. image:: /images/html_and_css.png
    :alt: The activity stream and most popular groups, with better CSS.
+
+
+.. _accessing custom config settings from templates:
+
+-----------------------------------------------
+Accessing custom config settings from templates
+-----------------------------------------------
+
+Not all CKAN config settings are available to templates via
+:py:data:`app_globals`. In particular, if an extension wants to use its own
+custom config setting, this setting will not be available. If you need to
+access a custom config setting from a template, you can do so by wrapping the
+config setting in a helper function.
+
+.. todo::
+
+   I'm not sure if making config settings available to templates like this is
+   a very good idea. Is there an alternative best practice?
+
+Let's add a config setting, ``show_most_popular_groups``, to enable or disable
+the most popular groups on the front page. First, add a new helper function to
+``plugin.py`` to wrap the config setting.
+
+.. literalinclude:: /../ckanext/example_theme/custom_config_setting/plugin.py
+   :language: python
+
+The helper function uses :py:obj:`pylons.config` (imported at the top of the
+file) to access the value from the CKAN config file, and calls
+:py:func:`ckan.plugins.toolkit.asbool` to convert the value from a string to
+``True`` or ``False``:
+
+.. literalinclude:: /../ckanext/example_theme/custom_config_setting/plugin.py
+   :language: python
+   :pyobject: show_most_popular_groups
+
+There are also :py:func:`ckan.plugins.toolkit.asint` and
+:py:func:`ckan.plugins.toolkit.aslist` functions in the plugins toolkit.
+
+.. note::
+
+   Names of config settings provided by extensions should include the name
+   of the extension, to avoid conflicting with core config settings or with
+   config settings from other extensions.
+   See :ref:`extension config setting names best practice`.
+
+Now we can call this helper function from our ``layout1.html`` template:
+
+.. literalinclude:: /../ckanext/example_theme/custom_config_setting/templates/home/layout1.html
+   :language: django
+   :start-after: is True, otherwise call the super block. #}
+
+If the user sets this config setting to ``True`` in their CKAN config file,
+then the most popular groups will be displayed on the front page, otherwise
+the block will fall back to its default contents.
