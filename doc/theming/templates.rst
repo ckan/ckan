@@ -564,15 +564,21 @@ The snippets will be callable from other templates immediately.
    added your plugin's custom template directory to CKAN, see :ref:`template
    overriding`.
 
-Let's create a custom snippet to display our most popular groups, and put the
-``<h3>Most popular groups</h3>`` heading and the code to call the helper
-function to retrieve the groups into the snippet, so that we can reuse the
-whole thing on different parts of the site if we want to.
+Let's create a custom snippet to display our most popular groups, we'll put
+the ``<h3>Most popular groups</h3>`` heading into the snippet and make it nice
+and modular, so that we can reuse the whole thing on different parts of the
+site if we want to.
 
 Create a new directory |snippets_dir| containing a file named
 ``example_theme_most_popular_groups.html`` with these contents:
 
 .. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
+
+.. note::
+
+   As in the example above, a snippet should have a docstring at the top of the
+   file that briefly documents what the snippet does and what parameters it
+   requires. See :ref:`snippet docstrings best practice`.
 
 This code uses a Jinja2 ``for`` loop to render each of the groups, and calls a
 number of CKAN's template helper functions:

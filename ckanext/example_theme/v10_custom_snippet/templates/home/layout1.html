@@ -5,5 +5,6 @@
 {% endblock %}
 
 {% block featured_organization %}
-  {% snippet 'snippets/example_theme_most_popular_groups.html' %}
+  {% snippet 'snippets/example_theme_most_popular_groups.html',
+             groups=h.example_theme_most_popular_groups()  %}
 {% endblock %}
