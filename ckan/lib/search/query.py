@@ -259,6 +259,10 @@ class PackageSearchQuery(SearchQuery):
         return [r.get('id') for r in data.results]
 
     def get_index(self,reference):
+        '''
+        For a given package reference (ID or name), returns the record for it
+        from the SOLR index.
+        '''
         query = {
             'rows': 1,
             'q': 'name:%s OR id:%s' % (reference,reference),
