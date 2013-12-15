@@ -13,19 +13,14 @@ Adding custom fields to packages
 --------------------------------
 
 Create a new plugin named ``ckanext-extrafields`` and create a class named
-``ExtraFieldsPlugins`` inside 
+``ExampleIDatasetForms`` inside 
 ``ckanext-extrafields/ckanext/extrafields/plugins.py`` that implements the 
 ``IDatasetForm`` interface and inherits from ``SingletonPlugin`` and 
 ``DefaultDatasetForm``, we will want to implement that functions that allow us 
 to update CKAN's default package schema to include our custom field.
 
-.. code-block:: python
-
-    import ckan.plugins as p
-    import ckan.plugins.toolkit as tk
-    
-    class ExtraFieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
-        p.implements(p.IDatasetForm)
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v1.py
+    :end-before: def create_package_schema(self):
 
 Updating the CKAN schema
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -36,17 +31,8 @@ We will fetch the default schema defined in
 ``in default_create_package_schema`` by running ``create_package_schema``'s
 super function and update it.
 
-.. code-block:: python
-
-    def create_package_schema(self):
-        # let's grab the default schema in our plugin
-        schema = super(ExtraFieldsPlugin, self).create_package_schema()
-        #our custom field
-        schema.update({
-            'custom_text': [tk.get_validator('ignore_missing'), 
-                tk.get_converter('convert_to_extras')]
-        })
-        return schema
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v1.py
+    :pyobject: ExampleIDatasetForm.create_package_schema
 
 The CKAN schema is a dictionary where the key is the name of the field and the
 value is a list of validators and converters. Here we have a validator to tell
@@ -54,16 +40,8 @@ CKAN to not raise a validation error if the value is missing and a converter to
 convert the value to and save as an extra. We will want to change the
 ``update_package_schema`` function with the same update code
 
-.. code-block:: python
-
-    def update_package_schema(self):
-        schema = super(ExtraFieldsPlugin, self).update_package_schema()
-        #our custom field
-        schema.update({
-            'custom_text': [tk.get_validator('ignore_missing'),
-                tk.get_converter('convert_to_extras')]
-        })
-        return schema
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v1.py
+    :pyobject: ExampleIDatasetForm.update_package_schema
 
 The ``show_package_schema`` is used when the ``package_show`` action is called,
 we want the default_show_package_schema to be updated to include our custom
@@ -71,28 +49,10 @@ field. This time, instead of converting to an an extras field. We want our
 field to be converted *from* an extras field. So we want to use the
 ``convert_from_extras`` converter.
 
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v1.py
+    :emphasize-lines: 4
+    :pyobject: ExampleIDatasetForm.show_package_schema
 
-.. code-block:: python
-   :emphasize-lines: 4
-
-    def show_package_schema(self):
-        schema = super(CustomFieldsPlugins, self).show_package_schema()
-        schema.update({
-            'custom_text': [tk.get_converter('convert_from_extras'),
-                tk.get_validator('ignore_missing')]
-        })
-        return schema
-
-.. topic :: Database Details 
-
-    By default CKAN is saving the custom values to the package_extra table.
-    When a call to ``package_show`` is made, normally the results in
-    package_extra are returned as a nested dictionary named 'extras'. 
-    By editing the schema in our plugin we are moving the field into the top 
-    level of the dictionary returned from ``package_show``. Our custom_field
-    will seemlessly appear as part of the schema. This means it appears as a 
-    top level attribute for our package in our templates and API calls whilst 
-    letting CKAN handle the conversion and saving to the package_extra table. 
 
 Package types
 ^^^^^^^^^^^^^
@@ -103,17 +63,8 @@ handle specific types of packages and ignore others. Since our plugin is not
 for any specific type of package and we want our plugin to be the default
 handler, we update the plugin code to contain the following
 
-.. code-block:: python
-
-    def is_fallback(self):
-        # Return True to register this plugin as the default handler for
-        # package types not handled by any other IDatasetForm plugin.
-        return True
-
-    def package_types(self):
-        # This plugin doesn't handle any special package types, it just
-        # registers itself as the default (above).
-        return []
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v1.py
+    :lines: 34-
 
 Updating templates
 ^^^^^^^^^^^^^^^^^^
@@ -122,23 +73,17 @@ In order for our new field to be visible on the CKAN front-end, we need to
 update the templates. Add an additional line to make the plugin implement the
 IConfigurer interface
 
-.. code-block:: python
-   :emphasize-lines: 3
-   
-    class ExtraFieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
-        p.implements(p.IDatasetForm)
-        p.implements(p.IConfigurer)
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v2.py
+    :emphasize-lines: 3
+    :start-after: import ckan.plugins.toolkit as tk
+    :end-before: def create_package_schema(self):
 
 This interface allows to implement a function ``update_config`` that allows us
 to update the CKAN config, in our case we want to add an additional location
 for CKAN to look for templates. Add the following code to your plugin. 
 
-.. code-block:: python
-
-    def update_config(self, config):
-        # Add this plugin's templates dir to CKAN's extra_template_paths, so
-        # that CKAN will use this plugin's custom templates.
-        tk.add_template_directory(config, 'templates')
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v2.py
+    :pyobject: ExampleIDatasetForm.update_config
 
 You will also need to add a directory under your extension directory to store
 the templates. Create a directory called 
@@ -151,46 +96,24 @@ file in our templates directory called
 ``package/snippets/package_metadata_fields.html`` containing
 
     
-.. code-block:: jinja 
-
-    {% ckan_extends %}
-    
-    {# Remove 'free extras' from the package form. If you're using
-    convert_to/from_extras() as we are with our 'custom_text' field below then
-    you need to remove free extras from the form, or editing your custom field
-    won't work. #}
-    {% block custom_fields %}
-    {% endblock %}
+.. literalinclude:: ../../ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html
+    :language: jinja
+    :end-before: {% block package_metadata_fields %}
 
 This overrides the custom_fields block with an empty block so the default CKAN
 custom fields form does not render. Next add a template in our template 
 directory called ``package/snippets/package_basic_fields.html`` containing
 
-.. code-block:: jinja 
-
-    {% ckan_extends %}
-
-    {% block package_basic_fields_custom %}
-      {{ form.input('custom_text', label=_('Custom Text'), id='field-custom_text', placeholder=_('custom text'), value=data.custom_text, error=errors.custom_text, classes=['control-medium']) }}
-    {% endblock %}
+.. literalinclude:: ../../ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html
+    :language: jinja
 
 This adds our custom_text field to the editing form. Finally we want to display
 our custom_text field on the dataset page. Add another file called 
 ``package/snippets/additional_info.html`` containing
 
 
-.. code-block:: jinja 
-
-    {% ckan_extends %}
-
-    {% block extras %}
-      {% if pkg_dict.custom_text %}
-        <tr>
-          <th scope="row" class="dataset-label">{{ _("Custom Text") }}</th>
-          <td class="dataset-details">{{ pkg_dict.custom_text }}</td>
-        </tr>
-      {% endif %}
-    {% endblock %}
+.. literalinclude:: ../../ckanext/example_idatasetform/templates/package/snippets/additional_info.html
+    :language: jinja
 
 This template overrides the the default extras rendering on the dataset page 
 and replaces it to just display our custom field.
@@ -207,24 +130,9 @@ Before we continue further, we can clean up the ``create_package_schema``
 and ``update_package_schema``. There is a bit of duplication that we could
 remove. Replace the two functions with
 
-.. code-block:: python
-
-    def _modify_package_schema(self, schema):
-        schema.update({
-            'custom_text': [tk.get_validator('ignore_missing'),
-                tk.get_converter('convert_to_extras')]
-        })
-        return schema
-
-    def create_package_schema(self):
-        schema = super(ExtraFieldsPlugin, self).create_package_schema()
-        schema = self._modify_package_schema(schema)
-        return schema
-
-    def update_package_schema(self):
-        schema = super(ExtraFieldsPlugin, self).update_package_schema()
-        schema = self._modify_package_schema(schema)
-        return schema
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v3.py
+    :start-after: p.implements(p.IDatasetForm)
+    :end-before: def show_package_schema(self):
 
 Tag vocabularies
 ----------------
@@ -233,20 +141,8 @@ provide list of options, you can use tag vocabularies `/tag-vocabularies`. We
 will need to create our vocabulary first. By calling vocabulary_create. Add a
 function to your plugin.py above your plugin class.
 
-.. code-block:: python
-
-        def create_country_codes():
-            user = tk.get_action('get_site_user')({'ignore_auth': True}, {})
-            context = {'user': user['name']}
-            try:
-                data = {'id': 'country_codes'}
-                tk.get_action('vocabulary_show')(context, data)
-            except tk.ObjectNotFound:
-                data = {'name': 'country_codes'}
-                vocab = tk.get_action('vocabulary_create')(context, data)
-                for tag in (u'uk', u'ie', u'de', u'fr', u'es'):
-                    data = {'name': tag, 'vocabulary_id': vocab['id']}
-                    tk.get_action('tag_create')(context, data)
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v4.py
+    :pyobject: create_country_codes
 
 This codeblock is taken from the ``example_idatsetform plugin``.
 ``create_country_codes`` tries to fetch the vocabulary country_codes using
@@ -259,16 +155,8 @@ Although we have only defined five tags here, additional tags can be created
 at any point by a sysadmin user by calling ``tag_create`` using the API or action
 functions. Add a second function below ``create_country_codes``
 
-.. code-block:: python
-
-    def country_codes():
-        create_country_codes()
-        try:
-            country_codes = tk.get_action('tag_list')(
-                    data_dict={'vocabulary_id': 'country_codes'})
-            return country_codes
-        except tk.ObjectNotFound:
-            return None
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v4.py
+    :pyobject: country_codes
 
 country_codes will call ``create_country_codes`` so that the ``country_codes``
 vocabulary is created if it does not exist. Then it calls tag_list to return
@@ -280,34 +168,10 @@ Adding tags to the schema
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 Update ``_modify_package_schema`` and ``show_package_schema``
 
-.. code-block:: python
-   :emphasize-lines: 8,19-24
-
-    def _modify_package_schema(self, schema):
-        schema.update({
-            'custom_text': [tk.get_validator('ignore_missing'),
-                tk.get_converter('convert_to_extras')]
-        })
-        schema.update({
-                'country_code': [tk.get_validator('ignore_missing'),
-                    tk.get_converter('convert_to_tags')('country_codes')]
-                })
-        return schema
-
-    def show_package_schema(self):
-        schema = super(CustomFieldsPlugins, self).show_package_schema()
-        schema.update({
-            'custom_text': [tk.get_converter('convert_from_extras'),
-                tk.get_validator('ignore_missing')]
-        })
-
-        schema['tags']['__extras'].append(tk.get_converter('free_tags_only'))
-        schema.update({
-            'country_code': [
-                tk.get_converter('convert_from_tags')('country_codes'),
-                tk.get_validator('ignore_missing')]
-            })
-        return schema
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v4.py
+    :start-after: return {'country_codes': country_codes}
+    :end-before: def create_package_schema(self):
+    :emphasize-lines: 8,19-24
 
 We are adding our tag to our plugin's schema. A converter is required to
 convert the field in to our tag in a similar way to how we converted our field
@@ -323,35 +187,18 @@ Add an additional plugin.implements line to to your plugin
 to implement the ``ITemplateHelpers``, we will need to add a ``get_helpers``
 function defined for this interface.
 
-.. code-block:: python
-
-    plugins.implements(plugins.ITemplateHelpers, inherit=False)
-
-    def get_helpers(self):
-        return {'country_codes': country_codes}
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v4.py
+    :start-after: p.implements(p.IConfigurer)
+    :end-before: def _modify_package_schema(self, schema):
 
 Our intention here is to tie our country_code fetching/creation to when they
 are used in the templates. Add the code below to
 ``package/snippets/package_metadata_fields.html``
 
-.. code-block:: jinja 
+.. literalinclude:: ../../ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html
+    :language: jinja
+    :start-after: {% endblock %}
 
-    {% block package_metadata_fields %}
-
-      <div class="control-group">
-        <label class="control-label" for="field-country_code">{{ _("Country Code") }}</label>
-        <div class="controls">
-          <select id="field-country_code" name="country_code" data-module="autocomplete">
-            {% for country_code in h.country_codes()  %}
-              <option value="{{ country_code }}" {% if country_code in data.get('country_code', []) %}selected="selected"{% endif %}>{{ country_code }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </div>
-
-      {{ super() }}
-
-    {% endblock %}
 
 This adds our country code to our template, here we are using the additional
 helper country_codes that we defined in our get_helpers function in our plugin.
@@ -365,32 +212,15 @@ is nested in the package dict as package['resources']. We modify this dict in
 a similar way to the package schema. Change ``_modify_package_schema`` to the 
 following.
 
-.. code-block:: python
-
-    def _modify_package_schema(self, schema):
-        schema.update({
-            'custom_text': [tk.get_validator('ignore_missing'),
-                tk.get_converter('convert_to_extras')]
-        })
-        schema['resources'].update({
-            'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
-        })
-        return schema
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v5.py
+    :pyobject: ExampleIDatasetForm._modify_package_schema
+    :emphasize-lines: 10-12
 
 Update ``show_package_schema`` similarly
 
-.. code-block:: python
-
-    def show_package_schema(self):
-        schema = super(CustomFieldsPlugins, self).show_package_schema()
-        schema.update({
-            'custom_text': [tk.get_converter('convert_from_extras'),
-                tk.get_validator('ignore_missing')]
-        })
-        schema['resources'].update({
-                'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
-        })
-        return schema
+.. literalinclude:: ../../ckanext/example_idatasetform/plugin_v5.py
+    :pyobject: ExampleIDatasetForm.show_package_schema
+    :emphasize-lines: 14-16
         
 Save and reload your development server
 
