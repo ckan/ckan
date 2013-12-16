@@ -158,7 +158,8 @@ class DatastorePlugin(p.SingletonPlugin):
         return self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url)
 
     def _get_db_from_url(self, url):
-        return sa_url.make_url(url).database
+        db = sa_url.make_url(url)
+        return db.host, db.port, db.database
 
     def _same_read_and_write_url(self):
         return self.write_url == self.read_url
