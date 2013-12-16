@@ -1,16 +1,20 @@
-========================
-Documentation guidelines
-========================
+=====================
+Writing documentation
+=====================
 
 .. _docs.ckan.org: http://docs.ckan.org
 
-The quickest and easiest way to contribute documentation to CKAN is to sign up
-for a free GitHub account and simply edit the `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_.
-Docs started on the wiki can make it onto `docs.ckan.org`_ later.
+.. seealso::
 
-**Tip**: Use the reStructuredText markup format when creating a wiki page,
-since reStructuredText is the format that docs.ckan.org uses, this will make
-moving the documentation from the wiki into docs.ckan.org later easier.
+   The quickest and easiest way to contribute documentation to CKAN is to sign up
+   for a free GitHub account and simply edit the `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_.
+   Docs started on the wiki can make it onto `docs.ckan.org`_ later.
+   If you do want to contribute to `docs.ckan.org`_ directly, follow the
+   instructions on this page.
+
+   **Tip**: Use the reStructuredText markup format when creating a wiki page,
+   since reStructuredText is the format that docs.ckan.org uses, this will make
+   moving the documentation from the wiki into docs.ckan.org later easier.
 
 This section gives some guidelines to help us to write consistent and good
 quality documentation for CKAN.

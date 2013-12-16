@@ -1,5 +1,5 @@
 ================
-Reporting Issues
+Reporting issues
 ================
 
 If you've found a bug in CKAN, open a new issue on CKAN's `GitHub Issues`_ (try

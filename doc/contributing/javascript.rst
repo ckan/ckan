@@ -1,5 +1,5 @@
 ===========================
-Javascript coding standards
+JavaScript coding standards
 ===========================
 
 ----------

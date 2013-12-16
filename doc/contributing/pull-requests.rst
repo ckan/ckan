@@ -1,8 +1,6 @@
----------------------
-Making a Pull Request
----------------------
-
-.. _CKAN issue tracker: https://github.com/okfn/ckan/issues
+=====================
+Making a pull request
+=====================
 
 Once you've written some CKAN code or documentation, you can submit it for
 review and merge into the central CKAN git repository by making a pull request.
@@ -44,8 +42,8 @@ This section will walk you through the steps for making a pull request.
      git commit -m "Add docs for my new feature"
      git push my_fork my_branch
 
-   When writing your git commit messages, try to follow the `Commit Messages`_
-   guidelines.
+   When writing your git commit messages, try to follow the
+   :doc:`commit-messages` guidelines.
 
 
 #. Send a pull request
@@ -62,14 +60,14 @@ This section will walk you through the steps for making a pull request.
    - Your branch should contain one logically separate piece of work, and not
      any unrelated changes.
 
-   - You should have good commit messages, see `Commit Messages`_.
+   - You should have good commit messages, see :doc:`commit-messages`.
 
    - Your branch should contain new or changed tests for any new or changed
      code, and all the CKAN tests should pass on your branch, see
      `Testing CKAN <http://docs.ckan.org/en/latest/test.html>`_.
 
    - Your branch should contain new or updated documentation for any new or
-     updated code, see :doc:`documentation-guidelines`.
+     updated code, see :doc:`documentation`.
 
    - Your branch should be up to date with the master branch of the central
      CKAN repo, so pull the central master branch into your feature branch
@@ -80,45 +78,3 @@ This section will walk you through the steps for making a pull request.
      much.
 
 .. _create a pull request on GitHub: https://help.github.com/articles/creating-a-pull-request
-
-
-Merging a Pull Request
-======================
-
-If you're reviewing a pull request for CKAN, when merging a branch into master:
-
-- Use the ``--no-ff`` option in the ``git merge`` command,
-
----------------
-Commit Messages
----------------
-
-Generally, follow the `commit guidelines from the Pro Git book`_:
-
-- Try to make each commit a logically separate, digestible changeset.
-
-- The first line of the commit message should concisely summarise the
-  changeset.
-
-- Optionally, follow with a blank line and then a more detailed explanation of
-  the changeset.
-
-- Use the imperative present tense as if you were giving commands to the
-  codebase to change its behaviour, e.g. *Add tests for...*, *make xyzzy do
-  frotz...*, this helps to make the commit message easy to read.
-
-.. _commit guidelines from the Pro Git book: http://git-scm.com/book/en/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines
-
-If your commit has an issue in the `CKAN issue tracker`_ put the issue number
-at the start of the first line of the commit message like this: ``[#123]``.
-This makes the CKAN release manager's job much easier!
-
-Here's an example of a good CKAN commit message::
-
- [#607] Allow reactivating deleted datasets
-
- Currently if a dataset is deleted and users navigate to the edit form,
- there is no state field and the delete button is still shown.
-
- After this change, the state dropdown is shown if the dataset state is
- not active, and the delete button is not shown.

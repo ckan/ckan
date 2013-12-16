@@ -10,12 +10,28 @@ they're bug reports, source code, documentation or translations. The following
 documents will walk you through our processes for making different kinds
 of contributions to CKAN:
 
+.. If editing this, note that these are roughly ordered with the most simple
+   forms of contribution (for non-developers) first, and then the more advanced
+   technical topics after.
+
 .. toctree::
    :maxdepth: 1
 
    issues
    i18n
-   documentation-guidelines
-   coding-standards/index
-   frontend/index
+
+   commit-messages
    pull-requests
+   reviewing
+
+   documentation
+   architecture
+   css
+   html
+   javascript
+   python
+   testing
+   frontend/index
+
+   database-migrations
+   upgrading-dependencies

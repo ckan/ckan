@@ -1,5 +1,5 @@
 ===============================
-Frontend Development Guidelines
+Frontend development guidelines
 ===============================
 
 .. toctree::
@@ -11,9 +11,9 @@ Frontend Development Guidelines
    template-blocks
    javascript-module-tutorial
 
-------------------------------
-Install front end dependencies
-------------------------------
+-----------------------------
+Install frontend dependencies
+-----------------------------
 
 The front end stylesheets are written using
 `LESS <http://lesscss.org/>`_ (this depends on
@@ -39,7 +39,7 @@ style script.
     $ npm install less nodewatch
 
 --------------
-File Structure
+File structure
 --------------
 
 All front-end files to be served via a web server are located in the
@@ -202,7 +202,7 @@ factory function.
    A guide on creating your own modules is located in the
    :doc:`javascript-module-tutorial` guide.
 
-Publisher/Subscriber
+Publisher/subscriber
 ====================
 
 There is a simple pub/sub module included under ``ckan.pubsub`` it's
@@ -289,7 +289,7 @@ And we name the translate function passed into ``ckan.module()`` ``_``.
       };
     });
 
-Life Cycle
+Life cycle
 ==========
 
 CKAN modules are intialised on dom ready. The ``ckan.module.initialize()``
@@ -348,8 +348,8 @@ retrieving them.
     });
 
 
-jQuery Plug-ins
-===============
+jQuery plugins
+==============
 
 Any functionality that is not directly related to ckan should be
 packaged up in a jQuery plug-in if possible. This keeps the modules
@@ -359,7 +359,7 @@ other sites.
 Examples of these are ``jQuery.fn.slug()``, ``jQuery.fn.slugPreview()``
 and ``jQuery.proxyAll()``.
 
-Unit Tests
+Unit tests
 ==========
 
 There is currently a test suite available at:
