@@ -180,7 +180,7 @@ class DatastorePlugin(p.SingletonPlugin):
         return self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url)
 
     def _get_db_from_url(self, url):
-        return url[url.rindex("@"):]
+        return sa_url.make_url(url).database
 
     def _same_read_and_write_url(self):
         return self.write_url == self.read_url
@@ -199,18 +199,16 @@ class DatastorePlugin(p.SingletonPlugin):
         write_connection.execute(drop_foo_sql)
 
         try:
-            try:
-                write_connection.execute(u'CREATE TEMP TABLE _foo ()')
-                for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                    test_privilege_sql = u"SELECT has_table_privilege('{user}', '_foo', '{privilege}')"
-                    sql = test_privilege_sql.format(user=read_connection_user,
-                                                    privilege=privilege)
-                    have_privilege = write_connection.execute(sql).first()[0]
-                    if have_privilege:
-                        return False
-            finally:
-                write_connection.execute(drop_foo_sql)
+            write_connection.execute(u'CREATE TEMP TABLE _foo ()')
+            for privilege in ['INSERT', 'UPDATE', 'DELETE']:
+                test_privilege_sql = u"SELECT has_table_privilege('{user}', '_foo', '{privilege}')"
+                sql = test_privilege_sql.format(user=read_connection_user,
+                                                privilege=privilege)
+                have_privilege = write_connection.execute(sql).first()[0]
+                if have_privilege:
+                    return False
         finally:
+            write_connection.execute(drop_foo_sql)
             write_connection.close()
         return True
 
