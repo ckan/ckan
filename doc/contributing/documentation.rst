@@ -126,7 +126,7 @@ Once your docs are ready to submit to the CKAN project, follow the steps in
 2. Structure and audience
 -------------------------
 
-:doc:`index` describes the overall structure of the docs, and the intended
+:doc:`/index` describes the overall structure of the docs, and the intended
 audience for each part. This structure is intended to be clear, simple and
 extendable.  If you're adding a new section to the docs, try to fit it into
 this structure.
