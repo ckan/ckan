@@ -151,6 +151,39 @@ suggestion for what sections the page should have is:
    diagnose problems.
 
 
+Subdirectories
+==============
+
+Many sections of the docs are organized into subdirectories. For example,
+there's a ``doc/extensions`` subdirectory with
+:doc:`its own index file </extensions/index>` and table of contents, grouping
+all the docs about extensions together into one topic. The
+:doc:`contributing docs </contributing/index>`, theming docs, and other
+sections of the docs are the same.
+
+While using subdirectories is useful, we recommend that you
+**don't put further subdirectories inside the subdirectories**, keep it to
+one level of subdirectories inside the ``doc`` directory, keep it simple,
+otherwise the structure becomes confusing, difficult to get an overview of and
+difficult to navigate.
+
+
+Linear ordering
+===============
+
+Keep in mind that Sphinx requires the docs to have a simple, linear ordering.
+With HTML pages it's possible to design structure where, for example, someone
+reads half of a page, then clicks on a link in the middle of the page to go
+and read another page, then goes back to the middle of the first page and
+continues reading where they left off. While technically you can do this in
+Sphinx as well, it isn't a good idea, things like the navigation links, table
+of contents, and PDF version will break, users will end up going in circles,
+and the structure becomes confusing.
+
+So the pages of our Sphinx docs need to have a simple linear ordering - one
+page follows another, like in a book.
+
+
 .. _style:
 
 --------
