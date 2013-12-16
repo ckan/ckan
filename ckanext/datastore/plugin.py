@@ -164,10 +164,9 @@ class DatastorePlugin(p.SingletonPlugin):
         try:
             write_connection.execute(u'CREATE TEMP TABLE _foo ()')
             for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                test_privilege_sql = u"SELECT has_table_privilege('{user}', '_foo', '{privilege}')"
-                sql = test_privilege_sql.format(user=read_connection_user,
-                                                privilege=privilege)
-                have_privilege = write_connection.execute(sql).first()[0]
+                test_privilege_sql = u"SELECT has_table_privilege(%s, '_foo', %s)"
+                have_privilege = write_connection.execute(
+                    test_privilege_sql, (read_connection_user, privilege)).first()[0]
                 if have_privilege:
                     return False
         finally:
