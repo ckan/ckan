@@ -172,7 +172,6 @@ class TestGet(object):
                                        context={'keep_apikey': True},
                                        id=user['id'])
 
-
         assert 'email' not in got_user
         assert got_user['apikey'] == user['apikey']
         assert 'password' not in got_user
