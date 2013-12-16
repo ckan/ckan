@@ -1,6 +1,8 @@
 import sys
 import logging
 
+import sqlalchemy.engine.url as sa_url
+
 import ckan.plugins as p
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
@@ -152,8 +154,7 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         write_connection = db._get_engine(
             {'connection_url': self.write_url}).connect()
-        read_connection = db._get_engine(
-            {'connection_url': self.read_url}).connect()
+        read_connection_user = sa_url.make_url(self.read_url).username
 
         drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
 
@@ -161,18 +162,18 @@ class DatastorePlugin(p.SingletonPlugin):
 
         try:
             try:
-                write_connection.execute(u'CREATE TABLE _foo ()')
+                write_connection.execute(u'CREATE TEMP TABLE _foo ()')
                 for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                    test_privilege_sql = u"SELECT has_table_privilege('_foo', '{privilege}')"
-                    sql = test_privilege_sql.format(privilege=privilege)
-                    have_privilege = read_connection.execute(sql).first()[0]
+                    test_privilege_sql = u"SELECT has_table_privilege('{user}', '_foo', '{privilege}')"
+                    sql = test_privilege_sql.format(user=read_connection_user,
+                                                    privilege=privilege)
+                    have_privilege = write_connection.execute(sql).first()[0]
                     if have_privilege:
                         return False
             finally:
                 write_connection.execute(drop_foo_sql)
         finally:
             write_connection.close()
-            read_connection.close()
         return True
 
     def _create_alias_table(self):
