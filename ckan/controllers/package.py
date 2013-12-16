@@ -175,6 +175,7 @@ class PackageController(BaseController):
         if sort_by is None:
             c.sort_by_fields = []
         else:
+            sort_by = sort_by.replace('+', ' ')
             c.sort_by_fields = [field.split()[0]
                                 for field in sort_by.split(',')]
 
