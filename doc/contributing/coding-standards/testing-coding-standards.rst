@@ -396,7 +396,7 @@ make these common asserts easy. To use one of these decorators you have to:
 
 Here's an example of a simple validator test that uses this technique:
 
-.. literalinclude:: ../../../ckan/new_tests/logic/test_validators.py
+.. literalinclude:: /../ckan/new_tests/logic/test_validators.py
    :start-after: ## START-AFTER
    :end-before: ## END-BEFORE
 

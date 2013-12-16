@@ -12,11 +12,17 @@ v2.2
 
 API changes and deprecations:
 
-
+* The Solr schema file is now always named ``schema.xml`` regardless of the
+  CKAN version. Old schema files have been kept for backwards compatibility
+  but users are encouraged to point to the new unified one.
 * The `ckan.api_url` has been completely removed and it can no longer be used
 * The edit() and after_update() methods of IPackageController plugins are now
   called when updating a resource using the web frontend or the
   resource_update API action [#1052]
+* package_search now returns results with custom schemas applied like
+  package_show, a use_default_schema parameter was added to request the
+  old behaviour, this change may affect customized search result templates
+  (#1255)
 
 v2.1.1 2013-11-8
 ================

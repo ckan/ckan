@@ -56,10 +56,3 @@ class TestAccept:
         assert_equal( ct, "application/rdf+xml; charset=utf-8")
         assert_equal( markup, True)
         assert_equal( ext, "rdf")
-
-    def test_accept_valid7(self):
-        a = "text/turtle,application/turtle,application/rdf+xml;q=0.8,text/plain;q=0.9,*/*;q=.5"
-        ct, markup, ext = accept.parse_header(a)
-        assert_equal( ct, "text/plain; charset=utf-8")
-        assert_equal( markup, False)
-        assert_equal( ext, "txt")

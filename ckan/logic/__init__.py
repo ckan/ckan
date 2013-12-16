@@ -388,7 +388,7 @@ def get_action(action):
                         resolved_action_plugins[name]
                     )
                 )
-            log.debug('Auth function %r was inserted', plugin.name)
+            log.debug('Action function {0} from plugin {1} was inserted'.format(name, plugin.name))
             resolved_action_plugins[name] = plugin.name
             # Extensions are exempted from the auth audit for now
             # This needs to be resolved later
@@ -502,6 +502,23 @@ def get_or_bust(data_dict, keys):
         return values[0]
     return tuple(values)
 
+def validate(schema_func, can_skip_validator=False):
+    ''' A decorator that validates an action function against a given schema
+    '''
+    def action_decorator(action):
+        @functools.wraps(action)
+        def wrapper(context, data_dict):
+            if can_skip_validator:
+                if context.get('skip_validation'):
+                    return action(context, data_dict)
+
+            schema = context.get('schema', schema_func())
+            data_dict, errors = _validate(data_dict, schema, context)
+            if errors:
+                raise ValidationError(errors)
+            return action(context, data_dict)
+        return wrapper
+    return action_decorator
 
 def side_effect_free(action):
     '''A decorator that marks the given action function as side-effect-free.

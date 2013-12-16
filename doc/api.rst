@@ -56,7 +56,7 @@ code that calls the CKAN API.  For example, using the CKAN API your app can:
 
 
 ---------------------
-Making an API Request
+Making an API request
 ---------------------
 
 To call the CKAN API, post a JSON dictionary in an HTTP POST request to one of
@@ -152,7 +152,7 @@ with this Python code::
 
 
 ---------------------------------------------
-Example: Importing Datasets with the CKAN API
+Example: Importing datasets with the CKAN API
 ---------------------------------------------
 
 You can add datasets using CKAN's web interface, but when importing many
@@ -207,7 +207,7 @@ to import datasets into CKAN.
 
 
 ------------
-API Versions
+API versions
 ------------
 
 The CKAN APIs are versioned. If you make a request to an API URL without a
@@ -234,7 +234,7 @@ request that doesn't specify the API version number cannot be relied on.
 .. _api authentication:
 
 ---------------------------
-Authentication and API Keys
+Authentication and API keys
 ---------------------------
 
 Some API functions require authorization. The API uses the same authorization
@@ -268,7 +268,7 @@ run this Python code::
 
 
 ----------------------
-GET-able API Functions
+GET-able API functions
 ----------------------
 
 Functions defined in `ckan.logic.action.get`_ can also be called with an HTTP
@@ -301,7 +301,7 @@ http://demo.ckan.org/api/3/action/term_translation_show?terms=russian&terms=roma
 
 
 -------------
-JSONP Support
+JSONP support
 -------------
 
 To cater for scripts from other sites that wish to access the API, the data can
@@ -315,7 +315,7 @@ http://demo.ckan.org/api/3/action/package_show?id=adur_district_spending&callbac
 .. _api-reference:
 
 --------------------
-Action API Reference
+Action API reference
 --------------------
 
 .. note::

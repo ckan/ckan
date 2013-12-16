@@ -11,8 +11,12 @@ For high-level information on what CKAN is, see the
 These docs are ordered with the beginner documentation first, and the most
 advanced documentation last:
 
+* :doc:`user-guide` and :doc:`sysadmin-guide` are what most people will need.
+  They explain the CKAN functionalities that **users** and **sysadmins** will
+  encounter when using its web interface.
+
 * :doc:`installing` and :doc:`getting-started` walk you through installing CKAN
-  and setting up your own CKAN site with some basic customizations.  These docs
+  and setting up your own CKAN site with some basic customizations.  These
   are for **sysadmins** who're new to CKAN and want go get started with it.
 
 * The sections under :doc:`features` cover setting up and using CKAN features,
@@ -29,19 +33,3 @@ advanced documentation last:
 * Finally, :doc:`configuration` and :doc:`changelog` are **reference** docs
   covering CKAN's config file options and the differences between CKAN
   releases.
-
-.. toctree::
-   :hidden:
-   :maxdepth: 2
-
-   installing
-   upgrading
-   getting-started
-   features
-   extensions/index
-   theming
-   api
-   contributing/index
-   test
-   configuration
-   changelog

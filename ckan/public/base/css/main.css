@@ -5547,6 +5547,12 @@ textarea {
 }
 .form-actions .control-required-message {
   float: left;
+  margin-left: 20px;
+  margin-bottom: 0;
+  line-height: 30px;
+}
+.form-actions .control-required-message:first-child {
+  margin-left: 0;
 }
 .form-actions {
   background: none;
@@ -5664,27 +5670,24 @@ textarea {
   padding: 7px 5px;
 }
 .simple-input .field .btn-search {
-  *margin-right: .3em;
-  display: inline-block;
-  vertical-align: text-bottom;
-  position: relative;
-  top: 2px;
-  width: 16px;
-  height: 16px;
-  background-image: url("../../../base/images/sprite-ckan-icons.png");
-  background-repeat: no-repeat;
-  background-position: 16px 16px;
-  background-position: -51px -16px;
   position: absolute;
   display: block;
   height: 17px;
   width: 17px;
+  padding: 0;
   top: 50%;
   right: 0;
-  margin-top: -8px;
+  margin-top: -10px;
   background-color: transparent;
   border: none;
-  text-indent: -999em;
+  color: #999;
+  -webkit-transition: color 0.2s ease-in;
+  -moz-transition: color 0.2s ease-in;
+  -o-transition: color 0.2s ease-in;
+  transition: color 0.2s ease-in;
+}
+.simple-input .field .btn-search:hover {
+  color: #000;
 }
 .editor textarea {
   -webkit-border-radius: 3px 3px 0 0;
@@ -6126,6 +6129,7 @@ textarea {
 }
 .js .image-upload .btn-remove-url .icon-remove {
   margin-right: 0;
+}
 .add-member-form .control-label {
   width: 100%;
   text-align: left;
@@ -6419,6 +6423,10 @@ textarea {
   font-size: 18px;
   font-weight: normal;
   color: #000000;
+}
+.search-form.no-bottom-border {
+  border-bottom-width: 0;
+  margin-bottom: 0;
 }
 .tertiary .control-order-by {
   float: none;
@@ -7164,6 +7172,11 @@ h4 small {
 .context-info.editing .module-content {
   margin-top: 0;
 }
+.flash-messages .alert {
+  -webkit-box-shadow: 0 0 0 1px #ffffff;
+  -moz-box-shadow: 0 0 0 1px #ffffff;
+  box-shadow: 0 0 0 1px #ffffff;
+}
 .homepage [role=main] {
   padding: 20px 0;
   min-height: 0;
@@ -7716,6 +7729,9 @@ h4 small {
   -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
+.activity .item.no-avatar p {
+  margin-left: 40px;
+}
 .activity .load-less {
   margin-bottom: 15px;
 }
@@ -7733,8 +7749,27 @@ h4 small {
   float: right;
   text-decoration: none;
 }
+.popover .popover-content {
+  font-size: 14px;
+  line-height: 20px;
+  color: #444444;
+  word-break: break-all;
+}
+.popover .popover-content dl {
+  margin: 0;
+}
+.popover .popover-content dl dd {
+  margin-left: 0;
+  margin-bottom: 10px;
+}
 .activity .item .icon {
   background-color: #999999;
+}
+.activity .item.failure .icon {
+  background-color: #b95252;
+}
+.activity .item.success .icon {
+  background-color: #69a67a;
 }
 .activity .item.added-tag .icon {
   background-color: #6995a6;
@@ -7985,6 +8020,21 @@ h4 small {
   display: block;
   font-size: 16px;
   margin: 3px 0;
+}
+.datapusher-status-link:hover {
+  text-decoration: none;
+}
+.datapusher-status.status-unknown {
+  color: #bbb;
+}
+.datapusher-status.status-pending {
+  color: #FFCC00;
+}
+.datapusher-status.status-error {
+  color: red;
+}
+.datapusher-status.status-complete {
+  color: #009900;
 }
 body {
   background: #005d7a url("../../../base/images/bg.png");
