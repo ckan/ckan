@@ -115,7 +115,10 @@ This makes the CKAN release manager's job much easier!
 
 Here's an example of a good CKAN commit message::
 
- [#2505] Update source install instructions
+ [#607] Allow reactivating deleted datasets
 
- Following feedback from markw (see #2406).
+ Currently if a dataset is deleted and users navigate to the edit form,
+ there is no state field and the delete button is still shown.
 
+ After this change, the state dropdown is shown if the dataset state is
+ not active, and the delete button is not shown.
