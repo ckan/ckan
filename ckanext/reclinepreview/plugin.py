@@ -48,10 +48,6 @@ class ReclineView(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
 
-    # schema fields that apply to all Recline views
-    schema = {'offset': [ignore_empty, natural_number_validator],
-              'limit': [ignore_empty, natural_number_validator]}
-
     def update_config(self, config):
         '''
         Set up the resource library, public directory and
@@ -82,11 +78,7 @@ class ReclineGrid(ReclineView):
     def info(self):
         return {'name': 'recline_grid',
                 'title': 'Grid',
-                'schema': self.schema,
                 'icon': 'table'}
-
-    def form_template(self, context, data_dict):
-        return 'recline_grid_form.html'
 
 
 class ReclineGraph(ReclineView):
@@ -115,14 +107,16 @@ class ReclineGraph(ReclineView):
         # in_list validator here is passed functions because this
         # method does not know what the possible values of the
         # datastore fields are (requires a datastore search)
-        self.schema.update({
+        schema = {
+            'offset': [ignore_empty, natural_number_validator],
+            'limit': [ignore_empty, natural_number_validator],
             'graph_type': [ignore_empty, in_list(self.list_graph_types)],
             'group': [ignore_empty, in_list(self.list_datastore_fields)],
             'series': [ignore_empty, in_list(self.list_datastore_fields)]
-        })
+        }
         return {'name': 'recline_graph',
                 'title': 'Graph',
-                'schema': self.schema}
+                'schema': schema}
 
     def setup_template_variables(self, context, data_dict):
         self.datastore_fields = datastore_fields(data_dict['resource'],
@@ -159,7 +153,9 @@ class ReclineMap(ReclineView):
         # in_list validator here is passed functions because this
         # method does not know what the possible values of the
         # datastore fields are (requires a datastore search)
-        self.schema.update({
+        schema = {
+            'offset': [ignore_empty, natural_number_validator],
+            'limit': [ignore_empty, natural_number_validator],
             'map_field_type': [ignore_empty,
                                in_list(self.list_map_field_types)],
             'latitude_field': [ignore_empty,
@@ -170,10 +166,10 @@ class ReclineMap(ReclineView):
                               in_list(self.list_datastore_fields)],
             'auto_zoom': [ignore_empty],
             'cluster_markers': [ignore_empty]
-        })
+        }
         return {'name': 'recline_map',
                 'title': 'Map',
-                'schema': self.schema,
+                'schema': schema,
                 'icon': 'map-marker'}
 
     def setup_template_variables(self, context, data_dict):
