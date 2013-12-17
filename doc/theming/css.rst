@@ -77,8 +77,3 @@ implements a partial imitation of the `datahub.io <http://datahub.io/>`_ theme
 
 .. literalinclude:: /../ckanext/example_theme/v14_more_custom_css/public/example_theme.css
    :language: css
-
-.. todo::
-
-   We use LESS for the CKAN core CSS. Do we want to mention that here?
-
