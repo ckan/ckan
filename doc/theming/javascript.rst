@@ -149,6 +149,112 @@ with some of the options that Bootstrap's popovers accept:
                   placement: 'left'});
 
 
+--------------------------
+Default values for options
+--------------------------
+
+Default values for |javascript| module options can be provided by adding an
+``options`` object to the module. If the HTML element doesn't have a
+``data-module-*`` attribute for an option, then the default will be used
+instead. For example...
+
+.. todo:: Think of an example to do using default values.
+
+
+----------------------------------------------------
+Ajax, event handling and CKAN's |javascript| sandbox
+----------------------------------------------------
+
+So far, we've used simple |javascript| string formatting to put together the
+contents of our popover. If we want the popover to contain much more complex
+HTML we really need to render a template for it, using the full power of
+:doc:`Jinja2 templates <templates>` and CKAN's
+:ref:`template helper functions <template helper functions>`. Let's edit our
+plugin to use a Jinja2 template to render the contents of the popups nicely.
+
+.. todo:: Insert a screenshot of the final result.
+
+First, edit ``package_item.html`` to make it pass a few more parameters to the
+JavaScript module using ``data-module-*`` attributes:
+
+.. literalinclude:: /../ckanext/example_theme/v18_snippet_api/templates/snippets/package_item.html
+   :language: django
+
+We've also added a second ``{% resource %}`` tag to the snippet above, to
+include a custom CSS file. We'll see the contents of that CSS file later.
+
+Next, we need to add a new template snippet to our extension that will be used
+to render the contents of the popovers. Create this
+``example_theme_popover.html`` file::
+
+  ckanext-example_theme/
+    ckanext/
+      example_theme/
+        templates/
+          ajax_snippets/
+            example_theme_popover.html
+
+and put these contents in it:
+
+.. literalinclude:: /../ckanext/example_theme/v18_snippet_api/templates/ajax_snippets/example_theme_popover.html
+   :language: django
+
+This is a Jinja2 template that renders some nice looking contents for a
+popover, containing a few bits of information about a dataset. It uses a number
+of CKAN's Jinja2 templating features, including marking user-visible strings
+for translation and calling template helper functions. See :doc:`templates`
+for details about Jinja2 templating in CKAN.
+
+.. note::
+
+   The new template file has to be in a ``templates/ajax_snippets/`` directory
+   so that we can use the template from our |javascript| code using
+   CKAN's :js:func:`~this.sandbox.client.getTemplate` function. Only templates
+   from ``ajax_snippets`` directories are available from the
+   :js:func:`~this.sandbox.client.getTemplate` function.
+
+Next, edit ``fanstatic/example_theme_popover.js`` as shown below.
+There's a lot going on in this new |javascript| code, including:
+
+* Using `Bootstrap's popover API <http://getbootstrap.com/2.3.2/javascript.html#popovers>`_
+  to show and hide popovers, and set their contents.
+
+* Using `jQuery's event handling API <http://api.jquery.com/category/events/>`_
+  to get our functions to be called when the user clicks on a button.
+
+* Using a function from CKAN's :doc:`JavaScript sandbox <javascript-sandbox>`.
+
+  The sandbox is a |javascript| object, available to all |javascript| modules
+  as ``this.sandbox``, that contains a collection of useful functions and
+  variables.
+
+  :js:data:`this.sandbox.client` is a CKAN API client written in |javascript|, that
+  should be used whenever a |javascript| module needs to talk to the CKAN API,
+  instead of modules doing their own HTTP requests.
+
+  :js:func:`this.sandbox.client.getTemplate` is a function that sends an
+  asynchronous (ajax) HTTP request (i.e. send an HTTP request from
+  |javascript| and receive the response in |javascript|, without causing
+  the browser to reload the whole page) to CKAN asking for a template snippet
+  to be rendered.
+
+Hopefully the liberal commenting in the code below makes it clear enough what's
+going on:
+
+.. literalinclude:: /../ckanext/example_theme/v18_snippet_api/fanstatic/example_theme_popover.js
+   :language: javascript
+
+Finally, we need some custom CSS to make the HTML from our new snippet look
+nice. In ``package_item.html`` above we added a ``{% resource %}`` tag to
+include a custom CSS file. Now we need to create that file,
+``ckanext-example_theme/ckanext/example_theme/fanstatic/example_theme_popover.css``:
+
+.. literalinclude:: /../ckanext/example_theme/v18_snippet_api/fanstatic/example_theme_popover.css
+   :language: css
+
+Restart CKAN, and your dataset popovers should be looking much better.
+
+
 --------------------
 Responding to events
 --------------------

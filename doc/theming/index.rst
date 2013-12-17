@@ -55,3 +55,4 @@ own custom CKAN theme.
    variables-and-functions
    template-helper-functions
    template-snippets
+   javascript-sandbox
