@@ -454,7 +454,7 @@ class TestRelatedActionAPI(apibase.BaseModelApiTestCase):
         r = json.loads(res.body)
         assert r['success'] == True, r
         assert r['result'][0]['type'] == "idea"
-        assert r['result'][0]['title'] == "two", r
+        assert r['result'][0]['title'] == "one", r
 
         p.related.remove(one)
         p.related.remove(two)
