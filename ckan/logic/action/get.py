@@ -200,8 +200,6 @@ def related_show(context, data_dict=None):
 def related_list(context, data_dict=None):
     '''Return a dataset's related items.
 
-    Either the ``id`` or the ``dataset`` parameter must be given.
-
     :param id: id or name of the dataset (optional)
     :type id: string
     :param dataset: dataset dictionary of the dataset (optional)
