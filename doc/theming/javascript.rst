@@ -102,6 +102,11 @@ To get CKAN to call some custom JavaScript code, we need to:
    initialize function just prints out a confirmation message - this
    |javascript| module doesn't do anything interesting yet.
 
+   .. note::
+
+      Each |javascript| module's ``initialize()`` function is called on
+      `DOM ready <http://api.jquery.com/ready/>`_.
+
 2. Include the |javascript| module in a page, using Fanstatic, and apply it to
    one or more HTML elements on that page. We'll override CKAN's
    ``package_item.html`` template snippet to insert our module whenever a
