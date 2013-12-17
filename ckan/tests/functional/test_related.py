@@ -367,8 +367,13 @@ class TestRelated:
         usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
         context = dict(model=model, user=usr['name'], session=model.Session)
         data_dict = {}
-        from sqlalchemy.orm.query import Query
-        assert type(logic.get_action('related_list')(context, data_dict)) == Query
+        related_list = logic.get_action('related_list')(context, data_dict)
+        assert len(related_list) == 8
+        related_keys = set(['view_count', 'description', 'title', 'url',
+            'created', 'featured', 'image_url', 'type', 'id', 'owner_id'])
+        for related in related_list:
+            assert set(related.keys()) == related_keys
+
 
     def test_related_list(self):
         p = model.Package.get('warandpeace')
@@ -462,7 +467,7 @@ class TestRelatedActionAPI(apibase.BaseModelApiTestCase):
         r = json.loads(res.body)
         assert r['success'] == True, r
         assert r['result'][0]['type'] == "idea"
-        assert r['result'][0]['title'] == "two", r
+        assert r['result'][0]['title'] == "one", r
 
         p.related.remove(one)
         p.related.remove(two)

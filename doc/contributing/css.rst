@@ -1,3 +1,4 @@
+====================
 CSS coding standards
 ====================
 
@@ -6,6 +7,7 @@ CSS coding standards
   `Front-end Documentation <./frontend-development.html#stylesheets>`_
   for more information on this subject.
 
+----------
 Formatting
 ----------
 
@@ -46,6 +48,7 @@ For example: ::
       background: #fff url("../images/media-background.png") no-repeat;
     }
 
+------
 Naming
 ------
 
@@ -60,6 +63,7 @@ separation. ::
     .datasetList {}
     .dataset_list {}
 
+--------
 Comments
 --------
 
@@ -78,8 +82,9 @@ first glance, especially IE workarounds or hacks. ::
       display: inline-block;
     }
 
-Modularity & Specificity
-------------------------
+--------------------------
+Modularity and specificity
+--------------------------
 
 Try keep all selectors loosely grouped into modules where possible and avoid
 having too many selectors in one declaration to make them easy to override. ::

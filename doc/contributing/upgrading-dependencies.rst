@@ -1,6 +1,6 @@
---------------------------
-Upgrading the dependencies
---------------------------
+=============================
+Upgrading CKAN's dependencies
+=============================
 
 The Python modules that CKAN depends on are pinned to specific versions, so we
 can guarantee that whenever anyone installs CKAN, they'll always get the same
@@ -29,8 +29,9 @@ We haven't created a ``dev-requirements.in`` file because we have too few dev
 dependencies, we don't update them often, and none of them have a known
 incompatible version.
 
+----------------
 Steps to upgrade
-================
+----------------
 
 These steps will upgrade all of CKAN's dependencies to the latest versions that
 work with CKAN:
@@ -49,7 +50,7 @@ work with CKAN:
 #. Install the development dependencies: ``pip install -r
    dev-requirements.txt``
 
-#. Run the tests to make sure everything still works (see :doc:`test`).
+#. Run the tests to make sure everything still works (see :doc:`/test`).
 
    - If not, try to fix the problem. If it's too complicated, pinpoint which
      dependency's version broke our tests, find an older version that still
@@ -59,4 +60,4 @@ work with CKAN:
 
 #. Navigate a bit on CKAN to make sure the tests didn't miss anything. Review
    the dependencies changes and their changelogs. If everything seems fine, go
-   ahead and make a pull request (see :ref:`making a pull request`).
+   ahead and make a pull request (see :doc`/contributing/pull-requests`).

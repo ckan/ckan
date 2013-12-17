@@ -91,7 +91,7 @@ def related_list_dictize(related_list, context):
         related_dict = related_dictize(res, context)
         result_list.append(related_dict)
 
-    return sorted(result_list, key=lambda x: x["created"], reverse=True)
+    return result_list
 
 
 def extras_dict_dictize(extras_dict, context):
@@ -355,8 +355,6 @@ def group_dictize(group, context):
     result_dict['extras'] = extras_dict_dictize(
         group._extras, context)
 
-    context['with_capacity'] = True
-
     include_datasets = context.get('include_datasets', True)
 
     q = {
@@ -384,6 +382,7 @@ def group_dictize(group, context):
 
     result_dict['package_count'] = search_results['count']
 
+    context['with_capacity'] = True
     result_dict['tags'] = tag_list_dictize(
         _get_members(context, group, 'tags'),
         context)
@@ -531,7 +530,7 @@ def user_dictize(user, context):
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 
-    ## this should not really really be needed but tests r it
+    ## this should not really really be needed but tests need it
     if new_authz.is_sysadmin(requester):
         result_dict['apikey'] = apikey
         result_dict['email'] = email
@@ -708,17 +707,3 @@ def user_following_group_dictize(follower, context):
 
     base_columns = set(['id', 'resource_id', 'title', 'description',
                         'view_type', 'order', 'config'])
-
-def resource_view_dictize(resource_view, context):
-    dictized = d.table_dictize(resource_view, context)
-    dictized.pop('order')
-    config = dictized.pop('config', {})
-    dictized.update(config)
-    return dictized
-
-def resource_view_list_dictize(resource_views, context):
-    resource_view_dicts = []
-    for view in resource_views:
-        resource_view_dicts.append(resource_view_dictize(view, context))
-    return resource_view_dicts
-

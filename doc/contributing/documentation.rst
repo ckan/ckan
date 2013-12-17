@@ -1,8 +1,20 @@
-========================
-Documentation guidelines
-========================
+=====================
+Writing documentation
+=====================
 
 .. _docs.ckan.org: http://docs.ckan.org
+
+.. seealso::
+
+   The quickest and easiest way to contribute documentation to CKAN is to sign up
+   for a free GitHub account and simply edit the `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_.
+   Docs started on the wiki can make it onto `docs.ckan.org`_ later.
+   If you do want to contribute to `docs.ckan.org`_ directly, follow the
+   instructions on this page.
+
+   **Tip**: Use the reStructuredText markup format when creating a wiki page,
+   since reStructuredText is the format that docs.ckan.org uses, this will make
+   moving the documentation from the wiki into docs.ckan.org later easier.
 
 This section gives some guidelines to help us to write consistent and good
 quality documentation for CKAN.
@@ -106,7 +118,7 @@ again (``python setup.py build_sphinx``) and open the HTML files in a web
 browser to preview your changes.
 
 Once your docs are ready to submit to the CKAN project, follow the steps in
-:ref:`making a pull request`.
+:doc`/contributing/pull-requests`.
 
 .. _structure:
 
@@ -114,7 +126,7 @@ Once your docs are ready to submit to the CKAN project, follow the steps in
 2. Structure and audience
 -------------------------
 
-:doc:`index` describes the overall structure of the docs, and the intended
+:doc:`/index` describes the overall structure of the docs, and the intended
 audience for each part. This structure is intended to be clear, simple and
 extendable.  If you're adding a new section to the docs, try to fit it into
 this structure.
@@ -137,6 +149,39 @@ suggestion for what sections the page should have is:
 
 #. **Troubleshooting**: common error messages and problems, FAQs, how to
    diagnose problems.
+
+
+Subdirectories
+==============
+
+Many sections of the docs are organized into subdirectories. For example,
+there's a ``doc/extensions`` subdirectory with
+:doc:`its own index file </extensions/index>` and table of contents, grouping
+all the docs about extensions together into one topic. The
+:doc:`contributing docs </contributing/index>`, theming docs, and other
+sections of the docs are the same.
+
+While using subdirectories is useful, we recommend that you
+**don't put further subdirectories inside the subdirectories**, keep it to
+one level of subdirectories inside the ``doc`` directory, keep it simple,
+otherwise the structure becomes confusing, difficult to get an overview of and
+difficult to navigate.
+
+
+Linear ordering
+===============
+
+Keep in mind that Sphinx requires the docs to have a simple, linear ordering.
+With HTML pages it's possible to design structure where, for example, someone
+reads half of a page, then clicks on a link in the middle of the page to go
+and read another page, then goes back to the middle of the first page and
+continues reading where they left off. While technically you can do this in
+Sphinx as well, it isn't a good idea, things like the navigation links, table
+of contents, and PDF version will break, users will end up going in circles,
+and the structure becomes confusing.
+
+So the pages of our Sphinx docs need to have a simple linear ordering - one
+page follows another, like in a book.
 
 
 .. _style:
@@ -419,7 +464,7 @@ the same as the name of the setting, for example::
     This sets the name of the site, as displayed in the CKAN web interface.
 
 If you add a new config setting to CKAN, make sure to document like this it in
-:doc:`configuration`.
+:doc:`/configuration`.
 
 
 Cross-referencing to a Python object
@@ -436,7 +481,7 @@ Changing the link text of a cross-reference
 With ``:doc:`` ``:ref:`` and other kinds of link, if you want the link text to
 be different from the title of the thing you're referencing, do this::
 
-    :doc:`the theming document <theming>`
+    :doc:`the theming document </theming>`
 
     :ref:`the getting started section <getting-started>`
 
@@ -531,7 +576,7 @@ therefore more likely to be kept up to date.
 Whenever you're writing reference documentation for modules, classes, functions
 or methods, exceptions, attributes, etc. you should probably be using autodoc.
 For example, we use autodoc for the :ref:`api-reference`, the
-:doc:`extensions/plugin-interfaces`, etc.
+:doc:`/extensions/plugin-interfaces`, etc.
 
 For how to write docstrings, see :ref:`docstrings`.
 
