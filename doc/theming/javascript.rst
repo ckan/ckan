@@ -255,56 +255,56 @@ include a custom CSS file. Now we need to create that file,
 Restart CKAN, and your dataset popovers should be looking much better.
 
 
---------------------
-Responding to events
---------------------
+------
+pubsub
+------
 
-To get our |javascript| module to do something more interesting, we'll use its
-initialize function to register some event handler functions which we'll then
-use to do some actions in response to events such as mouse clicks. Edit your
-``example_theme_popover.js`` file to look like this:
+You may have noticed that, with our example code so far, if you click on the
+info button of one dataset on the page then click on the info button of another
+dataset, both dataset's popovers are shown. The first popover doesn't disappear
+when the second appears, and the popovers may overlap. If you click on all the
+info buttons on the page, popovers for all of them will be shown at once.
 
-.. Link to some JavaScript tutorial?
+.. todo:: Insert a screenshot of the problem.
 
-   JavaScript modules are the core - every javascripted object should be a
-   module. Small, isolated components that can be easily tested. They should
-   not use any global objects, all functionality provided to them via a sandbox
-   object.
+To make one popover disappear when another appears, we can use CKAN's
+:js:func:`~this.sandbox.client.publish` and
+:js:func:`~this.sandbox.client.subscribe` functions. These pair of functions
+allow different instances of a JavaScript module (or instances of different
+JavaScript modules) on the same page to talk to each other.
+The way it works is:
 
-   A module is a JavaScript object with an initialize() and a teardown()
-   method.
+#. Modules can subscribe to events by calling
+   :js:func:`this.sandbox.client.subscribe`, passing the 'topic'
+   (a string that identifies the type of event to subscribe to) and a callback
+   function.
 
-   Initialize a module with a data-module attribute:
-     <select name="format" data-module="autocomplete"></select>
+#. Modules can call :js:func:`this.sandbox.client.publish` to
+   publish an event for all subscribed modules to receive, passing the topic
+   string and one or more further parameters that will be passed on as
+   parameters to the receiver functions.
 
-   Or apparently you can also use {% resource %}? Or you have to use resource?
+#. When a module calls :js:func:`~this.sandbox.client.publish`, any callback
+   functions registered by previous calls to
+   :js:func:`~this.sandbox.client.subscribe` with the same topic string will
+   be called, and passed the parameters that were passed to publish.
 
-   "favorite" module goes in favorite.js file.
+#. If a module no longer wants to receive events for a topic, it calls
+   :js:func:`~this.sandbox.client.unsubscribe`.
 
-   The idea is that the HTML element should still work fine is JavaScript is
-   disabled - e.g. use form submission instead of XHR request.
+   All modules that subscribe to events should have a ``teardown()`` function
+   that unsubscribes from the event, to prevent memory leaks. CKAN calls the
+   ``teardown()`` functions of modules when those modules are removed from the
+   page. See :ref:`pubsub unsubscribe best practice`.
 
-   You can pass "options objects" with further data-module-* attributes.
+Remember that because we attach our ``example_theme_popover.js`` module to a
+``<button>`` element that is rendered once for each dataset on the page, CKAN
+creates one instance of our module for each dataset. The only way these objects
+can communicate with each other so that one object can hide its popover when
+another object shows its popover, is by using pubsub.
 
-   The modules are initialized "on DOM ready", each module's initialize()
-   method is called.
+Here's a modified version of our ``example_theme_popover.js`` file that uses
+pubsub to make the dataset popovers disappear whenever a new popover appears:
 
-   this.sandbox.jQuery - access jQuery methods
-   this.sandbox.translte() - i18n
-   (or these are the jQuery and _ params of your module function)
-
-   pub/sub for sending messages between modules:
-   this.sandbox.publish/subscribe/unsubscribe
-
-   this.sandbox.client should be used to make XHR requests to the CKAN API
-   (not jQuery.ajax())
-
-   i18n: this.sandbox.translate(), supports %(name)s, including plurals.
-   The options() method of each module should set all strings to be i18n'd?
-   Then other code uses this.18n() to retrieve them.
-
-   If not CKAN specific, module functionality should be packaged up in jQuery
-   plugins.
-
-   Testing.
-
+.. literalinclude:: /../ckanext/example_theme/v19_pubsub/fanstatic/example_theme_popover.js
+   :language: javascript

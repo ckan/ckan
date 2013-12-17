@@ -85,6 +85,19 @@ documentating what the module does and what options it takes. For example:
    :language: javascript
 
 
+.. _pubsub unsubscribe best practice:
+
+-------------------------------------------------------------------
+JavaScript modules should unsubscribe from events in ``teardown()``
+-------------------------------------------------------------------
+
+Any JavaScript module that calls :js:func:`this.sandbox.client.subscribe`
+should have a ``teardown()`` function that calls
+:js:func:`~this.sandbox.client.unsubscribe`, to prevent memory leaks.
+CKAN calls the ``teardown()`` functions of modules when those modules are
+removed from the page.
+
+
 --------------------------------------------
 Use ``{% snippet %}``, not ``{% include %}``
 --------------------------------------------
