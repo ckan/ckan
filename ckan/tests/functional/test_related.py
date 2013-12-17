@@ -362,6 +362,19 @@ class TestRelated:
         assert rel['description'] == result['description'], result
         assert rel['description'] == result['description'], result
 
+    def test_related_list_missing_id_and_name(self):
+        p = model.Package.get('warandpeace')
+        usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
+        context = dict(model=model, user=usr['name'], session=model.Session)
+        data_dict = {}
+        related_list = logic.get_action('related_list')(context, data_dict)
+        assert len(related_list) == 8
+        related_keys = set(['view_count', 'description', 'title', 'url',
+            'created', 'featured', 'image_url', 'type', 'id', 'owner_id'])
+        for related in related_list:
+            assert set(related.keys()) == related_keys
+
+
     def test_related_list(self):
         p = model.Package.get('warandpeace')
         r = model.Related(title="Title", type="idea")
