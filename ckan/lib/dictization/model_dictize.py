@@ -85,6 +85,7 @@ def resource_list_dictize(res_list, context):
 
     return sorted(result_list, key=lambda x: x["position"])
 
+
 def related_list_dictize(related_list, context):
     result_list = []
     for res in related_list:
