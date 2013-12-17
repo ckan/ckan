@@ -131,7 +131,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
 
     @httpretty.activate
     def test_invalid_url(self):
-        self.data_dict = set_resource_url('javascript:downloadFile(foo)')
+        self.data_dict = set_resource_url('http:invalid_url')
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)
         result = self.app.get(proxied_url, status='*')
@@ -150,3 +150,23 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         result = self.app.get(proxied_url, status='*')
         assert result.status == 502, result.status
         assert 'connection error' in result.body, result.body
+
+    def test_proxied_resource_url_proxies_http_and_https_by_default(self):
+        http_url = 'http://ckan.org'
+        https_url = 'https://ckan.org'
+
+        for url in [http_url, https_url]:
+            data_dict = set_resource_url(url)
+            proxied_url = proxy.get_proxified_resource_url(data_dict)
+            assert proxied_url != url, proxied_url
+
+    def test_proxied_resource_url_doesnt_proxy_non_http_or_https_urls_by_default(self):
+        schemes = ['file', 'ws']
+
+        for scheme in schemes:
+            url = '%s://ckan.org' % scheme
+            data_dict = set_resource_url(url)
+            non_proxied_url = proxy.get_proxified_resource_url(data_dict)
+            proxied_url = proxy.get_proxified_resource_url(data_dict, scheme)
+            assert non_proxied_url == url, non_proxied_url
+            assert proxied_url != url, proxied_url
