@@ -39,7 +39,7 @@ class RelatedController(base.BaseController):
             base.abort(400, ('"page" parameter must be an integer'))
 
         # Update ordering in the context
-        related_list  = logic.get_action('related_list')(context, data_dict)
+        related_list = logic.get_action('related_list')(context, data_dict)
 
         def search_url(params):
             url = h.url_for(controller='related', action='dashboard')
