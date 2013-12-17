@@ -76,7 +76,7 @@ def related_list_dictize(related_list, context):
         related_dict = related_dictize(res, context)
         result_list.append(related_dict)
 
-    return sorted(result_list, key=lambda x: x["created"], reverse=True)
+    return result_list
 
 
 def extras_dict_dictize(extras_dict, context):
