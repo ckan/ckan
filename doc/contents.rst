@@ -14,7 +14,7 @@ Full table of contents
    extensions/index
    theming
    api
-   contributing
+   contributing/index
    test
    configuration
    changelog

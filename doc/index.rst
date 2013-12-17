@@ -27,10 +27,9 @@ advanced documentation last:
   for **developers** who want to develop an extension, theme or API app using
   CKAN.
 
-* :doc:`contributing` and :doc:`test` are for **testers**, **translators** and
+* :doc:`contributing/index` and :doc:`test` are for **testers**, **translators** and
   **core developers** who want to contribute to CKAN.
 
 * Finally, :doc:`configuration` and :doc:`changelog` are **reference** docs
   covering CKAN's config file options and the differences between CKAN
   releases.
-

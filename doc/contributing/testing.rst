@@ -190,7 +190,7 @@ give the following recipe for all unit test methods to follow:
 Most CKAN tests should follow this form. Here's an example of a simple action
 function test demonstrating the recipe:
 
-.. literalinclude:: ../ckan/new_tests/logic/action/test_update.py
+.. literalinclude:: /../ckan/new_tests/logic/action/test_update.py
    :start-after: ## START-AFTER
    :end-before: ## END-BEFORE
 
@@ -199,7 +199,7 @@ function being tested multiple times, passing it lots of different arguments
 that should all produce the same return value and/or side effects. For example,
 this test from :py:mod:`ckan.new_tests.logic.action.test_update`:
 
-.. literalinclude:: ../ckan/new_tests/logic/action/test_update.py
+.. literalinclude:: /../ckan/new_tests/logic/action/test_update.py
    :start-after: ## START-FOR-LOOP-EXAMPLE
    :end-before: ## END-FOR-LOOP-EXAMPLE
 
@@ -326,7 +326,7 @@ going on, but here's an example of a test from
 :py:func:`~ckan.logic.auth.update.user_update` authorization function and mocks
 out :py:mod:`ckan.model`:
 
-.. literalinclude:: ../ckan/new_tests/logic/auth/test_update.py
+.. literalinclude:: /../ckan/new_tests/logic/auth/test_update.py
    :start-after: ## START-AFTER
    :end-before: ## END-BEFORE
 
@@ -396,7 +396,7 @@ make these common asserts easy. To use one of these decorators you have to:
 
 Here's an example of a simple validator test that uses this technique:
 
-.. literalinclude:: ../ckan/new_tests/logic/test_validators.py
+.. literalinclude:: /../ckan/new_tests/logic/test_validators.py
    :start-after: ## START-AFTER
    :end-before: ## END-BEFORE
 

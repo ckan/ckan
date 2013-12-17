@@ -1,6 +1,8 @@
-Javascript Coding Standards
+===========================
+JavaScript coding standards
 ===========================
 
+----------
 Formatting
 ----------
 
@@ -18,8 +20,8 @@ exceptions.
 .. Note:: Idiomatic is heavily based upon `Douglas Crockford's`_ style
           guide which is recommended by the `OKFN Coding Standards`_.
 
-White Space
-```````````
+White space
+===========
 
 Two spaces must be used for indentation at all times. Unlike in idiomatic
 whitespace must not be used _inside_ parentheses between the parentheses
@@ -46,7 +48,7 @@ and their Contents. ::
 .. note:: See section 2.D.1.1 of idiomatic for more examples of this syntax.
 
 Quotes
-``````
+======
 
 Single quotes should be used everywhere unless writing JSON or the string
 contains them. This makes it easier to create strings containing HTML. ::
@@ -61,7 +63,7 @@ Object properties need not be quoted unless required by the interpreter. ::
     };
 
 Variable declarations
-`````````````````````
+=====================
 
 One ``var`` statement must be used per variable assignment. These must be
 declared at the top of the function in which they are being used. ::
@@ -114,6 +116,7 @@ statement. ::
       return sorted;
     }
 
+------
 Naming
 ------
 
@@ -175,6 +178,7 @@ anonymous function to a variable. ::
 Named functions are generally easier to debug as they appear named in the
 debugger.
 
+--------
 Comments
 --------
 
@@ -195,6 +199,7 @@ comments that do not form part of the documentation. ::
       module.Broadcast = Broadcast;
     }
 
+------
 JSHint
 ------
 
@@ -210,6 +215,7 @@ this file.
 .. _node: http://nodejs.org
 .. _jshint: http://www.jshint.com
 
+-------------
 Documentation
 -------------
 
@@ -261,6 +267,7 @@ For example::
      * Returns a jqXHR promise object that can be used to attach callbacks.
      */
 
+-------
 Testing
 -------
 
@@ -281,11 +288,12 @@ provided by chai.
 Generally we try and have the core functionality of all libraries and modules
 unit tested.
 
-Best Practices
+--------------
+Best practices
 --------------
 
 Forms
-`````
+=====
 
 All forms should work without JavaScript enabled. This means that they must
 submit ``application/x-www-form-urlencoded`` data to the server and receive an
@@ -298,7 +306,7 @@ JavaScript after the page has loaded. It's then not part of the HTML document
 and can submit any data format it pleases.
 
 Ajax
-````
+====
 
 .. Note::
     Calls to the CKAN API from JavaScript should be done through the
@@ -352,8 +360,8 @@ as providing the user with adequate feedback that the page is doing something.
 Disabling the button prevents the form being submitted twice and the error
 feedback should hopefully offer a solution for the error that occurred.
 
-Event Handlers
-``````````````
+Event handlers
+==============
 
 When using event handlers to listen for browser events it's a common
 requirement to want to cancel the default browser action. This should be
@@ -377,7 +385,7 @@ alternatives to ``.bind()``, ``.unbind()``, ``.delegate()`` and
 .. _.off(): http://api.jquery.com/off/
 
 Templating
-``````````
+==========
 
 Small templates that will not require customisation by the instance can be
 placed inline. If you need to create multi-line templates use an array rather

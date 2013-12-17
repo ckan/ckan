@@ -62,6 +62,8 @@ rst_epilog = '''
 .. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan_default
 .. |reload_nginx| replace:: sudo service nginx reload
 
+.. _CKAN issue tracker: https://github.com/okfn/ckan/issues
+
 '''
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
