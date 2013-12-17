@@ -2,16 +2,70 @@
 Customizing CKAN's JavaScript
 =============================
 
-.. warning::
+JavaScript code in CKAN is broken down into *modules*: small, independent units
+of JavaScript code. CKAN themes can add JavaScript features by providing their
+own modules. This tutorial will explain the main concepts involved in CKAN
+JavaScript modules and walk you through the process of adding custom modules
+to themes.
 
-   This is a draft |javascript| tutorial! It's nowhere near finished yet.
 
-.. todo:: Link to an introductory JavaScript tutorial.
+.. todo:: Link to an introductory JavaScript tutorial and other necessary
+          background knowledge.
 
-.. todo:: Introduce the example we're doing here: starring datasets using a
-     custom dataset_star action (also need the code to add this action).
 
-.. todo:: Explain that Bootstrap's JavaScript features can be used just by CSS.
+--------
+Overview
+--------
+
+The idea behind CKAN's JavaScript modules is to keep the code simple and
+easy to test, debug and maintain, by breaking it down into small,
+independent modules. JavaScript modules in CKAN don't share global
+variables, and don't call each other's code.
+
+These JavaScript modules are attached to HTML elements in the page, and enhance
+the functionality of those elements. The idea is that an HTML element with a
+JavaScript module attached should still be fully functional even if JavaScript
+is completely disabled (e.g. because the user's web browser doesn't support
+JavaScript). The user experience may not be quite as nice, but the
+functionality should still be there.
+
+.. todo:: Example of graceful degradation.
+
+CKAN makes a few helpful objects and functions available for every JavaScript
+module to use, including:
+
+* :js:data:`this.sandbox`, an object containing useful functions for all
+  modules to use, including an API client for calling the API
+  (:js:data:`this.sandbox.client`) and :ref:`internationalization functions
+  <javascript i18n>`.
+
+* The `jQuery library <http://jquery.com/>`_, available to JavaScript modules
+  via :js:data:`this.sandbox.jQuery`.
+
+  jQuery provides many useful features in an easy-to-use API, including
+  document traversal and manipulation, event handling, and animation. See
+  `jQuery's own docs <http://jquery.com/>`_ for details.
+
+* :ref:`Pubsub functions <pubsub>` that modules can use to communicate with
+  each other, if they really need to.
+
+* Bootstrap's JavaScript features, see the
+  `Bootstrap docs <http://getbootstrap.com/2.3.2/javascript.html>`_
+  for details.
+
+.. todo::
+
+   The standard ``window`` object is also available to modules,
+   but I'm not sure if we encourage using it, or if CKAN adds anything special
+   to it.
+
+
+In the sections below, we'll walk you through the steps to add a new JavaScript
+feature to CKAN - dataset info popovers. We'll add an info button to each
+dataset on the datasets page which, when clicked, opens a popover containing
+some extra information and user actions related to the dataset.
+
+.. todo:: Insert a screenshot of the finished example.
 
 
 --------------------------------
@@ -160,6 +214,7 @@ instead. For example...
 
 .. todo:: Think of an example to do using default values.
 
+.. _ajax:
 
 ----------------------------------------------------
 Ajax, event handling and CKAN's |javascript| sandbox
@@ -335,6 +390,8 @@ jQuery plugins
    Can module register their own jQuery plugins?
    If so, provide an example.
 
+
+.. _javascript i18n:
 
 --------------------
 Internationalization

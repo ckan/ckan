@@ -56,3 +56,4 @@ own custom CKAN theme.
    template-helper-functions
    template-snippets
    javascript-sandbox
+   javascript-api-client
