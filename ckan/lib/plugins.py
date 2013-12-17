@@ -9,6 +9,8 @@ import logic.schema
 from ckan import plugins
 import ckan.new_authz
 
+import ckan.lib.navl.dictization_functions.validate as navl_validate
+
 log = logging.getLogger(__name__)
 
 # Mapping from package-type strings to IDatasetForm instances
@@ -231,6 +233,12 @@ class DefaultDatasetForm(object):
     def package_form(self):
         return 'package/new_package_form.html'
 
+    def _validate(self, data_dict, schema, context, action):
+        """
+        Complete control over create/update/show validation.
+        """
+        return navl_validate(data_dict, schema, context)
+
 
 class DefaultGroupForm(object):
     """
@@ -403,6 +411,12 @@ class DefaultGroupForm(object):
                 c.auth_for_change_state = True
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
+
+    def _validate(self, data_dict, schema, context, action):
+        """
+        Complete control over create/update/show validation.
+        """
+        return navl_validate(data_dict, schema, context)
 
 
 class DefaultOrganizationForm(DefaultGroupForm):
