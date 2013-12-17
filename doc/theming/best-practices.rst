@@ -97,6 +97,21 @@ should have a ``teardown()`` function that calls
 CKAN calls the ``teardown()`` functions of modules when those modules are
 removed from the page.
 
+.. _pubsub overuse best practice:
+
+--------------------
+Don't overuse pubsub
+--------------------
+
+There shouldn't be very many cases where a JavaScript module really needs to
+use :ref:`Pubsub <pubsub>`, try to only use it when you really need to.
+
+JavaScript modules in CKAN are designed to be small and loosely-coupled,
+for example modules don't share any global variables and don't call
+each other's functions. But pubsub offers a way to tightly couple JavaScript
+modules together, by making modules depend on multiple events published by
+other modules. This can make the code buggy and difficult to understand.
+
 
 --------------------------------------------
 Use ``{% snippet %}``, not ``{% include %}``

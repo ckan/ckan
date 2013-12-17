@@ -264,6 +264,8 @@ Error handling
    Add an example of how to handle error responses when making ajax requests.
 
 
+.. _pubsub:
+
 ------
 Pubsub
 ------
@@ -305,6 +307,11 @@ The way it works is:
    that unsubscribes from the event, to prevent memory leaks. CKAN calls the
    ``teardown()`` functions of modules when those modules are removed from the
    page. See :ref:`pubsub unsubscribe best practice`.
+
+.. warning::
+
+   Don't tightly couple your JavaScript modules by overusing pubsub.
+   See :ref:`pubsub overuse best practice`.
 
 Remember that because we attach our ``example_theme_popover.js`` module to a
 ``<button>`` element that is rendered once for each dataset on the page, CKAN
