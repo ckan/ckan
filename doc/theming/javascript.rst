@@ -319,9 +319,42 @@ Restart CKAN, and your dataset popovers should be looking much better.
 Error handling
 --------------
 
-.. todo::
+What if our JavaScript makes an Ajax request to CKAN, such as our
+:js:func:`~this.sandbox.client.getTemplate` call above, and gets an error in
+response? We can simulate this by changing the name of the requested template
+file to one that doesn't exist:
 
-   Add an example of how to handle error responses when making ajax requests.
+.. literalinclude:: /../ckanext/example_theme/v19_01_error/fanstatic/example_theme_popover.js
+   :language: javascript
+   :start-after: if (!this._snippetReceived) {
+   :end-before: this._snippetReceived = true;
+
+If you reload the datasets page after making this change, you'll see that when
+you click on a popover its contents remain *Loading...*. If you have a
+development console open in your browser, you'll see the error response from
+CKAN each time you click to open a popover.
+
+Our JavaScript module's ``_onReceiveSnippet()`` function is only called if the
+request gets a successful response from CKAN.
+:js:func:`~this.sandbox.client.getTemplate` also accepts a second callback
+function parameter that will be called when CKAN sends an error response.
+Add this parameter to the :js:func:`~this.sandbox.client.getTemplate` call:
+
+.. literalinclude:: /../ckanext/example_theme/v19_02_error_handling/fanstatic/example_theme_popover.js
+   :language: javascript
+   :start-after: if (!this._snippetReceived) {
+   :end-before: _onReceiveSnippet: function(html) {
+
+Now add the new error function to the JavaScript module:
+
+.. literalinclude:: /../ckanext/example_theme/v19_02_error_handling/fanstatic/example_theme_popover.js
+   :language: javascript
+   :start-after: // This function is called when CKAN responds with an error.
+   :end-before: // End of _onReceiveSnippetError
+
+After making these changes, you should see that if CKAN responds with an
+error, the contents of the popover are replaced with the error message from
+CKAN.
 
 
 .. _pubsub:
@@ -382,7 +415,7 @@ another object shows its popover, is by using pubsub.
 Here's a modified version of our ``example_theme_popover.js`` file that uses
 pubsub to make the dataset popovers disappear whenever a new popover appears:
 
-.. literalinclude:: /../ckanext/example_theme/v19_pubsub/fanstatic/example_theme_popover.js
+.. literalinclude:: /../ckanext/example_theme/v20_pubsub/fanstatic/example_theme_popover.js
    :language: javascript
 
 

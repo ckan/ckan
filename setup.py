@@ -97,7 +97,9 @@ entry_points = {
         'example_theme_v16_initialize_a_javascript_module = ckanext.example_theme.v16_initialize_a_javascript_module.plugin:ExampleThemePlugin',
         'example_theme_v17_popover = ckanext.example_theme.v17_popover.plugin:ExampleThemePlugin',
         'example_theme_v18_snippet_api = ckanext.example_theme.v18_snippet_api.plugin:ExampleThemePlugin',
-        'example_theme_v19_pubsub = ckanext.example_theme.v19_pubsub.plugin:ExampleThemePlugin',
+        'example_theme_v19_01_error = ckanext.example_theme.v19_01_error.plugin:ExampleThemePlugin',
+        'example_theme_v19_02_error_handling = ckanext.example_theme.v19_02_error_handling.plugin:ExampleThemePlugin',
+        'example_theme_v20_pubsub = ckanext.example_theme.v19_pubsub.plugin:ExampleThemePlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
