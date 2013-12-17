@@ -265,7 +265,7 @@ Error handling
 
 
 ------
-pubsub
+Pubsub
 ------
 
 You may have noticed that, with our example code so far, if you click on the
