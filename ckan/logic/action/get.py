@@ -214,8 +214,6 @@ def related_show(context, data_dict=None):
 def related_list(context, data_dict=None):
     '''Return a dataset's related items.
 
-    Either the ``id`` or the ``dataset`` parameter must be given.
-
     :param id: id or name of the dataset (optional)
     :type id: string
     :param dataset: dataset dictionary of the dataset (optional)
@@ -264,10 +262,11 @@ def related_list(context, data_dict=None):
 
         if data_dict.get('featured', False):
             related_list = related_list.filter(model.Related.featured == 1)
+        related_items = related_list.all()
     else:
         relateds = model.Related.get_for_dataset(dataset, status='active')
         related_items = (r.related for r in relateds)
-        related_list = model_dictize.related_list_dictize( related_items, context)
+    related_list = model_dictize.related_list_dictize( related_items, context)
     return related_list
 
 
