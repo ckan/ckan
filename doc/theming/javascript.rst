@@ -255,6 +255,15 @@ include a custom CSS file. Now we need to create that file,
 Restart CKAN, and your dataset popovers should be looking much better.
 
 
+--------------
+Error handling
+--------------
+
+.. todo::
+
+   Add an example of how to handle error responses when making ajax requests.
+
+
 ------
 pubsub
 ------
@@ -308,3 +317,31 @@ pubsub to make the dataset popovers disappear whenever a new popover appears:
 
 .. literalinclude:: /../ckanext/example_theme/v19_pubsub/fanstatic/example_theme_popover.js
    :language: javascript
+
+
+--------------
+jQuery plugins
+--------------
+
+.. todo::
+
+   Can module register their own jQuery plugins?
+   If so, provide an example.
+
+
+--------------------
+Internationalization
+--------------------
+
+.. todo::
+
+   Show how to Internationalize a JavaScript module.
+
+
+--------------------------
+Testing JavaScript modules
+--------------------------
+
+.. todo::
+
+   Show how to write tests for the example module.
