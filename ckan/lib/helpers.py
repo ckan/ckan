@@ -1622,7 +1622,8 @@ def get_allowed_view_types(resource, package):
     for plugin in plugins:
         info = plugin.info()
         allowed_view_types.append((info['name'],
-                                   info.get('title', info['name'])))
+                                   info.get('title', info['name']),
+                                   info.get('icon', 'image')))
     allowed_view_types.sort(key=lambda item: item[1])
     return allowed_view_types
 
