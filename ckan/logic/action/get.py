@@ -863,7 +863,7 @@ def package_show(context, data_dict):
             schema = package_plugin.show_package_schema()
             if schema and context.get('validate', True):
                 package_dict, errors = lib_plugins.plugin_validate(
-                    package_plugin, package_dict, schema, context,
+                    package_plugin, context, package_dict, schema,
                     'package_show')
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -1012,7 +1012,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
 
     if schema:
         group_dict, errors = lib_plugins.plugin_validate(
-            group_plugin, group_dict, schema, context,
+            group_plugin, context, group_dict, schema,
             'organization_show' if is_org else 'group_show')
     return group_dict
 
