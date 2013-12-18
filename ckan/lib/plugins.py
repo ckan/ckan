@@ -170,6 +170,17 @@ def register_group_plugins(map):
         _default_group_plugin = DefaultGroupForm()
 
 
+def plugin_validate(plugin, data_dict, schema, context, action):
+    """
+    Backwards compatibility with 2.x dataset group and org plugins:
+    return a default validate method if one has not been provided.
+    """
+    if hasattr(plugin, 'validate'):
+        return plugin.validate(data_dict, schema, context, action)
+
+    return toolkit.navl_validate(data_dict, schema, context)
+
+
 class DefaultDatasetForm(object):
     '''The default implementation of
     :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
@@ -247,12 +258,6 @@ class DefaultDatasetForm(object):
 
     def package_form(self):
         return 'package/new_package_form.html'
-
-    def validate(self, data_dict, schema, context, action):
-        """
-        Complete control over create/update/show validation.
-        """
-        return toolkit.navl_validate(data_dict, schema, context)
 
 
 class DefaultGroupForm(object):
@@ -426,12 +431,6 @@ class DefaultGroupForm(object):
                 c.auth_for_change_state = True
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
-
-    def validate(self, data_dict, schema, context, action):
-        """
-        Complete control over create/update/show validation.
-        """
-        return toolkit.navl_validate(data_dict, schema, context)
 
 
 class DefaultOrganizationForm(DefaultGroupForm):
