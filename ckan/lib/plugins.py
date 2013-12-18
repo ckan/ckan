@@ -411,7 +411,7 @@ class DefaultGroupForm(object):
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
 
-    def _validate(self, data_dict, schema, context, action):
+    def validate(self, data_dict, schema, context, action):
         """
         Complete control over create/update/show validation.
         """
