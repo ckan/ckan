@@ -21,6 +21,7 @@ class ImageView(p.SingletonPlugin):
     def info(self):
         return {'name': 'image',
                 'title': 'Image',
+                'icon': 'picture',
                 'schema': {'image_url': [ignore_empty, unicode]},
                 'iframed': False}
 
