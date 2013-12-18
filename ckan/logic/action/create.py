@@ -136,7 +136,7 @@ def package_create(context, data_dict):
                 # to ensure they still work
                 package_plugin.check_data_dict(data_dict)
 
-    data, errors = package_plugin._validate(
+    data, errors = package_plugin.validate(
         data_dict, schema, context, 'create')
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
@@ -489,7 +489,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
         except TypeError:
             group_plugin.check_data_dict(data_dict)
 
-    data, errors = group_plugin._validate(
+    data, errors = group_plugin.validate(
         data_dict, schema, context, 'create')
     log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'), data_dict.get('name'), data_dict)

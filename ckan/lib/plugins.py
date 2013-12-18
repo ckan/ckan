@@ -233,7 +233,7 @@ class DefaultDatasetForm(object):
     def package_form(self):
         return 'package/new_package_form.html'
 
-    def _validate(self, data_dict, schema, context, action):
+    def validate(self, data_dict, schema, context, action):
         """
         Complete control over create/update/show validation.
         """
