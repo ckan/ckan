@@ -102,13 +102,14 @@ def mail_user(recipient, subject, body, headers={}):
 
 def get_reset_link_body(user):
     reset_link_message = _(
-    '''You have requested your password on %(site_title)s to be reset.
+    "You have requested your password on %(site_title)s to be reset.\n"
+    "\n"
+    "Please click the following link to confirm this request:\n"
+    "\n"
+    "   %(reset_link)s\n"
+    )
 
-    Please click the following link to confirm this request:
-
-       %(reset_link)s
-    ''')
-
+    from nose.tools import set_trace; set_trace()
     d = {
         'reset_link': get_reset_link(user),
         'site_title': g.site_title
@@ -117,13 +118,13 @@ def get_reset_link_body(user):
 
 def get_invite_body(user):
     invite_message = _(
-    '''You have been invited to %(site_title)s. A user has already been created to
-    you with the username %(user_name)s. You can change it later.
-
-    To accept this invite, please reset your password at:
-
-       %(reset_link)s
-    ''')
+    "You have been invited to %(site_title)s. A user has already been created"
+    "to you with the username %(user_name)s. You can change it later.\n"
+    "\n"
+    "To accept this invite, please reset your password at:\n"
+    "\n"
+    "   %(reset_link)s\n"
+    )
 
     d = {
         'reset_link': get_reset_link(user),
