@@ -137,7 +137,7 @@ def package_create(context, data_dict):
                 package_plugin.check_data_dict(data_dict)
 
     data, errors = lib_plugins.plugin_validate(
-        package_plugin, data_dict, schema, context, 'package_create')
+        package_plugin, context, data_dict, schema, 'package_create')
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               data.get('name'), data_dict)
@@ -490,7 +490,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
             group_plugin.check_data_dict(data_dict)
 
     data, errors = lib_plugins.plugin_validate(
-        group_plugin, data_dict, schema, context,
+        group_plugin, context, data_dict, schema,
         'organization_create' if is_org else 'group_create')
     log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'), data_dict.get('name'), data_dict)

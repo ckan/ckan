@@ -735,7 +735,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def validate(self, data_dict, schema, context, action):
+    def validate(self, context, data_dict, schema, action):
         """Customize validation of datasets.
 
         When this method is implemented it is used to perform all validation
@@ -750,13 +750,13 @@ class IDatasetForm(Interface):
         dataset, or if you wish to use a different method for validation, then
         this method may be used.
 
+        :param context: extra information about the request
+        :type context: dictionary
         :param data_dict: the dataset to be validated
         :type data_dict: dictionary
         :param schema: a schema, typically from ``show_package_schema()``,
           ``create_package_schema()`` or ``update_package_schama()``
         :type schema: dictionary
-        :param context: extra information about the request
-        :type context: dictionary
         :param action: ``'package_show'``, ``'package_create'`` or
           ``'package_update'``
         :type action: string
@@ -886,7 +886,7 @@ class IGroupForm(Interface):
         Add variables to c just prior to the template being rendered.
         """
 
-    def validate(self, data_dict, schema, context, action):
+    def validate(self, context, data_dict, schema, action):
         """Customize validation of groups.
 
         When this method is implemented it is used to perform all validation
@@ -901,13 +901,13 @@ class IGroupForm(Interface):
         group, or if you wish to use a different method for validation, then
         this method may be used.
 
+        :param context: extra information about the request
+        :type context: dictionary
         :param data_dict: the group to be validated
         :type data_dict: dictionary
         :param schema: a schema, typically from ``form_to_db_schema()``,
           or ``db_to_form_schama()``
         :type schema: dictionary
-        :param context: extra information about the request
-        :type context: dictionary
         :param action: ``'group_show'``, ``'group_create'``,
           ``'group_update'``, ``'organization_show'``,
           ``'organization_create'`` or ``'organization_update'``
