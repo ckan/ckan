@@ -46,6 +46,8 @@ module to use, including:
   document traversal and manipulation, event handling, and animation. See
   `jQuery's own docs <http://jquery.com/>`_ for details.
 
+* A collection of :doc:`jQuery plugins <jquery-plugins>`_.
+
 * :ref:`Pubsub functions <pubsub>` that modules can use to communicate with
   each other, if they really need to.
 
