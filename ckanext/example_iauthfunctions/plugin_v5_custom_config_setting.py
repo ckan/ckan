@@ -27,4 +27,3 @@ class ExampleIAuthFunctionsPlugin(plugins.SingletonPlugin):
 
     def get_auth_functions(self):
         return {'group_create': group_create}
-

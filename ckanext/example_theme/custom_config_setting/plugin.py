@@ -60,5 +60,6 @@ class ExampleThemePlugin(plugins.SingletonPlugin):
         # extension they belong to, to avoid clashing with functions from
         # other extensions.
         return {'example_theme_most_popular_groups': most_popular_groups,
-                'example_theme_show_most_popular_groups': show_most_popular_groups,
+                'example_theme_show_most_popular_groups':
+                show_most_popular_groups,
                 }

@@ -134,7 +134,7 @@ class Sysadmin(factory.Factory):
         # the API key and other sensitive data to be returned in the user
         # dict.
         user_dict = helpers.call_action('user_show', id=user.id,
-            context={'user': user.name})
+                                        context={'user': user.name})
         return user_dict
 
 
