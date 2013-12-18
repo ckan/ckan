@@ -8,8 +8,7 @@ from ckan import logic
 import logic.schema
 from ckan import plugins
 import ckan.new_authz
-
-from ckan.lib.navl.dictization_functions import validate as navl_validate
+import ckan.plugins.toolkit as toolkit
 
 log = logging.getLogger(__name__)
 
@@ -237,7 +236,7 @@ class DefaultDatasetForm(object):
         """
         Complete control over create/update/show validation.
         """
-        return navl_validate(data_dict, schema, context)
+        return toolkit.navl_validate(data_dict, schema, context)
 
 
 class DefaultGroupForm(object):
@@ -416,7 +415,7 @@ class DefaultGroupForm(object):
         """
         Complete control over create/update/show validation.
         """
-        return navl_validate(data_dict, schema, context)
+        return toolkit.navl_validate(data_dict, schema, context)
 
 
 class DefaultOrganizationForm(DefaultGroupForm):
