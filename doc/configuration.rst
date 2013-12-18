@@ -671,7 +671,7 @@ Format tips:
 * the format is Markdown
 
 .. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable.
-          For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`theming`.
+          For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`theming/index`.
 
 .. _ckan.main_css:
 
@@ -967,7 +967,7 @@ Example::
 
 To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
-For more information on theming, see :doc:`theming`.
+For more information on theming, see :doc:`theming/index`.
 
 .. _extra_public_paths:
 
@@ -980,7 +980,7 @@ Example::
 
 To customise the display of CKAN you can supply replacements for static files such as HTML, CSS, script and PNG files. Use this option to specify where CKAN should look for additional files, before reverting to the ``ckan/public`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
-For more information on theming, see :doc:`theming`.
+For more information on theming, see :doc:`theming/index`.
 
 .. end_config-theming
 

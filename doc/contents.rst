@@ -12,7 +12,7 @@ Full table of contents
    getting-started
    features
    extensions/index
-   theming
+   theming/index
    api
    contributing/index
    test

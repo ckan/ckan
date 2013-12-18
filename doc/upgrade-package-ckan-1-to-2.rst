@@ -73,6 +73,6 @@ database and any custom configuration, extensions or templates to your new CKAN
 #. If you had any custom templates in your CKAN 1.x instance, these will need
    to be adapted before they can be used with CKAN 2.0. CKAN 2.0 introduces
    an entirely new template system based on Jinja2 rather than on Genshi.
-   See :doc:`theming` for details.
+   See :doc:`theming/index` for details.
 
 
