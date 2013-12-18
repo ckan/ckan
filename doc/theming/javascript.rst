@@ -425,11 +425,98 @@ pubsub to make the dataset popovers disappear whenever a new popover appears:
 jQuery plugins
 --------------
 
-.. todo::
+CKAN provides a number of custom jQuery plugins for JavaScript modules to use
+by default, see :doc:`jquery-plugins`.
+Extensions can also add their own jQuery plugins, and the plugins will then be
+available to all JavaScript code via the :js:data:`this.sandbox.jQuery` object.
 
-   Can module register their own jQuery plugins?
-   If so, provide an example.
+.. seealso::
 
+   `How to Create a Basic Plugin <http://learn.jquery.com/plugins/basic-plugin-creation/>`_
+     jQuery's own documentation on writing jQuery plugins. Read this for all
+     the details on writing jQuery plugins, here we'll only provide a simple
+     example and show you how to integrate it with CKAN.
+
+It's a good idea to implement any JavaScript funcionality not directly related
+to CKAN as a jQuery plugin. That way your CKAN JavaScript modules will be
+smaller as they'll contain only the CKAN-specific code, and your jQuery plugins
+will also be reusable on non-CKAN sites. CKAN core uses jQuery plugins to
+implement features including date formatting, warning users about unsaved
+changes when leaving a page containing a form without submitting the form,
+restricting the set of characters that can be typed into an input field, etc.
+
+Let's add a jQuery plugin to our CKAN extension that turns all the links on
+the page green.
+
+.. todo:: Replace this with a more realistic example.
+
+First we need to write the jQuery plugin itself. Create the file
+``ckanext-example_theme/ckanext/example_theme/fanstatic/jquery.greenify.js``
+with the following contents:
+
+.. todo:: Do we really need to name the file like this, or can it just be
+   ``greenify.js``? All the core jQuery plugins are in files named like
+   ``jquery.*.js``.
+
+.. literalinclude:: /../ckanext/example_theme/v21_custom_jquery_plugin/fanstatic/jquery.greenify.js
+   :language: javascript
+
+If this JavaScript code looks a little confusing at first, it's probably
+because it's using the
+`Immediately-Invoked Function Expression (IIFE) <http://stage.learn.jquery.com/javascript-101/functions/#immediately-invoked-function-expression>`_
+pattern. This is a common JavaScript code pattern in which an anonymous
+function is created and then immediately called once, in a single expression.
+In the example above, we create an unnamed function that takes a single
+parameter, ``jQuery``, and then we call the function passing ``this.jQuery``
+to its ``jQuery`` parameter. The code inside the body of the function is the
+important part. Writing jQuery plugins in this way ensures that
+any variables defined inside the plugin are private to the plugin, and don't
+pollute the global namespace.
+
+In the body of our jQuery plugin, we add a new function called ``greenify()``
+to the ``jQuery`` object:
+
+.. literalinclude:: /../ckanext/example_theme/v21_custom_jquery_plugin/fanstatic/jquery.greenify.js
+   :language: javascript
+   :start-after: (function (jQuery) {
+   :end-before: })(this.jQuery);
+
+``jquery.fn`` is the jQuery prototype object, the object that normal jQuery
+objects get all their methods from. By adding a method to this object, we
+enable any code that has a jQuery object to call our method on any HTML element
+or set of elements. For example, to turn all ``<a>`` elements on the page green
+you could do: ``jQuery('a').greenify()``.
+
+The code inside the ``greenify()`` function just calls jQuery's standard
+`css() <http://api.jquery.com/css/>`_ method to set the CSS ``color``
+attribute of the element to ``green``. This is just standard jQuery code,
+except that within a custom jQuery function you use ``this`` to refer to the
+jQuery object, instead of using ``$`` or ``jquery`` (as you would normally do
+when calling jQuery methods from code external to jQuery).
+
+Our method then returns ``this`` to allow jQuery method chaining to be used
+with our method. For example, a user can set an element's CSS ``color``
+attribute to ``green`` and add the CSS class ``greenified`` to the element in
+a single expression by chaining our jQuery method with another method:
+``$('a').greenify().addClass('greenified');``
+
+Before we can use our ``greenify()`` method in CKAN, we need to import the
+``jquery.greenify.js`` file into the CKAN page. To do this, add a
+``{% resource %}`` tag to a template file, just as you would do to include any
+other JavaScript or CSS file in CKAN. Edit the ``package_item.html`` file:
+
+.. literalinclude:: /../ckanext/example_theme/v21_custom_jquery_plugin/templates/snippets/package_item.html
+   :language: django
+
+Now we can call the ``greenify()`` method from our ``example_theme_popover``
+JavaScript module. For example, we could add a line to the ``_onClick()``
+method in ``example_theme_popover.js`` so that when a dataset info button is
+clicked, all of the links on the page turn green:
+
+.. literalinclude:: /../ckanext/example_theme/v21_custom_jquery_plugin/fanstatic/example_theme_popover.js
+   :language: javascript
+   :start-after: // Start of _onClick method.
+   :end-before: // End of _onClick method.
 
 .. _javascript i18n:
 

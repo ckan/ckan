@@ -99,7 +99,8 @@ entry_points = {
         'example_theme_v18_snippet_api = ckanext.example_theme.v18_snippet_api.plugin:ExampleThemePlugin',
         'example_theme_v19_01_error = ckanext.example_theme.v19_01_error.plugin:ExampleThemePlugin',
         'example_theme_v19_02_error_handling = ckanext.example_theme.v19_02_error_handling.plugin:ExampleThemePlugin',
-        'example_theme_v20_pubsub = ckanext.example_theme.v19_pubsub.plugin:ExampleThemePlugin',
+        'example_theme_v20_pubsub = ckanext.example_theme.v20_pubsub.plugin:ExampleThemePlugin',
+        'example_theme_v21_custom_jquery_plugin = ckanext.example_theme.v21_custom_jquery_plugin.plugin:ExampleThemePlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
