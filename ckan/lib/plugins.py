@@ -9,7 +9,7 @@ import logic.schema
 from ckan import plugins
 import ckan.new_authz
 
-import ckan.lib.navl.dictization_functions.validate as navl_validate
+from ckan.lib.navl.dictization_functions import validate as navl_validate
 
 log = logging.getLogger(__name__)
 
