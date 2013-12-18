@@ -282,8 +282,8 @@ def package_update(context, data_dict):
                 # to ensure they still work.
                 package_plugin.check_data_dict(data_dict)
 
-    data, errors = package_plugin.validate(
-        data_dict, schema, context, 'package_update')
+    data, errors = lib_plugins.plugin_validate(
+        package_plugin, data_dict, schema, context, 'package_update')
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               context.get('package').name if context.get('package') else '',
@@ -433,7 +433,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
         except TypeError:
             group_plugin.check_data_dict(data_dict)
 
-    data, errors = group_plugin.validate(data_dict, schema, context,
+    data, errors = lib_plugins.plugin_validate(
+        group_plugin, data_dict, schema, context,
         'organization_update' if is_org else 'group_update')
     log.debug('group_update validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'),
