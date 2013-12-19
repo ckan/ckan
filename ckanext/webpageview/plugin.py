@@ -7,7 +7,7 @@ ignore_empty = p.toolkit.get_validator('ignore_empty')
 
 
 class WebPageView(p.SingletonPlugin):
-    '''This extenstion makes views of webpage'''
+    '''This extension makes views of webpage'''
 
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)

@@ -9,7 +9,7 @@ DEFAULT_IMAGE_FORMATS = ['png', 'jpeg', 'jpg', 'gif']
 
 
 class ImageView(p.SingletonPlugin):
-    '''This extenstion makes views of images'''
+    '''This extension makes views of images'''
 
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourceView, inherit=True)
