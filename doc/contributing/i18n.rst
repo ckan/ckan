@@ -1,8 +1,6 @@
-.. _i18n:
-
-=====================
-Internationalize CKAN
-=====================
+================
+Translating CKAN
+================
 
 CKAN is used in many countries, and adding a new language to the web interface is a simple process. 
 
@@ -10,8 +8,9 @@ CKAN uses the url to determine which language is used. An example would be ``/fr
 
 .. Note: Storing metadata field values in more than one language is a separate topic. This is achieved by storing the translations in extra fields. A custom dataset form and dataset display template are recommended. Ask the CKAN team for more information.
 
-Supported Languages
-===================
+-------------------
+Supported languages
+-------------------
 
 CKAN already supports numerous languages. To check whether your language is supported, look in the source at ``ckan/i18n`` for translation files. Languages are named using two-letter ISO language codes (e.g. ``es``, ``de``).
 
@@ -21,8 +20,10 @@ If your language is present, you can switch the default language simply by setti
 
 If your language is not supported yet, the remainder of this section section provides instructions on how to prepare a translation file and add it to CKAN. 
 
-Adding a New Language
-=====================
+
+---------------------
+Adding a new language
+---------------------
 
 If you want to add an entirely new language to CKAN, you have two options.
 
@@ -33,8 +34,9 @@ If you want to add an entirely new language to CKAN, you have two options.
 
 .. _i18n-transifex:
 
-Transifex Setup
----------------
+
+Transifex setup
+===============
 
 Transifex, the open translation platform, provides a simple web interface for writing translations and is widely used for CKAN internationalization. 
 
@@ -45,8 +47,8 @@ Existing CKAN translation projects can be found at: https://www.transifex.net/pr
 When leading up to a CKAN release, the strings are loaded onto Transifex and ckan-discuss list is emailed to encourage translation work. When the release is done, the latest translations on Transifex are checked back into CKAN.
 
 
-Transifex Administration
-++++++++++++++++++++++++
+Transifex administration
+------------------------
 
 The Transifex workflow is as follows:
 
@@ -62,8 +64,8 @@ The Transifex workflow is as follows:
 
 .. _i18n-manual:
 
-Manual Setup
-------------
+Manual setup
+============
 
 .. note:: Please keep the CKAN core developers aware of new languages created in this way.
 
@@ -72,14 +74,14 @@ All the English strings in CKAN are extracted into the ``ckan.pot`` file, which 
 .. note:: For information, the pot file was created with the ``babel`` command ``python setup.py extract_messages``.
 
 0. Install Babel
-++++++++++++++++
+----------------
 
 You need Python's ``babel`` library (Debian package ``python-pybabel``). Install it as follows with pip::
 
  pip -E pyenv install babel
 
-1. Create a 'po' File for Your Language
-+++++++++++++++++++++++++++++++++++++++
+1. Create a 'po' file for your language
+---------------------------------------
 
 First, grab the CKAN i18n repository::
  
@@ -95,15 +97,15 @@ In future, when the pot file is updated, you can update the strings in your po f
 
  python setup.py update_catalog --locale YOUR-LANGUAGE
 
-2. Do the Translation
-+++++++++++++++++++++
+2. Do the translation
+---------------------
 
 Edit the po file and translate the strings. For more information on how to do this, see `the Pylons book <http://pylonsbook.com/en/1.1/internationalization-and-localization.html>`_.
 
 We recommend using a translation tool, such as `poedit <http://www.poedit.net/>`_, to check the syntax is correct. There are also extensions for editors such as emacs.
 
-3. Commit the Translation
-++++++++++++++++++++++++++
+3. Commit the translation
+-------------------------
 
 When the po is complete, create a branch in your source, then commit it to the CKAN i18n repo::
  
@@ -113,8 +115,8 @@ When the po is complete, create a branch in your source, then commit it to the C
  git commit -m '[i18n]: New language po added: YOUR_LANGUAGE' ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po
  git push origin translation-YOUR_LANGUAGE
 
-4. Compile a Translation
-++++++++++++++++++++++++
+4. Compile a translation
+------------------------
 
 Once you have created a translation (either with Transifex or manually) you can build the po file into a ``mo`` file, ready for deployment. 
 
@@ -128,8 +130,8 @@ As before, replace ``YOUR_LANGUAGE`` with your language short code, e.g. ``es``,
 
 This will result in a binary 'mo' file of your translation at ``ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.mo``.
 
-5. (optional) Deploy the Translation
-++++++++++++++++++++++++++++++++++++
+5. (optional) Deploy the translation
+------------------------------------
 
 This section explains how to deploy your translation automatically to your host, if you are using a remote host.
 
@@ -145,8 +147,8 @@ Alternatively, if you do not want to use fab, you can just scp::
 
  scp ckan.mo /home/okfn/var/srvc/hu.ckan.net/pyenv/src/ckan/ckan/i18n/hu/LC_MESSAGES/ckan.mo
 
-6. Configure the Language
-+++++++++++++++++++++++++
+6. Configure the language
+-------------------------
 
 Finally, once the mo file is in place, you can switch between the installed languages using the ``ckan.locale`` option in the CKAN config file, as described in :ref:`config-i18n`. 
 

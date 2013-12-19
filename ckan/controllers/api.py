@@ -839,7 +839,9 @@ class ApiController(base.BaseController):
         cls.log.debug('Retrieving request POST: %r' % request.POST)
         cls.log.debug('Retrieving request GET: %r' % request.GET)
         request_data = None
-        if request.POST:
+        if request.POST and request.content_type == 'multipart/form-data':
+            request_data = dict(request.POST)
+        elif request.POST:
             try:
                 keys = request.POST.keys()
                 # Parsing breaks if there is a = in the value, so for now
@@ -873,7 +875,7 @@ class ApiController(base.BaseController):
                     raise ValueError(msg)
                 else:
                     request_data = {}
-        if request_data:
+        if request_data and request.content_type != 'multipart/form-data':
             try:
                 request_data = h.json.loads(request_data, encoding='utf8')
             except ValueError, e:

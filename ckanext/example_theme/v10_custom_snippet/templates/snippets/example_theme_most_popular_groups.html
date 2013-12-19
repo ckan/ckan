@@ -1,8 +1,13 @@
-{# Renders a list of the site's most popular groups. #}
+{#
 
+Renders a list of the site's most popular groups.
+
+groups - the list of groups to render
+
+#}
 <h3>Most popular groups</h3>
 <ul>
-  {% for group in h.example_theme_most_popular_groups() %}
+  {% for group in groups %}
     <li>
       <a href="{{ h.url_for('group_read', action='read', id=group.name) }}">
         <h3>{{ group.display_name }}</h3>

@@ -69,3 +69,16 @@ Always use CKAN's custom ``{% snippet %}`` tag instead of Jinja's default
 any variables explicitly passed to them by the calling template. They don't
 have access to the full context of the calling template, as included files do.
 This makes snippets more reusable, and much easier to debug.
+
+
+.. _snippet docstrings best practice:
+
+-------------------------------
+Snippets should have docstrings
+-------------------------------
+
+A snippet should have a docstring comment at the top of the file that briefly
+documents what the snippet does and what parameters it requires. For example:
+
+.. literalinclude:: /../ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html
+   :language: django

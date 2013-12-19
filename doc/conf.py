@@ -47,6 +47,7 @@ rst_epilog = '''
 .. |sstore| replace:: |config_dir|/sstore
 .. |storage_parent_dir| replace:: /var/lib/ckan
 .. |storage_dir| replace:: |storage_parent_dir|/default
+.. |storage_path| replace:: |storage_parent_dir|/default
 .. |reload_apache| replace:: sudo service apache2 reload
 .. |restart_apache| replace:: sudo service apache2 restart
 .. |restart_solr| replace:: sudo service jetty restart
@@ -64,6 +65,7 @@ rst_epilog = '''
 .. _Jinja2: http://jinja.pocoo.org/
 .. _CKAN front page: http://127.0.0.1:5000
 .. _bootstrap: http://getbootstrap.com/2.3.2/
+.. _CKAN issue tracker: https://github.com/okfn/ckan/issues
 
 '''
 

@@ -1,8 +1,20 @@
-========================
-Documentation guidelines
-========================
+=====================
+Writing documentation
+=====================
 
 .. _docs.ckan.org: http://docs.ckan.org
+
+.. seealso::
+
+   The quickest and easiest way to contribute documentation to CKAN is to sign up
+   for a free GitHub account and simply edit the `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_.
+   Docs started on the wiki can make it onto `docs.ckan.org`_ later.
+   If you do want to contribute to `docs.ckan.org`_ directly, follow the
+   instructions on this page.
+
+   **Tip**: Use the reStructuredText markup format when creating a wiki page,
+   since reStructuredText is the format that docs.ckan.org uses, this will make
+   moving the documentation from the wiki into docs.ckan.org later easier.
 
 This section gives some guidelines to help us to write consistent and good
 quality documentation for CKAN.
@@ -106,7 +118,7 @@ again (``python setup.py build_sphinx``) and open the HTML files in a web
 browser to preview your changes.
 
 Once your docs are ready to submit to the CKAN project, follow the steps in
-:ref:`making a pull request`.
+:doc`/contributing/pull-requests`.
 
 .. _structure:
 
@@ -114,7 +126,7 @@ Once your docs are ready to submit to the CKAN project, follow the steps in
 2. Structure and audience
 -------------------------
 
-:doc:`index` describes the overall structure of the docs, and the intended
+:doc:`/index` describes the overall structure of the docs, and the intended
 audience for each part. This structure is intended to be clear, simple and
 extendable.  If you're adding a new section to the docs, try to fit it into
 this structure.
@@ -139,6 +151,39 @@ suggestion for what sections the page should have is:
    diagnose problems.
 
 
+Subdirectories
+==============
+
+Many sections of the docs are organized into subdirectories. For example,
+there's a ``doc/extensions`` subdirectory with
+:doc:`its own index file </extensions/index>` and table of contents, grouping
+all the docs about extensions together into one topic. The
+:doc:`contributing docs </contributing/index>`, theming docs, and other
+sections of the docs are the same.
+
+While using subdirectories is useful, we recommend that you
+**don't put further subdirectories inside the subdirectories**, keep it to
+one level of subdirectories inside the ``doc`` directory, keep it simple,
+otherwise the structure becomes confusing, difficult to get an overview of and
+difficult to navigate.
+
+
+Linear ordering
+===============
+
+Keep in mind that Sphinx requires the docs to have a simple, linear ordering.
+With HTML pages it's possible to design structure where, for example, someone
+reads half of a page, then clicks on a link in the middle of the page to go
+and read another page, then goes back to the middle of the first page and
+continues reading where they left off. While technically you can do this in
+Sphinx as well, it isn't a good idea, things like the navigation links, table
+of contents, and PDF version will break, users will end up going in circles,
+and the structure becomes confusing.
+
+So the pages of our Sphinx docs need to have a simple linear ordering - one
+page follows another, like in a book.
+
+
 .. _style:
 
 --------
@@ -159,6 +204,12 @@ Use American spelling
 Use American spellings everywhere: organization, authorization, realize,
 customize, initialize, color, etc. There's a list here:
 https://wiki.ubuntu.com/EnglishTranslation/WordSubstitution
+
+
+Spellcheck
+==========
+
+Please spellcheck documentation before merging it into master!
 
 
 Commonly used terms
@@ -342,12 +393,32 @@ As with Python code, try to limit all lines to a maximum of 79 characters.
 Cross-references and links
 ==========================
 
+Whenever mentioning another page or section in the docs, an external website, a
+configuration setting, or a class, exception or function, etc. try to
+cross-reference it. Using proper Sphinx cross-references is better than just
+typing things like "see above/below" or "see section foo" because Sphinx
+cross-refs are hyperlinked, and because if the thing you're referencing to gets
+moved or deleted Sphinx will update the cross-reference or print a warning.
+
+
+Cross-referencing to another file
+---------------------------------
+
 Use ``:doc:`` to cross-reference to other files by filename::
 
-    See :doc:`theming`
+    See :doc:`configuration`
 
-see `Cross-referencing documents <http://sphinx-doc.org/markup/inline.html#cross-referencing-documents>`_
+If the file you're editing is in a subdir within the ``doc`` dir, you may need
+to use an absolute reference (starting with a ``/``)::
+
+    See :doc:`/configuration`
+
+See `Cross-referencing documents <http://sphinx-doc.org/markup/inline.html#cross-referencing-documents>`_
 for details.
+
+
+Cross-referencing a section within a file
+-----------------------------------------
 
 Use ``:ref:`` to cross-reference to particular sections within the same or
 another file. First you have to add a label before the section you want to
@@ -365,12 +436,58 @@ then from elsewhere cross-reference to the section like this::
 
 see `Cross-referencing arbitrary locations <http://sphinx-doc.org/markup/inline.html#cross-referencing-arbitrary-locations>`_.
 
-With both ``:doc:`` and ``:ref:`` if you want the link text to be different
-from the title of the section you're referencing, do this::
 
-    :doc:`the theming document <theming>`
+Cross-referencing to CKAN config settings
+-----------------------------------------
+
+Whenever you mention a CKAN config setting, make it link to the docs for that
+setting in :doc:`/configuration` by using ``:ref:`` and the name of the config
+setting::
+
+  :ref:`ckan.site_title`
+
+This works because all CKAN config settings are documented in
+:doc:`/configuration`, and every setting has a Sphinx label that is exactly
+the same as the name of the setting, for example::
+
+    .. _ckan.site_title:
+
+    ckan.site_title
+    ^^^^^^^^^^^^^^^
+
+    Example::
+
+    ckan.site_title = Open Data Scotland
+
+    Default value:  ``CKAN``
+
+    This sets the name of the site, as displayed in the CKAN web interface.
+
+If you add a new config setting to CKAN, make sure to document like this it in
+:doc:`/configuration`.
+
+
+Cross-referencing to a Python object
+------------------------------------
+
+Whenever you mention a Python function, method, object, class, exception, etc.
+cross-reference it using a Sphinx domain object cross-reference.
+See :ref:`Referencing other code objects`.
+
+
+Changing the link text of a cross-reference
+-------------------------------------------
+
+With ``:doc:`` ``:ref:`` and other kinds of link, if you want the link text to
+be different from the title of the thing you're referencing, do this::
+
+    :doc:`the theming document </theming>`
 
     :ref:`the getting started section <getting-started>`
+
+
+Cross-referencing to an external page
+-------------------------------------
 
 The syntax for linking to external URLs is slightly different from
 cross-referencing, you have to add a trailing underscore::
@@ -385,9 +502,6 @@ or to define a URL once and then link to it in multiple places, do::
     .. _a link: http://example.com/
 
 see `Hyperlinks <http://sphinx-doc.org/rest.html#hyperlinks>`_ for details.
-
-Use ``:py:`` to reference other Python or JavaScript functions, modules,
-classes, etc. See :ref:`Referencing other code objects`.
 
 
 .. _sphinx substitutions:
@@ -462,7 +576,7 @@ therefore more likely to be kept up to date.
 Whenever you're writing reference documentation for modules, classes, functions
 or methods, exceptions, attributes, etc. you should probably be using autodoc.
 For example, we use autodoc for the :ref:`api-reference`, the
-:doc:`extensions/plugin-interfaces`, etc.
+:doc:`/extensions/plugin-interfaces`, etc.
 
 For how to write docstrings, see :ref:`docstrings`.
 

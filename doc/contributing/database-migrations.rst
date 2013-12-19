@@ -1,5 +1,6 @@
-Creating a new migration script
-```````````````````````````````
+===================
+Database migrations
+===================
 
 When changes are made to the model classes in ``ckan.model`` that alter CKAN's
 database schema, a migration script has to be added to migrate old CKAN

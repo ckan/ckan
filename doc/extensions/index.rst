@@ -26,6 +26,7 @@ extensions.
    :maxdepth: 2
 
    tutorial
+   custom-config-settings
    testing-extensions
    best-practices
    plugin-interfaces
