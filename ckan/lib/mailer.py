@@ -109,7 +109,6 @@ def get_reset_link_body(user):
     "   %(reset_link)s\n"
     )
 
-    from nose.tools import set_trace; set_trace()
     d = {
         'reset_link': get_reset_link(user),
         'site_title': g.site_title
