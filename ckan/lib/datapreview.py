@@ -145,9 +145,14 @@ def get_allowed_view_plugins(data_dict):
 def get_new_resources(context, data_dict):
     ''' Get out all new resources in this commit,
     needs to be run in extension point after_create and after_update '''
-    import ckan.lib.dictization.model_dictize as model_dictize
     model = context['model']
-    new_objs = model.Session()._object_cache['new']
-    new_resources = [obj for obj in new_objs
-                     if isinstance(obj, model.Resource)]
-    return model_dictize.resource_list_dictize(new_resources, context)
+    session = model.Session()
+    session.flush()
+    if hasattr(session, '_object_cache'):
+        import ckan.lib.dictization.model_dictize as model_dictize
+        new_objs = session._object_cache['new']
+        new_resources = [obj for obj in new_objs
+                         if isinstance(obj, model.Resource)]
+        return model_dictize.resource_list_dictize(new_resources, context)
+    else:
+        return ()
