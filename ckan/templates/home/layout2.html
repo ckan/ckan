@@ -2,11 +2,17 @@
   <div class="container">
     <div class="row row1">
       <div class="span6 col1">
-        {% snippet 'home/snippets/search.html' %}
-        {% snippet 'home/snippets/stats.html' %}
+        {% block search %}
+          {% snippet 'home/snippets/search.html' %}
+        {% endblock %}
+        {% block stats %}
+          {% snippet 'home/snippets/stats.html' %}
+        {% endblock %}
       </div>
       <div class="span6 col2">
-        {% snippet 'home/snippets/promoted.html' %}
+        {% block promoted %}
+          {% snippet 'home/snippets/promoted.html' %}
+        {% endblock %}
       </div>
     </div>
   </div>
@@ -15,10 +21,14 @@
   <div class="container">
     <div class="row row2">
       <div class="span6 col2">
-        {% snippet 'home/snippets/featured_organization.html' %}
+        {% block featured_organization %}
+          {% snippet 'home/snippets/featured_organization.html' %}
+        {% endblock %}
       </div>
       <div class="span6 col1">
-        {% snippet 'home/snippets/featured_group.html' %}
+        {% block featured_group %}
+          {% snippet 'home/snippets/featured_group.html' %}
+        {% endblock %}
       </div>
     </div>
   </div>

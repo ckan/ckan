@@ -99,6 +99,45 @@ class User(factory.Factory):
         return user_dict
 
 
+class Sysadmin(factory.Factory):
+    '''A factory class for creating sysadmin users.'''
+
+    FACTORY_FOR = ckan.model.User
+
+    fullname = 'Mr. Test Sysadmin'
+    password = 'pass'
+    about = 'Just another test sysadmin.'
+
+    name = factory.Sequence(lambda n: 'test_sysadmin_{n}'.format(n=n))
+
+    email = factory.LazyAttribute(_generate_email)
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+        user_dict = helpers.call_action('user_create', **kwargs)
+
+        # Create a sysadmin by accessing the db directly.
+        # This is probably bad but I don't think there's another way?
+        user = ckan.model.User(name='test_sysadmin', sysadmin=True)
+        ckan.model.Session.add(user)
+        ckan.model.Session.commit()
+        ckan.model.Session.remove()
+
+        # We want to return a user dict not a model object, so call user_show
+        # to get one. We pass the user's name in the context because we want
+        # the API key and other sensitive data to be returned in the user
+        # dict.
+        user_dict = helpers.call_action('user_show', id=user.id,
+                                        context={'user': user.name})
+        return user_dict
+
+
 class Group(factory.Factory):
     '''A factory class for creating CKAN groups.'''
 

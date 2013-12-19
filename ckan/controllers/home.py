@@ -179,7 +179,6 @@ class HomeController(base.BaseController):
         c.group_package_stuff = dirty_cached_group_stuff
 
         # END OF DIRTYNESS
-
         return base.render('home/index.html', cache_force=True)
 
     def license(self):
