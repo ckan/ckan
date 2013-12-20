@@ -659,3 +659,10 @@ block is a nice way to include a list of related links::
 
        CKAN's `demo site <http://demo.ckan.org/>`_
          A demo site running the latest CKAN beta version.
+
+Seealso boxes are particularly useful when two pages are related, but don't
+belong next to each other in the same section of the docs. For example, we have
+docs about how to upgrade CKAN, these belong in the upgrading section for
+users. We also have docs about how to do a new release, these belong in the
+contributing section for developers. But both sections are about CKAN releases,
+so we link each to the other using seealso boxes.
