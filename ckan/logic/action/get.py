@@ -234,6 +234,7 @@ def related_list(context, data_dict=None):
         if data_dict.get('featured', False):
             related_list = related_list.filter(model.Related.featured == 1)
         related_items = related_list.all()
+        context['sorted'] = True
     else:
         relateds = model.Related.get_for_dataset(dataset, status='active')
         related_items = (r.related for r in relateds)
