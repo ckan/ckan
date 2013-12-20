@@ -1,12 +1,21 @@
-Doing a CKAN Release
+====================
+Doing a CKAN release
 ====================
 
-These are the steps followed by CKAN developers to do a release. To get an
-overview of CKAN releases, check :doc:`upgrading`.
+This section documents the steps followed by the development team to do a
+new CKAN release.
+
+.. seealso::
+
+   :doc:`/upgrading`
+     An overview of the different kinds of CKAN release, and the process for
+     upgrading a CKAN site to a new version.
+
 
 .. _beta-release:
 
-Doing a Beta Release
+--------------------
+Doing a beta release
 --------------------
 
 Beta releases are branched off a certain point in master and will eventually
@@ -25,17 +34,6 @@ become stable releases.
 
    You will probably need to update the same file on master to increase the
    version number, in this case ending with an *a* (for alpha).
-
-#. Check if there have been changes in the |solr| schema at
-   ``ckan/config/solr/schema.xml``, and if so:
-
-    * Update the ``version`` attribute of the ``schema`` with the current CKAN
-      version::
-
-        <schema name="ckan" version="{version}">
-
-    * Update the ``SUPPORTED_SCHEMA_VERSIONS`` list in
-      ``ckan/lib/search/__init__.py``
 
 #. During the beta process, all changes to the release branch must be
    cherry-picked from master (or merged from special branches based on the
@@ -78,20 +76,12 @@ become stable releases.
 
         python setup.py extract_messages
 
-   d. Pull new and updated translations from Transifex into the ``ckan.po``
-      files::
-
-        tx pull --all --force
-
       The po files are text files, one for each language CKAN is translated to,
       that contain the translated strings next to the originals. Translators edit
       the po files (on Transifex) to update the translations. We never edit the
       po files locally.
 
-      ``--force`` tells Transifex to update all ``ckan.po`` files, regardless of the
-      modification time.
-
-   e. Run our script that checks for mistakes in the ckan.po files::
+   d. Run our script that checks for mistakes in the ckan.po files::
 
         pip install polib
         paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
@@ -100,11 +90,11 @@ become stable releases.
       tx pull command again, don't edit the files directly. Repeat until the
       script finds no mistakes.
 
-   f. Edit ``.tx/config``, on line 4 to set the Transifex 'resource' to the new
+   e. Edit ``.tx/config``, on line 4 to set the Transifex 'resource' to the new
       major release name (if different), using dashes instead of dots.
       For instance v1.2, v1.2.1 and v1.2.2 all share: ``[ckan.1-2]``.
 
-   g. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file::
+   f. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file::
 
         python setup.py update_catalog --no-fuzzy-matching
 
@@ -115,7 +105,7 @@ become stable releases.
       We use the ``--no-fuzzy-matching`` option because fuzzy matching often
       causes problems with Babel and Transifex.
 
-   h. Create a new resource in the CKAN project on Transifex by pushing the new
+   g. Create a new resource in the CKAN project on Transifex by pushing the new
       pot and po files::
 
         tx push --source --translations --force
@@ -125,27 +115,27 @@ become stable releases.
       resource (updating an existing resource, especially with the ``--force``
       option, can result in translations being deleted from Transifex).
 
-   i. Update the ``ckan.mo`` files by compiling the po files::
+   h. Update the ``ckan.mo`` files by compiling the po files::
 
         python setup.py compile_catalog
 
       The mo files are the files that CKAN actually reads when displaying
       strings to the user.
 
-   j. Commit all the above changes to git and push them to GitHub::
+   i. Commit all the above changes to git and push them to GitHub::
 
-        git commit -am " Update strings files before CKAN X.Y call for translations"
+        git commit -am "Update strings files before CKAN X.Y call for translations"
         git push
 
-   k. Announce that strings for the new release are ready for translators. Send
+   j. Announce that strings for the new release are ready for translators. Send
       an email to the mailing lists, tweet or post it on the blog. Make sure to
       post a link to the correct Transifex resource (like
       `this one <https://www.transifex.com/projects/p/ckan/resource/2-0/>`_)
       and tell users that they can register on Transifex to contribute.
 
-   l. A week before the translations will be closed send a reminder email.
+   k. A week before the translations will be closed send a reminder email.
 
-   m. Once the translations are closed, pull the updated strings from Transifex,
+   l. Once the translations are closed, pull the updated strings from Transifex,
       check them, compile and push as described in the previous steps::
 
         tx pull --all --force
@@ -155,7 +145,8 @@ become stable releases.
         git push
 
 
-Doing a Proper Release
+----------------------
+Doing a proper release
 ----------------------
 
 Once the release branch has been thoroughly tested and is stable we can do
@@ -219,7 +210,7 @@ a release.
 8. Enable the new version of the docs on Read the Docs (you will need an admin
    account):
 
-   a. Go to the `versions page <http://readthedocs.org/dashboard/ckan/versions/>`
+   a. Go to the `Read The Docs`_ versions page
       and enable the relevant release (make sure to use the tag, ie ckan-X.Y,
       not the branch, ie release-vX.Y).
 
@@ -253,4 +244,4 @@ a release.
 
 
 .. _Transifex: https://www.transifex.com/projects/p/ckan
-.. _ReadTheDocs: http://readthedocs.org/dashboard/ckan/versions/
+.. _`Read The Docs`: http://readthedocs.org/dashboard/ckan/versions/
