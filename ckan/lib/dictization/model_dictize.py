@@ -90,8 +90,9 @@ def related_list_dictize(related_list, context):
     for res in related_list:
         related_dict = related_dictize(res, context)
         result_list.append(related_dict)
-
-    return result_list
+    if context.get('sorted'):
+        return result_list
+    return sorted(result_list, key=lambda x: x["created"], reverse=True)
 
 
 def extras_dict_dictize(extras_dict, context):
