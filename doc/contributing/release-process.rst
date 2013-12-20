@@ -1,12 +1,21 @@
-Doing a CKAN Release
+====================
+Doing a CKAN release
 ====================
 
-These are the steps followed by CKAN developers to do a release. To get an
-overview of CKAN releases, check :doc:`upgrading`.
+This section documents the steps followed by the development team to do a
+new CKAN release.
+
+.. seealso::
+
+   :doc:`/upgrading`
+     An overview of the different kinds of CKAN release, and the process for
+     upgrading a CKAN site to a new version.
+
 
 .. _beta-release:
 
-Doing a Beta Release
+--------------------
+Doing a beta release
 --------------------
 
 Beta releases are branched off a certain point in master and will eventually
@@ -136,7 +145,8 @@ become stable releases.
         git push
 
 
-Doing a Proper Release
+----------------------
+Doing a proper release
 ----------------------
 
 Once the release branch has been thoroughly tested and is stable we can do
