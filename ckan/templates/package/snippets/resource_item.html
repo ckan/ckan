@@ -12,8 +12,6 @@
   <p class="description">
     {% if res.description %}
       {{ h.markdown_extract(res.description, extract_length=80) }}
-    {% else %}
-      <span class="empty">{{ _('No description for this resource') }}</span>
     {% endif %}
   </p>
   {% block resource_item_explore %}
