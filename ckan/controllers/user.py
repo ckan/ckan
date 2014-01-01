@@ -195,6 +195,41 @@ class UserController(base.BaseController):
             msg = _('Unauthorized to delete user with id "{user_id}".')
             abort(401, msg.format(user_id=id))
 
+    def cycle_apikey(self, id):
+        '''Cycle the API key of a user'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user,
+                   'auth_user_obj': c.userobj,
+                   }
+        if id is None:
+            if c.userobj:
+                id = c.userobj.id
+            else:
+                abort(400, _('No user specified'))
+        data_dict = {'id': id}
+
+        try:
+            check_access('user_update', context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to edit a user.'))
+
+        try:
+            old_data = get_action('user_show')(context, data_dict)
+            old_data['apikey'] = model.types.make_uuid()
+            context['schema'] = schema.default_cycle_apikey_user_schema()
+            data_dict = old_data
+            get_action('user_update')(context, data_dict)
+
+        except NotAuthorized:
+            abort(401, _('Unauthorized to edit user %s') % '')
+        except NotFound:
+            abort(404, _('User not found'))
+
+        h.flash_success(_('Profile updated'))
+        h.redirect_to(controller='user', action='read', id=data_dict['name'])
+
+
     def _save_new(self, context):
         try:
             data_dict = logic.clean_dict(unflatten(
