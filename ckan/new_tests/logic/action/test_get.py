@@ -197,7 +197,8 @@ class TestGet(object):
         assert ([related1, related2] == related_list)
 
         # filter for type_filter
-        related_list = helpers.call_action('related_list', type_filter='application')
+        related_list = helpers.call_action('related_list',
+                                           type_filter='application')
         assert ([related2] == related_list)
 
         # sort
