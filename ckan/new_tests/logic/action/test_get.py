@@ -188,6 +188,27 @@ class TestGet(object):
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
+    def test_related_list(self):
+        related1 = factories.Related(featured=True)
+        related2 = factories.Related(type='application')
+
+        # no params
+        related_list = helpers.call_action('related_list')
+        assert ([related1, related2] == related_list)
+
+        # filter for type_filter
+        related_list = helpers.call_action('related_list', type_filter='application')
+        assert ([related2] == related_list)
+
+        # sort
+        related_list = helpers.call_action('related_list', sort='created_desc')
+        assert ([related2, related1] == related_list)
+
+        # featured
+        related_list = helpers.call_action('related_list', featured=True)
+        assert ([related1] == related_list)
+        # TODO: test with a dataset
+
 
 class TestBadLimitQueryParameters(object):
     '''test class for #1258 non-int query parameters cause 500 errors
