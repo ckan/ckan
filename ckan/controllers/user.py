@@ -229,7 +229,6 @@ class UserController(base.BaseController):
         h.flash_success(_('Profile updated'))
         h.redirect_to(controller='user', action='read', id=data_dict['name'])
 
-
     def _save_new(self, context):
         try:
             data_dict = logic.clean_dict(unflatten(
