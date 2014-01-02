@@ -217,6 +217,41 @@ class Organization(factory.Factory):
         return group_dict
 
 
+class Related(factory.Factory):
+    '''A factory class for creating related items.'''
+
+    # This is the class that UserFactory will create and return instances
+    # of.
+    FACTORY_FOR = ckan.model.Related
+
+    # These are the default params that will be used to create new related
+    # items.
+    type = 'idea'
+    description = 'Look, a description!'
+    url = 'http://example.com'
+
+    # Generate a different user name param for each user that gets created.
+    title = factory.Sequence(lambda n: 'test title {n}'.format(n=n))
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        #TODO: we will need to be able to define this when creating the
+        #      instance perhaps passing a 'user' param?
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+        related_dict = helpers.call_action('related_create', context=context,
+                                           **kwargs)
+        return related_dict
+
+
 class MockUser(factory.Factory):
     '''A factory class for creating mock CKAN users using the mock library.'''
 
