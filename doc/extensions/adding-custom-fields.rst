@@ -277,3 +277,6 @@ similarly
 Save and reload your development server CKAN will take any additional keys from 
 the resource schema and save them the it's extras field.  The templates will 
 automatically check this field and display them in the resource_read page.
+
+You can find the complete source for this tutorial in the
+``ckanext/example_idatasetform`` directory.
