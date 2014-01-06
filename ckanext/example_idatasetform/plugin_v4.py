@@ -23,7 +23,7 @@ def country_codes():
     except tk.ObjectNotFound:
         return None
 
-class ExampleIDatasetForm(p.SingletonPlugin, tk.DefaultDatasetForm):
+class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
     p.implements(p.IDatasetForm)
     p.implements(p.IConfigurer)
     p.implements(p.ITemplateHelpers)
@@ -43,7 +43,7 @@ class ExampleIDatasetForm(p.SingletonPlugin, tk.DefaultDatasetForm):
         return schema
 
     def show_package_schema(self):
-        schema = super(ExampleIDatasetForm, self).show_package_schema()
+        schema = super(ExampleIDatasetFormPlugin, self).show_package_schema()
         schema.update({
             'custom_text': [tk.get_converter('convert_from_extras'),
                 tk.get_validator('ignore_missing')]
@@ -58,12 +58,12 @@ class ExampleIDatasetForm(p.SingletonPlugin, tk.DefaultDatasetForm):
         return schema
 
     def create_package_schema(self):
-        schema = super(ExampleIDatasetForm, self).create_package_schema()
+        schema = super(ExampleIDatasetFormPlugin, self).create_package_schema()
         schema = self._modify_package_schema(schema)
         return schema
 
     def update_package_schema(self):
-        schema = super(ExampleIDatasetForm, self).update_package_schema()
+        schema = super(ExampleIDatasetFormPlugin, self).update_package_schema()
         schema = self._modify_package_schema(schema)
         return schema
 

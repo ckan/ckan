@@ -2,7 +2,7 @@
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 
-class ExtraFieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
+class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
     p.implements(p.IDatasetForm)
 
     def _modify_package_schema(self, schema):
@@ -13,17 +13,17 @@ class ExtraFieldsPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         return schema
 
     def create_package_schema(self):
-        schema = super(ExtraFieldsPlugin, self).create_package_schema()
+        schema = super(ExampleIDatasetFormPlugin, self).create_package_schema()
         schema = self._modify_package_schema(schema)
         return schema
 
     def update_package_schema(self):
-        schema = super(ExtraFieldsPlugin, self).update_package_schema()
+        schema = super(ExampleIDatasetFormPlugin, self).update_package_schema()
         schema = self._modify_package_schema(schema)
         return schema
 
     def show_package_schema(self):
-        schema = super(ExtraFieldsPlugin, self).show_package_schema()
+        schema = super(ExampleIDatasetFormPlugin, self).show_package_schema()
         schema.update({
             'custom_text': [tk.get_converter('convert_from_extras'),
                 tk.get_validator('ignore_missing')]
