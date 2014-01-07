@@ -7,10 +7,11 @@ import ckan.lib.i18n as i18n
 class UtilController(base.BaseController):
     ''' Controller for functionality that has no real home'''
 
-    def redirect(self):
-        ''' redirect to the url parameter. '''
-        url = base.request.params.get('url')
-        return base.redirect(url)
+    # DGU considers an open redirect a security issue
+    #def redirect(self):
+    #    ''' redirect to the url parameter. '''
+    #    url = base.request.params.get('url')
+    #    return base.redirect(url)
 
     def primer(self):
         ''' Render all html components out onto a single page.
