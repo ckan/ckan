@@ -2,13 +2,14 @@
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 
+
 class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
     p.implements(p.IDatasetForm)
 
     def _modify_package_schema(self, schema):
         schema.update({
             'custom_text': [tk.get_validator('ignore_missing'),
-                tk.get_converter('convert_to_extras')]
+                            tk.get_converter('convert_to_extras')]
         })
         return schema
 
@@ -26,7 +27,7 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         schema = super(ExampleIDatasetFormPlugin, self).show_package_schema()
         schema.update({
             'custom_text': [tk.get_converter('convert_from_extras'),
-                tk.get_validator('ignore_missing')]
+                            tk.get_validator('ignore_missing')]
         })
         return schema
 

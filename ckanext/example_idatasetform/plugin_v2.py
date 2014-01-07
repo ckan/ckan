@@ -1,6 +1,7 @@
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 
+
 class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
     p.implements(p.IDatasetForm)
     p.implements(p.IConfigurer)
@@ -10,8 +11,8 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         schema = super(ExampleIDatasetFormPlugin, self).create_package_schema()
         #our custom field
         schema.update({
-            'custom_text': [tk.get_validator('ignore_missing'), 
-                tk.get_converter('convert_to_extras')]
+            'custom_text': [tk.get_validator('ignore_missing'),
+                            tk.get_converter('convert_to_extras')]
         })
         return schema
 
@@ -20,7 +21,7 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         #our custom field
         schema.update({
             'custom_text': [tk.get_validator('ignore_missing'),
-                tk.get_converter('convert_to_extras')]
+                            tk.get_converter('convert_to_extras')]
         })
         return schema
 
@@ -28,7 +29,7 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         schema = super(ExampleIDatasetFormPlugin, self).show_package_schema()
         schema.update({
             'custom_text': [tk.get_converter('convert_from_extras'),
-                tk.get_validator('ignore_missing')]
+                            tk.get_validator('ignore_missing')]
         })
         return schema
 
@@ -42,7 +43,7 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         # This plugin doesn't handle any special package types, it just
         # registers itself as the default (above).
         return []
-    
+
     def update_config(self, config):
         # Add this plugin's templates dir to CKAN's extra_template_paths, so
         # that CKAN will use this plugin's custom templates.
