@@ -437,10 +437,10 @@ def group_list_authz(context, data_dict):
       (optional, default: ``False``)
     :type available_only: boolean
 
-    :param am_member: if True return only the groups the logged-in user is a
-      member of, otherwise return all groups that the user is authorized to
+    :param am_member: if ``True`` return only the groups the logged-in user is
+      a member of, otherwise return all groups that the user is authorized to
       edit (for example, sysadmin users are authorized to edit all groups)
-      (optional, default: False)
+      (optional, default: ``False``)
     :type am-member: boolean
 
     :returns: list of dictized groups that the user is authorized to edit
@@ -732,8 +732,8 @@ def package_relationships_list(context, data_dict):
     :param id2: the id or name of the second package
     :type id: string
     :param rel: relationship as string see
-        :func:`ckan.logic.action.create.package_relationship_create()` for the
-        relationship types (optional)
+        :py:func:`~ckan.logic.action.create.package_relationship_create` for
+        the relationship types (optional)
 
     :rtype: list of dictionaries
 
@@ -1328,13 +1328,13 @@ def package_search(context, data_dict):
     This action accepts a *subset* of solr's search query parameters:
 
 
-    :param q: the solr query.  Optional.  Default: `"*:*"`
+    :param q: the solr query.  Optional.  Default: ``"*:*"``
     :type q: string
-    :param fq: any filter queries to apply.  Note: `+site_id:{ckan_site_id}`
+    :param fq: any filter queries to apply.  Note: ``+site_id:{ckan_site_id}``
         is added to this string prior to the query being executed.
     :type fq: string
     :param sort: sorting of the search results.  Optional.  Default:
-        'relevance asc, metadata_modified desc'.  As per the solr
+        ``'relevance asc, metadata_modified desc'``.  As per the solr
         documentation, this is a comma-separated string of field names and
         sort-orderings.
     :type sort: string
@@ -1343,7 +1343,7 @@ def package_search(context, data_dict):
     :param start: the offset in the complete result for where the set of
         returned datasets should begin.
     :type start: int
-    :param facet: whether to enable faceted results.  Default: "true".
+    :param facet: whether to enable faceted results.  Default: ``True``.
     :type facet: string
     :param facet.mincount: the minimum counts for facet fields should be
         included in the results.
@@ -1618,7 +1618,7 @@ def resource_search(context, data_dict):
     queries (rather than ValidationErrors).
 
     :param query: The search criteria.  See above for description.
-    :type query: string or list of strings of the form "{field}:{term1}"
+    :type query: string or list of strings of the form ``{field}:{term1}``
     :param fields: Deprecated
     :type fields: dict of fields to search terms.
     :param order_by: A field on the Resource model that orders the results.
@@ -2667,11 +2667,12 @@ def followee_list(context, data_dict):
         (optional)
     :type q: string
 
-    :rtype: list of dictionaries, each with keys 'type' (e.g. 'user',
-        'dataset' or 'group'), 'display_name' (e.g. a user's display name,
-        or a package's title) and 'dict' (e.g. a dict representing the
-        followed user, package or group, the same as the dict that would be
-        returned by user_show, package_show or group_show)
+    :rtype: list of dictionaries, each with keys ``'type'`` (e.g. ``'user'``,
+        ``'dataset'`` or ``'group'``), ``'display_name'`` (e.g. a user's
+        display name, or a package's title) and ``'dict'`` (e.g. a dict
+        representing the followed user, package or group, the same as the dict
+        that would be returned by :py:func:`user_show`,
+        :py:func:`package_show` or :py:func:`group_show`)
 
     '''
     _check_access('followee_list', context, data_dict)
@@ -2823,7 +2824,7 @@ def dashboard_activity_list(context, data_dict):
     :type offset: int
     :param limit: the maximum number of activities to return
         (optional, default: 31, the default value is configurable via the
-        ``ckan.activity_list_limit`` setting)
+        :ref:`ckan.activity_list_limit` setting)
 
     :rtype: list of activity dictionaries
 
@@ -2940,12 +2941,12 @@ def _unpick_search(sort, allowed_fields=None, total=None):
 def member_roles_list(context, data_dict):
     '''Return the possible roles for members of groups and organizations.
 
-    :param group_type: the group type, either "group" or "organization"
-        (optional, default "organization")
+    :param group_type: the group type, either ``"group"`` or ``"organization"``
+        (optional, default ``"organization"``)
     :type id: string
-    :returns: a list of dictionaries each with two keys: "text" (the display
-        name of the role, e.g. "Admin") and "value" (the internal name of the
-        role, e.g. "admin")
+    :returns: a list of dictionaries each with two keys: ``"text"`` (the
+        display name of the role, e.g. ``"Admin"``) and ``"value"`` (the
+        internal name of the role, e.g. ``"admin"``)
     :rtype: list of dictionaries
 
     '''
