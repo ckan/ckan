@@ -15,6 +15,10 @@ class RevisionController(base.BaseController):
     def __before__(self, action, **env):
         base.BaseController.__before__(self, action, **env)
 
+        # DGU requires login for all revision pages #1272
+        if not c.user:
+            base.abort(401, 'Log-in to see this page') 
+
         context = {'model': model, 'user': c.user or c.author}
         if c.user:
             try:
