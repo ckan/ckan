@@ -1,6 +1,7 @@
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk
 
+
 def create_country_codes():
     user = tk.get_action('get_site_user')({'ignore_auth': True}, {})
     context = {'user': user['name']}
@@ -14,14 +15,16 @@ def create_country_codes():
             data = {'name': tag, 'vocabulary_id': vocab['id']}
             tk.get_action('tag_create')(context, data)
 
+
 def country_codes():
     create_country_codes()
     try:
-        country_codes = tk.get_action('tag_list')(
-                data_dict={'vocabulary_id': 'country_codes'})
+        tag_list = tk.get_action('tag_list')
+        country_codes = tag_list(data_dict={'vocabulary_id': 'country_codes'})
         return country_codes
     except tk.ObjectNotFound:
         return None
+
 
 class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
     p.implements(p.IDatasetForm)
@@ -34,19 +37,21 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
     def _modify_package_schema(self, schema):
         schema.update({
             'custom_text': [tk.get_validator('ignore_missing'),
-                tk.get_converter('convert_to_extras')]
+                            tk.get_converter('convert_to_extras')]
         })
         schema.update({
-                'country_code': [tk.get_validator('ignore_missing'),
-                    tk.get_converter('convert_to_tags')('country_codes')]
-                })
+            'country_code': [
+                tk.get_validator('ignore_missing'),
+                tk.get_converter('convert_to_tags')('country_codes')
+            ]
+        })
         return schema
 
     def show_package_schema(self):
         schema = super(ExampleIDatasetFormPlugin, self).show_package_schema()
         schema.update({
             'custom_text': [tk.get_converter('convert_from_extras'),
-                tk.get_validator('ignore_missing')]
+                            tk.get_validator('ignore_missing')]
         })
 
         schema['tags']['__extras'].append(tk.get_converter('free_tags_only'))
@@ -77,7 +82,7 @@ class ExampleIDatasetFormPlugin(p.SingletonPlugin, tk.DefaultDatasetForm):
         # This plugin doesn't handle any special package types, it just
         # registers itself as the default (above).
         return []
-    
+
     #update config
     def update_config(self, config):
         # Add this plugin's templates dir to CKAN's extra_template_paths, so

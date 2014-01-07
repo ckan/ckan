@@ -219,7 +219,7 @@ Update ``_modify_package_schema`` and
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v4.py
     :start-after: return {'country_codes': country_codes}
     :end-before: def create_package_schema(self):
-    :emphasize-lines: 8,19-24
+    :emphasize-lines: 9,21-26
 
 We are adding our tag to our plugin's schema. A converter is required to
 convert the field in to our tag in a similar way to how we converted our field

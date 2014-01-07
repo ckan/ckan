@@ -3,8 +3,10 @@ import ckan.model as model
 import ckan.plugins as plugins
 import ckan.new_tests.helpers as helpers
 
-import ckanext.example_idatasetform.plugin_v4 as v4
-import ckanext.example_idatasetform.plugin as v5
+import ckanext.example_idatasetform as idf
+#do not import plugins classes (e.g example_idatasetform.plugin_v4)
+#it causes the plugins to get registered and loaded before the tests are run
+
 
 class ExampleIDatasetFormPluginBase(object):
     '''Version 1, 2 and 3 of the plugin are basically the same, so this class
@@ -23,14 +25,14 @@ class ExampleIDatasetFormPluginBase(object):
 
     def test_package_update(self):
         helpers.call_action('package_create', name='test_package',
-                                     custom_text='this is my custom text')
+                            custom_text='this is my custom text')
         result = helpers.call_action('package_update', name='test_package',
                                      custom_text='this is my updated text')
         nt.assert_equals('this is my updated text', result['custom_text'])
 
     def test_package_show(self):
         helpers.call_action('package_create', name='test_package',
-                                     custom_text='this is my custom text')
+                            custom_text='this is my custom text')
         result = helpers.call_action('package_show', name_or_id='test_package')
         nt.assert_equals('this is my custom text', result['custom_text'])
 
@@ -67,6 +69,7 @@ class TestVersion3(ExampleIDatasetFormPluginBase):
         super(TestVersion3, cls).teardown_class()
         plugins.unload('example_idatasetform_v3')
 
+
 class TestIDatasetFormPluginVersion4(object):
     @classmethod
     def setup_class(cls):
@@ -81,7 +84,7 @@ class TestIDatasetFormPluginVersion4(object):
         helpers.reset_db()
 
     def test_package_create(self):
-        v4.create_country_codes()
+        idf.plugin_v4.create_country_codes()
         result = helpers.call_action('package_create', name='test_package',
                                      custom_text='this is my custom text',
                                      country_code='uk')
@@ -89,7 +92,7 @@ class TestIDatasetFormPluginVersion4(object):
         nt.assert_equals([u'uk'], result['country_code'])
 
     def test_package_create_wrong_country_code(self):
-        v4.create_country_codes()
+        idf.plugin_v4.create_country_codes()
         nt.assert_raises(plugins.toolkit.ValidationError,
                          helpers.call_action,
                          'package_create',
@@ -98,7 +101,7 @@ class TestIDatasetFormPluginVersion4(object):
                          country_code='notcode')
 
     def test_package_update(self):
-        v4.create_country_codes()
+        idf.plugin_v4.create_country_codes()
         helpers.call_action('package_create', name='test_package',
                             custom_text='this is my custom text',
                             country_code='uk')
@@ -107,6 +110,7 @@ class TestIDatasetFormPluginVersion4(object):
                                      country_code='ie')
         nt.assert_equals('this is my updated text', result['custom_text'])
         nt.assert_equals([u'ie'], result['country_code'])
+
 
 class TestIDatasetFormPlugin(object):
     @classmethod
@@ -122,7 +126,7 @@ class TestIDatasetFormPlugin(object):
         helpers.reset_db()
 
     def test_package_create(self):
-        v5.create_country_codes()
+        idf.plugin.create_country_codes()
         result = helpers.call_action(
             'package_create', name='test_package',
             custom_text='this is my custom text', country_code='uk',
@@ -131,10 +135,10 @@ class TestIDatasetFormPlugin(object):
                 'custom_resource_text': 'my custom resource',
             }])
         nt.assert_equals('my custom resource',
-            result['resources'][0]['custom_resource_text'])
+                         result['resources'][0]['custom_resource_text'])
 
     def test_package_update(self):
-        v5.create_country_codes()
+        idf.plugin.create_country_codes()
         helpers.call_action(
             'package_create', name='test_package',
             custom_text='this is my custom text', country_code='uk',
@@ -155,10 +159,10 @@ class TestIDatasetFormPlugin(object):
         nt.assert_equals('this is my updated text', result['custom_text'])
         nt.assert_equals([u'ie'], result['country_code'])
         nt.assert_equals('updated custom resource',
-            result['resources'][0]['custom_resource_text'])
+                         result['resources'][0]['custom_resource_text'])
 
     def test_package_show(self):
-        v5.create_country_codes()
+        idf.plugin.create_country_codes()
         helpers.call_action(
             'package_create', name='test_package',
             custom_text='this is my custom text', country_code='uk',
@@ -169,6 +173,6 @@ class TestIDatasetFormPlugin(object):
         )
         result = helpers.call_action('package_show', name_or_id='test_package')
         nt.assert_equals('my custom resource',
-            result['resources'][0]['custom_resource_text'])
+                         result['resources'][0]['custom_resource_text'])
         nt.assert_equals('my custom resource',
-            result['resources'][0]['custom_resource_text'])
+                         result['resources'][0]['custom_resource_text'])
