@@ -1,7 +1,6 @@
-from nose.tools import assert_equal, assert_in, assert_not_in
+from ckan.tests import assert_equal, assert_in, assert_not_in, CreateTestData
 
 import ckan.model as model
-from ckan.tests import *
 
 class TestGroup(object):
 

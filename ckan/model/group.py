@@ -321,8 +321,8 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
 
         query = meta.Session.query(_package.Package).\
             filter(
-                or_(_package.Package.state == vdm.sqlalchemy.State.ACTIVE,
-                    _package.Package.state == vdm.sqlalchemy.State.PENDING)). \
+                or_(_package.Package.state == core.State.ACTIVE,
+                    _package.Package.state == core.State.PENDING)). \
             filter(group_table.c.id == self.id).\
             filter(member_table.c.state == 'active')
 
@@ -371,23 +371,6 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
                             table_name='package')
             meta.Session.add(member)
 
-    def get_groups(self, group_type=None, capacity=None):
-        """ Get all groups that this group is within """
-        import ckan.model as model
-        if '_groups' not in self.__dict__:
-            self._groups = meta.Session.query(model.Group).\
-                join(model.Member, model.Member.group_id == model.Group.id and
-                     model.Member.table_name == 'group').\
-                filter(model.Member.state == 'active').\
-                filter(model.Member.table_id == self.id).all()
-
-        groups = self._groups
-        if group_type:
-            groups = [g for g in groups if g.type == group_type]
-        if capacity:
-            groups = [g for g in groups if g.capacity == capacity]
-        return groups
-
     @property
     def all_related_revisions(self):
         '''Returns chronological list of all object revisions related to
@@ -414,7 +397,6 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def __repr__(self):
         return '<Group %s>' % self.name
-
 
 meta.mapper(Group, group_table,
             extension=[vdm.sqlalchemy.Revisioner(group_revision_table), ], )

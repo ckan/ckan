@@ -1,14 +1,14 @@
+import uuid
+
 from sqlalchemy import *
 from sqlalchemy import types
 from migrate import *
 from datetime import datetime
 import migrate.changeset
-import uuid
 from migrate.changeset.constraint import ForeignKeyConstraint
 
+from ckan.common import json
 
-
-from ckan.lib.helpers import json
 class JsonType(types.TypeDecorator):
     '''Store data as JSON serializing on save and unserializing on use.
     '''

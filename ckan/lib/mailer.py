@@ -7,11 +7,14 @@ from email.header import Header
 from email import Utils
 from urlparse import urljoin
 
-from pylons.i18n.translation import _
-from pylons import config, g
-from ckan import model, __version__
-from ckan.lib.helpers import url_for
+from pylons import config
 import paste.deploy.converters
+
+import ckan
+import ckan.model as model
+import ckan.lib.helpers as h
+
+from ckan.common import _, g
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +39,7 @@ def _mail_recipient(recipient_name, recipient_email,
     recipient = u"%s <%s>" % (recipient_name, recipient_email)
     msg['To'] = Header(recipient, 'utf-8')
     msg['Date'] = Utils.formatdate(time())
-    msg['X-Mailer'] = "CKAN %s" % __version__
+    msg['X-Mailer'] = "CKAN %s" % ckan.__version__
 
     # Send the email using Python's smtplib.
     smtp_connection = smtplib.SMTP()
@@ -97,40 +100,63 @@ def mail_user(recipient, subject, body, headers={}):
     mail_recipient(recipient.display_name, recipient.email, subject,
             body, headers=headers)
 
+def get_reset_link_body(user):
+    reset_link_message = _(
+    '''You have requested your password on %(site_title)s to be reset.
 
-RESET_LINK_MESSAGE = _(
-'''You have requested your password on %(site_title)s to be reset.
+    Please click the following link to confirm this request:
 
-Please click the following link to confirm this request:
+       %(reset_link)s
+    ''')
 
-   %(reset_link)s
-''')
+    d = {
+        'reset_link': get_reset_link(user),
+        'site_title': g.site_title
+        }
+    return reset_link_message % d
 
-def make_key():
-    return uuid.uuid4().hex[:10]
+def get_invite_body(user):
+    invite_message = _(
+    '''You have been invited to %(site_title)s. A user has already been created to
+    you with the username %(user_name)s. You can change it later.
+
+    To accept this invite, please reset your password at:
+
+       %(reset_link)s
+    ''')
+
+    d = {
+        'reset_link': get_reset_link(user),
+        'site_title': g.site_title,
+        'user_name': user.name,
+        }
+    return invite_message % d
+
+def get_reset_link(user):
+    return urljoin(g.site_url,
+                   h.url_for(controller='user',
+                           action='perform_reset',
+                           id=user.id,
+                           key=user.reset_key))
+
+def send_reset_link(user):
+    create_reset_key(user)
+    body = get_reset_link_body(user)
+    subject = _('Reset your password')
+    mail_user(user, subject, body)
+
+def send_invite(user):
+    create_reset_key(user)
+    body = get_invite_body(user)
+    subject = _('Invite for {site_title}'.format(site_title=g.site_title))
+    mail_user(user, subject, body)
 
 def create_reset_key(user):
     user.reset_key = unicode(make_key())
     model.repo.commit_and_remove()
 
-def get_reset_link(user):
-    return urljoin(g.site_url,
-                   url_for(controller='user',
-                           action='perform_reset',
-                           id=user.id,
-                           key=user.reset_key))
-
-def get_reset_link_body(user):
-    d = {
-        'reset_link': get_reset_link(user),
-        'site_title': g.site_title
-        }
-    return RESET_LINK_MESSAGE % d
-
-def send_reset_link(user):
-    create_reset_key(user)
-    body = get_reset_link_body(user)
-    mail_user(user, _('Reset your password'), body)
+def make_key():
+    return uuid.uuid4().hex[:10]
 
 def verify_reset_link(user, key):
     if not key:

@@ -17,7 +17,8 @@ import domain_object
 import activity
 import extension
 
-import ckan.lib.dictization
+import ckan.lib.maintain as maintain
+import ckan.lib.dictization as dictization
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
@@ -43,6 +44,8 @@ package_table = Table('package', meta.metadata,
         Column('license_id', types.UnicodeText),
         Column('type', types.UnicodeText, default=u'dataset'),
         Column('owner_org', types.UnicodeText),
+        Column('creator_user_id', types.UnicodeText),
+        Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
         Column('private', types.Boolean, default=False),
 )
 
@@ -226,10 +229,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         import ckan.lib.helpers as h
         _dict['notes_rendered'] = h.render_markdown(self.notes)
         _dict['type'] = self.type or u'dataset'
-        #tracking
-        import ckan.model as model
-        tracking = model.TrackingSummary.get_for_package(self.id)
-        _dict['tracking_summary'] = tracking
         return _dict
 
     def add_relationship(self, type_, related_package, comment=u''):
@@ -480,52 +479,15 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return results
 
     @property
-    def metadata_modified(self):
-        """
-        Return most recent timestamp for revisions related to this package.
-        NB Excludes changes to the package's groups
-        """
-        from ckan import model
-        where = [model.package_table.c.id == self.id]
-        where_clauses = [
-            and_(model.package_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.package_extra_table.c.package_id == model.package_table.c.id,
-                 model.package_extra_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.package_relationship_table.c.subject_package_id == model.package_table.c.id,
-                 model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.package_relationship_table.c.object_package_id == model.package_table.c.id,
-                 model.package_relationship_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.resource_group_table.c.package_id == model.package_table.c.id,
-                 model.resource_group_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.resource_group_table.c.package_id == model.package_table.c.id,
-                 model.resource_table.c.resource_group_id == model.resource_group_table.c.id,
-                 model.resource_table.c.revision_id == model.revision_table.c.id, *where),
-            and_(model.package_tag_table.c.package_id == model.package_table.c.id,
-                 model.package_tag_table.c.revision_id == model.revision_table.c.id, *where)
-            ]
-
-        query = union(*[select([model.revision_table.c.timestamp], x) for x in where_clauses]
-                      ).order_by('timestamp DESC').limit(1)
-        # Use current connection because we might be in a 'before_commit' of
-        # a SessionExtension - only by using the current connection can we get
-        # at the newly created revision etc. objects.
-        conn = model.Session.connection()
-        result = conn.execute(query).fetchone()
-
-        if result:
-            result_datetime = _types.iso_date_to_datetime_for_sqlite(result[0])
-            timestamp_without_usecs = result_datetime.utctimetuple()
-            usecs = float(result_datetime.microsecond) / 1e6
-            # use timegm instead of mktime, because we don't want it localised
-            timestamp_float = timegm(timestamp_without_usecs) + usecs
-            return datetime.datetime.utcfromtimestamp(timestamp_float)
-
-    @property
+    @maintain.deprecated('`is_private` attriute of model.Package is ' +
+                         'deprecated and should not be used.  Use `private`')
     def is_private(self):
         """
+        DEPRECATED in 2.1
+
         A package is private if belongs to any private groups
         """
-        return bool(self.get_groups(capacity='private'))
+        return self.private
 
     def is_in_group(self, group):
         return group in self.get_groups()
@@ -601,7 +563,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 activity_type = 'deleted'
 
         try:
-            d = {'package': ckan.lib.dictization.table_dictize(self,
+            d = {'package': dictization.table_dictize(self,
                 context={'model': ckan.model})}
             return activity.Activity(user_id, self.id, revision.id,
                     "%s package" % activity_type, d)
@@ -622,7 +584,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         if activity_type == 'changed' and self.state == u'deleted':
             activity_type = 'deleted'
 
-        package_dict = ckan.lib.dictization.table_dictize(self,
+        package_dict = dictization.table_dictize(self,
                 context={'model':ckan.model})
         return activity.ActivityDetail(activity_id, self.id, u"Package", activity_type,
             {'package': package_dict })

@@ -4,6 +4,7 @@ import urllib2
 import logging
 import json
 import hashlib
+import os
 
 import sqlalchemy as sa
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -22,6 +23,7 @@ from fanstatic import Fanstatic
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
 from ckan.lib.i18n import get_locales_from_config
+import ckan.lib.uploader as uploader
 
 from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
@@ -63,6 +65,9 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     # Routing/Session/Cache Middleware
     app = RoutesMiddleware(app, config['routes.map'])
+    # we want to be able to retrieve the routes middleware to be able to update
+    # the mapper.  We store it in the pylons config to allow this.
+    config['routes.middleware'] = app
     app = SessionMiddleware(app, config)
     app = CacheMiddleware(app, config)
 
@@ -143,6 +148,20 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         static_app = StaticURLParser(config['pylons.paths']['static_files'],
                 cache_max_age=static_max_age)
         static_parsers = [static_app, app]
+
+        storage_directory = uploader.get_storage_path()
+        if storage_directory:
+            path = os.path.join(storage_directory, 'storage')
+            try:
+                os.makedirs(path)
+            except OSError, e:
+                ## errno 17 is file already exists
+                if e.errno != 17:
+                    raise
+
+            storage_app = StaticURLParser(path,
+                cache_max_age=static_max_age)
+            static_parsers.insert(0, storage_app)
 
         # Configurable extra static file paths
         extra_static_parsers = []
@@ -335,8 +354,8 @@ class TrackingMiddleware(object):
             key = ''.join([
                 environ['HTTP_USER_AGENT'],
                 environ['REMOTE_ADDR'],
-                environ['HTTP_ACCEPT_LANGUAGE'],
-                environ['HTTP_ACCEPT_ENCODING'],
+                environ.get('HTTP_ACCEPT_LANGUAGE', ''),
+                environ.get('HTTP_ACCEPT_ENCODING', ''),
             ])
             key = hashlib.md5(key).hexdigest()
             # store key/data here

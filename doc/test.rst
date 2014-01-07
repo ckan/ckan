@@ -1,15 +1,15 @@
-======================
-Testing for Developers
-======================
+============
+Testing CKAN
+============
 
 If you're a CKAN developer, if you're developing an extension for CKAN, or if
 you're just installing CKAN from source, you should make sure that CKAN's tests
 pass for your copy of CKAN. This section explains how to run CKAN's tests.
 
-.. _basic-tests:
 
-Installing Additional Dependencies
-----------------------------------
+-------------------------------
+Install additional dependencies
+-------------------------------
 
 Some additional dependencies are needed to run the tests. Make sure you've
 created a config file at |development.ini|, then activate your
@@ -22,65 +22,63 @@ virtual environment:
 Install nose and other test-specific CKAN dependencies into your virtual
 environment:
 
-.. parsed-literal::
-
-    pip install -r |virtualenv|/src/ckan/pip-requirements-test.txt
-
-Testing with SQLite
--------------------
-
-To run the CKAN tests using SQLite as the database library:
+.. versionchanged:: 2.1
+   In CKAN 2.0 and earlier the requirements file was called
+   ``pip-requirements-test.txt``, not ``dev-requirements.txt`` as below.
 
 .. parsed-literal::
 
-    cd |virtualenv|/src/ckan
-    nosetests --ckan ckan
+    pip install -r |virtualenv|/src/ckan/dev-requirements.txt
 
-You *must* run the tests from the CKAN directory as shown above, otherwise the
-``--ckan`` plugin won't work correctly.
 
-In deployment CKAN uses PostgreSQL, not SQLite. Running the tests with SQLite
-is less thorough but much quicker than with PostgreSQL, good enough for an
-initial check but you should run the tests with PostgreSQL before deploying
-anything or releasing any code.
+-------------------------
+Set up the test databases
+-------------------------
 
-Testing Core Extensions
-```````````````````````
+.. versionchanged:: 2.1
+   Previously |postgres| tests used the databases defined in your
+   ``development.ini`` file, instead of using their own test databases.
 
-CKAN's core extensions (those extensions that are kept in the CKAN codebase
-alongside CKAN itself) have their own tests. For example, to run the tests for
-the stats extension do::
+Create test databases:
 
-    nosetests --ckan ckanext/stats
+.. parsed-literal::
 
-To run the tests for all of the core extensions at once::
+    sudo -u postgres createdb -O |database_user| |test_database| -E utf-8
+    sudo -u postgres createdb -O |database_user| |test_datastore| -E utf-8
+    paster datastore set-permissions postgres -c test-core.ini
 
-    nosetests --ckan ckanext
+This database connection is specified in the ``test-core.ini`` file by the
+``sqlalchemy.url`` parameter.
 
-Or to run the CKAN tests and the core extensions tests together::
 
-    nosetests --ckan ckan ckanext
+-------------
+Run the tests
+-------------
 
-Testing with PostgreSQL
------------------------
+To run CKAN's tests using PostgreSQL as the database, you have to give the
+``--with-pylons=test-core.ini`` option on the command line. This command will
+run the tests for CKAN core and for the core extensions::
 
-CKAN's default nose configuration file (``test.ini``) specifies SQLite as the
-database library (it also sets ``faster_db_test_hacks``). To run the tests more
-thoroughly with PostgreSQL, specify the ``test-core.ini`` nose configuration
-file instead, for example::
-
-     nosetests --ckan --with-pylons=test-core.ini ckan
-     nosetests --ckan --with-pylons=test-core.ini ckanext/stats
-     nosetests --ckan --with-pylons=test-core.ini ckanext
      nosetests --ckan --with-pylons=test-core.ini ckan ckanext
 
 The speed of the PostgreSQL tests can be improved by running PostgreSQL in
 memory and turning off durability, as described
 `in the PostgreSQL documentation <http://www.postgresql.org/docs/9.0/static/non-durability.html>`_. 
 
+By default the tests will keep the database between test runs. If you wish to
+drop and reinitialize the database before the run you can use the ``reset-db``
+option::
+
+     nosetests --ckan --reset-db --with-pylons=test-core.ini ckan
+
+If you are have the ``ckan-migration`` option on the tests will reset the
+reset the database before the test run.
+
+
 .. _migrationtesting:
 
-Migration Testing
+-----------------
+Migration testing
 -----------------
 
 If you're a CKAN developer or extension developer and your new code requires a
@@ -88,37 +86,26 @@ change to CKAN's model, you'll need to write a migration script. To ensure that
 the migration script itself gets tested, you should run the tests with
 they ``--ckan-migration`` option, for example::
 
-     nosetests --ckan --ckan-migration --with-pylons=test-core.ini ckan
+     nosetests --ckan --ckan-migration --with-pylons=test-core.ini ckan ckanext
 
 By default tests are run using the model defined in ``ckan/model``.
 With the ``--ckan-migration`` option the tests will run using a database that
 has been created by running the migration scripts in ``ckan/migration``, which
 is how the database is created and upgraded in production.
 
-.. caution ::
-
-    Ordinarily, you should set ``development.ini`` to specify a PostgreSQL
-    database so these also get used when running ``test-core.ini``, since
-    ``test-core.ini`` inherits from ``development.ini``. If you were to change
-    the ``sqlalchemy.url`` option in your ``development.ini`` file to use
-    SQLite, the command above would actually test SQLite rather than
-    PostgreSQL, so always check the setting in ``development.ini`` to ensure
-    you are running the full tests.
-
 .. warning ::
 
    A common error when wanting to run tests against a particular database is to
    change ``sqlalchemy.url`` in ``test.ini`` or ``test-core.ini``. The problem
    is that these are versioned files and people have checked in these by
-   mistake, creating problems for other developers and the CKAN buildbot. This
-   is easily avoided by only changing ``sqlalchemy.url`` in your local
-   ``development.ini`` and testing ``--with-pylons=test-core.ini``.
+   mistake, creating problems for other developers.
 
+---------------------
 Common error messages
 ---------------------
 
 ConfigError
-```````````
+===========
 
 ``nose.config.ConfigError: Error reading config file 'setup.cfg': no such option 'with-pylons'``
    This error can result when you run nosetests for two reasons:
@@ -130,13 +117,13 @@ ConfigError
         python -c "import pylons"
 
 OperationalError
-````````````````
+================
 
 ``OperationalError: (OperationalError) no such function: plainto_tsquery ...``
    This error usually results from running a test which involves search functionality, which requires using a PostgreSQL database, but another (such as SQLite) is configured. The particular test is either missing a `@search_related` decorator or there is a mixup with the test configuration files leading to the wrong database being used.
 
 nosetests
-`````````
+=========
 
 ``nosetests: error: no such option: --ckan``
    Nose is either unable to find ckan/ckan_nose_plugin.py in the python environment it is running in, or there is an error loading it. If there is an error, this will surface it::
@@ -164,3 +151,93 @@ nosetests
 
          pip freeze | grep -i nose
 
+
+-----------------
+Front-end Testing
+-----------------
+
+All new CKAN features should be coded so that they work in the
+following browsers:
+
+* Internet Explorer: 9, 8 and 7
+* Firefox: Latest + previous version
+* Chrome: Latest + previous version
+
+These browsers are determined by whatever has >= 1% share with the
+latest months data from: http://data.gov.uk/data/site-usage
+
+Install browser virtual machines
+================================
+
+In order to test in all the needed browsers you'll need access to
+all the above browser versions. Firefox and Chrome should be easy
+whatever platform you are on. Internet Explorer is a little trickier.
+You'll need Virtual Machines.
+
+We suggest you use https://github.com/xdissent/ievms to get your
+Internet Explorer virtual machines.
+
+Testing methodology
+===================
+
+Firstly we have a primer page. If you've touched any of the core
+front-end code you'll need to check if the primer is rendering
+correctly. The primer is located at:
+http://localhost:5000/testing/primer
+
+Secondly whilst writing a new feature you should endeavour to test
+in at least in your core browser and an alternative browser as often
+as you can.
+
+Thirdly you should fully test all new features that have a front-end
+element in all browsers before making your pull request into
+CKAN master.
+
+Common pitfalls & their fixes
+=============================
+
+Here's a few of the most common front end bugs and a list of their
+fixes.
+
+Reserved JS keywords
+--------------------
+
+Since IE has a stricter language definition in JS it really doesn't
+like you using JS reserved keywords method names, variables, etc...
+This is a good list of keywords not to use in your JavaScript:
+
+https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Reserved_Words
+
+::
+
+  /* These are bad */
+  var a = {
+    default: 1,
+    delete: function() {}
+  };
+
+  /* These are good */
+  var a = {
+    default_value: 1,
+    remove: function() {}
+  };
+
+Unclosed JS arrays / objects
+----------------------------
+
+Internet Explorer doesn't like it's JS to have unclosed JS objects
+and arrays. For example:
+
+::
+
+  /* These are bad */
+  var a = {
+    b: 'c',
+  };
+  var a = ['b', 'c', ];
+
+  /* These are good */
+  var a = {
+    c: 'c'
+  };
+  var a = ['b', 'c'];

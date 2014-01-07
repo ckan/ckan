@@ -1,10 +1,11 @@
-from pylons.i18n import _
-from pylons import request, c, config
+from pylons import config
 
 import ckan.logic as logic
 import ckan.model as model
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+
+from ckan.common import _, request, c
 
 
 LIMIT = 25
@@ -15,7 +16,8 @@ class TagController(base.BaseController):
     def __before__(self, action, **env):
         base.BaseController.__before__(self, action, **env)
         try:
-            context = {'model': model, 'user': c.user or c.author}
+            context = {'model': model, 'user': c.user or c.author,
+                       'auth_user_obj': c.userobj}
             logic.check_access('site_read', context)
         except logic.NotAuthorized:
             base.abort(401, _('Not authorized to see this page'))
@@ -24,7 +26,8 @@ class TagController(base.BaseController):
         c.q = request.params.get('q', '')
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'for_view': True}
 
         data_dict = {'all_fields': True}
 
@@ -57,7 +60,8 @@ class TagController(base.BaseController):
 
     def read(self, id):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'for_view': True}
 
         data_dict = {'id': id}
         try:
@@ -68,4 +72,5 @@ class TagController(base.BaseController):
         if h.asbool(config.get('ckan.legacy_templates', False)):
             return base.render('tag/read.html')
         else:
-            h.redirect_to(controller='package', action='search', tags=c.tag.get('name'))
+            h.redirect_to(controller='package', action='search',
+                          tags=c.tag.get('name'))

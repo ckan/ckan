@@ -27,12 +27,15 @@ from paste.deploy import loadapp
 
 from ckan.lib.create_test_data import CreateTestData
 from ckan.lib import search
-from ckan.lib.helpers import _flash, url_for
-from ckan.lib.helpers import json
+import ckan.lib.helpers as h
 from ckan.logic import get_action
 from ckan.logic.action import get_domain_object
 import ckan.model as model
 from ckan import ckan_nose_plugin
+from ckan.common import json
+
+# evil hack as url_for is passed out
+url_for = h.url_for
 
 __all__ = ['url_for',
            'TestController',
@@ -309,11 +312,11 @@ class TestSearchIndexer:
         return [model.Package.get(pkg_index.package_id).name for pkg_index in model.Session.query(model.PackageSearch)]
 
 def setup_test_search_index():
-    from ckan import plugins
+    #from ckan import plugins
     if not is_search_supported():
         raise SkipTest("Search not supported")
     search.clear()
-    plugins.load('synchronous_search')
+    #plugins.load('synchronous_search')
 
 def is_search_supported():
     is_supported_db = not model.engine_is_sqlite()
@@ -331,6 +334,7 @@ def is_migration_supported():
     return is_supported_db
 
 def is_datastore_supported():
+    # we assume that the datastore uses the same db engine that ckan uses
     is_supported_db = model.engine_is_pg()
     return is_supported_db
 
@@ -349,7 +353,7 @@ def regex_related(test):
     return test
 
 def clear_flash(res=None):
-    messages = _flash.pop_messages()
+    messages = h._flash.pop_messages()
 
 try:
     from nose.tools import assert_in, assert_not_in

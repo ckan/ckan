@@ -1,6 +1,0 @@
-this.ckan=this.ckan||{};(function(ckan,$){var pubsub={events:$({}),queue:null,publish:function(topic){if(pubsub.queue){pubsub.queue.push([].slice.call(arguments));}else{pubsub.events.triggerHandler(topic,[].slice.call(arguments,1));}
-return this;},subscribe:function(topic,callback){if($.isPlainObject(topic)){$.each(topic,$.proxy(pubsub.subscribe,this));return this;}
-function wrapper(){return callback.apply(this,[].slice.call(arguments,1));}
-wrapper.guid=callback.guid=callback.guid||($.guid+=1);pubsub.events.on(topic,wrapper);return this;},unsubscribe:function(topic,callback){pubsub.events.off(topic,arguments);return this;},enqueue:function(){if(!pubsub.queue){pubsub.queue=[];}
-return this;},dequeue:function(){if(pubsub.queue){var queue=pubsub.queue;var index=0;var length=queue.length;pubsub.queue=null;for(;index<length;index+=1){pubsub.publish.apply(pubsub,queue[index]);}}
-return this;}};ckan.pubsub=pubsub;ckan.sandbox.extend({publish:pubsub.publish,subscribe:pubsub.subscribe,unsubscribe:pubsub.unsubscribe});})(this.ckan,this.jQuery);

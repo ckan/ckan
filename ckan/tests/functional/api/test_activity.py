@@ -16,8 +16,9 @@ import pylons.test
 from pylons import config
 from paste.deploy.converters import asbool
 import paste.fixture
-from ckan.lib.helpers import json
 from nose import SkipTest
+from ckan.common import json
+import ckan.tests as tests
 
 
 ##def package_update(context, data_dict):
@@ -350,6 +351,7 @@ class TestActivity:
         details = self.activity_details(activity)
         # There should be five activity details: one for the package itself,
         # one for each of its two resources, and one for each of its two tags.
+
         assert len(details) == 5, "There should be five activity details."
 
         detail_ids = [detail['object_id'] for detail in details]
@@ -571,17 +573,17 @@ class TestActivity:
                 [group['name'] for group in package_dict['groups']],
                 apikey=apikey)
 
-        extras_before = package_dict['extras']
+        import copy
+        extras_before = copy.deepcopy(package_dict['extras'])
         assert len(extras_before) > 0, (
                 "Can't update an extra if the package doesn't have any")
 
         # Update the package's first extra.
-        extras = list(extras_before)
-        if extras[0]['value'] != '"edited"':
-            extras[0]['value'] = '"edited"'
+        if package_dict['extras'][0]['value'] != '"edited"':
+            package_dict['extras'][0]['value'] = '"edited"'
         else:
-            assert extras[0]['value'] != '"edited again"'
-            extras[0]['value'] = '"edited again"'
+            assert package_dict['extras'][0]['value'] != '"edited again"'
+            package_dict['extras'][0]['value'] = '"edited again"'
         updated_package = package_update(self.app, package_dict,
                 user['apikey'])
 
@@ -864,54 +866,6 @@ class TestActivity:
         assert activity['user_id'] == user['id'], str(activity['user_id'])
         assert activity['activity_type'] == 'changed group', \
             str(activity['activity_type'])
-        if 'id' not in activity:
-            assert False, "activity object has no id value"
-        # TODO: Test for the _correct_ revision_id value.
-        if 'revision_id' not in activity:
-            assert False, "activity has no revision_id value"
-        timestamp = datetime_from_string(activity['timestamp'])
-        assert timestamp >= before['time'] and timestamp <= after['time'], \
-            str(activity['timestamp'])
-
-    def _update_user(self, user):
-        """
-        Update the given user and test that the correct activity stream item
-        and detail are emitted.
-
-        """
-        response = self.app.post('/api/action/user_show',
-                json.dumps({'id': user['id']}),
-                extra_environ={'Authorization': str(user['apikey'])})
-        response_dict = json.loads(response.body)
-        assert response_dict['success'] is True
-        user_dict = response_dict['result']
-
-        before = self.record_details(user_dict['id'],
-                apikey=user_dict['apikey'])
-
-        # Update the user.
-        user_dict['about'] = 'edited'
-        if not user_dict.get('email'):
-            user_dict['email'] = 'there has to be a value in email'
-        self.app.post('/api/action/user_update', json.dumps(user_dict),
-                extra_environ={'Authorization': str(user['apikey'])})
-
-        after = self.record_details(user_dict['id'],
-                apikey=user_dict['apikey'])
-
-        # Find the new activity.
-        new_activities = find_new_activities(before['user activity stream'],
-            after['user activity stream'])
-        assert len(new_activities) == 1, ("There should be 1 new activity in "
-            "the user's activity stream, but found %i" % len(new_activities))
-        activity = new_activities[0]
-
-        # Check that the new activity has the right attributes.
-        assert activity['object_id'] == user_dict['id'], (
-                str(activity['object_id']))
-        assert activity['user_id'] == user_dict['id'], str(activity['user_id'])
-        assert activity['activity_type'] == 'changed user', (
-            str(activity['activity_type']))
         if 'id' not in activity:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
@@ -1485,17 +1439,6 @@ class TestActivity:
         details = self.activity_details(activity)
         assert len(details) == 0, ("There shouldn't be any activity details"
                 " for a 'new user' activity")
-
-    def test_update_user(self):
-        """
-        Test updated user activity stream.
-
-        Test that correct activity stream item is created when users are
-        updated.
-
-        """
-        for user in self.users:
-            self._update_user(user)
 
     def test_create_group(self):
 
@@ -2121,3 +2064,139 @@ class TestActivity:
         activities = ckan.tests.call_action_api(self.app,
                 'organization_activity_list', id=organization['name'])
         assert len(activities) > 0
+
+    def test_related_item_new(self):
+        user = self.normal_user
+        data = {'title': 'random', 'type': 'Application', 'url':
+                'http://example.com/application'}
+        extra_environ = {'Authorization': str(user['apikey'])}
+        response = self.app.post('/api/action/related_create',
+                                 json.dumps(data),
+                                 extra_environ=extra_environ)
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+
+        activity_response = self.app.post('/api/3/action/user_activity_list',
+                                         json.dumps({'id': user['id']}))
+        activity_response_dict = json.loads(activity_response.body)
+        assert (activity_response_dict['result'][0]['activity_type'] == 'new '
+                'related item')
+        assert activity_response_dict['result'][0]['user_id'] == user['id']
+        assert (activity_response_dict['result'][0]['data']['related']['id'] ==
+                response_dict['result']['id'])
+        assert activity_response_dict['result'][0]['data']['dataset'] is None
+
+    def test_related_item_changed(self):
+        # Create related item
+        user = self.normal_user
+        data = {'title': 'random', 'type': 'Application', 'url':
+                'http://example.com/application'}
+        extra_environ = {'Authorization': str(user['apikey'])}
+        response = self.app.post('/api/action/related_create',
+                                 json.dumps(data),
+                                 extra_environ=extra_environ)
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+
+        # Modify it
+        data = {'id': response_dict['result']['id'], 'title': 'random2',
+                'owner_id': str(user['id']), 'type': 'Application'}
+        response = self.app.post('/api/action/related_update',
+            json.dumps(data), extra_environ=extra_environ)
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+
+        # Test for activity stream entries
+        activity_response = self.app.post('/api/3/action/user_activity_list',
+                                         json.dumps({'id': user['id']}))
+        activity_response_dict = json.loads(activity_response.body)
+        assert (activity_response_dict['result'][0]['activity_type'] ==
+                'changed related item')
+        assert (activity_response_dict['result'][0]['object_id'] ==
+                response_dict['result']['id'])
+        assert activity_response_dict['result'][0]['user_id'] == user['id']
+        assert (activity_response_dict['result'][0]['data']['related']['id'] ==
+                response_dict['result']['id'])
+        assert activity_response_dict['result'][0]['data']['dataset'] is None
+
+    def test_related_item_deleted(self):
+        # Create related item
+        user = self.normal_user
+        data = {'title': 'random', 'type': 'Application', 'url':
+                'http://example.com/application'}
+        extra_environ = {'Authorization': str(user['apikey'])}
+        response = self.app.post('/api/action/related_create',
+                                 json.dumps(data),
+                                 extra_environ=extra_environ)
+        response_dict = json.loads(response.body)
+        assert response_dict['success'] is True
+
+        # Delete related item
+        data = {'id': response_dict['result']['id']}
+        deleted_response = self.app.post('/api/action/related_delete',
+                                 json.dumps(data),
+                                 extra_environ=extra_environ)
+        deleted_response_dict = json.loads(deleted_response.body)
+        assert deleted_response_dict['success'] is True
+
+        # Test for activity stream entries
+        activity_response = self.app.post('/api/3/action/user_activity_list',
+                                         json.dumps({'id': user['id']}))
+        activity_response_dict = json.loads(activity_response.body)
+        assert (activity_response_dict['result'][0]['activity_type'] ==
+                'deleted related item')
+        assert (activity_response_dict['result'][0]['object_id'] ==
+                response_dict['result']['id'])
+        assert activity_response_dict['result'][0]['user_id'] == user['id']
+        assert (activity_response_dict['result'][0]['data']['related']['id'] ==
+                response_dict['result']['id'])
+
+    def test_no_activity_when_creating_private_dataset(self):
+        '''There should be no activity when a private dataset is created.'''
+
+        user = self.normal_user
+        organization = tests.call_action_api(self.app, 'organization_create',
+                name='another_test_org', apikey=user['apikey'])
+        dataset = tests.call_action_api(self.app, 'package_create',
+                apikey=user['apikey'],
+                name='test_private_dataset',
+                owner_org=organization['id'], private=True)
+        activity_stream = tests.call_action_api(self.app,
+                'package_activity_list', id=dataset['id'],
+                apikey=user['apikey'])
+        assert activity_stream == []
+
+    def test_no_activity_when_updating_private_dataset(self):
+        '''There should be no activity when a private dataset is created.'''
+
+        user = self.normal_user
+        organization = tests.call_action_api(self.app, 'organization_create',
+                name='test_org_3', apikey=user['apikey'])
+        dataset = tests.call_action_api(self.app, 'package_create',
+                apikey=user['apikey'],
+                name='test_private_dataset_2',
+                owner_org=organization['id'], private=True)
+        dataset['notes'] = 'updated'
+        updated_dataset = tests.call_action_api(self.app, 'package_update',
+                apikey=user['apikey'], **dataset)
+        activity_stream = tests.call_action_api(self.app,
+                'package_activity_list', id=dataset['id'],
+                apikey=user['apikey'])
+        assert activity_stream == []
+
+    def test_no_activity_when_deleting_private_dataset(self):
+        '''There should be no activity when a private dataset is created.'''
+
+        user = self.normal_user
+        organization = tests.call_action_api(self.app, 'organization_create',
+                name='test_org_4', apikey=user['apikey'])
+        dataset = tests.call_action_api(self.app, 'package_create',
+                apikey=user['apikey'],
+                name='test_private_dataset_3',
+                owner_org=organization['id'], private=True)
+        deleted_dataset = tests.call_action_api(self.app, 'package_delete',
+                apikey=user['apikey'], id=dataset['id'])
+        activity_stream = tests.call_action_api(self.app,
+                'package_activity_list', id=dataset['id'],
+                apikey=user['apikey'])
+        assert activity_stream == []

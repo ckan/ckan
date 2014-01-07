@@ -1,48 +1,51 @@
 import logging
 from urllib import urlencode
 import datetime
+import os
+import mimetypes
+import cgi
 
 from pylons import config
-from pylons.i18n import _
 from genshi.template import MarkupTemplate
 from genshi.template.text import NewTextTemplate
 from paste.deploy.converters import asbool
+import paste.fileapp
 
-from ckan.logic import get_action, check_access
-from ckan.lib.helpers import date_str_to_datetime
-from ckan.lib.base import (request,
-                           render,
-                           BaseController,
-                           model,
-                           abort, h, g, c)
-from ckan.lib.base import response, redirect, gettext
+import ckan.logic as logic
+import ckan.lib.base as base
 import ckan.lib.maintain as maintain
-from ckan.lib.package_saver import PackageSaver, ValidationException
-from ckan.lib.navl.dictization_functions import DataError, unflatten
-from ckan.lib.helpers import json
-from ckan.logic import NotFound, NotAuthorized, ValidationError
-from ckan.logic import (tuplize_dict,
-                        clean_dict,
-                        parse_params,
-                        flatten_to_string_key)
-from ckan.lib.i18n import get_lang
-import ckan.rating
+import ckan.lib.package_saver as package_saver
+import ckan.lib.i18n as i18n
+import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.accept as accept
 import ckan.lib.helpers as h
+import ckan.model as model
 import ckan.lib.datapreview as datapreview
-import ckan.plugins as plugins
+import ckan.lib.plugins
+import ckan.lib.uploader as uploader
+import ckan.plugins as p
+import ckan.lib.render
+
+from ckan.common import OrderedDict, _, json, request, c, g, response
 from home import CACHE_PARAMETERS
 
-from ckan.lib.plugins import lookup_package_plugin
-import ckan.plugins as p
-
-
-try:
-    from collections import OrderedDict # 2.7
-except ImportError:
-    from sqlalchemy.util import OrderedDict
-
 log = logging.getLogger(__name__)
+
+render = base.render
+abort = base.abort
+redirect = base.redirect
+
+NotFound = logic.NotFound
+NotAuthorized = logic.NotAuthorized
+ValidationError = logic.ValidationError
+check_access = logic.check_access
+get_action = logic.get_action
+tuplize_dict = logic.tuplize_dict
+clean_dict = logic.clean_dict
+parse_params = logic.parse_params
+flatten_to_string_key = logic.flatten_to_string_key
+
+lookup_package_plugin = ckan.lib.plugins.lookup_package_plugin
 
 
 def _encode_params(params):
@@ -62,7 +65,8 @@ def search_url(params, package_type=None):
         url = h.url_for('{0}_search'.format(package_type))
     return url_with_params(url, params)
 
-class PackageController(BaseController):
+
+class PackageController(base.BaseController):
 
     def _package_form(self, package_type=None):
         return lookup_package_plugin(package_type).package_form()
@@ -76,9 +80,6 @@ class PackageController(BaseController):
 
     def _edit_template(self, package_type):
         return lookup_package_plugin(package_type).edit_template()
-
-    def _comments_template(self, package_type):
-        return lookup_package_plugin(package_type).comments_template()
 
     def _search_template(self, package_type):
         return lookup_package_plugin(package_type).search_template()
@@ -113,14 +114,14 @@ class PackageController(BaseController):
 
         return pt
 
-
     def search(self):
         from ckan.lib.search import SearchError
 
         package_type = self._guess_package_type()
 
         try:
-            context = {'model': model, 'user': c.user or c.author}
+            context = {'model': model, 'user': c.user or c.author,
+                       'auth_user_obj': c.userobj}
             check_access('site_read', context)
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
@@ -211,7 +212,8 @@ class PackageController(BaseController):
                         search_extras[param] = value
 
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'for_view': True}
+                       'user': c.user or c.author, 'for_view': True,
+                       'auth_user_obj': c.userobj}
 
             if package_type and package_type != 'dataset':
                 # Only show datasets of this particular type
@@ -229,7 +231,7 @@ class PackageController(BaseController):
                     'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license_id': _('Licence'),
+                    'license_id': _('Licenses'),
                     }
 
             for facet in g.facets:
@@ -239,7 +241,7 @@ class PackageController(BaseController):
                     facets[facet] = facet
 
             # Facet titles
-            for plugin in plugins.PluginImplementations(plugins.IFacets):
+            for plugin in p.PluginImplementations(p.IFacets):
                 facets = plugin.dataset_facets(facets, package_type)
 
             c.facet_titles = facets
@@ -275,7 +277,14 @@ class PackageController(BaseController):
             c.page = h.Page(collection=[])
         c.search_facets_limits = {}
         for facet in c.search_facets.keys():
-            limit = int(request.params.get('_%s_limit' % facet, 10))
+            try:
+                limit = int(request.params.get('_%s_limit' % facet,
+                                               g.facets_default_number))
+            except ValueError:
+                abort(400, _('Parameter "{parameter_name}" is not '
+                             'an integer').format(
+                                 parameter_name='_%s_limit' % facet
+                             ))
             c.search_facets_limits[facet] = limit
 
         maintain.deprecate_context_item(
@@ -303,6 +312,31 @@ class PackageController(BaseController):
         ct, mu, ext = accept.parse_header(request.headers.get('Accept', ''))
         return ct, ext, (NewTextTemplate, MarkupTemplate)[mu]
 
+    def resources(self, id):
+        package_type = self._get_package_type(id.split('@')[0])
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj}
+        data_dict = {'id': id}
+
+        try:
+            check_access('package_update', context, data_dict)
+        except NotAuthorized, e:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+        # check if package exists
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg = context['package']
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read package %s') % id)
+
+        self._setup_template_variables(context, {'id': id},
+                                       package_type=package_type)
+
+        return render('package/resources.html')
+
     def read(self, id, format='html'):
         if not format == 'html':
             ctype, extension, loader = \
@@ -320,7 +354,8 @@ class PackageController(BaseController):
 
         package_type = self._get_package_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj}
         data_dict = {'id': id}
 
         # interpret @<revision_id> or @<date> suffix
@@ -331,7 +366,7 @@ class PackageController(BaseController):
                 context['revision_id'] = revision_ref
             else:
                 try:
-                    date = date_str_to_datetime(revision_ref)
+                    date = h.date_str_to_datetime(revision_ref)
                     context['revision_date'] = date
                 except TypeError, e:
                     abort(400, _('Invalid revision format: %r') % e.args)
@@ -341,7 +376,7 @@ class PackageController(BaseController):
             abort(400, _('Invalid revision format: %r') %
                   'Too many "@" symbols')
 
-        #check if package exists
+        # check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
@@ -354,36 +389,28 @@ class PackageController(BaseController):
         c.current_package_id = c.pkg.id
         c.related_count = c.pkg.related_count
 
+        # can the resources be previewed?
+        for resource in c.pkg_dict['resources']:
+            resource['can_be_previewed'] = self._resource_preview(
+                {'resource': resource, 'package': c.pkg_dict})
+
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
 
-        PackageSaver().render_package(c.pkg_dict, context)
+        package_saver.PackageSaver().render_package(c.pkg_dict, context)
 
         template = self._read_template(package_type)
         template = template[:template.index('.') + 1] + format
 
-        return render(template, loader_class=loader)
-
-    def comments(self, id):
-        package_type = self._get_package_type(id)
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-
-        #check if package exists
         try:
-            c.pkg_dict = get_action('package_show')(context, {'id': id})
-            c.pkg = context['package']
-        except NotFound:
-            abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
+            return render(template, loader_class=loader)
+        except ckan.lib.render.TemplateNotFound:
+            msg = _("Viewing {package_type} datasets in {format} format is "
+                    "not supported (template file {file} not found).".format(
+                    package_type=package_type, format=format, file=template))
+            abort(404, msg)
 
-        # used by disqus plugin
-        c.current_package_id = c.pkg.id
-
-        #render the package
-        PackageSaver().render_package(c.pkg_dict)
-        return render(self._comments_template(package_type))
+        assert False, "We should never get here"
 
     def history(self, id):
         package_type = self._get_package_type(id.split('@')[0])
@@ -404,13 +431,13 @@ class PackageController(BaseController):
                 h.redirect_to(controller='revision', action='diff', **params)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg_revisions = get_action('package_revision_list')(context,
                                                                   data_dict)
-            #TODO: remove
+            # TODO: remove
             # Still necessary for the authz check in group/layout.html
             c.pkg = context['package']
 
@@ -429,7 +456,7 @@ class PackageController(BaseController):
                                id=c.pkg_dict['name']),
                 description=_(u'Recent changes to CKAN Dataset: ') +
                 (c.pkg_dict['title'] or ''),
-                language=unicode(get_lang()),
+                language=unicode(i18n.get_lang()),
             )
             for revision_dict in c.pkg_revisions:
                 revision_date = h.date_str_to_datetime(
@@ -470,7 +497,7 @@ class PackageController(BaseController):
         package_type = self._guess_package_type(True)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'save': 'save' in request.params}
 
         # Package needs to have a organization group in the call to
@@ -483,9 +510,9 @@ class PackageController(BaseController):
         if context['save'] and not data:
             return self._save_new(context, package_type=package_type)
 
-        data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+        data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
             request.params, ignore_keys=CACHE_PARAMETERS))))
-        c.resources_json = json.dumps(data.get('resources', []))
+        c.resources_json = h.json.dumps(data.get('resources', []))
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
             data['tag_string'] = ', '.join(
@@ -509,7 +536,7 @@ class PackageController(BaseController):
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary,
                 'action': 'new', 'stage': stage}
-        c.errors_json = json.dumps(errors)
+        c.errors_json = h.json.dumps(errors)
 
         self._setup_template_variables(context, {},
                                        package_type=package_type)
@@ -527,14 +554,14 @@ class PackageController(BaseController):
     def resource_edit(self, id, resource_id, data=None, errors=None,
                       error_summary=None):
         if request.method == 'POST' and not data:
-            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                 request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
 
             context = {'model': model, 'session': model.Session,
-                       'api_version': 3,
-                       'user': c.user or c.author}
+                       'api_version': 3, 'for_edit': True,
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
             data['package_id'] = id
             try:
@@ -553,10 +580,9 @@ class PackageController(BaseController):
             redirect(h.url_for(controller='package', action='resource_read',
                                id=id, resource_id=resource_id))
 
-
         context = {'model': model, 'session': model.Session,
-                   'api_version': 3,
-                   'user': c.user or c.author,}
+                   'api_version': 3, 'for_edit': True,
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
         pkg_dict = get_action('package_show')(context, {'id': id})
         if pkg_dict['state'].startswith('draft'):
             # dataset has not yet been fully created
@@ -587,14 +613,12 @@ class PackageController(BaseController):
                 'error_summary': error_summary, 'action': 'new'}
         return render('package/resource_edit.html', extra_vars=vars)
 
-
-
     def new_resource(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the
         forms. '''
         if request.method == 'POST' and not data:
             save_action = request.params.get('save')
-            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                 request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
@@ -602,13 +626,13 @@ class PackageController(BaseController):
             del data['id']
 
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author,
-                       'extras_as_string': True}
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
             # see if we have any data that we are trying to save
             data_provided = False
             for key, value in data.iteritems():
-                if value and key != 'resource_type':
+                if ((value or isinstance(value, cgi.FieldStorage))
+                    and key != 'resource_type'):
                     data_provided = True
                     break
 
@@ -622,11 +646,21 @@ class PackageController(BaseController):
                     data_dict = get_action('package_show')(context, {'id': id})
                 except NotAuthorized:
                     abort(401, _('Unauthorized to update dataset'))
+                except NotFound:
+                    abort(404,
+                      _('The dataset {id} could not be found.').format(id=id))
                 if not len(data_dict['resources']):
                     # no data so keep on page
-                    h.flash_error(_('You must add at least one data resource'))
-                    redirect(h.url_for(controller='package',
-                                       action='new_resource', id=id))
+                    msg = _('You must add at least one data resource')
+                    # On new templates do not use flash message
+                    if g.legacy_templates:
+                        h.flash_error(msg)
+                        redirect(h.url_for(controller='package',
+                                           action='new_resource', id=id))
+                    else:
+                        errors = {}
+                        error_summary = {_('Error'): msg}
+                        return self.new_resource(id, data, errors, error_summary)
                 # we have a resource so let them add metadata
                 redirect(h.url_for(controller='package',
                                    action='new_metadata', id=id))
@@ -644,6 +678,9 @@ class PackageController(BaseController):
                 return self.new_resource(id, data, errors, error_summary)
             except NotAuthorized:
                 abort(401, _('Unauthorized to create a resource'))
+            except NotFound:
+                abort(404,
+                    _('The dataset {id} could not be found.').format(id=id))
             if save_action == 'go-metadata':
                 # go to final stage of add dataset
                 redirect(h.url_for(controller='package',
@@ -667,31 +704,35 @@ class PackageController(BaseController):
         vars['pkg_name'] = id
         # get resources for sidebar
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
-        pkg_dict = get_action('package_show')(context, {'id': id})
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
+        try:
+            pkg_dict = get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('The dataset {id} could not be found.').format(id=id))
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
+        template = 'package/new_resource_not_draft.html'
         if pkg_dict['state'] == 'draft':
             vars['stage'] = ['complete', 'active']
+            template = 'package/new_resource.html'
         elif pkg_dict['state'] == 'draft-complete':
             vars['stage'] = ['complete', 'active', 'complete']
-        return render('package/new_resource.html', extra_vars=vars)
+            template = 'package/new_resource.html'
+        return render(template, extra_vars=vars)
 
     def new_metadata(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the
         forms. '''
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
         if request.method == 'POST' and not data:
             save_action = request.params.get('save')
-            data = data or clean_dict(unflatten(tuplize_dict(parse_params(
+            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                 request.POST))))
             # we don't want to include save as it is part of the form
             del data['save']
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author,
-                       'extras_as_string': True}
+
             data_dict = get_action('package_show')(context, {'id': id})
 
             data_dict['id'] = id
@@ -739,7 +780,7 @@ class PackageController(BaseController):
     def edit(self, id, data=None, errors=None, error_summary=None):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'save': 'save' in request.params,
                    'moderated': config.get('moderated'),
                    'pending': True}
@@ -767,7 +808,7 @@ class PackageController(BaseController):
                             error_summary=error_summary)
 
         c.pkg = context.get("package")
-        c.resources_json = json.dumps(data.get('resources', []))
+        c.resources_json = h.json.dumps(data.get('resources', []))
 
         try:
             check_access('package_update', context)
@@ -780,7 +821,7 @@ class PackageController(BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'edit'}
-        c.errors_json = json.dumps(errors)
+        c.errors_json = h.json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
@@ -807,7 +848,7 @@ class PackageController(BaseController):
     def read_ajax(self, id, revision=None):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'revision_id': revision}
         try:
             data = get_action('package_show')(context, {'id': id})
@@ -819,12 +860,12 @@ class PackageController(BaseController):
         data.pop('tags')
         data = flatten_to_string_key(data)
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
-        return json.dumps(data)
+        return h.json.dumps(data)
 
     def history_ajax(self, id):
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
         data_dict = {'id': id}
         try:
             pkg_revisions = get_action('package_revision_list')(
@@ -850,7 +891,7 @@ class PackageController(BaseController):
                          'current_approved': current_approved})
 
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
-        return json.dumps(data)
+        return h.json.dumps(data)
 
     def _get_package_type(self, id):
         """
@@ -882,7 +923,7 @@ class PackageController(BaseController):
         ckan_phase = request.params.get('_ckan_phase')
         from ckan.lib.search import SearchIndexError
         try:
-            data_dict = clean_dict(unflatten(
+            data_dict = clean_dict(dict_fns.unflatten(
                 tuplize_dict(parse_params(request.POST))))
             if ckan_phase:
                 # prevent clearing of groups etc
@@ -931,7 +972,7 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound, e:
             abort(404, _('Dataset not found'))
-        except DataError:
+        except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
             try:
@@ -957,7 +998,7 @@ class PackageController(BaseController):
         log.debug('Package save request name: %s POST: %r',
                   name_or_id, request.POST)
         try:
-            data_dict = clean_dict(unflatten(
+            data_dict = clean_dict(dict_fns.unflatten(
                 tuplize_dict(parse_params(request.POST))))
             if '_ckan_phase' in data_dict:
                 # we allow partial updates to not destroy existing resources
@@ -982,7 +1023,7 @@ class PackageController(BaseController):
             abort(401, _('Unauthorized to read package %s') % id)
         except NotFound, e:
             abort(404, _('Dataset not found'))
-        except DataError:
+        except dict_fns.DataError:
             abort(400, _(u'Integrity Error'))
         except SearchIndexError, e:
             try:
@@ -1024,40 +1065,13 @@ class PackageController(BaseController):
         if not is_included:
             options.insert(1, (pkg.license_id, pkg.license_id))
 
-    def authz(self, id):
-        pkg = model.Package.get(id)
-        if pkg is None:
-            abort(404, gettext('Dataset not found'))
-        # needed to add in the tab bar to the top of the auth page
-        c.pkg = pkg
-        c.pkgname = pkg.name
-        c.pkgtitle = pkg.title
-        try:
-            context = {'model': model, 'user': c.user or c.author,
-                       'package': pkg}
-            check_access('package_edit_permissions', context)
-            c.authz_editable = True
-            c.pkg_dict = get_action('package_show')(context, {'id': id})
-        except NotAuthorized:
-            c.authz_editable = False
-        if not c.authz_editable:
-            abort(401, gettext('User %r not authorized to edit %s '
-                               'authorizations') % (c.user, id))
-
-        roles = self._handle_update_of_authz(pkg)
-        self._prepare_authz_info_for_render(roles)
-
-        # c.related_count = len(pkg.related)
-
-        return render('package/authz.html')
-
     def delete(self, id):
 
         if 'cancel' in request.params:
             h.redirect_to(controller='package', action='edit', id=id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
         try:
             check_access('package_delete', context, {'id': id})
@@ -1082,7 +1096,7 @@ class PackageController(BaseController):
             h.redirect_to(controller='package', action='resource_edit', resource_id=resource_id, id=id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
         try:
             check_access('package_delete', context, {'id': id})
@@ -1109,7 +1123,7 @@ class PackageController(BaseController):
             return ''
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
         data_dict = {'q': q}
         packages = get_action('package_autocomplete')(context, data_dict)
@@ -1154,7 +1168,7 @@ class PackageController(BaseController):
         validation = fs.validate()
         if not validation:
             c.form = self._render_edit_form(fs, request.params)
-            raise ValidationException(fs)
+            raise package_saver.ValidationException(fs)
         try:
             fs.sync()
         except Exception, inst:
@@ -1165,7 +1179,7 @@ class PackageController(BaseController):
 
     def resource_read(self, id, resource_id):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
         try:
             c.resource = get_action('resource_show')(context,
@@ -1187,18 +1201,27 @@ class PackageController(BaseController):
             c.package['isopen'] = False
 
         # TODO: find a nicer way of doing this
-        c.datastore_api = '%s/api/action' % config.get('ckan.site_url','').rstrip('/')
+        c.datastore_api = '%s/api/action' % config.get('ckan.site_url', '').rstrip('/')
 
         c.related_count = c.pkg.related_count
+
+        c.resource['can_be_previewed'] = self._resource_preview(
+            {'resource': c.resource, 'package': c.package})
         return render('package/resource_read.html')
 
-    def resource_download(self, id, resource_id):
+    def _resource_preview(self, data_dict):
+        return bool(datapreview.res_format(data_dict['resource'])
+                    in datapreview.direct() + datapreview.loadable()
+                    or datapreview.get_preview_plugin(
+                        data_dict, return_first=True))
+
+    def resource_download(self, id, resource_id, filename=None):
         """
-        Provides a direct download by redirecting the user to the url stored
-        against this resource.
+        Provides a direct download by either redirecting the user to the url stored
+         or downloading an uploaded file directly.
         """
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
         try:
             rsc = get_action('resource_show')(context, {'id': resource_id})
@@ -1208,7 +1231,20 @@ class PackageController(BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
 
-        if not 'url' in rsc:
+        if rsc.get('url_type') == 'upload':
+            upload = uploader.ResourceUpload(rsc)
+            filepath = upload.get_path(rsc['id'])
+            fileapp = paste.fileapp.FileApp(filepath)
+            try:
+               status, headers, app_iter = request.call_application(fileapp)
+            except OSError:
+               abort(404, _('Resource data not found'))
+            response.headers.update(dict(headers))
+            content_type, content_enc = mimetypes.guess_type(rsc.get('url',''))
+            response.headers['Content-Type'] = content_type
+            response.status = status
+            return app_iter
+        elif not 'url' in rsc:
             abort(404, _('No download is available'))
         redirect(rsc['url'])
 
@@ -1216,7 +1252,7 @@ class PackageController(BaseController):
         '''Start following this dataset.'''
         context = {'model': model,
                    'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
         data_dict = {'id': id}
         try:
             get_action('follow_dataset')(context, data_dict)
@@ -1235,7 +1271,7 @@ class PackageController(BaseController):
         '''Stop following this dataset.'''
         context = {'model': model,
                    'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
         data_dict = {'id': id}
         try:
             get_action('unfollow_dataset')(context, data_dict)
@@ -1253,7 +1289,9 @@ class PackageController(BaseController):
 
     def followers(self, id=None):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj}
+
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
@@ -1269,11 +1307,68 @@ class PackageController(BaseController):
 
         return render('package/followers.html')
 
+    def groups(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj, 'use_cache': False}
+        data_dict = {'id': id}
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read dataset %s') % id)
+
+        if request.method == 'POST':
+            new_group = request.POST.get('group_added')
+            if new_group:
+                data_dict = {"id": new_group,
+                             "object": id,
+                             "object_type": 'package',
+                             "capacity": 'public'}
+                try:
+                    get_action('member_create')(context, data_dict)
+                except NotFound:
+                    abort(404, _('Group not found'))
+
+            removed_group = request.POST.get('group_removed')
+            if removed_group:
+                data_dict = {"id": removed_group,
+                             "object": id,
+                             "object_type": 'package'}
+
+                try:
+                    get_action('member_delete')(context, data_dict)
+                except NotFound:
+                    abort(404, _('Group not found'))
+            redirect(h.url_for(controller='package',
+                               action='groups', id=id))
+
+
+
+        context['is_member'] = True
+        users_groups = get_action('group_list_authz')(context, data_dict)
+
+        pkg_group_ids = set(group['id'] for group
+                         in c.pkg_dict.get('groups', []))
+        user_group_ids = set(group['id'] for group
+                          in users_groups)
+
+        c.group_dropdown = [[group['id'], group['display_name']]
+                           for group in users_groups if
+                           group['id'] not in pkg_group_ids]
+
+        for group in c.pkg_dict.get('groups', []):
+            group['user_member'] = (group['id'] in user_group_ids)
+
+        return render('package/group_list.html')
+
     def activity(self, id):
         '''Render this package's public activity stream page.'''
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj}
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
@@ -1297,13 +1392,13 @@ class PackageController(BaseController):
         querystring (as well as accepting them via routes).
         """
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
         try:
             c.resource = get_action('resource_show')(context,
                                                      {'id': resource_id})
             c.package = get_action('package_show')(context, {'id': id})
-            c.resource_json = json.dumps(c.resource)
+            c.resource_json = h.json.dumps(c.resource)
 
             # double check that the resource belongs to the specified package
             if not c.resource['id'] in [r['id']
@@ -1322,7 +1417,7 @@ class PackageController(BaseController):
             abort(400, ('"state" parameter must be a valid recline '
                         'state (version %d)' % state_version))
 
-        c.recline_state = json.dumps(recline_state)
+        c.recline_state = h.json.dumps(recline_state)
 
         c.width = max(int(request.params.get('width', width)), 100)
         c.height = max(int(request.params.get('height', height)), 100)
@@ -1338,7 +1433,7 @@ class PackageController(BaseController):
         recline_state = {}
         for k, v in request.params.items():
             try:
-                v = json.loads(v)
+                v = h.json.loads(v)
             except ValueError:
                 pass
             recline_state[k] = v
@@ -1367,14 +1462,15 @@ class PackageController(BaseController):
         '''
         Embeded page for a resource data-preview.
 
-        Depending on the type, different previews are loaded.
-        This could be an img tag where the image is loaded directly or an iframe that
-        embeds a webpage, recline or a pdf preview.
+        Depending on the type, different previews are loaded.  This could be an
+        img tag where the image is loaded directly or an iframe that embeds a
+        webpage, recline or a pdf preview.
         '''
         context = {
             'model': model,
             'session': model.Session,
-            'user': c.user or c.author
+            'user': c.user or c.author,
+            'auth_user_obj': c.userobj
         }
 
         try:
@@ -1383,30 +1479,17 @@ class PackageController(BaseController):
             c.package = get_action('package_show')(context, {'id': id})
 
             data_dict = {'resource': c.resource, 'package': c.package}
-            on_same_domain = datapreview.resource_is_on_same_domain(data_dict)
-            data_dict['resource']['on_same_domain'] = on_same_domain
 
-            # FIXME this wants to not use plugins as it is an imported name
-            # and we already import it an p should really only be in
-            # extensu=ions in my opinion also just make it look nice and be
-            # readable grrrrrr
-            plugins = p.PluginImplementations(p.IResourcePreview)
-            plugins_that_can_preview = [plugin for plugin in plugins
-                                    if plugin.can_preview(data_dict)]
-            if len(plugins_that_can_preview) == 0:
+            preview_plugin = datapreview.get_preview_plugin(data_dict)
+
+            if preview_plugin is None:
                 abort(409, _('No preview has been defined.'))
-            if len(plugins_that_can_preview) > 1:
-                log.warn('Multiple previews are possible. {0}'.format(
-                                            plugins_that_can_preview))
 
-            plugin = plugins_that_can_preview[0]
-            plugin.setup_template_variables(context, data_dict)
-
+            preview_plugin.setup_template_variables(context, data_dict)
             c.resource_json = json.dumps(c.resource)
-
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
         else:
-            return render(plugin.preview_template(context, data_dict))
+            return render(preview_plugin.preview_template(context, data_dict))

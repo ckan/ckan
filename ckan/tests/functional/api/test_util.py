@@ -4,7 +4,7 @@ from ckan import model, __version__
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import TestController as ControllerTestCase
 from ckan.tests import url_for
-from ckan.lib.helpers import json
+from ckan.common import json
 
 class TestUtil(ControllerTestCase):
     @classmethod
@@ -163,5 +163,5 @@ class TestUtil(ControllerTestCase):
         assert_equal(res['locale_default'], 'en')
 
         assert_equal(type(res['extensions']), list)
-        expected_extensions = set(('stats', 'test_tag_vocab_plugin'))
+        expected_extensions = set(('stats',))
         assert_equal(set(res['extensions']), expected_extensions)

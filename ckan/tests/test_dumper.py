@@ -6,7 +6,7 @@ import ckan
 from ckan.tests import *
 import ckan.model as model
 import ckan.lib.dumper as dumper
-from ckan.lib.helpers import json
+from ckan.common import json
 from ckan.lib.dumper import Dumper
 simple_dumper = dumper.SimpleDumper()
 

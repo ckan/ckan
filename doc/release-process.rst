@@ -2,16 +2,17 @@ Doing a CKAN Release
 ====================
 
 These are the steps followed by CKAN developers to do a release. To get an
-overview of CKAN releases, check :doc:`release-cycle`.
+overview of CKAN releases, check :doc:`upgrading`.
 
+.. _beta-release:
 
-Doing a Beta release
+Doing a Beta Release
 --------------------
 
 Beta releases are branched off a certain point in master and will eventually
 become stable releases.
 
-1. Create a new release branch::
+#. Create a new release branch::
 
         git checkout -b release-v1.8
 
@@ -25,11 +26,22 @@ become stable releases.
    You will probably need to update the same file on master to increase the
    version number, in this case ending with an *a* (for alpha).
 
-2. During the beta process, all changes to the release branch must be
+#. Check if there have been changes in the |solr| schema at
+   ``ckan/config/solr/schema.xml``, and if so:
+
+    * Update the ``version`` attribute of the ``schema`` with the current CKAN
+      version::
+
+        <schema name="ckan" version="{version}">
+
+    * Update the ``SUPPORTED_SCHEMA_VERSIONS`` list in
+      ``ckan/lib/search/__init__.py``
+
+#. During the beta process, all changes to the release branch must be
    cherry-picked from master (or merged from special branches based on the
    release branch if the original branch was not compatible).
 
-3. As in the master branch, if some commits involving CSS changes are
+#. As in the master branch, if some commits involving CSS changes are
    cherry-picked from master, the less compiling command needs to be run on
    the release branch. This will update the ``main.css`` file::
 
@@ -39,10 +51,10 @@ become stable releases.
 
    There will be a final front-end build before the actual release.
 
-4. The beta staging site (http://beta.ckan.org, currently on s084) should be
+#. The beta staging site (http://beta.ckan.org, currently on s084) should be
    updated regularly to allow user testing.
 
-5. Once the translation freeze is in place (ie no changes to the translatable
+#. Once the translation freeze is in place (ie no changes to the translatable
    strings are allowed), strings need to be extracted and uploaded to
    Transifex_:
 
@@ -143,7 +155,7 @@ become stable releases.
         git push
 
 
-Doing a Proper release
+Doing a Proper Release
 ----------------------
 
 Once the release branch has been thoroughly tested and is stable we can do
@@ -217,6 +229,27 @@ a release.
 9. Write a `CKAN Blog post <http://ckan.org/wp-admin>`_ and send an email to
    the mailing list announcing the release, including the relevant bit of
    changelog.
+
+10. Cherry-pick the i18n changes from the release branch onto master.
+
+    Generally we don't merge or cherry-pick release branches into master, but
+    the files in ckan/i18n are an exception. These files are only ever changed
+    on release branches following the :ref:`beta-release` instructions above,
+    and after a release has been finalized the changes need to be cherry-picked
+    onto master.
+
+    To find out what i18n commits there are on the release-v* branch that are
+    not on master, do::
+
+      git log master..release-v* ckan/i18n
+
+    Then ``checkout`` the master branch, do a ``git status`` and a ``git pull``
+    to make sure you have the latest commits on master and no local changes.
+    Then use ``git cherry-pick`` when on the master branch to cherry-pick these
+    commits onto master. You should not get any merge conflicts. Run the
+    ``check-po-files`` command again just to be safe, it should not report any
+    problems. Run CKAN's tests, again just to be safe.  Then do ``git push
+    origin master``.
 
 
 .. _Transifex: https://www.transifex.com/projects/p/ckan

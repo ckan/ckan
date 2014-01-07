@@ -6,7 +6,7 @@ from nose.tools import assert_equal
 from ckan import model
 from ckan.lib.cli import ManageDb,SearchIndexCommand
 from ckan.lib.create_test_data import CreateTestData
-from ckan.lib.helpers import json
+from ckan.common import json
 
 from ckan.lib.search import index_for,query_for
 

@@ -10,8 +10,8 @@ import domain_object
 # i18n only works when this is run as part of pylons,
 # which isn't the case for paster commands.
 try:
-    from pylons.i18n import _
-    _('')
+    from ckan.common import _
+    _()
 except:
     def _(txt):
         return txt

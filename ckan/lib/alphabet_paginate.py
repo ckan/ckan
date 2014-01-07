@@ -15,11 +15,12 @@ Based on webhelpers.paginator, but:
 '''
 from itertools import dropwhile
 import re
+
 from sqlalchemy import  __version__ as sqav
 from sqlalchemy.orm.query import Query
-from pylons.i18n import _
 from webhelpers.html.builder import HTML
 from routes import url_for
+
 
 class AlphaPage(object):
     def __init__(self, collection, alpha_attribute, page, other_text, paging_threshold=50,

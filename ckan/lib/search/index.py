@@ -7,6 +7,8 @@ from dateutil.parser import parse
 
 import re
 
+import solr
+
 from pylons import config
 from paste.deploy.converters import asbool
 
@@ -108,7 +110,7 @@ class PackageSearchIndex(SearchIndex):
 
         pkg_dict['data_dict'] = json.dumps(pkg_dict)
 
-        if asbool(config.get('ckan.cache_validated_datasets', True)):
+        if config.get('ckan.cache_validated_datasets', True):
             package_plugin = lib_plugins.lookup_package_plugin(
                 pkg_dict.get('type'))
 
@@ -266,12 +268,13 @@ class PackageSearchIndex(SearchIndex):
             if not asbool(config.get('ckan.search.solr_commit', 'true')):
                 commit = False
             conn.add_many([pkg_dict], _commit=commit)
-        except socket.error, e:
-            err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
-            log.error(err)
-            raise SearchIndexError(err)
         except solr.core.SolrException, e:
-            err = 'SOLR %r exception: %r' % (conn.url, e)
+            msg = 'Solr returned an error: {0} {1} - {2}'.format(
+                e.httpcode, e.reason, e.body[:1000] # limit huge responses
+            )
+            raise SearchIndexError(msg)
+        except socket.error, e:
+            err = 'Could not connect to Solr using {0}: {1}'.format(conn.url, str(e))
             log.error(err)
             raise SearchIndexError(err)
         except Exception, e:

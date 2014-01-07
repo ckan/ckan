@@ -2,6 +2,7 @@ import json
 import nose
 import datetime
 
+import pylons
 import sqlalchemy.orm as orm
 
 import ckan.plugins as p
@@ -10,7 +11,7 @@ import ckan.model as model
 import ckan.tests as tests
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs
+from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 
 class TestDatastoreUpsert(tests.WsgiAppCase):
@@ -25,6 +26,8 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
@@ -47,11 +50,8 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        import pylons
         engine = db._get_engine(
-                None,
-                {'connection_url': pylons.config['ckan.datastore.write_url']}
-            )
+            {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
@@ -251,6 +251,8 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
@@ -273,15 +275,13 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        import pylons
         engine = db._get_engine(
-                None,
-                {'connection_url': pylons.config['ckan.datastore.write_url']}
-            )
+            {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
     def teardown_class(cls):
+        p.unload('datastore')
         rebuild_all_dbs(cls.Session)
 
     def test_insert_non_existing_field(self):
@@ -353,6 +353,8 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
         resource = model.Package.get('annakarenina').resources[0]
         hhguide = u"hitchhiker's guide to the galaxy"
         cls.data = {
@@ -380,15 +382,13 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
 
-        import pylons
         engine = db._get_engine(
-                None,
-                {'connection_url': pylons.config['ckan.datastore.write_url']}
-            )
+            {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
     @classmethod
     def teardown_class(cls):
+        p.unload('datastore')
         rebuild_all_dbs(cls.Session)
 
     def test_update_basic(self):

@@ -56,7 +56,6 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     num_times_new_template_called = 0
     num_times_read_template_called = 0
     num_times_edit_template_called = 0
-    num_times_comments_template_called = 0
     num_times_search_template_called = 0
     num_times_history_template_called = 0
     num_times_package_form_called = 0
@@ -149,10 +148,6 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
     def edit_template(self):
         ExampleIDatasetFormPlugin.num_times_edit_template_called += 1
         return super(ExampleIDatasetFormPlugin, self).edit_template()
-
-    def comments_template(self):
-        ExampleIDatasetFormPlugin.num_times_comments_template_called += 1
-        return super(ExampleIDatasetFormPlugin, self).comments_template()
 
     def search_template(self):
         ExampleIDatasetFormPlugin.num_times_search_template_called += 1

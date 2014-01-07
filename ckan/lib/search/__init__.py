@@ -135,7 +135,7 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
             log.warn("Discarded Sync. indexing for: %s" % entity)
 
 
-def rebuild(package_id=None, only_missing=False, force=False, refresh=False, defer_commit=False,package_ids=None):
+def rebuild(package_id=None, only_missing=False, force=False, refresh=False, defer_commit=False, package_ids=None):
     '''
         Rebuilds the search index.
 

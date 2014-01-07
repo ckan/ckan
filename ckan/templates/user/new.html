@@ -9,7 +9,9 @@
 {% block primary_content %}
   <article class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ _('Register for an Account') }}</h1>
+      <h1 class="page-heading">
+        {% block page_heading %}{{ _('Register for an Account') }}{% endblock %}
+      </h1>
       {{ c.form | safe }}
     </div>
   </article>

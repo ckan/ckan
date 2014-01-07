@@ -41,14 +41,15 @@ who.config_file = %(here)s/who.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
 
-## Database Settings
 
+## Database Settings
 sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
 #sqlalchemy.url = sqlite:///
 #sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
 #ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
 #ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
+
 
 ## Site Settings
 
@@ -65,6 +66,8 @@ ckan.auth.user_create_organizations = true
 ckan.auth.user_delete_groups = true
 ckan.auth.user_delete_organizations = true
 ckan.auth.create_user_via_api = false
+ckan.auth.create_user_via_web = true
+ckan.auth.roles_that_cascade_to_sub_groups = admin
 
 
 ## Search Settings
@@ -78,10 +81,11 @@ ckan.site_id = default
 ## Plugins Settings
 
 # Note: Add ``datastore`` to enable the CKAN DataStore
+#       Add ``datapusher`` to enable DataPusher
 #       Add ``pdf_preview`` to enable the resource preview for PDFs
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats json_preview recline_preview
+ckan.plugins = stats text_preview recline_preview
 
 
 ## Front-End Settings
@@ -103,11 +107,11 @@ ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain a
 
 
 ## Internationalisation Settings
-
 ckan.locale_default = en
 ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
 ckan.locales_offered =
-ckan.locales_filtered_out =
+ckan.locales_filtered_out = en_GB
+
 
 ## Feeds Settings
 
@@ -118,20 +122,16 @@ ckan.feeds.author_link =
 
 ## Storage Settings
 
-# Local file storage:
-#ofs.impl = pairtree
-#ofs.storage_dir = /var/lib/ckan/default
+#ckan.storage_path = /var/lib/ckan
+#ckan.max_resource_size = 10
+#ckan.max_image_size = 2
 
-# Google cloud storage:
-#ofs.impl = google
-#ofs.gs_access_key_id =
-#ofs.gs_secret_access_key =
+## Datapusher settings
 
-# S3 cloud storage:
-#ofs.impl = s3
-#ofs.aws_access_key_id = ....
-#ofs.aws_secret_access_key = ....
+# Make sure you have set up the DataStore
 
+ckan.datapusher.formats = csv
+ckan.datapusher.url = http://datapusher.ckan.org/
 
 ## Activity Streams Settings
 

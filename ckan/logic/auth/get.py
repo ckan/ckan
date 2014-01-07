@@ -39,6 +39,9 @@ def revision_list(context, data_dict):
 def group_revision_list(context, data_dict):
     return group_show(context, data_dict)
 
+def organization_revision_list(context, data_dict):
+    return group_show(context, data_dict)
+
 def package_revision_list(context, data_dict):
     return package_show(context, data_dict)
 
@@ -59,8 +62,8 @@ def organization_list(context, data_dict):
 def organization_list_for_user(context, data_dict):
     return {'success': True}
 
-def licence_list(context, data_dict):
-    # Licences list is visible by default
+def license_list(context, data_dict):
+    # Licenses list is visible by default
     return {'success': True}
 
 def tag_list(context, data_dict):
@@ -100,6 +103,8 @@ def package_show(context, data_dict):
         auth = new_authz.is_authorized('package_update',
                                        context, data_dict)
         authorized = auth.get('success')
+    elif package.owner_org is None and package.state == 'active':
+        return {'success': True}
     else:
         # anyone can see a public package
         if not package.private and package.state == 'active':
@@ -133,7 +138,7 @@ def resource_show(context, data_dict):
     authorized = package_show(context, pkg_dict).get('success')
 
     if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (str(user), resource.id)}
+        return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (user, resource.id)}
     else:
         return {'success': True}
 
@@ -252,13 +257,24 @@ def followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
+@logic.auth_audit_exempt
 def user_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
+@logic.auth_audit_exempt
 def dataset_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
 
+@logic.auth_audit_exempt
 def group_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
+
+
+def user_reset(context, data_dict):
+    return {'success': True}
+
+
+def request_reset(context, data_dict):
+    return {'success': True}

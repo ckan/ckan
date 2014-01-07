@@ -65,6 +65,10 @@ class TestSolrSearchIndex(TestController):
             'owner_org': None,
             'metadata_created': datetime_now.isoformat(),
             'metadata_modified': datetime_now.isoformat(),
+            'extras': [
+                {'key': 'test_date', 'value': '2013-03-01'},
+                {'key': 'test_wrong_date', 'value': 'Not a date'},
+            ]
         }
         search.dispatch_by_operation('Package', pkg_dict, 'new')
         response = self.solr.query('title:penguin', fq=self.fq)

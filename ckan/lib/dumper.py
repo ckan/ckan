@@ -4,7 +4,7 @@ from sqlalchemy import orm
 
 import ckan.model as model
 import ckan.model
-from helpers import json, OrderedDict
+from ckan.common import json, OrderedDict
 
 class SimpleDumper(object):
     '''Dumps just package data but including tags, groups, license text etc'''

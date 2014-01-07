@@ -1,6 +1,6 @@
-=============
-Authorization
-=============
+===============================
+Organizations and authorization
+===============================
 
 .. versionchanged:: 2.0
    Previous versions of CKAN used a different authorization system.
@@ -84,9 +84,7 @@ authorization behavior:
 Extensions
 ----------
 
-CKAN allows extensions to change the authorization rules used.  Please see
-individual extensions for details.
-
-.. todo::
-
-  Insert cross-reference to ``IAuthFunctions`` docs.
+CKAN extensions can implement custom authorization rules by overriding the
+authorization functions that CKAN uses. This is done by implementing the
+:py:class:`~ckan.plugins.interfaces.IAuthFunctions` plugin interface. To get
+started with writing CKAN extensions, see :doc:`extensions/index`.

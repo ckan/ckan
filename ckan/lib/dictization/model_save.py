@@ -41,8 +41,8 @@ def resource_dict_save(res_dict, context):
             # this is an internal field so ignore
             # FIXME This helps get the tests to pass but is a hack and should
             # be fixed properly. basically don't update the format if not needed
-            if (key == 'format' and value == obj.format
-                    or value == d.model_dictize._unified_resource_format(obj.format)):
+            if (key == 'format' and (value == obj.format
+                    or value == d.model_dictize._unified_resource_format(obj.format))):
                 continue
             setattr(obj, key, value)
         else:
@@ -87,9 +87,6 @@ def package_resource_list_save(res_dicts, package, context):
         else:
             resource.state = 'deleted'
         resource_list.append(resource)
-    tag_package_tag = dict((package_tag.tag, package_tag)
-                            for package_tag in
-                            package.package_tag_all)
 
 
 def package_extras_save(extra_dicts, obj, context):
@@ -345,7 +342,11 @@ def group_member_save(context, group_dict, member_table_name):
     entities = {}
     Member = model.Member
 
-    ModelClass = getattr(model, member_table_name[:-1].capitalize())
+    classname = member_table_name[:-1].capitalize()
+    if classname == 'Organization':
+        # Organizations use the model.Group class
+        classname = 'Group'
+    ModelClass = getattr(model, classname)
 
     for entity_dict in entity_list:
         name_or_id = entity_dict.get('id') or entity_dict.get('name')
@@ -562,7 +563,7 @@ def vocabulary_tag_list_save(new_tag_dicts, vocabulary_obj, context):
 
     # First delete any tags not in new_tag_dicts.
     for tag in vocabulary_obj.tags:
-        if tag.name not in [tag['name'] for tag in new_tag_dicts]:
+        if tag.name not in [t['name'] for t in new_tag_dicts]:
             tag.delete()
     # Now add any new tags.
     for tag_dict in new_tag_dicts:

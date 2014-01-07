@@ -29,13 +29,17 @@ this.ckan = this.ckan || {};
 
     ckan.SITE_ROOT   = getRootFromData('siteRoot');
     ckan.LOCALE_ROOT = getRootFromData('localeRoot');
-    ckan.API_ROOT    = getRootFromData('apiRoot');
 
     // Load the localisations before instantiating the modules.
     ckan.sandbox().client.getLocaleData(locale).done(function (data) {
       ckan.i18n.load(data);
       ckan.module.initialize();
     });
+
+    if (jQuery.fn.popover !== undefined) {
+      jQuery('[data-target="popover"]').popover();
+    }
+
   };
 
   /* Returns a full url for the current site with the provided path appended.
@@ -82,7 +86,7 @@ this.ckan = this.ckan || {};
 // This is useful for when IE7 doesn't properly render parts of the page after
 // some dom manipulation has happened
 this.jQuery.fn.ie7redraw = function() {
-  if (jQuery.browser.msie && jQuery.browser.version == '7.0') {
+  if (jQuery('html').hasClass('ie7')) {
     jQuery(this).css('zoom', 1);
   }
 };

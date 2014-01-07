@@ -1,5 +1,5 @@
 ================
-Background Tasks
+Background tasks
 ================
 
 .. version-added: 1.5.1
@@ -7,7 +7,7 @@ Background Tasks
 CKAN allows you to create tasks that run in the 'background', that is
 asynchronously and without blocking the main application (these tasks can also
 be automatically retried in the case of transient failures). Such tasks can be
-created in :ref:`Extensions <writing-extensions>` or in core CKAN.
+created in :doc:`Extensions <extensions/index>` or in core CKAN.
 
 Background tasks can be essential to providing certain kinds of functionality,
 for example:
@@ -18,7 +18,7 @@ for example:
   DataStorer Extensions)
 
 
-Enabling Background Tasks
+Enabling background tasks
 =========================
 
 To manage and run background tasks requires a job queue and CKAN uses celery_
@@ -54,7 +54,7 @@ To run the celery daemon you have two options:
      paster celeryd --config=/path/to/file.ini
 
 
-Writing Background Tasks
+Writing background tasks
 ==========================
 
 These instructions should show you how to write an background task and how to

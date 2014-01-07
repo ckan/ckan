@@ -1,5 +1,11 @@
-from dictization_functions import missing, StopOnError, Invalid
-from pylons.i18n import _
+import ckan.lib.navl.dictization_functions as df
+
+from ckan.common import _
+
+missing = df.missing
+StopOnError = df.StopOnError
+Invalid = df.Invalid
+
 
 def identity_converter(key, data, errors, context):
     return
@@ -74,7 +80,20 @@ def default(defalult_value):
     return callable
 
 def ignore_missing(key, data, errors, context):
+    '''If the key is missing from the data, ignore the rest of the key's
+    schema.
 
+    By putting ignore_missing at the start of the schema list for a key,
+    you can allow users to post a dict without the key and the dict will pass
+    validation. But if they post a dict that does contain the key, then any
+    validators after ignore_missing in the key's schema list will be applied.
+
+    :raises ckan.lib.navl.dictization_functions.StopOnError: if ``data[key]``
+        is :py:data:`ckan.lib.navl.dictization_functions.missing` or ``None``
+
+    :returns: ``None``
+
+    '''
     value = data.get(key)
 
     if value is missing or value is None:

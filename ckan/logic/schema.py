@@ -21,6 +21,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    duplicate_extras_key,
                                    ignore_not_package_admin,
                                    ignore_not_group_admin,
+                                   ignore_not_sysadmin,
                                    no_http,
                                    tag_not_uppercase,
                                    user_name_validator,
@@ -30,6 +31,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_password_not_empty,
                                    isodate,
                                    int_validator,
+                                   natural_number_validator,
+                                   is_positive_integer,
                                    boolean_validator,
                                    user_about_validator,
                                    vocabulary_name_validator,
@@ -39,17 +42,21 @@ from ckan.logic.validators import (package_id_not_changed,
                                    user_id_or_name_exists,
                                    object_id_validator,
                                    activity_type_exists,
+                                   resource_id_exists,
                                    tag_not_in_vocabulary,
                                    group_id_exists,
                                    owner_org_validator,
                                    user_name_exists,
                                    role_exists,
                                    url_validator,
+                                   datasets_with_no_organization_cannot_be_private,
+                                   list_of_strings,
                                    no_loops_in_hierarchy,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,
+                                   convert_to_json_if_string,
                                    )
 from formencode.validators import OneOf
 import ckan.model
@@ -71,6 +78,7 @@ def default_resource_schema():
         'revision_timestamp': [ignore],
         'name': [ignore_missing, unicode],
         'resource_type': [ignore_missing, unicode],
+        'url_type': [ignore_missing, unicode],
         'mimetype': [ignore_missing, unicode],
         'mimetype_inner': [ignore_missing, unicode],
         'webstore_url': [ignore_missing, unicode],
@@ -81,6 +89,7 @@ def default_resource_schema():
         'cache_last_updated': [ignore_missing, isodate],
         'webstore_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
+        'datastore_active': [ignore],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
@@ -136,7 +145,8 @@ def default_create_package_schema():
         'type': [ignore_missing, unicode],
         'owner_org': [owner_org_validator, unicode],
         'log_message': [ignore_missing, unicode, no_http],
-        'private': [ignore_missing, boolean_validator],
+        'private': [ignore_missing, boolean_validator,
+            datasets_with_no_organization_cannot_be_private],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),
@@ -209,6 +219,7 @@ def default_show_package_schema():
         'webstore_url': [],
         'mimetype_inner': [],
         'resource_type': [],
+        'url_type': [],
     })
 
     schema.update({
@@ -219,6 +230,8 @@ def default_show_package_schema():
 
     schema['groups'].update({
         'description': [ignore_missing],
+        'display_name': [ignore_missing],
+        'image_display_url': [ignore_missing],
         })
 
     # Remove validators for several keys from the schema so validation doesn't
@@ -237,6 +250,7 @@ def default_show_package_schema():
     # validation doesn't strip the keys from the package dicts.
     schema['metadata_created'] = []
     schema['metadata_modified'] = []
+    schema['creator_user_id'] = []
     schema['num_resources'] = []
     schema['num_tags'] = []
     schema['organization'] = []
@@ -258,6 +272,7 @@ def default_group_schema():
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
         'image_url': [ignore_missing, unicode],
+        'image_display_url': [ignore_missing, unicode],
         'type': [ignore_missing, unicode],
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],
@@ -265,6 +280,7 @@ def default_group_schema():
         'approval_status': [ignore_missing, unicode],
         'extras': default_extras_schema(),
         '__extras': [ignore],
+        '__junk': [ignore],
         'packages': {
             "id": [not_empty, unicode, package_id_or_name_exists],
             "title":[ignore_missing, unicode],
@@ -322,6 +338,15 @@ def default_related_schema():
     return schema
 
 
+def default_update_related_schema():
+    schema = default_related_schema()
+    schema['id'] = [not_empty, unicode]
+    schema['title'] = [ignore_missing, unicode]
+    schema['type'] = [ignore_missing, unicode]
+    schema['owner_id'] = [ignore_missing, unicode]
+    return schema
+
+
 def default_extras_schema():
 
     schema = {
@@ -331,6 +356,7 @@ def default_extras_schema():
         'state': [ignore],
         'deleted': [ignore_missing],
         'revision_timestamp': [ignore],
+        '__extras': [ignore],
     }
     return schema
 
@@ -382,9 +408,11 @@ def default_user_schema():
         'about': [ignore_missing, user_about_validator, unicode],
         'created': [ignore],
         'openid': [ignore_missing],
+        'sysadmin': [ignore_missing, ignore_not_sysadmin],
         'apikey': [ignore],
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing],
+        'state': [ignore_missing],
     }
     return schema
 
@@ -411,6 +439,14 @@ def default_update_user_schema():
     schema['name'] = [ignore_missing, name_validator, user_name_validator, unicode]
     schema['password'] = [user_password_validator,ignore_missing, unicode]
 
+    return schema
+
+def default_user_invite_schema():
+    schema = {
+        'email': [not_empty, unicode],
+        'group_id': [not_empty],
+        'role': [not_empty],
+    }
     return schema
 
 def default_task_status_schema():
@@ -450,14 +486,15 @@ def default_create_activity_schema():
     schema = {
         'id': [ignore],
         'timestamp': [ignore],
-        'user_id': [not_missing, not_empty, unicode, user_id_exists],
+        'user_id': [not_missing, not_empty, unicode,
+            convert_user_name_or_id_to_id],
         'object_id': [not_missing, not_empty, unicode, object_id_validator],
         # We don't bother to validate revision ID, since it's always created
         # internally by the activity_create() logic action function.
         'revision_id': [],
         'activity_type': [not_missing, not_empty, unicode,
             activity_type_exists],
-        'data': [ignore_empty, ignore_missing, unicode],
+        'data': [ignore_empty, ignore_missing],
     }
     return schema
 
@@ -473,7 +510,6 @@ def default_follow_dataset_schema():
 
 
 def member_schema():
-
     schema = {
         'id': [group_id_exists, unicode],
         'username': [user_name_exists, unicode],
@@ -485,4 +521,78 @@ def member_schema():
 def default_follow_group_schema():
     schema = {'id': [not_missing, not_empty, unicode,
         convert_group_name_or_id_to_id]}
+    return schema
+
+
+def default_package_list_schema():
+    schema = {
+        'limit': [ignore_missing, natural_number_validator],
+        'offset': [ignore_missing, natural_number_validator],
+        'page': [ignore_missing, is_positive_integer]
+    }
+    return schema
+
+
+def default_pagination_schema():
+    schema = {
+        'limit': [ignore_missing, natural_number_validator],
+        'offset': [ignore_missing, natural_number_validator]
+    }
+    return schema
+
+
+def default_dashboard_activity_list_schema():
+    schema = default_pagination_schema()
+    schema['id'] = [unicode]
+    return schema
+
+
+def default_activity_list_schema():
+    schema = default_pagination_schema()
+    schema['id'] = [not_missing, unicode]
+    return schema
+
+
+def default_autocomplete_schema():
+    schema = {
+        'q': [not_missing, unicode],
+        'limit': [ignore_missing, natural_number_validator]
+    }
+    return schema
+
+
+def default_package_search_schema():
+    schema = {
+        'q': [ignore_missing, unicode],
+        'fq': [ignore_missing, unicode],
+        'rows': [ignore_missing, natural_number_validator],
+        'sort': [ignore_missing, unicode],
+        'start': [ignore_missing, natural_number_validator],
+        'qf': [ignore_missing, unicode],
+        'facet': [ignore_missing, unicode],
+        'facet.mincount': [ignore_missing, natural_number_validator],
+        'facet.limit': [ignore_missing, int_validator],
+        'facet.field': [ignore_missing, convert_to_json_if_string,
+            list_of_strings],
+        'extras': [ignore_missing]  # Not used by Solr, but useful for extensions
+    }
+    return schema
+
+
+def default_resource_search_schema():
+    schema = {
+        'query': [ignore_missing],  # string or list of strings
+        'fields': [ignore_missing],  # dict of fields
+        'order_by': [ignore_missing, unicode],
+        'offset': [ignore_missing, natural_number_validator],
+        'limit': [ignore_missing, natural_number_validator]
+    }
+    return schema
+
+
+def create_schema_for_required_keys(keys):
+    ''' helper function that creates a schema definition where
+    each key from keys is validated against ``not_missing``.
+    '''
+    schema = dict([(x, [not_missing]) for x in keys])
     return schema

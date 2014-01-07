@@ -1,6 +1,7 @@
 import json
 import nose
 
+import pylons
 import sqlalchemy
 import sqlalchemy.orm as orm
 
@@ -10,7 +11,7 @@ import ckan.model as model
 import ckan.tests as tests
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs
+from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 
 class TestDatastoreDelete(tests.WsgiAppCase):
@@ -29,22 +30,21 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
-            'aliases': 'books2',
+            'aliases': u'b\xfck2',
             'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': 'author', 'type': 'text'}],
-            'records': [{'book': 'annakarenina', 'author': 'tolstoy'},
-                        {'book': 'warandpeace', 'author': 'tolstoy'}]
+                       {'id': 'author', 'type': 'text'},
+                       {'id': 'rating with %', 'type': 'text'}],
+            'records': [{'book': 'annakarenina', 'author': 'tolstoy',
+                         'rating with %': '90%'},
+                        {'book': 'warandpeace', 'author': 'tolstoy',
+                         'rating with %': '42%'}]
         }
 
-        #model.repo.rebuild_db()
-        #model.repo.clean_db()
-
-        import pylons
         engine = db._get_engine(
-                None,
-                {'connection_url': pylons.config['ckan.datastore.write_url']}
-            )
+            {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
     @classmethod
     def teardown_class(cls):
@@ -77,14 +77,15 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         resource_id = self.data['resource_id']
         c = self.Session.connection()
 
-        # alias should be deleted
-        results = c.execute("select 1 from pg_views where viewname = '{0}'".format(self.data['aliases']))
+        # It's dangerous to build queries as someone could inject sql.
+        # It's okay here as it is a test but don't use it anyhwere else!
+        results = c.execute(u"select 1 from pg_views where viewname = '{0}'".format(self.data['aliases']))
         assert results.rowcount == 0
 
         try:
             # check that data was actually deleted: this should raise a
             # ProgrammingError as the table should not exist any more
-            c.execute('select * from "{0}";'.format(resource_id))
+            c.execute(u'select * from "{0}";'.format(resource_id))
             raise Exception("Data not deleted")
         except sqlalchemy.exc.ProgrammingError as e:
             expected_msg = 'relation "{0}" does not exist'.format(resource_id)
@@ -115,7 +116,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert res_dict['success'] is True
 
         c = self.Session.connection()
-        result = c.execute('select * from "{0}";'.format(resource_id))
+        result = c.execute(u'select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == 'annakarenina'
@@ -132,7 +133,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert res_dict['success'] is True
 
         c = self.Session.connection()
-        result = c.execute('select * from "{0}";'.format(resource_id))
+        result = c.execute(u'select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 1
         assert results[0].book == 'annakarenina'
@@ -149,7 +150,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert res_dict['success'] is True
 
         c = self.Session.connection()
-        result = c.execute('select * from "{0}";'.format(resource_id))
+        result = c.execute(u'select * from "{0}";'.format(resource_id))
         results = [r for r in result]
         assert len(results) == 0
         self.Session.remove()

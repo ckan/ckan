@@ -1,51 +1,18 @@
 import re
 
 from nose.tools import assert_equal
+import mock
 
-from ckan.tests import setup_test_search_index
-from ckan.plugins import SingletonPlugin, implements, IGroupController
-from ckan import plugins
 import ckan.model as model
-from ckan.lib.create_test_data import CreateTestData
-from ckan.logic import check_access, NotAuthorized, get_action
 import ckan.lib.search as search
 
-from pylons import config
-
-from ckan.tests import *
 from ckan.tests import setup_test_search_index
+from ckan import plugins
+from ckan.lib.create_test_data import CreateTestData
+from ckan.logic import get_action
+from ckan.tests import *
 from base import FunctionalTestCase
-from ckan.tests import search_related, is_search_supported
-
-
-class MockGroupControllerPlugin(SingletonPlugin):
-    implements(IGroupController)
-
-    def __init__(self):
-        from collections import defaultdict
-        self.calls = defaultdict(int)
-
-    def read(self, entity):
-        self.calls['read'] += 1
-
-    def create(self, entity):
-        self.calls['create'] += 1
-
-    def edit(self, entity):
-        self.calls['edit'] += 1
-
-    def authz_add_role(self, object_role):
-        self.calls['authz_add_role'] += 1
-
-    def authz_remove_role(self, object_role):
-        self.calls['authz_remove_role'] += 1
-
-    def delete(self, entity):
-        self.calls['delete'] += 1
-
-    def before_view(self, data_dict):
-        self.calls['before_view'] += 1
-        return data_dict
+from ckan.tests import is_search_supported
 
 
 class TestGroup(FunctionalTestCase):
@@ -222,30 +189,30 @@ class TestGroup(FunctionalTestCase):
         res = self.app.get(offset, status=404)
 
     def test_read_plugin_hook(self):
-        plugin = MockGroupControllerPlugin()
-        plugins.load(plugin)
+        plugins.load('test_group_plugin')
         name = u'david'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, status=200,
                            extra_environ={'REMOTE_USER': 'testsysadmin'})
-        assert plugin.calls['read'] == 1, plugin.calls
-        plugins.unload(plugin)
+        p = plugins.get_plugin('test_group_plugin')
+        assert p.calls['read'] == 1, p.calls
+        plugins.unload('test_group_plugin')
 
     def test_read_and_authorized_to_edit(self):
         name = u'david'
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='read', id=name)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':
-                           'testsysadmin'})
+        res = self.app.get(offset,
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert title in res, res
         assert 'edit' in res
         assert name in res
 
     def test_new_page(self):
         offset = url_for(controller='group', action='new')
-        res = self.app.get(offset, extra_environ={'REMOTE_USER':
-                           'testsysadmin'})
+        res = self.app.get(offset,
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Add A Group' in res, res
 
 
@@ -396,8 +363,7 @@ Ho ho ho
         assert_equal(pkg_names, [self.packagename])
 
     def test_edit_plugin_hook(self):
-        plugin = MockGroupControllerPlugin()
-        plugins.load(plugin)
+        plugins.load('test_group_plugin')
         offset = url_for(controller='group', action='edit', id=self.groupname)
         res = self.app.get(offset, status=200,
                            extra_environ={'REMOTE_USER': 'testsysadmin'})
@@ -406,8 +372,9 @@ Ho ho ho
         form['title'] = "huhuhu"
         res = form.submit('save', status=302,
                           extra_environ={'REMOTE_USER': 'testsysadmin'})
-        assert plugin.calls['edit'] == 1, plugin.calls
-        plugins.unload(plugin)
+        p = plugins.get_plugin('test_group_plugin')
+        assert p.calls['edit'] == 1, p.calls
+        plugins.unload('test_group_plugin')
 
     def test_edit_image_url(self):
         group = model.Group.by_name(self.groupname)
@@ -432,7 +399,7 @@ Ho ho ho
                            extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Edit: %s' % group.title in res, res
 
-        def update_group(res, name, with_pkg=True):
+        def update_group(res, name):
             form = res.forms['group-edit']
             titlefn = 'title'
             descfn = 'description'
@@ -444,21 +411,16 @@ Ho ho ho
             form[titlefn] = newtitle
             form[descfn] = newdesc
             form['name'] = name
-            if with_pkg:
-                pkg = model.Package.by_name(self.packagename)
-                form['packages__2__name'] = pkg.name
 
             res = form.submit('save', status=302,
                               extra_environ={'REMOTE_USER': 'testsysadmin'})
-        update_group(res, self.groupname, True)
-        update_group(res, 'newname', False)
+        update_group(res, self.groupname)
+        update_group(res, 'newname')
 
         model.Session.remove()
         group = model.Group.by_name('newname')
 
-        # We have the datasets in the DB, but we should also see that many
-        # on the group read page.
-        assert len(group.packages()) == 3
+        assert len(group.packages()) == 2
 
         offset = url_for(controller='group', action='read', id='newname')
         res = self.app.get(offset, status=200,
@@ -466,14 +428,14 @@ Ho ho ho
 
         ds = res.body
         ds = ds[ds.index('datasets') - 10: ds.index('datasets') + 10]
-        assert '3 datasets found' in res, ds
+        assert '2 datasets found' in res, ds
 
         # reset the group to how we found it
         offset = url_for(controller='group', action='edit', id='newname')
         res = self.app.get(offset, status=200,
                            extra_environ={'REMOTE_USER': 'testsysadmin'})
 
-        update_group(res, self.groupname, True)
+        update_group(res, self.groupname)
 
     def test_edit_non_existent(self):
         name = u'group_does_not_exist'
@@ -604,8 +566,7 @@ class TestNew(FunctionalTestCase):
         assert 'class="field_error"' in res, res
 
     def test_new_plugin_hook(self):
-        plugin = MockGroupControllerPlugin()
-        plugins.load(plugin)
+        plugins.load('test_group_plugin')
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200,
                            extra_environ={'REMOTE_USER': 'testsysadmin'})
@@ -614,8 +575,9 @@ class TestNew(FunctionalTestCase):
         form['title'] = "huhuhu"
         res = form.submit('save', status=302,
                           extra_environ={'REMOTE_USER': 'testsysadmin'})
-        assert plugin.calls['create'] == 1, plugin.calls
-        plugins.unload(plugin)
+        p = plugins.get_plugin('test_group_plugin')
+        assert p.calls['create'] == 1, p.calls
+        plugins.unload('test_group_plugin')
 
     def test_new_bad_param(self):
         offset = url_for(controller='group', action='new',
@@ -700,3 +662,33 @@ class TestRevisions(FunctionalTestCase):
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
+
+
+class TestMemberInvite(FunctionalTestCase):
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def teardown(self):
+        model.repo.rebuild_db()
+
+    @mock.patch('ckan.lib.mailer.mail_user')
+    def test_member_new_invites_user_if_received_email(self, mail_user):
+        user = CreateTestData.create_user('a_user', sysadmin=True)
+        group_name = 'a_group'
+        CreateTestData.create_groups([{'name': group_name}], user.name)
+        group = model.Group.get(group_name)
+        url = url_for(controller='group', action='member_new', id=group.id)
+        email = 'invited_user@mailinator.com'
+        role = 'member'
+
+        params = {'email': email, 'role': role}
+        res = self.app.post(url, params,
+                            extra_environ={'REMOTE_USER': str(user.name)})
+
+        users = model.User.by_email(email)
+        assert len(users) == 1, users
+        user = users[0]
+        assert user.email == email, user
+        assert group.id in user.get_group_ids(capacity=role)

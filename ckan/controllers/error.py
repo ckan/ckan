@@ -10,7 +10,6 @@ from ckan.lib.base import render
 
 
 class ErrorController(BaseController):
-
     """Generates error documents as and when they are required.
 
     The ErrorDocuments middleware forwards to ErrorController when error

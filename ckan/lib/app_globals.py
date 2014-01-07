@@ -29,6 +29,7 @@ auto_update = [
     'ckan.site_about',
     'ckan.site_intro_text',
     'ckan.site_custom_css',
+    'ckan.homepage_style',
 ]
 
 config_details = {
@@ -38,13 +39,13 @@ config_details = {
         # has been setup in load_environment():
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
-    'ckan.recaptcha.privatekey': {'name': 'recaptcha_publickey'},
     'ckan.template_title_deliminater': {'default': '-'},
     'ckan.template_head_end': {},
     'ckan.template_footer_end': {},
     'ckan.dumps_url': {},
     'ckan.dumps_format': {},
-    'ckan.api_url': {},
+    'ofs.impl': {'name': 'ofs_impl'},
+    'ckan.homepage_style': {'default': '1'},
 
     # split string
     'search.facets': {'default': 'organization groups tags res_format license_id',
@@ -57,11 +58,14 @@ config_details = {
     'openid_enabled': {'default': 'true', 'type' : 'bool'},
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
+    'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
     'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
     'ckan.activity_list_limit': {'default': '30', 'type': 'int'},
+    'search.facets.default': {'default': '10', 'type': 'int',
+                             'name': 'facets_default_number'},
 }
 
 
@@ -72,7 +76,7 @@ def set_main_css(css_file):
     ''' Sets the main_css using debug css if needed.  The css_file
     must be of the form file.css '''
     assert css_file.endswith('.css')
-    if config.debug and css_file == '/base/css/main.css':
+    if config.get('debug') and css_file == '/base/css/main.css':
         new_css = '/base/css/main.debug.css'
     else:
         new_css = css_file

@@ -1,6 +1,6 @@
-=============================
-Option 2: Install from Source
-=============================
+===========================
+Installing CKAN from source
+===========================
 
 This section describes how to install CKAN from source. Although
 :doc:`install-from-package` is simpler, it requires Ubuntu 12.04 64-bit. Installing
@@ -13,10 +13,9 @@ wiki page.
 From source is also the right installation method for developers who want to
 work on CKAN.
 
-If you run into problems, see :doc:`common-error-messages`.
-
+--------------------------------
 1. Install the required packages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
@@ -37,16 +36,17 @@ libpq                  `The C programmer's interface to PostgreSQL <http://www.p
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
 virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
 Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
-Apache Solr                   `A search platform <http://lucene.apache.org/solr>`_
-Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr)
+Apache Solr            `A search platform <http://lucene.apache.org/solr>`_
+Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr).
 OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
 =====================  ===============================================
 
 
 .. _install-ckan-in-virtualenv:
 
+-------------------------------------------------
 2. Install CKAN into a Python virtual environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------
 
 .. tip::
 
@@ -106,9 +106,13 @@ b. Install the CKAN source code into your virtualenv. To install the latest
 
 c. Install the Python modules that CKAN requires into your virtualenv:
 
+   .. versionchanged:: 2.1
+      In CKAN 2.0 and earlier the requirement file was called
+      ``pip-requirements.txt`` not ``requirements.txt`` as below.
+
    .. parsed-literal::
 
-       pip install -r |virtualenv|/src/ckan/pip-requirements.txt
+       pip install -r |virtualenv|/src/ckan/requirements.txt
 
 d. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
@@ -121,8 +125,9 @@ d. Deactivate and reactivate your virtualenv, to make sure you're using the
 
 .. _postgres-setup:
 
+------------------------------
 3. Setup a PostgreSQL database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 List existing databases::
 
@@ -148,8 +153,9 @@ database user you just created:
 
     sudo -u postgres createdb -O |database_user| |database| -E utf-8
 
+----------------------------
 4. Create a CKAN config file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 Create a directory to contain the site's config files:
 
@@ -194,19 +200,86 @@ site_id
    ckan.site_id = default
 
 
-5. Setup Solr
-~~~~~~~~~~~~~
+.. _setting up solr:
 
-Follow the instructions in :ref:`solr-single` or :ref:`solr-multi-core` to
-setup Solr, then change the ``solr_url`` option in your CKAN config file to
-point to your Solr server, for example::
+-------------
+5. Setup Solr
+-------------
+
+CKAN uses Solr_ as its search platform, and uses a customized Solr schema file
+that takes into account CKAN's specific search needs. Now that we have CKAN
+installed, we need to install and configure Solr.
+
+.. _Solr: http://lucene.apache.org/solr/
+
+.. note::
+
+   These instructions explain how to setup |solr| with a single core.
+   If you want multiple applications, or multiple instances of CKAN, to share
+   the same |solr| server then you probably want a multi-core |solr| setup
+   instead. See :doc:`/appendices/solr-multicore`.
+
+.. note::
+
+   These instructions explain how to deploy Solr using the Jetty web
+   server, but CKAN doesn't require Jetty - you can deploy Solr to another web
+   server, such as Tomcat, if that's convenient on your operating system.
+
+#. Edit the Jetty configuration file (``/etc/default/jetty``) and change the
+   following variables::
+
+    NO_START=0            # (line 4)
+    JETTY_HOST=127.0.0.1  # (line 15)
+    JETTY_PORT=8983       # (line 18)
+
+   Start the Jetty server::
+
+    sudo service jetty start
+
+   You should now see a welcome page from Solr if you open
+   http://localhost:8983/solr/ in your web browser (replace localhost with
+   your server address if needed).
+
+   .. note::
+
+    If you get the message ``Could not start Jetty servlet engine because no
+    Java Development Kit (JDK) was found.`` then you will have to edit the
+    ``JAVA_HOME`` setting in ``/etc/default/jetty`` to point to your machine's
+    JDK install location. For example::
+
+        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
+
+    or::
+
+        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-i386/
+
+#. Replace the default ``schema.xml`` file with a symlink to the CKAN schema
+   file included in the sources.
+
+   .. parsed-literal::
+
+      sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
+      sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
+
+   Now restart Solr:
+
+   .. parsed-literal::
+
+      |restart_solr|
+
+   and check that Solr is running by opening http://localhost:8983/solr/.
+
+
+#. Finally, change the :ref:`solr_url` setting in your CKAN config file to
+   point to your Solr server, for example::
 
        solr_url=http://127.0.0.1:8983/solr
 
 .. _postgres-init:
 
+-------------------------
 6. Create database tables
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Now that you have a configuration file that has the correct settings for your
 database, you can create the database tables:
@@ -224,20 +297,22 @@ You should see ``Initialising DB: SUCCESS``.
     ``sqlalchemy.url`` option in your CKAN configuration file properly.
     See `4. Create a CKAN config file`_.
 
+-----------------------
 7. Set up the DataStore
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 .. note ::
   Setting up the DataStore is optional. However, if you do skip this step,
   the :doc:`DataStore features<datastore>` will not be available and the
   DataStore tests will fail.
 
-Follow the instructions in :doc:`datastore-setup` to create the required
+Follow the instructions in :doc:`datastore` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
 
+----------------------
 8. Link to ``who.ini``
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 ``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
 same directory as your CKAN config file, so create a symlink to it:
@@ -246,135 +321,71 @@ same directory as your CKAN config file, so create a symlink to it:
 
     ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
 
-9. Run CKAN in the development web server
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------
+9. You're done!
+---------------
 
-You can use the Paste development server to serve CKAN from the command-line.
-This is a simple and lightweight way to serve CKAN that is useful for
-development and testing. For production it's better to serve CKAN using
-Apache or Nginx (see :doc:`post-installation`).
+You can now use the Paste development server to serve CKAN from the
+command-line.  This is a simple and lightweight way to serve CKAN that is
+useful for development and testing:
 
 .. parsed-literal::
 
     cd |virtualenv|/src/ckan
     paster serve |development.ini|
 
-Open http://127.0.0.1:5000/ in your web browser, and you should see the CKAN
-front page.
+Open http://127.0.0.1:5000/ in a web browser, and you should see the CKAN front
+page.
 
-10. Run the CKAN Tests
-~~~~~~~~~~~~~~~~~~~~~~
+Now that you've installed CKAN, you should:
 
-Now that you've installed CKAN, you should run CKAN's tests to make sure that
-they all pass. See :doc:`test`.
+* Run CKAN's tests to make sure that everything's working, see :doc:`/test`.
 
-11. You're done!
-~~~~~~~~~~~~~~~~
+* If you want to use your CKAN site as a production site, not just for testing
+  or development purposes, then deploy CKAN using a production web server such
+  as Apache or Nginx. See :doc:`deployment`.
 
-You can now proceed to :doc:`post-installation` which covers creating a CKAN
-sysadmin account and deploying CKAN with Apache.
-
-Upgrade a source install
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. note::
-
-    Before upgrading your version of CKAN you should check that any custom
-    templates or extensions you're using work with the new version of CKAN. For
-    example, you could install the new version of CKAN in a new virtual
-    environment and use that to test your templates and extensions.
-
-.. note::
-
-    You should also read the `CKAN Changelog
-    <https://github.com/okfn/ckan/blob/master/CHANGELOG.txt>`_ to see if there
-    are any extra notes to be aware of when upgrading to the new version.
+* Begin using and customizing your site, see :doc:`/getting-started`.
 
 
-1. Activate your virtualenv and switch to the ckan source directory, e.g.:
+------------------------------
+Source install troubleshooting
+------------------------------
 
-   .. parsed-literal::
+.. _solr troubleshooting:
 
-    |activate|
-    cd |virtualenv|/src/ckan
+Solr setup troubleshooting
+==========================
 
-2. Backup your CKAN database using the ``ckan db dump`` command, for
-   example:
+Solr requests and errors are logged in the web server log files.
 
-   .. parsed-literal::
+* For Jetty servers, the log files are::
 
-    paster db dump --config=\ |development.ini| my_ckan_database.pg_dump
+    /var/log/jetty/<date>.stderrout.log
 
-   This will create a file called ``my_ckan_database.pg_dump``, if something
-   goes wrong with the CKAN upgrade you can use this file to restore the
-   database to its pre-upgrade state. See :ref:`dumping and loading` for
-   details of the `ckan db dump` and `ckan db load` commands.
+* For Tomcat servers, they're::
 
-3. Checkout the new CKAN version from git, for example::
+    /var/log/tomcat6/catalina.<date>.log
 
-    git fetch
-    git checkout release-v2.0
+Unable to find a javac compiler
+-------------------------------
 
-   If you have any CKAN extensions installed from source, you may need to
-   checkout newer versions of the extensions at this point as well. Refer to
-   the documentation for each extension.
+If when running Solr it says:
 
-4. Update CKAN's dependencies::
+ Unable to find a javac compiler; com.sun.tools.javac.Main is not on the classpath. Perhaps JAVA_HOME does not point to the JDK.
 
-     pip install --upgrade -r pip-requirements.txt
+See the note in :ref:`setting up solr` about ``JAVA_HOME``.
+Alternatively you may not have installed the JDK.
+Check by seeing if ``javac`` is installed::
 
-5. If you are upgrading to a new major version of CKAN (for example if you are
-   upgrading to CKAN 2.0, 2.1 etc.), then you need to update your Solr schema
-   symlink.
+     which javac
 
-   When :ref:`setting up solr` you created a symlink
-   ``/etc/solr/conf/schema.xml`` linking to a CKAN Solr schema file such as
-   |virtualenv|/src/ckan/ckan/config/solr/schema-2.0.xml. This symlink
-   should be updated to point to the latest schema file in
-   |virtualenv|/src/ckan/ckan/config/solr/, if it doesn't already.
+If ``javac`` isn't installed, do::
 
-   For example, to update the symlink:
+     sudo apt-get install openjdk-6-jdk
 
-   .. parsed-literal::
+and then restart Solr:
 
-     sudo rm /etc/solr/conf/schema.xml
-     sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
+.. parsed-literal::
 
-6. If you are upgrading to a new major version of CKAN (for example if you
-   are upgrading to CKAN 2.0, 2.1 etc.), update your CKAN database's schema
-   using the ``ckan db upgrade`` command.
-
-   .. warning ::
-
-     To avoid problems during the database upgrade, comment out any plugins
-     that you have enabled in your ini file. You can uncomment them again when
-     the upgrade finishes.
-
-   For example:
-
-   .. parsed-literal::
-
-    paster db upgrade --config=\ |development.ini|
-
-   See :ref:`upgrade migration` for details of the ``ckan db upgrade``
-   command.
-
-7. Rebuild your search index by running the ``ckan search-index rebuild``
-   command:
-
-   .. parsed-literal::
-
-    paster search-index rebuild -r --config=\ |development.ini|
-
-   See :ref:`rebuild search index` for details of the
-   ``ckan search-index rebuild`` command.
-
-8. Finally, restart your web server. For example if you have deployed CKAN
-   using the Apache web server on Ubuntu linux, run this command:
-
-   .. parsed-literal::
-
-    |reload_apache|
-
-9. You're done! You should now be able to visit your CKAN website in your web
-   browser and see that it's running the new version of CKAN.
+   |restart_solr|

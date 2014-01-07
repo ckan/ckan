@@ -2,12 +2,10 @@ from webob import Request, Response
 from openid.consumer import consumer
 from openid.extensions import sreg, ax
 
-import lib.helpers as h
-
 # #1659 fix - logged_out_url prefixed with mount point
 def get_full_path(path, environ):
     if path.startswith('/'):
-        path = h._add_i18n_to_url(path)
+        path = environ.get('SCRIPT_NAME', '') + path
     return path
 
 def identify(self, environ):
@@ -31,8 +29,8 @@ def identify(self, environ):
         for a,v in self.forget(environ,{}):
             res.headers.add(a,v)
         res.status = 302
-
-        res.location = get_full_path(self.logged_out_url, environ)
+        url = self.logged_out_url + '?came_from=' + environ.get('came_from')
+        res.location = get_full_path(url, environ)
 
         environ['repoze.who.application'] = res
         return {}

@@ -2,11 +2,9 @@ import datetime
 from itertools import count
 import re
 
-from pylons.i18n import _
-
-from ckan.lib.navl.dictization_functions import Invalid, StopOnError, Missing, missing, unflatten
-from ckan.logic import check_access, NotAuthorized, NotFound
-from ckan.lib.helpers import date_str_to_datetime
+import ckan.lib.navl.dictization_functions as df
+import ckan.logic as logic
+import ckan.lib.helpers as h
 from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_NAME_MIN_LENGTH, PACKAGE_NAME_MAX_LENGTH,
                         PACKAGE_VERSION_MAX_LENGTH,
@@ -14,23 +12,36 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
 import ckan.new_authz as new_authz
 
+from ckan.common import _
+
+Invalid = df.Invalid
+StopOnError = df.StopOnError
+Missing = df.Missing
+missing = df.missing
+
 def owner_org_validator(key, data, errors, context):
 
     value = data.get(key)
 
-    if value is missing or not value:
+    if value is missing or value is None:
         if not new_authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('A organization must be supplied'))
         data.pop(key, None)
-        raise StopOnError
+        raise df.StopOnError
 
     model = context['model']
+    user = context['user']
+    user = model.User.get(user)
+    if value == '':
+        # only sysadmins can remove datasets from org
+        if not user.sysadmin:
+            raise Invalid(_('You cannot remove a dataset from an existing organization'))
+        return
+
     group = model.Group.get(value)
     if not group:
         raise Invalid(_('Organization does not exist'))
     group_id = group.id
-    user = context['user']
-    user = model.User.get(user)
     if not(user.sysadmin or
            new_authz.has_user_permission_for_group_or_org(
                group_id, user.name, 'create_dataset')):
@@ -56,6 +67,18 @@ def int_validator(value, context):
     except (AttributeError, ValueError), e:
         raise Invalid(_('Invalid integer'))
 
+def natural_number_validator(value, context):
+    value = int_validator(value, context)
+    if value < 0:
+        raise Invalid(_('Must be a natural number'))
+    return value
+
+def is_positive_integer(value, context):
+    value = int_validator(value, context)
+    if value < 1:
+        raise Invalid(_('Must be a postive integer'))
+    return value
+
 def boolean_validator(value, context):
     if isinstance(value, bool):
         return value
@@ -69,7 +92,7 @@ def isodate(value, context):
     if value == '':
         return None
     try:
-        date = date_str_to_datetime(value)
+        date = h.date_str_to_datetime(value)
     except (TypeError, ValueError), e:
         raise Invalid(_('Date format incorrect'))
     return date
@@ -101,7 +124,7 @@ def package_name_exists(value, context):
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Not found') + ': %r' % str(value))
+        raise Invalid(_('Not found') + ': %s' % value)
     return value
 
 def package_id_or_name_exists(package_id_or_name, context):
@@ -201,10 +224,20 @@ def activity_type_exists(activity_type):
     very safe.
 
     """
-    if object_id_validators.has_key(activity_type):
+    if activity_type in object_id_validators:
         return activity_type
     else:
         raise Invalid('%s: %s' % (_('Not found'), _('Activity type')))
+
+def resource_id_exists(value, context):
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.Resource).get(value)
+    if not result:
+        raise Invalid('%s: %s' % (_('Not found'), _('Resource')))
+    return value
 
 # A dictionary mapping activity_type values from activity dicts to functions
 # for validating the object_id values from those same activity dicts.
@@ -224,7 +257,8 @@ object_id_validators = {
     'deleted organization' : group_id_exists,
     'follow group' : group_id_exists,
     'new related item': related_id_exists,
-    'deleted related item': related_id_exists
+    'deleted related item': related_id_exists,
+    'changed related item': related_id_exists,
     }
 
 def object_id_validator(key, activity_dict, errors, context):
@@ -247,7 +281,7 @@ def object_id_validator(key, activity_dict, errors, context):
         return object_id_validators[activity_type](object_id, context)
     else:
         raise Invalid('There is no object_id validator for '
-            'activity type "%s"' % str(activity_type))
+            'activity type "%s"' % activity_type)
 
 def extras_unicode_convert(extras, context):
     for extra in extras:
@@ -255,20 +289,39 @@ def extras_unicode_convert(extras, context):
     return extras
 
 name_match = re.compile('[a-z0-9_\-]*$')
-def name_validator(val, context):
+def name_validator(value, context):
+    '''Return the given value if it's a valid name, otherwise raise Invalid.
+
+    If it's a valid name, the given value will be returned unmodified.
+
+    This function applies general validation rules for names of packages,
+    groups, users, etc.
+
+    Most schemas also have their own custom name validator function to apply
+    custom validation rules after this function, for example a
+    ``package_name_validator()`` to check that no package with the given name
+    already exists.
+
+    :raises ckan.lib.navl.dictization_functions.Invalid: if ``value`` is not
+        a valid name
+
+    '''
+    if not isinstance(value, basestring):
+        raise Invalid(_('Names must be strings'))
+
     # check basic textual rules
-    if val in ['new', 'edit', 'search']:
+    if value in ['new', 'edit', 'search']:
         raise Invalid(_('That name cannot be used'))
 
-    if len(val) < 2:
+    if len(value) < 2:
         raise Invalid(_('Name must be at least %s characters long') % 2)
-    if len(val) > PACKAGE_NAME_MAX_LENGTH:
+    if len(value) > PACKAGE_NAME_MAX_LENGTH:
         raise Invalid(_('Name must be a maximum of %i characters long') % \
                       PACKAGE_NAME_MAX_LENGTH)
-    if not name_match.match(val):
+    if not name_match.match(value):
         raise Invalid(_('Url must be purely lowercase alphanumeric '
                         '(ascii) characters and these symbols: -_'))
-    return val
+    return value
 
 def package_name_validator(key, data, errors, context):
     model = context["model"]
@@ -305,7 +358,7 @@ def package_version_validator(value, context):
 
 def duplicate_extras_key(key, data, errors, context):
 
-    unflattened = unflatten(data)
+    unflattened = df.unflatten(data)
     extras = unflattened.get('extras', [])
     extras_keys = []
     for extra in extras:
@@ -403,9 +456,9 @@ def ignore_not_package_admin(key, data, errors, context):
     pkg = context.get('package')
     if pkg:
         try:
-            check_access('package_change_state',context)
+            logic.check_access('package_change_state',context)
             authorized = True
-        except NotAuthorized:
+        except logic.NotAuthorized:
             authorized = False
 
     if (user and pkg and authorized):
@@ -416,6 +469,19 @@ def ignore_not_package_admin(key, data, errors, context):
     if key == ('state',) and context.get('allow_state_change'):
         return
     data.pop(key)
+
+
+def ignore_not_sysadmin(key, data, errors, context):
+    '''Ignore the field if user not sysadmin or ignore_auth in context.'''
+
+    user = context.get('user')
+    ignore_auth = context.get('ignore_auth')
+
+    if ignore_auth or (user and new_authz.is_sysadmin(user)):
+        return
+
+    data.pop(key)
+
 
 def ignore_not_group_admin(key, data, errors, context):
     '''Ignore if the user is not allowed to administer for the group specified.'''
@@ -430,9 +496,9 @@ def ignore_not_group_admin(key, data, errors, context):
     group = context.get('group')
     if group:
         try:
-            check_access('group_change_state',context)
+            logic.check_access('group_change_state',context)
             authorized = True
-        except NotAuthorized:
+        except logic.NotAuthorized:
             authorized = False
 
     if (user and group and authorized):
@@ -441,20 +507,37 @@ def ignore_not_group_admin(key, data, errors, context):
     data.pop(key)
 
 def user_name_validator(key, data, errors, context):
-    model = context["model"]
-    session = context["session"]
-    user = context.get("user_obj")
+    '''Validate a new user name.
 
-    query = session.query(model.User.name).filter_by(name=data[key])
-    if user:
-        user_id = user.id
-    else:
-        user_id = data.get(key[:-1] + ("id",))
-    if user_id and user_id is not missing:
-        query = query.filter(model.User.id <> user_id)
-    result = query.first()
-    if result:
-        errors[key].append(_('That login name is not available.'))
+    Append an error message to ``errors[key]`` if a user named ``data[key]``
+    already exists. Otherwise, do nothing.
+
+    :raises ckan.lib.navl.dictization_functions.Invalid: if ``data[key]`` is
+        not a string
+    :rtype: None
+
+    '''
+    model = context['model']
+    new_user_name = data[key]
+
+    if not isinstance(new_user_name, basestring):
+        raise Invalid(_('User names must be strings'))
+
+    user = model.User.get(new_user_name)
+    if user is not None:
+        # A user with new_user_name already exists in the database.
+
+        user_obj_from_context = context.get('user_obj')
+        if user_obj_from_context and user_obj_from_context.id == user.id:
+            # If there's a user_obj in context with the same id as the user
+            # found in the db, then we must be doing a user_update and not
+            # updating the user name, so don't return an error.
+            return
+        else:
+            # Otherwise return an error: there's already another user with that
+            # name, so you can create a new user with that name or update an
+            # existing user's name to that name.
+            errors[key].append(_('That login name is not available.'))
 
 def user_both_passwords_entered(key, data, errors, context):
 
@@ -468,7 +551,13 @@ def user_both_passwords_entered(key, data, errors, context):
 def user_password_validator(key, data, errors, context):
     value = data[key]
 
-    if not value == '' and not isinstance(value, Missing) and not len(value) >= 4:
+    if isinstance(value, Missing):
+        pass
+    elif not isinstance(value, basestring):
+        errors[('password',)].append(_('Passwords must be strings'))
+    elif value == '':
+        pass
+    elif len(value) < 4:
         errors[('password',)].append(_('Your password must be 4 characters or longer'))
 
 def user_passwords_match(key, data, errors, context):
@@ -598,6 +687,22 @@ def role_exists(role, context):
         raise Invalid(_('role does not exist.'))
     return role
 
+
+def datasets_with_no_organization_cannot_be_private(key, data, errors,
+        context):
+    if data[key] is True and data.get(('owner_org',)) is None:
+        errors[key].append(
+                _("Datasets with no organization can't be private."))
+
+
+def list_of_strings(key, data, errors, context):
+    value = data.get(key)
+    if not isinstance(value, list):
+        raise Invalid(_('Not a list'))
+    for x in value:
+        if not isinstance(x, basestring):
+            raise Invalid('%s: %s' % (_('Not a string'), x))
+
 def no_loops_in_hierarchy(key, data, errors, context):
     '''Checks that the parent groups specified in the data would not cause
     a loop in the group hierarchy, and therefore cause the recursion up/down
@@ -616,4 +721,4 @@ def no_loops_in_hierarchy(key, data, errors, context):
                 not in allowable_parents:
             raise Invalid(_('This parent would create a loop in the '
                             'hierarchy'))
-
+ 

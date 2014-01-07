@@ -4,7 +4,7 @@ from paste.deploy.converters import asbool
 import logging
 
 logger = logging.getLogger(__name__)
-
+logger.disabled = True
 
 def activity_stream_item(obj, activity_type, revision, user_id):
     method = getattr(obj, "activity_stream_item", None)

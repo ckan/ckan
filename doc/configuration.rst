@@ -32,7 +32,7 @@ settings, for reference.
 
         [app:main]
         # This setting will work.
-        ckan.plugins = stats json_preview recline_preview
+        ckan.plugins = stats text_preview recline_preview
 
    If the same option is set more than once in your config file, the last
    setting given in the file will override the others.
@@ -130,28 +130,13 @@ site use this setting.
 
   This setting should not have a trailing / on the end.
 
-.. _ckan.api_url:
-
-ckan.api_url
-^^^^^^^^^^^^
-
-.. deprecated:: 2
-   No longer used.
-
-Example::
-
- ckan.api_url = http://scotdata.ckan.net/api
-
-Default value:  ``/api``
-
-The URL that resolves to the CKAN API part of the site. This is useful if the
-API is hosted on a different domain, for example when a third-party site uses
-the forms API.
-
 .. _apikey_header_name:
 
 apikey_header_name
 ^^^^^^^^^^^^^^^^^^
+
+.. deprecated:: 2
+   No longer used.
 
 Example::
 
@@ -216,19 +201,6 @@ Example::
 Default value: ``3600``
 
 Controls CKAN static files' cache max age, if we're serving and caching them.
-
-.. _moderated:
-
-moderated
-^^^^^^^^^
-
-Example::
-
-  moderated = True
-
-Default value: (none)
-
-This controls if new datasets will require moderation approval before going public.
 
 .. _ckan.tracking_enabled:
 
@@ -368,6 +340,36 @@ Default value: ``False``
 
 Allow new user accounts to be created via the API.
 
+.. _ckan.auth.create_user_via_web:
+
+ckan.auth.create_user_via_web
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.create_user_via_web = True
+
+Default value: ``True``
+
+
+Allow new user accounts to be created via the Web.
+
+.. _ckan.auth.roles_that_cascade_to_sub_groups:
+
+ckan.auth.roles_that_cascade_to_sub_groups
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.roles_that_cascade_to_sub_groups = admin editor
+
+Default value: ``admin``
+
+
+Makes role permissions apply to all the groups down the hierarchy from the groups that the role is applied to.
+
+e.g. a particular user has the 'admin' role for group 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child groups of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
+
 .. end_config-authorization
 
 
@@ -411,7 +413,7 @@ Example::
 
  solr_url = http://solr.okfn.org:8983/solr/ckan-schema-2.0
 
-Default value:  ``http://solr.okfn.org:8983/solr``
+Default value:  ``http://127.0.0.1:8983/solr``
 
 This configures the Solr server used for search. The Solr schema found at that URL must be one of the ones in ``ckan/config/solr`` (generally the most recent one). A check of the schema version number occurs when CKAN starts.
 
@@ -463,14 +465,17 @@ Default value:  ``false``
 Controls whether the default search page (``/dataset``) should show only
 standard datasets or also custom dataset types.
 
-.. _search.facets.limits:
+.. _search.facets.limit:
 
-search.facets.limits
-^^^^^^^^^^^^^^^^^^^^
+search.facets.limit
+^^^^^^^^^^^^^^^^^^^
+
+ckan.search.show_all_types
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- search.facets.limits = 100
+ search.facets.limit = 100
 
 Default value:  ``50``
 
@@ -513,11 +518,40 @@ Example::
 
   ckan.plugins = disqus datapreview googleanalytics follower
 
+Default value: ``stats text_preview recline_preview``
+
 Specify which CKAN plugins are to be enabled.
 
 .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
-Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions`.
+Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions/index`.
+
+.. note::
+
+    The order of the plugin names in the configuration file influences the
+    order that CKAN will load the plugins in. As long as each plugin class is
+    implemented in a separate Python module (i.e. in a separate Python source
+    code file), the plugins will be loaded in the order given in the
+    configuration file.
+
+    When multiple plugins are implemented in the same Python module, CKAN will
+    process the plugins in the order that they're given in the config file, but as
+    soon as it reaches one plugin from a given Python module, CKAN will load all
+    plugins from that Python module, in the order that the plugin classes are
+    defined in the module.
+
+    For simplicity, we recommend implementing each plugin class in its own Python
+    module.
+
+    Plugin loading order can be important, for example for plugins that add custom
+    template files: templates found in template directories added earlier will
+    override templates in template directories added later.
+
+    .. todo::
+
+        Fix CKAN's plugin loading order to simply load all plugins in the order
+        they're given in the config file, regardless of which Python modules
+        they're implemented in.
 
 .. _ckan.datastore.enabled:
 
@@ -550,6 +584,8 @@ This controls if we'll use the 1 day cache for stats.
 
 Front-End Settings
 ------------------
+
+.. start_config-front-end
 
 .. _ckan.site_title:
 
@@ -734,9 +770,9 @@ ckan.preview.direct
 
 Example::
 
- ckan.preview.direct = png jpg gif
+ ckan.preview.direct = png jpg jpeg gif
 
-Default value: ``png jpg gif``
+Default value: ``png jpg jpeg gif``
 
 Defines the resource formats which should be embedded directly in an ``img`` tag
 when previewing them.
@@ -753,7 +789,7 @@ Example::
 Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt``
 
 Defines the resource formats which should be loaded directly in an ``iframe``
-tag when previewing them.
+tag when previewing them if no :doc:`data-viewer` can preview it.
 
 .. _ckan.dumps_url:
 
@@ -766,7 +802,7 @@ web interface. For example::
 
   ckan.dumps_url = http://ckan.net/dump/
 
-For more information on using dumpfiles, see :doc:`database-dumps`.
+For more information on using dumpfiles, see :ref:`paster db`.
 
 .. _ckan.dumps_format:
 
@@ -819,6 +855,23 @@ Defines a list of group names or group ids. This setting is used to display
 groups and datasets from each group on the home page in the default templates
 (2 groups and 2 datasets for each group are displayed).
 
+.. _ckan.featured_organizations:
+
+ckan.featured_orgs
+^^^^^^^^^^^^^^^^^^^^
+
+ckan.gravatar_default
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.featured_orgs = org_one org_two
+
+Default Value: (empty)
+
+Defines a list of organization names or ids. This setting is used to display
+organization and datasets from each group on the home page in the default
+templates (2 groups and 2 datasets for each group are displayed).
 
 .. _ckan.gravatar_default:
 
@@ -849,8 +902,12 @@ receiving the request being is shown in the header.
 
 .. note:: This info only shows if debug is set to True.
 
+.. end_config-front-end
+
 Theming Settings
 ----------------
+
+.. start_config-theming
 
 .. _ckan.template_head_end:
 
@@ -893,6 +950,8 @@ Example (showing insertion of Google Analytics code)::
     </script>
     <!-- /Google Analytics -->
 
+.. note:: This is only for legacy code, and shouldn't be used anymore.
+
 .. _ckan.template_title_deliminater:
 
 ckan.template_title_deliminater
@@ -919,8 +978,6 @@ To customise the display of CKAN you can supply replacements for the Genshi temp
 
 For more information on theming, see :doc:`theming`.
 
-.. note:: This is only for legacy code, and shouldn't be used anymore.
-
 .. _extra_public_paths:
 
 extra_public_paths
@@ -934,49 +991,46 @@ To customise the display of CKAN you can supply replacements for static files su
 
 For more information on theming, see :doc:`theming`.
 
-.. note:: This is only for legacy code, and shouldn't be used anymore.
+.. end_config-theming
 
 Storage Settings
 ----------------
 
-.. _ckan.storage.bucket:
+.. _ckan.storage_path:
 
-ckan.storage.bucket
-^^^^^^^^^^^^^^^^^^^
+ckan.storage_path
+^^^^^^^^^^^^^^^^^
 
 Example::
-
-  ckan.storage.bucket = ckan
+    ckan.storage_path = /var/lib/ckan
 
 Default value:  ``None``
 
-This setting will change the bucket name for the uploaded files.
+This defines the location of where CKAN will store all uploaded data.
 
-.. _ckan.storage.key_prefix:
+.. _ckan.max_resource_size:
 
-ckan.storage.key_prefix
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.storage.key_prefix = ckan-file/
-
-Default value: ``file/``
-
-This setting will change the prefix for the uploaded files.
-
-.. _ckan.storage.max_content_length:
-
-ckan.storage.max_content_length
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ckan.max_resource_size
+^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
+    ckan.max_resource_size = 100
 
-  ckan.storage.max_content_length = 500000
+Default value: ``10``
 
-Default value: ``50000000``
+The maximum in megabytes a resources upload can be.
 
-This defines the maximum content size, in bytes, for uploads.
+.. _ckan.max_image_size:
+
+ckan.max_image_size
+^^^^^^^^^^^^^^^^^^^^
+
+Example::
+    ckan.max_image_size = 10
+
+Default value: ``2``
+
+The maximum in megabytes an image upload can be.
 
 .. _ofs.impl:
 
@@ -991,6 +1045,9 @@ Default value:  ``None``
 
 Defines the storage backend used by CKAN: ``pairtree`` for local storage, ``s3`` for Amazon S3 Cloud Storage or ``google`` for Google Cloud Storage. Note that each of these must be accompanied by the relevant settings for each backend described below.
 
+Deprecated, only available option is now pairtree.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
+
+
 .. _ofs.storage_dir:
 
 ofs.storage_dir
@@ -1004,63 +1061,31 @@ Default value:  ``None``
 
 Only used with the local storage backend. Use this to specify where uploaded files should be stored, and also to turn on the handling of file storage. The folder should exist, and will automatically be turned into a valid pairtree repository if it is not already.
 
-.. _ofs.aws_access_key_id:
+Deprecated, please use ckan.storage_path.  This must be used nonetheless if upgrading for CKAN 2.1 in order to keep access to your old pairtree files.
 
-ofs.aws_access_key_id
-^^^^^^^^^^^^^^^^^^^^^
+
+
+
+DataPusher Settings
+-------------------
+
+.. _ckan.datapusher.formats:
+
+ckan.datapusher.formats
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
-
-  ofs.aws_access_key_id = your_key_id_here
-
-Default value:  ``None``
-
-Only used with the Amazon S3 storage backend.
+  ckan.datapusher.formats = csv xls xlsx
 
 .. todo:: Expand
 
-.. _ofs.aws_secret_access_key:
+.. _ckan.datapusher.url:
 
-ofs.aws_secret_access_key
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.aws_secret_access_key = your_secret_access_key_here
-
-Default value:  ``None``
-
-Only used with the Amazon S3 storage backend.
-
-.. todo:: Expand
-
-.. _ofs.gs_access_key_id:
-
-ofs.gs_access_key_id
-^^^^^^^^^^^^^^^^^^^^^
+ckan.datapusher.url
+^^^^^^^^^^^^^^^^^^^
 
 Example::
-
-  ofs.gs_access_key_id = your_key_id_here
-
-Default value:  ``None``
-
-Only used with the Google storage backend.
-
-.. todo:: Expand
-
-.. _ofs.gs_secret_access_key:
-
-ofs.gs_secret_access_key
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ofs.gs_secret_access_key = your_secret_access_key_here
-
-Default value:  ``None``
-
-Only used with the Google storage backend.
+  ckan.datapusher.url = http://datapusher.ckan.org/
 
 .. todo:: Expand
 
@@ -1314,16 +1339,16 @@ The ``<NAME>`` string is replaced with the name of the dataset that was edited.
 licenses_group_url
 ^^^^^^^^^^^^^^^^^^
 
-A url pointing to a JSON file containing a list of licence objects. This list
-determines the licences offered by the system to users, for example when
+A url pointing to a JSON file containing a list of license objects. This list
+determines the licenses offered by the system to users, for example when
 creating or editing a dataset.
 
 This is entirely optional - by default, the system will use an internal cached
-version of the CKAN list of licences available from the
+version of the CKAN list of licenses available from the
 http://licenses.opendefinition.org/licenses/groups/ckan.json.
 
-More details about the license objects - including the licence format and some
-example licence lists - can be found at the `Open Licenses Service
+More details about the license objects - including the license format and some
+example license lists - can be found at the `Open Licenses Service
 <http://licenses.opendefinition.org/>`_.
 
 Examples::
@@ -1333,8 +1358,8 @@ Examples::
 
 .. _email-settings:
 
-E-mail Settings
----------------
+Email Settings
+--------------
 
 .. _smtp.server:
 

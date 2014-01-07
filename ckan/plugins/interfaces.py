@@ -1,7 +1,7 @@
-"""
-Interfaces for plugins system
-"""
+'''A collection of interfaces that CKAN plugins can implement to customize and
+extend CKAN.
 
+'''
 __all__ = [
     'Interface',
     'IGenshiStreamFilter', 'IRoutes',
@@ -15,10 +15,12 @@ __all__ = [
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
     'IResourcePreview',
+    'IResourceController',
     'IGroupForm',
     'ITagController',
     'ITemplateHelpers',
     'IFacets',
+    'IAuthenticator',
 ]
 
 from inspect import isclass
@@ -195,19 +197,40 @@ class IResourceUrlChange(Interface):
 
 
 class IResourcePreview(Interface):
-    """
-    Hook into the resource previews in helpers.py. This lets you
-    create custom previews for example for xml files.
-    """
+    '''Add custom data previews for resource file-types.
 
+    '''
     def can_preview(self, data_dict):
-        '''
-        Return True if the extension can preview the resource. The ``data_dict``
-        contains the resource and the package.
+        '''Return info on whether the plugin can preview the resource.
 
-        Make sure to ckeck the ``on_same_domain`` value of the
-        resource or the url if your preview requires the resource to be on
-        the same domain because of the same origin policy.
+        This can be done in two ways:
+
+        1. The old way is to just return ``True`` or ``False``.
+
+        2. The new way is to return a dict with  three keys:
+
+           ``'can_preview'`` (``boolean``)
+             ``True`` if the extension can preview the resource.
+
+           ``'fixable'`` (``string``)
+             A string explaining how preview for the resource could be enabled,
+             for example if the ``resource_proxy`` plugin was enabled.
+
+           ``'quality'`` (``int``)
+             How good the preview is: ``1`` (poor), ``2`` (average) or
+             ``3`` (good). When multiple preview extensions can preview the
+             same resource, this is used to determine which extension will
+             be used.
+
+        :param data_dict: the resource to be previewed and the dataset that it
+          belongs to.
+        :type data_dict: dictionary
+
+        Make sure to check the ``on_same_domain`` value of the resource or the
+        url if your preview requires the resource to be on the same domain
+        because of the same-origin policy.  To find out how to preview
+        resources that are on a different domain, read :ref:`resource-proxy`.
+
         '''
 
     def setup_template_variables(self, context, data_dict):
@@ -418,6 +441,19 @@ class IPackageController(Interface):
         return pkg_dict
 
 
+class IResourceController(Interface):
+    """
+    Hook into the resource controller.
+    """
+
+    def before_show(self, resource_dict):
+        '''
+            Extensions will receive the validated data dict before the resource
+            is ready for display.
+        '''
+        return resource_dict
+
+
 class IPluginObserver(Interface):
     """
     Plugin to the plugin loading mechanism
@@ -489,14 +525,73 @@ class IActions(Interface):
 
 
 class IAuthFunctions(Interface):
-    """
-    Allow customisation of default Authorization implementation
-    """
+    '''Override CKAN's authorization functions, or add new auth functions.'''
+
     def get_auth_functions(self):
-        """
-        Returns a dict of all the authorization functions which the
-        implementation overrides
-        """
+        '''Return the authorization functions provided by this plugin.
+
+        Return a dictionary mapping authorization function names (strings) to
+        functions. For example::
+
+            {'user_create': my_custom_user_create_function,
+             'group_create': my_custom_group_create}
+
+        When a user tries to carry out an action via the CKAN API or web
+        interface and CKAN or a CKAN plugin calls
+        ``check_access('some_action')`` as a result, an authorization function
+        named ``'some_action'`` will be searched for in the authorization
+        functions registered by plugins and in CKAN's core authorization
+        functions (found in ``ckan/logic/auth/``).
+
+        For example when a user tries to create a package, a
+        ``'package_create'`` authorization function is searched for.
+
+        If an extension registers an authorization function with the same name
+        as one of CKAN's default authorization functions (as with
+        ``'user_create'`` and ``'group_create'`` above), the extension's
+        function will override the default one.
+
+        Each authorization function should take two parameters ``context`` and
+        ``data_dict``, and should return a dictionary ``{'success': True}`` to
+        authorize the action or ``{'success': False}`` to deny it, for
+        example::
+
+            def user_create(context, data_dict=None):
+                if (some condition):
+                    return {'success': True}
+                else:
+                    return {'success': False, 'msg': 'Not allowed to register'}
+
+        The context object will contain a ``model`` that can be used to query
+        the database, a ``user`` containing the name of the user doing the
+        request (or their IP if it is an anonymous web request) and an
+        ``auth_user_obj`` containing the actual model.User object (or None if
+        it is an anonymous request).
+
+        See ``ckan/logic/auth/`` for more examples.
+
+        Note that by default, all auth functions provided by extensions are assumed
+        to require a validated user or API key, otherwise a
+        :py:class:`ckan.logic.NotAuthorized`: exception will be raised. This check
+        will be performed *before* calling the actual auth function. If you want
+        to allow anonymous access to one of your actions, its auth function must
+        be decorated with the ``auth_allow_anonymous_access`` decorator, available
+        on the plugins toolkit.
+
+        For example::
+
+            import ckan.plugins as p
+
+            @p.toolkit.auth_allow_anonymous_access
+            def my_search_action(context, data_dict):
+                # Note that you can still return {'success': False} if for some
+                # reason access is denied.
+
+            def my_create_action(context, data_dict):
+                # Unless there is a logged in user or a valid API key provided
+                # NotAuthorized will be raised before reaching this function.
+
+        '''
 
 
 class ITemplateHelpers(Interface):
@@ -522,7 +617,6 @@ class ITemplateHelpers(Interface):
         the function, to prevent name clashes between extensions.
 
         '''
-
 
 class ICachedReport(Interface):
     """
@@ -697,6 +791,15 @@ class IDatasetForm(Interface):
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/read.html'``.
 
+        If the user requests the dataset in a format other than HTML
+        (CKAN supports returning datasets in RDF or N3 format by appending .rdf
+        or .n3 to the dataset read URL, see :doc:`/linked-data-and-rdf`) then
+        CKAN will try to render
+        a template file with the same path as returned by this function,
+        but a different filename extension, e.g. ``'package/read.rdf'``.
+        If your extension doesn't have this RDF version of the template
+        file, the user will get a 404 error.
+
         :rtype: string
 
         '''
@@ -706,16 +809,6 @@ class IDatasetForm(Interface):
 
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/edit.html'``.
-
-        :rtype: string
-
-        '''
-
-    def comments_template(self):
-        '''Return the path to the template for the dataset comments page.
-
-        The path should be relative to the plugin's templates dir, e.g.
-        ``'package/comments.html'``.
 
         :rtype: string
 
@@ -879,9 +972,9 @@ class IGroupForm(Interface):
 class IFacets(Interface):
     ''' Allows specify which facets are displayed and also the names used.
 
-    facet_dicts are in the form {'facet_name': 'dispaly name', ...}
-    to allow translatable dispaly names use _(...)
-    eg {'facet_name': _('dispaly name'), ...} and ensure that this is
+    facet_dicts are in the form {'facet_name': 'display name', ...}
+    to allow translatable display names use _(...)
+    eg {'facet_name': _('display name'), ...} and ensure that this is
     created each time the function is called.
 
     The dict supplied is actually an ordered dict.
@@ -898,3 +991,32 @@ class IFacets(Interface):
     def organization_facets(self, facets_dict, organization_type, package_type):
         ''' Update the facets_dict and return it. '''
         return facets_dict
+
+
+class IAuthenticator(Interface):
+    '''EXPERIMENTAL
+
+    Allows custom authentication methods to be integrated into CKAN.
+    Currently it is experimental and the interface may change.'''
+
+
+    def identify(self):
+        '''called to identify the user.
+
+        If the user is identfied then it should set
+        c.user: The id of the user
+        c.userobj: The actual user object (this may be removed as a
+        requirement in a later release so that access to the model is not
+        required)
+        '''
+
+    def login(self):
+        '''called at login.'''
+
+    def logout(self):
+        '''called at logout.'''
+
+    def abort(self, status_code, detail, headers, comment):
+        '''called on abort.  This allows aborts due to authorization issues
+        to be overriden'''
+        return (status_code, detail, headers, comment)

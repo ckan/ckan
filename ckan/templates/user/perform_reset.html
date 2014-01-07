@@ -9,7 +9,9 @@
 
 {% block primary_content %}
   <article class="module">
-    <h1 class="module-heading">{{ _('Reset Your Password') }}</h1>
+    <h1 class="module-heading">
+      {% block page_heading %}{{ _('Reset Your Password') }}{% endblock %}
+    </h1>
     <div class="module-content">
       {% block form %}
         <form class="form-horizontal" action="" method="post">

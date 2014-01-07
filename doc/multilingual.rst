@@ -25,7 +25,7 @@ If you want to quickly test the term translation feature without having to provi
 
   paster --plugin=ckan create-test-data translations
 
-See :ref:`paster` for more details.
+See :doc:`paster` for more details.
 
 Testing The Multilingual Extension
 ----------------------------------
@@ -36,4 +36,4 @@ If you have a source installation of CKAN you can test the multilingual extensio
 
   nosetests --ckan ckanext/multilingual/tests
 
-See :ref:`basic-tests` for more information.
+See :doc:`test` for more information.

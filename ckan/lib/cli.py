@@ -1,11 +1,17 @@
 import collections
 import csv
+import multiprocessing as mp
 import os
 import datetime
 import sys
 from pprint import pprint
 import re
-import cloghandler
+import ckan.include.rjsmin as rjsmin
+import ckan.include.rcssmin as rcssmin
+import ckan.lib.fanstatic_resources as fanstatic_resources
+import sqlalchemy as sa
+import urlparse
+import routes
 
 import paste.script
 from paste.registry import Registry
@@ -57,6 +63,9 @@ class MockTranslator(object):
         return singular
 
 class CkanCommand(paste.script.command.Command):
+    '''Base class for classes that implement CKAN paster commands to inherit.
+
+    '''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
             default='development.ini', help='Config file to use.')
@@ -67,8 +76,7 @@ class CkanCommand(paste.script.command.Command):
     default_verbosity = 1
     group_name = 'ckan'
 
-    def _load_config(self, load_environment=True):
-        '''Load pylons environment configured with CKAN config file'''
+    def _get_config(self):
         from paste.deploy import appconfig
         if not self.options.config:
             msg = 'No config file supplied'
@@ -77,25 +85,27 @@ class CkanCommand(paste.script.command.Command):
         if not os.path.exists(self.filename):
             raise AssertionError('Config filename %r does not exist.' % self.filename)
         fileConfig(self.filename)
-        conf = appconfig('config:' + self.filename)
+        return appconfig('config:' + self.filename)
+
+    def _load_config(self):
+        conf = self._get_config()
         assert 'ckan' not in dir() # otherwise loggers would be disabled
+        # We have now loaded the config. Now we can import ckan for the
+        # first time.
+        from ckan.config.environment import load_environment
+        load_environment(conf.global_conf, conf.local_conf)
 
-        if load_environment:
-            # We have now loaded the config. Now we can import ckan for the
-            # first time.
-            from ckan.config.environment import load_environment
-            load_environment(conf.global_conf, conf.local_conf)
+        self.registry=Registry()
+        self.registry.prepare()
+        import pylons
+        self.translator_obj = MockTranslator()
+        self.registry.register(pylons.translator, self.translator_obj)
 
-            self.registry=Registry()
-            self.registry.prepare()
-            import pylons
-            self.translator_obj = MockTranslator()
-            self.registry.register(pylons.translator, self.translator_obj)
-        else:
-            # Initialize config with the basic options
-            import pylons
-            pylons.config.init_app(conf.global_conf, conf.local_conf,
-                                   package='ckan', paths=[])
+        ## give routes enough information to run url_for
+        parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
+        request_config = routes.request_config()
+        request_config.host = parsed.netloc + parsed.path
+        request_config.protocol = parsed.scheme
 
     def _setup_app(self):
         cmd = paste.script.appinstall.SetupCommand('setup-app')
@@ -201,6 +211,7 @@ class ManageDb(CkanCommand):
     db load-only FILE_PATH         - load a pg_dump from a file but don\'t do
                                      the schema upgrade or search indexing
     db create-from-model           - create database from the model (indexes not made)
+    db migrate-filestore           - migrate all uploaded data from the 2.1 filesore.
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -258,6 +269,8 @@ class ManageDb(CkanCommand):
                 print 'Creating DB: SUCCESS'
         elif cmd == 'send-rdf':
             self.send_rdf()
+        elif cmd == 'migrate-filestore':
+            self.migrate_filestore()
         else:
             print 'Command %s not recognized' % cmd
             sys.exit(1)
@@ -390,9 +403,49 @@ class ManageDb(CkanCommand):
         talis = ckan.lib.talis.Talis()
         return talis.send_rdf(talis_store, username, password)
 
+    def migrate_filestore(self):
+        from ckan.model import Session
+        import requests
+        from ckan.lib.uploader import ResourceUpload
+        results = Session.execute("select id, revision_id, url from resource "
+                                  "where resource_type = 'file.upload' "
+                                  "and (url_type <> 'upload' or url_type is null)"
+                                  "and url like '%storage%'")
+        for id, revision_id, url  in results:
+            response = requests.get(url, stream=True)
+            if response.status_code != 200:
+                print "failed to fetch %s (code %s)" % (url,
+                                                        response.status_code)
+                continue
+            resource_upload = ResourceUpload({'id': id})
+            assert resource_upload.storage_path, "no storage configured aborting"
+
+            directory = resource_upload.get_directory(id)
+            filepath = resource_upload.get_path(id)
+            try:
+                os.makedirs(directory)
+            except OSError, e:
+                ## errno 17 is file already exists
+                if e.errno != 17:
+                    raise
+
+            with open(filepath, 'wb+') as out:
+                for chunk in response.iter_content(1024):
+                    if chunk:
+                        out.write(chunk)
+
+            Session.execute("update resource set url_type = 'upload'"
+                            "where id = '%s'"  % id)
+            Session.execute("update resource_revision set url_type = 'upload'"
+                            "where id = '%s' and "
+                            "revision_id = '%s'" % (id, revision_id))
+            Session.commit()
+            print "Saved url %s" % url
+
     def version(self):
         from ckan.model import Session
         print Session.execute('select version from migrate_version;').fetchall()
+
 
 
 class SearchIndexCommand(CkanCommand):
@@ -401,6 +454,8 @@ class SearchIndexCommand(CkanCommand):
     Usage:
       search-index [-i] [-o] [-r] [-e] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
                                                                  full search index (all datasets)
+      search-index rebuild_fast                                - reindex using multiprocessing using all cores. 
+                                                                 This acts in the same way as rubuild -r [EXPERIMENTAL]
       search-index check                                       - checks for datasets not indexed
       search-index show DATASET_NAME                           - shows index of a dataset
       search-index rebuild-publisher GROUP_NAME                - Rebuilds the group\'s datasets index
@@ -434,14 +489,18 @@ Default is false.'''
                     )
 
     def command(self):
-        self._load_config()
-
         if not self.args:
             # default to printing help
             print self.usage
             return
 
         cmd = self.args[0]
+        # Do not run load_config yet
+        if cmd == 'rebuild_fast':
+            self.rebuild_fast()
+            return
+
+        self._load_config()
         if cmd == 'rebuild':
             self.rebuild()
         elif cmd == 'rebuild-publisher':
@@ -517,6 +576,44 @@ Default is false.'''
 
         package_id =self.args[1] if len(self.args) > 1 else None
         clear(package_id)
+
+    def rebuild_fast(self):
+        ###  Get out config but without starting pylons environment ####
+        conf = self._get_config()
+
+        ### Get ids using own engine, otherwise multiprocess will balk
+        db_url = conf['sqlalchemy.url']
+        engine = sa.create_engine(db_url)
+        package_ids = []
+        result = engine.execute("select id from package where state = 'active';")
+        for row in result:
+            package_ids.append(row[0])
+
+        def start(ids):
+            ## load actual enviroment for each subprocess, so each have thier own
+            ## sa session
+            self._load_config()
+            from ckan.lib.search import rebuild, commit
+            rebuild(package_ids=ids)
+            commit()
+
+        def chunks(l, n):
+            """ Yield n successive chunks from l.
+            """
+            newn = int(len(l) / n)
+            for i in xrange(0, n-1):
+                yield l[i*newn:i*newn+newn]
+            yield l[n*newn-newn:]
+
+        processes = []
+        for chunk in chunks(package_ids, mp.cpu_count()):
+            process = mp.Process(target=start, args=(chunk,))
+            processes.append(process)
+            process.daemon = True
+            process.start()
+
+        for process in processes:
+            process.join()
 
 class Notification(CkanCommand):
     '''Send out modification notifications.
@@ -1306,12 +1403,10 @@ class DatasetCmd(CkanCommand):
         pprint.pprint(dataset.as_dict())
 
     def delete(self, dataset_ref):
-        from ckan import plugins
         import ckan.model as model
         dataset = self._get_dataset(dataset_ref)
         old_state = dataset.state
 
-        plugins.load('synchronous_search')
         rev = model.repo.new_revision()
         dataset.delete()
         model.repo.commit_and_remove()
@@ -1319,12 +1414,10 @@ class DatasetCmd(CkanCommand):
         print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
 
     def purge(self, dataset_ref):
-        from ckan import plugins
         import ckan.model as model
         dataset = self._get_dataset(dataset_ref)
         name = dataset.name
 
-        plugins.load('synchronous_search')
         rev = model.repo.new_revision()
         dataset.purge()
         model.repo.commit_and_remove()
@@ -1401,7 +1494,12 @@ class Celery(CkanCommand):
                                help="Refer to a particular queue")
 
     def command(self):
-        self._load_config(load_environment=False)
+        # Load config with the basic options
+        conf = self._get_config()
+        import pylons
+        pylons.config.init_app(conf.global_conf, conf.local_conf,
+                               package='ckan', paths=[])
+
         self.session = self.get_celery_db_session()
         self.queues = self.get_queues()
 
@@ -1873,7 +1971,7 @@ class CreateTestDataCommand(CkanCommand):
                                     translations of terms
     create-test-data vocabs       - annakerenina, warandpeace, and some test
                                     vocabularies
-
+    create-test-data hierarchy    - hierarchy of groups
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -1884,7 +1982,6 @@ class CreateTestDataCommand(CkanCommand):
         self._load_config()
         self._setup_app()
         from ckan import plugins
-        plugins.load('synchronous_search') # so packages get indexed
         from create_test_data import CreateTestData
 
         if self.args:
@@ -1909,6 +2006,8 @@ class CreateTestDataCommand(CkanCommand):
             CreateTestData.create_translations_test_data()
         elif cmd == 'vocabs':
             CreateTestData.create_vocabs_test_data()
+        elif cmd == 'hierarchy':
+            CreateTestData.create_group_hierarchy_test_data()
         else:
             print 'Command %s not recognized' % cmd
             raise NotImplementedError
@@ -2402,6 +2501,9 @@ class MinifyCommand(CkanCommand):
         paster minify ckan/public/base
         paster minify ckan/public/base/css/*.css
         paster minify ckan/public/base/css/red.css
+
+    if the --clean option is provided any minified files will be removed.
+
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -2409,20 +2511,45 @@ class MinifyCommand(CkanCommand):
 
     exclude_dirs = ['vendor']
 
+    def __init__(self, name):
+
+        super(MinifyCommand, self).__init__(name)
+
+        self.parser.add_option('--clean', dest='clean',
+            action='store_true', default=False, help='remove any minified files in the path')
+
     def command(self):
+        clean = getattr(self.options, 'clean', False)
         self._load_config()
         for base_path in self.args:
             if os.path.isfile(base_path):
-                self.minify_file(base_path)
+                if clean:
+                    self.clear_minifyed(base_path)
+                else:
+                    self.minify_file(base_path)
             elif os.path.isdir(base_path):
                 for root, dirs, files in os.walk(base_path):
                     dirs[:] = [d for d in dirs if not d in self.exclude_dirs]
                     for filename in files:
                         path = os.path.join(root, filename)
-                        self.minify_file(path)
+                        if clean:
+                            self.clear_minifyed(path)
+                        else:
+                            self.minify_file(path)
             else:
                 # Path is neither a file or a dir?
                 continue
+
+    def clear_minifyed(self, path):
+        path_only, extension = os.path.splitext(path)
+
+        if extension not in ('.css', '.js'):
+            # This is not a js or css file.
+            return
+
+        if path_only.endswith('.min'):
+            print 'removing %s' % path
+            os.remove(path)
 
     def minify_file(self, path):
         '''Create the minified version of the given file.
@@ -2579,6 +2706,8 @@ class FrontEndBuildCommand(CkanCommand):
         cmd.options = self.options
         root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
         root = os.path.abspath(root)
-        cmd.args = (root,)
+        ckanext = os.path.join(os.path.dirname(__file__), '..', '..', 'ckanext')
+        ckanext = os.path.abspath(ckanext)
+        cmd.args = (root, ckanext)
         cmd.command()
 
