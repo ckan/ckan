@@ -1,0 +1,5 @@
+{% ckan_extends %}
+
+{% block featured_group %}
+  {{ h.recently_changed_packages_activity_stream(limit=4) }}
+{% endblock %}

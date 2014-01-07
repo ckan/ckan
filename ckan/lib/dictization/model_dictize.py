@@ -91,7 +91,7 @@ def related_list_dictize(related_list, context):
         related_dict = related_dictize(res, context)
         result_list.append(related_dict)
 
-    return sorted(result_list, key=lambda x: x["created"], reverse=True)
+    return result_list
 
 
 def extras_dict_dictize(extras_dict, context):
@@ -348,7 +348,6 @@ def _get_members(context, group, member_type):
 
 
 def group_dictize(group, context):
-    model = context['model']
     result_dict = d.table_dictize(group, context)
 
     result_dict['display_name'] = group.display_name
@@ -356,19 +355,34 @@ def group_dictize(group, context):
     result_dict['extras'] = extras_dict_dictize(
         group._extras, context)
 
-    context['with_capacity'] = True
+    include_datasets = context.get('include_datasets', True)
 
-    result_dict['packages'] = d.obj_list_dictize(
-        _get_members(context, group, 'packages'),
-        context)
+    q = {
+        'facet': 'false',
+        'rows': 0,
+    }
 
-    query = search.PackageSearchQuery()
     if group.is_organization:
-        q = {'q': 'owner_org:"%s" +capacity:public' % group.id, 'rows': 1}
+        q['fq'] = 'owner_org:"{0}"'.format(group.id)
     else:
-        q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
-    result_dict['package_count'] = query.run(q)['count']
+        q['fq'] = 'groups:"{0}"'.format(group.name)
 
+    is_group_member = (context.get('user') and
+         new_authz.has_user_permission_for_group_or_org(group.id, context.get('user'), 'read'))
+    if is_group_member:
+        context['ignore_capacity_check'] = True
+
+    if include_datasets:
+        q['rows'] = 1000    # Only the first 1000 datasets are returned
+
+    search_results = logic.get_action('package_search')(context, q)
+
+    if include_datasets:
+        result_dict['packages'] = search_results['results']
+
+    result_dict['package_count'] = search_results['count']
+
+    context['with_capacity'] = True
     result_dict['tags'] = tag_list_dictize(
         _get_members(context, group, 'tags'),
         context)
@@ -510,13 +524,13 @@ def user_dictize(user, context):
         result_dict['email'] = email
 
     if context.get('keep_apikey', False):
-        result_dict['apikey'] = email
+        result_dict['apikey'] = apikey
 
     if requester == user.name:
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 
-    ## this should not really really be needed but tests r it
+    ## this should not really really be needed but tests need it
     if new_authz.is_sysadmin(requester):
         result_dict['apikey'] = apikey
         result_dict['email'] = email
@@ -693,17 +707,3 @@ def user_following_group_dictize(follower, context):
 
     base_columns = set(['id', 'resource_id', 'title', 'description',
                         'view_type', 'order', 'config'])
-
-def resource_view_dictize(resource_view, context):
-    dictized = d.table_dictize(resource_view, context)
-    dictized.pop('order')
-    config = dictized.pop('config', {})
-    dictized.update(config)
-    return dictized
-
-def resource_view_list_dictize(resource_views, context):
-    resource_view_dicts = []
-    for view in resource_views:
-        resource_view_dicts.append(resource_view_dictize(view, context))
-    return resource_view_dicts
-

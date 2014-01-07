@@ -65,6 +65,6 @@ To add a tag vocabulary to a site, a CKAN sysadmin must:
 
 3. Provide custom dataset templates to display the new field to users when
    adding, updating or viewing datasets in the CKAN web interface.
-   See :doc:`theming`.
+   See :doc:`theming/index`.
 
 See ``ckanext/example_idatasetform`` for a working example of these steps.

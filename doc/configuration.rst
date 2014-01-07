@@ -351,6 +351,22 @@ Default value: ``True``
 
 Allow new user accounts to be created via the Web.
 
+.. _ckan.auth.roles_that_cascade_to_sub_groups:
+
+ckan.auth.roles_that_cascade_to_sub_groups
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.roles_that_cascade_to_sub_groups = admin editor
+
+Default value: ``admin``
+
+
+Makes role permissions apply to all the groups down the hierarchy from the groups that the role is applied to.
+
+e.g. a particular user has the 'admin' role for group 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child groups of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
+
 .. end_config-authorization
 
 
@@ -655,7 +671,7 @@ Format tips:
 * the format is Markdown
 
 .. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable.
-          For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`theming`.
+          For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`theming/index`.
 
 .. _ckan.main_css:
 
@@ -951,7 +967,7 @@ Example::
 
 To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
-For more information on theming, see :doc:`theming`.
+For more information on theming, see :doc:`theming/index`.
 
 .. _extra_public_paths:
 
@@ -964,7 +980,7 @@ Example::
 
 To customise the display of CKAN you can supply replacements for static files such as HTML, CSS, script and PNG files. Use this option to specify where CKAN should look for additional files, before reverting to the ``ckan/public`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
-For more information on theming, see :doc:`theming`.
+For more information on theming, see :doc:`theming/index`.
 
 .. end_config-theming
 
@@ -1198,7 +1214,7 @@ Example::
 
 Default value:  ``en`` (English)
 
-Use this to specify the locale (language of the text) displayed in the CKAN Web UI. This requires a suitable `mo` file installed for the locale in the ckan/i18n. For more information on internationalization, see :doc:`i18n`. If you don't specify a default locale, then it will default to the first locale offered, which is by default English (alter that with `ckan.locales_offered` and `ckan.locales_filtered_out`.
+Use this to specify the locale (language of the text) displayed in the CKAN Web UI. This requires a suitable `mo` file installed for the locale in the ckan/i18n. For more information on internationalization, see :doc:`contributing/i18n`. If you don't specify a default locale, then it will default to the first locale offered, which is by default English (alter that with `ckan.locales_offered` and `ckan.locales_filtered_out`.
 
 .. note: In versions of CKAN before 1.5, the settings used for this was variously `lang` or `ckan.locale`, which have now been deprecated in favour of `ckan.locale_default`.
 
