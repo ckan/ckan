@@ -1003,6 +1003,8 @@ def activity_create(context, activity_dict, **kw):
 
     '''
 
+    _check_access('activity_create', context, activity_dict)
+
     # this action had a ignore_auth param which has been removed
     # removed in 2.2
     if 'ignore_auth' in kw:
@@ -1022,8 +1024,6 @@ def activity_create(context, activity_dict, **kw):
         activity_dict['revision_id'] = model.Session.revision.id
     else:
         activity_dict['revision_id'] = None
-
-    _check_access('activity_create', context, activity_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_activity_schema()
     data, errors = _validate(activity_dict, schema, context)
