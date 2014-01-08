@@ -247,6 +247,10 @@ def package_update(context, data_dict):
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
+    
+    It is recommended to call
+    :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
+    the result, and then call ``package_update()`` with it.
 
     Plugins may change the parameters of this function depending on the value
     of the dataset's ``type`` attribute, see the
