@@ -11,8 +11,6 @@
         {{ h.markdown_extract(group.description, 180) }}
         {% link_for _('read more'), controller='group', action='about', id=group.name %}
       </p>
-    {% else %}
-      <p class="empty">{{ _('There is no description for this group') }}</p>
     {% endif %}
     {% if show_nums %}
       <div class="nums">
