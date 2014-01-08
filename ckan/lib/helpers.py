@@ -1706,7 +1706,7 @@ def featured_group_org(items, get_action, list_action, count):
 
         try:
             out = logic.get_action(get_action)(context, data_dict)
-        except logic.ObjectNotFound:
+        except logic.NotFound:
             return None
         return out
 
