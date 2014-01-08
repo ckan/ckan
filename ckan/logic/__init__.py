@@ -402,7 +402,7 @@ def get_action(action):
         def make_wrapped(_action, action_name):
             def wrapped(context=None, data_dict=None, **kw):
                 if kw:
-                    log.critical('%s was pass extra keywords %r'
+                    log.critical('%s was passed extra keywords %r'
                                  % (_action.__name__, kw))
 
                 context = _prepopulate_context(context)
@@ -423,7 +423,9 @@ def get_action(action):
                         if action_name not in new_authz.auth_functions_list():
                             log.debug('No auth function for %s' % action_name)
                         elif not getattr(_action, 'auth_audit_exempt', False):
-                            raise Exception('Action Auth Audit: %s' % action_name)
+                            raise Exception(
+                                'Action function {0} did not call its auth function'
+                                .format(action_name))
                         # remove from audit stack
                         context['__auth_audit'].pop()
                 except IndexError:
