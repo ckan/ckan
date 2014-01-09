@@ -79,6 +79,17 @@ class TestUpdate(object):
 
     ## END-BEFORE
 
+    def test_user_cycle_apikey(self):
+        '''Test that updating a user's name works successfully.'''
+
+        user = factories.User()
+        # Required because you can only cycle your own API key
+        context = {'user': user['name']}
+        helpers.call_action('user_cycle_apikey', context=context, id=user['name'])
+        updated_user = helpers.call_action('user_show', context=context, id=user['id'])
+
+        assert updated_user['apikey'] != user['apikey']
+
     def test_user_update_with_id_that_does_not_exist(self):
         user_dict = factories.User.attributes()
         user_dict['id'] = "there's no user with this id"
