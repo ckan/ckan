@@ -210,17 +210,7 @@ class UserController(base.BaseController):
         data_dict = {'id': id}
 
         try:
-            check_access('user_update', context, data_dict)
-        except NotAuthorized:
-            abort(401, _('Unauthorized to edit a user.'))
-
-        try:
-            old_data = get_action('user_show')(context, data_dict)
-            old_data['apikey'] = model.types.make_uuid()
-            context['schema'] = schema.default_cycle_apikey_user_schema()
-            data_dict = old_data
-            get_action('user_update')(context, data_dict)
-
+            get_action('user_cycle_apikey')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to edit user %s') % '')
         except NotFound:
