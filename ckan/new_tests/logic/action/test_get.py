@@ -188,7 +188,7 @@ class TestGet(object):
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
-    def test_related_list(self):
+    def test_related_list_with_no_params(self):
         related1 = factories.Related(featured=True)
         related2 = factories.Related(type='application')
 
@@ -196,14 +196,26 @@ class TestGet(object):
         related_list = helpers.call_action('related_list')
         assert ([related1, related2] == related_list)
 
+    def test_related_list_type_filter(self):
+        related1 = factories.Related(featured=True)
+        related2 = factories.Related(type='application')
+
         # filter for type_filter
         related_list = helpers.call_action('related_list',
                                            type_filter='application')
         assert ([related2] == related_list)
 
+    def test_related_list_sorted(self):
+        related1 = factories.Related(featured=True)
+        related2 = factories.Related(type='application')
+
         # sort
         related_list = helpers.call_action('related_list', sort='created_desc')
         assert ([related2, related1] == related_list)
+
+    def test_related_list_featured(self):
+        related1 = factories.Related(featured=True)
+        related2 = factories.Related(type='application')
 
         # featured
         related_list = helpers.call_action('related_list', featured=True)
