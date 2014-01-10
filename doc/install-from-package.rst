@@ -1,3 +1,5 @@
+.. include:: _latest_release.rst
+
 ============================
 Installing CKAN from package
 ============================
@@ -24,18 +26,22 @@ CKAN:
 
     sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5
 
-#. Download the CKAN package::
+#. Download the CKAN package:
 
-    wget http://packaging.ckan.org/python-ckan_2.0_amd64.deb
+   .. parsed-literal::
+
+      wget \http://packaging.ckan.org/|latest_package_name|
 
    .. note:: If ``wget`` is not present, you can install it
        via::
 
         sudo apt-get install wget
 
-#. Install the CKAN package::
+#. Install the CKAN package:
 
-    sudo dpkg -i python-ckan_2.0_amd64.deb
+   .. parsed-literal::
+
+      sudo dpkg -i |latest_package_name|
 
 .. note:: If you get the following error it means that for some reason the
  Apache WSGI module was not enabled::
