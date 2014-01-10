@@ -85,8 +85,10 @@ class TestUpdate(object):
         user = factories.User()
         # Required because you can only cycle your own API key
         context = {'user': user['name']}
-        result = helpers.call_action('user_cycle_apikey', context=context, id=user['name'])
-        updated_user = helpers.call_action('user_show', context=context, id=user['id'])
+        result = helpers.call_action('user_cycle_apikey', context=context,
+                                     id=user['name'])
+        updated_user = helpers.call_action('user_show', context=context,
+                                           id=user['id'])
 
         assert updated_user['apikey'] != user['apikey']
         assert result['apikey'] == updated_user['apikey']
