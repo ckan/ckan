@@ -210,14 +210,14 @@ class UserController(base.BaseController):
         data_dict = {'id': id}
 
         try:
-            get_action('user_cycle_apikey')(context, data_dict)
+            result = get_action('user_cycle_apikey')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to edit user %s') % '')
         except NotFound:
             abort(404, _('User not found'))
 
         h.flash_success(_('Profile updated'))
-        h.redirect_to(controller='user', action='read', id=data_dict['name'])
+        h.redirect_to(controller='user', action='read', id=result['name'])
 
     def _save_new(self, context):
         try:

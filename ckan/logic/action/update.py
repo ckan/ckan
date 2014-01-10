@@ -695,7 +695,7 @@ def user_cycle_apikey(context, data_dict):
     old_data = _get_action('user_show')(context, data_dict)
     old_data['apikey'] = model.types.make_uuid()
     data_dict = old_data
-    _get_action('user_update')(context, data_dict)
+    return _get_action('user_update')(context, data_dict)
 
 
 def task_status_update(context, data_dict):
