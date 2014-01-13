@@ -506,7 +506,8 @@ class ApiController(base.BaseController):
                     _("Missing search term ('since_id=UUID' or " +
                             " 'since_time=TIMESTAMP')"))
             revs = model.Session.query(model.Revision).\
-                filter(model.Revision.timestamp > since_time)
+                filter(model.Revision.timestamp > since_time).\
+                limit(50) # reasonable enough for a page
             return self._finish_ok([rev.id for rev in revs])
         elif register in ['dataset', 'package', 'resource']:
             try:
