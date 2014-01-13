@@ -268,7 +268,7 @@ class PackageController(BaseController):
             c.search_facets = query['search_facets']
             c.page.items = query['results']
         except SearchError, se:
-            log.error('Dataset search error %s (%s): %r', request.url, request.environ['HTTP_USER_AGENT'], se.args)
+            log.error('Dataset search error %s (%s): %r', request.url, request.environ.get('HTTP_USER_AGENT'), se.args)
             c.query_error = True
             c.facets = {}
             c.search_facets = {}
