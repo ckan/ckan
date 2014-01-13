@@ -12,7 +12,6 @@
 {% block content_action %}
   {% if h.check_access('user_update', user) %}
     {% link_for _('Manage'), controller='user', action='edit', id=user.name, class_='btn', icon='wrench' %}
-    {% link_for _('Generate New API Key'), controller='user', action='cycle_apikey', id=user.name, class_='btn', icon='refresh' %}
   {% endif %}
 {% endblock %}
 
