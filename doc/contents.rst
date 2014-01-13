@@ -12,9 +12,9 @@ Full table of contents
    getting-started
    features
    extensions/index
-   theming
+   theming/index
    api
-   contributing
+   contributing/index
    test
    configuration
    changelog

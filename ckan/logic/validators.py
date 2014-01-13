@@ -32,7 +32,9 @@ def owner_org_validator(key, data, errors, context):
     model = context['model']
     user = context['user']
     user = model.User.get(user)
-    if value == '':
+    if value == '' :
+        if new_authz.check_config_permission('create_unowned_dataset'):
+            return
         # only sysadmins can remove datasets from org
         if not user.sysadmin:
             raise Invalid(_('You cannot remove a dataset from an existing organization'))
@@ -690,7 +692,28 @@ def role_exists(role, context):
 
 def datasets_with_no_organization_cannot_be_private(key, data, errors,
         context):
-    if data[key] is True and data.get(('owner_org',)) is None:
+
+    dataset_id = data.get(('id',))
+    owner_org = data.get(('owner_org',))
+    private = data[key] is True
+
+    check_passed = True
+
+    if not dataset_id and private and not owner_org:
+        # When creating a dataset, enforce it directly
+        check_passed = False
+    elif dataset_id and private and not owner_org:
+        # Check if the dataset actually has an owner_org, even if not provided
+        try:
+            dataset_dict = logic.get_action('package_show')({},
+                            {'id': dataset_id})
+            if not dataset_dict.get('owner_org'):
+                check_passed = False
+
+        except logic.NotFound:
+            check_passed = False
+
+    if not check_passed:
         errors[key].append(
                 _("Datasets with no organization can't be private."))
 
@@ -721,4 +744,4 @@ def no_loops_in_hierarchy(key, data, errors, context):
                 not in allowable_parents:
             raise Invalid(_('This parent would create a loop in the '
                             'hierarchy'))
- 
+

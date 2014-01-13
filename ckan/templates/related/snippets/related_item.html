@@ -19,8 +19,6 @@ Example:
   <h3 class="media-heading">{{ related.title }}</h3>
   {% if related.description %}
     <div class="prose">{{ h.render_markdown(related.description) }}</div>
-  {% else %}
-    <p class="empty">{{ _('This item has no description') }}</p>
   {% endif %}
   <a class="media-view" href="{{ related.url }}" target="_blank" title="{{ tooltip }}">
     <span>{{ tooltip }}</span>
