@@ -109,7 +109,9 @@ def package_list(context, data_dict):
 def current_package_list_with_resources(context, data_dict):
     '''Return a list of the site's datasets (packages) and their resources.
 
-    The list is sorted most-recently-modified first.
+    The list is sorted most-recently-modified first. If no limit is specified then
+    only 50 items will be returned, and there is a maximum of 250 which is imposed
+    whenever a limit is specified greater than that number.
 
     :param limit: if given, the list of datasets will be broken into pages of
         at most ``limit`` datasets per page and only one page will be returned
@@ -124,7 +126,7 @@ def current_package_list_with_resources(context, data_dict):
 
     '''
     model = context["model"]
-    limit = data_dict.get('limit')
+    limit = min(data_dict.get('limit', 50), 250)
     offset = data_dict.get('offset', 0)
 
     if not 'offset' in data_dict and 'page' in data_dict:
@@ -157,9 +159,12 @@ def revision_list(context, data_dict):
     '''
     model = context['model']
 
+    lmt = min(data_dict.get('limit', 100), 500)
+    offset = data_dict.get('offset', 0)
+
     _check_access('revision_list', context, data_dict)
 
-    revs = model.Session.query(model.Revision).all()
+    revs = model.Session.query(model.Revision).offset(offset).limit(lmt).all()
     return [rev.id for rev in revs]
 
 def package_revision_list(context, data_dict):
