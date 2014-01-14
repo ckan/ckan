@@ -376,7 +376,8 @@ def group_dictize(group, context):
     if include_datasets:
         q['rows'] = 1000    # Only the first 1000 datasets are returned
 
-    search_results = logic.get_action('package_search')(context, q)
+    context_ = dict((k, v) for (k, v) in context.items() if k != 'schema')
+    search_results = logic.get_action('package_search')(context_, q)
 
     if include_datasets:
         result_dict['packages'] = search_results['results']
