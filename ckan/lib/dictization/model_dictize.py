@@ -395,9 +395,10 @@ def group_dictize(group, context):
         _get_members(context, group, 'groups'),
         context)
 
-    result_dict['users'] = user_list_dictize(
-        _get_members(context, group, 'users'),
-        context)
+    if is_group_member:
+        result_dict['users'] = user_list_dictize(
+            _get_members(context, group, 'users'),
+            context)
 
     context['with_capacity'] = False
 
