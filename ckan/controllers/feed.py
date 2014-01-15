@@ -303,7 +303,7 @@ class FeedController(base.BaseController):
         try:
             item_count, results = _package_search(data_dict)
         except:
-            abort(400, _('Failed to process the search request'))
+            base.abort(400, _('Failed to process the search request'))
 
         navigation_urls = self._navigation_urls(request.params,
                                                 item_count=item_count,
