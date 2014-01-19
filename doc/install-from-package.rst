@@ -92,8 +92,17 @@ CKAN:
 #. Also optionally, you can enable file uploads by following the
    instructions in :doc:`filestore`.
 
+---------------------------
+3. Restart Apache and Nginx
+---------------------------
+
+Restart Apache and Nginx by running this command in a terminal::
+
+    sudo service apache2 restart
+    sudo service nginx restart
+
 ---------------
-3. You're done!
+4. You're done!
 ---------------
 
 Open http://localhost in your web browser. You should see the CKAN front
