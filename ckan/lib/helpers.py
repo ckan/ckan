@@ -600,7 +600,7 @@ def get_facet_title(name):
     facet_titles = {'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license': _('License'), }
+                    'licenses': _('Licenses'), }
     return facet_titles.get(name, name.capitalize())
 
 
