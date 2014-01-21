@@ -602,7 +602,7 @@ def get_facet_title(name):
                     'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license': _('License'), }
+                    'license': _('Licenses'), }
     return facet_titles.get(name, name.capitalize())
 
 
