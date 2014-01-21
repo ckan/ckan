@@ -300,8 +300,6 @@ msgstr "Tags"
 msgid "Formats"
 msgstr "Formate"
 
-#: ckan/controllers/group.py:284 ckan/controllers/home.py:72
-#: ckan/controllers/package.py:221 ckan/lib/helpers.py:546
 #: ckan/templates/package/resource_read.html:109
 #: ckan/templates/package/snippets/package_basic_fields.html:31
 #: ckan/templates/snippets/license.html:4
