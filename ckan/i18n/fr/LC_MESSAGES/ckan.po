@@ -306,11 +306,6 @@ msgstr "Formats"
 msgid "License"
 msgstr "Licence"
 
-#: ckan/controllers/group.py:255 ckan/controllers/home.py:69
-#: ckan/controllers/package.py:241 ckan/lib/helpers.py:530
-msgid "Licenses"
-msgstr "Licences"
-
 #: ckan/controllers/group.py:401
 msgid "Not authorized to perform bulk update"
 msgstr "Vous n'êtes pas autorisé à effectuer des mises à jour par lots"
