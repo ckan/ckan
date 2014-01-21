@@ -220,10 +220,17 @@ class UserController(base.BaseController):
             # Redirect to a URL picked up by repoze.who which performs the
             # login
             login_url = self._get_repoze_handler('login_handler_path')
-            h.redirect_to('%s?login=%s&password=%s' % (
-                login_url,
-                str(data_dict['name']),
-                quote(data_dict['password1'].encode('utf-8'))))
+
+            # We need to pass the logged in URL as came_from parameter
+            # otherwise we lose the language setting
+            came_from = h.url_for(controller='user', action='logged_in',
+                                      __ckan_no_root=True)
+            redirect_url = '{login_url}?login={name}&password={pwd}&came_from={came_from}'
+            h.redirect_to(redirect_url.format(
+                login_url=login_url,
+                name=str(data_dict['name']),
+                pwd=quote(data_dict['password1'].encode('utf-8')),
+                came_from=came_from))
         else:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.
