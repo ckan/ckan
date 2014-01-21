@@ -914,6 +914,10 @@ def activity_create(context, activity_dict, ignore_auth=False):
     :rtype: dictionary
 
     '''
+
+    if not ignore_auth:
+        _check_access('activity_create', context, activity_dict)
+
     if not paste.deploy.converters.asbool(
             config.get('ckan.activity_streams_enabled', 'true')):
         return
@@ -926,9 +930,6 @@ def activity_create(context, activity_dict, ignore_auth=False):
         activity_dict['revision_id'] = model.Session.revision.id
     else:
         activity_dict['revision_id'] = None
-
-    if not ignore_auth:
-        _check_access('activity_create', context, activity_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_activity_schema()
     data, errors = _validate(activity_dict, schema, context)
