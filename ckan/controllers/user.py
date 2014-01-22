@@ -224,13 +224,13 @@ class UserController(base.BaseController):
             # We need to pass the logged in URL as came_from parameter
             # otherwise we lose the language setting
             came_from = h.url_for(controller='user', action='logged_in',
-                                      __ckan_no_root=True)
-            redirect_url = '{login_url}?login={name}&password={pwd}&came_from={came_from}'
+                                  __ckan_no_root=True)
+            redirect_url = '{0}?login={1}&password={2}&came_from={3}'
             h.redirect_to(redirect_url.format(
-                login_url=login_url,
-                name=str(data_dict['name']),
-                pwd=quote(data_dict['password1'].encode('utf-8')),
-                came_from=came_from))
+                login_url,
+                str(data_dict['name']),
+                quote(data_dict['password1'].encode('utf-8')),
+                came_from))
         else:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.
