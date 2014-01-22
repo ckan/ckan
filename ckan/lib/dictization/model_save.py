@@ -71,8 +71,8 @@ def package_resource_list_save(res_dicts, package, context):
 
     pending = context.get('pending')
 
-    resource_list = package.resource_groups_all[0].resources_all
-    old_list = package.resource_groups_all[0].resources_all[:]
+    resource_list = package.resources_all
+    old_list = package.resources_all[:]
 
     obj_list = []
     for res_dict in res_dicts or []:

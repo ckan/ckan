@@ -146,7 +146,6 @@ def _unified_resource_format(format_):
 def resource_dictize(res, context):
     model = context['model']
     resource = d.table_dictize(res, context)
-    resource_group_id = resource['resource_group_id']
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
@@ -156,13 +155,11 @@ def resource_dictize(res, context):
     ## for_edit is only called at the times when the dataset is to be edited
     ## in the frontend. Without for_edit the whole qualified url is returned.
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
-        resource_group = model.Session.query(
-            model.ResourceGroup).get(resource_group_id)
         last_part = url.split('/')[-1]
         cleaned_name = munge.munge_filename(last_part)
         resource['url'] = h.url_for(controller='package',
                                     action='resource_download',
-                                    id=resource_group.package_id,
+                                    id=resource['package_id'],
                                     resource_id=res.id,
                                     filename=cleaned_name,
                                     qualified=True)
@@ -238,14 +235,12 @@ def package_dictize(pkg, context):
     #strip whitespace from title
     if result_dict.get('title'):
         result_dict['title'] = result_dict['title'].strip()
+
     #resources
-    res_rev = model.resource_revision_table
-    resource_group = model.resource_group_table
-    q = select([res_rev], from_obj = res_rev.join(resource_group,
-               resource_group.c.id == res_rev.c.resource_group_id))
-    q = q.where(resource_group.c.package_id == pkg.id)
-    result = _execute_with_revision(q, res_rev, context)
-    result_dict["resources"] = resource_list_dictize(result, context)
+    resource_rev = model.resource_revision_table
+    q = select([resource_rev]).where(resource_rev.c.package_id == pkg.id)
+    result = _execute_with_revision(q, resource_rev, context)
+    result_dict["resources"] = resource_list_dictize(result or [], context)
     result_dict['num_resources'] = len(result_dict.get('resources', []))
 
     #tags

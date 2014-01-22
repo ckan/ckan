@@ -67,7 +67,6 @@ def default_resource_schema():
     schema = {
         'id': [ignore_empty, unicode],
         'revision_id': [ignore_missing, unicode],
-        'resource_group_id': [ignore],
         'package_id': [ignore],
         'url': [not_empty, unicode],#, URL(add_http=False)],
         'description': [ignore_missing, unicode],
@@ -204,7 +203,6 @@ def default_show_package_schema():
         'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'revision_timestamp': [],
-        'resource_group_id': [],
         'cache_last_updated': [],
         'webstore_last_updated': [],
         'size': [],

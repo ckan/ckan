@@ -1676,7 +1676,7 @@ def resource_search(context, data_dict):
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
 
-    q = model.Session.query(model.Resource).join(model.ResourceGroup).join(model.Package)
+    q = model.Session.query(model.Resource).join(model.Package)
     q = q.filter(model.Package.state == 'active')
     q = q.filter(model.Package.private == False)
     q = q.filter(model.Resource.state == 'active')
