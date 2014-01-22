@@ -195,7 +195,7 @@ class TestBasicDictize:
 
         ## resource
 
-        resource = pkg.resource_groups_all[0].resources_all[0]
+        resource = pkg.resources_all[0]
 
         result = resource_dictize(resource, context)
         self.remove_changable_columns(result)
@@ -412,7 +412,7 @@ class TestBasicDictize:
 
         package_dictized = package_dictize(pkg, context)
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(package_id=anna1.id).all()
 
         sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
         for res in sorted_resources:
@@ -464,7 +464,7 @@ class TestBasicDictize:
         assert str(sorted_packages[1].expired_timestamp) != '9999-12-31 00:00:00'
         assert str(sorted_packages[2].expired_timestamp) != '9999-12-31 00:00:00'
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(package_id=anna1.id).all()
         sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
 
         for pkg in sorted_resources:
@@ -546,7 +546,7 @@ class TestBasicDictize:
         model.Session.commit()
         model.Session.remove()
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(package_id=anna1.id).all()
 
         sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
         pprint(anna_dictized['resources'])
@@ -632,7 +632,7 @@ class TestBasicDictize:
         assert sorted_packages[2].state == 'active'
         assert sorted_packages[3].state == 'active'
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(package_id=anna1.id).all()
         sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
 
         assert len(sorted_resources) == 5
@@ -796,7 +796,8 @@ class TestBasicDictize:
             'size': None,
             'size_extra': u'123',
             'resource_type': None,
-            'name': None}
+            'name': None,
+            'package_id': ''}
 
         model.repo.new_revision()
         resource_dict_save(new_resource, context)
@@ -994,7 +995,7 @@ class TestBasicDictize:
         result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
 
         assert_equal(sorted(result.keys()), sorted(expected.keys()))
-        
+
         for key in result:
             if key in ('is_organization', 'package_count'):
                 continue

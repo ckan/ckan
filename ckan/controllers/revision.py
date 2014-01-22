@@ -62,8 +62,6 @@ class RevisionController(base.BaseController):
                 package_indications = []
                 revision_changes = model.repo.list_changes(revision)
                 resource_revisions = revision_changes[model.Resource]
-                resource_group_revisions = \
-                    revision_changes[model.ResourceGroup]
                 package_extra_revisions = revision_changes[model.PackageExtra]
                 for package in revision.packages:
                     if not package:
@@ -89,15 +87,8 @@ class RevisionController(base.BaseController):
                     else:
                         transition = 'updated'
                         for resource_revision in resource_revisions:
-                            if resource_revision.continuity.resource_group.\
-                                    package_id == package.id:
+                            if resource_revision.package_id == package.id:
                                 transition += ':resources'
-                                break
-                        for resource_group_revision in \
-                                resource_group_revisions:
-                            if resource_group_revision.package_id == \
-                                    package.id:
-                                transition += ':resource_group'
                                 break
                         for package_extra_revision in package_extra_revisions:
                             if package_extra_revision.package_id == \
