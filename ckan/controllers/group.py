@@ -813,9 +813,12 @@ class GroupController(base.BaseController):
         return render(self._admins_template(c.group_dict['type']))
 
     def about(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
         c.group_dict = self._get_group_dict(id)
         group_type = c.group_dict['type']
-        self._setup_template_variables({}, {'id': id}, group_type=group_type)
+        self._setup_template_variables(context, {'id': id},
+                                       group_type=group_type)
         return render(self._about_template(group_type))
 
     def _get_group_dict(self, id):
