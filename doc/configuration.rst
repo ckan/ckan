@@ -1066,9 +1066,15 @@ ckan.datapusher.formats
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
-  ckan.datapusher.formats = csv xls xlsx
 
-.. todo:: Expand
+  ckan.datapusher.formats = csv xls
+
+Default value: ``csv xls application/csv application/vnd.ms-excel``
+
+File formats that will be pushed to the DataStore by the DataPusher. When
+adding or editing a resource which links to a file in one of these formats,
+the DataPusher will automatically try to import its contents to the DataStore.
+
 
 .. _ckan.datapusher.url:
 
@@ -1076,9 +1082,13 @@ ckan.datapusher.url
 ^^^^^^^^^^^^^^^^^^^
 
 Example::
-  ckan.datapusher.url = http://datapusher.ckan.org/
 
-.. todo:: Expand
+  ckan.datapusher.url = http://127.0.0.1:8800/
+
+DataPusher endpoint to use when enabling the ``datapusher`` extension. If you
+installed CKAN via :doc:`install-from-package`, the DataPusher was installed for you
+running on port 8800. If you want to manually install the DataPusher, follow
+the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
 
 
 Activity Streams Settings
