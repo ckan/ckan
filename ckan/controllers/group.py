@@ -323,7 +323,8 @@ class GroupController(base.BaseController):
                 'extras': search_extras
             }
 
-            query = get_action('package_search')(context, data_dict)
+            context_ = dict((k, v) for (k, v) in context.items() if k != 'schema')
+            query = get_action('package_search')(context_, data_dict)
 
             c.page = h.Page(
                 collection=query['results'],
