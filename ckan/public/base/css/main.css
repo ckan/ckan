@@ -6232,6 +6232,7 @@ textarea {
 .resource-item .description {
   font-size: 12px;
   margin-bottom: 0;
+  min-height: 12px;
 }
 .resource-item .btn-group {
   position: absolute;
@@ -7119,6 +7120,7 @@ h4 small {
   margin-top: 15px;
   padding-top: 10px;
   border-top: 1px dotted #DDD;
+  word-break: break-word;
 }
 .context-info .info dl dd {
   margin-top: 3px;
