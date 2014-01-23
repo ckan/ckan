@@ -51,10 +51,6 @@ Setting up the DataStore
    available and the set-up is slightly different. Make sure, you read
    :ref:`legacy-mode` for more details.
 
-.. warning::
-
-   The DataStore does not support hiding resources in a private dataset.
-
 1. Enable the plugin
 ====================
 
