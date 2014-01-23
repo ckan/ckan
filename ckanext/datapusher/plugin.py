@@ -95,10 +95,7 @@ class DatapusherPlugin(p.SingletonPlugin):
                 # 1 parameter
                 context = {'model': model, 'ignore_auth': True,
                            'defer_commit': True}
-                package = p.toolkit.get_action('package_show')(context, {
-                    'id': entity.get_package_id()
-                })
-                if (not package['private'] and entity.format and
+                if (entity.format and
                         entity.format.lower() in self.datapusher_formats and
                         entity.url_type != 'datapusher'):
                     try:
