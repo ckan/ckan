@@ -9,6 +9,11 @@ and easiest way to install CKAN, but it requires **Ubuntu 12.04 64-bit**. If
 you're not using Ubuntu 12.04 64-bit, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
+At the end of the installation process you will end up with two running web
+applications, CKAN itself and the DataPusher, a separate service for automatically
+importing data to CKAN's :doc:`datastore`.
+
+
 .. _run-package-installer:
 
 ---------------------------
@@ -86,8 +91,8 @@ CKAN:
 
     sudo ckan db init
 
-#. Optionally, setup the DataStore by following the instructions in
-   :doc:`/datastore`.
+#. Optionally, setup the DataStore and DataPusher by following the
+   instructions in :doc:`/datastore`.
 
 #. Also optionally, you can enable file uploads by following the
    instructions in :doc:`filestore`.
