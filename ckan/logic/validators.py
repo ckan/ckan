@@ -33,8 +33,8 @@ def owner_org_validator(key, data, errors, context):
     user = context['user']
     user = model.User.get(user)
     if value == '' :
-        if new_authz.check_config_permission('create_unowned_dataset'):
-            return
+        if not new_authz.check_config_permission('create_unowned_dataset'):
+            raise Invalid(_('A organization must be supplied'))
         # only sysadmins can remove datasets from org
         if not user.sysadmin:
             raise Invalid(_('You cannot remove a dataset from an existing organization'))
