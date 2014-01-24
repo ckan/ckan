@@ -47,7 +47,7 @@ def datapusher_submit(context, data_dict):
 
     site_url = pylons.config['ckan.site_url']
 
-    callback_url = site_url + p.toolkit.url_for(
+    callback_url = site_url.rstrip('/') + p.toolkit.url_for(
         controller='api', action='action',
         logic_function='datapusher_hook', ver=3
     )
