@@ -6232,50 +6232,52 @@ textarea {
 .resource-item .description {
   font-size: 12px;
   margin-bottom: 0;
+  min-height: 12px;
 }
 .resource-item .btn-group {
   position: absolute;
   top: 14px;
   right: 10px;
 }
-.dataset-resource-form .dataset-form-resource-types {
-  margin-bottom: 5px;
+.resource-list.reordering .resource-item {
+  border: 1px solid #dddddd;
+  margin-bottom: 10px;
+  cursor: move;
 }
-.dataset-form-resource-types .ckan-icon {
-  position: relative;
-  top: 3px;
-}
-.dataset-form-resource-types .radio {
-  font-weight: normal;
-  padding-left: 0;
-  padding-right: 18px;
-}
-.dataset-form-resource-types label {
-  position: relative;
-}
-.dataset-form-resource-types input[type=radio]:checked + label {
-  font-weight: bold;
-}
-.dataset-form-resource-types input[type=radio]:checked + label:after {
-  *margin-right: .3em;
-  display: inline-block;
-  vertical-align: text-bottom;
-  position: relative;
-  top: 2px;
-  background-image: url("../../../base/images/sprite-ckan-icons.png");
-  background-repeat: no-repeat;
-  background-position: 16px 16px;
-  width: 16px;
-  height: 16px;
-  background-position: -192px 0;
+.resource-list.reordering .resource-item .handle {
   display: block;
-  content: "";
   position: absolute;
-  top: auto;
-  left: 0;
-  bottom: -12px;
+  color: #888888;
+  left: -31px;
+  top: 50%;
+  margin-top: -15px;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border: 1px solid #dddddd;
+  border-width: 1px 0 1px 1px;
+  background-color: #ffffff;
+  -webkit-border-radius: 20px 0 0 20px;
+  -moz-border-radius: 20px 0 0 20px;
+  border-radius: 20px 0 0 20px;
 }
-.dataset-form-resource-types input[type=radio] {
+.resource-list.reordering .resource-item .handle:hover {
+  text-decoration: none;
+}
+.resource-list.reordering .resource-item:hover .handle {
+  background-color: #eeeeee;
+}
+.resource-list.reordering .resource-item.ui-sortable-helper {
+  background-color: #eeeeee;
+  border: 1px solid #e73892;
+}
+.resource-list.reordering .resource-item.ui-sortable-helper .handle {
+  background-color: #eeeeee;
+  border-color: #e73892;
+  color: #333333;
+}
+.resource-item .handle {
   display: none;
 }
 .tag-list {
@@ -7118,6 +7120,7 @@ h4 small {
   margin-top: 15px;
   padding-top: 10px;
   border-top: 1px dotted #DDD;
+  word-break: break-word;
 }
 .context-info .info dl dd {
   margin-top: 3px;
