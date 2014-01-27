@@ -46,6 +46,27 @@ _desc = sqlalchemy.desc
 _case = sqlalchemy.case
 _text = sqlalchemy.text
 
+
+def _activity_filter_user(activity_list):
+    '''
+    Helper function to filter certain users from showing up in the activity
+    stream.
+    '''
+    users = config.get('ckan.hide_activity_from_users')
+    context = {}
+    if users:
+        users = users.split()
+    else:
+        site_user = logic.get_action('get_site_user')(context)
+        users = [site_user.get('name')]
+    user_ids = model.User.user_ids_for_name_or_id(users)
+    new_list = []
+    for activity in activity_list:
+        if activity.user_id not in user_ids:
+            new_list.append(activity)
+    return new_list
+
+
 def _package_list_with_resources(context, package_revision_list):
     package_list = []
     for package in package_revision_list:
@@ -2106,8 +2127,9 @@ def user_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.user_activity_list(user.id, limit=limit,
+    _activity_objects = model.activity.user_activity_list(user.id, limit=limit,
             offset=offset)
+    activity_objects = _activity_filter_user(_activity_objects)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 @logic.validate(logic.schema.default_activity_list_schema)
@@ -2144,8 +2166,9 @@ def package_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.package_activity_list(package.id,
+    _activity_objects = model.activity.package_activity_list(package.id,
             limit=limit, offset=offset)
+    activity_objects = _activity_filter_user(_activity_objects)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 @logic.validate(logic.schema.default_activity_list_schema)
@@ -2181,8 +2204,9 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    activity_objects = model.activity.group_activity_list(group_id,
+    _activity_objects = model.activity.group_activity_list(group_id,
             limit=limit, offset=offset)
+    activity_objects = _activity_filter_user(_activity_objects)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 @logic.validate(logic.schema.default_activity_list_schema)
@@ -2209,8 +2233,9 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    activity_objects = model.activity.group_activity_list(org_id,
+    _activity_objects = model.activity.group_activity_list(org_id,
             limit=limit, offset=offset)
+    activity_objects = _activity_filter_user(_activity_objects)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 @logic.validate(logic.schema.default_pagination_schema)
@@ -2235,9 +2260,10 @@ def recently_changed_packages_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.recently_changed_packages_activity_list(
+    _activity_objects = model.activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
 
+    activity_objects = _activity_filter_user(_activity_objects)
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
@@ -2840,9 +2866,10 @@ def dashboard_activity_list(context, data_dict):
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    activity_objects = model.activity.dashboard_activity_list(user_id,
+    _activity_objects = model.activity.dashboard_activity_list(user_id,
             limit=limit, offset=offset)
 
+    activity_objects = _activity_filter_user(_activity_objects)
     activity_dicts = model_dictize.activity_list_dictize(
             activity_objects, context)
 
