@@ -3,6 +3,12 @@ from sqlalchemy.orm import class_mapper
 import sqlalchemy
 from pylons import config
 
+try:
+    RowProxy = sqlalchemy.engine.result.RowProxy
+except AttributeError:
+    RowProxy = sqlalchemy.engine.base.RowProxy
+
+
 # NOTE
 # The functions in this file contain very generic methods for dictizing objects
 # and saving dictized objects. If a specialised use is needed please do NOT extend
@@ -17,7 +23,7 @@ def table_dictize(obj, context, **kw):
     model = context["model"]
     session = model.Session
 
-    if isinstance(obj, sqlalchemy.engine.base.RowProxy):
+    if isinstance(obj, RowProxy):
         fields = obj.keys()
     else:
         ModelClass = obj.__class__
