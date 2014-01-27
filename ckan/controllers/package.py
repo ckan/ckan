@@ -1326,7 +1326,11 @@ class PackageController(base.BaseController):
                 except NotFound:
                     abort(404, _('Group not found'))
 
-            removed_group = request.POST.get('group_removed')
+            removed_group = None
+            for param in request.POST:
+                if param.startswith('group_remove'):
+                    removed_group = param.split('.')[-1]
+                    break
             if removed_group:
                 data_dict = {"id": removed_group,
                              "object": id,
