@@ -386,15 +386,27 @@ class GroupController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
 
-        # Search within group
-        action = request.params.get('bulk_action')
+        #use different form names so that ie7 can be detected
+        form_names = set(["bulk_action.public", "bulk_action.delete",
+                          "bulk_action.private"])
+        actions_in_form = set(request.params.keys())
+        actions = form_names.intersection(actions_in_form)
         # If no action then just show the datasets
-        if not action:
+        if not actions:
             # unicode format (decoded from utf8)
             limit = 500
             self._read(id, limit)
             c.packages = c.page.items
             return render(self._bulk_process_template(group_type))
+
+        #ie7 puts all buttons in form params but puts submitted one twice
+        for key, value in dict(request.params.dict_of_lists()).items():
+            if len(value) == 2:
+                action = key.split('.')[-1]
+                break
+        else:
+            #normal good browser form submission
+            action = actions.pop().split('.')[-1]
 
         # process the action first find the datasets to perform the action on.
         # they are prefixed by dataset_ in the form data
