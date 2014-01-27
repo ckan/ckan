@@ -392,6 +392,7 @@ def make_map():
     # feeds
     with SubMapper(map, controller='feed') as m:
         m.connect('/feeds/group/{id}.atom', action='group')
+        m.connect('/feeds/organization/{id}.atom', action='organization')
         m.connect('/feeds/tag/{id}.atom', action='tag')
         m.connect('/feeds/dataset.atom', action='general')
         m.connect('/feeds/custom.atom', action='custom')
