@@ -215,7 +215,7 @@ def package_dictize(pkg, context):
     resource_rev = model.resource_revision_table
     q = select([resource_rev]).where(resource_rev.c.package_id == pkg.id)
     result = _execute_with_revision(q, resource_rev, context)
-    result_dict["resources"] = resource_list_dictize(result or [], context)
+    result_dict["resources"] = resource_list_dictize(result, context)
     result_dict['num_resources'] = len(result_dict.get('resources', []))
 
     #tags

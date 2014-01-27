@@ -70,6 +70,8 @@ def package_resource_list_save(res_dicts, package, context):
 
     obj_list = []
     for res_dict in res_dicts or []:
+        if not u'package_id' in res_dict or not res_dict[u'package_id']:
+            res_dict[u'package_id'] = package.id
         obj = resource_dict_save(res_dict, context)
         obj_list.append(obj)
 
