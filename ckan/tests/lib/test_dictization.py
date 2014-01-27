@@ -141,7 +141,7 @@ class TestBasicDictize:
 
     def remove_changable_columns(self, dict):
         for key, value in dict.items():
-            if key.endswith('id') and key not in ('license_id', 'creator_user_id'):
+            if key.endswith('id') and key not in ('license_id', 'creator_user_id','package_id'):
                 dict.pop(key)
             if key == 'created':
                 dict.pop(key)
@@ -200,7 +200,6 @@ class TestBasicDictize:
         result = resource_dictize(resource, context)
         self.remove_changable_columns(result)
 
-
         assert result == {
             u'alt_url': u'alt123',
              'cache_last_updated': None,
@@ -220,7 +219,8 @@ class TestBasicDictize:
              'url': u'http://www.annakarenina.com/download/x=1&y=2',
              'url_type': None,
              'webstore_last_updated': None,
-             'webstore_url': None
+             'webstore_url': None,
+             'package_id': pkg.id
             }, pprint(result)
 
         ## package extra
@@ -233,7 +233,8 @@ class TestBasicDictize:
         assert result == {
             'key': u'genre',
             'state': u'active',
-            'value': u'romantic novel'
+            'value': u'romantic novel',
+            'package_id': pkg.id
         }, pprint(result)
 
 
@@ -369,8 +370,6 @@ class TestBasicDictize:
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
 
-
-
         anna_dictized = self.remove_changable_columns(package_dictize(anna1, context))
 
         anna_dictized["name"] = u'annakarenina3'
@@ -386,7 +385,8 @@ class TestBasicDictize:
         anna_original = pformat(anna_dictized)
         anna_after_save = pformat(package_dictized)
 
-        assert self.remove_changable_columns(package_dictize(pkg, context)) == anna_dictized, "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
+        assert self.remove_changable_columns(package_dictize(pkg, context)) == anna_dictized,\
+            "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 
     def test_09_package_alter(self):
 
