@@ -316,7 +316,7 @@ html_static_path = ['_static']
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ComprehensiveKnowledgeArchiveNetworkCKANdoc'
+htmlhelp_basename = 'CKANdoc'
 
 
 # Options for LaTeX output
@@ -331,7 +331,7 @@ htmlhelp_basename = 'ComprehensiveKnowledgeArchiveNetworkCKANdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('contents', 'ComprehensiveKnowledgeArchiveNetworkCKAN.tex', ur'Comprehensive Knowledge Archive Network (CKAN) Developer Documentation',
+  ('contents', 'CKAN.tex', ur'CKAN documentation',
    ur'Open Knowledge Foundation', 'manual'),
 ]
 
