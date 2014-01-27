@@ -137,7 +137,7 @@ ckan.feeds.author_link =
 #ckan.activity_list_limit = 31
 #ckan.activity_streams_email_notifications = true
 #ckan.email_notifications_since = 2 days
-#ckan.hide_activity_from_users = default
+#ckan.hide_activity_from_users = %(ckan.site_id)s
 
 
 ## Email settings
