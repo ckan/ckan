@@ -228,7 +228,6 @@ The set-up for legacy mode is analogous to the normal set-up as described above 
 
 There is no need for a read-only user or special permissions. Therefore the legacy mode can be used for simple set-ups as well.
 
-.. _datapusher:
 
 ---------------------------------------------------
 DataPusher: Automatically Add Data to the DataStore
@@ -240,13 +239,10 @@ DataStore. This requires some processing, to extract the data from your files
 and to add it to the DataStore in the format the DataStore can handle.
 
 This task of automatically parsing and then adding data to the DataStore is
-performed by the `DataPusher <DataPusher_docs>`_, a service that runs asynchronously and can be installed
+performed by the `DataPusher`_, a service that runs asynchronously and can be installed
 alongside CKAN.
 
 To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
-
-
-.. _DataPusher_docs: http://docs.ckan.org/projects/datapusher
 
 
 -----------------
