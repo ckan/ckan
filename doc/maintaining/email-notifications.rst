@@ -38,7 +38,7 @@ notifications for a CKAN site, a sysadmin must:
      Since ``send_email_notifications`` is an API action, it can be called from
      a machine other than the server on which CKAN is running, simply by
      POSTing an HTTP request to the CKAN API (you must be a sysadmin to call
-     this particular API action). See :doc:`api`.
+     this particular API action). See :doc:`/api/index`.
 
 
 2. CKAN will not send out any email notifications, nor show the email
