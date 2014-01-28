@@ -90,8 +90,9 @@ def related_list_dictize(related_list, context):
     for res in related_list:
         related_dict = related_dictize(res, context)
         result_list.append(related_dict)
-
-    return result_list
+    if context.get('sorted'):
+        return result_list
+    return sorted(result_list, key=lambda x: x["created"], reverse=True)
 
 
 def extras_dict_dictize(extras_dict, context):
@@ -375,7 +376,8 @@ def group_dictize(group, context):
     if include_datasets:
         q['rows'] = 1000    # Only the first 1000 datasets are returned
 
-    search_results = logic.get_action('package_search')(context, q)
+    context_ = dict((k, v) for (k, v) in context.items() if k != 'schema')
+    search_results = logic.get_action('package_search')(context_, q)
 
     if include_datasets:
         result_dict['packages'] = search_results['results']

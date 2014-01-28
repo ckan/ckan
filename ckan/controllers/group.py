@@ -290,7 +290,7 @@ class GroupController(base.BaseController):
                                     'groups': _('Groups'),
                                     'tags': _('Tags'),
                                     'res_format': _('Formats'),
-                                    'license_id': _('License')}
+                                    'license_id': _('Licenses')}
 
             for facet in g.facets:
                 if facet in default_facet_titles:
@@ -323,7 +323,8 @@ class GroupController(base.BaseController):
                 'extras': search_extras
             }
 
-            query = get_action('package_search')(context, data_dict)
+            context_ = dict((k, v) for (k, v) in context.items() if k != 'schema')
+            query = get_action('package_search')(context_, data_dict)
 
             c.page = h.Page(
                 collection=query['results'],
