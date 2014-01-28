@@ -239,6 +239,13 @@ def resource_update(context, data_dict):
         pkg_dict = _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError, e:
+        # For debugging #1281
+        log.error('Validation error resource_update context=%r pkg_dict=%r',
+                  context, pkg_dict)
+        if 'resources' not in e.error_dict:
+            raise Exception('resource_update error context=%r pkg_dict=%r' %
+                            (context, pkg_dict))
+
         errors = e.error_dict['resources'][n]
         raise ValidationError(errors)
 
