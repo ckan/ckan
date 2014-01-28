@@ -38,9 +38,9 @@
       {% endif %}
     {% endblock %}
     {% block generate_button %}
-      {% if h.check_access('user_cycle_apikey', {'id': data.id})  %}
+      {% if h.check_access('user_generate_apikey', {'id': data.id})  %}
         {% set locale = h.dump_json({'content': _('Are you sure you want to regenerate the API key?')}) %}
-        <a class="btn btn-warning" href="{% url_for controller='user', action='cycle_apikey', id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block generate_button_text %}{{ _('Regenerate API Key') }}{% endblock %}</a>
+        <a class="btn btn-warning" href="{% url_for controller='user', action='generate_apikey', id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block generate_button_text %}{{ _('Regenerate API Key') }}{% endblock %}</a>
       {% endif %}
     {% endblock %}
     {{ form.required_message() }}

@@ -212,7 +212,7 @@ def user_update(context, data_dict):
                         (user, user_obj.id)}
 
 
-def user_cycle_apikey(context, data_dict):
+def user_generate_apikey(context, data_dict):
     user = context['user']
     user_obj = logic_auth.get_user_object(context, data_dict)
     if user == user_obj.name:

@@ -665,7 +665,7 @@ def user_update(context, data_dict):
     return model_dictize.user_dictize(user, context)
 
 
-def user_cycle_apikey(context, data_dict):
+def user_generate_apikey(context, data_dict):
     '''Cycle a user's API key
 
     :param id: the name or id of the user whose key needs to be updated
@@ -677,7 +677,7 @@ def user_cycle_apikey(context, data_dict):
     model = context['model']
     user = context['user']
     session = context['session']
-    schema = context.get('schema') or schema_.default_cycle_apikey_user_schema()
+    schema = context.get('schema') or schema_.default_generate_apikey_user_schema()
     context['schema'] = schema
     # check if user id in data_dict
     id = _get_or_bust(data_dict, 'id')
@@ -689,7 +689,7 @@ def user_cycle_apikey(context, data_dict):
         raise NotFound('User was not found.')
 
     # check permission
-    _check_access('user_cycle_apikey', context, data_dict)
+    _check_access('user_generate_apikey', context, data_dict)
 
     # change key
     old_data = _get_action('user_show')(context, data_dict)

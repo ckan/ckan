@@ -79,13 +79,13 @@ class TestUpdate(object):
 
     ## END-BEFORE
 
-    def test_user_cycle_apikey(self):
+    def test_user_generate_apikey(self):
         '''Test that updating a user's name works successfully.'''
 
         user = factories.User()
         # Required because you can only cycle your own API key
         context = {'user': user['name']}
-        result = helpers.call_action('user_cycle_apikey', context=context,
+        result = helpers.call_action('user_generate_apikey', context=context,
                                      id=user['name'])
         updated_user = helpers.call_action('user_show', context=context,
                                            id=user['id'])

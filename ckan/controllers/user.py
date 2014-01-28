@@ -195,7 +195,7 @@ class UserController(base.BaseController):
             msg = _('Unauthorized to delete user with id "{user_id}".')
             abort(401, msg.format(user_id=id))
 
-    def cycle_apikey(self, id):
+    def generate_apikey(self, id):
         '''Cycle the API key of a user'''
         context = {'model': model,
                    'session': model.Session,
@@ -210,7 +210,7 @@ class UserController(base.BaseController):
         data_dict = {'id': id}
 
         try:
-            result = get_action('user_cycle_apikey')(context, data_dict)
+            result = get_action('user_generate_apikey')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to edit user %s') % '')
         except NotFound:
