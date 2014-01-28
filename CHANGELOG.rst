@@ -188,7 +188,7 @@ Note: This version requires a database upgrade
 
 Note: This version requires a Solr schema upgrade
 
-Organizations based authorization (see :doc:`authorization`):
+Organizations based authorization (see :doc:`/maintaining/authorization`):
  CKAN's new "organizations" feature replaces the old authorization system
  with a new one based on publisher organizations. It replaces the "Publisher
  Profile and Workflow" feature from CKAN 1.X, any instances relying on it will
@@ -200,7 +200,7 @@ Organizations based authorization (see :doc:`authorization`):
  * New authorization ini file options
 
 
-New frontend (see :doc:`theming/index`):
+New frontend (see :doc:`/theming/index`):
  CKAN's frontend has been completely redesigned, inside and out. There is
  a new default theme and the template engine has moved from Genshi to
  Jinja2. Any custom templates using Genshi will need to be updated, although

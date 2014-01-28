@@ -77,7 +77,7 @@ Configuration File Options
 The following configuration file options can be used to customize CKAN's
 authorization behavior:
 
-.. include:: /configuration.rst
+.. include:: /maintaining/configuration.rst
     :start-after: start_config-authorization
     :end-before: end_config-authorization
 
@@ -87,4 +87,4 @@ Extensions
 CKAN extensions can implement custom authorization rules by overriding the
 authorization functions that CKAN uses. This is done by implementing the
 :py:class:`~ckan.plugins.interfaces.IAuthFunctions` plugin interface. To get
-started with writing CKAN extensions, see :doc:`extensions/index`.
+started with writing CKAN extensions, see :doc:`/extensions/index`.

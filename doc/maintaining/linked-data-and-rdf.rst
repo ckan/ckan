@@ -22,8 +22,8 @@ When using the built-in RDF support (CKAN >= 1.7) there is no configuration requ
 Accessing Linked Data
 =====================
 
-To access linked data versions just access the :doc:`api` in the usual way but
-set the Accept header to the format you would like to be returned. For
+To access linked data versions just access the :doc:`/api/index` in the usual
+way but set the Accept header to the format you would like to be returned. For
 example::
 
  curl -L -H "Accept: application/rdf+xml" http://thedatahub.org/dataset/gold-prices

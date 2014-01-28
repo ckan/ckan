@@ -7,7 +7,7 @@ how to upgrade a site to a newer version of CKAN.
 
 .. seealso::
 
-   :doc:`changelog`
+   :doc:`/changelog`
      The changelog lists all CKAN releases and the main changes introduced in
      each release.
 
@@ -40,7 +40,7 @@ Minor Releases
  Minor releases, such as CKAN 1.8 and CKAN 2.1, increment the minor version
  number. These releases are not as disruptive as major releases, but
  backwards-incompatible changes *may* be introduced in minor releases. The
- :doc:`changelog` will document any breaking changes. We aim to release a minor
+ :doc:`/changelog` will document any breaking changes. We aim to release a minor
  version of CKAN roughly every three months.
 
 Patch Releases
@@ -91,7 +91,7 @@ newer version of CKAN.
 
 .. note::
 
-    You should also read the :doc:`changelog` to see if there are any extra
+    You should also read the :doc:`/changelog` to see if there are any extra
     notes to be aware of when upgrading to the new version.
 
 
