@@ -62,7 +62,7 @@ _INSERT = 'insert'
 _UPSERT = 'upsert'
 _UPDATE = 'update'
 
-_Column = collections.namedtuple('_Column', ['type', 'format'])
+_Column = collections.namedtuple('_Column', ['from_type', 'to_type', 'format'])
 
 
 def _strip(input):
@@ -1305,7 +1305,6 @@ def alter_column_name(context, data_dict):
         context['connection'].close()
 
     return {
-        'success': True,
         'resource_id': resource_id,
         'fields': new_fields
     }
@@ -1335,21 +1334,26 @@ def alter_column_type(context, data_dict):
         })
 
     alter_fields = dict([
-        (i['id'], _Column(i['type'], i.get('format')))
+        (i['id'], _Column(i['from'], i['to'], i.get('format')))
         for i in supplied_fields
     ])
-    if not set(alter_fields.keys()).issubset(current_fields.keys()):
-        context['connection'].close()
-        raise ValidationError({'column': 'field does not exist'})
+    try:
+        if not set(alter_fields.keys()).issubset(current_fields.keys()):
+            raise ValidationError({'column': 'field does not exist'})
 
-    for field, type in alter_fields.items():
-        if current_fields[field] == type.type:
-            context['connection'].close()
-            raise ValidationError({'column': 'field is already supplied type'})
-        if type.format:
-            if not _is_valid_date_format(type.format):
-                context['connection'].close()
-                raise ValidationError({'column': 'format type is invalid'})
+        for field, type in alter_fields.items():
+            if current_fields[field] == type.to_type:
+                raise ValidationError(
+                    {'column': 'field is already supplied type'})
+            if current_fields[field] != type.from_type:
+                raise ValidationError(
+                    {'column': 'specified from type is in correct'})
+            if type.format:
+                if not _is_valid_date_format(type.format):
+                    raise ValidationError({'column': 'format type is invalid'})
+    except ValidationError:
+        context['connection'].close()
+        raise
 
     try:
         transaction = context['connection'].begin()
@@ -1365,14 +1369,14 @@ def alter_column_type(context, data_dict):
                 data_dict['resource_id'],
                 column,
                 current_fields[column],
-                type.type,
+                type.to_type,
                 type.format
             )
             context['connection'].execute(
                 statement.format(
                     table=resource_id,
                     column=column,
-                    type=type.type,
+                    type=type.to_type,
                     format=type.format
                 )
             )
@@ -1412,16 +1416,49 @@ def alter_column_type(context, data_dict):
 
 
 def _get_alter_statement(table, column, from_type, to_type, format=None):
-    statements = {
-        ('numeric', 'text'): '',
-        ('timestamp', 'text'): '',
-        ('text', 'numeric'): 'using nullif("{column}", \'\')::numeric',
-        ('text', 'timestamp'): 'using to_timestamp("{column}", \'{format}\')',
-        ('timestamp', 'numeric'): ('using cast(extract(epoch from'
-                                   'current_timestamp) as integer)'),
-        ('numeric', 'timestamp'): ('using timestamp  \'epoch\' + "{column}"'
-                                   '* interval \'1 second\''),
+    def text_to_timestamp(format):
+        if format:
+            return ("""using to_timestamp(regexp_replace("{column}","""
+                    """'[^0-9]', '', 'g'), '{format}')""")
+        raise ValidationError(
+            {
+                'alter_column': [u'text to timestamp requires a format'],
+            }
+        )
+
+    def timestamp_to_int(format):
+        if format:
+            return '''using to_char("{column}", '{format}')::int'''
+        raise ValidationError(
+            {
+                'alter_column': [u'text to timestamp requires a format'],
+            }
+        )
+
+    def numeric_to_timestamp(format):
+        """convert from numeric to timestamp, number is assumed to be 8 digits
+        long so can be converted to YYYYMMDD etc
+        """
+        if format:
+            return ("""using to_timestamp(to_char("{column}", '99999999'),"""
+                    """'{format}')""")
+        raise ValidationError(
+            {
+                'alter_column': [u'text to timestamp requires a format'],
+            }
+        )
+
+    def text_to_numeric(format):
+        return 'using nullif("{column}", \'\')::numeric'
+
+    conversions = {
+        ('numeric', 'text'): lambda f: '',
+        ('timestamp', 'text'): lambda f: '',
+        ('text', 'numeric'): text_to_numeric,
+        ('text', 'timestamp'): text_to_timestamp,
+        ('timestamp', 'numeric'): timestamp_to_int,
+        ('numeric', 'timestamp'): numeric_to_timestamp,
     }
+    conversion = conversions[(from_type, to_type)](format)
     sql = 'ALTER TABLE "{table}" ALTER COLUMN "{column}" TYPE {type}'
-    statement = " ".join([sql, statements[(from_type, to_type)]])
-    return statement
+    return " ".join((sql, conversion))

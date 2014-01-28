@@ -65,6 +65,12 @@ def json_validator(value, context):
     return value
 
 
+def is_date_format(value, context):
+    if value.upper() in set(['YYYYMMDD', 'DDMMYYYY', 'MMDDYYYY']):
+        return value.upper()
+    raise df.Invalid('Valid date formats are yyyymmdd, ddmmyyyy, mmddyyyy')
+
+
 def datastore_create_schema():
     schema = {
         'resource_id': [ignore_missing, unicode, resource_id_exists],
@@ -130,8 +136,9 @@ def datastore_alter_column_schema():
         'resource_id': [not_missing, not_empty, unicode, resource_id_exists],
         'fields': {
             'id': [not_missing, not_empty, unicode],
-            'type': [not_missing, not_empty, unicode],
-            'format': [ignore_missing, unicode],
+            'from': [ignore_missing, unicode],
+            'to': [not_missing, not_empty, unicode],
+            'format': [ignore_missing, unicode, is_date_format],
         },
         '__junk': [empty],
     }

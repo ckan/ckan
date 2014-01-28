@@ -21,7 +21,8 @@ def datastore_create(context, data_dict):
 
     The datastore_create action allows you to post JSON data to be
     stored against a resource. This endpoint also supports altering tables,
-    aliases and indexes and bulk insertion. This endpoint can be called multiple
+    aliases and indexes and bulk insertion. This endpoint can be called 
+    multiple
     times to initially insert more data, add fields, change the aliases or indexes
     as well as the primary keys.
 
@@ -389,10 +390,7 @@ def datastore_alter_column_type(context, data_dict):
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
     altered_columns = db.alter_column_type(context, data_dict)
-    return {
-        'success': True,
-        'fields': altered_columns
-    }
+    return altered_columns
 
 
 @logic.side_effect_free
@@ -522,3 +520,4 @@ def _check_read_only(context, data_dict):
             'read-only': ['Cannot edit read-only resource. Either pass'
                           '"force=True" or change url-type to "datastore"']
         })
+
