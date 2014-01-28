@@ -53,7 +53,7 @@ def _activity_filter_user(activity_list):
     stream.
     '''
     users = config.get('ckan.hide_activity_from_users')
-    context = {}
+    context = {'model': model, 'ignore_auth': True}
     if users:
         users = users.split()
     else:
