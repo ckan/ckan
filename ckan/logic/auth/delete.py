@@ -2,7 +2,7 @@ import ckan.logic as logic
 import ckan.new_authz as new_authz
 from ckan.logic.auth import get_package_object, get_group_object, get_related_object
 from ckan.logic.auth import get_resource_object
-import ckan.logic.auth.create as auth_create
+import ckan.logic.auth.create as _auth_create
 from ckan.lib.base import _
 
 
@@ -140,4 +140,4 @@ def organization_member_delete(context, data_dict):
     return {'success': True}
 
 def member_delete(context, data_dict):
-    return auth_create.member_create(context, data_dict)
+    return _auth_create.member_create(context, data_dict)
