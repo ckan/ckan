@@ -201,7 +201,7 @@ proxied, you need to replace the URL that is used to load the file. This can
 be done using the function :func:`ckanext.resourceproxy.plugin.get_proxified_resource_url`.
 To find out whether the resource proxy is enabled, check ``ckan.resource_proxy_enabled``
 from the config. You can find a complete example in the
-`CKAN source <https://github.com/okfn/ckan/blob/793c2607199f2204307c12f83925257cd8eadc5e/ckanext/jsonpreview/plugin.py>`_.
+`CKAN source <https://github.com/ckan/ckan/blob/793c2607199f2204307c12f83925257cd8eadc5e/ckanext/jsonpreview/plugin.py>`_.
 
 .. _embed-previews:
 

@@ -8,7 +8,7 @@ each feature or extension.
 Beyond these core features, further features can be added to CKAN by
 downloading and installing external extensions. A good place to find extensions
 is the
-`list of extensions on the CKAN wiki <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
+`list of extensions on the CKAN wiki <https://github.com/ckan/ckan/wiki/List-of-extensions>`_.
 
 .. toctree::
    :maxdepth: 2

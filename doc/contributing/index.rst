@@ -2,7 +2,7 @@
 Contributing to CKAN
 ====================
 
-.. _CKAN repo on GitHub: https://github.com/okfn/ckan
+.. _CKAN repo on GitHub: https://github.com/ckan/ckan
 .. _docs.ckan.org: http://docs.ckan.org
 
 CKAN is free open source software and contributions are welcome, whether
