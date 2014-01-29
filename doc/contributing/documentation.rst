@@ -7,7 +7,7 @@ Writing documentation
 .. seealso::
 
    The quickest and easiest way to contribute documentation to CKAN is to sign up
-   for a free GitHub account and simply edit the `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_.
+   for a free GitHub account and simply edit the `CKAN Wiki <https://github.com/ckan/ckan/wiki>`_.
    Docs started on the wiki can make it onto `docs.ckan.org`_ later.
    If you do want to contribute to `docs.ckan.org`_ directly, follow the
    instructions on this page.
@@ -55,7 +55,7 @@ which in turn uses `Docutils <http://docutils.sourceforge.net/>`_
 * `Sphinx Markup Constructs <http://sphinx-doc.org/markup/index.html>`_
   is a full list of the markup that Sphinx adds on top of Docutils.
 
-The source files for the docs are in `the doc directory of the CKAN git repo <https://github.com/okfn/ckan/tree/master/doc>`_. 
+The source files for the docs are in `the doc directory of the CKAN git repo <https://github.com/ckan/ckan/tree/master/doc>`_.
 The following sections will walk you through the process of making changes to
 these source files, and submitting your work to the CKAN project.
 
@@ -76,7 +76,7 @@ terminal:
 
     virtualenv --no-site-packages pyenv
     . pyenv/bin/activate
-    pip install -e 'git+https://github.com/okfn/ckan.git#egg=ckan'
+    pip install -e 'git+https://github.com/ckan/ckan.git#egg=ckan'
     pip install -r pyenv/src/ckan/dev-requirements.txt
 
 
@@ -190,7 +190,7 @@ page follows another, like in a book.
 3. Style
 --------
 
-.. 
+..
     http://jacobian.org/writing/great-documentation/technical-style/
 
 This section covers things like what tone to use, how to capitalize section
