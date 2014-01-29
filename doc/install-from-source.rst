@@ -9,7 +9,7 @@ This section describes how to install CKAN from source. Although
 CKAN from source works with other versions of Ubuntu and with other operating
 systems (e.g. RedHat, Fedora, CentOS, OS X). If you install CKAN from source
 on your own operating system, please share your experiences on our
-`How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+`How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
 From source is also the right installation method for developers who want to
@@ -26,7 +26,7 @@ required packages with this command::
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
-our `How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page for help):
 
 =====================  ===============================================
