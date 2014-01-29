@@ -278,7 +278,7 @@ API:
 
 Other highlights:
  * CKAN now has continuous integration testing at
-   https://travis-ci.org/okfn/ckan/
+   https://travis-ci.org/ckan/ckan/
  * Dataset pages now have <link rel="alternate" type="application/rdf+xml"
    links in the HTML headers, allows linked-data tools to find CKAN's RDF
    rendering of a dataset's metadata (#413)
