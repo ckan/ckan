@@ -326,7 +326,7 @@ v2.0 2013-05-10
  to GitHub issues. For example:
 
  * #3020 is http://trac.ckan.org/ticket/3020
- * #271 is https://github.com/okfn/ckan/issues/271
+ * #271 is https://github.com/ckan/ckan/issues/271
 
  Some GitHub issues URLs will redirect to GitHub pull request pages.
 

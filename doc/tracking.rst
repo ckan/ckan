@@ -14,7 +14,7 @@ CKAN can track visits to pages of your site and use this tracking data to:
 
 .. seealso::
 
- `ckanext-googleanalytics <https://github.com/okfn/ckanext-googleanalytics>`_
+ `ckanext-googleanalytics <https://github.com/ckan/ckanext-googleanalytics>`_
     A CKAN extension that integrates Google Analytics into CKAN.
 
 
