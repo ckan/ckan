@@ -2,6 +2,18 @@ CKAN CHANGELOG
 ++++++++++++++
 
 
+v2.0.4 2014
+===========
+
+Bug fixes:
+* Fix extras deletion (#1449)
+* Better word breaking on long words (#1398)
+* Fix activity and about organization pages (#1298)
+* Show 404 instead of login page on user not found (#1068)
+* Remove limit of number of arguments passed to ``user add`` command.
+* Fix related_list logic function (#1384)
+
+
 v2.0.3 2013-11-8
 ================
 
