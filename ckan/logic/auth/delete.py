@@ -14,7 +14,7 @@ def user_delete(context, data_dict):
 def package_delete(context, data_dict):
     # Defer auhtorization for package_delete to package_update, as deletions
     # are essentially changing the state field
-    return logic.get_action('package_update')(context, data_dict)
+    return logic.check_access('package_update')(context, data_dict)
 
 def resource_delete(context, data_dict):
     model = context['model']
