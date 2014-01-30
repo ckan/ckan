@@ -46,10 +46,10 @@ respectively.
    .. note::
 
      The install process will uninstall any existing CKAN extensions or other
-     libraries located in the ``src`` directory of the CKAN virtualenv. To 
+     libraries located in the ``src`` directory of the CKAN virtualenv. To
      enable them again, the installation process will iterate over all folders in
      the ``src`` directory, reinstall the requirements listed in
-     ``pip-requirements.txt`` and ``requirements.txt`` files and run 
+     ``pip-requirements.txt`` and ``requirements.txt`` files and run
      ``python setup.py develop`` for each. If you are using a custom extension
      which does not use this requirements file name or is located elsewhere,
      you will need to manually reinstall it.
@@ -74,22 +74,7 @@ respectively.
    command.
 
 #. If there have been changes in the Solr schema (check the :doc:`changelog`
-   to find out) you need to update your Solr schema symlink.
-
-   When :ref:`setting up solr` you created a symlink
-   ``/etc/solr/conf/schema.xml`` linking to a CKAN Solr schema file such as
-   |virtualenv|/src/ckan/ckan/config/solr/schema-2.0.xml. This symlink
-   should be updated to point to the latest schema file in
-   |virtualenv|/src/ckan/ckan/config/solr/, if it doesn't already.
-
-   For example, to update the symlink:
-
-   .. parsed-literal::
-
-     sudo rm /etc/solr/conf/schema.xml
-     sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
-
-   You will need to restart Jetty for the changes to take effect:
+   to find out) you need to restart Jetty for the changes to take effect:
 
    .. parsed-literal::
 
@@ -111,8 +96,9 @@ respectively.
    See :ref:`rebuild search index` for details of the
    ``ckan search-index rebuild`` command.
 
-#. Finally, restart Apache:
+#. Finally, restart Apache and Nginx:
 
    .. parsed-literal::
 
     |restart_apache|
+    sudo service nginx restart

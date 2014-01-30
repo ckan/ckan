@@ -77,11 +77,12 @@ minor release they belong to, so for example CKAN ``2.0``, ``2.0.1``,
       These are due to vdm not longer being installed from source. You can
       ignore them and delete the folder manually if you want.
 
-#. Finally, restart Apache:
+#. Finally, restart Apache and Nginx:
 
    .. parsed-literal::
 
     |restart_apache|
+    sudo service nginx restart
 
 #. You're done!
 

@@ -85,6 +85,7 @@
 .resource-item .description {
   font-size: 12px;
   margin-bottom: 0;
+  min-height: 12px;
 }
 
 .resource-item .btn-group {
@@ -93,45 +94,49 @@
   right: 10px;
 }
 
-// Dataset Forms
-
-.dataset-resource-form .dataset-form-resource-types {
-  margin-bottom: 5px;
+.resource-list.reordering {
+  .resource-item {
+    border: 1px solid @moduleHeadingBorderColor;
+    margin-bottom: 10px;
+    cursor: move;
+    .handle {
+      display: block;
+      position: absolute;
+      color: @moduleHeadingActionTextColor;
+      left: -31px;
+      top: 50%;
+      margin-top: -15px;
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      text-align: center;
+      border: 1px solid @moduleHeadingBorderColor;
+      border-width: 1px 0 1px 1px;
+      background-color: @moduleBackgroundColor;
+      .border-radius(20px 0 0 20px);
+      &:hover {
+        text-decoration: none;
+      }
+    }
+    &:hover .handle {
+      background-color: @layoutBackgroundColor;
+    }
+    &.ui-sortable-helper {
+      background-color: @layoutBackgroundColor;
+      border: 1px solid @layoutLinkColor;
+      .handle {
+        background-color: @layoutBackgroundColor;
+        border-color: @layoutLinkColor;
+        color: @navLinkColor;
+      }
+    }
+  }
 }
-
-.dataset-form-resource-types .ckan-icon {
-  position: relative;
-  top: 3px;
-}
-
-.dataset-form-resource-types .radio {
-  font-weight: normal;
-  padding-left: 0;
-  padding-right: 18px;
-}
-
-.dataset-form-resource-types label {
-  position: relative;
-}
-
-.dataset-form-resource-types input[type=radio]:checked+label {
-  font-weight: bold;
-}
-
-.dataset-form-resource-types input[type=radio]:checked+label:after {
-  .ckan-icon;
-  .ckan-icon-callout;
-  display: block;
-  content: "";
-  position: absolute;
-  top: auto;
-  left: 0;
-  bottom: -12px;
-}
-
-.dataset-form-resource-types input[type=radio] {
+.resource-item .handle {
   display: none;
 }
+
+// Dataset Forms
 
 // Tag List
 

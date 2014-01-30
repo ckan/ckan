@@ -160,7 +160,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
             proxied_url = proxy.get_proxified_resource_url(data_dict)
             assert proxied_url != url, proxied_url
 
-    def test_proxied_resource_url_doesnt_proxy_non_http_or_https_urls_by_default(self):
+    def test_resource_url_doesnt_proxy_non_http_or_https_urls_by_default(self):
         schemes = ['file', 'ws']
 
         for scheme in schemes:

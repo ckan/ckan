@@ -99,9 +99,9 @@ class TextPreview(p.SingletonPlugin):
                     'resource_id': resource['id'],
                     'view_type': 'text'
                 }
-                context['defer_commit'] = True
-                p.toolkit.get_action('resource_view_create')(context, view)
-                context.pop('defer_commit')
+                p.toolkit.get_action('resource_view_create')(
+                    {'defer_commit': True}, view
+                )
 
     def after_update(self, context, data_dict):
         self.add_default_views(context, data_dict)

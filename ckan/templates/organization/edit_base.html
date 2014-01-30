@@ -2,21 +2,20 @@
 
 {% set organization = c.group_dict %}
 
-{% block subtitle %}{{ organization.display_name }}{% endblock %}
+{% block subtitle %}{{ c.group_dict.display_name }} - {{ _('Organizations') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Organizations'), controller='organization', action='index' %}</li>
   {% block breadcrumb_content_inner %}
     <li>{% link_for organization.display_name|truncate(35), controller='organization', action='read', id=organization.name %}</li>
-    <li class="active">{% link_for _('Admin'), controller='organization', action='edit', id=organization.name %}</li>
+    <li class="active">{% link_for _('Manage'), controller='organization', action='edit', id=organization.name %}</li>
   {% endblock %}
 {% endblock %}
 
 {% block content_action %}
   {% if organization and h.check_access('organization_update', {'id': organization.id}) %}
-    {% link_for _('View organization'), controller='organization', action='read', id=organization.name, class_='btn', icon='eye-open' %}
+    {% link_for _('View'), controller='organization', action='read', id=organization.name, class_='btn', icon='eye-open' %}
   {% endif %}
-  {# <li>{% link_for _('History'), controller='organization', action='history', id=organization.name, class_='btn', icon='undo' %}</li> #}
 {% endblock %}
 
 {% block content_primary_nav %}

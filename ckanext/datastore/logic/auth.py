@@ -35,5 +35,10 @@ def datastore_search(context, data_dict):
     return datastore_auth(context, data_dict, 'resource_show')
 
 
+@p.toolkit.auth_allow_anonymous_access
+def datastore_search_sql(context, data_dict):
+    return {'success': True}
+
+
 def datastore_change_permissions(context, data_dict):
     return datastore_auth(context, data_dict)

@@ -1,9 +1,12 @@
 {% extends "group/edit_base.html" %}
 
-{% block subtitle %}{{ _('Members') }} - {{ c.group_dict.display_name }}{% endblock %}
+{% block subtitle %}{{ _('Members') }} - {{ c.group_dict.display_name }} - {{ _('Groups') }}{% endblock %}
+
+{% block page_primary_action %}
+  {% link_for _('Add Member'), controller='group', action='member_new', id=c.group_dict.id, class_='btn btn-primary', icon='plus-sign-alt' %}
+{% endblock %}
 
 {% block primary_content_inner %}
-  {% link_for _('Add Member'), controller='group', action='member_new', id=c.group_dict.id, class_='btn pull-right', icon='plus-sign-alt' %}
   <h3 class="page-heading">{{ _('{0} members'.format(c.members|length)) }}</h3>
   <table class="table table-header table-hover table-bordered">
     <col width="70" />

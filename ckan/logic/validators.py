@@ -32,9 +32,12 @@ def owner_org_validator(key, data, errors, context):
     model = context['model']
     user = context['user']
     user = model.User.get(user)
-    if value == '':
+    if value == '' :
+        if not new_authz.check_config_permission('create_unowned_dataset'):
+            raise Invalid(_('A organization must be supplied'))
+        package = context.get('package')
         # only sysadmins can remove datasets from org
-        if not user.sysadmin:
+        if package and package.owner_org and not user.sysadmin:
             raise Invalid(_('You cannot remove a dataset from an existing organization'))
         return
 
@@ -42,7 +45,9 @@ def owner_org_validator(key, data, errors, context):
     if not group:
         raise Invalid(_('Organization does not exist'))
     group_id = group.id
-    if not(user.sysadmin or user.is_in_group(group_id)):
+    if not(user.sysadmin or
+           new_authz.has_user_permission_for_group_or_org(
+               group_id, user.name, 'create_dataset')):
         raise Invalid(_('You cannot add a dataset to this organization'))
     data[key] = group_id
 
@@ -68,7 +73,13 @@ def int_validator(value, context):
 def natural_number_validator(value, context):
     value = int_validator(value, context)
     if value < 0:
-        raise Invalid(_('Must be natural number'))
+        raise Invalid(_('Must be a natural number'))
+    return value
+
+def is_positive_integer(value, context):
+    value = int_validator(value, context)
+    if value < 1:
+        raise Invalid(_('Must be a postive integer'))
     return value
 
 def boolean_validator(value, context):
@@ -691,7 +702,28 @@ def role_exists(role, context):
 
 def datasets_with_no_organization_cannot_be_private(key, data, errors,
         context):
-    if data[key] is True and data.get(('owner_org',)) is None:
+
+    dataset_id = data.get(('id',))
+    owner_org = data.get(('owner_org',))
+    private = data[key] is True
+
+    check_passed = True
+
+    if not dataset_id and private and not owner_org:
+        # When creating a dataset, enforce it directly
+        check_passed = False
+    elif dataset_id and private and not owner_org:
+        # Check if the dataset actually has an owner_org, even if not provided
+        try:
+            dataset_dict = logic.get_action('package_show')({},
+                            {'id': dataset_id})
+            if not dataset_dict.get('owner_org'):
+                check_passed = False
+
+        except logic.NotFound:
+            check_passed = False
+
+    if not check_passed:
         errors[key].append(
                 _("Datasets with no organization can't be private."))
 
@@ -703,4 +735,23 @@ def list_of_strings(key, data, errors, context):
     for x in value:
         if not isinstance(x, basestring):
             raise Invalid('%s: %s' % (_('Not a string'), x))
+
+def no_loops_in_hierarchy(key, data, errors, context):
+    '''Checks that the parent groups specified in the data would not cause
+    a loop in the group hierarchy, and therefore cause the recursion up/down
+    the hierarchy to get into an infinite loop.
+    '''
+    if not 'id' in data:
+        # Must be a new group - has no children, so no chance of loops
+        return
+    group = context['model'].Group.get(data['id'])
+    allowable_parents = group.\
+                        groups_allowed_to_be_its_parent(type=group.type)
+    for parent in data['groups']:
+        parent_name = parent['name']
+        # a blank name signifies top level, which is always allowed
+        if parent_name and context['model'].Group.get(parent_name) \
+                not in allowable_parents:
+            raise Invalid(_('This parent would create a loop in the '
+                            'hierarchy'))
 

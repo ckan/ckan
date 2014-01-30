@@ -45,9 +45,12 @@ def datapusher_submit(context, data_dict):
 
     datapusher_url = pylons.config.get('ckan.datapusher.url')
 
-    callback_url = p.toolkit.url_for(
-        controller='api', action='action', logic_function='datapusher_hook',
-        ver=3, qualified=True)
+    site_url = pylons.config['ckan.site_url']
+
+    callback_url = site_url.rstrip('/') + p.toolkit.url_for(
+        controller='api', action='action',
+        logic_function='datapusher_hook', ver=3
+    )
 
     user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
 
@@ -86,7 +89,7 @@ def datapusher_submit(context, data_dict):
                 'job_type': 'push_to_datastore',
                 'result_url': callback_url,
                 'metadata': {
-                    'ckan_url': pylons.config['ckan.site_url'],
+                    'ckan_url': site_url,
                     'resource_id': res_id,
                     'set_url_type': data_dict.get('set_url_type', False)
                 }
@@ -165,6 +168,7 @@ def datapusher_hook(context, data_dict):
             view_list = p.toolkit.get_action('resource_view_create')(context,
                                                                      view)
 
+    context['ignore_auth'] = True
     p.toolkit.get_action('task_status_update')(context, task)
 
 

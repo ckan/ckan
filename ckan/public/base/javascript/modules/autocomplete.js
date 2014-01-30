@@ -72,6 +72,12 @@ this.ckan.module('autocomplete', function (jQuery, _) {
         }
         settings.initSelection = this.formatInitialValue;
       }
+      else {
+        if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)) {
+            var ieversion=new Number(RegExp.$1);
+            if (ieversion<=7) {return}
+         }
+      }
 
       var select2 = this.el.select2(settings).data('select2');
 

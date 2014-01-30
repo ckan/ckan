@@ -27,7 +27,7 @@
           <ul>
             {% block resource_actions_inner %}
             {% if h.check_access('package_update', {'id':pkg.id }) %}
-              <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
+              <li>{% link_for _('Manage'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
             {% endif %}
             {% if res.url %}
               <li>
@@ -61,8 +61,6 @@
           <div class="prose notes" property="rdfs:label">
             {% if res.description %}
               {{ h.render_markdown(res.description) }}
-            {% else %}
-              <p class="empty">{{ _('There is no description for this resource') }}</p>
             {% endif %}
             {% if not res.description and c.package.notes %}
               <h3>{{ _('From the dataset abstract') }}</h3>

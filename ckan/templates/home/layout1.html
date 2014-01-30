@@ -2,10 +2,14 @@
   <div class="container">
     <div class="row row1">
       <div class="span6 col1">
-        {% snippet 'home/snippets/promoted.html' %}
+        {% block promoted %}
+          {% snippet 'home/snippets/promoted.html' %}
+        {% endblock %}
       </div>
       <div class="span6 col2">
-        {% snippet 'home/snippets/search.html' %}
+        {% block search %}
+          {% snippet 'home/snippets/search.html' %}
+        {% endblock %}
       </div>
     </div>
   </div>
@@ -14,10 +18,19 @@
   <div class="container">
     <div class="row row2">
       <div class="span6 col1">
-        {% snippet 'home/snippets/featured_group.html' %}
+        {# Note: this featured_group block is used as an example in the theming
+           tutorial in the docs! If you change this code, be sure to check
+           whether you need to update the docs. #}
+        {# Start template block example. #}
+        {% block featured_group %}
+          {% snippet 'home/snippets/featured_group.html' %}
+        {% endblock %}
+        {# End template block example. #}
       </div>
       <div class="span6 col2">
-        {% snippet 'home/snippets/featured_organization.html' %}
+        {% block featured_organization %}
+          {% snippet 'home/snippets/featured_organization.html' %}
+        {% endblock %}
       </div>
     </div>
   </div>

@@ -1,17 +1,19 @@
 {% extends "page.html" %}
 
+{% block subtitle %}{{ _('Manage') }} - {{ c.group_dict.display_name }} - {{ _('Groups') }}{% endblock %}
+
 {% set group = c.group_dict %}
 
 {% block breadcrumb_content %}
   <li>{% link_for _('Groups'), controller='group', action='index' %}</li>
   {% block breadcrumb_content_inner %}
     <li>{% link_for group.display_name|truncate(35), controller='group', action='read', id=group.name %}</li>
-    <li class="active">{% link_for _('Edit'), controller='group', action='edit', id=group.name %}</li>
+    <li class="active">{% link_for _('Manage'), controller='group', action='edit', id=group.name %}</li>
   {% endblock %}
 {% endblock %}
 
 {% block content_action %}
-  {% link_for _('View group'), controller='group', action='read', id=c.group_dict.name, class_='btn', icon='eye-open' %}
+  {% link_for _('View'), controller='group', action='read', id=c.group_dict.name, class_='btn', icon='eye-open' %}
 {% endblock %}
 
 {% block content_primary_nav %}

@@ -1,0 +1,24 @@
+{# Jinja variable example #}
+<p>The title of this site is: {{ app_globals.site_title }}.</p>
+{# End example #}
+
+{# Jinja for-loop example #}
+<p>The currently enabled plugins are:</p>
+<ul>
+  {% for plugin in app_globals.plugins %}
+    <li>{{ plugin }}</li>
+  {% endfor %}
+</ul>
+{# End example #}
+
+{# Jinja if example #}
+{% if g.tracking_enabled %}
+  <p>CKAN's page-view tracking feature is enabled.</p>
+{% else %}
+  <p>CKAN's page-view tracking feature is <i>not</i> enabled.</p>
+{% endif %}
+{# End example #}
+
+{# Jinja comment example #}
+{# This text will not appear in the output when this template is rendered. #}
+{# End example #}

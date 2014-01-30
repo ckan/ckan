@@ -84,6 +84,36 @@ class TestAction(WsgiAppCase):
         assert 'warandpeace' in res['result']
         assert 'annakarenina' in res['result']
 
+    def test_01_package_list_private(self):
+        tests.call_action_api(self.app, 'organization_create',
+                                        name='test_org_2',
+                                        apikey=self.sysadmin_user.apikey)
+
+        tests.call_action_api(self.app, 'package_create',
+                                        name='public_dataset',
+                                        owner_org='test_org_2',
+                                        apikey=self.sysadmin_user.apikey)
+
+        res = tests.call_action_api(self.app, 'package_list')
+
+        assert len(res) == 3
+        assert 'warandpeace' in res
+        assert 'annakarenina' in res
+        assert 'public_dataset' in res
+
+        tests.call_action_api(self.app, 'package_create',
+                                        name='private_dataset',
+                                        owner_org='test_org_2',
+                                        private=True,
+                                        apikey=self.sysadmin_user.apikey)
+
+        res = tests.call_action_api(self.app, 'package_list')
+        assert len(res) == 3
+        assert 'warandpeace' in res
+        assert 'annakarenina' in res
+        assert 'public_dataset' in res
+        assert not 'private_dataset' in res
+
     def test_01_current_package_list_with_resources(self):
         url = '/api/action/current_package_list_with_resources'
 
@@ -802,10 +832,10 @@ class TestAction(WsgiAppCase):
 
         resource_updated.pop('url')
         resource_updated.pop('revision_id')
-        resource_updated.pop('revision_timestamp')
+        resource_updated.pop('revision_timestamp', None)
         resource_created.pop('url')
         resource_created.pop('revision_id')
-        resource_created.pop('revision_timestamp')
+        resource_created.pop('revision_timestamp', None)
         assert_equal(resource_updated, resource_created)
 
     def test_20_task_status_update(self):
@@ -2263,3 +2293,69 @@ class TestMember(WsgiAppCase):
         group_ids = [g.id for g in groups]
         assert res['success'] is True, res
         assert group.id in group_ids, (group, user_groups)
+
+
+class TestRelatedAction(WsgiAppCase):
+
+    sysadmin_user = None
+
+    normal_user = None
+
+    @classmethod
+    def setup_class(cls):
+        search.clear()
+        CreateTestData.create()
+        cls.sysadmin_user = model.User.get('testsysadmin')
+
+    @classmethod
+    def teardown_class(cls):
+        model.repo.rebuild_db()
+
+    def _add_basic_package(self, package_name=u'test_package', **kwargs):
+        package = {
+            'name': package_name,
+            'title': u'A Novel By Tolstoy',
+            'resources': [{
+                'description': u'Full text.',
+                'format': u'plain text',
+                'url': u'http://www.annakarenina.com/download/'
+            }]
+        }
+        package.update(kwargs)
+
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': 'tester'})
+        return json.loads(res.body)['result']
+
+    def test_update_add_related_item(self):
+        package = self._add_basic_package()
+        related_item = {
+            "description": "Testing a Description",
+            "url": "http://example.com/image.png",
+            "title": "Testing",
+            "featured": 0,
+            "image_url": "http://example.com/image.png",
+            "type": "idea",
+            "dataset_id": package['id'],
+        }
+        related_item_json = json.dumps(related_item)
+        res_create = self.app.post('/api/action/related_create',
+                                   params=related_item_json,
+                                   extra_environ={'Authorization': 'tester'})
+        assert res_create.json['success']
+
+        related_update = res_create.json['result']
+        related_update = {'id': related_update['id'], 'title': 'Updated'}
+        related_update_json = json.dumps(related_update)
+        res_update = self.app.post('/api/action/related_update',
+                                   params=related_update_json,
+                                   extra_environ={'Authorization': 'tester'})
+        assert res_update.json['success']
+        res_update_json = res_update.json['result']
+        assert res_update_json['title'] == related_update['title']
+
+        related_item.pop('title')
+        related_item.pop('dataset_id')
+        for field in related_item:
+            assert related_item[field] == res_update_json[field]

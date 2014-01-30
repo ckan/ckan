@@ -4,6 +4,7 @@ import urllib2
 import logging
 import json
 import hashlib
+import os
 
 import sqlalchemy as sa
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -17,11 +18,13 @@ from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
+from repoze.who.plugins.auth_tkt import make_plugin as auth_tkt_make_plugin
 from fanstatic import Fanstatic
 
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
 from ckan.lib.i18n import get_locales_from_config
+import ckan.lib.uploader as uploader
 
 from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
@@ -147,6 +150,20 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
                 cache_max_age=static_max_age)
         static_parsers = [static_app, app]
 
+        storage_directory = uploader.get_storage_path()
+        if storage_directory:
+            path = os.path.join(storage_directory, 'storage')
+            try:
+                os.makedirs(path)
+            except OSError, e:
+                ## errno 17 is file already exists
+                if e.errno != 17:
+                    raise
+
+            storage_app = StaticURLParser(path,
+                cache_max_age=static_max_age)
+            static_parsers.insert(0, storage_app)
+
         # Configurable extra static file paths
         extra_static_parsers = []
         for public_path in config.get('extra_public_paths', '').split(','):
@@ -166,6 +183,11 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         app = TrackingMiddleware(app, config)
 
     return app
+
+def ckan_auth_tkt_make_app(**kw):
+    if not len(kw.get('secret', '')) or kw.get('secret') == 'somesecret':
+        kw['secret'] = config['beaker.session.secret']
+    return auth_tkt_make_plugin(**kw)
 
 
 class I18nMiddleware(object):

@@ -12,10 +12,34 @@ v2.2
 
 API changes and deprecations:
 
+* The Solr schema file is now always named ``schema.xml`` regardless of the
+  CKAN version. Old schema files have been kept for backwards compatibility
+  but users are encouraged to point to the new unified one.
+* The `ckan.api_url` has been completely removed and it can no longer be used
 * The edit() and after_update() methods of IPackageController plugins are now
   called when updating a resource using the web frontend or the
   resource_update API action [#1052]
+* package_search now returns results with custom schemas applied like
+  package_show, a use_default_schema parameter was added to request the
+  old behaviour, this change may affect customized search result templates
+  (#1255)
 
+v2.1.1 2013-11-8
+================
+
+Bug fixes:
+ * Fix errors on preview on non-root locations (#960)
+ * Fix place-holder images on non-root locations (#1309)
+ * Don't accept invalid URLs in resource proxy (#1106)
+ * Make sure came_from url is local (#1039)
+ * Fix logout redirect in non-root locations (#1025)
+ * Wrong auth checks for sysadmins on package_create (#1184)
+ * Don't return private datasets on package_list (#1295)
+ * Stop tracking failing when no lang/encoding headers (#1192)
+ * Fix for paster db clean command getting frozen
+ * Fix organization not set when editing a dataset (#1199)
+ * Fix PDF previews (#1194)
+ * Fix preview failing on private datastore resources (#1221)
 
 v2.1 2013-08-13
 ===============
@@ -96,6 +120,18 @@ Known issues:
  * Under certain authorization setups the frontend for the groups functionality
    may not work as expected (See #1176 #1175).
 
+v2.0.3 2013-11-8
+================
+
+Bug fixes:
+ * Fix errors on preview on non-root locations (#960)
+ * Don't accept invalid URLs in resource proxy (#1106)
+ * Make sure came_from url is local (#1039)
+ * Fix logout redirect in non-root locations (#1025)
+ * Don't return private datasets on package_list (#1295)
+ * Stop tracking failing when no lang/encoding headers (#1192)
+ * Fix for paster db clean command getting frozen
+
 
 v2.0.2 2013-08-13
 =================
@@ -139,7 +175,7 @@ v2.0 2013-05-10
  to GitHub issues. For example:
 
  * #3020 is http://trac.ckan.org/ticket/3020
- * #271 is https://github.com/okfn/ckan/issues/271
+ * #271 is https://github.com/ckan/ckan/issues/271
 
  Some GitHub issues URLs will redirect to GitHub pull request pages.
 
@@ -164,7 +200,7 @@ Organizations based authorization (see :doc:`authorization`):
  * New authorization ini file options
 
 
-New frontend (see :doc:`theming`):
+New frontend (see :doc:`theming/index`):
  CKAN's frontend has been completely redesigned, inside and out. There is
  a new default theme and the template engine has moved from Genshi to
  Jinja2. Any custom templates using Genshi will need to be updated, although
@@ -242,7 +278,7 @@ API:
 
 Other highlights:
  * CKAN now has continuous integration testing at
-   https://travis-ci.org/okfn/ckan/
+   https://travis-ci.org/ckan/ckan/
  * Dataset pages now have <link rel="alternate" type="application/rdf+xml"
    links in the HTML headers, allows linked-data tools to find CKAN's RDF
    rendering of a dataset's metadata (#413)

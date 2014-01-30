@@ -74,8 +74,8 @@ class TestReclineMap(BaseTestReclineView):
     def test_it_has_the_correct_schema_keys(self):
         schema = self.p.info().get('schema')
         expected_keys = ['offset', 'limit', 'map_field_type',
-                'latitude_field', 'longitude_field', 'geojson_field',
-                'auto_zoom', 'cluster_markers']
+                         'latitude_field', 'longitude_field', 'geojson_field',
+                         'auto_zoom', 'cluster_markers']
         _assert_schema_exists_and_has_keys(schema, expected_keys)
 
 
@@ -94,6 +94,7 @@ def _create_test_view(view_type):
         context, resource_view)
     return resource_view, package, resource_id
 
+
 def _assert_schema_exists_and_has_keys(schema, expected_keys):
     assert schema is not None, schema
 
@@ -102,6 +103,3 @@ def _assert_schema_exists_and_has_keys(schema, expected_keys):
     expected_keys.sort()
 
     assert keys == expected_keys, '%s != %s' % (keys, expected_keys)
-
-
-

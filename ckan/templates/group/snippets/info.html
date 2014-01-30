@@ -2,7 +2,7 @@
   <section class="module-content">
     <div class="image">
       <a href="{{ group.url }}">
-        <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="190" height="118" alt="{{ group.name }}" />
+        <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="190" height="118" alt="{{ group.name }}" />
       </a>
     </div>
     <h1 class="heading">{{ group.display_name }}</h1>
@@ -11,8 +11,6 @@
         {{ h.markdown_extract(group.description, 180) }}
         {% link_for _('read more'), controller='group', action='about', id=group.name %}
       </p>
-    {% else %}
-      <p class="empty">{{ _('There is no description for this group') }}</p>
     {% endif %}
     {% if show_nums %}
       <div class="nums">

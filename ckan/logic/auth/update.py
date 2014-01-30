@@ -17,7 +17,7 @@ def package_update(context, data_dict):
 
     if package.owner_org:
         # if there is an owner org then we must have update_dataset
-        # premission for that organization
+        # permission for that organization
         check1 = new_authz.has_user_permission_for_group_or_org(
             package.owner_org, user, 'update_dataset'
         )
@@ -41,6 +41,9 @@ def package_update(context, data_dict):
 
     return {'success': True}
 
+def package_resource_reorder(context, data_dict):
+    ## the action function runs package update so no need to run it twice
+    return {'success': True}
 
 def resource_update(context, data_dict):
     model = context['model']

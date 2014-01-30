@@ -44,8 +44,6 @@ who.log_file = %(cache_dir)s/who_log.ini
 
 ## Database Settings
 sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
-#sqlalchemy.url = sqlite:///
-#sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
 #ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
 #ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
@@ -66,6 +64,8 @@ ckan.auth.user_create_organizations = true
 ckan.auth.user_delete_groups = true
 ckan.auth.user_delete_organizations = true
 ckan.auth.create_user_via_api = false
+ckan.auth.create_user_via_web = true
+ckan.auth.roles_that_cascade_to_sub_groups = admin
 
 
 ## Search Settings
@@ -120,35 +120,16 @@ ckan.feeds.author_link =
 
 ## Storage Settings
 
-# Local file storage:
-#ofs.impl = pairtree
-#ofs.storage_dir = /var/lib/ckan/default
-
-# Google cloud storage:
-#ofs.impl = google
-#ofs.gs_access_key_id =
-#ofs.gs_secret_access_key =
-
-# S3 cloud storage:
-#ofs.impl = s3
-#ofs.aws_access_key_id = ....
-#ofs.aws_secret_access_key = ....
-
-# 'Bucket' to use for file storage
-#ckan.storage.bucket = default
-
-# Prefix for uploaded files (only used for pairtree)
-#ckan.storage.key_prefix = file/
-
-# The maximum content size, in bytes, for uploads
-#ckan.storage.max_content_length = 50000000
+#ckan.storage_path = /var/lib/ckan
+#ckan.max_resource_size = 10
+#ckan.max_image_size = 2
 
 ## Datapusher settings
 
 # Make sure you have set up the DataStore
 
-ckan.datapusher.formats = csv
-ckan.datapusher.url = http://datapusher.ckan.org/
+#ckan.datapusher.formats =
+#ckan.datapusher.url = http://127.0.0.1:8800/
 
 ## Activity Streams Settings
 

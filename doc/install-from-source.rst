@@ -1,4 +1,7 @@
-Installing CKAN from Source
+.. include:: _latest_release.rst
+
+===========================
+Installing CKAN from source
 ===========================
 
 This section describes how to install CKAN from source. Although
@@ -6,14 +9,15 @@ This section describes how to install CKAN from source. Although
 CKAN from source works with other versions of Ubuntu and with other operating
 systems (e.g. RedHat, Fedora, CentOS, OS X). If you install CKAN from source
 on your own operating system, please share your experiences on our
-`How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+`How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
 From source is also the right installation method for developers who want to
 work on CKAN.
 
+--------------------------------
 1. Install the required packages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 If you're using a Debian-based operating system (such as Ubuntu) install the
 required packages with this command::
@@ -22,7 +26,7 @@ required packages with this command::
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
-our `How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page for help):
 
 =====================  ===============================================
@@ -34,16 +38,17 @@ libpq                  `The C programmer's interface to PostgreSQL <http://www.p
 pip                    `A tool for installing and managing Python packages <http://www.pip-installer.org>`_
 virtualenv             `The virtual Python environment builder <http://www.virtualenv.org>`_
 Git                    `A distributed version control system <http://book.git-scm.com/2_installing_git.html>`_
-Apache Solr                   `A search platform <http://lucene.apache.org/solr>`_
-Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr)
+Apache Solr            `A search platform <http://lucene.apache.org/solr>`_
+Jetty                  `An HTTP server <http://jetty.codehaus.org/jetty/>`_ (used for Solr).
 OpenJDK 6 JDK          `The Java Development Kit <http://openjdk.java.net/install/>`_
 =====================  ===============================================
 
 
 .. _install-ckan-in-virtualenv:
 
+-------------------------------------------------
 2. Install CKAN into a Python virtual environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------
 
 .. tip::
 
@@ -87,19 +92,27 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        |activate|
 
-b. Install the CKAN source code into your virtualenv. To install the latest
-   development version of CKAN (the most recent commit on the master branch of
-   the CKAN git repository), run:
+b. Install the CKAN source code into your virtualenv.
+   To install the latest stable release of CKAN (CKAN |latest_release_version|),
+   run:
+
+   .. parsed-literal::
+
+      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan'
+
+   If you're installing CKAN for development, you may want to install the
+   latest development version (the most recent commit on the master branch of
+   the CKAN git repository). In that case, run this command instead:
 
    .. parsed-literal::
 
        pip install -e 'git+\ |git_url|\#egg=ckan'
 
-   Alternatively, to install a specific version such as CKAN 2.0 run:
+   .. warning::
 
-   .. parsed-literal::
-
-       pip install -e 'git+\ |git_url|\@ckan-2.0#egg=ckan'
+      The development version may contain bugs and should not be used for
+      production websites! Only install this version if you're doing CKAN
+      development.
 
 c. Install the Python modules that CKAN requires into your virtualenv:
 
@@ -122,8 +135,9 @@ d. Deactivate and reactivate your virtualenv, to make sure you're using the
 
 .. _postgres-setup:
 
+------------------------------
 3. Setup a PostgreSQL database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 List existing databases::
 
@@ -149,9 +163,9 @@ database user you just created:
 
     sudo -u postgres createdb -O |database_user| |database| -E utf-8
 
-
+----------------------------
 4. Create a CKAN config file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 Create a directory to contain the site's config files:
 
@@ -196,24 +210,86 @@ site_id
    ckan.site_id = default
 
 
-5. Setup Solr
-~~~~~~~~~~~~~
+.. _setting up solr:
 
-Follow the instructions in :ref:`solr-single` or :ref:`solr-multi-core` to
-setup Solr, then change the ``solr_url`` option in your CKAN config file to
-point to your Solr server, for example::
+-------------
+5. Setup Solr
+-------------
+
+CKAN uses Solr_ as its search platform, and uses a customized Solr schema file
+that takes into account CKAN's specific search needs. Now that we have CKAN
+installed, we need to install and configure Solr.
+
+.. _Solr: http://lucene.apache.org/solr/
+
+.. note::
+
+   These instructions explain how to setup |solr| with a single core.
+   If you want multiple applications, or multiple instances of CKAN, to share
+   the same |solr| server then you probably want a multi-core |solr| setup
+   instead. See :doc:`/appendices/solr-multicore`.
+
+.. note::
+
+   These instructions explain how to deploy Solr using the Jetty web
+   server, but CKAN doesn't require Jetty - you can deploy Solr to another web
+   server, such as Tomcat, if that's convenient on your operating system.
+
+#. Edit the Jetty configuration file (``/etc/default/jetty``) and change the
+   following variables::
+
+    NO_START=0            # (line 4)
+    JETTY_HOST=127.0.0.1  # (line 15)
+    JETTY_PORT=8983       # (line 18)
+
+   Start the Jetty server::
+
+    sudo service jetty start
+
+   You should now see a welcome page from Solr if you open
+   http://localhost:8983/solr/ in your web browser (replace localhost with
+   your server address if needed).
+
+   .. note::
+
+    If you get the message ``Could not start Jetty servlet engine because no
+    Java Development Kit (JDK) was found.`` then you will have to edit the
+    ``JAVA_HOME`` setting in ``/etc/default/jetty`` to point to your machine's
+    JDK install location. For example::
+
+        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
+
+    or::
+
+        JAVA_HOME=/usr/lib/jvm/java-6-openjdk-i386/
+
+#. Replace the default ``schema.xml`` file with a symlink to the CKAN schema
+   file included in the sources.
+
+   .. parsed-literal::
+
+      sudo mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
+      sudo ln -s |virtualenv|/src/ckan/ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
+
+   Now restart Solr:
+
+   .. parsed-literal::
+
+      |restart_solr|
+
+   and check that Solr is running by opening http://localhost:8983/solr/.
+
+
+#. Finally, change the :ref:`solr_url` setting in your CKAN config file to
+   point to your Solr server, for example::
 
        solr_url=http://127.0.0.1:8983/solr
 
-.. toctree::
-   :hidden:
-
-   solr-setup
-
 .. _postgres-init:
 
+-------------------------
 6. Create database tables
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Now that you have a configuration file that has the correct settings for your
 database, you can create the database tables:
@@ -231,8 +307,9 @@ You should see ``Initialising DB: SUCCESS``.
     ``sqlalchemy.url`` option in your CKAN configuration file properly.
     See `4. Create a CKAN config file`_.
 
+-----------------------
 7. Set up the DataStore
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 .. note ::
   Setting up the DataStore is optional. However, if you do skip this step,
@@ -243,8 +320,9 @@ Follow the instructions in :doc:`datastore` to create the required
 databases and users, set the right permissions and set the appropriate values
 in your CKAN config file.
 
+----------------------
 8. Link to ``who.ini``
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 ``who.ini`` (the Repoze.who configuration file) needs to be accessible in the
 same directory as your CKAN config file, so create a symlink to it:
@@ -253,8 +331,9 @@ same directory as your CKAN config file, so create a symlink to it:
 
     ln -s |virtualenv|/src/ckan/who.ini |config_dir|/who.ini
 
+---------------
 9. You're done!
-~~~~~~~~~~~~~~~
+---------------
 
 You can now use the Paste development server to serve CKAN from the
 command-line.  This is a simple and lightweight way to serve CKAN that is
@@ -277,3 +356,46 @@ Now that you've installed CKAN, you should:
   as Apache or Nginx. See :doc:`deployment`.
 
 * Begin using and customizing your site, see :doc:`/getting-started`.
+
+
+------------------------------
+Source install troubleshooting
+------------------------------
+
+.. _solr troubleshooting:
+
+Solr setup troubleshooting
+==========================
+
+Solr requests and errors are logged in the web server log files.
+
+* For Jetty servers, the log files are::
+
+    /var/log/jetty/<date>.stderrout.log
+
+* For Tomcat servers, they're::
+
+    /var/log/tomcat6/catalina.<date>.log
+
+Unable to find a javac compiler
+-------------------------------
+
+If when running Solr it says:
+
+ Unable to find a javac compiler; com.sun.tools.javac.Main is not on the classpath. Perhaps JAVA_HOME does not point to the JDK.
+
+See the note in :ref:`setting up solr` about ``JAVA_HOME``.
+Alternatively you may not have installed the JDK.
+Check by seeing if ``javac`` is installed::
+
+     which javac
+
+If ``javac`` isn't installed, do::
+
+     sudo apt-get install openjdk-6-jdk
+
+and then restart Solr:
+
+.. parsed-literal::
+
+   |restart_solr|
