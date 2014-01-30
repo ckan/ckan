@@ -289,5 +289,30 @@ Save and reload your development server CKAN will take any additional keys from
 the resource schema and save them the its extras field.  The templates will 
 automatically check this field and display them in the resource_read page.
 
+
+Sorting datasets by custom fields
+---------------------------------
+
+Now that we've added our custom field, we can customize the CKAN web front end
+search page to sort datasets by our custom field. Add a new file called
+``ckan/example_idatasetform/templates/package/search.html`` containing:
+
+.. literalinclude:: ../../ckanext/example_idatasetform/templates/package/search.html
+    :language: jinja
+    :emphasize-lines: 16-17
+
+This overrides search ordering drop down box code block, the code is the same
+as the default package search block but we are adding two additional lines that
+define the display name of that search ordering (e.g. Custom Field Ascending)
+and the SOLR sort ordering (e.g. custom_text asc). If you reload your development
+server you should be able to see these two additional sorting options on the
+dataset search page.
+
+The SOLR sort ordering can define arbitrary functions for custom sorting, but
+this is beyond the scope of this tutorial for further details see
+http://wiki.apache.org/solr/CommonQueryParameters#sort and
+http://wiki.apache.org/solr/FunctionQuery
+
+
 You can find the complete source for this tutorial in the
 ``ckanext/example_idatasetform`` directory.
