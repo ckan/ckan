@@ -46,7 +46,7 @@ module to use, including:
   document traversal and manipulation, event handling, and animation. See
   `jQuery's own docs <http://jquery.com/>`_ for details.
 
-* A collection of :doc:`jQuery plugins <jquery-plugins>`_.
+* A collection of :doc:`jQuery plugins <jquery-plugins>`.
 
 * :ref:`Pubsub functions <pubsub>` that modules can use to communicate with
   each other, if they really need to.
@@ -165,9 +165,10 @@ template).
 
 .. warning::
 
-   Although HTML 5 treats any attribute named ``data-*`` as a data attributes,
+   Although HTML 5 treats any attribute named ``data-*`` as a data attribute,
    only attributes named ``data-module-*`` will be passed as options to a CKAN
-   |javascript| module.
+   |javascript| module. So we have to named our parameters
+   ``data-module-title`` etc., not just ``data-title``.
 
 Now let's make use of these options in our |javascript| module. Change
 ``example_theme_popover.js`` to look like this:
@@ -432,7 +433,7 @@ available to all JavaScript code via the :js:data:`this.sandbox.jQuery` object.
      the details on writing jQuery plugins, here we'll only provide a simple
      example and show you how to integrate it with CKAN.
 
-It's a good idea to implement any JavaScript funcionality not directly related
+It's a good idea to implement any JavaScript functionality not directly related
 to CKAN as a jQuery plugin. That way your CKAN JavaScript modules will be
 smaller as they'll contain only the CKAN-specific code, and your jQuery plugins
 will also be reusable on non-CKAN sites. CKAN core uses jQuery plugins to
@@ -458,7 +459,7 @@ with the following contents:
 
 If this JavaScript code looks a little confusing at first, it's probably
 because it's using the
-`Immediately-Invoked Function Expression (IIFE) <http://stage.learn.jquery.com/javascript-101/functions/#immediately-invoked-function-expression>`_
+`Immediately-Invoked Function Expression (IIFE) <http://stage.learn.jquery.com/javascript-101/functions/#immediately-invoked-function-expression-iife>`_
 pattern. This is a common JavaScript code pattern in which an anonymous
 function is created and then immediately called once, in a single expression.
 In the example above, we create an unnamed function that takes a single
