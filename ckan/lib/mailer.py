@@ -102,35 +102,35 @@ def mail_user(recipient, subject, body, headers={}):
 
 def get_reset_link_body(user):
     reset_link_message = _(
-    '''You have requested your password on %(site_title)s to be reset.
-
-    Please click the following link to confirm this request:
-
-       %(reset_link)s
-    ''')
+    "You have requested your password on {site_title} to be reset.\n"
+    "\n"
+    "Please click the following link to confirm this request:\n"
+    "\n"
+    "   {reset_link}\n"
+    )
 
     d = {
         'reset_link': get_reset_link(user),
         'site_title': g.site_title
         }
-    return reset_link_message % d
+    return reset_link_message.format(**d)
 
 def get_invite_body(user):
     invite_message = _(
-    '''You have been invited to %(site_title)s. A user has already been created to
-    you with the username %(user_name)s. You can change it later.
-
-    To accept this invite, please reset your password at:
-
-       %(reset_link)s
-    ''')
+    "You have been invited to {site_title}. A user has already been created"
+    "to you with the username {user_name}. You can change it later.\n"
+    "\n"
+    "To accept this invite, please reset your password at:\n"
+    "\n"
+    "   {reset_link}\n"
+    )
 
     d = {
         'reset_link': get_reset_link(user),
         'site_title': g.site_title,
         'user_name': user.name,
         }
-    return invite_message % d
+    return invite_message.format(**d)
 
 def get_reset_link(user):
     return urljoin(g.site_url,
