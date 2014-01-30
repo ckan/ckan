@@ -1014,15 +1014,16 @@ class TestDelete(TestPackageForm):
 
         offset = url_for(controller='package', action='delete',
                 id='warandpeace')
-
-        self.app.post(offset, extra_environ=self.extra_environ_tester, status=401)
+        # Since organizations, any owned dataset can be edited/deleted by any
+        # user
+        self.app.post(offset, extra_environ=self.extra_environ_tester)
 
         self.app.post(offset, extra_environ=self.extra_environ_admin)
 
         assert model.Package.get('warandpeace').state == u'deleted'
 
-        assert plugin.calls['delete'] == 1
-        assert plugin.calls['after_delete'] == 1
+        assert plugin.calls['delete'] == 2
+        assert plugin.calls['after_delete'] == 2
         plugins.unload('test_package_controller_plugin')
 
 
