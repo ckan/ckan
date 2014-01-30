@@ -58,3 +58,4 @@ own custom CKAN theme.
    template-snippets
    javascript-sandbox
    javascript-api-client
+   jquery-plugins
