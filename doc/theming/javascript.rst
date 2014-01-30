@@ -8,9 +8,25 @@ own modules. This tutorial will explain the main concepts involved in CKAN
 JavaScript modules and walk you through the process of adding custom modules
 to themes.
 
+.. seealso::
 
-.. todo:: Link to an introductory JavaScript tutorial and other necessary
-          background knowledge.
+   This tutorial assumes a basic understanding of CKAN plugins and templating,
+   see:
+
+   * :doc:`/extensions/index`
+
+   * :doc:`/theming/templates`
+
+
+.. seealso::
+
+   This tutorial assumes a basic understanding of |javascript| and |jquery|,
+   see:
+
+   * `JavaScript on the Mozilla Developer Network <https://developer.mozilla.org/en-US/docs/Web/JavaScript>`_
+
+   * `jQuery.com <http://jquery.com/>`_, including the
+     `jQuery Learning Center <http://learn.jquery.com/>`_
 
 
 --------
