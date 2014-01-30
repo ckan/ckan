@@ -55,11 +55,11 @@ module to use, including:
   `Bootstrap docs <http://getbootstrap.com/2.3.2/javascript.html>`_
   for details.
 
-.. todo::
-
-   The standard ``window`` object is also available to modules,
-   but I'm not sure if we encourage using it, or if CKAN adds anything special
-   to it.
+* The standard |javascript| ``window`` object. Using ``window`` in CKAN
+  |javascript| modules is discouraged, because it goes against the idea of a
+  module being independent of global context. However, there are some
+  circumstances where a module may need to use ``window`` (for example if a
+  vendor plugin that the module uses needs it).
 
 
 In the sections below, we'll walk you through the steps to add a new JavaScript
