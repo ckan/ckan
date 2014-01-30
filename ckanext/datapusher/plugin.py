@@ -80,10 +80,11 @@ class DatapusherPlugin(p.SingletonPlugin):
         datapusher_formats = config.get('ckan.datapusher.formats', '').lower()
         self.datapusher_formats = datapusher_formats.split() or DEFAULT_FORMATS
 
-        datapusher_url = config.get('ckan.datapusher.url')
-        if not datapusher_url:
-            raise Exception(
-                'Config option `ckan.datapusher.url` has to be set.')
+        for config_option in ('ckan.site_url', 'ckan.datapusher.url',):
+            if not config.get(config_option):
+                raise Exception(
+                    'Config option `{0}` must be set to use the DataPusher.'
+                    .format(config_option))
 
     def notify(self, entity, operation=None):
         if isinstance(entity, model.Resource):
@@ -94,10 +95,7 @@ class DatapusherPlugin(p.SingletonPlugin):
                 # 1 parameter
                 context = {'model': model, 'ignore_auth': True,
                            'defer_commit': True}
-                package = p.toolkit.get_action('package_show')(context, {
-                    'id': entity.get_package_id()
-                })
-                if (not package['private'] and entity.format and
+                if (entity.format and
                         entity.format.lower() in self.datapusher_formats and
                         entity.url_type != 'datapusher'):
                     try:
@@ -128,4 +126,7 @@ class DatapusherPlugin(p.SingletonPlugin):
 
     def get_helpers(self):
         return {
-            'datapusher_status': helpers.datapusher_status}
+            'datapusher_status': helpers.datapusher_status,
+            'datapusher_status_description':
+            helpers.datapusher_status_description,
+        }

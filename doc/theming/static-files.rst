@@ -60,6 +60,7 @@ and file::
 Edit your new ``promoted.html`` snippet, and insert these contents:
 
 .. literalinclude:: /../ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html
+   :language: django
 
 After calling ``{% ckan_extends %}`` to declare that it extends (rather than
 completely replaces) the default ``promoted.html`` snippet, this custom snippet
@@ -68,6 +69,7 @@ the caption text of the promoted image. The second block replaces the ``<img>``
 tag itself, pointing it at our custom static image file:
 
 .. literalinclude:: /../ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html
+   :language: django
    :start-after: {# Replace the promoted image. #}
 
 If you now restart the development web server and reload the `CKAN front page`_

@@ -68,12 +68,6 @@ To get CKAN to call some custom JavaScript code, we need to:
    .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
       :language: javascript
 
-   .. note::
-
-      |javascript| module names should begin with the name of the extension,
-      to avoid conflicting with other modules.
-      See :ref:`javascript module names best practice`.
-
    This bit of |javascript| calls the ``ckan.module()`` function to register a
    new JavaScript module with CKAN. ``ckan.module()`` takes two arguments: the
    name of the module being registered (``'example_theme_popover'`` in this
@@ -83,6 +77,12 @@ To get CKAN to call some custom JavaScript code, we need to:
    that CKAN will call to initialize the module. In this example, the
    initialize function just prints out a confirmation message - this
    |javascript| module doesn't do anything interesting yet.
+
+   .. note::
+
+      |javascript| module names should begin with the name of the extension,
+      to avoid conflicting with other modules.
+      See :ref:`javascript module names best practice`.
 
    .. note::
 
@@ -100,12 +100,10 @@ To get CKAN to call some custom JavaScript code, we need to:
    .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/templates/snippets/package_item.html
       :language: django
 
-
    .. seealso::
 
       `Using data-* attributes <https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_data_attributes>`_
       on the Mozilla Developer Network.
-
 
    If you now restart the development server and open
    http://127.0.0.1:5000/dataset in your web browser, you should see an

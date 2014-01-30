@@ -45,6 +45,7 @@ to serve the CSS file with Fanstatic.
    import the file:
 
    .. literalinclude:: /../ckanext/example_theme/v15_fanstatic/templates/base.html
+      :language: django
 
 .. note::
 
@@ -62,4 +63,4 @@ to serve the CSS file with Fanstatic.
   A config file can be used to configure how Fanstatic should serve each resource
   file (whether or not to bundle files, what order to include files in, whether
   to include files at the top or bottom of the page, dependencies between files,
-  etc.) See :doc:`/resources` for details.
+  etc.) See :doc:`/contributing/frontend/resources` for details.

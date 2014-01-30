@@ -12,8 +12,6 @@
       {% else %}
         <p>{{ h.markdown_extract(organization.description, truncate)|urlize }}</p>
       {% endif %}
-    {% else %}
-      <p class="empty">{{ _('There is no description for this organization') }}</p>
     {% endif %}
   </header>
   {% set list_class = "unstyled dataset-list" %}

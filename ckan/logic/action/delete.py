@@ -1,5 +1,7 @@
 '''API functions for deleting data from CKAN.'''
 
+from sqlalchemy import or_
+
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
@@ -226,7 +228,7 @@ def member_delete(context, data_dict=None):
     if not obj:
         raise NotFound('%s was not found.' % obj_type.title())
 
-    _check_access('member_create', context, data_dict)
+    _check_access('member_delete', context, data_dict)
 
     member = model.Session.query(model.Member).\
             filter(model.Member.table_name == obj_type).\
@@ -275,6 +277,15 @@ def _group_or_org_delete(context, data_dict, is_org=False):
     rev = model.repo.new_revision()
     rev.author = user
     rev.message = _(u'REST API: Delete %s') % revisioned_details
+
+    # The group's Member objects are deleted
+    # (including hierarchy connections to parent and children groups)
+    for member in model.Session.query(model.Member).\
+            filter(or_(model.Member.table_id == id,
+                       model.Member.group_id == id)).\
+            filter(model.Member.state == 'active').all():
+        member.delete()
+
     group.delete()
 
     if is_org:
@@ -561,6 +572,7 @@ def group_member_delete(context, data_dict=None):
     :type username: string
 
     '''
+    _check_access('group_member_delete',context, data_dict)
     return _group_or_org_member_delete(context, data_dict)
 
 def organization_member_delete(context, data_dict=None):
@@ -574,6 +586,7 @@ def organization_member_delete(context, data_dict=None):
     :type username: string
 
     '''
+    _check_access('organization_member_delete',context, data_dict)
     return _group_or_org_member_delete(context, data_dict)
 
 

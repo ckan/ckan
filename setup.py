@@ -78,7 +78,8 @@ entry_points = {
         'example_iauthfunctions_v1 = ckanext.example_iauthfunctions.plugin_v1:ExampleIAuthFunctionsPlugin',
         'example_iauthfunctions_v2 = ckanext.example_iauthfunctions.plugin_v2:ExampleIAuthFunctionsPlugin',
         'example_iauthfunctions_v3 = ckanext.example_iauthfunctions.plugin_v3:ExampleIAuthFunctionsPlugin',
-        'example_iauthfunctions = ckanext.example_iauthfunctions.plugin:ExampleIAuthFunctionsPlugin',
+        'example_iauthfunctions_v4 = ckanext.example_iauthfunctions.plugin_v4:ExampleIAuthFunctionsPlugin',
+        'example_iauthfunctions_v5_custom_config_setting = ckanext.example_iauthfunctions.plugin_v5_custom_config_setting:ExampleIAuthFunctionsPlugin',
         'example_theme_v01_empty_extension = ckanext.example_theme.v01_empty_extension.plugin:ExampleThemePlugin',
         'example_theme_v02_empty_template = ckanext.example_theme.v02_empty_template.plugin:ExampleThemePlugin',
         'example_theme_v03_jinja = ckanext.example_theme.v03_jinja.plugin:ExampleThemePlugin',
@@ -101,6 +102,7 @@ entry_points = {
         'example_theme_v19_02_error_handling = ckanext.example_theme.v19_02_error_handling.plugin:ExampleThemePlugin',
         'example_theme_v20_pubsub = ckanext.example_theme.v20_pubsub.plugin:ExampleThemePlugin',
         'example_theme_v21_custom_jquery_plugin = ckanext.example_theme.v21_custom_jquery_plugin.plugin:ExampleThemePlugin',
+        'example_theme_custom_config_setting = ckanext.example_theme.custom_config_setting.plugin:ExampleThemePlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',

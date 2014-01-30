@@ -351,6 +351,22 @@ Default value: ``True``
 
 Allow new user accounts to be created via the Web.
 
+.. _ckan.auth.roles_that_cascade_to_sub_groups:
+
+ckan.auth.roles_that_cascade_to_sub_groups
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.roles_that_cascade_to_sub_groups = admin editor
+
+Default value: ``admin``
+
+
+Makes role permissions apply to all the groups down the hierarchy from the groups that the role is applied to.
+
+e.g. a particular user has the 'admin' role for group 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child groups of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
+
 .. end_config-authorization
 
 
@@ -1050,9 +1066,15 @@ ckan.datapusher.formats
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
-  ckan.datapusher.formats = csv xls xlsx
 
-.. todo:: Expand
+  ckan.datapusher.formats = csv xls
+
+Default value: ``csv xls application/csv application/vnd.ms-excel``
+
+File formats that will be pushed to the DataStore by the DataPusher. When
+adding or editing a resource which links to a file in one of these formats,
+the DataPusher will automatically try to import its contents to the DataStore.
+
 
 .. _ckan.datapusher.url:
 
@@ -1060,9 +1082,13 @@ ckan.datapusher.url
 ^^^^^^^^^^^^^^^^^^^
 
 Example::
-  ckan.datapusher.url = http://datapusher.ckan.org/
 
-.. todo:: Expand
+  ckan.datapusher.url = http://127.0.0.1:8800/
+
+DataPusher endpoint to use when enabling the ``datapusher`` extension. If you
+installed CKAN via :doc:`install-from-package`, the DataPusher was installed for you
+running on port 8800. If you want to manually install the DataPusher, follow
+the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
 
 
 Activity Streams Settings
@@ -1198,7 +1224,7 @@ Example::
 
 Default value:  ``en`` (English)
 
-Use this to specify the locale (language of the text) displayed in the CKAN Web UI. This requires a suitable `mo` file installed for the locale in the ckan/i18n. For more information on internationalization, see :doc:`i18n`. If you don't specify a default locale, then it will default to the first locale offered, which is by default English (alter that with `ckan.locales_offered` and `ckan.locales_filtered_out`.
+Use this to specify the locale (language of the text) displayed in the CKAN Web UI. This requires a suitable `mo` file installed for the locale in the ckan/i18n. For more information on internationalization, see :doc:`contributing/i18n`. If you don't specify a default locale, then it will default to the first locale offered, which is by default English (alter that with `ckan.locales_offered` and `ckan.locales_filtered_out`.
 
 .. note: In versions of CKAN before 1.5, the settings used for this was variously `lang` or `ckan.locale`, which have now been deprecated in favour of `ckan.locale_default`.
 

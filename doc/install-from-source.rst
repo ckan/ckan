@@ -1,3 +1,5 @@
+.. include:: _latest_release.rst
+
 ===========================
 Installing CKAN from source
 ===========================
@@ -7,7 +9,7 @@ This section describes how to install CKAN from source. Although
 CKAN from source works with other versions of Ubuntu and with other operating
 systems (e.g. RedHat, Fedora, CentOS, OS X). If you install CKAN from source
 on your own operating system, please share your experiences on our
-`How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+`How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page.
 
 From source is also the right installation method for developers who want to
@@ -24,7 +26,7 @@ required packages with this command::
 
 If you're not using a Debian-based operating system, find the best way to
 install the following packages on your operating system (see
-our `How to Install CKAN <https://github.com/okfn/ckan/wiki/How-to-Install-CKAN>`_
+our `How to Install CKAN <https://github.com/ckan/ckan/wiki/How-to-Install-CKAN>`_
 wiki page for help):
 
 =====================  ===============================================
@@ -90,19 +92,27 @@ a. Create a Python `virtual environment <http://www.virtualenv.org>`_
 
        |activate|
 
-b. Install the CKAN source code into your virtualenv. To install the latest
-   development version of CKAN (the most recent commit on the master branch of
-   the CKAN git repository), run:
+b. Install the CKAN source code into your virtualenv.
+   To install the latest stable release of CKAN (CKAN |latest_release_version|),
+   run:
+
+   .. parsed-literal::
+
+      pip install -e 'git+\ |git_url|\@\ |latest_release_tag|\#egg=ckan'
+
+   If you're installing CKAN for development, you may want to install the
+   latest development version (the most recent commit on the master branch of
+   the CKAN git repository). In that case, run this command instead:
 
    .. parsed-literal::
 
        pip install -e 'git+\ |git_url|\#egg=ckan'
 
-   Alternatively, to install a specific version such as CKAN 2.0 run:
+   .. warning::
 
-   .. parsed-literal::
-
-       pip install -e 'git+\ |git_url|\@ckan-2.0#egg=ckan'
+      The development version may contain bugs and should not be used for
+      production websites! Only install this version if you're doing CKAN
+      development.
 
 c. Install the Python modules that CKAN requires into your virtualenv:
 

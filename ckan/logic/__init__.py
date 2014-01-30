@@ -402,7 +402,7 @@ def get_action(action):
         def make_wrapped(_action, action_name):
             def wrapped(context=None, data_dict=None, **kw):
                 if kw:
-                    log.critical('%s was pass extra keywords %r'
+                    log.critical('%s was passed extra keywords %r'
                                  % (_action.__name__, kw))
 
                 context = _prepopulate_context(context)
@@ -423,7 +423,9 @@ def get_action(action):
                         if action_name not in new_authz.auth_functions_list():
                             log.debug('No auth function for %s' % action_name)
                         elif not getattr(_action, 'auth_audit_exempt', False):
-                            raise Exception('Action Auth Audit: %s' % action_name)
+                            raise Exception(
+                                'Action function {0} did not call its auth function'
+                                .format(action_name))
                         # remove from audit stack
                         context['__auth_audit'].pop()
                 except IndexError:
@@ -502,6 +504,23 @@ def get_or_bust(data_dict, keys):
         return values[0]
     return tuple(values)
 
+def validate(schema_func, can_skip_validator=False):
+    ''' A decorator that validates an action function against a given schema
+    '''
+    def action_decorator(action):
+        @functools.wraps(action)
+        def wrapper(context, data_dict):
+            if can_skip_validator:
+                if context.get('skip_validation'):
+                    return action(context, data_dict)
+
+            schema = context.get('schema', schema_func())
+            data_dict, errors = _validate(data_dict, schema, context)
+            if errors:
+                raise ValidationError(errors)
+            return action(context, data_dict)
+        return wrapper
+    return action_decorator
 
 def side_effect_free(action):
     '''A decorator that marks the given action function as side-effect-free.

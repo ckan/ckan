@@ -168,6 +168,9 @@ class GroupController(base.BaseController):
 
     def read(self, id, limit=20):
         group_type = self._get_group_type(id.split('@')[0])
+        if group_type != self.group_type:
+            abort(404, _('Incorrect group type'))
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'schema': self._db_to_form_schema(group_type=group_type),
@@ -178,6 +181,9 @@ class GroupController(base.BaseController):
         q = c.q = request.params.get('q', '')
 
         try:
+            # Do not query for the group datasets when dictizing, as they will
+            # be ignored and get requested on the controller anyway
+            context['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
@@ -284,7 +290,7 @@ class GroupController(base.BaseController):
                                     'groups': _('Groups'),
                                     'tags': _('Tags'),
                                     'res_format': _('Formats'),
-                                    'license_id': _('License')}
+                                    'license_id': _('Licenses')}
 
             for facet in g.facets:
                 if facet in default_facet_titles:
@@ -317,7 +323,8 @@ class GroupController(base.BaseController):
                 'extras': search_extras
             }
 
-            query = get_action('package_search')(context, data_dict)
+            context_ = dict((k, v) for (k, v) in context.items() if k != 'schema')
+            query = get_action('package_search')(context_, data_dict)
 
             c.page = h.Page(
                 collection=query['results'],
@@ -327,6 +334,7 @@ class GroupController(base.BaseController):
                 items_per_page=limit
             )
 
+            c.group_dict['package_count'] = query['count']
             c.facets = query['facets']
             maintain.deprecate_context_item('facets',
                                             'Use `c.search_facets` instead.')
@@ -369,6 +377,9 @@ class GroupController(base.BaseController):
         data_dict = {'id': id}
 
         try:
+            # Do not query for the group datasets when dictizing, as they will
+            # be ignored and get requested on the controller anyway
+            context['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
@@ -376,15 +387,27 @@ class GroupController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
 
-        # Search within group
-        action = request.params.get('bulk_action')
+        #use different form names so that ie7 can be detected
+        form_names = set(["bulk_action.public", "bulk_action.delete",
+                          "bulk_action.private"])
+        actions_in_form = set(request.params.keys())
+        actions = form_names.intersection(actions_in_form)
         # If no action then just show the datasets
-        if not action:
+        if not actions:
             # unicode format (decoded from utf8)
             limit = 500
             self._read(id, limit)
             c.packages = c.page.items
             return render(self._bulk_process_template(group_type))
+
+        #ie7 puts all buttons in form params but puts submitted one twice
+        for key, value in dict(request.params.dict_of_lists()).items():
+            if len(value) == 2:
+                action = key.split('.')[-1]
+                break
+        else:
+            #normal good browser form submission
+            action = actions.pop().split('.')[-1]
 
         # process the action first find the datasets to perform the action on.
         # they are prefixed by dataset_ in the form data
@@ -643,7 +666,10 @@ class GroupController(base.BaseController):
                 else:
                     c.user_role = 'member'
                 c.group_dict = self._action('group_show')(context, {'id': id})
-                c.roles = self._action('member_roles_list')(context, {'group_type': 'group'})
+                group_type = 'organization' if c.group_dict['is_organization'] else 'group'
+                c.roles = self._action('member_roles_list')(
+                    context, {'group_type': group_type}
+                )
         except NotAuthorized:
             abort(401, _('Unauthorized to add member to group %s') % '')
         except NotFound:
@@ -831,9 +857,12 @@ class GroupController(base.BaseController):
         return render(self._admins_template(c.group_dict['type']))
 
     def about(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author}
         c.group_dict = self._get_group_dict(id)
         group_type = c.group_dict['type']
-        self._setup_template_variables({}, {'id': id}, group_type=group_type)
+        self._setup_template_variables(context, {'id': id},
+                                       group_type=group_type)
         return render(self._about_template(group_type))
 
     def _get_group_dict(self, id):

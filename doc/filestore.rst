@@ -18,7 +18,7 @@ organization.
 
 .. seealso::
 
-   :ref:`datapusher`
+   :doc:`datastore`
 
     Resource files linked-to from CKAN or uploaded to CKAN's FileStore can
     also be pushed into CKAN's DataStore, which then enables data previews and

@@ -697,7 +697,7 @@ class UserCmd(CkanCommand):
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 4
+    max_args = None
     min_args = 0
 
     def command(self):
@@ -1322,7 +1322,7 @@ class CreateTestDataCommand(CkanCommand):
                                     translations of terms
     create-test-data vocabs       - annakerenina, warandpeace, and some test
                                     vocabularies
-
+    create-test-data hierarchy    - hierarchy of groups
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -1332,6 +1332,7 @@ class CreateTestDataCommand(CkanCommand):
     def command(self):
         self._load_config()
         self._setup_app()
+        from ckan import plugins
         from create_test_data import CreateTestData
 
         if self.args:
@@ -1356,6 +1357,8 @@ class CreateTestDataCommand(CkanCommand):
             CreateTestData.create_translations_test_data()
         elif cmd == 'vocabs':
             CreateTestData.create_vocabs_test_data()
+        elif cmd == 'hierarchy':
+            CreateTestData.create_group_hierarchy_test_data()
         else:
             print 'Command %s not recognized' % cmd
             raise NotImplementedError

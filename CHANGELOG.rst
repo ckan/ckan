@@ -19,6 +19,10 @@ API changes and deprecations:
 * The edit() and after_update() methods of IPackageController plugins are now
   called when updating a resource using the web frontend or the
   resource_update API action [#1052]
+* package_search now returns results with custom schemas applied like
+  package_show, a use_default_schema parameter was added to request the
+  old behaviour, this change may affect customized search result templates
+  (#1255)
 
 v2.1.1 2013-11-8
 ================
@@ -171,7 +175,7 @@ v2.0 2013-05-10
  to GitHub issues. For example:
 
  * #3020 is http://trac.ckan.org/ticket/3020
- * #271 is https://github.com/okfn/ckan/issues/271
+ * #271 is https://github.com/ckan/ckan/issues/271
 
  Some GitHub issues URLs will redirect to GitHub pull request pages.
 
@@ -274,7 +278,7 @@ API:
 
 Other highlights:
  * CKAN now has continuous integration testing at
-   https://travis-ci.org/okfn/ckan/
+   https://travis-ci.org/ckan/ckan/
  * Dataset pages now have <link rel="alternate" type="application/rdf+xml"
    links in the HTML headers, allows linked-data tools to find CKAN's RDF
    rendering of a dataset's metadata (#413)

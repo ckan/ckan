@@ -2,17 +2,18 @@
 Upgrading CKAN
 ==============
 
-This document covers CKAN releases and how to upgrade a site to a newer version
-of CKAN:
+This document describes the different types of CKAN release, and explains
+how to upgrade a site to a newer version of CKAN.
 
-* :ref:`releases` describes the different types of CKAN release
-* :ref:`release process` describes the process that the CKAN dev team follows,
-  when we make a new CKAN release
-* Finally, :ref:`upgrading` will walk you through the steps for upgrading a
-  CKAN site to a newer version of CKAN
+.. seealso::
 
-For a list of CKAN releases and the changes introduced in each release, see the
-:doc:`changelog`.
+   :doc:`changelog`
+     The changelog lists all CKAN releases and the main changes introduced in
+     each release.
+
+   :doc:`/contributing/release-process`
+     Documentation of the process that the CKAN developers follow to do a
+     CKAN release.
 
 
 .. _releases:
@@ -23,7 +24,6 @@ CKAN releases
 
 CKAN follows a predictable release cycle so that users can depend on stable
 releases of CKAN, and can plan their upgrades to new releases.
-The :doc:`changelog` documents the main changes in each release.
 
 Each release has a version number of the form ``M.m`` (eg. 2.1) or ``M.m.p``
 (eg. 1.8.2), where ``M`` is the **major version**, ``m`` is the **minor
@@ -55,79 +55,22 @@ Patch Releases
   - New dependencies
   - Big refactorings or new features in critical parts of the code
 
-Users should always run the latest patch release for the minor release they
-are on, as they contain important bug fixes and security updates. As they
-don't include backwards incompatible changes, the upgrade process (as
-described in :doc:`upgrade-package-to-patch-release`) should be
-straightforward.
+.. note::
 
-Outdated patch releases will no longer be supported after a newer patch
-release has been released. For example once CKAN 2.0.2 has been released,
-CKAN 2.0.1 will no longer be supported.
+   Users should always run the latest patch release for the minor release they
+   are on, as patch releases contain important bug fixes and security updates.
+   Because patch releases don't include backwards incompatible changes, the
+   upgrade process (as described in :doc:`upgrade-package-to-patch-release`)
+   should be straightforward.
 
-Releases are announced on the ``ckan-announce`` mailing list, a low-volume
-list that CKAN instance maintainers can subscribe to in order to be up to date
-with upcoming releases. You can sign up to the list here:
+   Outdated patch releases will no longer be supported after a newer patch
+   release has been released. For example once CKAN 2.0.2 has been released,
+   CKAN 2.0.1 will no longer be supported.
 
-http://lists.okfn.org/mailman/listinfo/ckan-announce
-
-.. _release process:
-
----------------
-Release process
----------------
-
-.. _beta.ckan.org: http://beta.ckan.org
-.. _Transifex: https://www.transifex.com/projects/p/ckan
-
-When the development is ready to start the process of releasing a new version
-of CKAN, we will:
-
-#. Create a new release branch from the master branch, named ``release-v*``
-   where ``*`` is the release's version number.
-
-#. Deploy the release branch on `beta.ckan.org`_ for testing.
-
-#. During the next two-three weeks, we'll allow changes on the release branch
-   only to stabilize the code, update translations and documentation, etc.
-   (new features are usually not added on the release branch).
-
-#. During the final week before the release, we'll only allow critical bug
-   fixes to be committed on the release branch.
-
-.. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
-.. _ckan-discuss: http://lists.okfn.org/mailman/listinfo/ckan-discuss
-.. _ckan-announce: http://lists.okfn.org/mailman/listinfo/ckan-announce
-
-At some point during the beta period a **strings freeze** will begin.
-That means that no changes to translatable strings are allowed on the release
-branch (no new strings, or changes to existing strings). This will give
-translators time to update the translations on Transifex_. We'll publish a
-**call for translations** to the `ckan-dev`_ and `ckan-discuss`_ mailing
-lists, announcing that the new version is ready to be translated.
-
-At some point before the final release, we'll announce an **end of
-translations** after which no new translations will be pulled into the release
-branch. At this point we'll deploy the translations to `beta.ckan.org`_ and
-we'll put out a request for people to test CKAN in their languages.
-
-The upcoming releases are announced on the `ckan-announce`_ mailing list.
-
-Release branches are not merged back into master. All changes on a release
-branch are cherry-picked from master (or merged from special branches based on
-the release branch).
-
-To ensure that the release guidelines are enforced one of the CKAN core
-developers will act as **Release Manager**. They have the final say on what is
-merged into the release branches.
-
-Detailed release process instructions for CKAN Developers can be found in the
-:doc:`release-process` document:
-
-.. toctree::
-   :maxdepth: 1
-
-   release-process
+Releases are announced on the
+`ckan-announce mailing list <http://lists.okfn.org/mailman/listinfo/ckan-announce>`_,
+a low-volume list that CKAN instance maintainers can subscribe to in order to
+be up to date with upcoming releases.
 
 
 .. _upgrading:

@@ -15,7 +15,7 @@ data previews for different file formats.
 **External extensions** are CKAN extensions that don't come packaged with
 CKAN, but must be downloaded and installed separately. A good place to find
 external extensions is the
-`list of extensions on the CKAN wiki <https://github.com/okfn/ckan/wiki/List-of-extensions>`_.
+`list of extensions on the CKAN wiki <https://github.com/ckan/ckan/wiki/List-of-extensions>`_.
 Again, follow each extension's own documentation to install, setup and use the
 extension.
 
@@ -26,6 +26,7 @@ extensions.
    :maxdepth: 2
 
    tutorial
+   custom-config-settings
    testing-extensions
    best-practices
    plugin-interfaces

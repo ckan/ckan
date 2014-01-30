@@ -21,7 +21,7 @@
       {% set is_upload = (data.url_type == 'upload') %}
       {{ form.image_upload(data, errors, field_url='url', field_upload='upload', field_clear='clear_upload',
          is_upload_enabled=h.uploads_enabled(), is_url=data.url and not is_upload, is_upload=is_upload,
-         upload_label=_('File Upload'), url_label=_('URL')) }}
+         upload_label=_('File'), url_label=_('URL')) }}
     {% endblock %}
 
     {% block basic_fields_name %}
@@ -35,14 +35,8 @@
     {% block basic_fields_format %}
       {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/resource/format_autocomplete?incomplete=?'} %}
       {% call form.input('format', id='field-format', label=_('Format'), placeholder=_('eg. CSV, XML or JSON'), value=data.format, error=errors.format, classes=['control-medium'], attrs=format_attrs) %}
-        <span class="info-block info-block-small">
-          <i class="icon-info-sign"></i>
-          {{ _('This is generated automatically. You can edit if you wish') }}
-        </span>
       {% endcall %}
     {% endblock %}
-
-    {{ form.required_message() }}
 
 
   {% block metadata_fields %}
