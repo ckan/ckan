@@ -22,7 +22,7 @@ ckan.module('example_theme_popover', function ($, _) {
     _onClick: function(event) {
 
         // Make all the links on the page turn green.
-        this.sandbox.jQuery('a').greenify();
+        this.$('i').greenify();
 
         if (!this._snippetReceived) {
             this.sandbox.client.getTemplate('example_theme_popover.html',

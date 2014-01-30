@@ -39,12 +39,21 @@ module to use, including:
   (:js:data:`this.sandbox.client`) and :ref:`internationalization functions
   <javascript i18n>`.
 
-* The `jQuery library <http://jquery.com/>`_, available to JavaScript modules
-  via :js:data:`this.sandbox.jQuery`.
+* :js:data:`this.$`, a jQuery object that is bound to the HTML element that the
+  JavaScript module was applied to. For example, ``this.$('a')`` will return
+  all of the ``<a>`` elements inside the module's HTML element, *not* all of
+  the ``<a>`` elements on the entire page.
 
   jQuery provides many useful features in an easy-to-use API, including
   document traversal and manipulation, event handling, and animation. See
   `jQuery's own docs <http://jquery.com/>`_ for details.
+
+* :js:data:`this.sandbox.jQuery`, a jQuery object that is not bound to the
+  module's HTML element. ``this.sandbox.jQuery('a')`` will return all the
+  ``<a>`` elements on the entire page.
+
+  Using :js:data:`this.sandbox.jQuery` is discouraged, try to stick to
+  :js:data:`this.$` because it keeps |javascript| modules more independent.
 
 * A collection of :doc:`jQuery plugins <jquery-plugins>`.
 
@@ -424,7 +433,7 @@ jQuery plugins
 CKAN provides a number of custom jQuery plugins for JavaScript modules to use
 by default, see :doc:`jquery-plugins`.
 Extensions can also add their own jQuery plugins, and the plugins will then be
-available to all JavaScript code via the :js:data:`this.sandbox.jQuery` object.
+available to all JavaScript code via the :js:data:`this.$` object.
 
 .. seealso::
 
@@ -441,8 +450,8 @@ implement features including date formatting, warning users about unsaved
 changes when leaving a page containing a form without submitting the form,
 restricting the set of characters that can be typed into an input field, etc.
 
-Let's add a jQuery plugin to our CKAN extension that turns all the links on
-the page green.
+Let's add a jQuery plugin to our CKAN extension that makes our info buttons
+turn green when clicked.
 
 .. todo:: Replace this with a more realistic example.
 
@@ -507,7 +516,7 @@ other JavaScript or CSS file in CKAN. Edit the ``package_item.html`` file:
 Now we can call the ``greenify()`` method from our ``example_theme_popover``
 JavaScript module. For example, we could add a line to the ``_onClick()``
 method in ``example_theme_popover.js`` so that when a dataset info button is
-clicked, all of the links on the page turn green:
+clicked it turns green:
 
 .. literalinclude:: /../ckanext/example_theme/v21_custom_jquery_plugin/fanstatic/example_theme_popover.js
    :language: javascript
