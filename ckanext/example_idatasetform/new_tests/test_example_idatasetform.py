@@ -1,11 +1,9 @@
 import nose.tools as nt
+
 import ckan.model as model
 import ckan.plugins as plugins
 import ckan.new_tests.helpers as helpers
-
 import ckanext.example_idatasetform as idf
-#do not import plugins classes (e.g example_idatasetform.plugin_v4)
-#it causes the plugins to get registered and loaded before the tests are run
 
 
 class ExampleIDatasetFormPluginBase(object):

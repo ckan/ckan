@@ -1,37 +1,41 @@
-============================
-Adding custom fields to CKAN
-============================
+===================================================================
+Customizing dataset and resource metadata fields using IDatasetForm
+===================================================================
 
 Storing additional metadata for a dataset beyond the default metadata in CKAN
 is a common scenario. CKAN provides a simple way to do this by allowing you to
-abitrary key/value pairs against a dataset when creating or updating the
-dataset, these appear under the "Additional Information" section on the web
-interface and in 'extras' field of the JSON when accessed via in the API.
+store arbitrary key/value pairs against a dataset when creating or updating the
+dataset. These appear under the "Additional Information" section on the web
+interface and in 'extras' field of the JSON when accessed via the API.
 
-These default extras can only take strings for their keys and values, no
+Default extras can only take strings for their keys and values, no
 validation is applied to the inputs and you cannot make them mandatory or
-restrict the possible values you can take. By using CKAN's IDatasetForm plugin
-interface, a CKAN plugin can add custom, first-class metadata fields to CKAN
-datasets, and can do custom validation of these fields.  In this tutorial we
-are assuming that you have read the :doc:`/extensions/tutorial`
+restrict the possible values to a defined list. By using CKAN's IDatasetForm
+plugin interface, a CKAN plugin can add custom, first-class metadata fields to
+CKAN datasets, and can do custom validation of these fields.
+
+    .. seealso::
+        In this tutorial we are assuming that you have read the
+        :doc:`/extensions/tutorial`
 
 CKAN schemas and validation
 ---------------------------
-When calls are made to the action functions, either via the web interface or
-the CKAN API, the parameters passed to the action function usually have an
-associated schema. For each parameter provided, the schema will contain a list
-of functions that will take the value of the parameter and run it against each
-function. These functions can provide validation, that can raise an error if
-the value fails validation or it may be a converter that provides a lookup
-for the action function to use.
+When a dataset is created, updated or viewed, the parameters passed to CKAN
+(e.g. via the web form when creating or updating a dataset, or posted to an API
+end point) are validated against a schema. For each parameter, the schema will
+contain a corresponding list of functions that will be run against the value of
+the parameter. Generally these functions are used to validate the value
+(and raise an error if the value fails validation) or convert the value to a
+different value.
 
 For example, the schemas can allow optional values by using the
 :func:`~ckan.lib.navl.validators.ignore_missing` validator or check that a
 dataset exists using :func:`~ckan.logic.validators.package_id_exists`. A list
 of available validators and converters can be found at the :doc:`validators` 
-and :doc:`converters`.
+and :doc:`converters`. You can also define your own validators for custom
+validation.
 
-We will customizing these schemas to add our additional fields. The 
+We will be customizing these schemas to add our additional fields. The
 :py:class:`~ckan.plugins.interfaces.IDatasetForm` interface allows us to 
 override the schemas for creation, updating and displaying of datasets.
 
@@ -42,6 +46,12 @@ override the schemas for creation, updating and displaying of datasets.
    ~ckan.plugins.interfaces.IDatasetForm.show_package_schema
    ~ckan.plugins.interfaces.IDatasetForm.is_fallback
    ~ckan.plugins.interfaces.IDatasetForm.package_types
+
+CKAN allows you to have multiple IDatasetForm plugins, each handling different
+dataset types. So you could customize the CKAN web front end, for different
+types of datasets. In this tutorial we will be defining our plugin as the 
+fallback plugin. This plugin is used if no other IDatasetForm plugin is found
+that handles that dataset's type.
 
 The IDatasetForm also has other additional functions that allow you to
 provide a custom template to be rendered for the CKAN frontend, but we will
@@ -86,7 +96,7 @@ with the same update code.
 The :py:meth:`~ckan.plugins.interfaces.IDatasetForm.show_package_schema` is used
 when the :py:func:`~ckan.logic.action.get.package_show` action is called, we
 want the default_show_package_schema to be updated to include our custom field.
-This time, instead of converting to an an extras field. We want our field to be
+This time, instead of converting to an extras field, we want our field to be
 converted *from* an extras field. So we want to use the
 :py:meth:`~ckan.logic.converters.convert_from_extras` converter.
 
@@ -100,7 +110,7 @@ Package types
 
 The :py:meth:`~ckan.plugins.interfaces.IDatasetForm.package_types` function 
 defines a list of package types that this plugin handles. Each package has a 
-field containing it's type. Plugins can register to handle specific types of 
+field containing its type. Plugins can register to handle specific types of 
 packages and ignore others. Since our plugin is not for any specific type of 
 package and we want our plugin to be the default handler, we update the plugin
 code to contain the following:
@@ -158,7 +168,7 @@ our custom_text field on the dataset page. Add another file called
 .. literalinclude:: ../../ckanext/example_idatasetform/templates/package/snippets/additional_info.html
     :language: jinja
 
-This template overrides the the default extras rendering on the dataset page 
+This template overrides the default extras rendering on the dataset page 
 and replaces it to just display our custom field.
 
 You're done! Make sure you have your plugin installed and setup as in the 
@@ -181,15 +191,16 @@ with:
 
 Tag vocabularies
 ----------------
-If you need to add a custom field where the input options are restrcited to a
-provide list of options, you can use tag vocabularies `/tag-vocabularies`. We
-will need to create our vocabulary first. By calling vocabulary_create. Add a
-function to your plugin.py above your plugin class.
+If you need to add a custom field where the input options are restricted to a
+provided list of options, you can use tag vocabularies `/tag-vocabularies`. We
+will need to create our vocabulary first. By calling
+:func:`~ckan.logic.action.vocabulary_create`. Add a function to your plugin.py
+above your plugin class.
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v4.py
     :pyobject: create_country_codes
 
-This codeblock is taken from the ``example_idatsetform plugin``.
+This code block is taken from the ``example_idatsetform plugin``.
 ``create_country_codes`` tries to fetch the vocabulary country_codes using
 :func:`~ckan.logic.action.get.vocabulary_show`. If it is not found it will 
 create it and iterate over the list of countries 'uk', 'ie', 'de', 'fr', 'es'.
@@ -199,22 +210,22 @@ For each of these a vocabulary tag is created using
 
 Although we have only defined five tags here, additional tags can be created
 at any point by a sysadmin user by calling 
-:func:`~ckan.logic.action.tag_create`` using the API or action functions. Add a
-second function below ``create_country_codes``
+:func:`~ckan.logic.action.create.tag_create` using the API or action functions.
+Add a second function below ``create_country_codes``
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v4.py
     :pyobject: country_codes
 
 country_codes will call ``create_country_codes`` so that the ``country_codes``
-vocabulary is created if it does not exist. Then it calls tag_list to return
-all of our vocabulary tags together. Now we have a way of retrieving our tag
-vocabularies and creating them if they do not exist. We just need our plugin
-to call this code.  
+vocabulary is created if it does not exist. Then it calls 
+:func:`~ckan.logic.action.get.tag_list` to return all of our vocabulary tags 
+together. Now we have a way of retrieving our tag vocabularies and creating 
+them if they do not exist. We just need our plugin to call this code.  
 
 Adding tags to the schema
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-Update ``_modify_package_schema`` and 
-:py:meth:`~ckan.plugins.interfaces.IDatasetForm.show_package_schema`
+Update :py:meth:`~ckan.plugins.interfaces.IDatasetForm._modify_package_schema`
+and :py:meth:`~ckan.plugins.interfaces.IDatasetForm.show_package_schema`
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v4.py
     :start-after: return {'country_codes': country_codes}
@@ -275,7 +286,7 @@ similarly
     :emphasize-lines: 20-23
         
 Save and reload your development server CKAN will take any additional keys from 
-the resource schema and save them the it's extras field.  The templates will 
+the resource schema and save them the its extras field.  The templates will 
 automatically check this field and display them in the resource_read page.
 
 You can find the complete source for this tutorial in the
