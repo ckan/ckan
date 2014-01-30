@@ -1,4 +1,4 @@
-ckan.module('example_theme_popover', function (jQuery, _) {
+ckan.module('example_theme_popover', function ($, _) {
   return {
     initialize: function () {
 
@@ -11,7 +11,7 @@ ckan.module('example_theme_popover', function (jQuery, _) {
       //
       // This is a shortcut function provided by CKAN, it wraps jQuery's
       // proxy() function: http://api.jquery.com/jQuery.proxy/
-      jQuery.proxyAll(this, /_on/);
+      $.proxyAll(this, /_on/);
 
       // Add a Bootstrap popover to the button. Since we don't have the HTML
       // from the snippet yet, we just set the content to "Loading..."

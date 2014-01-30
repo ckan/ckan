@@ -1,7 +1,7 @@
-ckan.module('example_theme_popover', function (jQuery, _) {
+ckan.module('example_theme_popover', function ($, _) {
   return {
     initialize: function () {
-      jQuery.proxyAll(this, /_on/);
+      $.proxyAll(this, /_on/);
       this.el.popover({title: this.options.title, html: true,
                        content: 'Loading...', placement: 'left'});
       this.el.on('click', this._onClick);

@@ -80,11 +80,6 @@ To get CKAN to call some custom JavaScript code, we need to:
    Create the file ``ckanext-example_theme/fanstatic/example_theme_popover.js``, with these
    contents:
 
-   .. todo::
-
-      What is the standard way to name the two arguments to the ``module()``
-      function? I've seen ``jQuery`` and ``$`` and ``i18n`` and ``_``.
-
    .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
       :language: javascript
 
