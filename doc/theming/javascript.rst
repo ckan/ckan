@@ -42,12 +42,9 @@ These JavaScript modules are attached to HTML elements in the page, and enhance
 the functionality of those elements. The idea is that an HTML element with a
 JavaScript module attached should still be fully functional even if JavaScript
 is completely disabled (e.g. because the user's web browser doesn't support
-JavaScript). The user experience may not be quite as nice, but the
-functionality should still be there.
-
-.. todo:: Example of graceful degradation.
-
-
+JavaScript). The user experience may not be quite as nice without |JavaScript|,
+but the functionality should still be there. This is a programming technique
+known as *graceful degradation*, and is a basic tenet of web accessibility.
 
 In the sections below, we'll walk you through the steps to add a new JavaScript
 feature to CKAN - dataset info popovers. We'll add an info button to each
@@ -102,7 +99,12 @@ To get CKAN to call some custom JavaScript code, we need to:
    .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/templates/snippets/package_item.html
       :language: django
 
-   .. todo:: Link to something about HTML data-* attributes.
+
+   .. seealso::
+
+      `Using data-* attributes <https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_data_attributes>`_
+      on the Mozilla Developer Network.
+
 
    If you now restart the development server and open
    http://127.0.0.1:5000/dataset in your web browser, you should see an
@@ -110,7 +112,15 @@ To get CKAN to call some custom JavaScript code, we need to:
    |javascript| console in your browser, you should see the message that your
    module has printed out.
 
-   .. todo:: Link to something about JavaScript consoles.
+   .. seealso::
+
+      Most web browsers come with built-in developer tools including a
+      |javascript| console that lets you see text printed by |javascript| code
+      to ``console.log()``, a |javascript| debugger, and more. For example:
+
+      * `Firefox Developer Tools <https://developer.mozilla.org/en-US/docs/Tools>`_
+      * `Firebug <https://www.getfirebug.com/>`_
+      * `Chrome DevTools <https://developers.google.com/chrome-developer-tools/>`_
 
    If you have more than one dataset on your page, you'll see the module's
    message printed once for each dataset. The ``package_item.html`` template
@@ -443,10 +453,6 @@ turn green when clicked.
 First we need to write the jQuery plugin itself. Create the file
 ``ckanext-example_theme/ckanext/example_theme/fanstatic/jquery.greenify.js``
 with the following contents:
-
-.. todo:: Do we really need to name the file like this, or can it just be
-   ``greenify.js``? All the core jQuery plugins are in files named like
-   ``jquery.*.js``.
 
 .. literalinclude:: /../ckanext/example_theme/v21_custom_jquery_plugin/fanstatic/jquery.greenify.js
    :language: javascript
