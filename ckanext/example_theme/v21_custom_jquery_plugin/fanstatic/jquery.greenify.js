@@ -1,3 +1,5 @@
+"use strict";
+
 (function (jQuery) {
 
     jQuery.fn.greenify = function() {

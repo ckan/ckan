@@ -1,3 +1,5 @@
+"use strict";
+
 /* example_theme_popover
  *
  * This JavaScript module adds a Bootstrap popover with some extra info about a

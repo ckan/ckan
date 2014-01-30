@@ -1,3 +1,5 @@
+"use strict";
+
 ckan.module('example_theme_popover', function ($, _) {
   return {
     initialize: function () {
