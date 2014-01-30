@@ -49,9 +49,10 @@ known as *graceful degradation*, and is a basic tenet of web accessibility.
 In the sections below, we'll walk you through the steps to add a new JavaScript
 feature to CKAN - dataset info popovers. We'll add an info button to each
 dataset on the datasets page which, when clicked, opens a popover containing
-some extra information and user actions related to the dataset.
+some extra information and user actions related to the dataset:
 
-.. todo:: Insert a screenshot of the finished example.
+.. image:: /images/example_theme_javascript_popover.png
+   :alt: A dataset info popover
 
 
 --------------------------------
@@ -147,8 +148,6 @@ Now let's start to make our |javascript| module do something useful: show a
 `Bootstrap popover <http://getbootstrap.com/2.3.2/javascript.html#popovers>`_
 with some extra info about the dataset when the user clicks on the info button.
 
-.. todo:: Insert screenshot.
-
 First, we need our Jinja template to pass some of the dataset's fields to our
 |javascript| module as *options*. Change ``package_item.html`` to look like
 this:
@@ -233,8 +232,6 @@ HTML we really need to render a template for it, using the full power of
 :doc:`Jinja2 templates <templates>` and CKAN's
 :ref:`template helper functions <template helper functions>`. Let's edit our
 plugin to use a Jinja2 template to render the contents of the popups nicely.
-
-.. todo:: Insert a screenshot of the final result.
 
 First, edit ``package_item.html`` to make it pass a few more parameters to the
 JavaScript module using ``data-module-*`` attributes:
@@ -369,9 +366,10 @@ You may have noticed that, with our example code so far, if you click on the
 info button of one dataset on the page then click on the info button of another
 dataset, both dataset's popovers are shown. The first popover doesn't disappear
 when the second appears, and the popovers may overlap. If you click on all the
-info buttons on the page, popovers for all of them will be shown at once.
+info buttons on the page, popovers for all of them will be shown at once:
 
-.. todo:: Insert a screenshot of the problem.
+.. image:: /images/example_theme_overlapping_popovers.png
+   :alt: Dataset info popovers overlapping with eachother
 
 To make one popover disappear when another appears, we can use CKAN's
 :js:func:`~this.sandbox.client.publish` and
