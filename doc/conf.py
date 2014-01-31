@@ -236,6 +236,11 @@ pygments_style = 'sphinx'
 
 # Options for HTML output
 # -----------------------
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if not on_rtd:
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 #html_theme = 'default'
 #html_theme_options = {
@@ -245,13 +250,6 @@ pygments_style = 'sphinx'
 #'sidebarlinkcolor': '#355F7C',
 #'headfont': 'Trebuchet MS'
 #}
-sys.path.append(os.path.abspath('_themes'))
-html_theme_path = ['_themes']
-html_theme = 'sphinx-theme-okfn'
-html_theme_options = {
-        'logo_icon': 'ckanlogo.png',
-        'show_version': True
-    }
 
 html_sidebars = {
     '**':  ['globaltoc.html'],
