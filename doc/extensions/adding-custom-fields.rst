@@ -290,8 +290,8 @@ the resource schema and save them the its extras field.  The templates will
 automatically check this field and display them in the resource_read page.
 
 
-Sorting datasets by custom fields
----------------------------------
+Sorting by custom fields on the dataset search page
+---------------------------------------------------
 
 Now that we've added our custom field, we can customize the CKAN web front end
 search page to sort datasets by our custom field. Add a new file called
@@ -301,12 +301,12 @@ search page to sort datasets by our custom field. Add a new file called
     :language: jinja
     :emphasize-lines: 16-17
 
-This overrides search ordering drop down box code block, the code is the same
-as the default package search block but we are adding two additional lines that
-define the display name of that search ordering (e.g. Custom Field Ascending)
-and the SOLR sort ordering (e.g. custom_text asc). If you reload your development
-server you should be able to see these two additional sorting options on the
-dataset search page.
+This overrides the search ordering drop down code block, the code is the 
+same as the default package search block but we are adding two additional lines 
+that define the display name of that search ordering (e.g. Custom Field
+Ascending) and the SOLR sort ordering (e.g. custom_text asc). If you reload your
+development server you should be able to see these two additional sorting options
+on the dataset search page.
 
 The SOLR sort ordering can define arbitrary functions for custom sorting, but
 this is beyond the scope of this tutorial for further details see
