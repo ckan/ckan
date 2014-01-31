@@ -243,13 +243,9 @@ if not on_rtd:
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 #html_theme = 'default'
-#html_theme_options = {
-#"relbarbgcolor": "#777",
-#'sidebarbgcolor': '#F2F2F2',
-#'sidebartextcolor': 'black',
-#'sidebarlinkcolor': '#355F7C',
-#'headfont': 'Trebuchet MS'
-#}
+html_context = {
+"display_github": False,
+}
 
 html_sidebars = {
     '**':  ['globaltoc.html'],
