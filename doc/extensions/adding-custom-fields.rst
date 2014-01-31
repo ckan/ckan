@@ -3,7 +3,7 @@ Customizing dataset and resource metadata fields using IDatasetForm
 ===================================================================
 
 Storing additional metadata for a dataset beyond the default metadata in CKAN
-is a common scenario. CKAN provides a simple way to do this by allowing you to
+is a common use case. CKAN provides a simple way to do this by allowing you to
 store arbitrary key/value pairs against a dataset when creating or updating the
 dataset. These appear under the "Additional Information" section on the web
 interface and in 'extras' field of the JSON when accessed via the API.
@@ -51,7 +51,7 @@ CKAN allows you to have multiple IDatasetForm plugins, each handling different
 dataset types. So you could customize the CKAN web front end, for different
 types of datasets. In this tutorial we will be defining our plugin as the 
 fallback plugin. This plugin is used if no other IDatasetForm plugin is found
-that handles that dataset's type.
+that handles that dataset type.
 
 The IDatasetForm also has other additional functions that allow you to
 provide a custom template to be rendered for the CKAN frontend, but we will
@@ -105,14 +105,14 @@ converted *from* an extras field. So we want to use the
     :pyobject: ExampleIDatasetFormPlugin.show_package_schema
 
 
-Package types
+Dataset types
 ^^^^^^^^^^^^^
 
 The :py:meth:`~ckan.plugins.interfaces.IDatasetForm.package_types` function 
-defines a list of package types that this plugin handles. Each package has a 
+defines a list of dataset types that this plugin handles. Each dataset has a 
 field containing its type. Plugins can register to handle specific types of 
-packages and ignore others. Since our plugin is not for any specific type of 
-package and we want our plugin to be the default handler, we update the plugin
+dataset and ignore others. Since our plugin is not for any specific type of 
+dataset and we want our plugin to be the default handler, we update the plugin
 code to contain the following:
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v1.py
@@ -269,9 +269,9 @@ Adding custom fields to resources
 ---------------------------------
 
 In order to customize the fields in a resource the schema for resources needs
-to be modified in a similar way to the packages. The resource schema
-is nested in the package dict as package['resources']. We modify this dict in
-a similar way to the package schema. Change ``_modify_package_schema`` to the 
+to be modified in a similar way to the datasets. The resource schema
+is nested in the dataset dict as package['resources']. We modify this dict in
+a similar way to the dataset schema. Change ``_modify_package_schema`` to the 
 following.
 
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin.py
@@ -289,20 +289,18 @@ Save and reload your development server CKAN will take any additional keys from
 the resource schema and save them the its extras field.  The templates will 
 automatically check this field and display them in the resource_read page.
 
-
 Sorting by custom fields on the dataset search page
 ---------------------------------------------------
-
 Now that we've added our custom field, we can customize the CKAN web front end
 search page to sort datasets by our custom field. Add a new file called
-``ckan/example_idatasetform/templates/package/search.html`` containing:
+``ckanext-extrafields/ckanext/extrafields/templates/package/search.html`` containing:
 
 .. literalinclude:: ../../ckanext/example_idatasetform/templates/package/search.html
     :language: jinja
     :emphasize-lines: 16-17
 
 This overrides the search ordering drop down code block, the code is the 
-same as the default package search block but we are adding two additional lines 
+same as the default dataset search block but we are adding two additional lines 
 that define the display name of that search ordering (e.g. Custom Field
 Ascending) and the SOLR sort ordering (e.g. custom_text asc). If you reload your
 development server you should be able to see these two additional sorting options
