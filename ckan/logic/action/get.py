@@ -47,24 +47,37 @@ _case = sqlalchemy.case
 _text = sqlalchemy.text
 
 
-def _activity_filter_user(activity_list):
+def _filter_activity_by_user(activity_list, users=[]):
     '''
-    Helper function to filter certain users from showing up in the activity
-    stream.
+    Return the given ``activity_list`` with activities from the specified
+    users removed. The users parameters should be a list of ids.
+
+    A *new* filtered list is returned, the given ``activity_list`` itself is
+    not modified.
     '''
-    users = config.get('ckan.hide_activity_from_users')
-    context = {'model': model, 'ignore_auth': True}
-    if users:
-        users = users.split()
-    else:
-        site_user = logic.get_action('get_site_user')(context)
-        users = [site_user.get('name')]
-    user_ids = model.User.user_ids_for_name_or_id(users)
+    if not len(users):
+        return activity_list
     new_list = []
     for activity in activity_list:
         if activity.user_id not in user_ids:
             new_list.append(activity)
     return new_list
+
+
+def _activity_stream_get_filtered_users():
+    '''
+    Get the list of users from the :ref:`ckan.hide_activity_from_users` config
+    option and return a list of their ids. If the config is not specified,
+    returns the id of the site user.
+    '''
+    users = config.get('ckan.hide_activity_from_users')
+    if users:
+        user_list = users.split()
+    else:
+        context = {'model': model, 'ignore_auth': True}
+        site_user = logic.get_action('get_site_user')(context)
+        users = [site_user.get('name')]
+    return model.User.user_ids_for_name_or_id(users)
 
 
 def _package_list_with_resources(context, package_revision_list):
@@ -2129,7 +2142,8 @@ def user_activity_list(context, data_dict):
 
     _activity_objects = model.activity.user_activity_list(user.id, limit=limit,
             offset=offset)
-    activity_objects = _activity_filter_user(_activity_objects)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 @logic.validate(logic.schema.default_activity_list_schema)
@@ -2168,7 +2182,8 @@ def package_activity_list(context, data_dict):
 
     _activity_objects = model.activity.package_activity_list(package.id,
             limit=limit, offset=offset)
-    activity_objects = _activity_filter_user(_activity_objects)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 @logic.validate(logic.schema.default_activity_list_schema)
@@ -2206,7 +2221,8 @@ def group_activity_list(context, data_dict):
 
     _activity_objects = model.activity.group_activity_list(group_id,
             limit=limit, offset=offset)
-    activity_objects = _activity_filter_user(_activity_objects)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 @logic.validate(logic.schema.default_activity_list_schema)
@@ -2235,7 +2251,8 @@ def organization_activity_list(context, data_dict):
 
     _activity_objects = model.activity.group_activity_list(org_id,
             limit=limit, offset=offset)
-    activity_objects = _activity_filter_user(_activity_objects)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 @logic.validate(logic.schema.default_pagination_schema)
@@ -2263,7 +2280,8 @@ def recently_changed_packages_activity_list(context, data_dict):
     _activity_objects = model.activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
 
-    activity_objects = _activity_filter_user(_activity_objects)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 def activity_detail_list(context, data_dict):
@@ -2869,7 +2887,8 @@ def dashboard_activity_list(context, data_dict):
     _activity_objects = model.activity.dashboard_activity_list(user_id,
             limit=limit, offset=offset)
 
-    activity_objects = _activity_filter_user(_activity_objects)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
     activity_dicts = model_dictize.activity_list_dictize(
             activity_objects, context)
 
