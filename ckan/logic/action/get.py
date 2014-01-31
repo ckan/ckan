@@ -59,7 +59,7 @@ def _filter_activity_by_user(activity_list, users=[]):
         return activity_list
     new_list = []
     for activity in activity_list:
-        if activity.user_id not in user_ids:
+        if activity.user_id not in users:
             new_list.append(activity)
     return new_list
 
