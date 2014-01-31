@@ -220,17 +220,12 @@ class Organization(factory.Factory):
 class Related(factory.Factory):
     '''A factory class for creating related items.'''
 
-    # This is the class that UserFactory will create and return instances
-    # of.
     FACTORY_FOR = ckan.model.Related
 
-    # These are the default params that will be used to create new related
-    # items.
     type = 'idea'
     description = 'Look, a description!'
     url = 'http://example.com'
 
-    # Generate a different user name param for each user that gets created.
     title = factory.Sequence(lambda n: 'test title {n}'.format(n=n))
 
     @classmethod
@@ -242,11 +237,11 @@ class Related(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        #TODO: we will need to be able to define this when creating the
-        #      instance perhaps passing a 'user' param?
-        context = {
-            'user': helpers.call_action('get_site_user')['name']
-        }
+        assert 'user' in kwargs, ('The Related factory requires an extra '
+                                  'user=user_dict keyword argument (the user '
+                                  'who will create the group)')
+        user_dict = kwargs.pop('user')
+        context = {'user': user_dict['name']}
         related_dict = helpers.call_action('related_create', context=context,
                                            **kwargs)
         return related_dict
