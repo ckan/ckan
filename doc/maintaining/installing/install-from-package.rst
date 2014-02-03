@@ -1,4 +1,4 @@
-.. include:: _latest_release.rst
+.. include:: /_latest_release.rst
 
 ============================
 Installing CKAN from package
@@ -8,6 +8,11 @@ This section describes how to install CKAN from package. This is the quickest
 and easiest way to install CKAN, but it requires **Ubuntu 12.04 64-bit**. If
 you're not using Ubuntu 12.04 64-bit, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
+
+At the end of the installation process you will end up with two running web
+applications, CKAN itself and the DataPusher, a separate service for automatically
+importing data to CKAN's :doc:`/maintaining/datastore`.
+
 
 .. _run-package-installer:
 
@@ -86,14 +91,23 @@ CKAN:
 
     sudo ckan db init
 
-#. Optionally, setup the DataStore by following the instructions in
-   :doc:`/datastore`.
+#. Optionally, setup the DataStore and DataPusher by following the
+   instructions in :doc:`/maintaining/datastore`.
 
 #. Also optionally, you can enable file uploads by following the
-   instructions in :doc:`filestore`.
+   instructions in :doc:`/maintaining/filestore`.
+
+---------------------------
+3. Restart Apache and Nginx
+---------------------------
+
+Restart Apache and Nginx by running this command in a terminal::
+
+    sudo service apache2 restart
+    sudo service nginx restart
 
 ---------------
-3. You're done!
+4. You're done!
 ---------------
 
 Open http://localhost in your web browser. You should see the CKAN front
@@ -104,5 +118,5 @@ page, which will look something like this:
 
 |
 
-You can now move on to :doc:`/getting-started` to begin using and customizing
+You can now move on to :doc:`/maintaining/getting-started` to begin using and customizing
 your CKAN site.

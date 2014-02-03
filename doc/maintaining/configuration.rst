@@ -518,7 +518,7 @@ Specify which CKAN plugins are to be enabled.
 
 .. warning::  If you specify a plugin but have not installed the code,  CKAN will not start.
 
-Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`extensions/index`.
+Format as a space-separated list of the plugin names. The plugin name is the key in the ``[ckan.plugins]`` section of the extension's ``setup.py``. For more information on plugins and extensions, see :doc:`/extensions/index`.
 
 .. note::
 
@@ -671,7 +671,7 @@ Format tips:
 * the format is Markdown
 
 .. note:: Whilst the default text is translated into many languages (switchable in the page footer), the text in this configuration option will not be translatable.
-          For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`theming/index`.
+          For this reason, it's better to overload the snippet in ``home/snippets/about_text.html``. For more information, see :doc:`/theming/index`.
 
 .. _ckan.main_css:
 
@@ -967,7 +967,7 @@ Example::
 
 To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
-For more information on theming, see :doc:`theming/index`.
+For more information on theming, see :doc:`/theming/index`.
 
 .. _extra_public_paths:
 
@@ -980,7 +980,7 @@ Example::
 
 To customise the display of CKAN you can supply replacements for static files such as HTML, CSS, script and PNG files. Use this option to specify where CKAN should look for additional files, before reverting to the ``ckan/public`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
-For more information on theming, see :doc:`theming/index`.
+For more information on theming, see :doc:`/theming/index`.
 
 .. end_config-theming
 
@@ -1066,9 +1066,15 @@ ckan.datapusher.formats
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
-  ckan.datapusher.formats = csv xls xlsx
 
-.. todo:: Expand
+  ckan.datapusher.formats = csv xls
+
+Default value: ``csv xls application/csv application/vnd.ms-excel``
+
+File formats that will be pushed to the DataStore by the DataPusher. When
+adding or editing a resource which links to a file in one of these formats,
+the DataPusher will automatically try to import its contents to the DataStore.
+
 
 .. _ckan.datapusher.url:
 
@@ -1076,9 +1082,13 @@ ckan.datapusher.url
 ^^^^^^^^^^^^^^^^^^^
 
 Example::
-  ckan.datapusher.url = http://datapusher.ckan.org/
 
-.. todo:: Expand
+  ckan.datapusher.url = http://127.0.0.1:8800/
+
+DataPusher endpoint to use when enabling the ``datapusher`` extension. If you
+installed CKAN via :doc:`/maintaining/installing/install-from-package`, the DataPusher was installed for you
+running on port 8800. If you want to manually install the DataPusher, follow
+the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
 
 
 Activity Streams Settings
@@ -1214,7 +1224,7 @@ Example::
 
 Default value:  ``en`` (English)
 
-Use this to specify the locale (language of the text) displayed in the CKAN Web UI. This requires a suitable `mo` file installed for the locale in the ckan/i18n. For more information on internationalization, see :doc:`contributing/i18n`. If you don't specify a default locale, then it will default to the first locale offered, which is by default English (alter that with `ckan.locales_offered` and `ckan.locales_filtered_out`.
+Use this to specify the locale (language of the text) displayed in the CKAN Web UI. This requires a suitable `mo` file installed for the locale in the ckan/i18n. For more information on internationalization, see :doc:`/contributing/i18n`. If you don't specify a default locale, then it will default to the first locale offered, which is by default English (alter that with `ckan.locales_offered` and `ckan.locales_filtered_out`.
 
 .. note: In versions of CKAN before 1.5, the settings used for this was variously `lang` or `ckan.locale`, which have now been deprecated in favour of `ckan.locale_default`.
 

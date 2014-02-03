@@ -38,6 +38,7 @@ import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
+import ckan.new_authz as new_authz
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -604,7 +605,7 @@ def get_facet_title(name):
                     'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license': _('License'), }
+                    'license': _('Licenses'), }
     return facet_titles.get(name, name.capitalize())
 
 
@@ -1753,6 +1754,8 @@ def get_site_statistics():
 
     return stats
 
+def check_config_permission(permission):
+    return new_authz.check_config_permission(permission)
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -1855,4 +1858,5 @@ __allowed_functions__ = [
     'get_featured_organizations',
     'get_featured_groups',
     'get_site_statistics',
+    'check_config_permission',
 ]

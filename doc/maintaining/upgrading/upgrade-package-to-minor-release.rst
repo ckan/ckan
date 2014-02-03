@@ -46,16 +46,16 @@ respectively.
    .. note::
 
      The install process will uninstall any existing CKAN extensions or other
-     libraries located in the ``src`` directory of the CKAN virtualenv. To 
+     libraries located in the ``src`` directory of the CKAN virtualenv. To
      enable them again, the installation process will iterate over all folders in
      the ``src`` directory, reinstall the requirements listed in
-     ``pip-requirements.txt`` and ``requirements.txt`` files and run 
+     ``pip-requirements.txt`` and ``requirements.txt`` files and run
      ``python setup.py develop`` for each. If you are using a custom extension
      which does not use this requirements file name or is located elsewhere,
      you will need to manually reinstall it.
 
 #. If there have been changes in the database schema (check the
-   :doc:`changelog` to find out) you need to update your CKAN database's
+   :doc:`/changelog` to find out) you need to update your CKAN database's
    schema using the ``db upgrade`` command.
 
    .. warning ::
@@ -73,7 +73,7 @@ respectively.
    See :ref:`paster db` for details of the ``db upgrade``
    command.
 
-#. If there have been changes in the Solr schema (check the :doc:`changelog`
+#. If there have been changes in the Solr schema (check the :doc:`/changelog`
    to find out) you need to restart Jetty for the changes to take effect:
 
    .. parsed-literal::
@@ -96,8 +96,9 @@ respectively.
    See :ref:`rebuild search index` for details of the
    ``ckan search-index rebuild`` command.
 
-#. Finally, restart Apache:
+#. Finally, restart Apache and Nginx:
 
    .. parsed-literal::
 
     |restart_apache|
+    sudo service nginx restart

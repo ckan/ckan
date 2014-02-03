@@ -175,7 +175,7 @@ v2.0 2013-05-10
  to GitHub issues. For example:
 
  * #3020 is http://trac.ckan.org/ticket/3020
- * #271 is https://github.com/okfn/ckan/issues/271
+ * #271 is https://github.com/ckan/ckan/issues/271
 
  Some GitHub issues URLs will redirect to GitHub pull request pages.
 
@@ -188,7 +188,7 @@ Note: This version requires a database upgrade
 
 Note: This version requires a Solr schema upgrade
 
-Organizations based authorization (see :doc:`authorization`):
+Organizations based authorization (see :doc:`/maintaining/authorization`):
  CKAN's new "organizations" feature replaces the old authorization system
  with a new one based on publisher organizations. It replaces the "Publisher
  Profile and Workflow" feature from CKAN 1.X, any instances relying on it will
@@ -200,7 +200,7 @@ Organizations based authorization (see :doc:`authorization`):
  * New authorization ini file options
 
 
-New frontend (see :doc:`theming/index`):
+New frontend (see :doc:`/theming/index`):
  CKAN's frontend has been completely redesigned, inside and out. There is
  a new default theme and the template engine has moved from Genshi to
  Jinja2. Any custom templates using Genshi will need to be updated, although
@@ -278,7 +278,7 @@ API:
 
 Other highlights:
  * CKAN now has continuous integration testing at
-   https://travis-ci.org/okfn/ckan/
+   https://travis-ci.org/ckan/ckan/
  * Dataset pages now have <link rel="alternate" type="application/rdf+xml"
    links in the HTML headers, allows linked-data tools to find CKAN's RDF
    rendering of a dataset's metadata (#413)

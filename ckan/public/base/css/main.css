@@ -6232,6 +6232,7 @@ textarea {
 .resource-item .description {
   font-size: 12px;
   margin-bottom: 0;
+  min-height: 12px;
 }
 .resource-item .btn-group {
   position: absolute;

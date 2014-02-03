@@ -7,7 +7,7 @@ Writing documentation
 .. seealso::
 
    The quickest and easiest way to contribute documentation to CKAN is to sign up
-   for a free GitHub account and simply edit the `CKAN Wiki <https://github.com/okfn/ckan/wiki>`_.
+   for a free GitHub account and simply edit the `CKAN Wiki <https://github.com/ckan/ckan/wiki>`_.
    Docs started on the wiki can make it onto `docs.ckan.org`_ later.
    If you do want to contribute to `docs.ckan.org`_ directly, follow the
    instructions on this page.
@@ -55,7 +55,7 @@ which in turn uses `Docutils <http://docutils.sourceforge.net/>`_
 * `Sphinx Markup Constructs <http://sphinx-doc.org/markup/index.html>`_
   is a full list of the markup that Sphinx adds on top of Docutils.
 
-The source files for the docs are in `the doc directory of the CKAN git repo <https://github.com/okfn/ckan/tree/master/doc>`_. 
+The source files for the docs are in `the doc directory of the CKAN git repo <https://github.com/ckan/ckan/tree/master/doc>`_.
 The following sections will walk you through the process of making changes to
 these source files, and submitting your work to the CKAN project.
 
@@ -76,7 +76,7 @@ terminal:
 
     virtualenv --no-site-packages pyenv
     . pyenv/bin/activate
-    pip install -e 'git+https://github.com/okfn/ckan.git#egg=ckan'
+    pip install -e 'git+https://github.com/ckan/ckan.git#egg=ckan'
     pip install -r pyenv/src/ckan/dev-requirements.txt
 
 
@@ -122,17 +122,48 @@ Once your docs are ready to submit to the CKAN project, follow the steps in
 
 .. _structure:
 
--------------------------
-2. Structure and audience
--------------------------
+-----------------------------
+2. How the docs are organized
+-----------------------------
 
-:doc:`/index` describes the overall structure of the docs, and the intended
-audience for each part. This structure is intended to be clear, simple and
-extendable.  If you're adding a new section to the docs, try to fit it into
-this structure.
+It's important that the docs have a clear, simple and extendable structure
+(and that we keep it that way as we add to them), so that both readers
+and writers can easily answer the questions:
+If you need to find the docs for a particular feature, where do you look?
+If you need to add a new page to the docs, where should it go?
+
+As :doc:`/index` explains, the documentation is organized into several guides,
+each for a different audience: a user guide for web interface users, an
+extending guide for extension developers, a contributing guide for core
+contributors, etc. These guides are ordered with the simplest guides first,
+and the most advanced last.
+
+In the source, each one of these guides is a subdirectory with its own
+``index.rst`` containing its own ``.. toctree::`` directive that lists all of
+the other files in that subdirectory. The root toctree just lists each of these
+``*/index.rst`` files.
+
+When adding a new page to the docs, the first question to ask yourself is: who
+is this page for? That should tell you which subdirectory to put your page in.
+You then need to add your page to that subdirectory's ``index.rst`` file.
+
+Within each guide, the docs are broken up by topic. For example, the extending
+guide has a page for the writing extensions tutorial, a page about testing
+extensions, a page for the plugins toolkit reference, etc. Again, the topics
+are ordered with the simplest first and the most advanced last, and reference
+pages generally at the very end.
+
+:doc:`The changelog </changelog>` is one page that doesn't fit into any of
+the guides, because it's relevant to all of the different audiences and not
+only to one particular guide. So the changelog is simply a top-level page
+on its own. Hopefully we won't need to add many more of these top-level
+pages. If you're thinking about adding a page that serves two or more audiences
+at once, ask yourself whether you can break that up into separate pages and
+put each into one of the guides, then link them together using `seealso`_
+boxes.
 
 Within a particular page, for example a new page documenting a new feature, our
-suggestion for what sections the page should have is:
+suggestion for what sections the page might have is:
 
 #. **Overview**: a conceptual overview of or introduction to the feature.
    Explain what the feature provides, why someone might want to use it,
@@ -154,16 +185,15 @@ suggestion for what sections the page should have is:
 Subdirectories
 ==============
 
-Many sections of the docs are organized into subdirectories. For example,
-there's a ``doc/extensions`` subdirectory with
-:doc:`its own index file </extensions/index>` and table of contents, grouping
-all the docs about extensions together into one topic. The
-:doc:`contributing docs </contributing/index>`, theming docs, and other
-sections of the docs are the same.
+Some of the guides have subdirectories within them. For example
+:doc:`/maintaining/index` contains a subdirectory
+:doc:`/maintaining/installing/index`
+that collects together the various pages about installing CKAN with its own
+``doc/maintaining/installing/index.rst`` file.
 
-While using subdirectories is useful, we recommend that you
-**don't put further subdirectories inside the subdirectories**, keep it to
-one level of subdirectories inside the ``doc`` directory, keep it simple,
+While subdirectories are useful, we recommend that you **don't put further
+subdirectories inside the subdirectories**, try to keep it to at most two
+levels of subdirectories inside the ``doc`` directory. Keep it simple,
 otherwise the structure becomes confusing, difficult to get an overview of and
 difficult to navigate.
 
@@ -190,7 +220,7 @@ page follows another, like in a book.
 3. Style
 --------
 
-.. 
+..
     http://jacobian.org/writing/great-documentation/technical-style/
 
 This section covers things like what tone to use, how to capitalize section
@@ -441,13 +471,13 @@ Cross-referencing to CKAN config settings
 -----------------------------------------
 
 Whenever you mention a CKAN config setting, make it link to the docs for that
-setting in :doc:`/configuration` by using ``:ref:`` and the name of the config
+setting in :doc:`/maintaining/configuration` by using ``:ref:`` and the name of the config
 setting::
 
   :ref:`ckan.site_title`
 
 This works because all CKAN config settings are documented in
-:doc:`/configuration`, and every setting has a Sphinx label that is exactly
+:doc:`/maintaining/configuration`, and every setting has a Sphinx label that is exactly
 the same as the name of the setting, for example::
 
     .. _ckan.site_title:
@@ -464,7 +494,7 @@ the same as the name of the setting, for example::
     This sets the name of the site, as displayed in the CKAN web interface.
 
 If you add a new config setting to CKAN, make sure to document like this it in
-:doc:`/configuration`.
+:doc:`/maintaining/configuration`.
 
 
 Cross-referencing to a Python object
@@ -649,8 +679,8 @@ seealso
 =======
 
 Often one page of the docs is related to other pages of the docs or to external
-pages. A `seealso <http://sphinx-doc.org/markup/para.html?highlight=seealso#directive-seealso>`_
-block is a nice way to include a list of related links::
+pages. A `seealso block <http://sphinx-doc.org/markup/para.html?highlight=seealso#directive-seealso>`_
+is a nice way to include a list of related links::
 
     .. seealso::
 
