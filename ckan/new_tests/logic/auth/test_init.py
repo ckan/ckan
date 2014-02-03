@@ -43,10 +43,7 @@ class TestGetObjectErrors(object):
                                  {'model': core_model}, {})
 
     def test_get_package_object_in_context(self):
-
-        assert '1' == '2'
         self._get_object_in_context('package')
-
 
     def test_get_resource_object_in_context(self):
         self._get_object_in_context('resource')
