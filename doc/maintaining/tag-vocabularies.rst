@@ -58,13 +58,13 @@ Using Vocabularies
 To add a tag vocabulary to a site, a CKAN sysadmin must:
 
 1. Call the ``vocabulary_create()`` action of the CKAN API to create the
-   vocabulary and tags. See :doc:`api`.
+   vocabulary and tags. See :doc:`/api/index`.
 
 2. Implement an ``IDatasetForm`` plugin to add a new field for the tag
-   vocabulary to the dataset schema. See :doc:`extensions/index`.
+   vocabulary to the dataset schema. See :doc:`/extensions/index`.
 
 3. Provide custom dataset templates to display the new field to users when
    adding, updating or viewing datasets in the CKAN web interface.
-   See :doc:`theming/index`.
+   See :doc:`/theming/index`.
 
 See ``ckanext/example_idatasetform`` for a working example of these steps.

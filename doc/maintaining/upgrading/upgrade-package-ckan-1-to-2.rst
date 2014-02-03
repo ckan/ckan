@@ -11,7 +11,7 @@ Upgrading a CKAN 1 package install to CKAN 2.0
 
 The CKAN 2.0 package requires Ubuntu 12.04 64-bit, whereas previous CKAN
 packages used Ubuntu 10.04. CKAN 2.0 also introduces many
-backwards-incompatible feature changes (see :doc:`the changelog <changelog>`).
+backwards-incompatible feature changes (see :doc:`the changelog </changelog>`).
 So it's not possible to automatically upgrade to a CKAN 2.0 package install.
 
 However, you can install CKAN 2.0 (either on the same server that contained
@@ -28,9 +28,11 @@ database and any custom configuration, extensions or templates to your new CKAN
 
     sudo apt-get autoremove ckan
 
-#. Install CKAN 2.0, either from a :doc:`package install <install-from-package>`
+#. Install CKAN 2.0, either from a
+   :doc:`package install </maintaining/installing/install-from-package>`
    if you have Ubuntu 12.04 64-bit, or from a
-   :doc:`source install <install-from-source>` otherwise.
+   :doc:`source install </maintaining/installing/install-from-source>`
+   otherwise.
 
 #. Load your database dump from CKAN 1.x into CKAN 2.0. This will migrate all
    of your datasets, resources, groups, tags, user accounts, and other data to
@@ -57,12 +59,12 @@ database and any custom configuration, extensions or templates to your new CKAN
 #. If you had any custom config settings in your CKAN 1.x instance that you
    want to copy across to your CKAN 2.0 instance, then update your CKAN 2.0
    |production.ini| file with these config settings. Note that not all CKAN 1.x
-   config settings are still supported in CKAN 2.0, see :doc:`configuration`
-   for details.
+   config settings are still supported in CKAN 2.0, see
+   :doc:`/maintaining/configuration` for details.
 
    In particular, CKAN 2.0 introduces an entirely new authorization system
    and any custom authorization settings you had in CKAN 1.x will have to be
-   reconsidered for CKAN 2.0. See :doc:`authorization` for details.
+   reconsidered for CKAN 2.0. See :doc:`/maintaining/authorization` for details.
 
 #. If you had any extensions installed in your CKAN 1.x instance that you also
    want to use with your CKAN 2.0 instance, install those extensions in CKAN
@@ -73,6 +75,6 @@ database and any custom configuration, extensions or templates to your new CKAN
 #. If you had any custom templates in your CKAN 1.x instance, these will need
    to be adapted before they can be used with CKAN 2.0. CKAN 2.0 introduces
    an entirely new template system based on Jinja2 rather than on Genshi.
-   See :doc:`theming/index` for details.
+   See :doc:`/theming/index` for details.
 
 
