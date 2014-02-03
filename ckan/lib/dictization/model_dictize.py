@@ -376,7 +376,7 @@ def group_dictize(group, context):
     if is_group_member:
         context['ignore_capacity_check'] = True
 
-    if include_datasets:
+    if include_datasets and not context.get('for_view'):
         q['rows'] = 1000    # Only the first 1000 datasets are returned
 
     search_context = dict((k, v) for (k, v) in context.items() if k != 'schema')
