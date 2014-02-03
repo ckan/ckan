@@ -7,27 +7,27 @@
 Changelog
 ---------
 
-v2.1.2 2014
-===========
+v2.1.2 2014-02-04
+=================
 
 Bug fixes:
-* Fix context for group/about setup_template_variables (#1433)
-* Call setup_template_variables in group/org read, about and bulk_process (#1281)
-* Remove repeated sort code in package_search (#1461)
-* Ensure that check_access is called on activity_create (#1421)
-* Fix visibility validator (#1188)
-* Remove p.toolkit.auth_allow_anonymous_access as it is not available on 2.1.x (#1373)
-* Add organization_revision_list to avoid exception on org history page (#1359)
-* Fix activity and about organization pages (#1298)
-* Show 404 instead of login page on user not found (#1068)
-* Don't show Add Dataset button on org pages unless authorized (#1348)
-* Fix datastore_search_sql authorization function (#1373)
-* Fix extras deletion (#1449)
-* Better word breaking on long words (#1398)
-* Fix activity and about organization pages (#1298)
-* Remove limit of number of arguments passed to ``user add`` command.
-* Fix related_list logic function (#1384)
-* Avoid UnicodeEncodeError on feeds when params contains non ascii characters
+ * Fix context for group/about setup_template_variables (#1433)
+ * Call setup_template_variables in group/org read, about and bulk_process (#1281)
+ * Remove repeated sort code in package_search (#1461)
+ * Ensure that check_access is called on activity_create (#1421)
+ * Fix visibility validator (#1188)
+ * Remove p.toolkit.auth_allow_anonymous_access as it is not available on 2.1.x (#1373)
+ * Add organization_revision_list to avoid exception on org history page (#1359)
+ * Fix activity and about organization pages (#1298)
+ * Show 404 instead of login page on user not found (#1068)
+ * Don't show Add Dataset button on org pages unless authorized (#1348)
+ * Fix datastore_search_sql authorization function (#1373)
+ * Fix extras deletion (#1449)
+ * Better word breaking on long words (#1398)
+ * Fix activity and about organization pages (#1298)
+ * Remove limit of number of arguments passed to ``user add`` command.
+ * Fix related_list logic function (#1384)
+ * Avoid UnicodeEncodeError on feeds when params contains non ascii characters
 
 v2.1.1 2013-11-8
 ================
@@ -125,6 +125,16 @@ Known issues:
  * Under certain authorization setups the forntend for the groups functionality
    may not work as expected (See #1176 #1175).
 
+v2.0.4 2014-02-04
+=================
+
+Bug fixes:
+ * Fix extras deletion (#1449)
+ * Better word breaking on long words (#1398)
+ * Fix activity and about organization pages (#1298)
+ * Show 404 instead of login page on user not found (#1068)
+ * Remove limit of number of arguments passed to ``user add`` command.
+ * Fix related_list logic function (#1384)
 
 v2.0.3 2013-11-8
 ================
