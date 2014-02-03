@@ -14,9 +14,9 @@ restrict the possible values to a defined list. By using CKAN's IDatasetForm
 plugin interface, a CKAN plugin can add custom, first-class metadata fields to
 CKAN datasets, and can do custom validation of these fields.
 
-    .. seealso::
-        In this tutorial we are assuming that you have read the
-        :doc:`/extensions/tutorial`
+.. seealso::
+    In this tutorial we are assuming that you have read the
+    :doc:`/extensions/tutorial`
 
 CKAN schemas and validation
 ---------------------------
@@ -192,8 +192,8 @@ with:
 Tag vocabularies
 ----------------
 If you need to add a custom field where the input options are restricted to a
-provided list of options, you can use tag vocabularies `/tag-vocabularies`. We
-will need to create our vocabulary first. By calling
+provided list of options, you can use tag vocabularies :doc:`/tag-vocabularies`.
+We will need to create our vocabulary first. By calling
 :func:`~ckan.logic.action.vocabulary_create`. Add a function to your plugin.py
 above your plugin class.
 
@@ -312,5 +312,5 @@ http://wiki.apache.org/solr/CommonQueryParameters#sort and
 http://wiki.apache.org/solr/FunctionQuery
 
 
-You can find the complete source for this tutorial in the
-``ckanext/example_idatasetform`` directory.
+You can find the complete source for this tutorial at
+https://github.com/ckan/ckan/tree/master/ckanext/example_idatasetform
