@@ -17,8 +17,8 @@ Here's an example of a simple :py:mod:`ckan.logic.auth` test:
 '''
 import nose
 
-from ckan import model as core_model
-from ckan import logic
+import ckan.model as core_model
+import ckan.logic as logic
 import ckan.new_tests.helpers as helpers
 import ckan.logic.auth as logic_auth
 
