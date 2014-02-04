@@ -7,7 +7,9 @@
 
 {% block breadcrumb_content %}
   {{ super() }}
-  <li class="active">{% link_for _('Edit'), controller='package', action='edit', id=pkg.name %}</li>
+  {% if pkg %}
+    <li class="active">{% link_for _('Edit'), controller='package', action='edit', id=pkg.name %}</li>
+  {% endif %}
 {% endblock %}
 
 {% block content_action %}
