@@ -1695,10 +1695,10 @@ def resource_view_dimensions(resource_view):
     Returns the icon for a particular view type.
     '''
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
-    xaxis = view_plugin.info().get('xaxis', 2)
-    yaxis = view_plugin.info().get('yaxis', 2)
+    sizex = view_plugin.info().get('sizex', 2)
+    sizey = view_plugin.info().get('sizey', 2)
 
-    return {"xaxis": xaxis, "yaxis": yaxis}
+    return {"sizex": sizex, "sizey": sizey}
 
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
