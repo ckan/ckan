@@ -21,7 +21,7 @@
 
 {% block main_content %}
   {{ super() }}
-  {% if to_preview %}
+  {% if to_preview and h.resource_view_display_preview(resource_view) %}
     <div class="wrapper no-nav">
       <section class="module module-narrow module-shallow">
         <h2 class="module-heading">

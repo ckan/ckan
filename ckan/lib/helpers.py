@@ -1683,6 +1683,23 @@ def resource_view_icon(resource_view):
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('icon', 'picture')
 
+def resource_view_display_preview(resource_view):
+    '''
+    Returns the icon for a particular view type.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    return view_plugin.info().get('preview_enabled', True)
+
+def resource_view_dimensions(resource_view):
+    '''
+    Returns the icon for a particular view type.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    xaxis = view_plugin.info().get('xaxis', 2)
+    yaxis = view_plugin.info().get('yaxis', 2)
+
+    return {"xaxis": xaxis, "yaxis": yaxis}
+
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
     item has a matching value for a supplied key
@@ -1894,6 +1911,8 @@ __allowed_functions__ = [
     'rendered_resource_view',
     'resource_view_is_iframed',
     'resource_view_icon',
+    'resource_view_dimensions',
+    'resource_view_display_preview',
     'SI_number_span',
     'localised_number',
     'localised_SI_number',

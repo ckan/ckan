@@ -612,6 +612,7 @@ def default_update_resource_view_schema():
     schema.update({
         'id': [not_missing, not_empty, unicode],
         'resource_id': [ignore_missing, resource_id_exists],
-        'view_type': [ignore]  # can not change after create
+        'view_type': [ignore],# can not change after create
+        'package_id': [ignore]
     })
     return schema

@@ -1542,6 +1542,8 @@ class PackageController(base.BaseController):
             data = clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                 request.params, ignore_keys=CACHE_PARAMETERS))))
             data['resource_id'] = resource_id
+
+
             try:
                 if to_delete:
                     data['id'] = view_id
