@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import collections
 import csv
 import multiprocessing as mp
@@ -162,6 +163,17 @@ class ManageDb(CkanCommand):
             if self.verbose:
                 print 'Cleaning DB: SUCCESS'
         elif cmd == 'upgrade':
+            print """
+█   █ ▄▀▀▄ █▀▀▄ ██ █ █ ██ █ ▄▀▀▄
+█ ▄ █ █▄▄█ █▄▄▀ █▐▌█ █ █▐▌█ █
+▐▌█▐▌ █  █ █  █ █ ██ █ █ ██ █ ▀█
+ ▀ ▀  ▀  ▀ ▀  ▀ ▀  ▀ ▀ ▀  ▀  ▀▀
+If migrations fail your database will be corrupted. If you care about your
+data you should have a full backup and be ready to restore from it.
+"""
+            confirm = raw_input('Type "I understand": ').lower().strip()
+            if confirm != 'i understand':
+                sys.exit(0)
             if len(self.args) > 1:
                 model.repo.upgrade_db(self.args[1])
             else:
