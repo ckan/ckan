@@ -4159,7 +4159,7 @@ msgstr "Nessun gruppo trovato"
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] "nessuna organizzazione trovata per \"{query}\""
+msgstr[0] "{number} organizzazione trovata per \"{query}\""
 msgstr[1] "{number} organizzazioni trovate per \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
@@ -4169,7 +4169,7 @@ msgstr "Nessuna organizzazione trovata per \"{query}\""
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
-msgstr[0] "nessuna organizzazione trovata"
+msgstr[0] "{number} organizzazione trovata"
 msgstr[1] "{number} organizzazioni trovate"
 
 #: ckan/templates/snippets/search_result_text.html:30
