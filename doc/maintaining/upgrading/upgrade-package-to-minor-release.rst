@@ -55,7 +55,7 @@ respectively.
      you will need to manually reinstall it.
 
 #. If there have been changes in the database schema (check the
-   :doc:`changelog` to find out) you need to update your CKAN database's
+   :doc:`/changelog` to find out) you need to update your CKAN database's
    schema using the ``db upgrade`` command.
 
    .. warning ::
@@ -73,7 +73,7 @@ respectively.
    See :ref:`paster db` for details of the ``db upgrade``
    command.
 
-#. If there have been changes in the Solr schema (check the :doc:`changelog`
+#. If there have been changes in the Solr schema (check the :doc:`/changelog`
    to find out) you need to restart Jetty for the changes to take effect:
 
    .. parsed-literal::

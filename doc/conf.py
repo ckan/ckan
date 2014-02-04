@@ -35,7 +35,7 @@ rst_epilog = '''
 .. |config_dir| replace:: |config_parent_dir|/default
 .. |production.ini| replace:: |config_dir|/production.ini
 .. |development.ini| replace:: |config_dir|/development.ini
-.. |git_url| replace:: \https://github.com/okfn/ckan.git
+.. |git_url| replace:: \https://github.com/ckan/ckan.git
 .. |postgres| replace:: PostgreSQL
 .. |database| replace:: ckan_default
 .. |database_user| replace:: ckan_default
@@ -67,7 +67,7 @@ rst_epilog = '''
 .. _Jinja2: http://jinja.pocoo.org/
 .. _CKAN front page: http://127.0.0.1:5000
 .. _bootstrap: http://getbootstrap.com/2.3.2/
-.. _CKAN issue tracker: https://github.com/okfn/ckan/issues
+.. _CKAN issue tracker: https://github.com/ckan/ckan/issues
 
 '''
 

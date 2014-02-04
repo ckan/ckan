@@ -13,7 +13,8 @@ When a resource is added to the DataStore, you get:
 * The `The DataStore API`_: search, filter and update the data, without having to download
   and upload the entire data file
 
-The DataStore is integrated into the :doc:`CKAN API <api>` and authorization system.
+The DataStore is integrated into the :doc:`CKAN API </api/index>` and
+authorization system.
 
 The DataStore is generally used alongside the
 `DataPusher <http://docs.ckan.org/projects/datapusher>`_, which will
@@ -78,8 +79,8 @@ Create users and databases
 
  If your CKAN database and DataStore databases are on different servers, then
  you need to create a new database user on the server where the DataStore
- database will be created. As in :doc:`install-from-source` we'll name the
- database user |database_user|:
+ database will be created. As in :doc:`installing/install-from-source` we'll
+ name the database user |database_user|:
 
  .. parsed-literal::
 
@@ -228,7 +229,6 @@ The set-up for legacy mode is analogous to the normal set-up as described above 
 
 There is no need for a read-only user or special permissions. Therefore the legacy mode can be used for simple set-ups as well.
 
-.. _datapusher:
 
 ---------------------------------------------------
 DataPusher: Automatically Add Data to the DataStore
@@ -240,13 +240,10 @@ DataStore. This requires some processing, to extract the data from your files
 and to add it to the DataStore in the format the DataStore can handle.
 
 This task of automatically parsing and then adding data to the DataStore is
-performed by the `DataPusher <DataPusher_docs>`_, a service that runs asynchronously and can be installed
+performed by the `DataPusher`_, a service that runs asynchronously and can be installed
 alongside CKAN.
 
 To install this please look at the docs here: http://docs.ckan.org/projects/datapusher
-
-
-.. _DataPusher_docs: http://docs.ckan.org/projects/datapusher
 
 
 -----------------
@@ -277,7 +274,7 @@ Making a DataStore API request
 
 Making a DataStore API request is the same as making an Action API request: you
 post a JSON dictionary in an HTTP POST request to an API URL, and the API also
-returns its response in a JSON dictionary. See the :doc:`api` for details.
+returns its response in a JSON dictionary. See the :doc:`/api/index` for details.
 
 
 API reference

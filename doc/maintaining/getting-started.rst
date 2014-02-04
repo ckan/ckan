@@ -2,7 +2,7 @@
 Getting started
 ===============
 
-Once you've finished :doc:`installing CKAN <installing>`, this section
+Once you've finished :doc:`installing CKAN <installing/index>`, this section
 will walk you through getting started with your new CKAN website, including
 creating a CKAN sysadmin user, some test data, and the basics of configuring
 your CKAN site.
@@ -46,7 +46,8 @@ For a list of other command line commands for managing sysadmins, run::
 
  paster sysadmin --help
 
-Read the :doc:`sysadmin-guide` to learn what you can do as a CKAN sysadmin.
+Read the :doc:`/sysadmin-guide` to learn what you can do as a
+CKAN sysadmin.
 
 .. _create-test-data:
 
