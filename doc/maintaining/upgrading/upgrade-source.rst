@@ -43,7 +43,7 @@ CKAN release you're upgrading to:
 
      python setup.py develop
 
-#. If there have been changes in the Solr schema (check the :doc:`changelog`
+#. If there have been changes in the Solr schema (check the :doc:`/changelog`
    to find out) you need to restart Jetty for the changes to take effect:
 
    .. parsed-literal::

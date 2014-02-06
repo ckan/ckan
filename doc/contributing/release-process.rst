@@ -7,7 +7,7 @@ new CKAN release.
 
 .. seealso::
 
-   :doc:`/upgrading`
+   :doc:`/maintaining/upgrading/index`
      An overview of the different kinds of CKAN release, and the process for
      upgrading a CKAN site to a new version.
 
