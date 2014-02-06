@@ -71,9 +71,9 @@ a layer of caching::
 
 If one isn't installed already, install an email server to enable CKAN's email
 features (such as sending traceback emails to sysadmins when crashes occur, or
-sending new activity :doc:`email notifications <email-notifications>` to
-users). For example, to install the `Postfix <http://www.postfix.org/>`_ email
-server, do::
+sending new activity :doc:`email notifications </maintaining/email-notifications>`
+to users). For example, to install the `Postfix <http://www.postfix.org/>`_
+email server, do::
 
     sudo apt-get install postfix
 

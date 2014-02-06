@@ -13,7 +13,8 @@ When a resource is added to the DataStore, you get:
 * The `The DataStore API`_: search, filter and update the data, without having to download
   and upload the entire data file
 
-The DataStore is integrated into the :doc:`CKAN API <api>` and authorization system.
+The DataStore is integrated into the :doc:`CKAN API </api/index>` and
+authorization system.
 
 The DataStore is generally used alongside the
 `DataPusher <http://docs.ckan.org/projects/datapusher>`_, which will
@@ -78,8 +79,8 @@ Create users and databases
 
  If your CKAN database and DataStore databases are on different servers, then
  you need to create a new database user on the server where the DataStore
- database will be created. As in :doc:`install-from-source` we'll name the
- database user |database_user|:
+ database will be created. As in :doc:`installing/install-from-source` we'll
+ name the database user |database_user|:
 
  .. parsed-literal::
 
@@ -273,7 +274,7 @@ Making a DataStore API request
 
 Making a DataStore API request is the same as making an Action API request: you
 post a JSON dictionary in an HTTP POST request to an API URL, and the API also
-returns its response in a JSON dictionary. See the :doc:`api` for details.
+returns its response in a JSON dictionary. See the :doc:`/api/index` for details.
 
 
 API reference

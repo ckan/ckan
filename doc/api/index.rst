@@ -1,6 +1,9 @@
-============
-The CKAN API
-============
+=========
+API guide
+=========
+
+This section documents CKAN's API, for developers who want to write code that
+interacts with CKAN sites and their data.
 
 CKAN's **Action API** is a powerful, RPC-style API that exposes all of CKAN's
 core features to API clients. All of a CKAN website's core functionality
@@ -39,8 +42,8 @@ code that calls the CKAN API.  For example, using the CKAN API your app can:
 
    CKAN's FileStore and DataStore have their own APIs, see:
 
-   * :doc:`filestore`
-   * :doc:`datastore`
+   * :doc:`/maintaining/filestore`
+   * :doc:`/maintaining/datastore`
 
 .. note::
 
