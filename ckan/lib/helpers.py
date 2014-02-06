@@ -1685,10 +1685,17 @@ def resource_view_icon(resource_view):
 
 def resource_view_display_preview(resource_view):
     '''
-    Returns the icon for a particular view type.
+    Returns if the view should display a preview.
     '''
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('preview_enabled', True)
+
+def resource_view_full_page(resource_view):
+    '''
+    Returns if the endit view page should be full page.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    return view_plugin.info().get('full_page_edit', False)
 
 def resource_view_dimensions(resource_view):
     '''
@@ -1913,6 +1920,7 @@ __allowed_functions__ = [
     'resource_view_icon',
     'resource_view_dimensions',
     'resource_view_display_preview',
+    'resource_view_full_page',
     'SI_number_span',
     'localised_number',
     'localised_SI_number',

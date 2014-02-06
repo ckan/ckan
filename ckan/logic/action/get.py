@@ -922,6 +922,7 @@ def resource_view_show(context, data_dict):
 
     resource_view = model.ResourceView.get(id)
     if not resource_view:
+        _check_access('resource_view_show', context, data_dict)
         raise NotFound
 
     context['resource_view'] = resource_view
