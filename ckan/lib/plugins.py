@@ -7,6 +7,7 @@ from ckan import logic
 import logic.schema
 from ckan import plugins
 import ckan.new_authz
+import ckan.plugins.toolkit as toolkit
 
 log = logging.getLogger(__name__)
 
@@ -167,6 +168,19 @@ def register_group_plugins(map):
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
         _default_group_plugin = DefaultGroupForm()
+
+
+def plugin_validate(plugin, context, data_dict, schema, action):
+    """
+    Backwards compatibility with 2.x dataset group and org plugins:
+    return a default validate method if one has not been provided.
+    """
+    if hasattr(plugin, 'validate'):
+        result = plugin.validate(context, data_dict, schema, action)
+        if result is not None:
+            return result
+
+    return toolkit.navl_validate(data_dict, schema, context)
 
 
 class DefaultDatasetForm(object):
