@@ -139,6 +139,7 @@ def current_package_list_with_resources(context, data_dict):
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state=='active')
+    query = query.filter(model.PackageRevision.private==False)
     query = query.filter(model.PackageRevision.current==True)
 
     query = query.order_by(model.package_revision_table.c.revision_timestamp.desc())
