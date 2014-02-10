@@ -5,6 +5,7 @@ Extending guide
 The following sections will teach you how to customize and extend CKAN's
 features by developing your own CKAN extensions.
 
+.. seealso::
 
     Some **core extensions** come packaged with CKAN. Core extensions don't
     need to be installed before you can use them as they're installed when you
