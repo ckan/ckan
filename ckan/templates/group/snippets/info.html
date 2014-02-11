@@ -5,7 +5,7 @@
     {% block image %}
     <div class="image">
       <a href="{{ group.url }}">
-        <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="190" height="118" alt="{{ group.name }}" />
+        <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" width="190" height="118" alt="{{ group.name }}" />
       </a>
     </div>
     {% endblock %}
@@ -18,8 +18,6 @@
         {{ h.markdown_extract(group.description, 180) }}
         {% link_for _('read more'), controller='group', action='about', id=group.name %}
       </p>
-    {% else %}
-      <p class="empty">{{ _('There is no description for this group') }}</p>
     {% endif %}
     {% endblock %}
     {% if show_nums %}

@@ -85,7 +85,7 @@
   </head>
 
   {# Allows custom attributes to be added to the <body> tag #}
-  <body{% block bodytag %} data-site-root="{{ h.url('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url('/', qualified=true) }}" data-api-root="{{ g.api_url }}"{% endblock %}>
+  <body{% block bodytag %} data-site-root="{{ h.url('/', locale='default', qualified=true) }}" data-locale-root="{{ h.url('/', qualified=true) }}" {% endblock %}>
 
     {#
     The page block allows you to add content to the page. Most of the time it is
@@ -102,17 +102,9 @@
     {%- block page %}{% endblock -%}
 
     {#
-    The scripts block allows you to add additonal scripts to the page. Use the
-    super() function to load the default scripts before/after your own.
-    NOTE: Scripts should be loaded by the {% resource %} tag except
-    in very special circumstances DO NOT USE THIS METHOD FOR ADDING SCRIPTS.
-
-    Example:
-
-      {% block scripts %}
-        {{ super() }}
-        <script src="/base/js/custom.js"></script>
-      {% endblock %}
+    DO NOT USE THIS BLOCK FOR ADDING SCRIPTS
+    Scripts should be loaded by the {% resource %} tag except in very special
+    circumstances
     #}
     {%- block scripts %}
     {% endblock -%}

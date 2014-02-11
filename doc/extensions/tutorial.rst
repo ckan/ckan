@@ -15,8 +15,8 @@ Installing CKAN
 
 Before you can start developing a CKAN extension, you'll need a working source
 install of CKAN on your system. If you don't have a CKAN source install
-already, follow the instructions in :doc:`/install-from-source` before
-continuing.
+already, follow the instructions in
+:doc:`/maintaining/installing/install-from-source` before continuing.
 
 
 Creating a new extension
@@ -132,12 +132,12 @@ the ``entry_points`` section like this::
 Installing the extension
 ========================
 
-When you :doc:`install CKAN </installing>`, you create a Python `virtual
-environment <http://www.virtualenv.org>`_ in a directory on your system
-(|virtualenv| by default) and install the CKAN Python package and the other
-packages that CKAN depends on into this virtual environment.
-Before we can use our plugin, we must install our extension into our CKAN
-virtual environment.
+When you :doc:`install CKAN </maintaining/installing/index>`, you create a
+Python `virtual environment <http://www.virtualenv.org>`_ in a directory on
+your system (|virtualenv| by default) and install the CKAN Python package and
+the other packages that CKAN depends on into this virtual environment.  Before
+we can use our plugin, we must install our extension into our CKAN virtual
+environment.
 
 Make sure your virtualenv is activated, change to the extension's
 directory, and run ``python setup.py develop``:
@@ -439,7 +439,7 @@ crashing, we'll have to handle the exception that CKAN's
 list the members of a group that doesn't exist. Replace the ``member_list``
 line in your ``plugin.py`` file with these lines:
 
-.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v4.py
     :start-after: # Get a list of the members of the 'curators' group.
     :end-before: # 'members' is a list of (user_id, object_type, capacity) tuples, we're
 
@@ -466,7 +466,7 @@ We need to handle that exception as well, replace the
 ``convert_user_name_or_id_to_id`` line in your ``plugin.py`` file with these
 lines:
 
-.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v4.py
     :start-after: # We have the logged-in user's user name, get their user id.
     :end-before: # Finally, we can test whether the user is a member of the curators group.
 
@@ -476,7 +476,7 @@ We're done!
 
 Here's our final, working ``plugin.py`` module in full:
 
-.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin.py
+.. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v4.py
 
 In working through this tutorial, you've covered all the key concepts needed
 for writing CKAN extensions, including:

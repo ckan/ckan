@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Exit immediately if any command fails
+set -e
+
+# Drop Travis' postgres cluster if we're building using a different pg version
+TRAVIS_PGVERSION='9.1'
+if [ $PGVERSION != $TRAVIS_PGVERSION ]
+then
+  sudo -u postgres pg_dropcluster --stop $TRAVIS_PGVERSION main
+  # Make psql use $PGVERSION
+  export PGCLUSTER=$PGVERSION/main
+fi
+
+# Install postgres and solr
+sudo apt-get update -qq
+sudo apt-get install postgresql-$PGVERSION solr-jetty libcommons-fileupload-java:amd64=1.2.2-1
+
+if [ $PGVERSION == '8.4' ]
+then
+  # force postgres to use 5432 as it's port
+  sudo sed -i -e 's/port = 5433/port = 5432/g' /etc/postgresql/8.4/main/postgresql.conf
+fi
+
+sudo service postgresql restart
+
+# Setup postgres' users and databases
+sudo -u postgres psql -c "CREATE USER ckan_default WITH PASSWORD 'pass';"
+sudo -u postgres psql -c "CREATE USER datastore_default WITH PASSWORD 'pass';"
+sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckan_default;'
+sudo -u postgres psql -c 'CREATE DATABASE datastore_test WITH OWNER ckan_default;'
+
+export PIP_USE_MIRRORS=true
+pip install -r requirements.txt
+pip install -r dev-requirements.txt
+
+python setup.py develop
+
+# Install npm dpes for mocha
+npm install -g mocha-phantomjs phantomjs
+
+paster db init -c test-core.ini
+
+# If Postgres >= 9.0, we don't need to use datastore's legacy mode.
+if [ $PGVERSION != '8.4' ]
+then
+  sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/datastore_default:pass@\/datastore_test/' test-core.ini
+  paster datastore set-permissions postgres -c test-core.ini
+else
+  sed -i -e 's/.*datastore.read_url.*//' test-core.ini
+fi
+
+cat test-core.ini

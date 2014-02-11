@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 {% import 'macros/form.html' as form %}
 
-{% block subtitle %}{{ _("Search for a Dataset") }}{% endblock %}
+{% block subtitle %}{{ _("Datasets") }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li class="active">{{ h.nav_link(_('Datasets'), controller='package', action='search', highlight_actions = 'new index') }}</li>

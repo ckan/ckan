@@ -67,10 +67,11 @@ class HomeController(base.BaseController):
             c.search_facets = query['search_facets']
 
             c.facet_titles = {
+                'organization': _('Organizations'),
                 'groups': _('Groups'),
                 'tags': _('Tags'),
                 'res_format': _('Formats'),
-                'license': _('License'),
+                'license': _('Licenses'),
             }
 
             data_dict = {'sort': 'packages', 'all_fields': 1}
@@ -178,7 +179,6 @@ class HomeController(base.BaseController):
         c.group_package_stuff = dirty_cached_group_stuff
 
         # END OF DIRTYNESS
-
         return base.render('home/index.html', cache_force=True)
 
     def license(self):

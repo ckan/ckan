@@ -8,7 +8,7 @@
         {% set title = group.title or group.name %}
         {% block group_item_header_image %}
           <a class="module-image" href="{{ url }}">
-            <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" />
+            <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" />
           </a>
         {% endblock %}
         {% block group_item_header_title %}
@@ -21,8 +21,6 @@
             {% else %}
               <p>{{ h.markdown_extract(group.description, truncate)|urlize }}</p>
             {% endif %}
-          {% else %}
-            <p class="empty">{{ _('There is no description for this group') }}</p>
           {% endif %}
         {% endblock %}
       </header>

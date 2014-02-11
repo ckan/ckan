@@ -1,0 +1,17 @@
+{% ckan_extends %}
+
+{% block featured_group %}
+  {{ h.recently_changed_packages_activity_stream(limit=4) }}
+{% endblock %}
+
+{% block featured_organization %}
+
+  {# Show a list of the site's most popular groups. #}
+  <h3>Most popular groups</h3>
+  <ul>
+    {% for group in h.example_theme_most_popular_groups() %}
+      <li>{{ group.display_name }}</li>
+    {% endfor %}
+  </ul>
+
+{% endblock %}

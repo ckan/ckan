@@ -114,8 +114,10 @@ class TestTextPreview(tests.WsgiAppCase):
         result = self.app.get(url, status='*')
 
         assert result.status == 200, result.status
-        assert 'text.css' in result.body, result.body
-        assert 'github.css' in result.body, result.body
+        assert (('text.css' in result.body)
+                or ('text.min.css' in result.body)), result.body
+        assert (('github.css' in result.body)
+                or ('github.min.css' in result.body)), result.body
 
     def test_iframe_is_shown(self):
         url = h.url_for(controller='package', action='resource_read',

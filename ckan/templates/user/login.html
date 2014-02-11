@@ -18,21 +18,23 @@
 {% endblock %}
 
 {% block secondary_content %}
+  {% if h.check_access('user_create') %}
   {% block help_register %}
   <section class="module module-narrow module-shallow">
     {% block help_register_inner %}
-    <h2 class="module-heading">{{ _('Need an Account?') }}</h2>
-    <div class="module-content">
-      <p>{% trans %}Then sign right up, it only takes a minute.{% endtrans %}</p>
-      <p class="action">
+      <h2 class="module-heading">{{ _('Need an Account?') }}</h2>
+      <div class="module-content">
+        <p>{% trans %}Then sign right up, it only takes a minute.{% endtrans %}</p>§
+        <p class="action">
         {% block help_register_button %}
-        <a class="btn" href="{{ h.url_for(controller='user', action='register') }}">{{ _('Create an Account') }}</a>
+          <a class="btn" href="{{ h.url_for(controller='user', action='register') }}">{{ _('Create an Account') }}</a>
         {% endblock %}
-      </p>
-    </div>
+        </p>
+      </div>
     {% endblock %}
   </section>
   {% endblock %}
+  {% endif %}
 
   {% block help_forgotten %}
   <section class="module module-narrow module-shallow">

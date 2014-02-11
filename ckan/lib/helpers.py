@@ -37,6 +37,8 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
+import ckan.lib.uploader as uploader
+import ckan.new_authz as new_authz
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -391,10 +393,10 @@ def _link_to(text, *args, **kwargs):
 
 def nav_link(text, *args, **kwargs):
     '''
-    params
-    class_: pass extra class(s) to add to the <a> tag
-    icon: name of ckan icon to use within the link
-    condition: if False then no link is returned
+    :param class_: pass extra class(es) to add to the ``<a>`` tag
+    :param icon: name of ckan icon to use within the link
+    :param condition: if ``False`` then no link is returned
+
     '''
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
@@ -458,35 +460,37 @@ def build_nav_main(*args):
 
 
 def build_nav_icon(menu_item, title, **kw):
-    ''' build a navigation item used for example in user/read_base.html
+    '''Build a navigation item used for example in ``user/read_base.html``.
 
-    outputs <li><a href="..."><i class="icon.."></i> title</a></li>
+    Outputs ``<li><a href="..."><i class="icon.."></i> title</a></li>``.
 
     :param menu_item: the name of the defined menu item defined in
-    config/routing as the named route of the same name
+      config/routing as the named route of the same name
     :type menu_item: string
     :param title: text used for the link
     :type title: string
-    :param **kw: additional keywords needed for creating url eg id=...
+    :param kw: additional keywords needed for creating url eg ``id=...``
 
     :rtype: HTML literal
+
     '''
     return _make_menu_item(menu_item, title, **kw)
 
 
 def build_nav(menu_item, title, **kw):
-    ''' build a navigation item used for example breadcrumbs
+    '''Build a navigation item used for example breadcrumbs.
 
-    outputs <li><a href="..."></i> title</a></li>
+    Outputs ``<li><a href="..."></i> title</a></li>``.
 
     :param menu_item: the name of the defined menu item defined in
-    config/routing as the named route of the same name
+      config/routing as the named route of the same name
     :type menu_item: string
     :param title: text used for the link
     :type title: string
-    :param **kw: additional keywords needed for creating url eg id=...
+    :param  kw: additional keywords needed for creating url eg ``id=...``
 
     :rtype: HTML literal
+
     '''
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
@@ -597,15 +601,19 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    facet_titles = {'groups': _('Groups'),
+    facet_titles = {'organization': _('Organizations'),
+                    'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license': _('License'), }
+                    'license': _('Licenses'), }
     return facet_titles.get(name, name.capitalize())
 
 
 def get_param_int(name, default=10):
-    return int(request.params.get(name, default))
+    try:
+        return int(request.params.get(name, default))
+    except ValueError:
+        return default
 
 
 def _url_with_params(url, params):
@@ -1206,9 +1214,9 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     '''
     Adds extra parameters to existing ones
 
-    controller action & extras (dict) are used to create the base url
-    via url_for(controller=controller, action=action, **extras)
-    controller & action default to the current ones
+    controller action & extras (dict) are used to create the base url via
+    :py:func:`~ckan.lib.helpers.url_for` controller & action default to the
+    current ones
 
     This can be overriden providing an alternative_url, which will be used
     instead.
@@ -1236,11 +1244,12 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     provided (or the only one provided if key is a string).
 
     controller action & extras (dict) are used to create the base url
-    via url_for(controller=controller, action=action, **extras)
+    via :py:func:`~ckan.lib.helpers.url_for`
     controller & action default to the current ones
 
     This can be overriden providing an alternative_url, which will be used
     instead.
+
     '''
     if isinstance(key, basestring):
         keys = [key]
@@ -1416,10 +1425,14 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
             context, {'offset': offset})
 
 
-def recently_changed_packages_activity_stream():
+def recently_changed_packages_activity_stream(limit=None):
+    if limit:
+        data_dict = {'limit': limit}
+    else:
+        data_dict = {}
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action('recently_changed_packages_activity_list_html')(
-        context, {})
+        context, data_dict)
 
 
 def escape_js(str_to_escape):
@@ -1663,6 +1676,10 @@ def new_activities():
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
 
+def uploads_enabled():
+    if uploader.get_storage_path():
+        return True
+    return False
 
 def get_featured_organizations(count=1):
     '''Returns a list of favourite organization in the form
@@ -1697,7 +1714,7 @@ def featured_group_org(items, get_action, list_action, count):
 
         try:
             out = logic.get_action(get_action)(context, data_dict)
-        except logic.ObjectNotFound:
+        except logic.NotFound:
             return None
         return out
 
@@ -1737,6 +1754,8 @@ def get_site_statistics():
 
     return stats
 
+def check_config_permission(permission):
+    return new_authz.check_config_permission(permission)
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -1835,7 +1854,9 @@ __allowed_functions__ = [
     'radio',
     'submit',
     'asbool',
+    'uploads_enabled',
     'get_featured_organizations',
     'get_featured_groups',
     'get_site_statistics',
+    'check_config_permission',
 ]

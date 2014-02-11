@@ -3,7 +3,7 @@
     {% set url=h.url_for(controller='organization', action='read', id=organization.name) %}
     {% set truncate=truncate or 0 %}
     <a class="module-image" href="{{ url }}">
-      <img src="{{ organization.image_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" />
+      <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" />
     </a>
     <h3 class="media-heading"><a href={{ url }}>{{ organization.title or organization.name }}</a></h3>
     {% if organization.description %}
@@ -12,8 +12,6 @@
       {% else %}
         <p>{{ h.markdown_extract(organization.description, truncate)|urlize }}</p>
       {% endif %}
-    {% else %}
-      <p class="empty">{{ _('There is no description for this organization') }}</p>
     {% endif %}
   </header>
   {% set list_class = "unstyled dataset-list" %}
