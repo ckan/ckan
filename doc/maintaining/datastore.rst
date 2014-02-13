@@ -10,7 +10,7 @@ the DataStore.
 When a resource is added to the DataStore, you get:
 
 * Automatic data previews on the resource's page, using the :ref:`Data Explorer extension <data-explorer>`
-* The `The DataStore API`_: search, filter and update the data, without having to download
+* `The DataStore API`_: search, filter and update the data, without having to download
   and upload the entire data file
 
 The DataStore is integrated into the :doc:`CKAN API </api/index>` and
