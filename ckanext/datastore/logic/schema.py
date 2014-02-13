@@ -8,6 +8,7 @@ get_validator = p.toolkit.get_validator
 not_missing = get_validator('not_missing')
 not_empty = get_validator('not_empty')
 resource_id_exists = get_validator('resource_id_exists')
+package_id_exists = get_validator('package_id_exists')
 ignore_missing = get_validator('ignore_missing')
 empty = get_validator('empty')
 boolean_validator = get_validator('boolean_validator')
@@ -66,7 +67,8 @@ def json_validator(value, context):
 
 def datastore_create_schema():
     schema = {
-        'resource_id': [not_missing, unicode, resource_id_exists],
+        'resource_id': [ignore_missing, unicode, resource_id_exists],
+        'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         'aliases': [ignore_missing, list_of_strings_or_string],
         'fields': {
@@ -84,6 +86,7 @@ def datastore_create_schema():
 def datastore_upsert_schema():
     schema = {
         'resource_id': [not_missing, not_empty, unicode],
+        'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         'method': [ignore_missing, unicode, OneOf(
             ['upsert', 'insert', 'update'])],
@@ -96,6 +99,7 @@ def datastore_upsert_schema():
 def datastore_delete_schema():
     schema = {
         'resource_id': [not_missing, not_empty, unicode],
+        'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]

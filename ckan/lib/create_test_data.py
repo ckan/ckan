@@ -39,6 +39,12 @@ class CreateTestData(object):
                               extra_user_names=extra_users)
 
     @classmethod
+    def create_group_hierarchy_test_data(cls, extra_users=[]):
+        cls.create_users(group_hierarchy_users)
+        cls.create_groups(group_hierarchy_groups)
+        cls.create_arbitrary(group_hierarchy_datasets)
+
+    @classmethod
     def create_test_user(cls):
         tester = model.User.by_name(u'tester')
         if tester is None:
@@ -215,18 +221,26 @@ class CreateTestData(object):
                             group = model.Group.by_name(unicode(group_name))
                             if not group:
                                 if not group_name in new_groups:
-                                    group = model.Group(name=unicode(group_name))
+                                    group = model.Group(name=
+                                                        unicode(group_name))
                                     model.Session.add(group)
                                     new_group_names.add(group_name)
                                     new_groups[group_name] = group
                                 else:
-                                    # If adding multiple packages with the same group name,
-                                    # model.Group.by_name will not find the group as the
-                                    # session has not yet been committed at this point.
-                                    # Fetch from the new_groups dict instead.
+                                    # If adding multiple packages with the same
+                                    # group name, model.Group.by_name will not
+                                    # find the group as the session has not yet
+                                    # been committed at this point.  Fetch from
+                                    # the new_groups dict instead.
                                     group = new_groups[group_name]
-                            member = model.Member(group=group, table_id=pkg.id, table_name='package')
+                            capacity = 'organization' if group.is_organization\
+                                       else 'public'
+                            member = model.Member(group=group, table_id=pkg.id,
+                                                  table_name='package',
+                                                  capacity=capacity)
                             model.Session.add(member)
+                            if group.is_organization:
+                                pkg.owner_org = group.id
                     elif attr == 'license':
                         pkg.license_id = val
                     elif attr == 'license_id':
@@ -315,21 +329,21 @@ class CreateTestData(object):
     @classmethod
     def create_groups(cls, group_dicts, admin_user_name=None, auth_profile=""):
         '''A more featured interface for creating groups.
-        All group fields can be filled, packages added and they can
-        have an admin user.'''
+        All group fields can be filled, packages added, can have
+        an admin user and be a member of other groups.'''
         rev = model.repo.new_revision()
-        # same name as user we create below
         rev.author = cls.author
         if admin_user_name:
             admin_users = [model.User.by_name(admin_user_name)]
         else:
             admin_users = []
         assert isinstance(group_dicts, (list, tuple))
-        group_attributes = set(('name', 'title', 'description', 'parent_id'))
+        group_attributes = set(('name', 'title', 'description', 'parent_id',
+                                'type', 'is_organization'))
         for group_dict in group_dicts:
-            if model.Group.by_name(group_dict['name']):
-                log.warning('Cannot create group "%s" as it already exists.' % \
-                                (group_dict['name']))
+            if model.Group.by_name(unicode(group_dict['name'])):
+                log.warning('Cannot create group "%s" as it already exists.' %
+                            group_dict['name'])
                 continue
             pkg_names = group_dict.pop('packages', [])
             group = model.Group(name=unicode(group_dict['name']))
@@ -337,16 +351,45 @@ class CreateTestData(object):
             for key in group_dict:
                 if key in group_attributes:
                     setattr(group, key, group_dict[key])
-                else:
+                elif key not in ('admins', 'editors', 'parent'):
                     group.extras[key] = group_dict[key]
             assert isinstance(pkg_names, (list, tuple))
             for pkg_name in pkg_names:
                 pkg = model.Package.by_name(unicode(pkg_name))
                 assert pkg, pkg_name
-                member = model.Member(group=group, table_id=pkg.id, table_name='package')
+                member = model.Member(group=group, table_id=pkg.id,
+                                      table_name='package')
                 model.Session.add(member)
             model.Session.add(group)
-            model.setup_default_user_roles(group, admin_users)
+            admins = [model.User.by_name(user_name)
+                      for user_name in group_dict.get('admins', [])] + \
+                     admin_users
+            for admin in admins:
+                member = model.Member(group=group, table_id=admin.id,
+                                      table_name='user', capacity='admin')
+                model.Session.add(member)
+            editors = [model.User.by_name(user_name)
+                       for user_name in group_dict.get('editors', [])]
+            for editor in editors:
+                member = model.Member(group=group, table_id=editor.id,
+                                      table_name='user', capacity='editor')
+                model.Session.add(member)
+            # Need to commit the current Group for two reasons:
+            # 1. It might have a parent, and the Member will need the Group.id
+            #    value allocated on commit.
+            # 2. The next Group created may have this Group as a parent so
+            #    creation of the Member needs to refer to this one.
+            model.Session.commit()
+            rev = model.repo.new_revision()
+            rev.author = cls.author
+            # add it to a parent's group
+            if 'parent' in group_dict:
+                parent = model.Group.by_name(unicode(group_dict['parent']))
+                assert parent, group_dict['parent']
+                member = model.Member(group=group, table_id=parent.id,
+                                      table_name='group', capacity='parent')
+                model.Session.add(member)
+            #model.setup_default_user_roles(group, admin_users)
             cls.group_names.add(group_dict['name'])
         model.repo.commit_and_remove()
 
@@ -362,7 +405,8 @@ class CreateTestData(object):
  * Associated tags, etc etc
 '''
         if auth_profile == "publisher":
-            organization_group = model.Group(name=u"organization_group", type="organization")
+            organization_group = model.Group(name=u"organization_group",
+                                             type="organization")
 
         cls.pkg_names = [u'annakarenina', u'warandpeace']
         pkg1 = model.Package(name=cls.pkg_names[0], type=package_type)
@@ -483,10 +527,11 @@ left arrow <
         roger = model.Group.by_name(u'roger')
         model.setup_default_user_roles(david, [russianfan])
         model.setup_default_user_roles(roger, [russianfan])
+
+        # in new_authz you can't give a visitor permissions to a
+        # group it seems, so this is a bit meaningless
         model.add_user_to_role(visitor, model.Role.ADMIN, roger)
-
         model.repo.commit_and_remove()
-
 
     # method used in DGU and all good tests elsewhere
     @classmethod
@@ -501,9 +546,11 @@ left arrow <
 
     @classmethod
     def _create_user_without_commit(cls, name='', **user_dict):
-        if model.User.by_name(name) or (user_dict.get('open_id') and model.User.by_openid(user_dict.get('openid'))):
-            log.warning('Cannot create user "%s" as it already exists.' % \
-                            (name or user_dict['name']))
+        if model.User.by_name(name) or \
+                (user_dict.get('open_id') and
+                 model.User.by_openid(user_dict.get('openid'))):
+            log.warning('Cannot create user "%s" as it already exists.' %
+                        name or user_dict['name'])
             return
         # User objects are not revisioned so no need to create a revision
         user_ref = name or user_dict['openid']
@@ -519,8 +566,9 @@ left arrow <
 
     @classmethod
     def create_user(cls, name='', **kwargs):
-        cls._create_user_without_commit(name, **kwargs)
+        user = cls._create_user_without_commit(name, **kwargs)
         model.Session.commit()
+        return user
 
     @classmethod
     def flag_for_deletion(cls, pkg_names=[], tag_names=[], group_names=[],
@@ -824,6 +872,65 @@ gov_items = [
         }
      }
     ]
+
+group_hierarchy_groups = [
+    {'name': 'department-of-health',
+     'title': 'Department of Health',
+     'contact-email': 'contact@doh.gov.uk',
+     'type': 'organization',
+     'is_organization': True
+     },
+    {'name': 'food-standards-agency',
+     'title': 'Food Standards Agency',
+     'contact-email': 'contact@fsa.gov.uk',
+     'parent': 'department-of-health',
+     'type': 'organization',
+     'is_organization': True},
+    {'name': 'national-health-service',
+     'title': 'National Health Service',
+     'contact-email': 'contact@nhs.gov.uk',
+     'parent': 'department-of-health',
+     'type': 'organization',
+     'is_organization': True,
+     'editors': ['nhseditor'],
+     'admins': ['nhsadmin']},
+    {'name': 'nhs-wirral-ccg',
+     'title': 'NHS Wirral CCG',
+     'contact-email': 'contact@wirral.nhs.gov.uk',
+     'parent': 'national-health-service',
+     'type': 'organization',
+     'is_organization': True,
+     'editors': ['wirraleditor'],
+     'admins': ['wirraladmin']},
+    {'name': 'nhs-southwark-ccg',
+     'title': 'NHS Southwark CCG',
+     'contact-email': 'contact@southwark.nhs.gov.uk',
+     'parent': 'national-health-service',
+     'type': 'organization',
+     'is_organization': True},
+    {'name': 'cabinet-office',
+     'title': 'Cabinet Office',
+     'contact-email': 'contact@cabinet-office.gov.uk',
+     'type': 'organization',
+     'is_organization': True},
+    ]
+
+group_hierarchy_datasets = [
+    {'name': 'doh-spend', 'title': 'Department of Health Spend Data',
+     'groups': ['department-of-health']},
+    {'name': 'nhs-spend', 'title': 'NHS Spend Data',
+     'groups': ['national-health-service']},
+    {'name': 'wirral-spend', 'title': 'Wirral Spend Data',
+     'groups': ['nhs-wirral-ccg']},
+    {'name': 'southwark-spend', 'title': 'Southwark Spend Data',
+     'groups': ['nhs-southwark-ccg']},
+    ]
+
+group_hierarchy_users = [{'name': 'nhsadmin', 'password': 'pass'},
+                         {'name': 'nhseditor', 'password': 'pass'},
+                         {'name': 'wirraladmin', 'password': 'pass'},
+                         {'name': 'wirraleditor', 'password': 'pass'},
+                         ]
 
 # Some test terms and translations.
 terms = ('A Novel By Tolstoy',

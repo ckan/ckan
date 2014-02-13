@@ -1,36 +1,24 @@
 {% extends "package/base_form_page.html" %}
 
-{% if c.userobj %}
-  {% set logged_in = true %}
-{% else %}
-  {% set logged_in = false %}
-{% endif %}
+{% set logged_in = true if c.userobj else false %}
 
 {% block subtitle %}{{ _('Add data to the dataset') }}{% endblock %}
+
+{% block breadcrumb_content_selected %}{% endblock %}
+{% block breadcrumb_content %}
+  {{ super() }}
+  {% if pkg %}
+    <li class="active"><a href="#">{{ _('Add New Resource') }}</a></li>
+  {% endif %}
+{% endblock %}
 
 {% block form %}{% snippet 'package/snippets/resource_form.html', data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage, allow_upload=g.ofs_impl and logged_in %}{% endblock %}
 
 {% block secondary_content %}
-  {% if pkg_dict and pkg_dict.state != 'draft' %}
-    {% snippet 'package/snippets/info.html', pkg=pkg_dict, action='resource_new' %}
-  {% else %}
-    <section class="module module-narrow module-shallow">
-      <h2 class="module-heading"><i class="icon-info-sign"></i> {{ _('What\'s a resource?') }}</h2>
-      <div class="module-content">
-        <p>{{ _('A resource can be any file or link to a file containing useful data.') }}</p>
-      </div>
-    </section>
-  {% endif %}
+  {% snippet 'package/snippets/resource_help.html' %}
 {% endblock %}
 
 {% block scripts %}
   {{ super() }}
   {% resource 'vendor/fileupload' %}
-{% endblock %}
-
-{% block primary_content %}
-  {% if pkg_dict and pkg_dict.state != 'draft' %}
-    <header class="module-content page-header"></header>
-  {% endif %}
-  {{ super() }}
 {% endblock %}

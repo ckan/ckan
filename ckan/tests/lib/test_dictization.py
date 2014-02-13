@@ -48,6 +48,8 @@ class TestBasicDictize:
                         'name': u'david',
                         'capacity': 'public',
                         'image_url': u'',
+                        'image_display_url': u'',
+                        'display_name': u"Dave's books",
                         'type': u'group',
                         'state': u'active',
                         'is_organization': False,
@@ -57,6 +59,8 @@ class TestBasicDictize:
                         'name': u'roger',
                         'capacity': 'public',
                         'image_url': u'',
+                        'image_display_url': u'',
+                        'display_name': u"Roger's books",
                         'type': u'group',
                         'state': u'active',
                         'is_organization': False,
@@ -65,6 +69,7 @@ class TestBasicDictize:
             'isopen': True,
             'license_id': u'other-open',
             'license_title': u'Other (Open)',
+            'creator_user_id': None,
             'owner_org': None,
             'private': False,
             'organization': None,
@@ -89,8 +94,8 @@ class TestBasicDictize:
                             u'resource_type': None,
                             u'size': None,
                             u'size_extra': u'123',
+                             'url_type': None,
                             u'state': u'active',
-                            u'tracking_summary': {'total': 0, 'recent': 0},
                             u'url': u'http://www.annakarenina.com/download/x=1&y=2',
                             u'webstore_last_updated': None,
                             u'webstore_url': None},
@@ -106,10 +111,10 @@ class TestBasicDictize:
                             u'name': None,
                             u'position': 1,
                             u'resource_type': None,
+                             'url_type': None,
                             u'size': None,
                             u'size_extra': u'345',
                             u'state': u'active',
-                            u'tracking_summary': {'total': 0, 'recent': 0},
                             u'url': u'http://www.annakarenina.com/index.json',
                             u'webstore_last_updated': None,
                             u'webstore_url': None}],
@@ -122,7 +127,6 @@ class TestBasicDictize:
                      {'name': u'tolstoy', 'display_name': u'tolstoy',
                          'state': u'active'}],
             'title': u'A Novel By Tolstoy',
-            'tracking_summary': {'total': 0, 'recent': 0},
             'url': u'http://www.annakarenina.com',
             'version': u'0.7a',
             'num_tags': 3,
@@ -137,7 +141,7 @@ class TestBasicDictize:
 
     def remove_changable_columns(self, dict):
         for key, value in dict.items():
-            if key.endswith('id') and key <> 'license_id':
+            if key.endswith('id') and key not in ('license_id', 'creator_user_id'):
                 dict.pop(key)
             if key == 'created':
                 dict.pop(key)
@@ -174,6 +178,7 @@ class TestBasicDictize:
             'author': None,
             'author_email': None,
             'license_id': u'other-open',
+            'creator_user_id': None,
             'maintainer': None,
             'maintainer_email': None,
             'name': u'annakarenina',
@@ -212,8 +217,8 @@ class TestBasicDictize:
              'size': None,
              u'size_extra': u'123',
              'state': u'active',
-            u'tracking_summary': {'total': 0, 'recent': 0},
              'url': u'http://www.annakarenina.com/download/x=1&y=2',
+             'url_type': None,
              'webstore_last_updated': None,
              'webstore_url': None
             }, pprint(result)
@@ -743,9 +748,9 @@ class TestBasicDictize:
             u'name': None,
             u'position': 2,
             u'resource_type': None,
+            u'url_type': None,
             u'size': None,
             u'state': u'active',
-            u'tracking_summary': {'total': 0, 'recent': 0},
             u'url': u'http://newurl',
             u'webstore_last_updated': None,
             u'webstore_url': None})
@@ -778,7 +783,6 @@ class TestBasicDictize:
             'hash': u'abc123',
             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
             'format': u'plain text',
-            'tracking_summary': {'recent': 0, 'total': 0},
             'url': u'http://test_new',
             'cache_url': None,
             'webstore_url': None,
@@ -786,6 +790,7 @@ class TestBasicDictize:
             'state': u'active',
             'mimetype_inner': None,
             'webstore_last_updated': None,
+            'url_type': None,
             'last_modified': None,
             'position': 0,
             'size': None,
@@ -876,8 +881,6 @@ class TestBasicDictize:
         context = {"model": model,
                   "session": model.Session}
 
-        pkg = model.Session.query(model.Package).filter_by(name='annakarenina3').first()
-
         simple_group_dict = {'name': 'simple',
                              'title': 'simple',
                              'type': 'organization',
@@ -895,7 +898,7 @@ class TestBasicDictize:
                       'approval_status': 'approved',
                       'extras': [{'key': 'genre', 'value': u'"horror"'},
                                  {'key': 'media', 'value': u'"dvd"'}],
-                      'packages':[{'name': 'annakarenina2'}, {'id': pkg.id, 'capacity': 'in'}],
+                      'packages':[{'name': 'annakarenina2'}],
                       'users':[{'name': 'annafan'}],
                       'groups':[{'name': 'simple'}],
                       'tags':[{'name': 'russian'}]
@@ -922,6 +925,7 @@ class TestBasicDictize:
                                'capacity' : 'public',
                                'display_name': u'simple',
                                'image_url': u'',
+                               'image_display_url': u'',
                                'name': u'simple',
                                'packages': 0,
                                'state': u'active',
@@ -932,6 +936,7 @@ class TestBasicDictize:
                     'users': [{'about': u'I love reading Annakarenina. My site: http://anna.com',
                               'display_name': u'annafan',
                               'capacity' : 'public',
+                              'state': 'active',
                               'sysadmin': False,
                               'email_hash': 'd41d8cd98f00b204e9800998ecf8427e',
                               'fullname': None,
@@ -943,39 +948,43 @@ class TestBasicDictize:
                     'name': u'help',
                     'display_name': u'help',
                     'image_url': u'',
-                    'package_count': 2,
+                    'image_display_url': u'',
+                    'package_count': 1,
                     'is_organization': False,
-                    'packages': [{'author': None,
-                                  'author_email': None,
-                                  'license_id': u'other-open',
-                                  'maintainer': None,
-                                  'maintainer_email': None,
-                                  'type': u'dataset',
-                                  'name': u'annakarenina3',
-                                  'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
-                                  'state': u'active',
-                                  'capacity' : 'in',
-                                  'title': u'A Novel By Tolstoy',
-                                  'private': False,
-                                  'owner_org': None,
-                                  'url': u'http://www.annakarenina.com',
-                                  'version': u'0.7a'},
-                                 {'author': None,
-                                  'author_email': None,
-                                  'capacity' : 'public',
-                                  'title': u'A Novel By Tolstoy',
-                                  'license_id': u'other-open',
-                                  'maintainer': None,
-                                  'maintainer_email': None,
-                                  'type': u'dataset',
-                                  'name': u'annakarenina2',
-                                  'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
-                                  'state': u'active',
-                                  'title': u'A Novel By Tolstoy',
-                                  'private': False,
-                                  'owner_org': None,
-                                  'url': u'http://www.annakarenina.com',
-                                  'version': u'0.7a'}],
+                    'packages': [{u'author': None,
+                              u'author_email': None,
+                              u'creator_user_id': None,
+                              u'extras': [],
+                              u'groups':[
+                                 {u'title': u'help',
+                                  u'display_name': u'help',
+                                  u'description': u'',
+                                  u'name': u'help',
+                                  u'image_display_url': u''}
+                              ],
+                              u'isopen': True,
+                              u'license_id': u'other-open',
+                              u'license_title': u'Other (Open)',
+                              u'maintainer': None,
+                              u'maintainer_email': None,
+                              u'name': u'annakarenina2',
+                              u'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+                              u'num_resources': 0,
+                              u'num_tags': 0,
+                              u'organization': None,
+                              u'owner_org': None,
+                              u'private': False,
+                              u'relationships_as_object': [],
+                              u'relationships_as_subject': [],
+                              u'resources': [],
+                              u'state': u'active',
+                              u'tags': [],
+                              u'title': u'A Novel By Tolstoy',
+                              u'tracking_summary': {u'recent': 0, u'total': 0},
+                              u'type': u'dataset',
+                              u'url': u'http://www.annakarenina.com',
+                              u'version': u'0.7a'},
+                    ],
                     'state': u'active',
                     'approval_status': u'approved',
                     'title': u'help',
@@ -1136,11 +1145,11 @@ class TestBasicDictize:
 
         # Check sensitive data is available
         assert 'apikey' in user_dict
-        assert 'reset_key' in user_dict
         assert 'email' in user_dict
 
-        # Passwords should never be available
+        # Passwords and reset keys should never be available
         assert 'password' not in user_dict
+        assert 'reset_key' not in user_dict
 
     def test_23_user_dictize_as_same_user(self):
         '''User should be able to see their own sensitive data.'''
@@ -1160,11 +1169,11 @@ class TestBasicDictize:
 
         # Check sensitive data is available
         assert 'apikey' in user_dict
-        assert 'reset_key' in user_dict
         assert 'email' in user_dict
 
-        # Passwords should never be available
+        # Passwords and reset keys should never be available
         assert 'password' not in user_dict
+        assert 'reset_key' not in user_dict
 
     def test_24_user_dictize_as_other_user(self):
         '''User should not be able to see other's sensitive data.'''
@@ -1213,3 +1222,21 @@ class TestBasicDictize:
 
         # Passwords should never be available
         assert 'password' not in user_dict
+
+    def test_26_package_dictize_whitespace_strippped_from_title(self):
+
+        context = {"model": model,
+                   "session": model.Session}
+
+        pkg = model.Session.query(model.Package).first()
+        original_title = pkg.title
+        pkg.title = "     whitespace title    \t"
+        model.Session.add(pkg)
+        model.Session.commit()
+
+        result = package_dictize(pkg, context)
+        assert result['title'] == 'whitespace title'
+        pkg.title = original_title
+        model.Session.add(pkg)
+        model.Session.commit()
+

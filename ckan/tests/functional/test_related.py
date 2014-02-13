@@ -367,8 +367,13 @@ class TestRelated:
         usr = logic.get_action('get_site_user')({'model':model,'ignore_auth': True},{})
         context = dict(model=model, user=usr['name'], session=model.Session)
         data_dict = {}
-        from sqlalchemy.orm.query import Query
-        assert type(logic.get_action('related_list')(context, data_dict)) == Query
+        related_list = logic.get_action('related_list')(context, data_dict)
+        assert len(related_list) == 8
+        related_keys = set(['view_count', 'description', 'title', 'url',
+            'created', 'featured', 'image_url', 'type', 'id', 'owner_id'])
+        for related in related_list:
+            assert set(related.keys()) == related_keys
+
 
     def test_related_list(self):
         p = model.Package.get('warandpeace')
@@ -498,4 +503,4 @@ class TestRelatedActionAPI(apibase.BaseModelApiTestCase):
                             extra_environ=extra)
         r = json.loads(res.body)
         assert r['success'] == False, r
-        assert r[u'error'][u'message'] == u'Access denied' , r
+        assert r[u'error'][u'__type'] == "Authorization Error", r

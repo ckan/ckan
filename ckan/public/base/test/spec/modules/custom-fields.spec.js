@@ -66,7 +66,7 @@ describe('ckan.module.CustomFieldsModule()', function () {
 
       this.module.newField();
 
-      assert.ok(jQuery.contains(this.module.el, element));
+      assert.ok(jQuery.contains(this.module.el[0], element));
     });
   });
 
@@ -135,18 +135,6 @@ describe('ckan.module.CustomFieldsModule()', function () {
       assert.isTrue(this.target.hasClass('disabled'));
     });
 
-    it('should set the disabled property on the input elements', function () {
-      this.module.disableField(this.target);
-
-      this.target.find(':input').each(function () {
-        if (jQuery(this).is(':checkbox')) {
-          assert.isFalse(this.disabled, 'checkbox should not be disabled');
-        } else {
-          assert.isTrue(this.disabled, 'input should be disabled');
-        }
-      });
-    });
-
     it('should remove a .disable class to the element if disable is false', function () {
       this.target.addClass('disable');
 
@@ -154,19 +142,6 @@ describe('ckan.module.CustomFieldsModule()', function () {
       assert.isFalse(this.target.hasClass('disabled'));
     });
 
-    it('should unset the disabled property on the input elements if disable is false', function () {
-      this.target.find(':input:not(:checkbox)').prop('disabled', true);
-
-      this.module.disableField(this.target, false);
-
-      this.target.find(':input').each(function () {
-        if (jQuery(this).is(':checkbox')) {
-          assert.isFalse(this.disabled, 'checkbox should not be disabled');
-        } else {
-          assert.isFalse(this.disabled, 'input should not be disabled');
-        }
-      });
-    });
   });
 
   describe('._onChange(event)', function () {

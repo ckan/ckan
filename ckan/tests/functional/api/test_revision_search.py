@@ -29,14 +29,14 @@ class RevisionSearchApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.offset('/search/revision')
         revs = model.Session.query(model.Revision).all()
         rev_first = revs[-1]
-        params = "?since_id=%s" % str(rev_first.id)
+        params = "?since_id=%s" % rev_first.id
         res = self.app.get(offset+params, status=200)
         res_list = self.data_from_res(res)
         assert rev_first.id not in res_list
         for rev in revs[:-1]:
             assert rev.id in res_list, (rev.id, res_list)
         rev_last = revs[0]
-        params = "?since_id=%s" % str(rev_last.id)
+        params = "?since_id=%s" % rev_last.id
         res = self.app.get(offset+params, status=200)
         res_list = self.data_from_res(res)
         assert res_list == [], res_list

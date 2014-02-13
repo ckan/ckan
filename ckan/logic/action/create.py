@@ -1,9 +1,11 @@
 '''API functions for adding data to CKAN.'''
 
 import logging
+import random
+import re
 
 from pylons import config
-from paste.deploy.converters import asbool
+import paste.deploy.converters
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
@@ -15,6 +17,9 @@ import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
 import ckan.lib.dictization.model_save as model_save
 import ckan.lib.navl.dictization_functions
+import ckan.lib.uploader as uploader
+import ckan.lib.navl.validators as validators
+import ckan.lib.mailer as mailer
 
 from ckan.common import _
 
@@ -40,7 +45,8 @@ def package_create(context, data_dict):
     for the new dataset, you must also be authorized to edit these groups.
 
     Plugins may change the parameters of this function depending on the value
-    of the ``type`` parameter, see the ``IDatasetForm`` plugin interface.
+    of the ``type`` parameter, see the
+    :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugin interface.
 
     :param name: the name of the new dataset, must be between 2 and 100
         characters long and contain only lowercase alphanumeric characters,
@@ -58,8 +64,9 @@ def package_create(context, data_dict):
     :param maintainer_email: the email address of the dataset's maintainer
         (optional)
     :type maintainer_email: string
-    :param license_id: the id of the dataset's license, see ``license_list()``
-        for available values (optional)
+    :param license_id: the id of the dataset's license, see
+        :py:func:`~ckan.logic.action.get.license_list` for available values
+        (optional)
     :type license_id: license id string
     :param notes: a description of the dataset (optional)
     :type notes: string
@@ -73,41 +80,45 @@ def package_create(context, data_dict):
         authorized to change the state of the dataset (optional, default:
         ``'active'``)
     :type state: string
-    :param type: the type of the dataset (optional), ``IDatasetForm`` plugins
+    :param type: the type of the dataset (optional),
+        :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugins
         associate themselves with different dataset types and provide custom
         dataset handling behaviour for these types
     :type type: string
-    :param resources: the dataset's resources, see ``resource_create()``
-        for the format of resource dictionaries (optional)
+    :param resources: the dataset's resources, see
+        :py:func:`resource_create` for the format of resource dictionaries
+        (optional)
     :type resources: list of resource dictionaries
-    :param tags: the dataset's tags, see ``tag_create()`` for the format
+    :param tags: the dataset's tags, see :py:func:`tag_create` for the format
         of tag dictionaries (optional)
     :type tags: list of tag dictionaries
     :param extras: the dataset's extras (optional), extras are arbitrary
         (key: value) metadata items that can be added to datasets, each extra
         dictionary should have keys ``'key'`` (a string), ``'value'`` (a
-        string), and optionally ``'deleted'``
+        string)
     :type extras: list of dataset extra dictionaries
-    :param relationships_as_object: see ``package_relationship_create()`` for
-        the format of relationship dictionaries (optional)
+    :param relationships_as_object: see :py:func:`package_relationship_create`
+        for the format of relationship dictionaries (optional)
     :type relationships_as_object: list of relationship dictionaries
-    :param relationships_as_subject: see ``package_relationship_create()`` for
-        the format of relationship dictionaries (optional)
+    :param relationships_as_subject: see :py:func:`package_relationship_create`
+        for the format of relationship dictionaries (optional)
     :type relationships_as_subject: list of relationship dictionaries
     :param groups: the groups to which the dataset belongs (optional), each
         group dictionary should have one or more of the following keys which
         identify an existing group:
         ``'id'`` (the id of the group, string), ``'name'`` (the name of the
         group, string), ``'title'`` (the title of the group, string), to see
-        which groups exist call ``group_list()``
+        which groups exist call :py:func:`~ckan.logic.action.get.group_list`
     :type groups: list of dictionaries
     :param owner_org: the id of the dataset's owning organization, see
-        ``organization_list()`` or ``organization_list_for_user`` for
+        :py:func:`~ckan.logic.action.get.organization_list` or
+        :py:func:`~ckan.logic.action.get.organization_list_for_user` for
         available values (optional)
     :type owner_org: string
 
-    :returns: the newly created dataset (unless 'return_id_only' is set to True
-              in the context, in which case just the dataset id will be returned)
+    :returns: the newly created dataset (unless ``'return_id_only'`` is set to
+              ``True`` in the context, in which case just the dataset id will
+              be returned)
     :rtype: dictionary
 
     '''
@@ -152,10 +163,14 @@ def package_create(context, data_dict):
     else:
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
-    pkg = model_save.package_dict_save(data, context)
     admins = []
     if user:
-        admins = [model.User.by_name(user.decode('utf8'))]
+        user_obj = model.User.by_name(user.decode('utf8'))
+        if user_obj:
+            admins = [user_obj]
+            data['creator_user_id'] = user_obj.id
+
+    pkg = model_save.package_dict_save(data, context)
 
     model.setup_default_user_roles(pkg, admins)
     # Needed to let extensions know the package id
@@ -181,7 +196,7 @@ def package_create(context, data_dict):
     context["package"] = pkg
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
-    log.debug('Created object %s' % str(pkg.name))
+    log.debug('Created object %s' % pkg.name)
 
     # Make sure that a user provided schema is not used on package_show
     context.pop('schema', None)
@@ -230,6 +245,8 @@ def resource_create(context, data_dict):
     :type cache_last_updated: iso date string
     :param webstore_last_updated: (optional)
     :type webstore_last_updated: iso date string
+    :param upload: (optional)
+    :type upload: FieldStorage (optional) needs multipart/form-data
 
     :returns: the newly created resource
     :rtype: dictionary
@@ -247,15 +264,31 @@ def resource_create(context, data_dict):
 
     if not 'resources' in pkg_dict:
         pkg_dict['resources'] = []
+
+    upload = uploader.ResourceUpload(data_dict)
+
     pkg_dict['resources'].append(data_dict)
 
     try:
-        pkg_dict = _get_action('package_update')(context, pkg_dict)
+        context['defer_commit'] = True
+        context['use_cache'] = False
+        _get_action('package_update')(context, pkg_dict)
+        context.pop('defer_commit')
     except ValidationError, e:
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
-    return pkg_dict['resources'][-1]
+    ## Get out resource_id resource from model as it will not appear in
+    ## package_show until after commit
+    upload.upload(context['package'].resources[-1].id,
+                  uploader.get_max_resource_size())
+    model.repo.commit()
+
+    ##  Run package show again to get out actual last_resource
+    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    resource = pkg_dict['resources'][-1]
+
+    return resource
 
 
 def related_create(context, data_dict):
@@ -325,10 +358,12 @@ def related_create(context, data_dict):
     activity_create_context = {
         'model': model,
         'user': user,
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
-    activity_create(activity_create_context, activity_dict, ignore_auth=True)
+    logic.get_action('activity_create')(activity_create_context,
+                                        activity_dict)
     session.commit()
 
     context["related"] = related
@@ -440,8 +475,7 @@ def member_create(context, data_dict=None):
     if not obj:
         raise NotFound('%s was not found.' % obj_type.title())
 
-    # User must be able to update the group to add a member to it
-    _check_access('group_update', context, data_dict)
+    _check_access('member_create', context, data_dict)
 
     # Look up existing, in case it exists
     member = model.Session.query(model.Member).\
@@ -466,10 +500,11 @@ def _group_or_org_create(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
     session = context['session']
-    parent = context.get('parent', None)
     data_dict['is_organization'] = is_org
 
-
+    upload = uploader.Upload('group')
+    upload.update_data_dict(data_dict, 'image_url',
+                           'image_upload', 'clear_upload')
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(
             group_type=data_dict.get('type'))
@@ -506,14 +541,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
 
     group = model_save.group_dict_save(data, context)
 
-    if parent:
-        parent_group = model.Group.get( parent )
-        if parent_group:
-            member = model.Member(group=parent_group, table_id=group.id, table_name='group')
-            session.add(member)
-            log.debug('Group %s is made child of group %s',
-                      group.name, parent_group.name)
-
     if user:
         admins = [model.User.by_name(user.decode('utf8'))]
     else:
@@ -548,12 +575,14 @@ def _group_or_org_create(context, data_dict, is_org=False):
     activity_create_context = {
         'model': model,
         'user': user,
-        'defer_commit':True,
+        'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
     logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
+            activity_dict)
 
+    upload.upload(uploader.get_max_image_size())
     if not context.get('defer_commit'):
         model.repo.commit()
     context["group"] = group
@@ -575,7 +604,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     }
     logic.get_action('member_create')(member_create_context, member_dict)
 
-    log.debug('Created object %s' % str(group.name))
+    log.debug('Created object %s' % group.name)
     return model_dictize.group_dictize(group, context)
 
 
@@ -585,7 +614,8 @@ def group_create(context, data_dict):
     You must be authorized to create groups.
 
     Plugins may change the parameters of this function depending on the value
-    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
+    of the ``type`` parameter, see the
+    :py:class:`~ckan.plugins.interfaces.IGroupForm` plugin interface.
 
     :param name: the name of the group, a string between 2 and 100 characters
         long, containing only lowercase alphanumeric characters, ``-`` and
@@ -600,7 +630,8 @@ def group_create(context, data_dict):
     :param image_url: the URL to an image to be displayed on the group's page
         (optional)
     :type image_url: string
-    :param type: the type of the group (optional), ``IGroupForm`` plugins
+    :param type: the type of the group (optional),
+        :py:class:`~ckan.plugins.interfaces.IGroupForm` plugins
         associate themselves with different group types and provide custom
         group handling behaviour for these types
         Cannot be 'organization'
@@ -651,7 +682,8 @@ def organization_create(context, data_dict):
     You must be authorized to create organizations.
 
     Plugins may change the parameters of this function depending on the value
-    of the ``type`` parameter, see the ``IGroupForm`` plugin interface.
+    of the ``type`` parameter, see the
+    :py:class:`~ckan.plugins.interfaces.IGroupForm` plugin interface.
 
     :param name: the name of the organization, a string between 2 and 100 characters
         long, containing only lowercase alphanumeric characters, ``-`` and
@@ -700,6 +732,7 @@ def organization_create(context, data_dict):
     return _group_or_org_create(context, data_dict, is_org=True)
 
 
+@logic.auth_audit_exempt
 def rating_create(context, data_dict):
     '''Rate a dataset (package).
 
@@ -798,6 +831,7 @@ def user_create(context, data_dict):
         'model': model,
         'user': context['user'],
         'defer_commit': True,
+        'ignore_auth': True,
         'session': session
     }
     activity_dict = {
@@ -806,7 +840,7 @@ def user_create(context, data_dict):
             'activity_type': 'new user',
             }
     logic.get_action('activity_create')(activity_create_context,
-            activity_dict, ignore_auth=True)
+            activity_dict)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -817,13 +851,76 @@ def user_create(context, data_dict):
     #
     # The context is copied so as not to clobber the caller's context dict.
     user_dictize_context = context.copy()
-    user_dictize_context['keep_sensitive_data'] = True
+    user_dictize_context['keep_apikey'] = True
+    user_dictize_context['keep_email'] = True
     user_dict = model_dictize.user_dictize(user, user_dictize_context)
 
     context['user_obj'] = user
     context['id'] = user.id
-    log.debug('Created user %s' % str(user.name))
+
+    model.Dashboard.get(user.id) #  Create dashboard for user.
+
+    log.debug('Created user {name}'.format(name=user.name))
     return user_dict
+
+
+def user_invite(context, data_dict):
+    '''Invite a new user.
+
+    You must be authorized to create group members.
+
+    :param email: the email of the user to be invited to the group
+    :type email: string
+    :param group_id: the id or name of the group
+    :type group_id: string
+    :param role: role of the user in the group. One of ``member``, ``editor``,
+        or ``admin``
+    :type role: string
+
+    :returns: the newly created yser
+    :rtype: dictionary
+    '''
+    _check_access('user_invite', context, data_dict)
+
+    schema = context.get('schema',
+                         ckan.logic.schema.default_user_invite_schema())
+    data, errors = _validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    name = _get_random_username_from_email(data['email'])
+    password = str(random.SystemRandom().random())
+    data['name'] = name
+    data['password'] = password
+    data['state'] = ckan.model.State.PENDING
+    user_dict = _get_action('user_create')(context, data)
+    user = ckan.model.User.get(user_dict['id'])
+    member_dict = {
+        'username': user.id,
+        'id': data['group_id'],
+        'role': data['role']
+    }
+    _get_action('group_member_create')(context, member_dict)
+    mailer.send_invite(user)
+    return model_dictize.user_dictize(user, context)
+
+
+def _get_random_username_from_email(email):
+    localpart = email.split('@')[0]
+    cleaned_localpart = re.sub(r'[^\w]', '-', localpart)
+
+    # if we can't create a unique user name within this many attempts
+    # then something else is probably wrong and we should give up
+    max_name_creation_attempts = 100
+
+    for i in range(max_name_creation_attempts):
+        random_number = random.SystemRandom().random() * 10000
+        name = '%s-%d' % (cleaned_localpart, random_number)
+        if not ckan.model.User.get(name):
+            return name
+
+    return cleaned_localpart
+
 
 ## Modifications for rest api
 
@@ -865,7 +962,7 @@ def vocabulary_create(context, data_dict):
     :param name: the name of the new vocabulary, e.g. ``'Genre'``
     :type name: string
     :param tags: the new tags to add to the new vocabulary, for the format of
-        tag dictionaries see ``tag_create()``
+        tag dictionaries see :py:func:`tag_create`
     :type tags: list of tag dictionaries
 
     :returns: the newly-created vocabulary
@@ -888,11 +985,11 @@ def vocabulary_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
 
-    log.debug('Created Vocabulary %s' % str(vocabulary.name))
+    log.debug('Created Vocabulary %s' % vocabulary.name)
 
     return model_dictize.vocabulary_dictize(vocabulary, context)
 
-def activity_create(context, activity_dict, ignore_auth=False):
+def activity_create(context, activity_dict, **kw):
     '''Create a new activity stream activity.
 
     You must be a sysadmin to create new activities.
@@ -904,8 +1001,7 @@ def activity_create(context, activity_dict, ignore_auth=False):
         ``'my_dataset'``
     :param activity_type: the type of the activity, this must be an activity
         type that CKAN knows how to render, e.g. ``'new package'``,
-        ``'changed user'``, ``'deleted group'`` etc. (for a full list see
-        ``activity_renderers`` in ``ckan/logic/action/get.py``
+        ``'changed user'``, ``'deleted group'`` etc.
     :type activity_type: string
     :param data: any additional data about the activity
     :type data: dictionary
@@ -914,7 +1010,18 @@ def activity_create(context, activity_dict, ignore_auth=False):
     :rtype: dictionary
 
     '''
-    if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
+
+    _check_access('activity_create', context, activity_dict)
+
+    # this action had a ignore_auth param which has been removed
+    # removed in 2.2
+    if 'ignore_auth' in kw:
+        raise Exception('Activity Stream calling parameters have changed '
+                        'ignore_auth must be passed in the context not as '
+                        'a param')
+
+    if not paste.deploy.converters.asbool(
+            config.get('ckan.activity_streams_enabled', 'true')):
         return
 
     model = context['model']
@@ -925,9 +1032,6 @@ def activity_create(context, activity_dict, ignore_auth=False):
         activity_dict['revision_id'] = model.Session.revision.id
     else:
         activity_dict['revision_id'] = None
-
-    if not ignore_auth:
-        _check_access('activity_create', context, activity_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_activity_schema()
     data, errors = _validate(activity_dict, schema, context)
@@ -954,14 +1058,15 @@ def package_relationship_create_rest(context, data_dict):
     relationship_dict = _get_action('package_relationship_create')(context, data_dict)
     return relationship_dict
 
-def tag_create(context, tag_dict):
+def tag_create(context, data_dict):
     '''Create a new vocabulary tag.
 
     You must be a sysadmin to create vocabulary tags.
 
     You can only use this function to create tags that belong to a vocabulary,
     not to create free tags. (To create a new free tag simply add the tag to
-    a package, e.g. using the ``package_update`` function.)
+    a package, e.g. using the
+    :py:func:`~ckan.logic.action.update.package_update` function.)
 
     :param name: the name for the new tag, a string between 2 and 100
         characters long containing only alphanumeric characters and ``-``,
@@ -977,14 +1082,14 @@ def tag_create(context, tag_dict):
     '''
     model = context['model']
 
-    _check_access('tag_create', context, tag_dict)
+    _check_access('tag_create', context, data_dict)
 
     schema = context.get('schema') or ckan.logic.schema.default_create_tag_schema()
-    data, errors = _validate(tag_dict, schema, context)
+    data, errors = _validate(data_dict, schema, context)
     if errors:
         raise ValidationError(errors)
 
-    tag = model_save.tag_dict_save(tag_dict, context)
+    tag = model_save.tag_dict_save(data_dict, context)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -1121,7 +1226,7 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     role = data_dict.get('role')
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
-    result = session.query(model.User).filter_by(name=username).first()
+    result = model.User.get(username)
     if result:
         user_id = result.id
     else:
@@ -1141,10 +1246,41 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     logic.get_action('member_create')(member_create_context, member_dict)
 
 def group_member_create(context, data_dict):
+    '''Make a user a member of a group.
+
+    You must be authorized to edit the group.
+
+    :param id: the id or name of the group
+    :type id: string
+    :param username: name or id of the user to be made member of the group
+    :type username: string
+    :param role: role of the user in the group. One of ``member``, ``editor``,
+        or ``admin``
+    :type role: string
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+    '''
     _check_access('group_member_create', context, data_dict)
     return _group_or_org_member_create(context, data_dict)
 
 def organization_member_create(context, data_dict):
+    '''Make a user a member of an organization.
+
+    You must be authorized to edit the organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+    :param username: name or id of the user to be made member of the
+        organization
+    :type username: string
+    :param role: role of the user in the organization. One of ``member``,
+        ``editor``, or ``admin``
+    :type role: string
+
+    :returns: the newly created (or updated) membership
+    :rtype: dictionary
+    '''
     _check_access('organization_member_create', context, data_dict)
     return _group_or_org_member_create(context, data_dict, is_org=True)
 

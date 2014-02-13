@@ -19,12 +19,13 @@ from webhelpers.html import literal
 
 import ckan.exceptions
 import ckan
-from ckan.lib import i18n
-import lib.render
+import ckan.lib.i18n as i18n
+import ckan.lib.render as render_
 import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
-from ckan.plugins import PluginImplementations, IGenshiStreamFilter, IAuthenticator
+import ckan.plugins as p
 import ckan.model as model
+import ckan.lib.maintain as maintain
 
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
@@ -42,9 +43,17 @@ ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
 
 def abort(status_code=None, detail='', headers=None, comment=None):
+    '''Abort the current request immediately by returning an HTTP exception.
+
+    This is a wrapper for :py:func:`pylons.controllers.util.abort` that adds
+    some CKAN custom behavior, including allowing
+    :py:class:`~ckan.plugins.interfaces.IAuthenticator` plugins to alter the
+    abort response, and showing flash messages in the web interface.
+
+    '''
     if status_code == 401:
         # Allow IAuthenticator plugins to alter the abort
-        for item in PluginImplementations(IAuthenticator):
+        for item in p.PluginImplementations(p.IAuthenticator):
             result = item.abort(status_code, detail, headers, comment)
             (status_code, detail, headers, comment) = result
 
@@ -74,8 +83,14 @@ def render_snippet(template_name, **kw):
 
 
 def render_text(template_name, extra_vars=None, cache_force=None):
-    ''' Helper function to render a genshi NewTextTemplate without
-    having to pass the loader_class or method. '''
+    '''Render a Genshi :py:class:`NewTextTemplate`.
+
+    This is just a wrapper function that lets you render a Genshi
+    :py:class:`NewTextTemplate` without having to pass ``method='text'`` or
+    ``loader_class=NewTextTemplate`` (it passes them to
+    :py:func:`~ckan.plugins.toolkit.render` for you).
+
+    '''
     return render(template_name,
                   extra_vars=extra_vars,
                   cache_force=cache_force,
@@ -92,8 +107,15 @@ def render_jinja2(template_name, extra_vars):
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
            cache_force=None, renderer=None):
-    ''' Main template rendering function. '''
+    '''Render a template and return the output.
 
+    This is CKAN's main template rendering function.
+
+    .. todo::
+
+       Document the parameters of :py:func:`ckan.plugins.toolkit.render`.
+
+    '''
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
@@ -104,10 +126,9 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         del globs['url']
 
         try:
-            template_path, template_type = lib.render.template_info(template_name)
-        except lib.render.TemplateNotFound:
-            template_type = 'genshi'
-            template_path = ''
+            template_path, template_type = render_.template_info(template_name)
+        except render_.TemplateNotFound:
+            raise
 
         # snippets should not pass the context
         # but allow for legacy genshi templates
@@ -145,7 +166,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         )
         stream = template.generate(**globs)
 
-        for item in PluginImplementations(IGenshiStreamFilter):
+        for item in p.PluginImplementations(p.IGenshiStreamFilter):
             stream = item.filter(stream)
 
         if loader_class == NewTextTemplate:
@@ -205,6 +226,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         raise ckan.exceptions.CkanUrlException(
             '\nAn Exception has been raised for template %s\n%s' %
             (template_name, e.message))
+    except render_.TemplateNotFound:
+        raise
 
 
 class ValidationException(Exception):
@@ -212,6 +235,9 @@ class ValidationException(Exception):
 
 
 class BaseController(WSGIController):
+    '''Base class for CKAN controller classes to inherit from.
+
+    '''
     repo = model.repo
     log = logging.getLogger(__name__)
 
@@ -224,15 +250,9 @@ class BaseController(WSGIController):
 
         i18n.handle_request(request, c)
 
-        # If the user is logged in add their number of new activities to the
-        # template context.
-        if c.userobj:
-            from ckan.logic import get_action
-            new_activities_count = get_action(
-                'dashboard_new_activities_count')
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
-            c.new_activities = new_activities_count(context, {})
+        maintain.deprecate_context_item(
+            'new_activities',
+            'Use `h.new_activities` instead.')
 
     def _identify_user(self):
         '''Try to identify the user
@@ -252,7 +272,7 @@ class BaseController(WSGIController):
 
         # Authentication plugins get a chance to run here break as soon as a
         # user is identified.
-        authenticators = PluginImplementations(IAuthenticator)
+        authenticators = p.PluginImplementations(p.IAuthenticator)
         if authenticators:
             for item in authenticators:
                 item.identify()
@@ -262,6 +282,12 @@ class BaseController(WSGIController):
         # We haven't identified the user so try the default methods
         if not c.user:
             self._identify_user_default()
+
+        # If we have a user but not the userobj let's get the userobj.  This
+        # means that IAuthenticator extensions do not need to access the user
+        # model directly.
+        if c.user and not c.userobj:
+            c.userobj = model.User.by_name(c.user)
 
         # general settings
         if c.user:
@@ -289,8 +315,9 @@ class BaseController(WSGIController):
         if c.user:
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
-            if c.userobj is None:
-                # This occurs when you are logged in, clean db
+            if c.userobj is None or not c.userobj.is_active():
+                # This occurs when a user that was still logged in is deleted,
+                # or when you are logged in, clean db
                 # and then restart (or when you change your username)
                 # There is no user object, so even though repoze thinks you
                 # are logged in and your cookie has ckan_display_name, we

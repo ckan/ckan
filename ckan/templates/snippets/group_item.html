@@ -5,7 +5,7 @@
     {% set truncate_title = truncate_title or 0 %}
     {% set title = group.title or group.name %}
     <a class="module-image" href="{{ url }}">
-      <img src="{{ group.image_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" />
+      <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" />
     </a>
     <h3 class="media-heading"><a href="{{ url }}">{{ group.title or group.name }}</a></h3>
     {% if group.description %}
@@ -14,8 +14,6 @@
       {% else %}
         <p>{{ h.markdown_extract(group.description, truncate)|urlize }}</p>
       {% endif %}
-    {% else %}
-      <p class="empty">{{ _('There is no description for this group') }}</p>
     {% endif %}
   </header>
   {% set list_class = "unstyled dataset-list" %}

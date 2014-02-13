@@ -2,8 +2,7 @@ import logging
 
 from pylons import c
 from ckan.lib import base
-from ckan.lib.maintain import deprecate_context_item
-from ckan.lib.navl import dictization_functions
+import ckan.lib.maintain as maintain
 from ckan import logic
 import logic.schema
 from ckan import plugins
@@ -20,6 +19,17 @@ _default_package_plugin = None
 _group_plugins = {}
 # The fallback behaviour
 _default_group_plugin = None
+
+
+def reset_package_plugins():
+    global _default_package_plugin
+    _default_package_plugin = None
+    global _package_plugins
+    _package_plugins = {}
+    global _default_group_plugin
+    _default_group_plugin = None
+    global _group_plugins
+    _group_plugins = {}
 
 
 def lookup_package_plugin(package_type=None):
@@ -43,7 +53,8 @@ def lookup_group_plugin(group_type=None):
     """
     if group_type is None:
         return _default_group_plugin
-    return _group_plugins.get(group_type, _default_group_plugin)
+    return _group_plugins.get(group_type, _default_organization_plugin
+        if group_type == 'organization' else _default_group_plugin)
 
 
 def register_package_plugins(map):
@@ -104,7 +115,7 @@ def register_group_plugins(map):
     """
     Register the various IGroupForm instances.
 
-    This method will setup the mappings between package types and the
+    This method will setup the mappings between group types and the
     registered IGroupForm instances. If it's called more than once an
     exception will be raised.
     """
@@ -149,7 +160,7 @@ def register_group_plugins(map):
 
             if group_type in _group_plugins:
                 raise ValueError, "An existing IGroupForm is "\
-                                  "already associated with the package type "\
+                                  "already associated with the group type "\
                                   "'%s'" % group_type
             _group_plugins[group_type] = plugin
 
@@ -159,20 +170,26 @@ def register_group_plugins(map):
 
 
 class DefaultDatasetForm(object):
-    '''The default implementation of IDatasetForm.
+    '''The default implementation of
+    :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
 
-    See ckan.plugins.interfaces.IDatasetForm.
+    This class serves two purposes:
 
-    This class has two purposes:
+    1. It provides a base class for plugin classes that implement
+       :py:class:`~ckan.plugins.interfaces.IDatasetForm` to inherit from, so
+       they can inherit the default behavior and just modify the bits they
+       need to.
 
-    1. It provides a base class for IDatasetForm implementations to inherit
-       from.
+    2. It is used as the default fallback plugin when no registered
+       :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugin handles the
+       given dataset type and no other plugin has registered itself as the
+       fallback plugin.
 
-    2. It is used as the default fallback plugin, if no IDatasetForm plugin
-       registers itself as the fallback.
+    .. note::
 
-    Note - this isn't a plugin implementation. This is deliberate, as we
-           don't want this being registered.
+       :py:class:`~ckan.plugins.toolkit.DefaultDatasetForm` doesn't call
+       :py:func:`~ckan.plugins.core.implements`, because we don't want it
+       being registered.
 
     '''
     def create_package_schema(self):
@@ -192,8 +209,9 @@ class DefaultDatasetForm(object):
         c.groups_available = authz_fn(context, data_dict)
 
         c.licenses = [('', '')] + base.model.Package.get_license_options()
+        # CS: bad_spelling ignore 2 lines
         c.licences = c.licenses
-        deprecate_context_item('licences', 'Use `c.licenses` instead')
+        maintain.deprecate_context_item('licences', 'Use `c.licenses` instead')
         c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
 
         if c.pkg:
@@ -219,9 +237,6 @@ class DefaultDatasetForm(object):
 
     def edit_template(self):
         return 'package/edit.html'
-
-    def comments_template(self):
-        return 'package/comments.html'
 
     def search_template(self):
         return 'package/search.html'
@@ -404,3 +419,39 @@ class DefaultGroupForm(object):
                 c.auth_for_change_state = True
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
+
+
+class DefaultOrganizationForm(DefaultGroupForm):
+    def group_form(self):
+        return 'organization/new_organization_form.html'
+
+    def setup_template_variables(self, context, data_dict):
+        pass
+
+    def new_template(self):
+        return 'organization/new.html'
+
+    def about_template(self):
+        return 'organization/about.html'
+
+    def index_template(self):
+        return 'organization/index.html'
+
+    def admins_template(self):
+        return 'organization/admins.html'
+
+    def bulk_process_template(self):
+        return 'organization/bulk_process.html'
+
+    def read_template(self):
+        return 'organization/read.html'
+
+    # don't override history_template - use group template for history
+
+    def edit_template(self):
+        return 'organization/edit.html'
+
+    def activity_template(self):
+        return 'organization/activity_stream.html'
+
+_default_organization_plugin = DefaultOrganizationForm()

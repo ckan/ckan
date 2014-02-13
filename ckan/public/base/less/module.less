@@ -13,17 +13,6 @@
   border-bottom: 1px solid @moduleHeadingBorderColor;
 }
 
-.module-heading .action {
-  float: right;
-  color: @moduleHeadingActionTextColor;
-  font-size: 12px;
-  line-height: @baseLineHeight;
-  text-decoration: underline;
-  &:hover {
-    color: @layoutTextColor;
-  }
-}
-
 .module-content {
   padding: 0 @gutterX;
   margin: 20px 0;
@@ -67,6 +56,12 @@
   height: 34px;
   margin-bottom: 0;
   border-top: 1px solid @moduleHeadingBorderColor;
+}
+
+.module-content .pagination {
+  margin-left: -25px;
+  margin-right: -25px;
+  margin-bottom: -20px;
 }
 
 .module .pagination > ul {
@@ -223,6 +218,10 @@
   .module:first-child {
     margin-top: 0;
   }
+}
+
+.no-nav .module:last-child {
+  margin-top: 0;
 }
 
 .module-image {

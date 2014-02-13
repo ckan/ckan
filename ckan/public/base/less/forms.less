@@ -79,6 +79,20 @@ textarea {
   height: (@baseLineHeight*2)+1;
 }
 
+.control-required {
+  color: @errorBorder;
+}
+
+.form-actions .control-required-message {
+  float: left;
+  margin-left: 20px;
+  margin-bottom: 0;
+  line-height: 30px;
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
 .form-actions {
   background: none;
   margin-left: -@gutterX;
@@ -229,18 +243,21 @@ textarea {
 }
 
 .simple-input .field .btn-search {
-  .ckan-icon;
-  .ckan-icon-search;
   position: absolute;
   display: block;
   height: 17px;
   width: 17px;
+  padding: 0;
   top: 50%;
   right: 0;
-  margin-top: -8px;
+  margin-top: -10px;
   background-color: transparent;
   border: none;
-  text-indent: -999em;
+  color: #999;
+  .transition(color 0.2s ease-in);
+  &:hover {
+    color: #000;
+  }
 }
 
 .editor textarea {
@@ -661,4 +678,72 @@ textarea {
   textarea:focus {
     .box-shadow(none);
   }
+}
+
+.js .image-upload {
+  #field-image-upload {
+    cursor: pointer;
+    position: absolute;
+    z-index: 1;
+    .opacity(0);
+  }
+  .controls {
+    position: relative;
+  }
+  .btn {
+    position: relative;
+    top: 0;
+    margin-right: 10px;
+    &.hover {
+      color: @grayDark;
+      text-decoration: none;
+      background-position: 0 -15px;
+      .transition(background-position .1s linear);
+    }
+  }
+  .btn-remove-url {
+    position: absolute;
+    margin-right: 0;
+    top: 4px;
+    right: 5px;
+    padding: 0 4px;
+    .border-radius(100px);
+    .icon-remove {
+      margin-right: 0;
+    }
+  }
+}
+.add-member-form .control-label {
+  width: 100%;
+  text-align: left;
+}
+
+.add-member-form .controls {
+  margin-left: auto;
+}
+
+.add-member-or {
+  float: left;
+  margin-top: 75px;
+  width: 7%;
+  text-align: center;
+  text-transform: uppercase;
+  color: @grayLight;
+  font-weight: bold;
+}
+
+.add-member-form .row-fluid .control-group {
+  float: left;
+  width: 45%;
+}
+
+.add-member-form .row-fluid {
+  .select2-container, input {
+    width: 100% !important;
+  }
+}
+
+#recaptcha_table {
+  table-layout: inherit;
+  line-height: 1;
 }

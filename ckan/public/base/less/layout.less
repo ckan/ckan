@@ -46,8 +46,8 @@
 .primary {
   .primary {
     float: left;
-    width: 479px;
-    margin-left: 20px;
+    width: 467px;
+    margin-left: 0;
     margin-bottom: 20px;
     h1, h2, h3, h4 {
       &:first-child {
@@ -114,6 +114,7 @@
     margin-top: 15px;
     padding-top: 10px;
     border-top: 1px dotted #DDD;
+    word-break: break-word;
     dl dd {
       margin-top: 3px;
       margin-left: 0;
@@ -153,6 +154,9 @@
       }
     }
   }
+  .follow_button {
+    margin-top: 15px;
+  }
   &.editing {
     .module-heading {
 
@@ -162,3 +166,10 @@
     }
   }
 }
+
+.flash-messages {
+  .alert {
+    .box-shadow(0 0 0 1px white);
+  }
+}
+

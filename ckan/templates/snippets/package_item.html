@@ -41,8 +41,6 @@ Example:
       {% endif %}
       {% if notes %}
         <div>{{ notes|urlize }}</div>
-      {% else %}
-        <p class="empty">{{ _("This dataset has no description") }}</p>
       {% endif %}
     </div>
     {% if package.resources and not hide_resources %}

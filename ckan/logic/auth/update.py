@@ -10,20 +10,20 @@ from ckan.logic.auth.create import _check_group_auth
 def make_latest_pending_package_active(context, data_dict):
     return new_authz.is_authorized('package_update', context, data_dict)
 
-
+@logic.auth_allow_anonymous_access
 def package_update(context, data_dict):
     user = context.get('user')
     package = logic_auth.get_package_object(context, data_dict)
 
     if package.owner_org:
         # if there is an owner org then we must have update_dataset
-        # premission for that organization
+        # permission for that organization
         check1 = new_authz.has_user_permission_for_group_or_org(
             package.owner_org, user, 'update_dataset'
         )
     else:
         # If dataset is not owned then we can edit if config permissions allow
-        if new_authz.auth_is_registered_user():
+        if not new_authz.auth_is_anon_user(context):
             check1 = new_authz.check_config_permission(
                 'create_dataset_if_not_in_organization')
         else:
@@ -41,6 +41,9 @@ def package_update(context, data_dict):
 
     return {'success': True}
 
+def package_resource_reorder(context, data_dict):
+    ## the action function runs package update so no need to run it twice
+    return {'success': True}
 
 def resource_update(context, data_dict):
     model = context['model']
@@ -176,22 +179,37 @@ def group_edit_permissions(context, data_dict):
         return {'success': True}
 
 
+@logic.auth_allow_anonymous_access
 def user_update(context, data_dict):
     user = context['user']
-    if not user and 'reset_key' not in data_dict:
+
+    # FIXME: We shouldn't have to do a try ... except here, validation should
+    # have ensured that the data_dict contains a valid user id before we get to
+    # authorization.
+    try:
+        user_obj = logic_auth.get_user_object(context, data_dict)
+    except logic.NotFound:
+        return {'success': False, 'msg': _('User not found')}
+
+    # If the user has a valid reset_key in the db, and that same reset key
+    # has been posted in the data_dict, we allow the user to update
+    # her account without using her password or API key.
+    if user_obj.reset_key and 'reset_key' in data_dict:
+        if user_obj.reset_key == data_dict['reset_key']:
+            return {'success': True}
+
+    if not user:
         return {'success': False,
                 'msg': _('Have to be logged in to edit user')}
 
-    user_obj = logic_auth.get_user_object(context, data_dict)
-    user_reset = ('reset_key' in data_dict and
-                  data_dict['reset_key'] == user_obj.reset_key)
-
-    if not (user == user_obj.name) and not user_reset:
+    if user == user_obj.name:
+        # Allow users to update their own user accounts.
+        return {'success': True}
+    else:
+        # Don't allow users to update other users' accounts.
         return {'success': False,
                 'msg': _('User %s not authorized to edit user %s') %
                         (user, user_obj.id)}
-
-    return {'success': True}
 
 
 def revision_change_state(context, data_dict):

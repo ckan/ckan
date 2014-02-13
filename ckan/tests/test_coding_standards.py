@@ -20,6 +20,7 @@ import os
 import re
 import cStringIO
 import inspect
+import itertools
 
 import pep8
 
@@ -27,14 +28,14 @@ file_path = os.path.dirname(__file__)
 base_path = os.path.abspath(os.path.join(file_path, '..', '..'))
 
 
-def process_directory(directory):
+def process_directory(directory, ext='.py'):
     base_len = len(base_path) + 1
     for (dirpath, dirnames, filenames) in os.walk(directory):
         # ignore hidden files and dir
         filenames = [f for f in filenames if not f[0] == '.']
         dirnames[:] = [d for d in dirnames if not d[0] == '.']
         for name in filenames:
-            if name.endswith('.py'):
+            if name.endswith(ext):
                 path = os.path.join(dirpath, name)
                 filename = path[base_len:]
                 yield path, filename
@@ -65,7 +66,101 @@ def show_passing(msg, errors):
         raise Exception('\n%s\n\n' % msg + '\n'.join(sorted(errors)))
 
 
+def cs_filter(f, filter_, ignore_comment_lines=True):
+    ''' filter the file removing comments if requested.
+    looks for comments like
+    # CS: <filter_> ignore
+    # CS: <filter_> ignore x line
+    and removes the requested number of lines.  Lines are removed by
+    blanking so the line numbers reported will be correct.  This allows us
+    to check files that have known violations of the test rules. '''
+
+    # this RegEx is of poor quality but works
+    exp = r'^\s*#\s+CS:.*%s.*ignore\D*((\d+)\s+line)*'
+    re_ignore = re.compile(exp % filter_)
+    ignore = 0
+    out = []
+    count = 1
+    for line in f:
+        # ignore the line if we have been told too
+        if ignore > 0:
+            line = ''
+            ignore -= 1
+        matches = re_ignore.search(line)
+        if matches:
+            ignore = int(matches.group(2) or 1)
+        # ignore comments out lines
+        if ignore_comment_lines and line.lstrip().startswith('#'):
+            line = ''
+        out.append(line)
+        count += 1
+    return out
+
+
+class TestBadSpellings(object):
+
+    BAD_SPELLING_BLACKLIST_FILES = []
+
+    # these are the bad spellings with the correct spelling
+    # use LOWER case
+    BAD_SPELLINGS = {
+        # CS: bad_spelling ignore 2 lines
+        'licence': 'license',
+        'organisation': 'organization',
+    }
+
+    fails = {}
+    passes = []
+    done = False
+
+    @classmethod
+    def setup(cls):
+        if not cls.done:
+            cls.process()
+        cls.done = True
+
+    @classmethod
+    def process(cls):
+        blacklist = cls.BAD_SPELLING_BLACKLIST_FILES
+        re_bad_spelling = re.compile(
+            r'(%s)' % '|'.join([x for x in cls.BAD_SPELLINGS]),
+            flags=re.IGNORECASE
+        )
+        files = itertools.chain.from_iterable([
+            process_directory(base_path),
+            process_directory(base_path, ext='.rst')])
+        for path, filename in files:
+            f = open(path, 'r')
+            count = 1
+            errors = []
+            for line in cs_filter(f, 'bad_spelling'):
+                matches = re_bad_spelling.findall(line)
+                if matches:
+                    bad_words = []
+                    for m in matches:
+                        if m not in bad_words:
+                            bad_words.append('%s use %s' %
+                                             (m, cls.BAD_SPELLINGS[m.lower()]))
+                    bad = ', '.join(bad_words)
+                    errors.append('ln:%s \t%s\n<%s>' % (count, line[:-1], bad))
+                count += 1
+            if errors and not filename in blacklist:
+                cls.fails[filename] = output_errors(filename, errors)
+            elif not errors and filename in blacklist:
+                cls.passes.append(filename)
+
+    def test_good(self):
+        msg = 'The following files passed bad spellings rules'
+        msg += '\nThey need removing from the test blacklist'
+        show_passing(msg, self.passes)
+
+    def test_bad(self):
+        msg = 'The following files have bad spellings that need fixing'
+        show_fails(msg, self.fails)
+
+
 class TestNastyString(object):
+    # CS: nasty_string ignore
     ''' Look for a common coding problem in ckan '..%s..' % str(x) '''
 
     # Nasty str() issues
@@ -76,22 +171,8 @@ class TestNastyString(object):
     # The value is converted to a string anyway so the str() is unneeded in
     # any place.
 
-    NASTY_STR_BLACKLIST_FILES = [
-        'ckan/ckan_nose_plugin.py',
-        'ckan/controllers/api.py',
-        'ckan/controllers/group.py',
-        'ckan/lib/activity_streams.py',
-        'ckan/logic/action/create.py',
-        'ckan/logic/action/update.py',
-        'ckan/logic/auth/create.py',
-        'ckan/logic/auth/delete.py',
-        'ckan/logic/auth/get.py',
-        'ckan/logic/validators.py',
-        'ckan/tests/test_coding_standards.py',  # example causes error
-        'ckan/tests/functional/api/test_revision_search.py',
-        'ckan/tests/functional/test_pagination.py',
-        'ckan/tests/models/test_package_relationships.py',
-    ]
+    NASTY_STR_BLACKLIST_FILES = []
+
     fails = {}
     passes = []
     done = False
@@ -112,7 +193,7 @@ class TestNastyString(object):
             f = open(path, 'r')
             count = 1
             errors = []
-            for line in f:
+            for line in cs_filter(f, 'nasty_string'):
                 if re_nasty_str.search(line):
                     errors.append('ln:%s \t%s' % (count, line[:-1]))
                 count += 1
@@ -127,6 +208,7 @@ class TestNastyString(object):
         show_passing(msg, self.passes)
 
     def test_bad(self):
+        # CS: nasty_string ignore next 2 lines
         msg = ('The following files have nasty str() issues that need'
                ' resolving\nCode is like `\'...%s..\' % str(..)`'
                'and should just be `\'...%s..\' % ..`')
@@ -150,13 +232,10 @@ class TestImportFromCkan(object):
         'bin/ckan-hmg-breakdown.py',
         'bin/dump-ukgov.py',
         'ckan/config/middleware.py',
-        'ckan/config/routing.py',
         'ckan/controllers/error.py',
         'ckan/controllers/storage.py',
         'ckan/lib/authenticator.py',
-        'ckan/lib/base.py',
         'ckan/lib/munge.py',
-        'ckan/lib/package_saver.py',
         'ckan/lib/plugins.py',
         'ckan/lib/search/index.py',
         'ckan/lib/search/query.py',
@@ -172,7 +251,6 @@ class TestImportFromCkan(object):
         'ckan/migration/versions/035_harvesting_doc_versioning.py',
         'ckan/model/test_user.py',
         'ckan/plugins/__init__.py',
-        'ckan/plugins/core.py',
         'ckan/tests/__init__.py',
         'ckan/tests/ckantestplugin/ckantestplugin/__init__.py',
         'ckan/tests/functional/api/base.py',
@@ -254,7 +332,6 @@ class TestImportFromCkan(object):
         'ckanext/multilingual/plugin.py',
         'ckanext/reclinepreview/tests/test_preview.py',
         'ckanext/stats/controller.py',
-        'ckanext/stats/stats.py',
         'ckanext/stats/tests/__init__.py',
         'ckanext/stats/tests/test_stats_lib.py',
         'ckanext/stats/tests/test_stats_plugin.py',
@@ -313,9 +390,7 @@ class TestImportStar(object):
     # import * is bad for many reasons and should be avoided.
 
     IMPORT_STAR_BLACKLIST_FILES = [
-        'bin/ckan_spam.py',
         'ckan/lib/helpers.py',
-        'ckan/lib/package_saver.py',
         'ckan/migration/versions/001_add_existing_tables.py',
         'ckan/migration/versions/002_add_author_and_maintainer.py',
         'ckan/migration/versions/003_add_user_object.py',
@@ -397,7 +472,6 @@ class TestImportStar(object):
         'ckan/tests/lib/test_tag_search.py',
         'ckan/tests/misc/test_sync.py',
         'ckan/tests/models/test_extras.py',
-        'ckan/tests/models/test_group.py',
         'ckan/tests/models/test_misc.py',
         'ckan/tests/models/test_package.py',
         'ckan/tests/models/test_package_relationships.py',
@@ -408,7 +482,6 @@ class TestImportStar(object):
         'ckan/tests/pylons_controller.py',
         'ckan/tests/test_dumper.py',
         'ckan/tests/test_wsgi_ckanclient.py',
-        'ckanext/stats/stats.py',
         'fabfile.py',
     ]
     fails = {}
@@ -483,7 +556,6 @@ class TestPep8(object):
         'bin/webstore_test.py',
         'ckan/__init__.py',
         'ckan/ckan_nose_plugin.py',
-        'ckan/config/environment.py',
         'ckan/config/middleware.py',
         'ckan/config/routing.py',
         'ckan/config/sp_config.py',
@@ -501,11 +573,9 @@ class TestPep8(object):
         'ckan/lib/alphabet_paginate.py',
         'ckan/lib/app_globals.py',
         'ckan/lib/authenticator.py',
-        'ckan/lib/base.py',
         'ckan/lib/captcha.py',
         'ckan/lib/cli.py',
         'ckan/lib/create_test_data.py',
-        'ckan/lib/datapreview.py',
         'ckan/lib/dictization/__init__.py',
         'ckan/lib/dictization/model_dictize.py',
         'ckan/lib/dictization/model_save.py',
@@ -612,7 +682,6 @@ class TestPep8(object):
         'ckan/migration/versions/063_org_changes.py',
         'ckan/migration/versions/064_add_email_last_sent_column.py',
         'ckan/migration/versions/065_add_email_notifications_preference.py',
-        'ckan/migration/versions/066_default_package_type.py',
         'ckan/migration/versions/067_turn_extras_to_strings.py',
         'ckan/misc.py',
         'ckan/model/__init__.py',
@@ -645,7 +714,6 @@ class TestPep8(object):
         'ckan/model/vocabulary.py',
         'ckan/new_authz.py',
         'ckan/pastertemplates/__init__.py',
-        'ckan/plugins/core.py',
         'ckan/plugins/interfaces.py',
         'ckan/plugins/toolkit.py',
         'ckan/poo.py',
@@ -682,7 +750,6 @@ class TestPep8(object):
         'ckan/tests/functional/test_cors.py',
         'ckan/tests/functional/test_error.py',
         'ckan/tests/functional/test_follow.py',
-        'ckan/tests/functional/test_group.py',
         'ckan/tests/functional/test_home.py',
         'ckan/tests/functional/test_package.py',
         'ckan/tests/functional/test_package_relationships.py',
@@ -755,13 +822,10 @@ class TestPep8(object):
         'ckanext/datastore/tests/test_create.py',
         'ckanext/datastore/tests/test_delete.py',
         'ckanext/datastore/tests/test_search.py',
-        'ckanext/datastore/tests/test_unit.py',
         'ckanext/datastore/tests/test_upsert.py',
         'ckanext/example_idatasetform/plugin.py',
         'ckanext/example_itemplatehelpers/plugin.py',
         'ckanext/multilingual/plugin.py',
-        'ckanext/multilingual/tests/test_multilingual_plugin.py',
-        'ckanext/pdfpreview/plugin.py',
         'ckanext/reclinepreview/plugin.py',
         'ckanext/reclinepreview/tests/test_preview.py',
         'ckanext/resourceproxy/plugin.py',
@@ -837,16 +901,13 @@ class TestActionAuth(object):
 
     ACTION_FN_SIGNATURES_BLACKLIST = [
         'create: activity_create',
-        'create: tag_create',
     ]
 
     ACTION_NO_AUTH_BLACKLIST = [
         'create: follow_dataset',
         'create: follow_group',
         'create: follow_user',
-        'create: member_create',
         'create: package_relationship_create_rest',
-        'delete: member_delete',
         'delete: package_relationship_delete_rest',
         'delete: unfollow_dataset',
         'delete: unfollow_group',
@@ -907,16 +968,11 @@ class TestActionAuth(object):
 
     ACTION_NO_DOC_STR_BLACKLIST = [
         'create: group_create_rest',
-        'create: group_member_create',
-        'create: organization_member_create',
         'create: package_create_rest',
         'create: package_relationship_create_rest',
-        'delete: group_member_delete',
-        'delete: organization_member_delete',
         'delete: package_relationship_delete_rest',
         'get: get_site_user',
         'get: group_show_rest',
-        'get: member_roles_list',
         'get: package_show_rest',
         'get: tag_show_rest',
         'update: group_update_rest',

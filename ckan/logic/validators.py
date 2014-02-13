@@ -23,20 +23,31 @@ def owner_org_validator(key, data, errors, context):
 
     value = data.get(key)
 
-    if value is missing or not value:
+    if value is missing or value is None:
         if not new_authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('A organization must be supplied'))
         data.pop(key, None)
         raise df.StopOnError
 
     model = context['model']
+    user = context['user']
+    user = model.User.get(user)
+    if value == '' :
+        if not new_authz.check_config_permission('create_unowned_dataset'):
+            raise Invalid(_('A organization must be supplied'))
+        package = context.get('package')
+        # only sysadmins can remove datasets from org
+        if package and package.owner_org and not user.sysadmin:
+            raise Invalid(_('You cannot remove a dataset from an existing organization'))
+        return
+
     group = model.Group.get(value)
     if not group:
         raise Invalid(_('Organization does not exist'))
     group_id = group.id
-    user = context['user']
-    user = model.User.get(user)
-    if not(user.sysadmin or user.is_in_group(group_id)):
+    if not(user.sysadmin or
+           new_authz.has_user_permission_for_group_or_org(
+               group_id, user.name, 'create_dataset')):
         raise Invalid(_('You cannot add a dataset to this organization'))
     data[key] = group_id
 
@@ -62,7 +73,13 @@ def int_validator(value, context):
 def natural_number_validator(value, context):
     value = int_validator(value, context)
     if value < 0:
-        raise Invalid(_('Must be natural number'))
+        raise Invalid(_('Must be a natural number'))
+    return value
+
+def is_positive_integer(value, context):
+    value = int_validator(value, context)
+    if value < 1:
+        raise Invalid(_('Must be a postive integer'))
     return value
 
 def boolean_validator(value, context):
@@ -110,7 +127,7 @@ def package_name_exists(value, context):
     result = session.query(model.Package).filter_by(name=value).first()
 
     if not result:
-        raise Invalid(_('Not found') + ': %r' % str(value))
+        raise Invalid(_('Not found') + ': %s' % value)
     return value
 
 def package_id_or_name_exists(package_id_or_name, context):
@@ -267,7 +284,7 @@ def object_id_validator(key, activity_dict, errors, context):
         return object_id_validators[activity_type](object_id, context)
     else:
         raise Invalid('There is no object_id validator for '
-            'activity type "%s"' % str(activity_type))
+            'activity type "%s"' % activity_type)
 
 def extras_unicode_convert(extras, context):
     for extra in extras:
@@ -275,20 +292,39 @@ def extras_unicode_convert(extras, context):
     return extras
 
 name_match = re.compile('[a-z0-9_\-]*$')
-def name_validator(val, context):
+def name_validator(value, context):
+    '''Return the given value if it's a valid name, otherwise raise Invalid.
+
+    If it's a valid name, the given value will be returned unmodified.
+
+    This function applies general validation rules for names of packages,
+    groups, users, etc.
+
+    Most schemas also have their own custom name validator function to apply
+    custom validation rules after this function, for example a
+    ``package_name_validator()`` to check that no package with the given name
+    already exists.
+
+    :raises ckan.lib.navl.dictization_functions.Invalid: if ``value`` is not
+        a valid name
+
+    '''
+    if not isinstance(value, basestring):
+        raise Invalid(_('Names must be strings'))
+
     # check basic textual rules
-    if val in ['new', 'edit', 'search']:
+    if value in ['new', 'edit', 'search']:
         raise Invalid(_('That name cannot be used'))
 
-    if len(val) < 2:
+    if len(value) < 2:
         raise Invalid(_('Name must be at least %s characters long') % 2)
-    if len(val) > PACKAGE_NAME_MAX_LENGTH:
+    if len(value) > PACKAGE_NAME_MAX_LENGTH:
         raise Invalid(_('Name must be a maximum of %i characters long') % \
                       PACKAGE_NAME_MAX_LENGTH)
-    if not name_match.match(val):
+    if not name_match.match(value):
         raise Invalid(_('Url must be purely lowercase alphanumeric '
                         '(ascii) characters and these symbols: -_'))
-    return val
+    return value
 
 def package_name_validator(key, data, errors, context):
     model = context["model"]
@@ -437,6 +473,19 @@ def ignore_not_package_admin(key, data, errors, context):
         return
     data.pop(key)
 
+
+def ignore_not_sysadmin(key, data, errors, context):
+    '''Ignore the field if user not sysadmin or ignore_auth in context.'''
+
+    user = context.get('user')
+    ignore_auth = context.get('ignore_auth')
+
+    if ignore_auth or (user and new_authz.is_sysadmin(user)):
+        return
+
+    data.pop(key)
+
+
 def ignore_not_group_admin(key, data, errors, context):
     '''Ignore if the user is not allowed to administer for the group specified.'''
 
@@ -461,20 +510,37 @@ def ignore_not_group_admin(key, data, errors, context):
     data.pop(key)
 
 def user_name_validator(key, data, errors, context):
-    model = context["model"]
-    session = context["session"]
-    user = context.get("user_obj")
+    '''Validate a new user name.
 
-    query = session.query(model.User.name).filter_by(name=data[key])
-    if user:
-        user_id = user.id
-    else:
-        user_id = data.get(key[:-1] + ("id",))
-    if user_id and user_id is not missing:
-        query = query.filter(model.User.id <> user_id)
-    result = query.first()
-    if result:
-        errors[key].append(_('That login name is not available.'))
+    Append an error message to ``errors[key]`` if a user named ``data[key]``
+    already exists. Otherwise, do nothing.
+
+    :raises ckan.lib.navl.dictization_functions.Invalid: if ``data[key]`` is
+        not a string
+    :rtype: None
+
+    '''
+    model = context['model']
+    new_user_name = data[key]
+
+    if not isinstance(new_user_name, basestring):
+        raise Invalid(_('User names must be strings'))
+
+    user = model.User.get(new_user_name)
+    if user is not None:
+        # A user with new_user_name already exists in the database.
+
+        user_obj_from_context = context.get('user_obj')
+        if user_obj_from_context and user_obj_from_context.id == user.id:
+            # If there's a user_obj in context with the same id as the user
+            # found in the db, then we must be doing a user_update and not
+            # updating the user name, so don't return an error.
+            return
+        else:
+            # Otherwise return an error: there's already another user with that
+            # name, so you can create a new user with that name or update an
+            # existing user's name to that name.
+            errors[key].append(_('That login name is not available.'))
 
 def user_both_passwords_entered(key, data, errors, context):
 
@@ -488,7 +554,13 @@ def user_both_passwords_entered(key, data, errors, context):
 def user_password_validator(key, data, errors, context):
     value = data[key]
 
-    if not value == '' and not isinstance(value, Missing) and not len(value) >= 4:
+    if isinstance(value, Missing):
+        pass
+    elif not isinstance(value, basestring):
+        errors[('password',)].append(_('Passwords must be strings'))
+    elif value == '':
+        pass
+    elif len(value) < 4:
         errors[('password',)].append(_('Your password must be 4 characters or longer'))
 
 def user_passwords_match(key, data, errors, context):
@@ -619,6 +691,34 @@ def role_exists(role, context):
     return role
 
 
+def datasets_with_no_organization_cannot_be_private(key, data, errors,
+        context):
+
+    dataset_id = data.get(('id',))
+    owner_org = data.get(('owner_org',))
+    private = data[key] is True
+
+    check_passed = True
+
+    if not dataset_id and private and not owner_org:
+        # When creating a dataset, enforce it directly
+        check_passed = False
+    elif dataset_id and private and not owner_org:
+        # Check if the dataset actually has an owner_org, even if not provided
+        try:
+            dataset_dict = logic.get_action('package_show')({},
+                            {'id': dataset_id})
+            if not dataset_dict.get('owner_org'):
+                check_passed = False
+
+        except logic.NotFound:
+            check_passed = False
+
+    if not check_passed:
+        errors[key].append(
+                _("Datasets with no organization can't be private."))
+
+
 def list_of_strings(key, data, errors, context):
     value = data.get(key)
     if not isinstance(value, list):
@@ -626,3 +726,23 @@ def list_of_strings(key, data, errors, context):
     for x in value:
         if not isinstance(x, basestring):
             raise Invalid('%s: %s' % (_('Not a string'), x))
+
+def no_loops_in_hierarchy(key, data, errors, context):
+    '''Checks that the parent groups specified in the data would not cause
+    a loop in the group hierarchy, and therefore cause the recursion up/down
+    the hierarchy to get into an infinite loop.
+    '''
+    if not 'id' in data:
+        # Must be a new group - has no children, so no chance of loops
+        return
+    group = context['model'].Group.get(data['id'])
+    allowable_parents = group.\
+                        groups_allowed_to_be_its_parent(type=group.type)
+    for parent in data['groups']:
+        parent_name = parent['name']
+        # a blank name signifies top level, which is always allowed
+        if parent_name and context['model'].Group.get(parent_name) \
+                not in allowable_parents:
+            raise Invalid(_('This parent would create a loop in the '
+                            'hierarchy'))
+

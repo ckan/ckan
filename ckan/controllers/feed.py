@@ -21,7 +21,6 @@ of the revision history, rather than a feed of datasets.
 # TODO fix imports
 import logging
 import urlparse
-from urllib import urlencode
 
 import webhelpers.feedgenerator
 from pylons import config
@@ -47,7 +46,7 @@ def _package_search(data_dict):
      * unless overridden, sets a default item limit
     """
     context = {'model': model, 'session': model.Session,
-               'user': c.user or c.author}
+               'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
     if 'sort' not in data_dict or not data_dict['sort']:
         data_dict['sort'] = 'metadata_modified desc'
@@ -170,7 +169,7 @@ class FeedController(base.BaseController):
     def group(self, id):
         try:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
             group_dict = logic.get_action('group_show')(context, {'id': id})
         except logic.NotFound:
             base.abort(404, _('Group not found'))
@@ -195,14 +194,14 @@ class FeedController(base.BaseController):
         alternate_url = self._alternate_url(params, groups=id)
 
         return self.output_feed(results,
-                                feed_title=u'%s - Group: "%s"' % (g.site_title,
-                                group_dict['title']),
+                                feed_title=u'%s - Group: "%s"' %
+                                (g.site_title, group_dict['title']),
                                 feed_description=u'Recently created or '
                                 'updated datasets on %s by group: "%s"' %
                                 (g.site_title, group_dict['title']),
                                 feed_link=alternate_url,
-                                feed_guid=_create_atom_id(
-                                u'/feeds/groups/%s.atom' % id),
+                                feed_guid=_create_atom_id
+                                (u'/feeds/groups/%s.atom' % id),
                                 feed_url=feed_url,
                                 navigation_urls=navigation_urls)
 
@@ -233,8 +232,8 @@ class FeedController(base.BaseController):
                                 'updated datasets on %s by tag: "%s"' %
                                 (g.site_title, id),
                                 feed_link=alternate_url,
-                                feed_guid=_create_atom_id(
-                                u'/feeds/tag/%s.atom' % id),
+                                feed_guid=_create_atom_id
+                                (u'/feeds/tag/%s.atom' % id),
                                 feed_url=feed_url,
                                 navigation_urls=navigation_urls)
 
@@ -261,8 +260,8 @@ class FeedController(base.BaseController):
                                 feed_description=u'Recently created or '
                                 'updated datasets on %s' % g.site_title,
                                 feed_link=alternate_url,
-                                feed_guid=_create_atom_id(
-                                u'/feeds/dataset.atom'),
+                                feed_guid=_create_atom_id
+                                (u'/feeds/dataset.atom'),
                                 feed_url=feed_url,
                                 navigation_urls=navigation_urls)
 
@@ -276,8 +275,6 @@ class FeedController(base.BaseController):
                     and len(value) and not param.startswith('_'):
                 search_params[param] = value
                 fq += ' %s:"%s"' % (param, value)
-
-        search_url_params = urlencode(search_params)
 
         try:
             page = int(request.params.get('page', 1))
@@ -307,6 +304,9 @@ class FeedController(base.BaseController):
                                   controller='feed',
                                   action='custom')
 
+        atom_url = h._url_with_params('/feeds/custom.atom',
+                                      search_params.items())
+
         alternate_url = self._alternate_url(request.params)
 
         return self.output_feed(results,
@@ -315,8 +315,7 @@ class FeedController(base.BaseController):
                                 ' datasets on %s. Custom query: \'%s\'' %
                                 (g.site_title, q),
                                 feed_link=alternate_url,
-                                feed_guid=_create_atom_id(
-                                u'/feeds/custom.atom?%s' % search_url_params),
+                                feed_guid=_create_atom_id(atom_url),
                                 feed_url=feed_url,
                                 navigation_urls=navigation_urls)
 
@@ -376,11 +375,7 @@ class FeedController(base.BaseController):
         parameters.
         """
         path = h.url_for(controller=controller, action=action, **kwargs)
-        query = [(k, v.encode('utf-8') if isinstance(v, basestring)
-                  else str(v)) for k, v in query.items()]
-
-        # a trailing '?' is valid.
-        return self.base_url + path + u'?' + urlencode(query)
+        return h._url_with_params(self.base_url + path, query.items())
 
     def _navigation_urls(self, query, controller, action,
                          item_count, limit, **kwargs):
