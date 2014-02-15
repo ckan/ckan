@@ -61,16 +61,6 @@ class TestAuth(tests.WsgiAppCase):
 
 
 class TestAuthUsers(TestAuth):
-    @mock.patch('ckan.logic.auth.create.group_member_create')
-    def test_invite_user_prepares_context_and_delegates_to_group_member_create(self, group_member_create):
-        context = {'group_id': 42}
-        group_member_create_context = context
-        group_member_create_context['id'] = context['group_id']
-
-        new_authz.is_authorized_boolean('user_invite', context)
-
-        group_member_create.assert_called(group_member_create_context, None)
-
     def test_only_sysadmins_can_delete_users(self):
         username = 'username'
         user = {'id': username}
