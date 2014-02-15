@@ -1,4 +1,4 @@
-'''Unit tests for ckan/logic/auth.update.py.
+'''Unit tests for ckan/logic/auth/update.py.
 
 '''
 import mock
