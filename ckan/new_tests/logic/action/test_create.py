@@ -52,8 +52,9 @@ class TestUserInvite(object):
 
     @mock.patch('ckan.lib.mailer.send_invite')
     @mock.patch('random.SystemRandom')
-    def test_user_invite_works_even_if_tried_username_already_exists(self, SystemRandom, _):
-        SystemRandom.return_value.random.side_effect = [1000, 1000, 1000, 2000, 3000, 4000, 5000]
+    def test_user_invite_works_even_if_username_already_exists(self, rand, _):
+        rand.return_value.random.side_effect = [1000, 1000, 1000, 2000,
+                                                3000, 4000, 5000]
 
         for _ in range(3):
             invited_user = self._invite_user_to_group(email='same@email.com')
@@ -74,7 +75,8 @@ class TestUserInvite(object):
     def test_user_invite_requires_group_id(self, _):
         self._invite_user_to_group(group={'id': None})
 
-    def _invite_user_to_group(self, email='user@email.com', group=None, role='member'):
+    def _invite_user_to_group(self, email='user@email.com',
+                              group=None, role='member'):
         user = factories.User()
         group = group or factories.Group(user=user)
 
