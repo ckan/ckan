@@ -19,6 +19,7 @@ This module is reserved for these very useful functions.
 '''
 import ckan.model as model
 import ckan.logic as logic
+import ckan.new_authz as new_authz
 
 
 def reset_db():
@@ -106,13 +107,9 @@ def call_auth(auth_name, context, **kwargs):
     :rtype: dict
 
     '''
-    import ckan.logic.auth.update
-
     assert 'user' in context, ('Test methods must put a user name in the '
                                'context dict')
     assert 'model' in context, ('Test methods must put a model in the '
                                 'context dict')
 
-    # FIXME: Do we want to go through check_access() here?
-    auth_function = ckan.logic.auth.update.__getattribute__(auth_name)
-    return auth_function(context=context, data_dict=kwargs)
+    return new_authz.is_authorized(auth_name, context, data_dict=kwargs)
