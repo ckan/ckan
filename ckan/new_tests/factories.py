@@ -117,7 +117,8 @@ class Group(factory.Factory):
     # Generate a different group name param for each user that gets created.
     name = factory.Sequence(lambda n: 'test_group_{n}'.format(n=n))
 
-    user = factory.LazyAttribute(lambda _: helpers.call_action('get_site_user'))
+    user = factory.LazyAttribute(lambda _:
+                                 helpers.call_action('get_site_user'))
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):

@@ -9,11 +9,12 @@ import ckan.new_tests.factories as factories
 
 
 class TestCreate(object):
+
     def setup(self):
         helpers.reset_db()
 
     @mock.patch('ckan.logic.auth.create.group_member_create')
-    def test_user_invite_prepares_data_dict_and_delegates_to_group_member_create(self, group_member_create):
+    def test_user_invite_delegates_correctly_to_group_member_create(self, gmc):
         user = factories.User()
         context = {
             'user': user['name'],
@@ -26,4 +27,4 @@ class TestCreate(object):
 
         helpers.call_auth('user_invite', context=context, **data_dict)
 
-        group_member_create.assert_called_with(context, group_member_create_data_dict)
+        gmc.assert_called_with(context, group_member_create_data_dict)
