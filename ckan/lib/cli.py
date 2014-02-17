@@ -1599,8 +1599,6 @@ class Celery(CkanCommand):
                 print # newline
 
     def clean(self, include_tasks_not_done=True):
-        import ckan.model as model
-        import pprint
         assert self.options.queue, 'Please specifiy a --queue from: %r' % self.queues.keys()
         Session = self.session
         for table in ('broker', 'status'):
@@ -1616,12 +1614,12 @@ class Celery(CkanCommand):
                 domain = 'from kombu_message where visible=false and queue_id=%s' \
                            % self.queues[self.options.queue] \
                          if table=='broker' else \
-                         'from celery_taskmeta where status = "success"'
+                         'from celery_taskmeta where status = \'success\''
             tasks_initially = Session.execute('select * %s' % domain).rowcount
             if not tasks_initially:
                 print 'No tasks to delete from %s' % table_printable
                 continue
-            query = Session.execute('delete %s' % domain)
+            Session.execute('delete %s' % domain)
             tasks_afterwards = Session.execute('select * %s' % domain).rowcount
             print '%i of %i %stasks deleted from %s' % \
                   (tasks_initially - tasks_afterwards,
