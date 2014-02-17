@@ -21,9 +21,6 @@ import ckan.model as model
 import ckan.logic as logic
 
 
-NotAuthorized = logic.NotAuthorized
-
-
 def reset_db():
     '''Reset CKAN's database.
 

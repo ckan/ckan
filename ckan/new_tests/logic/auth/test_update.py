@@ -6,6 +6,7 @@ import nose
 
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
+import ckan.logic as logic
 
 
 class TestUpdate(object):
@@ -34,7 +35,7 @@ class TestUpdate(object):
             'name': 'updated_user_name',
         }
 
-        with nose.tools.assert_raises(helpers.NotAuthorized) as cm:
+        with nose.tools.assert_raises(logic.NotAuthorized) as cm:
             helpers.call_auth('user_update', context=context, **params)
 
         assert cm.exception.extra_msg == ('User 127.0.0.1 not authorized to '
@@ -72,7 +73,7 @@ class TestUpdate(object):
 
         # 3. Make assertions about the return value and/or side-effects.
 
-        with nose.tools.assert_raises(helpers.NotAuthorized) as cm:
+        with nose.tools.assert_raises(logic.NotAuthorized) as cm:
             helpers.call_auth('user_update', context=context, **params)
 
         assert cm.exception.extra_msg == ('User bob not authorized to edit '
@@ -131,7 +132,7 @@ class TestUpdate(object):
             'id': mock_user.id,
             'name': 'updated_user_name',
         }
-        with nose.tools.assert_raises(helpers.NotAuthorized) as cm:
+        with nose.tools.assert_raises(logic.NotAuthorized) as cm:
             helpers.call_auth('user_update', context=context, **params)
 
         assert cm.exception.extra_msg == 'Have to be logged in to edit user'
