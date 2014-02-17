@@ -19,7 +19,9 @@ This module is reserved for these very useful functions.
 '''
 import ckan.model as model
 import ckan.logic as logic
-import ckan.new_authz as new_authz
+
+
+NotAuthorized = logic.NotAuthorized
 
 
 def reset_db():
@@ -112,4 +114,4 @@ def call_auth(auth_name, context, **kwargs):
     assert 'model' in context, ('Test methods must put a model in the '
                                 'context dict')
 
-    return new_authz.is_authorized(auth_name, context, data_dict=kwargs)
+    return logic.check_access(auth_name, context, data_dict=kwargs)
