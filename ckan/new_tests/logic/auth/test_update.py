@@ -35,11 +35,8 @@ class TestUpdate(object):
             'name': 'updated_user_name',
         }
 
-        with nose.tools.assert_raises(logic.NotAuthorized) as cm:
-            helpers.call_auth('user_update', context=context, **params)
-
-        assert cm.exception.extra_msg == ('User 127.0.0.1 not authorized to '
-                                          'edit user fred_user_id')
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'user_update', context=context, **params)
 
     ## START-AFTER
 
@@ -73,11 +70,8 @@ class TestUpdate(object):
 
         # 3. Make assertions about the return value and/or side-effects.
 
-        with nose.tools.assert_raises(logic.NotAuthorized) as cm:
-            helpers.call_auth('user_update', context=context, **params)
-
-        assert cm.exception.extra_msg == ('User bob not authorized to edit '
-                                          'user fred_user_id')
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'user_update', context=context, **params)
 
         # 4. Do nothing else!
 
@@ -132,9 +126,8 @@ class TestUpdate(object):
             'id': mock_user.id,
             'name': 'updated_user_name',
         }
-        with nose.tools.assert_raises(logic.NotAuthorized) as cm:
-            helpers.call_auth('user_update', context=context, **params)
 
-        assert cm.exception.extra_msg == 'Have to be logged in to edit user'
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'user_update', context=context, **params)
 
     # TODO: Tests for user_update's reset_key behavior.
