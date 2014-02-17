@@ -2,6 +2,7 @@
 
 '''
 import mock
+import nose
 
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
@@ -32,13 +33,12 @@ class TestUpdate(object):
             'id': fred.id,
             'name': 'updated_user_name',
         }
-        result = helpers.call_auth('user_update', context=context, **params)
 
-        assert result['success'] is False
-        # FIXME: This is a terrible error message, containing both 127.0.0.1
-        # and Fred's user id (not his name).
-        assert result['msg'] == ('User 127.0.0.1 not authorized to edit user '
-                                 'fred_user_id')
+        with nose.tools.assert_raises(helpers.NotAuthorized) as cm:
+            helpers.call_auth('user_update', context=context, **params)
+
+        assert cm.exception.extra_msg == ('User 127.0.0.1 not authorized to '
+                                          'edit user fred_user_id')
 
     ## START-AFTER
 
@@ -69,14 +69,14 @@ class TestUpdate(object):
             'id': fred.id,
             'name': 'updated_user_name',
         }
-        result = helpers.call_auth('user_update', context=context, **params)
 
         # 3. Make assertions about the return value and/or side-effects.
 
-        assert result['success'] is False
-        # FIXME: This error message should contain Fred's user name not his id.
-        assert result['msg'] == ('User bob not authorized to edit user '
-                                 'fred_user_id')
+        with nose.tools.assert_raises(helpers.NotAuthorized) as cm:
+            helpers.call_auth('user_update', context=context, **params)
+
+        assert cm.exception.extra_msg == ('User bob not authorized to edit '
+                                          'user fred_user_id')
 
         # 4. Do nothing else!
 
@@ -107,9 +107,8 @@ class TestUpdate(object):
             'id': fred.id,
             'name': 'updated_user_name',
         }
-        result = helpers.call_auth('user_update', context=context, **params)
 
-        assert result['success'] is True
+        assert helpers.call_auth('user_update', context=context, **params)
 
     def test_user_update_with_no_user_in_context(self):
 
@@ -132,10 +131,9 @@ class TestUpdate(object):
             'id': mock_user.id,
             'name': 'updated_user_name',
         }
-        result = helpers.call_auth('user_update', context=context, **params)
+        with nose.tools.assert_raises(helpers.NotAuthorized) as cm:
+            helpers.call_auth('user_update', context=context, **params)
 
-        assert result['success'] is False
-        # FIXME: Be nice if this error message was a complete sentence.
-        assert result['msg'] == 'Have to be logged in to edit user'
+        assert cm.exception.extra_msg == 'Have to be logged in to edit user'
 
     # TODO: Tests for user_update's reset_key behavior.
