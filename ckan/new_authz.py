@@ -16,7 +16,8 @@ log = getLogger(__name__)
 
 class AuthFunctions:
     ''' This is a private cache used by get_auth_function() and should never be
-    accessed directly we will create an instance of it and then remove it.'''
+    accessed directly. We will create an instance of it and then delete this
+    class.'''
     _functions = {}
 
     def clear(self):

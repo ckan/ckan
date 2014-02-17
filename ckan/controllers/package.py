@@ -146,8 +146,9 @@ class PackageController(base.BaseController):
 
         c.drill_down_url = drill_down_url
 
-        def remove_field(key, value=None, replace=None):
+        def remove_field(key, value=None, replace=None, alternative_url=None):
             return h.remove_url_param(key, value=value, replace=replace,
+                                  alternative_url=alternative_url,
                                   controller='package', action='search')
 
         c.remove_field = remove_field
