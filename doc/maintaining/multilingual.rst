@@ -14,7 +14,7 @@ By default term translations are disabled. To enable them, you have to specify t
   # List the names of CKAN extensions to activate.
   ckan.plugins = multilingual_dataset multilingual_group multilingual_tag
 
-Of course, you won't see any terms getting translated until you load some term translations into the database. You can do this using the ``term_translation_update`` and ``term_translation_update_many`` actions of the CKAN API, See :doc:`api` for more details.
+Of course, you won't see any terms getting translated until you load some term translations into the database. You can do this using the ``term_translation_update`` and ``term_translation_update_many`` actions of the CKAN API, See :doc:`/api/index` for more details.
 
 Loading Test Translations
 -------------------------
@@ -25,7 +25,7 @@ If you want to quickly test the term translation feature without having to provi
 
   paster --plugin=ckan create-test-data translations
 
-See :doc:`paster` for more details.
+See :doc:`/maintaining/paster` for more details.
 
 Testing The Multilingual Extension
 ----------------------------------
@@ -36,4 +36,4 @@ If you have a source installation of CKAN you can test the multilingual extensio
 
   nosetests --ckan ckanext/multilingual/tests
 
-See :doc:`test` for more information.
+See :doc:`/contributing/test` for more information.

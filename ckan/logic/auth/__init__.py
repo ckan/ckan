@@ -15,6 +15,9 @@ def _get_object(context, data_dict, name, class_name):
         if not data_dict:
             data_dict = {}
         id = data_dict.get('id', None)
+        if not id:
+            raise logic.ValidationError('Missig id, can not get {0} object'
+                                        .format(class_name))
         obj = getattr(model, class_name).get(id)
         if not obj:
             raise logic.NotFound

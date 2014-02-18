@@ -1,4 +1,4 @@
-.. include:: _latest_release.rst
+.. include:: /_latest_release.rst
 
 ============================
 Installing CKAN from package
@@ -11,7 +11,7 @@ development, you should follow :doc:`install-from-source` instead.
 
 At the end of the installation process you will end up with two running web
 applications, CKAN itself and the DataPusher, a separate service for automatically
-importing data to CKAN's :doc:`datastore`.
+importing data to CKAN's :doc:`/maintaining/datastore`.
 
 
 .. _run-package-installer:
@@ -92,10 +92,10 @@ CKAN:
     sudo ckan db init
 
 #. Optionally, setup the DataStore and DataPusher by following the
-   instructions in :doc:`/datastore`.
+   instructions in :doc:`/maintaining/datastore`.
 
 #. Also optionally, you can enable file uploads by following the
-   instructions in :doc:`filestore`.
+   instructions in :doc:`/maintaining/filestore`.
 
 ---------------------------
 3. Restart Apache and Nginx
@@ -118,5 +118,5 @@ page, which will look something like this:
 
 |
 
-You can now move on to :doc:`/getting-started` to begin using and customizing
+You can now move on to :doc:`/maintaining/getting-started` to begin using and customizing
 your CKAN site.

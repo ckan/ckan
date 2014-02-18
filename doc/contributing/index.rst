@@ -1,13 +1,13 @@
-====================
-Contributing to CKAN
-====================
+==================
+Contributing guide
+==================
 
-.. _CKAN repo on GitHub: https://github.com/okfn/ckan
+.. _CKAN repo on GitHub: https://github.com/ckan/ckan
 .. _docs.ckan.org: http://docs.ckan.org
 
 CKAN is free open source software and contributions are welcome, whether
 they're bug reports, source code, documentation or translations. The following
-documents will walk you through our processes for making different kinds
+sections will walk you through our processes for making different kinds
 of contributions to CKAN:
 
 .. If editing this, note that these are roughly ordered with the most simple
@@ -19,6 +19,8 @@ of contributions to CKAN:
 
    issues
    i18n
+
+   test
 
    commit-messages
    pull-requests
