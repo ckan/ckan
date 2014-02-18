@@ -171,7 +171,7 @@ class FeedController(base.BaseController):
         data_dict, params = self._parse_url_params()
         key = 'owner_org' if is_org else 'groups'
         data_dict['fq'] = '%s:"%s"' % (key, obj_dict['id'],)
-        group_type = 'organization' 
+        group_type = 'organization'
         if not is_org:
             group_type = 'group'
 
@@ -189,7 +189,7 @@ class FeedController(base.BaseController):
                                   id=obj_dict['name'])
 
         guid = _create_atom_id(u'/feeds/group/%s.atom' %
-                obj_dict['name'])
+                               obj_dict['name'])
         alternate_url = self._alternate_url(params, groups=obj_dict['name'])
         desc = u'Recently created or updated datasets on %s by group: "%s"' %\
             (g.site_title, obj_dict['title'])
@@ -198,9 +198,9 @@ class FeedController(base.BaseController):
 
         if is_org:
             guid = _create_atom_id(u'/feeds/organization/%s.atom' %
-                    obj_dict['name'])
+                                   obj_dict['name'])
             alternate_url = self._alternate_url(params,
-                    organization=obj_dict['name'])
+                                                organization=obj_dict['name'])
             desc = u'Recently created or  updated datasets on %s '\
                 'by organization: "%s"' % (g.site_title, obj_dict['title'])
             title = u'%s - Organization: "%s"' %\
@@ -229,7 +229,7 @@ class FeedController(base.BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'auth_user_obj': c.userobj}
             group_dict = logic.get_action('organization_show')(context,
-                {'id': id})
+                                                               {'id': id})
         except logic.NotFound:
             base.abort(404, _('Organization not found'))
 
