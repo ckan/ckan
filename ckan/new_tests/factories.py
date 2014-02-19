@@ -138,6 +138,46 @@ class Sysadmin(factory.Factory):
         return user_dict
 
 
+def _generate_dataset_title(dataset):
+    '''Return a title for the given Dataset factory stub object.'''
+
+    return dataset.name.replace('_', ' ').title()
+
+
+class Dataset(factory.Factory):
+    '''A factory class for creating CKAN datasets.'''
+
+    FACTORY_FOR = ckan.model.Package
+
+    name = factory.Sequence(lambda n: 'test_dataset_{n}'.format(n=n))
+    title = factory.LazyAttribute(_generate_dataset_title)
+    author = 'test dataset author'
+    author_email = 'test_dataset_author@test_dataset.io'
+    maintainer = 'test dataset maintainer'
+    maintainer_email = 'test_dataset_maintainer@test_dataset.io'
+    license_id = 'cc-by'
+    notes = 'Some test notes about this test dataset'
+    url = 'test_dataset.io'
+    version = '0.1 beta'
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+        if 'user' in kwargs:
+            user = kwargs.pop('user')
+            context = {'user': user['name']}
+        else:
+            context = {}
+        dataset_dict = helpers.call_action('dataset_create', context=context,
+                                           **kwargs)
+        return dataset_dict
+
+
 class Group(factory.Factory):
     '''A factory class for creating CKAN groups.'''
 
