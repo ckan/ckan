@@ -29,7 +29,7 @@ CKAN:
 
 #. Install the Ubuntu packages that CKAN requires::
 
-    sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5
+    sudo apt-get install -y nginx apache2 libapache2-mod-wsgi libpq5 python-pip python-virtualenv python-pylons
 
 #. Download the CKAN package:
 
@@ -75,7 +75,7 @@ CKAN:
 
 #. Install |postgres| and |solr|, run this command in a terminal::
 
-    sudo apt-get install -y postgresql solr-jetty
+    sudo apt-get install -y postgresql solr-jetty openjdk-6-jdk
 
    The install will whirr away, then towards the end you'll see this::
 
@@ -89,7 +89,7 @@ CKAN:
 
 #. Initialize your CKAN database by running this command in a terminal::
 
-    sudo ckan db init
+    sudo ckan db init -c /etc/ckan/default/development.ini
 
 #. Optionally, setup the DataStore and DataPusher by following the
    instructions in :doc:`/maintaining/datastore`.
