@@ -879,6 +879,11 @@ def _group_or_org_show(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context['group'] = group
 
+    include_datasets = data_dict.get('include_datasets', True)
+    if isinstance(include_datasets, basestring):
+       include_datasets = (include_datasets.lower() in ('true', '1'))
+    context['include_datasets'] = include_datasets
+
     if group is None:
         raise NotFound
 
@@ -923,8 +928,13 @@ def group_show(context, data_dict):
 
     :param id: the id or name of the group
     :type id: string
+    :param include_datasets: include a list of the group's datasets
+         (optional, default: ``True``)
+    :type id: boolean
 
     :rtype: dictionary
+
+    .. note:: Only its first 1000 datasets are returned
 
     '''
     return _group_or_org_show(context, data_dict)
@@ -934,9 +944,13 @@ def organization_show(context, data_dict):
 
     :param id: the id or name of the organization
     :type id: string
+    :param include_datasets: include a list of the organization's datasets
+         (optional, default: ``True``)
+    :type id: boolean
 
     :rtype: dictionary
 
+    .. note:: Only its first 1000 datasets are returned
     '''
     return _group_or_org_show(context, data_dict, is_org=True)
 

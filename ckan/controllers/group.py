@@ -180,6 +180,9 @@ class GroupController(base.BaseController):
         q = c.q = request.params.get('q', '')
 
         try:
+            # Do not query for the group datasets when dictizing, as they will
+            # be ignored and get requested on the controller anyway
+            context['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
@@ -328,6 +331,7 @@ class GroupController(base.BaseController):
                 items_per_page=limit
             )
 
+            c.group_dict['package_count'] = query['count']
             c.facets = query['facets']
             maintain.deprecate_context_item('facets',
                                             'Use `c.search_facets` instead.')
@@ -371,6 +375,9 @@ class GroupController(base.BaseController):
         data_dict = {'id': id}
 
         try:
+            # Do not query for the group datasets when dictizing, as they will
+            # be ignored and get requested on the controller anyway
+            context['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:

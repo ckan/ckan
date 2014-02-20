@@ -319,7 +319,6 @@ def _get_members(context, group, member_type):
 
 
 def group_dictize(group, context):
-    model = context['model']
     result_dict = d.table_dictize(group, context)
 
     result_dict['display_name'] = group.display_name
@@ -329,16 +328,32 @@ def group_dictize(group, context):
 
     context['with_capacity'] = True
 
-    result_dict['packages'] = d.obj_list_dictize(
-        _get_members(context, group, 'packages'),
-        context)
+    include_datasets = context.get('include_datasets', True)
 
-    query = search.PackageSearchQuery()
+    q = {
+        'facet': 'false',
+        'rows': 0,
+    }
+
     if group.is_organization:
-        q = {'q': 'owner_org:"%s" +capacity:public' % group.id, 'rows': 1}
+        q['fq'] = 'owner_org:"{0}"'.format(group.id)
     else:
-        q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
-    result_dict['package_count'] = query.run(q)['count']
+        q['fq'] = 'groups:"{0}"'.format(group.name)
+
+    is_group_member = (context.get('user') and
+         new_authz.has_user_permission_for_group_or_org(group.id, context.get('user'), 'read'))
+    if is_group_member:
+        context['ignore_capacity_check'] = True
+
+    if include_datasets:
+        q['rows'] = 1000    # Only the first 1000 datasets are returned
+
+    search_results = logic.get_action('package_search')(context, q)
+
+    if include_datasets:
+        result_dict['packages'] = search_results['results']
+
+    result_dict['package_count'] = search_results['count']
 
     result_dict['tags'] = tag_list_dictize(
         _get_members(context, group, 'tags'),
