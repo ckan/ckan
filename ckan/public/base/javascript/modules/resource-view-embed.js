@@ -41,7 +41,7 @@ this.ckan.module('resource-view-embed', function (jQuery, _) {
   }
 
   function _iframeMarkup(url) {
-    var markup = '<iframe src="' + url + '"></iframe>';
+    var markup = '<iframe src="' + url + '" frameBorder="0"></iframe>';
     return markup;
   }
 
