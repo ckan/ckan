@@ -8017,6 +8017,9 @@ h4 small {
   height: 21px;
   background: transparent url("../../../base/images/dashboard-followee-related.png");
 }
+.resource-view-embed textarea {
+  width: 95%;
+}
 .popover-followee .popover-title {
   display: none;
 }

@@ -25,7 +25,7 @@ this.ckan.module('resource-view-embed', function (jQuery, _) {
       });
 
       element.find('h3').text(i18n('heading'));
-      element.find('.modal-body').text(i18n('content'));
+      element.find('.modal-content').text(i18n('content'));
       element.find('textarea').text(_iframeMarkup(embedUrl));
       element.find('.btn-cancel').text(i18n('close'));
     }
@@ -51,17 +51,19 @@ this.ckan.module('resource-view-embed', function (jQuery, _) {
     options: {
       i18n: {
         heading: _('Embed resource view'),
-        content: _('To embed this view, copy and paste the following code into your page'),
+        content: _('To embed this view, copy and paste the following code as HTML into your page:'),
         close: _('Close')
       },
       template: [
-          '<div class="modal">',
+          '<div class="modal resource-view-embed">',
           '<div class="modal-header">',
           '<button type="button" class="close" data-dismiss="modal">×</button>',
           '<h3></h3>',
           '</div>',
-          '<div class="modal-body"></div>',
+          '<div class="modal-body">',
+          '<p class="modal-content"></p>',
           '<textarea></textarea>',
+          '</div>',
           '<div class="modal-footer">',
           '<button class="btn btn-cancel"></button>',
           '</div>',
