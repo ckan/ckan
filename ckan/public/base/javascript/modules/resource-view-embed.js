@@ -50,7 +50,7 @@ this.ckan.module('resource-view-embed', function (jQuery, _) {
     options: {
       i18n: {
         heading: _('Embed resource view'),
-        content: _('To embed this view, copy and paste the following code as HTML into your page:')
+        content: _('You can copy and paste the embed code into a CMS or blog software that supports raw HTML')
       },
       template: [
           '<div class="modal resource-view-embed">',
