@@ -23,8 +23,9 @@ class TestGet(object):
 
     def test_group_list(self):
 
-        group1 = factories.Group()
-        group2 = factories.Group()
+        user = factories.User()
+        group1 = factories.Group(user=user)
+        group2 = factories.Group(user=user)
 
         group_list = helpers.call_action('group_list')
 
@@ -33,7 +34,7 @@ class TestGet(object):
 
     def test_group_show(self):
 
-        group = factories.Group()
+        group = factories.Group(user=factories.User())
 
         group_dict = helpers.call_action('group_show', id=group['id'])
 
@@ -45,7 +46,7 @@ class TestGet(object):
 
         user_name = helpers.call_action('get_site_user')['name']
 
-        group = factories.Group()
+        group = factories.Group(user=factories.User())
 
         datasets = [
             {'name': 'dataset_1', 'groups': [{'name': group['name']}]},
@@ -66,7 +67,7 @@ class TestGet(object):
 
         user_name = helpers.call_action('get_site_user')['name']
 
-        group = factories.Group()
+        group = factories.Group(user=factories.User())
 
         datasets = [
             {'name': 'dataset_1', 'groups': [{'name': group['name']}]},
