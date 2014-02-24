@@ -188,6 +188,15 @@ class ResourceUpload(object):
         return filepath
 
     def upload(self, id, max_size=10):
+        '''Actually upload the file.
+
+        :returns: ``'file uploaded'`` if a new file was successfully uploaded
+            (whether it overwrote a previously uploaded file or not),
+            ``'file deleted'`` if an existing uploaded file was deleted,
+            or ``None`` if nothing changed
+        :rtype: ``string`` or ``None``
+
+        '''
         if not self.storage_path:
             return
         directory = self.get_directory(id)
@@ -217,9 +226,11 @@ class ResourceUpload(object):
                     )
             output_file.close()
             os.rename(tmp_filepath, filepath)
+            return 'file uploaded'
 
         if self.clear:
             try:
                 os.remove(filepath)
             except OSError, e:
                 pass
+            return 'file deleted'

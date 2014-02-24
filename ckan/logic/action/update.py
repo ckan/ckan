@@ -238,9 +238,19 @@ def resource_update(context, data_dict):
         errors = e.error_dict['resources'][n]
         raise ValidationError(errors)
 
-    upload.upload(id, uploader.get_max_resource_size())
+    result = upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
-    return _get_action('resource_show')(context, {'id': id})
+
+    resource = _get_action('resource_show')(context, {'id': id})
+
+    if result == 'file uploaded':
+        for plugin in plugins.PluginImplementations(plugins.IResourceUpload):
+            plugin.after_upload(context, resource)
+    elif result == 'file deleted':
+        for plugin in plugins.PluginImplementations(plugins.IResourceUpload):
+            plugin.after_delete(context, resource)
+
+    return resource
 
 
 def resource_view_update(context, data_dict):
