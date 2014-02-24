@@ -4,7 +4,7 @@
   <p data-module="resource-view-embed"
      data-module-embed-url="{{ h.url('resource_view',
        id=package['name'], resource_id=resource['id'],
-       view_id=resource_view['id']) }}">
+       view_id=resource_view['id'], qualified=True) }}">
     <a href="#">Embed</a>
   </p>
   <div class="m-top ckanext-datapreview">
