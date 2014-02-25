@@ -19,10 +19,6 @@ this.ckan.module('resource-view-embed', function (jQuery, _) {
       element = jQuery(template);
       element.on('click', '.btn-cancel', _onClose);
       element.modal({show: false});
-      element.css({
-        'margin-top': element.height() * -0.5,
-        'top': '50%'
-      });
 
       element.find('h3').text(i18n('heading'));
       element.find('.embed-content').prepend(i18n('content'));
