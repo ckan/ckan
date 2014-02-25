@@ -8142,8 +8142,8 @@ h4 small {
   float: left;
 }
 .resource-view-embed input {
-  width: 10em;
-  margin-left: 1em;
+  width: 11em;
+  float: right;
 }
 .datapusher-status-link:hover {
   text-decoration: none;
