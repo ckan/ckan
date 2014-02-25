@@ -25,8 +25,16 @@ this.ckan.module('resource-view-embed', function (jQuery, _) {
       });
 
       element.find('h3').text(i18n('heading'));
-      element.find('.modal-content').text(i18n('content'));
-      element.find('textarea').text(_iframeMarkup(embedUrl));
+      element.find('.embed-content').prepend(i18n('content'));
+      element.find('.embed-width-label').prepend(i18n('width'));
+      element.find('.embed-height-label').prepend(i18n('height'));
+
+      var widthInput = element.find('#embed-width'),
+          heightInput = element.find('#embed-height'),
+          onBlur = _updateEmbedCode(embedUrl, widthInput, heightInput);
+
+      element.on('blur', 'input', onBlur);
+      onBlur();
     }
     return element;
   }
@@ -40,8 +48,21 @@ this.ckan.module('resource-view-embed', function (jQuery, _) {
     element.modal('hide');
   }
 
-  function _iframeMarkup(url) {
-    var markup = '<iframe src="' + url + '" frameBorder="0"></iframe>';
+  function _updateEmbedCode(url, widthInput, heightInput) {
+    return function () {
+      console.log('onBlur');
+      var width = widthInput.val(),
+          height = heightInput.val();
+
+      element.find('textarea').text(_embedCode(url, width, height));
+    };
+  }
+
+  function _embedCode(url, width, height) {
+    var markup = '<iframe width="' + width +
+                 '" height="' + height +
+                 '" src="' + url +
+                 '" frameBorder="0"></iframe>';
     return markup;
   }
 
@@ -50,7 +71,9 @@ this.ckan.module('resource-view-embed', function (jQuery, _) {
     options: {
       i18n: {
         heading: _('Embed resource view'),
-        content: _('You can copy and paste the embed code into a CMS or blog software that supports raw HTML')
+        content: _('You can copy and paste the embed code into a CMS or blog software that supports raw HTML'),
+        width: _('Width'),
+        height: _('Height')
       },
       template: [
           '<div class="modal resource-view-embed">',
@@ -59,8 +82,16 @@ this.ckan.module('resource-view-embed', function (jQuery, _) {
           '<h3></h3>',
           '</div>',
           '<div class="modal-body">',
-          '<p class="modal-content"></p>',
+          '<p class="embed-content"></p>',
+          '<div class="span3">',
+          '<label for="embed-width" class="embed-width-label"></label>',
+          '<input id="embed-width" value="700">',
+          '<label for="embed-height" class="embed-height-label"></label>',
+          '<input id="embed-height" value="400">',
+          '</div>',
+          '<div class="span3">',
           '<textarea></textarea>',
+          '</div>',
           '</div>',
           '</div>'
       ].join('\n')

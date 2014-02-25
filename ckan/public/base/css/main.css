@@ -8017,9 +8017,6 @@ h4 small {
   height: 21px;
   background: transparent url("../../../base/images/dashboard-followee-related.png");
 }
-.resource-view-embed textarea {
-  width: 95%;
-}
 .popover-followee .popover-title {
   display: none;
 }
@@ -8137,6 +8134,16 @@ h4 small {
   display: block;
   font-size: 16px;
   margin: 3px 0;
+}
+.resource-view-embed textarea {
+  width: 100%;
+}
+.resource-view-embed label {
+  float: left;
+}
+.resource-view-embed input {
+  width: 10em;
+  margin-left: 1em;
 }
 .datapusher-status-link:hover {
   text-decoration: none;
