@@ -46,7 +46,6 @@ this.ckan.module('resource-view-embed', function (jQuery, _) {
 
   function _updateEmbedCode(url, widthInput, heightInput) {
     return function () {
-      console.log('onBlur');
       var width = widthInput.val(),
           height = heightInput.val();
 
