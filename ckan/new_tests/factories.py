@@ -138,23 +138,20 @@ class Sysadmin(factory.Factory):
         return user_dict
 
 
+def _generate_group_title(group):
+    '''Return a title for the given Group factory stub object.'''
+
+    return group.name.replace('_', ' ').title()
+
+
 class Group(factory.Factory):
     '''A factory class for creating CKAN groups.'''
 
-    # This is the class that GroupFactory will create and return instances
-    # of.
     FACTORY_FOR = ckan.model.Group
 
-    # These are the default params that will be used to create new groups.
-    type = 'group'
-    is_organization = False
-
-    title = 'Test Group'
-    description = 'Just another test group.'
-    image_url = 'http://placekitten.com/g/200/200'
-
-    # Generate a different group name param for each user that gets created.
     name = factory.Sequence(lambda n: 'test_group_{n}'.format(n=n))
+    title = factory.LazyAttribute(_generate_group_title)
+    description = 'A test description for this test group.'
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
@@ -164,15 +161,12 @@ class Group(factory.Factory):
     def _create(cls, target_class, *args, **kwargs):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
-
-        #TODO: we will need to be able to define this when creating the
-        #      instance perhaps passing a 'user' param?
-        context = {
-            'user': helpers.call_action('get_site_user')['name']
-        }
-
-        group_dict = helpers.call_action('group_create',
-                                         context=context,
+        assert 'user' in kwargs, ('The Group factory requires an extra '
+                                  'user=user_dict keyword argument (the user '
+                                  'who will create the group)')
+        user_dict = kwargs.pop('user')
+        context = {'user': user_dict['name']}
+        group_dict = helpers.call_action('group_create', context=context,
                                          **kwargs)
         return group_dict
 
