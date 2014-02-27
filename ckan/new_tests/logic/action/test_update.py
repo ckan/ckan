@@ -9,6 +9,8 @@ import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
 
+eq_ = nose.tools.eq_
+
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
     the same format used for timestamps in dictized activities (the format
@@ -73,7 +75,7 @@ class TestUpdate(object):
         updated_user = helpers.call_action('user_show', id=user['id'])
         # Note that we check just the field we were trying to update, not the
         # entire dict, only assert what we're actually testing.
-        assert updated_user['name'] == 'updated'
+        eq_(updated_user['name'], 'updated')
 
         # 4. Do nothing else!
 
@@ -217,9 +219,9 @@ class TestUpdate(object):
         activity_stream = helpers.call_action('user_activity_list',
                                               id=user['id'])
         latest_activity = activity_stream[0]
-        assert latest_activity['activity_type'] == 'changed user'
-        assert latest_activity['object_id'] == user['id']
-        assert latest_activity['user_id'] == user['id']
+        eq_(latest_activity['activity_type'], 'changed user')
+        eq_(latest_activity['object_id'],  user['id'])
+        eq_(latest_activity['user_id'], user['id'])
         after = datetime.datetime.now()
         timestamp = datetime_from_string(latest_activity['timestamp'])
         assert timestamp >= before and timestamp <= after
@@ -283,9 +285,9 @@ class TestUpdate(object):
         helpers.call_action('user_update', **params)
 
         updated_user = helpers.call_action('user_show', id=user['id'])
-        assert updated_user['name'] == 'updated_name'
-        assert updated_user['fullname'] == 'updated full name'
-        assert updated_user['about'] == 'updated about'
+        eq_(updated_user['name'], 'updated_name')
+        eq_(updated_user['fullname'], 'updated full name')
+        eq_(updated_user['about'], 'updated about')
 
     def test_user_update_does_not_return_password(self):
         '''The user dict that user_update returns should not include the user's
@@ -354,7 +356,7 @@ class TestUpdate(object):
         dataset = helpers.call_action('package_create', **dataset)
         created_resource_urls = [resource['url'] for resource
                                  in dataset['resources']]
-        assert created_resource_urls == resource_urls
+        eq_(created_resource_urls, resource_urls)
         mapping = dict((resource['url'], resource['id']) for resource
                        in dataset['resources'])
 
@@ -368,9 +370,9 @@ class TestUpdate(object):
         reordered_resource_urls = [resource['url'] for resource
                                    in dataset['resources']]
 
-        assert reordered_resource_urls == ["http://c.html",
+        eq_(reordered_resource_urls, ["http://c.html",
                                            "http://a.html",
-                                           "http://b.html"]
+                                           "http://b.html"])
 
         reorder = {'id': dataset['id'], 'order': [mapping["http://b.html"],
                                                   mapping["http://c.html"],
@@ -382,6 +384,6 @@ class TestUpdate(object):
         reordered_resource_urls = [resource['url'] for resource
                                    in dataset['resources']]
 
-        assert reordered_resource_urls == ["http://b.html",
+        eq_(reordered_resource_urls, ["http://b.html",
                                            "http://c.html",
-                                           "http://a.html"]
+                                           "http://a.html"])
