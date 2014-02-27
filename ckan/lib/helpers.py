@@ -12,6 +12,7 @@ import re
 import urllib
 import pprint
 import copy
+import urlparse
 from urllib import urlencode
 
 from paste.deploy.converters import asbool
@@ -148,11 +149,13 @@ def url_for_static(*args, **kw):
 
     def fix_arg(arg):
         # make sure that if we specify the url that it is not unicode and
-        # starts with a /
+        # if it's relative, it starts with a /
         arg = str(arg)
-        if not arg.startswith('/'):
-            arg = '/' + arg
-        return arg
+        url = urlparse.urlparse(arg)
+        url_is_relative = url.scheme == '' and url.netloc == ''
+        if url_is_relative and not url.path.startswith('/'):
+            return '/' + url.geturl()
+        return url.geturl()
 
     if args:
         args = (fix_arg(args[0]), ) + args[1:]
