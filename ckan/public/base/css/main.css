@@ -8177,6 +8177,16 @@ h4 small {
   font-size: 16px;
   margin: 3px 0;
 }
+.resource-view-embed textarea {
+  width: 100%;
+}
+.resource-view-embed label {
+  float: left;
+}
+.resource-view-embed input {
+  width: 11em;
+  float: right;
+}
 .datapusher-status-link:hover {
   text-decoration: none;
 }
