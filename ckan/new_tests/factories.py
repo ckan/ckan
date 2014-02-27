@@ -6,9 +6,10 @@ the tests. They're written using ``factory_boy``:
 
 http://factoryboy.readthedocs.org/en/latest/
 
-These are not meant to be used for the actual testing, e.g. if you're writing a
-test for the :py:func:`~ckan.logic.action.create.user_create` function then call :py:func:`~ckan.new_tests.helpers.call_action`, don't test it
-via the :py:class:`~ckan.new_tests.factories.User` factory below.
+These are not meant to be used for the actual testing, e.g. if you're writing
+a test for the :py:func:`~ckan.logic.action.create.user_create` function then
+call :py:func:`~ckan.new_tests.helpers.call_action`, don't test it via the
+:py:class:`~ckan.new_tests.factories.User` factory below.
 
 Usage::
 
@@ -276,8 +277,8 @@ class Dataset(factory.Factory):
         context = {'user': user_dict['name']}
 
         dataset_dict = helpers.call_action('package_create',
-                                         context=context,
-                                         **kwargs)
+                                           context=context,
+                                           **kwargs)
         return dataset_dict
 
 

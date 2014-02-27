@@ -14,6 +14,7 @@ class TestGet(object):
     @classmethod
     def setup_class(cls):
         helpers.reset_db()
+
     def setup(self):
         import ckan.model as model
 
@@ -255,7 +256,8 @@ class TestGet(object):
         user = factories.User()
         dataset1 = factories.Dataset(user=user)
         dataset2 = factories.Dataset(user=user)
-        current_package_list = helpers.call_action('current_package_list_with_resources')
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources')
         eq(len(current_package_list), 2)
 
     def test_current_package_list_limit_param(self):
@@ -265,7 +267,8 @@ class TestGet(object):
         user = factories.User()
         dataset1 = factories.Dataset(user=user)
         dataset2 = factories.Dataset(user=user)
-        current_package_list = helpers.call_action('current_package_list_with_resources', limit=1)
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources', limit=1)
         eq(len(current_package_list), 1)
         eq(current_package_list[0]['name'], dataset2['name'])
 
@@ -276,7 +279,8 @@ class TestGet(object):
         user = factories.User()
         dataset1 = factories.Dataset(user=user)
         dataset2 = factories.Dataset(user=user)
-        current_package_list = helpers.call_action('current_package_list_with_resources', offset=1)
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources', offset=1)
         eq(len(current_package_list), 1)
         eq(current_package_list[0]['name'], dataset1['name'])
 
@@ -287,9 +291,11 @@ class TestGet(object):
         '''
         user = factories.User()
         org = factories.Organization(user=user)
-        dataset1 = factories.Dataset(user=user, owner_org=org['name'], private=True )
+        dataset1 = factories.Dataset(user=user, owner_org=org['name'],
+                                     private=True)
         dataset2 = factories.Dataset(user=user)
-        current_package_list = helpers.call_action('current_package_list_with_resources', context={})
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources', context={})
         eq(len(current_package_list), 1)
 
     def test_current_package_list_private_datasets_sysadmin_user(self):
@@ -299,11 +305,15 @@ class TestGet(object):
         '''
         user = factories.User()
         org = factories.Organization(user=user)
-        dataset1 = factories.Dataset(user=user, owner_org=org['name'], private=True )
+        dataset1 = factories.Dataset(user=user, owner_org=org['name'],
+                                     private=True)
         dataset2 = factories.Dataset(user=user)
         sysadmin = factories.Sysadmin()
-        current_package_list = helpers.call_action('current_package_list_with_resources', context={'user': sysadmin['name']})
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources', context={'user':
+                        sysadmin['name']})
         eq(len(current_package_list), 2)
+
 
 class TestBadLimitQueryParameters(object):
     '''test class for #1258 non-int query parameters cause 500 errors
