@@ -11,6 +11,7 @@ import ckan.new_tests.factories as factories
 
 eq_ = nose.tools.eq_
 
+
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
     the same format used for timestamps in dictized activities (the format
@@ -371,8 +372,8 @@ class TestUpdate(object):
                                    in dataset['resources']]
 
         eq_(reordered_resource_urls, ["http://c.html",
-                                           "http://a.html",
-                                           "http://b.html"])
+                                      "http://a.html",
+                                      "http://b.html"])
 
         reorder = {'id': dataset['id'], 'order': [mapping["http://b.html"],
                                                   mapping["http://c.html"],
@@ -385,5 +386,5 @@ class TestUpdate(object):
                                    in dataset['resources']]
 
         eq_(reordered_resource_urls, ["http://b.html",
-                                           "http://c.html",
-                                           "http://a.html"])
+                                      "http://c.html",
+                                      "http://a.html"])
