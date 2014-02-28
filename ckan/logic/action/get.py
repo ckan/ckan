@@ -2775,7 +2775,10 @@ def followee_list(context, data_dict):
         dicts = followee_list_function(context, data_dict)
         for d in dicts:
             followee_dicts.append(
-                {'type': followee_type,
+                # TODO: groups and orgs should probably have their own
+                #       followee_list function
+                {'type': followee_type if followee_type != 'group'
+                 else d.get('type'),
                  'display_name': display_name(d),
                  'dict': d})
 

@@ -1416,7 +1416,8 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
         action_functions = {
             'dataset': 'package_activity_list_html',
             'user': 'user_activity_list_html',
-            'group': 'group_activity_list_html'
+            'group': 'group_activity_list_html',
+            'organization': 'organization_activity_list_html',
         }
         action_function = logic.get_action(action_functions.get(filter_type))
         return action_function(context, {'id': filter_id, 'offset': offset})
