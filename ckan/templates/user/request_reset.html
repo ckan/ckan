@@ -1,20 +1,20 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ _('Reset Your Password') }}{% endblock %}
+{% block subtitle %}{{ _('Reset your password') }}{% endblock %}
 
 {% block breadcrumb_content %}
-  <li class="active">{% link_for _('Password Reset'), controller='user', action='request_reset' %}</li>
+  <li class="active">{% link_for _('Password reset'), controller='user', action='request_reset' %}</li>
 {% endblock %}
 
 {% block primary_content %}
   <article class="module">
     <div class="module-content">
-      <h1 class="page-heading">{{ _('Reset Your Password') }}</h1>
+      <h1 class="page-heading">{{ _('Reset your password') }}</h1>
       {% block form %}
         <form action="" method="post" class="form-inline control-medium">
           <label for="field-username">{{ _('Username') }}</label>
           <input id="field-username" name="user" value="" />
-          <button class="btn btn-large btn-primary" type="submit" name="reset">{{ _("Request Reset") }}</button>
+          <button class="btn btn-primary" type="submit" name="reset">{{ _("Request reset") }}</button>
         </form>
       {% endblock %}
     </div>
