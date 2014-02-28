@@ -570,7 +570,8 @@ class UserController(base.BaseController):
             action_functions = {
                 'dataset': 'package_show',
                 'user': 'user_show',
-                'group': 'group_show'
+                'group': 'group_show',
+                'organization': 'organization_show',
             }
             action_function = logic.get_action(
                 action_functions.get(filter_type))
