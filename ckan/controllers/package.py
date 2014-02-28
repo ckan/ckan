@@ -1215,7 +1215,9 @@ class PackageController(base.BaseController):
             context, {'id': resource_id})
         has_views = len(resource_views) > 0
         current_resource_view = False
-        if (has_views):
+        if c.resource['can_be_previewed'] and not request.GET.get('view_id'):
+            current_resource_view = None
+        elif (has_views):
             if (request.GET.get('view_id')):
                 current_resource_view = request.GET.get('view_id')
             else:

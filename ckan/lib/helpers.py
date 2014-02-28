@@ -1592,9 +1592,7 @@ def resource_preview(resource, package):
     '''
 
     if not resource['url']:
-        return snippet("dataviewer/snippets/no_preview.html",
-                       resource_type=format_lower,
-                       reason=_(u'The resource url is not specified.'))
+        return False
 
     format_lower = datapreview.res_format(resource)
     directly = False
@@ -1609,17 +1607,7 @@ def resource_preview(resource, package):
     elif format_lower in datapreview.loadable():
         url = resource['url']
     else:
-        reason = None
-        if format_lower:
-            log.info(
-                _(u'No preview handler for resource of type {0}'.format(
-                    format_lower))
-            )
-        else:
-            reason = _(u'The resource format is not specified.')
-        return snippet("dataviewer/snippets/no_preview.html",
-                       reason=reason,
-                       resource_type=format_lower)
+        return False
 
     return snippet("dataviewer/snippets/data_preview.html",
                    embed=directly,

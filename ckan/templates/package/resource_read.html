@@ -74,15 +74,21 @@
       {% block resource_view %}
         <div class="module-content">
           {% block resource_view_nav %}
-            {% snippet "package/snippets/resource_views_list.html", views=resource_views, pkg=pkg, is_edit=false, extra_class='stacked', view_id=current_resource_view %}
+            {% set resource_preview = h.resource_preview(c.resource, c.package) %}
+            {% snippet "package/snippets/resource_views_list.html", views=resource_views, pkg=pkg, is_edit=false, extra_class='stacked', view_id=current_resource_view, resource_preview=resource_preview, resource=c.resource %}
           {% endblock %}
           {% block resource_view_content %}
             <div class="resource-view">
-              {% for resource_view in resource_views %}
-                {% if resource_view.id == current_resource_view %}
-                  {% snippet 'package/snippets/resource_view.html', resource_view=resource_view, resource=c.resource, package=c.package %}
-                {% endif %}
-              {% endfor %}
+              {% set resource_preview = h.resource_preview(c.resource, c.package) %}
+              {% if resource_preview and not current_resource_view %}
+                 {{ h.resource_preview(c.resource, c.package) }}
+              {% else %}
+                  {% for resource_view in resource_views %}
+                    {% if resource_view.id == current_resource_view %}
+                       {% snippet 'package/snippets/resource_view.html', resource_view=resource_view, resource=c.resource, package=c.package %}
+                    {% endif %}
+                  {% endfor %}
+              {% endif %}
             </div>
           {% endblock %}
         </div>
