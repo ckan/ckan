@@ -251,16 +251,55 @@ class IResourceView(Interface):
         ``package``.
         '''
 
-
-class IResourcePreview(IResourceView):
+class IResourcePreview(Interface):
     ''' For backwards compatibility with the old resource preview code. '''
-
     def can_preview(self, data_dict):
-        return self.can_view(data_dict)
+        '''Return info on whether the plugin can preview the resource.
+
+        This can be done in two ways:
+
+        1. The old way is to just return ``True`` or ``False``.
+
+        2. The new way is to return a dict with  three keys:
+
+           ``'can_preview'`` (``boolean``)
+             ``True`` if the extension can preview the resource.
+
+           ``'fixable'`` (``string``)
+             A string explaining how preview for the resource could be enabled,
+             for example if the ``resource_proxy`` plugin was enabled.
+
+           ``'quality'`` (``int``)
+             How good the preview is: ``1`` (poor), ``2`` (average) or
+             ``3`` (good). When multiple preview extensions can preview the
+             same resource, this is used to determine which extension will
+             be used.
+
+        :param data_dict: the resource to be previewed and the dataset that it
+          belongs to.
+        :type data_dict: dictionary
+
+        Make sure to check the ``on_same_domain`` value of the resource or the
+        url if your preview requires the resource to be on the same domain
+        because of the same-origin policy.  To find out how to preview
+        resources that are on a different domain, read :ref:`resource-proxy`.
+
+        '''
+
+    def setup_template_variables(self, context, data_dict):
+        '''
+        Add variables to c just prior to the template being rendered.
+        The ``data_dict`` contains the resource and the package.
+
+        Change the url to a proxied domain if necessary.
+        '''
 
     def preview_template(self, context, data_dict):
-        return self.view_template(context, data_dict)
-
+        '''
+        Returns a string representing the location of the template to be
+        rendered for the read page.
+        The ``data_dict`` contains the resource and the package.
+        '''
 
 class ITagController(Interface):
     '''

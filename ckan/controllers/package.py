@@ -386,6 +386,12 @@ class PackageController(base.BaseController):
 
         # can the resources be previewed?
         for resource in c.pkg_dict['resources']:
+
+            ######## section backwards compatibility with preview iterface
+            resource['can_be_previewed'] = self._resource_preview(
+                {'resource': resource, 'package': c.pkg_dict})
+            #############################################################
+
             resource_views = get_action('resource_view_list')(
                 context, {'id': resource['id']})
             resource['has_views'] = len(resource_views) > 0
@@ -407,6 +413,7 @@ class PackageController(base.BaseController):
             abort(404, msg)
 
         assert False, "We should never get here"
+
 
     def history(self, id):
         package_type = self._get_package_type(id.split('@')[0])
@@ -1201,6 +1208,9 @@ class PackageController(base.BaseController):
 
         c.related_count = c.pkg.related_count
 
+        c.resource['can_be_previewed'] = self._resource_preview(
+            {'resource': c.resource, 'package': c.package})
+
         resource_views = get_action('resource_view_list')(
             context, {'id': resource_id})
         has_views = len(resource_views) > 0
@@ -1215,6 +1225,13 @@ class PackageController(base.BaseController):
                 'current_resource_view': current_resource_view}
 
         return render('package/resource_read.html', extra_vars=vars)
+
+    def _resource_preview(self, data_dict):
+        ''' depricated resource preview function '''
+        return bool(datapreview.res_format(data_dict['resource'])
+                    in datapreview.direct() + datapreview.loadable()
+                    or datapreview.get_preview_plugin(
+                        data_dict, return_first=True))
 
     def resource_download(self, id, resource_id, filename=None):
         """

@@ -116,6 +116,7 @@ class ReclineGraph(ReclineView):
         }
         return {'name': 'recline_graph',
                 'title': 'Graph',
+                'icon': 'bar-chart',
                 'schema': schema}
 
     def setup_template_variables(self, context, data_dict):

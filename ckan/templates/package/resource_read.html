@@ -36,7 +36,7 @@
                     <i class="icon-eye-open"></i> {{ _('View') }}
                   {% elif  res.resource_type == 'api' %}
                     <i class="icon-key"></i> {{ _('API Endpoint') }}
-                  {% elif not res.has_views %}
+                  {% elif not res.has_views or not res.can_be_previewed %}
                     <i class="icon-external-link"></i> {{ _('Go to resource') }}
                   {% else %}
                     <i class="icon-download"></i> {{ _('Download') }}
@@ -70,6 +70,7 @@
           {% endblock %}
         </div>
       </div>
+      {% block data_preview %}
       {% block resource_view %}
         <div class="module-content">
           {% block resource_view_nav %}
@@ -85,6 +86,7 @@
             </div>
           {% endblock %}
         </div>
+      {% endblock %}
       {% endblock %}
     </section>
   {% endblock %}
