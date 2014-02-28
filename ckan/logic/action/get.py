@@ -47,14 +47,6 @@ _case = sqlalchemy.case
 _text = sqlalchemy.text
 
 
-def _package_list_with_resources(context, package_revision_list):
-    package_list = []
-    for package in package_revision_list:
-        result_dict = model_dictize.package_dictize(package, context)
-        package_list.append(result_dict)
-    return package_list
-
-
 def site_read(context, data_dict=None):
     '''Return ``True``.
 
