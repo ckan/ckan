@@ -576,6 +576,9 @@ class ApiController(base.BaseController):
                 log.exception(e)
                 return self._finish_bad_request(
                     _('Bad search option: %s') % e)
+            except ValidationError, e:
+                return self._finish_bad_request(
+                    _('Validation Error: %s') % str(e.error_dict))
         else:
             return self._finish_not_found(
                 _('Unknown register: %s') % register)
