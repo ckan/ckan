@@ -6,6 +6,9 @@ import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
 
+eq_ = nose.tools.eq_
+
+
 class TestGet(object):
 
     @classmethod
@@ -40,7 +43,7 @@ class TestGet(object):
 
         # FIXME: Should this be returned by group_create?
         group_dict.pop('num_followers', None)
-        assert group_dict == group
+        eq_(group_dict, group)
 
     def test_group_show_packages_returned(self):
 
@@ -60,8 +63,8 @@ class TestGet(object):
 
         group_dict = helpers.call_action('group_show', id=group['id'])
 
-        assert len(group_dict['packages']) == 2
-        assert group_dict['package_count'] == 2
+        eq_(len(group_dict['packages']), 2)
+        eq_(group_dict['package_count'], 2)
 
     def test_group_show_no_packages_returned(self):
 
@@ -83,7 +86,7 @@ class TestGet(object):
                                          include_datasets=False)
 
         assert not 'packages' in group_dict
-        assert group_dict['package_count'] == 2
+        eq_(group_dict['package_count'], 2)
 
     def test_organization_list(self):
 
@@ -92,8 +95,7 @@ class TestGet(object):
 
         org_list = helpers.call_action('organization_list')
 
-        assert (sorted(org_list) ==
-                sorted([g['name'] for g in [org1, org2]]))
+        eq_(sorted(org_list), sorted([g['name'] for g in [org1, org2]]))
 
     def test_organization_show(self):
 
@@ -103,7 +105,7 @@ class TestGet(object):
 
         # FIXME: Should this be returned by organization_create?
         org_dict.pop('num_followers', None)
-        assert org_dict == org
+        eq_(org_dict, org)
 
     def test_organization_show_packages_returned(self):
 
@@ -123,8 +125,8 @@ class TestGet(object):
 
         org_dict = helpers.call_action('organization_show', id=org['id'])
 
-        assert len(org_dict['packages']) == 2
-        assert org_dict['package_count'] == 2
+        eq_(len(org_dict['packages']), 2)
+        eq_(org_dict['package_count'], 2)
 
     def test_organization_show_private_packages_not_returned(self):
 
@@ -144,9 +146,9 @@ class TestGet(object):
 
         org_dict = helpers.call_action('organization_show', id=org['id'])
 
-        assert len(org_dict['packages']) == 1
-        assert org_dict['packages'][0]['name'] == 'dataset_1'
-        assert org_dict['package_count'] == 1
+        eq_(len(org_dict['packages']), 1)
+        eq_(org_dict['packages'][0]['name'], 'dataset_1')
+        eq_(org_dict['package_count'], 1)
 
     def test_user_get(self):
 
@@ -164,7 +166,7 @@ class TestGet(object):
                                        context={'keep_email': True},
                                        id=user['id'])
 
-        assert got_user['email'] == user['email']
+        eq_(got_user['email'], user['email'])
         assert 'apikey' not in got_user
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
@@ -174,7 +176,7 @@ class TestGet(object):
                                        id=user['id'])
 
         assert 'email' not in got_user
-        assert got_user['apikey'] == user['apikey']
+        eq_(got_user['apikey'], user['apikey'])
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
@@ -184,8 +186,8 @@ class TestGet(object):
                                        context={'user': sysadmin['name']},
                                        id=user['id'])
 
-        assert got_user['email'] == user['email']
-        assert got_user['apikey'] == user['apikey']
+        eq_(got_user['email'], user['email'])
+        eq_(got_user['apikey'], user['apikey'])
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
@@ -198,7 +200,7 @@ class TestGet(object):
         related2 = factories.Related(user=user, type='application')
 
         related_list = helpers.call_action('related_list')
-        assert ([related1, related2] == related_list)
+        eq_([related1, related2], related_list)
 
     def test_related_list_type_filter(self):
         '''
@@ -210,7 +212,7 @@ class TestGet(object):
 
         related_list = helpers.call_action('related_list',
                                            type_filter='application')
-        assert ([related2] == related_list)
+        eq_([related2], related_list)
 
     def test_related_list_sorted(self):
         '''
@@ -221,7 +223,7 @@ class TestGet(object):
         related2 = factories.Related(user=user, type='application')
 
         related_list = helpers.call_action('related_list', sort='created_desc')
-        assert ([related2, related1] == related_list)
+        eq_([related2, related1],  related_list)
 
     def test_related_list_invalid_sort_parameter(self):
         '''
@@ -232,7 +234,7 @@ class TestGet(object):
         related2 = factories.Related(user=user, type='application')
 
         related_list = helpers.call_action('related_list', sort='invalid')
-        assert ([related1, related2] == related_list)
+        eq_([related1, related2], related_list)
 
     def test_related_list_featured(self):
         '''
@@ -243,7 +245,7 @@ class TestGet(object):
         related2 = factories.Related(user=user, type='application')
 
         related_list = helpers.call_action('related_list', featured=True)
-        assert ([related1] == related_list)
+        eq_([related1], related_list)
         # TODO: Create related items associated with a dataset and test
         # related_list with them
 
