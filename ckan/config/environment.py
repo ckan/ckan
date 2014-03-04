@@ -2,6 +2,7 @@
 """Pylons environment configuration"""
 import os
 import logging
+import mimetypes
 import warnings
 from urlparse import urlparse
 
@@ -231,6 +232,9 @@ def load_environment(global_conf, app_conf):
     # load all CKAN plugins
     p.load_all(config)
 
+    # Pre-load some mimetypes.
+    register_mimetypes()
+
 
 def update_config():
     ''' This code needs to be run when the config is changed to take those
@@ -378,3 +382,9 @@ def update_config():
     # if an extension or our code does not finish
     # transaction properly db cli commands can fail
     model.Session.remove()
+
+def register_mimetypes():
+    ''' As some mimetypes are not very common, or at least not found in very
+    many /etc/mime.types we pre-register some here with the python mimetypes
+    module '''
+    mimetypes.add_type('application/json', '.geojson')
