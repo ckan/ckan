@@ -47,14 +47,6 @@ _case = sqlalchemy.case
 _text = sqlalchemy.text
 
 
-def _package_list_with_resources(context, package_revision_list):
-    package_list = []
-    for package in package_revision_list:
-        result_dict = model_dictize.package_dictize(package, context)
-        package_list.append(result_dict)
-    return package_list
-
-
 def site_read(context, data_dict=None):
     '''Return ``True``.
 
@@ -130,6 +122,7 @@ def current_package_list_with_resources(context, data_dict):
     model = context["model"]
     limit = data_dict.get('limit')
     offset = data_dict.get('offset', 0)
+    user = context['user']
 
     if not 'offset' in data_dict and 'page' in data_dict:
         log.warning('"page" parameter is deprecated.  '
@@ -142,16 +135,11 @@ def current_package_list_with_resources(context, data_dict):
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
-    query = model.Session.query(model.PackageRevision)
-    query = query.filter(model.PackageRevision.state == 'active')
-    query = query.filter(model.PackageRevision.current == True)
-    query = query.order_by(
-        model.package_revision_table.c.revision_timestamp.desc())
-    if limit is not None:
-        query = query.limit(limit)
-    query = query.offset(offset)
-    pack_rev = query.all()
-    return _package_list_with_resources(context, pack_rev)
+    is_sysadmin = new_authz.is_sysadmin(user)
+    q = '+capacity:public' if not is_sysadmin else '*:*'
+    context['ignore_capacity_check'] = True
+    search = package_search(context, {'q': q, 'rows': limit, 'start': offset})
+    return search.get('results', [])
 
 
 def revision_list(context, data_dict):
