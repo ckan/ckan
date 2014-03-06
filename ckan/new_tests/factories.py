@@ -120,7 +120,6 @@ class Sysadmin(factory.Factory):
     def _create(cls, target_class, *args, **kwargs):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
-        user_dict = helpers.call_action('user_create', **kwargs)
 
         # Create a sysadmin by accessing the db directly.
         # This is probably bad but I don't think there's another way?
