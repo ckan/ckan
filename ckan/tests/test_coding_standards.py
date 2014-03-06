@@ -607,7 +607,6 @@ class TestPep8(object):
         'ckan/lib/search/sql.py',
         'ckan/logic/__init__.py',
         'ckan/logic/action/__init__.py',
-        'ckan/logic/action/create.py',
         'ckan/logic/action/delete.py',
         'ckan/logic/action/get.py',
         'ckan/logic/action/update.py',

@@ -6,6 +6,9 @@ import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
 
+eq = nose.tools.eq_
+
+
 class TestGet(object):
 
     @classmethod
@@ -23,8 +26,9 @@ class TestGet(object):
 
     def test_group_list(self):
 
-        group1 = factories.Group()
-        group2 = factories.Group()
+        user = factories.User()
+        group1 = factories.Group(user=user)
+        group2 = factories.Group(user=user)
 
         group_list = helpers.call_action('group_list')
 
@@ -33,7 +37,7 @@ class TestGet(object):
 
     def test_group_show(self):
 
-        group = factories.Group()
+        group = factories.Group(user=factories.User())
 
         group_dict = helpers.call_action('group_show', id=group['id'])
 
@@ -45,7 +49,7 @@ class TestGet(object):
 
         user_name = helpers.call_action('get_site_user')['name']
 
-        group = factories.Group()
+        group = factories.Group(user=factories.User())
 
         datasets = [
             {'name': 'dataset_1', 'groups': [{'name': group['name']}]},
@@ -66,7 +70,7 @@ class TestGet(object):
 
         user_name = helpers.call_action('get_site_user')['name']
 
-        group = factories.Group()
+        group = factories.Group(user=factories.User())
 
         datasets = [
             {'name': 'dataset_1', 'groups': [{'name': group['name']}]},
@@ -188,6 +192,129 @@ class TestGet(object):
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
+    def test_related_list_with_no_params(self):
+        '''
+        Test related_list with no parameters and default sort
+        '''
+        user = factories.User()
+        related1 = factories.Related(user=user, featured=True)
+        related2 = factories.Related(user=user, type='application')
+
+        related_list = helpers.call_action('related_list')
+        assert ([related1, related2] == related_list)
+
+    def test_related_list_type_filter(self):
+        '''
+        Test related_list with type filter
+        '''
+        user = factories.User()
+        related1 = factories.Related(user=user, featured=True)
+        related2 = factories.Related(user=user, type='application')
+
+        related_list = helpers.call_action('related_list',
+                                           type_filter='application')
+        assert ([related2] == related_list)
+
+    def test_related_list_sorted(self):
+        '''
+        Test related_list with sort parameter
+        '''
+        user = factories.User()
+        related1 = factories.Related(user=user, featured=True)
+        related2 = factories.Related(user=user, type='application')
+
+        related_list = helpers.call_action('related_list', sort='created_desc')
+        assert ([related2, related1] == related_list)
+
+    def test_related_list_invalid_sort_parameter(self):
+        '''
+        Test related_list with invalid value for sort parameter
+        '''
+        user = factories.User()
+        related1 = factories.Related(user=user, featured=True)
+        related2 = factories.Related(user=user, type='application')
+
+        related_list = helpers.call_action('related_list', sort='invalid')
+        assert ([related1, related2] == related_list)
+
+    def test_related_list_featured(self):
+        '''
+        Test related_list with no featured filter
+        '''
+        user = factories.User()
+        related1 = factories.Related(user=user, featured=True)
+        related2 = factories.Related(user=user, type='application')
+
+        related_list = helpers.call_action('related_list', featured=True)
+        assert ([related1] == related_list)
+        # TODO: Create related items associated with a dataset and test
+        # related_list with them
+
+    def test_current_package_list(self):
+        '''
+        Test current_package_list_with_resources with no parameters
+        '''
+        user = factories.User()
+        dataset1 = factories.Dataset(user=user)
+        dataset2 = factories.Dataset(user=user)
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources')
+        eq(len(current_package_list), 2)
+
+    def test_current_package_list_limit_param(self):
+        '''
+        Test current_package_list_with_resources with limit parameter
+        '''
+        user = factories.User()
+        dataset1 = factories.Dataset(user=user)
+        dataset2 = factories.Dataset(user=user)
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources', limit=1)
+        eq(len(current_package_list), 1)
+        eq(current_package_list[0]['name'], dataset2['name'])
+
+    def test_current_package_list_offset_param(self):
+        '''
+        Test current_package_list_with_resources with offset parameter
+        '''
+        user = factories.User()
+        dataset1 = factories.Dataset(user=user)
+        dataset2 = factories.Dataset(user=user)
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources', offset=1)
+        eq(len(current_package_list), 1)
+        eq(current_package_list[0]['name'], dataset1['name'])
+
+    def test_current_package_list_private_datasets_anonoymous_user(self):
+        '''
+        Test current_package_list_with_resources with an anoymous user and
+        a private dataset
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset1 = factories.Dataset(user=user, owner_org=org['name'],
+                                     private=True)
+        dataset2 = factories.Dataset(user=user)
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources', context={})
+        eq(len(current_package_list), 1)
+
+    def test_current_package_list_private_datasets_sysadmin_user(self):
+        '''
+        Test current_package_list_with_resources with a sysadmin user and a
+        private dataset
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset1 = factories.Dataset(user=user, owner_org=org['name'],
+                                     private=True)
+        dataset2 = factories.Dataset(user=user)
+        sysadmin = factories.Sysadmin()
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources', context={'user':
+                        sysadmin['name']})
+        eq(len(current_package_list), 2)
+
 
 class TestBadLimitQueryParameters(object):
     '''test class for #1258 non-int query parameters cause 500 errors
@@ -208,6 +335,7 @@ class TestBadLimitQueryParameters(object):
             'group_activity_list_html',
             'organization_activity_list_html',
             'recently_changed_packages_activity_list_html',
+            'current_package_list_with_resources',
         ]
         for action in actions:
             nose.tools.assert_raises(

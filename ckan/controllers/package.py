@@ -481,7 +481,7 @@ class PackageController(base.BaseController):
                     author_name=item_author_name,
                     pubdate=item_pubdate,
                 )
-            feed.content_type = 'application/atom+xml'
+            response.headers['Content-Type'] = 'application/atom+xml'
             return feed.writeString('utf-8')
 
         c.related_count = c.pkg.related_count
