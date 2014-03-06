@@ -107,7 +107,7 @@ def munge_tag(tag):
 
 def munge_filename(filename):
     filename = substitute_ascii_equivalents(filename)
-    filename = filename.lower().strip()
+    filename = filename.strip()
     filename = re.sub(r'[^a-zA-Z0-9. ]', '', filename).replace(' ', '-')
     filename = _munge_to_length(filename, 3, 100)
     return filename
