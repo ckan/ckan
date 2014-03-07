@@ -4,6 +4,24 @@ Writing documentation
 
 .. _docs.ckan.org: http://docs.ckan.org
 
+This section gives some guidelines to help us to write consistent and good
+quality documentation for CKAN.
+
+Documentation isn't source code, and documentation standards don't need to be
+followed as rigidly as coding standards do. In the end, some documentation is
+better than no documentation, it can always be improved later. So the
+guidelines below are soft rules.
+
+Having said that, we suggest just one hard rule: **no new feature (or change to
+an existing feature) should be missing from the docs** (but see `todo`_).
+
+
+.. seealso::
+
+   Jacob Kaplon-Moss's `Writing Great Documentation <http://jacobian.org/writing/great-documentation/>`_
+     A series of blog posts about writing technical docs, a lot of our
+     guidelines were based on this.
+
 .. seealso::
 
    The quickest and easiest way to contribute documentation to CKAN is to sign up
@@ -16,31 +34,12 @@ Writing documentation
    since reStructuredText is the format that docs.ckan.org uses, this will make
    moving the documentation from the wiki into docs.ckan.org later easier.
 
-This section gives some guidelines to help us to write consistent and good
-quality documentation for CKAN.
-
-Documentation isn't source code, and documentation standards don't need to be
-followed as rigidly as coding standards do. In the end, some documentation is
-better than no documentation, it can always be improved later. So the
-guidelines below are soft rules.
-
-Having said that, we suggest just one hard rule: **no new feature (or change to
-an existing feature) should be missing from the docs** (but see `todo`_).
-
-.. seealso::
-
-   Jacob Kaplon-Moss's `Writing Great Documentation <http://jacobian.org/writing/great-documentation/>`_
-     A series of blog posts about writing technical docs, a lot of our
-     guidelines were based on this.
-
-.. contents::
-   :local:
 
 .. _getting-started:
 
-------------------
-1. Getting started
-------------------
+---------------
+Getting started
+---------------
 
 This section will walk you through downloading the source files for CKAN's
 docs, editing them, and submitting your work to the CKAN project.
@@ -59,8 +58,8 @@ The source files for the docs are in `the doc directory of the CKAN git repo <ht
 The following sections will walk you through the process of making changes to
 these source files, and submitting your work to the CKAN project.
 
-a. Install CKAN into a virtualenv
-=================================
+Install CKAN into a virtualenv
+==============================
 
 Create a `Python virtual environment <http://pypi.python.org/pypi/virtualenv>`_
 (virtualenv), activate it, install CKAN into the virtual environment, and
@@ -80,8 +79,8 @@ terminal:
     pip install -r pyenv/src/ckan/dev-requirements.txt
 
 
-b. Fetch CKAN's git submodules
-==============================
+Fetch CKAN's git submodules
+===========================
 
 CKAN's custom Sphinx theme is a kept in a git *submodule*, so before you can
 build the docs you have to run these commands in a terminal to download the
@@ -95,8 +94,8 @@ You may occasionally have to run ``git submodule update`` again, when someone
 updates the theme, but this doesn't happen often.
 
 
-c. Build the docs
-=================
+Build the docs
+==============
 
 You should now be able to build the CKAN documentation locally. Make sure your
 virtual environment is activated, and then run this command::
@@ -109,8 +108,8 @@ Now you can open the built HTML files in
     firefox pyenv/src/ckan/build/sphinx/html/index.html
 
 
-d. Edit the reStructuredText files
-==================================
+Edit the reStructuredText files
+===============================
 
 To make changes to the documentation, use a text editor to edit the ``.rst``
 files in ``pyenv/src/ckan/doc/``. Save your changes and then build the docs
@@ -118,13 +117,13 @@ again (``python setup.py build_sphinx``) and open the HTML files in a web
 browser to preview your changes.
 
 Once your docs are ready to submit to the CKAN project, follow the steps in
-:doc`/contributing/pull-requests`.
+:doc:`/contributing/pull-requests`.
 
 .. _structure:
 
------------------------------
-2. How the docs are organized
------------------------------
+--------------------------
+How the docs are organized
+--------------------------
 
 It's important that the docs have a clear, simple and extendable structure
 (and that we keep it that way as we add to them), so that both readers
@@ -214,188 +213,11 @@ So the pages of our Sphinx docs need to have a simple linear ordering - one
 page follows another, like in a book.
 
 
-.. _style:
-
---------
-3. Style
---------
-
-..
-    http://jacobian.org/writing/great-documentation/technical-style/
-
-This section covers things like what tone to use, how to capitalize section
-titles, etc.  Having a consistent style will make the docs nice and easy to
-read and give them a complete, quality feel.
-
-
-Use American spelling
-=====================
-
-Use American spellings everywhere: organization, authorization, realize,
-customize, initialize, color, etc. There's a list here:
-https://wiki.ubuntu.com/EnglishTranslation/WordSubstitution
-
-
-Spellcheck
-==========
-
-Please spellcheck documentation before merging it into master!
-
-
-Commonly used terms
-===================
-
-CKAN
-  Should be written in ALL-CAPS.
-email
-  Use email not e-mail.
-|postgres|, |sqlalchemy|, |nginx|, |python|, |sqlite|, |javascript|, etc.
-  These should always be capitalized as shown above (including capital first
-  letters for Python and Nginx even when they're not the first word in a
-  sentence). ``doc/conf.py`` defines substitutions for each of these so you
-  don't have to remember them, see :ref:`sphinx substitutions`.
-Web site
-  Two words, with Web always capitalized
-frontend
-  Not front-end
-command line
-  Two words, not commandline or command-line
-  (this is because we want to be like `Neal Stephenson <http://www.cryptonomicon.com/beginning.html>`_)
-CKAN config file or configuration file
-  Not settings file, ini file, etc. Also, the **config file** contains **config
-  options** such as ``ckan.site_id``, and each config option is **set** to a
-  certain **setting** or **value** such as ``ckan.site_id = demo.ckan.org``.
-
-
-Section titles
-==============
-
-Capitalization in section titles should follow the same rules as in normal
-sentences: you capitalize the first word and any `proper nouns
-<http://en.wikipedia.org/wiki/Proper_noun>`_.
-
-This seems like the easiest way to do consistent capitalization in section
-titles because it's a capitalization rule that we all know already (instead of
-inventing a new one just for section titles).
-
-Right:
-
-* Installing CKAN from package
-* Getting started
-* Command line interface
-* Writing extensions
-* Making an API request
-* You're done!
-* Libraries available to extensions
-
-Wrong:
-
-* Installing CKAN from Package
-* Getting Started
-* Command Line Interface
-* Writing Extensions
-* Making an API Request
-* You're Done!
-* Libraries Available To Extensions
-
-For lots of examples of this done right, see
-`Django's table of contents <https://docs.djangoproject.com/en/1.5/contents/>`_.
-
-In Sphinx, use the following section title styles::
-
-    ===============
-    Top-level title
-    ===============
-
-    ------------------
-    Second-level title
-    ------------------
-
-    Third-level title
-    =================
-
-    Fourth-level title
-    ------------------
-
-If you need more than four levels of headings, you're probably doing something
-wrong, but see:
-http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections
-
-
-Be conversational
-=================
-
-Write in a friendly, conversational and personal tone:
-
-* Use contractions like don't, doesn't, it's etc.
-
-* Use "we", for example *"We'll publish a call for translations to the
-  ckan-dev and ckan-discuss mailing lists, announcing that the new
-  version is ready to be translated"* instead of *"A call for translations will
-  be published"*.
-
-
-* Refer to the reader personally as "you", as if you're giving verbal
-  instructions to someone in the room: *"First, you'll need to do X. Then, when
-  you've done Y, you can start working on Z"* (instead of stuff like
-  *"First X must be done, and then Y must be done..."*).
-
-
-Write clearly and concretely, not vaguely and abstractly
-========================================================
-
-`Politics and the English Language <http://www.orwell.ru/library/essays/politics/english/e_polit/>`_
-has some good tips about this, including:
-
-#. Never use a metaphor, simile, or other figure of speech which you are used
-   to seeing in print.
-#. Never use a long word where a short one will do.
-#. If it's possible to cut out a word, always cut it out.
-#. Never use the passive when you can be active.
-#. Never use a foreign phrase, scientific word or jargon word if you can think
-   of an everyday English equivalent.
-
-This will make your meaning clearer and easier to understand, especially for
-people whose first language isn't English.
-
-Facilitate skimming
-===================
-
-Readers skim technical documentation trying to quickly find what's
-important or what they need, so break walls of text up into small, visually
-identifiable pieces:
-
-* Use lots of `inline markup <http://sphinx-doc.org/rest.html#inline-markup>`_::
-
-      *italics*
-      **bold**
-      ``code``
-
-  For code samples or filenames with variable parts, uses Sphinx's
-  `:samp: <http://sphinx-doc.org/markup/inline.html#role-samp>`_
-  and `:file: <http://sphinx-doc.org/markup/inline.html#role-file>`_
-  directives.
-
-* Use `lists <http://sphinx-doc.org/rest.html#lists-and-quote-like-blocks>`_
-  to break up text.
-
-* Use ``.. note::`` and ``.. warning::``, see Sphinx's
-  `paragraph-level markup <http://sphinx-doc.org/markup/para.html#paragraph-level-markup>`_.
-
-  (|restructuredtext| actually supports lots more of these: ``attention``,
-  ``error``, ``tip``, ``important``, etc. but most Sphinx themes only style
-  ``note`` and ``warning``.)
-
-* Break text into short paragraphs of 5-6 sentences each max.
-
-* Use section and subsection headers to visualize the structure of a page.
-
-
 .. _sphinx tips:
 
----------
-4. Sphinx
----------
+------
+Sphinx
+------
 
 This section gives some useful tips about using Sphinx.
 
@@ -418,6 +240,39 @@ Maximum line length
 ===================
 
 As with Python code, try to limit all lines to a maximum of 79 characters.
+
+
+versionadded and versionchanged
+===============================
+
+Use Sphinx's ``versionadded`` and ``versionchanged`` directives to mark new or
+changed features. For example::
+
+    ================
+    Tag vocabularies
+    ================
+
+    .. versionadded:: 1.7
+
+    CKAN sites can have *tag vocabularies*, which are a way of grouping related
+    tags together into custom fields.
+
+    ...
+
+With ``versionchanged`` you usually need to add a sentence explaining what
+changed (you can also do this with ``versionadded`` if you want)::
+
+    =============
+    Authorization
+    =============
+
+    .. versionchanged:: 2.0
+       Previous versions of CKAN used a different authorization system.
+
+    CKAN's authorization system controls which users are allowed to carry out
+    which...
+
+
 
 
 Cross-references and links
@@ -624,45 +479,12 @@ just to contain the ``todo``)::
 
 
     =====================================
-    CKAN's Builtin Social Network Feature
+    CKAN's builtin social network feature
     =====================================
 
     .. todo::
 
        Add docs for CKAN's builtin social network for data hackers.
-
-
-
-
-versionadded and versionchanged
-===============================
-
-Use Sphinx's ``versionadded`` and ``versionchanged`` directives to mark new or
-changed features. For example::
-
-    ================
-    Tag vocabularies
-    ================
-
-    .. versionadded:: 1.7
-
-    CKAN sites can have *tag vocabularies*, which are a way of grouping related
-    tags together into custom fields.
-
-    ...
-
-With ``versionchanged`` you usually need to add a sentence explaining what
-changed (you can also do this with ``versionadded`` if you want)::
-
-    =============
-    Authorization
-    =============
-
-    .. versionchanged:: 2.0
-       Previous versions of CKAN used a different authorization system.
-
-    CKAN's authorization system controls which users are allowed to carry out
-    which...
 
 
 deprecated
@@ -692,7 +514,236 @@ is a nice way to include a list of related links::
 
 Seealso boxes are particularly useful when two pages are related, but don't
 belong next to each other in the same section of the docs. For example, we have
-docs about how to upgrade CKAN, these belong in the upgrading section for
-users. We also have docs about how to do a new release, these belong in the
-contributing section for developers. But both sections are about CKAN releases,
-so we link each to the other using seealso boxes.
+docs about how to upgrade CKAN, these belong in the maintainer's guide because
+they're for maintainers. We also have docs about how to do a new release, these
+belong in the contributing guide because they're for developers. But both
+sections are about CKAN releases, so we link each to the other using seealso
+boxes.
+
+
+-------------
+Code examples
+-------------
+
+If you're going to paste example code into the docs, or add a tutorial about
+how to do something with code, then:
+
+#. The code should be in standalone Python, HTML, JavaScript etc. files,
+   not pasted directly into the ``.rst`` files.
+   You then pull the code into your ``.rst`` file using a Sphinx
+   ``.. literalinclude::`` directive (see example below).
+
+#. The code in the standalone files should be a complete working example,
+   with tests.
+   Note that not all of the code from the example needs to appear in the docs,
+   you can include just parts of it using ``.. literalinclude::``, but the
+   example code needs to be complete so it can be tested.
+
+This is so that we don't end up with a lot of broken, outdated examples and
+tutorials in the docs because breaking changes have been made to CKAN since the
+docs were written. If your example code has tests, then when someone makes a
+change in CKAN that breaks your example those tests will fail, and they'll know
+they have to fix their code or update your example.
+
+The :doc:`plugins tutorial </extensions/tutorial>` is an example of this
+technique. `ckanext/example_iauthfunctions <https://github.com/ckan/ckan/tree/master/ckanext/example_iauthfunctions>`_
+is a complete and working example extension. The tests for the extension are
+in `ckanext/example_iauthfunctions/tests <https://github.com/ckan/ckan/tree/master/ckanext/example_iauthfunctions/tests>`_.
+Different parts of the |reStructuredtext| file for the tutorial pull in
+different parts of the example code as needed, like this:
+
+.. code-block:: rest
+
+   .. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v3.py
+      :start-after: # We have the logged-in user's user name, get their user id.
+      :end-before: # Finally, we can test whether the user is a member of the curators group.
+
+``literalinclude`` has a few useful options for pulling out just the part of
+the code that you want. See the `Sphinx docs for literalinclude <http://sphinx-doc.org/markup/code.html?highlight=literalinclude#directive-literalinclude>`_
+for details.
+
+You may notice that `ckanext/example_iauthfunctions <https://github.com/ckan/ckan/tree/master/ckanext/example_iauthfunctions>`_
+contains multiple versions of the same example plugin, ``plugin_v1.py``,
+``plugin_v2.py``, etc. This is because the tutorial walks the user through
+first making a trivial plugin, and then adding more and more advanced features
+one by one. Each step of the tutorial needs to have its own complete,
+standalone example plugin with its own tests.
+
+For more examples, look into the source files for other tutorials in the docs.
+
+
+.. _style:
+
+-----
+Style
+-----
+
+..
+    http://jacobian.org/writing/great-documentation/technical-style/
+
+This section covers things like what tone to use, how to capitalize section
+titles, etc.  Having a consistent style will make the docs nice and easy to
+read and give them a complete, quality feel.
+
+
+Use American spelling
+=====================
+
+Use American spellings everywhere: organization, authorization, realize,
+customize, initialize, color, etc. There's a list here:
+https://wiki.ubuntu.com/EnglishTranslation/WordSubstitution
+
+
+Spellcheck
+==========
+
+Please spellcheck documentation before merging it into master!
+
+
+Commonly used terms
+===================
+
+CKAN
+  Should be written in ALL-CAPS.
+email
+  Use email not e-mail.
+|postgres|, |sqlalchemy|, |nginx|, |python|, |sqlite|, |javascript|, etc.
+  These should always be capitalized as shown above (including capital first
+  letters for Python and Nginx even when they're not the first word in a
+  sentence). ``doc/conf.py`` defines substitutions for each of these so you
+  don't have to remember them, see :ref:`sphinx substitutions`.
+Web site
+  Two words, with Web always capitalized
+frontend
+  Not front-end
+command line
+  Two words, not commandline or command-line
+  (this is because we want to be like `Neal Stephenson <http://www.cryptonomicon.com/beginning.html>`_)
+CKAN config file or configuration file
+  Not settings file, ini file, etc. Also, the **config file** contains **config
+  options** such as ``ckan.site_id``, and each config option is **set** to a
+  certain **setting** or **value** such as ``ckan.site_id = demo.ckan.org``.
+
+
+Section titles
+==============
+
+Capitalization in section titles should follow the same rules as in normal
+sentences: you capitalize the first word and any `proper nouns
+<http://en.wikipedia.org/wiki/Proper_noun>`_.
+
+This seems like the easiest way to do consistent capitalization in section
+titles because it's a capitalization rule that we all know already (instead of
+inventing a new one just for section titles).
+
+Right:
+
+* Installing CKAN from package
+* Getting started
+* Command line interface
+* Writing extensions
+* Making an API request
+* You're done!
+* Libraries available to extensions
+
+Wrong:
+
+* Installing CKAN from Package
+* Getting Started
+* Command Line Interface
+* Writing Extensions
+* Making an API Request
+* You're Done!
+* Libraries Available To Extensions
+
+For lots of examples of this done right, see
+`Django's table of contents <https://docs.djangoproject.com/en/1.5/contents/>`_.
+
+In Sphinx, use the following section title styles::
+
+    ===============
+    Top-level title
+    ===============
+
+    ------------------
+    Second-level title
+    ------------------
+
+    Third-level title
+    =================
+
+    Fourth-level title
+    ------------------
+
+If you need more than four levels of headings, you're probably doing something
+wrong, but see:
+http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections
+
+
+Be conversational
+=================
+
+Write in a friendly, conversational and personal tone:
+
+* Use contractions like don't, doesn't, it's etc.
+
+* Use "we", for example *"We'll publish a call for translations to the
+  ckan-dev and ckan-discuss mailing lists, announcing that the new
+  version is ready to be translated"* instead of *"A call for translations will
+  be published"*.
+
+
+* Refer to the reader personally as "you", as if you're giving verbal
+  instructions to someone in the room: *"First, you'll need to do X. Then, when
+  you've done Y, you can start working on Z"* (instead of stuff like
+  *"First X must be done, and then Y must be done..."*).
+
+
+Write clearly and concretely, not vaguely and abstractly
+========================================================
+
+`Politics and the English Language <http://www.orwell.ru/library/essays/politics/english/e_polit/>`_
+has some good tips about this, including:
+
+#. Never use a metaphor, simile, or other figure of speech which you are used
+   to seeing in print.
+#. Never use a long word where a short one will do.
+#. If it's possible to cut out a word, always cut it out.
+#. Never use the passive when you can be active.
+#. Never use a foreign phrase, scientific word or jargon word if you can think
+   of an everyday English equivalent.
+
+This will make your meaning clearer and easier to understand, especially for
+people whose first language isn't English.
+
+Facilitate skimming
+===================
+
+Readers skim technical documentation trying to quickly find what's
+important or what they need, so break walls of text up into small, visually
+identifiable pieces:
+
+* Use lots of `inline markup <http://sphinx-doc.org/rest.html#inline-markup>`_::
+
+      *italics*
+      **bold**
+      ``code``
+
+  For code samples or filenames with variable parts, uses Sphinx's
+  `:samp: <http://sphinx-doc.org/markup/inline.html#role-samp>`_
+  and `:file: <http://sphinx-doc.org/markup/inline.html#role-file>`_
+  directives.
+
+* Use `lists <http://sphinx-doc.org/rest.html#lists-and-quote-like-blocks>`_
+  to break up text.
+
+* Use ``.. note::`` and ``.. warning::``, see Sphinx's
+  `paragraph-level markup <http://sphinx-doc.org/markup/para.html#paragraph-level-markup>`_.
+
+  (|restructuredtext| actually supports lots more of these: ``attention``,
+  ``error``, ``tip``, ``important``, etc. but most Sphinx themes only style
+  ``note`` and ``warning``.)
+
+* Break text into short paragraphs of 5-6 sentences each max.
+
+* Use section and subsection headers to visualize the structure of a page.

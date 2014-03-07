@@ -168,7 +168,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                res.header('Location').startswith('/dashboard')
         res = res.follow()
         assert_equal(res.status, 200)
-        assert 'testlogin is now logged in' in res.body
         assert 'checkpoint:my-dashboard' in res.body
 
         # check user object created
@@ -372,7 +371,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         while res.status == 302:
             res = res.follow()
         assert_equal(res.status, 200)
-        assert 'User B is now logged in' in res.body, res.body
 
     @search_related
     def test_home_login(self):
