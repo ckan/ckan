@@ -1562,7 +1562,6 @@ class PackageController(base.BaseController):
                 request.params, ignore_keys=CACHE_PARAMETERS))))
             data['resource_id'] = resource_id
 
-
             try:
                 if to_delete:
                     data['id'] = view_id

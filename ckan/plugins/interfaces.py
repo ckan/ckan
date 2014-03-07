@@ -202,24 +202,38 @@ class IResourceView(Interface):
     '''
     def info(self):
         '''Return configuration for the view. Info can return
-        :param name: name of fiew type
+        :param name: name of view type
         :param title: title of view type (Optional)
         :param schema: schema to validate extra view config (Optional)
-        :param form_template: path to form template that will be
-               added to edit/create view form, in order to define
-               extra config.  (Optional)
+        :param icon: icon from
+            http://fortawesome.github.io/Font-Awesome/3.2.1/icons/
+            without the icon- prefix eg. compass (Optional).
+        :param iframed: should we iframe the view template before rendering.
+            If the styles or JavaScript clash with the main site theme this
+            should be set to true. Default is true. (Optional)
+        :param preview_enabled:
+            Says if the preview button appears for this resource. Some preview
+            types have their  previews integrated with the form.
+            Some preview types have their previews integrated with the form.
+            Default false (Optional)
+        :param full_page_edit:  Says if the edit form is the full page width
+            of the page. Default false (Optional)
 
         eg:
             {'name': 'image',
              'title': 'Image',
              'schema': {'image_url': [ignore_empty, unicode]},
-             'form_template': 'image_form.html'}
+             'icon': 'compass',
+             'iframed': false,
+             }
 
         '''
         return {'name': self.__class__.__name__}
 
     def can_view(self, data_dict):
         '''Return info on whether the plugin can preview the resource.
+        The ``data_dict`` contains: ``resource`` and ``package``.
+
         return ``True`` or ``False``.
         '''
 
@@ -236,7 +250,7 @@ class IResourceView(Interface):
     def view_template(self, context, data_dict):
         '''
         Returns a string representing the location of the template to be
-        rendered for the read page.
+        rendered when the view is rendered.
 
         The ``data_dict`` contains: ``resource_view``, ``resource`` and
         ``package``.

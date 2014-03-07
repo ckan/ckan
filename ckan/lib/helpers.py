@@ -1687,7 +1687,7 @@ def resource_view_full_page(resource_view):
 
 def resource_view_dimensions(resource_view):
     '''
-    Returns the icon for a particular view type.
+    Returns the view dimentions for displaying view (EXPERIMENTAL).
     '''
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     sizex = view_plugin.info().get('sizex', 2)
