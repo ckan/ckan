@@ -41,7 +41,7 @@ Action functions are exposed in the API
 ---------------------------------------
 
 The functions in ``ckan.logic.action`` are exposed to the world as the
-:doc:`/api`.  The API URL for an action function is automatically generated
+:doc:`/api/index`.  The API URL for an action function is automatically generated
 from the function name, for example
 ``ckan.logic.action.create.package_create()`` is exposed at
 ``/api/action/package_create``. See `Steve Yegge's Google platforms rant
@@ -50,7 +50,7 @@ interesting discussion about APIs.
 
 **All** publicly visible functions in the
 ``ckan.logic.action.{create,delete,get,update}`` namespaces will be exposed
-through the :doc:`/api`. **This includes functions imported** by those
+through the :doc:`/api/index`. **This includes functions imported** by those
 modules, **as well as any helper functions** defined within those modules.  To
 prevent inadvertent exposure of non-action functions through the action api,
 care should be taken to:
