@@ -2101,10 +2101,14 @@ class ViewsCommand(CkanCommand):
 
         paster views create all                 - Create views for all types.
         paster views create [type1] [type2] ... - Create views for specified types.
-        paster views clean                      - Perminantly delete views for all types no longer in config.
+        paster views clean                      - Permanently delete views for all types no longer in the configuration file.
 
-    Supported types are pdf, text, webpage, image.  Make sure the relevent extensions
-    are loaded otherwise is will cause an error.
+    Supported types are "pdf", "text", "webpage", "image" and "grid".  Make
+    sure the relevant plugins are loaded for the following types, otherwise
+    an error will be raised:
+        * "grid"-> "recline_grid"
+        * "pdf" -> "pdf_preview"
+        * "text -> "text_preview"
     '''
 
     summary = __doc__.split('\n')[0]
