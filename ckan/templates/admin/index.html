@@ -12,16 +12,15 @@
   <div class="module module-narrow module-shallow">
     <h2 class="module-heading">
       <i class="icon-info-sign"></i>
-      {{ _('What are sysadmins?') }}
+      {{ _('Administer CKAN') }}
     </h2>
     <div class="module-content">
-      {% set docs_url = "http://docs.ckan.org/en/{0}/paster.html#sysadmin-give-sysadmin-rights".format(g.ckan_doc_version) %}
+
+      {% set docs_url = "http://docs.ckan.org/en/{0}/sysadmin-guide.html".format(g.ckan_doc_version) %}
       {% trans %}
-        <p>A sysadmin is someone that has full control over a CKAN instance.
-          You can only add CKAN sysadmins via the <code>sysadmin</code> paster
-          command.</p>
+        <p>As a sysadmin user you have full control over this CKAN instance. Proceed with care!</p>
+        <p>For guidance on using sysadmin features, see the CKAN  <a href="{{ docs_url }}" target="_blank">sysadmin guide</a></p>
       {% endtrans %}
-      <p><a href="{{ docs_url }}" target="_blank">{{ _('Read the documentation') }}</a></p>
     </div>
   </div>
 {% endblock %}

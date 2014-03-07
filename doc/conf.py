@@ -35,7 +35,7 @@ rst_epilog = '''
 .. |config_dir| replace:: |config_parent_dir|/default
 .. |production.ini| replace:: |config_dir|/production.ini
 .. |development.ini| replace:: |config_dir|/development.ini
-.. |git_url| replace:: \https://github.com/okfn/ckan.git
+.. |git_url| replace:: \https://github.com/ckan/ckan.git
 .. |postgres| replace:: PostgreSQL
 .. |database| replace:: ckan_default
 .. |database_user| replace:: ckan_default
@@ -63,11 +63,12 @@ rst_epilog = '''
 .. |apache| replace:: Apache
 .. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan_default
 .. |reload_nginx| replace:: sudo service nginx reload
+.. |jquery| replace:: jQuery
 
 .. _Jinja2: http://jinja.pocoo.org/
 .. _CKAN front page: http://127.0.0.1:5000
 .. _bootstrap: http://getbootstrap.com/2.3.2/
-.. _CKAN issue tracker: https://github.com/okfn/ckan/issues
+.. _CKAN issue tracker: https://github.com/ckan/ckan/issues
 
 '''
 
@@ -236,22 +237,11 @@ pygments_style = 'sphinx'
 
 # Options for HTML output
 # -----------------------
-
-#html_theme = 'default'
-#html_theme_options = {
-#"relbarbgcolor": "#777",
-#'sidebarbgcolor': '#F2F2F2',
-#'sidebartextcolor': 'black',
-#'sidebarlinkcolor': '#355F7C',
-#'headfont': 'Trebuchet MS'
-#}
-sys.path.append(os.path.abspath('_themes'))
-html_theme_path = ['_themes']
-html_theme = 'sphinx-theme-okfn'
-html_theme_options = {
-        'logo_icon': 'ckanlogo.png',
-        'show_version': True
-    }
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if not on_rtd:
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 html_sidebars = {
     '**':  ['globaltoc.html'],
@@ -316,7 +306,7 @@ html_static_path = ['_static']
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ComprehensiveKnowledgeArchiveNetworkCKANdoc'
+htmlhelp_basename = 'CKANdoc'
 
 
 # Options for LaTeX output
@@ -331,7 +321,7 @@ htmlhelp_basename = 'ComprehensiveKnowledgeArchiveNetworkCKANdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('contents', 'ComprehensiveKnowledgeArchiveNetworkCKAN.tex', ur'Comprehensive Knowledge Archive Network (CKAN) Developer Documentation',
+  ('contents', 'CKAN.tex', ur'CKAN documentation',
    ur'Open Knowledge Foundation', 'manual'),
 ]
 
