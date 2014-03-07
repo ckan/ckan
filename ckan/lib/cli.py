@@ -2182,14 +2182,14 @@ class ViewsCommand(CkanCommand):
         import ckan.logic as logic
 
         if not p.plugin_loaded('text_preview'):
-            print 'text_preview plugin is not enabled cannot create text previews'
+            print 'Please enable the text_preview plugin to make the text views.'
             return
 
         if not p.plugin_loaded('resource_proxy'):
-            print 'resource_proxy plugin is not enabled cannot create text previews'
+            print 'Please enable the resource_proxy plugin to make the text views.'
             return
 
-        print '''text resource views are being created'''
+        print '''Text resource views are being created'''
 
         import ckanext.textpreview.plugin as textplugin
 
@@ -2228,7 +2228,7 @@ class ViewsCommand(CkanCommand):
         import ckanext.imageview.plugin as imagevewplugin
         formats = tuple(imagevewplugin.DEFAULT_IMAGE_FORMATS)
 
-        print '''image resource views are being created'''
+        print '''Image resource views are being created'''
 
         results = model.Session.execute(
             '''select resource.id, format
@@ -2259,7 +2259,7 @@ class ViewsCommand(CkanCommand):
 
         formats = tuple(['html', 'htm'])
 
-        print '''webpage resource views are being created'''
+        print '''Web page resource views are being created'''
 
         results = model.Session.execute(
             '''select resource.id, format
@@ -2290,14 +2290,14 @@ class ViewsCommand(CkanCommand):
         import ckan.logic as logic
 
         if not p.plugin_loaded('pdf_preview'):
-            print 'pdf_preview plugin is not enabled cannot create pdf previews'
+            print 'Please enable the pdf_preview plugin to make the PDF views.'
             return
 
         if not p.plugin_loaded('resource_proxy'):
-            print 'resource_proxy plugin is not enabled cannot create text previews'
+            print 'Please enable the resource_proxy plugin to make the PDF views.'
             return
 
-        print '''pdf resource views are being created'''
+        print '''PDF resource views are being created'''
 
         results = model.Session.execute(
             '''select resource.id, format
@@ -2330,11 +2330,11 @@ class ViewsCommand(CkanCommand):
         import sqlalchemy
 
         if not p.plugin_loaded('datastore'):
-            print 'Datastore needs to loaded to make the grid views.'
+            print 'The datastore plugin needs to be enabled to generate the grid views.'
             return
 
         if not p.plugin_loaded('recline_grid'):
-            print 'Please enable recline_grid extension to make the grid views.'
+            print 'Please enable the recline_grid plugin to make the grid views.'
             return
 
         print '''Grid resource views are being created'''
