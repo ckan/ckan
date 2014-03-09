@@ -2473,6 +2473,19 @@ msgstr "Abonnés"
 msgid "History"
 msgstr "Historique"
 
+#: ckan/templates/organization/read_base.html:12
+#: ckan/templates/organization/edit_base.html:11
+#: ckan/templates/user/read_base.html:14
+#: ckan/templates/user/edit.html:8
+#: ckan/templates/user/edit_base.html:3
+#: ckan/templates/package/read_base.html:19
+#: ckan/templates/package/resource_read.html:30
+#: ckan/templates/group/read_base.html:12
+#: ckan/templates/group/edit.html:7
+#: ckan/templates/group/edit_base.html:3 ckan/templates/group/edit_base.html:11
+msgid "Manage"
+msgstr "Éditer"
+
 #: ckan/templates/group/index.html:3 ckan/templates_legacy/group/index.html:6
 #: ckan/templates_legacy/group/index.html:7
 msgid "Groups of Datasets"
