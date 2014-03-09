@@ -2826,7 +2826,7 @@ msgstr "CKAN est la plateforme portail  leader mondial  en termes de données  a
 msgid ""
 "You can use <a href=\"http://daringfireball.net/projects/markdown/syntax\" "
 "target=\"_blank\">Markdown formatting</a> here"
-msgstr "Vous pouvez utiliser <a href=\"http://daringfireball.net/projects/markdown/syntax\" target=\"_blank\">le formatage Markdown> ici"
+msgstr "Vous pouvez utiliser <a href=\"http://daringfireball.net/projects/markdown/syntax\" target=\"_blank\">le formatage Markdown</a> ici"
 
 #: ckan/templates/macros/form.html:226
 #: ckan/templates/snippets/search_form.html:60
