@@ -2,6 +2,7 @@ import re
 
 import ckan.lib.base as base
 import ckan.lib.i18n as i18n
+import ckan.lib.helpers as h
 
 
 class UtilController(base.BaseController):
@@ -10,7 +11,11 @@ class UtilController(base.BaseController):
     def redirect(self):
         ''' redirect to the url parameter. '''
         url = base.request.params.get('url')
-        return base.redirect(url)
+
+        if h.url_is_local(url):
+            return base.redirect(url)
+        else:
+            return h.redirect_to(controller='home', action='index')
 
     def primer(self):
         ''' Render all html components out onto a single page.
