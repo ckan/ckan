@@ -35,7 +35,7 @@ class ImageView(p.SingletonPlugin):
         return 'image_form.html'
 
     def add_default_views(self, context, data_dict):
-        resources = datapreview.get_new_resources(context, data_dict)
+        resources = p.toolkit.get_new_resources(context, data_dict)
         for resource in resources:
             if resource.get('format', '').lower() in DEFAULT_IMAGE_FORMATS:
                 view = {'title': 'Resource Image',

@@ -1230,10 +1230,7 @@ class PackageController(base.BaseController):
 
     def _resource_preview(self, data_dict):
         ''' depricated resource preview function '''
-        return bool(datapreview.res_format(data_dict['resource'])
-                    in datapreview.direct() + datapreview.loadable()
-                    or datapreview.get_preview_plugin(
-                        data_dict, return_first=True))
+        return bool(datapreview.get_preview_plugin(data_dict, return_first=True))
 
     def resource_download(self, id, resource_id, filename=None):
         """
