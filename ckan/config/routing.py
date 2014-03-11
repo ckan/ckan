@@ -229,6 +229,7 @@ def make_map():
                       'history_ajax',
                       'follow',
                       'activity',
+                      'groups',
                       'unfollow',
                       'delete',
                       'api_data',
@@ -240,6 +241,8 @@ def make_map():
         m.connect('dataset_activity', '/dataset/activity/{id}',
                   action='activity', ckan_icon='time')
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
+        m.connect('dataset_groups', '/dataset/groups/{id}',
+                  action='groups', ckan_icon='group')
         m.connect('/dataset/{id}.{format}', action='read')
         m.connect('dataset_resources', '/dataset/resources/{id}',
                   action='resources', ckan_icon='reorder')
@@ -252,6 +255,8 @@ def make_map():
         m.connect('resource_edit', '/dataset/{id}/resource_edit/{resource_id}',
                   action='resource_edit', ckan_icon='edit')
         m.connect('/dataset/{id}/resource/{resource_id}/download',
+                  action='resource_download')
+        m.connect('/dataset/{id}/resource/{resource_id}/download/{filename}',
                   action='resource_download')
         m.connect('/dataset/{id}/resource/{resource_id}/embed',
                   action='resource_embedded_dataviewer')
@@ -387,6 +392,7 @@ def make_map():
     # feeds
     with SubMapper(map, controller='feed') as m:
         m.connect('/feeds/group/{id}.atom', action='group')
+        m.connect('/feeds/organization/{id}.atom', action='organization')
         m.connect('/feeds/tag/{id}.atom', action='tag')
         m.connect('/feeds/dataset.atom', action='general')
         m.connect('/feeds/custom.atom', action='custom')

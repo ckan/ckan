@@ -220,10 +220,17 @@ class UserController(base.BaseController):
             # Redirect to a URL picked up by repoze.who which performs the
             # login
             login_url = self._get_repoze_handler('login_handler_path')
-            h.redirect_to('%s?login=%s&password=%s' % (
+
+            # We need to pass the logged in URL as came_from parameter
+            # otherwise we lose the language setting
+            came_from = h.url_for(controller='user', action='logged_in',
+                                  __ckan_no_root=True)
+            redirect_url = '{0}?login={1}&password={2}&came_from={3}'
+            h.redirect_to(redirect_url.format(
                 login_url,
                 str(data_dict['name']),
-                quote(data_dict['password1'].encode('utf-8'))))
+                quote(data_dict['password1'].encode('utf-8')),
+                came_from))
         else:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.
@@ -358,8 +365,6 @@ class UserController(base.BaseController):
 
             user_dict = get_action('user_show')(context, data_dict)
 
-            h.flash_success(_("%s is now logged in") %
-                            user_dict['display_name'])
             return self.me()
         else:
             err = _('Login failed. Bad username or password.')
@@ -451,7 +456,7 @@ class UserController(base.BaseController):
         # reuse of the url
         context = {'model': model, 'session': model.Session,
                    'user': id,
-                   'keep_sensitive_data': True}
+                   'keep_email': True}
 
         try:
             check_access('user_reset', context)
@@ -462,10 +467,6 @@ class UserController(base.BaseController):
             data_dict = {'id': id}
             user_dict = get_action('user_show')(context, data_dict)
 
-            # Be a little paranoid, and get rid of sensitive data that's
-            # not needed.
-            user_dict.pop('apikey', None)
-            user_dict.pop('reset_key', None)
             user_obj = context['user_obj']
         except NotFound, e:
             abort(404, _('User not found'))

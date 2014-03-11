@@ -5,15 +5,11 @@ Full table of contents
 .. toctree::
 
    index
-   installing
-   upgrading
-   getting-started
-   features
+   user-guide
+   sysadmin-guide
+   maintaining/index
+   api/index
    extensions/index
-   theming
-   api
-   contributing
-   test
-   configuration
+   theming/index
+   contributing/index
    changelog
-   appendices/index

@@ -7,7 +7,9 @@
 {% block breadcrumb_content_selected %}{% endblock %}
 {% block breadcrumb_content %}
   {{ super() }}
-  <li class="active"><a href="#">{{ _('Add New Resource') }}</a></li>
+  {% if pkg %}
+    <li class="active"><a href="#">{{ _('Add New Resource') }}</a></li>
+  {% endif %}
 {% endblock %}
 
 {% block form %}{% snippet 'package/snippets/resource_form.html', data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage, allow_upload=g.ofs_impl and logged_in %}{% endblock %}

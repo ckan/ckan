@@ -4,12 +4,12 @@
 {% endif %}
 
 {% if following %}
-  <a href="{{ h.url_for(controller=controller, action='unfollow', id=obj_id) }}" class="btn btn-danger" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="unfollow">
+  <a href="{{ h.url_for(controller=controller, action='unfollow', id=obj_id) }}" class="{% block following_class %}btn btn-danger{% endblock %}" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="unfollow">
     <i class="icon-remove-sign"></i>
     {{ _('Unfollow') }}
   </a>
 {% else %}
-  <a href="{{ h.url_for(controller=controller, action='follow', id=obj_id) }}" class="btn btn-success" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="follow">
+  <a href="{{ h.url_for(controller=controller, action='follow', id=obj_id) }}" class="{% block unfollowing_class %}btn btn-success{% endblock %}" data-module="follow" data-module-type="{{ obj_type }}" data-module-id="{{ obj_id }}" data-module-action="follow">
     <i class="icon-plus-sign"></i>
     {{ _('Follow') }}
   </a>

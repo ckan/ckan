@@ -371,3 +371,78 @@ class TestValidators(object):
 
         format = validators.clean_format('')
         assert format == ''
+
+    def test_datasets_with_org_can_be_private_when_creating(self):
+
+        import ckan.logic.validators as validators
+
+        data = factories.validator_data_dict()
+        errors = factories.validator_errors_dict()
+
+        key = ('private',)
+        data[key] = True
+        errors[key] = []
+
+        data[('owner_org',)] = 'some_org_id'
+
+        # Mock ckan.model.
+        mock_model = mock.MagicMock()
+
+        @t.does_not_modify_errors_dict
+        @t.does_not_modify_data_dict
+        @t.returns_None
+        def call_validator(*args, **kwargs):
+            return validators.datasets_with_no_organization_cannot_be_private(
+                *args, **kwargs)
+        call_validator(key, data, errors, context={'model': mock_model})
+
+    def test_datasets_with_no_org_cannot_be_private_when_creating(self):
+
+        import ckan.logic.validators as validators
+
+        data = factories.validator_data_dict()
+        errors = factories.validator_errors_dict()
+
+        key = ('private',)
+        data[key] = True
+        errors[key] = []
+
+        # Mock ckan.model.
+        mock_model = mock.MagicMock()
+
+        @t.does_not_modify_data_dict
+        @adds_message_to_errors_dict(
+            "Datasets with no organization can't be private.")
+        def call_validator(*args, **kwargs):
+            return validators.datasets_with_no_organization_cannot_be_private(
+                *args, **kwargs)
+
+        call_validator(key, data, errors, context={'model': mock_model})
+
+    def test_datasets_with_org_can_be_private_when_updating(self):
+
+        import ckan.logic.validators as validators
+
+        data = factories.validator_data_dict()
+        errors = factories.validator_errors_dict()
+
+        key = ('private',)
+        data[key] = True
+        errors[key] = []
+
+        data[('id',)] = 'some_dataset_id'
+        data[('owner_org',)] = 'some_org_id'
+
+        # Mock ckan.model.
+        mock_model = mock.MagicMock()
+
+        @t.does_not_modify_errors_dict
+        @t.does_not_modify_data_dict
+        @t.returns_None
+        def call_validator(*args, **kwargs):
+            return validators.datasets_with_no_organization_cannot_be_private(
+                *args, **kwargs)
+        call_validator(key, data, errors, context={'model': mock_model})
+
+    #TODO: Need to test when you are not providing owner_org and the validator
+    #      queries for the dataset with package_show

@@ -6,6 +6,8 @@ import datetime
 import sys
 from pprint import pprint
 import re
+import ckan.logic as logic
+import ckan.model as model
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.lib.fanstatic_resources as fanstatic_resources
@@ -101,6 +103,19 @@ class CkanCommand(paste.script.command.Command):
         self.translator_obj = MockTranslator()
         self.registry.register(pylons.translator, self.translator_obj)
 
+        if model.user_table.exists():
+            # If the DB has already been initialized, create and register
+            # a pylons context object, and add the site user to it, so the
+            # auth works as in a normal web request
+            c = pylons.util.AttribSafeContextObj()
+
+            self.registry.register(pylons.c, c)
+
+            self.site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+
+            pylons.c.user = self.site_user['name']
+            pylons.c.userobj = model.User.get(self.site_user['name'])
+
         ## give routes enough information to run url_for
         parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
         request_config = routes.request_config()
@@ -130,6 +145,7 @@ class ManageDb(CkanCommand):
     db load-only FILE_PATH         - load a pg_dump from a file but don\'t do
                                      the schema upgrade or search indexing
     db create-from-model           - create database from the model (indexes not made)
+    db migrate-filestore           - migrate all uploaded data from the 2.1 filesore.
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -143,6 +159,7 @@ class ManageDb(CkanCommand):
 
         cmd = self.args[0]
         if cmd == 'init':
+
             model.repo.init_db()
             if self.verbose:
                 print 'Initialising DB: SUCCESS'
@@ -187,6 +204,8 @@ class ManageDb(CkanCommand):
                 print 'Creating DB: SUCCESS'
         elif cmd == 'send-rdf':
             self.send_rdf()
+        elif cmd == 'migrate-filestore':
+            self.migrate_filestore()
         else:
             print 'Command %s not recognized' % cmd
             sys.exit(1)
@@ -318,6 +337,45 @@ class ManageDb(CkanCommand):
         import ckan.lib.talis
         talis = ckan.lib.talis.Talis()
         return talis.send_rdf(talis_store, username, password)
+
+    def migrate_filestore(self):
+        from ckan.model import Session
+        import requests
+        from ckan.lib.uploader import ResourceUpload
+        results = Session.execute("select id, revision_id, url from resource "
+                                  "where resource_type = 'file.upload' "
+                                  "and (url_type <> 'upload' or url_type is null)"
+                                  "and url like '%storage%'")
+        for id, revision_id, url  in results:
+            response = requests.get(url, stream=True)
+            if response.status_code != 200:
+                print "failed to fetch %s (code %s)" % (url,
+                                                        response.status_code)
+                continue
+            resource_upload = ResourceUpload({'id': id})
+            assert resource_upload.storage_path, "no storage configured aborting"
+
+            directory = resource_upload.get_directory(id)
+            filepath = resource_upload.get_path(id)
+            try:
+                os.makedirs(directory)
+            except OSError, e:
+                ## errno 17 is file already exists
+                if e.errno != 17:
+                    raise
+
+            with open(filepath, 'wb+') as out:
+                for chunk in response.iter_content(1024):
+                    if chunk:
+                        out.write(chunk)
+
+            Session.execute("update resource set url_type = 'upload'"
+                            "where id = '%s'"  % id)
+            Session.execute("update resource_revision set url_type = 'upload'"
+                            "where id = '%s' and "
+                            "revision_id = '%s'" % (id, revision_id))
+            Session.commit()
+            print "Saved url %s" % url
 
     def version(self):
         from ckan.model import Session
@@ -655,7 +713,7 @@ class UserCmd(CkanCommand):
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 4
+    max_args = None
     min_args = 0
 
     def command(self):
@@ -1280,7 +1338,7 @@ class CreateTestDataCommand(CkanCommand):
                                     translations of terms
     create-test-data vocabs       - annakerenina, warandpeace, and some test
                                     vocabularies
-
+    create-test-data hierarchy    - hierarchy of groups
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -1290,6 +1348,7 @@ class CreateTestDataCommand(CkanCommand):
     def command(self):
         self._load_config()
         self._setup_app()
+        from ckan import plugins
         from create_test_data import CreateTestData
 
         if self.args:
@@ -1314,6 +1373,8 @@ class CreateTestDataCommand(CkanCommand):
             CreateTestData.create_translations_test_data()
         elif cmd == 'vocabs':
             CreateTestData.create_vocabs_test_data()
+        elif cmd == 'hierarchy':
+            CreateTestData.create_group_hierarchy_test_data()
         else:
             print 'Command %s not recognized' % cmd
             raise NotImplementedError

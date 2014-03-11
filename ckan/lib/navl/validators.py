@@ -65,13 +65,13 @@ def ignore(key, data, errors, context):
     value = data.pop(key, None)
     raise StopOnError
 
-def default(defalult_value):
+def default(default_value):
 
     def callable(key, data, errors, context):
 
         value = data.get(key)
         if not value or value is missing:
-            data[key] = defalult_value
+            data[key] = default_value
 
     return callable
 

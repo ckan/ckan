@@ -292,6 +292,8 @@ def convert(data, type_name):
     if type_name.startswith('_'):
         sub_type = type_name[1:]
         return [convert(item, sub_type) for item in data]
+    if type_name == 'tsvector':
+        return unicode(data, 'utf-8')
     if isinstance(data, datetime.datetime):
         return data.isoformat()
     if isinstance(data, (int, float)):
@@ -835,7 +837,10 @@ def _insert_links(data_dict, limit, offset):
     data_dict['_links'] = {}
 
     # get the url from the request
-    urlstring = toolkit.request.environ['CKAN_CURRENT_URL']
+    try:
+        urlstring = toolkit.request.environ['CKAN_CURRENT_URL']
+    except TypeError:
+        return  # no links required for local actions
 
     # change the offset in the url
     parsed = list(urlparse.urlparse(urlstring))

@@ -138,7 +138,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert task['state'] == 'pending', task
 
-    def test_datapusher_hook(self):
+    def _call_datapusher_hook(self, user):
         package = model.Package.get('annakarenina')
         resource = package.resources[0]
 
@@ -163,7 +163,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             }
         }
         postparams = '%s=1' % json.dumps(data)
-        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        auth = {'Authorization': str(user.apikey)}
         res = self.app.post('/api/action/datapusher_hook', params=postparams,
                             extra_environ=auth, status=200)
         print res.body
@@ -182,3 +182,39 @@ class TestDatastoreCreate(tests.WsgiAppCase):
             task_type='datapusher', key='datapusher')
 
         assert task['state'] == 'success', task
+
+    def test_datapusher_hook_sysadmin(self):
+
+        self._call_datapusher_hook(self.sysadmin_user)
+
+    def test_datapusher_hook_normal_user(self):
+
+        self._call_datapusher_hook(self.normal_user)
+
+    def test_datapusher_hook_no_metadata(self):
+        data = {
+            'status': 'success',
+        }
+        postparams = '%s=1' % json.dumps(data)
+
+        self.app.post('/api/action/datapusher_hook', params=postparams,
+                      status=409)
+
+    def test_datapusher_hook_no_status(self):
+        data = {
+            'metadata': {'resource_id': 'res_id'},
+        }
+        postparams = '%s=1' % json.dumps(data)
+
+        self.app.post('/api/action/datapusher_hook', params=postparams,
+                      status=409)
+
+    def test_datapusher_hook_no_resource_id_in_metadata(self):
+        data = {
+            'status': 'success',
+            'metadata': {}
+        }
+        postparams = '%s=1' % json.dumps(data)
+
+        self.app.post('/api/action/datapusher_hook', params=postparams,
+                      status=409)

@@ -6,8 +6,6 @@
         {{ h.markdown_extract(pkg.notes, 180) }}
         {% link_for _('read more'), controller='package', action='about', id=pkg.name %}
       </p>
-    {% else %}
-      <p class="empty">{{ _('There is no description for this dataset') }}</p>
     {% endif %}
     <div class="nums">
       <dl>

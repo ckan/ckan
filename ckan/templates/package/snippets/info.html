@@ -8,23 +8,33 @@ Example:
   {% snippet "package/snippets/info.html", pkg=pkg %}
 
 #}
-{% if pkg %}
-  <section class="module module-narrow">
-    <div class="module context-info">
-      <div class="module-content">
-        <h1 class="heading">{{ pkg.title or pkg.name }}</h1>
-        <div class="nums">
-          <dl>
-            <dt>{{ _('Followers') }}</dt>
-            <dd>{{ h.SI_number_span(h.get_action('dataset_follower_count', {'id': pkg.id})) }}</dd>
-          </dl>
+{% block package_info %}
+  {% if pkg %}
+    <section class="module module-narrow">
+      <div class="module context-info">
+        <div class="module-content">
+          {% block package_info_inner %}
+            {% block heading %}
+              <h1 class="heading">{{ pkg.title or pkg.name }}</h1>
+            {% endblock %}
+            {% block nums %}
+              <div class="nums">
+                <dl>
+                  <dt>{{ _('Followers') }}</dt>
+                  <dd>{{ h.SI_number_span(h.get_action('dataset_follower_count', {'id': pkg.id})) }}</dd>
+                </dl>
+              </div>
+            {% endblock %}
+            {% block follow_button %}
+              {% if not hide_follow_button %}
+                <div class="follow_button">
+                  {{ h.follow_button('dataset', pkg.name) }}
+                </div>
+              {% endif %}
+            {% endblock %}
+          {% endblock %}
         </div>
-        {% if not hide_follow_button %}
-          <div class="follow_button">
-            {{ h.follow_button('dataset', pkg.name) }}
-          </div>
-        {% endif %}
       </div>
-    </div>
-  </section>
-{% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

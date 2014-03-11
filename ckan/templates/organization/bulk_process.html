@@ -32,17 +32,17 @@
                   <th></th>
                   <th class="table-actions">
                     <div class="btn-group">
-                      <button name="bulk_action" value="public" class="btn" type="submit">
+                      <button name="bulk_action.public" value="public" class="btn" type="submit">
                         <i class="icon-eye-open"></i>
                         {{ _('Make public') }}
                       </button>
-                      <button name="bulk_action" value="private" class="btn" type="submit">
+                      <button name="bulk_action.private" value="private" class="btn" type="submit">
                         <i class="icon-eye-close"></i>
                         {{ _('Make private') }}
                       </button>
                     </div>
                     <div class="btn-group">
-                      <button name="bulk_action" value="delete" class="btn btn-danger" type="submit">
+                      <button name="bulk_action.delete" value="delete" class="btn btn-danger" type="submit">
                         <i class="icon-remove"></i>
                         {{ _('Delete') }}
                       </button>
@@ -77,8 +77,6 @@
                       </h3>
                       {% if notes %}
                         <p>{{ notes|urlize }}</p>
-                      {% else %}
-                        <p class="empty">{{ _("This dataset has no description") }}</p>
                       {% endif %}
                     </td>
                   </tr>

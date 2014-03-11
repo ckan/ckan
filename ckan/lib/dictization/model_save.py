@@ -336,7 +336,11 @@ def group_member_save(context, group_dict, member_table_name):
     entities = {}
     Member = model.Member
 
-    ModelClass = getattr(model, member_table_name[:-1].capitalize())
+    classname = member_table_name[:-1].capitalize()
+    if classname == 'Organization':
+        # Organizations use the model.Group class
+        classname = 'Group'
+    ModelClass = getattr(model, classname)
 
     for entity_dict in entity_list:
         name_or_id = entity_dict.get('id') or entity_dict.get('name')

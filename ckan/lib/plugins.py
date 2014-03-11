@@ -7,6 +7,7 @@ from ckan import logic
 import logic.schema
 from ckan import plugins
 import ckan.new_authz
+import ckan.plugins.toolkit as toolkit
 
 log = logging.getLogger(__name__)
 
@@ -115,7 +116,7 @@ def register_group_plugins(map):
     """
     Register the various IGroupForm instances.
 
-    This method will setup the mappings between package types and the
+    This method will setup the mappings between group types and the
     registered IGroupForm instances. If it's called more than once an
     exception will be raised.
     """
@@ -160,13 +161,26 @@ def register_group_plugins(map):
 
             if group_type in _group_plugins:
                 raise ValueError, "An existing IGroupForm is "\
-                                  "already associated with the package type "\
+                                  "already associated with the group type "\
                                   "'%s'" % group_type
             _group_plugins[group_type] = plugin
 
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
         _default_group_plugin = DefaultGroupForm()
+
+
+def plugin_validate(plugin, context, data_dict, schema, action):
+    """
+    Backwards compatibility with 2.x dataset group and org plugins:
+    return a default validate method if one has not been provided.
+    """
+    if hasattr(plugin, 'validate'):
+        result = plugin.validate(context, data_dict, schema, action)
+        if result is not None:
+            return result
+
+    return toolkit.navl_validate(data_dict, schema, context)
 
 
 class DefaultDatasetForm(object):

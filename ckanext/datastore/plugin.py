@@ -1,6 +1,8 @@
 import sys
 import logging
 
+import sqlalchemy.engine.url as sa_url
+
 import ckan.plugins as p
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
@@ -140,7 +142,8 @@ class DatastorePlugin(p.SingletonPlugin):
         return self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url)
 
     def _get_db_from_url(self, url):
-        return url[url.rindex("@"):]
+        db_url = sa_url.make_url(url)
+        return db_url.host, db_url.port, db_url.database
 
     def _same_read_and_write_url(self):
         return self.write_url == self.read_url
@@ -152,27 +155,23 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         write_connection = db._get_engine(
             {'connection_url': self.write_url}).connect()
-        read_connection = db._get_engine(
-            {'connection_url': self.read_url}).connect()
+        read_connection_user = sa_url.make_url(self.read_url).username
 
         drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
 
         write_connection.execute(drop_foo_sql)
 
         try:
-            try:
-                write_connection.execute(u'CREATE TABLE _foo ()')
-                for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                    test_privilege_sql = u"SELECT has_table_privilege('_foo', '{privilege}')"
-                    sql = test_privilege_sql.format(privilege=privilege)
-                    have_privilege = read_connection.execute(sql).first()[0]
-                    if have_privilege:
-                        return False
-            finally:
-                write_connection.execute(drop_foo_sql)
+            write_connection.execute(u'CREATE TEMP TABLE _foo ()')
+            for privilege in ['INSERT', 'UPDATE', 'DELETE']:
+                test_privilege_sql = u"SELECT has_table_privilege(%s, '_foo', %s)"
+                have_privilege = write_connection.execute(
+                    test_privilege_sql, (read_connection_user, privilege)).first()[0]
+                if have_privilege:
+                    return False
         finally:
+            write_connection.execute(drop_foo_sql)
             write_connection.close()
-            read_connection.close()
         return True
 
     def _create_alias_table(self):
@@ -221,6 +220,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
                 'datastore_search': auth.datastore_search,
+                'datastore_search_sql': auth.datastore_search_sql,
                 'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
