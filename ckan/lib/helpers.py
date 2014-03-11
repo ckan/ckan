@@ -12,6 +12,7 @@ import re
 import urllib
 import pprint
 import copy
+import urlparse
 from urllib import urlencode
 
 from paste.deploy.converters import asbool
@@ -225,6 +226,18 @@ def _add_i18n_to_url(url_to_amend, **kw):
         raise ckan.exceptions.CkanUrlException(error)
 
     return url
+
+
+def url_is_local(url):
+    '''Returns True if url is local'''
+    if not url or (len(url) >= 2 and url.startswith('//')):
+        return False
+    parsed = urlparse.urlparse(url)
+    if parsed.scheme:
+        domain = urlparse.urlparse(url_for('/', qualified=True)).netloc
+        if domain != parsed.netloc:
+            return False
+    return True
 
 
 def full_current_url():
