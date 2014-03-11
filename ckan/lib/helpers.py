@@ -1754,6 +1754,7 @@ def resource_formats():
     '''
     global _RESOURCE_FORMATS
     if not _RESOURCE_FORMATS:
+        _RESOURCE_FORMATS = {}
         format_file_path = config.get('ckan.resource_formats')
         if not format_file_path:
             format_file_path = os.path.join(
@@ -1761,7 +1762,17 @@ def resource_formats():
                 'resource_formats.json'
             )
         with open(format_file_path) as format_file:
-           _RESOURCE_FORMATS = json.loads(format_file.read())
+           file_resource_formats = json.loads(format_file.read())
+           for format_line in file_resource_formats:
+               if format_line[0] == '_comment':
+                   continue
+               line = [format_line[2], format_line[0], format_line[1]]
+               for item in line:
+                   _RESOURCE_FORMATS[item.lower()] = line
+               if len(format_line) == 4:
+                   for item in format_line[3]:
+                       _RESOURCE_FORMATS[item.lower()] = line
+
     return _RESOURCE_FORMATS
 
 

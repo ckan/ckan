@@ -702,9 +702,9 @@ def if_empty_guess_format(key, data, errors, context):
     # if resource_id then an update
     if (not value or value is Missing) and not resource_id:
         url = data.get(key[:-1] + ('url',), '')
-        type, encoding = mimetypes.guess_type(url)
-        if type:
-            data[key] = type
+        mimetype, encoding = mimetypes.guess_type(url)
+        if mimetype:
+            data[key] = mimetype
 
 def clean_format(format):
     return h.unified_resource_format(format)

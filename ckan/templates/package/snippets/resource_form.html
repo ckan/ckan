@@ -54,7 +54,7 @@
       {% call form.input('format', id='field-format', label=_('Format'), placeholder=_('eg. CSV, XML or JSON'), value=data.format, error=errors.format, classes=['control-medium'], attrs=format_attrs) %}
         <span class="info-block info-block-small">
           <i class="icon-info-sign"></i>
-          {{ _('This will guessed automatically. Leave blank if you wish') }}
+          {{ _('This will be guessed automatically. Leave blank if you wish') }}
         </span>
       {% endcall %}
     {% endblock %}
