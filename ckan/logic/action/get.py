@@ -20,6 +20,7 @@ import ckan.plugins as plugins
 import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
+import ckan.lib.datapreview as datapreview
 import ckan.new_authz as new_authz
 
 from ckan.common import _
@@ -949,7 +950,12 @@ def resource_view_list(context, data_dict):
     context['resource'] = resource
     _check_access('resource_view_list', context, data_dict)
     q = model.Session.query(model.ResourceView).filter_by(resource_id=id)
-    resource_views = q.order_by(model.ResourceView.order).all()
+    ## only show views when there is the correct plugin enabled
+    resource_views = [
+        resource_view for resource_view
+        in q.order_by(model.ResourceView.order).all()
+        if datapreview.get_view_plugin(resource_view.view_type)
+    ]
     return model_dictize.resource_view_list_dictize(resource_views, context)
 
 
