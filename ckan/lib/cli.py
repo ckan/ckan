@@ -2127,7 +2127,7 @@ class ViewsCommand(CkanCommand):
             print self.usage
 
     def create_views(self, view_types):
-        supported_types = ['text','webpage', 'pdf', 'image', 'grid']
+        supported_types = ['grid', 'text','webpage', 'pdf', 'image']
         if not view_types:
             print self.usage
             return
@@ -2325,6 +2325,7 @@ class ViewsCommand(CkanCommand):
     def create_grid_views(self):
         import ckan.model as model
         import ckan.logic as logic
+        import ckan.plugins.toolkit as toolkit
         import ckanext.datastore.db as db
         import pylons
         import sqlalchemy
@@ -2351,7 +2352,10 @@ class ViewsCommand(CkanCommand):
 
         count = 0
         for row in results:
-            res = logic.get_action('resource_view_list')(context, {'id': row[0]})
+            try:
+                res = logic.get_action('resource_view_list')(context, {'id': row[0]})
+            except toolkit.ObjectNotFound:
+                continue
             if res:
                 continue
             count += 1
