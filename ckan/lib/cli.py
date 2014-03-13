@@ -80,12 +80,17 @@ class CkanCommand(paste.script.command.Command):
 
     def _get_config(self):
         from paste.deploy import appconfig
-        if not self.options.config:
-            msg = 'No config file supplied'
-            raise self.BadCommand(msg)
-        self.filename = os.path.abspath(self.options.config)
+
+        self.filename = os.environ.get('CKAN_INI',
+            os.path.abspath('development.ini'))
+
+        if self.options.config:
+            self.filename = os.path.abspath(self.options.config)
+
         if not os.path.exists(self.filename):
-            raise AssertionError('Config filename %r does not exist.' % self.filename)
+            msg = 'No config file supplied or found in $CKAN_INI'
+            raise self.BadCommand(msg)
+
         fileConfig(self.filename)
         return appconfig('config:' + self.filename)
 
@@ -389,7 +394,7 @@ class SearchIndexCommand(CkanCommand):
     Usage:
       search-index [-i] [-o] [-r] [-e] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
                                                                  full search index (all datasets)
-      search-index rebuild_fast                                - reindex using multiprocessing using all cores. 
+      search-index rebuild_fast                                - reindex using multiprocessing using all cores.
                                                                  This acts in the same way as rubuild -r [EXPERIMENTAL]
       search-index check                                       - checks for datasets not indexed
       search-index show DATASET_NAME                           - shows index of a dataset
