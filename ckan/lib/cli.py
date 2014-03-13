@@ -116,12 +116,17 @@ class CkanCommand(paste.script.command.Command):
 
     def _get_config(self):
         from paste.deploy import appconfig
-        if not self.options.config:
-            msg = 'No config file supplied'
-            raise self.BadCommand(msg)
-        self.filename = os.path.abspath(self.options.config)
+
+        self.filename = os.environ.get('CKAN_INI',
+            os.path.abspath('development.ini'))
+
+        if self.options.config:
+            self.filename = os.path.abspath(self.options.config)
+
         if not os.path.exists(self.filename):
-            raise AssertionError('Config filename %r does not exist.' % self.filename)
+            msg = 'No config file supplied or found in $CKAN_INI'
+            raise self.BadCommand(msg)
+
         fileConfig(self.filename)
         return appconfig('config:' + self.filename)
 
