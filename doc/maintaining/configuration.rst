@@ -1149,6 +1149,20 @@ Default value: ``infinite``
 Email notifications for events older than this time delta will not be sent.
 Accepted formats: '2 days', '14 days', '4:35:00' (hours, minutes, seconds), '7 days, 3:23:34', etc.
 
+.. _ckan.hide_activity_from_users:
+
+ckan.hide_activity_from_users
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.hide_activity_from_users = sysadmin
+
+Hides activity from the specified users from activity stream. If unspecified,
+it'll use :ref:`ckan.site_id` to hide activity by the site user. The site user
+is a sysadmin user on every ckan user with a username that's equal to
+:ref:`ckan.site_id`. This user is used by ckan for performing actions from the
+command-line.
 
 .. _config-feeds:
 
