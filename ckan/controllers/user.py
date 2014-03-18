@@ -365,8 +365,6 @@ class UserController(base.BaseController):
 
             user_dict = get_action('user_show')(context, data_dict)
 
-            h.flash_success(_("%s is now logged in") %
-                            user_dict['display_name'])
             return self.me()
         else:
             err = _('Login failed. Bad username or password.')

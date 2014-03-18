@@ -13,7 +13,7 @@ Example:
   <h3>{{ _('Data and Resources') }}</h3>
   {% block resource_list %}
     {% if resources %}
-      <ul class="resource-list">
+      <ul class="{% block resource_list_class %}resource-list{% endblock %}">
         {% block resource_list_inner %}
           {% for resource in resources %}
             {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource %}

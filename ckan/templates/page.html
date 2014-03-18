@@ -2,6 +2,10 @@
 
 {%- block page -%}
 
+  {% block skip %}
+    <div class="hide"><a href="#content">{{ _('Skip to content') }}</a></div>
+  {% endblock %}
+
   {#
   Override the header on a page by page basis by extending this block. If
   making sitewide header changes it is preferable to override the header.html
@@ -19,11 +23,13 @@
           {% block flash %}
             {% set flash_messages = h.flash.pop_messages() | list %}
             <div class="flash-messages">
-              {% for message in flash_messages %}
-                <div class="alert fade in {{ message.category }}">
-                  {{ h.literal(message) }}
-                </div>
-              {% endfor %}
+              {% block flash_inner %}
+                {% for message in flash_messages %}
+                  <div class="alert fade in {{ message.category }}">
+                    {{ h.literal(message) }}
+                  </div>
+                {% endfor %}
+              {% endblock %}
             </div>
           {% endblock %}
 

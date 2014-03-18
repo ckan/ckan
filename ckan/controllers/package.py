@@ -489,7 +489,7 @@ class PackageController(base.BaseController):
                     author_name=item_author_name,
                     pubdate=item_pubdate,
                 )
-            feed.content_type = 'application/atom+xml'
+            response.headers['Content-Type'] = 'application/atom+xml'
             return feed.writeString('utf-8')
 
         c.related_count = c.pkg.related_count
@@ -1258,7 +1258,8 @@ class PackageController(base.BaseController):
                abort(404, _('Resource data not found'))
             response.headers.update(dict(headers))
             content_type, content_enc = mimetypes.guess_type(rsc.get('url',''))
-            response.headers['Content-Type'] = content_type
+            if content_type:
+                response.headers['Content-Type'] = content_type
             response.status = status
             return app_iter
         elif not 'url' in rsc:

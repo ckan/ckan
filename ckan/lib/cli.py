@@ -6,6 +6,8 @@ import datetime
 import sys
 from pprint import pprint
 import re
+import ckan.logic as logic
+import ckan.model as model
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.lib.fanstatic_resources as fanstatic_resources
@@ -137,6 +139,19 @@ class CkanCommand(paste.script.command.Command):
         self.translator_obj = MockTranslator()
         self.registry.register(pylons.translator, self.translator_obj)
 
+        if model.user_table.exists():
+            # If the DB has already been initialized, create and register
+            # a pylons context object, and add the site user to it, so the
+            # auth works as in a normal web request
+            c = pylons.util.AttribSafeContextObj()
+
+            self.registry.register(pylons.c, c)
+
+            self.site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+
+            pylons.c.user = self.site_user['name']
+            pylons.c.userobj = model.User.get(self.site_user['name'])
+
         ## give routes enough information to run url_for
         parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
         request_config = routes.request_config()
@@ -180,6 +195,7 @@ class ManageDb(CkanCommand):
 
         cmd = self.args[0]
         if cmd == 'init':
+
             model.repo.init_db()
             if self.verbose:
                 print 'Initialising DB: SUCCESS'

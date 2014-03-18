@@ -9,11 +9,13 @@
     {{ h.popular('views', res.tracking_summary.total, min=10) }}
   </a>
   {% endblock %}
-  <p class="description">
-    {% if res.description %}
-      {{ h.markdown_extract(res.description, extract_length=80) }}
-    {% endif %}
-  </p>
+  {% block resource_item_description %}
+    <p class="description">
+      {% if res.description %}
+        {{ h.markdown_extract(res.description, extract_length=80) }}
+      {% endif %}
+    </p>
+  {% endblock %}
   {% block resource_item_explore %}
   {% if not url_is_edit %}
   <div class="dropdown btn-group">

@@ -11,8 +11,12 @@
 
   <div class="form-actions">
     {# TODO: Go back to previous resource form #}
+    {% block previous_action %}
     <button class="btn" name="save" value="go-resources" type="submit">{{ _('Previous') }}</button>
+    {% endblock %}
+    {% block save_action %}
     <button class="btn btn-primary" name="save" value="finish" type="submit">{{ _('Finish') }}</button>
+    {% endblock %}
   </div>
 
 </form>

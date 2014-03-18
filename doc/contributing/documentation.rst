@@ -4,6 +4,24 @@ Writing documentation
 
 .. _docs.ckan.org: http://docs.ckan.org
 
+This section gives some guidelines to help us to write consistent and good
+quality documentation for CKAN.
+
+Documentation isn't source code, and documentation standards don't need to be
+followed as rigidly as coding standards do. In the end, some documentation is
+better than no documentation, it can always be improved later. So the
+guidelines below are soft rules.
+
+Having said that, we suggest just one hard rule: **no new feature (or change to
+an existing feature) should be missing from the docs** (but see `todo`_).
+
+
+.. seealso::
+
+   Jacob Kaplon-Moss's `Writing Great Documentation <http://jacobian.org/writing/great-documentation/>`_
+     A series of blog posts about writing technical docs, a lot of our
+     guidelines were based on this.
+
 .. seealso::
 
    The quickest and easiest way to contribute documentation to CKAN is to sign up
@@ -16,31 +34,12 @@ Writing documentation
    since reStructuredText is the format that docs.ckan.org uses, this will make
    moving the documentation from the wiki into docs.ckan.org later easier.
 
-This section gives some guidelines to help us to write consistent and good
-quality documentation for CKAN.
-
-Documentation isn't source code, and documentation standards don't need to be
-followed as rigidly as coding standards do. In the end, some documentation is
-better than no documentation, it can always be improved later. So the
-guidelines below are soft rules.
-
-Having said that, we suggest just one hard rule: **no new feature (or change to
-an existing feature) should be missing from the docs** (but see `todo`_).
-
-.. seealso::
-
-   Jacob Kaplon-Moss's `Writing Great Documentation <http://jacobian.org/writing/great-documentation/>`_
-     A series of blog posts about writing technical docs, a lot of our
-     guidelines were based on this.
-
-.. contents::
-   :local:
 
 .. _getting-started:
 
-------------------
-1. Getting started
-------------------
+---------------
+Getting started
+---------------
 
 This section will walk you through downloading the source files for CKAN's
 docs, editing them, and submitting your work to the CKAN project.
@@ -59,8 +58,8 @@ The source files for the docs are in `the doc directory of the CKAN git repo <ht
 The following sections will walk you through the process of making changes to
 these source files, and submitting your work to the CKAN project.
 
-a. Install CKAN into a virtualenv
-=================================
+Install CKAN into a virtualenv
+==============================
 
 Create a `Python virtual environment <http://pypi.python.org/pypi/virtualenv>`_
 (virtualenv), activate it, install CKAN into the virtual environment, and
@@ -80,8 +79,8 @@ terminal:
     pip install -r pyenv/src/ckan/dev-requirements.txt
 
 
-b. Fetch CKAN's git submodules
-==============================
+Fetch CKAN's git submodules
+===========================
 
 CKAN's custom Sphinx theme is a kept in a git *submodule*, so before you can
 build the docs you have to run these commands in a terminal to download the
@@ -95,8 +94,8 @@ You may occasionally have to run ``git submodule update`` again, when someone
 updates the theme, but this doesn't happen often.
 
 
-c. Build the docs
-=================
+Build the docs
+==============
 
 You should now be able to build the CKAN documentation locally. Make sure your
 virtual environment is activated, and then run this command::
@@ -109,8 +108,8 @@ Now you can open the built HTML files in
     firefox pyenv/src/ckan/build/sphinx/html/index.html
 
 
-d. Edit the reStructuredText files
-==================================
+Edit the reStructuredText files
+===============================
 
 To make changes to the documentation, use a text editor to edit the ``.rst``
 files in ``pyenv/src/ckan/doc/``. Save your changes and then build the docs
@@ -118,21 +117,52 @@ again (``python setup.py build_sphinx``) and open the HTML files in a web
 browser to preview your changes.
 
 Once your docs are ready to submit to the CKAN project, follow the steps in
-:doc`/contributing/pull-requests`.
+:doc:`/contributing/pull-requests`.
 
 .. _structure:
 
--------------------------
-2. Structure and audience
--------------------------
+--------------------------
+How the docs are organized
+--------------------------
 
-:doc:`/index` describes the overall structure of the docs, and the intended
-audience for each part. This structure is intended to be clear, simple and
-extendable.  If you're adding a new section to the docs, try to fit it into
-this structure.
+It's important that the docs have a clear, simple and extendable structure
+(and that we keep it that way as we add to them), so that both readers
+and writers can easily answer the questions:
+If you need to find the docs for a particular feature, where do you look?
+If you need to add a new page to the docs, where should it go?
+
+As :doc:`/index` explains, the documentation is organized into several guides,
+each for a different audience: a user guide for web interface users, an
+extending guide for extension developers, a contributing guide for core
+contributors, etc. These guides are ordered with the simplest guides first,
+and the most advanced last.
+
+In the source, each one of these guides is a subdirectory with its own
+``index.rst`` containing its own ``.. toctree::`` directive that lists all of
+the other files in that subdirectory. The root toctree just lists each of these
+``*/index.rst`` files.
+
+When adding a new page to the docs, the first question to ask yourself is: who
+is this page for? That should tell you which subdirectory to put your page in.
+You then need to add your page to that subdirectory's ``index.rst`` file.
+
+Within each guide, the docs are broken up by topic. For example, the extending
+guide has a page for the writing extensions tutorial, a page about testing
+extensions, a page for the plugins toolkit reference, etc. Again, the topics
+are ordered with the simplest first and the most advanced last, and reference
+pages generally at the very end.
+
+:doc:`The changelog </changelog>` is one page that doesn't fit into any of
+the guides, because it's relevant to all of the different audiences and not
+only to one particular guide. So the changelog is simply a top-level page
+on its own. Hopefully we won't need to add many more of these top-level
+pages. If you're thinking about adding a page that serves two or more audiences
+at once, ask yourself whether you can break that up into separate pages and
+put each into one of the guides, then link them together using `seealso`_
+boxes.
 
 Within a particular page, for example a new page documenting a new feature, our
-suggestion for what sections the page should have is:
+suggestion for what sections the page might have is:
 
 #. **Overview**: a conceptual overview of or introduction to the feature.
    Explain what the feature provides, why someone might want to use it,
@@ -154,16 +184,15 @@ suggestion for what sections the page should have is:
 Subdirectories
 ==============
 
-Many sections of the docs are organized into subdirectories. For example,
-there's a ``doc/extensions`` subdirectory with
-:doc:`its own index file </extensions/index>` and table of contents, grouping
-all the docs about extensions together into one topic. The
-:doc:`contributing docs </contributing/index>`, theming docs, and other
-sections of the docs are the same.
+Some of the guides have subdirectories within them. For example
+:doc:`/maintaining/index` contains a subdirectory
+:doc:`/maintaining/installing/index`
+that collects together the various pages about installing CKAN with its own
+``doc/maintaining/installing/index.rst`` file.
 
-While using subdirectories is useful, we recommend that you
-**don't put further subdirectories inside the subdirectories**, keep it to
-one level of subdirectories inside the ``doc`` directory, keep it simple,
+While subdirectories are useful, we recommend that you **don't put further
+subdirectories inside the subdirectories**, try to keep it to at most two
+levels of subdirectories inside the ``doc`` directory. Keep it simple,
 otherwise the structure becomes confusing, difficult to get an overview of and
 difficult to navigate.
 
@@ -184,11 +213,370 @@ So the pages of our Sphinx docs need to have a simple linear ordering - one
 page follows another, like in a book.
 
 
+.. _sphinx tips:
+
+------
+Sphinx
+------
+
+This section gives some useful tips about using Sphinx.
+
+
+Don't introduce any new Sphinx warnings
+=======================================
+
+When you build the docs, Sphinx prints out warnings about any broken
+cross-references, syntax errors, etc. We aim not to have any of these warnings,
+so when adding to or editing the docs make sure your changes don't introduce
+any new ones.
+
+It's best to delete the ``build`` directory and completely rebuild the docs, to
+check for any warnings::
+
+    rm -rf build; python setup.py build_sphinx
+
+
+Maximum line length
+===================
+
+As with Python code, try to limit all lines to a maximum of 79 characters.
+
+
+versionadded and versionchanged
+===============================
+
+Use Sphinx's ``versionadded`` and ``versionchanged`` directives to mark new or
+changed features. For example::
+
+    ================
+    Tag vocabularies
+    ================
+
+    .. versionadded:: 1.7
+
+    CKAN sites can have *tag vocabularies*, which are a way of grouping related
+    tags together into custom fields.
+
+    ...
+
+With ``versionchanged`` you usually need to add a sentence explaining what
+changed (you can also do this with ``versionadded`` if you want)::
+
+    =============
+    Authorization
+    =============
+
+    .. versionchanged:: 2.0
+       Previous versions of CKAN used a different authorization system.
+
+    CKAN's authorization system controls which users are allowed to carry out
+    which...
+
+
+
+
+Cross-references and links
+==========================
+
+Whenever mentioning another page or section in the docs, an external website, a
+configuration setting, or a class, exception or function, etc. try to
+cross-reference it. Using proper Sphinx cross-references is better than just
+typing things like "see above/below" or "see section foo" because Sphinx
+cross-refs are hyperlinked, and because if the thing you're referencing to gets
+moved or deleted Sphinx will update the cross-reference or print a warning.
+
+
+Cross-referencing to another file
+---------------------------------
+
+Use ``:doc:`` to cross-reference to other files by filename::
+
+    See :doc:`configuration`
+
+If the file you're editing is in a subdir within the ``doc`` dir, you may need
+to use an absolute reference (starting with a ``/``)::
+
+    See :doc:`/configuration`
+
+See `Cross-referencing documents <http://sphinx-doc.org/markup/inline.html#cross-referencing-documents>`_
+for details.
+
+
+Cross-referencing a section within a file
+-----------------------------------------
+
+Use ``:ref:`` to cross-reference to particular sections within the same or
+another file. First you have to add a label before the section you want to
+cross-reference to::
+
+    .. _getting-started:
+
+    ---------------
+    Getting started
+    ---------------
+
+then from elsewhere cross-reference to the section like this::
+
+    See :ref:`getting-started`.
+
+see `Cross-referencing arbitrary locations <http://sphinx-doc.org/markup/inline.html#cross-referencing-arbitrary-locations>`_.
+
+
+Cross-referencing to CKAN config settings
+-----------------------------------------
+
+Whenever you mention a CKAN config setting, make it link to the docs for that
+setting in :doc:`/maintaining/configuration` by using ``:ref:`` and the name of the config
+setting::
+
+  :ref:`ckan.site_title`
+
+This works because all CKAN config settings are documented in
+:doc:`/maintaining/configuration`, and every setting has a Sphinx label that is exactly
+the same as the name of the setting, for example::
+
+    .. _ckan.site_title:
+
+    ckan.site_title
+    ^^^^^^^^^^^^^^^
+
+    Example::
+
+    ckan.site_title = Open Data Scotland
+
+    Default value:  ``CKAN``
+
+    This sets the name of the site, as displayed in the CKAN web interface.
+
+If you add a new config setting to CKAN, make sure to document like this it in
+:doc:`/maintaining/configuration`.
+
+
+Cross-referencing to a Python object
+------------------------------------
+
+Whenever you mention a Python function, method, object, class, exception, etc.
+cross-reference it using a Sphinx domain object cross-reference.
+See :ref:`Referencing other code objects`.
+
+
+Changing the link text of a cross-reference
+-------------------------------------------
+
+With ``:doc:`` ``:ref:`` and other kinds of link, if you want the link text to
+be different from the title of the thing you're referencing, do this::
+
+    :doc:`the theming document </theming>`
+
+    :ref:`the getting started section <getting-started>`
+
+
+Cross-referencing to an external page
+-------------------------------------
+
+The syntax for linking to external URLs is slightly different from
+cross-referencing, you have to add a trailing underscore::
+
+    `Link text <http://example.com/>`_
+
+or to define a URL once and then link to it in multiple places, do::
+
+    This is `a link`_ and this is `a link`_ and this is
+    `another link <a link>`_.
+
+    .. _a link: http://example.com/
+
+see `Hyperlinks <http://sphinx-doc.org/rest.html#hyperlinks>`_ for details.
+
+
+.. _sphinx substitutions:
+
+Substitutions
+=============
+
+`Substitutions <http://sphinx-doc.org/rest.html#substitutions>`_ are a useful
+way to define a value that's needed in many places (eg. a command, the location
+of a file, etc.) in one place and then reuse it many times.
+
+You define the value once like this::
+
+    .. |production.ini| replace:: /etc/ckan/default/production.ini
+
+and then reuse it like this::
+
+   Now open your |production.ini| file.
+
+``|production.ini|`` will be replaced with the full value
+``/etc/ckan/default/production.ini``.
+
+Substitutions can also be useful for achieving consistent spelling and
+capitalization of names like |restructuredtext|, |postgres|, |nginx|, etc.
+
+The ``rst_epilog`` setting in ``doc/conf.py`` contains a list of global
+substitutions that can be used from any file.
+
+Substitutions can't immediately follow certain characters (with no space
+in-between) or the substitution won't work. If this is a problem, you can
+insert an escaped space, the space won't show up in the generated output and
+the substitution will work::
+
+     pip install -e 'git+\ |git_url|'
+
+Similarly, certain characters are not allowed to immediately follow a
+substitution (without a space) or the substitution won't work. In this case you
+can just escape the following characters, the escaped character will show up in
+the output and the substitution will work::
+
+     pip install -e 'git+\ |git_url|\#egg=ckan'
+
+Also see :ref:`parsed-literals` below for using substitutions in code blocks.
+
+
+.. _parsed-literals:
+
+Parsed literals
+===============
+
+Normally things like links and substitutions don't work within a literal code
+block. You can make them work by using a ``parsed-literal`` block, for
+example::
+
+    Copy your development.ini file to create a new production.ini file::
+
+    .. parsed-literal::
+
+       cp |development.ini| |production.ini|
+
+
+autodoc
+=======
+
+.. _autodoc: http://sphinx-doc.org/ext/autodoc.html
+
+We try to use `autodoc`_ to pull documentation from source code docstrings into
+our Sphinx docs, wherever appropriate. This helps to avoid duplicating
+documentation and also to keep the documentation closer to the code and
+therefore more likely to be kept up to date.
+
+Whenever you're writing reference documentation for modules, classes, functions
+or methods, exceptions, attributes, etc. you should probably be using autodoc.
+For example, we use autodoc for the :ref:`api-reference`, the
+:doc:`/extensions/plugin-interfaces`, etc.
+
+For how to write docstrings, see :ref:`docstrings`.
+
+.. _todo:
+
+todo
+====
+
+No new feature (or change to an existing feature) should be missing from the
+docs. It's best to document new features or changes as you implement them,
+but if you really need to merge something without docs then at least add a
+`todo directive <http://sphinx-doc.org/ext/todo.html>`_ to mark where docs
+need to be added or updated (if it's a new feature, make a new page or section
+just to contain the ``todo``)::
+
+
+    =====================================
+    CKAN's builtin social network feature
+    =====================================
+
+    .. todo::
+
+       Add docs for CKAN's builtin social network for data hackers.
+
+
+deprecated
+==========
+
+Use Sphinx's `deprecated directive <http://sphinx-doc.org/markup/para.html#directive-deprecated>`_
+to mark things as deprecated in the docs::
+
+    .. deprecated:: 3.1
+       Use :func:`spam` instead.
+
+
+seealso
+=======
+
+Often one page of the docs is related to other pages of the docs or to external
+pages. A `seealso block <http://sphinx-doc.org/markup/para.html?highlight=seealso#directive-seealso>`_
+is a nice way to include a list of related links::
+
+    .. seealso::
+
+       :doc:`The DataStore extension <datastore>`
+         A CKAN extension for storing data.
+
+       CKAN's `demo site <http://demo.ckan.org/>`_
+         A demo site running the latest CKAN beta version.
+
+Seealso boxes are particularly useful when two pages are related, but don't
+belong next to each other in the same section of the docs. For example, we have
+docs about how to upgrade CKAN, these belong in the maintainer's guide because
+they're for maintainers. We also have docs about how to do a new release, these
+belong in the contributing guide because they're for developers. But both
+sections are about CKAN releases, so we link each to the other using seealso
+boxes.
+
+
+-------------
+Code examples
+-------------
+
+If you're going to paste example code into the docs, or add a tutorial about
+how to do something with code, then:
+
+#. The code should be in standalone Python, HTML, JavaScript etc. files,
+   not pasted directly into the ``.rst`` files.
+   You then pull the code into your ``.rst`` file using a Sphinx
+   ``.. literalinclude::`` directive (see example below).
+
+#. The code in the standalone files should be a complete working example,
+   with tests.
+   Note that not all of the code from the example needs to appear in the docs,
+   you can include just parts of it using ``.. literalinclude::``, but the
+   example code needs to be complete so it can be tested.
+
+This is so that we don't end up with a lot of broken, outdated examples and
+tutorials in the docs because breaking changes have been made to CKAN since the
+docs were written. If your example code has tests, then when someone makes a
+change in CKAN that breaks your example those tests will fail, and they'll know
+they have to fix their code or update your example.
+
+The :doc:`plugins tutorial </extensions/tutorial>` is an example of this
+technique. `ckanext/example_iauthfunctions <https://github.com/ckan/ckan/tree/master/ckanext/example_iauthfunctions>`_
+is a complete and working example extension. The tests for the extension are
+in `ckanext/example_iauthfunctions/tests <https://github.com/ckan/ckan/tree/master/ckanext/example_iauthfunctions/tests>`_.
+Different parts of the |reStructuredtext| file for the tutorial pull in
+different parts of the example code as needed, like this:
+
+.. code-block:: rest
+
+   .. literalinclude:: ../../ckanext/example_iauthfunctions/plugin_v3.py
+      :start-after: # We have the logged-in user's user name, get their user id.
+      :end-before: # Finally, we can test whether the user is a member of the curators group.
+
+``literalinclude`` has a few useful options for pulling out just the part of
+the code that you want. See the `Sphinx docs for literalinclude <http://sphinx-doc.org/markup/code.html?highlight=literalinclude#directive-literalinclude>`_
+for details.
+
+You may notice that `ckanext/example_iauthfunctions <https://github.com/ckan/ckan/tree/master/ckanext/example_iauthfunctions>`_
+contains multiple versions of the same example plugin, ``plugin_v1.py``,
+``plugin_v2.py``, etc. This is because the tutorial walks the user through
+first making a trivial plugin, and then adding more and more advanced features
+one by one. Each step of the tutorial needs to have its own complete,
+standalone example plugin with its own tests.
+
+For more examples, look into the source files for other tutorials in the docs.
+
+
 .. _style:
 
---------
-3. Style
---------
+-----
+Style
+-----
 
 ..
     http://jacobian.org/writing/great-documentation/technical-style/
@@ -359,310 +747,3 @@ identifiable pieces:
 * Break text into short paragraphs of 5-6 sentences each max.
 
 * Use section and subsection headers to visualize the structure of a page.
-
-
-.. _sphinx tips:
-
----------
-4. Sphinx
----------
-
-This section gives some useful tips about using Sphinx.
-
-
-Don't introduce any new Sphinx warnings
-=======================================
-
-When you build the docs, Sphinx prints out warnings about any broken
-cross-references, syntax errors, etc. We aim not to have any of these warnings,
-so when adding to or editing the docs make sure your changes don't introduce
-any new ones.
-
-It's best to delete the ``build`` directory and completely rebuild the docs, to
-check for any warnings::
-
-    rm -rf build; python setup.py build_sphinx
-
-
-Maximum line length
-===================
-
-As with Python code, try to limit all lines to a maximum of 79 characters.
-
-
-Cross-references and links
-==========================
-
-Whenever mentioning another page or section in the docs, an external website, a
-configuration setting, or a class, exception or function, etc. try to
-cross-reference it. Using proper Sphinx cross-references is better than just
-typing things like "see above/below" or "see section foo" because Sphinx
-cross-refs are hyperlinked, and because if the thing you're referencing to gets
-moved or deleted Sphinx will update the cross-reference or print a warning.
-
-
-Cross-referencing to another file
----------------------------------
-
-Use ``:doc:`` to cross-reference to other files by filename::
-
-    See :doc:`configuration`
-
-If the file you're editing is in a subdir within the ``doc`` dir, you may need
-to use an absolute reference (starting with a ``/``)::
-
-    See :doc:`/configuration`
-
-See `Cross-referencing documents <http://sphinx-doc.org/markup/inline.html#cross-referencing-documents>`_
-for details.
-
-
-Cross-referencing a section within a file
------------------------------------------
-
-Use ``:ref:`` to cross-reference to particular sections within the same or
-another file. First you have to add a label before the section you want to
-cross-reference to::
-
-    .. _getting-started:
-
-    ---------------
-    Getting started
-    ---------------
-
-then from elsewhere cross-reference to the section like this::
-
-    See :ref:`getting-started`.
-
-see `Cross-referencing arbitrary locations <http://sphinx-doc.org/markup/inline.html#cross-referencing-arbitrary-locations>`_.
-
-
-Cross-referencing to CKAN config settings
------------------------------------------
-
-Whenever you mention a CKAN config setting, make it link to the docs for that
-setting in :doc:`/configuration` by using ``:ref:`` and the name of the config
-setting::
-
-  :ref:`ckan.site_title`
-
-This works because all CKAN config settings are documented in
-:doc:`/configuration`, and every setting has a Sphinx label that is exactly
-the same as the name of the setting, for example::
-
-    .. _ckan.site_title:
-
-    ckan.site_title
-    ^^^^^^^^^^^^^^^
-
-    Example::
-
-    ckan.site_title = Open Data Scotland
-
-    Default value:  ``CKAN``
-
-    This sets the name of the site, as displayed in the CKAN web interface.
-
-If you add a new config setting to CKAN, make sure to document like this it in
-:doc:`/configuration`.
-
-
-Cross-referencing to a Python object
-------------------------------------
-
-Whenever you mention a Python function, method, object, class, exception, etc.
-cross-reference it using a Sphinx domain object cross-reference.
-See :ref:`Referencing other code objects`.
-
-
-Changing the link text of a cross-reference
--------------------------------------------
-
-With ``:doc:`` ``:ref:`` and other kinds of link, if you want the link text to
-be different from the title of the thing you're referencing, do this::
-
-    :doc:`the theming document </theming>`
-
-    :ref:`the getting started section <getting-started>`
-
-
-Cross-referencing to an external page
--------------------------------------
-
-The syntax for linking to external URLs is slightly different from
-cross-referencing, you have to add a trailing underscore::
-
-    `Link text <http://example.com/>`_
-
-or to define a URL once and then link to it in multiple places, do::
-
-    This is `a link`_ and this is `a link`_ and this is
-    `another link <a link>`_.
-
-    .. _a link: http://example.com/
-
-see `Hyperlinks <http://sphinx-doc.org/rest.html#hyperlinks>`_ for details.
-
-
-.. _sphinx substitutions:
-
-Substitutions
-=============
-
-`Substitutions <http://sphinx-doc.org/rest.html#substitutions>`_ are a useful
-way to define a value that's needed in many places (eg. a command, the location
-of a file, etc.) in one place and then reuse it many times.
-
-You define the value once like this::
-
-    .. |production.ini| replace:: /etc/ckan/default/production.ini
-
-and then reuse it like this::
-
-   Now open your |production.ini| file.
-
-``|production.ini|`` will be replaced with the full value
-``/etc/ckan/default/production.ini``.
-
-Substitutions can also be useful for achieving consistent spelling and
-capitalization of names like |restructuredtext|, |postgres|, |nginx|, etc.
-
-The ``rst_epilog`` setting in ``doc/conf.py`` contains a list of global
-substitutions that can be used from any file.
-
-Substitutions can't immediately follow certain characters (with no space
-in-between) or the substitution won't work. If this is a problem, you can
-insert an escaped space, the space won't show up in the generated output and
-the substitution will work::
-
-     pip install -e 'git+\ |git_url|'
-
-Similarly, certain characters are not allowed to immediately follow a
-substitution (without a space) or the substitution won't work. In this case you
-can just escape the following characters, the escaped character will show up in
-the output and the substitution will work::
-
-     pip install -e 'git+\ |git_url|\#egg=ckan'
-
-Also see :ref:`parsed-literals` below for using substitutions in code blocks.
-
-
-.. _parsed-literals:
-
-Parsed literals
-===============
-
-Normally things like links and substitutions don't work within a literal code
-block. You can make them work by using a ``parsed-literal`` block, for
-example::
-
-    Copy your development.ini file to create a new production.ini file::
-
-    .. parsed-literal::
-
-       cp |development.ini| |production.ini|
-
-
-autodoc
-=======
-
-.. _autodoc: http://sphinx-doc.org/ext/autodoc.html
-
-We try to use `autodoc`_ to pull documentation from source code docstrings into
-our Sphinx docs, wherever appropriate. This helps to avoid duplicating
-documentation and also to keep the documentation closer to the code and
-therefore more likely to be kept up to date.
-
-Whenever you're writing reference documentation for modules, classes, functions
-or methods, exceptions, attributes, etc. you should probably be using autodoc.
-For example, we use autodoc for the :ref:`api-reference`, the
-:doc:`/extensions/plugin-interfaces`, etc.
-
-For how to write docstrings, see :ref:`docstrings`.
-
-.. _todo:
-
-todo
-====
-
-No new feature (or change to an existing feature) should be missing from the
-docs. It's best to document new features or changes as you implement them,
-but if you really need to merge something without docs then at least add a
-`todo directive <http://sphinx-doc.org/ext/todo.html>`_ to mark where docs
-need to be added or updated (if it's a new feature, make a new page or section
-just to contain the ``todo``)::
-
-
-    =====================================
-    CKAN's Builtin Social Network Feature
-    =====================================
-
-    .. todo::
-
-       Add docs for CKAN's builtin social network for data hackers.
-
-
-
-
-versionadded and versionchanged
-===============================
-
-Use Sphinx's ``versionadded`` and ``versionchanged`` directives to mark new or
-changed features. For example::
-
-    ================
-    Tag vocabularies
-    ================
-
-    .. versionadded:: 1.7
-
-    CKAN sites can have *tag vocabularies*, which are a way of grouping related
-    tags together into custom fields.
-
-    ...
-
-With ``versionchanged`` you usually need to add a sentence explaining what
-changed (you can also do this with ``versionadded`` if you want)::
-
-    =============
-    Authorization
-    =============
-
-    .. versionchanged:: 2.0
-       Previous versions of CKAN used a different authorization system.
-
-    CKAN's authorization system controls which users are allowed to carry out
-    which...
-
-
-deprecated
-==========
-
-Use Sphinx's `deprecated directive <http://sphinx-doc.org/markup/para.html#directive-deprecated>`_
-to mark things as deprecated in the docs::
-
-    .. deprecated:: 3.1
-       Use :func:`spam` instead.
-
-
-seealso
-=======
-
-Often one page of the docs is related to other pages of the docs or to external
-pages. A `seealso <http://sphinx-doc.org/markup/para.html?highlight=seealso#directive-seealso>`_
-block is a nice way to include a list of related links::
-
-    .. seealso::
-
-       :doc:`The DataStore extension <datastore>`
-         A CKAN extension for storing data.
-
-       CKAN's `demo site <http://demo.ckan.org/>`_
-         A demo site running the latest CKAN beta version.
-
-Seealso boxes are particularly useful when two pages are related, but don't
-belong next to each other in the same section of the docs. For example, we have
-docs about how to upgrade CKAN, these belong in the upgrading section for
-users. We also have docs about how to do a new release, these belong in the
-contributing section for developers. But both sections are about CKAN releases,
-so we link each to the other using seealso boxes.
