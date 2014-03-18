@@ -22,6 +22,8 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.new_authz as new_authz
+import ckan.lib.munge as munge
+import ckan.lib.helpers as h
 
 from ckan.common import _
 
@@ -821,6 +823,16 @@ def package_show(context, data_dict):
             else:
                 package_dict = json.loads(search_result['data_dict'])
                 package_dict_validated = False
+            if 'organization' in package_dict:
+                org = package_dict['organization']
+                image_url = org['image_url']
+                if image_url and not image_url.startswith('http'):
+                    image_url = munge.munge_filename(image_url)
+                    org['image_display_url'] = h.url_for_static(
+                        'uploads/group/%s' % org.get('image_url'),
+                        qualified=True
+                    )
+                package_dict['organization'] = org
             metadata_modified = pkg.metadata_modified.isoformat()
             search_metadata_modified = search_result['metadata_modified']
             # solr stores less precice datetime,
