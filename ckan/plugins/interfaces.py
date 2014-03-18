@@ -770,12 +770,12 @@ class IDatasetForm(Interface):
 
         If the user requests the dataset in a format other than HTML
         (CKAN supports returning datasets in RDF or N3 format by appending .rdf
-        or .n3 to the dataset read URL, see :doc:`/linked-data-and-rdf`) then
-        CKAN will try to render
-        a template file with the same path as returned by this function,
-        but a different filename extension, e.g. ``'package/read.rdf'``.
-        If your extension doesn't have this RDF version of the template
-        file, the user will get a 404 error.
+        or .n3 to the dataset read URL, see
+        :doc:`/maintaining/linked-data-and-rdf`) then CKAN will try to render a
+        template file with the same path as returned by this function, but a
+        different filename extension, e.g. ``'package/read.rdf'``.  If your
+        extension doesn't have this RDF version of the template file, the user
+        will get a 404 error.
 
         :rtype: string
 
@@ -823,6 +823,37 @@ class IDatasetForm(Interface):
         :rtype: string
 
         '''
+
+    def validate(self, context, data_dict, schema, action):
+        """Customize validation of datasets.
+
+        When this method is implemented it is used to perform all validation
+        for these datasets. The default implementation calls and returns the
+        result from ``ckan.plugins.toolkit.navl_validate``.
+
+        This is an adavanced interface. Most changes to validation should be
+        accomplished by customizing the schemas returned from
+        ``show_package_schema()``, ``create_package_schema()``
+        and ``update_package_schama()``. If you need to have a different
+        schema depending on the user or value of any field stored in the
+        dataset, or if you wish to use a different method for validation, then
+        this method may be used.
+
+        :param context: extra information about the request
+        :type context: dictionary
+        :param data_dict: the dataset to be validated
+        :type data_dict: dictionary
+        :param schema: a schema, typically from ``show_package_schema()``,
+          ``create_package_schema()`` or ``update_package_schama()``
+        :type schema: dictionary
+        :param action: ``'package_show'``, ``'package_create'`` or
+          ``'package_update'``
+        :type action: string
+        :returns: (data_dict, errors) where data_dict is the possibly-modified
+          dataset and errors is a dictionary with keys matching data_dict
+          and lists-of-string-error-messages as values
+        :rtype: (dictionary, dictionary)
+        """
 
 
 class IGroupForm(Interface):
@@ -942,6 +973,38 @@ class IGroupForm(Interface):
     def setup_template_variables(self, context, data_dict):
         """
         Add variables to c just prior to the template being rendered.
+        """
+
+    def validate(self, context, data_dict, schema, action):
+        """Customize validation of groups.
+
+        When this method is implemented it is used to perform all validation
+        for these groups. The default implementation calls and returns the
+        result from ``ckan.plugins.toolkit.navl_validate``.
+
+        This is an adavanced interface. Most changes to validation should be
+        accomplished by customizing the schemas returned from
+        ``form_to_db_schema()`` and ``db_to_form_schema()``
+        If you need to have a different
+        schema depending on the user or value of any field stored in the
+        group, or if you wish to use a different method for validation, then
+        this method may be used.
+
+        :param context: extra information about the request
+        :type context: dictionary
+        :param data_dict: the group to be validated
+        :type data_dict: dictionary
+        :param schema: a schema, typically from ``form_to_db_schema()``,
+          or ``db_to_form_schama()``
+        :type schema: dictionary
+        :param action: ``'group_show'``, ``'group_create'``,
+          ``'group_update'``, ``'organization_show'``,
+          ``'organization_create'`` or ``'organization_update'``
+        :type action: string
+        :returns: (data_dict, errors) where data_dict is the possibly-modified
+          group and errors is a dictionary with keys matching data_dict
+          and lists-of-string-error-messages as values
+        :rtype: (dictionary, dictionary)
         """
 
     ##### End of hooks                                                   #####

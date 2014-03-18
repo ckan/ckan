@@ -50,7 +50,7 @@ work with CKAN:
 #. Install the development dependencies: ``pip install -r
    dev-requirements.txt``
 
-#. Run the tests to make sure everything still works (see :doc:`/test`).
+#. Run the tests to make sure everything still works (see :doc:`test`).
 
    - If not, try to fix the problem. If it's too complicated, pinpoint which
      dependency's version broke our tests, find an older version that still

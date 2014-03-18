@@ -47,6 +47,7 @@ class _Toolkit(object):
         'get_converter',        # get validator function
         'get_validator',        # get convertor action function
         'check_access',         # check logic function authorisation
+        'navl_validate',        # implements validate method with navl schema
         'ObjectNotFound',       # action not found exception
                                 # (ckan.logic.NotFound)
         'NotAuthorized',        # action not authorized exception
@@ -94,6 +95,7 @@ class _Toolkit(object):
         import ckan.lib.base as base
         import ckan.logic as logic
         import ckan.logic.validators as logic_validators
+        import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
         import ckan.lib.cli as cli
         import ckan.lib.plugins as lib_plugins
@@ -167,6 +169,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['get_converter'] = logic.get_converter
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
+        t['navl_validate'] = dictization_functions.validate
         t['ObjectNotFound'] = logic.NotFound  # Name change intentional
         t['NotAuthorized'] = logic.NotAuthorized
         t['ValidationError'] = logic.ValidationError

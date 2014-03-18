@@ -1,29 +1,28 @@
-=======
-Theming
-=======
+=============
+Theming guide
+=============
 
 .. versionchanged:: 2.0
    The CKAN frontend was completely rewritten for CKAN 2.0, so most of the
    tutorials below don't apply to earlier versions of CKAN.
 
-The CKAN web interface's HTML, CSS and JavaScript are fully customizable by
-creating a CKAN theme. The tutorials below will show you how to develop your
-own custom CKAN theme.
+The following sections will teach you how to customize the content and
+appearance of CKAN pages by developing your own CKAN themes.
 
 .. seealso::
 
-   :doc:`/getting-started`
+   :doc:`/maintaining/getting-started`
     If you just want to do some simple customizations such as changing the
     title of your CKAN site, or making some small CSS customizations,
-    :doc:`/getting-started` documents some simple configuration settings you
-    can use.
+    :doc:`/maintaining/getting-started` documents some simple configuration
+    settings you can use.
 
 .. note::
 
   Before you can start developing a CKAN theme, you’ll need a working source
   install of CKAN on your system. If you don't have a CKAN source install
-  already, follow the instructions in :doc:`/install-from-source` before
-  continuing.
+  already, follow the instructions in
+  :doc:`/maintaining/installing/install-from-source` before continuing.
 
 
 .. note::
@@ -53,5 +52,9 @@ own custom CKAN theme.
    best-practices
    jinja-tags
    variables-and-functions
+   javascript-module-objects-and-methods
    template-helper-functions
    template-snippets
+   javascript-sandbox
+   javascript-api-client
+   jquery-plugins

@@ -10,7 +10,8 @@ a user with sysadmin rights. The guide assumes familiarity with the
 Certain administration tasks are not available through the web UI but need
 access to the server where CKAN is installed. These include the range of
 configuration options using the site's "config" file, documented in
-:doc:`configuration`, and those available via the :doc:`paster`.
+:doc:`/maintaining/configuration`, and those available via
+:doc:`/maintaining/paster`.
 
 .. warning::
 
@@ -40,7 +41,7 @@ Customizing look and feel
 Some simple customizations to customize the 'look and feel' of your CKAN site
 are available via the UI, at ``http://<my-ckan-url>/ckan-admin/config/``.
 
-.. image:: images/customize_look_and_feel.jpg
+.. image:: /images/customize_look_and_feel.jpg
 
 Here you can edit the following:
 
@@ -100,7 +101,7 @@ Moving a dataset between organizations
 To move a dataset between organizations, visit the dataset's Edit page. Choose
 the appropriate entry from the "organization" drop-down list, and press "Save".
 
-.. image:: images/move_dataset_between_organizations.jpg
+.. image:: /images/move_dataset_between_organizations.jpg
 
 -----------------------------
 Permanently deleting datasets
@@ -143,7 +144,7 @@ On their user profile, you will see an "Edit" button. CKAN displays the user
 settings page. You can change any settings for the user, including their
 username, name and password.
 
-.. image:: images/manage_users.jpg
+.. image:: /images/manage_users.jpg
 
 .. note::
 

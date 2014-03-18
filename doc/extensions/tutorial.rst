@@ -15,8 +15,8 @@ Installing CKAN
 
 Before you can start developing a CKAN extension, you'll need a working source
 install of CKAN on your system. If you don't have a CKAN source install
-already, follow the instructions in :doc:`/install-from-source` before
-continuing.
+already, follow the instructions in
+:doc:`/maintaining/installing/install-from-source` before continuing.
 
 
 Creating a new extension
@@ -132,12 +132,12 @@ the ``entry_points`` section like this::
 Installing the extension
 ========================
 
-When you :doc:`install CKAN </installing>`, you create a Python `virtual
-environment <http://www.virtualenv.org>`_ in a directory on your system
-(|virtualenv| by default) and install the CKAN Python package and the other
-packages that CKAN depends on into this virtual environment.
-Before we can use our plugin, we must install our extension into our CKAN
-virtual environment.
+When you :doc:`install CKAN </maintaining/installing/index>`, you create a
+Python `virtual environment <http://www.virtualenv.org>`_ in a directory on
+your system (|virtualenv| by default) and install the CKAN Python package and
+the other packages that CKAN depends on into this virtual environment.  Before
+we can use our plugin, we must install our extension into our CKAN virtual
+environment.
 
 Make sure your virtualenv is activated, change to the extension's
 directory, and run ``python setup.py develop``:
