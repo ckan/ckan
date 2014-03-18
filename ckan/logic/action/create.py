@@ -323,9 +323,9 @@ def resource_view_create(context, data_dict):
     view_plugin = datapreview.get_view_plugin(view_type)
     if not view_plugin:
         raise ValidationError(
-            {"view_type":"No plugin found for view_type {view_type}".format(
-                view_type=view_type)
-            }
+            {"view_type": "No plugin found for view_type {view_type}".format(
+                view_type=view_type
+            )}
         )
     plugin_schema = view_plugin.info().get('schema', {})
     schema.update(plugin_schema)
