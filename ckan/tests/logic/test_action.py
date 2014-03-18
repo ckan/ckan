@@ -1396,6 +1396,8 @@ class TestAction(WsgiAppCase):
         resource_view_created = json.loads(res.body)['result']
 
         resource_view_created.pop('id')
+        resource_view_created.pop('package_id')
+
         assert len(resource_view) == len(resource_view_created)
         for field in resource_view:
             assert resource_view[field] == resource_view_created[field], \
@@ -1468,6 +1470,7 @@ class TestAction(WsgiAppCase):
         result = json.loads(res.body)['result']
 
         result.pop('id')
+        result.pop('package_id')
         assert result == resource_view
 
     def test_resource_view_list_reorder(self):
@@ -1571,6 +1574,7 @@ class TestAction(WsgiAppCase):
             extra_environ={'Authorization': str(self.normal_user.apikey)})
         result = json.loads(res.body)['result']
 
+        result.pop('package_id')
         assert result == resource_view
 
     def test_resource_view_update_missing_resource_view_id(self):

@@ -762,6 +762,15 @@ def _where(field_ids, data_dict):
             raise ValidationError({
                 'filters': ['field "{0}" not in table'.format(field)]}
             )
+
+        if isinstance(value, list):
+            where_clauses.append(
+                u'"{0}" in ({1})'.format(field,
+                                         ','.join(['%s'] * len(value)))
+            )
+            values.extend(value)
+            continue
+
         where_clauses.append(u'"{0}" = %s'.format(field))
         values.append(value)
 
