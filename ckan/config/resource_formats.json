@@ -1,5 +1,5 @@
 [
-  ["_comment", "JSON fild order as follows", ["Format", "Description", "Mimetype", ["List of alternative representasions"]]],
+  ["_comment", "JSON field order as follows", ["Format", "Description", "Mimetype", ["List of alternative representations"]]],
   ["PPTX", "Powerpoint XML Presentation", "application/vnd.openxmlformats-officedocument.presentationml.presentation", []],
   ["EXE", "Windows Executable Program", "application/x-msdownload", []],
   ["ODS", "Office Open XML Spreadsheet", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", []],
@@ -61,5 +61,6 @@
   ["MXD", "ESRI ArcGIS project file", "application/x-mxd", []],
   ["TAR", "TAR Compressed File", "application/x-tar", []],
   ["PNG", "PNG Image File", "image/png", []],
-  ["RSS", "RSS feed", "application/rss+xml", []]
+  ["RSS", "RSS feed", "application/rss+xml", []],
+  ["GeoJSON", "Geographic JavaScript Object Notation", "application/json", []]
 ]
