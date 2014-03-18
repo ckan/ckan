@@ -243,6 +243,18 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         query = query.filter(or_(*filters))
         return query
 
+    @classmethod
+    def user_ids_for_name_or_id(self, user_list=[]):
+        '''
+        This function returns a list of ids from an input that can be a list of
+        names or ids
+        '''
+        query = meta.Session.query(self.id)
+        query = query.filter(or_(self.name.in_(user_list),
+                                 self.id.in_(user_list)))
+        return [user.id for user in query.all()]
+
+
 meta.mapper(User, user_table,
     properties={'password': synonym('_password', map_column=True)},
     order_by=user_table.c.name)
