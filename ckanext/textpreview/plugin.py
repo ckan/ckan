@@ -26,6 +26,7 @@ class TextPreview(p.SingletonPlugin):
     xml_formats = []
     json_formats = []
     jsonp_formats = []
+    no_jsonp_formats = []
 
     def update_config(self, config):
         text_formats = config.get('ckan.preview.text_formats', '').split()
