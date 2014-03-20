@@ -56,6 +56,7 @@ within_tertiary
             </h2>
           {% endblock %}
           {% block facet_list_items %}
+            {% with items = items or h.get_facet_items_dict(name) %}
             {% if items %}
               <nav>
                 <ul class="{{ nav_class or 'unstyled nav nav-simple nav-facet' }}">
@@ -82,6 +83,7 @@ within_tertiary
             {% else %}
               <p class="module-content empty">{{ _('There are no {facet_type} that match this search').format(facet_type=title) }}</p>
             {% endif %}
+            {% endwith %}
           {% endblock %}
         </section>
       {% endblock %}
