@@ -232,7 +232,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
     def test_search_invalid_filter(self):
         data = {'resource_id': self.data['resource_id'],
                 # invalid because author is not an array
-                'filters': {u'author': [u'tolstoy']}}
+                'filters': {u'author': {u'tolstoy': 'book'}}}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,

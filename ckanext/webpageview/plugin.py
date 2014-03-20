@@ -42,7 +42,7 @@ class WebPageView(p.SingletonPlugin):
                         'resource_id': resource['id'],
                         'view_type': 'webpage'}
                 p.toolkit.get_action('resource_view_create')(
-                    {'defer_commit': True}, view
+                    {'defer_commit': True, 'ignore_auth': True}, view
                 )
 
     def after_update(self, context, data_dict):

@@ -745,7 +745,7 @@ def _to_full_text(fields, record):
     return ' '.join(full_text)
 
 
-def _where(field_ids, data_dict):
+def _where(field_ids, fields, data_dict):
     '''Return a SQL WHERE clause from data_dict filters and q'''
     filters = data_dict.get('filters', {})
 
@@ -764,12 +764,19 @@ def _where(field_ids, data_dict):
             )
 
         if isinstance(value, list):
-            where_clauses.append(
-                u'"{0}" in ({1})'.format(field,
-                                         ','.join(['%s'] * len(value)))
-            )
-            values.extend(value)
-            continue
+            for item in fields:
+                if item['id'] == field:
+                    field_type = item['type']
+                    break
+
+            # ignore array types when doing in search.
+            if not field_type.startswith('_'):
+                where_clauses.append(
+                    u'"{0}" in ({1})'.format(field,
+                                             ','.join(['%s'] * len(value)))
+                )
+                values.extend(value)
+                continue
 
         where_clauses.append(u'"{0}" = %s'.format(field))
         values.append(value)
@@ -881,7 +888,7 @@ def _insert_links(data_dict, limit, offset):
 def delete_data(context, data_dict):
     fields = _get_fields(context, data_dict)
     field_ids = set([field['id'] for field in fields])
-    where_clause, where_values = _where(field_ids, data_dict)
+    where_clause, where_values = _where(field_ids, fields, data_dict)
 
     context['connection'].execute(
         u'DELETE FROM "{0}" {1}'.format(
@@ -913,7 +920,7 @@ def search_data(context, data_dict):
     select_columns = ', '.join([u'"{0}"'.format(field_id)
                                 for field_id in field_ids])
     ts_query, rank_column = _textsearch_query(data_dict)
-    where_clause, where_values = _where(all_field_ids, data_dict)
+    where_clause, where_values = _where(all_field_ids, all_fields, data_dict)
     limit = data_dict.get('limit', 100)
     offset = data_dict.get('offset', 0)
 
