@@ -532,7 +532,7 @@ def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
 
 
-def get_facet_items_dict(facet, limit=10, exclude_active=False):
+def get_facet_items_dict(facet, limit=None, exclude_active=False):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
 
@@ -564,12 +564,41 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
     facets = sorted(facets, key=lambda item: item['count'], reverse=True)
-    if c.search_facets_limits:
+    if c.search_facets_limits and limit is None:
         limit = c.search_facets_limits.get(facet)
     if limit:
         return facets[:limit]
-    else:
-        return facets
+    return facets
+
+
+def has_more_facets(facet, limit=None, exclude_active=False):
+    '''
+    Returns True if there are more facet items for the given facet than the
+    limit.
+
+    Reads the complete list of facet items for the given facet from
+    c.search_facets, and filters out the facet items that the user has already
+    selected.
+
+    Arguments:
+    facet -- the name of the facet to filter.
+    limit -- the max. number of facet items.
+    exclude_active -- only return unselected facets.
+
+    '''
+    facets = []
+    for facet_item in c.search_facets.get(facet)['items']:
+        if not len(facet_item['name'].strip()):
+            continue
+        if not (facet, facet_item['name']) in request.params.items():
+            facets.append(dict(active=False, **facet_item))
+        elif not exclude_active:
+            facets.append(dict(active=True, **facet_item))
+    if c.search_facets_limits and limit is None:
+        limit = c.search_facets_limits.get(facet)
+    if limit and len(facets) > limit:
+        return True
+    return False
 
 
 def unselected_facet_items(facet, limit=10):
@@ -1843,6 +1872,7 @@ __allowed_functions__ = [
     'list_dict_filter',
     'new_activities',
     'time_ago_from_timestamp',
+    'has_more_facets',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',
