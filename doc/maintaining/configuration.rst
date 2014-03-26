@@ -1310,11 +1310,12 @@ The purpose of this file is to supply a thorough list of resource formats
 and to make sure the formats are normalized when saved to the database
 and presented.
 
-The format of the file is a json object with following format::
+The format of the file is a JSON object with following format::
 
-    [canonical format, canonical mimetype, human readable format description, [list of other representations]]
+    ["Format", "Description", "Mimetype", ["List of alternative representations"]]
 
-Please look in ckan/config/resource_formats.json for a full example.
+Please look in ckan/config/resource_formats.json for full details and and as an
+example.
 
 
 Form Settings

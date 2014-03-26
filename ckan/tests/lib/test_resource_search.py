@@ -128,7 +128,6 @@ class TestSearch(object):
         assert res_dict['package_id'] == pkg1.id
         assert res_dict['url'] == ab.url
         assert res_dict['description'] == ab.description
-        # FIXME: This needs to be fixed before this branch is merged to master
         assert res_dict['format'] == ab.format
         assert res_dict['hash'] == ab.hash
         assert res_dict['position'] == 0

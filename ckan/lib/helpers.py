@@ -1758,9 +1758,11 @@ def get_site_statistics():
 _RESOURCE_FORMATS = None
 
 def resource_formats():
-    ''' Format of the data in resource format file.
+    ''' Returns the resource formats as a dict, sourced from the resource format JSON file.
     key:  potential user input value
-    value:  [canonical mimetype lowercased, canonical format, human readable form]
+    value:  [canonical mimetype lowercased, canonical format (lowercase), human readable form]
+    Fuller description of the fields are described in
+    `ckan/config/resource_formats.json`.
     '''
     global _RESOURCE_FORMATS
     if not _RESOURCE_FORMATS:
@@ -1772,16 +1774,25 @@ def resource_formats():
                 'resource_formats.json'
             )
         with open(format_file_path) as format_file:
-           file_resource_formats = json.loads(format_file.read())
-           for format_line in file_resource_formats:
-               if format_line[0] == '_comment':
-                   continue
-               line = [format_line[2], format_line[0], format_line[1]]
-               for item in line:
-                   _RESOURCE_FORMATS[item.lower()] = line
-               if len(format_line) == 4:
-                   for item in format_line[3]:
-                       _RESOURCE_FORMATS[item.lower()] = line
+            try:
+                file_resource_formats = json.loads(format_file.read())
+            except ValueError, e:  # includes simplejson.decoder.JSONDecodeError
+                raise ValueError('Invalid JSON syntax in %s: %s' % (format_file_path, e))
+
+            for format_line in file_resource_formats:
+                if format_line[0] == '_comment':
+                    continue
+                line = [format_line[2], format_line[0], format_line[1]]
+                alternatives = format_line[3] if len(format_line) == 4 else []
+                for item in line + alternatives:
+                    if item:
+                        item = item.lower()
+                        if item in _RESOURCE_FORMATS \
+                                and _RESOURCE_FORMATS[item] != line:
+                            raise ValueError('Duplicate resource format '
+                                             'identifier in %s: %s' %
+                                             (format_file_path, item))
+                        _RESOURCE_FORMATS[item] = line
 
     return _RESOURCE_FORMATS
 
