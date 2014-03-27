@@ -3,6 +3,7 @@ import re
 import ckan.lib.base as base
 import ckan.lib.i18n as i18n
 import ckan.lib.helpers as h
+from ckan.common import _
 
 
 class UtilController(base.BaseController):
@@ -15,7 +16,7 @@ class UtilController(base.BaseController):
         if h.url_is_local(url):
             return base.redirect(url)
         else:
-            return h.redirect_to(controller='home', action='index')
+            base.abort(403, _('Redirecting to external site at %s not allowed.') % url)
 
     def primer(self):
         ''' Render all html components out onto a single page.
