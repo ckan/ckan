@@ -265,6 +265,7 @@ class GroupController(base.BaseController):
 
         try:
             c.fields = []
+            c.fields_grouped = {}
             search_extras = {}
             for (param, value) in request.params.items():
                 if not param in ['q', 'page', 'sort'] \
@@ -272,6 +273,10 @@ class GroupController(base.BaseController):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
                         q += ' %s: "%s"' % (param, value)
+                        if param not in c.fields_grouped:
+                            c.fields_grouped[param] = [value]
+                        else:
+                            c.fields_grouped[param].append(value)
                     else:
                         search_extras[param] = value
 
