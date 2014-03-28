@@ -12,11 +12,13 @@ class UtilController(base.BaseController):
     def redirect(self):
         ''' redirect to the url parameter. '''
         url = base.request.params.get('url')
+        if not url:
+            base.abort(400, _('Missing Value') + ': url')
 
         if h.url_is_local(url):
             return base.redirect(url)
         else:
-            base.abort(403, _('Redirecting to external site at %s not allowed.') % url)
+            base.abort(403, _('Redirecting to external site is not allowed.'))
 
     def primer(self):
         ''' Render all html components out onto a single page.
