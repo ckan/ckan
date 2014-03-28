@@ -230,7 +230,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
 
 def url_is_local(url):
     '''Returns True if url is local'''
-    if not url or (len(url) >= 2 and url.startswith('//')):
+    if not url or url.startswith('//'):
         return False
     parsed = urlparse.urlparse(url)
     if parsed.scheme:
