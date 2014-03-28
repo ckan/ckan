@@ -267,7 +267,9 @@ class GroupController(base.BaseController):
             c.fields = []
             c.fields_grouped = {}
             search_extras = {}
+           
             for (param, value) in request.params.items():
+                             
                 if not param in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
