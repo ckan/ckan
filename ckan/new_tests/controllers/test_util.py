@@ -2,7 +2,7 @@ from nose.tools import assert_equal
 from pylons.test import pylonsapp
 import paste.fixture
 
-import routes.url_for as url_for
+from routes import url_for as url_for
 
 
 # This is stolen from the old tests and should probably go in __init__.py
