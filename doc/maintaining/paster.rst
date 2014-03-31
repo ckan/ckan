@@ -279,6 +279,14 @@ from scratch:
 After cleaning the db you must do a ``db init`` or ``db load`` before CKAN will
 work again.
 
+.. tip::
+   
+   If you receive 'Permission Denied' error, try running paster with sudo.
+   
+   .. parsed-literal::
+   
+      sudo /path/to/paster db clean -c |production.ini|
+
 .. _dumping and loading:
 
 Dumping and Loading databases to/from a file
