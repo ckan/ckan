@@ -52,5 +52,9 @@ appearance of CKAN pages by developing your own CKAN themes.
    best-practices
    jinja-tags
    variables-and-functions
+   javascript-module-objects-and-methods
    template-helper-functions
    template-snippets
+   javascript-sandbox
+   javascript-api-client
+   jquery-plugins
