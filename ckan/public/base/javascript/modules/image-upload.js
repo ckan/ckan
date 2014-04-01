@@ -130,11 +130,7 @@ this.ckan.module('image-upload', function($, _) {
           .add(this.button_url)
           .add(this.input)
           .show();
-      } else if (state == this.state.attached) {
-        this.button_remove
-          .add(this.field_image)
-          .show();
-      } else if (state == this.state.web) {
+      } else if (state == this.state.attached || state == this.state.web) {
         this.field_url
           .show();
       }
@@ -167,7 +163,8 @@ this.ckan.module('image-upload', function($, _) {
      * Returns nothing.
      */
     _onInputChange: function() {
-      this.file_name = this.input.val();
+      var file_name = this.input.val().split(/^C:\\fakepath\\/).pop();
+      $('input', this.field_url).val(file_name);
       this.field_clear.val('');
       this.changeState(this.state.attached);
     },
