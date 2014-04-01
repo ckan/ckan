@@ -15,7 +15,7 @@ _max_resource_size = None
 _max_image_size = None
 
 
-def get_storage_path():
+def get_storage_path(log_error_if_not_configured=True):
     '''Function to cache storage path'''
     global _storage_path
 
@@ -32,13 +32,15 @@ def get_storage_path():
             _storage_path = ofs_storage_dir
             return _storage_path
         elif ofs_impl:
-            log.critical('''We only support local file storage form version 2.2
-                         of ckan please specify ckan.storage_path in your
-                         config for your uploads''')
+            if log_error_if_not_configured:
+                log.critical('''We only support local file storage form version 2.2
+                             of ckan please specify ckan.storage_path in your
+                             config for your uploads''')
             _storage_path = False
         else:
-            log.critical('''Please specify a ckan.storage_path in your config
-                         for your uploads''')
+            if log_error_if_not_configured:
+                log.critical('''Please specify a ckan.storage_path in your config
+                             for your uploads''')
             _storage_path = False
 
     return _storage_path

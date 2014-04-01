@@ -1667,7 +1667,7 @@ def new_activities():
     return action({}, {})
 
 def uploads_enabled():
-    if uploader.get_storage_path():
+    if uploader.get_storage_path(log_error_if_not_configured=False):
         return True
     return False
 
