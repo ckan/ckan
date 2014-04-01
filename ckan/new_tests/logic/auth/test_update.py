@@ -103,7 +103,8 @@ class TestUpdate(object):
             'name': 'updated_user_name',
         }
 
-        assert helpers.call_auth('user_update', context=context, **params)
+        result = helpers.call_auth('user_update', context=context, **params)
+        assert result is True
 
     def test_user_update_with_no_user_in_context(self):
 
