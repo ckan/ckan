@@ -17,15 +17,10 @@ class TestUserInvite(object):
         helpers.reset_db()
 
     @mock.patch('ckan.lib.mailer.send_invite')
-    def test_user_invite(self, send_invite):
+    def test_user_invite(self, _):
         invited_user = self._invite_user_to_group()
 
         assert invited_user is not None
-
-    @mock.patch('ckan.lib.mailer.send_invite')
-    def test_user_invite_creates_pending_user(self, _):
-        invited_user = self._invite_user_to_group()
-
         assert invited_user.is_pending()
 
     @mock.patch('ckan.lib.mailer.send_invite')
