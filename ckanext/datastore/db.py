@@ -745,7 +745,7 @@ def _to_full_text(fields, record):
     return ' '.join(full_text)
 
 
-def _where(field_ids, data_dict):
+def _where(field_ids, field_types, data_dict):
     '''Return a SQL WHERE clause from data_dict filters and q'''
     filters = data_dict.get('filters', {})
 
@@ -762,7 +762,11 @@ def _where(field_ids, data_dict):
             raise ValidationError({
                 'filters': ['field "{0}" not in table'.format(field)]}
             )
-        where_clauses.append(u'"{0}" = %s'.format(field))
+        type = field_types[field]
+        if type in  [u"char", u"varchar", u"text"]:
+            where_clauses.append(u'"{0}" = %s'.format(field))
+        else:
+            where_clauses.append(u'CAST("{0}" as text) = %s'.format(field))
         values.append(value)
 
     # add full-text search where clause
@@ -872,7 +876,8 @@ def _insert_links(data_dict, limit, offset):
 def delete_data(context, data_dict):
     fields = _get_fields(context, data_dict)
     field_ids = set([field['id'] for field in fields])
-    where_clause, where_values = _where(field_ids, data_dict)
+    field_types = {field['id']: field['type'] for field in fields}
+    where_clause, where_values = _where(field_ids, field_types, data_dict)
 
     context['connection'].execute(
         u'DELETE FROM "{0}" {1}'.format(
@@ -887,6 +892,8 @@ def search_data(context, data_dict):
     all_fields = _get_fields(context, data_dict)
     all_field_ids = _pluck('id', all_fields)
     all_field_ids.insert(0, '_id')
+    field_types = {field['id']: field['type'] for field in all_fields}
+    field_types[u'_id'] = 'int'
 
     fields = data_dict.get('fields')
 
@@ -904,7 +911,7 @@ def search_data(context, data_dict):
     select_columns = ', '.join([u'"{0}"'.format(field_id)
                                 for field_id in field_ids])
     ts_query, rank_column = _textsearch_query(data_dict)
-    where_clause, where_values = _where(all_field_ids, data_dict)
+    where_clause, where_values = _where(all_field_ids, field_types, data_dict)
     limit = data_dict.get('limit', 100)
     offset = data_dict.get('offset', 0)
 
