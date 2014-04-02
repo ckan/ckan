@@ -25,11 +25,6 @@ this.ckan.module('image-upload', function($, _) {
       ].join("\n")
     },
 
-    state: {
-      blank: 1,
-      filled: 2
-    },
-
     /* Initialises the module setting up elements and event listeners.
      *
      * Returns nothing.
@@ -100,37 +95,6 @@ this.ckan.module('image-upload', function($, _) {
         .add(this.field_url)
         .add(this.field_image);
 
-      // Setup the initial state
-      if (options.filled) {
-        this.changeState(this.state.filled);
-      } else {
-        this.changeState(this.state.blank);
-      }
-
-    },
-
-    /* Method to change the display state of the image fields
-     *
-     * state - Pseudo constant for passing the state we should be in now
-     *
-     * Examples
-     *
-     *   this.changeState(this.state.filled); // Sets the state in Filled mode
-     *
-     * Returns nothing.
-     */
-    changeState: function(state) {
-      this.fields.hide();
-      if (state == this.state.blank) {
-        this.button_upload
-          .add(this.field_image)
-          .add(this.button_url)
-          .add(this.input)
-          .show();
-      } else if (state == this.state.filled) {
-        this.field_url
-          .show();
-      }
     },
 
     /* Event listener for when someone sets the field to URL mode
@@ -138,7 +102,7 @@ this.ckan.module('image-upload', function($, _) {
      * Returns nothing.
      */
     _onFromWeb: function() {
-      this.changeState(this.state.filled);
+      _showOnlyFieldUrl();
       $('input', this.field_url).focus();
       if (this.options.is_upload) {
         this.field_clear.val('true');
@@ -150,7 +114,12 @@ this.ckan.module('image-upload', function($, _) {
      * Returns nothing.
      */
     _onRemove: function() {
-      this.changeState(this.state.blank);
+      this.fields.hide();
+      this.button_upload
+        .add(this.field_image)
+        .add(this.button_url)
+        .add(this.input)
+        .show();
       $('input', this.field_url).val('');
       this.field_clear.val('true');
     },
@@ -163,7 +132,16 @@ this.ckan.module('image-upload', function($, _) {
       var file_name = this.input.val().split(/^C:\\fakepath\\/).pop();
       $('input', this.field_url).val(file_name);
       this.field_clear.val('');
-      this.changeState(this.state.filled);
+      _showOnlyFieldUrl();
+    },
+
+    /* Show only the URL field, hiding all others
+     *
+     * Returns nothing.
+     */
+    _showOnlyFieldUrl: function() {
+      this.fields.hide();
+      this.field_url.show();
     },
 
     /* Event listener for when a user mouseovers the hidden file input
