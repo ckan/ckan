@@ -26,9 +26,8 @@ this.ckan.module('image-upload', function($, _) {
     },
 
     state: {
-      attached: 1,
-      blank: 2,
-      web: 3
+      blank: 1,
+      filled: 2
     },
 
     /* Initialises the module setting up elements and event listeners.
@@ -102,10 +101,8 @@ this.ckan.module('image-upload', function($, _) {
         .add(this.field_image);
 
       // Setup the initial state
-      if (options.is_url) {
-        this.changeState(this.state.web);
-      } else if (options.is_upload) {
-        this.changeState(this.state.attached);
+      if (options.filled) {
+        this.changeState(this.state.filled);
       } else {
         this.changeState(this.state.blank);
       }
@@ -118,7 +115,7 @@ this.ckan.module('image-upload', function($, _) {
      *
      * Examples
      *
-     *   this.changeState(this.state.web); // Sets the state in URL mode
+     *   this.changeState(this.state.filled); // Sets the state in Filled mode
      *
      * Returns nothing.
      */
@@ -130,7 +127,7 @@ this.ckan.module('image-upload', function($, _) {
           .add(this.button_url)
           .add(this.input)
           .show();
-      } else if (state == this.state.attached || state == this.state.web) {
+      } else if (state == this.state.filled) {
         this.field_url
           .show();
       }
@@ -141,7 +138,7 @@ this.ckan.module('image-upload', function($, _) {
      * Returns nothing.
      */
     _onFromWeb: function() {
-      this.changeState(this.state.web);
+      this.changeState(this.state.filled);
       $('input', this.field_url).focus();
       if (this.options.is_upload) {
         this.field_clear.val('true');
@@ -166,7 +163,7 @@ this.ckan.module('image-upload', function($, _) {
       var file_name = this.input.val().split(/^C:\\fakepath\\/).pop();
       $('input', this.field_url).val(file_name);
       this.field_clear.val('');
-      this.changeState(this.state.attached);
+      this.changeState(this.state.filled);
     },
 
     /* Event listener for when a user mouseovers the hidden file input
@@ -185,5 +182,5 @@ this.ckan.module('image-upload', function($, _) {
       this.button_upload.removeClass('hover');
     }
 
-  }
+  };
 });
