@@ -11,6 +11,11 @@ Some good links about Python code style:
 - `Python Coding Standards <http://lists.osafoundation.org/pipermail/dev/2003-March/000479.html>`_ from Yahoo
 - `Google Python Style Guide <http://google-styleguide.googlecode.com/svn/trunk/pyguide.html>`_
 
+.. seealso::
+
+   :doc:`string-i18n`
+     How to mark strings for translation.
+
 
 Use single quotes
 -----------------

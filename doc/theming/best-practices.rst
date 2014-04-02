@@ -27,12 +27,12 @@ like ``<a href="/dataset">``. Links created with
 changes in a new version of CKAN, or if a plugin changes the URL routing.
 
 
--------------------------------
-Use ``_()`` and ``ungettext()``
--------------------------------
+---------------------------------------------------------------------
+Use ``{% trans %}``, ``{% pluralize %}``, ``_()`` and ``ungettext()``
+---------------------------------------------------------------------
 
-Always use :py:func:`_` (or, if pluralizaton is needed, :py:func:`ungettext`)
-to mark user-visible strings for localization.
+All user-visible strings should be internationalized, see
+:doc:`/contributing/string-i18n`.
 
 
 -----------------------------------------------------------------

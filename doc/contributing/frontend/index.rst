@@ -11,6 +11,11 @@ Frontend development guidelines
    template-blocks
    javascript-module-tutorial
 
+.. seealso::
+
+   :doc:`/contributing/string-i18n`
+     How to mark strings for translation.
+
 -----------------------------
 Install frontend dependencies
 -----------------------------
@@ -313,7 +318,7 @@ useful in the future.
 Internationalization
 ====================
 
-All strings within modules should be internationalised. Strings can be
+All strings within modules should be internationalized. Strings can be
 set in the ``options.i18n`` object and there is a ``.i18n()`` helper for
 retrieving them.
 
