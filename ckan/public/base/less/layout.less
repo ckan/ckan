@@ -2,8 +2,21 @@
   .clearfix();
   .box();
   position: relative;
-  background: #FFF url("@{imagePath}/nav.png") 0 0 repeat-y;
+  background-color:#fff;
   margin-bottom: 20px;
+  margin-left:0;
+}
+@media (min-width: 768px) {
+  .wrapper {
+    background-image:url("@{imagePath}/nav.png");
+    background-repeat:repeat-y;
+    background-position:-54px 0px;
+  }
+}
+@media (min-width: 980px) { 
+  .wrapper {
+    background-position:0px 0px;
+  }
 }
 
 .wrapper.no-nav {
@@ -12,9 +25,13 @@
 
 [role=main], .main {
   position: relative;
-  padding-top: 10px;
   padding-bottom: 20px;
-  background: @layoutBackgroundColor url("@{bgPath}");
+}
+@media (min-width: 768px) {
+  [role=main], .main {
+    padding-top: 10px;
+    background: @layoutBackgroundColor url("@{bgPath}");
+  }
 }
 
 [role=main] {
@@ -28,12 +45,11 @@
 }
 
 [role=main] .primary {
-  width: 717px;
   float: right;
+  margin-left: 0; // Remove grid margin.
 }
 
 [role=main] .secondary {
-  .makeColumn(3);
   margin-left: 0; // Remove grid margin.
   float: left;
 }
@@ -63,8 +79,10 @@
   }
 }
 
-.hero {
-  background: url("@{imagePath}/background-tile.png");
+@media (min-width: 768px) {
+  .hero {
+    background: url("@{imagePath}/background-tile.png");
+  }
 }
 
 .hero:after {
