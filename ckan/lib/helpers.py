@@ -9,10 +9,12 @@ import email.utils
 import datetime
 import logging
 import re
+import os
 import urllib
 import urlparse
 import pprint
 import copy
+import urlparse
 from urllib import urlencode
 
 from paste.deploy.converters import asbool
@@ -243,6 +245,18 @@ def _add_i18n_to_url(url_to_amend, **kw):
         raise ckan.exceptions.CkanUrlException(error)
 
     return url
+
+
+def url_is_local(url):
+    '''Returns True if url is local'''
+    if not url or url.startswith('//'):
+        return False
+    parsed = urlparse.urlparse(url)
+    if parsed.scheme:
+        domain = urlparse.urlparse(url_for('/', qualified=True)).netloc
+        if domain != parsed.netloc:
+            return False
+    return True
 
 
 def full_current_url():
@@ -1771,6 +1785,57 @@ def get_site_statistics():
     stats['related_count'] = result
 
     return stats
+
+_RESOURCE_FORMATS = None
+
+def resource_formats():
+    ''' Returns the resource formats as a dict, sourced from the resource format JSON file.
+    key:  potential user input value
+    value:  [canonical mimetype lowercased, canonical format (lowercase), human readable form]
+    Fuller description of the fields are described in
+    `ckan/config/resource_formats.json`.
+    '''
+    global _RESOURCE_FORMATS
+    if not _RESOURCE_FORMATS:
+        _RESOURCE_FORMATS = {}
+        format_file_path = config.get('ckan.resource_formats')
+        if not format_file_path:
+            format_file_path = os.path.join(
+                os.path.dirname(os.path.realpath(ckan.config.__file__)),
+                'resource_formats.json'
+            )
+        with open(format_file_path) as format_file:
+            try:
+                file_resource_formats = json.loads(format_file.read())
+            except ValueError, e:  # includes simplejson.decoder.JSONDecodeError
+                raise ValueError('Invalid JSON syntax in %s: %s' % (format_file_path, e))
+
+            for format_line in file_resource_formats:
+                if format_line[0] == '_comment':
+                    continue
+                line = [format_line[2], format_line[0], format_line[1]]
+                alternatives = format_line[3] if len(format_line) == 4 else []
+                for item in line + alternatives:
+                    if item:
+                        item = item.lower()
+                        if item in _RESOURCE_FORMATS \
+                                and _RESOURCE_FORMATS[item] != line:
+                            raise ValueError('Duplicate resource format '
+                                             'identifier in %s: %s' %
+                                             (format_file_path, item))
+                        _RESOURCE_FORMATS[item] = line
+
+    return _RESOURCE_FORMATS
+
+
+def unified_resource_format(format):
+    formats = resource_formats()
+    format_clean = format.lower()
+    if format_clean in formats:
+        format_new = formats[format_clean][1]
+    else:
+        format_new = format
+    return format_new
 
 def check_config_permission(permission):
     return new_authz.check_config_permission(permission)
