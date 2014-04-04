@@ -8833,21 +8833,21 @@ textarea {
   }
 }
 @media (max-width: 768px) {
-  .span9 .page-header .nav-tabs {
+  .page-header .nav-tabs {
     margin: -5px 10px 10px -5px;
     border: none;
   }
-  .span9 .page-header .nav-tabs > li {
+  .page-header .nav-tabs > li {
     float: none;
   }
-  span9 .page-header .nav-tabs > li a {
+  .page-header .nav-tabs > li a {
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
   }
-  .span9 .page-header .nav-tabs > .active > a,
-  .span9 .page-header .nav-tabs > .active > a:hover,
-  .span9 .page-header .nav-tabs > .active > a:focus {
+  .page-header .nav-tabs > .active > a,
+  .page-header .nav-tabs > .active > a:hover,
+  .page-header .nav-tabs > .active > a:focus {
     border-bottom-color: #dddddd;
   }
 }
