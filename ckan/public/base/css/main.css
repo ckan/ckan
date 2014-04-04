@@ -7536,6 +7536,17 @@ textarea {
 .control-medium textarea {
   width: 320px;
 }
+@media (max-width: 768px) {
+  .control-medium input,
+  .control-medium select,
+  .control-medium textarea {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    min-height: 28px;
+  }
+}
 .control-large input,
 .control-large .control-label {
   font-size: 17.5px;
@@ -7562,25 +7573,40 @@ textarea {
   margin-right: -25px;
   margin-bottom: 0;
   padding-bottom: 0;
-  text-align: right;
+}
+@media (min-width: 768px) {
+  .form-actions {
+    text-align: right;
+  }
 }
 .form-actions .action-info {
-  float: left;
-  width: 50%;
   line-height: 2;
   text-align: left;
   color: #707070;
   margin: 0;
 }
+@media (min-width: 768px) {
+  .form-actions .action-info {
+    float: left;
+    width: 50%;
+  }
+}
 .form-actions .action-info.small {
   font-size: 11px;
   line-height: 1.2;
 }
+@media (max-width: 768px) {
+  .form-actions .btn {
+    margin-top: 5px;
+  }
+}
 .form-horizontal .control-label {
   width: 120px;
 }
-.form-horizontal .controls {
-  margin-left: 130px;
+@media (min-width: 768px) {
+  .form-horizontal .controls {
+    margin-left: 130px;
+  }
 }
 .form-horizontal .info-block {
   position: relative;
@@ -7588,7 +7614,6 @@ textarea {
   font-size: 11px;
   color: #aaaaaa;
   line-height: 1.3;
-  padding: 6px 0 6px 25px;
   margin-top: 6px;
 }
 .form-horizontal .info-help {
@@ -7600,11 +7625,16 @@ textarea {
 .form-horizontal .info-help-tight {
   margin-top: -10px;
 }
-.form-horizontal .info-inline {
-  float: right;
-  width: 265px;
-  margin-top: 0;
-  padding-bottom: 0;
+@media (min-width: 980px) {
+  .form-horizontal .info-block {
+    padding: 6px 0 6px 25px;
+  }
+  .form-horizontal .info-inline {
+    float: right;
+    width: 265px;
+    margin-top: 0;
+    padding-bottom: 0;
+  }
 }
 .form-horizontal .control-medium .info-block.info-inline {
   width: 165px;
@@ -7714,6 +7744,23 @@ textarea {
 .editor .editor-info-block a {
   color: #187794;
   text-decoration: none;
+}
+@media (max-width: 768px) {
+  [data-module="custom-fields"] .input-prepend .add-on {
+    display: block;
+  }
+}
+@media (max-width: 480px) {
+  [data-module="custom-fields"] .input-prepend {
+    width: 100%;
+  }
+  [data-module="custom-fields"] .control-custom input {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    min-height: 28px;
+  }
 }
 .control-custom {
   font-size: 0;
@@ -7999,6 +8046,11 @@ textarea {
   line-height: 27px;
   z-index: -1;
 }
+@media (max-width: 768px) {
+  .stages li .highlight {
+    text-indent: -9999px;
+  }
+}
 .stages li.active .highlight {
   color: #ffffff;
   background: #8cc68a;
@@ -8111,7 +8163,7 @@ textarea {
   padding-bottom: 4px;
 }
 .control-full .select2-container {
-  width: 520px !important;
+  max-width: 100%;
 }
 .control-group.error .select2-container input:focus,
 .control-group.error .select2-container select:focus,
