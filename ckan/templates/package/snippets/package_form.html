@@ -23,6 +23,8 @@ then itself be extended to add/remove blocks of functionality. #}
 
   {% block form_actions %}
     <div class="form-actions">
+      {% block disclaimer %}
+      {% endblock %}
       {% block delete_button %}
         {% if h.check_access('package_delete', {'id': data.id}) and not data.state == 'deleted' %}
           {% set locale = h.dump_json({'content': _('Are you sure you want to delete this dataset?')}) %}
