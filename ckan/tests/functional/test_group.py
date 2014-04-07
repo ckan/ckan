@@ -1,51 +1,18 @@
 import re
 
 from nose.tools import assert_equal
+import mock
 
-from ckan.tests import setup_test_search_index
-from ckan.plugins import SingletonPlugin, implements, IGroupController
-from ckan import plugins
 import ckan.model as model
-from ckan.lib.create_test_data import CreateTestData
-from ckan.logic import check_access, NotAuthorized, get_action
 import ckan.lib.search as search
 
-from pylons import config
-
-from ckan.tests import *
 from ckan.tests import setup_test_search_index
+from ckan import plugins
+from ckan.lib.create_test_data import CreateTestData
+from ckan.logic import get_action
+from ckan.tests import *
 from base import FunctionalTestCase
-from ckan.tests import search_related, is_search_supported
-
-
-class MockGroupControllerPlugin(SingletonPlugin):
-    implements(IGroupController)
-
-    def __init__(self):
-        from collections import defaultdict
-        self.calls = defaultdict(int)
-
-    def read(self, entity):
-        self.calls['read'] += 1
-
-    def create(self, entity):
-        self.calls['create'] += 1
-
-    def edit(self, entity):
-        self.calls['edit'] += 1
-
-    def authz_add_role(self, object_role):
-        self.calls['authz_add_role'] += 1
-
-    def authz_remove_role(self, object_role):
-        self.calls['authz_remove_role'] += 1
-
-    def delete(self, entity):
-        self.calls['delete'] += 1
-
-    def before_view(self, data_dict):
-        self.calls['before_view'] += 1
-        return data_dict
+from ckan.tests import is_search_supported
 
 
 class TestGroup(FunctionalTestCase):
@@ -55,6 +22,10 @@ class TestGroup(FunctionalTestCase):
         search.clear()
         model.Session.remove()
         CreateTestData.create()
+
+        # reduce extraneous logging
+        from ckan.lib import activity_streams_session_extension
+        activity_streams_session_extension.logger.level = 100
 
     @classmethod
     def teardown_class(self):
@@ -87,14 +58,14 @@ class TestGroup(FunctionalTestCase):
         assert '"page" parameter must be a positive integer' in res, res
 
     def test_children(self):
-        if model.engine_is_sqlite() :
+        if model.engine_is_sqlite():
             from nose import SkipTest
             raise SkipTest("Can't use CTE for sqlite")
 
         group_name = 'deletetest'
         CreateTestData.create_groups([{'name': group_name,
                                        'packages': []},
-                                       {'name': "parent_group",
+                                      {'name': "parent_group",
                                        'packages': []}],
                                      admin_user_name='testsysadmin')
 
@@ -104,7 +75,7 @@ class TestGroup(FunctionalTestCase):
         rev = model.repo.new_revision()
         rev.author = "none"
 
-        member = model.Member(group_id=parent.id, table_id=group.id,
+        member = model.Member(group_id=group.id, table_id=parent.id,
                               table_name='group', capacity='member')
         model.Session.add(member)
         model.repo.commit_and_remove()
@@ -134,17 +105,21 @@ class TestGroup(FunctionalTestCase):
     def test_sorting(self):
         model.repo.rebuild_db()
 
+        testsysadmin = model.User(name=u'testsysadmin')
+        testsysadmin.sysadmin = True
+        model.Session.add(testsysadmin)
+
         pkg1 = model.Package(name="pkg1")
         pkg2 = model.Package(name="pkg2")
         model.Session.add(pkg1)
         model.Session.add(pkg2)
 
         CreateTestData.create_groups([{'name': "alpha", 'packages': []},
-                                       {'name': "beta",
-                                        'packages': ["pkg1", "pkg2"]},
-                                       {'name': "delta",
-                                        'packages': ["pkg1"]},
-                                       {'name': "gamma", 'packages': []}],
+                                      {'name': "beta",
+                                       'packages': ["pkg1", "pkg2"]},
+                                      {'name': "delta",
+                                       'packages': ["pkg1"]},
+                                      {'name': "gamma", 'packages': []}],
                                      admin_user_name='testsysadmin')
 
         context = {'model': model, 'session': model.Session,
@@ -178,7 +153,6 @@ class TestGroup(FunctionalTestCase):
         results = get_action('group_list')(context, data_dict)
         assert results[0]['name'] == u'beta', results[0]['name']
         assert results[1]['name'] == u'delta', results[1]['name']
-
 
     def test_mainmenu(self):
         # the home page does a package search so have to skip this test if
@@ -215,28 +189,30 @@ class TestGroup(FunctionalTestCase):
         res = self.app.get(offset, status=404)
 
     def test_read_plugin_hook(self):
-        plugin = MockGroupControllerPlugin()
-        plugins.load(plugin)
+        plugins.load('test_group_plugin')
         name = u'david'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, status=200,
                            extra_environ={'REMOTE_USER': 'testsysadmin'})
-        assert plugin.calls['read'] == 1, plugin.calls
-        plugins.unload(plugin)
+        p = plugins.get_plugin('test_group_plugin')
+        assert p.calls['read'] == 1, p.calls
+        plugins.unload('test_group_plugin')
 
     def test_read_and_authorized_to_edit(self):
         name = u'david'
         title = u'Dave\'s books'
         pkgname = u'warandpeace'
         offset = url_for(controller='group', action='read', id=name)
-        res = self.app.get(offset, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        res = self.app.get(offset,
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert title in res, res
         assert 'edit' in res
         assert name in res
 
     def test_new_page(self):
         offset = url_for(controller='group', action='new')
-        res = self.app.get(offset, extra_environ={'REMOTE_USER': 'testsysadmin'})
+        res = self.app.get(offset,
+                           extra_environ={'REMOTE_USER': 'testsysadmin'})
         assert 'Add A Group' in res, res
 
 
@@ -288,7 +264,6 @@ class TestEdit(FunctionalTestCase):
         model.repo.new_revision()
         model.Session.add(model.Package(name=self.packagename))
         model.repo.commit_and_remove()
-
 
     @classmethod
     def teardown_class(self):
@@ -388,8 +363,7 @@ Ho ho ho
         assert_equal(pkg_names, [self.packagename])
 
     def test_edit_plugin_hook(self):
-        plugin = MockGroupControllerPlugin()
-        plugins.load(plugin)
+        plugins.load('test_group_plugin')
         offset = url_for(controller='group', action='edit', id=self.groupname)
         res = self.app.get(offset, status=200,
                            extra_environ={'REMOTE_USER': 'testsysadmin'})
@@ -398,8 +372,9 @@ Ho ho ho
         form['title'] = "huhuhu"
         res = form.submit('save', status=302,
                           extra_environ={'REMOTE_USER': 'testsysadmin'})
-        assert plugin.calls['edit'] == 1, plugin.calls
-        plugins.unload(plugin)
+        p = plugins.get_plugin('test_group_plugin')
+        assert p.calls['edit'] == 1, p.calls
+        plugins.unload('test_group_plugin')
 
     def test_edit_image_url(self):
         group = model.Group.by_name(self.groupname)
@@ -596,8 +571,7 @@ class TestNew(FunctionalTestCase):
         assert 'class="field_error"' in res, res
 
     def test_new_plugin_hook(self):
-        plugin = MockGroupControllerPlugin()
-        plugins.load(plugin)
+        plugins.load('test_group_plugin')
         offset = url_for(controller='group', action='new')
         res = self.app.get(offset, status=200,
                            extra_environ={'REMOTE_USER': 'testsysadmin'})
@@ -606,8 +580,9 @@ class TestNew(FunctionalTestCase):
         form['title'] = "huhuhu"
         res = form.submit('save', status=302,
                           extra_environ={'REMOTE_USER': 'testsysadmin'})
-        assert plugin.calls['create'] == 1, plugin.calls
-        plugins.unload(plugin)
+        p = plugins.get_plugin('test_group_plugin')
+        assert p.calls['create'] == 1, p.calls
+        plugins.unload('test_group_plugin')
 
     def test_new_bad_param(self):
         offset = url_for(controller='group', action='new',
@@ -692,3 +667,33 @@ class TestRevisions(FunctionalTestCase):
         assert '<feed' in res, res
         assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
         assert '</feed>' in res, res
+
+
+class TestMemberInvite(FunctionalTestCase):
+    @classmethod
+    def setup_class(self):
+        model.Session.remove()
+        model.repo.rebuild_db()
+
+    def teardown(self):
+        model.repo.rebuild_db()
+
+    @mock.patch('ckan.lib.mailer.mail_user')
+    def test_member_new_invites_user_if_received_email(self, mail_user):
+        user = CreateTestData.create_user('a_user', sysadmin=True)
+        group_name = 'a_group'
+        CreateTestData.create_groups([{'name': group_name}], user.name)
+        group = model.Group.get(group_name)
+        url = url_for(controller='group', action='member_new', id=group.id)
+        email = 'invited_user@mailinator.com'
+        role = 'member'
+
+        params = {'email': email, 'role': role}
+        res = self.app.post(url, params,
+                            extra_environ={'REMOTE_USER': str(user.name)})
+
+        users = model.User.by_email(email)
+        assert len(users) == 1, users
+        user = users[0]
+        assert user.email == email, user
+        assert group.id in user.get_group_ids(capacity=role)

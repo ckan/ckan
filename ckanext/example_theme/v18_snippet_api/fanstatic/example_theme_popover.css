@@ -1,0 +1,27 @@
+.dataset-list .popover .nums {
+
+  /* We're reusing the .nums class from the dataset read page,
+   * but we don't want the border, margin and padding, get rid of them. */
+  border: none;
+  margin: 0;
+  padding: 0;
+
+  /* We want the license and numbers to appear side by side, so float the
+   * numbers list to the left and make it take up just over half of
+   * the width of the popover. */
+  float: left;
+  width: 55%;
+}
+
+.dataset-list .popover .license {
+
+  /* Prevent the words in the license from being wrapped mid-word. */
+  word-break: keep-all;
+}
+
+.dataset-list .popover .go-to-dataset {
+
+  /* Float the "Go to dataset" button to the right side of the popover,
+   * this puts some space between the two buttons. */
+  float: right;
+}

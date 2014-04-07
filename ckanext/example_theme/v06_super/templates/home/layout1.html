@@ -1,0 +1,14 @@
+{% ckan_extends %}
+
+{% block featured_group %}
+
+  <p>This paragraph will be added to the top of the
+  <code>featured_group</code> block.</p>
+
+  {# Insert the contents of the original featured_group block: #}
+  {{ super() }}
+
+  <p>This paragraph will be added to the bottom of the
+  <code>featured_group</code> block.</p>
+
+{% endblock %}

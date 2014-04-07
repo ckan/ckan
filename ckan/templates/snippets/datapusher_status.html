@@ -1,0 +1,14 @@
+{# Datapusher status indicator
+
+resource: the resource
+
+#}
+{% if resource.datastore_active %}
+  {% set job = h.datapusher_status(resource.id) %}
+  {% set title =  _('Datapusher status: {status}.').format(status=job.status) %}
+  {% if job.status == 'unknown' %}
+    <i title="{{ _(title) }}" class="datapusher-status status-{{ job.status }} icon-circle icon-large"></i>
+  {% else %}
+    <a href="{{ job.job_url }}" class="datapusher-status-link" title="{{ _(title) }}"><i class="datapusher-status status-{{ job.status }} icon-circle icon-large"></i></a>
+  {% endif %}
+{% endif %}

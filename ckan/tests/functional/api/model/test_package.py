@@ -3,7 +3,6 @@ import copy
 from nose.tools import assert_equal, assert_raises
 
 from ckan.lib.create_test_data import CreateTestData
-from ckan import plugins
 import ckan.lib.search as search
 from ckan.lib.search.common import SolrSettings
 
@@ -273,7 +272,6 @@ class PackagesTestCase(BaseModelApiTestCase):
         original_settings = SolrSettings.get()[0]
         try:
             SolrSettings.init(bad_solr_url)
-            plugins.load('synchronous_search')
 
             assert not self.get_package_by_name(self.package_fixture_data['name'])
             offset = self.package_offset()
@@ -403,14 +401,14 @@ class PackagesTestCase(BaseModelApiTestCase):
             'title':u'newtesttitle',
             'resources': [{
                 u'url':u'http://blah.com/file2.xml',
-                u'format':u'xml',
+                u'format':u'XML',
                 u'description':u'Appendix 1',
                 u'hash':u'def123',
                 u'alt_url':u'alt123',
                 u'size_extra':u'400',
             },{
                 u'url':u'http://blah.com/file3.xml',
-                u'format':u'xml',
+                u'format':u'XML',
                 u'description':u'Appenddic 2',
                 u'hash':u'ghi123',
                 u'alt_url':u'alt123',
@@ -463,14 +461,14 @@ class PackagesTestCase(BaseModelApiTestCase):
             self.assert_equal(len(package.resources), 2)
             resource = package.resources[0]
             self.assert_equal(resource.url, u'http://blah.com/file2.xml')
-            self.assert_equal(resource.format, u'xml')
+            self.assert_equal(resource.format, u'XML')
             self.assert_equal(resource.description, u'Appendix 1')
             self.assert_equal(resource.hash, u'def123')
             self.assert_equal(resource.alt_url, u'alt123')
             self.assert_equal(resource.extras['size_extra'], u'400')
             resource = package.resources[1]
             self.assert_equal(resource.url, 'http://blah.com/file3.xml')
-            self.assert_equal(resource.format, u'xml')
+            self.assert_equal(resource.format, u'XML')
             self.assert_equal(resource.description, u'Appenddic 2')
             self.assert_equal(resource.hash, u'ghi123')
             self.assert_equal(resource.alt_url, u'alt123')
@@ -664,13 +662,11 @@ class PackagesTestCase(BaseModelApiTestCase):
         original_settings = SolrSettings.get()[0]
         try:
             SolrSettings.init(bad_solr_url)
-            plugins.load('synchronous_search')
 
             assert_raises(
                 search.SearchIndexError, self.assert_package_update_ok, 'name', 'post'
             )
         finally:
-            plugins.unload('synchronous_search')
             SolrSettings.init(original_settings)
 
     def test_package_update_delete_resource(self):
@@ -678,13 +674,13 @@ class PackagesTestCase(BaseModelApiTestCase):
             'name': self.package_fixture_data['name'],
             'resources': [{
                 u'url':u'http://blah.com/file2.xml',
-                u'format':u'xml',
+                u'format':u'XML',
                 u'description':u'Appendix 1',
                 u'hash':u'def123',
                 u'alt_url':u'alt123',
             },{
                 u'url':u'http://blah.com/file3.xml',
-                u'format':u'xml',
+                u'format':u'XML',
                 u'description':u'Appenddic 2',
                 u'hash':u'ghi123',
                 u'alt_url':u'alt123',

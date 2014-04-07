@@ -1,0 +1,26 @@
+{% extends 'package/base.html' %}
+
+{% set pkg = c.pkg_dict %}
+{% set pkg_dict = c.pkg_dict %}
+
+{% block breadcrumb_content_selected %}{% endblock %}
+
+{% block breadcrumb_content %}
+  {{ super() }}
+  {% if pkg %}
+    <li class="active">{% link_for _('Edit'), controller='package', action='edit', id=pkg.name %}</li>
+  {% endif %}
+{% endblock %}
+
+{% block content_action %}
+  {% link_for _('View dataset'), controller='package', action='read', id=pkg.name, class_='btn', icon='eye-open' %}
+{% endblock %}
+
+{% block content_primary_nav %}
+  {{ h.build_nav_icon('dataset_edit', _('Edit metadata'), id=pkg.name) }}
+  {{ h.build_nav_icon('dataset_resources', _('Resources'), id=pkg.name) }}
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet 'package/snippets/info.html', pkg=pkg, hide_follow_button=true %}
+{% endblock %}

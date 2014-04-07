@@ -10,11 +10,9 @@ import re
 from pylons import config
 from routes.mapper import SubMapper, Mapper as _Mapper
 
-from ckan.plugins import PluginImplementations, IRoutes
+import ckan.plugins as p
 
 named_routes = {}
-
-routing_plugins = PluginImplementations(IRoutes)
 
 
 class Mapper(_Mapper):
@@ -79,8 +77,8 @@ def make_map():
     PUT_POST_DELETE = dict(method=['PUT', 'POST', 'DELETE'])
     OPTIONS = dict(method=['OPTIONS'])
 
-    from ckan.lib.plugins import register_package_plugins
-    from ckan.lib.plugins import register_group_plugins
+    import ckan.lib.plugins as lib_plugins
+    lib_plugins.reset_package_plugins()
 
     map = Mapper(directory=config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
@@ -96,7 +94,7 @@ def make_map():
                 conditions=OPTIONS)
 
     # CUSTOM ROUTES HERE
-    for plugin in routing_plugins:
+    for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.before_map(map)
 
     map.connect('home', '/', controller='home', action='index')
@@ -224,7 +222,6 @@ def make_map():
                   ])))
         m.connect('/dataset/{action}/{id}',
                   requirements=dict(action='|'.join([
-                      'edit',
                       'new_metadata',
                       'new_resource',
                       'history',
@@ -232,25 +229,34 @@ def make_map():
                       'history_ajax',
                       'follow',
                       'activity',
+                      'groups',
                       'unfollow',
                       'delete',
                       'api_data',
                   ])))
+        m.connect('dataset_edit', '/dataset/edit/{id}', action='edit',
+                  ckan_icon='edit')
         m.connect('dataset_followers', '/dataset/followers/{id}',
                   action='followers', ckan_icon='group')
         m.connect('dataset_activity', '/dataset/activity/{id}',
                   action='activity', ckan_icon='time')
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
+        m.connect('dataset_groups', '/dataset/groups/{id}',
+                  action='groups', ckan_icon='group')
         m.connect('/dataset/{id}.{format}', action='read')
+        m.connect('dataset_resources', '/dataset/resources/{id}',
+                  action='resources', ckan_icon='reorder')
         m.connect('dataset_read', '/dataset/{id}', action='read',
                   ckan_icon='sitemap')
         m.connect('/dataset/{id}/resource/{resource_id}',
                   action='resource_read')
         m.connect('/dataset/{id}/resource_delete/{resource_id}',
                   action='resource_delete')
-        m.connect('/dataset/{id}/resource_edit/{resource_id}',
-                  action='resource_edit')
+        m.connect('resource_edit', '/dataset/{id}/resource_edit/{resource_id}',
+                  action='resource_edit', ckan_icon='edit')
         m.connect('/dataset/{id}/resource/{resource_id}/download',
+                  action='resource_download')
+        m.connect('/dataset/{id}/resource/{resource_id}/download/{filename}',
                   action='resource_download')
         m.connect('/dataset/{id}/resource/{resource_id}/embed',
                   action='resource_embedded_dataviewer')
@@ -326,8 +332,8 @@ def make_map():
         m.connect('organization_bulk_process',
                   '/organization/bulk_process/{id}',
                   action='bulk_process', ckan_icon='sitemap')
-    register_package_plugins(map)
-    register_group_plugins(map)
+    lib_plugins.register_package_plugins(map)
+    lib_plugins.register_group_plugins(map)
 
     # tags
     map.redirect('/tags', '/tag')
@@ -361,6 +367,7 @@ def make_map():
                   action='followers', ckan_icon='group')
         m.connect('user_edit', '/user/edit/{id:.*}', action='edit',
                   ckan_icon='cog')
+        m.connect('user_delete', '/user/delete/{id}', action='delete')
         m.connect('/user/reset/{id:.*}', action='perform_reset')
         m.connect('register', '/user/register', action='register')
         m.connect('login', '/user/login', action='login')
@@ -385,6 +392,7 @@ def make_map():
     # feeds
     with SubMapper(map, controller='feed') as m:
         m.connect('/feeds/group/{id}.atom', action='group')
+        m.connect('/feeds/organization/{id}.atom', action='organization')
         m.connect('/feeds/tag/{id}.atom', action='tag')
         m.connect('/feeds/dataset.atom', action='general')
         m.connect('/feeds/custom.atom', action='custom')
@@ -427,7 +435,7 @@ def make_map():
         m.connect('/testing/primer', action='primer')
         m.connect('/testing/markup', action='markup')
 
-    for plugin in routing_plugins:
+    for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.after_map(map)
 
     # sometimes we get requests for favicon.ico we should redirect to

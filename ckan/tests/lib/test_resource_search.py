@@ -120,7 +120,7 @@ class TestSearch(object):
         assert isinstance(res_dict, dict)
         res_keys = set(res_dict.keys())
         expected_res_keys = set(model.Resource.get_columns())
-        expected_res_keys.update(['id', 'resource_group_id', 'package_id', 'position', 'size_extra', 'tracking_summary'])
+        expected_res_keys.update(['id', 'resource_group_id', 'package_id', 'position', 'size_extra'])
         assert_equal(res_keys, expected_res_keys)
         pkg1 = model.Package.by_name(u'pkg1')
         ab = pkg1.resources[0]
@@ -128,15 +128,13 @@ class TestSearch(object):
         assert res_dict['package_id'] == pkg1.id
         assert res_dict['url'] == ab.url
         assert res_dict['description'] == ab.description
-        # FIXME: This needs to be fixed before this branch is merged to master
-        from ckan.lib.dictization.model_dictize import _unified_resource_format
-        assert res_dict['format'] == _unified_resource_format(ab.format)
+        assert res_dict['format'] == ab.format
         assert res_dict['hash'] == ab.hash
         assert res_dict['position'] == 0
 
     def test_13_pagination(self):
         # large search
-        options = search.QueryOptions(order_by='hash')
+        options = search.QueryOptions(order_by='id')
         fields = {'url':'site'}
         all_results = search.query_for(model.Resource).run(fields=fields, options=options)
         all_resources = all_results['results']
@@ -144,7 +142,7 @@ class TestSearch(object):
         assert all_resource_count >= 6, all_results
 
         # limit
-        options = search.QueryOptions(order_by='hash')
+        options = search.QueryOptions(order_by='id')
         options.limit = 2
         result = search.query_for(model.Resource).run(fields=fields, options=options)
         resources = result['results']
@@ -154,7 +152,7 @@ class TestSearch(object):
         assert resources == all_resources[:2], '%r, %r' % (resources, all_resources)
 
         # offset
-        options = search.QueryOptions(order_by='hash')
+        options = search.QueryOptions(order_by='id')
         options.limit = 2
         options.offset = 2
         result = search.query_for(model.Resource).run(fields=fields, options=options)
@@ -163,7 +161,7 @@ class TestSearch(object):
         assert resources == all_resources[2:4]
 
         # larger offset
-        options = search.QueryOptions(order_by='hash')
+        options = search.QueryOptions(order_by='id')
         options.limit = 2
         options.offset = 4
         result = search.query_for(model.Resource).run(fields=fields, options=options)

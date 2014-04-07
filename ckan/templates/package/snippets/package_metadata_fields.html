@@ -2,42 +2,33 @@
 
 {% block package_metadata_fields %}
 
-{% block package_metadata_author %}
-{{ form.input('author', label=_('Author'), id='field-author', placeholder=_('Joe Bloggs'), value=data.author, error=errors.author, classes=['control-medium']) }}
+  {% block package_metadata_fields_url %}
+    {{ form.input('url', label=_('Source'), id='field-url', placeholder=_('http://example.com/dataset.json'), value=data.url, error=errors.url, classes=['control-medium']) }}
+  {% endblock %}
 
-{{ form.input('author_email', label=_('Author Email'), id='field-author-email', placeholder=_('joe@example.com'), value=data.author_email, error=errors.author_email, classes=['control-medium']) }}
-{% endblock %}
+  {% block package_metadata_fields_version %}
+    {{ form.input('version', label=_('Version'), id='field-version', placeholder=_('1.0'), value=data.version, error=errors.version, classes=['control-medium']) }}
+  {% endblock %}
 
-{% block package_metadata_fields_maintainer %}
-{{ form.input('maintainer', label=_('Maintainer'), id='field-maintainer', placeholder=_('Joe Bloggs'), value=data.maintainer, error=errors.maintainer, classes=['control-medium']) }}
+  {% block package_metadata_author %}
+    {{ form.input('author', label=_('Author'), id='field-author', placeholder=_('Joe Bloggs'), value=data.author, error=errors.author, classes=['control-medium']) }}
 
-{{ form.input('maintainer_email', label=_('Maintainer Email'), id='field-maintainer-email', placeholder=_('joe@example.com'), value=data.maintainer_email, error=errors.maintainer_email, classes=['control-medium']) }}
-{% endblock %}
+    {{ form.input('author_email', label=_('Author Email'), id='field-author-email', placeholder=_('joe@example.com'), value=data.author_email, error=errors.author_email, classes=['control-medium']) }}
+  {% endblock %}
 
-{% block package_metadata_fields_custom %}
-{% block custom_fields %}
-  {% snippet 'snippets/custom_form_fields.html', extras=data.extras, errors=errors, limit=3 %}
-{% endblock %}
-{% endblock %}
+  {% block package_metadata_fields_maintainer %}
+    {{ form.input('maintainer', label=_('Maintainer'), id='field-maintainer', placeholder=_('Joe Bloggs'), value=data.maintainer, error=errors.maintainer, classes=['control-medium']) }}
 
+    {{ form.input('maintainer_email', label=_('Maintainer Email'), id='field-maintainer-email', placeholder=_('joe@example.com'), value=data.maintainer_email, error=errors.maintainer_email, classes=['control-medium']) }}
+  {% endblock %}
+
+  {% block package_metadata_fields_custom %}
+    {% block custom_fields %}
+      {% snippet 'snippets/custom_form_fields.html', extras=data.extras, errors=errors, limit=3 %}
+    {% endblock %}
+  {% endblock %}
 
   {% block dataset_fields %}
-    {% if data.groups %}
-      <div class="control-group">
-        <label class="control-label">{{ _('Groups') }}</label>
-        <div class="controls">
-          {% for group in data.groups %}
-            <label class="checkbox" for="field-group-{{ loop.index0 }}">
-              <input id="field-group-{{ loop.index0 }}" type="checkbox" name="groups__{{ loop.index0 }}__id" value="{{ group.id }}" checked="checked" />
-              {{ group.title }}
-            </label>
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-    {% set group_name = 'groups__%s__id' % data.groups|length %}
-    {% set group_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/group/autocomplete?q=?', 'data-module-key': 'id', 'data-module-label': 'title'} %}
-    {{ form.input(group_name, label=_('Add Group'), id="field-group", value=data[group_name], classes=['control-medium'], attrs=group_attrs) }}
   {% endblock %}
 
 {% endblock %}

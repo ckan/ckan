@@ -1,6 +1,7 @@
 import copy
 import formencode as fe
 import inspect
+import json
 from pylons import config
 
 from ckan.common import _
@@ -37,6 +38,10 @@ class DictizationError(Exception):
         return ''
 
 class Invalid(DictizationError):
+    '''Exception raised by some validator, converter and dictization functions
+    when the given value is invalid.
+
+    '''
     def __init__(self, error, key=None):
         self.error = error
 
@@ -402,3 +407,11 @@ def unflatten(data):
         unflattened[key] = [unflattened[key][s] for s in sorted(unflattened[key])]
 
     return unflattened
+
+
+class MissingNullEncoder(json.JSONEncoder):
+    '''json encoder that treats missing objects as null'''
+    def default(self, obj):
+        if isinstance(obj, Missing):
+            return None
+        return json.JSONEncoder.default(self, obj)

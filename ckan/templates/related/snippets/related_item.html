@@ -11,16 +11,14 @@ Example:
 
 #}
 {% set placeholder_map = {
-'application':'/base/images/placeholder-application.png'
+'application': h.url_for_static('/base/images/placeholder-application.png')
 } %}
 {% set tooltip = _('Go to {related_item_type}').format(related_item_type=related.type|replace('_', ' ')|title) %}
 <li class="related-item media-item" data-module="related-item">
-  <img src="{{ related.image_url or placeholder_map[related.type] or '/base/images/placeholder-image.png' }}" alt="{{ related.title }}" class="media-image">
+  <img src="{{ related.image_url or placeholder_map[related.type] or h.url_for_static('/base/images/placeholder-image.png') }}" alt="{{ related.title }}" class="media-image">
   <h3 class="media-heading">{{ related.title }}</h3>
   {% if related.description %}
     <div class="prose">{{ h.render_markdown(related.description) }}</div>
-  {% else %}
-    <p class="empty">{{ _('This item has no description') }}</p>
   {% endif %}
   <a class="media-view" href="{{ related.url }}" target="_blank" title="{{ tooltip }}">
     <span>{{ tooltip }}</span>

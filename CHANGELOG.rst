@@ -7,14 +7,321 @@
 Changelog
 ---------
 
-v2.2
-====
+v2.2 2014-02-04
+===============
+
+Note: This version does not require a requirements upgrade on source installations
+
+Note: This version requires a database upgrade
+
+Note: This version requires a Solr schema upgrade (The Solr schema file has
+been renamed, the schema file from the previous release is compatible
+with this version, but users are encouraged to point to the new one,
+see "API changes and deprecations")
+
+
+Major:
+ * Brand new automatic importer of tabular data to the DataStore, the
+   DataPusher. This is much more robust and simple to deploy and maintain than
+   its predecesor (ckanext-datastorer). Whole new UI for re-importing data to
+   the DataStore and view the import logs (#932, #938, #940, #981, #1196, #1200
+   ...)
+ * Completely revamped file uploads that allow closer integration with resources
+   and the DataStore, as well as making easir to integrate file uploads in other
+   features. For example users can now upload images for organizations and
+   groups. See "API changes and deprecations" if you are using the current
+   FileStore. (#1273, #1173 ... )
+ * UI and API endpoints for resource reordering (#1277)
+ * Backend support for organization hierarchy, allowing parent and children
+   organizations. Frontend needs to be implemented in extensions (#1038)
+ * User invitations: it is now possible to create new users with just their
+   email address. An invite email is sent to them, allowing to change their user
+   name and password (#1178)
+ * Disable user registration with a configuration option (#1226)
+ * Great effort in improving documentation, specially for customizing CKAN, with
+   a complete tutorial for writing extensions and customizing the theme. User
+   and sysadmin guides have also been moved to the main documentation
+   (#943, #847, #1253)
+
+Minor:
+ * Homepage modules to allow predefined layouts (#1126)
+ * Ability to delete users (#1163)
+ * Dedicated dataset groups page for displaying and managing them (#1102)
+ * Implement organization_purge and group_purge action functions (#707)
+ * Improve package_show performance (#1078)
+ * Support internationalization of rendered dates and times (#1041)
+ * Improve plugin load handling (#549)
+ * Authorization function auditing for action functions (#1060)
+ * Improve datetime rendering (#518)
+ * New SQL indexes to improve performance (#1164)
+ * Changes in requirements management (#1149)
+ * Add offset/limit to package_list action (#1179)
+ * Document all available configuraton options (#848)
+ * Make CKAN sqlalchemy 0.8.4 compatible (#1427)
+ * UI labelling and cleanup (#1030)
+ * Better UX for empty groups/orgs (#1094)
+ * Improve performance of group_dictize when the group has a lot of packages
+   (#1208)
+ * Hide __extras from extras on package_show (#1218)
+ * "Clear all" link within each facet block is unnecessary  (#1263)
+ * Term translations of organizations (#1274)
+ * '--reset-db' option for when running tests (#1304)
+
+Bug fixes:
+ * Fix plugins load/unload issues (#547)
+ * Improve performance when new_activities not needed (#1013)
+ * Resource preview breaks when CSV headers include percent sign (#1067)
+ * Package index not rebuilt when resources deleted (#1081)
+ * Don't accept invalid URLs in resource proxy (#1106)
+ * UI language reset after account creation (#1429)
+ * Catch non-integer facet limits (#1118)
+ * Error when deleting custom tags (#1114)
+ * Organization images do not display on Organization user dashboard page
+   (#1127)
+ * Can not reactivate a deleted dataset from the UI (#607)
+ * Non-existent user profile should give error (#1068)
+ * Recaptcha not working in CKAN 2.0 (jinja templates) (#1070)
+ * Groups and organizations can be visited with interchangeable URLs (#1180)
+ * Dataset Source (url) and Version fields missing (#1187)
+ * Fix problems with private / public datasets and organizations (#1188)
+ * group_show should never return private data (#1191)
+ * When editing a dataset, the organization field is not set (#1199)
+ * Fix resource_delete action (#1216)
+ * Fix trash purge action redirect broken for CKAN instances not at / (#1217)
+ * Title edit for existing dataset changes the URL (#1232)
+ * 'facet.limit' in package_search wrongly handled (#1237)
+ * h.SI_number_span doesn't close <span /> correctly (#1238)
+ * CkanVersionException wrongly raised (#1241)
+ * (group|organization)_member_create only accepts username (and not id) (#1243)
+ * package_create uses the wrong parameter for organization (#1257)
+ * ValueError for non-int limit and offset query params (#1258)
+ * Visibility field value not kept if there are errors on the form (#1265)
+ * package_list should not return private datasets (#1295)
+ * Fix 404 on organization activity stream and about page (#1298)
+ * Fix placeholder images broken on non-root locations (#1309)
+ * "Add Dataset" button shown on org pages when not authorized (#1348)
+ * Fix exception when visiting organization history page (#1359)
+ * Fix search ordering on organization home page (#1368)
+ * datastore_search_sql failing for some anonymous users (#1373)
+ * related_list logic function throws a 503 without any parameters (#1384)
+ * Disabling activity_streams borks editing groups and user (#1421)
+ * Member Editing Fixes (#1454)
+ * Bulk editing broken in IE7 (#1455)
+ * Fix group deletion in IE7 (#1460)
+ * And many, many more!
 
 API changes and deprecations:
+ * The Solr schema file is now always named ``schema.xml`` regardless of the
+   CKAN version. Old schema files have been kept for backwards compatibility
+   but users are encouraged to point to the new unified one (#1314)
+ * The FileStore and file uploads have been completely refactored and simplified
+   to only support local storage backend. The links from previous versions of
+   the FileStore to hosted files will still work, but there is a command
+   available to migrate the files to new Filestore. See this page for more
+   details:
+   http://docs.ckan.org/en/latest/filestore.html#filestore-21-to-22-migration
+ * By default, the authorization for any action defined from an extension will
+   require a logged in user, otherwise a :py:class:`ckan.logic.NotAuthorized`
+   exception will be raised. If an action function allows anonymous access (eg
+   search, show status, etc) the ``auth_allow_anonymous_access`` decorator
+   (available on the plugins toolkit) must be used (#1210)
+ * ``package_search`` now returns results with custom schemas applied like
+   ``package_show``, a ``use_default_schema`` parameter was added to request the
+   old behaviour, this change may affect customized search result templates
+   (#1255)
+ * The ``ckan.api_url`` configuration option has been completely removed and it
+   can no longer be used (#960)
+ * The ``edit`` and ``after_update`` methods of IPackageController plugins are now
+   called when updating a resource using the web frontend or the
+   resource_update API action (#1052)
+ * Dataset moderation has been deprecated, and the code will probably be removed
+   in later CKAN versions (#1139)
+ * Some front end libraries have been updated, this may affect existing custom
+   themes: Bootstrap 2.0.3 > 2.3.2, Font Awesome 3.0.2 > 3.2.1,
+   jQuery 1.7.2 > 1.10.2 (#1082)
+ * SQLite is officially no longer supported as the tests backend
 
-* The edit() and after_update() methods of IPackageController plugins are now
-  called when updating a resource using the web frontend or the
-  resource_update API action [#1052]
+Troubleshooting:
+ * Exception on startup after upgrading from a previous CKAN version::
+
+     AttributeError: 'instancemethod' object has no attribute 'auth_audit_exempt'
+
+   Make sure that you are not loading a 2.1-only plugin (eg ``datapusher-ext``)
+   and update all the plugin in your configuration file to the latest stable
+   version.
+
+ * Exception on startup after upgrading from a previous CKAN version::
+
+     File "/usr/lib/ckan/default/src/ckan/ckan/lib/dictization/model_dictize.py", line 330, in package_dictize
+         result_dict['metadata_modified'] = pkg.metadata_modified.isoformat()
+     AttributeError: 'NoneType' object has no attribute 'isoformat'
+
+   One of the database changes on this version is the addition of a
+   ``metadata_modified`` field in the package table, that was filled during the
+   DB migration process. If you have previously migrated the database and revert
+   to an older CKAN version the migration process may have failed at this step,
+   leaving the fields empty. Also make sure to restart running processes like
+   harvesters after the update to make sure they use the new code base.
+
+v2.1.2 2014-02-04
+=================
+
+Bug fixes:
+ * Fix context for group/about setup_template_variables (#1433)
+ * Call setup_template_variables in group/org read, about and bulk_process (#1281)
+ * Remove repeated sort code in package_search (#1461)
+ * Ensure that check_access is called on activity_create (#1421)
+ * Fix visibility validator (#1188)
+ * Remove p.toolkit.auth_allow_anonymous_access as it is not available on 2.1.x (#1373)
+ * Add organization_revision_list to avoid exception on org history page (#1359)
+ * Fix activity and about organization pages (#1298)
+ * Show 404 instead of login page on user not found (#1068)
+ * Don't show Add Dataset button on org pages unless authorized (#1348)
+ * Fix datastore_search_sql authorization function (#1373)
+ * Fix extras deletion (#1449)
+ * Better word breaking on long words (#1398)
+ * Fix activity and about organization pages (#1298)
+ * Remove limit of number of arguments passed to ``user add`` command.
+ * Fix related_list logic function (#1384)
+ * Avoid UnicodeEncodeError on feeds when params contains non ascii characters
+
+v2.1.1 2013-11-8
+================
+
+Bug fixes:
+ * Fix errors on preview on non-root locations (#960)
+ * Fix place-holder images on non-root locations (#1309)
+ * Don't accept invalid URLs in resource proxy (#1106)
+ * Make sure came_from url is local (#1039)
+ * Fix logout redirect in non-root locations (#1025)
+ * Wrong auth checks for sysadmins on package_create (#1184)
+ * Don't return private datasets on package_list (#1295)
+ * Stop tracking failing when no lang/encoding headers (#1192)
+ * Fix for paster db clean command getting frozen
+ * Fix organization not set when editing a dataset (#1199)
+ * Fix PDF previews (#1194)
+ * Fix preview failing on private datastore resources (#1221)
+
+v2.1 2013-08-13
+===============
+
+Note: This version requires a requirements upgrade on source installations
+
+Note: This version requires a database upgrade
+
+Note: This version does not require a Solr schema upgrade
+
+.. note:: The ``json_preview`` plugin has been renamed to ``text_preview``
+ (see #266). If you are upgrading CKAN from a previous version you need
+ to change the plugin name on your CKAN config file after upgrading to avoid
+ a PluginNotFound exception.
+
+
+Major:
+ * Bulk updates of datasets within organizations (delete, make public/private) (#278)
+ * Organizations and Groups search (#303)
+ * Generic text preview extension for JSON, XML and plain text files (#226)
+ * Improve consistency of the Action API (#473)
+ * IAuthenticator interface for plugging into authorization platforms (Work
+   in progress) (#1007)
+ * New clearer dashboard with more information easier to access (#626)
+ * New ``rebuild_fast`` command to speed up reindex using multiple cores (#700)
+ * Complete restructure of the documentation, with updated sections on
+   installation, upgrading, release process, etc and guidelines on how to write
+   new documentation (#769 and multiple others)
+
+Minor:
+ * Add group members page to templates (#844)
+ * Show search facets on organization page (#776)
+ * Changed default sort ordering (#869)
+ * More consistent display of buttons across pages (#890)
+ * History page ported to new templates (#368)
+ * More blocks to templates to allow furhter customization (#688)
+ * Improve imports from lib.helpers (#262)
+ * Add support for callback parameter on Action API (#414)
+ * Create site_user at startup (#952)
+ * Add warning before deleting an organization (#803)
+ * Remove flags from language selector (#822)
+ * Hide the Data API button when datastore is disabled (#752)
+ * Pin all requirements and separate minimal requirements in a separate file (#491, #1149)
+ * Better preview plugin selection (#1002)
+ * Add new functions to the plugins toolkit (#1015)
+ * Improve ExampleIDatasetFormPlugin (#2750)
+ * Extend h.sorted_extras() to do substitutions and auto clean keys (#440)
+ * Separate default database for development and testing (#517)
+ * More descriptive Solr exceptions when indexing (#674)
+ * Validate datastore input through schemas (#905)
+
+Bug fixes:
+ * Fix 500 on password reset (#264)
+ * Fix exception when indexing a wrong date on a _date field (#267)
+ * Fix datastore permissions issues (#652)
+ * Placeholder images are not linked with h.url_for_static (#948)
+ * Explore dropdown menu is hidden behind other resources in IE (#915)
+ * Buttons interrupt file uploading (#902)
+ * Fix resource proxy encoding errors (#896)
+ * Enable streaming in resource proxy (#989)
+ * Fix cache_dir and beaker paths on deployment.ini_tmpl (#888)
+ * Fix multiple issues on create dataset form on IE (#881)
+ * Fix internal server error when adding member (#869)
+ * Fix license faceting (#853)
+ * Fix exception in dashboard (#830)
+ * Fix Google Analytics integration (#827)
+ * Fix ValueError when resource size is not an integer (#1009)
+ * Catch NotFound on new resource when package does not exist (#1010)
+ * Fix Celery configuration to allow overriding from config (#1027)
+ * came_from after login is validated to not redidirect to another site (#1039)
+ * And many, many more!
+
+Deprecated and removed:
+ * The ``json_preview`` plugin has been replaced by a new ``text_preview``
+   one. Please update your config files if using it. (#226)
+
+Known issues:
+ * Under certain authorization setups the frontend for the groups functionality
+   may not work as expected (See #1176 #1175).
+
+v2.0.4 2014-02-04
+=================
+
+Bug fixes:
+ * Fix extras deletion (#1449)
+ * Better word breaking on long words (#1398)
+ * Fix activity and about organization pages (#1298)
+ * Show 404 instead of login page on user not found (#1068)
+ * Remove limit of number of arguments passed to ``user add`` command.
+ * Fix related_list logic function (#1384)
+
+v2.0.3 2013-11-8
+================
+
+Bug fixes:
+ * Fix errors on preview on non-root locations (#960)
+ * Don't accept invalid URLs in resource proxy (#1106)
+ * Make sure came_from url is local (#1039)
+ * Fix logout redirect in non-root locations (#1025)
+ * Don't return private datasets on package_list (#1295)
+ * Stop tracking failing when no lang/encoding headers (#1192)
+ * Fix for paster db clean command getting frozen
+
+
+v2.0.2 2013-08-13
+=================
+
+Bug fixes:
+ * Fix markdown in group descriptions (#303)
+ * Fix resource proxy encoding errors (#896)
+ * Fix datastore exception on first run (#907)
+ * Enable streaming in resource proxy (#989)
+ * Fix in user search (#1024)
+ * Fix Celery configuration to allow overriding from config (#1027)
+ * Undefined function on organizations controller (#1036)
+ * Fix license not translated in orgs/groups (#1040)
+ * Fix link to documentation from the footer (#1062)
+ * Fix missing close breadcrumb tag in org templates (#1071)
+ * Fix recently_changed_packages_activity_stream function (#1159)
+ * Fix Recline map sidebar not showing in IE 7-8 (#1133)
+
 
 v2.0.1 2013-06-11
 =================
@@ -40,7 +347,7 @@ v2.0 2013-05-10
  to GitHub issues. For example:
 
  * #3020 is http://trac.ckan.org/ticket/3020
- * #271 is https://github.com/okfn/ckan/issues/271
+ * #271 is https://github.com/ckan/ckan/issues/271
 
  Some GitHub issues URLs will redirect to GitHub pull request pages.
 
@@ -53,7 +360,7 @@ Note: This version requires a database upgrade
 
 Note: This version requires a Solr schema upgrade
 
-Organizations based authorization (see :doc:`authorization`):
+Organizations based authorization (see :doc:`/maintaining/authorization`):
  CKAN's new "organizations" feature replaces the old authorization system
  with a new one based on publisher organizations. It replaces the "Publisher
  Profile and Workflow" feature from CKAN 1.X, any instances relying on it will
@@ -65,7 +372,7 @@ Organizations based authorization (see :doc:`authorization`):
  * New authorization ini file options
 
 
-New frontend (see :doc:`theming`):
+New frontend (see :doc:`/theming/index`):
  CKAN's frontend has been completely redesigned, inside and out. There is
  a new default theme and the template engine has moved from Genshi to
  Jinja2. Any custom templates using Genshi will need to be updated, although
@@ -143,7 +450,7 @@ API:
 
 Other highlights:
  * CKAN now has continuous integration testing at
-   https://travis-ci.org/okfn/ckan/
+   https://travis-ci.org/ckan/ckan/
  * Dataset pages now have <link rel="alternate" type="application/rdf+xml"
    links in the HTML headers, allows linked-data tools to find CKAN's RDF
    rendering of a dataset's metadata (#413)
@@ -188,6 +495,15 @@ Deprecated and removed:
  * Removed deprecated am_authorized() template helper function, use
    check_access() instead (#2257)
  * Removed deprecated datetime_to_datestr() template helper function (#2257)
+
+
+v1.8.2 2013-08-13
+=================
+
+Bug fixes:
+ * Fix for using harvesters with organization setup
+ * Refactor for user update logic
+ * Tweak resources visibility query
 
 
 v1.8.1 2013-05-10
@@ -253,6 +569,14 @@ API changes and deprecation:
    `c.facets`) has been superseded by use of the improved facet data structure,
    `c.search_facets`.  The old data structure is still available on `c.facets`,
    but is deprecated, and will be removed in future versions. (#2313)
+
+
+v1.7.4 2013-08-13
+=================
+
+Bug fixes:
+ * Refactor for user update logic
+ * Tweak resources visibility query
 
 
 v1.7.3 2013-05-10

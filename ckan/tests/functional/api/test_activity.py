@@ -351,6 +351,7 @@ class TestActivity:
         details = self.activity_details(activity)
         # There should be five activity details: one for the package itself,
         # one for each of its two resources, and one for each of its two tags.
+
         assert len(details) == 5, "There should be five activity details."
 
         detail_ids = [detail['object_id'] for detail in details]
@@ -572,17 +573,17 @@ class TestActivity:
                 [group['name'] for group in package_dict['groups']],
                 apikey=apikey)
 
-        extras_before = package_dict['extras']
+        import copy
+        extras_before = copy.deepcopy(package_dict['extras'])
         assert len(extras_before) > 0, (
                 "Can't update an extra if the package doesn't have any")
 
         # Update the package's first extra.
-        extras = list(extras_before)
-        if extras[0]['value'] != '"edited"':
-            extras[0]['value'] = '"edited"'
+        if package_dict['extras'][0]['value'] != '"edited"':
+            package_dict['extras'][0]['value'] = '"edited"'
         else:
-            assert extras[0]['value'] != '"edited again"'
-            extras[0]['value'] = '"edited again"'
+            assert package_dict['extras'][0]['value'] != '"edited again"'
+            package_dict['extras'][0]['value'] = '"edited again"'
         updated_package = package_update(self.app, package_dict,
                 user['apikey'])
 
@@ -865,54 +866,6 @@ class TestActivity:
         assert activity['user_id'] == user['id'], str(activity['user_id'])
         assert activity['activity_type'] == 'changed group', \
             str(activity['activity_type'])
-        if 'id' not in activity:
-            assert False, "activity object has no id value"
-        # TODO: Test for the _correct_ revision_id value.
-        if 'revision_id' not in activity:
-            assert False, "activity has no revision_id value"
-        timestamp = datetime_from_string(activity['timestamp'])
-        assert timestamp >= before['time'] and timestamp <= after['time'], \
-            str(activity['timestamp'])
-
-    def _update_user(self, user):
-        """
-        Update the given user and test that the correct activity stream item
-        and detail are emitted.
-
-        """
-        response = self.app.post('/api/action/user_show',
-                json.dumps({'id': user['id']}),
-                extra_environ={'Authorization': str(user['apikey'])})
-        response_dict = json.loads(response.body)
-        assert response_dict['success'] is True
-        user_dict = response_dict['result']
-
-        before = self.record_details(user_dict['id'],
-                apikey=user_dict['apikey'])
-
-        # Update the user.
-        user_dict['about'] = 'edited'
-        if not user_dict.get('email'):
-            user_dict['email'] = 'there has to be a value in email'
-        self.app.post('/api/action/user_update', json.dumps(user_dict),
-                extra_environ={'Authorization': str(user['apikey'])})
-
-        after = self.record_details(user_dict['id'],
-                apikey=user_dict['apikey'])
-
-        # Find the new activity.
-        new_activities = find_new_activities(before['user activity stream'],
-            after['user activity stream'])
-        assert len(new_activities) == 1, ("There should be 1 new activity in "
-            "the user's activity stream, but found %i" % len(new_activities))
-        activity = new_activities[0]
-
-        # Check that the new activity has the right attributes.
-        assert activity['object_id'] == user_dict['id'], (
-                str(activity['object_id']))
-        assert activity['user_id'] == user_dict['id'], str(activity['user_id'])
-        assert activity['activity_type'] == 'changed user', (
-            str(activity['activity_type']))
         if 'id' not in activity:
             assert False, "activity object has no id value"
         # TODO: Test for the _correct_ revision_id value.
@@ -1486,17 +1439,6 @@ class TestActivity:
         details = self.activity_details(activity)
         assert len(details) == 0, ("There shouldn't be any activity details"
                 " for a 'new user' activity")
-
-    def test_update_user(self):
-        """
-        Test updated user activity stream.
-
-        Test that correct activity stream item is created when users are
-        updated.
-
-        """
-        for user in self.users:
-            self._update_user(user)
 
     def test_create_group(self):
 

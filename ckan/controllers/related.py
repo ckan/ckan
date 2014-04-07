@@ -24,7 +24,8 @@ class RelatedController(base.BaseController):
     def dashboard(self):
         """ List all related items regardless of dataset """
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'for_view': True}
         data_dict = {
             'type_filter': base.request.params.get('type', ''),
             'sort': base.request.params.get('sort', ''),
@@ -39,7 +40,7 @@ class RelatedController(base.BaseController):
             base.abort(400, ('"page" parameter must be an integer'))
 
         # Update ordering in the context
-        query = logic.get_action('related_list')(context, data_dict)
+        related_list = logic.get_action('related_list')(context, data_dict)
 
         def search_url(params):
             url = h.url_for(controller='related', action='dashboard')
@@ -54,10 +55,10 @@ class RelatedController(base.BaseController):
             return search_url(params)
 
         c.page = h.Page(
-            collection=query.all(),
+            collection=related_list,
             page=page,
             url=pager_url,
-            item_count=query.count(),
+            item_count=len(related_list),
             items_per_page=9
         )
 
@@ -77,6 +78,7 @@ class RelatedController(base.BaseController):
     def read(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
+                   'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id}
 
@@ -101,6 +103,7 @@ class RelatedController(base.BaseController):
         """ List all related items for a specific dataset """
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
+                   'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id}
 
@@ -128,7 +131,8 @@ class RelatedController(base.BaseController):
         and try and do as much up front as possible.
         """
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'for_view': True}
         data_dict = {}
 
         if is_edit:
@@ -204,7 +208,7 @@ class RelatedController(base.BaseController):
                           id=id, related_id=related_id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
         try:
             if base.request.method == 'POST':

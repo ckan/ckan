@@ -3,18 +3,13 @@
 {% block actions_content %}{% endblock %}
 
 {% block breadcrumb_content %}
-  {% if c.userobj.name == c.user_dict.name %}
-    <li><a href="{{ h.url_for(controller='user', action='dashboard') }}">{{ _('Dashboard') }}</a></li>
-    <li class="active"><a href="#">{{ _('Edit settings') }}</a></li>
-  {% else %}
-    <li><a href="{{ h.url_for(controller='user', action='index') }}">{{ _('Users') }}</a></li>
-    <li><a href="{{ h.url_for(controller='user', action='read', id=c.user_dict.name) }}">{{ c.user_dict.display_name }}</a></li>
-    <li class="active"><a href="#">{{ _('Edit') }}</a></li>
-  {% endif %}
+  <li><a href="{{ h.url_for(controller='user', action='index') }}">{{ _('Users') }}</a></li>
+  <li><a href="{{ h.url_for(controller='user', action='read', id=c.user_dict.name) }}">{{ c.user_dict.display_name }}</a></li>
+  <li class="active"><a href="#">{{ _('Manage') }}</a></li>
 {% endblock %}
 
 {% block primary_content_inner %}
-    {{ c.form | safe }}
+  {{ c.form | safe }}
 {% endblock %}
 
 {% block secondary_content %}

@@ -1,5 +1,7 @@
 {% extends "user/edit_base.html" %}
 
+{% set user = c.userobj %}
+
 {% block breadcrumb_content %}
   <li class="active"><a href="{{ h.url_for(controller='user', action='dashboard') }}">{{ _('Dashboard') }}</a></li>
 {% endblock %}
@@ -32,12 +34,12 @@
           {% snippet 'user/snippets/followee_dropdown.html', context=c.dashboard_activity_stream_context, followees=c.followee_list %}
           <h2 class="page-heading">
             {% block page_heading %}
-            {{ _('News feed') }}
+              {{ _('News feed') }}
             {% endblock %}
             <small>{{ _("Activity from items that I'm following") }}</small>
           </h2>
           {% block activity_stream %}
-          {{ c.dashboard_activity_stream }}
+            {{ c.dashboard_activity_stream }}
           {% endblock %}
         </div>
       {% endblock %}

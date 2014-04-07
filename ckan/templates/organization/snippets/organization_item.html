@@ -12,9 +12,11 @@ Example:
     </ul>
 #}
 {% set url = h.url_for(organization.type ~ '_read', action='read', id=organization.name) %}
+{% block item %}
 <li class="media-item">
+  {% block item_inner %}
   {% block image %}
-    <img src="{{ organization.image_url or '/base/images/placeholder-organization.png' }}" alt="{{ organization.name }}" class="media-image">
+    <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" class="media-image">
   {% endblock %}
   {% block title %}
     <h3 class="media-heading">{{ organization.display_name }}</h3>
@@ -22,8 +24,6 @@ Example:
   {% block description %}
     {% if organization.description %}
       <p>{{ h.markdown_extract(organization.description, extract_length=80) }}</p>
-    {% else %}
-      <p class="empty">{{ _('This organization has no description') }}</p>
     {% endif %}
   {% endblock %}
   {% block datasets %}
@@ -33,10 +33,14 @@ Example:
       <span class="count">{{ _('0 Datasets') }}</span>
     {% endif %}
   {% endblock %}
+  {% block link %}
   <a href="{{ url }}" title="{{ _('View {organization_name}').format(organization_name=organization.display_name) }}" class="media-view">
     <span>{{ _('View {organization_name}').format(organization_name=organization.display_name) }}</span>
   </a>
+  {% endblock %}
+  {% endblock %}
 </li>
+{% endblock %}
 {% if position is divisibleby 3 %}
   <li class="clearfix js-hide"></li>
 {% endif %}

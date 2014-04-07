@@ -1,0 +1,21 @@
+{% extends "package/resource_edit_base.html" %}
+
+{% block subtitle %}{{ _('Add resource') }} - {{ h.dataset_display_name(pkg) }}{% endblock %}
+{% block form_title %}{{ _('Add resource') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  {{ super() }}
+  <li class="active"><a href="#">{{ _('Add New Resource') }}</a></li>
+{% endblock %}
+
+{% block form %}
+  {% snippet 'package/snippets/resource_form.html', data=data, errors=errors, error_summary=error_summary, include_metadata=false, pkg_name=pkg_name, stage=stage, allow_upload=g.ofs_impl and logged_in %}
+{% endblock %}
+
+{% block content_primary_nav %}
+  <li class="active"><a href="#"><i class="icon-edit"></i> {{ _('New resource') }}</a></li>
+{% endblock %}
+
+{% block secondary_content %}
+  {% snippet 'package/snippets/resource_help.html' %}
+{% endblock %}

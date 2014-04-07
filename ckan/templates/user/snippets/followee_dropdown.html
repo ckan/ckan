@@ -30,12 +30,12 @@
           </a>
         </li>
         {% for followee in followees %}
-        <li{% if context.selected_id == followee.dict.id %} class="active"{% endif %} data-search="{{followee.display_name|lower}}">
-          <a href="{{ h.url_for(controller='user', action='dashboard', type=followee.type, name=followee.dict.name) }}" title="{{followee.display_name}}">
-            {{followee_icon(followee.type)}}
-            <span>{{followee.display_name}}</span>
-          </a>
-        </li>
+          <li{% if context.selected_id == followee.dict.id %} class="active"{% endif %} data-search="{{followee.display_name|lower}}">
+            <a href="{{ h.url_for(controller='user', action='dashboard', type=followee.type, name=followee.dict.name) }}" title="{{followee.display_name}}">
+              {{followee_icon(followee.type)}}
+              <span>{{followee.display_name}}</span>
+            </a>
+          </li>
         {% endfor %}
       </ul>
     {% else %}
