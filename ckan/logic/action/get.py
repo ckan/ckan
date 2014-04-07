@@ -47,10 +47,43 @@ _case = sqlalchemy.case
 _text = sqlalchemy.text
 
 
+def _filter_activity_by_user(activity_list, users=[]):
+    '''
+    Return the given ``activity_list`` with activities from the specified
+    users removed. The users parameters should be a list of ids.
+
+    A *new* filtered list is returned, the given ``activity_list`` itself is
+    not modified.
+    '''
+    if not len(users):
+        return activity_list
+    new_list = []
+    for activity in activity_list:
+        if activity.user_id not in users:
+            new_list.append(activity)
+    return new_list
+
+
+def _activity_stream_get_filtered_users():
+    '''
+    Get the list of users from the :ref:`ckan.hide_activity_from_users` config
+    option and return a list of their ids. If the config is not specified,
+    returns the id of the site user.
+    '''
+    users = config.get('ckan.hide_activity_from_users')
+    if users:
+        user_list = users.split()
+    else:
+        context = {'model': model, 'ignore_auth': True}
+        site_user = logic.get_action('get_site_user')(context)
+        users = [site_user.get('name')]
+    return model.User.user_ids_for_name_or_id(users)
+
+
 def _package_list_with_resources(context, package_revision_list):
     package_list = []
     for package in package_revision_list:
-        result_dict = model_dictize.package_dictize(package, context)
+        result_dict = model_dictize.package_dictize(package,context)
         package_list.append(result_dict)
     return package_list
 
@@ -130,6 +163,7 @@ def current_package_list_with_resources(context, data_dict):
     model = context["model"]
     limit = data_dict.get('limit')
     offset = data_dict.get('offset', 0)
+    user = context['user']
 
     if not 'offset' in data_dict and 'page' in data_dict:
         log.warning('"page" parameter is deprecated.  '
@@ -142,16 +176,11 @@ def current_package_list_with_resources(context, data_dict):
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
-    query = model.Session.query(model.PackageRevision)
-    query = query.filter(model.PackageRevision.state == 'active')
-    query = query.filter(model.PackageRevision.current == True)
-    query = query.order_by(
-        model.package_revision_table.c.revision_timestamp.desc())
-    if limit is not None:
-        query = query.limit(limit)
-    query = query.offset(offset)
-    pack_rev = query.all()
-    return _package_list_with_resources(context, pack_rev)
+    is_sysadmin = new_authz.is_sysadmin(user)
+    q = '+capacity:public' if not is_sysadmin else '*:*'
+    context['ignore_capacity_check'] = True
+    search = package_search(context, {'q': q, 'rows': limit, 'start': offset})
+    return search.get('results', [])
 
 
 def revision_list(context, data_dict):
@@ -877,8 +906,9 @@ def package_show(context, data_dict):
         else:
             schema = package_plugin.show_package_schema()
             if schema and context.get('validate', True):
-                package_dict, errors = _validate(package_dict, schema,
-                                                 context=context)
+                package_dict, errors = lib_plugins.plugin_validate(
+                    package_plugin, context, package_dict, schema,
+                    'package_show')
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
@@ -1026,7 +1056,9 @@ def _group_or_org_show(context, data_dict, is_org=False):
         {'id': group_dict['id']})
 
     if schema:
-        group_dict, errors = _validate(group_dict, schema, context=context)
+        group_dict, errors = lib_plugins.plugin_validate(
+            group_plugin, context, group_dict, schema,
+            'organization_show' if is_org else 'group_show')
     return group_dict
 
 
@@ -2160,8 +2192,11 @@ def user_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.user_activity_list(user.id, limit=limit,
-                                                         offset=offset)
+    _activity_objects = model.activity.user_activity_list(user.id, limit=limit,
+            offset=offset)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2199,8 +2234,11 @@ def package_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.package_activity_list(
-        package.id, limit=limit, offset=offset)
+    _activity_objects = model.activity.package_activity_list(package.id,
+            limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2237,8 +2275,11 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    activity_objects = model.activity.group_activity_list(
-        group_id, limit=limit, offset=offset)
+    _activity_objects = model.activity.group_activity_list(group_id,
+            limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2266,8 +2307,11 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    activity_objects = model.activity.group_activity_list(
-        org_id, limit=limit, offset=offset)
+    _activity_objects = model.activity.group_activity_list(org_id,
+            limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2293,8 +2337,10 @@ def recently_changed_packages_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.recently_changed_packages_activity_list(
-        limit=limit, offset=offset)
+    _activity_objects = model.activity.recently_changed_packages_activity_list(
+            limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2919,9 +2965,11 @@ def dashboard_activity_list(context, data_dict):
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    activity_objects = model.activity.dashboard_activity_list(
-        user_id, limit=limit, offset=offset)
+    _activity_objects = model.activity.dashboard_activity_list(user_id,
+            limit=limit, offset=offset)
 
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
     activity_dicts = model_dictize.activity_list_dictize(
         activity_objects, context)
 

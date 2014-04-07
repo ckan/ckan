@@ -113,7 +113,7 @@ class RevisionController(base.BaseController):
                 item_title += pkgs
                 if revision.message:
                     item_title += ': %s' % (revision.message or '')
-                item_link = h.url_for(action='read', id=revision.id)
+                item_link = h.url_for(controller='revision', action='read', id=revision.id)
                 item_description = _('Datasets affected: %s.\n') % pkgs
                 item_description += '%s' % (revision.message or '')
                 item_author_name = revision.author

@@ -76,7 +76,7 @@ functions. You can post multipart/form-data to the API and the key, value
 pairs will treated as as if they are a JSON object.
 The extra key ``upload`` is used to actually post the binary data.
 
-For example, to create a new CKAN resource and upload a file to it using 
+For example, to create a new CKAN resource and upload a file to it using
 `curl <http://curl.haxx.se/>`_:
 
 .. parsed-literal::
@@ -137,3 +137,36 @@ This may take a long time especially if you have a lot of files remotely.
 If the remote hosting goes down or the job is interrupted it is save to run it again
 and it will try all the unsuccessful ones again.
 
+
+----------------------------------------
+Custom Internet media types (MIME types)
+----------------------------------------
+
+.. versionadded:: 2.2
+
+CKAN uses the default Python library `mimetypes`_ to detect the media type of
+an uploaded file. If some particular format is not included in the ones guessed
+by the ``mimetypes`` library, a default ``application/octet-stream`` value will be
+returned.
+
+Users can still register a more appropiate media type by using the ``mimetypes``
+library. A good way to do so is to use the ``IConfigurer`` interface so the
+custom types get registered on startup::
+
+
+    import mimetypes
+    import ckan.plugins as p
+
+    class MyPlugin(p.SingletonPlugin):
+
+        p.implements(p.IConfigurer)
+
+        def update_config(self, config):
+
+            mimetypes.add_type('application/json', '.geojson')
+
+            # ...
+
+
+
+.. _mimetypes: http://docs.python.org/2/library/mimetypes.html

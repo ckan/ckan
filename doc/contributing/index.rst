@@ -27,6 +27,7 @@ of contributions to CKAN:
    reviewing
 
    documentation
+   simple-code-contributions
    architecture
    css
    html
