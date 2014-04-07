@@ -9,9 +9,11 @@ import email.utils
 import datetime
 import logging
 import re
+import os
 import urllib
 import pprint
 import copy
+import urlparse
 from urllib import urlencode
 
 from paste.deploy.converters import asbool
@@ -37,6 +39,8 @@ import ckan.lib.formatters as formatters
 import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
+import ckan.lib.uploader as uploader
+import ckan.new_authz as new_authz
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -71,7 +75,26 @@ def _datestamp_to_datetime(datetime_):
 
 
 def redirect_to(*args, **kw):
-    '''A routes.redirect_to wrapper to retain the i18n settings'''
+    '''Issue a redirect: return an HTTP response with a ``302 Moved`` header.
+
+    This is a wrapper for :py:func:`routes.redirect_to` that maintains the
+    user's selected language when redirecting.
+
+    The arguments to this function identify the route to redirect to, they're
+    the same arguments as :py:func:`ckan.plugins.toolkit.url_for` accepts,
+    for example::
+
+        import ckan.plugins.toolkit as toolkit
+
+        # Redirect to /dataset/my_dataset.
+        toolkit.redirect_to(controller='package', action='read',
+                            id='my_dataset')
+
+    Or, using a named route::
+
+        toolkit.redirect_to('dataset_read', id='changed')
+
+    '''
     kw['__ckan_no_root'] = True
     if are_there_flash_messages():
         kw['__no_cache__'] = True
@@ -87,8 +110,24 @@ def url(*args, **kw):
 
 
 def url_for(*args, **kw):
-    '''Create url adding i18n information if selected
-    wrapper for routes.url_for'''
+    '''Return the URL for the given controller, action, id, etc.
+
+    Usage::
+
+        import ckan.plugins.toolkit as toolkit
+
+        url = toolkit.url_for(controller='package', action='read',
+                              id='my_dataset')
+        => returns '/dataset/my_dataset'
+
+    Or, using a named route::
+
+        toolkit.url_for('dataset_read', id='changed')
+
+    This is a wrapper for :py:func:`routes.url_for` that adds some extra
+    features that CKAN needs.
+
+    '''
     locale = kw.pop('locale', None)
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
@@ -188,6 +227,18 @@ def _add_i18n_to_url(url_to_amend, **kw):
         raise ckan.exceptions.CkanUrlException(error)
 
     return url
+
+
+def url_is_local(url):
+    '''Returns True if url is local'''
+    if not url or url.startswith('//'):
+        return False
+    parsed = urlparse.urlparse(url)
+    if parsed.scheme:
+        domain = urlparse.urlparse(url_for('/', qualified=True)).netloc
+        if domain != parsed.netloc:
+            return False
+    return True
 
 
 def full_current_url():
@@ -356,10 +407,10 @@ def _link_to(text, *args, **kwargs):
 
 def nav_link(text, *args, **kwargs):
     '''
-    params
-    class_: pass extra class(s) to add to the <a> tag
-    icon: name of ckan icon to use within the link
-    condition: if False then no link is returned
+    :param class_: pass extra class(es) to add to the ``<a>`` tag
+    :param icon: name of ckan icon to use within the link
+    :param condition: if ``False`` then no link is returned
+
     '''
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
@@ -423,35 +474,37 @@ def build_nav_main(*args):
 
 
 def build_nav_icon(menu_item, title, **kw):
-    ''' build a navigation item used for example in user/read_base.html
+    '''Build a navigation item used for example in ``user/read_base.html``.
 
-    outputs <li><a href="..."><i class="icon.."></i> title</a></li>
+    Outputs ``<li><a href="..."><i class="icon.."></i> title</a></li>``.
 
     :param menu_item: the name of the defined menu item defined in
-    config/routing as the named route of the same name
+      config/routing as the named route of the same name
     :type menu_item: string
     :param title: text used for the link
     :type title: string
-    :param **kw: additional keywords needed for creating url eg id=...
+    :param kw: additional keywords needed for creating url eg ``id=...``
 
     :rtype: HTML literal
+
     '''
     return _make_menu_item(menu_item, title, **kw)
 
 
 def build_nav(menu_item, title, **kw):
-    ''' build a navigation item used for example breadcrumbs
+    '''Build a navigation item used for example breadcrumbs.
 
-    outputs <li><a href="..."></i> title</a></li>
+    Outputs ``<li><a href="..."></i> title</a></li>``.
 
     :param menu_item: the name of the defined menu item defined in
-    config/routing as the named route of the same name
+      config/routing as the named route of the same name
     :type menu_item: string
     :param title: text used for the link
     :type title: string
-    :param **kw: additional keywords needed for creating url eg id=...
+    :param  kw: additional keywords needed for creating url eg ``id=...``
 
     :rtype: HTML literal
+
     '''
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
@@ -562,15 +615,19 @@ def get_facet_title(name):
     if config_title:
         return config_title
 
-    facet_titles = {'groups': _('Groups'),
+    facet_titles = {'organization': _('Organizations'),
+                    'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license': _('License'), }
+                    'license': _('Licenses'), }
     return facet_titles.get(name, name.capitalize())
 
 
 def get_param_int(name, default=10):
-    return int(request.params.get(name, default))
+    try:
+        return int(request.params.get(name, default))
+    except ValueError:
+        return default
 
 
 def _url_with_params(url, params):
@@ -1171,9 +1228,9 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     '''
     Adds extra parameters to existing ones
 
-    controller action & extras (dict) are used to create the base url
-    via url_for(controller=controller, action=action, **extras)
-    controller & action default to the current ones
+    controller action & extras (dict) are used to create the base url via
+    :py:func:`~ckan.lib.helpers.url_for` controller & action default to the
+    current ones
 
     This can be overriden providing an alternative_url, which will be used
     instead.
@@ -1201,11 +1258,12 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     provided (or the only one provided if key is a string).
 
     controller action & extras (dict) are used to create the base url
-    via url_for(controller=controller, action=action, **extras)
+    via :py:func:`~ckan.lib.helpers.url_for`
     controller & action default to the current ones
 
     This can be overriden providing an alternative_url, which will be used
     instead.
+
     '''
     if isinstance(key, basestring):
         keys = [key]
@@ -1381,10 +1439,14 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
             context, {'offset': offset})
 
 
-def recently_changed_packages_activity_stream():
+def recently_changed_packages_activity_stream(limit=None):
+    if limit:
+        data_dict = {'limit': limit}
+    else:
+        data_dict = {}
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action('recently_changed_packages_activity_list_html')(
-        context, {})
+        context, data_dict)
 
 
 def escape_js(str_to_escape):
@@ -1608,7 +1670,7 @@ def SI_number_span(number):
         output = literal('<span>')
     else:
         output = literal('<span title="' + formatters.localised_number(number) + '">')
-    return output + formatters.localised_SI_number(number) + literal('<span>')
+    return output + formatters.localised_SI_number(number) + literal('</span>')
 
 # add some formatter functions
 localised_number = formatters.localised_number
@@ -1628,6 +1690,137 @@ def new_activities():
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
 
+def uploads_enabled():
+    if uploader.get_storage_path():
+        return True
+    return False
+
+def get_featured_organizations(count=1):
+    '''Returns a list of favourite organization in the form
+    of organization_list action function
+    '''
+    config_orgs = config.get('ckan.featured_orgs', '').split()
+    orgs = featured_group_org(get_action='organization_show',
+                              list_action='organization_list',
+                              count=count,
+                              items=config_orgs)
+    return orgs
+
+
+def get_featured_groups(count=1):
+    '''Returns a list of favourite group the form
+    of organization_list action function
+    '''
+    config_groups = config.get('ckan.featured_groups', '').split()
+    groups = featured_group_org(get_action='group_show',
+                                list_action='group_list',
+                                count=count,
+                                items=config_groups)
+    return groups
+
+
+def featured_group_org(items, get_action, list_action, count):
+    def get_group(id):
+        context = {'ignore_auth': True,
+                   'limits': {'packages': 2},
+                   'for_view': True}
+        data_dict = {'id': id}
+
+        try:
+            out = logic.get_action(get_action)(context, data_dict)
+        except logic.NotFound:
+            return None
+        return out
+
+    groups_data = []
+
+    extras = logic.get_action(list_action)({}, {})
+
+    # list of found ids to prevent duplicates
+    found = []
+    for group_name in items + extras:
+        group = get_group(group_name)
+        if not group:
+            continue
+        # check if duplicate
+        if group['id'] in found:
+            continue
+        found.append(group['id'])
+        groups_data.append(group)
+        if len(groups_data) == count:
+            break
+
+    return groups_data
+
+
+def get_site_statistics():
+    stats = {}
+    stats['dataset_count'] = logic.get_action('package_search')(
+        {}, {"rows": 1})['count']
+    stats['group_count'] = len(logic.get_action('group_list')({}, {}))
+    stats['organization_count'] = len(
+        logic.get_action('organization_list')({}, {}))
+    result = model.Session.execute(
+        '''select count(*) from related r
+           left join related_dataset rd on r.id = rd.related_id
+           where rd.status = 'active' or rd.id is null''').first()[0]
+    stats['related_count'] = result
+
+    return stats
+
+_RESOURCE_FORMATS = None
+
+def resource_formats():
+    ''' Returns the resource formats as a dict, sourced from the resource format JSON file.
+    key:  potential user input value
+    value:  [canonical mimetype lowercased, canonical format (lowercase), human readable form]
+    Fuller description of the fields are described in
+    `ckan/config/resource_formats.json`.
+    '''
+    global _RESOURCE_FORMATS
+    if not _RESOURCE_FORMATS:
+        _RESOURCE_FORMATS = {}
+        format_file_path = config.get('ckan.resource_formats')
+        if not format_file_path:
+            format_file_path = os.path.join(
+                os.path.dirname(os.path.realpath(ckan.config.__file__)),
+                'resource_formats.json'
+            )
+        with open(format_file_path) as format_file:
+            try:
+                file_resource_formats = json.loads(format_file.read())
+            except ValueError, e:  # includes simplejson.decoder.JSONDecodeError
+                raise ValueError('Invalid JSON syntax in %s: %s' % (format_file_path, e))
+
+            for format_line in file_resource_formats:
+                if format_line[0] == '_comment':
+                    continue
+                line = [format_line[2], format_line[0], format_line[1]]
+                alternatives = format_line[3] if len(format_line) == 4 else []
+                for item in line + alternatives:
+                    if item:
+                        item = item.lower()
+                        if item in _RESOURCE_FORMATS \
+                                and _RESOURCE_FORMATS[item] != line:
+                            raise ValueError('Duplicate resource format '
+                                             'identifier in %s: %s' %
+                                             (format_file_path, item))
+                        _RESOURCE_FORMATS[item] = line
+
+    return _RESOURCE_FORMATS
+
+
+def unified_resource_format(format):
+    formats = resource_formats()
+    format_clean = format.lower()
+    if format_clean in formats:
+        format_new = formats[format_clean][1]
+    else:
+        format_new = format
+    return format_new
+
+def check_config_permission(permission):
+    return new_authz.check_config_permission(permission)
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -1726,4 +1919,9 @@ __allowed_functions__ = [
     'radio',
     'submit',
     'asbool',
+    'uploads_enabled',
+    'get_featured_organizations',
+    'get_featured_groups',
+    'get_site_statistics',
+    'check_config_permission',
 ]

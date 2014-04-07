@@ -1,0 +1,33 @@
+{% set stats = h.get_site_statistics() %}
+
+<div class="box stats">
+  <div class="inner">
+    <h3>{{ _('{0} statistics').format(g.site_title) }}</h3>
+    <ul>
+      <li>
+        <a href="{{ h.url_for(controller='package', action='search') }}">
+          <b>{{ h.SI_number_span(stats.dataset_count) }}</b>
+          {{ _('dataset') if stats.dataset_count == 1 else _('datasets') }}
+        </a>
+      </li>
+      <li>
+        <a href="{{ h.url_for(controller='organization', action='index') }}">
+          <b>{{ h.SI_number_span(stats.organization_count) }}</b>
+          {{ _('organization') if stats.organization_count == 1 else _('organizations') }}
+        </a>
+      </li>
+      <li>
+        <a href="{{ h.url_for(controller='group', action='index') }}">
+          <b>{{ h.SI_number_span(stats.group_count) }}</b>
+          {{ _('group') if stats.group_count == 1 else _('groups') }}
+        </a>
+      </li>
+      <li>
+        <a href="{{ h.url_for(controller='related', action='dashboard') }}">
+          <b>{{ h.SI_number_span(stats.related_count) }}</b>
+          {{ _('related item') if stats.related_count == 1 else _('related items') }}
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>

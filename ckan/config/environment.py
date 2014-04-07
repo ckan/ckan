@@ -159,7 +159,7 @@ def load_environment(global_conf, app_conf):
     '''
     This code is based on Genshi code
 
-    Copyright © 2006-2012 Edgewall Software
+    Copyright Â© 2006-2012 Edgewall Software
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or
@@ -367,8 +367,10 @@ def update_config():
     # Here we create the site user if they are not already in the database
     try:
         logic.get_action('get_site_user')({'ignore_auth': True}, None)
-    except sqlalchemy.exc.ProgrammingError:
-        # The database is not initialised.  This is a bit dirty.
+    except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
+        # (ProgrammingError for Postgres, OperationalError for SQLite)
+        # The database is not initialised.  This is a bit dirty.  This occurs
+        # when running tests.
         pass
     except sqlalchemy.exc.InternalError:
         # The database is not initialised.  Travis hits this

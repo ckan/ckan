@@ -10,15 +10,42 @@
     {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
   </h1>
   {% block form %}
-  <form class="dataset-form form-horizontal" method='post'>
-    {% if user %}
-      <input type="hidden" name="username" value="{{ user.name }}" />
-      {% set format_attrs = {'disabled': true} %}
-      {{ form.input('username', label=_('User'), value=user.name, classes=['control-medium'], attrs=format_attrs) }}
-    {% else %}
-      {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/user/autocomplete?q=?'} %}
-      {{ form.input('username', id='field-username', label=_('User'), placeholder=_('Username'), value='', error='', classes=['control-medium'], attrs=format_attrs) }}
-    {% endif %}
+  <form class="dataset-form form-horizontal add-member-form" method='post'>
+    <div class="row-fluid">
+      <div class="control-group control-medium">
+        <label class="control-label" for="username">
+          {{ _('Existing User') }}
+        </label>
+        <span>
+          {{ _('If you wish to add an existing user, search for their username below.') }}
+        </span>
+        <div class="controls">
+          {% if user %}
+            <input type="hidden" name="username" value="{{ user.name }}" />
+            <input id="username" name="username" type="text" value="{{ user.name }}"
+            disabled="True" class="control-medium">
+          {% else %}
+            <input id="username" type="text" name="username" placeholder="Username"
+            value="" class="control-medium" data-module="autocomplete"
+            data-module-source="/api/2/util/user/autocomplete?q=?">
+          {% endif %}
+        </div>
+      </div>
+      <div class="add-member-or">
+        {{ _('or') }}
+      </div>
+      <div class="control-group control-medium">
+        <label class="control-label" for="email">
+          {{ _('New User') }}
+        </label>
+        <span>
+          {{ _('If you wish to invite a new user, enter their email address.') }}
+        </span>
+        <div class="controls">
+          <input id="email" type="text" name="email" placeholder="Email address">
+        </div>
+      </div>
+    </div>
     {% set format_attrs = {'data-module': 'autocomplete'} %}
     {{ form.select('role', label=_('Role'), options=c.roles, selected=c.user_role, error='', attrs=format_attrs) }}
     <div class="form-actions">
@@ -30,7 +57,7 @@
         </button>
       {% else %}
         <button class="btn btn-primary" type="submit" name="submit" >
-          {{ _('Add') }}
+          {{ _('Add Member') }}
         </button>
       {% endif %}
     </div>
@@ -47,12 +74,9 @@
     </h2>
     <div class="module-content">
       {% trans %}
-        <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as
-          manage group members.</p>
-        <p><strong>Editor:</strong> Can add and edit datasets, but not manage
-          group members.</p>
-        <p><strong>Member:</strong> Can view the group's private
-          datasets, but not add new datasets.</p>
+         <p><strong>Admin:</strong> Can edit group information, as well as
+           manage organization members.</p>
+         <p><strong>Member:</strong> Can add/remove datasets from groups</p>
       {% endtrans %}
     </div>
   </div>

@@ -7,6 +7,7 @@ from ckan import logic
 import logic.schema
 from ckan import plugins
 import ckan.new_authz
+import ckan.plugins.toolkit as toolkit
 
 log = logging.getLogger(__name__)
 
@@ -53,7 +54,8 @@ def lookup_group_plugin(group_type=None):
     """
     if group_type is None:
         return _default_group_plugin
-    return _group_plugins.get(group_type, _default_group_plugin)
+    return _group_plugins.get(group_type, _default_organization_plugin
+        if group_type == 'organization' else _default_group_plugin)
 
 
 def register_package_plugins(map):
@@ -114,7 +116,7 @@ def register_group_plugins(map):
     """
     Register the various IGroupForm instances.
 
-    This method will setup the mappings between package types and the
+    This method will setup the mappings between group types and the
     registered IGroupForm instances. If it's called more than once an
     exception will be raised.
     """
@@ -159,7 +161,7 @@ def register_group_plugins(map):
 
             if group_type in _group_plugins:
                 raise ValueError, "An existing IGroupForm is "\
-                                  "already associated with the package type "\
+                                  "already associated with the group type "\
                                   "'%s'" % group_type
             _group_plugins[group_type] = plugin
 
@@ -168,21 +170,40 @@ def register_group_plugins(map):
         _default_group_plugin = DefaultGroupForm()
 
 
+def plugin_validate(plugin, context, data_dict, schema, action):
+    """
+    Backwards compatibility with 2.x dataset group and org plugins:
+    return a default validate method if one has not been provided.
+    """
+    if hasattr(plugin, 'validate'):
+        result = plugin.validate(context, data_dict, schema, action)
+        if result is not None:
+            return result
+
+    return toolkit.navl_validate(data_dict, schema, context)
+
+
 class DefaultDatasetForm(object):
-    '''The default implementation of IDatasetForm.
+    '''The default implementation of
+    :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
 
-    See ckan.plugins.interfaces.IDatasetForm.
+    This class serves two purposes:
 
-    This class has two purposes:
+    1. It provides a base class for plugin classes that implement
+       :py:class:`~ckan.plugins.interfaces.IDatasetForm` to inherit from, so
+       they can inherit the default behavior and just modify the bits they
+       need to.
 
-    1. It provides a base class for IDatasetForm implementations to inherit
-       from.
+    2. It is used as the default fallback plugin when no registered
+       :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugin handles the
+       given dataset type and no other plugin has registered itself as the
+       fallback plugin.
 
-    2. It is used as the default fallback plugin, if no IDatasetForm plugin
-       registers itself as the fallback.
+    .. note::
 
-    Note - this isn't a plugin implementation. This is deliberate, as we
-           don't want this being registered.
+       :py:class:`~ckan.plugins.toolkit.DefaultDatasetForm` doesn't call
+       :py:func:`~ckan.plugins.core.implements`, because we don't want it
+       being registered.
 
     '''
     def create_package_schema(self):
@@ -412,3 +433,39 @@ class DefaultGroupForm(object):
                 c.auth_for_change_state = True
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
+
+
+class DefaultOrganizationForm(DefaultGroupForm):
+    def group_form(self):
+        return 'organization/new_organization_form.html'
+
+    def setup_template_variables(self, context, data_dict):
+        pass
+
+    def new_template(self):
+        return 'organization/new.html'
+
+    def about_template(self):
+        return 'organization/about.html'
+
+    def index_template(self):
+        return 'organization/index.html'
+
+    def admins_template(self):
+        return 'organization/admins.html'
+
+    def bulk_process_template(self):
+        return 'organization/bulk_process.html'
+
+    def read_template(self):
+        return 'organization/read.html'
+
+    # don't override history_template - use group template for history
+
+    def edit_template(self):
+        return 'organization/edit.html'
+
+    def activity_template(self):
+        return 'organization/activity_stream.html'
+
+_default_organization_plugin = DefaultOrganizationForm()

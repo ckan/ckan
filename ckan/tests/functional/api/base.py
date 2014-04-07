@@ -326,14 +326,14 @@ class BaseModelApiTestCase(ApiTestCase, ControllerTestCase):
         'url': u'http://blahblahblah.mydomain',
         'resources': [{
             u'url':u'http://blah.com/file.xml',
-            u'format':u'xml',
+            u'format':u'XML',
             u'description':u'Main file',
             u'hash':u'abc123',
             u'alt_url':u'alt_url',
             u'size_extra':u'200',
         }, {
             u'url':u'http://blah.com/file2.xml',
-            u'format':u'xml',
+            u'format':u'XML',
             u'description':u'Second file',
             u'hash':u'def123',
             u'alt_url':u'alt_url',

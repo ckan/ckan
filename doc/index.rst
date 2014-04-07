@@ -1,48 +1,45 @@
-===============================
-Welcome to CKAN's Documentation
-===============================
+========
+Overview
+========
 
-This documentation covers how to set up and manage `CKAN <http://ckan.org>`_.
-For high-level information on what CKAN is, see the
-`CKAN website <http://ckan.org>`_.
+Welcome to CKAN's documentation! These docs are organized into several guides,
+each guide serves a different audience of CKAN users or contributors:
 
-.. rubric:: Structure & Audiences
+:doc:`user-guide`
+  The guide for people who will be using a CKAN site through its web interface,
+  explains how to use the web interface and its features.
 
-These docs are ordered with the beginner documentation first, and the most
-advanced documentation last:
+:doc:`sysadmin-guide`
+  The guide for people with a sysadmin account on a CKAN site,
+  explains how to use the sysadmin features of the CKAN web interface.
 
-* :doc:`installing` and :doc:`getting-started` walk you through installing CKAN
-  and setting up your own CKAN site with some basic customizations.  These docs
-  are for **sysadmins** who're new to CKAN and want go get started with it.
+:doc:`/maintaining/index`
+  The guide for people who will be maintaining a CKAN site, explains how to
+  install, upgrade and configure CKAN and its features and extensions.
 
-* The sections under :doc:`features` cover setting up and using CKAN features,
-  beyond those that just work out of the box.  These are for **sysadmins** who
-  want to learn how to manage and get more out of their CKAN site.
+:doc:`/api/index`
+  The guide for API developers, explains how to write code that interacts with
+  CKAN sites and their data.
 
-* :doc:`writing-extensions`, :doc:`theming` and :doc:`api` are advanced docs
-  for **developers** who want to develop an extension, theme or API app using
-  CKAN.
+:doc:`/extensions/index`
+  The guide for extension developers, explains how to customize and extend
+  CKAN's features.
 
-* :doc:`contributing` and :doc:`test` are for **testers**, **translators** and
-  **core developers** who want to contribute to CKAN.
+:doc:`/theming/index`
+  The guide for theme developers, explains how to customize the appearance and
+  content of CKAN's web interface.
 
-* Finally, :doc:`configuration` and :doc:`changelog` are **reference** docs
-  covering CKAN's config file options and the differences between CKAN
-  releases.
+:doc:`/contributing/index`
+  The guide for people who want to contribute to CKAN itself,
+  explains how to make all kinds of contributions to CKAN,
+  including reporting bugs, testing and QA, translating CKAN, helping with
+  CKAN's documentation, and contributing to the CKAN code.
 
-----
+Finally, the :doc:`/changelog` documents the differences between CKAN releases,
+useful information for anyone who is using CKAN.
 
-.. toctree::
-   :maxdepth: 2
+.. note::
 
-   installing
-   upgrading
-   getting-started
-   features
-   writing-extensions
-   theming
-   api
-   contributing
-   test
-   configuration
-   changelog
+   These docs are maintained by the CKAN development team. CKAN and its
+   documentation are free and open source, and contributions are welcome.
+   To contribute to these docs, see :doc:`/contributing/documentation`.

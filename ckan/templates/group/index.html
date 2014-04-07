@@ -1,6 +1,6 @@
 {% extends "page.html" %}
 
-{% block subtitle %}{{ _('Groups of Datasets') }}{% endblock %}
+{% block subtitle %}{{ _('Groups') }}{% endblock %}
 
 {% block breadcrumb_content %}
   <li class="active">{% link_for _('Groups'), controller='group', action='index' %}</li>
@@ -15,25 +15,27 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-      <h1 class="hide-heading">{{ _('Groups') }}</h1>
-      {% block groups_search_form %}
-        {% snippet 'snippets/search_form.html', type='group', query=c.q, sorting_selected=c.sort_by_selected, count=c.page.item_count, placeholder=_('Search groups...'), show_empty=request.params %}
-      {% endblock %}
-      {% block groups_list %}
-      {% if c.page.items or request.params %}
+  <h1 class="hide-heading">{{ _('Groups') }}</h1>
+  {% block groups_search_form %}
+    {% snippet 'snippets/search_form.html', type='group', query=c.q, sorting_selected=c.sort_by_selected, count=c.page.item_count, placeholder=_('Search groups...'), show_empty=request.params, no_bottom_border=true if c.page.items %}
+  {% endblock %}
+  {% block groups_list %}
+    {% if c.page.items or request.params %}
+      {% if c.page.items %}
         {% snippet "group/snippets/group_list.html", groups=c.page.items %}
-      {% else %}
-        <p class="empty">
-          {{ _('There are currently no groups for this site') }}.
-          {% if h.check_access('group_create') %}
-            {% link_for _('How about creating one?'), controller='group', action='new' %}</a>.
-          {% endif %}
-        </p>
       {% endif %}
-      {% endblock %}
-    {% block page_pagination %}
+    {% else %}
+      <p class="empty">
+        {{ _('There are currently no groups for this site') }}.
+        {% if h.check_access('group_create') %}
+          {% link_for _('How about creating one?'), controller='group', action='new' %}</a>.
+        {% endif %}
+      </p>
+    {% endif %}
+  {% endblock %}
+  {% block page_pagination %}
     {{ c.page.pager() }}
-    {% endblock %}
+  {% endblock %}
 {% endblock %}
 
 {% block secondary_content %}

@@ -83,7 +83,6 @@ this.ckan.module('custom-fields', function (jQuery, _) {
      */
     disableField: function (field, disable) {
       field.toggleClass('disabled', disable !== false);
-      field.find(':input:not(:checkbox)').prop('disabled', disable !== false);
     },
 
     /* Event handler that fires when the last key in the custom field block

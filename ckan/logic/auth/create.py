@@ -1,9 +1,10 @@
 import ckan.logic as logic
 import ckan.new_authz as new_authz
+import ckan.logic.auth as logic_auth
 
 from ckan.common import _
 
-
+@logic.auth_allow_anonymous_access
 def package_create(context, data_dict=None):
     user = context['user']
 
@@ -23,7 +24,7 @@ def package_create(context, data_dict=None):
 
     # If an organization is given are we able to add a dataset to it?
     data_dict = data_dict or {}
-    org_id = data_dict.get('organization_id')
+    org_id = data_dict.get('owner_org')
     if org_id and not new_authz.has_user_permission_for_group_or_org(
             org_id, user, 'create_dataset'):
         return {'success': False, 'msg': _('User %s not authorized to add dataset to this organization') % user}
@@ -103,17 +104,36 @@ def rating_create(context, data_dict):
     # No authz check in the logic function
     return {'success': True}
 
+
+@logic.auth_allow_anonymous_access
 def user_create(context, data_dict=None):
-    user = context['user']
+    using_api = 'api_version' in context
+    create_user_via_api = new_authz.check_config_permission(
+            'create_user_via_api')
+    create_user_via_web = new_authz.check_config_permission(
+            'create_user_via_web')
 
-    if ('api_version' in context
-            and not new_authz.check_config_permission('create_user_via_api')):
-        return {'success': False, 'msg': _('User %s not authorized to create users') % user}
-    else:
-        return {'success': True}
+    if using_api and not create_user_via_api:
+        return {'success': False, 'msg': _('User {user} not authorized to '
+            'create users via the API').format(user=context.get('user'))}
+    if not using_api and not create_user_via_web:
+        return {'success': False, 'msg': _('Not authorized to '
+            'create users')}
+    return {'success': True}
 
+def user_invite(context, data_dict=None):
+    context['id'] = context.get('group_id')
+    return group_member_create(context, data_dict)
 
 def _check_group_auth(context, data_dict):
+    '''Has this user got update permission for all of the given groups?
+    If there is a package in the context then ignore that package's groups.
+    (owner_org is checked elsewhere.)
+    :returns: False if not allowed to update one (or more) of the given groups.
+              True otherwise. i.e. True is the default. A blank data_dict
+              mentions no groups, so it returns True.
+
+    '''
     # FIXME This code is shared amoung other logic.auth files and should be
     # somewhere better
     if not data_dict:
@@ -125,7 +145,7 @@ def _check_group_auth(context, data_dict):
 
     api_version = context.get('api_version') or '1'
 
-    group_blobs = data_dict.get("groups", [])
+    group_blobs = data_dict.get('groups', [])
     groups = set()
     for group_blob in group_blobs:
         # group_blob might be a dict or a group_ref
@@ -196,3 +216,23 @@ def organization_member_create(context, data_dict):
 
 def group_member_create(context, data_dict):
     return _group_or_org_member_create(context, data_dict)
+
+def member_create(context, data_dict):
+    group = logic_auth.get_group_object(context, data_dict)
+    user = context['user']
+
+    # User must be able to update the group to add a member to it
+    permission = 'update'
+    # However if the user is member of group then they can add/remove datasets
+    if not group.is_organization and data_dict.get('object_type') == 'package':
+        permission = 'manage_group'
+
+    authorized = new_authz.has_user_permission_for_group_or_org(group.id,
+                                                                user,
+                                                                permission)
+    if not authorized:
+        return {'success': False,
+                'msg': _('User %s not authorized to edit group %s') %
+                        (str(user), group.id)}
+    else:
+        return {'success': True}

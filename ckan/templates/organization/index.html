@@ -15,25 +15,27 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-      <h1 class="hide-heading">{% block page_heading %}{{ _('Organizations') }}{% endblock %}</h1>
-      {% block organizations_search_form %}
-        {% snippet 'snippets/search_form.html', type='organization', query=c.q, sorting_selected=c.sort_by_selected, count=c.page.item_count, placeholder=_('Search organizations...'), show_empty=request.params %}
-      {% endblock %}
-      {% block organizations_list %}
-      {% if c.page.items or request.params %}
+  <h1 class="hide-heading">{% block page_heading %}{{ _('Organizations') }}{% endblock %}</h1>
+  {% block organizations_search_form %}
+    {% snippet 'snippets/search_form.html', type='organization', query=c.q, sorting_selected=c.sort_by_selected, count=c.page.item_count, placeholder=_('Search organizations...'), show_empty=request.params, no_bottom_border=true if c.page.items %}
+  {% endblock %}
+  {% block organizations_list %}
+    {% if c.page.items or request.params %}
+      {% if c.page.items %}
         {% snippet "organization/snippets/organization_list.html", organizations=c.page.items %}
-      {% else %}
-        <p class="empty">
-          {{ _('There are currently no organizations for this site') }}.
-          {% if h.check_access('organization_create') %}
-            {% link_for _('How about creating one?'), controller='organization', action='new' %}</a>.
-          {% endif %}
-        </p>
       {% endif %}
-      {% endblock %}
-    {% block page_pagination %}
+    {% else %}
+      <p class="empty">
+        {{ _('There are currently no organizations for this site') }}.
+        {% if h.check_access('organization_create') %}
+          {% link_for _('How about creating one?'), controller='organization', action='new' %}</a>.
+        {% endif %}
+      </p>
+    {% endif %}
+  {% endblock %}
+  {% block page_pagination %}
     {{ c.page.pager() }}
-    {% endblock %}
+  {% endblock %}
 {% endblock %}
 
 {% block secondary_content %}
