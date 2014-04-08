@@ -72,12 +72,13 @@ def _activity_stream_get_filtered_users():
     '''
     users = config.get('ckan.hide_activity_from_users')
     if users:
-        user_list = users.split()
+        users_list = users.split()
     else:
         context = {'model': model, 'ignore_auth': True}
         site_user = logic.get_action('get_site_user')(context)
-        users = [site_user.get('name')]
-    return model.User.user_ids_for_name_or_id(users)
+        users_list = [site_user.get('name')]
+
+    return model.User.user_ids_for_name_or_id(users_list)
 
 
 def _package_list_with_resources(context, package_revision_list):
