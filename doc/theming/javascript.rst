@@ -28,6 +28,11 @@ to themes.
    * `jQuery.com <http://jquery.com/>`_, including the
      `jQuery Learning Center <http://learn.jquery.com/>`_
 
+.. seealso::
+
+   :doc:`/contributing/string-i18n`
+     How to mark strings for translation in your JavaScript code.
+
 
 --------
 Overview
