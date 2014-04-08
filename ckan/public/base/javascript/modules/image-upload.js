@@ -95,6 +95,11 @@ this.ckan.module('image-upload', function($, _) {
         .add(this.field_url)
         .add(this.field_image);
 
+      if (options.is_url || options.is_upload) {
+        this._showOnlyFieldUrl();
+      } else {
+        this._showOnlyButtons();
+      }
     },
 
     /* Event listener for when someone sets the field to URL mode
@@ -102,7 +107,7 @@ this.ckan.module('image-upload', function($, _) {
      * Returns nothing.
      */
     _onFromWeb: function() {
-      _showOnlyFieldUrl();
+      this._showOnlyFieldUrl();
       $('input', this.field_url).focus();
       if (this.options.is_upload) {
         this.field_clear.val('true');
@@ -114,12 +119,7 @@ this.ckan.module('image-upload', function($, _) {
      * Returns nothing.
      */
     _onRemove: function() {
-      this.fields.hide();
-      this.button_upload
-        .add(this.field_image)
-        .add(this.button_url)
-        .add(this.input)
-        .show();
+      this._showOnlyButtons();
       $('input', this.field_url).val('');
       this.field_clear.val('true');
     },
@@ -132,7 +132,20 @@ this.ckan.module('image-upload', function($, _) {
       var file_name = this.input.val().split(/^C:\\fakepath\\/).pop();
       $('input', this.field_url).val(file_name);
       this.field_clear.val('');
-      _showOnlyFieldUrl();
+      this._showOnlyFieldUrl();
+    },
+
+    /* Show only the buttons, hiding all others
+     *
+     * Returns nothing.
+     */
+    _showOnlyButtons: function() {
+      this.fields.hide();
+      this.button_upload
+        .add(this.field_image)
+        .add(this.button_url)
+        .add(this.input)
+        .show();
     },
 
     /* Show only the URL field, hiding all others
