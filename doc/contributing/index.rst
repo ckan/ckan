@@ -33,6 +33,7 @@ of contributions to CKAN:
    html
    javascript
    python
+   string-i18n
    testing
    frontend/index
 

@@ -2,6 +2,11 @@
 JavaScript coding standards
 ===========================
 
+.. seealso::
+
+   :doc:`string-i18n`
+     How to mark strings for translation.
+
 ----------
 Formatting
 ----------
