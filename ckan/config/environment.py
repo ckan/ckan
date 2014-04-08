@@ -326,7 +326,6 @@ def update_config():
                     jinja_extensions.LinkForExtension,
                     jinja_extensions.ResourceExtension,
                     jinja_extensions.UrlForStaticExtension,
-                    jinja_extensions.UrlForStaticOrExternalExtension,
                     jinja_extensions.UrlForExtension]
     )
     env.install_gettext_callables(_, ungettext, newstyle=True)

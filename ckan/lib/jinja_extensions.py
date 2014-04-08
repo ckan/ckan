@@ -269,22 +269,6 @@ class UrlForStaticExtension(BaseExtension):
         assert len(args) == 1
         return h.url_for_static(args[0], **kwargs)
 
-class UrlForStaticOrExternalExtension(BaseExtension):
-    '''Custom url_for_static_or_external tag for getting a path for static
-    assets or external URLs.
-
-    {% url_for_static_or_external <path> %}
-
-    see lib.helpers.url_for_static_or_external() for more details.
-    '''
-
-    tags = set(['url_for_static_or_external'])
-
-    @classmethod
-    def _call(cls, args, kwargs):
-        assert len(args) == 1
-        return h.url_for_static_or_external(args[0], **kwargs)
-
 class UrlForExtension(BaseExtension):
     ''' Custom url_for tag
 

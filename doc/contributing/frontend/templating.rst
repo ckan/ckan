@@ -280,19 +280,6 @@ Works exactly the same as ``h.url_for_static()``:
 
     <script src="{% url_for_static "/javascript/home.js" %}"></script>
 
-url\_for\_static\_or\_external
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    {% url_for_static_or_external path %}
-
-Works exactly the same as ``h.url_for_static_or_external()``:
-
-::
-
-    <script src="{% url_for_static_or_external "//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js" %}"></script>
-
 Form Macros
 -----------
 

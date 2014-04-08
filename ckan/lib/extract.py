@@ -10,7 +10,6 @@ jinja_extensions = '''
                     ckan.lib.jinja_extensions.LinkForExtension,
                     ckan.lib.jinja_extensions.ResourceExtension,
                     ckan.lib.jinja_extensions.UrlForStaticExtension,
-                    ckan.lib.jinja_extensions.UrlForStaticOrExternalExtension,
                     ckan.lib.jinja_extensions.UrlForExtension
                    '''
 
