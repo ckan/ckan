@@ -35,6 +35,10 @@ become stable releases.
    You will probably need to update the same file on master to increase the
    version number, in this case ending with an *a* (for alpha).
 
+#. Once the release branch is created, send an annoucement email with an
+   initial call for translations, warning that at this point strings can still
+   change, but hopefully not too much.
+
 #. During the beta process, all changes to the release branch must be
    cherry-picked from master (or merged from special branches based on the
    release branch if the original branch was not compatible).
