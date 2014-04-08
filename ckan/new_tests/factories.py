@@ -165,9 +165,8 @@ class Group(factory.Factory):
             assert False, "Positional args aren't supported, use keyword args."
 
         context = {
-            'user': kwargs['user']['name']
+            'user': kwargs.pop('user')['name']
         }
-        del kwargs['user']
 
         group_dict = helpers.call_action('group_create',
                                          context=context,
