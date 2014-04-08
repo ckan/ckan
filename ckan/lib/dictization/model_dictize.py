@@ -118,30 +118,6 @@ def extras_list_dictize(extras_list, context):
 
     return sorted(result_list, key=lambda x: x["key"])
 
-def _unified_resource_format(format_):
-    ''' Convert resource formats into a more uniform set.
-    eg .json, json, JSON, text/json all converted to JSON.'''
-
-    format_clean = format_.lower().split('/')[-1].replace('.', '')
-    formats = {
-        'csv' : 'CSV',
-        'zip' : 'ZIP',
-        'pdf' : 'PDF',
-        'xls' : 'XLS',
-        'json' : 'JSON',
-        'kml' : 'KML',
-        'xml' : 'XML',
-        'shape' : 'SHAPE',
-        'rdf' : 'RDF',
-        'txt' : 'TXT',
-        'text' : 'TEXT',
-        'html' : 'HTML',
-    }
-    if format_clean in formats:
-        format_new = formats[format_clean]
-    else:
-        format_new = format_.lower()
-    return format_new
 
 def resource_dictize(res, context):
     model = context['model']
@@ -150,7 +126,6 @@ def resource_dictize(res, context):
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
-    resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
     ## for_edit is only called at the times when the dataset is to be edited
