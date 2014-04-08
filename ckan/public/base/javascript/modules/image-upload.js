@@ -17,8 +17,7 @@ this.ckan.module('image-upload', function($, _) {
         remove: _('Remove'),
         upload_label: _('Image'),
         upload_tooltip: _('Upload a file on your computer'),
-        url_tooltip: _('Link to a URL on the internet (you can also link to an API)'),
-        remove_tooltip: _('Reset this')
+        url_tooltip: _('Link to a URL on the internet (you can also link to an API)')
       },
       template: [
         ''
@@ -63,15 +62,9 @@ this.ckan.module('image-upload', function($, _) {
       this.button_upload = $('<a href="javascript:;" class="btn"><i class="icon-cloud-upload"></i>'+this.i18n('upload')+'</a>')
         .insertAfter(this.input);
 
-      // Button to reset the form back to the first from when there is a image uploaded
-      this.button_remove = $('<a href="javascript:;" class="btn btn-danger" />')
-        .text(this.i18n('remove'))
-        .on('click', this._onRemove)
-        .insertAfter(this.button_upload);
-
       // Button for resetting the form when there is a URL set
       $('<a href="javascript:;" class="btn btn-danger btn-remove-url"><i class="icon-remove"></i></a>')
-        .prop('title', this.i18n('remove_tooltip'))
+        .prop('title', this.i18n('remove'))
         .on('click', this._onRemove)
         .insertBefore($('input', this.field_url));
 
@@ -88,7 +81,6 @@ this.ckan.module('image-upload', function($, _) {
 
       // Fields storage. Used in this.changeState
       this.fields = $('<i />')
-        .add(this.button_remove)
         .add(this.button_upload)
         .add(this.button_url)
         .add(this.input)
