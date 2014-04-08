@@ -59,6 +59,9 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
       };
       dfd.resolve(out);  
     });
+    jqxhr.fail(function() {
+      dfd.reject();
+    });
     return dfd.promise();
   };
 
@@ -107,6 +110,9 @@ this.recline.Backend.Ckan = this.recline.Backend.Ckan || {};
         hits: results.result.records
       };
       dfd.resolve(out);  
+    });
+    jqxhr.fail(function(){
+      dfd.reject();
     });
     return dfd.promise();
   };
