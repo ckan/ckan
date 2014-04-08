@@ -25,8 +25,6 @@ class TestCreate(object):
             'auth_user_obj': user
         }
         data_dict = {'group_id': 42}
-        group_member_create_data_dict = data_dict.copy()
-        group_member_create_data_dict['id'] = data_dict['group_id']
 
         gmc.return_value = {'success': False}
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
@@ -35,5 +33,3 @@ class TestCreate(object):
         gmc.return_value = {'success': True}
         result = helpers.call_auth('user_invite', context=context, **data_dict)
         assert result is True
-
-        gmc.assert_called_twice_with(context, group_member_create_data_dict)
