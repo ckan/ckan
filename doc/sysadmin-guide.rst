@@ -140,12 +140,12 @@ This is useful if, for example, a user has forgotten their user ID. For
 non-sysadmin users, the search on this page will only match public parts of the
 profile, so they cannot search by e-mail address.
 
-On their user profile, you will see an "Edit" button. CKAN displays the user
-settings page. You can change any settings for the user, including their
-username, name and password.
+On their user profile, you will see a "Manage" button. CKAN displays the user
+settings page. You can delete the user or change any of its settings, including
+their username, name and password.
 
 .. image:: /images/manage_users.jpg
 
-.. note::
-
-    At present, it is not possible to delete users.
+.. versionadded:: 2.2
+   Previous versions of CKAN didn't allow you to delete users through the
+   web interface.

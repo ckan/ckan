@@ -432,7 +432,7 @@ class CreateTestData(object):
             )
         pr2 = model.Resource(
             url=u'http://www.annakarenina.com/index.json',
-            format=u'json',
+            format=u'JSON',
             description=u'Index of the novel',
             hash=u'def456',
             extras={'size_extra': u'345'},
