@@ -112,3 +112,18 @@ def sort_resources(resources):
     return sorted(resources, key=key)
 
 core.sort_resources = sort_resources
+
+
+import fanstatic.publisher
+import os
+
+if os.name == 'nt':
+    init = fanstatic.publisher.BundleApp.__init__
+
+    def myinit(self, rootpath, bundle, filenames, ignores):
+        cleaned_filenames = []
+        for filename in filenames:
+            cleaned_filenames.append(filename.replace('/', '\\'))
+        return init(self, rootpath, bundle, cleaned_filenames, ignores)
+
+    fanstatic.publisher.BundleApp.__init__ = myinit
