@@ -1027,6 +1027,19 @@ class IFacets(Interface):
          'res_format': _('Formats'),
          'license': _('Licence')}
 
+    To preserve ordering, make sure to add new facets to the existing dict
+    rather than updating it, ie do this::
+
+        facets_dict['groups'] = p.toolkit._('Publisher')
+        facets_dict['secondary_publisher'] = p.toolkit._('Secondary Publisher')
+
+    rather than this::
+
+        facets_dict.update({
+           'groups': p.toolkit._('Publisher'),
+           'secondary_publisher': p.toolkit._('Secondary Publisher'),
+        })
+
     Dataset searches can be faceted on any field in the dataset schema that it
     makes sense to facet on. This means any dataset field that is in CKAN's
     Solr search index, basically any field that you see returned by
