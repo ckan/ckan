@@ -1025,7 +1025,7 @@ class IFacets(Interface):
         {'groups': _('Groups'),
          'tags': _('Tags'),
          'res_format': _('Formats'),
-         'license': _('Licence')}
+         'license': _('License')}
 
     To preserve ordering, make sure to add new facets to the existing dict
     rather than updating it, ie do this::
