@@ -566,7 +566,7 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
     facets = sorted(facets, key=lambda item: item['count'], reverse=True)
     if c.search_facets_limits and limit is None:
         limit = c.search_facets_limits.get(facet)
-    if limit:
+    if limit is not None:
         return facets[:limit]
     return facets
 
@@ -596,7 +596,7 @@ def has_more_facets(facet, limit=None, exclude_active=False):
             facets.append(dict(active=True, **facet_item))
     if c.search_facets_limits and limit is None:
         limit = c.search_facets_limits.get(facet)
-    if limit and len(facets) > limit:
+    if limit is not None and len(facets) > limit:
         return True
     return False
 
