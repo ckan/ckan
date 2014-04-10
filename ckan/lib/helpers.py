@@ -11,6 +11,7 @@ import logging
 import re
 import os
 import urllib
+import urlparse
 import pprint
 import copy
 import urlparse
@@ -144,17 +145,34 @@ def url_for(*args, **kw):
 
 
 def url_for_static(*args, **kw):
-    '''Create url for static content that does not get translated
-    eg css, js
-    wrapper for routes.url_for'''
+    '''Returns the URL for static content that doesn't get translated (eg CSS)
 
+    It'll raise CkanUrlException if called with an external URL
+
+    This is a wrapper for :py:func:`routes.url_for`
+    '''
+    if args:
+        url = urlparse.urlparse(args[0])
+        url_is_external = (url.scheme != '' or url.netloc != '')
+        if url_is_external:
+            CkanUrlException = ckan.exceptions.CkanUrlException
+            raise CkanUrlException('External URL passed to url_for_static()')
+    return url_for_static_or_external(*args, **kw)
+
+
+def url_for_static_or_external(*args, **kw):
+    '''Returns the URL for static content that doesn't get translated (eg CSS),
+    or external URLs
+
+    This is a wrapper for :py:func:`routes.url_for`
+    '''
     def fix_arg(arg):
-        # make sure that if we specify the url that it is not unicode and
-        # starts with a /
-        arg = str(arg)
-        if not arg.startswith('/'):
-            arg = '/' + arg
-        return arg
+        url = urlparse.urlparse(str(arg))
+        url_is_relative = (url.scheme == '' and url.netloc == '' and
+                           not url.path.startswith('/'))
+        if url_is_relative:
+            return '/' + url.geturl()
+        return url.geturl()
 
     if args:
         args = (fix_arg(args[0]), ) + args[1:]
@@ -1859,6 +1877,7 @@ __allowed_functions__ = [
     'url',
     'url_for',
     'url_for_static',
+    'url_for_static_or_external',
     'lang',
     'flash',
     'flash_error',
