@@ -181,6 +181,7 @@ class Sysadmin(factory.Factory):
     name = factory.Sequence(lambda n: 'test_sysadmin_{n}'.format(n=n))
 
     email = factory.LazyAttribute(_generate_email)
+    sysadmin = True
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
@@ -193,7 +194,7 @@ class Sysadmin(factory.Factory):
 
         # Create a sysadmin by accessing the db directly.
         # This is probably bad but I don't think there's another way?
-        user = ckan.model.User(name='test_sysadmin', sysadmin=True)
+        user = ckan.model.User(**kwargs)
         ckan.model.Session.add(user)
         ckan.model.Session.commit()
         ckan.model.Session.remove()
