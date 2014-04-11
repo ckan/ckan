@@ -10,7 +10,8 @@ a user with sysadmin rights. The guide assumes familiarity with the
 Certain administration tasks are not available through the web UI but need
 access to the server where CKAN is installed. These include the range of
 configuration options using the site's "config" file, documented in
-:doc:`configuration`, and those available via the :doc:`paster`.
+:doc:`/maintaining/configuration`, and those available via
+:doc:`/maintaining/paster`.
 
 .. warning::
 
@@ -31,6 +32,8 @@ CKAN, you will need to ask them to create a sysadmin user.
 Adding more sysadmin accounts is done in the same way. It cannot be done via
 the web UI.
 
+.. _admin page:
+
 -------------------------
 Customizing look and feel
 -------------------------
@@ -38,7 +41,7 @@ Customizing look and feel
 Some simple customizations to customize the 'look and feel' of your CKAN site
 are available via the UI, at ``http://<my-ckan-url>/ckan-admin/config/``.
 
-.. image:: images/customize_look_and_feel.jpg
+.. image:: /images/customize_look_and_feel.jpg
 
 Here you can edit the following:
 
@@ -98,7 +101,7 @@ Moving a dataset between organizations
 To move a dataset between organizations, visit the dataset's Edit page. Choose
 the appropriate entry from the "organization" drop-down list, and press "Save".
 
-.. image:: images/move_dataset_between_organizations.jpg
+.. image:: /images/move_dataset_between_organizations.jpg
 
 -----------------------------
 Permanently deleting datasets
@@ -137,12 +140,12 @@ This is useful if, for example, a user has forgotten their user ID. For
 non-sysadmin users, the search on this page will only match public parts of the
 profile, so they cannot search by e-mail address.
 
-On their user profile, you will see an "Edit" button. CKAN displays the user
-settings page. You can change any settings for the user, including their
-username, name and password.
+On their user profile, you will see a "Manage" button. CKAN displays the user
+settings page. You can delete the user or change any of its settings, including
+their username, name and password.
 
-.. image:: images/manage_users.jpg
+.. image:: /images/manage_users.jpg
 
-.. note::
-
-    At present, it is not possible to delete users.
+.. versionadded:: 2.2
+   Previous versions of CKAN didn't allow you to delete users through the
+   web interface.

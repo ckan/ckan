@@ -90,7 +90,8 @@ def related_list_dictize(related_list, context):
     for res in related_list:
         related_dict = related_dictize(res, context)
         result_list.append(related_dict)
-
+    if context.get('sorted'):
+        return result_list
     return sorted(result_list, key=lambda x: x["created"], reverse=True)
 
 
@@ -117,30 +118,6 @@ def extras_list_dictize(extras_list, context):
 
     return sorted(result_list, key=lambda x: x["key"])
 
-def _unified_resource_format(format_):
-    ''' Convert resource formats into a more uniform set.
-    eg .json, json, JSON, text/json all converted to JSON.'''
-
-    format_clean = format_.lower().split('/')[-1].replace('.', '')
-    formats = {
-        'csv' : 'CSV',
-        'zip' : 'ZIP',
-        'pdf' : 'PDF',
-        'xls' : 'XLS',
-        'json' : 'JSON',
-        'kml' : 'KML',
-        'xml' : 'XML',
-        'shape' : 'SHAPE',
-        'rdf' : 'RDF',
-        'txt' : 'TXT',
-        'text' : 'TEXT',
-        'html' : 'HTML',
-    }
-    if format_clean in formats:
-        format_new = formats[format_clean]
-    else:
-        format_new = format_.lower()
-    return format_new
 
 def resource_dictize(res, context):
     model = context['model']
@@ -149,7 +126,6 @@ def resource_dictize(res, context):
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
-    resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
     ## for_edit is only called at the times when the dataset is to be edited
@@ -355,8 +331,6 @@ def group_dictize(group, context):
     result_dict['extras'] = extras_dict_dictize(
         group._extras, context)
 
-    context['with_capacity'] = True
-
     include_datasets = context.get('include_datasets', True)
 
     q = {
@@ -377,13 +351,15 @@ def group_dictize(group, context):
     if include_datasets:
         q['rows'] = 1000    # Only the first 1000 datasets are returned
 
-    search_results = logic.get_action('package_search')(context, q)
+    context_ = dict((k, v) for (k, v) in context.items() if k != 'schema')
+    search_results = logic.get_action('package_search')(context_, q)
 
     if include_datasets:
         result_dict['packages'] = search_results['results']
 
     result_dict['package_count'] = search_results['count']
 
+    context['with_capacity'] = True
     result_dict['tags'] = tag_list_dictize(
         _get_members(context, group, 'tags'),
         context)
@@ -525,13 +501,13 @@ def user_dictize(user, context):
         result_dict['email'] = email
 
     if context.get('keep_apikey', False):
-        result_dict['apikey'] = email
+        result_dict['apikey'] = apikey
 
     if requester == user.name:
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 
-    ## this should not really really be needed but tests r it
+    ## this should not really really be needed but tests need it
     if new_authz.is_sysadmin(requester):
         result_dict['apikey'] = apikey
         result_dict['email'] = email
@@ -708,17 +684,3 @@ def user_following_group_dictize(follower, context):
 
     base_columns = set(['id', 'resource_id', 'title', 'description',
                         'view_type', 'order', 'config'])
-
-def resource_view_dictize(resource_view, context):
-    dictized = d.table_dictize(resource_view, context)
-    dictized.pop('order')
-    config = dictized.pop('config', {})
-    dictized.update(config)
-    return dictized
-
-def resource_view_list_dictize(resource_views, context):
-    resource_view_dicts = []
-    for view in resource_views:
-        resource_view_dicts.append(resource_view_dictize(view, context))
-    return resource_view_dicts
-

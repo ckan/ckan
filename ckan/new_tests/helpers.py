@@ -44,6 +44,10 @@ def reset_db():
 def call_action(action_name, context=None, **kwargs):
     '''Call the named ``ckan.logic.action`` function and return the result.
 
+    This is just a nicer way for user code to call action functions, nicer than
+    either calling the action function directly or via
+    :py:func:`ckan.logic.get_action`.
+
     For example::
 
         user_dict = call_action('user_create', name='seanh',
@@ -52,9 +56,13 @@ def call_action(action_name, context=None, **kwargs):
     Any keyword arguments given will be wrapped in a dict and passed to the
     action function as its ``data_dict`` argument.
 
-    This is just a nicer way for user code to call action functions, nicer than
-    either calling the action function directly or via
-    :py:func:`ckan.logic.get_action`.
+    Note: this skips authorization! It passes 'ignore_auth': True to action
+    functions in their ``context`` dicts, so the corresponding authorization
+    functions will not be run.
+    This is because ckan.new_tests.logic.action tests only the actions, the
+    authorization functions are tested separately in
+    ckan.new_tests.logic.auth.
+    See the :doc:`testing guidelines </contributing/testing>` for more info.
 
     This function should eventually be moved to
     :py:func:`ckan.logic.call_action` and the current
@@ -106,13 +114,9 @@ def call_auth(auth_name, context, **kwargs):
     :rtype: dict
 
     '''
-    import ckan.logic.auth.update
-
     assert 'user' in context, ('Test methods must put a user name in the '
                                'context dict')
     assert 'model' in context, ('Test methods must put a model in the '
                                 'context dict')
 
-    # FIXME: Do we want to go through check_access() here?
-    auth_function = ckan.logic.auth.update.__getattribute__(auth_name)
-    return auth_function(context=context, data_dict=kwargs)
+    return logic.check_access(auth_name, context, data_dict=kwargs)

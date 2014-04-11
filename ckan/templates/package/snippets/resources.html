@@ -13,14 +13,22 @@ Example:
 #}
 {% set resources = pkg.resources or [] %}
 {% if resources %}
-  <section class="module module-narrow resources">
-    <h2 class="module-heading"><i class="icon-copy"></i> {{ _("Resources") }}</h2>
-    <ul class="unstyled nav nav-simple">
-      {% for resource in resources %}
-        <li class="nav-item{{ ' active' if active == resource.id }}">
-          {% link_for h.resource_display_name(resource)|truncate(25), controller='package', action=action or 'resource_read', id=pkg.name, resource_id=resource.id, inner_span=true %}
-        </li>
-      {% endfor %}
-    </ul>
-  </section>
+  {% block resources %}
+    <section class="module module-narrow resources">
+      {% block resources_inner %}
+        {% block resources_title %}
+          <h2 class="module-heading"><i class="icon-copy"></i> {{ _("Resources") }}</h2>
+        {% endblock %}
+        {% block resources_list %}
+          <ul class="unstyled nav nav-simple">
+            {% for resource in resources %}
+              <li class="nav-item{{ ' active' if active == resource.id }}">
+                {% link_for h.resource_display_name(resource)|truncate(25), controller='package', action=action or 'resource_read', id=pkg.name, resource_id=resource.id, inner_span=true %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endblock %}
+      {% endblock %}
+    </section>
+  {% endblock %}
 {% endif %}

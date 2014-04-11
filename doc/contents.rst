@@ -7,15 +7,9 @@ Full table of contents
    index
    user-guide
    sysadmin-guide
-   installing
-   upgrading
-   getting-started
-   features
+   maintaining/index
+   api/index
    extensions/index
-   theming
-   api
-   contributing
-   test
-   configuration
+   theming/index
+   contributing/index
    changelog
-   appendices/index

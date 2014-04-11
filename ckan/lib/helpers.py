@@ -9,9 +9,12 @@ import email.utils
 import datetime
 import logging
 import re
+import os
 import urllib
+import urlparse
 import pprint
 import copy
+import urlparse
 from urllib import urlencode
 
 from paste.deploy.converters import asbool
@@ -38,6 +41,7 @@ import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
+import ckan.new_authz as new_authz
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -141,17 +145,34 @@ def url_for(*args, **kw):
 
 
 def url_for_static(*args, **kw):
-    '''Create url for static content that does not get translated
-    eg css, js
-    wrapper for routes.url_for'''
+    '''Returns the URL for static content that doesn't get translated (eg CSS)
 
+    It'll raise CkanUrlException if called with an external URL
+
+    This is a wrapper for :py:func:`routes.url_for`
+    '''
+    if args:
+        url = urlparse.urlparse(args[0])
+        url_is_external = (url.scheme != '' or url.netloc != '')
+        if url_is_external:
+            CkanUrlException = ckan.exceptions.CkanUrlException
+            raise CkanUrlException('External URL passed to url_for_static()')
+    return url_for_static_or_external(*args, **kw)
+
+
+def url_for_static_or_external(*args, **kw):
+    '''Returns the URL for static content that doesn't get translated (eg CSS),
+    or external URLs
+
+    This is a wrapper for :py:func:`routes.url_for`
+    '''
     def fix_arg(arg):
-        # make sure that if we specify the url that it is not unicode and
-        # starts with a /
-        arg = str(arg)
-        if not arg.startswith('/'):
-            arg = '/' + arg
-        return arg
+        url = urlparse.urlparse(str(arg))
+        url_is_relative = (url.scheme == '' and url.netloc == '' and
+                           not url.path.startswith('/'))
+        if url_is_relative:
+            return '/' + url.geturl()
+        return url.geturl()
 
     if args:
         args = (fix_arg(args[0]), ) + args[1:]
@@ -224,6 +245,18 @@ def _add_i18n_to_url(url_to_amend, **kw):
         raise ckan.exceptions.CkanUrlException(error)
 
     return url
+
+
+def url_is_local(url):
+    '''Returns True if url is local'''
+    if not url or url.startswith('//'):
+        return False
+    parsed = urlparse.urlparse(url)
+    if parsed.scheme:
+        domain = urlparse.urlparse(url_for('/', qualified=True)).netloc
+        if domain != parsed.netloc:
+            return False
+    return True
 
 
 def full_current_url():
@@ -392,10 +425,10 @@ def _link_to(text, *args, **kwargs):
 
 def nav_link(text, *args, **kwargs):
     '''
-    params
-    class_: pass extra class(s) to add to the <a> tag
-    icon: name of ckan icon to use within the link
-    condition: if False then no link is returned
+    :param class_: pass extra class(es) to add to the ``<a>`` tag
+    :param icon: name of ckan icon to use within the link
+    :param condition: if ``False`` then no link is returned
+
     '''
     if len(args) > 1:
         raise Exception('Too many unnamed parameters supplied')
@@ -459,35 +492,37 @@ def build_nav_main(*args):
 
 
 def build_nav_icon(menu_item, title, **kw):
-    ''' build a navigation item used for example in user/read_base.html
+    '''Build a navigation item used for example in ``user/read_base.html``.
 
-    outputs <li><a href="..."><i class="icon.."></i> title</a></li>
+    Outputs ``<li><a href="..."><i class="icon.."></i> title</a></li>``.
 
     :param menu_item: the name of the defined menu item defined in
-    config/routing as the named route of the same name
+      config/routing as the named route of the same name
     :type menu_item: string
     :param title: text used for the link
     :type title: string
-    :param **kw: additional keywords needed for creating url eg id=...
+    :param kw: additional keywords needed for creating url eg ``id=...``
 
     :rtype: HTML literal
+
     '''
     return _make_menu_item(menu_item, title, **kw)
 
 
 def build_nav(menu_item, title, **kw):
-    ''' build a navigation item used for example breadcrumbs
+    '''Build a navigation item used for example breadcrumbs.
 
-    outputs <li><a href="..."></i> title</a></li>
+    Outputs ``<li><a href="..."></i> title</a></li>``.
 
     :param menu_item: the name of the defined menu item defined in
-    config/routing as the named route of the same name
+      config/routing as the named route of the same name
     :type menu_item: string
     :param title: text used for the link
     :type title: string
-    :param **kw: additional keywords needed for creating url eg id=...
+    :param  kw: additional keywords needed for creating url eg ``id=...``
 
     :rtype: HTML literal
+
     '''
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
@@ -529,7 +564,7 @@ def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
 
 
-def get_facet_items_dict(facet, limit=10, exclude_active=False):
+def get_facet_items_dict(facet, limit=None, exclude_active=False):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
 
@@ -561,12 +596,41 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
     facets = sorted(facets, key=lambda item: item['count'], reverse=True)
-    if c.search_facets_limits:
+    if c.search_facets_limits and limit is None:
         limit = c.search_facets_limits.get(facet)
-    if limit:
+    if limit is not None:
         return facets[:limit]
-    else:
-        return facets
+    return facets
+
+
+def has_more_facets(facet, limit=None, exclude_active=False):
+    '''
+    Returns True if there are more facet items for the given facet than the
+    limit.
+
+    Reads the complete list of facet items for the given facet from
+    c.search_facets, and filters out the facet items that the user has already
+    selected.
+
+    Arguments:
+    facet -- the name of the facet to filter.
+    limit -- the max. number of facet items.
+    exclude_active -- only return unselected facets.
+
+    '''
+    facets = []
+    for facet_item in c.search_facets.get(facet)['items']:
+        if not len(facet_item['name'].strip()):
+            continue
+        if not (facet, facet_item['name']) in request.params.items():
+            facets.append(dict(active=False, **facet_item))
+        elif not exclude_active:
+            facets.append(dict(active=True, **facet_item))
+    if c.search_facets_limits and limit is None:
+        limit = c.search_facets_limits.get(facet)
+    if limit is not None and len(facets) > limit:
+        return True
+    return False
 
 
 def unselected_facet_items(facet, limit=10):
@@ -602,7 +666,7 @@ def get_facet_title(name):
                     'groups': _('Groups'),
                     'tags': _('Tags'),
                     'res_format': _('Formats'),
-                    'license': _('License'), }
+                    'license': _('Licenses'), }
     return facet_titles.get(name, name.capitalize())
 
 
@@ -1211,9 +1275,9 @@ def add_url_param(alternative_url=None, controller=None, action=None,
     '''
     Adds extra parameters to existing ones
 
-    controller action & extras (dict) are used to create the base url
-    via url_for(controller=controller, action=action, **extras)
-    controller & action default to the current ones
+    controller action & extras (dict) are used to create the base url via
+    :py:func:`~ckan.lib.helpers.url_for` controller & action default to the
+    current ones
 
     This can be overriden providing an alternative_url, which will be used
     instead.
@@ -1241,11 +1305,12 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     provided (or the only one provided if key is a string).
 
     controller action & extras (dict) are used to create the base url
-    via url_for(controller=controller, action=action, **extras)
+    via :py:func:`~ckan.lib.helpers.url_for`
     controller & action default to the current ones
 
     This can be overriden providing an alternative_url, which will be used
     instead.
+
     '''
     if isinstance(key, basestring):
         keys = [key]
@@ -1412,7 +1477,8 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
         action_functions = {
             'dataset': 'package_activity_list_html',
             'user': 'user_activity_list_html',
-            'group': 'group_activity_list_html'
+            'group': 'group_activity_list_html',
+            'organization': 'organization_activity_list_html',
         }
         action_function = logic.get_action(action_functions.get(filter_type))
         return action_function(context, {'id': filter_id, 'offset': offset})
@@ -1421,10 +1487,14 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
             context, {'offset': offset})
 
 
-def recently_changed_packages_activity_stream():
+def recently_changed_packages_activity_stream(limit=None):
+    if limit:
+        data_dict = {'limit': limit}
+    else:
+        data_dict = {}
     context = {'model': model, 'session': model.Session, 'user': c.user}
     return logic.get_action('recently_changed_packages_activity_list_html')(
-        context, {})
+        context, data_dict)
 
 
 def escape_js(str_to_escape):
@@ -1706,7 +1776,7 @@ def featured_group_org(items, get_action, list_action, count):
 
         try:
             out = logic.get_action(get_action)(context, data_dict)
-        except logic.ObjectNotFound:
+        except logic.NotFound:
             return None
         return out
 
@@ -1746,6 +1816,59 @@ def get_site_statistics():
 
     return stats
 
+_RESOURCE_FORMATS = None
+
+def resource_formats():
+    ''' Returns the resource formats as a dict, sourced from the resource format JSON file.
+    key:  potential user input value
+    value:  [canonical mimetype lowercased, canonical format (lowercase), human readable form]
+    Fuller description of the fields are described in
+    `ckan/config/resource_formats.json`.
+    '''
+    global _RESOURCE_FORMATS
+    if not _RESOURCE_FORMATS:
+        _RESOURCE_FORMATS = {}
+        format_file_path = config.get('ckan.resource_formats')
+        if not format_file_path:
+            format_file_path = os.path.join(
+                os.path.dirname(os.path.realpath(ckan.config.__file__)),
+                'resource_formats.json'
+            )
+        with open(format_file_path) as format_file:
+            try:
+                file_resource_formats = json.loads(format_file.read())
+            except ValueError, e:  # includes simplejson.decoder.JSONDecodeError
+                raise ValueError('Invalid JSON syntax in %s: %s' % (format_file_path, e))
+
+            for format_line in file_resource_formats:
+                if format_line[0] == '_comment':
+                    continue
+                line = [format_line[2], format_line[0], format_line[1]]
+                alternatives = format_line[3] if len(format_line) == 4 else []
+                for item in line + alternatives:
+                    if item:
+                        item = item.lower()
+                        if item in _RESOURCE_FORMATS \
+                                and _RESOURCE_FORMATS[item] != line:
+                            raise ValueError('Duplicate resource format '
+                                             'identifier in %s: %s' %
+                                             (format_file_path, item))
+                        _RESOURCE_FORMATS[item] = line
+
+    return _RESOURCE_FORMATS
+
+
+def unified_resource_format(format):
+    formats = resource_formats()
+    format_clean = format.lower()
+    if format_clean in formats:
+        format_new = formats[format_clean][1]
+    else:
+        format_new = format
+    return format_new
+
+def check_config_permission(permission):
+    return new_authz.check_config_permission(permission)
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -1754,6 +1877,7 @@ __allowed_functions__ = [
     'url',
     'url_for',
     'url_for_static',
+    'url_for_static_or_external',
     'lang',
     'flash',
     'flash_error',
@@ -1833,6 +1957,7 @@ __allowed_functions__ = [
     'list_dict_filter',
     'new_activities',
     'time_ago_from_timestamp',
+    'has_more_facets',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',
@@ -1848,4 +1973,5 @@ __allowed_functions__ = [
     'get_featured_organizations',
     'get_featured_groups',
     'get_site_statistics',
+    'check_config_permission',
 ]

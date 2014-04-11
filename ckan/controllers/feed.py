@@ -21,7 +21,6 @@ of the revision history, rather than a feed of datasets.
 # TODO fix imports
 import logging
 import urlparse
-from urllib import urlencode
 
 import webhelpers.feedgenerator
 from pylons import config
@@ -167,6 +166,54 @@ class FeedController(base.BaseController):
                               controller='package',
                               action='search')
 
+    def _group_or_organization(self, obj_dict, is_org):
+
+        data_dict, params = self._parse_url_params()
+        key = 'owner_org' if is_org else 'groups'
+        data_dict['fq'] = '%s:"%s"' % (key, obj_dict['id'],)
+        group_type = 'organization'
+        if not is_org:
+            group_type = 'group'
+
+        item_count, results = _package_search(data_dict)
+
+        navigation_urls = self._navigation_urls(params,
+                                                item_count=item_count,
+                                                limit=data_dict['rows'],
+                                                controller='feed',
+                                                action=group_type,
+                                                id=obj_dict['name'])
+        feed_url = self._feed_url(params,
+                                  controller='feed',
+                                  action=group_type,
+                                  id=obj_dict['name'])
+
+        guid = _create_atom_id(u'/feeds/group/%s.atom' %
+                               obj_dict['name'])
+        alternate_url = self._alternate_url(params, groups=obj_dict['name'])
+        desc = u'Recently created or updated datasets on %s by group: "%s"' %\
+            (g.site_title, obj_dict['title'])
+        title = u'%s - Group: "%s"' %\
+            (g.site_title, obj_dict['title'])
+
+        if is_org:
+            guid = _create_atom_id(u'/feeds/organization/%s.atom' %
+                                   obj_dict['name'])
+            alternate_url = self._alternate_url(params,
+                                                organization=obj_dict['name'])
+            desc = u'Recently created or  updated datasets on %s '\
+                'by organization: "%s"' % (g.site_title, obj_dict['title'])
+            title = u'%s - Organization: "%s"' %\
+                (g.site_title, obj_dict['title'])
+
+        return self.output_feed(results,
+                                feed_title=title,
+                                feed_description=desc,
+                                feed_link=alternate_url,
+                                feed_guid=guid,
+                                feed_url=feed_url,
+                                navigation_urls=navigation_urls)
+
     def group(self, id):
         try:
             context = {'model': model, 'session': model.Session,
@@ -175,36 +222,18 @@ class FeedController(base.BaseController):
         except logic.NotFound:
             base.abort(404, _('Group not found'))
 
-        data_dict, params = self._parse_url_params()
-        data_dict['fq'] = 'groups:"%s"' % id
+        return self._group_or_organization(group_dict, is_org=False)
 
-        item_count, results = _package_search(data_dict)
+    def organization(self, id):
+        try:
+            context = {'model': model, 'session': model.Session,
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+            group_dict = logic.get_action('organization_show')(context,
+                                                               {'id': id})
+        except logic.NotFound:
+            base.abort(404, _('Organization not found'))
 
-        navigation_urls = self._navigation_urls(params,
-                                                item_count=item_count,
-                                                limit=data_dict['rows'],
-                                                controller='feed',
-                                                action='group',
-                                                id=id)
-
-        feed_url = self._feed_url(params,
-                                  controller='feed',
-                                  action='group',
-                                  id=id)
-
-        alternate_url = self._alternate_url(params, groups=id)
-
-        return self.output_feed(results,
-                                feed_title=u'%s - Group: "%s"' %
-                                (g.site_title, group_dict['title']),
-                                feed_description=u'Recently created or '
-                                'updated datasets on %s by group: "%s"' %
-                                (g.site_title, group_dict['title']),
-                                feed_link=alternate_url,
-                                feed_guid=_create_atom_id
-                                (u'/feeds/groups/%s.atom' % id),
-                                feed_url=feed_url,
-                                navigation_urls=navigation_urls)
+        return self._group_or_organization(group_dict, is_org=True)
 
     def tag(self, id):
         data_dict, params = self._parse_url_params()
@@ -277,8 +306,6 @@ class FeedController(base.BaseController):
                 search_params[param] = value
                 fq += ' %s:"%s"' % (param, value)
 
-        search_url_params = urlencode(search_params)
-
         try:
             page = int(request.params.get('page', 1))
         except ValueError:
@@ -307,6 +334,9 @@ class FeedController(base.BaseController):
                                   controller='feed',
                                   action='custom')
 
+        atom_url = h._url_with_params('/feeds/custom.atom',
+                                      search_params.items())
+
         alternate_url = self._alternate_url(request.params)
 
         return self.output_feed(results,
@@ -315,8 +345,7 @@ class FeedController(base.BaseController):
                                 ' datasets on %s. Custom query: \'%s\'' %
                                 (g.site_title, q),
                                 feed_link=alternate_url,
-                                feed_guid=_create_atom_id
-                                (u'/feeds/custom.atom?%s' % search_url_params),
+                                feed_guid=_create_atom_id(atom_url),
                                 feed_url=feed_url,
                                 navigation_urls=navigation_urls)
 
@@ -376,11 +405,7 @@ class FeedController(base.BaseController):
         parameters.
         """
         path = h.url_for(controller=controller, action=action, **kwargs)
-        query = [(k, v.encode('utf-8') if isinstance(v, basestring)
-                  else str(v)) for k, v in query.items()]
-
-        # a trailing '?' is valid.
-        return self.base_url + path + u'?' + urlencode(query)
+        return h._url_with_params(self.base_url + path, query.items())
 
     def _navigation_urls(self, query, controller, action,
                          item_count, limit, **kwargs):

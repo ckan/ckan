@@ -317,3 +317,132 @@ class TestValidators(object):
 
     # TODO: Test user_name_validator()'s behavior when there's a 'user_obj' in
     # the context dict.
+
+    def test_if_empty_guess_format(self):
+
+        import ckan.logic.validators as validators
+        import ckan.lib.navl.dictization_functions as dictization_functions
+
+        data = {'name': 'package_name', 'resources': [
+            {'url': 'http://fakedomain/my.csv', 'format': ''},
+            {'url': 'http://fakedomain/my.pdf',
+             'format': dictization_functions.Missing},
+            {'url': 'http://fakedomain/my.pdf', 'format': 'pdf'},
+            {'url': 'http://fakedomain/my.pdf',
+             'id': 'fake_resource_id', 'format': ''}
+        ]}
+        data = dictization_functions.flatten_dict(data)
+
+        @t.does_not_modify_errors_dict
+        def call_validator(*args, **kwargs):
+            return validators.if_empty_guess_format(*args, **kwargs)
+
+        new_data = copy.deepcopy(data)
+        call_validator(key=('resources', 0, 'format'), data=new_data,
+                       errors={}, context={})
+        assert new_data[('resources', 0, 'format')] == 'text/csv'
+
+        new_data = copy.deepcopy(data)
+        call_validator(key=('resources', 1, 'format'), data=new_data,
+                       errors={}, context={})
+        assert new_data[('resources', 1, 'format')] == 'application/pdf'
+
+        new_data = copy.deepcopy(data)
+        call_validator(key=('resources', 2, 'format'), data=new_data,
+                       errors={}, context={})
+        assert new_data[('resources', 2, 'format')] == 'pdf'
+
+        new_data = copy.deepcopy(data)
+        call_validator(key=('resources', 3, 'format'), data=new_data,
+                       errors={}, context={})
+        assert new_data[('resources', 3, 'format')] == ''
+
+    def test_clean_format(self):
+        import ckan.logic.validators as validators
+
+        format = validators.clean_format('csv')
+        assert format == 'CSV'
+
+        format = validators.clean_format('text/csv')
+        assert format == 'CSV'
+
+        format = validators.clean_format('not a format')
+        assert format == 'not a format'
+
+        format = validators.clean_format('')
+        assert format == ''
+
+    def test_datasets_with_org_can_be_private_when_creating(self):
+
+        import ckan.logic.validators as validators
+
+        data = factories.validator_data_dict()
+        errors = factories.validator_errors_dict()
+
+        key = ('private',)
+        data[key] = True
+        errors[key] = []
+
+        data[('owner_org',)] = 'some_org_id'
+
+        # Mock ckan.model.
+        mock_model = mock.MagicMock()
+
+        @t.does_not_modify_errors_dict
+        @t.does_not_modify_data_dict
+        @t.returns_None
+        def call_validator(*args, **kwargs):
+            return validators.datasets_with_no_organization_cannot_be_private(
+                *args, **kwargs)
+        call_validator(key, data, errors, context={'model': mock_model})
+
+    def test_datasets_with_no_org_cannot_be_private_when_creating(self):
+
+        import ckan.logic.validators as validators
+
+        data = factories.validator_data_dict()
+        errors = factories.validator_errors_dict()
+
+        key = ('private',)
+        data[key] = True
+        errors[key] = []
+
+        # Mock ckan.model.
+        mock_model = mock.MagicMock()
+
+        @t.does_not_modify_data_dict
+        @adds_message_to_errors_dict(
+            "Datasets with no organization can't be private.")
+        def call_validator(*args, **kwargs):
+            return validators.datasets_with_no_organization_cannot_be_private(
+                *args, **kwargs)
+
+        call_validator(key, data, errors, context={'model': mock_model})
+
+    def test_datasets_with_org_can_be_private_when_updating(self):
+
+        import ckan.logic.validators as validators
+
+        data = factories.validator_data_dict()
+        errors = factories.validator_errors_dict()
+
+        key = ('private',)
+        data[key] = True
+        errors[key] = []
+
+        data[('id',)] = 'some_dataset_id'
+        data[('owner_org',)] = 'some_org_id'
+
+        # Mock ckan.model.
+        mock_model = mock.MagicMock()
+
+        @t.does_not_modify_errors_dict
+        @t.does_not_modify_data_dict
+        @t.returns_None
+        def call_validator(*args, **kwargs):
+            return validators.datasets_with_no_organization_cannot_be_private(
+                *args, **kwargs)
+        call_validator(key, data, errors, context={'model': mock_model})
+
+    #TODO: Need to test when you are not providing owner_org and the validator
+    #      queries for the dataset with package_show

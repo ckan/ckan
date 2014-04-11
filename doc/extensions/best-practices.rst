@@ -7,7 +7,7 @@ Best practices for writing extensions
 Follow CKAN's coding standards
 ------------------------------
 
-See :ref:`coding standards`.
+See :doc:`/contributing/index`.
 
 
 -------------------------------------------------
@@ -35,3 +35,24 @@ Implement each plugin class in a separate Python module
 -------------------------------------------------------
 
 This keeps CKAN's plugin loading order simple, see :ref:`ckan.plugins`.
+
+
+.. _extension config setting names best practice:
+
+-----------------------------------------------------------------
+Names of config settings should include the name of the extension
+-----------------------------------------------------------------
+
+Names of config settings provided by extensions should include the name
+of the extension, to avoid conflicting with core config settings or with
+config settings from other extensions. For example::
+
+  ckan.my_extension.show_most_popular_groups = True
+
+
+-------------------------------------
+Internationalize user-visible strings
+-------------------------------------
+
+All user-visible strings should be internationalized, see
+:doc:`/contributing/string-i18n`.
