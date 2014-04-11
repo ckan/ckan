@@ -64,7 +64,7 @@ def _filter_activity_by_user(activity_list, users=[]):
     return new_list
 
 
-def _activity_stream_get_filtered_users():
+def _activity_stream_get_filtered_users(context):
     '''
     Get the list of users from the :ref:`ckan.hide_activity_from_users` config
     option and return a list of their ids. If the config is not specified,
@@ -74,7 +74,7 @@ def _activity_stream_get_filtered_users():
     if users:
         users_list = users.split()
     else:
-        context = {'model': model, 'ignore_auth': True}
+        context['ignore_auth'] = True
         site_user = logic.get_action('get_site_user')(context)
         users_list = [site_user.get('name')]
 
@@ -2196,7 +2196,7 @@ def user_activity_list(context, data_dict):
     _activity_objects = model.activity.user_activity_list(user.id, limit=limit,
             offset=offset)
     activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+            _activity_stream_get_filtered_users(context))
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2238,7 +2238,7 @@ def package_activity_list(context, data_dict):
     _activity_objects = model.activity.package_activity_list(package.id,
             limit=limit, offset=offset)
     activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+            _activity_stream_get_filtered_users(context))
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2279,7 +2279,7 @@ def group_activity_list(context, data_dict):
     _activity_objects = model.activity.group_activity_list(group_id,
             limit=limit, offset=offset)
     activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+            _activity_stream_get_filtered_users(context))
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2311,7 +2311,7 @@ def organization_activity_list(context, data_dict):
     _activity_objects = model.activity.group_activity_list(org_id,
             limit=limit, offset=offset)
     activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+            _activity_stream_get_filtered_users(context))
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2341,7 +2341,7 @@ def recently_changed_packages_activity_list(context, data_dict):
     _activity_objects = model.activity.recently_changed_packages_activity_list(
             limit=limit, offset=offset)
     activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+            _activity_stream_get_filtered_users(context))
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -3019,7 +3019,7 @@ def dashboard_activity_list(context, data_dict):
             limit=limit, offset=offset)
 
     activity_objects = _filter_activity_by_user(_activity_objects,
-            _activity_stream_get_filtered_users())
+            _activity_stream_get_filtered_users(context))
     activity_dicts = model_dictize.activity_list_dictize(
         activity_objects, context)
 
