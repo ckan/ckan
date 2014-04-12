@@ -150,6 +150,7 @@ class Resource(factory.Factory):
     description = 'test resource desc'
     format = 'res_format'
     url = 'http://link.to.some.data'
+    package_id = factory.LazyAttribute(lambda _: Dataset()['id'])
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
@@ -161,8 +162,6 @@ class Resource(factory.Factory):
             assert False, "Positional args aren't supported, use keyword args."
 
         context = {'user': _get_action_user_name(kwargs)}
-
-        assert kwargs.get('package_id'), 'You must provide a package_id'
 
         resource_dict = helpers.call_action('resource_create', context=context,
                                             **kwargs)
@@ -302,7 +301,7 @@ class Related(factory.Factory):
 class Dataset(factory.Factory):
     '''A factory class for creating CKAN datasets.'''
 
-    FACTORY_FOR = ckan.model.package
+    FACTORY_FOR = ckan.model.Package
 
     # These are the default params that will be used to create new groups.
     title = 'Test Dataset'
