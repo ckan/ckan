@@ -40,6 +40,7 @@ this.ckan.module('image-upload', function($, _) {
       this.input = $(field_upload, this.el);
       this.field_url = $(field_url, this.el).parents('.control-group');
       this.field_image = this.input.parents('.control-group');
+      this.field_url_input = $('input', this.field_url);
 
       // Is there a clear checkbox on the form already?
       var checkbox = $(field_clear, this.el);
@@ -66,7 +67,7 @@ this.ckan.module('image-upload', function($, _) {
       $('<a href="javascript:;" class="btn btn-danger btn-remove-url"><i class="icon-remove"></i></a>')
         .prop('title', this.i18n('remove'))
         .on('click', this._onRemove)
-        .insertBefore($('input', this.field_url));
+        .insertBefore(this.field_url_input);
 
       // Update the main label
       $('label[for="field-image-upload"]').text(options.upload_label || this.i18n('upload_label'));
@@ -100,7 +101,7 @@ this.ckan.module('image-upload', function($, _) {
      */
     _onFromWeb: function() {
       this._showOnlyFieldUrl();
-      $('input', this.field_url).focus();
+      this.field_url_input.focus();
       if (this.options.is_upload) {
         this.field_clear.val('true');
       }
@@ -112,7 +113,8 @@ this.ckan.module('image-upload', function($, _) {
      */
     _onRemove: function() {
       this._showOnlyButtons();
-      $('input', this.field_url).val('');
+      this.field_url_input.val('');
+      this.field_url_input.prop('disabled', false);
       this.field_clear.val('true');
     },
 
@@ -122,7 +124,8 @@ this.ckan.module('image-upload', function($, _) {
      */
     _onInputChange: function() {
       var file_name = this.input.val().split(/^C:\\fakepath\\/).pop();
-      $('input', this.field_url).val(file_name);
+      this.field_url_input.val(file_name);
+      this.field_url_input.prop('disabled', true);
       this.field_clear.val('');
       this._showOnlyFieldUrl();
     },
