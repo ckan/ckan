@@ -77,7 +77,7 @@ def _get_action_user_name(kwargs):
     else:
         user = helpers.call_action('get_site_user')
 
-    return user['name']
+    return user and user['name']
 
 
 def _generate_email(user):

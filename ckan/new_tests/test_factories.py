@@ -3,6 +3,7 @@ import nose.tools
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
+assert_equals = nose.tools.assert_equals
 assert_not_equals = nose.tools.assert_not_equals
 
 
@@ -49,6 +50,10 @@ class TestFactories(object):
         dataset1 = factories.Dataset()
         dataset2 = factories.Dataset()
         assert_not_equals(dataset1['id'], dataset2['id'])
+
+    def test_dataset_factory_allows_creation_by_anonymous_user(self):
+        dataset = factories.Dataset(user=None)
+        assert_equals(dataset['creator_user_id'], None)
 
     def test_mockuser_factory(self):
         mockuser1 = factories.MockUser()
