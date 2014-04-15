@@ -14,9 +14,9 @@ log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
 DEFAULT_FORMATS = [
-'csv', 'xls', 'xlsx', 'tsv', 'application/csv', 
-'application/vnd.ms-excel', 
-'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    'csv', 'xls', 'xlsx', 'tsv', 'application/csv',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 ]
 
 
