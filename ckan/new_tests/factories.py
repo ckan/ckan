@@ -125,8 +125,8 @@ class Resource(factory.Factory):
 
     FACTORY_FOR = ckan.model.Resource
 
-    name = 'test_resource'
-    description = 'test resource desc'
+    name = factory.Sequence(lambda n: 'test_resource_{n}'.format(n=n))
+    description = 'Just another test resource.'
     format = 'res_format'
     url = 'http://link.to.some.data'
     package_id = factory.LazyAttribute(lambda _: Dataset()['id'])
