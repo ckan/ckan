@@ -7,7 +7,12 @@ assert_not_equals = nose.tools.assert_not_equals
 
 
 class TestFactories(object):
-    def setup(cls):
+    @classmethod
+    def setup_class(cls):
+        helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
         helpers.reset_db()
 
     def test_user_factory(self):
