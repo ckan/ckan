@@ -18,10 +18,7 @@ this.ckan.module('image-upload', function($, _) {
         upload_label: _('Image'),
         upload_tooltip: _('Upload a file on your computer'),
         url_tooltip: _('Link to a URL on the internet (you can also link to an API)')
-      },
-      template: [
-        ''
-      ].join("\n")
+      }
     },
 
     /* Initialises the module setting up elements and event listeners.
