@@ -45,31 +45,10 @@ import ckan.new_tests.helpers as helpers
 
 
 def _get_action_user_name(kwargs):
-    '''Return the name of the user that should perform the create action
+    '''Return the name of the user in kwargs, defaulting to the site user
 
-    When creating an instance of the factory, users can provide an 'user'
-    keyword argument with the name of the user that should perform the action.
-    If they don't provide the 'user' argument the site user will be used (this
-    user is a sysadmin). If the action should be performed anonymously (ie no
-    logged in user), user=None should be provided.
-
-    The user name can be passed on the context['user'] property to the action
-    function.
-
-    Examples:
-
-    * Creating a new group with the site user:
-
-        group = factories.Group()
-
-    * Creating an Organization with the user 'daniel'
-
-        org = factories.Organization(user='daniel')
-
-    * Creating a Dataset anonymously
-
-        org = factories.Organization(user=None)
-
+    It can be overriden by explictly setting {'user': None} in the keyword
+    arguments. In that case, this method will return None.
     '''
 
     if 'user' in kwargs:
