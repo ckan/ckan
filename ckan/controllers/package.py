@@ -1410,7 +1410,7 @@ class PackageController(base.BaseController):
     def resource_embedded_dataviewer(self, id, resource_id,
                                      width=500, height=500):
         """
-        Embeded page for a read-only resource dataview. Allows
+        Embedded page for a read-only resource dataview. Allows
         for width and height to be specified as part of the
         querystring (as well as accepting them via routes).
         """
@@ -1632,7 +1632,7 @@ class PackageController(base.BaseController):
 
     def resource_view(self, id, resource_id, view_id=None):
         '''
-        Embeded page for a resource view.
+        Embedded page for a resource view.
 
         Depending on the type, different views are loaded. This could be an
         img tag where the image is loaded directly or an iframe that embeds a
@@ -1681,7 +1681,7 @@ class PackageController(base.BaseController):
 
     def resource_datapreview(self, id, resource_id):
         '''
-        Embeded page for a resource data-preview.
+        Embedded page for a resource data-preview.
 
         Depending on the type, different previews are loaded.  This could be an
         img tag where the image is loaded directly or an iframe that embeds a
