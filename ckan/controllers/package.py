@@ -1229,7 +1229,7 @@ class PackageController(base.BaseController):
         return render('package/resource_read.html', extra_vars=vars)
 
     def _resource_preview(self, data_dict):
-        ''' depricated resource preview function '''
+        '''Deprecated resource preview function'''
         return bool(datapreview.get_preview_plugin(data_dict, return_first=True))
 
     def resource_download(self, id, resource_id, filename=None):
