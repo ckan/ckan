@@ -386,11 +386,9 @@ class PackageController(base.BaseController):
 
         # can the resources be previewed?
         for resource in c.pkg_dict['resources']:
-
-            ######## section backwards compatibility with preview iterface
+            # Backwards compatibility with preview interface
             resource['can_be_previewed'] = self._resource_preview(
                 {'resource': resource, 'package': c.pkg_dict})
-            #############################################################
 
             resource_views = get_action('resource_view_list')(
                 context, {'id': resource['id']})
@@ -1119,8 +1117,9 @@ class PackageController(base.BaseController):
             abort(404, _('Resource not found'))
         return render('package/confirm_delete_resource.html')
 
+    @maintain.deprecated('`autocomplete` is deprecated. Please use '
+                         '/api/2/util/dataset/autocomplete')
     def autocomplete(self):
-        # DEPRECATED in favour of /api/2/util/dataset/autocomplete
         q = unicode(request.params.get('q', ''))
         if not len(q):
             return ''
@@ -1228,8 +1227,10 @@ class PackageController(base.BaseController):
 
         return render('package/resource_read.html', extra_vars=vars)
 
+    @maintain.deprecated('Resource preview is deprecated. Please use the new '
+                         'resource views')
     def _resource_preview(self, data_dict):
-        '''Deprecated resource preview function'''
+        '''Deprecated in 2.3'''
         return bool(datapreview.get_preview_plugin(data_dict, return_first=True))
 
     def resource_download(self, id, resource_id, filename=None):
