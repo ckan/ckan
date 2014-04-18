@@ -62,15 +62,15 @@ class TestBasicDictize:
                         u'capacity': u'public',
                         u'description': u'Roger likes these books.',
                         u'image_url': u'',
-                        u'image_display_url': u'',
-                        u'display_name': u"Roger's books",
+                        'image_display_url': u'',
+                        'display_name': u"Roger's books",
                         u'type': u'group',
                         u'state': u'active',
                         u'is_organization': False,
                         u'title': u"Roger's books",
                         u"approval_status": u"approved"}],
             'isopen': True,
-            'license_id': u'other-open',
+            u'license_id': u'other-open',
             'license_title': u'Other (Open)',
             'organization': None,
             u'owner_org': None,
@@ -78,8 +78,8 @@ class TestBasicDictize:
             u'maintainer_email': None,
             u'name': u'annakarenina',
             u'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
-            u'num_resources': 2,
-            u'num_tags': 3,
+            'num_resources': 2,
+            'num_tags': 3,
             u'private': False,
             'relationships_as_object': [],
             'relationships_as_subject': [],
@@ -143,9 +143,13 @@ class TestBasicDictize:
         model.repo.rebuild_db()
         model.Session.remove()
 
-    def remove_changable_columns(self, dict):
+    def remove_changable_columns(self, dict, remove_package_id=False):
+        ids_to_keep = ['license_id', 'creator_user_id']
+        if not remove_package_id:
+            ids_to_keep.append('package_id')
+
         for key, value in dict.items():
-            if key.endswith('id') and key not in ('license_id', 'creator_user_id','package_id'):
+            if key.endswith('id') and key not in ids_to_keep:
                 dict.pop(key)
             if key == 'created':
                 dict.pop(key)
@@ -155,7 +159,8 @@ class TestBasicDictize:
                 dict.pop(key)
             if isinstance(value, list):
                 for new_dict in value:
-                    self.remove_changable_columns(new_dict)
+                    self.remove_changable_columns(new_dict,
+                        key in ['resources', 'extras'] or remove_package_id)
         return dict
 
     def remove_revision_id(self, dict):
@@ -202,7 +207,7 @@ class TestBasicDictize:
         resource = pkg.resources_all[0]
 
         result = resource_dictize(resource, context)
-        self.remove_changable_columns(result)
+        self.remove_changable_columns(result, True)
 
         assert result == {
             u'alt_url': u'alt123',
@@ -223,8 +228,7 @@ class TestBasicDictize:
              'url': u'http://www.annakarenina.com/download/x=1&y=2',
              'url_type': None,
              'webstore_last_updated': None,
-             'webstore_url': None,
-             'package_id': pkg.id
+             'webstore_url': None
             }, pprint(result)
 
         ## package extra
@@ -382,6 +386,9 @@ class TestBasicDictize:
         package_dict_save(anna_dictized, context)
         model.Session.commit()
 
+        # Re-clean anna_dictized
+        anna_dictized =  self.remove_changable_columns(anna_dictized)
+
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina3').one()
 
         package_dictized = self.remove_changable_columns(package_dictize(pkg, context))
@@ -389,7 +396,7 @@ class TestBasicDictize:
         anna_original = pformat(anna_dictized)
         anna_after_save = pformat(package_dictized)
 
-        assert self.remove_changable_columns(package_dictize(pkg, context)) == anna_dictized,\
+        assert package_dictized == anna_dictized,\
             "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 
     def test_09_package_alter(self):
@@ -423,14 +430,15 @@ class TestBasicDictize:
             print res.id, res.revision_timestamp, res.expired_timestamp, res.state, res.current
         assert len(sorted_resources) == 3
 
+        # Make sure we remove changeable fields BEFORE we store the pretty-printed version
+        # for comparison
+        clean_package_dictized = self.remove_changable_columns(package_dictized)
+
         anna_original = pformat(anna_dictized)
-        anna_after_save = pformat(package_dictized)
+        anna_after_save = pformat(clean_package_dictized)
 
-        print anna_original
-        print anna_after_save
-
-        assert self.remove_changable_columns(anna_dictized) == self.remove_changable_columns(package_dictized)
-        assert "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
+        assert self.remove_changable_columns(anna_dictized) == clean_package_dictized, \
+            "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 
     def test_10_package_alter_pending(self):
 
@@ -801,16 +809,20 @@ class TestBasicDictize:
             'size_extra': u'123',
             'resource_type': None,
             'name': None,
-            'package_id': ''}
+            'package_id':''  # Just so we can save
+        }
 
         model.repo.new_revision()
         resource_dict_save(new_resource, context)
         model.Session.commit()
         model.Session.remove()
 
+        # Remove the package id
+        del new_resource['package_id']
+
         res = model.Session.query(model.Resource).filter_by(url=u'http://test_new').one()
 
-        res_dictized = self.remove_changable_columns(resource_dictize(res, context))
+        res_dictized = self.remove_changable_columns(resource_dictize(res, context), True)
 
         assert res_dictized == new_resource, res_dictized
 
@@ -1244,4 +1256,3 @@ class TestBasicDictize:
         pkg.title = original_title
         model.Session.add(pkg)
         model.Session.commit()
-

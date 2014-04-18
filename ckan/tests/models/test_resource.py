@@ -90,13 +90,13 @@ class TestResource:
     def test_02_delete_resource(self):
         pkg = model.Package.by_name(self.pkgname)
         res = pkg.resources[0]
-        assert len(package.resources) == 3, pkg.resources
+        assert len(pkg.resources) == 3, pkg.resources
         rev = model.repo.new_revision()
         res.delete()
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
-        assert len(package.resources) == 2, pkg.resources
+        assert len(pkg.resources) == 2, pkg.resources
         assert len(pkg.resources_all) == 3, pkg.resources_all
 
     def test_03_reorder_resources(self):
@@ -117,7 +117,7 @@ class TestResource:
         model.repo.commit_and_remove()
 
         pkg = model.Package.by_name(self.pkgname)
-        assert len(rg.resources_all) == 3, len(pkg.resources)
+        assert len(pkg.resources_all) == 3, len(pkg.resources)
         lastres = pkg.resources[2]
         assert lastres.position == 2, lastres
         print lastres

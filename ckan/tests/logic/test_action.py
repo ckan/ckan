@@ -703,7 +703,7 @@ class TestAction(WsgiAppCase):
             'title': u'A Novel By Tolstoy',
             'url': u'http://www.annakarenina.com',
         }
-# TODO: How do we get the package_id set in resource when creating a package
+
         postparams = '%s=1' % json.dumps(package)
         res = self.app.post('/api/action/package_create', params=postparams,
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
@@ -721,6 +721,7 @@ class TestAction(WsgiAppCase):
 
         resource_updated.pop('url')
         resource_updated.pop('revision_id')
+        resource_updated.pop('package_id')
         resource_updated.pop('revision_timestamp', None)
         resource_created.pop('url')
         resource_created.pop('revision_id')

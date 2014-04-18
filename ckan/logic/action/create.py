@@ -214,8 +214,7 @@ def package_create(context, data_dict):
 def resource_create(context, data_dict):
     '''Appends a new resource to a datasets list of resources.
 
-    :param package_id: id of package that the resource needs
-        should be added to.
+    :param package_id: id of package that the resource belongs to
     :type package_id: string
     :param url: url of resource
     :type url: string
