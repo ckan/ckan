@@ -99,14 +99,8 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
             _dict[col] = value
         for k, v in self.extras.items() if self.extras else []:
             _dict[k] = v
-
         if self.package_id and not core_columns_only:
             _dict["package_id"] = self.package_id
-
-        # FIXME format unification needs doing better
-        import ckan.lib.dictization.model_dictize as model_dictize
-        _dict[u'format'] = model_dictize._unified_resource_format(self.format)
-
         return _dict
 
     def get_package_id(self):
