@@ -97,15 +97,6 @@ def mail_user(recipient, subject, body, headers={}):
     mail_recipient(recipient.display_name, recipient.email, subject,
             body, headers=headers)
 
-
-RESET_LINK_MESSAGE = _(
-'''You have requested your password on %(site_title)s to be reset.
-
-Please click the following link to confirm this request:
-
-   %(reset_link)s
-''')
-
 def make_key():
     return uuid.uuid4().hex[:10]
 
@@ -121,6 +112,13 @@ def get_reset_link(user):
                            key=user.reset_key))
 
 def get_reset_link_body(user):
+    RESET_LINK_MESSAGE = _(
+    '''You have requested your password on %(site_title)s to be reset.
+
+    Please click the following link to confirm this request:
+
+       %(reset_link)s
+    ''')
     d = {
         'reset_link': get_reset_link(user),
         'site_title': g.site_title
