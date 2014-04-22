@@ -103,15 +103,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
 
     def _set_password(self, password):
         '''Hash password on the fly.'''
-        if isinstance(password, unicode):
-            password_8bit = password.encode('ascii', 'ignore')
-        else:
-            password_8bit = password
-
-        hashed_password = pbkdf2_sha512.encrypt(password_8bit)
-
-        if not isinstance(hashed_password, unicode):
-            hashed_password = hashed_password.decode('utf-8')
+        hashed_password = pbkdf2_sha512.encrypt(password)
         self._password = hashed_password
 
     def _get_password(self):
@@ -131,16 +123,17 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         '''
         if not password or not self.password:
             return False
-        if isinstance(password, unicode):
-            password_8bit = password.encode('ascii', 'ignore')
-        else:
-            password_8bit = password
 
         if not pbkdf2_sha512.identify(self.password):
+            if isinstance(password, unicode):
+                password_8bit = password.encode('ascii', 'ignore')
+            else:
+                password_8bit = password
+
             hashed_pass = sha1(password_8bit + self.password[:40])
             if self.password[40:] == hashed_pass.hexdigest():
                 #we've passed the old sha1 check, upgrade our password
-                self._set_password(password_8bit)
+                self._set_password(password)
                 self.save()
                 return True
             else:
