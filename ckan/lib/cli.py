@@ -2180,7 +2180,7 @@ class ViewsCommand(CkanCommand):
         for row in results:
             print '%s of type %s' % (row[1], row[0])
 
-        result = query_yes_no('Are you want to delete these resource views:', default='no')
+        result = query_yes_no('Do you want to delete these resource views:', default='no')
 
         if result == "no":
             print 'Not Deleting.'
