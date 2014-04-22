@@ -319,6 +319,7 @@ def resource_view_create(context, data_dict):
     schema = (context.get('schema') or
               ckan.logic.schema.default_create_resource_view_schema())
 
+    resource_id = _get_or_bust(data_dict, 'resource_id')
     view_type = _get_or_bust(data_dict, 'view_type')
     view_plugin = datapreview.get_view_plugin(view_type)
     if not view_plugin:
@@ -342,7 +343,7 @@ def resource_view_create(context, data_dict):
 
     max_order = model.Session.query(
         func.max(model.ResourceView.order)
-        ).filter_by(resource_id=data['resource_id']).first()
+        ).filter_by(resource_id=resource_id).first()
 
     order = 0
     if max_order[0] is not None:
