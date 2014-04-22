@@ -27,11 +27,13 @@ of contributions to CKAN:
    reviewing
 
    documentation
+   simple-code-contributions
    architecture
    css
    html
    javascript
    python
+   string-i18n
    testing
    frontend/index
 

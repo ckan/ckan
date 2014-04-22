@@ -399,14 +399,14 @@ class PackagesTestCase(BaseModelApiTestCase):
             'title':u'newtesttitle',
             'resources': [{
                 u'url':u'http://blah.com/file2.xml',
-                u'format':u'xml',
+                u'format':u'XML',
                 u'description':u'Appendix 1',
                 u'hash':u'def123',
                 u'alt_url':u'alt123',
                 u'size_extra':u'400',
             },{
                 u'url':u'http://blah.com/file3.xml',
-                u'format':u'xml',
+                u'format':u'XML',
                 u'description':u'Appenddic 2',
                 u'hash':u'ghi123',
                 u'alt_url':u'alt123',
@@ -459,14 +459,14 @@ class PackagesTestCase(BaseModelApiTestCase):
             self.assert_equal(len(package.resources), 2)
             resource = package.resources[0]
             self.assert_equal(resource.url, u'http://blah.com/file2.xml')
-            self.assert_equal(resource.format, u'xml')
+            self.assert_equal(resource.format, u'XML')
             self.assert_equal(resource.description, u'Appendix 1')
             self.assert_equal(resource.hash, u'def123')
             self.assert_equal(resource.alt_url, u'alt123')
             self.assert_equal(resource.extras['size_extra'], u'400')
             resource = package.resources[1]
             self.assert_equal(resource.url, 'http://blah.com/file3.xml')
-            self.assert_equal(resource.format, u'xml')
+            self.assert_equal(resource.format, u'XML')
             self.assert_equal(resource.description, u'Appenddic 2')
             self.assert_equal(resource.hash, u'ghi123')
             self.assert_equal(resource.alt_url, u'alt123')
@@ -672,13 +672,13 @@ class PackagesTestCase(BaseModelApiTestCase):
             'name': self.package_fixture_data['name'],
             'resources': [{
                 u'url':u'http://blah.com/file2.xml',
-                u'format':u'xml',
+                u'format':u'XML',
                 u'description':u'Appendix 1',
                 u'hash':u'def123',
                 u'alt_url':u'alt123',
             },{
                 u'url':u'http://blah.com/file3.xml',
-                u'format':u'xml',
+                u'format':u'XML',
                 u'description':u'Appenddic 2',
                 u'hash':u'ghi123',
                 u'alt_url':u'alt123',

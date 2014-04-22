@@ -47,6 +47,48 @@ _case = sqlalchemy.case
 _text = sqlalchemy.text
 
 
+def _filter_activity_by_user(activity_list, users=[]):
+    '''
+    Return the given ``activity_list`` with activities from the specified
+    users removed. The users parameters should be a list of ids.
+
+    A *new* filtered list is returned, the given ``activity_list`` itself is
+    not modified.
+    '''
+    if not len(users):
+        return activity_list
+    new_list = []
+    for activity in activity_list:
+        if activity.user_id not in users:
+            new_list.append(activity)
+    return new_list
+
+
+def _activity_stream_get_filtered_users():
+    '''
+    Get the list of users from the :ref:`ckan.hide_activity_from_users` config
+    option and return a list of their ids. If the config is not specified,
+    returns the id of the site user.
+    '''
+    users = config.get('ckan.hide_activity_from_users')
+    if users:
+        users_list = users.split()
+    else:
+        context = {'model': model, 'ignore_auth': True}
+        site_user = logic.get_action('get_site_user')(context)
+        users_list = [site_user.get('name')]
+
+    return model.User.user_ids_for_name_or_id(users_list)
+
+
+def _package_list_with_resources(context, package_revision_list):
+    package_list = []
+    for package in package_revision_list:
+        result_dict = model_dictize.package_dictize(package,context)
+        package_list.append(result_dict)
+    return package_list
+
+
 def site_read(context, data_dict=None):
     '''Return ``True``.
 
@@ -2151,8 +2193,11 @@ def user_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.user_activity_list(user.id, limit=limit,
-                                                         offset=offset)
+    _activity_objects = model.activity.user_activity_list(user.id, limit=limit,
+            offset=offset)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2190,8 +2235,11 @@ def package_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.package_activity_list(
-        package.id, limit=limit, offset=offset)
+    _activity_objects = model.activity.package_activity_list(package.id,
+            limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2228,8 +2276,11 @@ def group_activity_list(context, data_dict):
     group_show = logic.get_action('group_show')
     group_id = group_show(context, {'id': group_id})['id']
 
-    activity_objects = model.activity.group_activity_list(
-        group_id, limit=limit, offset=offset)
+    _activity_objects = model.activity.group_activity_list(group_id,
+            limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2257,8 +2308,11 @@ def organization_activity_list(context, data_dict):
     org_show = logic.get_action('organization_show')
     org_id = org_show(context, {'id': org_id})['id']
 
-    activity_objects = model.activity.group_activity_list(
-        org_id, limit=limit, offset=offset)
+    _activity_objects = model.activity.group_activity_list(org_id,
+            limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
+
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2284,8 +2338,10 @@ def recently_changed_packages_activity_list(context, data_dict):
     limit = int(
         data_dict.get('limit', config.get('ckan.activity_list_limit', 31)))
 
-    activity_objects = model.activity.recently_changed_packages_activity_list(
-        limit=limit, offset=offset)
+    _activity_objects = model.activity.recently_changed_packages_activity_list(
+            limit=limit, offset=offset)
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
 
     return model_dictize.activity_list_dictize(activity_objects, context)
 
@@ -2508,6 +2564,18 @@ def group_follower_count(context, data_dict):
         context['model'].UserFollowingGroup)
 
 
+def organization_follower_count(context, data_dict):
+    '''Return the number of followers of an organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: int
+
+    '''
+    return group_follower_count(context, data_dict)
+
+
 def _follower_list(context, data_dict, default_schema, FollowerClass):
     schema = context.get('schema', default_schema)
     data_dict, errors = _validate(data_dict, schema, context)
@@ -2574,6 +2642,21 @@ def group_follower_list(context, data_dict):
         ckan.logic.schema.default_follow_group_schema(),
         context['model'].UserFollowingGroup)
 
+
+def organization_follower_list(context, data_dict):
+    '''Return the list of users that are following the given organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    _check_access('organization_follower_list', context, data_dict)
+    return _follower_list(
+        context, data_dict,
+        ckan.logic.schema.default_follow_group_schema(),
+        context['model'].UserFollowingGroup)
 
 def _am_following(context, data_dict, default_schema, FollowerClass):
     schema = context.get('schema', default_schema)
@@ -2762,7 +2845,8 @@ def followee_list(context, data_dict):
     for followee_list_function, followee_type in (
             (user_followee_list, 'user'),
             (dataset_followee_list, 'dataset'),
-            (group_followee_list, 'group')):
+            (group_followee_list, 'group'),
+            (organization_followee_list, 'organization')):
         dicts = followee_list_function(context, data_dict)
         for d in dicts:
             followee_dicts.append(
@@ -2859,6 +2943,26 @@ def group_followee_list(context, data_dict):
     '''
     _check_access('group_followee_list', context, data_dict)
 
+    return _group_or_org_followee_list(context, data_dict, is_org=False)
+
+
+def organization_followee_list(context, data_dict):
+    '''Return the list of organizations that are followed by the given user.
+
+    :param id: the id or name of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+
+    _check_access('organization_followee_list', context, data_dict)
+
+    return _group_or_org_followee_list(context, data_dict, is_org=True)
+
+
+def _group_or_org_followee_list(context, data_dict, is_org=False):
+
     if not context.get('skip_validation'):
         schema = context.get('schema',
                              ckan.logic.schema.default_follow_user_schema())
@@ -2873,7 +2977,8 @@ def group_followee_list(context, data_dict):
 
     # Convert the UserFollowingGroup objects to a list of Group objects.
     groups = [model.Group.get(followee.object_id) for followee in followees]
-    groups = [group for group in groups if group is not None]
+    groups = [group for group in groups
+              if group is not None and group.is_organization == is_org]
 
     # Dictize the list of Group objects.
     return [model_dictize.group_dictize(group, context) for group in groups]
@@ -2910,9 +3015,11 @@ def dashboard_activity_list(context, data_dict):
 
     # FIXME: Filter out activities whose subject or object the user is not
     # authorized to read.
-    activity_objects = model.activity.dashboard_activity_list(
-        user_id, limit=limit, offset=offset)
+    _activity_objects = model.activity.dashboard_activity_list(user_id,
+            limit=limit, offset=offset)
 
+    activity_objects = _filter_activity_by_user(_activity_objects,
+            _activity_stream_get_filtered_users())
     activity_dicts = model_dictize.activity_list_dictize(
         activity_objects, context)
 

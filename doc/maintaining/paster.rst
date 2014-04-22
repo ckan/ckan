@@ -74,6 +74,15 @@ with the ``--help`` option::
 Troubleshooting Paster Commands
 -------------------------------
 
+Permission Error
+================
+
+If you receive 'Permission Denied' error, try running paster with sudo.
+
+.. parsed-literal::
+
+  sudo |virtualenv|/bin/paster db clean -c |production.ini|
+
 Virtualenv not activated, or not in ckan dir
 ============================================
 
@@ -471,7 +480,7 @@ won't clear the index before starting rebuilding it::
 
     paster --plugin=ckan search-index rebuild -r --config=/etc/ckan/std/std.ini
 
-There is also an option available which works like the refresh option but tries to use all processes on the 
+There is also an option available which works like the refresh option but tries to use all processes on the
 computer to reindex faster::
 
     paster --plugin=ckan search-index rebuild_fast --config=/etc/ckan/std/std.ini

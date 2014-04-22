@@ -1069,7 +1069,7 @@ Example::
 
   ckan.datapusher.formats = csv xls
 
-Default value: ``csv xls application/csv application/vnd.ms-excel``
+Default value: ``csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet``
 
 File formats that will be pushed to the DataStore by the DataPusher. When
 adding or editing a resource which links to a file in one of these formats,
@@ -1149,6 +1149,20 @@ Default value: ``infinite``
 Email notifications for events older than this time delta will not be sent.
 Accepted formats: '2 days', '14 days', '4:35:00' (hours, minutes, seconds), '7 days, 3:23:34', etc.
 
+.. _ckan.hide_activity_from_users:
+
+ckan.hide_activity_from_users
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.hide_activity_from_users = sysadmin
+
+Hides activity from the specified users from activity stream. If unspecified,
+it'll use :ref:`ckan.site_id` to hide activity by the site user. The site user
+is a sysadmin user on every ckan user with a username that's equal to
+:ref:`ckan.site_id`. This user is used by ckan for performing actions from the
+command-line.
 
 .. _config-feeds:
 
@@ -1296,10 +1310,26 @@ locale, or ``/de/some/url`` when using the "de" locale, for example. This
 lets you change this. You can use any path that you want, adding ``{{LANG}}``
 where you want the locale code to go.
 
+.. _ckan.resource_formats:
 
+ckan.resource_formats
+^^^^^^^^^^^^^^^^^^^^^
 
+Example::
+    ckan.resource_formats = /path/to/resource_formats
 
+Default value: ckan/config/resource_formats.json
 
+The purpose of this file is to supply a thorough list of resource formats
+and to make sure the formats are normalized when saved to the database
+and presented.
+
+The format of the file is a JSON object with following format::
+
+    ["Format", "Description", "Mimetype", ["List of alternative representations"]]
+
+Please look in ckan/config/resource_formats.json for full details and and as an
+example.
 
 
 Form Settings
