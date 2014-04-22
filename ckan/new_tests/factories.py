@@ -152,6 +152,32 @@ class Resource(factory.Factory):
         return resource_dict
 
 
+class ResourceView(factory.Factory):
+    '''A factory class for creating CKAN resource views.'''
+
+    FACTORY_FOR = ckan.model.ResourceView
+
+    title = factory.Sequence(lambda n: 'test_resource_view_{n}'.format(n=n))
+    description = 'Just another test resource view.'
+    view_type = 'image'
+    resource_id = factory.LazyAttribute(lambda _: Resource()['id'])
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        context = {'user': _get_action_user_name(kwargs)}
+
+        resource_dict = helpers.call_action('resource_view_create',
+                                            context=context, **kwargs)
+        return resource_dict
+
+
 class Sysadmin(factory.Factory):
     '''A factory class for creating sysadmin users.'''
 
