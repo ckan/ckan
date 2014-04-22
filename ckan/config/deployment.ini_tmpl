@@ -44,8 +44,6 @@ who.log_file = %(cache_dir)s/who_log.ini
 
 ## Database Settings
 sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
-#sqlalchemy.url = sqlite:///
-#sqlalchemy.url = sqlite:///%(here)s/somedb.db
 
 #ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
 #ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
@@ -130,15 +128,16 @@ ckan.feeds.author_link =
 
 # Make sure you have set up the DataStore
 
-ckan.datapusher.formats = csv
-ckan.datapusher.url = http://datapusher.ckan.org/
+#ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+#ckan.datapusher.url = http://127.0.0.1:8800/
 
 ## Activity Streams Settings
 
 #ckan.activity_streams_enabled = true
 #ckan.activity_list_limit = 31
 #ckan.activity_streams_email_notifications = true
-# ckan.email_notifications_since = 2 days
+#ckan.email_notifications_since = 2 days
+ckan.hide_activity_from_users = %(ckan.site_id)s
 
 
 ## Email settings

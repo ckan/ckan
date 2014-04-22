@@ -48,3 +48,11 @@ of the extension, to avoid conflicting with core config settings or with
 config settings from other extensions. For example::
 
   ckan.my_extension.show_most_popular_groups = True
+
+
+-------------------------------------
+Internationalize user-visible strings
+-------------------------------------
+
+All user-visible strings should be internationalized, see
+:doc:`/contributing/string-i18n`.

@@ -67,7 +67,9 @@ def _make_latest_rev_active(context, q):
         context['latest_revision'] = latest_rev.revision_id
 
 def make_latest_pending_package_active(context, data_dict):
-    '''TODO: What does this function do?
+    '''
+
+    .. todo:: What does this function do?
 
     You must be authorized to update the dataset.
 
@@ -120,7 +122,8 @@ def related_update(context, data_dict):
 
     You must be the owner of a related item to update it.
 
-    For further parameters see ``related_create()``.
+    For further parameters see
+    :py:func:`~ckan.logic.action.create.related_create`.
 
     :param id: the id of the related item to update
     :type id: string
@@ -187,7 +190,8 @@ def resource_update(context, data_dict):
     To update a resource you must be authorized to update the dataset that the
     resource belongs to.
 
-    For further parameters see ``resource_create()``.
+    For further parameters see
+    :py:func:`~ckan.logic.action.create.resource_create`.
 
     :param id: the id of the resource to update
     :type id: string
@@ -243,18 +247,23 @@ def package_update(context, data_dict):
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
+    
+    It is recommended to call
+    :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
+    the result, and then call ``package_update()`` with it.
 
     Plugins may change the parameters of this function depending on the value
-    of the dataset's ``type`` attribute, see the ``IDatasetForm`` plugin
-    interface.
+    of the dataset's ``type`` attribute, see the
+    :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugin interface.
 
-    For further parameters see ``package_create()``.
+    For further parameters see
+    :py:func:`~ckan.logic.action.create.package_create`.
 
     :param id: the name or id of the dataset to update
     :type id: string
 
-    :returns: the updated dataset (if 'return_package_dict' is True in the
-              context, which is the default. Otherwise returns just the
+    :returns: the updated dataset (if ``'return_package_dict'`` is ``True`` in
+              the context, which is the default. Otherwise returns just the
               dataset id)
     :rtype: dictionary
 
@@ -291,7 +300,8 @@ def package_update(context, data_dict):
                 # to ensure they still work.
                 package_plugin.check_data_dict(data_dict)
 
-    data, errors = _validate(data_dict, schema, context)
+    data, errors = lib_plugins.plugin_validate(
+        package_plugin, context, data_dict, schema, 'package_update')
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               context.get('package').name if context.get('package') else '',
@@ -493,7 +503,9 @@ def _group_or_org_update(context, data_dict, is_org=False):
         except TypeError:
             group_plugin.check_data_dict(data_dict)
 
-    data, errors = _validate(data_dict, schema, context)
+    data, errors = lib_plugins.plugin_validate(
+        group_plugin, context, data_dict, schema,
+        'organization_update' if is_org else 'group_update')
     log.debug('group_update validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'),
               context.get('group').name if context.get('group') else '',
@@ -580,9 +592,11 @@ def group_update(context, data_dict):
     You must be authorized to edit the group.
 
     Plugins may change the parameters of this function depending on the value
-    of the group's ``type`` attribute, see the ``IGroupForm`` plugin interface.
+    of the group's ``type`` attribute, see the
+    :py:class:`~ckan.plugins.interfaces.IGroupForm` plugin interface.
 
-    For further parameters see ``group_create()``.
+    For further parameters see
+    :py:func:`~ckan.logic.action.create.group_create`.
 
     :param id: the name or id of the group to update
     :type id: string
@@ -598,7 +612,8 @@ def organization_update(context, data_dict):
 
     You must be authorized to edit the organization.
 
-    For further parameters see ``organization_create()``.
+    For further parameters see
+    :py:func:`~ckan.logic.action.create.organization_create`.
 
     :param id: the name or id of the organization to update
     :type id: string
@@ -615,7 +630,8 @@ def user_update(context, data_dict):
     Normal users can only update their own user accounts. Sysadmins can update
     any user account.
 
-    For further parameters see ``user_create()``.
+    For further parameters see
+    :py:func:`~ckan.logic.action.create.user_create`.
 
     :param id: the name or id of the user to update
     :type id: string
@@ -722,7 +738,8 @@ def task_status_update_many(context, data_dict):
     '''Update many task statuses at once.
 
     :param data: the task_status dictionaries to update, for the format of task
-        status dictionaries see ``task_status_update()``
+        status dictionaries see 
+        :py:func:`~task_status_update`
     :type data: list of dictionaries
 
     :returns: the updated task statuses
@@ -796,7 +813,7 @@ def term_translation_update_many(context, data_dict):
 
     :param data: the term translation dictionaries to create or update,
         for the format of term translation dictionaries see
-        ``term_translation_update()``
+        :py:func:`~term_translation_update`
     :type data: list of dictionaries
 
     :returns: a dictionary with key ``'success'`` whose value is a string
@@ -880,7 +897,8 @@ def vocabulary_update(context, data_dict):
 
     You must be a sysadmin to update vocabularies.
 
-    For further parameters see ``vocabulary_create()``.
+    For further parameters see
+    :py:func:`~ckan.logic.action.create.vocabulary_create`.
 
     :param id: the id of the vocabulary to update
     :type id: string
@@ -1005,7 +1023,7 @@ def user_role_bulk_update(context, data_dict):
     You must be authorized to update the domain object.
 
     :param user_roles: the updated user roles, for the format of user role
-        dictionaries see ``user_role_update()``
+        dictionaries see :py:func:`~user_role_update`
     :type user_roles: list of dictionaries
 
     :returns: the updated roles of all users and authorization groups for the
@@ -1034,7 +1052,8 @@ def user_role_bulk_update(context, data_dict):
 def dashboard_mark_activities_old(context, data_dict):
     '''Mark all the authorized user's new dashboard activities as old.
 
-    This will reset dashboard_new_activities_count to 0.
+    This will reset
+    :py:func:`~ckan.logic.action.get.dashboard_new_activities_count` to 0.
 
     '''
     _check_access('dashboard_mark_activities_old', context,

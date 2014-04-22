@@ -236,6 +236,10 @@ def group_follower_list(context, data_dict):
     return sysadmin(context, data_dict)
 
 
+def organization_follower_list(context, data_dict):
+    return sysadmin(context, data_dict)
+
+
 def _followee_list(context, data_dict):
     model = context['model']
 
@@ -271,6 +275,9 @@ def dataset_followee_list(context, data_dict):
 def group_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
+@logic.auth_audit_exempt
+def organization_followee_list(context, data_dict):
+    return _followee_list(context, data_dict)
 
 def user_reset(context, data_dict):
     return {'success': True}

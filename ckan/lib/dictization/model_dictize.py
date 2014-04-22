@@ -90,8 +90,9 @@ def related_list_dictize(related_list, context):
     for res in related_list:
         related_dict = related_dictize(res, context)
         result_list.append(related_dict)
-
-    return result_list
+    if context.get('sorted'):
+        return result_list
+    return sorted(result_list, key=lambda x: x["created"], reverse=True)
 
 
 def extras_dict_dictize(extras_dict, context):
@@ -117,30 +118,6 @@ def extras_list_dictize(extras_list, context):
 
     return sorted(result_list, key=lambda x: x["key"])
 
-def _unified_resource_format(format_):
-    ''' Convert resource formats into a more uniform set.
-    eg .json, json, JSON, text/json all converted to JSON.'''
-
-    format_clean = format_.lower().split('/')[-1].replace('.', '')
-    formats = {
-        'csv' : 'CSV',
-        'zip' : 'ZIP',
-        'pdf' : 'PDF',
-        'xls' : 'XLS',
-        'json' : 'JSON',
-        'kml' : 'KML',
-        'xml' : 'XML',
-        'shape' : 'SHAPE',
-        'rdf' : 'RDF',
-        'txt' : 'TXT',
-        'text' : 'TEXT',
-        'html' : 'HTML',
-    }
-    if format_clean in formats:
-        format_new = formats[format_clean]
-    else:
-        format_new = format_.lower()
-    return format_new
 
 def resource_dictize(res, context):
     model = context['model']
@@ -149,7 +126,6 @@ def resource_dictize(res, context):
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
-    resource['format'] = _unified_resource_format(res.format)
     # some urls do not have the protocol this adds http:// to these
     url = resource['url']
     ## for_edit is only called at the times when the dataset is to be edited
@@ -375,7 +351,8 @@ def group_dictize(group, context):
     if include_datasets:
         q['rows'] = 1000    # Only the first 1000 datasets are returned
 
-    search_results = logic.get_action('package_search')(context, q)
+    context_ = dict((k, v) for (k, v) in context.items() if k != 'schema')
+    search_results = logic.get_action('package_search')(context_, q)
 
     if include_datasets:
         result_dict['packages'] = search_results['results']
