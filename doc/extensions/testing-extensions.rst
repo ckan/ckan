@@ -2,7 +2,7 @@ Testing extensions
 ==================
 
 CKAN extensions can have their own tests that are run using ``nosetests``
-in much the same way as running CKAN's own tests (see :doc:`/test`).
+in much the same way as running CKAN's own tests (see :doc:`/contributing/test`).
 
 Continuing with our :doc:`example_iauthfunctions extension <tutorial>`,
 first we need a CKAN config file to be used when running our tests.
@@ -18,8 +18,8 @@ your CKAN source directory, relative to your ``test.ini`` file).
 
 The ``test.ini`` file is a CKAN config file just like your |development.ini|
 and |production.ini| files, and it can contain any
-:doc:`CKAN config file settings </configuration>` that you want CKAN to use
-when running your tests, for example::
+:doc:`CKAN config file settings </maintaining/configuration>` that you want
+CKAN to use when running your tests, for example::
 
     [app:main]
     use = config:../ckan/test-core.ini
@@ -60,6 +60,12 @@ Some notes on how these tests work:
   `Pylons testing documentation <http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/testing.html>`_.
 
 * The Pylons book also has a `chapter on testing <http://pylonsbook.com/en/1.0/testing.html>`_.
+
+* Avoid importing the plugin modules directly into your test modules 
+  (e.g from example_iauthfunctions import plugin_v5_custom_config_setting).
+  This causes the plugin to be registered and loaded before the entire test run,
+  so the plugin will be loaded for all tests. This can cause conflicts and 
+  test failures.
 
 .. todo::
 

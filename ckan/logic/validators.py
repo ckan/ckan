@@ -1,6 +1,7 @@
 import datetime
 from itertools import count
 import re
+import mimetypes
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
@@ -35,8 +36,9 @@ def owner_org_validator(key, data, errors, context):
     if value == '' :
         if not new_authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('A organization must be supplied'))
+        package = context.get('package')
         # only sysadmins can remove datasets from org
-        if not user.sysadmin:
+        if package and package.owner_org and not user.sysadmin:
             raise Invalid(_('You cannot remove a dataset from an existing organization'))
         return
 
@@ -674,7 +676,6 @@ def url_validator(key, data, errors, context):
     errors[key].append(_('Please provide a valid URL'))
 
 
-
 def user_name_exists(user_name, context):
     model = context['model']
     session = context['session']
@@ -725,6 +726,20 @@ def list_of_strings(key, data, errors, context):
     for x in value:
         if not isinstance(x, basestring):
             raise Invalid('%s: %s' % (_('Not a string'), x))
+
+def if_empty_guess_format(key, data, errors, context):
+    value = data[key]
+    resource_id = data.get(key[:-1] + ('id',))
+
+    # if resource_id then an update
+    if (not value or value is Missing) and not resource_id:
+        url = data.get(key[:-1] + ('url',), '')
+        mimetype, encoding = mimetypes.guess_type(url)
+        if mimetype:
+            data[key] = mimetype
+
+def clean_format(format):
+    return h.unified_resource_format(format)
 
 def no_loops_in_hierarchy(key, data, errors, context):
     '''Checks that the parent groups specified in the data would not cause

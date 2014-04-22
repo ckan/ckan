@@ -114,48 +114,6 @@ class TestAction(WsgiAppCase):
         assert 'public_dataset' in res
         assert not 'private_dataset' in res
 
-    def test_01_current_package_list_with_resources(self):
-        url = '/api/action/current_package_list_with_resources'
-
-        postparams = '%s=1' % json.dumps({
-            'limit': 1,
-            'offset': 1})
-        res = json.loads(self.app.post(url, params=postparams).body)
-        assert res['success']
-        assert len(res['result']) == 1
-
-        postparams = '%s=1' % json.dumps({
-            'limit': '5'})
-        res = json.loads(self.app.post(url, params=postparams).body)
-        assert res['success']
-
-        postparams = '%s=1' % json.dumps({
-            'limit': -2})
-        res = json.loads(self.app.post(url, params=postparams,
-                         status=StatusCodes.STATUS_409_CONFLICT).body)
-        assert not res['success']
-
-        postparams = '%s=1' % json.dumps({
-            'offset': 'a'})
-        res = json.loads(self.app.post(url, params=postparams,
-                         status=StatusCodes.STATUS_409_CONFLICT).body)
-        assert not res['success']
-
-        postparams = '%s=1' % json.dumps({
-            'limit': 2,
-            'page': 1})
-        res = json.loads(self.app.post(url, params=postparams).body)
-        assert res['success']
-        assert len(res['result']) == 2
-
-        postparams = '%s=1' % json.dumps({
-            'limit': 1,
-            'page': 0})
-        res = json.loads(self.app.post(url,
-                         params=postparams,
-                         status=StatusCodes.STATUS_409_CONFLICT).body)
-        assert not res['success']
-
     def test_01_package_show(self):
         anna_id = model.Package.by_name(u'annakarenina').id
         postparams = '%s=1' % json.dumps({'id': anna_id})
@@ -593,75 +551,6 @@ class TestAction(WsgiAppCase):
             res_obj = json.loads(res.body)
             for expected_message in test_call['messages']:
                 assert expected_message[1] in ''.join(res_obj['error'][expected_message[0]])
-
-    @mock.patch('ckan.lib.mailer.send_invite')
-    def test_user_invite(self, send_invite):
-        email_username = 'invited_user$ckan'
-        email = '%s@email.com' % email_username
-        organization_name = 'an_organization'
-        CreateTestData.create_groups([{'name': organization_name}])
-        role = 'member'
-        organization = model.Group.get(organization_name)
-        params = {'email': email,
-                  'group_id': organization.id,
-                  'role': role}
-        postparams = '%s=1' % json.dumps(params)
-        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
-
-        res = self.app.post('/api/action/user_invite', params=postparams,
-                            extra_environ=extra_environ)
-
-        res_obj = json.loads(res.body)
-        user = model.User.get(res_obj['result']['id'])
-        assert res_obj['success'] is True, res_obj
-        assert user.email == email, (user.email, email)
-        assert user.is_pending(), user
-        expected_username = email_username.replace('$', '-')
-        assert user.name.startswith(expected_username), (user.name,
-                                                         expected_username)
-        group_ids = user.get_group_ids(capacity=role)
-        assert organization.id in group_ids, (group_ids, organization.id)
-        assert send_invite.called
-        assert send_invite.call_args[0][0].id == res_obj['result']['id']
-
-    @mock.patch('ckan.lib.mailer.mail_user')
-    def test_user_invite_without_email_raises_error(self, mail_user):
-        user_dict = {}
-        postparams = '%s=1' % json.dumps(user_dict)
-        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
-
-        res = self.app.post('/api/action/user_invite', params=postparams,
-                            extra_environ=extra_environ,
-                            status=StatusCodes.STATUS_409_CONFLICT)
-
-        res_obj = json.loads(res.body)
-        assert res_obj['success'] is False, res_obj
-        assert 'email' in res_obj['error'], res_obj
-
-    @mock.patch('random.SystemRandom')
-    def test_user_invite_should_work_even_if_tried_username_already_exists(self, system_random_mock):
-        patcher = mock.patch('ckan.lib.mailer.mail_user')
-        patcher.start()
-        email = 'invited_user@email.com'
-        organization_name = 'an_organization'
-        CreateTestData.create_groups([{'name': organization_name}])
-        role = 'member'
-        organization = model.Group.get(organization_name)
-        params = {'email': email,
-                  'group_id': organization.id,
-                  'role': role}
-        postparams = '%s=1' % json.dumps(params)
-        extra_environ = {'Authorization': str(self.sysadmin_user.apikey)}
-
-        system_random_mock.return_value.random.side_effect = [1000, 1000, 2000, 3000]
-
-        for _ in range(2):
-            res = self.app.post('/api/action/user_invite', params=postparams,
-                                extra_environ=extra_environ)
-
-            res_obj = json.loads(res.body)
-            assert res_obj['success'] is True, res_obj
-        patcher.stop()
 
     def test_user_delete(self):
         name = 'normal_user'
