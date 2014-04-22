@@ -3,7 +3,8 @@ import re
 import os
 from hashlib import sha1, md5
 
-from passlib.hash import pbkdf2_sha512
+import passlib.utils 
+import passlib.hash as plh
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table
@@ -103,12 +104,40 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
 
     def _set_password(self, password):
         '''Hash password on the fly.'''
-        hashed_password = pbkdf2_sha512.encrypt(password)
+        hashed_password = plh.pbkdf2_sha512.encrypt(password)
+
+        if not isinstance(hashed_password, unicode):
+            hashed_password = hashed_password.decode('utf-8')
         self._password = hashed_password
 
     def _get_password(self):
         '''Return the password hashed'''
         return self._password
+
+    def _verify_and_upgrade_from_sha1(self, password):
+        if isinstance(password, unicode):
+            password_8bit = password.encode('ascii', 'ignore')
+        else:
+            password_8bit = password
+
+        hashed_pass = sha1(password_8bit + self.password[:40])
+        current_hash = passlib.utils.to_native_str(self.password[40:])
+
+        if passlib.utils.consteq(hashed_pass.hexdigest(), current_hash):
+            #we've passed the old sha1 check, upgrade our password
+            self._set_password(password)
+            self.save()
+            return True
+        else:
+            return False
+
+    def _verify_and_upgrade_pbkdf2(self, password):
+        if plh.pbkdf2_sha512.verify(password, self.password):
+            self._set_password(password)
+            self.save()
+            return True
+        else:
+            return False
 
     def validate_password(self, password):
         '''
@@ -124,22 +153,16 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         if not password or not self.password:
             return False
 
-        if not pbkdf2_sha512.identify(self.password):
-            if isinstance(password, unicode):
-                password_8bit = password.encode('ascii', 'ignore')
-            else:
-                password_8bit = password
-
-            hashed_pass = sha1(password_8bit + self.password[:40])
-            if self.password[40:] == hashed_pass.hexdigest():
-                #we've passed the old sha1 check, upgrade our password
-                self._set_password(password)
-                self.save()
-                return True
-            else:
-                return False
+        if not plh.pbkdf2_sha512.identify(self.password):
+            return self._verify_and_upgrade_from_sha1(password)
         else:
-            return pbkdf2_sha512.verify(password_8bit, self.password)
+            current_hash = plh.pbkdf2_sha512.from_string(self.password)
+            if (current_hash.rounds < plh.pbkdf2_sha512.default_rounds or
+                len(current_hash.salt) < plh.pbkdf2_sha512.default_salt_size):
+
+                return self._verify_and_upgrade_pbkdf2(password)
+
+            return plh.pbkdf2_sha512.verify(password, self.password)
 
     password = property(_get_password, _set_password)
 
