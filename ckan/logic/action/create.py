@@ -302,7 +302,7 @@ def resource_view_create(context, data_dict):
 
     :param resource_id: id of the resource
     :type resource_id: string
-    :param title: the title of the view (optional)
+    :param title: the title of the view
     :type title: string
     :param description: a description of the view (optional)
     :type description: string
