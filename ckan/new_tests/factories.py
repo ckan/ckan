@@ -152,6 +152,9 @@ class Group(factory.Factory):
     title = factory.LazyAttribute(_generate_group_title)
     description = 'A test description for this test group.'
 
+    user = factory.LazyAttribute(lambda _:
+                                 helpers.call_action('get_site_user'))
+
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
         raise NotImplementedError(".build() isn't supported in CKAN")
@@ -160,12 +163,13 @@ class Group(factory.Factory):
     def _create(cls, target_class, *args, **kwargs):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
-        assert 'user' in kwargs, ('The Group factory requires an extra '
-                                  'user=user_dict keyword argument (the user '
-                                  'who will create the group)')
-        user_dict = kwargs.pop('user')
-        context = {'user': user_dict['name']}
-        group_dict = helpers.call_action('group_create', context=context,
+
+        context = {
+            'user': kwargs.pop('user')['name']
+        }
+
+        group_dict = helpers.call_action('group_create',
+                                         context=context,
                                          **kwargs)
         return group_dict
 

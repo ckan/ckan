@@ -127,8 +127,8 @@ def user_create(context, data_dict=None):
             'create users')}
     return {'success': True}
 
-def user_invite(context, data_dict=None):
-    context['id'] = context.get('group_id')
+def user_invite(context, data_dict):
+    data_dict['id'] = data_dict['group_id']
     return group_member_create(context, data_dict)
 
 def _check_group_auth(context, data_dict):
