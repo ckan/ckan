@@ -87,3 +87,23 @@ class TestUserInvite(object):
         result = helpers.call_action('user_invite', context, **params)
 
         return ckan.model.User.get(result['id'])
+
+
+class TestResourceViewCreate(object):
+    @classmethod
+    def teardown_class(self):
+        helpers.reset_db()
+
+    def setup(self):
+        helpers.reset_db()
+
+    @mock.patch('ckan.lib.datapreview.get_view_plugin')
+    def test_resource_view_create_requires_view_type(self, get_view_plugin):
+        context = {}
+        params = {}
+
+        get_view_plugin.return_value = 'mock_view_plugin'
+
+        nose.tools.assert_raises(ckan.logic.ValidationError,
+                                 helpers.call_action,
+                                 'resource_view_create', context, **params)

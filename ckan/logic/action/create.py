@@ -319,7 +319,7 @@ def resource_view_create(context, data_dict):
     schema = (context.get('schema') or
               ckan.logic.schema.default_create_resource_view_schema())
 
-    view_type = data_dict.get('view_type', '')
+    view_type = _get_or_bust(data_dict, 'view_type')
     view_plugin = datapreview.get_view_plugin(view_type)
     if not view_plugin:
         raise ValidationError(
