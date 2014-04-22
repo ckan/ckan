@@ -5,6 +5,7 @@ import logging
 import json
 import hashlib
 import os
+import warnings
 
 import sqlalchemy as sa
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -117,7 +118,8 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     who_parser = WhoConfig(conf['here'])
     who_parser.parse(open(app_conf['who.config_file']))
 
-    if asbool(config.get('openid_enabled', 'true')):
+    if asbool(config.get('openid_enabled', 'false')):
+        warnings.warn("OpenID auth is deprecated", DeprecationWarning)
         from repoze.who.plugins.openid.identification import OpenIdIdentificationPlugin
         # Monkey patches for repoze.who.openid
         # Fixes #1659 - enable log-out when CKAN mounted at non-root URL
