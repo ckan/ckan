@@ -55,7 +55,7 @@ config_details = {
     'ckan.plugins': {'type': 'split'},
 
     # bool
-    'openid_enabled': {'default': 'true', 'type' : 'bool'},
+    'openid_enabled': {'default': 'false', 'type' : 'bool'},
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
     'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
