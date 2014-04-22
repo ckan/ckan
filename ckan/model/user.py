@@ -3,6 +3,7 @@ import re
 import os
 from hashlib import sha1, md5
 
+from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table
@@ -12,6 +13,7 @@ import meta
 import core
 import types as _types
 import domain_object
+
 
 user_table = Table('user', meta.metadata,
         Column('id', types.UnicodeText, primary_key=True,
@@ -106,9 +108,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         else:
             password_8bit = password
 
-        salt = sha1(os.urandom(60))
-        hash = sha1(password_8bit + salt.hexdigest())
-        hashed_password = salt.hexdigest() + hash.hexdigest()
+        hashed_password = pbkdf2_sha512.encrypt(password_8bit)
 
         if not isinstance(hashed_password, unicode):
             hashed_password = hashed_password.decode('utf-8')
@@ -135,8 +135,18 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
             password_8bit = password.encode('ascii', 'ignore')
         else:
             password_8bit = password
-        hashed_pass = sha1(password_8bit + self.password[:40])
-        return self.password[40:] == hashed_pass.hexdigest()
+
+        if not pbkdf2_sha512.identify(self.password):
+            hashed_pass = sha1(password_8bit + self.password[:40])
+            if self.password[40:] == hashed_pass.hexdigest():
+                #we've passed the old sha1 check, upgrade our password
+                self._set_password(password_8bit)
+                self.save()
+                return True
+            else:
+                return False
+        else:
+            return pbkdf2_sha512.verify(password_8bit, self.password)
 
     password = property(_get_password, _set_password)
 
