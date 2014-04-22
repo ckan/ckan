@@ -56,7 +56,12 @@ def _get_action_user_name(kwargs):
     else:
         user = helpers.call_action('get_site_user')
 
-    return user and user['name']
+    if user is None:
+        user_name = None
+    else:
+        user_name = user['name']
+
+    return user_name
 
 
 def _generate_email(user):
