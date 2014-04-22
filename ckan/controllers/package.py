@@ -1120,6 +1120,7 @@ class PackageController(base.BaseController):
     @maintain.deprecated('`autocomplete` is deprecated. Please use '
                          '/api/2/util/dataset/autocomplete')
     def autocomplete(self):
+        '''Deprecated in favour of /api/2/util/dataset/autocomplete'''
         q = unicode(request.params.get('q', ''))
         if not len(q):
             return ''
