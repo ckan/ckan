@@ -7,7 +7,7 @@ def upgrade(migrate_engine):
 
         CREATE TABLE data_cache (
             id text NOT NULL,
-            object_id text NOT NULL,
+            object_id text,
             key text NOT NULL,
             value text,
             created timestamp without time zone

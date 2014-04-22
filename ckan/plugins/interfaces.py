@@ -8,7 +8,7 @@ __all__ = [
     'IMapper', 'ISession',
     'IMiddleware',
     'IAuthFunctions',
-    'ICachedReport',
+    'IReportCache',
     'IDomainObjectModification', 'IGroupController',
     'IOrganizationController',
     'IPackageController', 'IPluginObserver',
@@ -618,7 +618,7 @@ class ITemplateHelpers(Interface):
 
         '''
 
-class ICachedReport(Interface):
+class IReportCache(Interface):
     """
     Allows a plugin to register some functions for generating reports
     that are too expensive to perform at run-time.
@@ -626,19 +626,29 @@ class ICachedReport(Interface):
 
     def register_reports(self):
         """
-        This method will be called so that the plugin can register the
-        reports it wants run.  The reports will then be executed on a
-        24 hour schedule and the appropriate tasks called.
+        Register details of an extension's reports. Each report, with any
+        specified combinations of options, will be run regularly (by setting up
+        a cron running "paster report-cache generate". The report results are
+        then stored in a cache, making them quick to view by end-users.
 
-        This call should return a dictionary, where the key is a description
-        and the value should be the function to run. This function should
-        take no parameters and return nothing.
-        """
-
-    def list_report_keys(self):
-        """
-        Returns a list of the reports that the plugin can generate by
-        returning each key name as an item in a list.
+        This method should return a list of dicts, each one describing a
+        report. A report dict looks like:
+        {
+            'name': 'feedback-report',
+            'option_defaults': OrderedDict((('publisher', None),
+                                            ('include_sub_publishers', False),
+                                            ('include_published', False))),
+                          # OrderedDict of default option values, when none are
+                          # specified.  Must include all available options.
+            'option_combinations': feedback_report_combinations,
+                          # A function that returns a list of dicts of option
+                          # values that covers all the combinations (assuming
+                          # you want to pre-cache these combinations. If there
+                          # are no options, just use None.
+            'generate': feedback_report
+                          # The report function. Should return the data as a
+                          # JSON-ifyable object.
+        }
         """
 
 class IDatasetForm(Interface):

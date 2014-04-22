@@ -37,7 +37,7 @@ entry_points = {
         'trans = ckan.lib.cli:TranslationsCommand',
         'minify = ckan.lib.cli:MinifyCommand',
         'less = ckan.lib.cli:LessCommand',
-        'cache-reports = ckan.lib.cli:CachedReports',
+        'report-cache = ckan.lib.cli:ReportCache',
         'datastore = ckanext.datastore.commands:SetupDatastoreCommand',
         'front-end-build = ckan.lib.cli:FrontEndBuildCommand',
     ],

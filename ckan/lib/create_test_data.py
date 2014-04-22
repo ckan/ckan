@@ -556,7 +556,7 @@ left arrow <
         user_ref = name or user_dict['openid']
         assert user_ref
         for k, v in user_dict.items():
-            if v:
+            if isinstance(v, str):
                 # avoid unicode warnings
                 user_dict[k] = unicode(v)
         user = model.User(name=unicode(name), **user_dict)

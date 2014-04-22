@@ -23,7 +23,7 @@ class DateTimeJsonDecoder(j.JSONDecoder):
     def dict_to_object(self, d):
         import dateutil.parser
         for k, v in d.iteritems():
-            if isinstance(v, unicode):
+            if isinstance(v, basestring):
                 if DateTimeJsonDecoder.dt.match(v):
                     d[k] = dateutil.parser.parse(v)
         return d
