@@ -1117,8 +1117,6 @@ class PackageController(base.BaseController):
             abort(404, _('Resource not found'))
         return render('package/confirm_delete_resource.html')
 
-    @maintain.deprecated('`autocomplete` is deprecated. Please use '
-                         '/api/2/util/dataset/autocomplete')
     def autocomplete(self):
         '''Deprecated in favour of /api/2/util/dataset/autocomplete'''
         q = unicode(request.params.get('q', ''))
