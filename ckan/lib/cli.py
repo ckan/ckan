@@ -2166,11 +2166,7 @@ class ViewsCommand(CkanCommand):
         for plugin in p.PluginImplementations(p.IResourceView):
             names.append(str(plugin.info()['name']))
 
-        results = model.Session.execute(
-            '''select view_type, count(*)
-               from resource_view where view_type not in %s group by 1
-            ''' % str(tuple(names))
-        ).fetchall()
+        results = model.ResourceView.get_count_not_in_view_types(names)
 
         if not results:
             print 'No resource views to delete'
@@ -2186,10 +2182,7 @@ class ViewsCommand(CkanCommand):
             print 'Not Deleting.'
             return
 
-        results = model.Session.execute(
-            '''delete from resource_view where view_type not in %s
-            ''' % str(tuple(names))
-        )
+        model.ResourceView.delete_not_in_view_types(names)
         model.Session.commit()
         print 'Deleted resource views.'
 
