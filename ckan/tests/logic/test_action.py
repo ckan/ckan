@@ -1382,55 +1382,6 @@ class TestAction(WsgiAppCase):
         self.app.post('/api/action/resource_view_show',
                       params=postparams, status=404)
 
-    def test_resource_view_update(self):
-        resource_id = model.Package.by_name(u'annakarenina').resources[0].id
-        resource_view = {'resource_id': resource_id,
-                         'view_type': u'image',
-                         'title': u'View',
-                         'description': u'A nice view',
-                         'image_url': 'url'}
-        postparams = '%s=1' % json.dumps(resource_view)
-        res = self.app.post(
-            '/api/action/resource_view_create', params=postparams,
-            extra_environ={'Authorization': str(self.normal_user.apikey)})
-        resource_view_created = json.loads(res.body)['result']
-
-        resource_view.update({'id': resource_view_created['id'],
-                              'image_url': 'new_url'})
-        postparams = '%s=1' % json.dumps(resource_view)
-        res = self.app.post(
-            '/api/action/resource_view_update', params=postparams,
-            extra_environ={'Authorization': str(self.normal_user.apikey)})
-        result = json.loads(res.body)['result']
-
-        result.pop('package_id')
-        assert result == resource_view
-
-    def test_resource_view_update_missing_resource_view_id(self):
-        postparams = '%s=1' % json.dumps({})
-        self.app.post(
-            '/api/action/resource_view_update', params=postparams,
-            extra_environ={'Authorization': str(self.normal_user.apikey)},
-            status=409)
-
-    def test_resource_view_update_invalid_resource_view_id(self):
-        resource_id = model.Package.by_name(u'annakarenina').resources[0].id
-        resource_view = {'resource_id': resource_id,
-                         'title': u'Resource View',
-                         'view_type': u'image',
-                         'image_url': 'url'}
-        postparams = '%s=1' % json.dumps(resource_view)
-        self.app.post(
-            '/api/action/resource_view_create', params=postparams,
-            extra_environ={'Authorization': str(self.normal_user.apikey)})
-
-        resource_view.update({'id': u'bad-resource-view-id'})
-        postparams = '%s=1' % json.dumps(resource_view)
-        self.app.post(
-            '/api/action/resource_view_update', params=postparams,
-            extra_environ={'Authorization': str(self.normal_user.apikey)},
-            status=404)
-
     def test_resource_view_update_invalid_auth(self):
         resource_id = model.Package.by_name(u'annakarenina').resources[0].id
         resource_view = {'resource_id': resource_id,
