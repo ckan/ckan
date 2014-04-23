@@ -259,7 +259,6 @@ def check_access(action, context, data_dict=None):
         authorized to call the named action
 
     '''
-    action = new_authz.clean_action_name(action)
 
     # Auth Auditing.  We remove this call from the __auth_audit stack to show
     # we have called the auth function
@@ -341,8 +340,6 @@ def get_action(action):
     :rtype: callable
 
     '''
-    # clean the action names
-    action = new_authz.clean_action_name(action)
 
     if _actions:
         if not action in _actions:
@@ -365,7 +362,6 @@ def get_action(action):
                 if (hasattr(v, '__call__')
                         and (v.__module__ == module_path
                              or hasattr(v, '__replaced'))):
-                    k = new_authz.clean_action_name(k)
                     _actions[k] = v
 
                     # Whitelist all actions defined in logic/action/get.py as
@@ -380,7 +376,6 @@ def get_action(action):
     fetched_actions = {}
     for plugin in p.PluginImplementations(p.IActions):
         for name, auth_function in plugin.get_actions().items():
-            name = new_authz.clean_action_name(name)
             if name in resolved_action_plugins:
                 raise Exception(
                     'The action %r is already implemented in %r' % (
