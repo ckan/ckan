@@ -85,8 +85,11 @@ this.ckan.module('image-upload', function($, _) {
         .add(this.field_url)
         .add(this.field_image);
 
-      if (options.is_url || options.is_upload) {
+      if (options.is_url) {
         this._showOnlyFieldUrl();
+      } else if (options.is_upload) {
+        this._showOnlyFieldUrl();
+        this.field_url_input.prop('disabled', true);
       } else {
         this._showOnlyButtons();
       }
