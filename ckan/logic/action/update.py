@@ -467,6 +467,8 @@ def package_patch(context, data_dict):
 
     '''
 
+    _check_access('package_patch', context, data_dict)
+
     name_or_id = data_dict.get("name") or _get_or_bust(data_dict, "id")
     package_dict = _get_action('package_show')(context, {'id': name_or_id})
 
