@@ -347,7 +347,7 @@ def package_update(context, data_dict):
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
-    
+
     It is recommended to call
     :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
     the result, and then call ``package_update()`` with it.
@@ -453,6 +453,29 @@ def package_update(context, data_dict):
             else _get_action('package_show')(context, {'id': data_dict['id']})
 
     return output
+
+def package_patch(context, data_dict):
+    '''Patch a dataset (package).
+
+    The difference between the update and patch methods is that the patch will
+    perform an update of the provided parameters, while leaving all other
+    parameters unchanged, whereas the update methods deletes all parameters
+    not explicitly provided in the data_dict
+
+    You must be authorized to edit the dataset and the groups that it belongs
+    to.
+
+    '''
+
+    name = data_dict.get('name')
+    if name:
+        package_dict = _get_action('package_show')(context, {'name': name})
+    else:
+        package_dict = _get_action('package_show')(context, {'id': data_dict['id']})
+
+    patched = dict(package_dict.items() + data_dict.items())
+    return package_update(context, patched)
+
 
 def package_resource_reorder(context, data_dict):
     '''Reorder resources against datasets.  If only partial resource ids are
@@ -869,7 +892,7 @@ def task_status_update_many(context, data_dict):
     '''Update many task statuses at once.
 
     :param data: the task_status dictionaries to update, for the format of task
-        status dictionaries see 
+        status dictionaries see
         :py:func:`~task_status_update`
     :type data: list of dictionaries
 

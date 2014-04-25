@@ -220,6 +220,62 @@ class TestAction(WsgiAppCase):
         package_created.pop('metadata_modified')
         assert package_updated == package_created#, (pformat(json.loads(res.body)), pformat(package_created['result']))
 
+    def test_03_create_patch_package(self):
+
+        package = {
+            'author': None,
+            'author_email': None,
+            'extras': [{'key': u'original media','value': u'"book"'}],
+            'license_id': u'other-open',
+            'maintainer': None,
+            'maintainer_email': None,
+            'name': u'annakareninanew2',
+            'notes': u'Some test now',
+            'resources': [{'alt_url': u'alt123',
+                           'description': u'Full text.',
+                           'extras': {u'alt_url': u'alt123', u'size': u'123'},
+                           'format': u'plain text',
+                           'hash': u'abc123',
+                           'position': 0,
+                           'url': u'http://www.annakarenina.com/download/'},
+                          {'alt_url': u'alt345',
+                           'description': u'Index of the novel',
+                           'extras': {u'alt_url': u'alt345', u'size': u'345'},
+                           'format': u'JSON',
+                           'hash': u'def456',
+                           'position': 1,
+                           'url': u'http://www.annakarenina.com/index.json'}],
+            'tags': [{'name': u'russian'}, {'name': u'tolstoy'}],
+            'title': u'A Novel By Tolstoy',
+            'url': u'http://www.annakarenina.com',
+            'version': u'0.7a'
+        }
+
+        wee = json.dumps(package)
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        package_created = json.loads(res.body)['result']
+        print package_created
+
+        postparams = '%s=1' % json.dumps({'id': package_created['id'], 'notes': 'Some new notes'})
+        res = self.app.post('/api/action/package_patch', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+
+        package_patched = json.loads(res.body)['result']
+        package_patched.pop('revision_id')
+        package_patched.pop('revision_timestamp')
+        package_patched.pop('metadata_created')
+        package_patched.pop('metadata_modified')
+
+        package_created.pop('revision_id')
+        package_created.pop('revision_timestamp')
+        package_created.pop('metadata_created')
+        package_created.pop('metadata_modified')
+        package_created['notes'] = 'Some new notes'
+
+        assert package_patched == package_created#, (pformat(json.loads(res.body)), pformat(package_created['result']))
+
     def test_03_create_private_package(self):
 
         # Make an organization, because private datasets must belong to one.
