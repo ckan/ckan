@@ -82,7 +82,7 @@ Migration testing
 If you're a CKAN developer or extension developer and your new code requires a
 change to CKAN's model, you'll need to write a migration script. To ensure that
 the migration script itself gets tested, you should run the tests with
-they ``--ckan-migration`` option, for example::
+the ``--ckan-migration`` option, for example::
 
      nosetests --ckan --ckan-migration --with-pylons=test-core.ini ckan ckanext
 
