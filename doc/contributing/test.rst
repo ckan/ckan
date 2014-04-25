@@ -71,8 +71,6 @@ option::
 
      nosetests --ckan --reset-db --with-pylons=test-core.ini ckan
 
-If you are have the ``ckan-migration`` option on the tests will reset the
-reset the database before the test run.
 
 
 .. _migrationtesting:
