@@ -467,11 +467,8 @@ def package_patch(context, data_dict):
 
     '''
 
-    name = data_dict.get('name')
-    if name:
-        package_dict = _get_action('package_show')(context, {'name': name})
-    else:
-        package_dict = _get_action('package_show')(context, {'id': data_dict['id']})
+    name_or_id = data_dict.get("name") or _get_or_bust(data_dict, "id")
+    package_dict = _get_action('package_show')(context, {'id': name_or_id})
 
     patched = dict(package_dict.items() + data_dict.items())
     return package_update(context, patched)
