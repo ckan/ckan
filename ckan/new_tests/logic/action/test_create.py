@@ -98,7 +98,7 @@ class TestResourceCreate(object):
     def setup(self):
         model.repo.rebuild_db()
 
-    def test_requires_url(self):
+    def test_it_requires_url(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         data_dict = {
