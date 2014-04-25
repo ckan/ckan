@@ -57,7 +57,6 @@ class AuthFunctions:
 
             for key, v in module.__dict__.items():
                 if not key.startswith('_'):
-                    key = clean_action_name(key)
                     # Whitelist all auth functions defined in
                     # logic/auth/get.py as not requiring an authorized user,
                     # as well as ensuring that the rest do. In both cases, do
@@ -75,7 +74,6 @@ class AuthFunctions:
         fetched_auth_functions = {}
         for plugin in p.PluginImplementations(p.IAuthFunctions):
             for name, auth_function in plugin.get_auth_functions().items():
-                name = clean_action_name(name)
                 if name in resolved_auth_function_plugins:
                     raise Exception(
                         'The auth function %r is already implemented in %r' % (
@@ -104,13 +102,6 @@ def auth_functions_list():
     this is to allow the Auth Audit to know if an auth function is available
     for a given action.'''
     return _AuthFunctions.keys()
-
-
-def clean_action_name(action_name):
-    ''' Used to convert old style action names into new style ones '''
-    new_action_name = re.sub('package', 'dataset', action_name)
-    # CS: bad_spelling ignore
-    return re.sub('licence', 'license', new_action_name)
 
 
 def is_sysadmin(username):
@@ -157,7 +148,6 @@ def is_authorized(action, context, data_dict=None):
     if context.get('ignore_auth'):
         return {'success': True}
 
-    action = clean_action_name(action)
     auth_function = _AuthFunctions.get(action)
     if auth_function:
         username = context.get('user')
