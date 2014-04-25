@@ -308,6 +308,9 @@ class PackageSearchQuery(SearchQuery):
         q = query.get('q')
         if not q or q == '""' or q == "''":
             query['q'] = "*:*"
+        else:
+            # need a fake facet_item for metadata_type
+            query['q'] = q.replace('metadata_type: "non-geospatial"', '-metadata_type: "geospatial"')
 
         # number of results
         rows_to_return = min(1000, int(query.get('rows', 10)))
@@ -324,8 +327,10 @@ class PackageSearchQuery(SearchQuery):
         if order_by == 'rank' or order_by is None:
             query['sort'] = 'score desc, name asc'
 
-        # show only results from this CKAN instance
         fq = query.get('fq', '')
+        # need a fake facet_item for metadata_type
+        fq = fq.replace('metadata_type:"non-geospatial"', '-metadata_type:"geospatial"')
+        # show only results from this CKAN instance
         if not '+site_id:' in fq:
             fq += ' +site_id:"%s"' % config.get('ckan.site_id')
 

@@ -484,7 +484,9 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
     if not c.search_facets or \
        not c.search_facets.get(facet) or \
        not c.search_facets.get(facet).get('items'):
-        return []
+        # need a fake facet_item for metadata_type
+        if facet != 'metadata_type':
+            return []
     facets = []
     for facet_item in c.search_facets.get(facet)['items']:
         if not len(facet_item['name'].strip()):
@@ -493,6 +495,32 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
+        # need a fake facet_item for metadata_type
+        if facet == 'metadata_type' and facet_item['name'] == 'geospatial':
+            added_facet_item = {
+                'name': u'non-geospatial',
+                'display_name': u'non-geospatial',
+                'count': c.page.item_count - facet_item['count']
+            }
+            if added_facet_item['count'] == 0:
+                continue
+            if not (facet, added_facet_item['name']) in request.params.items():
+                facets.append(dict(active=False, **added_facet_item))
+            elif not exclude_active:
+                facets.append(dict(active=True, **added_facet_item))
+    # need a fake facet_item for metadata_type
+    if facet == 'metadata_type' and facets == []:
+        added_facet_item = {
+            'name': u'non-geospatial',
+            'display_name': u'non-geospatial',
+            'count': c.page.item_count
+        }
+        if added_facet_item['count'] != 0:
+            if not (facet, added_facet_item['name']) in request.params.items():
+                facets.append(dict(active=False, **added_facet_item))
+            elif not exclude_active:
+                facets.append(dict(active=True, **added_facet_item))
+
     facets = sorted(facets, key=lambda item: item['count'], reverse=True)
     if c.search_facets_limits:
         limit = c.search_facets_limits.get(facet)
