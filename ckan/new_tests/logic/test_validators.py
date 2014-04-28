@@ -448,6 +448,8 @@ class TestValidators(object):
         call_validator(key, data, errors, context={'model': mock_model})
 
     def test_int_validator_idempotent(self):
+        import ckan.logic.validators as validators
+
         unchanged_values = [
             42,
             0,
@@ -458,6 +460,7 @@ class TestValidators(object):
             returns_arg(validators.int_validator)(v)
 
     def test_int_validator_convert(self):
+        import ckan.logic.validators as validators
         from fractions import Fraction
         from decimal import Decimal
 
@@ -468,12 +471,12 @@ class TestValidators(object):
             ("528735648764587235684376", 528735648764587235684376),
             ("", None),
             (" \n", None),
-            (1 + 0j, 1),
         ]
         for arg, result in converted_values:
-            eq(validators.int_validator(arg), result)
+            eq(validators.int_validator(arg, None), result)
 
     def test_int_validator_invalid(self):
+        import ckan.logic.validators as validators
         from fractions import Fraction
         from decimal import Decimal
 
@@ -485,9 +488,10 @@ class TestValidators(object):
             Fraction(3, 2),
             Decimal("19.99"),
             1 + 1j,
+            1 + 0j, # int(complex) fails, so expect the same
         ]
         for v in invalid_values:
-            raises_Invalid(validators.int_validator)(v)
+            raises_Invalid(validators.int_validator)(v, None)
 
 
     #TODO: Need to test when you are not providing owner_org and the validator

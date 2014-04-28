@@ -100,7 +100,11 @@ def int_validator(value, context):
         except ValueError:
             pass
     else:
-        return int(whole)
+        if not part:
+            try:
+                return int(whole)
+            except TypeError:
+                pass  # complex number: fail like int(complex) does
 
     raise Invalid(_('Invalid integer'))
 
