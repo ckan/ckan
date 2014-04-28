@@ -29,7 +29,6 @@ class CkanNose(Plugin):
             if (not CkanNose.settings.reset_database
                     and not CkanNose.settings.ckan_migration):
                 model.Session.close_all()
-                model.repo.tables_created_and_initialised = True
                 model.repo.rebuild_db()
                 self.is_first_test = False
             elif self.is_first_test or CkanNose.settings.ckan_migration:

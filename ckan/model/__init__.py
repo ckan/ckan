@@ -270,6 +270,7 @@ class Repository(vdm.sqlalchemy.Repository):
         self.metadata.create_all(bind=self.metadata.bind)
         self.init_const_data()
         self.init_configuration_data()
+        self.tables_created_and_initialised = True
         log.info('Database tables created')
 
     def latest_migration_version(self):
