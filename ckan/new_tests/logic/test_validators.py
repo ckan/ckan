@@ -16,6 +16,9 @@ import ckan.new_tests.factories as factories
 import ckan.new_tests.lib.navl.test_validators as t
 
 
+eq = nose.tools.eq_
+
+
 def returns_arg(function):
     '''A decorator that tests that the decorated function returns the argument
     that it is called with, unmodified.
@@ -443,6 +446,49 @@ class TestValidators(object):
             return validators.datasets_with_no_organization_cannot_be_private(
                 *args, **kwargs)
         call_validator(key, data, errors, context={'model': mock_model})
+
+    def test_int_validator_idempotent(self):
+        unchanged_values = [
+            42,
+            0,
+            3948756923874659827346598,
+            None,
+        ]
+        for v in unchanged_values:
+            returns_arg(validators.int_validator)(v)
+
+    def test_int_validator_convert(self):
+        from fractions import Fraction
+        from decimal import Decimal
+
+        converted_values = [
+            (42.0, 42),
+            (Fraction(2, 1), 2),
+            (Decimal("19.00", 19)),
+            ("528735648764587235684376", 528735648764587235684376),
+            ("", None),
+            (" \n", None),
+            (1 + 0j, 1),
+        ]
+        for arg, result in converted_values:
+            eq(validators.int_validator(arg), result)
+
+    def test_int_validator_invalid(self):
+        from fractions import Fraction
+        from decimal import Decimal
+
+        invalid_values = [
+            42.5,
+            "42.5",
+            "1e6",
+            "text",
+            Fraction(3, 2),
+            Decimal("19.99"),
+            1 + 1j,
+        ]
+        for v in invalid_values:
+            raises_Invalid(validators.int_validator)(v)
+
 
     #TODO: Need to test when you are not providing owner_org and the validator
     #      queries for the dataset with package_show
