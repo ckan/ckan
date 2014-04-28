@@ -62,14 +62,45 @@ def package_id_not_changed(value, context):
     return value
 
 def int_validator(value, context):
-    if isinstance(value, int):
-        return value
+    """
+    Return an integer for value, which may be a string in base 10 or
+    a numeric type (e.g. int, long, float, Decimal, Fraction). Return
+    None for None or empty string values.
+
+    :raises: ckan.lib.navl.dictization_functions.Invalid for other
+        inputs or non-whole values
+
+    >>> int_validator("42", {})
+    42
+    >>> int_validator(823764982376498236, {})
+    823764982376498236L
+    >>> int_validator("", {}) is None
+    True
+    >>> int_validator(None, {}) is None
+    True
+    >>> int_validator("not a number", {})
+    Traceback (most recent call last):
+    ...
+    Invalid('Invalid integer')
+    >>> int_validator(19.5, {})
+    Traceback (most recent call last):
+    ...
+    Invalid('Invalid integer')
+    """
+    if value is None or value == '':
+        return None
+
     try:
-        if value.strip() == '':
-            return None
-        return int(value)
-    except (AttributeError, ValueError), e:
-        raise Invalid(_('Invalid integer'))
+        whole, part = divmod(value, 1)
+    except TypeError:
+        try:
+            return int(value)
+        except ValueError:
+            pass
+    else:
+        return int(whole)
+
+    raise Invalid(_('Invalid integer'))
 
 def natural_number_validator(value, context):
     value = int_validator(value, context)
