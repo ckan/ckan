@@ -69,23 +69,6 @@ def int_validator(value, context):
 
     :raises: ckan.lib.navl.dictization_functions.Invalid for other
         inputs or non-whole values
-
-    >>> int_validator("42", {})
-    42
-    >>> int_validator(823764982376498236, {})
-    823764982376498236L
-    >>> int_validator(" ", {}) is None
-    True
-    >>> int_validator(None, {}) is None
-    True
-    >>> int_validator("not a number", {})
-    Traceback (most recent call last):
-    ...
-    Invalid('Invalid integer')
-    >>> int_validator(19.5, {})
-    Traceback (most recent call last):
-    ...
-    Invalid('Invalid integer')
     """
     if value is None:
         return None
