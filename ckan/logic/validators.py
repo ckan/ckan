@@ -65,7 +65,7 @@ def int_validator(value, context):
     """
     Return an integer for value, which may be a string in base 10 or
     a numeric type (e.g. int, long, float, Decimal, Fraction). Return
-    None for None or empty string values.
+    None for None or empty/all-whitespace string values.
 
     :raises: ckan.lib.navl.dictization_functions.Invalid for other
         inputs or non-whole values
@@ -74,7 +74,7 @@ def int_validator(value, context):
     42
     >>> int_validator(823764982376498236, {})
     823764982376498236L
-    >>> int_validator("", {}) is None
+    >>> int_validator(" ", {}) is None
     True
     >>> int_validator(None, {}) is None
     True
@@ -87,7 +87,9 @@ def int_validator(value, context):
     ...
     Invalid('Invalid integer')
     """
-    if value is None or value == '':
+    if value is None:
+        return None
+    if hasattr(value, 'strip') and not value.strip():
         return None
 
     try:
