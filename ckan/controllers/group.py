@@ -364,6 +364,9 @@ class GroupController(base.BaseController):
 
         group_type = self._get_group_type(id.split('@')[0])
 
+        if group_type is None:
+            abort(404, _('Organization not found'))
+
         if group_type != 'organization':
             # FIXME: better error
             raise Exception('Must be an organization')
