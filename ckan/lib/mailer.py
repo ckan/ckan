@@ -19,14 +19,17 @@ class MailerException(Exception):
     pass
 
 def add_msg_niceties(recipient_name, body, sender_name, sender_url):
+    #return _(u"Dear %s,") % recipient_name \
+    #       + u"\r\n\r\n%s\r\n\r\n" % body \
+    #       + u"--\r\n%s (%s)" % (sender_name, sender_url)
     return _(u"Dear %s,") % recipient_name \
-           + u"\r\n\r\n%s\r\n\r\n" % body \
-           + u"--\r\n%s (%s)" % (sender_name, sender_url)
+           + u"\r\n\r\n%s\r\n\r\n" % body 
 
 def _mail_recipient(recipient_name, recipient_email,
         sender_name, sender_url, subject,
         body, headers={}):
-    mail_from = config.get('smtp.mail_from')
+    #mail_from = config.get('smtp.mail_from')
+    mail_from = 'no-reply@data.gov'
     body = add_msg_niceties(recipient_name, body, sender_name, sender_url)
     msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
     for k, v in headers.items(): msg[k] = v
@@ -88,23 +91,19 @@ def _mail_recipient(recipient_name, recipient_email,
 
 def mail_recipient(recipient_name, recipient_email, subject,
         body, headers={}):
-    return _mail_recipient(recipient_name, recipient_email,
-            g.site_title, g.site_url, subject, body, headers=headers)
+    
+    #return _mail_recipient(recipient_name, recipient_email,
+    #        g.site_title, g.site_url, subject, body, headers=headers)
 
+    return _mail_recipient(recipient_name, recipient_email,
+            "", "", subject, body, headers=headers)
+
+    
 def mail_user(recipient, subject, body, headers={}):
     if (recipient.email is None) or not len(recipient.email):
         raise MailerException(_("No recipient email address available!"))
     mail_recipient(recipient.display_name, recipient.email, subject,
             body, headers=headers)
-
-
-RESET_LINK_MESSAGE = _(
-'''You have requested your password on %(site_title)s to be reset.
-
-Please click the following link to confirm this request:
-
-   %(reset_link)s
-''')
 
 def make_key():
     return uuid.uuid4().hex[:10]
@@ -121,6 +120,13 @@ def get_reset_link(user):
                            key=user.reset_key))
 
 def get_reset_link_body(user):
+    RESET_LINK_MESSAGE = _(
+    '''You have requested your password on %(site_title)s to be reset.
+
+    Please click the following link to confirm this request:
+
+       %(reset_link)s
+    ''')
     d = {
         'reset_link': get_reset_link(user),
         'site_title': g.site_title
