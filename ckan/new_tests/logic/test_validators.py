@@ -467,7 +467,7 @@ class TestValidators(object):
         converted_values = [
             (42.0, 42),
             (Fraction(2, 1), 2),
-            (Decimal("19.00", 19)),
+            (Decimal("19.00"), 19),
             ("528735648764587235684376", 528735648764587235684376),
             ("", None),
             (" \n", None),
@@ -488,7 +488,7 @@ class TestValidators(object):
             Fraction(3, 2),
             Decimal("19.99"),
             1 + 1j,
-            1 + 0j, # int(complex) fails, so expect the same
+            1 + 0j,  # int(complex) fails, so expect the same
         ]
         for v in invalid_values:
             raises_Invalid(validators.int_validator)(v, None)
