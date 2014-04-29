@@ -479,6 +479,7 @@ class TestValidators(object):
         import ckan.logic.validators as validators
         from fractions import Fraction
         from decimal import Decimal
+        import warnings
 
         invalid_values = [
             42.5,
@@ -490,8 +491,10 @@ class TestValidators(object):
             1 + 1j,
             1 + 0j,  # int(complex) fails, so expect the same
         ]
-        for v in invalid_values:
-            raises_Invalid(validators.int_validator)(v, None)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            for v in invalid_values:
+                raises_Invalid(validators.int_validator)(v, None)
 
 
     #TODO: Need to test when you are not providing owner_org and the validator
