@@ -28,7 +28,8 @@ def add_msg_niceties(recipient_name, body, sender_name, sender_url):
 def _mail_recipient(recipient_name, recipient_email,
         sender_name, sender_url, subject,
         body, headers={}):
-    mail_from = config.get('smtp.mail_from')
+    #mail_from = config.get('smtp.mail_from')
+    mail_from = 'no-reply@data.gov'
     body = add_msg_niceties(recipient_name, body, sender_name, sender_url)
     msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
     for k, v in headers.items(): msg[k] = v
