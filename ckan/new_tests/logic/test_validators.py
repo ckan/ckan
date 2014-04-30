@@ -16,7 +16,7 @@ import ckan.new_tests.factories as factories
 import ckan.new_tests.lib.navl.test_validators as t
 
 
-eq = nose.tools.eq_
+assert_equals = nose.tools.assert_equals
 
 
 def returns_arg(function):
@@ -473,7 +473,7 @@ class TestValidators(object):
             (" \n", None),
         ]
         for arg, result in converted_values:
-            eq(validators.int_validator(arg, None), result)
+            assert_equals(validators.int_validator(arg, None), result)
 
     def test_int_validator_invalid(self):
         import ckan.logic.validators as validators
