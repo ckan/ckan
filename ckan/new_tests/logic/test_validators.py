@@ -423,44 +423,82 @@ class TestValidators(object):
                 *args, **kwargs)
         call_validator(key, data, errors, context={'model': mock_model})
 
-    def test_int_validator_idempotent(self):
-        unchanged_values = [
-            42,
-            0,
-            3948756923874659827346598,
-            None,
-        ]
-        for v in unchanged_values:
-            returns_arg(validators.int_validator)(v)
 
-    def test_int_validator_convert(self):
-        converted_values = [
-            (42.0, 42),
-            (fractions.Fraction(2, 1), 2),
-            (decimal.Decimal('19.00'), 19),
-            ('528735648764587235684376', 528735648764587235684376),
-            ('', None),
-            (' \n', None),
-        ]
-        for arg, result in converted_values:
-            assert_equals(validators.int_validator(arg, None), result)
+class TestIntValidator(object):
 
-    def test_int_validator_invalid(self):
-        invalid_values = [
-            42.5,
-            '42.5',
-            '1e6',
-            'text',
-            fractions.Fraction(3, 2),
-            decimal.Decimal('19.99'),
-            1 + 1j,
-            1 + 0j,  # int(complex) fails, so expect the same
-        ]
-        with warnings.catch_warnings():
+    def test_int_unchanged(self):
+        returns_arg(validators.int_validator)(42)
+
+    def test_zero_unchanged(self):
+        returns_arg(validators.int_validator)(0)
+
+    def test_long_unchanged(self):
+        returns_arg(validators.int_validator)(3948756923874659827346598)
+
+    def test_None_unchanged(self):
+        returns_arg(validators.int_validator)(None)
+
+    def test_float_converted(self):
+        assert_equals(validators.int_validator(42.0, None), 42)
+
+    def test_fraction_converted(self):
+        assert_equals(validators.int_validator(
+            fractions.Fraction(2, 1), {}), 2)
+
+    def test_decimal_converted(self):
+        assert_equals(validators.int_validator(
+            decimal.Decimal('19.00'), {}), 19)
+
+    def test_long_int_string_converted(self):
+        assert_equals(validators.int_validator(
+            '528735648764587235684376', {}), 528735648764587235684376)
+
+    def test_negative_int_string_converted(self):
+        assert_equals(validators.int_validator('-2', {}), -2)
+
+    def test_positive_int_string_converted(self):
+        assert_equals(validators.int_validator('+3', {}), 3)
+
+    def test_zero_prefixed_int_string_converted_as_decimal(self):
+        assert_equals(validators.int_validator('0123', {}), 123)
+
+    def test_string_with_whitespace_converted(self):
+        assert_equals(validators.int_validator('\t  98\n', {}), 98)
+
+    def test_empty_string_becomes_None(self):
+        assert_equals(validators.int_validator('', {}), None)
+
+    def test_whitespace_string_becomes_None(self):
+        assert_equals(validators.int_validator('\n\n  \t', {}), None)
+
+    def test_float_with_decimal_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)(42.5, {})
+
+    def test_float_string_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)('42.0', {})
+
+    def test_exponent_string_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)('1e6', {})
+
+    def test_non_numeric_string_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)('text', {})
+
+    def test_non_whole_fraction_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)(fractions.Fraction(3, 2), {})
+
+    def test_non_whole_decimal_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)(decimal.Decimal('19.99'), {})
+
+    def test_complex_with_imaginary_component_raises_Invalid(self):
+        with warnings.catch_warnings():  # divmod() issues warning for this type
             warnings.filterwarnings('ignore', category=DeprecationWarning)
-            for v in invalid_values:
-                raises_Invalid(validators.int_validator)(v, None)
+            raises_Invalid(validators.int_validator)(1 + 1j, {})
+
+    def test_complex_without_imaginary_component_raises_Invalid(self):
+        with warnings.catch_warnings():  # divmod() issues warning for this type
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            raises_Invalid(validators.int_validator)(1 + 0j, {})
 
 
-    #TODO: Need to test when you are not providing owner_org and the validator
-    #      queries for the dataset with package_show
+#TODO: Need to test when you are not providing owner_org and the validator
+#      queries for the dataset with package_show
