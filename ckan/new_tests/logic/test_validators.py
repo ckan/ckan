@@ -467,10 +467,10 @@ class TestValidators(object):
         converted_values = [
             (42.0, 42),
             (Fraction(2, 1), 2),
-            (Decimal("19.00"), 19),
-            ("528735648764587235684376", 528735648764587235684376),
-            ("", None),
-            (" \n", None),
+            (Decimal('19.00'), 19),
+            ('528735648764587235684376', 528735648764587235684376),
+            ('', None),
+            (' \n', None),
         ]
         for arg, result in converted_values:
             assert_equals(validators.int_validator(arg, None), result)
@@ -483,16 +483,16 @@ class TestValidators(object):
 
         invalid_values = [
             42.5,
-            "42.5",
-            "1e6",
-            "text",
+            '42.5',
+            '1e6',
+            'text',
             Fraction(3, 2),
-            Decimal("19.99"),
+            Decimal('19.99'),
             1 + 1j,
             1 + 0j,  # int(complex) fails, so expect the same
         ]
         with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
             for v in invalid_values:
                 raises_Invalid(validators.int_validator)(v, None)
 
