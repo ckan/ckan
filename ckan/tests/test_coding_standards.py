@@ -712,6 +712,8 @@ class TestPep8(object):
         'ckan/model/user.py',
         'ckan/model/vocabulary.py',
         'ckan/new_authz.py',
+        'ckan/new_tests/logic/action/test_get.py',
+        'ckan/new_tests/test_new_authz.py',
         'ckan/pastertemplates/__init__.py',
         'ckan/plugins/interfaces.py',
         'ckan/plugins/toolkit.py',
