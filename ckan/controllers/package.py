@@ -871,6 +871,8 @@ class PackageController(base.BaseController):
                     # This is actually an update not a save
                     data_dict['id'] = data_dict['pkg_name']
                     del data_dict['pkg_name']
+                    # don't change the dataset state
+                    data_dict['state'] = 'draft'
                     # this is actually an edit not a save
                     pkg_dict = get_action('package_update')(context, data_dict)
 
