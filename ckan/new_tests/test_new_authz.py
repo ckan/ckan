@@ -11,10 +11,10 @@ class TestHasUserPermissionForGroupOrOrg(object):
 
     def setup(self):
         helpers.reset_db()
-        new_authz.CONFIG_PERMISSIONS = {}
+        new_authz.clear_auth_functions_cache()
 
     def teardown(self):
-        new_authz.CONFIG_PERMISSIONS = {}
+        new_authz.clear_auth_functions_cache()
 
     def test_user_that_created_group_has_admin_permissions(self):
         user = factories.User()

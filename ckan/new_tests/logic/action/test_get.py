@@ -359,10 +359,10 @@ class TestGroupListAuthz(object):
 
     def setup(self):
         helpers.reset_db()
-        new_authz.CONFIG_PERMISSIONS = {}
+        new_authz.clear_auth_functions_cache()
 
     def teardown(self):
-        new_authz.CONFIG_PERMISSIONS = {}
+        new_authz.clear_auth_functions_cache()
 
     def test_it_returns_the_groups_the_user_is_authorized_to_edit(self):
         user = factories.User()
