@@ -359,6 +359,7 @@ class TestGroupListAuthz(object):
 
     def setup(self):
         helpers.reset_db()
+        new_authz.CONFIG_PERMISSIONS = {}
 
     def teardown(self):
         new_authz.CONFIG_PERMISSIONS = {}
