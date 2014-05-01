@@ -2,6 +2,7 @@ import nose.tools
 
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
+import ckan.model as model
 
 assert_equals = nose.tools.assert_equals
 assert_not_equals = nose.tools.assert_not_equals
@@ -59,3 +60,48 @@ class TestFactories(object):
         mockuser1 = factories.MockUser()
         mockuser2 = factories.MockUser()
         assert_not_equals(mockuser1['id'], mockuser2['id'])
+
+    def test_member_factory_adds_user_to_group_in_specified_capacity(self):
+        user_id = factories.User()['id']
+        group_id = factories.Group()['id']
+        capacity = 'admin'
+
+        factories.Member(id=group_id, capacity=capacity,
+                         object_type='user', object=user_id)
+
+        user = model.User.get(user_id)
+        groups = user.get_groups(group_type='group', capacity=capacity)
+        user_groups_ids = [g.id for g in groups]
+        error_message = "User wasn't added as %s of group %s" % \
+                        (capacity, group_id)
+        assert group_id in user_groups_ids, error_message
+
+    def test_member_factory_adds_dataset_to_group_in_specified_capacity(self):
+        dataset_id = factories.Dataset()['id']
+        group_id = factories.Group()['id']
+        capacity = 'public'
+
+        factories.Member(id=group_id, capacity=capacity,
+                         object_type='package', object=dataset_id)
+
+        dataset = model.Package.get(dataset_id)
+        groups = dataset.get_groups(group_type='group', capacity=capacity)
+        dataset_groups_ids = [g.id for g in groups]
+        error_message = "Dataset wasn't added as %s of group %s" % \
+                        (capacity, group_id)
+        assert group_id in dataset_groups_ids, error_message
+
+    def test_member_factory_adds_parent_group_to_group(self):
+        parent_group_id = factories.Group()['id']
+        group_id = factories.Group()['id']
+        capacity = 'parent'
+
+        factories.Member(id=group_id, capacity=capacity,
+                         object_type='group', object=parent_group_id)
+
+        group = model.Group.get(group_id)
+        parent_groups = group.get_parent_groups()
+        parent_groups_ids = [g.id for g in parent_groups]
+        error_message = "Group wasn't added as %s of group %s" % \
+                        (capacity, group_id)
+        assert parent_group_id in parent_groups_ids, error_message
