@@ -490,12 +490,12 @@ class TestIntValidator(object):
         raises_Invalid(validators.int_validator)(decimal.Decimal('19.99'), {})
 
     def test_complex_with_imaginary_component_raises_Invalid(self):
-        with warnings.catch_warnings():  # divmod() issues warning for this type
+        with warnings.catch_warnings():  # divmod() issues warning for complex
             warnings.filterwarnings('ignore', category=DeprecationWarning)
             raises_Invalid(validators.int_validator)(1 + 1j, {})
 
     def test_complex_without_imaginary_component_raises_Invalid(self):
-        with warnings.catch_warnings():  # divmod() issues warning for this type
+        with warnings.catch_warnings():  # divmod() issues warning for complex
             warnings.filterwarnings('ignore', category=DeprecationWarning)
             raises_Invalid(validators.int_validator)(1 + 0j, {})
 
