@@ -3,6 +3,7 @@
 import logging
 import datetime
 import json
+import jsonpatch
 
 from pylons import config
 from vdm.sqlalchemy.base import SQLAlchemySession
@@ -371,8 +372,9 @@ def package_patch(context, data_dict):
 
     name_or_id = data_dict.get("name") or _get_or_bust(data_dict, "id")
     package_dict = _get_action('package_show')(context, {'id': name_or_id})
+    patch = jsonpatch.JsonPatch(data_dict.get("patch_list"))
+    patched = patch.apply(package_dict)
 
-    patched = dict(package_dict.items() + data_dict.items())
     return package_update(context, patched)
 
 

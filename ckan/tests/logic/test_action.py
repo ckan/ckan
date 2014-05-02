@@ -258,7 +258,9 @@ class TestAction(WsgiAppCase):
         package_created = json.loads(res.body)['result']
         print package_created
 
-        postparams = '%s=1' % json.dumps({'id': package_created['id'], 'notes': 'Some new notes'})
+        postparams = '%s=1' % json.dumps({'id': package_created['id'],
+            'patch_list': [{'op':'add', 'path':'/extras/-', 'value':{'value':'disk', 'key':'a media copy'} }]})
+
         res = self.app.post('/api/action/package_patch', params=postparams,
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
 
@@ -272,7 +274,7 @@ class TestAction(WsgiAppCase):
         package_created.pop('revision_timestamp')
         package_created.pop('metadata_created')
         package_created.pop('metadata_modified')
-        package_created['notes'] = 'Some new notes'
+        package_created['extras'] = [{u'value': u'disk', u'key': u'a media copy'}, {u'value': u'"book"', u'key': u'original media'}]
 
         assert package_patched == package_created#, (pformat(json.loads(res.body)), pformat(package_created['result']))
 
