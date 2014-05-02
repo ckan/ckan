@@ -102,7 +102,7 @@ class TestUpdate(object):
         user = factories.User()
 
         invalid_names = ('', 'a', False, 0, -1, 23, 'new', 'edit', 'search',
-                         'a'*200, 'Hi!', 'i++%')
+                         'a' * 200, 'Hi!', 'i++%')
         for name in invalid_names:
             user['name'] = name
             assert_raises(logic.ValidationError,
