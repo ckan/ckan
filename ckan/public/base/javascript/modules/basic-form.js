@@ -9,7 +9,7 @@ this.ckan.module('basic-form', function (jQuery, _) {
       this._setupFormSubmitCallbackOnIE7();
     },
 
-    /* Event listener for when user clicks on secondaries elements that have
+    /* Event listener for when user clicks on secondary elements that have
      * attribute [data-type="submit"]
      *
      * Returns nothing.
