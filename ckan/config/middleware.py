@@ -89,7 +89,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         fanstatic_config = {
             'versioning': True,
             'recompute_hashes': False,
-            'minified': True,
+            'minified': False,
             'bottom': True,
             'bundle': True,
         }
