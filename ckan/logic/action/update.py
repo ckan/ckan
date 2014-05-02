@@ -358,13 +358,13 @@ def package_update(context, data_dict):
 def package_patch(context, data_dict):
     '''Patch a dataset (package).
 
-    The difference between the update and patch methods is that the patch will
-    perform an update of the provided parameters, while leaving all other
-    parameters unchanged, whereas the update methods deletes all parameters
-    not explicitly provided in the data_dict
+    Unlike package_update, patch allows for partial updates to the package -
+    without the need to provide the entire object. Instead, operations are
+    defined on the object based on RFC 6902 (http://tools.ietf.org/html/rfc6902)
 
-    You must be authorized to edit the dataset and the groups that it belongs
-    to.
+    Define operations in a patch_list parameter in your request.
+
+    Example: 'patch_list': [{'op':'replace', 'path':'/notes', 'value':'Notes' }]
 
     '''
 
