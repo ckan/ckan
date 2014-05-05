@@ -7,8 +7,8 @@ import nose.tools
 
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
-import ckan.model
-import ckan.logic
+import ckan.model as model
+import ckan.logic as logic
 
 assert_equals = nose.tools.assert_equals
 
@@ -58,17 +58,17 @@ class TestUserInvite(object):
             assert invited_user is not None, invited_user
 
     @mock.patch('ckan.lib.mailer.send_invite')
-    @nose.tools.raises(ckan.logic.ValidationError)
+    @nose.tools.raises(logic.ValidationError)
     def test_user_invite_requires_email(self, _):
         self._invite_user_to_group(email=None)
 
     @mock.patch('ckan.lib.mailer.send_invite')
-    @nose.tools.raises(ckan.logic.ValidationError)
+    @nose.tools.raises(logic.ValidationError)
     def test_user_invite_requires_role(self, _):
         self._invite_user_to_group(role=None)
 
     @mock.patch('ckan.lib.mailer.send_invite')
-    @nose.tools.raises(ckan.logic.ValidationError)
+    @nose.tools.raises(logic.ValidationError)
     def test_user_invite_requires_group_id(self, _):
         self._invite_user_to_group(group={'id': None})
 
@@ -88,7 +88,7 @@ class TestUserInvite(object):
 
         result = helpers.call_action('user_invite', context, **params)
 
-        return ckan.model.User.get(result['id'])
+        return model.User.get(result['id'])
 
 
 class TestResourceViewCreate(object):
@@ -115,7 +115,7 @@ class TestResourceViewCreate(object):
         params = self._default_resource_view_attributes()
         params.pop('resource_id')
 
-        nose.tools.assert_raises(ckan.logic.ValidationError,
+        nose.tools.assert_raises(logic.ValidationError,
                                  helpers.call_action,
                                  'resource_view_create', context, **params)
 
@@ -124,7 +124,7 @@ class TestResourceViewCreate(object):
         params = self._default_resource_view_attributes()
         params.pop('title')
 
-        nose.tools.assert_raises(ckan.logic.ValidationError,
+        nose.tools.assert_raises(logic.ValidationError,
                                  helpers.call_action,
                                  'resource_view_create', context, **params)
 
@@ -136,21 +136,21 @@ class TestResourceViewCreate(object):
 
         get_view_plugin.return_value = 'mock_view_plugin'
 
-        nose.tools.assert_raises(ckan.logic.ValidationError,
+        nose.tools.assert_raises(logic.ValidationError,
                                  helpers.call_action,
                                  'resource_view_create', context, **params)
 
     def test_resource_view_create_raises_if_couldnt_find_resource(self):
         context = {}
         params = self._default_resource_view_attributes(resource_id='unknown')
-        nose.tools.assert_raises(ckan.logic.ValidationError,
+        nose.tools.assert_raises(logic.ValidationError,
                                  helpers.call_action,
                                  'resource_view_create', context, **params)
 
     def test_resource_view_create_raises_if_couldnt_find_view_extension(self):
         context = {}
         params = self._default_resource_view_attributes(view_type='unknown')
-        nose.tools.assert_raises(ckan.logic.ValidationError,
+        nose.tools.assert_raises(logic.ValidationError,
                                  helpers.call_action,
                                  'resource_view_create', context, **params)
 
@@ -165,3 +165,24 @@ class TestResourceViewCreate(object):
         default_attributes.update(kwargs)
 
         return default_attributes
+
+
+class TestResourceCreate(object):
+
+    @classmethod
+    def setup_class(cls):
+        helpers.reset_db()
+
+    def setup(self):
+        model.repo.rebuild_db()
+
+    def test_it_requires_url(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        data_dict = {
+            'package_id': dataset['id']
+        }
+
+        nose.tools.assert_raises(logic.ValidationError,
+                                 helpers.call_action,
+                                 'resource_create', **data_dict)
