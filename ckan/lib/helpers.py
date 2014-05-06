@@ -1742,16 +1742,6 @@ def resource_view_full_page(resource_view):
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('full_page_edit', False)
 
-def resource_view_dimensions(resource_view):
-    '''
-    Returns the view dimentions for displaying view (EXPERIMENTAL).
-    '''
-    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
-    sizex = view_plugin.info().get('sizex', 2)
-    sizey = view_plugin.info().get('sizey', 2)
-
-    return {"sizex": sizex, "sizey": sizey}
-
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
     item has a matching value for a supplied key
@@ -2015,7 +2005,6 @@ __allowed_functions__ = [
     'rendered_resource_view',
     'resource_view_is_iframed',
     'resource_view_icon',
-    'resource_view_dimensions',
     'resource_view_display_preview',
     'resource_view_full_page',
     'SI_number_span',
