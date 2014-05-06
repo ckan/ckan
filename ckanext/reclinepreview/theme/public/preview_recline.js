@@ -70,17 +70,17 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
     },
 
     initializeView: function (dataset, reclineView) {
-      var view;
+      var view, state;
 
       if(reclineView.view_type === "recline_graph") {
-        var state = {
+        state = {
           "graphType": reclineView.graph_type,
           "group": reclineView.group,
           "series": [reclineView.series]
         };
         view = new recline.View.Graph({model: dataset, state: state});
       } else if(reclineView.view_type === "recline_map") {
-        var state = {
+        state = {
           geomField: null,
           latField: null,
           lonField: null,
