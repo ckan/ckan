@@ -100,7 +100,7 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         // default to Grid
         view = new recline.View.SlickGrid({model: dataset});
         this.pager = new recline.View.Pager({model: view.model.queryState});
-        $('#recline-controls').append(this.pager.el);
+        $('.recline-controls').append(this.pager.el);
       }
 
       this.el.replaceWith(view.el);
