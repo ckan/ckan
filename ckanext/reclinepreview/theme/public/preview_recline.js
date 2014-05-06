@@ -107,11 +107,12 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         ];
       }
 
-      $(this.el).html(view.el);
+      var newElements = $('<div />');
+      this._renderControls(newElements, controls, this.options.controlsClassName);
+      newElements.append(view.el);
+      $(this.el).html(newElements);
       view.visible = true;
       view.render();
-
-      this._renderControls(this.el, controls, this.options.controlsClassName);
 
       if(reclineView.view_type === "recline_graph") {
         view.redraw();
