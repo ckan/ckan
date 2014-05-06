@@ -20,21 +20,22 @@ body {
 }
 
 .recline-pager .pagination {
-  margin: 10px 0 0 0;
-}
-
-.recline-pager .pagination ul {
-  box-shadow: none;
+  margin: 0;
+  float: left;
 }
 
 .recline-pager .pagination a {
-  padding: 0 10px;
+  line-height: 26px;
 }
 
 .recline-pager .pagination input {
   width: 30px;
   margin: 0;
   padding: 2px 4px;
+}
+
+.recline-query-editor {
+  float: right;
 }
 
 .loading-spinner {

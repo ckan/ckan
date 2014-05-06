@@ -103,7 +103,8 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         // default to Grid
         view = new recline.View.SlickGrid({model: dataset});
         controls = [
-          new recline.View.Pager({model: view.model.queryState})
+          new recline.View.Pager({model: view.model.queryState}),
+          new recline.View.QueryEditor({model: view.model.queryState})
         ];
       }
 
@@ -128,7 +129,7 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
     },
 
     _renderControls: function (el, controls, className) {
-      var controlsEl = $("<div class=\"" + className + "\" />");
+      var controlsEl = $("<div class=\"clearfix " + className + "\" />");
       for (var i = 0; i < controls.length; i++) {
         controlsEl.append(controls[i].el);
       }
