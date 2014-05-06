@@ -8,7 +8,8 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         errorDataStore: "DataStore returned an error",
         previewNotAvailableForDataType: "View not available for data type: "
       },
-      site_url: ""
+      site_url: "",
+      controlsClassName: "controls"
     },
 
     initialize: function () {
@@ -70,7 +71,9 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
     },
 
     initializeView: function (dataset, reclineView) {
-      var view, state;
+      var view,
+          state,
+          controls = [];
 
       if(reclineView.view_type === "recline_graph") {
         state = {
@@ -99,13 +102,16 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       } else {
         // default to Grid
         view = new recline.View.SlickGrid({model: dataset});
-        this.pager = new recline.View.Pager({model: view.model.queryState});
-        $('.recline-controls').append(this.pager.el);
+        controls = [
+          new recline.View.Pager({model: view.model.queryState})
+        ];
       }
 
-      this.el.replaceWith(view.el);
+      $(this.el).html(view.el);
       view.visible = true;
       view.render();
+
+      this._renderControls(this.el, controls, this.options.controlsClassName);
 
       if(reclineView.view_type === "recline_graph") {
         view.redraw();
@@ -118,6 +124,14 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       } else {
         return url;
       }
+    },
+
+    _renderControls: function (el, controls, className) {
+      var controlsEl = $("<div class=\"" + className + "\" />");
+      for (var i = 0; i < controls.length; i++) {
+        controlsEl.append(controls[i].el);
+      }
+      $(el).append(controlsEl);
     }
   };
 });
