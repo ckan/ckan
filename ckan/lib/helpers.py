@@ -1580,7 +1580,7 @@ def get_organization(org=None):
         return {}
     try:
         return logic.get_action('organization_show')({}, {'id': org})
-    except Exception:
+    except (NotFound, ValidationError, NotAuthorized):
         return {}
 
 
