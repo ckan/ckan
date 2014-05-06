@@ -425,8 +425,19 @@ class TestGroupListAuthz(object):
 
         assert_equals(result, [])
 
+    @helpers.change_config('ckan.auth.default_group_or_org_permissions', 'manage_group')
+    def test_it_returns_all_groups_if_everyone_is_able_to_manage_groups(self):
+        user = factories.User()
+        group_id = factories.Group()['id']
+        context = {'user': user['name']}
+
+        result = helpers.call_action('group_list_authz', context=context)
+
+        assert_equals(len(result), 1)
+        assert_equals(result[0]['id'], group_id)
+
     @mock.patch('ckan.new_authz.get_roles_with_permission')
-    def test_it_returns_empty_list_if_therere_no_roles_able_to_manage_groups(self, get_roles_with_permission):
+    def test_it_returns_empty_list_if_theres_no_role_able_to_manage_groups(self, get_roles_with_permission):
         get_roles_with_permission.return_value = []
         user = factories.User()
         factories.Group(user=user)
@@ -437,11 +448,12 @@ class TestGroupListAuthz(object):
         assert_equals(result, [])
 
     @mock.patch('ckan.new_authz.get_roles_with_permission')
-    def test_it_should_return_every_group_if_user_is_sysadmin_even_if_therere_no_roles_able_to_manage_groups(self, get_roles_with_permission):
+    @helpers.change_config('ckan.auth.default_group_or_org_permissions', 'manage_group')
+    def test_it_returns_all_groups_if_everyone_is_able_to_manage_groups_even_if_theres_no_role_with_this_permission(self, get_roles_with_permission):
         get_roles_with_permission.return_value = []
-        sysadmin = factories.Sysadmin()
+        user = factories.User()
         group_id = factories.Group()['id']
-        context = {'user': sysadmin['name']}
+        context = {'user': user['name']}
 
         result = helpers.call_action('group_list_authz', context=context)
 
@@ -449,23 +461,11 @@ class TestGroupListAuthz(object):
         assert_equals(result[0]['id'], group_id)
 
     @mock.patch('ckan.new_authz.get_roles_with_permission')
-    @helpers.change_config('ckan.auth.default_group_or_org_permissions', 'manage_group')
-    def test_it_should_return_every_group_if_everyone_is_able_to_manage_groups_even_if_therere_no_roles_with_this_permission(self, get_roles_with_permission):
+    def test_it_returns_all_groups_if_user_is_sysadmin_even_if_theres_no_role_able_to_manage_groups(self, get_roles_with_permission):
         get_roles_with_permission.return_value = []
-        user = factories.User()
+        sysadmin = factories.Sysadmin()
         group_id = factories.Group()['id']
-        context = {'user': user['name']}
-
-        result = helpers.call_action('group_list_authz', context=context)
-
-        assert_equals(len(result), 1)
-        assert_equals(result[0]['id'], group_id)
-
-    @helpers.change_config('ckan.auth.default_group_or_org_permissions', 'manage_group')
-    def test_it_returns_all_groups_if_ckan_is_configured_to_allow_everyone_to_manage_groups(self):
-        user = factories.User()
-        group_id = factories.Group()['id']
-        context = {'user': user['name']}
+        context = {'user': sysadmin['name']}
 
         result = helpers.call_action('group_list_authz', context=context)
 
