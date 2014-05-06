@@ -7,6 +7,12 @@ body {
   overflow: auto;
 }
 
+.recline-record-count {
+  float: left;
+  margin-left: 10px;
+  line-height: 26px;
+}
+
 .loading-dialog {
   width: 120px;
 }

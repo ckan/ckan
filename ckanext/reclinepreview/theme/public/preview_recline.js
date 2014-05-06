@@ -104,6 +104,7 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         view = new recline.View.SlickGrid({model: dataset});
         controls = [
           new recline.View.Pager({model: view.model.queryState}),
+          new recline.View.RecordCount({model: dataset}),
           new recline.View.QueryEditor({model: view.model.queryState})
         ];
       }
