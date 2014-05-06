@@ -2,7 +2,11 @@
 
 {% block page %}
 
-  <div data-module="reclinepreview" data-module-site_url="{{ h.dump_json(h.url('/', locale='default', qualified=true)) }}">
+  <div data-module="reclinepreview"
+       data-module-site_url="{{ h.dump_json(h.url('/', locale='default', qualified=true)) }}"
+       data-module-resource = "{{ h.dump_json(resource_json) }}";
+       data-module-resource-view = "{{ h.dump_json(resource_view_json) }}";
+       >
     <h4 class="loading-dialog">
       <div class="loading-spinner"></div>
       <div class="left">{{ _('Loading...') }}</div>
@@ -12,13 +16,6 @@
   <div id="recline-controls"></div>
 
   {% resource 'ckanext-reclinepreview/main' %}
-{% endblock %}
-
-{% block scripts %}
-  <script>
-    var preload_resource = {{ h.literal(resource_json) }};
-    var preload_resource_view = {{ h.literal(resource_view_json) }};
-  </script>
 {% endblock %}
 
 {% block styles %}{% endblock %}

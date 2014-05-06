@@ -13,13 +13,18 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
 
     initialize: function () {
       jQuery.proxyAll(this, /_on/);
+      this.options.resource = JSON.parse(this.options.resource);
+      this.options.resourceView = JSON.parse(this.options.resourceView);
       this.el.ready(this._onReady);
       // hack to make leaflet use a particular location to look for images
       L.Icon.Default.imagePath = this.options.site_url + 'vendor/leaflet/0.4.4/images';
     },
 
     _onReady: function() {
-      this.loadView(preload_resource, preload_resource_view);
+      var resourceData = this.options.resource,
+          resourceView = this.options.resourceView;
+
+      this.loadView(resourceData, resourceView);
     },
 
     loadView: function (resourceData, reclineView) {
