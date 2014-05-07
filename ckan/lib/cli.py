@@ -2161,7 +2161,6 @@ class ViewsCommand(CkanCommand):
             create_function()
 
     def clean_views(self):
-        import ckan.model as model
         names = []
         for plugin in p.PluginImplementations(p.IResourceView):
             names.append(str(plugin.info()['name']))
@@ -2187,9 +2186,6 @@ class ViewsCommand(CkanCommand):
         print 'Deleted resource views.'
 
     def create_text_views(self):
-        import ckan.model as model
-        import ckan.logic as logic
-
         if not p.plugin_loaded('text_preview'):
             print 'Please enable the text_preview plugin to make the text views.'
             return
@@ -2225,9 +2221,6 @@ class ViewsCommand(CkanCommand):
 
 
     def create_image_views(self):
-        import ckan.model as model
-        import ckan.logic as logic
-
         import ckanext.imageview.plugin as imagevewplugin
         formats = tuple(imagevewplugin.DEFAULT_IMAGE_FORMATS)
 
@@ -2251,9 +2244,6 @@ class ViewsCommand(CkanCommand):
         print '%s image resource views created!' % count
 
     def create_webpage_views(self):
-        import ckan.model as model
-        import ckan.logic as logic
-
         formats = tuple(['html', 'htm'])
 
         print 'Web page resource views are being created'
@@ -2276,10 +2266,6 @@ class ViewsCommand(CkanCommand):
         print '%s webpage resource views created!' % count
 
     def create_pdf_views(self):
-
-        import ckan.model as model
-        import ckan.logic as logic
-
         if not p.plugin_loaded('pdf_preview'):
             print 'Please enable the pdf_preview plugin to make the PDF views.'
             return
@@ -2308,12 +2294,9 @@ class ViewsCommand(CkanCommand):
         print '%s pdf resource views created!' % count
 
     def create_grid_views(self):
-        import ckan.model as model
-        import ckan.logic as logic
         import ckan.plugins.toolkit as toolkit
         import ckanext.datastore.db as db
         import pylons
-        import sqlalchemy
 
         if not p.plugin_loaded('datastore'):
             print 'The datastore plugin needs to be enabled to generate the grid views.'
@@ -2331,8 +2314,8 @@ class ViewsCommand(CkanCommand):
         data_dict = {}
         data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
-        resources_sql = sqlalchemy.text(u'''SELECT name FROM "_table_metadata"
-                                            WHERE alias_of is null''')
+        resources_sql = sa.text(u'''SELECT name FROM "_table_metadata"
+                                    WHERE alias_of is null''')
         results = db._get_engine(data_dict).execute(resources_sql)
 
         count = 0
