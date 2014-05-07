@@ -2205,24 +2205,18 @@ class ViewsCommand(CkanCommand):
         formats = tuple(textplugin.DEFAULT_TEXT_FORMATS + textplugin.DEFAULT_XML_FORMATS +
                         textplugin.DEFAULT_JSON_FORMATS + textplugin.DEFAULT_JSONP_FORMATS)
 
-        results = model.Session.execute(
-            '''select resource.id, format
-               from resource
-               left join resource_view on resource.id = resource_view.resource_id
-               where lower(format) in %s and resource_view.id is null
-            ''' % str(formats)
-        )
+        resources = model.Resource.get_all_without_views(formats)
 
         user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
         context = {'model': model, 'session': model.Session, 'user': user['name']}
 
         count = 0
-        for row in results:
+        for resource in resources:
             count += 1
             resource_view = {'title': 'Text View',
                              'description': 'View of the {format} file'.format(
-                              format=row[1].upper()),
-                             'resource_id': row[0],
+                              format=resource.format.upper()),
+                             'resource_id': resource.id,
                              'view_type': 'text'}
 
             logic.get_action('resource_view_create')(context, resource_view)
@@ -2239,23 +2233,17 @@ class ViewsCommand(CkanCommand):
 
         print '''Image resource views are being created'''
 
-        results = model.Session.execute(
-            '''select resource.id, format
-               from resource
-               left join resource_view on resource.id = resource_view.resource_id
-               where lower(format) in %s and resource_view.id is null
-            ''' % str(formats)
-        )
+        resources = model.Resource.get_all_without_views(formats)
 
         user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
         context = {'model': model, 'session': model.Session, 'user': user['name']}
 
         count = 0
-        for row in results:
+        for resource in resources:
             count += 1
             resource_view = {'title': 'Resource Image',
                              'description': 'View of the Image',
-                             'resource_id': row[0],
+                             'resource_id': resource.id,
                              'view_type': 'image'}
 
             logic.get_action('resource_view_create')(context, resource_view)
@@ -2270,23 +2258,17 @@ class ViewsCommand(CkanCommand):
 
         print '''Web page resource views are being created'''
 
-        results = model.Session.execute(
-            '''select resource.id, format
-               from resource
-               left join resource_view on resource.id = resource_view.resource_id
-               where lower(format) in %s and resource_view.id is null
-            ''' % str(formats)
-        )
+        resources = model.Resource.get_all_without_views(formats)
 
         user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
         context = {'model': model, 'session': model.Session, 'user': user['name']}
 
         count = 0
-        for row in results:
+        for resource in resources:
             count += 1
             resource_view = {'title': 'Web Page View',
                              'description': 'View of the webpage',
-                             'resource_id': row[0],
+                             'resource_id': resource.id,
                              'view_type': 'webpage'}
 
             logic.get_action('resource_view_create')(context, resource_view)
@@ -2308,23 +2290,17 @@ class ViewsCommand(CkanCommand):
 
         print '''PDF resource views are being created'''
 
-        results = model.Session.execute(
-            '''select resource.id, format
-               from resource
-               left join resource_view on resource.id = resource_view.resource_id
-               where lower(format) = 'pdf' and resource_view.id is null
-            '''
-        )
+        resources = model.Resource.get_all_without_views(['pdf'])
 
         user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
         context = {'model': model, 'session': model.Session, 'user': user['name']}
 
         count = 0
-        for row in results:
+        for resource in resources:
             count += 1
             resource_view = {'title': 'PDF View',
                              'description': 'PDF view of the resource.',
-                             'resource_id': row[0],
+                             'resource_id': resource.id,
                              'view_type': 'pdf'}
 
             logic.get_action('resource_view_create')(context, resource_view)
