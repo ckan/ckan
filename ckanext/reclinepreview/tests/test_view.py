@@ -2,6 +2,7 @@ import mock
 import paste.fixture
 import pylons.config as config
 
+import ckan
 import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as p
@@ -52,6 +53,15 @@ class TestReclinePreview(object):
         p.load('recline_preview')
 
         log.warn.assert_called_once()
+
+    def test_this_plugin_only_exists_on_ckan_2_3(self):
+        version = ckan.__version__
+
+        error_msg = ("Plugin 'resource_preview' plugin was created just to "
+                     "ease the transition between 2.2 and 2.3. It should be "
+                     "removed in later versions.")
+
+        assert version.startswith('2.3'), error_msg
 
 
 class BaseTestReclineView(tests.WsgiAppCase):
