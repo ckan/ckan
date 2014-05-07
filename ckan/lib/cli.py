@@ -627,7 +627,7 @@ class UserCmd(CkanCommand):
     def list(self):
         import ckan.model as model
         print 'Users:'
-        users = model.Session.query(model.User)
+        users = model.Session.query(model.User).filter_by(state = 'active')
         print 'count = %i' % users.count()
         for user in users:
             print self.get_user_str(user)
