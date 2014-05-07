@@ -49,3 +49,12 @@ class TestResourceView(object):
 
         result = ResourceView.get_count_not_in_view_types(['image'])
         assert_equals(result, [('webpage', 1)])
+
+    def test_purging_resource_removes_its_resource_views(self):
+        resource_view_dict = factories.ResourceView()
+        resource = model.Resource.get(resource_view_dict['resource_id'])
+
+        resource.purge()
+        model.repo.commit_and_remove()
+
+        assert_equals(ResourceView.get(resource_view_dict['id']), None)
