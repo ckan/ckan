@@ -1,0 +1,94 @@
+- hosts: all
+  user: vagrant
+  sudo: yes
+
+  vars:
+    locale: es_MX.UTF-8
+    language: es_MX:es
+
+  vars_files:
+  - secrets/dbsecrets.yml
+
+  tasks:
+  - name: Generate locales
+    command: locale-gen {{locale}}
+
+  - name: Update locale
+    command: update-locale LANGUAGE={{language}} LANG={{locale}} LC_ALL={{locale}}
+
+  - name: Update system (this may take a while...)
+    apt: update_cache=yes
+    apt: upgrade=full
+    
+  - name: Install dependencies
+    apt: name={{item}} state=latest update_cache=yes
+    with_items:
+        - wget
+        - curl
+        - nginx
+        - apache2
+        - libapache2-mod-wsgi
+        - libpq5
+        - libpq-dev
+        
+  - name: Enable Apache WSGI mod
+    command: a2enmod wsgi
+    command: service apache2 restart
+    
+  - name: Download and install ckan package
+    get_url: url=http://packaging.ckan.org/python-ckan_2.2_amd64.deb dest=/tmp
+    register: ckan_download
+
+  - name: Install ckan package
+    command: dpkg -i /tmp/python-ckan_2.2_amd64.deb
+    
+  - name: Install PostgreSQL and Solr
+    apt: name={{item}} state=latest
+    with_items:
+        - postgresql
+        - python-psycopg2
+        - solr-jetty
+        - default-jdk
+        - openjdk-6-jre-headless
+  
+  - name: Restart PostgreSQL
+    service: name=postgresql state=restarted enabled=true
+    
+  - name: Configure Jetty
+    copy: src=files/jetty dest=/etc/default/jetty
+
+  - name: Backup Solr default schema
+    command: mv /etc/solr/conf/schema.xml /etc/solr/conf/schema.xml.bak
+
+  - name: Symlink ckan Solr schema
+    command: ln -s /usr/lib/ckan/default/src/ckan/ckan/config/solr/schema-2.0.xml /etc/solr/conf/schema.xml
+
+  - name: Start Jetty
+    command: service jetty start
+        
+  - name: Setup Datastore
+    copy: src=files/production.ini dest=/etc/ckan/default/production.ini
+
+  - name: Create ckan Database
+    sudo_user: postgres
+    postgresql_db: name={{ckan_db}} encoding="UTF-8" lc_collate={{locale}} lc_ctype={{locale}} template=template0
+        
+  - name: Create ckan db user
+    sudo_user: postgres
+    postgresql_user: db={{ckan_db}} name={{ckan_user}} password={{pg_password}} priv=ALL        
+        
+  - name: Create datastore Database
+    sudo_user: postgres
+    postgresql_db: name={{ckan_datastore}} encoding='UTF-8' lc_collate={{locale}} lc_ctype={{locale}} template=template0
+        
+  - name: Create datastore db user
+    sudo_user: postgres
+    postgresql_user: db={{ckan_datastore}} name={{ckan_readonlyuser}} password={{ds_password}}
+
+  - name: Change permissions to datastore db user
+    sudo_user: postgres
+    postgresql_privs: database={{ckan_datastore}} roles={{ckan_readonlyuser}} privs=SELECT state=present objs=ALL_IN_SCHEMA
+    
+  - name: Initialize Database
+    command: ckan db init
+    
