@@ -89,7 +89,7 @@ this.ckan.module('image-upload', function($, _) {
         this._showOnlyFieldUrl();
       } else if (options.is_upload) {
         this._showOnlyFieldUrl();
-        this.field_url_input.prop('disabled', true);
+        this.field_url_input.prop('readonly', true);
       } else {
         this._showOnlyButtons();
       }
@@ -114,7 +114,7 @@ this.ckan.module('image-upload', function($, _) {
     _onRemove: function() {
       this._showOnlyButtons();
       this.field_url_input.val('');
-      this.field_url_input.prop('disabled', false);
+      this.field_url_input.prop('readonly', false);
       this.field_clear.val('true');
     },
 
@@ -125,7 +125,7 @@ this.ckan.module('image-upload', function($, _) {
     _onInputChange: function() {
       var file_name = this.input.val().split(/^C:\\fakepath\\/).pop();
       this.field_url_input.val(file_name);
-      this.field_url_input.prop('disabled', true);
+      this.field_url_input.prop('readonly', true);
       this.field_clear.val('');
       this._showOnlyFieldUrl();
     },
