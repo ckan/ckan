@@ -871,8 +871,12 @@ class TestPep8(object):
         try:
             sys.stdout = cStringIO.StringIO()
             config = {}
+
+            # Ignore long lines on test files, as the test names can get long
+            # when following our test naming standards.
             if cls._is_test(filename):
                 config['ignore'] = ['E501']
+
             checker = pep8.Checker(filename=filename, lines=lines,
                                    **config)
             checker.check_all()
