@@ -2143,7 +2143,7 @@ class ViewsCommand(CkanCommand):
             print self.usage
 
     def create_views(self, view_types):
-        supported_types = ['grid', 'text','webpage', 'pdf', 'image']
+        supported_types = ['grid', 'text', 'webpage', 'pdf', 'image']
         if not view_types:
             print self.usage
             return
@@ -2152,7 +2152,7 @@ class ViewsCommand(CkanCommand):
         else:
             for view_type in view_types:
                 if view_type not in supported_types:
-                    print "View type {view} not supported in this command".format(view=view_type)
+                    print 'View type {view} not supported in this command'.format(view=view_type)
                     return
 
         for view_type in view_types:
@@ -2178,7 +2178,7 @@ class ViewsCommand(CkanCommand):
 
         result = query_yes_no('Do you want to delete these resource views:', default='no')
 
-        if result == "no":
+        if result == 'no':
             print 'Not Deleting.'
             return
 
@@ -2198,7 +2198,7 @@ class ViewsCommand(CkanCommand):
             print 'Please enable the resource_proxy plugin to make the text views.'
             return
 
-        print '''Text resource views are being created'''
+        print 'Text resource views are being created'
 
         import ckanext.textpreview.plugin as textplugin
 
@@ -2221,7 +2221,7 @@ class ViewsCommand(CkanCommand):
 
             logic.get_action('resource_view_create')(context, resource_view)
 
-        print '''%s text resource views created!''' % count
+        print '%s text resource views created!' % count
 
 
     def create_image_views(self):
@@ -2231,7 +2231,7 @@ class ViewsCommand(CkanCommand):
         import ckanext.imageview.plugin as imagevewplugin
         formats = tuple(imagevewplugin.DEFAULT_IMAGE_FORMATS)
 
-        print '''Image resource views are being created'''
+        print 'Image resource views are being created'
 
         resources = model.Resource.get_all_without_views(formats)
 
@@ -2248,7 +2248,7 @@ class ViewsCommand(CkanCommand):
 
             logic.get_action('resource_view_create')(context, resource_view)
 
-        print '''%s image resource views created!''' % count
+        print '%s image resource views created!' % count
 
     def create_webpage_views(self):
         import ckan.model as model
@@ -2256,7 +2256,7 @@ class ViewsCommand(CkanCommand):
 
         formats = tuple(['html', 'htm'])
 
-        print '''Web page resource views are being created'''
+        print 'Web page resource views are being created'
 
         resources = model.Resource.get_all_without_views(formats)
 
@@ -2273,7 +2273,7 @@ class ViewsCommand(CkanCommand):
 
             logic.get_action('resource_view_create')(context, resource_view)
 
-        print '''%s webpage resource views created!''' % count
+        print '%s webpage resource views created!' % count
 
     def create_pdf_views(self):
 
@@ -2288,7 +2288,7 @@ class ViewsCommand(CkanCommand):
             print 'Please enable the resource_proxy plugin to make the PDF views.'
             return
 
-        print '''PDF resource views are being created'''
+        print 'PDF resource views are being created'
 
         resources = model.Resource.get_all_without_views(['pdf'])
 
@@ -2305,7 +2305,7 @@ class ViewsCommand(CkanCommand):
 
             logic.get_action('resource_view_create')(context, resource_view)
 
-        print '''%s pdf resource views created!''' % count
+        print '%s pdf resource views created!' % count
 
     def create_grid_views(self):
         import ckan.model as model
@@ -2323,7 +2323,7 @@ class ViewsCommand(CkanCommand):
             print 'Please enable the recline_grid plugin to make the grid views.'
             return
 
-        print '''Grid resource views are being created'''
+        print 'Grid resource views are being created'
 
         user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
         context = {'model': model, 'session': model.Session, 'user': user['name']}
@@ -2350,5 +2350,4 @@ class ViewsCommand(CkanCommand):
                              'description': 'View of data within the DataStore'}
             logic.get_action('resource_view_create')(context, resource_view)
 
-        print '''%s grid resource views created!''' % count
-
+        print '%s grid resource views created!' % count
