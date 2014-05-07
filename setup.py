@@ -73,6 +73,7 @@ entry_points = {
         'resource_proxy = ckanext.resourceproxy.plugin:ResourceProxy',
         'text_preview = ckanext.textpreview.plugin:TextPreview',
         'pdf_preview = ckanext.pdfpreview.plugin:PdfPreview',
+        'recline_preview = ckanext.reclinepreview.plugin:ReclinePreview',
         'recline_grid=ckanext.reclinepreview.plugin:ReclineGrid',
         'recline_graph=ckanext.reclinepreview.plugin:ReclineGraph',
         'recline_map=ckanext.reclinepreview.plugin:ReclineMap',
