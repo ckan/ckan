@@ -987,7 +987,7 @@ def resource_view_list(context, data_dict):
     :param id: the id of the resource
     :type id: string
 
-    :rtype: lost of dictioniaries.
+    :rtype: list of dictionaries.
     '''
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
