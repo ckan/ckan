@@ -54,10 +54,17 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       resourceData.endpoint = jQuery('body').data('site-root') + 'api';
 
       dataset = new recline.Model.Dataset(resourceData);
-      dataset.query({
-        "from": reclineView.offset || 0,
-        "size": reclineView.limit || 100
-      });
+
+      var query = new recline.Model.Query();
+      query.set({ size : reclineView.limit || 100 })
+      query.set({ from : reclineView.offset || 0 })
+      if(window.parent.ckan.views && window.parent.ckan.views.viewhelpers){
+        $.each(window.parent.ckan.views.viewhelpers.filters.get(), function(field,values){
+          query.addFilter({type: 'term', field: field, term: values})
+        })
+      }
+
+      dataset.query(query)
 
       errorMsg = this.options.i18n.errorLoadingPreview + ': ' + this.options.i18n.errorDataStore;
       dataset.fetch()
