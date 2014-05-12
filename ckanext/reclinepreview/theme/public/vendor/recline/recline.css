@@ -19,46 +19,10 @@
 
 #recline-flot-tooltip {
     position: absolute;
-    background-color: #FEE !important;
-    color: #000000 !important;
-    opacity: 0.8 !important;
-    border: 1px solid #fdd !important;
-}
-.recline-graph .graph {
-  height: 500px;
-}
-
-.recline-graph .legend table {
-  width: auto;
-  margin-bottom: 0;
-}
-
-.recline-graph .legend td {
-  padding: 5px;
-  line-height: 13px;
-}
-
-.recline-graph .graph .alert {
-  width: 450px;
-}
-
-.flotr-mouse-value {
-    background-color: #FEE !important;
-    color: #000000 !important;
-    opacity: 0.8 !important;
-    border: 1px solid #fdd !important;
-}
-
-.flotr-legend {
-    border: none !important;
-}
-
-.flotr-legend-bg {
-    display: none;
-}
-
-.flotr-legend-color-box {
-    padding: 5px;
+    background-color: #FEE;
+    color: #000000;
+    opacity: 0.8;
+    border: 1px solid #fdd;
 }
 /**********************************************************
   * (Data) Grid
@@ -352,6 +316,10 @@ div.data-table-cell-content-numeric > a.data-table-cell-edit {
   vertical-align: top;
 }
 
+.header .recline-query-editor label {
+  display:none;
+}
+
 /**********************************************************
   * Pager
   *********************************************************/
@@ -361,6 +329,10 @@ div.data-table-cell-content-numeric > a.data-table-cell-edit {
   margin: auto;
   display: block;
   margin-left: 20px;
+}
+
+.header .recline-pager .pagination label {
+  display:none;
 }
 
 .header .recline-pager .pagination input {
@@ -650,40 +622,23 @@ classes should alter those!
   cursor: pointer;
 }
 
-.recline-transform {
-    overflow: hidden;
+.recline-slickgrid .recline-row-delete {
+  font-size: 12px;
+  padding: 2px;
+  width: 22px;
+  height: 14px;
+  line-height: 13px;
 }
 
-.recline-transform .script textarea {
-  width: 100%;
-  height: 100px;
-  font-family: monospace;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
+.recline-cell-reorder {
+  font-size: 12px;
+  padding: 2px;
+  width: 22px;
+  height: 14px;
+  line-height: 13px;
+  cursor: move;
+  background: url("../images/drag-handle.png") no-repeat center center;
 }
-
-.recline-transform h2 {
-  margin-bottom: 10px;
-}
-
-.recline-transform h2 .okButton {
-  margin-left: 10px;
-  margin-top: -2px;
-}
-
-.expression-preview-parsing-status {
-  color: #999;
-}
-
-.expression-preview-parsing-status.error {
-  color: red;
-}
-
-.recline-transform .before-after .after {
-  font-style: italic;
-}
-
-.recline-transform .before-after .after.different {
-  font-weight: bold;
+.recline-timeline {
+  position: relative;
 }
