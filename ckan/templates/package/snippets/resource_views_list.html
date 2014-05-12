@@ -1,3 +1,5 @@
+{% set views_created = res.has_views or resource_preview %}
+{% if views_created %}
 <ul class="view-list {{ extra_class }}" {{ extra_attributes }}>
 
   {% if resource_preview %}
@@ -20,3 +22,4 @@
     {% snippet "package/snippets/resource_views_list_item.html", view=view, pkg=pkg, is_edit=is_edit, is_selected=is_selected %}
   {% endfor %}
 </ul>
+{% endif %}
