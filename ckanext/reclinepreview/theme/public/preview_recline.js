@@ -56,15 +56,15 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       dataset = new recline.Model.Dataset(resourceData);
 
       var query = new recline.Model.Query();
-      query.set({ size : reclineView.limit || 100 })
-      query.set({ from : reclineView.offset || 0 })
-      if(window.parent.ckan.views && window.parent.ckan.views.viewhelpers){
-        $.each(window.parent.ckan.views.viewhelpers.filters.get(), function(field,values){
-          query.addFilter({type: 'term', field: field, term: values})
-        })
+      query.set({ size: reclineView.limit || 100 });
+      query.set({ from: reclineView.offset || 0 });
+      if (window.parent.ckan.views && window.parent.ckan.views.viewhelpers) {
+        $.each(window.parent.ckan.views.viewhelpers.filters.get(), function (field,values) {
+          query.addFilter({type: 'term', field: field, term: values});
+        });
       }
 
-      dataset.query(query)
+      dataset.query(query);
 
       errorMsg = this.options.i18n.errorLoadingPreview + ': ' + this.options.i18n.errorDataStore;
       dataset.fetch()
