@@ -1,4 +1,4 @@
-{% set views_created = res.has_views or resource_preview %}
+{% set views_created = views or resource_preview %}
 {% if views_created %}
 <ul class="view-list {{ extra_class }}" {{ extra_attributes }}>
 
