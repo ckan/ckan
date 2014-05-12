@@ -58,7 +58,7 @@ class TestReclinePreview(object):
                      "ease the transition between 2.2 and 2.3. It should be "
                      "removed in later versions.")
 
-        assert p.toolkit.check_ckan_version('2.4', '2.3'), error_msg
+        assert p.toolkit.check_ckan_version('2.2', '2.3'), error_msg
 
 
 class BaseTestReclineView(tests.WsgiAppCase):
