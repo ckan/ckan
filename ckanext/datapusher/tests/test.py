@@ -190,3 +190,31 @@ class TestDatastoreCreate(tests.WsgiAppCase):
     def test_datapusher_hook_normal_user(self):
 
         self._call_datapusher_hook(self.normal_user)
+
+    def test_datapusher_hook_no_metadata(self):
+        data = {
+            'status': 'success',
+        }
+        postparams = '%s=1' % json.dumps(data)
+
+        self.app.post('/api/action/datapusher_hook', params=postparams,
+                      status=409)
+
+    def test_datapusher_hook_no_status(self):
+        data = {
+            'metadata': {'resource_id': 'res_id'},
+        }
+        postparams = '%s=1' % json.dumps(data)
+
+        self.app.post('/api/action/datapusher_hook', params=postparams,
+                      status=409)
+
+    def test_datapusher_hook_no_resource_id_in_metadata(self):
+        data = {
+            'status': 'success',
+            'metadata': {}
+        }
+        postparams = '%s=1' % json.dumps(data)
+
+        self.app.post('/api/action/datapusher_hook', params=postparams,
+                      status=409)

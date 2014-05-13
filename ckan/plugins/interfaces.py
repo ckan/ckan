@@ -179,7 +179,7 @@ class ISession(Interface):
 
 class IDomainObjectModification(Interface):
     """
-    Receives notification of new, changed and deleted datesets.
+    Receives notification of new, changed and deleted datasets.
     """
 
     def notify(self, entity, operation):
@@ -770,12 +770,12 @@ class IDatasetForm(Interface):
 
         If the user requests the dataset in a format other than HTML
         (CKAN supports returning datasets in RDF or N3 format by appending .rdf
-        or .n3 to the dataset read URL, see :doc:`/linked-data-and-rdf`) then
-        CKAN will try to render
-        a template file with the same path as returned by this function,
-        but a different filename extension, e.g. ``'package/read.rdf'``.
-        If your extension doesn't have this RDF version of the template
-        file, the user will get a 404 error.
+        or .n3 to the dataset read URL, see
+        :doc:`/maintaining/linked-data-and-rdf`) then CKAN will try to render a
+        template file with the same path as returned by this function, but a
+        different filename extension, e.g. ``'package/read.rdf'``.  If your
+        extension doesn't have this RDF version of the template file, the user
+        will get a 404 error.
 
         :rtype: string
 
@@ -823,6 +823,37 @@ class IDatasetForm(Interface):
         :rtype: string
 
         '''
+
+    def validate(self, context, data_dict, schema, action):
+        """Customize validation of datasets.
+
+        When this method is implemented it is used to perform all validation
+        for these datasets. The default implementation calls and returns the
+        result from ``ckan.plugins.toolkit.navl_validate``.
+
+        This is an adavanced interface. Most changes to validation should be
+        accomplished by customizing the schemas returned from
+        ``show_package_schema()``, ``create_package_schema()``
+        and ``update_package_schama()``. If you need to have a different
+        schema depending on the user or value of any field stored in the
+        dataset, or if you wish to use a different method for validation, then
+        this method may be used.
+
+        :param context: extra information about the request
+        :type context: dictionary
+        :param data_dict: the dataset to be validated
+        :type data_dict: dictionary
+        :param schema: a schema, typically from ``show_package_schema()``,
+          ``create_package_schema()`` or ``update_package_schama()``
+        :type schema: dictionary
+        :param action: ``'package_show'``, ``'package_create'`` or
+          ``'package_update'``
+        :type action: string
+        :returns: (data_dict, errors) where data_dict is the possibly-modified
+          dataset and errors is a dictionary with keys matching data_dict
+          and lists-of-string-error-messages as values
+        :rtype: (dictionary, dictionary)
+        """
 
 
 class IGroupForm(Interface):
@@ -944,29 +975,152 @@ class IGroupForm(Interface):
         Add variables to c just prior to the template being rendered.
         """
 
+    def validate(self, context, data_dict, schema, action):
+        """Customize validation of groups.
+
+        When this method is implemented it is used to perform all validation
+        for these groups. The default implementation calls and returns the
+        result from ``ckan.plugins.toolkit.navl_validate``.
+
+        This is an adavanced interface. Most changes to validation should be
+        accomplished by customizing the schemas returned from
+        ``form_to_db_schema()`` and ``db_to_form_schema()``
+        If you need to have a different
+        schema depending on the user or value of any field stored in the
+        group, or if you wish to use a different method for validation, then
+        this method may be used.
+
+        :param context: extra information about the request
+        :type context: dictionary
+        :param data_dict: the group to be validated
+        :type data_dict: dictionary
+        :param schema: a schema, typically from ``form_to_db_schema()``,
+          or ``db_to_form_schama()``
+        :type schema: dictionary
+        :param action: ``'group_show'``, ``'group_create'``,
+          ``'group_update'``, ``'organization_show'``,
+          ``'organization_create'`` or ``'organization_update'``
+        :type action: string
+        :returns: (data_dict, errors) where data_dict is the possibly-modified
+          group and errors is a dictionary with keys matching data_dict
+          and lists-of-string-error-messages as values
+        :rtype: (dictionary, dictionary)
+        """
+
     ##### End of hooks                                                   #####
 
 class IFacets(Interface):
-    ''' Allows specify which facets are displayed and also the names used.
+    '''Customize the search facets shown on search pages.
 
-    facet_dicts are in the form {'facet_name': 'display name', ...}
-    to allow translatable display names use _(...)
-    eg {'facet_name': _('display name'), ...} and ensure that this is
-    created each time the function is called.
+    By implementing this interface plugins can customize the search facets that
+    are displayed for filtering search results on the dataset search page,
+    organization pages and group pages.
 
-    The dict supplied is actually an ordered dict.
+    The ``facets_dict`` passed to each of the functions below is an
+    ``OrderedDict`` in which the keys are CKAN's internal names for the facets
+    and the values are the titles that will be shown for the facets in the web
+    interface. The order of the keys in the dict determine the order that
+    facets appear in on the page.  For example::
+
+        {'groups': _('Groups'),
+         'tags': _('Tags'),
+         'res_format': _('Formats'),
+         'license': _('License')}
+
+    To preserve ordering, make sure to add new facets to the existing dict
+    rather than updating it, ie do this::
+
+        facets_dict['groups'] = p.toolkit._('Publisher')
+        facets_dict['secondary_publisher'] = p.toolkit._('Secondary Publisher')
+
+    rather than this::
+
+        facets_dict.update({
+           'groups': p.toolkit._('Publisher'),
+           'secondary_publisher': p.toolkit._('Secondary Publisher'),
+        })
+
+    Dataset searches can be faceted on any field in the dataset schema that it
+    makes sense to facet on. This means any dataset field that is in CKAN's
+    Solr search index, basically any field that you see returned by
+    :py:func:`~ckan.logic.action.get.package_show`.
+
+    If there are multiple ``IFacets`` plugins active at once, each plugin will
+    be called (in the order that they're listed in the CKAN config file) and
+    they will each be able to modify the facets dict in turn.
+
     '''
-
     def dataset_facets(self, facets_dict, package_type):
-        ''' Update the facets_dict and return it. '''
+        '''Modify and return the ``facets_dict`` for the dataset search page.
+
+        The ``package_type`` is the type of package that these facets apply to.
+        Plugins can provide different search facets for different types of
+        package. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
+
+        :param facets_dict: the search facets as currently specified
+        :type facets_dict: OrderedDict
+
+        :param package_type: the package type that these facets apply to
+        :type package_type: string
+
+        :returns: the updated ``facets_dict``
+        :rtype: OrderedDict
+
+        '''
         return facets_dict
 
     def group_facets(self, facets_dict, group_type, package_type):
-        ''' Update the facets_dict and return it. '''
+        '''Modify and return the ``facets_dict`` for a group's page.
+
+        The ``package_type`` is the type of package that these facets apply to.
+        Plugins can provide different search facets for different types of
+        package. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
+
+        The ``group_type`` is the type of group that these facets apply to.
+        Plugins can provide different search facets for different types of
+        group. See :py:class:`~ckan.plugins.interfaces.IGroupForm`.
+
+        :param facets_dict: the search facets as currently specified
+        :type facets_dict: OrderedDict
+
+        :param group_type: the group type that these facets apply to
+        :type group_type: string
+
+        :param package_type: the package type that these facets apply to
+        :type package_type: string
+
+        :returns: the updated ``facets_dict``
+        :rtype: OrderedDict
+
+        '''
         return facets_dict
 
     def organization_facets(self, facets_dict, organization_type, package_type):
-        ''' Update the facets_dict and return it. '''
+        '''Modify and return the ``facets_dict`` for an organization's page.
+
+        The ``package_type`` is the type of package that these facets apply to.
+        Plugins can provide different search facets for different types of
+        package. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
+
+        The ``organization_type`` is the type of organization that these facets
+        apply to.  Plugins can provide different search facets for different
+        types of organization. See
+        :py:class:`~ckan.plugins.interfaces.IGroupForm`.
+
+        :param facets_dict: the search facets as currently specified
+        :type facets_dict: OrderedDict
+
+        :param organization_type: the organization type that these facets apply
+                                  to
+        :type organization_type: string
+
+        :param package_type: the package type that these facets apply to
+        :type package_type: string
+
+        :returns: the updated ``facets_dict``
+        :rtype: OrderedDict
+
+        '''
         return facets_dict
 
 

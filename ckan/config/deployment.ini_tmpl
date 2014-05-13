@@ -128,7 +128,7 @@ ckan.feeds.author_link =
 
 # Make sure you have set up the DataStore
 
-#ckan.datapusher.formats =
+#ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 #ckan.datapusher.url = http://127.0.0.1:8800/
 
 ## Activity Streams Settings
@@ -136,7 +136,8 @@ ckan.feeds.author_link =
 #ckan.activity_streams_enabled = true
 #ckan.activity_list_limit = 31
 #ckan.activity_streams_email_notifications = true
-# ckan.email_notifications_since = 2 days
+#ckan.email_notifications_since = 2 days
+ckan.hide_activity_from_users = %(ckan.site_id)s
 
 
 ## Email settings

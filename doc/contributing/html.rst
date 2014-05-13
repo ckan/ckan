@@ -2,6 +2,11 @@
 HTML coding standards
 =====================
 
+.. seealso::
+
+   :doc:`string-i18n`
+     How to mark strings for translation.
+
 ----------
 Formatting
 ----------
@@ -151,4 +156,3 @@ And **not**: ::
 
   <p>Blah foo blah
      New paragraph, blah</p>
-

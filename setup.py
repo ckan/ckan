@@ -100,6 +100,12 @@ entry_points = {
         'example_theme_v14_more_custom_css = ckanext.example_theme.v14_more_custom_css.plugin:ExampleThemePlugin',
         'example_theme_v15_fanstatic = ckanext.example_theme.v15_fanstatic.plugin:ExampleThemePlugin',
         'example_theme_v16_initialize_a_javascript_module = ckanext.example_theme.v16_initialize_a_javascript_module.plugin:ExampleThemePlugin',
+        'example_theme_v17_popover = ckanext.example_theme.v17_popover.plugin:ExampleThemePlugin',
+        'example_theme_v18_snippet_api = ckanext.example_theme.v18_snippet_api.plugin:ExampleThemePlugin',
+        'example_theme_v19_01_error = ckanext.example_theme.v19_01_error.plugin:ExampleThemePlugin',
+        'example_theme_v19_02_error_handling = ckanext.example_theme.v19_02_error_handling.plugin:ExampleThemePlugin',
+        'example_theme_v20_pubsub = ckanext.example_theme.v20_pubsub.plugin:ExampleThemePlugin',
+        'example_theme_v21_custom_jquery_plugin = ckanext.example_theme.v21_custom_jquery_plugin.plugin:ExampleThemePlugin',
         'example_theme_custom_config_setting = ckanext.example_theme.custom_config_setting.plugin:ExampleThemePlugin',
     ],
     'ckan.system_plugins': [

@@ -46,11 +46,7 @@ def datapusher_submit(context, data_dict):
     datapusher_url = pylons.config.get('ckan.datapusher.url')
 
     site_url = pylons.config['ckan.site_url']
-
-    callback_url = site_url.rstrip('/') + p.toolkit.url_for(
-        controller='api', action='action',
-        logic_function='datapusher_hook', ver=3
-    )
+    callback_url = site_url.rstrip('/') + '/api/3/action/datapusher_hook'
 
     user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
 
@@ -143,9 +139,11 @@ def datapusher_hook(context, data_dict):
 
     metadata, status = _get_or_bust(data_dict, ['metadata', 'status'])
 
-    p.toolkit.check_access('datapusher_submit', context, data_dict)
+    res_id = _get_or_bust(metadata, 'resource_id')
 
-    res_id = metadata.get('resource_id')
+    # Pass metadata, not data_dict, as it contains the resource id needed
+    # on the auth checks
+    p.toolkit.check_access('datapusher_submit', context, metadata)
 
     task = p.toolkit.get_action('task_status_show')(context, {
         'entity_id': res_id,

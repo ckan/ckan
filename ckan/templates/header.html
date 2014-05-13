@@ -73,7 +73,7 @@
 
       {% block header_logo %}
         {% if g.site_logo %}
-          <a class="logo" href="{{ h.url('home') }}"><img src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
+          <a class="logo" href="{{ h.url('home') }}"><img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}" title="{{ g.site_title }}" /></a>
         {% else %}
           <h1>
             <a href="{{ h.url('home') }}">{{ g.site_title }}</a>
@@ -104,8 +104,8 @@
       {% block header_site_search %}
         <form class="section site-search simple-input" action="{% url_for controller='package', action='search' %}" method="get">
           <div class="field">
-            <label for="field-sitewide-search">{{ _('Search Datasets') }}</label>
-            <input id="field-sitewide-search" type="text" name="q" placeholder="{{ _('Search datasets...') }}" />
+            <label for="field-sitewide-search">{% block header_site_search_label %}{{ _('Search Datasets') }}{% endblock %}</label>
+            <input id="field-sitewide-search" type="text" name="q" placeholder="{{ _('Search') }}" />
             <button class="btn-search" type="submit"><i class="icon-search"></i></button>
           </div>
         </form>

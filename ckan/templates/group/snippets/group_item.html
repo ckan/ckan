@@ -13,7 +13,9 @@ Example:
 #}
 {% set type = group.type or 'group' %}
 {% set url = h.url_for(type ~ '_read', action='read', id=group.name) %}
+{% block item %}
 <li class="media-item">
+  {% block item_inner %}
   {% block image %}
     <img src="{{ group.image_display_url or h.url_for_static('/base/images/placeholder-group.png') }}" alt="{{ group.name }}" class="media-image">
   {% endblock %}
@@ -32,13 +34,17 @@ Example:
       <span class="count">{{ _('0 Datasets') }}</span>
     {% endif %}
   {% endblock %}
+  {% block link %}
   <a href="{{ url }}" title="{{ _('View {name}').format(name=group.display_name) }}" class="media-view">
     <span>{{ _('View {name}').format(name=group.display_name) }}</span>
   </a>
+  {% endblock %}
   {% if group.user_member %}
     <input name="group_remove.{{ group.id }}" value="{{ _('Remove') }}" type="submit" class="btn btn-danger btn-small media-edit" title="{{ _('Remove dataset from this group') }}"/>
   {% endif %}
+  {% endblock %}
 </li>
+{% endblock %}
 {% if position is divisibleby 3 %}
   <li class="clearfix js-hide"></li>
 {% endif %}

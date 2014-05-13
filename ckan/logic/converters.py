@@ -181,3 +181,9 @@ def convert_to_json_if_string(value, context):
             raise df.Invalid(_('Could not parse as valid JSON'))
     else:
         return value
+
+
+def remove_whitespace(value, context):
+    if isinstance(value, basestring):
+        return value.strip()
+    return value

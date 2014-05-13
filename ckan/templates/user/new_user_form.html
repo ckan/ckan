@@ -13,6 +13,8 @@
   {% endif %}
 
   <div class="form-actions">
+    {% block form_actions %}
     <button class="btn btn-primary" type="submit" name="save">{{ _("Create Account") }}</button>
+    {% endblock %}
   </div>
 </form>

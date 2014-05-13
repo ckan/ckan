@@ -63,6 +63,7 @@ rst_epilog = '''
 .. |apache| replace:: Apache
 .. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan_default
 .. |reload_nginx| replace:: sudo service nginx reload
+.. |jquery| replace:: jQuery
 
 .. _Jinja2: http://jinja.pocoo.org/
 .. _CKAN front page: http://127.0.0.1:5000
@@ -236,22 +237,11 @@ pygments_style = 'sphinx'
 
 # Options for HTML output
 # -----------------------
-
-#html_theme = 'default'
-#html_theme_options = {
-#"relbarbgcolor": "#777",
-#'sidebarbgcolor': '#F2F2F2',
-#'sidebartextcolor': 'black',
-#'sidebarlinkcolor': '#355F7C',
-#'headfont': 'Trebuchet MS'
-#}
-sys.path.append(os.path.abspath('_themes'))
-html_theme_path = ['_themes']
-html_theme = 'sphinx-theme-okfn'
-html_theme_options = {
-        'logo_icon': 'ckanlogo.png',
-        'show_version': True
-    }
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if not on_rtd:
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 html_sidebars = {
     '**':  ['globaltoc.html'],

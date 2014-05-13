@@ -1,6 +1,7 @@
 import datetime
 from itertools import count
 import re
+import mimetypes
 
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
@@ -61,14 +62,34 @@ def package_id_not_changed(value, context):
     return value
 
 def int_validator(value, context):
-    if isinstance(value, int):
-        return value
+    '''
+    Return an integer for value, which may be a string in base 10 or
+    a numeric type (e.g. int, long, float, Decimal, Fraction). Return
+    None for None or empty/all-whitespace string values.
+
+    :raises: ckan.lib.navl.dictization_functions.Invalid for other
+        inputs or non-whole values
+    '''
+    if value is None:
+        return None
+    if hasattr(value, 'strip') and not value.strip():
+        return None
+
     try:
-        if value.strip() == '':
-            return None
-        return int(value)
-    except (AttributeError, ValueError), e:
-        raise Invalid(_('Invalid integer'))
+        whole, part = divmod(value, 1)
+    except TypeError:
+        try:
+            return int(value)
+        except ValueError:
+            pass
+    else:
+        if not part:
+            try:
+                return int(whole)
+            except TypeError:
+                pass  # complex number: fail like int(complex) does
+
+    raise Invalid(_('Invalid integer'))
 
 def natural_number_validator(value, context):
     value = int_validator(value, context)
@@ -153,10 +174,10 @@ def package_id_or_name_exists(package_id_or_name, context):
     return package_id_or_name
 
 def user_id_exists(user_id, context):
-    """Raises Invalid if the given user_id does not exist in the model given
+    '''Raises Invalid if the given user_id does not exist in the model given
     in the context, otherwise returns the given user_id.
 
-    """
+    '''
     model = context['model']
     session = context['session']
 
@@ -183,10 +204,10 @@ def user_id_or_name_exists(user_id_or_name, context):
     return user_id_or_name
 
 def group_id_exists(group_id, context):
-    """Raises Invalid if the given group_id does not exist in the model given
+    '''Raises Invalid if the given group_id does not exist in the model given
     in the context, otherwise returns the given group_id.
 
-    """
+    '''
     model = context['model']
     session = context['session']
 
@@ -197,10 +218,10 @@ def group_id_exists(group_id, context):
 
 
 def related_id_exists(related_id, context):
-    """Raises Invalid if the given related_id does not exist in the model
+    '''Raises Invalid if the given related_id does not exist in the model
     given in the context, otherwise returns the given related_id.
 
-    """
+    '''
     model = context['model']
     session = context['session']
 
@@ -210,9 +231,9 @@ def related_id_exists(related_id, context):
     return related_id
 
 def group_id_or_name_exists(reference, context):
-    """
+    '''
     Raises Invalid if a group identified by the name or id cannot be found.
-    """
+    '''
     model = context['model']
     result = model.Group.get(reference)
     if not result:
@@ -220,13 +241,13 @@ def group_id_or_name_exists(reference, context):
     return reference
 
 def activity_type_exists(activity_type):
-    """Raises Invalid if there is no registered activity renderer for the
+    '''Raises Invalid if there is no registered activity renderer for the
     given activity_type. Otherwise returns the given activity_type.
 
     This just uses object_id_validators as a lookup.
     very safe.
 
-    """
+    '''
     if activity_type in object_id_validators:
         return activity_type
     else:
@@ -265,7 +286,7 @@ object_id_validators = {
     }
 
 def object_id_validator(key, activity_dict, errors, context):
-    """Validate the 'object_id' value of an activity_dict.
+    '''Validate the 'object_id' value of an activity_dict.
 
     Uses the object_id_validators dict (above) to find and call an 'object_id'
     validator function for the given activity_dict's 'activity_type' value.
@@ -277,7 +298,7 @@ def object_id_validator(key, activity_dict, errors, context):
     Raises Invalid if there is no object_id_validator for the activity_dict's
     'activity_type' value.
 
-    """
+    '''
     activity_type = activity_dict[('activity_type',)]
     if object_id_validators.has_key(activity_type):
         object_id = activity_dict[('object_id',)]
@@ -327,15 +348,15 @@ def name_validator(value, context):
     return value
 
 def package_name_validator(key, data, errors, context):
-    model = context["model"]
-    session = context["session"]
-    package = context.get("package")
+    model = context['model']
+    session = context['session']
+    package = context.get('package')
 
     query = session.query(model.Package.name).filter_by(name=data[key])
     if package:
         package_id = package.id
     else:
-        package_id = data.get(key[:-1] + ("id",))
+        package_id = data.get(key[:-1] + ('id',))
     if package_id and package_id is not missing:
         query = query.filter(model.Package.id <> package_id)
     result = query.first()
@@ -655,7 +676,7 @@ def tag_not_in_vocabulary(key, tag_dict, errors, context):
         return
 
 def url_validator(key, data, errors, context):
-    """ Checks that the provided value (if it is present) is a valid URL """
+    ''' Checks that the provided value (if it is present) is a valid URL '''
     import urlparse
     import string
 
@@ -673,7 +694,6 @@ def url_validator(key, data, errors, context):
        return
 
     errors[key].append(_('Please provide a valid URL'))
-
 
 
 def user_name_exists(user_name, context):
@@ -726,6 +746,20 @@ def list_of_strings(key, data, errors, context):
     for x in value:
         if not isinstance(x, basestring):
             raise Invalid('%s: %s' % (_('Not a string'), x))
+
+def if_empty_guess_format(key, data, errors, context):
+    value = data[key]
+    resource_id = data.get(key[:-1] + ('id',))
+
+    # if resource_id then an update
+    if (not value or value is Missing) and not resource_id:
+        url = data.get(key[:-1] + ('url',), '')
+        mimetype, encoding = mimetypes.guess_type(url)
+        if mimetype:
+            data[key] = mimetype
+
+def clean_format(format):
+    return h.unified_resource_format(format)
 
 def no_loops_in_hierarchy(key, data, errors, context):
     '''Checks that the parent groups specified in the data would not cause

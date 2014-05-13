@@ -259,7 +259,6 @@ def check_access(action, context, data_dict=None):
         authorized to call the named action
 
     '''
-    action = new_authz.clean_action_name(action)
 
     # Auth Auditing.  We remove this call from the __auth_audit stack to show
     # we have called the auth function
@@ -341,8 +340,6 @@ def get_action(action):
     :rtype: callable
 
     '''
-    # clean the action names
-    action = new_authz.clean_action_name(action)
 
     if _actions:
         if not action in _actions:
@@ -365,7 +362,6 @@ def get_action(action):
                 if (hasattr(v, '__call__')
                         and (v.__module__ == module_path
                              or hasattr(v, '__replaced'))):
-                    k = new_authz.clean_action_name(k)
                     _actions[k] = v
 
                     # Whitelist all actions defined in logic/action/get.py as
@@ -380,7 +376,6 @@ def get_action(action):
     fetched_actions = {}
     for plugin in p.PluginImplementations(p.IActions):
         for name, auth_function in plugin.get_actions().items():
-            name = new_authz.clean_action_name(name)
             if name in resolved_action_plugins:
                 raise Exception(
                     'The action %r is already implemented in %r' % (
@@ -447,22 +442,6 @@ def get_action(action):
             fn.side_effect_free = True
         _actions[action_name] = fn
 
-
-        def replaced_action(action_name):
-            def warn(context, data_dict):
-                log.critical('Action `%s` is being called directly '
-                             'all action calls should be accessed via '
-                             'logic.get_action' % action_name)
-                return get_action(action_name)(context, data_dict)
-            return warn
-
-        # Store our wrapped function so it is available.  This is to prevent
-        # rewrapping of actions
-        module = sys.modules[_action.__module__]
-        r = replaced_action(action_name)
-        r.__replaced = fn
-        module.__dict__[action_name] = r
-
     return _actions.get(action)
 
 
@@ -526,8 +505,8 @@ def side_effect_free(action):
     '''A decorator that marks the given action function as side-effect-free.
 
     Action functions decorated with this decorator can be called with an HTTP
-    GET request to the :doc:`Action API </api>`. Action functions that don't
-    have this decorator must be called with a POST request.
+    GET request to the :doc:`Action API </api/index>`. Action functions that
+    don't have this decorator must be called with a POST request.
 
     If your CKAN extension defines its own action functions using the
     :py:class:`~ckan.plugins.interfaces.IActions` plugin interface, you can use
@@ -559,9 +538,9 @@ def auth_sysadmins_check(action):
     to call an action function.
 
     Normally sysadmins are allowed to call any action function (for example
-    when they're using the :doc:`Action API </api>` or the web interface),
-    if the user is a sysadmin the action function's authorization function
-    will not even be called.
+    when they're using the :doc:`Action API </api/index>` or the web
+    interface), if the user is a sysadmin the action function's authorization
+    function will not even be called.
 
     If an action function is decorated with this decorator, then its
     authorization function will always be called, even if the user is a

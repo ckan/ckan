@@ -51,12 +51,15 @@ from ckan.logic.validators import (package_id_not_changed,
                                    url_validator,
                                    datasets_with_no_organization_cannot_be_private,
                                    list_of_strings,
+                                   if_empty_guess_format,
+                                   clean_format,
                                    no_loops_in_hierarchy,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,
                                    convert_to_json_if_string,
+                                   remove_whitespace,
                                    )
 from formencode.validators import OneOf
 import ckan.model
@@ -66,12 +69,12 @@ def default_resource_schema():
 
     schema = {
         'id': [ignore_empty, unicode],
-        'revision_id': [ignore_missing, unicode],
+        'revision_id': [ignore],
         'resource_group_id': [ignore],
         'package_id': [ignore],
-        'url': [not_empty, unicode],#, URL(add_http=False)],
+        'url': [not_empty, unicode, remove_whitespace],
         'description': [ignore_missing, unicode],
-        'format': [ignore_missing, unicode],
+        'format': [if_empty_guess_format, ignore_missing, clean_format, unicode],
         'hash': [ignore_missing, unicode],
         'state': [ignore],
         'position': [ignore],
@@ -169,6 +172,8 @@ def default_create_package_schema():
 def default_update_package_schema():
     schema = default_create_package_schema()
 
+    schema['resources'] = default_update_resource_schema()
+
     # Users can (optionally) supply the package id when updating a package, but
     # only to identify the package to be updated, they cannot change the id.
     schema['id'] = [ignore_missing, package_id_not_changed]
@@ -198,12 +203,14 @@ def default_show_package_schema():
     # Add several keys to the 'resources' subschema so they don't get stripped
     # from the resource dicts by validation.
     schema['resources'].update({
+        'format': [ignore_missing, clean_format, unicode],
         'created': [ckan.lib.navl.validators.ignore_missing],
         'position': [not_empty],
         'last_modified': [ckan.lib.navl.validators.ignore_missing],
         'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'revision_timestamp': [],
+        'revision_id': [],
         'resource_group_id': [],
         'cache_last_updated': [],
         'webstore_last_updated': [],
@@ -223,6 +230,7 @@ def default_show_package_schema():
         'state': [ckan.lib.navl.validators.ignore_missing],
         'isopen': [ignore_missing],
         'license_url': [ignore_missing],
+        'revision_id': [],
         })
 
     schema['groups'].update({
@@ -317,6 +325,22 @@ def group_form_schema():
 def default_update_group_schema():
     schema = default_group_schema()
     schema["name"] = [ignore_missing, group_name_validator, unicode]
+    return schema
+
+def default_show_group_schema():
+    schema = default_group_schema()
+
+    # make default show schema behave like when run with no validation
+    schema['num_followers'] = []
+    schema['created'] = []
+    schema['display_name'] = []
+    schema['extras'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['package_count'] = []
+    schema['packages'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['revision_id'] = []
+    schema['state'] = []
+    schema['users'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+
     return schema
 
 

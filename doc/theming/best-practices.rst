@@ -27,12 +27,12 @@ like ``<a href="/dataset">``. Links created with
 changes in a new version of CKAN, or if a plugin changes the URL routing.
 
 
--------------------------------
-Use ``_()`` and ``ungettext()``
--------------------------------
+---------------------------------------------------------------------
+Use ``{% trans %}``, ``{% pluralize %}``, ``_()`` and ``ungettext()``
+---------------------------------------------------------------------
 
-Always use :py:func:`_` (or, if pluralizaton is needed, :py:func:`ungettext`)
-to mark user-visible strings for localization.
+All user-visible strings should be internationalized, see
+:doc:`/contributing/string-i18n`.
 
 
 -----------------------------------------------------------------
@@ -58,6 +58,59 @@ overridden by, a core snippet, or a snippet from another extension.
 For example::
 
  snippets/example_theme_most_popular_groups.html
+
+
+.. _javascript module names best practice:
+
+----------------------------------------------------------------------
+|javascript| modules names should begin with the name of the extension
+----------------------------------------------------------------------
+
+Namespacing |javascript| modules in this way avoids accidentally overriding, or
+being overridden by, a core module, or a module from another extension.  For
+example: ``fanstatic/example_theme_popover.js``:
+
+.. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
+
+.. _javascript module docstrings best practice:
+
+-------------------------------------------
+|javascript| modules should have docstrings
+-------------------------------------------
+
+A |javascript| module should have a docstring at the top of the file, briefly
+documentating what the module does and what options it takes. For example:
+
+.. literalinclude:: /../ckanext/example_theme/v17_popover/fanstatic/example_theme_popover.js
+   :language: javascript
+
+
+.. _pubsub unsubscribe best practice:
+
+-------------------------------------------------------------------
+JavaScript modules should unsubscribe from events in ``teardown()``
+-------------------------------------------------------------------
+
+Any JavaScript module that calls :js:func:`this.sandbox.client.subscribe`
+should have a ``teardown()`` function that calls
+:js:func:`~this.sandbox.client.unsubscribe`, to prevent memory leaks.
+CKAN calls the ``teardown()`` functions of modules when those modules are
+removed from the page.
+
+.. _pubsub overuse best practice:
+
+--------------------
+Don't overuse pubsub
+--------------------
+
+There shouldn't be very many cases where a JavaScript module really needs to
+use :ref:`Pubsub <pubsub>`, try to only use it when you really need to.
+
+JavaScript modules in CKAN are designed to be small and loosely-coupled,
+for example modules don't share any global variables and don't call
+each other's functions. But pubsub offers a way to tightly couple JavaScript
+modules together, by making modules depend on multiple events published by
+other modules. This can make the code buggy and difficult to understand.
 
 
 --------------------------------------------
