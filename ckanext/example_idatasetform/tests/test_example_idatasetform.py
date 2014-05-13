@@ -201,3 +201,51 @@ class TestIDatasetFormPlugin(object):
                          result['resources'][0]['custom_resource_text'])
         nt.assert_equals('my custom resource',
                          result['resources'][0]['custom_resource_text'])
+
+
+class TestCustomSearch(object):
+    @classmethod
+    def setup_class(cls):
+        cls.original_config = config.copy()
+        cls.app = helpers._get_test_app()
+        plugins.load('example_idatasetform')
+
+    def teardown(self):
+        model.repo.rebuild_db()
+        ckan.lib.search.clear()
+
+    @classmethod
+    def teardown_class(cls):
+        plugins.unload('example_idatasetform')
+        helpers.reset_db()
+        ckan.lib.search.clear()
+
+        config.clear()
+        config.update(cls.original_config)
+
+
+    def test_custom_search(self):
+        helpers.call_action('package_create', name='test_package_a',
+                            custom_text='z')
+        helpers.call_action('package_create', name='test_package_b',
+                            custom_text='y')
+
+        response = self.app.get('/dataset')
+
+        #change the sort by form to our custom_text ascending
+        response.forms[1].fields['sort'][0].value = 'custom_text asc'
+        response = response.forms[1].submit()
+        #check that package_b appears before package a (y < z)
+        nt.assert_less(
+            response.body.index('test_package_b'),
+            response.body.index('test_package_a'),
+        )
+
+        response.forms[1].fields['sort'][0].value = 'custom_text desc'
+        #check that package_a appears before package b (z is first in
+        #descending order)
+        response = response.forms[1].submit()
+        nt.assert_less(
+            response.body.index('test_package_a'),
+            response.body.index('test_package_b')
+        )

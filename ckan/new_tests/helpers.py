@@ -17,6 +17,10 @@ potential drawbacks.
 This module is reserved for these very useful functions.
 
 '''
+import pylons.config as config
+import webtest
+
+import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
 
@@ -116,3 +120,16 @@ def call_auth(auth_name, context, **kwargs):
     # FIXME: Do we want to go through check_access() here?
     auth_function = ckan.logic.auth.update.__getattribute__(auth_name)
     return auth_function(context=context, data_dict=kwargs)
+
+
+def _get_test_app():
+    '''Return a webtest.TestApp for CKAN, with legacy templates disabled.
+
+    For functional tests that need to request CKAN pages or post to the API.
+    Unit tests shouldn't need this.
+
+    '''
+    config['ckan.legacy_templates'] = False
+    app = ckan.config.middleware.make_app(config['global_conf'], **config)
+    app = webtest.TestApp(app)
+    return app
