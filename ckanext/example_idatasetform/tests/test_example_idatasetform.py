@@ -223,7 +223,6 @@ class TestCustomSearch(object):
         config.clear()
         config.update(cls.original_config)
 
-
     def test_custom_search(self):
         helpers.call_action('package_create', name='test_package_a',
                             custom_text='z')
@@ -232,18 +231,18 @@ class TestCustomSearch(object):
 
         response = self.app.get('/dataset')
 
-        #change the sort by form to our custom_text ascending
+        # change the sort by form to our custom_text ascending
         response.forms[1].fields['sort'][0].value = 'custom_text asc'
         response = response.forms[1].submit()
-        #check that package_b appears before package a (y < z)
+        # check that package_b appears before package a (y < z)
         nt.assert_less(
             response.body.index('test_package_b'),
             response.body.index('test_package_a'),
         )
 
         response.forms[1].fields['sort'][0].value = 'custom_text desc'
-        #check that package_a appears before package b (z is first in
-        #descending order)
+        # check that package_a appears before package b (z is first in
+        # descending order)
         response = response.forms[1].submit()
         nt.assert_less(
             response.body.index('test_package_a'),
