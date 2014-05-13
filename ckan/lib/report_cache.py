@@ -63,7 +63,10 @@ class Report(object):
         log.info('  report done')
 
     def refresh_cache(self, option_dict):
-        '''Generates a report for the given options and caches it.'''
+        '''Generates a report for the given options and caches it.
+
+        Returns (data, date)
+        '''
         from ckan import model
         log.info('  options: %r', option_dict)
         data = self.generate(**option_dict)
@@ -125,6 +128,7 @@ class ReportCacheRegistry(object):
     def __init__(self):
         # register all the reports
         import ckan.plugins as p
+        self._reports = {}  # this reset is needed for 'paster serve --restart'
         for plugin in p.PluginImplementations(p.IReportCache):
             report_info_dicts = plugin.register_reports()
             for report_info_dict in report_info_dicts:
