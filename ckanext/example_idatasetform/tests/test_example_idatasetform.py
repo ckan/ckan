@@ -1,20 +1,33 @@
 import nose.tools as nt
 
+import pylons.config as config
+
 import ckan.model as model
 import ckan.plugins as plugins
 import ckan.new_tests.helpers as helpers
 import ckanext.example_idatasetform as idf
+import ckan.lib.search
 
 
 class ExampleIDatasetFormPluginBase(object):
     '''Version 1, 2 and 3 of the plugin are basically the same, so this class
     provides the tests that all three versions of the plugins will run'''
+    @classmethod
+    def setup_class(cls):
+        cls.original_config = config.copy()
+
     def teardown(self):
         model.repo.rebuild_db()
+        ckan.lib.search.clear()
 
     @classmethod
     def teardown_class(cls):
         helpers.reset_db()
+        model.repo.rebuild_db()
+        ckan.lib.search.clear()
+
+        config.clear()
+        config.update(cls.original_config)
 
     def test_package_create(self):
         result = helpers.call_action('package_create', name='test_package',
@@ -38,39 +51,43 @@ class ExampleIDatasetFormPluginBase(object):
 class TestVersion1(ExampleIDatasetFormPluginBase):
     @classmethod
     def setup_class(cls):
+        super(TestVersion1, cls).setup_class()
         plugins.load('example_idatasetform_v1')
 
     @classmethod
     def teardown_class(cls):
-        super(TestVersion1, cls).teardown_class()
         plugins.unload('example_idatasetform_v1')
+        super(TestVersion1, cls).teardown_class()
 
 
 class TestVersion2(ExampleIDatasetFormPluginBase):
     @classmethod
     def setup_class(cls):
+        super(TestVersion2, cls).setup_class()
         plugins.load('example_idatasetform_v2')
 
     @classmethod
     def teardown_class(cls):
-        super(TestVersion2, cls).teardown_class()
         plugins.unload('example_idatasetform_v2')
+        super(TestVersion2, cls).teardown_class()
 
 
 class TestVersion3(ExampleIDatasetFormPluginBase):
     @classmethod
     def setup_class(cls):
+        super(TestVersion3, cls).setup_class()
         plugins.load('example_idatasetform_v3')
 
     @classmethod
     def teardown_class(cls):
-        super(TestVersion3, cls).teardown_class()
         plugins.unload('example_idatasetform_v3')
+        super(TestVersion3, cls).teardown_class()
 
 
 class TestIDatasetFormPluginVersion4(object):
     @classmethod
     def setup_class(cls):
+        cls.original_config = config.copy()
         plugins.load('example_idatasetform_v4')
 
     def teardown(self):
@@ -80,6 +97,10 @@ class TestIDatasetFormPluginVersion4(object):
     def teardown_class(cls):
         plugins.unload('example_idatasetform_v4')
         helpers.reset_db()
+        ckan.lib.search.clear()
+
+        config.clear()
+        config.update(cls.original_config)
 
     def test_package_create(self):
         idf.plugin_v4.create_country_codes()
@@ -113,15 +134,21 @@ class TestIDatasetFormPluginVersion4(object):
 class TestIDatasetFormPlugin(object):
     @classmethod
     def setup_class(cls):
+        cls.original_config = config.copy()
         plugins.load('example_idatasetform')
 
     def teardown(self):
         model.repo.rebuild_db()
+        ckan.lib.search.clear()
 
     @classmethod
     def teardown_class(cls):
         plugins.unload('example_idatasetform')
         helpers.reset_db()
+        ckan.lib.search.clear()
+
+        config.clear()
+        config.update(cls.original_config)
 
     def test_package_create(self):
         idf.plugin.create_country_codes()
