@@ -235,16 +235,14 @@ class TestCustomSearch(object):
         response.forms[1].fields['sort'][0].value = 'custom_text asc'
         response = response.forms[1].submit()
         # check that package_b appears before package a (y < z)
-        nt.assert_less(
-            response.body.index('test_package_b'),
-            response.body.index('test_package_a'),
-        )
+        a = response.body.index('test_package_a')
+        b = response.body.index('test_package_b')
+        nt.assert_true(b < a)
 
         response.forms[1].fields['sort'][0].value = 'custom_text desc'
         # check that package_a appears before package b (z is first in
         # descending order)
         response = response.forms[1].submit()
-        nt.assert_less(
-            response.body.index('test_package_a'),
-            response.body.index('test_package_b')
-        )
+        a = response.body.index('test_package_a')
+        b = response.body.index('test_package_b')
+        nt.assert_true(a < b)
