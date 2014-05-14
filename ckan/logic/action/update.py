@@ -611,6 +611,9 @@ def organization_update(context, data_dict):
 
     :param id: the name or id of the organization to update
     :type id: string
+    :param packages: ignored. use
+        :py:func:`~ckan.logic.action.update.package_owner_org_update`
+        to change package ownership
 
     :returns: the updated organization
     :rtype: dictionary
