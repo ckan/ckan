@@ -109,7 +109,7 @@ class Report(object):
 def extract_entity_name(option_dict):
     '''Hunts for an option key that is the entity name and returns its
     value. Used in the DataCache storage.'''
-    for entity_name in ('publisher', 'group', 'package', 'resource'):
+    for entity_name in ('organization', 'publisher', 'group', 'package', 'resource'):
         if entity_name in option_dict:
             return option_dict[entity_name]
     return None
