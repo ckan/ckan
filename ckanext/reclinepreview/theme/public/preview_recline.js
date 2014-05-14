@@ -106,6 +106,8 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         }
 
         view = new recline.View.Map({model: dataset, state: state});
+      } else if(reclineView.view_type === "recline_preview") {
+        view = this._newDataExplorer(dataset);
       } else {
         // default to Grid
         view = new recline.View.SlickGrid({model: dataset});
@@ -116,16 +118,68 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         ];
       }
 
-      var newElements = $('<div />');
-      this._renderControls(newElements, controls, this.options.controlsClassName);
-      newElements.append(view.el);
-      $(this.el).html(newElements);
-      view.visible = true;
-      view.render();
+      // recline_preview automatically adds itself to the DOM, so we don't
+      // need to bother with it.
+      if(reclineView.view_type !== 'recline_preview') {
+        var newElements = $('<div />');
+        this._renderControls(newElements, controls, this.options.controlsClassName);
+        newElements.append(view.el);
+        $(this.el).html(newElements);
+        view.visible = true;
+        view.render();
+      }
 
       if(reclineView.view_type === "recline_graph") {
         view.redraw();
       }
+    },
+
+    _newDataExplorer: function (dataset) {
+      var views = [
+        {
+          id: 'grid',
+          label: 'Grid',
+          view: new recline.View.SlickGrid({
+            model: dataset
+          })
+        },
+        {
+          id: 'graph',
+          label: 'Graph',
+          view: new recline.View.Graph({
+            model: dataset
+          })
+        },
+        {
+          id: 'map',
+          label: 'Map',
+          view: new recline.View.Map({
+            model: dataset
+          })
+        }
+      ];
+
+      var sidebarViews = [
+        {
+          id: 'valueFilter',
+          label: 'Filters',
+          view: new recline.View.ValueFilter({
+            model: dataset
+          })
+        }
+      ];
+
+      var dataExplorer = new recline.View.MultiView({
+        el: this.el,
+        model: dataset,
+        views: views,
+        sidebarViews: sidebarViews,
+        config: {
+          readOnly: true
+        }
+      });
+
+      return dataExplorer;
     },
 
     normalizeUrl: function (url) {

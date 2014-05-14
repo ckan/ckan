@@ -1,4 +1,3 @@
-import mock
 import paste.fixture
 import pylons.config as config
 
@@ -9,56 +8,6 @@ import ckan.lib.helpers as h
 import ckanext.reclinepreview.plugin as previewplugin
 import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
-
-
-class TestReclinePreview(object):
-    @classmethod
-    def setup_class(cls):
-        cls.plugins = ['recline_grid', 'recline_graph', 'recline_map']
-
-        for plugin in cls.plugins:
-            if p.plugin_loaded(plugin):
-                p.unload(plugin)
-
-    @classmethod
-    def teardown_class(cls):
-        p.load_all(config)
-
-    def teardown(self):
-        for plugin in ['recline_preview'] + self.plugins:
-            if p.plugin_loaded(plugin):
-                p.unload(plugin)
-
-    def test_loads_all_recline_plugins_when_its_loaded(self):
-        p.load('recline_preview')
-
-        for plugin in self.plugins:
-            assert p.plugin_loaded(plugin), "%s wasn't loaded" % plugin
-
-    def test_doesnt_try_to_load_already_loaded_plugins(self):
-        p.load('recline_grid')
-        p.load('recline_map')
-
-        p.load('recline_preview')
-
-        for plugin in self.plugins:
-            assert p.plugin_loaded(plugin), "%s wasn't loaded" % plugin
-
-    @mock.patch('logging.getLogger')
-    def test_loading_this_plugin_gives_a_warning(self, getLogger):
-        log = mock.MagicMock()
-        getLogger.return_value = log
-
-        p.load('recline_preview')
-
-        log.warn.assert_called_once()
-
-    def test_this_plugin_only_exists_on_ckan_2_3(self):
-        error_msg = ("Plugin 'resource_preview' plugin was created just to "
-                     "ease the transition between 2.2 and 2.3. It should be "
-                     "removed in later versions.")
-
-        assert p.toolkit.check_ckan_version('2.2', '2.3'), error_msg
 
 
 class BaseTestReclineView(tests.WsgiAppCase):
@@ -97,6 +46,15 @@ class BaseTestReclineView(tests.WsgiAppCase):
         assert self.resource_view['title'] in result
         assert self.resource_view['description'] in result
         assert 'data-module="data-viewer"' in result.body
+
+
+class TestReclinePreview(BaseTestReclineView):
+    view_type = 'recline_preview'
+    view_class = previewplugin.ReclinePreview
+
+    def test_it_has_no_schema(self):
+        schema = self.p.info().get('schema')
+        assert schema is None, schema
 
 
 class TestReclineGrid(BaseTestReclineView):

@@ -41,25 +41,6 @@ def datastore_fields(resource, valid_field_types):
             if f['type'] in valid_field_types]
 
 
-class ReclinePreview(p.SingletonPlugin):
-    '''DEPRECATED
-
-    Wrapper that loads every Recline plugin to ease the transition to the new
-    Resource Views.
-    '''
-    p.implements(p.IConfigurable)
-
-    WRAPPED_PLUGINS = ['recline_grid', 'recline_graph', 'recline_map']
-
-    def configure(self, config):
-        log.warn("Plugin 'resource_preview' is deprecated. "
-                 "Please, remove it and enable the Recline plugins "
-                 "(recline_grid, recline_graph, and recline_map) as needed.")
-        for plugin in self.WRAPPED_PLUGINS:
-            if not p.plugin_loaded(plugin):
-                p.load(plugin)
-
-
 class ReclineView(p.SingletonPlugin):
     '''
     This base class for the Recline view extensions.
@@ -87,6 +68,17 @@ class ReclineView(p.SingletonPlugin):
 
     def view_template(self, context, data_dict):
         return 'recline_view.html'
+
+
+class ReclinePreview(ReclineView):
+    '''
+    This extension views resources using a Recline MultiView.
+    '''
+
+    def info(self):
+        return {'name': 'recline_preview',
+                'title': 'Data Explorer',
+                'icon': 'table'}
 
 
 class ReclineGrid(ReclineView):
