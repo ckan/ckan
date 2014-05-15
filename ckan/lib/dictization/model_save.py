@@ -381,14 +381,13 @@ def group_member_save(context, group_dict, member_table_name):
     return processed
 
 
-def group_dict_save(group_dict, context):
+def group_dict_save(group_dict, context, prevent_packages_update=False):
     from ckan.lib.search import rebuild
 
     model = context["model"]
     session = context["session"]
     group = context.get("group")
     allow_partial_update = context.get("allow_partial_update", False)
-    prevent_packages_update = context.get("prevent_packages_update", False)
 
     Group = model.Group
     if group:
