@@ -198,9 +198,8 @@ class UserController(base.BaseController):
         if not c.user:
             # log the user in programatically
             rememberer = request.environ['repoze.who.plugins']['friendlyform']
-            identity = {'repoze.who.userid': data_dict['name']}
-            response.headerlist += rememberer.remember(request.environ,
-                                                       identity)
+            identity = {'repoze.who.userid': str(data_dict['name'])}
+            response.headerlist += rememberer.remember(request.environ, identity)
             h.redirect_to(controller='user', action='me', __ckan_no_root=True)
         else:
             # #1799 User has managed to register whilst logged in - warn user
