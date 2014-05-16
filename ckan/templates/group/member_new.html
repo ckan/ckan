@@ -13,12 +13,14 @@
   <form class="dataset-form form-horizontal add-member-form" method='post'>
     <div class="row-fluid">
       <div class="control-group control-medium">
-        <label class="control-label" for="username">
-          {{ _('Existing User') }}
-        </label>
-        <span>
-          {{ _('If you wish to add an existing user, search for their username below.') }}
-        </span>
+        {% if not user %}
+          <label class="control-label" for="username">
+            {{ _('Existing User') }}
+          </label>
+          <span>
+            {{ _('If you wish to add an existing user, search for their username below.') }}
+          </span>
+        {% endif %}
         <div class="controls">
           {% if user %}
             <input type="hidden" name="username" value="{{ user.name }}" />
@@ -31,21 +33,24 @@
           {% endif %}
         </div>
       </div>
-      <div class="add-member-or">
-        {{ _('or') }}
-      </div>
-      <div class="control-group control-medium">
-        <label class="control-label" for="email">
-          {{ _('New User') }}
-        </label>
-        <span>
-          {{ _('If you wish to invite a new user, enter their email address.') }}
-        </span>
-        <div class="controls">
-          <input id="email" type="text" name="email" placeholder="Email address">
+      {% if not user %}
+        <div class="add-member-or">
+          {{ _('or') }}
         </div>
-      </div>
+        <div class="control-group control-medium">
+          <label class="control-label" for="email">
+            {{ _('New User') }}
+          </label>
+          <span>
+            {{ _('If you wish to invite a new user, enter their email address.') }}
+          </span>
+          <div class="controls">
+            <input id="email" type="text" name="email" placeholder="Email address">
+          </div>
+        </div>
+      {% endif %}
     </div>
+
     {% set format_attrs = {'data-module': 'autocomplete'} %}
     {{ form.select('role', label=_('Role'), options=c.roles, selected=c.user_role, error='', attrs=format_attrs) }}
     <div class="form-actions">
