@@ -1,0 +1,45 @@
+#!/bin/sh
+exec 2>&1
+
+: ${DATABASE_URL:-}
+: ${SOLR_URL:-}
+: ${GUNICORN_NUM_WORKERS:-4}
+
+set -e
+
+CKAN_CONFIG=/etc/ckan/default.ini
+
+abort () {
+  echo "$@" >&2
+  exit 1
+}
+
+bootstrap () {
+  "$CKAN_HOME"/bin/paster make-config ckan "$CKAN_CONFIG"
+
+  sed -i \
+      -e "s&^sqlalchemy\.url =.*&sqlalchemy.url = ${DATABASE_URL}&" \
+      -e "s&^#solr_url.*&solr_url = ${SOLR_URL}&" \
+      -e "s&^#ckan.storage_path.*&ckan.storage_path = /var/lib/ckan&" \
+      "$CKAN_CONFIG"
+
+  cd "$CKAN_HOME"/src/ckan && "$CKAN_HOME"/bin/paster db init -c "$CKAN_CONFIG"
+}
+
+# If we don't already have a config file, bootstrap
+if [ ! -e /etc/ckan/default/ckan.ini ]; then
+  if [ -z "$DATABASE_URL" ]; then
+    abort "no DATABASE_URL specified"
+  fi
+  if [ -z "$SOLR_URL" ]; then
+    abort "no SOLR_URL specified"
+  fi
+  bootstrap
+fi
+
+exec "$CKAN_HOME"/bin/gunicorn \
+  -b unix:/var/run/gunicorn.sock \
+  -n "$GUNICORN_NUM_WORKERS" \
+  -k gevent \
+  --max-requests 1000 \
+  --paste "$CKAN_CONFIG"
