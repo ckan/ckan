@@ -92,3 +92,61 @@ class TestSearchIndex(object):
 
         eq_(len(response), 1)
         eq_(response.results[0]['title'], u'\u00c3altimo n\u00famero penguin')
+
+    def test_index_date_field(self):
+
+        pkg_dict = self.base_package_dict.copy()
+        pkg_dict.update({
+            'extras': [
+                {'key': 'test_date', 'value': '2014-03-22'},
+                {'key': 'test_tim_date', 'value': '2014-03-22 05:42:14'},
+            ]
+        })
+
+        self.package_index.index_package(pkg_dict)
+
+        response = self.solr_client.query('name:monkey', fq=self.fq)
+
+        eq_(len(response), 1)
+
+        assert isinstance(response.results[0]['test_date'], datetime.datetime)
+        eq_(response.results[0]['test_date'].strftime('%Y-%m-%d'),
+            '2014-03-22')
+        eq_(response.results[0]['test_tim_date'].strftime('%Y-%m-%d %H:%M:%S'),
+            '2014-03-22 05:42:14')
+
+    def test_index_date_field_wrong_value(self):
+
+        pkg_dict = self.base_package_dict.copy()
+        pkg_dict.update({
+            'extras': [
+                {'key': 'test_wrong_date', 'value': 'Not a date'},
+                {'key': 'test_another_wrong_date', 'value': '2014-13-01'},
+            ]
+        })
+
+        self.package_index.index_package(pkg_dict)
+
+        response = self.solr_client.query('name:monkey', fq=self.fq)
+
+        eq_(len(response), 1)
+
+        assert 'test_wrong_date' not in response.results[0]
+        assert 'test_another_wrong_date' not in response.results[0]
+
+    def test_index_date_field_empty_value(self):
+
+        pkg_dict = self.base_package_dict.copy()
+        pkg_dict.update({
+            'extras': [
+                {'key': 'test_empty_date', 'value': ''},
+            ]
+        })
+
+        self.package_index.index_package(pkg_dict)
+
+        response = self.solr_client.query('name:monkey', fq=self.fq)
+
+        eq_(len(response), 1)
+
+        assert 'test_empty_date' not in response.results[0]
