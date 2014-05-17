@@ -1,0 +1,56 @@
+#!/bin/sh
+exec 2>&1
+
+# URL for the primary database, in the format expected by sqlalchemy (required)
+: ${DATABASE_URL:-}
+# URL for solr (required)
+: ${SOLR_URL:-}
+# Email to which errors should be sent (optional, default: none)
+: ${ERROR_EMAIL:-}
+# Number of gunicorn workers to spawn (optional, default: 4)
+: ${GUNICORN_NUM_WORKERS:-4}
+
+set -e
+
+CKAN_CONFIG=/etc/ckan/default.ini
+
+abort () {
+  echo "$@" >&2
+  exit 1
+}
+
+bootstrap () {
+  "$CKAN_HOME"/bin/paster make-config ckan "$CKAN_CONFIG"
+
+  sed -i \
+      -e "s&^sqlalchemy\.url =.*&sqlalchemy.url = ${DATABASE_URL}&" \
+      -e "s&^#solr_url.*&solr_url = ${SOLR_URL}&" \
+      -e "s&^#ckan.storage_path.*&ckan.storage_path = /var/lib/ckan&" \
+      -e "s&^email_to.*&#email_to = disabled@example.com&" \
+      -e "s&^error_email_from.*&error_email_from = ckan@$(hostname -f)&" \
+      "$CKAN_CONFIG"
+
+  if [ -n "$ERROR_EMAIL" ]; then
+    sed -i -e "s&^#email_to.*&email_to = ${ERROR_EMAIL}&" "$CKAN_CONFIG"
+  fi
+
+  cd "$CKAN_HOME"/src/ckan && "$CKAN_HOME"/bin/paster db init -c "$CKAN_CONFIG"
+}
+
+# If we don't already have a config file, bootstrap
+if [ ! -e /etc/ckan/default/ckan.ini ]; then
+  if [ -z "$DATABASE_URL" ]; then
+    abort "no DATABASE_URL specified"
+  fi
+  if [ -z "$SOLR_URL" ]; then
+    abort "no SOLR_URL specified"
+  fi
+  bootstrap
+fi
+
+exec "$CKAN_HOME"/bin/gunicorn \
+  -b unix:/var/run/gunicorn.sock \
+  -n "$GUNICORN_NUM_WORKERS" \
+  -k gevent \
+  --max-requests 1000 \
+  --paste "$CKAN_CONFIG"
