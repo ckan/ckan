@@ -1,0 +1,11 @@
+#!/bin/sh
+exec 2>&1
+
+command_directory=$(postconf -h command_directory)
+daemon_directory=$("$command_directory"/postconf -h daemon_directory)
+
+# make consistency check
+"$command_directory"/postfix check
+
+# run Postfix
+exec "$daemon_directory"/master

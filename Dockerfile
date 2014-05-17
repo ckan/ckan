@@ -18,8 +18,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y install \
         libxml2-dev \
         libxslt1-dev \
         nginx-light \
-        build-essential \
-        git
+        postfix \
+        build-essential
 
 # Install CKAN
 RUN virtualenv $CKAN_HOME
@@ -34,6 +34,9 @@ RUN ln -s $CKAN_HOME/src/ckan/ckan/config/who.ini /etc/ckan/who.ini
 
 # Configure nginx
 ADD ./contrib/docker/nginx.conf /etc/nginx/nginx.conf
+
+# Configure postfix
+ADD ./contrib/docker/main.cf /etc/postfix/main.cf
 
 # Configure runit
 ADD ./contrib/docker/svc /etc/service
