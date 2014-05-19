@@ -572,7 +572,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res = self.app.post('/api/action/resource_show', params=postparams)
         res_dict = json.loads(res.body)
 
-        assert res_dict['datastore_active'] is True
+        assert res_dict['result']['datastore_active'] is True
 
 
     def test_guess_types(self):
