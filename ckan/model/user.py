@@ -161,8 +161,8 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
                 len(current_hash.salt) < plh.pbkdf2_sha512.default_salt_size):
 
                 return self._verify_and_upgrade_pbkdf2(password)
-
-            return plh.pbkdf2_sha512.verify(password, self.password)
+            else:
+                return plh.pbkdf2_sha512.verify(password, self.password)
 
     password = property(_get_password, _set_password)
 
