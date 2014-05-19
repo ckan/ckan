@@ -64,7 +64,11 @@ This section will walk you through the steps for making a pull request.
 
    - Your branch should contain new or changed tests for any new or changed
      code, and all the CKAN tests should pass on your branch, see
-     :doc:`test`.
+     `Testing CKAN <http://docs.ckan.org/en/latest/test.html>`_.
+
+   - Your pull request shouldn't lower our test coverage. You can check it at
+     our `coveralls page <https://coveralls.io/r/ckan/ckan>`. If for some
+     reason you can't avoid lowering it, explain why on the pull request.
 
    - Your branch should contain new or updated documentation for any new or
      updated code, see :doc:`documentation`.
