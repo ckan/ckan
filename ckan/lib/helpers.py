@@ -1870,6 +1870,15 @@ def unified_resource_format(format):
 def check_config_permission(permission):
     return new_authz.check_config_permission(permission)
 
+
+def get_organization(org=None):
+    if org is None:
+        return {}
+    try:
+        return logic.get_action('organization_show')({}, {'id': org})
+    except (NotFound, ValidationError, NotAuthorized):
+        return {}
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1957,6 +1966,7 @@ __allowed_functions__ = [
     'list_dict_filter',
     'new_activities',
     'time_ago_from_timestamp',
+    'get_organization',
     'has_more_facets',
     # imported into ckan.lib.helpers
     'literal',

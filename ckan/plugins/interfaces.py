@@ -179,7 +179,7 @@ class ISession(Interface):
 
 class IDomainObjectModification(Interface):
     """
-    Receives notification of new, changed and deleted datesets.
+    Receives notification of new, changed and deleted datasets.
     """
 
     def notify(self, entity, operation):
