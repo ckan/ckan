@@ -5,6 +5,7 @@ import requests
 
 import ckan.logic as logic
 import ckan.lib.base as base
+from ckan.common import _
 
 log = getLogger(__name__)
 
