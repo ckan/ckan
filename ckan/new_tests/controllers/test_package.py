@@ -24,7 +24,8 @@ class TestResourceRead(controllers.WsgiAppCase):
 
     def test_existing_resource_with_associated_package(self):
         new_package = factories.Dataset()
-        resource = factories.Resource(package_id=new_package['id'])
+        resource = factories.Resource(package_id=new_package['id'],
+                                      format='csv')
         response = self.app.get(
             url=url_for(controller='package', action='resource_read',
                         id=new_package['id'], resource_id=resource['id']),
@@ -33,7 +34,7 @@ class TestResourceRead(controllers.WsgiAppCase):
 
     def test_existing_resource_with_package_not_associated(self):
         new_package = factories.Dataset()
-        resource = factories.Resource()
+        resource = factories.Resource(format='csv')
         response = self.app.get(
             url=url_for(controller='package', action='resource_read',
                         id=new_package['id'], resource_id=resource['id']),
