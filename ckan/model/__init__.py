@@ -154,10 +154,6 @@ from domain_object import (
 from dashboard import (
     Dashboard,
 )
-from data_cache import (
-    DataCache,
-    data_cache_table,
-)
 import ckan.migration
 
 log = logging.getLogger(__name__)
