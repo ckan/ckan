@@ -7,8 +7,8 @@ import nose.tools
 
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
-import ckan.model
-import ckan.logic
+import ckan.model as model
+import ckan.logic as logic
 
 
 class TestUserInvite(object):
@@ -56,17 +56,17 @@ class TestUserInvite(object):
             assert invited_user is not None, invited_user
 
     @mock.patch('ckan.lib.mailer.send_invite')
-    @nose.tools.raises(ckan.logic.ValidationError)
+    @nose.tools.raises(logic.ValidationError)
     def test_user_invite_requires_email(self, _):
         self._invite_user_to_group(email=None)
 
     @mock.patch('ckan.lib.mailer.send_invite')
-    @nose.tools.raises(ckan.logic.ValidationError)
+    @nose.tools.raises(logic.ValidationError)
     def test_user_invite_requires_role(self, _):
         self._invite_user_to_group(role=None)
 
     @mock.patch('ckan.lib.mailer.send_invite')
-    @nose.tools.raises(ckan.logic.ValidationError)
+    @nose.tools.raises(logic.ValidationError)
     def test_user_invite_requires_group_id(self, _):
         self._invite_user_to_group(group={'id': None})
 
@@ -86,4 +86,25 @@ class TestUserInvite(object):
 
         result = helpers.call_action('user_invite', context, **params)
 
-        return ckan.model.User.get(result['id'])
+        return model.User.get(result['id'])
+
+
+class TestResourceCreate(object):
+
+    @classmethod
+    def setup_class(cls):
+        helpers.reset_db()
+
+    def setup(self):
+        model.repo.rebuild_db()
+
+    def test_it_requires_url(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        data_dict = {
+            'package_id': dataset['id']
+        }
+
+        nose.tools.assert_raises(logic.ValidationError,
+                                 helpers.call_action,
+                                 'resource_create', **data_dict)

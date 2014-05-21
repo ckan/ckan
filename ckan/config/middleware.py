@@ -345,7 +345,8 @@ class TrackingMiddleware(object):
 
     def __call__(self, environ, start_response):
         path = environ['PATH_INFO']
-        if path == '/_tracking':
+        method = environ.get('REQUEST_METHOD')
+        if path == '/_tracking' and method == 'POST':
             # do the tracking
             # get the post data
             payload = environ['wsgi.input'].read()

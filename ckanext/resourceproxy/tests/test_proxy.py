@@ -31,7 +31,6 @@ def set_resource_url(url):
         'session': model.Session,
         'user': model.User.get('testsysadmin').name
     }
-
     resource = logic.get_action('resource_show')(context, {'id': testpackage.resources[0].id})
     package = logic.get_action('package_show')(context, {'id': testpackage.id})
 
@@ -138,7 +137,6 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         assert result.status == 409, result.status
         assert 'Invalid URL' in result.body, result.body
 
-
     def test_non_existent_url(self):
         self.data_dict = set_resource_url('http://foo.bar')
 
@@ -151,3 +149,12 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         result = self.app.get(proxied_url, status='*')
         assert result.status == 502, result.status
         assert 'connection error' in result.body, result.body
+
+    def test_non_existent_resource(self):
+        self.data_dict = {'package': {'name': 'doesnotexist'},
+                          'resource': {'id': 'doesnotexist'}}
+
+        proxied_url = proxy.get_proxified_resource_url(self.data_dict)
+        result = self.app.get(proxied_url, status='*')
+        assert result.status == 404, result.status
+        assert 'Resource not found' in result.body, result.body
