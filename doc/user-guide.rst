@@ -239,9 +239,6 @@ select "Next: Additional Info".
   talk to your site administrator about changing the default schema and dataset
   forms.
 
-* *Group* -- Moderated collection of datasets. You can add the dataset to
-  an existing group here.
-
 .. image:: /images/add_dataset_3.jpg
 
 .. note::
@@ -249,6 +246,11 @@ select "Next: Additional Info".
     Everything on this screen is optional, but you should ensure the
     "Visibility" is set correctly. It is also good practice to ensure an Author is
     named.
+
+.. versionchanged:: 2.2
+   Previous versions of CKAN used to allow adding the dataset to existing
+   groups in this step. This was changed. To add a dataset to an existing group
+   now, go to the "Group" tab in the Dataset's page.
 
 **Step 8**. Select the 'Finish' button. CKAN creates the dataset and shows you
 the result. You have finished!

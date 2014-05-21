@@ -1069,7 +1069,7 @@ Example::
 
   ckan.datapusher.formats = csv xls
 
-Default value: ``csv xls application/csv application/vnd.ms-excel``
+Default value: ``csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet``
 
 File formats that will be pushed to the DataStore by the DataPusher. When
 adding or editing a resource which links to a file in one of these formats,

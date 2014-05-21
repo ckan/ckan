@@ -59,6 +59,7 @@ from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,
                                    convert_to_json_if_string,
+                                   remove_whitespace,
                                    )
 from formencode.validators import OneOf
 import ckan.model
@@ -71,7 +72,7 @@ def default_resource_schema():
         'revision_id': [ignore],
         'resource_group_id': [ignore],
         'package_id': [ignore],
-        'url': [not_empty, unicode],#, URL(add_http=False)],
+        'url': [not_empty, unicode, remove_whitespace],
         'description': [ignore_missing, unicode],
         'format': [if_empty_guess_format, ignore_missing, clean_format, unicode],
         'hash': [ignore_missing, unicode],
@@ -324,6 +325,22 @@ def group_form_schema():
 def default_update_group_schema():
     schema = default_group_schema()
     schema["name"] = [ignore_missing, group_name_validator, unicode]
+    return schema
+
+def default_show_group_schema():
+    schema = default_group_schema()
+
+    # make default show schema behave like when run with no validation
+    schema['num_followers'] = []
+    schema['created'] = []
+    schema['display_name'] = []
+    schema['extras'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['package_count'] = []
+    schema['packages'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['revision_id'] = []
+    schema['state'] = []
+    schema['users'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+
     return schema
 
 
