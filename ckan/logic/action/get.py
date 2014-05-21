@@ -2037,6 +2037,16 @@ def term_translation_show(context, data_dict):
 
 # Only internal services are allowed to call get_site_user.
 def get_site_user(context, data_dict):
+    '''Return the ckan site user
+
+    :param defer_commit: by default (or if set to false) get_site_user will
+        commit and clean up the current transaction, it will also close and
+        discard the current session in the context. If set to true, caller
+        is responsible for commiting transaction after get_site_user is
+        called. Leaving open connections can cause cli commands to hang!
+        (optional, default: False)
+    :type defer_commit: boolean
+    '''
     _check_access('get_site_user', context, data_dict)
     model = context['model']
     site_id = config.get('ckan.site_id', 'ckan_site_user')
