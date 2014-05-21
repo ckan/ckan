@@ -17,6 +17,9 @@ potential drawbacks.
 This module is reserved for these very useful functions.
 
 '''
+from pylons import config
+import nose.tools
+
 import ckan.model as model
 import ckan.logic as logic
 
@@ -120,3 +123,37 @@ def call_auth(auth_name, context, **kwargs):
                                 'context dict')
 
     return logic.check_access(auth_name, context, data_dict=kwargs)
+
+
+def change_config(key, value):
+    '''Decorator to temporarily changes Pylons' config to a new value
+
+    This allows you to easily create tests that need specific config values to
+    be set, making sure it'll be reverted to what it was originally, after your
+    test is run.
+
+    Usage::
+
+        @helpers.change_config('ckan.site_title', 'My Test CKAN')
+        def test_ckan_site_title(self):
+            assert pylons.config['ckan.site_title'] == 'My Test CKAN'
+
+    :param key: the config key to be changed, e.g. ``'ckan.site_title'``
+    :type key: string
+
+    :param value: the new config key's value, e.g. ``'My Test CKAN'``
+    :type value: string
+    '''
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            _original_config = config.copy()
+            config[key] = value
+
+            return_value = func(*args, **kwargs)
+
+            config.clear()
+            config.update(_original_config)
+
+            return return_value
+        return nose.tools.make_decorator(func)(wrapper)
+    return decorator

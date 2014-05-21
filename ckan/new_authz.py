@@ -284,7 +284,9 @@ def _has_user_permission_for_groups(user_id, permission, group_ids,
         perms = ROLE_PERMISSIONS.get(row.capacity, [])
         if 'admin' in perms or permission in perms:
             return True
-    return False
+    default_permissions = \
+        check_config_permission('default_group_or_org_permissions')
+    return permission in default_permissions
 
 
 def users_role_for_group_or_org(group_id, user_name):
@@ -372,6 +374,7 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'create_user_via_api': False,
     'create_user_via_web': True,
     'roles_that_cascade_to_sub_groups': 'admin',
+    'default_group_or_org_permissions': '',
 }
 
 CONFIG_PERMISSIONS = {}
@@ -385,14 +388,14 @@ def check_config_permission(permission):
             key = 'ckan.auth.' + perm
             default = CONFIG_PERMISSIONS_DEFAULTS[perm]
             CONFIG_PERMISSIONS[perm] = config.get(key, default)
-            if perm == 'roles_that_cascade_to_sub_groups':
-                # this permission is a list of strings (space separated)
+            if isinstance(default, bool):
+                CONFIG_PERMISSIONS[perm] = asbool(CONFIG_PERMISSIONS[perm])
+            else:
+                # if they're not boolean, must be string, so we split them to
+                # form a list
                 CONFIG_PERMISSIONS[perm] = \
                     CONFIG_PERMISSIONS[perm].split(' ') \
                     if CONFIG_PERMISSIONS[perm] else []
-            else:
-                # most permissions are boolean
-                CONFIG_PERMISSIONS[perm] = asbool(CONFIG_PERMISSIONS[perm])
     if permission in CONFIG_PERMISSIONS:
         return CONFIG_PERMISSIONS[permission]
     return False

@@ -256,6 +256,33 @@ class Organization(factory.Factory):
         return group_dict
 
 
+class Member(factory.Factory):
+    '''A factory class for creating CKAN groups' members.'''
+
+    FACTORY_FOR = ckan.model.Member
+
+    object_type = 'user'
+    object = factory.LazyAttribute(lambda _: User()['id'])
+    id = factory.LazyAttribute(lambda _: Group()['id'])
+    capacity = 'admin'
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        context = {'user': _get_action_user_name(kwargs)}
+
+        group_dict = helpers.call_action('member_create',
+                                         context=context,
+                                         **kwargs)
+        return group_dict
+
+
 class Related(factory.Factory):
     '''A factory class for creating related items.'''
 
