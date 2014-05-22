@@ -762,7 +762,7 @@ def _where(field_ids, data_dict):
     for plugin in p.PluginImplementations(interfaces.IDataStore):
         filters, clauses = plugin.where(filters)
         for clause in clauses:
-            where_clauses.append(clause[0])
+            where_clauses.append('(' + clause[0] + ')')
             values += clause[1:]
 
     for field, value in filters.iteritems():

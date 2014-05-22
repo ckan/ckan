@@ -21,6 +21,13 @@ class SampleDataStorePlugin(p.SingletonPlugin):
             clause = ('"age" >= %s AND "age" <= %s',
                       age_between[0], age_between[1])
             clauses.append(clause)
+        if 'age_not_between' in filters:
+            age_not_between = filters['age_not_between']
+            del filters['age_not_between']
+
+            clause = ('"age" < %s OR "age" > %s',
+                      age_not_between[0], age_not_between[1])
+            clauses.append(clause)
         return filters, clauses
 
 
@@ -43,17 +50,41 @@ class TestInterfaces(object):
 
     def test_can_create_custom_filters(self):
         records = [
-            {'age': 20}, {'age': 27}, {'age': 33}
+            {'age': 20}, {'age': 30}, {'age': 40}
         ]
         resource = self._create_datastore_resource(records)
-        filters = {'age_between': [25, 30]}
+        filters = {'age_between': [25, 35]}
 
         result = helpers.call_action('datastore_search',
                                      resource_id=resource['id'],
                                      filters=filters)
 
         assert result['total'] == 1, result
-        assert result['records'][0]['age'] == 27, result
+        assert result['records'][0]['age'] == 30, result
+        assert_equals(result['filters'], filters)
+
+    def test_custom_filters_have_the_correct_operator_precedence(self):
+        '''
+        We're testing that the WHERE clause becomes:
+            (age < 50 OR age > 60) AND age = 30
+        And not:
+            age < 50 OR age > 60 AND age = 30
+        '''
+        records = [
+            {'age': 20}, {'age': 30}, {'age': 40}
+        ]
+        resource = self._create_datastore_resource(records)
+        filters = {
+            'age_not_between': [50, 60],
+            'age': 30
+        }
+
+        result = helpers.call_action('datastore_search',
+                                     resource_id=resource['id'],
+                                     filters=filters)
+
+        assert result['total'] == 1, result
+        assert result['records'][0]['age'] == 30, result
         assert_equals(result['filters'], filters)
 
     def _create_datastore_resource(self, records):
