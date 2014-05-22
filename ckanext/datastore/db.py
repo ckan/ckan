@@ -16,6 +16,7 @@ from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError)
 import psycopg2.extras
 import ckan.lib.cli as cli
+import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 import ckanext.datastore.interfaces as interfaces
 
