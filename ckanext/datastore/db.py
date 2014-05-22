@@ -17,6 +17,7 @@ from sqlalchemy.exc import (ProgrammingError, IntegrityError,
 import psycopg2.extras
 import ckan.lib.cli as cli
 import ckan.plugins.toolkit as toolkit
+import ckanext.datastore.interfaces as interfaces
 
 log = logging.getLogger(__name__)
 
@@ -756,6 +757,12 @@ def _where(field_ids, data_dict):
 
     where_clauses = []
     values = []
+
+    for plugin in p.PluginImplementations(interfaces.IDataStore):
+        filters, clauses = plugin.where(filters)
+        for clause in clauses:
+            where_clauses.append(clause[0])
+            values += clause[1:]
 
     for field, value in filters.iteritems():
         if field not in field_ids:
