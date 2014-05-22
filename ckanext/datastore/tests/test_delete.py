@@ -156,3 +156,21 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         self.Session.remove()
 
         self._delete()
+
+    def test_delete_is_unsuccessful_when_called_with_invalid_filters(self):
+        self._create()
+
+        data = {
+            'resource_id': self.data['resource_id'],
+            'filters': {
+                'invalid-column-name': 'value'
+            }
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_delete', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+        self._delete()
