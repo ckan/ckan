@@ -61,6 +61,18 @@ class TestInterfaces(object):
 
         assert result['total'] == 1, result
         assert result['records'][0]['age'] == 30, result
+
+    def test_filters_sent_arent_modified(self):
+        records = [
+            {'age': 20}, {'age': 30}, {'age': 40}
+        ]
+        resource = self._create_datastore_resource(records)
+        filters = {'age_between': [25, 35]}
+
+        result = helpers.call_action('datastore_search',
+                                     resource_id=resource['id'],
+                                     filters=filters.copy())
+
         assert_equals(result['filters'], filters)
 
     def test_custom_filters_have_the_correct_operator_precedence(self):

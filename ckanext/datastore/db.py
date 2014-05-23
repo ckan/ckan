@@ -749,7 +749,7 @@ def _to_full_text(fields, record):
 
 def _where(field_ids, data_dict):
     '''Return a SQL WHERE clause from data_dict filters and q'''
-    filters = data_dict.get('filters', {})
+    filters = data_dict.get('filters', {}).copy()
 
     if not isinstance(filters, dict):
         raise ValidationError({
