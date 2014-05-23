@@ -429,6 +429,21 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is False
         assert res_dict['error'].get('filters') is not None, res_dict['error']
 
+    def test_search_is_unsuccessful_when_called_with_invalid_fields(self):
+        data = {
+            'resource_id': self.data['resource_id'],
+            'fields': [
+                'invalid-column-name'
+            ]
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error'].get('fields') is not None, res_dict['error']
+
 
 class TestDatastoreFullTextSearch(tests.WsgiAppCase):
     @classmethod
