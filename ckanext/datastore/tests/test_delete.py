@@ -172,5 +172,6 @@ class TestDatastoreDelete(tests.WsgiAppCase):
                             extra_environ=auth, status=409)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
+        assert res_dict['error'].get('filters') is not None, res_dict['error']
 
         self._delete()
