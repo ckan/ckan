@@ -801,9 +801,9 @@ def _sort(context, data_dict, field_ids):
     sort = data_dict.get('sort')
     if not sort:
         if data_dict.get('q'):
-            return u'ORDER BY rank'
+            return [u'rank']
         else:
-            return u''
+            return []
 
     clauses = _get_list(sort, False)
 
@@ -835,8 +835,7 @@ def _sort(context, data_dict, field_ids):
             field, sort)
         )
 
-    if clause_parsed:
-        return "order by " + ", ".join(clause_parsed)
+    return clause_parsed
 
 
 def _insert_links(data_dict, limit, offset):
@@ -925,6 +924,10 @@ def search_data(context, data_dict):
         data_dict['offset'] = int(offset)
 
     sort = _sort(context, data_dict, field_ids)
+    if sort:
+        sort_clause = 'ORDER BY %s' % ', '.join(sort)
+    else:
+        sort_clause = ''
 
     sql_string = u'''SELECT {select}, count(*) over() AS "_full_count" {rank}
                     FROM "{resource}" {ts_query}
@@ -934,7 +937,7 @@ def search_data(context, data_dict):
         resource=data_dict['resource_id'],
         ts_query=ts_query,
         where='{where}',
-        sort=sort,
+        sort=sort_clause,
         limit=limit,
         offset=offset)
     sql_string = sql_string.replace('%', '%%')
