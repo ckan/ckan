@@ -9,6 +9,7 @@ import random
 import string
 import logging
 import pprint
+import copy
 
 import distutils.version
 import sqlalchemy
@@ -749,7 +750,7 @@ def _to_full_text(fields, record):
 
 def _where(field_ids, data_dict):
     '''Return a SQL WHERE clause from data_dict filters and q'''
-    filters = data_dict.get('filters', {}).copy()
+    filters = data_dict.get('filters', {})
 
     if not isinstance(filters, dict):
         raise ValidationError({
@@ -760,16 +761,14 @@ def _where(field_ids, data_dict):
     values = []
 
     for plugin in p.PluginImplementations(interfaces.IDataStore):
-        filters, clauses = plugin.where(filters)
+        clauses = plugin.where(filters, field_ids)
         for clause in clauses:
             where_clauses.append('(' + clause[0] + ')')
             values += clause[1:]
 
     for field, value in filters.iteritems():
         if field not in field_ids:
-            raise ValidationError({
-                'filters': ['field "{0}" not in table'.format(field)]}
-            )
+            continue
         where_clauses.append(u'"{0}" = %s'.format(field))
         values.append(value)
 
@@ -877,6 +876,7 @@ def _insert_links(data_dict, limit, offset):
 
 
 def delete_data(context, data_dict):
+    validate_query(context, data_dict)
     fields = _get_fields(context, data_dict)
     field_ids = set([field['id'] for field in fields])
     where_clause, where_values = _where(field_ids, data_dict)
@@ -890,7 +890,42 @@ def delete_data(context, data_dict):
     )
 
 
+def validate_query(context, data_dict):
+    all_fields = _get_fields(context, data_dict)
+    all_field_ids = _pluck('id', all_fields)
+    all_field_ids.insert(0, '_id')
+    data_dict_copy = copy.deepcopy(data_dict)
+
+    if 'fields' in data_dict_copy:
+        fields = _get_list(data_dict_copy['fields'])
+        data_dict_copy['fields'] = fields
+
+    for plugin in p.PluginImplementations(interfaces.IDataStore):
+        data_dict_copy = plugin.validate_query(context, data_dict_copy,
+                                               all_field_ids)
+
+    # Remove default elements in data_dict
+    del data_dict_copy['connection_url']
+    del data_dict_copy['resource_id']
+
+    for key, values in data_dict_copy.iteritems():
+        if not values:
+            continue
+        if key == 'fields':
+            raise ValidationError({
+                'fields': [u'field "{0}" not in table'.format(values[0])]
+            })
+        elif key == 'filters':
+            the_filter = values.keys()[0]
+            raise ValidationError({
+                'filters': [u'filter "{0}" not in table'.format(the_filter)]
+            })
+
+    return True
+
+
 def search_data(context, data_dict):
+    validate_query(context, data_dict)
     all_fields = _get_fields(context, data_dict)
     all_field_ids = _pluck('id', all_fields)
     all_field_ids.insert(0, '_id')

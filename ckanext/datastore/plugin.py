@@ -7,6 +7,7 @@ import ckan.plugins as p
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.db as db
+import ckanext.datastore.interfaces as interfaces
 import ckan.logic as logic
 import ckan.model as model
 
@@ -28,6 +29,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
+    p.implements(interfaces.IDataStore, inherit=True)
 
     legacy_mode = False
     resource_show_action = None
@@ -250,3 +252,15 @@ class DatastorePlugin(p.SingletonPlugin):
         finally:
             connection.close()
         return resource_dict
+
+    def validate_query(self, context, data_dict, all_field_ids):
+        fields = data_dict.get('fields')
+        if fields:
+            data_dict['fields'] = list(set(fields) - set(all_field_ids))
+
+        filters = data_dict.get('filters', {})
+        for key in filters.keys():
+            if key in all_field_ids:
+                del filters[key]
+
+        return data_dict
