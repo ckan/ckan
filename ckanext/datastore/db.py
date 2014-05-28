@@ -731,11 +731,6 @@ def _where(field_ids, data_dict):
     '''Return a SQL WHERE clause from data_dict filters and q'''
     filters = data_dict.get('filters', {})
 
-    if not isinstance(filters, dict):
-        raise ValidationError({
-            'filters': ['Not a json object']}
-        )
-
     where_clauses = []
     values = []
 
