@@ -4,9 +4,9 @@ import ckanext.datastore.interfaces as interfaces
 
 
 class SampleDataStorePlugin(p.SingletonPlugin):
-    p.implements(interfaces.IDataStore)
+    p.implements(interfaces.IDataStore, inherit=True)
 
-    def where(self, filters, all_field_ids):
+    def where(self, filters, data_dict, all_field_ids):
         clauses = []
         if 'age_between' in filters:
             age_between = filters['age_between']

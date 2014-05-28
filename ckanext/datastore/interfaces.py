@@ -4,7 +4,8 @@ import ckan.plugins.interfaces as interfaces
 class IDataStore(interfaces.Interface):
     '''Allow changing DataStore queries'''
 
-    def where(self, filters, all_field_ids):
+    def where(self, filters, data_dict, all_field_ids):
+        # TODO: Write docs
         '''
         :param filters: dictionary with non-processed filters
         :type filters: dictionary

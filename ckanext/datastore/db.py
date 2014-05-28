@@ -741,16 +741,10 @@ def _where(field_ids, data_dict):
     values = []
 
     for plugin in p.PluginImplementations(interfaces.IDataStore):
-        clauses = plugin.where(filters, field_ids)
+        clauses = plugin.where(filters, data_dict, field_ids)
         for clause in clauses:
             where_clauses.append('(' + clause[0] + ')')
             values += clause[1:]
-
-    for field, value in filters.iteritems():
-        if field not in field_ids:
-            continue
-        where_clauses.append(u'"{0}" = %s'.format(field))
-        values.append(value)
 
     # add full-text search where clause
     if data_dict.get('q'):

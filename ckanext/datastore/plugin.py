@@ -264,3 +264,17 @@ class DatastorePlugin(p.SingletonPlugin):
                 del filters[key]
 
         return data_dict
+
+    def where(self, filters, data_dict, all_field_ids):
+        clauses = []
+        for field, value in filters.iteritems():
+            if field in all_field_ids:
+                clause = (u'"{0}" = %s'.format(field), value)
+                clauses.append(clause)
+
+        # add full-text search where clause
+        if data_dict.get('q'):
+            clause = (u'_full_text @@ query',)
+            clauses.append(clause)
+
+        return clauses
