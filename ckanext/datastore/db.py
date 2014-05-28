@@ -1,6 +1,5 @@
 import json
 import datetime
-import shlex
 import os
 import urllib
 import urllib2
@@ -756,61 +755,6 @@ def _where(field_ids, data_dict):
     return where_clause, values
 
 
-def _textsearch_query(data_dict):
-    q = data_dict.get('q')
-    lang = data_dict.get(u'language', u'english')
-    if q:
-        if data_dict.get('plain', True):
-            statement = u", plainto_tsquery('{lang}', '{query}') query"
-        else:
-            statement = u", to_tsquery('{lang}', '{query}') query"
-
-        rank_column = u', ts_rank(_full_text, query, 32) AS rank'
-        return statement.format(lang=lang, query=q), rank_column
-    return '', ''
-
-
-def _sort(context, data_dict, field_ids):
-    sort = data_dict.get('sort')
-    if not sort:
-        if data_dict.get('q'):
-            return [u'rank']
-        else:
-            return []
-
-    clauses = datastore_helpers.get_list(sort, False)
-
-    clause_parsed = []
-
-    for clause in clauses:
-        clause = clause.encode('utf-8')
-        clause_parts = shlex.split(clause)
-        if len(clause_parts) == 1:
-            field, sort = clause_parts[0], 'asc'
-        elif len(clause_parts) == 2:
-            field, sort = clause_parts
-        else:
-            raise ValidationError({
-                'sort': ['not valid syntax for sort clause']
-            })
-        field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
-
-        if field not in field_ids:
-            raise ValidationError({
-                'sort': [u'field "{0}" not in table'.format(
-                    field)]
-            })
-        if sort.lower() not in ('asc', 'desc'):
-            raise ValidationError({
-                'sort': ['sorting can only be asc or desc']
-            })
-        clause_parsed.append(u'"{0}" {1}'.format(
-            field, sort)
-        )
-
-    return clause_parsed
-
-
 def _insert_links(data_dict, limit, offset):
     '''Adds link to the next/prev part (same limit, offset=offset+limit)
     and the resource page.'''
@@ -870,6 +814,8 @@ def validate_query(context, data_dict):
     all_field_ids.insert(0, '_id')
     data_dict_copy = copy.deepcopy(data_dict)
 
+    # TODO: Convert all attributes that can be a comma-separated string to
+    # lists
     if 'fields' in data_dict_copy:
         fields = datastore_helpers.get_list(data_dict_copy['fields'])
         data_dict_copy['fields'] = fields
@@ -904,45 +850,37 @@ def search_data(context, data_dict):
     all_field_ids = _pluck('id', all_fields)
     all_field_ids.insert(0, '_id')
 
-    fields = data_dict.get('fields')
-
-    if fields:
-        field_ids = datastore_helpers.get_list(fields)
-
-        for field in field_ids:
-            if not field in all_field_ids:
-                raise ValidationError({
-                    'fields': [u'field "{0}" not in table'.format(field)]}
-                )
-    else:
-        field_ids = all_field_ids
-
-    select_columns = ', '.join([u'"{0}"'.format(field_id)
-                                for field_id in field_ids])
-    ts_query, rank_column = _textsearch_query(data_dict)
     where_clause, where_values = _where(all_field_ids, data_dict)
-    limit = data_dict.get('limit', 100)
-    offset = data_dict.get('offset', 0)
 
-    _validate_int(limit, 'limit', non_negative=True)
-    _validate_int(offset, 'offset', non_negative=True)
+    query_dict = {
+        'select': [],
+        'sort': []
+    }
 
-    if 'limit' in data_dict:
-        data_dict['limit'] = int(limit)
-    if 'offset' in data_dict:
-        data_dict['offset'] = int(offset)
+    for plugin in p.PluginImplementations(interfaces.IDataStore):
+        query_dict = plugin.search_data(context, data_dict,
+                                        query_dict, all_field_ids)
 
-    sort = _sort(context, data_dict, field_ids)
+    # FIXME: Remove duplicates on select columns
+    select_columns = ', '.join(query_dict['select'])
+    ts_query = query_dict['ts_query']
+    sort = query_dict['sort']
+    limit = query_dict['limit']
+    offset = query_dict['offset']
+
     if sort:
         sort_clause = 'ORDER BY %s' % ', '.join(sort)
     else:
         sort_clause = ''
 
-    sql_string = u'''SELECT {select}, count(*) over() AS "_full_count" {rank}
+    # FIXME: Limit could be ALL
+    _validate_int(limit, 'limit', non_negative=True)
+    _validate_int(offset, 'offset', non_negative=True)
+
+    sql_string = u'''SELECT {select}
                     FROM "{resource}" {ts_query}
                     {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
         select=select_columns,
-        rank=rank_column,
         resource=data_dict['resource_id'],
         ts_query=ts_query,
         where='{where}',

@@ -1,20 +1,25 @@
 import sys
 import logging
+import shlex
 
 import sqlalchemy.engine.url as sa_url
 
 import ckan.plugins as p
+import ckan.logic as logic
+import ckan.model as model
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.db as db
 import ckanext.datastore.interfaces as interfaces
-import ckan.logic as logic
-import ckan.model as model
+import ckanext.datastore.helpers as datastore_helpers
+
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
 DEFAULT_FORMATS = []
+
+ValidationError = p.toolkit.ValidationError
 
 
 class DatastoreException(Exception):
@@ -80,7 +85,6 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             self._check_urls_and_permissions()
             self._create_alias_table()
-
 
     def notify(self, entity, operation=None):
         if not isinstance(entity, model.Package) or self.legacy_mode:
@@ -278,3 +282,81 @@ class DatastorePlugin(p.SingletonPlugin):
             clauses.append(clause)
 
         return clauses
+
+    def search_data(self, context, data_dict, query_dict, all_field_ids):
+        fields = data_dict.get('fields')
+
+        if fields:
+            field_ids = datastore_helpers.get_list(fields)
+        else:
+            field_ids = all_field_ids
+
+        ts_query, rank_column = self._textsearch_query(data_dict)
+        limit = data_dict.get('limit', 100)
+        offset = data_dict.get('offset', 0)
+
+        sort = self._sort(data_dict, field_ids)
+
+        select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
+                      [u'count(*) over() as "_full_count" %s' % rank_column]
+
+        query_dict['select'] += select_cols
+        query_dict['ts_query'] = ts_query
+        query_dict['sort'] += sort
+        query_dict['limit'] = limit
+        query_dict['offset'] = offset
+
+        return query_dict
+
+    def _textsearch_query(self, data_dict):
+        q = data_dict.get('q')
+        lang = data_dict.get(u'language', u'english')
+        if q:
+            if data_dict.get('plain', True):
+                statement = u", plainto_tsquery('{lang}', '{query}') query"
+            else:
+                statement = u", to_tsquery('{lang}', '{query}') query"
+
+            rank_column = u', ts_rank(_full_text, query, 32) AS rank'
+            return statement.format(lang=lang, query=q), rank_column
+        return '', ''
+
+    def _sort(self, data_dict, field_ids):
+        sort = data_dict.get('sort')
+        if not sort:
+            if data_dict.get('q'):
+                return [u'rank']
+            else:
+                return []
+
+        clauses = datastore_helpers.get_list(sort, False)
+
+        clause_parsed = []
+
+        for clause in clauses:
+            clause = clause.encode('utf-8')
+            clause_parts = shlex.split(clause)
+            if len(clause_parts) == 1:
+                field, sort = clause_parts[0], 'asc'
+            elif len(clause_parts) == 2:
+                field, sort = clause_parts
+            else:
+                raise ValidationError({
+                    'sort': ['not valid syntax for sort clause']
+                })
+            field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
+
+            if field not in field_ids:
+                raise ValidationError({
+                    'sort': [u'field "{0}" not in table'.format(
+                        field)]
+                })
+            if sort.lower() not in ('asc', 'desc'):
+                raise ValidationError({
+                    'sort': ['sorting can only be asc or desc']
+                })
+            clause_parsed.append(u'"{0}" {1}'.format(
+                field, sort)
+            )
+
+        return clause_parsed
