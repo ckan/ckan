@@ -745,10 +745,6 @@ def _where(field_ids, data_dict):
             where_clauses.append('(' + clause[0] + ')')
             values += clause[1:]
 
-    # add full-text search where clause
-    if data_dict.get('q'):
-        where_clauses.append(u'_full_text @@ query')
-
     where_clause = u' AND '.join(where_clauses)
     if where_clause:
         where_clause = u'WHERE ' + where_clause
