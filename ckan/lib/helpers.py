@@ -738,18 +738,11 @@ def check_access(action, data_dict=None):
 
 
 @maintain.deprecated("helpers.get_action() is deprecated and will be removed "
-                     "in a future version of CKAN. Since action functions "
-                     "raise exceptions and templates cannot catch exceptions, "
-                     "it's not a good idea to call action functions from "
-                     "templates. Instead, either wrap individual action "
-                     "functions in custom template helper functions that "
-                     "handle any exceptions appropriately, or have controller "
-                     "methods call the action functions and pass the results "
-                     "to templates as extra_vars. Note that "
-                     "logic.get_action() and toolkit.get_action() are *not* "
-                     "deprecated.")
+                     "in a future version of CKAN. Instead, please use the "
+                     "extra_vars param to render() in your controller to pass "
+                     "results from action functions to your templates.")
 def get_action(action_name, data_dict=None):
-    '''Calls an action function from a template.'''
+    '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
     if data_dict is None:
         data_dict = {}
     return logic.get_action(action_name)({}, data_dict)
