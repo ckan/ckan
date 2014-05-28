@@ -895,7 +895,7 @@ class TestPep8(object):
 
     @classmethod
     def _is_test(cls, filename):
-        return not not re.search('(^|\W)test_.*\.py', filename, re.IGNORECASE)
+        return bool(re.search('(^|\W)test_.*\.py$', filename, re.IGNORECASE))
 
 
 class TestActionAuth(object):
