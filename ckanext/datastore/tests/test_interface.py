@@ -21,7 +21,7 @@ class TestInterfaces(object):
     def setup(self):
         helpers.reset_db()
 
-    def test_can_create_custom_filters(self):
+    def test_search_data_can_create_custom_filters(self):
         records = [
             {'age': 20}, {'age': 30}, {'age': 40}
         ]
@@ -35,7 +35,7 @@ class TestInterfaces(object):
         assert result['total'] == 1, result
         assert result['records'][0]['age'] == 30, result
 
-    def test_filters_sent_arent_modified(self):
+    def test_search_data_filters_sent_arent_modified(self):
         records = [
             {'age': 20}, {'age': 30}, {'age': 40}
         ]
@@ -48,7 +48,7 @@ class TestInterfaces(object):
 
         assert_equals(result['filters'], filters)
 
-    def test_custom_filters_have_the_correct_operator_precedence(self):
+    def test_search_data_custom_filters_have_the_correct_operator_precedence(self):
         '''
         We're testing that the WHERE clause becomes:
             (age < 50 OR age > 60) AND age = 30
@@ -71,6 +71,51 @@ class TestInterfaces(object):
         assert result['total'] == 1, result
         assert result['records'][0]['age'] == 30, result
         assert_equals(result['filters'], filters)
+
+    def test_delete_data_can_create_custom_filters(self):
+        records = [
+            {'age': 20}, {'age': 30}, {'age': 40}
+        ]
+        resource = self._create_datastore_resource(records)
+        filters = {'age_between': [25, 35]}
+
+        helpers.call_action('datastore_delete',
+                            resource_id=resource['id'],
+                            force=True,
+                            filters=filters)
+
+        result = helpers.call_action('datastore_search',
+                                     resource_id=resource['id'],
+                                     filters=filters)
+
+        assert_equals(result['records'], [])
+
+    def test_delete_data_custom_filters_have_the_correct_operator_precedence(self):
+        '''
+        We're testing that the WHERE clause becomes:
+            (age < 50 OR age > 60) AND age = 30
+        And not:
+            age < 50 OR age > 60 AND age = 30
+        '''
+        records = [
+            {'age': 20}, {'age': 30}, {'age': 40}
+        ]
+        resource = self._create_datastore_resource(records)
+        filters = {
+            'age_not_between': [50, 60],
+            'age': 30
+        }
+
+        helpers.call_action('datastore_delete',
+                            resource_id=resource['id'],
+                            force=True,
+                            filters=filters)
+
+        result = helpers.call_action('datastore_search',
+                                     resource_id=resource['id'],
+                                     filters=filters)
+
+        assert_equals(result['records'], [])
 
     def _create_datastore_resource(self, records):
         dataset = factories.Dataset()
