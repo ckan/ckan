@@ -8,6 +8,7 @@ import ckan.logic as logic
 import ckan.plugins as p
 import ckanext.datastore.db as db
 import ckanext.datastore.logic.schema as dsschema
+import ckanext.datastore.helpers as datastore_helpers
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -118,7 +119,7 @@ def datastore_create(context, data_dict):
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     # validate aliases
-    aliases = db._get_list(data_dict.get('aliases', []))
+    aliases = datastore_helpers.get_list(data_dict.get('aliases', []))
     for alias in aliases:
         if not db._is_valid_table_name(alias):
             raise p.toolkit.ValidationError({

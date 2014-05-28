@@ -20,11 +20,11 @@ import ckan.lib.cli as cli
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 import ckanext.datastore.interfaces as interfaces
+import ckanext.datastore.helpers as datastore_helpers
 
 log = logging.getLogger(__name__)
 
 if not os.environ.get('DATASTORE_LOAD'):
-    import paste.deploy.converters as converters
     ValidationError = toolkit.ValidationError
 else:
     log.warn("Running datastore without CKAN")
@@ -64,28 +64,8 @@ _UPSERT = 'upsert'
 _UPDATE = 'update'
 
 
-def _strip(input):
-    if isinstance(input, basestring) and len(input) and input[0] == input[-1]:
-        return input.strip().strip('"')
-    return input
-
-
 def _pluck(field, arr):
     return [x[field] for x in arr]
-
-
-def _get_list(input, strip=True):
-    '''Transforms a string or list to a list'''
-    if input is None:
-        return
-    if input == '':
-        return []
-
-    l = converters.aslist(input, ',', True)
-    if strip:
-        return [_strip(x) for x in l]
-    else:
-        return l
 
 
 def _is_valid_field_name(name):
@@ -374,7 +354,7 @@ def _get_resources(context, alias):
 
 
 def create_alias(context, data_dict):
-    aliases = _get_list(data_dict.get('aliases'))
+    aliases = datastore_helpers.get_list(data_dict.get('aliases'))
     if aliases is not None:
         # delete previous aliases
         previous_aliases = _get_aliases(context, data_dict)
@@ -407,10 +387,10 @@ def create_alias(context, data_dict):
 
 
 def create_indexes(context, data_dict):
-    indexes = _get_list(data_dict.get('indexes'))
+    indexes = datastore_helpers.get_list(data_dict.get('indexes'))
     # primary key is not a real primary key
     # it's just a unique key
-    primary_key = _get_list(data_dict.get('primary_key'))
+    primary_key = datastore_helpers.get_list(data_dict.get('primary_key'))
 
     # index and primary key could be [],
     # which means that indexes should be deleted
@@ -455,7 +435,7 @@ def create_indexes(context, data_dict):
         if not index:
             continue
 
-        index_fields = _get_list(index)
+        index_fields = datastore_helpers.get_list(index)
         for field in index_fields:
             if field not in field_ids:
                 raise ValidationError({
@@ -804,7 +784,7 @@ def _sort(context, data_dict, field_ids):
         else:
             return []
 
-    clauses = _get_list(sort, False)
+    clauses = datastore_helpers.get_list(sort, False)
 
     clause_parsed = []
 
@@ -897,7 +877,7 @@ def validate_query(context, data_dict):
     data_dict_copy = copy.deepcopy(data_dict)
 
     if 'fields' in data_dict_copy:
-        fields = _get_list(data_dict_copy['fields'])
+        fields = datastore_helpers.get_list(data_dict_copy['fields'])
         data_dict_copy['fields'] = fields
 
     for plugin in p.PluginImplementations(interfaces.IDataStore):
@@ -933,7 +913,7 @@ def search_data(context, data_dict):
     fields = data_dict.get('fields')
 
     if fields:
-        field_ids = _get_list(fields)
+        field_ids = datastore_helpers.get_list(fields)
 
         for field in field_ids:
             if not field in all_field_ids:
