@@ -85,10 +85,11 @@ class TestInterfaces(object):
                             filters=filters)
 
         result = helpers.call_action('datastore_search',
-                                     resource_id=resource['id'],
-                                     filters=filters)
+                                     resource_id=resource['id'])
 
-        assert_equals(result['records'], [])
+        new_records_ages = [r['age'] for r in result['records']]
+        new_records_ages.sort()
+        assert_equals(new_records_ages, [20, 40])
 
     def test_delete_data_custom_filters_have_the_correct_operator_precedence(self):
         '''
@@ -112,10 +113,11 @@ class TestInterfaces(object):
                             filters=filters)
 
         result = helpers.call_action('datastore_search',
-                                     resource_id=resource['id'],
-                                     filters=filters)
+                                     resource_id=resource['id'])
 
-        assert_equals(result['records'], [])
+        new_records_ages = [r['age'] for r in result['records']]
+        new_records_ages.sort()
+        assert_equals(new_records_ages, [20, 40])
 
     def _create_datastore_resource(self, records):
         dataset = factories.Dataset()

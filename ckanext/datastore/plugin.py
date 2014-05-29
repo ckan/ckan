@@ -269,19 +269,9 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return data_dict
 
-    def where(self, filters, data_dict, all_field_ids):
-        clauses = []
-        for field, value in filters.iteritems():
-            if field in all_field_ids:
-                clause = (u'"{0}" = %s'.format(field), value)
-                clauses.append(clause)
-
-        # add full-text search where clause
-        if data_dict.get('q'):
-            clause = (u'_full_text @@ query',)
-            clauses.append(clause)
-
-        return clauses
+    def delete_data(self, context, data_dict, query_dict, all_field_ids):
+        query_dict['where'] += self._where(data_dict, all_field_ids)
+        return query_dict
 
     def search_data(self, context, data_dict, query_dict, all_field_ids):
         fields = data_dict.get('fields')
@@ -296,6 +286,7 @@ class DatastorePlugin(p.SingletonPlugin):
         offset = data_dict.get('offset', 0)
 
         sort = self._sort(data_dict, field_ids)
+        where = self._where(data_dict, field_ids)
 
         select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
                       [u'count(*) over() as "_full_count" %s' % rank_column]
@@ -303,10 +294,27 @@ class DatastorePlugin(p.SingletonPlugin):
         query_dict['select'] += select_cols
         query_dict['ts_query'] = ts_query
         query_dict['sort'] += sort
+        query_dict['where'] += where
         query_dict['limit'] = limit
         query_dict['offset'] = offset
 
         return query_dict
+
+    def _where(self, data_dict, all_field_ids):
+        filters = data_dict.get('filters', {})
+        clauses = []
+        for field, value in filters.iteritems():
+            if field not in all_field_ids:
+                continue
+            clause = (u'"{0}" = %s'.format(field), value)
+            clauses.append(clause)
+
+        # add full-text search where clause
+        if data_dict.get('q'):
+            clause = (u'_full_text @@ query',)
+            clauses.append(clause)
+
+        return clauses
 
     def _textsearch_query(self, data_dict):
         q = data_dict.get('q')

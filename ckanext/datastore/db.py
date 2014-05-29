@@ -727,22 +727,28 @@ def _to_full_text(fields, record):
     return ' '.join(full_text)
 
 
-def _where(field_ids, data_dict):
-    '''Return a SQL WHERE clause from data_dict filters and q'''
-    filters = data_dict.get('filters', {})
+def _where(where_clauses_and_values):
+    '''Return a SQL WHERE clause from list with clauses and values
 
+    :param where_clauses_and_values: list of tuples with format
+        (where_clause, param1, ...)
+    :type where_clauses_and_values: list of tuples
+
+    :returns: SQL WHERE string with placeholders for the parameters, and list
+        of parameters
+    :rtype: string
+    '''
     where_clauses = []
     values = []
 
-    for plugin in p.PluginImplementations(interfaces.IDataStore):
-        clauses = plugin.where(filters, data_dict, field_ids)
-        for clause in clauses:
-            where_clauses.append('(' + clause[0] + ')')
-            values += clause[1:]
+    for clause_and_values in where_clauses_and_values:
+        where_clauses.append('(' + clause_and_values[0] + ')')
+        values += clause_and_values[1:]
 
     where_clause = u' AND '.join(where_clauses)
     if where_clause:
         where_clause = u'WHERE ' + where_clause
+
     return where_clause, values
 
 
@@ -788,7 +794,16 @@ def delete_data(context, data_dict):
     validate_query(context, data_dict)
     fields = _get_fields(context, data_dict)
     field_ids = set([field['id'] for field in fields])
-    where_clause, where_values = _where(field_ids, data_dict)
+
+    query_dict = {
+        'where': []
+    }
+
+    for plugin in p.PluginImplementations(interfaces.IDataStore):
+        query_dict = plugin.delete_data(context, data_dict,
+                                        query_dict, field_ids)
+
+    where_clause, where_values = _where(query_dict['where'])
 
     context['connection'].execute(
         u'DELETE FROM "{0}" {1}'.format(
@@ -841,16 +856,17 @@ def search_data(context, data_dict):
     all_field_ids = _pluck('id', all_fields)
     all_field_ids.insert(0, '_id')
 
-    where_clause, where_values = _where(all_field_ids, data_dict)
-
     query_dict = {
         'select': [],
-        'sort': []
+        'sort': [],
+        'where': []
     }
 
     for plugin in p.PluginImplementations(interfaces.IDataStore):
         query_dict = plugin.search_data(context, data_dict,
                                         query_dict, all_field_ids)
+
+    where_clause, where_values = _where(query_dict['where'])
 
     # FIXME: Remove duplicates on select columns
     select_columns = ', '.join(query_dict['select'])
