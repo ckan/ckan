@@ -801,7 +801,7 @@ def delete_data(context, data_dict):
 
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         query_dict = plugin.delete_data(context, data_dict,
-                                        query_dict, field_ids)
+                                        field_ids, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
 
@@ -864,7 +864,7 @@ def search_data(context, data_dict):
 
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         query_dict = plugin.search_data(context, data_dict,
-                                        query_dict, all_field_ids)
+                                        all_field_ids, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
 

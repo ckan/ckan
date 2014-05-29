@@ -15,11 +15,11 @@ class SampleDataStorePlugin(p.SingletonPlugin):
 
         return data_dict
 
-    def search_data(self, context, data_dict, query_dict, all_field_ids):
+    def search_data(self, context, data_dict, all_field_ids, query_dict):
         query_dict['where'] += self._where(data_dict)
         return query_dict
 
-    def delete_data(self, context, data_dict, query_dict, all_field_ids):
+    def delete_data(self, context, data_dict, all_field_ids, query_dict):
         query_dict['where'] += self._where(data_dict)
         return query_dict
 

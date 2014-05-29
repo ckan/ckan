@@ -269,11 +269,11 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return data_dict
 
-    def delete_data(self, context, data_dict, query_dict, all_field_ids):
+    def delete_data(self, context, data_dict, all_field_ids, query_dict):
         query_dict['where'] += self._where(data_dict, all_field_ids)
         return query_dict
 
-    def search_data(self, context, data_dict, query_dict, all_field_ids):
+    def search_data(self, context, data_dict, all_field_ids, query_dict):
         fields = data_dict.get('fields')
 
         if fields:
