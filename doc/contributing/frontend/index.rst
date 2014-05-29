@@ -26,11 +26,19 @@ The front end stylesheets are written using
 
 Instructions for installing node can be found on the `node.js
 website <http://nodejs.org/>`_. On Ubuntu node.js (and npm node.js's package
-manager) can be installed using the following command:
+manager) need to be installed via a `PPA
+<https://launchpad.net/~chris-lea/+archive/node.js/>`_:
 
 ::
 
-    $ sudo apt-get install nodejs npm
+    $ sudo apt-add-repository ppa:chris-lea/node.js
+    $ sudo apt-get update
+
+Now run the command to install nodejs from the repository:
+
+::
+
+    $ sudo apt-get install nodejs
 
 LESS can then be installed via the node package manager which is bundled
 with node (or installed with apt as it is not bundled with node.js on
@@ -141,7 +149,7 @@ ckan.less:
     the merge into master that a ``$ ./bin/less --production`` should be
     run and commited.
 
-There is a basic pattern primer available at: 
+There is a basic pattern primer available at:
 http://localhost:5000/testing/primer/ that shows all the main page
 elements that make up the CKAN core interface.
 

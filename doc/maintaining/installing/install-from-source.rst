@@ -399,3 +399,12 @@ and then restart Solr:
 .. parsed-literal::
 
    |restart_solr|
+
+AttributeError: 'module' object has no attribute 'css/main.debug.css'
+---------------------------------------------------------------------
+
+This error is likely to show up when `debug` is set to `True`. To fix this
+error, install frontend dependencies. See `doc`:/contributing/frontend/index.
+
+After installing the dependencies, run `bin/less` and then start paster server
+again.
