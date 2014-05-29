@@ -1,8 +1,8 @@
 import ckan.plugins.interfaces as interfaces
 
 
-class IDataStore(interfaces.Interface):
-    '''Allow changing DataStore queries'''
+class IDatastore(interfaces.Interface):
+    '''Allow changing Datastore queries'''
 
     def search_data(self, context, data_dict, query_dict, all_field_ids):
         return query_dict

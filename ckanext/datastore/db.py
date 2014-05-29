@@ -799,7 +799,7 @@ def delete_data(context, data_dict):
         'where': []
     }
 
-    for plugin in p.PluginImplementations(interfaces.IDataStore):
+    for plugin in p.PluginImplementations(interfaces.IDatastore):
         query_dict = plugin.delete_data(context, data_dict,
                                         query_dict, field_ids)
 
@@ -826,7 +826,7 @@ def validate_query(context, data_dict):
         fields = datastore_helpers.get_list(data_dict_copy['fields'])
         data_dict_copy['fields'] = fields
 
-    for plugin in p.PluginImplementations(interfaces.IDataStore):
+    for plugin in p.PluginImplementations(interfaces.IDatastore):
         data_dict_copy = plugin.validate_query(context, data_dict_copy,
                                                all_field_ids)
 
@@ -862,7 +862,7 @@ def search_data(context, data_dict):
         'where': []
     }
 
-    for plugin in p.PluginImplementations(interfaces.IDataStore):
+    for plugin in p.PluginImplementations(interfaces.IDatastore):
         query_dict = plugin.search_data(context, data_dict,
                                         query_dict, all_field_ids)
 

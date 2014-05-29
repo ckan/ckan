@@ -34,7 +34,7 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
-    p.implements(interfaces.IDataStore, inherit=True)
+    p.implements(interfaces.IDatastore, inherit=True)
 
     legacy_mode = False
     resource_show_action = None
