@@ -823,7 +823,6 @@ class TestPep8(object):
         'ckanext/reclinepreview/plugin.py',
         'ckanext/reclinepreview/tests/test_preview.py',
         'ckanext/resourceproxy/plugin.py',
-        'ckanext/resourceproxy/tests/test_proxy.py',
         'ckanext/stats/controller.py',
         'ckanext/stats/plugin.py',
         'ckanext/stats/stats.py',
@@ -895,7 +894,7 @@ class TestPep8(object):
 
     @classmethod
     def _is_test(cls, filename):
-        return not not re.search('(^|\W)test_.*\.py', filename, re.IGNORECASE)
+        return bool(re.search('(^|\W)test_.*\.py$', filename, re.IGNORECASE))
 
 
 class TestActionAuth(object):
