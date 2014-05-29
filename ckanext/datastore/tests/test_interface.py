@@ -21,7 +21,7 @@ class TestInterfaces(object):
     def setup(self):
         helpers.reset_db()
 
-    def test_search_data_can_create_custom_filters(self):
+    def test_datastore_search_can_create_custom_filters(self):
         records = [
             {'age': 20}, {'age': 30}, {'age': 40}
         ]
@@ -35,7 +35,7 @@ class TestInterfaces(object):
         assert result['total'] == 1, result
         assert result['records'][0]['age'] == 30, result
 
-    def test_search_data_filters_sent_arent_modified(self):
+    def test_datastore_search_filters_sent_arent_modified(self):
         records = [
             {'age': 20}, {'age': 30}, {'age': 40}
         ]
@@ -48,7 +48,7 @@ class TestInterfaces(object):
 
         assert_equals(result['filters'], filters)
 
-    def test_search_data_custom_filters_have_the_correct_operator_precedence(self):
+    def test_datastore_search_custom_filters_have_the_correct_operator_precedence(self):
         '''
         We're testing that the WHERE clause becomes:
             (age < 50 OR age > 60) AND age = 30
@@ -72,7 +72,7 @@ class TestInterfaces(object):
         assert result['records'][0]['age'] == 30, result
         assert_equals(result['filters'], filters)
 
-    def test_delete_data_can_create_custom_filters(self):
+    def test_datastore_delete_can_create_custom_filters(self):
         records = [
             {'age': 20}, {'age': 30}, {'age': 40}
         ]
@@ -91,7 +91,7 @@ class TestInterfaces(object):
         new_records_ages.sort()
         assert_equals(new_records_ages, [20, 40])
 
-    def test_delete_data_custom_filters_have_the_correct_operator_precedence(self):
+    def test_datastore_delete_custom_filters_have_the_correct_operator_precedence(self):
         '''
         We're testing that the WHERE clause becomes:
             (age < 50 OR age > 60) AND age = 30

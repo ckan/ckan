@@ -6,7 +6,7 @@ import ckanext.datastore.interfaces as interfaces
 class SampleDataStorePlugin(p.SingletonPlugin):
     p.implements(interfaces.IDatastore, inherit=True)
 
-    def validate_query(self, context, data_dict, all_field_ids):
+    def datastore_validate_query(self, context, data_dict, all_field_ids):
         valid_filters = ('age_between', 'age_not_between')
         filters = data_dict.get('filters', {})
         for key in filters.keys():
@@ -15,11 +15,11 @@ class SampleDataStorePlugin(p.SingletonPlugin):
 
         return data_dict
 
-    def search_data(self, context, data_dict, all_field_ids, query_dict):
+    def datastore_search(self, context, data_dict, all_field_ids, query_dict):
         query_dict['where'] += self._where(data_dict)
         return query_dict
 
-    def delete_data(self, context, data_dict, all_field_ids, query_dict):
+    def datastore_delete(self, context, data_dict, all_field_ids, query_dict):
         query_dict['where'] += self._where(data_dict)
         return query_dict
 
