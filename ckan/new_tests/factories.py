@@ -44,24 +44,20 @@ import ckan.logic
 import ckan.new_tests.helpers as helpers
 
 
-def _get_action_user_name(kwargs):
-    '''Return the name of the user in kwargs, defaulting to the site user
+def _context_with_user(kwargs_dict):
+    '''Pop 'user' from kwargs and return a context dict with the user in it.
 
-    It can be overriden by explictly setting {'user': None} in the keyword
-    arguments. In that case, this method will return None.
+    Some action functions require a context with a user in it even when we are
+    skipping authorizaiton. For example when creating a group or organization a
+    user is needed to be the first admin of that group or organization.
+
     '''
-
-    if 'user' in kwargs:
-        user = kwargs['user']
-    else:
-        user = helpers.call_action('get_site_user')
-
-    if user is None:
-        user_name = None
-    else:
-        user_name = user['name']
-
-    return user_name
+    context = {}
+    if kwargs_dict and 'user' in kwargs_dict:
+        user = kwargs_dict.pop('user')
+        if user and 'name' in user:
+            context['user'] = user['name']
+    return context
 
 
 def _generate_email(user):
@@ -126,8 +122,18 @@ class User(factory.Factory):
 
 
 class Resource(factory.Factory):
-    '''A factory class for creating CKAN resources.'''
+    '''A factory class for creating CKAN resources.
 
+    This factory accepts an additional keyword argument `user` - the user who
+    will create the resource. This param is passed to the resource_create()
+    action function in the context dict not in the data_dict with any other
+    params.
+
+    Example:
+
+        resource_dict = factories.Resource(user=factories.User())
+
+    '''
     FACTORY_FOR = ckan.model.Resource
 
     name = factory.Sequence(lambda n: 'test_resource_{n}'.format(n=n))
@@ -145,11 +151,9 @@ class Resource(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        context = {'user': _get_action_user_name(kwargs)}
-
-        resource_dict = helpers.call_action('resource_create', context=context,
-                                            **kwargs)
-        return resource_dict
+        return helpers.call_action('resource_create',
+                                   context=_context_with_user(kwargs),
+                                   **kwargs)
 
 
 class Sysadmin(factory.Factory):
@@ -192,8 +196,20 @@ class Sysadmin(factory.Factory):
 
 
 class Group(factory.Factory):
-    '''A factory class for creating CKAN groups.'''
+    '''A factory class for creating CKAN groups.
 
+    This factory accepts an additional keyword argument `user` - the user who
+    will create the group and become its first admin. This param is passed to
+    the group_create() action function in the context dict not in the
+    data_dict with any other params.
+
+    Example:
+
+        group_dict = factories.Group(user=factories.User())
+
+    The user param is required - group_create() will crash without it.
+
+    '''
     FACTORY_FOR = ckan.model.Group
 
     name = factory.Sequence(lambda n: 'test_group_{n}'.format(n=n))
@@ -212,17 +228,26 @@ class Group(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        context = {'user': _get_action_user_name(kwargs)}
-
-        group_dict = helpers.call_action('group_create',
-                                         context=context,
-                                         **kwargs)
-        return group_dict
+        return helpers.call_action('group_create',
+                                   context=_context_with_user(kwargs),
+                                   **kwargs)
 
 
 class Organization(factory.Factory):
-    '''A factory class for creating CKAN organizations.'''
+    '''A factory class for creating CKAN organizations.
 
+    This factory accepts an additional keyword argument `user` - the user who
+    will create the organization and become its first admin. This param is
+    passed to the organization_create() action function in the context dict not
+    in the data_dict with any other params.
+
+    Example:
+
+        organization_dict = factories.Organization(user=factories.User())
+
+    The user param is required - organization_create() will crash without it.
+
+    '''
     # This is the class that OrganizationFactory will create and return
     # instances of.
     FACTORY_FOR = ckan.model.Group
@@ -248,17 +273,26 @@ class Organization(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        context = {'user': _get_action_user_name(kwargs)}
-
-        group_dict = helpers.call_action('organization_create',
-                                         context=context,
-                                         **kwargs)
-        return group_dict
+        return helpers.call_action('organization_create',
+                                   context=_context_with_user(kwargs),
+                                   **kwargs)
 
 
 class Related(factory.Factory):
-    '''A factory class for creating related items.'''
+    '''A factory class for creating related items.
 
+    This factory accepts an additional keyword argument `user` - the user who
+    will create the related item. This param is passed to the related_create()
+    action function in the context dict not in the data_dict with any other
+    params.
+
+    Example:
+
+        related_dict = factories.Related(user=factories.User())
+
+    The user param is required - related_create() will crash without it.
+
+    '''
     FACTORY_FOR = ckan.model.Related
 
     type = 'idea'
@@ -276,15 +310,24 @@ class Related(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        context = {'user': _get_action_user_name(kwargs)}
-        related_dict = helpers.call_action('related_create', context=context,
-                                           **kwargs)
-        return related_dict
+        return helpers.call_action('related_create',
+                                   context=_context_with_user(kwargs),
+                                   **kwargs)
 
 
 class Dataset(factory.Factory):
-    '''A factory class for creating CKAN datasets.'''
+    '''A factory class for creating CKAN datasets.
 
+    This factory accepts an additional keyword argument `user` - the user who
+    will create the dataset. This param is passed to the package_create()
+    action function in the context dict not in the data_dict with any other
+    params.
+
+    Example:
+
+        dataset_dict = factories.Dataset(user=factories.User())
+
+    '''
     FACTORY_FOR = ckan.model.Package
 
     # These are the default params that will be used to create new groups.
@@ -303,12 +346,9 @@ class Dataset(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        context = {'user': _get_action_user_name(kwargs)}
-
-        dataset_dict = helpers.call_action('package_create',
-                                           context=context,
-                                           **kwargs)
-        return dataset_dict
+        return helpers.call_action('package_create',
+                                   context=_context_with_user(kwargs),
+                                   **kwargs)
 
 
 class MockUser(factory.Factory):
