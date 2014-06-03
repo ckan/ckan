@@ -21,15 +21,16 @@ def _run_cmd(command_line, inputstring=''):
         sys.exit(1)
 
 
-def _run_sql(sql, as_sql_user, database='postgres'):
+def _run_sql(sql, as_sql_user, pgport, database='postgres'):
     logging.debug("Executing: \n#####\n", sql, "\n####\nOn database:", database)
-    _run_cmd("sudo -u '{username}' psql --dbname='{database}' --no-password --set ON_ERROR_STOP=1".format(
+    _run_cmd("sudo -u '{username}' psql -p {pgport} --dbname='{database}' --no-password --set ON_ERROR_STOP=1".format(
+        pgport=pgport or '5432',
         username=as_sql_user,
         database=database
     ), inputstring=sql)
 
 
-def set_permissions(pguser, ckandb, datastoredb, ckanuser, writeuser, readonlyuser):
+def set_permissions(pguser, pgport, ckandb, datastoredb, ckanuser, writeuser, readonlyuser):
     __dir__ = os.path.dirname(os.path.abspath(__file__))
     filepath = os.path.join(__dir__, 'set_permissions.sql')
     with open(filepath) as f:
@@ -44,6 +45,7 @@ def set_permissions(pguser, ckandb, datastoredb, ckanuser, writeuser, readonlyus
 
         _run_sql(sql,
                   as_sql_user=pguser,
+                  pgport=pgport,
                   database=datastoredb)
 
 
@@ -53,6 +55,8 @@ if __name__ == '__main__':
         description='Set the permissions on the CKAN datastore. ',
         epilog='"The ships hung in the sky in much the same way that bricks don\'t."')
 
+    argparser.add_argument('-P', '--pg_port', dest='pgport', default='5432', type=str,
+                       help="the postgres port")
     argparser.add_argument('-p', '--pg_super_user', dest='pguser', default='postgres', type=str,
                        help="the postgres super user")
 
@@ -71,6 +75,7 @@ if __name__ == '__main__':
 
     set_permissions(
         pguser=args.pguser,
+        pgport=args.pgport,
         ckandb=args.ckandb,
         datastoredb=args.datastoredb,
         ckanuser=args.ckanuser,
