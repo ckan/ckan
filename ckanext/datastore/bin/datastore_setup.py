@@ -24,7 +24,7 @@ def _run_cmd(command_line, inputstring=''):
 def _run_sql(sql, as_sql_user, pgport, database='postgres'):
     logging.debug("Executing: \n#####\n", sql, "\n####\nOn database:", database)
     _run_cmd("sudo -u '{username}' psql -p {pgport} --dbname='{database}' --no-password --set ON_ERROR_STOP=1".format(
-        pgport=pgport,
+        pgport=pgport or '5432',
         username=as_sql_user,
         database=database
     ), inputstring=sql)
