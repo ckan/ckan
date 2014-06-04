@@ -78,8 +78,7 @@ String formatting
 ------------------
 
 Don't use the old ``%s`` style string formatting, e.g. ``"i am a %s" % sub``.
-This kind of string formatting is not helpful for internationalization and is
-going away in Python 3.
+This kind of string formatting is not helpful for internationalization.
 
 Use the `new .format() method`_ instead, and give meaningful names to each
 replacement field, for example::
