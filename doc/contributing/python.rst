@@ -36,15 +36,19 @@ We also use triple single-quotes for docstrings, see `Docstrings`_.
 Imports
 -------
 
-- Don't use ``from module import *`` or ``from module import name``. Instead
+- Don't use ``from module import *``. Instead
   just ``import module`` and then access names with ``module.name``.
   See `Idioms and Anti-Idioms in Python`_.
 
   You can make long module names more concise by aliasing them::
-  
+
     import foo.bar.baz as baz
 
-  and then access it with ``baz`` in your code. 
+  or by importing just the submodule::
+
+    from foo.bar import baz
+
+  and then access it with ``baz`` in your code.
 
 - Make all imports at the start of the file, after the module docstring.
   Imports should be grouped in the following order:
