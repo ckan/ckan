@@ -17,4 +17,3 @@ class TestPackageController(WsgiAppCase):
             extra_environ=extra_environ,
         )
         assert_true('dataset-edit' in response.forms)
-

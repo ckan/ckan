@@ -63,4 +63,3 @@ class WsgiAppCase(object):
     # running, meaning the pylonsapp wasn't setup yet (which is done in
     # pylons.test.py:begin())
     app = paste.fixture.TestApp(wsgiapp)
-
