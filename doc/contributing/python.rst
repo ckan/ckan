@@ -36,19 +36,20 @@ We also use triple single-quotes for docstrings, see `Docstrings`_.
 Imports
 -------
 
-- Don't use ``from module import *``. Instead
-  just ``import module`` and then access names with ``module.name``.
-  See `Idioms and Anti-Idioms in Python`_.
+- Don't use ``from module import *``. Instead list the names you
+  need explicitly::
 
-  You can make long module names more concise by aliasing them::
+    from module import name1, name2
 
-    import foo.bar.baz as baz
+  Use parenthesis around the names if they are longer than one line::
 
-  or by importing just the submodule::
+    from module import (name1, name2, ...
+        name12, name13)
 
-    from foo.bar import baz
-
-  and then access it with ``baz`` in your code.
+  Most of the current CKAN code base imports just the modules and
+  then accesses names with ``module.name``. This allows circular
+  imports in some cases and may still be necessary, but is not
+  recommended for new code.
 
 - Make all imports at the start of the file, after the module docstring.
   Imports should be grouped in the following order:
