@@ -2,11 +2,11 @@ from nose.tools import assert_equal, assert_true
 
 from routes import url_for
 
-import ckan.new_tests.controllers as controllers
+import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
 
-class TestPackageController(controllers.WsgiAppCase):
+class TestPackageController(helpers.FunctionalTestBaseClass):
     def test_create_form_renders(self):
         user = factories.Sysadmin()
         extra_environ = {

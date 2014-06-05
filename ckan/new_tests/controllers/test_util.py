@@ -4,10 +4,10 @@ import paste.fixture
 
 from routes import url_for as url_for
 
-import ckan.new_tests.controllers as controllers
+import ckan.new_tests.helpers as helpers
 
 
-class TestUtil(controllers.WsgiAppCase):
+class TestUtil(helpers.FunctionalTestBaseClass):
     def test_redirect_ok(self):
         response = self.app.get(
             url=url_for(controller='util', action='redirect'),

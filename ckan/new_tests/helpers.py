@@ -17,6 +17,12 @@ potential drawbacks.
 This module is reserved for these very useful functions.
 
 '''
+import os
+
+import webtest
+import pylons.config as config
+
+import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
 
@@ -124,3 +130,53 @@ def call_auth(auth_name, context, **kwargs):
     # FIXME: Do we want to go through check_access() here?
     auth_function = ckan.logic.auth.update.__getattribute__(auth_name)
     return auth_function(context=context, data_dict=kwargs)
+
+
+def _get_test_app():
+    '''Return a webtest.TestApp for CKAN, with legacy templates disabled.
+
+    For functional tests that need to request CKAN pages or post to the API.
+    Unit tests shouldn't need this.
+
+    '''
+    config['ckan.legacy_templates'] = False
+    app = ckan.config.middleware.make_app(config['global_conf'], **config)
+    app = webtest.TestApp(app)
+    return app
+
+
+class FunctionalTestBaseClass():
+    '''A base class for functional test classes to inherit from.
+
+    Allows configuration changes by overriding _apply_config_changes and
+    resetting the CKAN config after your test class has run. It creates a
+    webtest.TestApp at self.app for your class to use to make HTTP requests
+    to the CKAN web UI or API.
+
+    If you're overriding methods that this class provides, like setup_class()
+    and teardown_class(), make sure to use super() to call this class's methods
+    at the top of yours!
+
+    '''
+    @classmethod
+    def setup_class(cls):
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        cls.original_config = config.copy()
+        cls._apply_config_changes(config)
+        cls.app = _get_test_app()
+
+    @classmethod
+    def _apply_config_changes(cls, cfg):
+        pass
+
+    def setup(self):
+        import ckan.model as model
+        model.Session.close_all()
+        model.repo.rebuild_db()
+
+    @classmethod
+    def teardown_class(cls):
+        # Restore the Pylons config to its original values, in case any tests
+        # changed any config settings.
+        config.clear()
+        config.update(cls.original_config)

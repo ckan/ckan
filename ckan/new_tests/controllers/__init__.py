@@ -51,15 +51,3 @@ Controller tests probably shouldn't use mocking.
    code's behavior into a test harness before it can be safely refactored.
 
 '''
-
-import paste.fixture
-from pylons.test import pylonsapp
-
-
-class WsgiAppCase(object):
-    wsgiapp = pylonsapp
-    assert wsgiapp, 'You need to run nose with --with-pylons'
-    # Either that, or this file got imported somehow before the tests started
-    # running, meaning the pylonsapp wasn't setup yet (which is done in
-    # pylons.test.py:begin())
-    app = paste.fixture.TestApp(wsgiapp)
