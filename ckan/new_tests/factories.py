@@ -121,9 +121,7 @@ class Sysadmin(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        # Create a sysadmin by accessing the db directly.
-        # This is probably bad but I don't think there's another way?
-        user = ckan.model.User(name='test_sysadmin', sysadmin=True)
+        user = target_class(sysadmin=True, **kwargs)
         ckan.model.Session.add(user)
         ckan.model.Session.commit()
         ckan.model.Session.remove()
