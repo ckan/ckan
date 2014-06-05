@@ -4,16 +4,7 @@ import paste.fixture
 
 from routes import url_for as url_for
 
-
-# This is stolen from the old tests and should probably go in __init__.py
-# if it is what we want.
-class WsgiAppCase(object):
-    wsgiapp = pylonsapp
-    assert wsgiapp, 'You need to run nose with --with-pylons'
-    # Either that, or this file got imported somehow before the tests started
-    # running, meaning the pylonsapp wasn't setup yet (which is done in
-    # pylons.test.py:begin())
-    app = paste.fixture.TestApp(wsgiapp)
+from ckan.new_tests.controllers import WsgiAppCase
 
 
 class TestUtil(WsgiAppCase):
