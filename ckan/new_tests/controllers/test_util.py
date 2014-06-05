@@ -14,7 +14,7 @@ class TestUtil(helpers.FunctionalTestBaseClass):
             params={'url': '/dataset'},
             status=302,
         )
-        assert_equal(response.header_dict.get('Location'),
+        assert_equal(response.headers.get('Location'),
                      'http://localhost/dataset')
 
     def test_redirect_external(self):
