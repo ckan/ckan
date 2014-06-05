@@ -2,13 +2,13 @@ from nose.tools import assert_equal, assert_true
 
 from routes import url_for
 
-from ckan.new_tests.controllers import WsgiAppCase
-from ckan.new_tests.factories import Sysadmin
+import ckan.new_tests.controllers as controllers
+import ckan.new_tests.factories as factories
 
 
-class TestPackageController(WsgiAppCase):
+class TestPackageController(controllers.WsgiAppCase):
     def test_create_form_renders(self):
-        user = Sysadmin()
+        user = factories.Sysadmin()
         extra_environ = {
             'REMOTE_USER': user['name'].encode('ascii'),
         }
