@@ -11,6 +11,7 @@ import pprint
 import copy
 
 import distutils.version
+import sqlparse
 import sqlalchemy
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError)
@@ -929,7 +930,8 @@ def format_results(context, results, data_dict):
 
 
 def _is_single_statement(sql):
-    return not ';' in sql.strip(';')
+    '''Returns True if received SQL string contains at most one statement'''
+    return len(sqlparse.split(sql)) <= 1
 
 
 def create(context, data_dict):

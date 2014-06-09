@@ -13,6 +13,12 @@ import ckan.tests as tests
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
 
+import ckan.new_tests.factories as factories
+import ckan.new_tests.helpers as helpers
+
+assert_equals = nose.tools.assert_equals
+assert_raises = nose.tools.assert_raises
+
 
 class TestDatastoreSearch(tests.WsgiAppCase):
     sysadmin_user = None
@@ -594,21 +600,14 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
 
-    def test_is_single_statement(self):
-        singles = ['SELECT * FROM footable',
-            'SELECT * FROM "bartable"',
-            'SELECT * FROM "bartable";',
-            "select 'foo'||chr(59)||'bar'"]
+    def test_validates_sql_has_a_single_statement(self):
+        sql = 'SELECT * FROM public."{0}"; SELECT * FROM public."{0}";'.format(self.data['resource_id'])
+        assert_raises(p.toolkit.ValidationError,
+                      helpers.call_action, 'datastore_search_sql', sql=sql)
 
-        for single in singles:
-            assert db._is_single_statement(single) is True
-
-        multiples = ['SELECT * FROM abc; SET LOCAL statement_timeout to'
-            'SET LOCAL statement_timeout to; SELECT * FROM abc',
-            'SELECT * FROM "foo"; SELECT * FROM "abc"']
-
-        for multiple in multiples:
-            assert db._is_single_statement(multiple) is False
+    def test_works_with_semicolons_inside_strings(self):
+        sql = 'SELECT * FROM public."{0}" WHERE "author" = \'foo; bar\''.format(self.data['resource_id'])
+        helpers.call_action('datastore_search_sql', sql=sql)
 
     def test_invalid_statement(self):
         query = 'SELECT ** FROM foobar'
