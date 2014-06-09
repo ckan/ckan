@@ -180,3 +180,64 @@ class FunctionalTestBaseClass():
         # changed any config settings.
         config.clear()
         config.update(cls.original_config)
+
+
+## FIXME: remove webtest_* functions below when we upgrade webtest
+
+def webtest_submit(form, name=None, index=None, value=None, **args):
+    '''
+    backported version of webtest.Form.submit that actually works
+    for submitting with different submit buttons.
+
+    We're stuck on an old version of webtest because we're stuck
+    on an old version of webob because we're stuck on an old version
+    of Pylons. This prolongs our suffering, but on the bright side
+    it lets us have functional tests that work.
+    '''
+    fields = webtest_submit_fields(form, name, index=index, submit_value=value)
+    if form.method.upper() != "GET":
+        args.setdefault("content_type",  form.enctype)
+    return form.response.goto(form.action, method=form.method,
+        params=fields, **args)
+
+def webtest_submit_fields(form, name=None, index=None, submit_value=None):
+    '''
+    backported version of webtest.Form.submit_fields that actually works
+    for submitting with different submit buttons.
+    '''
+    from webtest.app import File
+    submit = []
+    # Use another name here so we can keep function param the same for BWC.
+    submit_name = name
+    if index is not None and submit_value is not None:
+        raise ValueError("Can't specify both submit_value and index.")
+
+    # If no particular button was selected, use the first one
+    if index is None and submit_value is None:
+        index = 0
+
+    # This counts all fields with the submit name not just submit fields.
+    current_index = 0
+    for name, field in form.field_order:
+        if name is None:  # pragma: no cover
+            continue
+        if submit_name is not None and name == submit_name:
+            if index is not None and current_index == index:
+                submit.append((name, field.value_if_submitted()))
+            if submit_value is not None and \
+               field.value_if_submitted() == submit_value:
+                submit.append((name, field.value_if_submitted()))
+            current_index += 1
+        else:
+            value = field.value
+            if value is None:
+                continue
+            if isinstance(field, File):
+                submit.append((name, field))
+                continue
+            if isinstance(value, list):
+                for item in value:
+                    submit.append((name, item))
+            else:
+                submit.append((name, value))
+    return submit
