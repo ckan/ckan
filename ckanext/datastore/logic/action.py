@@ -374,7 +374,7 @@ def datastore_search_sql(context, data_dict):
     '''
     sql = _get_or_bust(data_dict, 'sql')
 
-    if not db._is_single_statement(sql):
+    if not datastore_helpers.is_single_statement(sql):
         raise p.toolkit.ValidationError({
             'query': ['Query is not a single statement.']
         })
