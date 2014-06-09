@@ -7,7 +7,7 @@ class SampleDataStorePlugin(p.SingletonPlugin):
     p.implements(interfaces.IDatastore, inherit=True)
 
     def datastore_validate_query(self, context, data_dict, all_field_ids):
-        valid_filters = ('age_between', 'age_not_between')
+        valid_filters = ('age_between', 'age_not_between', 'insecure_filter')
         filters = data_dict.get('filters', {})
         for key in filters.keys():
             if key in valid_filters:
@@ -38,6 +38,11 @@ class SampleDataStorePlugin(p.SingletonPlugin):
 
             clause = ('"age" < %s OR "age" > %s',
                       age_not_between[0], age_not_between[1])
+            where_clauses.append(clause)
+        if 'insecure_filter' in filters:
+            insecure_filter = filters['insecure_filter']
+
+            clause = (insecure_filter,)
             where_clauses.append(clause)
 
         return where_clauses

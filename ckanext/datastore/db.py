@@ -804,14 +804,12 @@ def delete_data(context, data_dict):
                                              field_ids, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
-
-    context['connection'].execute(
-        u'DELETE FROM "{0}" {1}'.format(
-            data_dict['resource_id'],
-            where_clause
-        ),
-        where_values
+    sql_string = u'DELETE FROM "{0}" {1}'.format(
+        data_dict['resource_id'],
+        where_clause
     )
+
+    _execute_single_statement(context, sql_string, where_values)
 
 
 def validate_query(context, data_dict):
@@ -895,12 +893,23 @@ def search_data(context, data_dict):
         sort=sort_clause,
         limit=limit,
         offset=offset)
-    sql_string = sql_string.replace('%', '%%')
-    results = context['connection'].execute(
-        sql_string.format(where=where_clause), [where_values])
+    sql_string = sql_string.replace('%', '%%').format(where=where_clause)
+
+    results = _execute_single_statement(context, sql_string, where_values)
 
     _insert_links(data_dict, limit, offset)
     return format_results(context, results, data_dict)
+
+
+def _execute_single_statement(context, sql_string, where_values):
+    if not datastore_helpers.is_single_statement(sql_string):
+        raise ValidationError({
+            'query': ['Query is not a single statement.']
+        })
+
+    results = context['connection'].execute(sql_string, [where_values])
+
+    return results
 
 
 def format_results(context, results, data_dict):
