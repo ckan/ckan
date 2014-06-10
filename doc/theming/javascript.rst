@@ -67,7 +67,7 @@ Initializing a JavaScript module
 To get CKAN to call some custom JavaScript code, we need to:
 
 1. Implement a |javascript| module, and register it with CKAN.
-   Create the file ``ckanext-example_theme/fanstatic/example_theme_popover.js``, with these
+   Create the file ``ckanext-example_theme/ckanext/example_theme/fanstatic/example_theme_popover.js``, with these
    contents:
 
    .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/fanstatic/example_theme_popover.js
@@ -99,7 +99,7 @@ To get CKAN to call some custom JavaScript code, we need to:
    ``package_item.html`` template snippet to insert our module whenever a
    package is rendered as part of a list of packages (for example, on the
    dataset search page). Create the file
-   ``ckanext-example_theme/templates/snippets/package_item.html`` with these
+   ``ckanext-example_theme/ckanext/example_theme/templates/snippets/package_item.html`` with these
    contents:
 
    .. literalinclude:: /../ckanext/example_theme/v16_initialize_a_javascript_module/templates/snippets/package_item.html
