@@ -22,7 +22,7 @@ to use our file as the promoted image on the front page.
     use Fanstatic, see :doc:`javascript`.
 
 First, create a ``public`` directory in your extension with a
-``promoted-image.jpg`` file in it:
+``promoted-image.jpg`` file in it::
 
  ckanext-example_theme/
    ckanext/
