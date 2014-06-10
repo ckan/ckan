@@ -4,7 +4,7 @@ import ckan.plugins.interfaces as interfaces
 class IDatastore(interfaces.Interface):
     '''Allow modifying Datastore queries'''
 
-    def datastore_validate_query(self, context, data_dict, all_field_ids):
+    def datastore_validate(self, context, data_dict, all_field_ids):
         '''Validates the ``data_dict`` sent by the user
 
         This is the first method that's called. It's used to guarantee that

@@ -269,7 +269,7 @@ class DatastorePlugin(p.SingletonPlugin):
             connection.close()
         return resource_dict
 
-    def datastore_validate_query(self, context, data_dict, all_field_ids):
+    def datastore_validate(self, context, data_dict, all_field_ids):
         fields = data_dict.get('fields')
         if fields:
             data_dict['fields'] = list(set(fields) - set(all_field_ids))

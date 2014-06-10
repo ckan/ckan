@@ -6,7 +6,7 @@ import ckanext.datastore.interfaces as interfaces
 class SampleDataStorePlugin(p.SingletonPlugin):
     p.implements(interfaces.IDatastore, inherit=True)
 
-    def datastore_validate_query(self, context, data_dict, all_field_ids):
+    def datastore_validate(self, context, data_dict, all_field_ids):
         valid_filters = ('age_between', 'age_not_between', 'insecure_filter')
         filters = data_dict.get('filters', {})
         for key in filters.keys():

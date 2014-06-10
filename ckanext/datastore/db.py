@@ -791,7 +791,7 @@ def _insert_links(data_dict, limit, offset):
 
 
 def delete_data(context, data_dict):
-    validate_query(context, data_dict)
+    validate(context, data_dict)
     fields = _get_fields(context, data_dict)
     field_ids = set([field['id'] for field in fields])
 
@@ -812,7 +812,7 @@ def delete_data(context, data_dict):
     _execute_single_statement(context, sql_string, where_values)
 
 
-def validate_query(context, data_dict):
+def validate(context, data_dict):
     all_fields = _get_fields(context, data_dict)
     all_field_ids = _pluck('id', all_fields)
     all_field_ids.insert(0, '_id')
@@ -825,9 +825,9 @@ def validate_query(context, data_dict):
         data_dict_copy['fields'] = fields
 
     for plugin in p.PluginImplementations(interfaces.IDatastore):
-        data_dict_copy = plugin.datastore_validate_query(context,
-                                                         data_dict_copy,
-                                                         all_field_ids)
+        data_dict_copy = plugin.datastore_validate(context,
+                                                   data_dict_copy,
+                                                   all_field_ids)
 
     # Remove default elements in data_dict
     del data_dict_copy['connection_url']
@@ -850,7 +850,7 @@ def validate_query(context, data_dict):
 
 
 def search_data(context, data_dict):
-    validate_query(context, data_dict)
+    validate(context, data_dict)
     all_fields = _get_fields(context, data_dict)
     all_field_ids = _pluck('id', all_fields)
     all_field_ids.insert(0, '_id')
