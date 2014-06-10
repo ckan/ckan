@@ -25,8 +25,10 @@ First, create a ``public`` directory in your extension with a
 ``promoted-image.jpg`` file in it::
 
  ckanext-example_theme/
-   public/
-     promoted-image.jpg
+   ckanext/
+      example_theme/
+         public/
+            promoted-image.jpg
 
 ``promoted-image.jpg`` should be a 420x220px JPEG image file. You could use
 this image file for example:
