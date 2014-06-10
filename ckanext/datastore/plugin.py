@@ -39,6 +39,18 @@ class DatastorePlugin(p.SingletonPlugin):
     legacy_mode = False
     resource_show_action = None
 
+    def __init__(self, *args, **kwargs):
+        idatastore_extensions = p.PluginImplementations(interfaces.IDatastore)
+        idatastore_extensions = idatastore_extensions.extensions()
+
+        if idatastore_extensions and idatastore_extensions[0] != self:
+            msg = ('The "datastore" extension must be the first IDatastore '
+                   'extension loaded. Change the order it is loaded in '
+                   '"ckan.plugins" in your CKAN .ini file and try again.')
+            raise DatastoreException(msg)
+
+        super(self.__class__, self).__init__(*args, **kwargs)
+
     def configure(self, config):
         self.config = config
         # check for ckan.datastore.write_url and ckan.datastore.read_url
