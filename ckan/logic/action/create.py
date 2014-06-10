@@ -1256,7 +1256,8 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     member_create_context = {
         'model': model,
         'user': user,
-        'session': session
+        'session': session,
+        'ignore_auth': context.get('ignore_auth'),
     }
     logic.get_action('member_create')(member_create_context, member_dict)
 
