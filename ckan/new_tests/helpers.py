@@ -157,7 +157,7 @@ class FunctionalTestBaseClass():
     @classmethod
     def setup_class(cls):
         # Make a copy of the Pylons config, so we can restore it in teardown.
-        cls._original_config = config.copy()
+        cls._original_config = dict(config)
         cls._apply_config_changes(config)
         cls.app = _get_test_app()
 
