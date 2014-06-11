@@ -706,6 +706,11 @@ class PackageController(base.BaseController):
             pkg_dict = get_action('package_show')(context, {'id': id})
         except NotFound:
             abort(404, _('The dataset {id} could not be found.').format(id=id))
+        try:
+            check_access('resource_create', context, pkg_dict)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to create a resource for this package'))
+
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
         template = 'package/new_resource_not_draft.html'
