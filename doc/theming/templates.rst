@@ -8,6 +8,11 @@ CKAN pages are generated from Jinja2_ template files. This tutorial will walk
 you through the process of writing your own template files to modify and
 replace the default ones, and change the layout and content of CKAN pages.
 
+.. seealso::
+
+   :doc:`/contributing/string-i18n`
+     How to mark strings for translation in your template files.
+
 
 -------------------------
 Creating a CKAN extension

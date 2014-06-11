@@ -214,13 +214,12 @@ def package_create(context, data_dict):
 def resource_create(context, data_dict):
     '''Appends a new resource to a datasets list of resources.
 
-    :param package_id: id of package that the resource needs
-        should be added to.
+    :param package_id: id of package that the resource should be added to.
     :type package_id: string
     :param url: url of resource
     :type url: string
     :param revision_id: (optional)
-    :type revisiion_id: string
+    :type revision_id: string
     :param description: (optional)
     :type description: string
     :param format: (optional)
@@ -261,6 +260,7 @@ def resource_create(context, data_dict):
 
     package_id = _get_or_bust(data_dict, 'package_id')
     data_dict.pop('package_id')
+    _get_or_bust(data_dict, 'url')
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
@@ -1256,7 +1256,8 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     member_create_context = {
         'model': model,
         'user': user,
-        'session': session
+        'session': session,
+        'ignore_auth': context.get('ignore_auth'),
     }
     logic.get_action('member_create')(member_create_context, member_dict)
 

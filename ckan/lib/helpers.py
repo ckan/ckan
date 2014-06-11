@@ -11,6 +11,7 @@ import logging
 import re
 import os
 import urllib
+import urlparse
 import pprint
 import copy
 import urlparse
@@ -144,17 +145,34 @@ def url_for(*args, **kw):
 
 
 def url_for_static(*args, **kw):
-    '''Create url for static content that does not get translated
-    eg css, js
-    wrapper for routes.url_for'''
+    '''Returns the URL for static content that doesn't get translated (eg CSS)
 
+    It'll raise CkanUrlException if called with an external URL
+
+    This is a wrapper for :py:func:`routes.url_for`
+    '''
+    if args:
+        url = urlparse.urlparse(args[0])
+        url_is_external = (url.scheme != '' or url.netloc != '')
+        if url_is_external:
+            CkanUrlException = ckan.exceptions.CkanUrlException
+            raise CkanUrlException('External URL passed to url_for_static()')
+    return url_for_static_or_external(*args, **kw)
+
+
+def url_for_static_or_external(*args, **kw):
+    '''Returns the URL for static content that doesn't get translated (eg CSS),
+    or external URLs
+
+    This is a wrapper for :py:func:`routes.url_for`
+    '''
     def fix_arg(arg):
-        # make sure that if we specify the url that it is not unicode and
-        # starts with a /
-        arg = str(arg)
-        if not arg.startswith('/'):
-            arg = '/' + arg
-        return arg
+        url = urlparse.urlparse(str(arg))
+        url_is_relative = (url.scheme == '' and url.netloc == '' and
+                           not url.path.startswith('/'))
+        if url_is_relative:
+            return '/' + url.geturl()
+        return url.geturl()
 
     if args:
         args = (fix_arg(args[0]), ) + args[1:]
@@ -546,7 +564,7 @@ def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
 
 
-def get_facet_items_dict(facet, limit=10, exclude_active=False):
+def get_facet_items_dict(facet, limit=None, exclude_active=False):
     '''Return the list of unselected facet items for the given facet, sorted
     by count.
 
@@ -578,12 +596,41 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
     facets = sorted(facets, key=lambda item: item['count'], reverse=True)
-    if c.search_facets_limits:
+    if c.search_facets_limits and limit is None:
         limit = c.search_facets_limits.get(facet)
-    if limit:
+    if limit is not None:
         return facets[:limit]
-    else:
-        return facets
+    return facets
+
+
+def has_more_facets(facet, limit=None, exclude_active=False):
+    '''
+    Returns True if there are more facet items for the given facet than the
+    limit.
+
+    Reads the complete list of facet items for the given facet from
+    c.search_facets, and filters out the facet items that the user has already
+    selected.
+
+    Arguments:
+    facet -- the name of the facet to filter.
+    limit -- the max. number of facet items.
+    exclude_active -- only return unselected facets.
+
+    '''
+    facets = []
+    for facet_item in c.search_facets.get(facet)['items']:
+        if not len(facet_item['name'].strip()):
+            continue
+        if not (facet, facet_item['name']) in request.params.items():
+            facets.append(dict(active=False, **facet_item))
+        elif not exclude_active:
+            facets.append(dict(active=True, **facet_item))
+    if c.search_facets_limits and limit is None:
+        limit = c.search_facets_limits.get(facet)
+    if limit is not None and len(facets) > limit:
+        return True
+    return False
 
 
 def unselected_facet_items(facet, limit=10):
@@ -690,8 +737,12 @@ def check_access(action, data_dict=None):
     return authorized
 
 
+@maintain.deprecated("helpers.get_action() is deprecated and will be removed "
+                     "in a future version of CKAN. Instead, please use the "
+                     "extra_vars param to render() in your controller to pass "
+                     "results from action functions to your templates.")
 def get_action(action_name, data_dict=None):
-    '''Calls an action function from a template.'''
+    '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
     if data_dict is None:
         data_dict = {}
     return logic.get_action(action_name)({}, data_dict)
@@ -1430,7 +1481,8 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
         action_functions = {
             'dataset': 'package_activity_list_html',
             'user': 'user_activity_list_html',
-            'group': 'group_activity_list_html'
+            'group': 'group_activity_list_html',
+            'organization': 'organization_activity_list_html',
         }
         action_function = logic.get_action(action_functions.get(filter_type))
         return action_function(context, {'id': filter_id, 'offset': offset})
@@ -1822,6 +1874,15 @@ def unified_resource_format(format):
 def check_config_permission(permission):
     return new_authz.check_config_permission(permission)
 
+
+def get_organization(org=None):
+    if org is None:
+        return {}
+    try:
+        return logic.get_action('organization_show')({}, {'id': org})
+    except (NotFound, ValidationError, NotAuthorized):
+        return {}
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1829,6 +1890,7 @@ __allowed_functions__ = [
     'url',
     'url_for',
     'url_for_static',
+    'url_for_static_or_external',
     'lang',
     'flash',
     'flash_error',
@@ -1908,6 +1970,8 @@ __allowed_functions__ = [
     'list_dict_filter',
     'new_activities',
     'time_ago_from_timestamp',
+    'get_organization',
+    'has_more_facets',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',

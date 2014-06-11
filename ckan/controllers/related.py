@@ -116,6 +116,8 @@ class RelatedController(base.BaseController):
 
         try:
             c.pkg_dict = logic.get_action('package_show')(context, data_dict)
+            c.related_list = logic.get_action('related_list')(context,
+                                                              data_dict)
             c.pkg = context['package']
             c.resources_json = h.json.dumps(c.pkg_dict.get('resources', []))
         except logic.NotFound:

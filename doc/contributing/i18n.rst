@@ -6,6 +6,11 @@ CKAN is used in many countries, and adding a new language to the web interface i
 
 CKAN uses the url to determine which language is used. An example would be ``/fr/dataset`` would be shown in french.  If CKAN is running under a directory then an example would be ``/root/fr/dataset``.  For custom paths check the :ref:`ckan.root_path` config option.
 
+.. seealso::
+
+   Developers, see :doc:`string-i18n` for how to mark strings for translation in
+   CKAN code.
+
 .. Note: Storing metadata field values in more than one language is a separate topic. This is achieved by storing the translations in extra fields. A custom dataset form and dataset display template are recommended. Ask the CKAN team for more information.
 
 -------------------
@@ -17,6 +22,8 @@ CKAN already supports numerous languages. To check whether your language is supp
 If your language is present, you can switch the default language simply by setting the ``ckan.locale_default`` option in your CKAN config file, as described in :ref:`config-i18n`. For example, to switch to German::
 
  ckan.locale_default=de
+
+.. seealso:: :ref:`config-i18n`
 
 If your language is not supported yet, the remainder of this section section provides instructions on how to prepare a translation file and add it to CKAN. 
 
@@ -151,4 +158,40 @@ Alternatively, if you do not want to use fab, you can just scp::
 -------------------------
 
 Finally, once the mo file is in place, you can switch between the installed languages using the ``ckan.locale`` option in the CKAN config file, as described in :ref:`config-i18n`. 
+
+------------------------------
+Translations management policy
+------------------------------
+
+One of the aims of CKAN is to be accessible to the greatest number of users.
+Translating the user interface to as many languages as possible plays a huge
+part in this, and users are encouraged to contribute to the existing
+translations or submit a new one. At the same time we need to ensure the
+stability between CKAN releases, so the following guidelines apply when
+managing translations:
+
+* Translations are open on Transifex as soon as a release branch for a minor
+  version is created. At this point the strings are not yet freezed and can
+  still change, but hopefully not too much. An announcement email will be sent
+  to the mailing list and via Transifex.
+
+* 2-3 weeks before the actual release the strings are frozen. This means that
+  no new strings will be added on this release line. A second announce email is
+  sent at this point.
+
+* The translations will be kept open on Transifex after the release, and will be
+  updated on each patch release, provided that:
+
+    - They pass a review like any other change merged into a patch release (ie
+      they must not introducde backwards incompatible changes).
+    - Big changes like whole new languages (specially ones that introduce
+      new features like RTL supporti, etc) should be tested and reviewed on a
+      separate branch first.
+    - Ultimately is up to the commiters and the release manager to decide if a
+      new or updated translation is included in a patch release or needs to
+      wait until the next minor release.
+
+* The *master* branch is not currently translated. Translations from the latest
+  stable line (see :ref:`ckan-releases`) are cherry-picked into master after each
+  minor or patch release.
 

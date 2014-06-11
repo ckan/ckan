@@ -44,6 +44,26 @@ import ckan.logic
 import ckan.new_tests.helpers as helpers
 
 
+def _get_action_user_name(kwargs):
+    '''Return the name of the user in kwargs, defaulting to the site user
+
+    It can be overriden by explictly setting {'user': None} in the keyword
+    arguments. In that case, this method will return None.
+    '''
+
+    if 'user' in kwargs:
+        user = kwargs['user']
+    else:
+        user = helpers.call_action('get_site_user')
+
+    if user is None:
+        user_name = None
+    else:
+        user_name = user['name']
+
+    return user_name
+
+
 def _generate_email(user):
     '''Return an email address for the given User factory stub object.'''
 
@@ -60,6 +80,12 @@ def _generate_user_id(user):
     '''Return a user id for the given User factory stub object.'''
 
     return '{0}_user_id'.format(user.name).lower()
+
+
+def _generate_group_title(group):
+    '''Return a title for the given Group factory stub object.'''
+
+    return group.name.replace('_', ' ').title()
 
 
 class User(factory.Factory):
@@ -99,6 +125,33 @@ class User(factory.Factory):
         return user_dict
 
 
+class Resource(factory.Factory):
+    '''A factory class for creating CKAN resources.'''
+
+    FACTORY_FOR = ckan.model.Resource
+
+    name = factory.Sequence(lambda n: 'test_resource_{n}'.format(n=n))
+    description = 'Just another test resource.'
+    format = 'res_format'
+    url = 'http://link.to.some.data'
+    package_id = factory.LazyAttribute(lambda _: Dataset()['id'])
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        context = {'user': _get_action_user_name(kwargs)}
+
+        resource_dict = helpers.call_action('resource_create', context=context,
+                                            **kwargs)
+        return resource_dict
+
+
 class Sysadmin(factory.Factory):
     '''A factory class for creating sysadmin users.'''
 
@@ -111,6 +164,7 @@ class Sysadmin(factory.Factory):
     name = factory.Sequence(lambda n: 'test_sysadmin_{n}'.format(n=n))
 
     email = factory.LazyAttribute(_generate_email)
+    sysadmin = True
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
@@ -135,12 +189,6 @@ class Sysadmin(factory.Factory):
         return user_dict
 
 
-def _generate_group_title(group):
-    '''Return a title for the given Group factory stub object.'''
-
-    return group.name.replace('_', ' ').title()
-
-
 class Group(factory.Factory):
     '''A factory class for creating CKAN groups.'''
 
@@ -150,6 +198,9 @@ class Group(factory.Factory):
     title = factory.LazyAttribute(_generate_group_title)
     description = 'A test description for this test group.'
 
+    user = factory.LazyAttribute(lambda _:
+                                 helpers.call_action('get_site_user'))
+
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
         raise NotImplementedError(".build() isn't supported in CKAN")
@@ -158,12 +209,11 @@ class Group(factory.Factory):
     def _create(cls, target_class, *args, **kwargs):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
-        assert 'user' in kwargs, ('The Group factory requires an extra '
-                                  'user=user_dict keyword argument (the user '
-                                  'who will create the group)')
-        user_dict = kwargs.pop('user')
-        context = {'user': user_dict['name']}
-        group_dict = helpers.call_action('group_create', context=context,
+
+        context = {'user': _get_action_user_name(kwargs)}
+
+        group_dict = helpers.call_action('group_create',
+                                         context=context,
                                          **kwargs)
         return group_dict
 
@@ -196,13 +246,7 @@ class Organization(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        if 'user' in kwargs:
-            user_dict = kwargs.pop('user')
-            context = {'user': user_dict['name']}
-        else:
-            context = {
-                'user': helpers.call_action('get_site_user')['name']
-            }
+        context = {'user': _get_action_user_name(kwargs)}
 
         group_dict = helpers.call_action('organization_create',
                                          context=context,
@@ -230,11 +274,7 @@ class Related(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        assert 'user' in kwargs, ('The Related factory requires an extra '
-                                  'user=user_dict keyword argument (the user '
-                                  'who will create the group)')
-        user_dict = kwargs.pop('user')
-        context = {'user': user_dict['name']}
+        context = {'user': _get_action_user_name(kwargs)}
         related_dict = helpers.call_action('related_create', context=context,
                                            **kwargs)
         return related_dict
@@ -243,7 +283,7 @@ class Related(factory.Factory):
 class Dataset(factory.Factory):
     '''A factory class for creating CKAN datasets.'''
 
-    FACTORY_FOR = ckan.model.package
+    FACTORY_FOR = ckan.model.Package
 
     # These are the default params that will be used to create new groups.
     title = 'Test Dataset'
@@ -261,11 +301,7 @@ class Dataset(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        assert 'user' in kwargs, ('The Dataset factory requires an extra '
-                                  'user=user_dict keyword argument (the user '
-                                  'who will create the group)')
-        user_dict = kwargs.pop('user')
-        context = {'user': user_dict['name']}
+        context = {'user': _get_action_user_name(kwargs)}
 
         dataset_dict = helpers.call_action('package_create',
                                            context=context,

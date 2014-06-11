@@ -30,7 +30,7 @@ Relationship to FileStore
 -------------------------
 
 The DataStore is distinct but complementary to the FileStore (see
-:doc:`filestore`). In contrast to the the FileStore which provides 'blob'
+:doc:`filestore`). In contrast to the FileStore which provides 'blob'
 storage of whole files with no way to access or query parts of that file, the
 DataStore is like a database in which individual data elements are accessible
 and queryable. To illustrate this distinction, consider storing a spreadsheet

@@ -79,21 +79,6 @@ terminal:
     pip install -r pyenv/src/ckan/dev-requirements.txt
 
 
-Fetch CKAN's git submodules
-===========================
-
-CKAN's custom Sphinx theme is a kept in a git *submodule*, so before you can
-build the docs you have to run these commands in a terminal to download the
-submodule::
-
-    cd pyenv/src/ckan
-    git submodule init
-    git submodule update
-
-You may occasionally have to run ``git submodule update`` again, when someone
-updates the theme, but this doesn't happen often.
-
-
 Build the docs
 ==============
 

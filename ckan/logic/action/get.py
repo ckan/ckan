@@ -72,12 +72,13 @@ def _activity_stream_get_filtered_users():
     '''
     users = config.get('ckan.hide_activity_from_users')
     if users:
-        user_list = users.split()
+        users_list = users.split()
     else:
         context = {'model': model, 'ignore_auth': True}
         site_user = logic.get_action('get_site_user')(context)
-        users = [site_user.get('name')]
-    return model.User.user_ids_for_name_or_id(users)
+        users_list = [site_user.get('name')]
+
+    return model.User.user_ids_for_name_or_id(users_list)
 
 
 def _package_list_with_resources(context, package_revision_list):
@@ -1055,10 +1056,11 @@ def _group_or_org_show(context, data_dict, is_org=False):
         {'model': model, 'session': model.Session},
         {'id': group_dict['id']})
 
-    if schema:
-        group_dict, errors = lib_plugins.plugin_validate(
-            group_plugin, context, group_dict, schema,
-            'organization_show' if is_org else 'group_show')
+    if schema is None:
+        schema = logic.schema.default_show_group_schema()
+    group_dict, errors = lib_plugins.plugin_validate(
+        group_plugin, context, group_dict, schema,
+        'organization_show' if is_org else 'group_show')
     return group_dict
 
 
@@ -2035,6 +2037,16 @@ def term_translation_show(context, data_dict):
 
 # Only internal services are allowed to call get_site_user.
 def get_site_user(context, data_dict):
+    '''Return the ckan site user
+
+    :param defer_commit: by default (or if set to false) get_site_user will
+        commit and clean up the current transaction, it will also close and
+        discard the current session in the context. If set to true, caller
+        is responsible for commiting transaction after get_site_user is
+        called. Leaving open connections can cause cli commands to hang!
+        (optional, default: False)
+    :type defer_commit: boolean
+    '''
     _check_access('get_site_user', context, data_dict)
     model = context['model']
     site_id = config.get('ckan.site_id', 'ckan_site_user')
@@ -2563,6 +2575,18 @@ def group_follower_count(context, data_dict):
         context['model'].UserFollowingGroup)
 
 
+def organization_follower_count(context, data_dict):
+    '''Return the number of followers of an organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: int
+
+    '''
+    return group_follower_count(context, data_dict)
+
+
 def _follower_list(context, data_dict, default_schema, FollowerClass):
     schema = context.get('schema', default_schema)
     data_dict, errors = _validate(data_dict, schema, context)
@@ -2629,6 +2653,21 @@ def group_follower_list(context, data_dict):
         ckan.logic.schema.default_follow_group_schema(),
         context['model'].UserFollowingGroup)
 
+
+def organization_follower_list(context, data_dict):
+    '''Return the list of users that are following the given organization.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+    _check_access('organization_follower_list', context, data_dict)
+    return _follower_list(
+        context, data_dict,
+        ckan.logic.schema.default_follow_group_schema(),
+        context['model'].UserFollowingGroup)
 
 def _am_following(context, data_dict, default_schema, FollowerClass):
     schema = context.get('schema', default_schema)
@@ -2817,7 +2856,8 @@ def followee_list(context, data_dict):
     for followee_list_function, followee_type in (
             (user_followee_list, 'user'),
             (dataset_followee_list, 'dataset'),
-            (group_followee_list, 'group')):
+            (group_followee_list, 'group'),
+            (organization_followee_list, 'organization')):
         dicts = followee_list_function(context, data_dict)
         for d in dicts:
             followee_dicts.append(
@@ -2914,6 +2954,26 @@ def group_followee_list(context, data_dict):
     '''
     _check_access('group_followee_list', context, data_dict)
 
+    return _group_or_org_followee_list(context, data_dict, is_org=False)
+
+
+def organization_followee_list(context, data_dict):
+    '''Return the list of organizations that are followed by the given user.
+
+    :param id: the id or name of the user
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+
+    _check_access('organization_followee_list', context, data_dict)
+
+    return _group_or_org_followee_list(context, data_dict, is_org=True)
+
+
+def _group_or_org_followee_list(context, data_dict, is_org=False):
+
     if not context.get('skip_validation'):
         schema = context.get('schema',
                              ckan.logic.schema.default_follow_user_schema())
@@ -2928,7 +2988,8 @@ def group_followee_list(context, data_dict):
 
     # Convert the UserFollowingGroup objects to a list of Group objects.
     groups = [model.Group.get(followee.object_id) for followee in followees]
-    groups = [group for group in groups if group is not None]
+    groups = [group for group in groups
+              if group is not None and group.is_organization == is_org]
 
     # Dictize the list of Group objects.
     return [model_dictize.group_dictize(group, context) for group in groups]
