@@ -175,7 +175,7 @@ class Sysadmin(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        user = target_class(sysadmin=True, **kwargs)
+        user = target_class(**dict(kwargs, sysadmin=True))
         ckan.model.Session.add(user)
         ckan.model.Session.commit()
         ckan.model.Session.remove()
