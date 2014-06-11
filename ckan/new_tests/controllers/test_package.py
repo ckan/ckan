@@ -43,11 +43,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form['name'] = u'resource-form-renders'
         form['title'] = u'Resource form renders'
 
-        response = webtest_submit(form, 'save', status=302, extra_environ=env)
-        response = self.app.get(
-            url=dict(response.headers)['Location'],
-            extra_environ=env,
-        )
+        response = self._submit_and_follow(form, env, 'save')
         assert_true('resource-edit' in response.forms)
 
     def test_previous_button_works(self):
@@ -61,18 +57,10 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form['name'] = u'previous-button-works'
         form['title'] = u'Previous button works'
 
-        response = webtest_submit(form, 'save', status=302, extra_environ=env)
-        response = self.app.get(
-            url=dict(response.headers)['Location'],
-            extra_environ=env,
-        )
+        response = self._submit_and_follow(form, env, 'save')
         form = response.forms['resource-edit']
-        response = webtest_submit(form, 'save', value='go-dataset',
-                                  status=302, extra_environ=env)
-        response = self.app.get(
-            url=dict(response.headers)['Location'],
-            extra_environ=env,
-        )
+
+        response = self._submit_and_follow(form, env, 'save', 'go-dataset')
         assert_true('dataset-edit' in response.forms)
 
     def test_previous_button_populates_form(self):
@@ -86,18 +74,10 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form['name'] = u'previous-button-populates-form'
         form['title'] = u'Previous button populates form'
 
-        response = webtest_submit(form, 'save', status=302, extra_environ=env)
-        response = self.app.get(
-            url=dict(response.headers)['Location'],
-            extra_environ=env,
-        )
+        response = self._submit_and_follow(form, env, 'save')
         form = response.forms['resource-edit']
-        response = webtest_submit(form, 'save', value='go-dataset',
-                                  status=302, extra_environ=env)
-        response = self.app.get(
-            url=dict(response.headers)['Location'],
-            extra_environ=env,
-        )
+
+        response = self._submit_and_follow(form, env, 'save', 'go-dataset')
         form = response.forms['dataset-edit']
         assert_true('title' in form.fields)
         assert_equal(form['title'].value, u'Previous button populates form')
