@@ -17,7 +17,6 @@ import ckan.new_tests.helpers as helpers
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
-assert_in = nose.tools.assert_in
 
 
 class TestDatastoreSearch(tests.WsgiAppCase):
@@ -281,7 +280,9 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                             extra_environ=auth, status=409)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
-        assert_in(u'f\xfc\xfc', res_dict['error']['sort'][0])
+        error_msg = res_dict['error']['sort'][0]
+        assert u'f\xfc\xfc' in error_msg, \
+            'Expected "{0}" to contain "{1}"'.format(error_msg, u'f\xfc\xfc')
 
     def test_search_limit(self):
         data = {'resource_id': self.data['resource_id'],
