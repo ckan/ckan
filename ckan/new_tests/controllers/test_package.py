@@ -8,8 +8,8 @@ import ckan.new_tests.factories as factories
 webtest_submit = helpers.webtest_submit
 
 
-class TestPackageController(helpers.FunctionalTestBase):
-    def test_create_form_renders(self):
+class TestPackageControllerNew(helpers.FunctionalTestBase):
+    def test_form_renders(self):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         response = self.app.get(
@@ -18,7 +18,7 @@ class TestPackageController(helpers.FunctionalTestBase):
         )
         assert_true('dataset-edit' in response.forms)
 
-    def test_create_form_next_button_works(self):
+    def test_next_button_works(self):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         response = self.app.get(
@@ -32,7 +32,7 @@ class TestPackageController(helpers.FunctionalTestBase):
         response = webtest_submit(form, 'save', status=302, extra_environ=env)
         assert_true('Location' in dict(response.headers))
 
-    def test_create_form_resource_form_renders(self):
+    def test_resource_form_renders(self):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         response = self.app.get(
@@ -50,7 +50,7 @@ class TestPackageController(helpers.FunctionalTestBase):
         )
         assert_true('resource-edit' in response.forms)
 
-    def test_create_form_previous_button_works(self):
+    def test_previous_button_works(self):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         response = self.app.get(
@@ -75,7 +75,7 @@ class TestPackageController(helpers.FunctionalTestBase):
         )
         assert_true('dataset-edit' in response.forms)
 
-    def test_create_form_previous_button_populates_form(self):
+    def test_previous_button_populates_form(self):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         response = self.app.get(
