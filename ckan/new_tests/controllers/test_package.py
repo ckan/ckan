@@ -7,6 +7,7 @@ import ckan.new_tests.factories as factories
 
 webtest_submit = helpers.webtest_submit
 
+
 class TestPackageController(helpers.FunctionalTestBaseClass):
     def test_create_form_renders(self):
         user = factories.Sysadmin()
@@ -67,7 +68,7 @@ class TestPackageController(helpers.FunctionalTestBaseClass):
         )
         form = response.forms['resource-edit']
         response = webtest_submit(form, 'save', value='go-dataset',
-            status=302, extra_environ=env)
+                                  status=302, extra_environ=env)
         response = self.app.get(
             url=dict(response.headers)['Location'],
             extra_environ=env,
@@ -92,7 +93,7 @@ class TestPackageController(helpers.FunctionalTestBaseClass):
         )
         form = response.forms['resource-edit']
         response = webtest_submit(form, 'save', value='go-dataset',
-            status=302, extra_environ=env)
+                                  status=302, extra_environ=env)
         response = self.app.get(
             url=dict(response.headers)['Location'],
             extra_environ=env,

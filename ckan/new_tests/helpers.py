@@ -194,7 +194,8 @@ def webtest_submit(form, name=None, index=None, value=None, **args):
     if form.method.upper() != "GET":
         args.setdefault("content_type",  form.enctype)
     return form.response.goto(form.action, method=form.method,
-        params=fields, **args)
+                              params=fields, **args)
+
 
 def webtest_submit_fields(form, name=None, index=None, submit_value=None):
     '''
