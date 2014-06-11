@@ -157,7 +157,7 @@ class FunctionalTestBaseClass():
     @classmethod
     def setup_class(cls):
         # Make a copy of the Pylons config, so we can restore it in teardown.
-        cls.original_config = config.copy()
+        cls._original_config = config.copy()
         cls._apply_config_changes(config)
         cls.app = _get_test_app()
 
@@ -175,7 +175,7 @@ class FunctionalTestBaseClass():
         # Restore the Pylons config to its original values, in case any tests
         # changed any config settings.
         config.clear()
-        config.update(cls.original_config)
+        config.update(cls._original_config)
 
 
 ## FIXME: remove webtest_* functions below when we upgrade webtest
