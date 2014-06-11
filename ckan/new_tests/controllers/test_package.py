@@ -8,7 +8,7 @@ import ckan.new_tests.factories as factories
 webtest_submit = helpers.webtest_submit
 
 
-class TestPackageController(helpers.FunctionalTestBaseClass):
+class TestPackageController(helpers.FunctionalTestBase):
     def test_create_form_renders(self):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}

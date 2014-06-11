@@ -7,7 +7,7 @@ from routes import url_for as url_for
 import ckan.new_tests.helpers as helpers
 
 
-class TestUtil(helpers.FunctionalTestBaseClass):
+class TestUtil(helpers.FunctionalTestBase):
     def test_redirect_ok(self):
         response = self.app.get(
             url=url_for(controller='util', action='redirect'),
