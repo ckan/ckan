@@ -31,6 +31,18 @@ We also use triple single-quotes for docstrings, see `Docstrings`_.
 Imports
 -------
 
+- Avoid creating circular imports by only importing modules more
+  specialized than the one you are editing.
+
+  CKAN often uses code imported into a data structure instead of
+  importing names directly. For example CKAN controllers only use
+  ``get_action`` to access logic functions. This allows
+  customization by CKAN plugins.
+
+  .. image:: /images/ckan_importing_diagram.png
+     :alt: CKAN importing diagram, general modules import
+           more specific modules
+
 - Don't use ``from module import *``. Instead list the names you
   need explicitly::
 
@@ -43,8 +55,8 @@ Imports
 
   Most of the current CKAN code base imports just the modules and
   then accesses names with ``module.name``. This allows circular
-  imports in some cases and may still be necessary, but is not
-  recommended for new code.
+  imports in some cases and may still be necessary for exsiting
+  code, but is not recommended for new code.
 
 - Make all imports at the start of the file, after the module docstring.
   Imports should be grouped in the following order:
@@ -53,7 +65,6 @@ Imports
   2. Third-party imports
   3. CKAN imports
 
-.. _Idioms and Anti-Idioms in Python: http://docs.python.org/2/howto/doanddont.html
 
 Logging
 -------
