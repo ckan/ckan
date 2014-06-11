@@ -9,7 +9,14 @@ assert_raises = nose.tools.assert_raises
 
 class TestPlugin(object):
     @classmethod
-    def setup(cls):
+    def setup_class(cls):
+        if p.plugin_loaded('datastore'):
+            p.unload('datastore')
+        if p.plugin_loaded('sample_datastore_plugin'):
+            p.unload('sample_datastore_plugin')
+
+    @classmethod
+    def teardown_class(cls):
         if p.plugin_loaded('datastore'):
             p.unload('datastore')
         if p.plugin_loaded('sample_datastore_plugin'):
