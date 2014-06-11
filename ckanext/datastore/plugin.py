@@ -281,7 +281,63 @@ class DatastorePlugin(p.SingletonPlugin):
             if key in all_field_ids:
                 del filters[key]
 
+        q = data_dict.get('q')
+        if q:
+            if isinstance(q, basestring):
+                del data_dict['q']
+
+        language = data_dict.get('language')
+        if language:
+            if isinstance(language, basestring):
+                del data_dict['language']
+
+        plain = data_dict.get('plain')
+        if plain:
+            if isinstance(plain, bool):
+                del data_dict['plain']
+
+        sort_clauses = data_dict.get('sort')
+        if sort_clauses:
+            invalid_clauses = [c for c in sort_clauses
+                               if not self._is_valid_sort(c, all_field_ids)]
+            data_dict['sort'] = invalid_clauses
+
+        limit = data_dict.get('limit')
+        if limit:
+            is_positive_int = datastore_helpers.validate_int(limit,
+                                                             non_negative=True)
+            is_all = isinstance(limit, basestring) and limit.lower() == 'all'
+            if is_positive_int or is_all:
+                del data_dict['limit']
+
+        offset = data_dict.get('offset')
+        if offset:
+            is_positive_int = datastore_helpers.validate_int(offset,
+                                                             non_negative=True)
+            if is_positive_int:
+                del data_dict['offset']
+
         return data_dict
+
+    def _is_valid_sort(self, clause, all_field_ids):
+        clause = clause.encode('utf-8')
+        clause_parts = shlex.split(clause)
+
+        if len(clause_parts) == 1:
+            field, sort = clause_parts[0], 'asc'
+        elif len(clause_parts) == 2:
+            field, sort = clause_parts
+        else:
+            return False
+
+        field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
+
+        if field not in all_field_ids:
+            return False
+        if sort.lower() not in ('asc', 'desc'):
+            return False
+
+        return True
 
     def datastore_delete(self, context, data_dict, all_field_ids, query_dict):
         query_dict['where'] += self._where(data_dict, all_field_ids)
@@ -362,23 +418,9 @@ class DatastorePlugin(p.SingletonPlugin):
                 field, sort = clause_parts[0], 'asc'
             elif len(clause_parts) == 2:
                 field, sort = clause_parts
-            else:
-                raise ValidationError({
-                    'sort': ['not valid syntax for sort clause']
-                })
+
             field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
 
-            if field not in field_ids:
-                raise ValidationError({
-                    'sort': [u'field "{0}" not in table'.format(
-                        field)]
-                })
-            if sort.lower() not in ('asc', 'desc'):
-                raise ValidationError({
-                    'sort': ['sorting can only be asc or desc']
-                })
-            clause_parsed.append(u'"{0}" {1}'.format(
-                field, sort)
-            )
+            clause_parsed.append(u'"{0}" {1}'.format(field, sort))
 
         return clause_parsed

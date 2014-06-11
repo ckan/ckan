@@ -13,11 +13,11 @@ import ckan.tests as tests
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
 
-import ckan.new_tests.factories as factories
 import ckan.new_tests.helpers as helpers
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+assert_in = nose.tools.assert_in
 
 
 class TestDatastoreSearch(tests.WsgiAppCase):
@@ -281,7 +281,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                             extra_environ=auth, status=409)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
-        assert res_dict['error']['sort'][0] == u'field "f\xfc\xfc" not in table'
+        assert_in(u'f\xfc\xfc', res_dict['error']['sort'][0])
 
     def test_search_limit(self):
         data = {'resource_id': self.data['resource_id'],

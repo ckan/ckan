@@ -83,19 +83,6 @@ def _is_valid_table_name(name):
     return _is_valid_field_name(name)
 
 
-def _validate_int(i, field_name, non_negative=False):
-    try:
-        i = int(i)
-    except ValueError:
-        raise ValidationError({
-            field_name: ['{0} is not an integer'.format(i)]
-        })
-    if non_negative and i < 0:
-        raise ValidationError({
-            field_name: ['{0} is not a non-negative integer'.format(i)]
-        })
-
-
 def _get_engine(data_dict):
     '''Get either read or write engine.'''
     connection_url = data_dict['connection_url']
@@ -823,6 +810,9 @@ def validate(context, data_dict):
     if 'fields' in data_dict_copy:
         fields = datastore_helpers.get_list(data_dict_copy['fields'])
         data_dict_copy['fields'] = fields
+    if 'sort' in data_dict_copy:
+        fields = datastore_helpers.get_list(data_dict_copy['sort'], False)
+        data_dict_copy['sort'] = fields
 
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         data_dict_copy = plugin.datastore_validate(context,
@@ -832,19 +822,23 @@ def validate(context, data_dict):
     # Remove default elements in data_dict
     del data_dict_copy['connection_url']
     del data_dict_copy['resource_id']
+    data_dict_copy.pop('id', None)
 
     for key, values in data_dict_copy.iteritems():
         if not values:
             continue
-        if key == 'fields':
-            raise ValidationError({
-                'fields': [u'field "{0}" not in table'.format(values[0])]
-            })
-        elif key == 'filters':
-            the_filter = values.keys()[0]
-            raise ValidationError({
-                'filters': [u'filter "{0}" not in table'.format(the_filter)]
-            })
+        if isinstance(values, basestring):
+            value = values
+        elif isinstance(values, (list, tuple)):
+            value = values[0]
+        elif isinstance(values, dict):
+            value = values.keys()[0]
+        else:
+            value = values
+
+        raise ValidationError({
+            key: [u'invalid value "{0}"'.format(value)]
+        })
 
     return True
 
@@ -878,10 +872,6 @@ def search_data(context, data_dict):
         sort_clause = 'ORDER BY %s' % ', '.join(sort)
     else:
         sort_clause = ''
-
-    # FIXME: Limit could be ALL
-    _validate_int(limit, 'limit', non_negative=True)
-    _validate_int(offset, 'offset', non_negative=True)
 
     sql_string = u'''SELECT {select}
                     FROM "{resource}" {ts_query}

@@ -114,7 +114,9 @@ def datastore_create(context, data_dict):
             res['url_type'] = 'datastore'
             p.toolkit.get_action('resource_update')(context, res)
     else:
-        _check_read_only(context, data_dict)
+        if not data_dict.pop('force', False):
+            resource_id = data_dict['resource_id']
+            _check_read_only(context, resource_id)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
@@ -186,7 +188,9 @@ def datastore_upsert(context, data_dict):
 
     p.toolkit.check_access('datastore_upsert', context, data_dict)
 
-    _check_read_only(context, data_dict)
+    if not data_dict.pop('force', False):
+        resource_id = data_dict['resource_id']
+        _check_read_only(context, resource_id)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
@@ -234,7 +238,9 @@ def datastore_delete(context, data_dict):
 
     p.toolkit.check_access('datastore_delete', context, data_dict)
 
-    _check_read_only(context, data_dict)
+    if not data_dict.pop('force', False):
+        resource_id = data_dict['resource_id']
+        _check_read_only(context, resource_id)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
@@ -455,14 +461,12 @@ def _resource_exists(context, data_dict):
     return results.rowcount > 0
 
 
-def _check_read_only(context, data_dict):
+def _check_read_only(context, resource_id):
     ''' Raises exception if the resource is read-only.
     Make sure the resource id is in resource_id
     '''
-    if data_dict.get('force'):
-        return
     res = p.toolkit.get_action('resource_show')(
-        context, {'id': data_dict['resource_id']})
+        context, {'id': resource_id})
     if res.get('url_type') != 'datastore':
         raise p.toolkit.ValidationError({
             'read-only': ['Cannot edit read-only resource. Either pass'
