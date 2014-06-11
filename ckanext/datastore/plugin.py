@@ -255,6 +255,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 controller='ckanext.datastore.controller:DatastoreController',
                 action='dump', resource_id=resource_dict['id'])
 
+        connection = None
         try:
             connection = self.read_engine.connect()
             result = connection.execute(
@@ -266,7 +267,8 @@ class DatastorePlugin(p.SingletonPlugin):
             else:
                 resource_dict['datastore_active'] = False
         finally:
-            connection.close()
+            if connection:
+                connection.close()
         return resource_dict
 
     def datastore_validate(self, context, data_dict, all_field_ids):
