@@ -9,8 +9,23 @@ Don't use ``c``
 ---------------
 
 As much as possible, avoid accessing the Pylons template context :py:data:`c`
-(or :py:data:`tmpl_context`). Use
+(or :py:data:`tmpl_context`). :py:data:`c` is a thread-global variable, which
+encourages spaghetti code that's difficult to understand and to debug.
+
+Instead, have controller methods add variables to the :py:data:`extra_vars`
+parameter of :py:func:`~ckan.lib.base.render`, or have the templates
+call
 :doc:`template helper functions <template-helper-functions>` instead.
+
+:py:data:`extra_vars` has the advantage that it allows templates, which are
+difficult to debug, to be simpler and shifts logic into the easier-to-test and
+easier-to-debug Python code. On the other hand, template helper functions are
+easier to reuse as they're available to all templates and they avoid
+inconsistencies between the namespaces of templates that are rendered by
+different controllers (e.g. one controller method passes the package dict as an
+extra var named ``package``, another controller method passes the same thing
+but calls it ``pkg``, a third calls it ``pkg_dict``).
+
 You can use the :py:class:`~ckan.plugins.interfaces.ITemplateHelpers` plugin
 interface to add custom helper functions, see
 :ref:`custom template helper functions`.
