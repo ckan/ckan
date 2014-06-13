@@ -7,8 +7,34 @@ import nose
 
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
+import ckan.logic.auth.create as auth_create
 
 logic = helpers.logic
+assert_equals = nose.tools.assert_equals
+
+
+class TestCreateDatasetSettings(object):
+    def test_anon_cant_create_dataset(self):
+        response = auth_create.package_create({'user': None}, None)
+        assert_equals(response['success'], False)
+
+    @helpers.change_config('ckan.auth.anon_create_dataset', True)
+    def test_anon_can_create_dataset(self):
+        response = auth_create.package_create({'user': None}, None)
+        assert_equals(response['success'], True)
+
+    @helpers.change_config('ckan.auth.anon_create_dataset', True)
+    @helpers.change_config('ckan.auth.create_dataset_if_not_in_organization',
+                           False)
+    def test_cdnio_overrides_acd(self):
+        response = auth_create.package_create({'user': None}, None)
+        assert_equals(response['success'], False)
+
+    @helpers.change_config('ckan.auth.anon_create_dataset', True)
+    @helpers.change_config('ckan.auth.create_unowned_dataset', False)
+    def test_cud_overrides_acd(self):
+        response = auth_create.package_create({'user': None}, None)
+        assert_equals(response['success'], False)
 
 
 class TestCreate(object):
