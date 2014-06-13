@@ -48,6 +48,52 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         pkg = model.Package.by_name(u'first-page-creates-draft')
         assert_equal(pkg.state, 'draft')
 
+    def test_resource_required(self):
+        env, response = self._get_package_new_page_as_sysadmin()
+        form = response.forms['dataset-edit']
+        form['name'] = u'one-resource-required'
+
+        response = self._submit_and_follow(form, env, 'save')
+        form = response.forms['resource-edit']
+
+        response = webtest_submit(form, 'save', value='go-metadata',
+                                  status=200, extra_environ=env)
+        assert_true('resource-edit' in response.forms)
+        assert_true('You must add at least one data resource' in response)
+
+    def test_complete_package_with_one_resource(self):
+        env, response = self._get_package_new_page_as_sysadmin()
+        form = response.forms['dataset-edit']
+        form['name'] = u'complete-package-with-one-resource'
+
+        response = self._submit_and_follow(form, env, 'save')
+        form = response.forms['resource-edit']
+        form['url'] = u'http://example.com/resource'
+
+        self._submit_and_follow(form, env, 'save', 'go-metadata')
+        pkg = model.Package.by_name(u'complete-package-with-one-resource')
+        assert_equal(pkg.resources[0].url, u'http://example.com/resource')
+        assert_equal(pkg.state, 'active')
+
+    def test_complete_package_with_two_resources(self):
+        env, response = self._get_package_new_page_as_sysadmin()
+        form = response.forms['dataset-edit']
+        form['name'] = u'complete-package-with-two-resources'
+
+        response = self._submit_and_follow(form, env, 'save')
+        form = response.forms['resource-edit']
+        form['url'] = u'http://example.com/resource0'
+
+        response = self._submit_and_follow(form, env, 'save', 'again')
+        form = response.forms['resource-edit']
+        form['url'] = u'http://example.com/resource1'
+
+        self._submit_and_follow(form, env, 'save', 'go-metadata')
+        pkg = model.Package.by_name(u'complete-package-with-two-resources')
+        assert_equal(pkg.resources[0].url, u'http://example.com/resource0')
+        assert_equal(pkg.resources[1].url, u'http://example.com/resource1')
+        assert_equal(pkg.state, 'active')
+
     def test_previous_button_works(self):
         env, response = self._get_package_new_page_as_sysadmin()
         form = response.forms['dataset-edit']
