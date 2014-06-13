@@ -3,6 +3,9 @@
 
 '''
 import copy
+import fractions
+import decimal
+import warnings
 
 import mock
 import nose.tools
@@ -14,6 +17,11 @@ import ckan.new_tests.factories as factories
 # different places in the code) we have to either do this or introduce a shared
 # test helper functions module (which we also don't want to do).
 import ckan.new_tests.lib.navl.test_validators as t
+import ckan.lib.navl.dictization_functions as df
+import ckan.logic.validators as validators
+import ckan.model as model
+
+assert_equals = nose.tools.assert_equals
 
 
 def returns_arg(function):
@@ -55,7 +63,6 @@ def raises_Invalid(function):
 
     '''
     def call_and_assert(*args, **kwargs):
-        import ckan.lib.navl.dictization_functions as df
         nose.tools.assert_raises(df.Invalid, function, *args, **kwargs)
     return call_and_assert
 
@@ -144,9 +151,6 @@ class TestValidators(object):
         '''If given an invalid value name_validator() should do raise Invalid.
 
         '''
-        import ckan.logic.validators as validators
-        import ckan.model as model
-
         invalid_values = [
             # Non-string names aren't allowed as names.
             13,
@@ -159,7 +163,7 @@ class TestValidators(object):
             ('a', 2, False),
             [13, None, True],
             {'foo': 'bar'},
-            lambda x: x**2,
+            lambda x: x ** 2,
 
             # Certain reserved strings aren't allowed as names.
             'new',
@@ -198,9 +202,6 @@ class TestValidators(object):
         return the string.
 
         '''
-        import ckan.logic.validators as validators
-        import ckan.model as model
-
         valid_names = [
             'fred',
             'fred-flintstone',
@@ -229,8 +230,6 @@ class TestValidators(object):
         value.
 
         '''
-        import ckan.logic.validators as validators
-
         non_string_values = [
             13,
             23.7,
@@ -242,7 +241,7 @@ class TestValidators(object):
             ('a', 2, False),
             [13, None, True],
             {'foo': 'bar'},
-            lambda x: x**2,
+            lambda x: x ** 2,
         ]
 
         # Mock ckan.model.
@@ -270,8 +269,6 @@ class TestValidators(object):
         user name that already exists.
 
         '''
-        import ckan.logic.validators as validators
-
         # Mock ckan.model. model.User.get('user_name') will return another mock
         # object rather than None, which will simulate an existing user with
         # the same user name in the database.
@@ -293,9 +290,6 @@ class TestValidators(object):
 
     def test_user_name_validator_successful(self):
         '''user_name_validator() should do nothing if given a valid name.'''
-
-        import ckan.logic.validators as validators
-
         data = factories.validator_data_dict()
         key = ('name',)
         data[key] = 'new_user_name'
@@ -319,19 +313,15 @@ class TestValidators(object):
     # the context dict.
 
     def test_if_empty_guess_format(self):
-
-        import ckan.logic.validators as validators
-        import ckan.lib.navl.dictization_functions as dictization_functions
-
         data = {'name': 'package_name', 'resources': [
             {'url': 'http://fakedomain/my.csv', 'format': ''},
             {'url': 'http://fakedomain/my.pdf',
-             'format': dictization_functions.Missing},
+             'format': df.Missing},
             {'url': 'http://fakedomain/my.pdf', 'format': 'pdf'},
             {'url': 'http://fakedomain/my.pdf',
              'id': 'fake_resource_id', 'format': ''}
         ]}
-        data = dictization_functions.flatten_dict(data)
+        data = df.flatten_dict(data)
 
         @t.does_not_modify_errors_dict
         def call_validator(*args, **kwargs):
@@ -358,8 +348,6 @@ class TestValidators(object):
         assert new_data[('resources', 3, 'format')] == ''
 
     def test_clean_format(self):
-        import ckan.logic.validators as validators
-
         format = validators.clean_format('csv')
         assert format == 'CSV'
 
@@ -373,9 +361,6 @@ class TestValidators(object):
         assert format == ''
 
     def test_datasets_with_org_can_be_private_when_creating(self):
-
-        import ckan.logic.validators as validators
-
         data = factories.validator_data_dict()
         errors = factories.validator_errors_dict()
 
@@ -397,9 +382,6 @@ class TestValidators(object):
         call_validator(key, data, errors, context={'model': mock_model})
 
     def test_datasets_with_no_org_cannot_be_private_when_creating(self):
-
-        import ckan.logic.validators as validators
-
         data = factories.validator_data_dict()
         errors = factories.validator_errors_dict()
 
@@ -420,9 +402,6 @@ class TestValidators(object):
         call_validator(key, data, errors, context={'model': mock_model})
 
     def test_datasets_with_org_can_be_private_when_updating(self):
-
-        import ckan.logic.validators as validators
-
         data = factories.validator_data_dict()
         errors = factories.validator_errors_dict()
 
@@ -444,5 +423,82 @@ class TestValidators(object):
                 *args, **kwargs)
         call_validator(key, data, errors, context={'model': mock_model})
 
-    #TODO: Need to test when you are not providing owner_org and the validator
-    #      queries for the dataset with package_show
+
+class TestIntValidator(object):
+
+    def test_int_unchanged(self):
+        returns_arg(validators.int_validator)(42)
+
+    def test_zero_unchanged(self):
+        returns_arg(validators.int_validator)(0)
+
+    def test_long_unchanged(self):
+        returns_arg(validators.int_validator)(3948756923874659827346598)
+
+    def test_None_unchanged(self):
+        returns_arg(validators.int_validator)(None)
+
+    def test_float_converted(self):
+        assert_equals(validators.int_validator(42.0, None), 42)
+
+    def test_fraction_converted(self):
+        assert_equals(validators.int_validator(
+            fractions.Fraction(2, 1), {}), 2)
+
+    def test_decimal_converted(self):
+        assert_equals(validators.int_validator(
+            decimal.Decimal('19.00'), {}), 19)
+
+    def test_long_int_string_converted(self):
+        assert_equals(validators.int_validator(
+            '528735648764587235684376', {}), 528735648764587235684376)
+
+    def test_negative_int_string_converted(self):
+        assert_equals(validators.int_validator('-2', {}), -2)
+
+    def test_positive_int_string_converted(self):
+        assert_equals(validators.int_validator('+3', {}), 3)
+
+    def test_zero_prefixed_int_string_converted_as_decimal(self):
+        assert_equals(validators.int_validator('0123', {}), 123)
+
+    def test_string_with_whitespace_converted(self):
+        assert_equals(validators.int_validator('\t  98\n', {}), 98)
+
+    def test_empty_string_becomes_None(self):
+        assert_equals(validators.int_validator('', {}), None)
+
+    def test_whitespace_string_becomes_None(self):
+        assert_equals(validators.int_validator('\n\n  \t', {}), None)
+
+    def test_float_with_decimal_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)(42.5, {})
+
+    def test_float_string_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)('42.0', {})
+
+    def test_exponent_string_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)('1e6', {})
+
+    def test_non_numeric_string_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)('text', {})
+
+    def test_non_whole_fraction_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)(fractions.Fraction(3, 2), {})
+
+    def test_non_whole_decimal_raises_Invalid(self):
+        raises_Invalid(validators.int_validator)(decimal.Decimal('19.99'), {})
+
+    def test_complex_with_imaginary_component_raises_Invalid(self):
+        with warnings.catch_warnings():  # divmod() issues warning for complex
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            raises_Invalid(validators.int_validator)(1 + 1j, {})
+
+    def test_complex_without_imaginary_component_raises_Invalid(self):
+        with warnings.catch_warnings():  # divmod() issues warning for complex
+            warnings.filterwarnings('ignore', category=DeprecationWarning)
+            raises_Invalid(validators.int_validator)(1 + 0j, {})
+
+
+#TODO: Need to test when you are not providing owner_org and the validator
+#      queries for the dataset with package_show

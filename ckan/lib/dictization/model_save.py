@@ -381,14 +381,13 @@ def group_member_save(context, group_dict, member_table_name):
     return processed
 
 
-def group_dict_save(group_dict, context):
+def group_dict_save(group_dict, context, prevent_packages_update=False):
     from ckan.lib.search import rebuild
 
     model = context["model"]
     session = context["session"]
     group = context.get("group")
     allow_partial_update = context.get("allow_partial_update", False)
-    prevent_packages_update = context.get("prevent_packages_update", False)
 
     Group = model.Group
     if group:
@@ -418,14 +417,6 @@ def group_dict_save(group_dict, context):
             'Groups: %r  Tags: %r', pkgs_edited, group_users_changed,
             group_groups_changed, group_tags_changed)
 
-    # We will get a list of packages that we have either added or
-    # removed from the group, and trigger a re-index.
-    package_ids = pkgs_edited['removed']
-    package_ids.extend( pkgs_edited['added'] )
-    if package_ids:
-        session.commit()
-        map( rebuild, package_ids )
-
     extras = group_extras_save(group_dict.get("extras", {}), context)
     if extras or not allow_partial_update:
         old_extras = set(group.extras.keys())
@@ -434,6 +425,14 @@ def group_dict_save(group_dict, context):
             del group.extras[key]
         for key in new_extras:
             group.extras[key] = extras[key]
+
+    # We will get a list of packages that we have either added or
+    # removed from the group, and trigger a re-index.
+    package_ids = pkgs_edited['removed']
+    package_ids.extend( pkgs_edited['added'] )
+    if package_ids:
+        session.commit()
+        map( rebuild, package_ids )
 
     return group
 

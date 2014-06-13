@@ -61,7 +61,8 @@ Independent
 Clear
   It should be quick and easy to see what went wrong when a test fails, or
   to see what a test does and how it works if you have to debug or update
-  a test.
+  a test. If you think the test or helper method isn't clear by itself, add
+  docstrings.
 
   You shouldn't have to figure out what a complex test method does, or go and
   look up a lot of code in other files to understand a test method.
@@ -75,8 +76,6 @@ Clear
 
   * The name of a test method should clearly explain the intent of the test.
     See :ref:`naming`.
-
-  * Test methods and helper functions should have docstrings.
 
 Easy to find
   It should be easy to know where to add new tests for some new or changed

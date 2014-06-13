@@ -1056,10 +1056,11 @@ def _group_or_org_show(context, data_dict, is_org=False):
         {'model': model, 'session': model.Session},
         {'id': group_dict['id']})
 
-    if schema:
-        group_dict, errors = lib_plugins.plugin_validate(
-            group_plugin, context, group_dict, schema,
-            'organization_show' if is_org else 'group_show')
+    if schema is None:
+        schema = logic.schema.default_show_group_schema()
+    group_dict, errors = lib_plugins.plugin_validate(
+        group_plugin, context, group_dict, schema,
+        'organization_show' if is_org else 'group_show')
     return group_dict
 
 
@@ -2036,6 +2037,16 @@ def term_translation_show(context, data_dict):
 
 # Only internal services are allowed to call get_site_user.
 def get_site_user(context, data_dict):
+    '''Return the ckan site user
+
+    :param defer_commit: by default (or if set to false) get_site_user will
+        commit and clean up the current transaction, it will also close and
+        discard the current session in the context. If set to true, caller
+        is responsible for commiting transaction after get_site_user is
+        called. Leaving open connections can cause cli commands to hang!
+        (optional, default: False)
+    :type defer_commit: boolean
+    '''
     _check_access('get_site_user', context, data_dict)
     model = context['model']
     site_id = config.get('ckan.site_id', 'ckan_site_user')
