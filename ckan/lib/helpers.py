@@ -106,6 +106,8 @@ def url(*args, **kw):
     '''Create url adding i18n information if selected
     wrapper for pylons.url'''
     locale = kw.pop('locale', None)
+    if request.scheme and not kw.get('protocol'):
+        kw['protocol'] = request.scheme
     my_url = _pylons_default_url(*args, **kw)
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
