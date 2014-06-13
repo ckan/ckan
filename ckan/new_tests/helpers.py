@@ -178,15 +178,13 @@ class FunctionalTestBase():
         config.update(cls._original_config)
 
     def _submit_and_follow(self, form, extra_environ, name=None,
-                                value=None, **args):
+                           value=None, **args):
         '''
         Call webtest_submit with name/value passed expecting a redirect
         and return the response from following that redirect.
         '''
-        response = webtest_submit(form, name, value=value,
+        response = webtest_submit(form, name, value=value, status=302,
                                   extra_environ=extra_environ, **args)
-        if response.status_int != 302:
-            raise ValueError('response was not a redirect')
         return self.app.get(url=response.headers['Location'],
                             extra_environ=extra_environ)
 

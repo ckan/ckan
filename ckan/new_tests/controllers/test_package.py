@@ -18,7 +18,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         )
         assert_true('dataset-edit' in response.forms)
 
-    def test_next_button_works(self):
+    def test_name_required(self):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         response = self.app.get(
@@ -26,11 +26,10 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
             extra_environ=env,
         )
         form = response.forms['dataset-edit']
-        form['name'] = u'next-button-works'
-        form['title'] = u'Next button works'
 
-        response = webtest_submit(form, 'save', status=302, extra_environ=env)
-        assert_true('Location' in dict(response.headers))
+        response = webtest_submit(form, 'save', status=200, extra_environ=env)
+        assert_true('dataset-edit' in response.forms)
+        assert_true('Name: Missing value' in response)
 
     def test_resource_form_renders(self):
         user = factories.Sysadmin()
@@ -41,7 +40,6 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         )
         form = response.forms['dataset-edit']
         form['name'] = u'resource-form-renders'
-        form['title'] = u'Resource form renders'
 
         response = self._submit_and_follow(form, env, 'save')
         assert_true('resource-edit' in response.forms)
@@ -55,7 +53,6 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         )
         form = response.forms['dataset-edit']
         form['name'] = u'previous-button-works'
-        form['title'] = u'Previous button works'
 
         response = self._submit_and_follow(form, env, 'save')
         form = response.forms['resource-edit']
@@ -72,7 +69,6 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         )
         form = response.forms['dataset-edit']
         form['name'] = u'previous-button-populates-form'
-        form['title'] = u'Previous button populates form'
 
         response = self._submit_and_follow(form, env, 'save')
         form = response.forms['resource-edit']
@@ -80,5 +76,6 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         response = self._submit_and_follow(form, env, 'save', 'go-dataset')
         form = response.forms['dataset-edit']
         assert_true('title' in form.fields)
-        assert_equal(form['title'].value, u'Previous button populates form')
+        # name gets copied to title by default validators
+        assert_equal(form['title'].value, u'previous-button-populates-form')
         assert_equal(form['name'].value, u'previous-button-populates-form')
