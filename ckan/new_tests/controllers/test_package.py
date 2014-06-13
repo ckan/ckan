@@ -55,7 +55,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form = response.forms['dataset-edit']
         form['name'] = u'first-page-creates-draft'
 
-        webtest_submit(form, 'save', extra_environ=env)
+        webtest_submit(form, 'save', status=302, extra_environ=env)
         pkg = model.Package.by_name(u'first-page-creates-draft')
         assert_equal(pkg.state, 'draft')
 
@@ -92,3 +92,23 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form = response.forms['dataset-edit']
         assert_true('title' in form.fields)
         assert_equal(form['name'].value, u'previous-button-populates-form')
+
+    def test_previous_next_maintains_draft_state(self):
+        user = factories.Sysadmin()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = self.app.get(
+            url=url_for(controller='package', action='new'),
+            extra_environ=env,
+        )
+        form = response.forms['dataset-edit']
+        form['name'] = u'previous-next-maintains-draft'
+
+        response = self._submit_and_follow(form, env, 'save')
+        form = response.forms['resource-edit']
+
+        response = self._submit_and_follow(form, env, 'save', 'go-dataset')
+        form = response.forms['dataset-edit']
+
+        webtest_submit(form, 'save', status=302, extra_environ=env)
+        pkg = model.Package.by_name(u'previous-next-maintains-draft')
+        assert_equal(pkg.state, 'draft')
