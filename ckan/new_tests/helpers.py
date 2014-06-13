@@ -185,14 +185,10 @@ class FunctionalTestBase():
         '''
         response = webtest_submit(form, name, value=value,
                                   extra_environ=extra_environ, **args)
-        if response.status != 302:
+        if response.status_int != 302:
             raise ValueError('response was not a redirect')
-        for header, header_value in response.headers:
-            if header == 'Location':
-                break
-        else:
-            raise ValueError('redirect response has no Location header')
-        return self.app.get(url=header_value, extra_environ=extra_environ)
+        return self.app.get(url=response.headers['Location'],
+                            extra_environ=extra_environ)
 
 
 ## FIXME: remove webtest_* functions below when we upgrade webtest
