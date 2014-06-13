@@ -4,6 +4,7 @@ from routes import url_for
 
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
+import ckan.model as model
 
 webtest_submit = helpers.webtest_submit
 
@@ -44,6 +45,20 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         response = self._submit_and_follow(form, env, 'save')
         assert_true('resource-edit' in response.forms)
 
+    def test_first_page_creates_draft_package(self):
+        user = factories.Sysadmin()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = self.app.get(
+            url=url_for(controller='package', action='new'),
+            extra_environ=env,
+        )
+        form = response.forms['dataset-edit']
+        form['name'] = u'first-page-creates-draft'
+
+        webtest_submit(form, 'save', extra_environ=env)
+        pkg = model.Package.by_name(u'first-page-creates-draft')
+        assert_equal(pkg.state, 'draft')
+
     def test_previous_button_works(self):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
@@ -76,6 +91,4 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         response = self._submit_and_follow(form, env, 'save', 'go-dataset')
         form = response.forms['dataset-edit']
         assert_true('title' in form.fields)
-        # name gets copied to title by default validators
-        assert_equal(form['title'].value, u'previous-button-populates-form')
         assert_equal(form['name'].value, u'previous-button-populates-form')
