@@ -55,6 +55,6 @@ class TestHelpers(object):
         eq_(h.render_markdown(data, allow_html=True), data)
 
     def test_render_markdown_not_allow_html(self):
-        data = '<p>moo</p>'
-        output = 'moo'
+        data = '<h1>moo</h1>'
+        output = '<p>moo\n</p>'
         eq_(h.render_markdown(data), output)
