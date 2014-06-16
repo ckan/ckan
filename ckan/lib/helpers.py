@@ -737,8 +737,12 @@ def check_access(action, data_dict=None):
     return authorized
 
 
+@maintain.deprecated("helpers.get_action() is deprecated and will be removed "
+                     "in a future version of CKAN. Instead, please use the "
+                     "extra_vars param to render() in your controller to pass "
+                     "results from action functions to your templates.")
 def get_action(action_name, data_dict=None):
-    '''Calls an action function from a template.'''
+    '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
     if data_dict is None:
         data_dict = {}
     return logic.get_action(action_name)({}, data_dict)
@@ -1923,6 +1927,15 @@ def unified_resource_format(format):
 def check_config_permission(permission):
     return new_authz.check_config_permission(permission)
 
+
+def get_organization(org=None):
+    if org is None:
+        return {}
+    try:
+        return logic.get_action('organization_show')({}, {'id': org})
+    except (NotFound, ValidationError, NotAuthorized):
+        return {}
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -2015,6 +2028,7 @@ __allowed_functions__ = [
     'list_dict_filter',
     'new_activities',
     'time_ago_from_timestamp',
+    'get_organization',
     'has_more_facets',
     # imported into ckan.lib.helpers
     'literal',

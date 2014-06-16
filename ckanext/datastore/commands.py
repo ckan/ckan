@@ -59,6 +59,7 @@ class SetupDatastoreCommand(cli.CkanCommand):
         if cmd == 'set-permissions':
             setup.set_permissions(
                 pguser=self.args[1],
+                pgport=self.db_ckan_url_parts['db_port'],
                 ckandb=self.db_ckan_url_parts['db_name'],
                 datastoredb=self.db_write_url_parts['db_name'],
                 ckanuser=self.db_ckan_url_parts['db_user'],

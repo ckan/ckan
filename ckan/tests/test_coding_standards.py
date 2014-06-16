@@ -767,9 +767,7 @@ class TestPep8(object):
         'ckan/tests/lib/test_accept.py',
         'ckan/tests/lib/test_alphabet_pagination.py',
         'ckan/tests/lib/test_cli.py',
-        'ckan/tests/lib/test_datapreview.py',
         'ckan/tests/lib/test_dictization.py',
-        'ckan/tests/lib/test_dictization_schema.py',
         'ckan/tests/lib/test_email_notifications.py',
         'ckan/tests/lib/test_field_types.py',
         'ckan/tests/lib/test_hash.py',
@@ -788,7 +786,6 @@ class TestPep8(object):
         'ckan/tests/logic/test_action.py',
         'ckan/tests/logic/test_auth.py',
         'ckan/tests/logic/test_tag.py',
-        'ckan/tests/logic/test_tag_vocab.py',
         'ckan/tests/logic/test_validators.py',
         'ckan/tests/misc/test_format_text.py',
         'ckan/tests/misc/test_mock_mail_server.py',
@@ -817,9 +814,7 @@ class TestPep8(object):
         'ckanext/datastore/bin/datastore_setup.py',
         'ckanext/datastore/logic/action.py',
         'ckanext/datastore/plugin.py',
-        'ckanext/datastore/tests/test_configure.py',
         'ckanext/datastore/tests/test_create.py',
-        'ckanext/datastore/tests/test_delete.py',
         'ckanext/datastore/tests/test_search.py',
         'ckanext/datastore/tests/test_upsert.py',
         'ckanext/example_idatasetform/plugin.py',
@@ -868,12 +863,19 @@ class TestPep8(object):
         msg = 'The following files passed pep8 but are blacklisted'
         show_passing(msg, self.passes)
 
-    @staticmethod
-    def find_pep8_errors(filename=None, lines=None):
-
+    @classmethod
+    def find_pep8_errors(cls, filename=None, lines=None):
         try:
             sys.stdout = cStringIO.StringIO()
-            checker = pep8.Checker(filename=filename, lines=lines)
+            config = {}
+
+            # Ignore long lines on test files, as the test names can get long
+            # when following our test naming standards.
+            if cls._is_test(filename):
+                config['ignore'] = ['E501']
+
+            checker = pep8.Checker(filename=filename, lines=lines,
+                                   **config)
             checker.check_all()
             output = sys.stdout.getvalue()
         finally:
@@ -887,6 +889,10 @@ class TestPep8(object):
                 line_no = location.split(':')[1]
                 errors.append('%s ln:%s %s' % (error, line_no, desc))
         return errors
+
+    @classmethod
+    def _is_test(cls, filename):
+        return bool(re.search('(^|\W)test_.*\.py$', filename, re.IGNORECASE))
 
 
 class TestActionAuth(object):
