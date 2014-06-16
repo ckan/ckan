@@ -51,7 +51,7 @@ class TestHelpers(object):
         eq_(h.url_for_static_or_external(url), url)
 
     def test_render_markdown_allow_html(self):
-        data = '<p>moo</p>'
+        data = '<h1>moo</h1>'
         eq_(h.render_markdown(data, allow_html=True), data)
 
     def test_render_markdown_not_allow_html(self):
