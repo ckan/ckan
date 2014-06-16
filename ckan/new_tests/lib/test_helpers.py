@@ -49,3 +49,12 @@ class TestHelpers(object):
     def test_url_for_static_or_external_works_with_protocol_relative_url(self):
         url = '//assets.ckan.org/ckan.jpg'
         eq_(h.url_for_static_or_external(url), url)
+
+    def test_markdown_allow_html(self):
+        data = '<p>moo</p>'
+        eq_(h.markdown(data, allow_html=True), data)
+
+    def test_markdown_not_allow_html(self):
+        data = '<p>moo</p>'
+        output = 'moo'
+        eq_(h.markdown(data), output)
