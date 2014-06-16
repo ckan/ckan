@@ -3,10 +3,14 @@ import datetime
 
 import nose.tools
 import mock
+import pylons.config as config
 
 import ckan.logic as logic
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
+
+
+assert_raises = nose.tools.assert_raises
 
 
 def datetime_from_string(s):
@@ -385,3 +389,27 @@ class TestUpdate(object):
         assert reordered_resource_urls == ["http://b.html",
                                            "http://c.html",
                                            "http://a.html"]
+
+
+class TestUpdateSendEmailNotifications(object):
+    @classmethod
+    def setup_class(cls):
+        cls._original_config = dict(config)
+        config['ckan.activity_streams_email_notifications'] = True
+
+    @classmethod
+    def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
+
+    @mock.patch('ckan.logic.action.update.request')
+    def test_calling_through_paster_doesnt_validates_auth(self, mock_request):
+        mock_request.environ.get.return_value = True
+        helpers.call_action('send_email_notifications')
+
+    @mock.patch('ckan.logic.action.update.request')
+    def test_not_calling_through_paster_validates_auth(self, mock_request):
+        mock_request.environ.get.return_value = False
+        assert_raises(logic.NotAuthorized, helpers.call_action,
+                      'send_email_notifications',
+                      context={'ignore_auth': False})
