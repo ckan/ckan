@@ -1613,11 +1613,11 @@ def render_markdown(data, auto_link=True, allow_html=False):
     '''
     if not data:
         return ''
-    if not allow_html:
+    if allow_html:
+        data = markdown(data, safe_mode=False)
+    else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
         data = markdown(data, safe_mode=True)
-    else:
-        data = markdown(data, safe_mode=False)
     # tags can be added by tag:... or tag:"...." and a link will be made
     # from it
     if auto_link:
