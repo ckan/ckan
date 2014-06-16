@@ -87,14 +87,14 @@ class TestUpdate(object):
         user_dict = factories.User.attributes()
         user_dict['id'] = "there's no user with this id"
 
-        nose.tools.assert_raises(logic.NotFound, helpers.call_action,
-                                 'user_update', **user_dict)
+        assert_raises(logic.NotFound, helpers.call_action,
+                      'user_update', **user_dict)
 
     def test_user_update_with_no_id(self):
         user_dict = factories.User.attributes()
         assert 'id' not in user_dict
-        nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
-                                 'user_update', **user_dict)
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'user_update', **user_dict)
 
     ## START-FOR-LOOP-EXAMPLE
 
@@ -105,9 +105,9 @@ class TestUpdate(object):
                          'a' * 200, 'Hi!', 'i++%')
         for name in invalid_names:
             user['name'] = name
-            nose.tools.assert_raises(logic.ValidationError,
-                                     helpers.call_action, 'user_update',
-                                     **user)
+            assert_raises(logic.ValidationError,
+                          helpers.call_action, 'user_update',
+                          **user)
 
     ## END-FOR-LOOP-EXAMPLE
 
@@ -118,8 +118,8 @@ class TestUpdate(object):
         # Try to update fred and change his user name to bob, which is already
         # bob's user name
         fred['name'] = bob['name']
-        nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
-                                 'user_update', **fred)
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'user_update', **fred)
 
     def test_user_update_password(self):
         '''Test that updating a user's password works successfully.'''
@@ -143,8 +143,8 @@ class TestUpdate(object):
         user = factories.User()
 
         user['password'] = 'xxx'  # This password is too short.
-        nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
-                                 'user_update', **user)
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'user_update', **user)
 
     def test_user_update_with_empty_password(self):
         '''If an empty password is passed to user_update, nothing should
@@ -169,17 +169,17 @@ class TestUpdate(object):
         user = factories.User()
 
         user['password'] = None
-        nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
-                                 'user_update', **user)
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'user_update', **user)
 
     def test_user_update_with_invalid_password(self):
         user = factories.User()
 
         for password in (False, -1, 23, 30.7):
             user['password'] = password
-            nose.tools.assert_raises(logic.ValidationError,
-                                     helpers.call_action, 'user_update',
-                                     **user)
+            assert_raises(logic.ValidationError,
+                          helpers.call_action, 'user_update',
+                          **user)
 
     def test_user_update_without_email_address(self):
         '''You have to pass an email address when you call user_update.
@@ -197,9 +197,9 @@ class TestUpdate(object):
         user = factories.User()
         del user['email']
 
-        nose.tools.assert_raises(logic.ValidationError,
-                                 helpers.call_action, 'user_update',
-                                 **user)
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'user_update',
+                      **user)
 
     # TODO: Valid and invalid values for the rest of the user model's fields.
 
