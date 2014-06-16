@@ -5,6 +5,7 @@
 import mock
 import nose
 
+import ckan.model as core_model
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 import ckan.logic.auth.create as auth_create
@@ -43,7 +44,7 @@ class TestCreateDatasetLoggedInSettings(object):
 
     def test_no_org_user_can_create(self):
         user = factories.User()
-        response = auth_create.package_create({'user': user.name}, None)
+        response = auth_create.package_create({'user': user['name']}, None)
         assert_equals(response['success'], True)
 
     @helpers.change_config('ckan.auth.anon_create_dataset', True)
@@ -51,32 +52,34 @@ class TestCreateDatasetLoggedInSettings(object):
                            False)
     def test_no_org_user_cant_create_if_cdnio_false(self):
         user = factories.User()
-        response = auth_create.package_create({'user': user.name}, None)
+        response = auth_create.package_create({'user': user['name']}, None)
         assert_equals(response['success'], False)
 
     @helpers.change_config('ckan.auth.anon_create_dataset', True)
     @helpers.change_config('ckan.auth.create_unowned_dataset', False)
     def test_no_org_user_cant_create_if_cud_false(self):
         user = factories.User()
-        response = auth_create.package_create({'user': user.name}, None)
+        response = auth_create.package_create({'user': user['name']}, None)
         assert_equals(response['success'], False)
 
     def test_same_org_user_can_create(self):
         user = factories.User()
-        org_users = {'name': user.name, 'capacity': 'member'}
+        org_users = [{'name': user['name'], 'capacity': 'editor'}]
         org = factories.Organization(users=org_users)
-        dataset = {'name': 'same-org-user-can-create', 'owner_org': org.id}
-        response = auth_create.package_create({'user': user.name}, dataset)
+        dataset = {'name': 'same-org-user-can-create', 'owner_org': org['id']}
+        context = {'user': user['name'], 'model': core_model}
+        response = auth_create.package_create(context, dataset)
         assert_equals(response['success'], True)
 
     def test_different_org_user_cant_create(self):
         user = factories.User()
-        org_users = {'name': user.name, 'capacity': 'member'}
+        org_users = [{'name': user['name'], 'capacity': 'editor'}]
         org1 = factories.Organization(users=org_users)
         org2 = factories.Organization()
         dataset = {'name': 'different-org-user-cant-create',
-                   'owner_org': org2.id}
-        response = auth_create.package_create({'user': user.name}, dataset)
+                   'owner_org': org2['id']}
+        context = {'user': user['name'], 'model': core_model}
+        response = auth_create.package_create(context, dataset)
         assert_equals(response['success'], False)
 
 
