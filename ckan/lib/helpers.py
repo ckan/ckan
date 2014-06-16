@@ -1613,7 +1613,7 @@ def render_markdown(data, auto_link=True, allow_html=False):
     if not data:
         return ''
     if allow_html:
-        data = markdown(data, safe_mode=False)
+        data = markdown(data.strip(), safe_mode=False)
     else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
         data = markdown(data, safe_mode=True)
