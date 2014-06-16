@@ -1600,12 +1600,24 @@ def html_auto_link(data):
     return data
 
 
-def render_markdown(data, auto_link=True):
-    ''' returns the data as rendered markdown '''
+def render_markdown(data, auto_link=True, allow_html=False):
+    ''' Returns the data as rendered markdown
+
+    :param auto_link: Should ckan specific links be created e.g. `gr
+
+    :type auto_link: bool
+    :param allow_html: If True then html entities in the markdown da
+        This is dangerous if users have added malicious content.
+        If False all html tags are removed.
+    :type allow_html: bool
+    '''
     if not data:
         return ''
-    data = RE_MD_HTML_TAGS.sub('', data.strip())
-    data = markdown(data, safe_mode=True)
+    if not allow_html:
+        data = RE_MD_HTML_TAGS.sub('', data.strip())
+        data = markdown(data, safe_mode=True)
+    else:
+        data = markdown(data, safe_mode=False)
     # tags can be added by tag:... or tag:"...." and a link will be made
     # from it
     if auto_link:
