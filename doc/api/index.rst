@@ -207,6 +207,9 @@ to import datasets into CKAN.
     pprint.pprint(created_package)
 
 
+Here is an example of updating a resource file from the command line.::
+
+    http --json POST http://demo.ckan.org/api/3/action/resource_update id=<resource id> upload=@file.csv url=http://demo.ckan.org/dataset/<dataset name>/resource/<resource id> Authorization:<api key>
 
 
 ------------
