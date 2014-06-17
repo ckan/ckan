@@ -327,6 +327,22 @@ def default_update_group_schema():
     schema["name"] = [ignore_missing, group_name_validator, unicode]
     return schema
 
+def default_show_group_schema():
+    schema = default_group_schema()
+
+    # make default show schema behave like when run with no validation
+    schema['num_followers'] = []
+    schema['created'] = []
+    schema['display_name'] = []
+    schema['extras'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['package_count'] = []
+    schema['packages'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['revision_id'] = []
+    schema['state'] = []
+    schema['users'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+
+    return schema
+
 
 def default_related_schema():
     schema = {
