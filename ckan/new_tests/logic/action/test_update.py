@@ -80,18 +80,34 @@ class TestUpdate(object):
     ## END-BEFORE
 
     def test_user_generate_apikey(self):
-        '''Test that updating a user's name works successfully.'''
-
         user = factories.User()
-        # Required because you can only cycle your own API key
         context = {'user': user['name']}
         result = helpers.call_action('user_generate_apikey', context=context,
-                                     id=user['name'])
+                                     id=user['id'])
         updated_user = helpers.call_action('user_show', context=context,
                                            id=user['id'])
 
         assert updated_user['apikey'] != user['apikey']
         assert result['apikey'] == updated_user['apikey']
+
+    def test_user_generate_apikey_sysadmin_user(self):
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        result = helpers.call_action('user_generate_apikey', context=context,
+                                     id=user['id'])
+        updated_user = helpers.call_action('user_show', context=context,
+                                           id=user['id'])
+
+        assert updated_user['apikey'] != user['apikey']
+        assert result['apikey'] == updated_user['apikey']
+
+    def test_user_generate_apikey_nonexistent_user(self):
+        user = {'id': 'nonexistent', 'name': 'nonexistent', 'email':
+                'does@notexist.com'}
+        context = {'user': user['name']}
+        nose.tools.assert_raises(logic.NotFound, helpers.call_action,
+                'user_generate_apikey', context=context, id=user['id'])
 
     def test_user_update_with_id_that_does_not_exist(self):
         user_dict = factories.User.attributes()
