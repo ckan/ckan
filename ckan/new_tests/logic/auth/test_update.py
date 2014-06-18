@@ -144,7 +144,7 @@ class TestUpdate(object):
         }
 
         result = helpers.call_auth('user_generate_apikey', context=context,
-                **params)
+                                   **params)
         assert result is True
 
     def test_user_generate_apikey_without_logged_in_user(self):
@@ -158,7 +158,8 @@ class TestUpdate(object):
         }
 
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                'user_generate_apikey', context=context, **params)
+                                 'user_generate_apikey', context=context,
+                                 **params)
 
     def test_user_generate_apikey_for_another_user(self):
         fred = factories.MockUser(name='fred')
@@ -174,5 +175,5 @@ class TestUpdate(object):
         }
 
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                'user_generate_apikey', context=context, **params)
-
+                                 'user_generate_apikey', context=context,
+                                 **params)

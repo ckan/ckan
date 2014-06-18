@@ -107,7 +107,8 @@ class TestUpdate(object):
                 'does@notexist.com'}
         context = {'user': user['name']}
         nose.tools.assert_raises(logic.NotFound, helpers.call_action,
-                'user_generate_apikey', context=context, id=user['id'])
+                                 'user_generate_apikey', context=context,
+                                 id=user['id'])
 
     def test_user_update_with_id_that_does_not_exist(self):
         user_dict = factories.User.attributes()
