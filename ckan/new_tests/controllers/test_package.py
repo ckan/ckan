@@ -9,6 +9,7 @@ import ckan.model as model
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
+
 def _get_package_new_page_as_sysadmin(app):
     user = factories.Sysadmin()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
