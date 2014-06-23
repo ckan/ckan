@@ -9,23 +9,23 @@ import ckan.model as model
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
+def _get_package_new_page_as_sysadmin(app):
+    user = factories.Sysadmin()
+    env = {'REMOTE_USER': user['name'].encode('ascii')}
+    response = app.get(
+        url=url_for(controller='package', action='new'),
+        extra_environ=env,
+    )
+    return env, response
+
 
 class TestPackageControllerNew(helpers.FunctionalTestBase):
-    def _get_package_new_page_as_sysadmin(self):
-        user = factories.Sysadmin()
-        env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = self.app.get(
-            url=url_for(controller='package', action='new'),
-            extra_environ=env,
-        )
-        return env, response
-
     def test_form_renders(self):
-        env, response = self._get_package_new_page_as_sysadmin()
+        env, response = _get_package_new_page_as_sysadmin(self.app)
         assert_true('dataset-edit' in response.forms)
 
     def test_name_required(self):
-        env, response = self._get_package_new_page_as_sysadmin()
+        env, response = _get_package_new_page_as_sysadmin(self.app)
         form = response.forms['dataset-edit']
 
         response = webtest_submit(form, 'save', status=200, extra_environ=env)
@@ -33,7 +33,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         assert_true('Name: Missing value' in response)
 
     def test_resource_form_renders(self):
-        env, response = self._get_package_new_page_as_sysadmin()
+        env, response = _get_package_new_page_as_sysadmin(self.app)
         form = response.forms['dataset-edit']
         form['name'] = u'resource-form-renders'
 
@@ -41,7 +41,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         assert_true('resource-edit' in response.forms)
 
     def test_first_page_creates_draft_package(self):
-        env, response = self._get_package_new_page_as_sysadmin()
+        env, response = _get_package_new_page_as_sysadmin(self.app)
         form = response.forms['dataset-edit']
         form['name'] = u'first-page-creates-draft'
 
@@ -50,7 +50,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         assert_equal(pkg.state, 'draft')
 
     def test_resource_required(self):
-        env, response = self._get_package_new_page_as_sysadmin()
+        env, response = _get_package_new_page_as_sysadmin(self.app)
         form = response.forms['dataset-edit']
         form['name'] = u'one-resource-required'
 
@@ -63,7 +63,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         assert_true('You must add at least one data resource' in response)
 
     def test_complete_package_with_one_resource(self):
-        env, response = self._get_package_new_page_as_sysadmin()
+        env, response = _get_package_new_page_as_sysadmin(self.app)
         form = response.forms['dataset-edit']
         form['name'] = u'complete-package-with-one-resource'
 
@@ -77,7 +77,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         assert_equal(pkg.state, 'active')
 
     def test_complete_package_with_two_resources(self):
-        env, response = self._get_package_new_page_as_sysadmin()
+        env, response = _get_package_new_page_as_sysadmin(self.app)
         form = response.forms['dataset-edit']
         form['name'] = u'complete-package-with-two-resources'
 
@@ -96,7 +96,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         assert_equal(pkg.state, 'active')
 
     def test_previous_button_works(self):
-        env, response = self._get_package_new_page_as_sysadmin()
+        env, response = _get_package_new_page_as_sysadmin(self.app)
         form = response.forms['dataset-edit']
         form['name'] = u'previous-button-works'
 
@@ -107,7 +107,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         assert_true('dataset-edit' in response.forms)
 
     def test_previous_button_populates_form(self):
-        env, response = self._get_package_new_page_as_sysadmin()
+        env, response = _get_package_new_page_as_sysadmin(self.app)
         form = response.forms['dataset-edit']
         form['name'] = u'previous-button-populates-form'
 
@@ -120,7 +120,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         assert_equal(form['name'].value, u'previous-button-populates-form')
 
     def test_previous_next_maintains_draft_state(self):
-        env, response = self._get_package_new_page_as_sysadmin()
+        env, response = _get_package_new_page_as_sysadmin(self.app)
         form = response.forms['dataset-edit']
         form['name'] = u'previous-next-maintains-draft'
 
