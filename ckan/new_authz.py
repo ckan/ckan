@@ -125,6 +125,14 @@ def _get_user(username):
     return model.User.get(username)
 
 
+def can_manage_all_groups(user):
+    sysadmin = is_sysadmin(user)
+    default_perms_name = 'default_group_or_org_permissions'
+    default_perms = check_config_permission(default_perms_name)
+    anyone_can_manage_groups = 'manage_group' in default_perms
+    return sysadmin or anyone_can_manage_groups
+
+
 def get_group_or_org_admin_ids(group_id):
     if not group_id:
         return []

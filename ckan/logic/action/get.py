@@ -494,12 +494,7 @@ def group_list_authz(context, data_dict):
     if not user_id:
         return []
 
-    sysadmin = new_authz.is_sysadmin(user)
-    default_perms_name = 'default_group_or_org_permissions'
-    default_perms = new_authz.check_config_permission(default_perms_name)
-    anyone_can_manage_groups = 'manage_group' in default_perms
-    show_all_groups = not am_member and (sysadmin or anyone_can_manage_groups)
-
+    show_all_groups = not am_member and new_authz.can_manage_all_groups(user)
     if not show_all_groups:
         roles = ckan.new_authz.get_roles_with_permission('manage_group')
         if not roles:
