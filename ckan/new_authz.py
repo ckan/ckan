@@ -127,8 +127,8 @@ def _get_user(username):
 
 def can_manage_all_groups(user):
     sysadmin = is_sysadmin(user)
-    default_perms_name = 'default_group_or_org_permissions'
-    default_perms = check_config_permission(default_perms_name)
+    default_group_perms_name = 'default_group_only_permissions'
+    default_perms = check_config_permission(default_group_perms_name)
     anyone_can_manage_groups = 'manage_group' in default_perms
     return sysadmin or anyone_can_manage_groups
 
@@ -257,21 +257,24 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
     user_id = get_user_id_for_username(user_name, allow_none=True)
     if not user_id:
         return False
-    if _has_user_permission_for_groups(user_id, permission, [group_id]):
+
+    is_org = group.is_organization
+    if _has_user_permission_for_groups_or_orgs(user_id, permission, [group_id],
+            is_org=is_org):
         return True
     # Handle when permissions cascade. Check the user's roles on groups higher
     # in the group hierarchy for permission.
     for capacity in check_config_permission('roles_that_cascade_to_sub_groups'):
         parent_groups = group.get_parent_group_hierarchy(type=group.type)
         group_ids = [group_.id for group_ in parent_groups]
-        if _has_user_permission_for_groups(user_id, permission, group_ids,
-                                           capacity=capacity):
+        if _has_user_permission_for_groups_or_orgs(user_id, permission, group_ids,
+                                           capacity=capacity, is_org=is_org):
             return True
     return False
 
 
-def _has_user_permission_for_groups(user_id, permission, group_ids,
-                                    capacity=None):
+def _has_user_permission_for_groups_or_orgs(user_id, permission, group_ids,
+                                            capacity=None, is_org=False):
     ''' Check if the user has the given permissions for the particular
     group (ignoring permissions cascading in a group hierarchy).
     Can also be filtered by a particular capacity.
@@ -292,8 +295,11 @@ def _has_user_permission_for_groups(user_id, permission, group_ids,
         perms = ROLE_PERMISSIONS.get(row.capacity, [])
         if 'admin' in perms or permission in perms:
             return True
-    default_permissions = \
-        check_config_permission('default_group_or_org_permissions')
+    if is_org:
+        permission_name = 'default_org_only_permissions'
+    else:
+        permission_name = 'default_group_only_permissions'
+    default_permissions = check_config_permission(permission_name)
     return permission in default_permissions
 
 
@@ -382,7 +388,8 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'create_user_via_api': False,
     'create_user_via_web': True,
     'roles_that_cascade_to_sub_groups': 'admin',
-    'default_group_or_org_permissions': '',
+    'default_group_only_permissions': '',
+    'default_org_only_permissions': '',
 }
 
 CONFIG_PERMISSIONS = {}

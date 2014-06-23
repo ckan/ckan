@@ -367,22 +367,41 @@ Makes role permissions apply to all the groups down the hierarchy from the group
 
 e.g. a particular user has the 'admin' role for group 'Department of Health'. If you set the value of this option to 'admin' then the user will automatically have the same admin permissions for the child groups of 'Department of Health' such as 'Cancer Research' (and its children too and so on).
 
-.. _ckan.auth.default_group_or_org_permissions:
+.. _ckan.auth.default_group_only_permissions:
 
-ckan.auth.default_group_or_org_permissions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ckan.auth.default_group_only_permissions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Example::
 
- ckan.auth.default_group_or_org_permissions = read manage_group
+ ckan.auth.default_group_only_permissions = read manage_group
 
 Default value: ``''``
 
 
-Change the default permissions every user has in every group and organization.
+Change the default permissions every user has in every group (but not
+organizations).
 
 e.g. if you want to allow any user to add datasets to any group, you could set
-the value of this option to 'manage_group'.
+this option to 'manage_group'.
+
+.. _ckan.auth.default_org_only_permissions:
+
+ckan.auth.default_org_only_permissions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.auth.default_org_only_permissions = read manage_group
+
+Default value: ``''``
+
+
+Change the default permissions every user has in every organization (but not
+groups).
+
+e.g. if you want to allow any user to add datasets to any organization, you
+could set this option to 'manage_group'.
 
 .. end_config-authorization
 

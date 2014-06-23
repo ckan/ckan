@@ -425,16 +425,28 @@ class TestGroupListAuthz(object):
 
         assert_equals(result, [])
 
-    @helpers.change_config('ckan.auth.default_group_or_org_permissions', 'manage_group')
+    @helpers.change_config('ckan.auth.default_group_only_permissions', 'manage_group')
     def test_it_returns_all_groups_if_everyone_is_able_to_manage_groups(self):
         user = factories.User()
         group_id = factories.Group()['id']
+        org_id = factories.Organization()['id']
         context = {'user': user['name']}
 
         result = helpers.call_action('group_list_authz', context=context)
 
         assert_equals(len(result), 1)
         assert_equals(result[0]['id'], group_id)
+
+    @helpers.change_config('ckan.auth.default_group_only_permissions', 'manage_group')
+    @helpers.change_config('ckan.auth.default_org_only_permissions', 'manage_group')
+    def test_doesnt_return_organizations_even_if_everyone_is_able_to_manage_them(self):
+        user = factories.User()
+        org_id = factories.Organization()['id']
+        context = {'user': user['name']}
+
+        result = helpers.call_action('group_list_authz', context=context)
+
+        assert_equals(len(result), 0)
 
     @mock.patch('ckan.new_authz.get_roles_with_permission')
     def test_it_returns_empty_list_if_theres_no_role_able_to_manage_groups(self, get_roles_with_permission):
@@ -448,7 +460,7 @@ class TestGroupListAuthz(object):
         assert_equals(result, [])
 
     @mock.patch('ckan.new_authz.get_roles_with_permission')
-    @helpers.change_config('ckan.auth.default_group_or_org_permissions', 'manage_group')
+    @helpers.change_config('ckan.auth.default_group_only_permissions', 'manage_group')
     def test_it_returns_all_groups_if_everyone_is_able_to_manage_groups_even_if_theres_no_role_with_this_permission(self, get_roles_with_permission):
         get_roles_with_permission.return_value = []
         user = factories.User()
