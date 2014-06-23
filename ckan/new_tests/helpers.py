@@ -155,11 +155,19 @@ class FunctionalTestBase():
 
     '''
     @classmethod
+    def _get_test_app(cls):  # leading _ because nose is terrible
+        # FIXME: remove this method and switch to using helpers.get_test_app
+        # in each test once the old functional tests are fixed or removed
+        if not hasattr(cls, '_test_app'):
+            cls._test_app = _get_test_app()
+        return cls._test_app
+
+    @classmethod
     def setup_class(cls):
         # Make a copy of the Pylons config, so we can restore it in teardown.
         cls._original_config = dict(config)
         cls._apply_config_changes(config)
-        cls.app = _get_test_app()
+        cls._get_test_app()
 
     @classmethod
     def _apply_config_changes(cls, cfg):
