@@ -1,14 +1,15 @@
 #!/bin/sh
 exec 2>&1
 
-# URL for the primary database, in the format expected by sqlalchemy (required)
-: ${DATABASE_URL:-}
-# URL for solr (required)
-: ${SOLR_URL:-}
+# URL for the primary database, in the format expected by sqlalchemy (required
+# unless linked to a container called 'db')
+: ${DATABASE_URL:=}
+# URL for solr (required unless linked to a container called 'solr')
+: ${SOLR_URL:=}
 # Email to which errors should be sent (optional, default: none)
-: ${ERROR_EMAIL:-}
+: ${ERROR_EMAIL:=}
 
-set -e
+set -eu
 
 CONFIG="${CKAN_CONFIG}/ckan.ini"
 
@@ -35,16 +36,36 @@ bootstrap () {
   cd "$CKAN_HOME"/src/ckan && "$CKAN_HOME"/bin/paster db init -c "$CONFIG"
 }
 
+link_postgres_url () {
+  local user=$DB_ENV_POSTGRESQL_USER
+  local pass=$DB_ENV_POSTGRESQL_USER
+  local db=$DB_ENV_POSTGRESQL_DB
+  local host=$DB_PORT_5432_TCP_ADDR
+  local port=$DB_PORT_5432_TCP_PORT
+  echo "postgresql://${user}:${pass}@${host}:${port}/${db}"
+}
+
+link_solr_url () {
+  local host=$SOLR_PORT_8983_TCP_ADDR
+  local port=$SOLR_PORT_8983_TCP_PORT
+  echo "http://${host}:${port}/solr/ckan"
+}
+
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
   if [ -z "$DATABASE_URL" ]; then
-    abort "no DATABASE_URL specified"
+    if ! DATABASE_URL=$(link_postgres_url); then
+      abort "no DATABASE_URL specified and linked container called 'db' was not found"
+    fi
   fi
   if [ -z "$SOLR_URL" ]; then
-    abort "no SOLR_URL specified"
+    if ! SOLR_URL=$(link_solr_url); then
+      abort "no SOLR_URL specified and linked container called 'solr' was not found"
+    fi
   fi
   bootstrap
 fi
 
+set +u
 . /etc/apache2/envvars
 exec /usr/sbin/apache2 -D FOREGROUND

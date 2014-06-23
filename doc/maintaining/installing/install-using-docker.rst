@@ -29,43 +29,31 @@ In order to install CKAN using Docker, you will need to have installed Docker.
 Please follow the instructions for installing Docker from `the Docker
 documentation <https://docs.docker.com/installation/>`_.
 
-You will also need to have separately configured both the |postgres| database
-and the |solr| search index. Details of this installation will differ between
-operating systems. On Ubuntu, you can run::
-
-    sudo apt-get install -y postgresql solr-jetty
-
-after which you should follow the instructions in :ref:`postgres-setup` and
-:ref:`setting up solr` to configure these services.
-
-
 ---------------
 Installing CKAN
 ---------------
 
-In the simplest case, installing CKAN should be a matter of running a single
-command. For example, to install the latest available version of the CKAN image
-as published to the `Docker hub`_, and assuming you installed |postgres| and
-|solr| as described in :ref:`postgres-setup` and :ref:`setting up solr`, you can
-run::
+In the simplest case, installing CKAN should be a matter of running three
+commands: to run |postgres|, |solr|, and CKAN::
 
-    $ docker run -d -p 5000:80 \
-        -e DATABASE_URL=postgresql://ckan_default:<password>@<localip>/ckan_default \
-        -e SOLR_URL=http://<localip>:8983/solr/ckan_default \
-        ckan/ckan
+    $ docker run -d --name db ckan/postgresql
+    $ docker run -d --name solr ckan/solr
+    $ docker run -d -p 80:80 --link db:db --link solr:solr ckan/ckan
 
-.. _Docker hub: https://hub.docker.com/
+This start a new CKAN container in the background, connected to default
+installations of |postgres| and |solr| also running in containers.
 
-where you must replace ``<password>`` with the password you chose for your
-database user and ``<localip>`` with the local IP address of your server. This
-will start a new CKAN container in the background, listening on port 5000.
+.. warning::
+   The default |postgres| container is INAPPROPRIATE FOR PRODUCTION USE. The
+   default database username and password is "ckan:ckan" and if you do not
+   change this the contents of your database may well be exposed to the public.
 
 .. note::
-   The first time you run this ``docker run`` command, Docker will have to
-   download the ``ckan/ckan`` image: this may be quite slow, as the image
-   contains all of CKAN's dependencies pre-built. Once you've downloaded the
-   image, however, subsequent calls to ``docker run`` will be much faster. If
-   you want, you can ``docker pull ckan/ckan`` to pre-fetch the image.
+   The first time you run these ``docker run`` commands, Docker will have to
+   download the software images: this may be quite slow. Once you've downloaded
+   the images, however, subsequent calls to ``docker run`` will be much faster.
+   If you want, you can run ``echo postgresql solr ckan | xargs -n1 -IIMG docker
+   pull ckan/IMG`` to pre-fetch the images.
 
 If all goes well you should now have a CKAN instance running. You can use
 ``docker ps`` to verify that your container started. You should see something
@@ -73,16 +61,14 @@ like the following::
 
     $ docker ps
     CONTAINER ID        IMAGE                         COMMAND               CREATED             STATUS              PORTS                     NAMES
-    cab6e63c77b1        ckan/ckan:latest              /sbin/my_init         30 days ago         Up 1 minutes        0.0.0.0:5000->80/tcp      jovial_perlman
+    cab6e63c77b1        ckan/ckan:latest              /sbin/my_init         30 days ago         Up 1 minutes        0.0.0.0:80->80/tcp        jovial_perlman
+    fb47b3744d6d        ckan/postgresql:latest        /usr/local/bin/run    9 days ago          Up 1 minutes        5432/tcp                  db,jovial_perlman/db
+    96e963812fc9        ckan/solr:latest              java -jar start.jar   15 days ago         Up 1 minutes        8983/tcp                  solr,jovial_perlman/solr
 
-Using the container id (here it's ``cab6e63c77b1``), you can perform other
+Using the CKAN container id (here it's ``cab6e63c77b1``), you can perform other
 actions on your container, such as viewing the logs::
 
     $ docker logs cab6e63c77b1
-
-listing the port bindings for the container::
-
-    $ docker ports cab6e63c77b1
 
 or stopping the container::
 
@@ -91,6 +77,14 @@ or stopping the container::
 If you wish to run CKAN on a different port or bind it to a specific IP address
 on the machine, please consult the output of ``docker help run`` to see valid
 values for the ``-p/--publish`` option.
+
+You can also configure the CKAN container to connect to remote |postgres| and
+|solr| services, without using Docker links, by setting the ``DATABASE_URL`` and
+``SOLR_URL`` environment variables::
+
+    $ docker run -d -p 80:80 \
+        -e DATABASE_URL=postgresql://ckanuser:password@192.168.0.5/ckan \
+        -e SOLR_URL=http://192.168.0.6:8983/solr/ckan
 
 
 ----------------------------
@@ -101,11 +95,11 @@ Running maintenance commands
    This is currently more fiddly than we would like, and we will hopefully soon
    add a helper command to make this easier.
 
-You can run maintenance commands in their own ephemeral container (configured
-with the same ``DATABASE_URL`` and ``SOLR_URL``) by specifying a custom command
-for the container. For example, to create a sysadmin user called ``joebloggs``::
+You can run maintenance commands in their own ephemeral container by specifying
+a custom command for the container. For example, to create a sysadmin user
+called ``joebloggs``::
 
-    $ docker run -i -t -e DATABASE_URL=... -e SOLR_URL=... \
+    $ docker run -i -t --link db:db --link solr:solr \
         ckan/ckan \
         /sbin/my_init -- \
         /bin/bash -c \
