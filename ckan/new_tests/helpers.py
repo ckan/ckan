@@ -175,16 +175,17 @@ class FunctionalTestBase():
         config.clear()
         config.update(cls._original_config)
 
-    def _submit_and_follow(self, form, extra_environ, name=None,
-                           value=None, **args):
-        '''
-        Call webtest_submit with name/value passed expecting a redirect
-        and return the response from following that redirect.
-        '''
-        response = webtest_submit(form, name, value=value, status=302,
-                                  extra_environ=extra_environ, **args)
-        return self.app.get(url=response.headers['Location'],
-                            extra_environ=extra_environ)
+
+def submit_and_follow(app, form, extra_environ, name=None,
+                      value=None, **args):
+    '''
+    Call webtest_submit with name/value passed expecting a redirect
+    and return the response from following that redirect.
+    '''
+    response = webtest_submit(form, name, value=value, status=302,
+                              extra_environ=extra_environ, **args)
+    return app.get(url=response.headers['Location'],
+                   extra_environ=extra_environ)
 
 
 ## FIXME: remove webtest_* functions below when we upgrade webtest

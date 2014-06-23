@@ -7,6 +7,7 @@ import ckan.new_tests.factories as factories
 import ckan.model as model
 
 webtest_submit = helpers.webtest_submit
+submit_and_follow = helpers.submit_and_follow
 
 
 class TestPackageControllerNew(helpers.FunctionalTestBase):
@@ -36,7 +37,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form = response.forms['dataset-edit']
         form['name'] = u'resource-form-renders'
 
-        response = self._submit_and_follow(form, env, 'save')
+        response = submit_and_follow(self.app, form, env, 'save')
         assert_true('resource-edit' in response.forms)
 
     def test_first_page_creates_draft_package(self):
@@ -53,7 +54,7 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form = response.forms['dataset-edit']
         form['name'] = u'one-resource-required'
 
-        response = self._submit_and_follow(form, env, 'save')
+        response = submit_and_follow(self.app, form, env, 'save')
         form = response.forms['resource-edit']
 
         response = webtest_submit(form, 'save', value='go-metadata',
@@ -66,11 +67,11 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form = response.forms['dataset-edit']
         form['name'] = u'complete-package-with-one-resource'
 
-        response = self._submit_and_follow(form, env, 'save')
+        response = submit_and_follow(self.app, form, env, 'save')
         form = response.forms['resource-edit']
         form['url'] = u'http://example.com/resource'
 
-        self._submit_and_follow(form, env, 'save', 'go-metadata')
+        submit_and_follow(self.app, form, env, 'save', 'go-metadata')
         pkg = model.Package.by_name(u'complete-package-with-one-resource')
         assert_equal(pkg.resources[0].url, u'http://example.com/resource')
         assert_equal(pkg.state, 'active')
@@ -80,15 +81,15 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form = response.forms['dataset-edit']
         form['name'] = u'complete-package-with-two-resources'
 
-        response = self._submit_and_follow(form, env, 'save')
+        response = submit_and_follow(self.app, form, env, 'save')
         form = response.forms['resource-edit']
         form['url'] = u'http://example.com/resource0'
 
-        response = self._submit_and_follow(form, env, 'save', 'again')
+        response = submit_and_follow(self.app, form, env, 'save', 'again')
         form = response.forms['resource-edit']
         form['url'] = u'http://example.com/resource1'
 
-        self._submit_and_follow(form, env, 'save', 'go-metadata')
+        submit_and_follow(self.app, form, env, 'save', 'go-metadata')
         pkg = model.Package.by_name(u'complete-package-with-two-resources')
         assert_equal(pkg.resources[0].url, u'http://example.com/resource0')
         assert_equal(pkg.resources[1].url, u'http://example.com/resource1')
@@ -99,10 +100,10 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form = response.forms['dataset-edit']
         form['name'] = u'previous-button-works'
 
-        response = self._submit_and_follow(form, env, 'save')
+        response = submit_and_follow(self.app, form, env, 'save')
         form = response.forms['resource-edit']
 
-        response = self._submit_and_follow(form, env, 'save', 'go-dataset')
+        response = submit_and_follow(self.app, form, env, 'save', 'go-dataset')
         assert_true('dataset-edit' in response.forms)
 
     def test_previous_button_populates_form(self):
@@ -110,10 +111,10 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form = response.forms['dataset-edit']
         form['name'] = u'previous-button-populates-form'
 
-        response = self._submit_and_follow(form, env, 'save')
+        response = submit_and_follow(self.app, form, env, 'save')
         form = response.forms['resource-edit']
 
-        response = self._submit_and_follow(form, env, 'save', 'go-dataset')
+        response = submit_and_follow(self.app, form, env, 'save', 'go-dataset')
         form = response.forms['dataset-edit']
         assert_true('title' in form.fields)
         assert_equal(form['name'].value, u'previous-button-populates-form')
@@ -123,10 +124,10 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         form = response.forms['dataset-edit']
         form['name'] = u'previous-next-maintains-draft'
 
-        response = self._submit_and_follow(form, env, 'save')
+        response = submit_and_follow(self.app, form, env, 'save')
         form = response.forms['resource-edit']
 
-        response = self._submit_and_follow(form, env, 'save', 'go-dataset')
+        response = submit_and_follow(self.app, form, env, 'save', 'go-dataset')
         form = response.forms['dataset-edit']
 
         webtest_submit(form, 'save', status=302, extra_environ=env)
