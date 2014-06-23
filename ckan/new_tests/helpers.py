@@ -166,9 +166,7 @@ class FunctionalTestBase():
         pass
 
     def setup(self):
-        import ckan.model as model
-        model.Session.close_all()
-        model.repo.rebuild_db()
+        reset_db()
 
     @classmethod
     def teardown_class(cls):

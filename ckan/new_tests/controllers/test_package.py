@@ -10,9 +10,6 @@ webtest_submit = helpers.webtest_submit
 
 
 class TestPackageControllerNew(helpers.FunctionalTestBase):
-    def setup(self):
-        helpers.reset_db()
-
     def _get_package_new_page_as_sysadmin(self):
         user = factories.Sysadmin()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
