@@ -1718,6 +1718,48 @@ def view_resource_url(resource_view, resource, package, **kw):
     return resource['url']
 
 
+def resource_view_is_filterable(resource_view):
+    '''
+    Returns True if the given resource view support filters.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    return view_plugin.info().get('filterable', False)
+
+
+def resource_view_get_columns_and_values(resource):
+    '''Tries to get out filter values so they can appear in dropdown list.
+    Leaves input as text box when the table is too big or there are too many
+    distinct values.  Current limits are 5000 rows in table and 500 distict
+    values.'''
+
+    if not resource.get('datastore_active'):
+        return {}
+
+    data = {
+        'resource_id': resource['id'],
+        'limit': 5001
+    }
+    result = logic.get_action('datastore_search')({}, data)
+    # do not try to get filter values if there are too many rows.
+    if len(result.get('records', [])) == 5001:
+        return {}
+
+    filter_values = {}
+    for field in result.get('fields', []):
+        if field['type'] != 'text' and field['type'] != 'timestamp':
+            continue
+        distinct_values = set()
+        for row in result.get('records', []):
+            distinct_values.add(row[field['id']])
+        # keep as input if there are too many distinct values.
+        if len(distinct_values) > 500:
+            continue
+        filter_values[field['id']] = [{'id': value, 'text': value}
+                                      for value
+                                      in sorted(list(distinct_values))]
+    return filter_values
+
+
 def resource_view_is_iframed(resource_view):
     '''
     Returns true if the given resource view should be displayed in an iframe.
@@ -2016,6 +2058,8 @@ __allowed_functions__ = [
     'format_resource_items',
     'resource_preview',
     'rendered_resource_view',
+    'resource_view_get_columns_and_values',
+    'resource_view_is_filterable',
     'resource_view_is_iframed',
     'resource_view_icon',
     'resource_view_display_preview',
