@@ -170,12 +170,3 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
             proxied_url = proxy.get_proxified_resource_url(data_dict, scheme)
             assert non_proxied_url == url, non_proxied_url
             assert proxied_url != url, proxied_url
-
-    def test_non_existent_resource(self):
-        self.data_dict = {'package': {'name': 'doesnotexist'},
-                          'resource': {'id': 'doesnotexist'}}
-
-        proxied_url = proxy.get_proxified_resource_url(self.data_dict)
-        result = self.app.get(proxied_url, status='*')
-        assert result.status == 404, result.status
-        assert 'Resource not found' in result.body, result.body
