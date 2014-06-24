@@ -19,6 +19,12 @@ over SSH:
 
 */
 
+-- Most of the following commands apply to an explicit database or to the whole
+-- 'public' schema, and could be executed anywhere. But ALTER DEFAULT
+-- PERMISSIONS applies to the current database, and so we must be connected to
+-- the datastore DB:
+\connect {datastoredb}
+
 -- revoke permissions for the read-only user
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 REVOKE USAGE ON SCHEMA public FROM PUBLIC;
