@@ -2,10 +2,11 @@ import json
 import nose.tools
 
 import ckan.lib.search
+import ckan.new_tests.helpers as helpers
 
 assert_equal = nose.tools.assert_equal
-assert_in = nose.tools.assert_in
-assert_not_in = nose.tools.assert_not_in
+assert_in = helpers.assert_in
+assert_not_in = helpers.assert_not_in
 
 
 class TestPackageSearchIndex:
