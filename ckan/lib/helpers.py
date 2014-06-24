@@ -1703,7 +1703,7 @@ def rendered_resource_view(resource_view, resource, package, embed=False):
     template = view_plugin.view_template(context, data_dict)
     data_dict.update(vars)
 
-    if not view_plugin.info().get('iframed', True) and embed:
+    if not resource_view_is_iframed(resource_view) and embed:
         template = "package/snippets/resource_view_embed.html"
 
     import ckan.lib.base as base
