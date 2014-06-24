@@ -15,7 +15,9 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
     var dropdowns = $('<div></div>'); // FIXME: We don't need a div
 
     $.each(columnsValues, function (filter, values) {
-      dropdowns.append(_buildDropdown(self.el, template, filter, values));
+      if (ckan.views.viewhelpers.filters.get(filter)) {
+        dropdowns.append(_buildDropdown(self.el, template, filter, values));
+      }
     });
 
     el.append(dropdowns);
