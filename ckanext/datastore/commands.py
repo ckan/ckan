@@ -1,11 +1,7 @@
 from __future__ import print_function
 import argparse
-import getpass
 import os
 import sys
-
-import pylons
-import sqlalchemy
 
 import ckan.lib.cli as cli
 
@@ -37,26 +33,7 @@ def _set_permissions(args):
 
     sql = _permissions_sql(context)
 
-    if args.execute:
-        if args.use_config_credentials:
-            url = pylons.config['sqlalchemy.url']
-        else:
-            url = ['postgresql://', args.username]
-            # This awkward double-negative is because --no-password is the name
-            # of the parameter to psql, and it's kind to be consistent.
-            if not args.no_password:
-                password = getpass.getpass("Password for user {user}: ".format(
-                    user=args.username))
-                url.append(':{0}'.format(password))
-            url.append('@{0}'.format(args.host))
-            if args.port:
-                url.append(':{0}'.format(args.port))
-
-            url = "".join(url)
-
-        _set_permissions_execute(url, sql)
-    else:
-        print(sql)
+    print(sql)
 
 
 def _permissions_sql(context):
@@ -64,15 +41,7 @@ def _permissions_sql(context):
                                      'set_permissions.sql')
     with open(template_filename) as fp:
         template = fp.read()
-
     return template.format(**context)
-
-
-def _set_permissions_execute(url, sql):
-    engine = sqlalchemy.create_engine(url)
-    conn = engine.connect()
-    conn.execute('commit')
-    conn.execute(sql)
 
 
 parser = argparse.ArgumentParser(
@@ -87,30 +56,11 @@ parser_set_perms = subparsers.add_parser(
     description='Set the permissions on the datastore.',
     help='This command will help ensure that the permissions for the '
          'datastore users as configured in your configuration file are '
-         'correct at the database. By default it will emit an SQL script that '
-         'you can use to set these permissions. You can also request that it '
-         'execute the script by connecting to the database directly.',
+         'correct at the database. It will emit an SQL script that '
+         'you can use to set these permissions.',
     epilog='"The ships hung in the sky in much the same way that bricks '
-           'don\'t."',
-    add_help=False)
-# Re-add --help without -h so that we can provide the same args as psql.
-parser_set_perms.add_argument('--help', action='help',
-                              help='show this help message and exit')
-parser_set_perms.add_argument('-x', '--execute', action='store_true',
-                              help='connect to the database to set the '
-                                   'permissions')
-parser_set_perms.add_argument('--use-config-credentials',
-                              action='store_true',
-                              help='use db credentials from config file')
-parser_set_perms.add_argument('-h', '--host', help='db server host')
-parser_set_perms.add_argument('-p', '--port', type=int, help='db server port')
-parser_set_perms.add_argument('-U', '--username', help='db superuser username')
-parser_set_perms.add_argument('-w', '--no-password', action='store_true',
-                              help='never prompt for password')
-parser_set_perms.set_defaults(func=_set_permissions,
-                              host='localhost',
-                              port=5432,
-                              username=getpass.getuser())
+           'don\'t."')
+parser_set_perms.set_defaults(func=_set_permissions)
 
 
 class SetupDatastoreCommand(cli.CkanCommand):

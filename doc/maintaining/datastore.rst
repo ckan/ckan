@@ -123,15 +123,12 @@ Set permissions
 
 Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. CKAN provides a paster command to help you correctly set these permissions.
 
-Preferred: set permissions using the psql command
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 If you are able to use the ``psql`` command to connect to your database as a
 superuser, you can use the ``datastore set-permissions`` command to emit the
 appropriate SQL to set the permissions.
 
-For example, if you can connect to your database as the ``postgres`` superuser
-using::
+For example, if you can connect to your database server as the ``postgres``
+superuser using::
 
     sudo -u postgres psql
 
@@ -141,11 +138,14 @@ Then you can use this connection to set the permissions::
     sudo -u postgres psql --set ON_ERROR_STOP=1
 
 .. note::
-   If you performed a source install, you will need to execute the following
-   command instead, after activating your CKAN virtualenv::
+   If you performed a source install, you will need to replace all references to
+   ``sudo ckan ...`` with ``paster --plugin=ckan ...``
 
-       paster --plugin=ckan datastore set-permissions |
-       sudo -u postgres psql --set ON_ERROR_STOP=1
+If your database server is not local, but you can access it over SSH, you can
+pipe the permissions script over SSH::
+
+    sudo ckan datastore set-permissions |
+    ssh dbserver sudo -u postgres psql --set ON_ERROR_STOP=1
 
 If you can't use the ``psql`` command in this way, you can simply copy and paste
 the output of::
@@ -153,31 +153,6 @@ the output of::
     sudo ckan datastore set-permissions
 
 into a |postgres| superuser console.
-
-Alternative: set permissions by direct connection to the database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can also use the ``datastore set-permissions`` command to set permissions by
-connecting directly to your database. This requires that you can access your
-database as a superuser over the network. It is highly recommended that you do
-NOT go this route, as there are security risks inherent in providing such
-access.
-
-To set permissions by connecting to the database run::
-
-    sudo ckan datastore set-permissions -- --execute
-
-.. note::
-   If you performed a source install, you will need to execute the following
-   command instead, after activating your CKAN virtualenv::
-
-       paster --plugin=ckan datastore set-permissions -- --execute
-
-If you need to specify a different database host, user or port, (by default, the
-command uses ``localhost``, your current username, and ``5432``) you can provide
-different options to the ``datastore set-permissions`` command. For example::
-
-    sudo ckan datastore set-permissions -- --execute -h dbserver -U myuser -p 5432
 
 3. Test the set-up
 ==================

@@ -1,21 +1,22 @@
 /*
-This script configures the permissions for the datastore. If you are seeing this
-as a result of running `paster datastore set-permissions`, then depending on the
-configuration of your database, you can either:
+This script configures the permissions for the datastore.
 
-a) Copy and paste this script and execute it as a database superuser by hand.
-   This mechanism is preferred, especially if your database is on a different
-   server from CKAN, as you do not need to configure superuser access to your
-   database over the network.
+It ensures that the datastore read-only user will only be able to select from
+the datastore database but has no create/write/edit permission or any
+permissions on other databases. You must execute this script as a database
+superuser on the PostgreSQL server that hosts your datastore database.
 
-b) If you have superuser access to your database over the network, AND ARE AWARE
-   OF THE SECURITY IMPLICATIONS OF SUCH A CONFIGURATION, you can re-run `paster
-   datastore set-permissions` with the "--execute" argument to connect to the
-   database and run the script.
+For example, if PostgreSQL is running locally and the "postgres" user has the
+appropriate permissions (as in the default Ubuntu PostgreSQL install), you can
+run:
 
-The script ensures that the datastore read-only user will only be able to select
-from the datastore database but has no create/write/edit permission or any
-permissions on other databases.
+    paster datastore set-permissions | sudo -u postgres psql
+
+Or, if your PostgreSQL server is remote, you can pipe the permissions script
+over SSH:
+
+    paster datastore set-permissions | ssh dbserver sudo -u postgres psql
+
 */
 
 -- revoke permissions for the read-only user
