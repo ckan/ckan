@@ -271,14 +271,14 @@ class DatastorePlugin(p.SingletonPlugin):
                 connection.close()
         return resource_dict
 
-    def datastore_validate(self, context, data_dict, all_field_ids):
+    def datastore_validate(self, context, data_dict, column_names):
         fields = data_dict.get('fields')
         if fields:
-            data_dict['fields'] = list(set(fields) - set(all_field_ids))
+            data_dict['fields'] = list(set(fields) - set(column_names))
 
         filters = data_dict.get('filters', {})
         for key in filters.keys():
-            if key in all_field_ids:
+            if key in column_names:
                 del filters[key]
 
         q = data_dict.get('q')
@@ -299,7 +299,7 @@ class DatastorePlugin(p.SingletonPlugin):
         sort_clauses = data_dict.get('sort')
         if sort_clauses:
             invalid_clauses = [c for c in sort_clauses
-                               if not self._is_valid_sort(c, all_field_ids)]
+                               if not self._is_valid_sort(c, column_names)]
             data_dict['sort'] = invalid_clauses
 
         limit = data_dict.get('limit')
@@ -319,7 +319,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return data_dict
 
-    def _is_valid_sort(self, clause, all_field_ids):
+    def _is_valid_sort(self, clause, column_names):
         clause = clause.encode('utf-8')
         clause_parts = shlex.split(clause)
 
@@ -332,24 +332,24 @@ class DatastorePlugin(p.SingletonPlugin):
 
         field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
 
-        if field not in all_field_ids:
+        if field not in column_names:
             return False
         if sort.lower() not in ('asc', 'desc'):
             return False
 
         return True
 
-    def datastore_delete(self, context, data_dict, all_field_ids, query_dict):
-        query_dict['where'] += self._where(data_dict, all_field_ids)
+    def datastore_delete(self, context, data_dict, column_names, query_dict):
+        query_dict['where'] += self._where(data_dict, column_names)
         return query_dict
 
-    def datastore_search(self, context, data_dict, all_field_ids, query_dict):
+    def datastore_search(self, context, data_dict, column_names, query_dict):
         fields = data_dict.get('fields')
 
         if fields:
             field_ids = datastore_helpers.get_list(fields)
         else:
-            field_ids = all_field_ids
+            field_ids = column_names
 
         ts_query, rank_column = self._textsearch_query(data_dict)
         limit = data_dict.get('limit', 100)
@@ -370,11 +370,11 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return query_dict
 
-    def _where(self, data_dict, all_field_ids):
+    def _where(self, data_dict, column_names):
         filters = data_dict.get('filters', {})
         clauses = []
         for field, value in filters.iteritems():
-            if field not in all_field_ids:
+            if field not in column_names:
                 continue
             clause = (u'"{0}" = %s'.format(field), value)
             clauses.append(clause)
