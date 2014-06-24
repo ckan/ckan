@@ -1,13 +1,14 @@
 this.ckan.module('resource-view-filters', function (jQuery, _) {
   'use strict';
 
-  function _onChange(evt) {
-    var filterName = evt.currentTarget.name,
-        filterValue = evt.val;
+  // TODO: Don't show values already filtered by on the new selects
 
-    if (ckan.views && ckan.views.viewhelpers) {
-      ckan.views.viewhelpers.filters.set(filterName, filterValue);
-    }
+  function initialize() {
+    var self = this,
+        columnsValues = self.options.columnsValues,
+        template = self.options.template;
+
+    _appendDropdowns(self.el, template, columnsValues);
   }
 
   function _appendDropdowns(el, template, columnsValues) {
@@ -19,25 +20,53 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
 
     el.append(dropdowns);
 
-    function _buildDropdown(el, template, filter, values) {
-      var dropdown = $(template.replace(/{filter}/g, filter));
+    function _buildDropdown(el, template, filterName, values) {
+      var filters = ckan.views.viewhelpers.filters.get(filterName) || [];
+      template = $(template.replace(/{filter}/g, filterName));
+      var dropdowns = template.find('.dropdown-values');
 
-      dropdown.find('input').select2({
+      filters = filters.concat([undefined]); // Can't use push because we need to create a new array
+      filters.forEach(function (value, i) {
+        var dropdown = $('<input type="hidden" name="'+filterName+'"></input>');
+
+        if (value !== undefined) {
+          dropdown.val(value);
+        }
+
+        dropdowns.append(dropdown);
+      });
+
+      dropdowns.find('input').select2({
         data: values,
         allowClear: true, // FIXME: This isn't working
         width: '220px',
+        initSelection: function (element, callback) {
+          var data = {id: element.val(), text: element.val()};
+          callback(data);
+        },
       }).on('change', _onChange);
 
-      return dropdown;
+      return template;
     }
   }
 
-  function initialize() {
-    var self = this,
-        columnsValues = self.options.columnsValues,
-        template = self.options.template;
+  function _onChange(evt) {
+    var filterName = evt.currentTarget.name,
+        filterValue = evt.val,
+        currentFilters = ckan.views.viewhelpers.filters.get(filterName) || [],
+        addToIndex = currentFilters.length;
 
-    _appendDropdowns(self.el, template, columnsValues);
+    if (evt.removed) {
+      addToIndex = currentFilters.indexOf(evt.removed.id);
+      if (addToIndex !== -1) {
+        currentFilters.splice(addToIndex, 1);
+      }
+    }
+    if (evt.added) {
+      currentFilters.splice(addToIndex, 0, filterValue);
+    }
+
+    ckan.views.viewhelpers.filters.set(filterName, currentFilters);
   }
 
   return {
@@ -46,9 +75,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
       template: [
         '<div class="dropdown">',
         '  {filter}:',
-        '  <div class="dropdown-values">',
-        '    <input type="hidden" name="{filter}"></input>',
-        '  </div>',
+        '  <div class="dropdown-values"></div>',
         '</div>',
       ].join('\n')
     }
