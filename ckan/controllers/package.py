@@ -530,7 +530,9 @@ class PackageController(base.BaseController):
 
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary,
-                'action': 'new', 'stage': stage}
+                'action': 'new', 'stage': stage,
+                'package_type': package_type,
+                }
         c.errors_json = h.json.dumps(errors)
 
         self._setup_template_variables(context, {},
@@ -764,7 +766,9 @@ class PackageController(base.BaseController):
                 c.pkg_dict.get('tags', {}), 'name'))
         errors = errors or {}
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary, 'action': 'edit'}
+                'error_summary': error_summary, 'action': 'edit',
+                'package_type': package_type,
+                }
         c.errors_json = h.json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id},
