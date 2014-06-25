@@ -41,11 +41,13 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
     }
 
     addFilterButton.click(function (evt) {
-      var addFilterSelect = $('<input type="hidden"></input>');
-      el.append(addFilterSelect);
+      // FIXME: Move this class name to some external variable to keep it DRY
+      var addFilterDiv = $('<div class="resource-view-filter"><input type="hidden"></input></div>'),
+          addFilterInput = addFilterDiv.find('input');
+      el.append(addFilterDiv);
 
       // TODO: Remove element from "data" when some select selects it.
-      addFilterSelect.select2({
+      addFilterInput.select2({
         data: data,
         placeholder: 'Select a column',
         width: '220px',
@@ -68,7 +70,8 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
     function _buildDropdown(el, template, filterName, values) {
       var theseFilters = filters[filterName] || [];
       template = $(template.replace(/{filter}/g, filterName));
-      var dropdowns = template.find('.dropdown-values');
+      // FIXME: Get the CSS class from some external variable
+      var dropdowns = template.find('.resource-view-filter-values');
 
       // Can't use push because we need to create a new array, as we're
       // modifying it.
@@ -86,7 +89,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
       dropdowns.find('input').select2({
         data: values,
         allowClear: true, // FIXME: This isn't working
-        width: '220px',
+        width: '220px', // FIXME: Set this using CSS
         initSelection: function (element, callback) {
           var data = {id: element.val(), text: element.val()};
           callback(data);
@@ -120,9 +123,9 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
     initialize: initialize,
     options: {
       dropdownTemplate: [
-        '<div class="dropdown">',
+        '<div class="resource-view-filter">',
         '  {filter}:',
-        '  <div class="dropdown-values"></div>',
+        '  <div class="resource-view-filter-values"></div>',
         '</div>',
       ].join('\n'),
       addFilterTemplate: [
