@@ -1,34 +1,79 @@
 this.ckan.module('resource-view-filters', function (jQuery, _) {
   'use strict';
 
-  // TODO: Don't show values already filtered by on the new selects
-
   function initialize() {
     var self = this,
         columnsValues = self.options.columnsValues,
-        template = self.options.template;
+        dropdownTemplate = self.options.dropdownTemplate,
+        addFilterTemplate = self.options.addFilterTemplate,
+        filtersDiv = $('<div></div>');
 
-    _appendDropdowns(self.el, template, columnsValues);
+    var filters = ckan.views.viewhelpers.filters.get();
+    _appendDropdowns(filtersDiv, dropdownTemplate, columnsValues, filters);
+    var addFilterButton = _buildAddFilterButton(filtersDiv, addFilterTemplate, columnsValues, filters, function (evt) {
+      // Build filters object with this element's val as key and a placeholder
+      // value so _appendDropdowns() will create its dropdown
+      var filters = {};
+      filters[evt.val] = [];
+
+      $(this).select2('destroy');
+      _appendDropdowns(filtersDiv, dropdownTemplate, columnsValues, filters);
+      evt.preventDefault();
+    });
+    self.el.append(filtersDiv);
+    self.el.append(addFilterButton);
   }
 
-  function _appendDropdowns(el, template, columnsValues) {
-    var dropdowns = $('<div></div>'); // FIXME: We don't need a div
+  function _buildAddFilterButton(el, template, columnsValues, filters, onChangeCallback) {
+    // TODO: Add Object.keys() and .filter() method for browsers that don't implement it.
+    var addFilterButton = $(template),
+        currentFilters = Object.keys(filters),
+        columns = Object.keys(columnsValues),
+        columnsNotFiltered = columns.filter(function (column) {
+          return currentFilters.indexOf(column) == -1;
+        }),
+        data = $.map(columnsNotFiltered, function (d) {
+          return { id: d, text: d };
+        });
+
+    if (data.length === 0) {
+      return '';
+    }
+
+    addFilterButton.click(function (evt) {
+      var addFilterSelect = $('<input type="hidden"></input>');
+      el.append(addFilterSelect);
+
+      // TODO: Remove element from "data" when some select selects it.
+      addFilterSelect.select2({
+        data: data,
+        placeholder: 'Select a column',
+        width: '220px',
+      }).on('change', onChangeCallback);
+    });
+
+    return addFilterButton;
+  }
+
+  function _appendDropdowns(dropdowns, template, columnsValues, filters) {
 
     $.each(columnsValues, function (filter, values) {
-      if (ckan.views.viewhelpers.filters.get(filter)) {
+      if (filters.hasOwnProperty(filter)) {
         dropdowns.append(_buildDropdown(self.el, template, filter, values));
       }
     });
 
-    el.append(dropdowns);
+    return dropdowns;
 
     function _buildDropdown(el, template, filterName, values) {
-      var filters = ckan.views.viewhelpers.filters.get(filterName) || [];
+      var theseFilters = filters[filterName] || [];
       template = $(template.replace(/{filter}/g, filterName));
       var dropdowns = template.find('.dropdown-values');
 
-      filters = filters.concat([undefined]); // Can't use push because we need to create a new array
-      filters.forEach(function (value, i) {
+      // Can't use push because we need to create a new array, as we're
+      // modifying it.
+      theseFilters = theseFilters.concat([undefined]);
+      theseFilters.forEach(function (value, i) {
         var dropdown = $('<input type="hidden" name="'+filterName+'"></input>');
 
         if (value !== undefined) {
@@ -74,11 +119,14 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
   return {
     initialize: initialize,
     options: {
-      template: [
+      dropdownTemplate: [
         '<div class="dropdown">',
         '  {filter}:',
         '  <div class="dropdown-values"></div>',
         '</div>',
+      ].join('\n'),
+      addFilterTemplate: [
+        '<a>Add Filter</a>',
       ].join('\n')
     }
   };
