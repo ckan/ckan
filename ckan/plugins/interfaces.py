@@ -824,7 +824,7 @@ class IDatasetForm(Interface):
 
         '''
 
-    def validate(self, context, data_dict, schema, action):
+    def validate(self, context, data_dict, schema, action, package_type):
         """Customize validation of datasets.
 
         When this method is implemented it is used to perform all validation
@@ -849,6 +849,8 @@ class IDatasetForm(Interface):
         :param action: ``'package_show'``, ``'package_create'`` or
           ``'package_update'``
         :type action: string
+        :param package_type: the package_type of the dataset
+        :type package_type: string
         :returns: (data_dict, errors) where data_dict is the possibly-modified
           dataset and errors is a dictionary with keys matching data_dict
           and lists-of-string-error-messages as values
@@ -975,7 +977,7 @@ class IGroupForm(Interface):
         Add variables to c just prior to the template being rendered.
         """
 
-    def validate(self, context, data_dict, schema, action):
+    def validate(self, context, data_dict, schema, action, group_type):
         """Customize validation of groups.
 
         When this method is implemented it is used to perform all validation
@@ -1001,6 +1003,8 @@ class IGroupForm(Interface):
           ``'group_update'``, ``'organization_show'``,
           ``'organization_create'`` or ``'organization_update'``
         :type action: string
+        :param group_type: the group_type of the group
+        :type group_type: string
         :returns: (data_dict, errors) where data_dict is the possibly-modified
           group and errors is a dictionary with keys matching data_dict
           and lists-of-string-error-messages as values
