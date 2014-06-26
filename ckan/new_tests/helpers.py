@@ -20,11 +20,13 @@ This module is reserved for these very useful functions.
 import os
 
 import webtest
-import pylons.config as config
+from pylons import config
+import nose.tools
 
 import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
+import ckan.new_authz as new_authz
 
 
 def reset_db():
@@ -256,3 +258,39 @@ def webtest_submit_fields(form, name=None, index=None, submit_value=None):
             else:
                 submit.append((name, value))
     return submit
+
+
+def change_config(key, value):
+    '''Decorator to temporarily changes Pylons' config to a new value
+
+    This allows you to easily create tests that need specific config values to
+    be set, making sure it'll be reverted to what it was originally, after your
+    test is run.
+
+    Usage::
+
+        @helpers.change_config('ckan.site_title', 'My Test CKAN')
+        def test_ckan_site_title(self):
+            assert pylons.config['ckan.site_title'] == 'My Test CKAN'
+
+    :param key: the config key to be changed, e.g. ``'ckan.site_title'``
+    :type key: string
+
+    :param value: the new config key's value, e.g. ``'My Test CKAN'``
+    :type value: string
+    '''
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            _original_config = config.copy()
+            config[key] = value
+            new_authz.clear_auth_functions_cache()
+
+            return_value = func(*args, **kwargs)
+
+            config.clear()
+            config.update(_original_config)
+            new_authz.clear_auth_functions_cache()
+
+            return return_value
+        return nose.tools.make_decorator(func)(wrapper)
+    return decorator
