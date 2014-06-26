@@ -88,7 +88,8 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
 
       dropdowns.find('input').select2({
         data: values,
-        allowClear: true, // FIXME: This isn't working
+        allowClear: true,
+        placeholder: ' ', // select2 needs a placeholder to allow clearing
         width: '220px', // FIXME: Set this using CSS
         initSelection: function (element, callback) {
           var data = {id: element.val(), text: element.val()};
