@@ -18,7 +18,7 @@ an existing feature) should be missing from the docs** (but see `todo`_).
 
 .. seealso::
 
-   Jacob Kaplon-Moss's `Writing Great Documentation <http://jacobian.org/writing/great-documentation/>`_
+   Jacob Kaplan-Moss's `Writing Great Documentation <http://jacobian.org/writing/great-documentation/>`_
      A series of blog posts about writing technical docs, a lot of our
      guidelines were based on this.
 
