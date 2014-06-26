@@ -1,22 +1,10 @@
 from nose.tools import assert_equal
-from pylons.test import pylonsapp
-import paste.fixture
 
 from routes import url_for as url_for
+import ckan.new_tests.controllers as controllers
 
 
-# This is stolen from the old tests and should probably go in __init__.py
-# if it is what we want.
-class WsgiAppCase(object):
-    wsgiapp = pylonsapp
-    assert wsgiapp, 'You need to run nose with --with-pylons'
-    # Either that, or this file got imported somehow before the tests started
-    # running, meaning the pylonsapp wasn't setup yet (which is done in
-    # pylons.test.py:begin())
-    app = paste.fixture.TestApp(wsgiapp)
-
-
-class TestUtil(WsgiAppCase):
+class TestUtil(controllers.WsgiAppCase):
     def test_redirect_ok(self):
         response = self.app.get(
             url=url_for(controller='util', action='redirect'),

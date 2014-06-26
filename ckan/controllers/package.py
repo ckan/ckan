@@ -1187,6 +1187,9 @@ class PackageController(base.BaseController):
             c.resource = get_action('resource_show')(context,
                                                      {'id': resource_id})
             c.package = get_action('package_show')(context, {'id': id})
+            if (c.resource['id'] not in [x['id'] for x in
+                    c.package.get('resources')]):
+                abort(404, _('Resource not found'))
             # required for nav menu
             c.pkg = context['package']
             c.pkg_dict = c.package
