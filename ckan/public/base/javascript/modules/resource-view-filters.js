@@ -29,7 +29,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         currentFilters = Object.keys(filters),
         columns = Object.keys(columnsValues),
         columnsNotFiltered = $.grep(columns, function (column) {
-          return filters.hasOwnProperty(column);
+          return !filters.hasOwnProperty(column);
         }),
         data = $.map(columnsNotFiltered, function (d) {
           return { id: d, text: d };
