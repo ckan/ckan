@@ -108,6 +108,9 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         currentFilters = ckan.views.viewhelpers.filters.get(filterName) || [],
         addToIndex = currentFilters.length;
 
+    // Make sure we're not editing the original array, but a copy.
+    currentFilters = currentFilters.slice();
+
     if (evt.removed) {
       addToIndex = currentFilters.indexOf(evt.removed.id);
       if (addToIndex !== -1) {
@@ -118,7 +121,11 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
       currentFilters.splice(addToIndex, 0, filterValue);
     }
 
-    ckan.views.viewhelpers.filters.set(filterName, currentFilters);
+    if (currentFilters.length > 0) {
+      ckan.views.viewhelpers.filters.set(filterName, currentFilters);
+    } else {
+      ckan.views.viewhelpers.filters.unset(filterName);
+    }
   }
 
   return {
