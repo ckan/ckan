@@ -3,7 +3,30 @@ this.ckan.module('basic-form', function (jQuery, _) {
     initialize: function () {
       var message = _('There are unsaved modifications to this form').fetch();
       this.el.incompleteFormWarning(message);
-      // Internet Explorer 7 fix for forms with <button type="submit">
+      this.el.on('click', '[data-type="submit"]', this._onSubmitElementClick);
+
+      // Internet Explorer 7 fix for forms with
+      this._setupFormSubmitCallbackOnIE7();
+    },
+
+    /* Event listener for when user clicks on secondary elements that have
+     * attribute [data-type="submit"]
+     *
+     * Returns nothing.
+     */
+    _onSubmitElementClick: function() {
+      var button = $(this);
+      var form = button.closest('form');
+      $('<input type="hidden">').prop('name', button.data('name')).prop('value', button.data('value')).appendTo(form);
+      form.submit();
+    },
+
+    /* Setup callback for form submission in IE7 as fallback
+     * due <button type="submit"> not be working.
+     *
+     * Returns nothing.
+     */
+    _setupFormSubmitCallbackOnIE7: function() {
       if ($('html').hasClass('ie7')) {
         this.el.on('submit', function() {
           var form = $(this);
