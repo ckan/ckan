@@ -25,11 +25,10 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
   }
 
   function _buildAddFilterButton(el, template, columnsValues, filters, onChangeCallback) {
-    // TODO: Add Object.keys() and .filter() method for browsers that don't implement it.
     var addFilterButton = $(template),
         currentFilters = Object.keys(filters),
         columns = Object.keys(columnsValues),
-        columnsNotFiltered = columns.filter(function (column) {
+        columnsNotFiltered = $.grep(columns, function (column) {
           return currentFilters.indexOf(column) == -1;
         }),
         data = $.map(columnsNotFiltered, function (d) {
@@ -137,3 +136,49 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
     }
   };
 });
+
+// BEGIN POLYFILLS
+// We need these to support older browsers
+
+// From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+if (!Object.keys) {
+  Object.keys = (function () {
+    'use strict';
+
+    var hasOwnProperty = Object.prototype.hasOwnProperty,
+        hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+        dontEnums = [
+          'toString',
+          'toLocaleString',
+          'valueOf',
+          'hasOwnProperty',
+          'isPrototypeOf',
+          'propertyIsEnumerable',
+          'constructor'
+        ],
+        dontEnumsLength = dontEnums.length;
+
+    return function (obj) {
+      if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+        throw new TypeError('Object.keys called on non-object');
+      }
+
+      var result = [], prop, i;
+
+      for (prop in obj) {
+        if (hasOwnProperty.call(obj, prop)) {
+          result.push(prop);
+        }
+      }
+
+      if (hasDontEnumBug) {
+        for (i = 0; i < dontEnumsLength; i++) {
+          if (hasOwnProperty.call(obj, dontEnums[i])) {
+            result.push(dontEnums[i]);
+          }
+        }
+      }
+      return result;
+    };
+  }());
+}
