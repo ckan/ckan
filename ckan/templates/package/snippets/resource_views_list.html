@@ -17,9 +17,16 @@
       </li>
   {% endif %}
 
+  {% set current_filters = request.str_queryvars.get('filters') %}
   {% for view in views %}
   	{% set is_selected = true if view_id == view.id else false %}
-    {% snippet "package/snippets/resource_views_list_item.html", view=view, pkg=pkg, is_edit=is_edit, is_selected=is_selected %}
+    {% snippet "package/snippets/resource_views_list_item.html",
+       view=view,
+       pkg=pkg,
+       is_edit=is_edit,
+       is_selected=is_selected,
+       current_filters=current_filters
+    %}
   {% endfor %}
 </ul>
 {% endif %}
