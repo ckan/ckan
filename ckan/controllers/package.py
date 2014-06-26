@@ -875,8 +875,9 @@ class PackageController(base.BaseController):
                 # prevent clearing of groups etc
                 context['allow_partial_update'] = True
                 # sort the tags
-                data_dict['tags'] = self._tag_string_to_list(
-                    data_dict['tag_string'])
+                if 'tag_string' in data_dict:
+                    data_dict['tags'] = self._tag_string_to_list(
+                        data_dict['tag_string'])
                 if data_dict.get('pkg_name'):
                     is_an_update = True
                     # This is actually an update not a save
