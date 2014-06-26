@@ -50,8 +50,10 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
       addFilterInput.select2({
         data: data,
         placeholder: 'Select a column',
-        width: '220px',
+        width: 'resolve',
       }).on('change', onChangeCallback);
+
+      evt.preventDefault();
     });
 
     return addFilterButton;
@@ -90,7 +92,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         data: values,
         allowClear: true,
         placeholder: ' ', // select2 needs a placeholder to allow clearing
-        width: '220px', // FIXME: Set this using CSS
+        width: 'resolve',
         initSelection: function (element, callback) {
           var data = {id: element.val(), text: element.val()};
           callback(data);
@@ -130,7 +132,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         '</div>',
       ].join('\n'),
       addFilterTemplate: [
-        '<a>Add Filter</a>',
+        '<a href="#">Add Filter</a>',
       ].join('\n')
     }
   };
