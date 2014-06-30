@@ -3,35 +3,35 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
 
   function initialize() {
     var self = this,
-        columnsValues = self.options.columnsValues,
+        resourceId = self.options.resourceId,
+        fields = self.options.fields,
         dropdownTemplate = self.options.dropdownTemplate,
         addFilterTemplate = self.options.addFilterTemplate,
         filtersDiv = $('<div></div>');
 
     var filters = ckan.views.viewhelpers.filters.get();
-    _appendDropdowns(filtersDiv, dropdownTemplate, columnsValues, filters);
-    var addFilterButton = _buildAddFilterButton(filtersDiv, addFilterTemplate, columnsValues, filters, function (evt) {
+    _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, fields, filters);
+    var addFilterButton = _buildAddFilterButton(filtersDiv, addFilterTemplate, fields, filters, function (evt) {
       // Build filters object with this element's val as key and a placeholder
       // value so _appendDropdowns() will create its dropdown
       var filters = {};
       filters[evt.val] = [];
 
       $(this).select2('destroy');
-      _appendDropdowns(filtersDiv, dropdownTemplate, columnsValues, filters);
+      _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, fields, filters);
       evt.preventDefault();
     });
     self.el.append(filtersDiv);
     self.el.append(addFilterButton);
   }
 
-  function _buildAddFilterButton(el, template, columnsValues, filters, onChangeCallback) {
+  function _buildAddFilterButton(el, template, fields, filters, onChangeCallback) {
     var addFilterButton = $(template),
         currentFilters = Object.keys(filters),
-        columns = Object.keys(columnsValues),
-        columnsNotFiltered = $.grep(columns, function (column) {
-          return !filters.hasOwnProperty(column);
+        fieldsNotFiltered = $.grep(fields, function (field) {
+          return !filters.hasOwnProperty(field);
         }),
-        data = $.map(columnsNotFiltered, function (d) {
+        data = $.map(fieldsNotFiltered, function (d) {
           return { id: d, text: d };
         });
 
@@ -48,7 +48,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
       // TODO: Remove element from "data" when some select selects it.
       addFilterInput.select2({
         data: data,
-        placeholder: 'Select a column',
+        placeholder: 'Select a field',
         width: 'resolve',
       }).on('change', onChangeCallback);
 
@@ -58,17 +58,16 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
     return addFilterButton;
   }
 
-  function _appendDropdowns(dropdowns, template, columnsValues, filters) {
-
-    $.each(columnsValues, function (filter, values) {
-      if (filters.hasOwnProperty(filter)) {
-        dropdowns.append(_buildDropdown(self.el, template, filter, values));
+  function _appendDropdowns(dropdowns, resourceId, template, fields, filters) {
+    $.each(fields, function (i, field) {
+      if (filters.hasOwnProperty(field)) {
+        dropdowns.append(_buildDropdown(self.el, template, field));
       }
     });
 
     return dropdowns;
 
-    function _buildDropdown(el, template, filterName, values) {
+    function _buildDropdown(el, template, filterName) {
       var theseFilters = filters[filterName] || [];
       template = $(template.replace(/{filter}/g, filterName));
       // FIXME: Get the CSS class from some external variable
@@ -87,11 +86,46 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         dropdowns.append(dropdown);
       });
 
+      var queryLimit = 100;
       dropdowns.find('input').select2({
-        data: values,
         allowClear: true,
         placeholder: ' ', // select2 needs a placeholder to allow clearing
         width: 'resolve',
+        minimumInputLength: 0,
+        ajax: {
+          url: '/api/3/action/datastore_search',
+          datatype: 'json',
+          quietMillis: 200,
+          cache: true,
+          data: function (term, page) {
+            var limit = queryLimit + 1, // Get 1 more than the queryLimit
+                                        // so we can test later if there's more
+                                        // data
+                offset = (page - 1) * queryLimit;
+            return {
+              q: term,
+              resource_id: resourceId,
+              limit: queryLimit + 1,
+              offset: offset,
+              fields: filterName,
+              sort: filterName
+            };
+          },
+          results: function (data, page) {
+            var uniqueResults = {},
+                results = data.result.records.slice(0, queryLimit),
+                hasMore = (data.result.records.length == queryLimit + 1),
+                theData;
+            $.each(results, function (i, record) {
+              uniqueResults[record[filterName]] = true;
+            });
+            theData = $.map(Object.keys(uniqueResults), function (record) {
+              return { id: record, text: record };
+            });
+
+            return { results: theData, more: hasMore };
+          }
+        },
         initSelection: function (element, callback) {
           var data = {id: element.val(), text: element.val()};
           callback(data);
