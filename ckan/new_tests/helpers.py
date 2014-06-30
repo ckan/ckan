@@ -17,6 +17,8 @@ potential drawbacks.
 This module is reserved for these very useful functions.
 
 '''
+import os
+
 import webtest
 from pylons import config
 import nose.tools
@@ -139,6 +141,123 @@ def _get_test_app():
     app = ckan.config.middleware.make_app(config['global_conf'], **config)
     app = webtest.TestApp(app)
     return app
+
+
+class FunctionalTestBase():
+    '''A base class for functional test classes to inherit from.
+
+    Allows configuration changes by overriding _apply_config_changes and
+    resetting the CKAN config after your test class has run. It creates a
+    webtest.TestApp at self.app for your class to use to make HTTP requests
+    to the CKAN web UI or API.
+
+    If you're overriding methods that this class provides, like setup_class()
+    and teardown_class(), make sure to use super() to call this class's methods
+    at the top of yours!
+
+    '''
+    @classmethod
+    def _get_test_app(cls):  # leading _ because nose is terrible
+        # FIXME: remove this method and switch to using helpers.get_test_app
+        # in each test once the old functional tests are fixed or removed
+        if not hasattr(cls, '_test_app'):
+            cls._test_app = _get_test_app()
+        return cls._test_app
+
+    @classmethod
+    def setup_class(cls):
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        cls._original_config = dict(config)
+        cls._apply_config_changes(config)
+        cls._get_test_app()
+
+    @classmethod
+    def _apply_config_changes(cls, cfg):
+        pass
+
+    def setup(self):
+        reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        # Restore the Pylons config to its original values, in case any tests
+        # changed any config settings.
+        config.clear()
+        config.update(cls._original_config)
+
+
+def submit_and_follow(app, form, extra_environ, name=None,
+                      value=None, **args):
+    '''
+    Call webtest_submit with name/value passed expecting a redirect
+    and return the response from following that redirect.
+    '''
+    response = webtest_submit(form, name, value=value, status=302,
+                              extra_environ=extra_environ, **args)
+    return app.get(url=response.headers['Location'],
+                   extra_environ=extra_environ)
+
+
+## FIXME: remove webtest_* functions below when we upgrade webtest
+
+def webtest_submit(form, name=None, index=None, value=None, **args):
+    '''
+    backported version of webtest.Form.submit that actually works
+    for submitting with different submit buttons.
+
+    We're stuck on an old version of webtest because we're stuck
+    on an old version of webob because we're stuck on an old version
+    of Pylons. This prolongs our suffering, but on the bright side
+    it lets us have functional tests that work.
+    '''
+    fields = webtest_submit_fields(form, name, index=index, submit_value=value)
+    if form.method.upper() != "GET":
+        args.setdefault("content_type",  form.enctype)
+    return form.response.goto(form.action, method=form.method,
+                              params=fields, **args)
+
+
+def webtest_submit_fields(form, name=None, index=None, submit_value=None):
+    '''
+    backported version of webtest.Form.submit_fields that actually works
+    for submitting with different submit buttons.
+    '''
+    from webtest.app import File
+    submit = []
+    # Use another name here so we can keep function param the same for BWC.
+    submit_name = name
+    if index is not None and submit_value is not None:
+        raise ValueError("Can't specify both submit_value and index.")
+
+    # If no particular button was selected, use the first one
+    if index is None and submit_value is None:
+        index = 0
+
+    # This counts all fields with the submit name not just submit fields.
+    current_index = 0
+    for name, field in form.field_order:
+        if name is None:  # pragma: no cover
+            continue
+        if submit_name is not None and name == submit_name:
+            if index is not None and current_index == index:
+                submit.append((name, field.value_if_submitted()))
+            if submit_value is not None and \
+               field.value_if_submitted() == submit_value:
+                submit.append((name, field.value_if_submitted()))
+            current_index += 1
+        else:
+            value = field.value
+            if value is None:
+                continue
+            if isinstance(field, File):
+                submit.append((name, field))
+                continue
+            if isinstance(value, list):
+                for item in value:
+                    submit.append((name, item))
+            else:
+                submit.append((name, value))
+    return submit
 
 
 def change_config(key, value):
