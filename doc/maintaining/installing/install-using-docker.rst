@@ -2,6 +2,10 @@
 Installing CKAN using a Docker image
 ====================================
 
+.. important::
+   These instructions require Docker >=1.0. The released version of Docker is
+   1.0.1 as at this writing.
+
 .. note::
    Installing CKAN using a Docker image is currently under evaluation. There may
    be omissions or inaccuracies in this documentation. Proceed with caution.
