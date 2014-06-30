@@ -8,7 +8,9 @@ Installing CKAN using a Docker image
 
 .. note::
    Installing CKAN using a Docker image is currently under evaluation. There may
-   be omissions or inaccuracies in this documentation. Proceed with caution.
+   be omissions or inaccuracies in this documentation. In particular, the
+   current Docker image omits the configuration required to run the
+   DataStore/DataPusher. Proceed with caution.
 
 This section describes how to install CKAN using a Docker_ image. Docker is a
 tool that allows all kinds of software to be shipped and deployed in a standard
