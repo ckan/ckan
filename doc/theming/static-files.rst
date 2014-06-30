@@ -54,10 +54,12 @@ override the ``promoted.html`` template snippet. Create the following directory
 and file::
 
  ckanext-example_theme/
-   templates/
-     home/
-       snippets/
-         promoted.html
+   ckanext/
+     example_theme/
+       templates/
+         home/
+           snippets/
+             promoted.html
 
 Edit your new ``promoted.html`` snippet, and insert these contents:
 

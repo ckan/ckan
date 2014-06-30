@@ -391,7 +391,7 @@ class SearchIndexCommand(CkanCommand):
     Usage:
       search-index [-i] [-o] [-r] [-e] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
                                                                  full search index (all datasets)
-      search-index rebuild_fast                                - reindex using multiprocessing using all cores. 
+      search-index rebuild_fast                                - reindex using multiprocessing using all cores.
                                                                  This acts in the same way as rubuild -r [EXPERIMENTAL]
       search-index check                                       - checks for datasets not indexed
       search-index show DATASET_NAME                           - shows index of a dataset
@@ -748,7 +748,7 @@ class UserCmd(CkanCommand):
     def list(self):
         import ckan.model as model
         print 'Users:'
-        users = model.Session.query(model.User)
+        users = model.Session.query(model.User).filter_by(state = 'active')
         print 'count = %i' % users.count()
         for user in users:
             print self.get_user_str(user)
