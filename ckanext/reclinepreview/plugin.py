@@ -78,6 +78,7 @@ class ReclinePreview(ReclineView):
     def info(self):
         return {'name': 'recline_preview',
                 'title': 'Data Explorer',
+                'filterable': True,
                 'icon': 'table'}
 
 
@@ -89,6 +90,7 @@ class ReclineGrid(ReclineView):
     def info(self):
         return {'name': 'recline_grid',
                 'title': 'Grid',
+                'filterable': True,
                 'icon': 'table'}
 
 
@@ -128,6 +130,7 @@ class ReclineGraph(ReclineView):
         return {'name': 'recline_graph',
                 'title': 'Graph',
                 'icon': 'bar-chart',
+                'filterable': True,
                 'schema': schema}
 
     def setup_template_variables(self, context, data_dict):
@@ -182,6 +185,7 @@ class ReclineMap(ReclineView):
         return {'name': 'recline_map',
                 'title': 'Map',
                 'schema': schema,
+                'filterable': True,
                 'icon': 'map-marker'}
 
     def setup_template_variables(self, context, data_dict):
