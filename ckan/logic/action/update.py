@@ -19,8 +19,8 @@ import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.email_notifications as email_notifications
 import ckan.lib.search as search
-import ckan.lib.datapreview as datapreview
 import ckan.lib.uploader as uploader
+import ckan.lib.datapreview
 
 from ckan.common import _, request
 
@@ -260,15 +260,14 @@ def resource_view_update(context, data_dict):
     '''
     model = context['model']
     id = _get_or_bust(data_dict, "id")
-    schema = (context.get('schema') or
-              ckan.logic.schema.default_update_resource_view_schema())
-
 
     resource_view = model.ResourceView.get(id)
     if not resource_view:
         raise NotFound
 
-    view_plugin = datapreview.get_view_plugin(resource_view.view_type)
+    view_plugin = ckan.lib.datapreview.get_view_plugin(resource_view.view_type)
+    schema = (context.get('schema') or
+              schema_.default_update_resource_view_schema(view_plugin))
     plugin_schema = view_plugin.info().get('schema', {})
     schema.update(plugin_schema)
 
@@ -277,7 +276,7 @@ def resource_view_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    context["resource_view"] = resource_view
+    context['resource_view'] = resource_view
     context['resource'] = model.Resource.get(resource_view.resource_id)
 
     _check_access('resource_view_update', context, data_dict)

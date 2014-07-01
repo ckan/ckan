@@ -412,6 +412,25 @@ class TestResourceViewUpdate(object):
         assert_equals(result['title'], params['title'])
         assert_equals(result['description'], params['description'])
 
+    @mock.patch('ckan.lib.datapreview')
+    def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(self, datapreview_mock):
+        filterable_view = mock.MagicMock()
+        filterable_view.info.return_value = { 'filterable': True }
+        datapreview_mock.get_view_plugin.return_value = filterable_view
+        resource_view = factories.ResourceView()
+        context = {}
+        params = {
+            'id': resource_view['id'],
+            'filter_fields': ['country', 'weather', 'country'],
+            'filter_values': ['Brazil', 'warm', 'Argentina']
+        }
+        result = helpers.call_action('resource_view_update', context, **params)
+        expected_filters = {
+            'country': ['Brazil', 'Argentina'],
+            'weather': ['warm']
+        }
+        assert_equals(result['filters'], expected_filters)
+
     def test_resource_view_update_requires_id(self):
         params = {}
 

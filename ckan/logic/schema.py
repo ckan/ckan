@@ -643,8 +643,8 @@ def default_create_resource_view_schema(resource_view):
     return schema
 
 
-def default_update_resource_view_schema():
-    schema = default_create_resource_view_schema()
+def default_update_resource_view_schema(resource_view):
+    schema = default_create_resource_view_schema(resource_view)
     schema.update({
         'id': [not_missing, not_empty, unicode],
         'resource_id': [ignore_missing, resource_id_exists],
