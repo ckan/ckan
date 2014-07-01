@@ -427,3 +427,12 @@ class TestResourceViewUpdate(object):
         nose.tools.assert_raises(logic.NotFound,
                                  helpers.call_action,
                                  'resource_view_update', **params)
+
+    def test_calling_with_only_id_doesnt_update_anything(self):
+        resource_view = factories.ResourceView()
+        params = {
+            'id': resource_view['id']
+        }
+
+        result = helpers.call_action('resource_view_update', **params)
+        assert_equals(result, resource_view)
