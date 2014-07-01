@@ -1,6 +1,5 @@
 import json
 import datetime
-import shlex
 import os
 import urllib
 import urllib2
@@ -9,6 +8,7 @@ import random
 import string
 import logging
 import pprint
+import copy
 
 import distutils.version
 import sqlalchemy
@@ -16,12 +16,14 @@ from sqlalchemy.exc import (ProgrammingError, IntegrityError,
                             DBAPIError, DataError)
 import psycopg2.extras
 import ckan.lib.cli as cli
+import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
+import ckanext.datastore.interfaces as interfaces
+import ckanext.datastore.helpers as datastore_helpers
 
 log = logging.getLogger(__name__)
 
 if not os.environ.get('DATASTORE_LOAD'):
-    import paste.deploy.converters as converters
     ValidationError = toolkit.ValidationError
 else:
     log.warn("Running datastore without CKAN")
@@ -61,28 +63,8 @@ _UPSERT = 'upsert'
 _UPDATE = 'update'
 
 
-def _strip(input):
-    if isinstance(input, basestring) and len(input) and input[0] == input[-1]:
-        return input.strip().strip('"')
-    return input
-
-
 def _pluck(field, arr):
     return [x[field] for x in arr]
-
-
-def _get_list(input, strip=True):
-    '''Transforms a string or list to a list'''
-    if input is None:
-        return
-    if input == '':
-        return []
-
-    l = converters.aslist(input, ',', True)
-    if strip:
-        return [_strip(x) for x in l]
-    else:
-        return l
 
 
 def _is_valid_field_name(name):
@@ -99,19 +81,6 @@ def _is_valid_table_name(name):
     if '%' in name:
         return False
     return _is_valid_field_name(name)
-
-
-def _validate_int(i, field_name, non_negative=False):
-    try:
-        i = int(i)
-    except ValueError:
-        raise ValidationError({
-            field_name: ['{0} is not an integer'.format(i)]
-        })
-    if non_negative and i < 0:
-        raise ValidationError({
-            field_name: ['{0} is not a non-negative integer'.format(i)]
-        })
 
 
 def _get_engine(data_dict):
@@ -371,7 +340,7 @@ def _get_resources(context, alias):
 
 
 def create_alias(context, data_dict):
-    aliases = _get_list(data_dict.get('aliases'))
+    aliases = datastore_helpers.get_list(data_dict.get('aliases'))
     if aliases is not None:
         # delete previous aliases
         previous_aliases = _get_aliases(context, data_dict)
@@ -404,10 +373,10 @@ def create_alias(context, data_dict):
 
 
 def create_indexes(context, data_dict):
-    indexes = _get_list(data_dict.get('indexes'))
+    indexes = datastore_helpers.get_list(data_dict.get('indexes'))
     # primary key is not a real primary key
     # it's just a unique key
-    primary_key = _get_list(data_dict.get('primary_key'))
+    primary_key = datastore_helpers.get_list(data_dict.get('primary_key'))
 
     # index and primary key could be [],
     # which means that indexes should be deleted
@@ -452,7 +421,7 @@ def create_indexes(context, data_dict):
         if not index:
             continue
 
-        index_fields = _get_list(index)
+        index_fields = datastore_helpers.get_list(index)
         for field in index_fields:
             if field not in field_ids:
                 raise ValidationError({
@@ -745,90 +714,29 @@ def _to_full_text(fields, record):
     return ' '.join(full_text)
 
 
-def _where(field_ids, data_dict):
-    '''Return a SQL WHERE clause from data_dict filters and q'''
-    filters = data_dict.get('filters', {})
+def _where(where_clauses_and_values):
+    '''Return a SQL WHERE clause from list with clauses and values
 
-    if not isinstance(filters, dict):
-        raise ValidationError({
-            'filters': ['Not a json object']}
-        )
+    :param where_clauses_and_values: list of tuples with format
+        (where_clause, param1, ...)
+    :type where_clauses_and_values: list of tuples
 
+    :returns: SQL WHERE string with placeholders for the parameters, and list
+        of parameters
+    :rtype: string
+    '''
     where_clauses = []
     values = []
 
-    for field, value in filters.iteritems():
-        if field not in field_ids:
-            raise ValidationError({
-                'filters': ['field "{0}" not in table'.format(field)]}
-            )
-        where_clauses.append(u'"{0}" = %s'.format(field))
-        values.append(value)
-
-    # add full-text search where clause
-    if data_dict.get('q'):
-        where_clauses.append(u'_full_text @@ query')
+    for clause_and_values in where_clauses_and_values:
+        where_clauses.append('(' + clause_and_values[0] + ')')
+        values += clause_and_values[1:]
 
     where_clause = u' AND '.join(where_clauses)
     if where_clause:
         where_clause = u'WHERE ' + where_clause
+
     return where_clause, values
-
-
-def _textsearch_query(data_dict):
-    q = data_dict.get('q')
-    lang = data_dict.get(u'language', u'english')
-    if q:
-        if data_dict.get('plain', True):
-            statement = u", plainto_tsquery('{lang}', '{query}') query"
-        else:
-            statement = u", to_tsquery('{lang}', '{query}') query"
-
-        rank_column = u', ts_rank(_full_text, query, 32) AS rank'
-        return statement.format(lang=lang, query=q), rank_column
-    return '', ''
-
-
-def _sort(context, data_dict, field_ids):
-    sort = data_dict.get('sort')
-    if not sort:
-        if data_dict.get('q'):
-            return u'ORDER BY rank'
-        else:
-            return u''
-
-    clauses = _get_list(sort, False)
-
-    clause_parsed = []
-
-    for clause in clauses:
-        clause = clause.encode('utf-8')
-        clause_parts = shlex.split(clause)
-        if len(clause_parts) == 1:
-            field, sort = clause_parts[0], 'asc'
-        elif len(clause_parts) == 2:
-            field, sort = clause_parts
-        else:
-            raise ValidationError({
-                'sort': ['not valid syntax for sort clause']
-            })
-        field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
-
-        if field not in field_ids:
-            raise ValidationError({
-                'sort': [u'field "{0}" not in table'.format(
-                    field)]
-            })
-        if sort.lower() not in ('asc', 'desc'):
-            raise ValidationError({
-                'sort': ['sorting can only be asc or desc']
-            })
-        clause_parsed.append(u'"{0}" {1}'.format(
-            field, sort)
-        )
-
-    if clause_parsed:
-        return "order by " + ", ".join(clause_parsed)
 
 
 def _insert_links(data_dict, limit, offset):
@@ -839,7 +747,7 @@ def _insert_links(data_dict, limit, offset):
     # get the url from the request
     try:
         urlstring = toolkit.request.environ['CKAN_CURRENT_URL']
-    except TypeError:
+    except (KeyError, TypeError):
         return  # no links required for local actions
 
     # change the offset in the url
@@ -870,71 +778,128 @@ def _insert_links(data_dict, limit, offset):
 
 
 def delete_data(context, data_dict):
+    validate(context, data_dict)
     fields = _get_fields(context, data_dict)
     field_ids = set([field['id'] for field in fields])
-    where_clause, where_values = _where(field_ids, data_dict)
 
-    context['connection'].execute(
-        u'DELETE FROM "{0}" {1}'.format(
-            data_dict['resource_id'],
-            where_clause
-        ),
-        where_values
+    query_dict = {
+        'where': []
+    }
+
+    for plugin in p.PluginImplementations(interfaces.IDatastore):
+        query_dict = plugin.datastore_delete(context, data_dict,
+                                             field_ids, query_dict)
+
+    where_clause, where_values = _where(query_dict['where'])
+    sql_string = u'DELETE FROM "{0}" {1}'.format(
+        data_dict['resource_id'],
+        where_clause
     )
+
+    _execute_single_statement(context, sql_string, where_values)
+
+
+def validate(context, data_dict):
+    all_fields = _get_fields(context, data_dict)
+    all_field_ids = _pluck('id', all_fields)
+    all_field_ids.insert(0, '_id')
+    data_dict_copy = copy.deepcopy(data_dict)
+
+    # TODO: Convert all attributes that can be a comma-separated string to
+    # lists
+    if 'fields' in data_dict_copy:
+        fields = datastore_helpers.get_list(data_dict_copy['fields'])
+        data_dict_copy['fields'] = fields
+    if 'sort' in data_dict_copy:
+        fields = datastore_helpers.get_list(data_dict_copy['sort'], False)
+        data_dict_copy['sort'] = fields
+
+    for plugin in p.PluginImplementations(interfaces.IDatastore):
+        data_dict_copy = plugin.datastore_validate(context,
+                                                   data_dict_copy,
+                                                   all_field_ids)
+
+    # Remove default elements in data_dict
+    del data_dict_copy['connection_url']
+    del data_dict_copy['resource_id']
+    data_dict_copy.pop('id', None)
+
+    for key, values in data_dict_copy.iteritems():
+        if not values:
+            continue
+        if isinstance(values, basestring):
+            value = values
+        elif isinstance(values, (list, tuple)):
+            value = values[0]
+        elif isinstance(values, dict):
+            value = values.keys()[0]
+        else:
+            value = values
+
+        raise ValidationError({
+            key: [u'invalid value "{0}"'.format(value)]
+        })
+
+    return True
 
 
 def search_data(context, data_dict):
+    validate(context, data_dict)
     all_fields = _get_fields(context, data_dict)
     all_field_ids = _pluck('id', all_fields)
     all_field_ids.insert(0, '_id')
 
-    fields = data_dict.get('fields')
+    query_dict = {
+        'select': [],
+        'sort': [],
+        'where': []
+    }
 
-    if fields:
-        field_ids = _get_list(fields)
+    for plugin in p.PluginImplementations(interfaces.IDatastore):
+        query_dict = plugin.datastore_search(context, data_dict,
+                                             all_field_ids, query_dict)
 
-        for field in field_ids:
-            if not field in all_field_ids:
-                raise ValidationError({
-                    'fields': [u'field "{0}" not in table'.format(field)]}
-                )
+    where_clause, where_values = _where(query_dict['where'])
+
+    # FIXME: Remove duplicates on select columns
+    select_columns = ', '.join(query_dict['select'])
+    ts_query = query_dict['ts_query']
+    sort = query_dict['sort']
+    limit = query_dict['limit']
+    offset = query_dict['offset']
+
+    if sort:
+        sort_clause = 'ORDER BY %s' % ', '.join(sort)
     else:
-        field_ids = all_field_ids
+        sort_clause = ''
 
-    select_columns = ', '.join([u'"{0}"'.format(field_id)
-                                for field_id in field_ids])
-    ts_query, rank_column = _textsearch_query(data_dict)
-    where_clause, where_values = _where(all_field_ids, data_dict)
-    limit = data_dict.get('limit', 100)
-    offset = data_dict.get('offset', 0)
-
-    _validate_int(limit, 'limit', non_negative=True)
-    _validate_int(offset, 'offset', non_negative=True)
-
-    if 'limit' in data_dict:
-        data_dict['limit'] = int(limit)
-    if 'offset' in data_dict:
-        data_dict['offset'] = int(offset)
-
-    sort = _sort(context, data_dict, field_ids)
-
-    sql_string = u'''SELECT {select}, count(*) over() AS "_full_count" {rank}
+    sql_string = u'''SELECT {select}
                     FROM "{resource}" {ts_query}
                     {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
         select=select_columns,
-        rank=rank_column,
         resource=data_dict['resource_id'],
         ts_query=ts_query,
         where='{where}',
-        sort=sort,
+        sort=sort_clause,
         limit=limit,
         offset=offset)
-    sql_string = sql_string.replace('%', '%%')
-    results = context['connection'].execute(
-        sql_string.format(where=where_clause), [where_values])
+    sql_string = sql_string.replace('%', '%%').format(where=where_clause)
+
+    results = _execute_single_statement(context, sql_string, where_values)
 
     _insert_links(data_dict, limit, offset)
     return format_results(context, results, data_dict)
+
+
+def _execute_single_statement(context, sql_string, where_values):
+    if not datastore_helpers.is_single_statement(sql_string):
+        raise ValidationError({
+            'query': ['Query is not a single statement.']
+        })
+
+    results = context['connection'].execute(sql_string, [where_values])
+
+    return results
 
 
 def format_results(context, results, data_dict):
@@ -960,10 +925,6 @@ def format_results(context, results, data_dict):
     data_dict['fields'] = result_fields
 
     return _unrename_json_field(data_dict)
-
-
-def _is_single_statement(sql):
-    return not ';' in sql.strip(';')
 
 
 def create(context, data_dict):
