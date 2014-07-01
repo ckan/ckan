@@ -26,6 +26,25 @@ we add a ``get()`` method to ``ckan.model.user.User``::
 
 Now we can call this method from the logic package.
 
+
+-----------------------------------
+Don't pass ORM objects to templates
+-----------------------------------
+
+Don't pass SQLAlchemy ORM objects (e.g. :py:class:`ckan.model.User` objects)
+to templates (for example by adding them to :py:data:`c`, passing them to
+:py:func:`~ckan.lib.base.render` in the ``extra_vars`` dict, returning them
+from template helper functions, etc.)
+
+Using ORM objects in the templates often creates SQLAlchemy "detached instance"
+errors that cause 500 Server Errors and can be difficult to debug.
+
+Instead, ORM objects should be dictized and their dictionary forms should be
+passed to templates. Controllers can dictize ORM objects using the funtions in
+:py:mod:`ckan.lib.dictization`, but they should probably just get dictionaries
+from :py:mod:`ckan.logic.action` functions instead.
+
+
 --------------------------------------
 Always go through the action functions
 --------------------------------------
