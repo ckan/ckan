@@ -41,7 +41,7 @@ def proxy_resource(context, data_dict):
             did_get = True
         r.raise_for_status()
 
-        cl = r.headers['content-length']
+        cl = r.headers.get('content-length')
         if cl and int(cl) > MAX_FILE_SIZE:
             base.abort(409, '''Content is too large to be proxied. Allowed
                 file size: {allowed}, Content-Length: {actual}.'''.format(
