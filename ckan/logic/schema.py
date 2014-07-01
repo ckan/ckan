@@ -55,11 +55,14 @@ from ckan.logic.validators import (package_id_not_changed,
                                    if_empty_guess_format,
                                    clean_format,
                                    no_loops_in_hierarchy,
+                                   filter_fields_and_values_should_have_same_length,
+                                   filter_fields_and_values_exist_and_are_valid,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,
                                    convert_to_json_if_string,
+                                   convert_to_list_if_string,
                                    remove_whitespace,
                                    )
 from formencode.validators import OneOf
@@ -620,7 +623,7 @@ def create_schema_for_required_keys(keys):
     return schema
 
 
-def default_create_resource_view_schema():
+def default_create_resource_view_schema(resource_view):
     schema = {
         'resource_id': [not_empty, resource_id_exists],
         'title': [not_empty, unicode],
@@ -628,6 +631,15 @@ def default_create_resource_view_schema():
         'view_type': [not_empty, unicode],
         '__extras': [empty],
     }
+    if resource_view.info().get('filterable'):
+        validators = [ignore_missing,
+                      convert_to_list_if_string,
+                      filter_fields_and_values_should_have_same_length,
+                      filter_fields_and_values_exist_and_are_valid]
+
+        schema['filter_fields'] = validators
+        schema['filter_values'] = [ignore_missing, convert_to_list_if_string]
+
     return schema
 
 

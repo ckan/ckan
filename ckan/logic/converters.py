@@ -183,6 +183,13 @@ def convert_to_json_if_string(value, context):
         return value
 
 
+def convert_to_list_if_string(value, context=None):
+    if isinstance(value, basestring):
+        return [value]
+    else:
+        return value
+
+
 def remove_whitespace(value, context):
     if isinstance(value, basestring):
         return value.strip()
