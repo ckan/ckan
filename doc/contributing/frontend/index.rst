@@ -24,9 +24,9 @@ The front end stylesheets are written using
 `LESS <http://lesscss.org/>`_ (this depends on
 `node.js <http://nodejs.org/>`_ being installed on the system)
 
-Instructions for installing node can be found on the `node.js
-website <http://nodejs.org/>`_. On Ubuntu node.js (and npm node.js's package
-manager) need to be installed via a `PPA
+Instructions for installing node can be found on the `node.js website
+<http://nodejs.org/>`_. On Ubuntu 12.04 to 13.04, node.js (and npm node.js's
+package manager) need to be installed via a `PPA
 <https://launchpad.net/~chris-lea/+archive/node.js/>`_:
 
 ::
@@ -39,6 +39,15 @@ Now run the command to install nodejs from the repository:
 ::
 
     $ sudo apt-get install nodejs
+
+On Ubuntu versions later than 13.04, npm can be installed directly from Ubuntu
+packages
+
+::
+    $ sudo apt-get install npm
+
+For more information, refer to the `Node wiki
+<https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager#ubuntu-mint-elementary-os>`_.
 
 LESS can then be installed via the node package manager which is bundled
 with node (or installed with apt as it is not bundled with node.js on

@@ -408,3 +408,9 @@ error, install frontend dependencies. See :doc:`/contributing/frontend/index`.
 
 After installing the dependencies, run `bin/less` and then start paster server
 again.
+
+If you do not want to compile CSS, you can also copy the main.css to
+main.debug.css to get CKAN running.
+
+    cp /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.css \
+    /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.debug.css
