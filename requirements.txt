@@ -13,8 +13,8 @@ PasteScript==1.7.5
 Pygments==1.6
 Pylons==0.9.7
 Routes==1.13
-SQLAlchemy==0.7.8
-Tempita==0.5.1
+SQLAlchemy==0.9.6
+Tempita==0.5.2
 WebError==0.10.3
 WebHelpers==1.3
 WebOb==1.0.8
@@ -25,6 +25,7 @@ decorator==3.4.0
 fanstatic==0.12
 nose==1.3.0
 ofs==0.4.1
+pbr==0.8.2
 psycopg2==2.4.5
 python-dateutil==1.5
 python-openid==2.2.5
@@ -35,9 +36,11 @@ repoze.who-friendlyform==1.0.8
 repoze.who.plugins.openid==0.5.3
 requests==1.1.0
 simplejson==3.3.1
+six==1.7.3
 solrpy==0.9.5
-sqlalchemy-migrate==0.7.2
+sqlalchemy-migrate==0.9.1
 unicodecsv==0.9.4
-vdm==0.11
+# Temporal, this will be vdm=0.13
+-e git+https://github.com/okfn/vdm@sqlalchemy-0.9-support#egg=vdm
 wsgiref==0.1.2
 zope.interface==4.0.1
