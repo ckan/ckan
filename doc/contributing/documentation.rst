@@ -76,7 +76,9 @@ terminal:
     virtualenv --no-site-packages pyenv
     . pyenv/bin/activate
     pip install -e 'git+https://github.com/ckan/ckan.git#egg=ckan'
-    pip install -r pyenv/src/ckan/dev-requirements.txt
+    cd pyenv/src/ckan/
+    pip install -r dev-requirements.txt
+    pip install -r requirements.txt
 
 
 Build the docs
@@ -88,16 +90,16 @@ virtual environment is activated, and then run this command::
     python setup.py build_sphinx
 
 Now you can open the built HTML files in
-``pyenv/src/ckan/build/sphinx/html``, e.g.::
+``build/sphinx/html``, e.g.::
 
-    firefox pyenv/src/ckan/build/sphinx/html/index.html
+    firefox build/sphinx/html/index.html
 
 
 Edit the reStructuredText files
 ===============================
 
 To make changes to the documentation, use a text editor to edit the ``.rst``
-files in ``pyenv/src/ckan/doc/``. Save your changes and then build the docs
+files in ``doc/``. Save your changes and then build the docs
 again (``python setup.py build_sphinx``) and open the HTML files in a web
 browser to preview your changes.
 
