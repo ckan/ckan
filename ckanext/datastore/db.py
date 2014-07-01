@@ -801,8 +801,8 @@ def delete_data(context, data_dict):
 
 def validate(context, data_dict):
     all_fields = _get_fields(context, data_dict)
-    all_field_ids = _pluck('id', all_fields)
-    all_field_ids.insert(0, '_id')
+    column_names = _pluck('id', all_fields)
+    column_names.insert(0, '_id')
     data_dict_copy = copy.deepcopy(data_dict)
 
     # TODO: Convert all attributes that can be a comma-separated string to
@@ -817,7 +817,7 @@ def validate(context, data_dict):
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         data_dict_copy = plugin.datastore_validate(context,
                                                    data_dict_copy,
-                                                   all_field_ids)
+                                                   column_names)
 
     # Remove default elements in data_dict
     del data_dict_copy['connection_url']
@@ -846,8 +846,8 @@ def validate(context, data_dict):
 def search_data(context, data_dict):
     validate(context, data_dict)
     all_fields = _get_fields(context, data_dict)
-    all_field_ids = _pluck('id', all_fields)
-    all_field_ids.insert(0, '_id')
+    column_names = _pluck('id', all_fields)
+    column_names.insert(0, '_id')
 
     query_dict = {
         'select': [],
@@ -857,7 +857,7 @@ def search_data(context, data_dict):
 
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         query_dict = plugin.datastore_search(context, data_dict,
-                                             all_field_ids, query_dict)
+                                             column_names, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
 
