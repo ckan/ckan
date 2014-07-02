@@ -138,7 +138,7 @@ def latest_release_tag():
     if release_tags:
         return release_tags[-1]
     else:
-        return 'COULD NOT DETECT VERSION NUMBER'
+        return 'COULD_NOT_DETECT_VERSION_NUMBER'
 
 
 def latest_release_version():
