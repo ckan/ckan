@@ -9,15 +9,13 @@ Example:
 
     {% snippet 'package/snippets/stages.html', stages=['active'] %}
     {% snippet 'package/snippets/stages.html', stages=['complete', 'active'] %}
-    {% snippet 'package/snippets/stages.html', stages=['active', 'complete', 'complete'] %}
+    {% snippet 'package/snippets/stages.html', stages=['active', 'complete'] %}
 
 #}
 {% set s1 = stages[0] or 'active' %}
 {% set s2 = stages[1] or 'uncomplete' %}
-{% set s3 = stages[2] or 'uncomplete' %}
 {% if s1 != 'uncomplete' %}{% set class = 'stage-1' %}{% endif %}
 {% if s2 != 'uncomplete' %}{% set class = 'stage-2' %}{% endif %}
-{% if s3 != 'uncomplete' %}{% set class = 'stage-3' %}{% endif %}
 
 <ol class="stages {{ class }}">
   <li class="first {{ s1 }}">
@@ -27,27 +25,15 @@ Example:
       <button class="highlight" name="save" value="go-dataset" type="submit">{{ _('Create dataset') }}</button>
     {% endif %}
   </li>
-  <li class="middle {{ s2 }}">
+  <li class="last {{ s2 }}">
     {% if s2 != 'complete' %}
       <span class="highlight">{{ _('Add data') }}</span>
     {% else %}
-      {% if s1 == 'active' or s3 == 'active'%}
+      {% if s1 == 'active' %}
         {# stage 1 #}
         <button class="highlight" name="save" value="go-resources" type="submit">{{ _('Add data') }}</button>
       {% else %}
         {% link_for _('Add data'), controller='package', action='new', class_="highlight" %}
-      {% endif %}
-    {% endif %}
-  </li>
-  <li class="last {{ s3 }}">
-    {% if s3 != 'complete' %}
-      <span class="highlight">{{ _('Additional info') }}</span>
-    {% else %}
-      {% if s1 == 'active' or s2 == 'active' %}
-        {# stage 1 #}
-        <button class="highlight" name="save" value="go-metadata" type="submit">{{ _('Additional info') }}</button>
-      {% else %}
-        {% link_for _('Additional info'), controller='package', action='new', class_="highlight" %}{{ s2 }}
       {% endif %}
     {% endif %}
   </li>

@@ -8,6 +8,7 @@ import ckan.logic as logic
 import ckan.plugins as p
 import ckanext.datastore.db as db
 import ckanext.datastore.logic.schema as dsschema
+import ckanext.datastore.helpers as datastore_helpers
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -113,12 +114,14 @@ def datastore_create(context, data_dict):
             res['url_type'] = 'datastore'
             p.toolkit.get_action('resource_update')(context, res)
     else:
-        _check_read_only(context, data_dict)
+        if not data_dict.pop('force', False):
+            resource_id = data_dict['resource_id']
+            _check_read_only(context, resource_id)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     # validate aliases
-    aliases = db._get_list(data_dict.get('aliases', []))
+    aliases = datastore_helpers.get_list(data_dict.get('aliases', []))
     for alias in aliases:
         if not db._is_valid_table_name(alias):
             raise p.toolkit.ValidationError({
@@ -185,7 +188,9 @@ def datastore_upsert(context, data_dict):
 
     p.toolkit.check_access('datastore_upsert', context, data_dict)
 
-    _check_read_only(context, data_dict)
+    if not data_dict.pop('force', False):
+        resource_id = data_dict['resource_id']
+        _check_read_only(context, resource_id)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
@@ -233,7 +238,9 @@ def datastore_delete(context, data_dict):
 
     p.toolkit.check_access('datastore_delete', context, data_dict)
 
-    _check_read_only(context, data_dict)
+    if not data_dict.pop('force', False):
+        resource_id = data_dict['resource_id']
+        _check_read_only(context, resource_id)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
@@ -373,11 +380,9 @@ def datastore_search_sql(context, data_dict):
     '''
     sql = _get_or_bust(data_dict, 'sql')
 
-    if not db._is_single_statement(sql):
+    if not datastore_helpers.is_single_statement(sql):
         raise p.toolkit.ValidationError({
-            'query': ['Query is not a single statement or contains semicolons.'],
-            'hint': [('If you want to use semicolons, use character encoding'
-                     '(; equals chr(59)) and string concatenation (||). ')]
+            'query': ['Query is not a single statement.']
         })
 
     p.toolkit.check_access('datastore_search_sql', context, data_dict)
@@ -456,14 +461,12 @@ def _resource_exists(context, data_dict):
     return results.rowcount > 0
 
 
-def _check_read_only(context, data_dict):
+def _check_read_only(context, resource_id):
     ''' Raises exception if the resource is read-only.
     Make sure the resource id is in resource_id
     '''
-    if data_dict.get('force'):
-        return
     res = p.toolkit.get_action('resource_show')(
-        context, {'id': data_dict['resource_id']})
+        context, {'id': resource_id})
     if res.get('url_type') != 'datastore':
         raise p.toolkit.ValidationError({
             'read-only': ['Cannot edit read-only resource. Either pass'
