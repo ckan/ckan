@@ -8,7 +8,7 @@
     <a href="#">Embed</a>
   </p>
   <div class="m-top ckanext-datapreview">
-    {% if h.resource_view_is_filterable(resource_view) %}
+    {% if not to_preview and h.resource_view_is_filterable(resource_view) %}
       {% snippet 'package/snippets/resource_view_filters.html', resource=resource %}
     {% endif %}
     {% if not h.resource_view_is_iframed(resource_view) %}
