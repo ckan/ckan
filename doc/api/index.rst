@@ -206,6 +206,7 @@ to import datasets into CKAN.
     created_package = response_dict['result']
     pprint.pprint(created_package)
 
+For more examples, see :ref:`api-examples`.
 
 
 
@@ -314,6 +315,25 @@ call. The function is named in the 'callback' parameter. For example:
 http://demo.ckan.org/api/3/action/package_show?id=adur_district_spending&callback=myfunction
 
 .. todo :: This doesn't work with all functions.
+
+
+.. _api-examples:
+
+------------
+API Examples
+------------
+
+
+Uploading a new version of a resource file
+==========================================
+
+You can use the ``upload`` parameter of the
+:py:func:`~ckan.logic.action.update.resource_update` function to upload a
+new version of a resource file. This requires a ``multipart/form-data``
+request, with httpie you can do this using the ``@file.csv``::
+
+    http --json POST http://demo.ckan.org/api/3/action/resource_update id=<resource id> upload=@updated_file.csv Authorization:<api key>
+
 
 .. _api-reference:
 

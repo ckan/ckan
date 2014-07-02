@@ -23,11 +23,18 @@ def package_update(context, data_dict):
         )
     else:
         # If dataset is not owned then we can edit if config permissions allow
-        if not new_authz.auth_is_anon_user(context):
-            check1 = new_authz.check_config_permission(
-                'create_dataset_if_not_in_organization')
+        if new_authz.auth_is_anon_user(context):
+            check1 = all(new_authz.check_config_permission(p) for p in (
+                'anon_create_dataset',
+                'create_dataset_if_not_in_organization',
+                'create_unowned_dataset',
+                ))
         else:
-            check1 = new_authz.check_config_permission('anon_create_dataset')
+            check1 = all(new_authz.check_config_permission(p) for p in (
+                'create_dataset_if_not_in_organization',
+                'create_unowned_dataset',
+                )) or new_authz.has_user_permission_for_some_org(
+                user, 'create_dataset')
     if not check1:
         return {'success': False,
                 'msg': _('User %s not authorized to edit package %s') %

@@ -1,19 +1,25 @@
 import sys
 import logging
+import shlex
 
 import sqlalchemy.engine.url as sa_url
 
 import ckan.plugins as p
+import ckan.logic as logic
+import ckan.model as model
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.db as db
-import ckan.logic as logic
-import ckan.model as model
+import ckanext.datastore.interfaces as interfaces
+import ckanext.datastore.helpers as datastore_helpers
+
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
 DEFAULT_FORMATS = []
+
+ValidationError = p.toolkit.ValidationError
 
 
 class DatastoreException(Exception):
@@ -28,9 +34,22 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
+    p.implements(interfaces.IDatastore, inherit=True)
 
     legacy_mode = False
     resource_show_action = None
+
+    def __new__(cls, *args, **kwargs):
+        idatastore_extensions = p.PluginImplementations(interfaces.IDatastore)
+        idatastore_extensions = idatastore_extensions.extensions()
+
+        if idatastore_extensions and idatastore_extensions[0].__class__ != cls:
+            msg = ('The "datastore" plugin must be the first IDatastore '
+                   'plugin loaded. Change the order it is loaded in '
+                   '"ckan.plugins" in your CKAN .ini file and try again.')
+            raise DatastoreException(msg)
+
+        return super(cls, cls).__new__(cls, *args, **kwargs)
 
     def configure(self, config):
         self.config = config
@@ -78,7 +97,6 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             self._check_urls_and_permissions()
             self._create_alias_table()
-
 
     def notify(self, entity, operation=None):
         if not isinstance(entity, model.Package) or self.legacy_mode:
@@ -237,6 +255,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 controller='ckanext.datastore.controller:DatastoreController',
                 action='dump', resource_id=resource_dict['id'])
 
+        connection = None
         try:
             connection = self.read_engine.connect()
             result = connection.execute(
@@ -248,5 +267,160 @@ class DatastorePlugin(p.SingletonPlugin):
             else:
                 resource_dict['datastore_active'] = False
         finally:
-            connection.close()
+            if connection:
+                connection.close()
         return resource_dict
+
+    def datastore_validate(self, context, data_dict, column_names):
+        fields = data_dict.get('fields')
+        if fields:
+            data_dict['fields'] = list(set(fields) - set(column_names))
+
+        filters = data_dict.get('filters', {})
+        for key in filters.keys():
+            if key in column_names:
+                del filters[key]
+
+        q = data_dict.get('q')
+        if q:
+            if isinstance(q, basestring):
+                del data_dict['q']
+
+        language = data_dict.get('language')
+        if language:
+            if isinstance(language, basestring):
+                del data_dict['language']
+
+        plain = data_dict.get('plain')
+        if plain:
+            if isinstance(plain, bool):
+                del data_dict['plain']
+
+        sort_clauses = data_dict.get('sort')
+        if sort_clauses:
+            invalid_clauses = [c for c in sort_clauses
+                               if not self._is_valid_sort(c, column_names)]
+            data_dict['sort'] = invalid_clauses
+
+        limit = data_dict.get('limit')
+        if limit:
+            is_positive_int = datastore_helpers.validate_int(limit,
+                                                             non_negative=True)
+            is_all = isinstance(limit, basestring) and limit.lower() == 'all'
+            if is_positive_int or is_all:
+                del data_dict['limit']
+
+        offset = data_dict.get('offset')
+        if offset:
+            is_positive_int = datastore_helpers.validate_int(offset,
+                                                             non_negative=True)
+            if is_positive_int:
+                del data_dict['offset']
+
+        return data_dict
+
+    def _is_valid_sort(self, clause, column_names):
+        clause = clause.encode('utf-8')
+        clause_parts = shlex.split(clause)
+
+        if len(clause_parts) == 1:
+            field, sort = clause_parts[0], 'asc'
+        elif len(clause_parts) == 2:
+            field, sort = clause_parts
+        else:
+            return False
+
+        field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
+
+        if field not in column_names:
+            return False
+        if sort.lower() not in ('asc', 'desc'):
+            return False
+
+        return True
+
+    def datastore_delete(self, context, data_dict, column_names, query_dict):
+        query_dict['where'] += self._where(data_dict, column_names)
+        return query_dict
+
+    def datastore_search(self, context, data_dict, column_names, query_dict):
+        fields = data_dict.get('fields')
+
+        if fields:
+            field_ids = datastore_helpers.get_list(fields)
+        else:
+            field_ids = column_names
+
+        ts_query, rank_column = self._textsearch_query(data_dict)
+        limit = data_dict.get('limit', 100)
+        offset = data_dict.get('offset', 0)
+
+        sort = self._sort(data_dict, field_ids)
+        where = self._where(data_dict, field_ids)
+
+        select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
+                      [u'count(*) over() as "_full_count" %s' % rank_column]
+
+        query_dict['select'] += select_cols
+        query_dict['ts_query'] = ts_query
+        query_dict['sort'] += sort
+        query_dict['where'] += where
+        query_dict['limit'] = limit
+        query_dict['offset'] = offset
+
+        return query_dict
+
+    def _where(self, data_dict, column_names):
+        filters = data_dict.get('filters', {})
+        clauses = []
+        for field, value in filters.iteritems():
+            if field not in column_names:
+                continue
+            clause = (u'"{0}" = %s'.format(field), value)
+            clauses.append(clause)
+
+        # add full-text search where clause
+        if data_dict.get('q'):
+            clause = (u'_full_text @@ query',)
+            clauses.append(clause)
+
+        return clauses
+
+    def _textsearch_query(self, data_dict):
+        q = data_dict.get('q')
+        lang = data_dict.get(u'language', u'english')
+        if q:
+            if data_dict.get('plain', True):
+                statement = u", plainto_tsquery('{lang}', '{query}') query"
+            else:
+                statement = u", to_tsquery('{lang}', '{query}') query"
+
+            rank_column = u', ts_rank(_full_text, query, 32) AS rank'
+            return statement.format(lang=lang, query=q), rank_column
+        return '', ''
+
+    def _sort(self, data_dict, field_ids):
+        sort = data_dict.get('sort')
+        if not sort:
+            if data_dict.get('q'):
+                return [u'rank']
+            else:
+                return []
+
+        clauses = datastore_helpers.get_list(sort, False)
+
+        clause_parsed = []
+
+        for clause in clauses:
+            clause = clause.encode('utf-8')
+            clause_parts = shlex.split(clause)
+            if len(clause_parts) == 1:
+                field, sort = clause_parts[0], 'asc'
+            elif len(clause_parts) == 2:
+                field, sort = clause_parts
+
+            field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
+
+            clause_parsed.append(u'"{0}" {1}'.format(field, sort))
+
+        return clause_parsed

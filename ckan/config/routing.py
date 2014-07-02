@@ -413,6 +413,8 @@ def make_map():
                 action='index', ckan_icon='legal')
     map.connect('ckanadmin_config', '/ckan-admin/config', controller='admin',
                 action='config', ckan_icon='check')
+    map.connect('ckanadmin_trash', '/ckan-admin/trash', controller='admin',
+                action='trash', ckan_icon='trash')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
 
     # Storage routes
