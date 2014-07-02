@@ -172,7 +172,8 @@ def latest_release_tag():
 
     if release_tags:
         return release_tags[-1]
-    else return ''
+    else:
+        return ''
 
 
 def latest_release_version():
