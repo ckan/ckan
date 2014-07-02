@@ -47,7 +47,7 @@ def test_building_the_docs():
         'WARNING: duplicate label ckan.auth.user_delete_groups',
         'WARNING: duplicate label ckan.auth.user_create_organizations',
         'WARNING: duplicate label ckan.auth.roles_that_cascade_to_sub_groups'
-        ]
+    ]
 
     # Remove the allowed warnings from the list of collected warnings.
     warnings_to_remove = []
