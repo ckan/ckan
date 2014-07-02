@@ -24,7 +24,8 @@ def test_building_the_docs():
             ['python', 'setup.py', 'build_sphinx', '--all-files', '--fresh-env'],
             stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as err:
-        assert False, "Building the docs failed: {err}".format(err=err)
+        assert False, "Building the docs failed: {err}".format(
+            err=err.message + ' ' + err.output)
     output_lines = output.split('\n')
 
     errors = [line for line in output_lines if 'ERROR' in line]
