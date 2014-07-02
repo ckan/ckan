@@ -1515,9 +1515,9 @@ class PackageController(base.BaseController):
                     get_action('resource_view_delete')(context, data)
                 elif view_id:
                     data['id'] = view_id
-                    get_action('resource_view_update')(context, data)
+                    data = get_action('resource_view_update')(context, data)
                 else:
-                    get_action('resource_view_create')(context, data)
+                    data = get_action('resource_view_create')(context, data)
             except ValidationError, e:
                 ## Could break preview if validation error
                 to_preview = False
