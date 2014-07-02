@@ -160,10 +160,13 @@ def latest_release_tag():
     This requires git to be installed.
 
     '''
-    git_tags = check_output(['git', 'tag', '-l']).split()
+    git_tags = check_output(
+        ['git', 'tag', '-l'], stderr=subprocess.STDOUT).split()
 
     # FIXME: We could do more careful pattern matching against ckan-X.Y.Z here.
     release_tags = [tag for tag in git_tags if tag.startswith('ckan-')]
+
+    assert release_tags, git_tags
 
     # git tag -l prints out the tags in the right order anyway, but don't rely
     # on that, sort them again here for good measure.
