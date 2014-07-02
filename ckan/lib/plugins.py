@@ -262,6 +262,9 @@ class DefaultDatasetForm(object):
     def package_form(self):
         return 'package/new_package_form.html'
 
+    def resource_form(self):
+        return 'package/snippets/resource_form.html'
+
 
 class DefaultGroupForm(object):
     """

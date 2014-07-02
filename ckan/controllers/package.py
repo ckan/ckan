@@ -90,6 +90,14 @@ class PackageController(base.BaseController):
     def _history_template(self, package_type):
         return lookup_package_plugin(package_type).history_template()
 
+    def _resource_form(self, package_type):
+        # backwards compatibility with plugins not inheriting from
+        # DefaultDatasetPlugin and not implmenting resource_form
+        plugin = lookup_package_plugin(package_type)
+        if not hasattr(plugin, 'resource_form'):
+            plugin = lookup_package_plugin()
+        return plugin.resource_form()
+
     def _guess_package_type(self, expecting_name=False):
         """
             Guess the type of package from the URL handling the case
@@ -550,6 +558,7 @@ class PackageController(base.BaseController):
 
     def resource_edit(self, id, resource_id, data=None, errors=None,
                       error_summary=None):
+        package_type = self._get_package_type(id)
         if request.method == 'POST' and not data:
             data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                 request.POST))))
@@ -607,12 +616,15 @@ class PackageController(base.BaseController):
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary, 'action': 'new'}
+                'error_summary': error_summary, 'action': 'new',
+                'resource_form_snippet': self._resource_form(package_type),
+                'package_type':package_type}
         return render('package/resource_edit.html', extra_vars=vars)
 
     def new_resource(self, id, data=None, errors=None, error_summary=None):
         ''' FIXME: This is a temporary action to allow styling of the
         forms. '''
+        package_type = self._get_package_type(id)
         if request.method == 'POST' and not data:
             save_action = request.params.get('save')
             data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
@@ -701,7 +713,9 @@ class PackageController(base.BaseController):
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary, 'action': 'new'}
+                'error_summary': error_summary, 'action': 'new',
+                'resource_form_snippet': self._resource_form(package_type),
+                'package_type': package_type}
         vars['pkg_name'] = id
         # get resources for sidebar
         context = {'model': model, 'session': model.Session,

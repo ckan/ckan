@@ -16,7 +16,7 @@
 
   <input name="id" value="{{ data.id }}" type="hidden"/>
 
-
+  {% block basic_fields %}
     {% block basic_fields_url %}
       {% set is_upload = (data.url_type == 'upload') %}
       {{ form.image_upload(data, errors, field_url='url', field_upload='upload', field_clear='clear_upload',
@@ -41,7 +41,7 @@
         </span>
       {% endcall %}
     {% endblock %}
-
+  {% endblock basic_fields %}
 
   {% block metadata_fields %}
     {% if include_metadata %}

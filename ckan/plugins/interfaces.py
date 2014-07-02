@@ -824,6 +824,15 @@ class IDatasetForm(Interface):
 
         '''
 
+    def resource_form(self):
+        '''Return the path to the template for the resource form.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/snippets/resource_form.html'``
+
+        :rtype: string
+        '''
+
     def validate(self, context, data_dict, schema, action, package_type):
         """Customize validation of datasets.
 
