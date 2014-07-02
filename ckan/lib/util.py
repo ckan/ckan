@@ -1,6 +1,6 @@
 '''Shared utility functions for any Python code to use.
 
-Unlike :py:func:`ckan.lib.helpers`, the functions in this module are not
+Unlike :py:mod:`ckan.lib.helpers`, the functions in this module are not
 available to templates.
 
 '''
