@@ -35,7 +35,8 @@ class CKANInstaller(PylonsInstaller):
                 'postgresql://ckan_default:pass@localhost/datastore_default'),
             'ckan_datastore_read_url': os.environ.get(
                 'ckan_datastore_read_url',
-                'postgresql://datastore_default:pass@localhost/datastore_default'),
+                ('postgresql://datastore_default:pass@localhost/datastore_def'
+                 'ault')),
             'ckan_datapusher_url': os.environ.get(
                 'ckan_datapusher_url', 'http://127.0.0.1:8800/'),
             'ckan_solr_url': os.environ.get(
