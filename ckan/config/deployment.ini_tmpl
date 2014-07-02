@@ -25,12 +25,14 @@ port = 5000
 use = egg:ckan
 full_stack = true
 cache_dir = /tmp/%(ckan.site_id)s/
-beaker.session.key = ckan
 
+beaker.session.key = ckan
 # This is the secret token that the beaker library uses to hash the cookie sent
 # to the client. `paster make-config` generates a unique value for this each
 # time it generates a config file.
 beaker.session.secret = ${app_instance_secret}
+beaker.session.type = ${ckan_beaker_session_type}
+beaker.session.url = ${ckan_beaker_session_url}
 
 # `paster make-config` generates a unique value for this each time it generates
 # a config file.
@@ -43,15 +45,15 @@ who.log_file = %(cache_dir)s/who_log.ini
 
 
 ## Database Settings
-sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
+sqlalchemy.url = ${ckan_sqlalchemy_url}
 
-#ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
-#ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
+ckan.datastore.write_url = ${ckan_datastore_write_url}
+ckan.datastore.read_url = ${ckan_datastore_read_url}
 
 
 ## Site Settings
 
-ckan.site_url =
+ckan.site_url = ${ckan_site_url}
 
 
 ## Authorization Settings
@@ -70,8 +72,8 @@ ckan.auth.roles_that_cascade_to_sub_groups = admin
 
 ## Search Settings
 
-ckan.site_id = default
-#solr_url = http://127.0.0.1:8983/solr
+ckan.site_id = ${ckan_site_id}
+solr_url = ${ckan_solr_url}
 
 #ckan.simple_search = 1
 
@@ -83,11 +85,11 @@ ckan.site_id = default
 #       Add ``pdf_preview`` to enable the resource preview for PDFs
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_preview recline_preview
+ckan.plugins = ${ckan_plugins}
 
 
 ## Front-End Settings
-ckan.site_title = CKAN
+ckan.site_title = ${ckan_site_title}
 ckan.site_logo = /base/images/ckan-logo.png
 ckan.site_description =
 ckan.favicon = /images/icons/ckan.ico
@@ -129,7 +131,7 @@ ckan.feeds.author_link =
 # Make sure you have set up the DataStore
 
 #ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-#ckan.datapusher.url = http://127.0.0.1:8800/
+ckan.datapusher.url = ${ckan_datapusher_url}
 
 ## Activity Streams Settings
 
@@ -142,8 +144,8 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 
 ## Email settings
 
-email_to = you@yourdomain.com
-error_email_from = paste@localhost
+email_to = ${ckan_email_to}
+error_email_from = ${ckan_error_email_from}
 smtp.server = localhost
 smtp.starttls = False
 #smtp.user = your_username@gmail.com
