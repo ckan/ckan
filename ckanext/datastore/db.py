@@ -599,7 +599,7 @@ def upsert_data(context, data_dict):
             if non_existing_filed_names:
                 raise ValidationError({
                     'fields': [u'fields "{0}" do not exist'.format(
-                        ', '.join(missing_fields))]
+                        ', '.join(non_existing_filed_names))]
                 })
 
             unique_values = [record[key] for key in unique_keys]
