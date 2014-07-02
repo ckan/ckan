@@ -60,6 +60,37 @@ files, and enables CKAN templates' debugging features.
    commands.
 
 
+.. _beaker.session.type:
+
+beaker.session.type
+^^^^^^^^^^^^^^^^^^^
+
+The type of storage backend to use for CKAN's Beaker session.
+The Beaker library that CKAN uses to store its sessions can store the sessions
+on the filesystem, in memory, in a database, etc. For the available settings,
+see `the Beaker docs <http://beaker.readthedocs.org/en/latest/configuration.html#options-for-sessions-and-caching>`_.
+
+Example::
+
+ beaker.session.type = ext:database
+
+
+.. _beaker.session.url:
+
+beaker.session.url
+^^^^^^^^^^^^^^^^^^
+
+The URL of the memcached server or database to store CKAN's Beaker session in.
+This setting is only needed if :ref:`beaker.session.type` is set to
+``ext:memcached`` or ``ext:database``. If using ``ext:database``, you can set
+this to the same value as your :ref:`sqlalchemy.url` setting.
+See `the Beaker docs <http://beaker.readthedocs.org/en/latest/configuration.html#options-for-sessions-and-caching>`_.
+
+Example::
+
+ beaker.session.url = postgres://tester:pass@localhost/ckantest3
+
+
 Database Settings
 -----------------
 
