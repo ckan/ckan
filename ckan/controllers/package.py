@@ -410,7 +410,8 @@ class PackageController(base.BaseController):
         template = template[:template.index('.') + 1] + format
 
         try:
-            return render(template, loader_class=loader)
+            return render(template, loader_class=loader,
+                          extra_vars={'package_type': package_type})
         except ckan.lib.render.TemplateNotFound:
             msg = _("Viewing {package_type} datasets in {format} format is "
                     "not supported (template file {file} not found).".format(
