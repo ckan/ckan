@@ -223,6 +223,13 @@ def _get_fields(context, data_dict):
     return fields
 
 
+def _get_fields_types(context, data_dict):
+    all_fields = _get_fields(context, data_dict)
+    all_fields.insert(0, {'id': '_id', 'type': 'int'})
+    field_types = dict([(f['id'], f['type']) for f in all_fields])
+    return field_types
+
+
 def json_get_values(obj, current_list=None):
     if current_list is None:
         current_list = []
@@ -845,9 +852,7 @@ def validate(context, data_dict):
 
 def search_data(context, data_dict):
     validate(context, data_dict)
-    all_fields = _get_fields(context, data_dict)
-    column_names = _pluck('id', all_fields)
-    column_names.insert(0, '_id')
+    fields_types = _get_fields_types(context, data_dict)
 
     query_dict = {
         'select': [],
@@ -857,7 +862,7 @@ def search_data(context, data_dict):
 
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         query_dict = plugin.datastore_search(context, data_dict,
-                                             column_names, query_dict)
+                                             fields_types, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
 

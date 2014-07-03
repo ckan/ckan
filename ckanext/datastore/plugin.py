@@ -343,8 +343,9 @@ class DatastorePlugin(p.SingletonPlugin):
         query_dict['where'] += self._where(data_dict, column_names)
         return query_dict
 
-    def datastore_search(self, context, data_dict, column_names, query_dict):
+    def datastore_search(self, context, data_dict, fields_types, query_dict):
         fields = data_dict.get('fields')
+        column_names = fields_types.keys()
 
         if fields:
             field_ids = datastore_helpers.get_list(fields)
@@ -355,8 +356,8 @@ class DatastorePlugin(p.SingletonPlugin):
         limit = data_dict.get('limit', 100)
         offset = data_dict.get('offset', 0)
 
-        sort = self._sort(data_dict, field_ids)
-        where = self._where(data_dict, field_ids)
+        sort = self._sort(data_dict)
+        where = self._where(data_dict, fields_types)
 
         select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
                       [u'count(*) over() as "_full_count" %s' % rank_column]
@@ -370,13 +371,20 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return query_dict
 
-    def _where(self, data_dict, column_names):
+    def _where(self, data_dict, fields_types):
         filters = data_dict.get('filters', {})
         clauses = []
+
         for field, value in filters.iteritems():
-            if field not in column_names:
+            if field not in fields_types:
                 continue
-            clause = (u'"{0}" = %s'.format(field), value)
+            field_array_type = self._is_array_type(fields_types[field])
+            if isinstance(value, list) and not field_array_type:
+                clause_str = (u'"{0}" in ({1})'.format(field,
+                              ','.join(['%s'] * len(value))))
+                clause = (clause_str,) + tuple(value)
+            else:
+                clause = (u'"{0}" = %s'.format(field), value)
             clauses.append(clause)
 
         # add full-text search where clause
@@ -385,6 +393,9 @@ class DatastorePlugin(p.SingletonPlugin):
             clauses.append(clause)
 
         return clauses
+
+    def _is_array_type(self, field_type):
+        return field_type.startswith('_')
 
     def _textsearch_query(self, data_dict):
         q = data_dict.get('q')
@@ -399,7 +410,7 @@ class DatastorePlugin(p.SingletonPlugin):
             return statement.format(lang=lang, query=q), rank_column
         return '', ''
 
-    def _sort(self, data_dict, field_ids):
+    def _sort(self, data_dict):
         sort = data_dict.get('sort')
         if not sort:
             if data_dict.get('q'):

@@ -34,7 +34,7 @@ class IDatastore(interfaces.Interface):
         '''
         return data_dict
 
-    def datastore_search(self, context, data_dict, column_names, query_dict):
+    def datastore_search(self, context, data_dict, fields_types, query_dict):
         '''Modify queries made on datastore_search
 
         The overall design is that every IDatastore extension will receive the
@@ -79,8 +79,9 @@ class IDatastore(interfaces.Interface):
         :type context: dictionary
         :param data_dict: the parameters received from the user
         :type data_dict: dictionary
-        :param column_names: the current resource's column names
-        :type column_names: list
+        :param fields_types: the current resource's fields as dict keys and
+            their types as values
+        :type fields_types: dictionary
         :param query_dict: the current query_dict, as changed by the IDatastore
             extensions that ran before yours
         :type query_dict: dictionary
