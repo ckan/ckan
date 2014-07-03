@@ -31,7 +31,7 @@
         </p>
       </div>
       {% if not to_preview %}
-        {% set current_filters = request.str_queryvars.get('filters') %}
+        {% set current_filters = request.str_GET.get('filters') %}
         {% if current_filters %}
           {% set src = h.url(qualified=true, controller='package',
                              action='resource_view', id=package['name'],
