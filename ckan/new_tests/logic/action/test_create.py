@@ -191,7 +191,7 @@ class TestResourceViewCreate(object):
         result = helpers.call_action('resource_view_create', context, **params)
         assert_equals(result['filter_fields'], ['country'])
         assert_equals(result['filter_values'], ['Brazil'])
-        assert_equals(result['filters'], { 'country': ['Brazil'] })
+        assert_equals(result['filters'], {'country': ['Brazil']})
 
     @mock.patch('ckan.lib.datapreview')
     def test_filterable_views_require_filter_fields_and_values_to_have_same_length(self, datapreview_mock):
@@ -229,7 +229,7 @@ class TestResourceViewCreate(object):
 
     def _configure_datapreview_to_return_filterable_view(self, datapreview_mock):
         filterable_view = mock.MagicMock()
-        filterable_view.info.return_value = { 'filterable': True }
+        filterable_view.info.return_value = {'filterable': True}
         datapreview_mock.get_view_plugin.return_value = filterable_view
 
 

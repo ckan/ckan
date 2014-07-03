@@ -415,7 +415,7 @@ class TestResourceViewUpdate(object):
     @mock.patch('ckan.lib.datapreview')
     def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(self, datapreview_mock):
         filterable_view = mock.MagicMock()
-        filterable_view.info.return_value = { 'filterable': True }
+        filterable_view.info.return_value = {'filterable': True}
         datapreview_mock.get_view_plugin.return_value = filterable_view
         resource_view = factories.ResourceView()
         context = {}

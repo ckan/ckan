@@ -327,8 +327,8 @@ def resource_view_create(context, data_dict):
             )}
         )
 
-    schema = (context.get('schema') or
-              ckan.logic.schema.default_create_resource_view_schema(view_plugin))
+    default = logic.schema.default_create_resource_view_schema(view_plugin)
+    schema = context.get('schema', default)
     plugin_schema = view_plugin.info().get('schema', {})
     schema.update(plugin_schema)
 
