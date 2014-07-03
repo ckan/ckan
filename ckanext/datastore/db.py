@@ -9,6 +9,7 @@ import string
 import logging
 import pprint
 import copy
+import collections
 
 import distutils.version
 import sqlalchemy
@@ -226,7 +227,8 @@ def _get_fields(context, data_dict):
 def _get_fields_types(context, data_dict):
     all_fields = _get_fields(context, data_dict)
     all_fields.insert(0, {'id': '_id', 'type': 'int'})
-    field_types = dict([(f['id'], f['type']) for f in all_fields])
+    field_types = collections.OrderedDict([(f['id'], f['type'])
+                                           for f in all_fields])
     return field_types
 
 
