@@ -339,8 +339,8 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return True
 
-    def datastore_delete(self, context, data_dict, column_names, query_dict):
-        query_dict['where'] += self._where(data_dict, column_names)
+    def datastore_delete(self, context, data_dict, fields_types, query_dict):
+        query_dict['where'] += self._where(data_dict, fields_types)
         return query_dict
 
     def datastore_search(self, context, data_dict, fields_types, query_dict):

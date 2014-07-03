@@ -788,8 +788,7 @@ def _insert_links(data_dict, limit, offset):
 
 def delete_data(context, data_dict):
     validate(context, data_dict)
-    fields = _get_fields(context, data_dict)
-    field_ids = set([field['id'] for field in fields])
+    fields_types = _get_fields_types(context, data_dict)
 
     query_dict = {
         'where': []
@@ -797,7 +796,7 @@ def delete_data(context, data_dict):
 
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         query_dict = plugin.datastore_delete(context, data_dict,
-                                             field_ids, query_dict)
+                                             fields_types, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
     sql_string = u'DELETE FROM "{0}" {1}'.format(
