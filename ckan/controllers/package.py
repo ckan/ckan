@@ -968,8 +968,9 @@ class PackageController(base.BaseController):
             if '_ckan_phase' in data_dict:
                 # we allow partial updates to not destroy existing resources
                 context['allow_partial_update'] = True
-                data_dict['tags'] = self._tag_string_to_list(
-                    data_dict['tag_string'])
+                if 'tag_string' in data_dict:
+                    data_dict['tags'] = self._tag_string_to_list(
+                        data_dict['tag_string'])
                 del data_dict['_ckan_phase']
                 del data_dict['save']
             context['message'] = data_dict.get('log_message', '')
