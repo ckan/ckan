@@ -9,7 +9,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         addFilterTemplate = self.options.addFilterTemplate,
         filtersDiv = $('<div></div>');
 
-    var filters = ckan.views.viewhelpers.filters.get();
+    var filters = ckan.views.filters.get();
     _appendDropdowns(filtersDiv, resourceId, dropdownTemplate, fields, filters);
     var addFilterButton = _buildAddFilterButton(filtersDiv, addFilterTemplate, fields, filters, function (evt) {
       // Build filters object with this element's val as key and a placeholder
@@ -139,7 +139,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
   function _onChange(evt) {
     var filterName = evt.currentTarget.name,
         filterValue = evt.val,
-        currentFilters = ckan.views.viewhelpers.filters.get(filterName) || [],
+        currentFilters = ckan.views.filters.get(filterName) || [],
         addToIndex = currentFilters.length;
 
     // Make sure we're not editing the original array, but a copy.
@@ -156,9 +156,9 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
     }
 
     if (currentFilters.length > 0) {
-      ckan.views.viewhelpers.filters.set(filterName, currentFilters);
+      ckan.views.filters.set(filterName, currentFilters);
     } else {
-      ckan.views.viewhelpers.filters.unset(filterName);
+      ckan.views.filters.unset(filterName);
     }
   }
 

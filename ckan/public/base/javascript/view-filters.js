@@ -92,9 +92,8 @@ String.prototype.queryStringToJSON = String.prototype.queryStringToJSON || funct
 
 this.ckan = this.ckan || {};
 this.ckan.views = this.ckan.views || {};
-this.ckan.views.viewhelpers = this.ckan.views.viewhelpers || {};
 
-this.ckan.views.viewhelpers.filters = (function (queryString) {
+this.ckan.views.filters = (function (queryString) {
   'use strict';
 
   var api = {

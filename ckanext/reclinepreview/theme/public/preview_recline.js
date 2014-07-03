@@ -58,8 +58,8 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       var query = new recline.Model.Query();
       query.set({ size: reclineView.limit || 100 });
       query.set({ from: reclineView.offset || 0 });
-      if (window.parent.ckan.views && window.parent.ckan.views.viewhelpers) {
-        $.each(window.parent.ckan.views.viewhelpers.filters.get(), function (field,values) {
+      if (window.parent.ckan.views && window.parent.ckan.views.filters) {
+        $.each(window.parent.ckan.views.filters.get(), function (field,values) {
           query.addFilter({type: 'term', field: field, term: values});
         });
       }
