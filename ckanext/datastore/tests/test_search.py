@@ -198,6 +198,20 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['records'] == [{u'b\xfck': 'annakarenina', 'author': 'tolstoy'},
                     {u'b\xfck': 'warandpeace', 'author': 'tolstoy'}], result['records']
 
+    def test_search_distinct(self):
+        data = {'resource_id': self.data['resource_id'],
+                'fields': [u'author'],
+                'distinct': True}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 2
+        assert result['records'] == [{u'author': 'tolstoy'}], result['records']
+
     def test_search_filters(self):
         data = {'resource_id': self.data['resource_id'],
                 'filters': {u'b\xfck': 'annakarenina'}}

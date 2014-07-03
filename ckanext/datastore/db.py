@@ -868,14 +868,20 @@ def search_data(context, data_dict):
     limit = query_dict['limit']
     offset = query_dict['offset']
 
+    if query_dict.get('distinct'):
+        distinct = 'DISTINCT'
+    else:
+        distinct = ''
+
     if sort:
         sort_clause = 'ORDER BY %s' % ', '.join(sort)
     else:
         sort_clause = ''
 
-    sql_string = u'''SELECT {select}
+    sql_string = u'''SELECT {distinct} {select}
                     FROM "{resource}" {ts_query}
                     {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
+        distinct=distinct,
         select=select_columns,
         resource=data_dict['resource_id'],
         ts_query=ts_query,

@@ -276,6 +276,8 @@ def datastore_search(context, data_dict):
     :type filters: dictionary
     :param q: full text query (optional)
     :type q: string
+    :param distinct: return only distinct rows (optional, default: false)
+    :type distinct: bool
     :param plain: treat as plain text query (optional, default: true)
     :type plain: bool
     :param language: language of the full text query (optional, default: english)
