@@ -1786,6 +1786,10 @@ def resource_view_full_page(resource_view):
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('full_page_edit', False)
 
+def remove_linebreaks(string):
+    '''Remove linebreaks from string to make it usable in JavaScript'''
+    return str(string).replace('\n', '')
+
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
     item has a matching value for a supplied key
@@ -2062,6 +2066,7 @@ __allowed_functions__ = [
     'resource_view_icon',
     'resource_view_display_preview',
     'resource_view_full_page',
+    'remove_linebreaks',
     'SI_number_span',
     'localised_number',
     'localised_SI_number',
