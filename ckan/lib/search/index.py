@@ -23,8 +23,6 @@ import ckan.lib.navl.dictization_functions
 
 log = logging.getLogger(__name__)
 
-_validate = ckan.lib.navl.dictization_functions.validate
-
 TYPE_FIELD = "entity_type"
 PACKAGE_TYPE = "package"
 KEY_CHARS = string.digits + string.letters + "_-"
@@ -114,8 +112,9 @@ class PackageSearchIndex(SearchIndex):
                 pkg_dict.get('type'))
 
             schema = package_plugin.show_package_schema()
-            validated_pkg_dict, errors = _validate(pkg_dict, schema, {
-                'model': model, 'session': model.Session})
+            validated_pkg_dict, errors = lib_plugins.plugin_validate(
+                package_plugin, {'model': model, 'session': model.Session},
+                pkg_dict, schema, 'package_show', pkg_dict.get('type'))
             pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
                 cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
 
