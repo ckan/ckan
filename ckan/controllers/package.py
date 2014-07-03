@@ -94,9 +94,11 @@ class PackageController(base.BaseController):
         # backwards compatibility with plugins not inheriting from
         # DefaultDatasetPlugin and not implmenting resource_form
         plugin = lookup_package_plugin(package_type)
-        if not hasattr(plugin, 'resource_form'):
-            plugin = lookup_package_plugin()
-        return plugin.resource_form()
+        if hasattr(plugin, 'resource_form'):
+            result = plugin.resource_form()
+            if result is not None:
+                return result
+        return lookup_package_plugin().resource_form()
 
     def _guess_package_type(self, expecting_name=False):
         """
