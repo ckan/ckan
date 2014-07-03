@@ -808,9 +808,7 @@ def delete_data(context, data_dict):
 
 
 def validate(context, data_dict):
-    all_fields = _get_fields(context, data_dict)
-    column_names = _pluck('id', all_fields)
-    column_names.insert(0, '_id')
+    fields_types = _get_fields_types(context, data_dict)
     data_dict_copy = copy.deepcopy(data_dict)
 
     # TODO: Convert all attributes that can be a comma-separated string to
@@ -825,7 +823,7 @@ def validate(context, data_dict):
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         data_dict_copy = plugin.datastore_validate(context,
                                                    data_dict_copy,
-                                                   column_names)
+                                                   fields_types)
 
     # Remove default elements in data_dict
     del data_dict_copy['connection_url']

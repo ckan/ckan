@@ -4,7 +4,7 @@ import ckan.plugins.interfaces as interfaces
 class IDatastore(interfaces.Interface):
     '''Allow modifying Datastore queries'''
 
-    def datastore_validate(self, context, data_dict, column_names):
+    def datastore_validate(self, context, data_dict, fields_types):
         '''Validates the ``data_dict`` sent by the user
 
         This is the first method that's called. It's used to guarantee that
@@ -29,8 +29,9 @@ class IDatastore(interfaces.Interface):
         :type context: dictionary
         :param data_dict: the parameters received from the user
         :type data_dict: dictionary
-        :param column_names: the current resource's column names
-        :type column_names: list
+        :param fields_types: the current resource's fields as dict keys and
+            their types as values
+        :type fields_types: dictionary
         '''
         return data_dict
 

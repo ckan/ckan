@@ -271,14 +271,15 @@ class DatastorePlugin(p.SingletonPlugin):
                 connection.close()
         return resource_dict
 
-    def datastore_validate(self, context, data_dict, column_names):
+    def datastore_validate(self, context, data_dict, fields_types):
+        column_names = fields_types.keys()
         fields = data_dict.get('fields')
         if fields:
             data_dict['fields'] = list(set(fields) - set(column_names))
 
         filters = data_dict.get('filters', {})
         for key in filters.keys():
-            if key in column_names:
+            if key in fields_types:
                 del filters[key]
 
         q = data_dict.get('q')
@@ -299,7 +300,7 @@ class DatastorePlugin(p.SingletonPlugin):
         sort_clauses = data_dict.get('sort')
         if sort_clauses:
             invalid_clauses = [c for c in sort_clauses
-                               if not self._is_valid_sort(c, column_names)]
+                               if not self._is_valid_sort(c, fields_types)]
             data_dict['sort'] = invalid_clauses
 
         limit = data_dict.get('limit')
@@ -319,7 +320,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return data_dict
 
-    def _is_valid_sort(self, clause, column_names):
+    def _is_valid_sort(self, clause, fields_types):
         clause = clause.encode('utf-8')
         clause_parts = shlex.split(clause)
 
@@ -332,7 +333,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
         field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
 
-        if field not in column_names:
+        if field not in fields_types:
             return False
         if sort.lower() not in ('asc', 'desc'):
             return False
