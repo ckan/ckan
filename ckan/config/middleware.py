@@ -94,6 +94,10 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         }
     app = Fanstatic(app, **fanstatic_config)
 
+    if 'sentry.dsn' in config:
+        from raven.contrib.pylons import Sentry
+        app = Sentry(app, config)
+
     if asbool(full_stack):
         # Handle Python exceptions
         app = ErrorHandler(app, conf, **config['pylons.errorware'])
