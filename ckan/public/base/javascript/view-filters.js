@@ -102,7 +102,8 @@ this.ckan.views.filters = (function (queryString) {
     setAndRedirectTo: setAndRedirectTo,
     unset: unset,
     _searchParams: {},
-    _initialize: _initialize
+    _initialize: _initialize,
+    _setLocationHref: _setLocationHref,
   };
 
   function get(filterName) {
@@ -169,7 +170,7 @@ this.ckan.views.filters = (function (queryString) {
 
     destinationUrl = urlBase + '?' + queryString;
 
-    window.location.href = destinationUrl;
+    api._setLocationHref(destinationUrl);
   }
 
   function _encodedParams(defaultParams) {
@@ -190,6 +191,10 @@ this.ckan.views.filters = (function (queryString) {
     }
 
     return $.param(params);
+  }
+
+  function _setLocationHref(destinationUrl) {
+    window.location.href = destinationUrl;
   }
 
   function _removeElementsFromArray(array, elements) {
