@@ -59,7 +59,10 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       query.set({ size: reclineView.limit || 100 });
       query.set({ from: reclineView.offset || 0 });
       if (window.parent.ckan.views && window.parent.ckan.views.filters) {
-        $.each(window.parent.ckan.views.filters.get(), function (field,values) {
+        var defaultFilters = reclineView.filters || {},
+            urlFilters = window.parent.ckan.views.filters.get(),
+            filters = $.extend({}, defaultFilters, urlFilters);
+        $.each(filters, function (field,values) {
           query.addFilter({type: 'term', field: field, term: values});
         });
       }
