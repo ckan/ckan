@@ -9,7 +9,6 @@ import string
 import logging
 import pprint
 import copy
-import collections
 
 import distutils.version
 import sqlalchemy
@@ -21,6 +20,7 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 import ckanext.datastore.interfaces as interfaces
 import ckanext.datastore.helpers as datastore_helpers
+from ckan.common import OrderedDict
 
 log = logging.getLogger(__name__)
 
@@ -227,8 +227,7 @@ def _get_fields(context, data_dict):
 def _get_fields_types(context, data_dict):
     all_fields = _get_fields(context, data_dict)
     all_fields.insert(0, {'id': '_id', 'type': 'int'})
-    field_types = collections.OrderedDict([(f['id'], f['type'])
-                                           for f in all_fields])
+    field_types = OrderedDict([(f['id'], f['type']) for f in all_fields])
     return field_types
 
 

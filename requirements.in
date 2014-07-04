@@ -30,4 +30,3 @@ WebHelpers==1.3
 WebOb==1.0.8
 zope.interface==4.0.1
 unicodecsv>=0.9
-ordereddict>=1.1
