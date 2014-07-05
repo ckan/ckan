@@ -737,8 +737,12 @@ def check_access(action, data_dict=None):
     return authorized
 
 
+@maintain.deprecated("helpers.get_action() is deprecated and will be removed "
+                     "in a future version of CKAN. Instead, please use the "
+                     "extra_vars param to render() in your controller to pass "
+                     "results from action functions to your templates.")
 def get_action(action_name, data_dict=None):
-    '''Calls an action function from a template.'''
+    '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
     if data_dict is None:
         data_dict = {}
     return logic.get_action(action_name)({}, data_dict)
@@ -835,7 +839,7 @@ def dict_list_reduce(list_, key, unique=True):
 def linked_gravatar(email_hash, size=100, default=None):
     return literal(
         '<a href="https://gravatar.com/" target="_blank" ' +
-        'title="%s">' % _('Update your avatar at gravatar.com') +
+        'title="%s" alt="">' % _('Update your avatar at gravatar.com') +
         '%s</a>' % gravatar(email_hash, size, default)
     )
 
@@ -1596,12 +1600,23 @@ def html_auto_link(data):
     return data
 
 
-def render_markdown(data, auto_link=True):
-    ''' returns the data as rendered markdown '''
+def render_markdown(data, auto_link=True, allow_html=False):
+    ''' Returns the data as rendered markdown
+
+    :param auto_link: Should ckan specific links be created e.g. `group:xxx`
+    :type auto_link: bool
+    :param allow_html: If True then html entities in the markdown data.
+        This is dangerous if users have added malicious content.
+        If False all html tags are removed.
+    :type allow_html: bool
+    '''
     if not data:
         return ''
-    data = RE_MD_HTML_TAGS.sub('', data.strip())
-    data = markdown(data, safe_mode=True)
+    if allow_html:
+        data = markdown(data.strip(), safe_mode=False)
+    else:
+        data = RE_MD_HTML_TAGS.sub('', data.strip())
+        data = markdown(data, safe_mode=True)
     # tags can be added by tag:... or tag:"...." and a link will be made
     # from it
     if auto_link:
@@ -1870,6 +1885,15 @@ def unified_resource_format(format):
 def check_config_permission(permission):
     return new_authz.check_config_permission(permission)
 
+
+def get_organization(org=None):
+    if org is None:
+        return {}
+    try:
+        return logic.get_action('organization_show')({}, {'id': org})
+    except (NotFound, ValidationError, NotAuthorized):
+        return {}
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1957,6 +1981,7 @@ __allowed_functions__ = [
     'list_dict_filter',
     'new_activities',
     'time_ago_from_timestamp',
+    'get_organization',
     'has_more_facets',
     # imported into ckan.lib.helpers
     'literal',

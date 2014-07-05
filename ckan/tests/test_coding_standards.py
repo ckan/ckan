@@ -215,169 +215,6 @@ class TestNastyString(object):
         show_fails(msg, self.fails)
 
 
-class TestImportFromCkan(object):
-    ''' Find files using from ckan import ... style imports '''
-
-    # Ckan import file exceptions
-    #
-    # These files contain lines like `from ckan import x` This should not be
-    # done except from ckan.common which is written specifically to share
-    # external functions.  When files are fixed they should be removed from
-    # this list.
-    #
-    # The reason for this is to try to remove as many of the circular import
-    # issues that exist.
-
-    CKAN_IMPORTS_BLACKLIST_FILES = [
-        'bin/ckan-hmg-breakdown.py',
-        'bin/dump-ukgov.py',
-        'ckan/config/middleware.py',
-        'ckan/controllers/error.py',
-        'ckan/controllers/storage.py',
-        'ckan/lib/authenticator.py',
-        'ckan/lib/munge.py',
-        'ckan/lib/plugins.py',
-        'ckan/lib/search/index.py',
-        'ckan/lib/search/query.py',
-        'ckan/lib/search/sql.py',
-        'ckan/logic/action/__init__.py',
-        'ckan/logic/action/create.py',
-        'ckan/logic/auth/delete.py',
-        'ckan/logic/auth/get.py',
-        'ckan/logic/auth/update.py',
-        'ckan/logic/schema.py',
-        'ckan/logic/validators.py',
-        'ckan/migration/versions/034_resource_group_table.py',
-        'ckan/migration/versions/035_harvesting_doc_versioning.py',
-        'ckan/model/test_user.py',
-        'ckan/plugins/__init__.py',
-        'ckan/tests/__init__.py',
-        'ckan/tests/ckantestplugin/ckantestplugin/__init__.py',
-        'ckan/tests/functional/api/base.py',
-        'ckan/tests/functional/api/model/test_group.py',
-        'ckan/tests/functional/api/model/test_licenses.py',
-        'ckan/tests/functional/api/model/test_package.py',
-        'ckan/tests/functional/api/model/test_ratings.py',
-        'ckan/tests/functional/api/model/test_relationships.py',
-        'ckan/tests/functional/api/model/test_revisions.py',
-        'ckan/tests/functional/api/model/test_tag.py',
-        'ckan/tests/functional/api/test_api.py',
-        'ckan/tests/functional/api/test_follow.py',
-        'ckan/tests/functional/api/test_misc.py',
-        'ckan/tests/functional/api/test_package_search.py',
-        'ckan/tests/functional/api/test_resource.py',
-        'ckan/tests/functional/api/test_resource_search.py',
-        'ckan/tests/functional/api/test_revision_search.py',
-        'ckan/tests/functional/api/test_user.py',
-        'ckan/tests/functional/api/test_util.py',
-        'ckan/tests/functional/base.py',
-        'ckan/tests/functional/test_activity.py',
-        'ckan/tests/functional/test_admin.py',
-        'ckan/tests/functional/test_cors.py',
-        'ckan/tests/functional/test_follow.py',
-        'ckan/tests/functional/test_group.py',
-        'ckan/tests/functional/test_home.py',
-        'ckan/tests/functional/test_package.py',
-        'ckan/tests/functional/test_package_relationships.py',
-        'ckan/tests/functional/test_pagination.py',
-        'ckan/tests/functional/test_revision.py',
-        'ckan/tests/functional/test_search.py',
-        'ckan/tests/functional/test_storage.py',
-        'ckan/tests/functional/test_tag.py',
-        'ckan/tests/functional/test_tag_vocab.py',
-        'ckan/tests/functional/test_upload.py',
-        'ckan/tests/functional/test_user.py',
-        'ckan/tests/lib/__init__.py',
-        'ckan/tests/lib/test_alphabet_pagination.py',
-        'ckan/tests/lib/test_cli.py',
-        'ckan/tests/lib/test_dictization.py',
-        'ckan/tests/lib/test_dictization_schema.py',
-        'ckan/tests/lib/test_field_types.py',
-        'ckan/tests/lib/test_hash.py',
-        'ckan/tests/lib/test_helpers.py',
-        'ckan/tests/lib/test_i18n.py',
-        'ckan/tests/lib/test_mailer.py',
-        'ckan/tests/lib/test_navl.py',
-        'ckan/tests/lib/test_resource_search.py',
-        'ckan/tests/lib/test_simple_search.py',
-        'ckan/tests/lib/test_solr_package_search.py',
-        'ckan/tests/lib/test_solr_package_search_synchronous_update.py',
-        'ckan/tests/lib/test_solr_schema_version.py',
-        'ckan/tests/lib/test_solr_search_index.py',
-        'ckan/tests/lib/test_tag_search.py',
-        'ckan/tests/logic/test_action.py',
-        'ckan/tests/logic/test_auth.py',
-        'ckan/tests/logic/test_tag.py',
-        'ckan/tests/logic/test_validators.py',
-        'ckan/tests/misc/test_mock_mail_server.py',
-        'ckan/tests/misc/test_sync.py',
-        'ckan/tests/mock_mail_server.py',
-        'ckan/tests/mock_plugin.py',
-        'ckan/tests/models/test_extras.py',
-        'ckan/tests/models/test_group.py',
-        'ckan/tests/models/test_license.py',
-        'ckan/tests/models/test_misc.py',
-        'ckan/tests/models/test_package.py',
-        'ckan/tests/models/test_package_relationships.py',
-        'ckan/tests/models/test_purge_revision.py',
-        'ckan/tests/models/test_resource.py',
-        'ckan/tests/models/test_revision.py',
-        'ckan/tests/models/test_user.py',
-        'ckan/tests/pylons_controller.py',
-        'ckan/tests/schema/test_schema.py',
-        'ckan/tests/test_dumper.py',
-        'ckan/tests/test_plugins.py',
-        'ckan/tests/test_wsgi_ckanclient.py',
-        'ckan/websetup.py',
-        'ckanext/multilingual/plugin.py',
-        'ckanext/reclinepreview/tests/test_preview.py',
-        'ckanext/stats/controller.py',
-        'ckanext/stats/tests/__init__.py',
-        'ckanext/stats/tests/test_stats_lib.py',
-        'ckanext/stats/tests/test_stats_plugin.py',
-        'ckanext/test_tag_vocab_plugin.py',
-        'setup.py',
-    ]
-    fails = {}
-    passes = []
-    done = False
-
-    @classmethod
-    def setup(cls):
-        if not cls.done:
-            cls.process()
-        cls.done = True
-
-    @classmethod
-    def process(cls):
-        blacklist = cls.CKAN_IMPORTS_BLACKLIST_FILES
-        re_bad_import = re.compile(r'^from\s.*\bckan\b(?!\.common).*\bimport')
-        for path, filename in process_directory(base_path):
-            f = open(path, 'r')
-            count = 1
-            errors = []
-            for line in f:
-                if re_bad_import.search(line):
-                    errors.append('ln:%s \t%s' % (count, line[:-1]))
-                count += 1
-            if errors and not filename in blacklist:
-                cls.fails[filename] = output_errors(filename, errors)
-            elif not errors and filename in blacklist:
-                cls.passes.append(filename)
-
-    def test_import_good(self):
-        msg = 'The following files passed ckan import rules'
-        msg += '\nThey need removing from the test blacklist'
-        show_passing(msg, self.passes)
-
-    def test_import_bad(self):
-        msg = ('The following files have ckan import issues that need'
-               'resolving\nThese files contain lines like `from ckan import x`'
-               ' This should not be done except from ckan.common which is'
-               ' written specifically to share external functions.')
-        show_fails(msg, self.fails)
-
-
 class TestImportStar(object):
     ''' Find files using from xxx import * '''
 
@@ -767,9 +604,7 @@ class TestPep8(object):
         'ckan/tests/lib/test_accept.py',
         'ckan/tests/lib/test_alphabet_pagination.py',
         'ckan/tests/lib/test_cli.py',
-        'ckan/tests/lib/test_datapreview.py',
         'ckan/tests/lib/test_dictization.py',
-        'ckan/tests/lib/test_dictization_schema.py',
         'ckan/tests/lib/test_email_notifications.py',
         'ckan/tests/lib/test_field_types.py',
         'ckan/tests/lib/test_hash.py',
@@ -788,7 +623,6 @@ class TestPep8(object):
         'ckan/tests/logic/test_action.py',
         'ckan/tests/logic/test_auth.py',
         'ckan/tests/logic/test_tag.py',
-        'ckan/tests/logic/test_tag_vocab.py',
         'ckan/tests/logic/test_validators.py',
         'ckan/tests/misc/test_format_text.py',
         'ckan/tests/misc/test_mock_mail_server.py',
@@ -817,9 +651,7 @@ class TestPep8(object):
         'ckanext/datastore/bin/datastore_setup.py',
         'ckanext/datastore/logic/action.py',
         'ckanext/datastore/plugin.py',
-        'ckanext/datastore/tests/test_configure.py',
         'ckanext/datastore/tests/test_create.py',
-        'ckanext/datastore/tests/test_delete.py',
         'ckanext/datastore/tests/test_search.py',
         'ckanext/datastore/tests/test_upsert.py',
         'ckanext/example_idatasetform/plugin.py',
@@ -828,7 +660,6 @@ class TestPep8(object):
         'ckanext/reclinepreview/plugin.py',
         'ckanext/reclinepreview/tests/test_preview.py',
         'ckanext/resourceproxy/plugin.py',
-        'ckanext/resourceproxy/tests/test_proxy.py',
         'ckanext/stats/controller.py',
         'ckanext/stats/plugin.py',
         'ckanext/stats/stats.py',
@@ -871,12 +702,19 @@ class TestPep8(object):
         msg = 'The following files passed pep8 but are blacklisted'
         show_passing(msg, self.passes)
 
-    @staticmethod
-    def find_pep8_errors(filename=None, lines=None):
-
+    @classmethod
+    def find_pep8_errors(cls, filename=None, lines=None):
         try:
             sys.stdout = cStringIO.StringIO()
-            checker = pep8.Checker(filename=filename, lines=lines)
+            config = {}
+
+            # Ignore long lines on test files, as the test names can get long
+            # when following our test naming standards.
+            if cls._is_test(filename):
+                config['ignore'] = ['E501']
+
+            checker = pep8.Checker(filename=filename, lines=lines,
+                                   **config)
             checker.check_all()
             output = sys.stdout.getvalue()
         finally:
@@ -890,6 +728,10 @@ class TestPep8(object):
                 line_no = location.split(':')[1]
                 errors.append('%s ln:%s %s' % (error, line_no, desc))
         return errors
+
+    @classmethod
+    def _is_test(cls, filename):
+        return bool(re.search('(^|\W)test_.*\.py$', filename, re.IGNORECASE))
 
 
 class TestActionAuth(object):

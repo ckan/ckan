@@ -538,6 +538,43 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is True, res_dict
 
+    def test_create_datastore_resource_on_dataset(self):
+        pkg = model.Package.get('annakarenina')
+
+        data = {
+            'resource': {
+                'package_id': pkg.id,
+            },
+            'fields': [{'id': 'boo%k', 'type': 'text'},  # column with percent
+                       {'id': 'author', 'type': 'json'}],
+            'indexes': [['boo%k', 'author'], 'author'],
+            'records': [{'boo%k': 'crime', 'author': ['tolstoy', 'dostoevsky']},
+                        {'boo%k': 'annakarenina', 'author': ['tolstoy', 'putin']},
+                        {'boo%k': 'warandpeace'}]  # treat author as null
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
+        res = res_dict['result']
+        assert res['fields'] == data['fields'], res['fields']
+        assert res['records'] == data['records']
+
+        # Get resource details
+        data = {
+            'id': res['resource_id']
+        }
+        postparams = '%s=1' % json.dumps(data)
+        res = self.app.post('/api/action/resource_show', params=postparams)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['result']['datastore_active'] is True
+
+
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]
 

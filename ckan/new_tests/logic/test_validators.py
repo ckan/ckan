@@ -163,7 +163,7 @@ class TestValidators(object):
             ('a', 2, False),
             [13, None, True],
             {'foo': 'bar'},
-            lambda x: x**2,
+            lambda x: x ** 2,
 
             # Certain reserved strings aren't allowed as names.
             'new',
@@ -241,7 +241,7 @@ class TestValidators(object):
             ('a', 2, False),
             [13, None, True],
             {'foo': 'bar'},
-            lambda x: x**2,
+            lambda x: x ** 2,
         ]
 
         # Mock ckan.model.

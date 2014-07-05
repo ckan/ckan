@@ -61,14 +61,14 @@ class TestTracking(object):
 
         '''
         params = {'url': url, 'type': type_}
-        app.post('/_tracking', params=params,
-                 extra_environ={
-                     # The tracking middleware crashes if these aren't present.
-                     'HTTP_USER_AGENT': browser,
-                     'REMOTE_ADDR': ip,
-                     'HTTP_ACCEPT_LANGUAGE': 'en',
-                     'HTTP_ACCEPT_ENCODING': 'gzip, deflate',
-                     })
+        extra_environ = {
+            # The tracking middleware crashes if these aren't present.
+            'HTTP_USER_AGENT': browser,
+            'REMOTE_ADDR': ip,
+            'HTTP_ACCEPT_LANGUAGE': 'en',
+            'HTTP_ACCEPT_ENCODING': 'gzip, deflate',
+        }
+        app.post('/_tracking', params=params, extra_environ=extra_environ)
 
     def _update_tracking_summary(self):
         '''Update CKAN's tracking summary data.

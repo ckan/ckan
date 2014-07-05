@@ -7,6 +7,29 @@
 Changelog
 ---------
 
+v2.3
+====
+
+API changes and deprecations
+----------------------------
+
+* ``helpers.get_action()`` (or ``h.get_action()`` in templates) is deprecated.
+
+  Since action functions raise exceptions and templates cannot catch
+  exceptions, it's not a good idea to call action functions from templates.
+
+  Instead, have your controller method call the action function and pass the
+  result to your template using the ``extra_vars`` param of ``render()``.
+
+  Alternatively you can wrap individual action functions in custom template
+  helper functions that handle any exceptions appropriately, but this is likely
+  to make your the logic in your templates more complex and templates are
+  difficult to test and debug.
+
+  Note that logic.get_action() and toolkit.get_action() are *not* deprecated,
+  core code and plugin code should still use ``get_action()``.
+
+
 v2.2 2014-02-04
 ===============
 

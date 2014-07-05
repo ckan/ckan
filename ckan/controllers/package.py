@@ -316,6 +316,8 @@ class PackageController(base.BaseController):
 
         try:
             check_access('package_update', context, data_dict)
+        except NotFound:
+            abort(404, _('Dataset not found'))
         except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
         # check if package exists
@@ -518,10 +520,8 @@ class PackageController(base.BaseController):
         # in the phased add dataset we need to know that
         # we have already completed stage 1
         stage = ['active']
-        if data.get('state') == 'draft':
+        if data.get('state', '').startswith('draft'):
             stage = ['active', 'complete']
-        elif data.get('state') == 'draft-complete':
-            stage = ['active', 'complete', 'complete']
 
         # if we are creating from a group then this allows the group to be
         # set automatically
@@ -677,9 +677,13 @@ class PackageController(base.BaseController):
                 abort(404,
                     _('The dataset {id} could not be found.').format(id=id))
             if save_action == 'go-metadata':
-                # go to final stage of add dataset
+                # XXX race condition if another user edits/deletes
+                data_dict = get_action('package_show')(context, {'id': id})
+                get_action('package_update')(
+                    dict(context, allow_state_change=True),
+                    dict(data_dict, state='active'))
                 redirect(h.url_for(controller='package',
-                                   action='new_metadata', id=id))
+                                   action='read', id=id))
             elif save_action == 'go-dataset':
                 # go to first stage of add dataset
                 redirect(h.url_for(controller='package',
@@ -704,73 +708,18 @@ class PackageController(base.BaseController):
             pkg_dict = get_action('package_show')(context, {'id': id})
         except NotFound:
             abort(404, _('The dataset {id} could not be found.').format(id=id))
+        try:
+            check_access('resource_create', context, pkg_dict)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to create a resource for this package'))
+
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
         template = 'package/new_resource_not_draft.html'
-        if pkg_dict['state'] == 'draft':
+        if pkg_dict['state'].startswith('draft'):
             vars['stage'] = ['complete', 'active']
             template = 'package/new_resource.html'
-        elif pkg_dict['state'] == 'draft-complete':
-            vars['stage'] = ['complete', 'active', 'complete']
-            template = 'package/new_resource.html'
         return render(template, extra_vars=vars)
-
-    def new_metadata(self, id, data=None, errors=None, error_summary=None):
-        ''' FIXME: This is a temporary action to allow styling of the
-        forms. '''
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
-
-        if request.method == 'POST' and not data:
-            save_action = request.params.get('save')
-            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
-                request.POST))))
-            # we don't want to include save as it is part of the form
-            del data['save']
-
-            data_dict = get_action('package_show')(context, {'id': id})
-
-            data_dict['id'] = id
-            # update the state
-            if save_action == 'finish':
-                # we want this to go live when saved
-                data_dict['state'] = 'active'
-            elif save_action in ['go-resources', 'go-dataset']:
-                data_dict['state'] = 'draft-complete'
-            # allow the state to be changed
-            context['allow_state_change'] = True
-            data_dict.update(data)
-            try:
-                get_action('package_update')(context, data_dict)
-            except ValidationError, e:
-                errors = e.error_dict
-                error_summary = e.error_summary
-                return self.new_metadata(id, data, errors, error_summary)
-            except NotAuthorized:
-                abort(401, _('Unauthorized to update dataset'))
-            if save_action == 'go-resources':
-                # we want to go back to the add resources form stage
-                redirect(h.url_for(controller='package',
-                                   action='new_resource', id=id))
-            elif save_action == 'go-dataset':
-                # we want to go back to the add dataset stage
-                redirect(h.url_for(controller='package',
-                                   action='edit', id=id))
-
-            redirect(h.url_for(controller='package', action='read', id=id))
-
-        if not data:
-            data = get_action('package_show')(context, {'id': id})
-        errors = errors or {}
-        error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
-        vars['pkg_name'] = id
-
-        package_type = self._get_package_type(id)
-        self._setup_template_variables(context, {},
-                                       package_type=package_type)
-
-        return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         package_type = self._get_package_type(id)
@@ -824,10 +773,8 @@ class PackageController(base.BaseController):
 
         # we have already completed stage 1
         vars['stage'] = ['active']
-        if data.get('state') == 'draft':
+        if data.get('state', '').startswith('draft'):
             vars['stage'] = ['active', 'complete']
-        elif data.get('state') == 'draft-complete':
-            vars['stage'] = ['active', 'complete', 'complete']
 
         # TODO: This check is to maintain backwards compatibility with the
         # old way of creating custom forms. This behaviour is now deprecated.
@@ -931,6 +878,8 @@ class PackageController(base.BaseController):
                     # This is actually an update not a save
                     data_dict['id'] = data_dict['pkg_name']
                     del data_dict['pkg_name']
+                    # don't change the dataset state
+                    data_dict['state'] = 'draft'
                     # this is actually an edit not a save
                     pkg_dict = get_action('package_update')(context, data_dict)
 

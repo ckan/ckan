@@ -75,6 +75,10 @@ entry_points = {
         'recline_preview = ckanext.reclinepreview.plugin:ReclinePreview',
         'example_itemplatehelpers = ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin',
         'example_idatasetform = ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin',
+        'example_idatasetform_v1 = ckanext.example_idatasetform.plugin_v1:ExampleIDatasetFormPlugin',
+        'example_idatasetform_v2 = ckanext.example_idatasetform.plugin_v2:ExampleIDatasetFormPlugin',
+        'example_idatasetform_v3 = ckanext.example_idatasetform.plugin_v3:ExampleIDatasetFormPlugin',
+        'example_idatasetform_v4 = ckanext.example_idatasetform.plugin_v4:ExampleIDatasetFormPlugin',
         'example_iauthfunctions_v1 = ckanext.example_iauthfunctions.plugin_v1:ExampleIAuthFunctionsPlugin',
         'example_iauthfunctions_v2 = ckanext.example_iauthfunctions.plugin_v2:ExampleIAuthFunctionsPlugin',
         'example_iauthfunctions_v3 = ckanext.example_iauthfunctions.plugin_v3:ExampleIAuthFunctionsPlugin',
@@ -120,6 +124,7 @@ entry_points = {
         'test_package_controller_plugin = tests.ckantestplugins:MockPackageControllerPlugin',
         'test_resource_preview = tests.ckantestplugins:MockResourcePreviewExtension',
         'test_json_resource_preview = tests.ckantestplugins:JsonMockResourcePreviewExtension',
+        'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin'
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',
