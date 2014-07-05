@@ -1160,16 +1160,23 @@ class PackageController(base.BaseController):
 
         resource_views = get_action('resource_view_list')(
             context, {'id': resource_id})
-        has_views = len(resource_views) > 0
-        current_resource_view = False
-        if c.resource['can_be_previewed'] and not request.GET.get('view_id'):
+        c.resource['has_views'] = len(resource_views) > 0
+
+        current_resource_view = None
+        view_id = request.GET.get('view_id')
+        if c.resource['can_be_previewed'] and not view_id:
             current_resource_view = None
-        elif (has_views):
-            if (request.GET.get('view_id')):
-                current_resource_view = request.GET.get('view_id')
+        elif c.resource['has_views']:
+            if view_id:
+                current_resource_view = [rv for rv in resource_views
+                                         if rv['id'] == view_id]
+                if len(current_resource_view) == 1:
+                    current_resource_view = current_resource_view[0]
+                else:
+                    abort(404, _('Resource view not found'))
             else:
-                current_resource_view = resource_views[0].get('id')
-        c.resource['has_views'] = has_views
+                current_resource_view = resource_views[0]
+
         vars = {'resource_views': resource_views,
                 'current_resource_view': current_resource_view}
 
