@@ -1635,7 +1635,7 @@ msgstr "Položka nebola nájdená."
 
 #: ckan/logic/action/update.py:208 ckan/logic/action/update.py:221
 msgid "Resource was not found."
-msgstr "Zdroj nebol nájdený. "
+msgstr "Zdroj nebol nájdený."
 
 #: ckan/logic/action/update.py:268 ckan/logic/action/update.py:1089
 msgid "Package was not found."
@@ -1662,7 +1662,7 @@ msgstr "Organizácia nebola nájdená."
 #: ckan/logic/auth/create.py:19 ckan/logic/auth/create.py:37
 #, python-format
 msgid "User %s not authorized to create packages"
-msgstr "Používateľ %s nemá oprávnenie vytvárať balíky."
+msgstr "Používateľ %s nemá oprávnenie vytvárať balíky"
 
 #: ckan/logic/auth/create.py:23 ckan/logic/auth/update.py:39
 #, python-format
@@ -1672,7 +1672,7 @@ msgstr "Používateľ %s nemá oprávnenie upravovať tieto skupiny"
 #: ckan/logic/auth/create.py:30
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
-msgstr "Používateľ %s nemá oprávnenie na pridanie datasetu tejto organizácie."
+msgstr "Používateľ %s nemá oprávnenie na pridanie datasetu tejto organizácie"
 
 #: ckan/logic/auth/create.py:52
 msgid "You must be a sysadmin to create a featured related item"
@@ -2308,11 +2308,11 @@ msgstr "Obnoviť"
 
 #: ckan/templates/admin/config.html:13
 msgid "Update Config"
-msgstr ""
+msgstr "Upraviť konfiguráciu"
 
 #: ckan/templates/admin/config.html:22
 msgid "CKAN config options"
-msgstr ""
+msgstr "CKAN konfigurácia"
 
 #: ckan/templates/admin/config.html:29
 #, python-format
@@ -2337,11 +2337,11 @@ msgstr ""
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
 msgid "Confirm Reset"
-msgstr ""
+msgstr "Potvrďte reset"
 
 #: ckan/templates/admin/index.html:15
 msgid "What are sysadmins?"
-msgstr ""
+msgstr "Kto sú systémoví administrátori"
 
 #: ckan/templates/admin/index.html:19
 msgid ""
@@ -2349,60 +2349,64 @@ msgid ""
 "can only add CKAN sysadmins via the <code>sysadmin</code> paster "
 "command.</p> "
 msgstr ""
+" <p>Systémový administrátor má plnú kontrolu nad CKAN objektom. Pridanie CKAN administrátora môžete vykonať iba "
+"prostredníctvom príkazu <code>sysadmin</code>.</p> "
 
 #: ckan/templates/admin/index.html:24
 msgid "Read the documentation"
-msgstr ""
+msgstr "Prečítajte si dokumentáciu"
 
 #: ckan/templates/ajax_snippets/api_info.html:19
 msgid "CKAN Data API"
-msgstr ""
+msgstr "CKAN dátové API"
 
 #: ckan/templates/ajax_snippets/api_info.html:23
 msgid "Access resource data via a web API with powerful query support"
-msgstr ""
+msgstr "Prístup k zdrojom dát prostredníctvom webového API s podporou dopytovania"
 
 #: ckan/templates/ajax_snippets/api_info.html:24
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/datastore.html\" "
 "target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
-msgstr ""
+msgstr "Viac informácií na <a       "
+"href=\"http://docs.ckan.org/en/latest/datastore.html\" "
+"target=\"_blank\">CKAN dátové API a DataStore dokumentácia</a>.</p> "
 
 #: ckan/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
-msgstr ""
+msgstr "Koncové body"
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
 "The Data API can be accessed via the following actions of the CKAN action "
 "API."
-msgstr ""
+msgstr "Prístup k dátovému API prostredníctvom nasledujúcich CKAN akcií API"
 
 #: ckan/templates/ajax_snippets/api_info.html:42
 #: ckan/templates/related/edit_form.html:7
 msgid "Create"
-msgstr ""
+msgstr "Vytvoriť"
 
 #: ckan/templates/ajax_snippets/api_info.html:46
 msgid "Update / Insert"
-msgstr ""
+msgstr "Aktualizovať / Vložiť"
 
 #: ckan/templates/ajax_snippets/api_info.html:50
 msgid "Query"
-msgstr ""
+msgstr "Dopyt"
 
 #: ckan/templates/ajax_snippets/api_info.html:54
 msgid "Query (via SQL)"
-msgstr ""
+msgstr "Dopyt (prostredníctvom SQL)"
 
 #: ckan/templates/ajax_snippets/api_info.html:66
 msgid "Querying"
-msgstr ""
+msgstr "Dopytovanie"
 
 #: ckan/templates/ajax_snippets/api_info.html:70
 msgid "Query example (first 5 results)"
-msgstr ""
+msgstr "Príklad dopytu (prvých 5 výsledkov)"
 
 #: ckan/templates/ajax_snippets/api_info.html:75
 msgid "Query example (results containing 'jones')"
