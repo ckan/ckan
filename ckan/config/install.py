@@ -23,33 +23,33 @@ class CKANInstaller(PylonsInstaller):
         # Optionally read the values for certain config settings from
         # environment variables.
         environment_variables = {
-            'ckan_sqlalchemy_url': os.environ.get(
-                'ckan_sqlalchemy_url',
+            'CKAN_SQLALCHEMY_URL': os.environ.get(
+                'CKAN_SQLALCHEMY_URL',
                 'postgresql://ckan_default:pass@localhost/ckan_default'),
-            'ckan_beaker_session_type': os.environ.get(
-                'ckan_beaker_session_type', 'file'),
-            'ckan_beaker_session_url': os.environ.get(
-                'ckan_beaker_session_url', ''),
-            'ckan_datastore_write_url': os.environ.get(
-                'ckan_datastore_write_url',
+            'CKAN_BEAKER_SESSION_TYPE': os.environ.get(
+                'CKAN_BEAKER_SESSION_TYPE', 'file'),
+            'CKAN_BEAKER_SESSION_URL': os.environ.get(
+                'CKAN_BEAKER_SESSION_URL', ''),
+            'CKAN_DATASTORE_WRITE_URL': os.environ.get(
+                'CKAN_DATASTORE_WRITE_URL',
                 'postgresql://ckan_default:pass@localhost/datastore_default'),
-            'ckan_datastore_read_url': os.environ.get(
-                'ckan_datastore_read_url',
+            'CKAN_DATASTORE_READ_URL': os.environ.get(
+                'CKAN_DATASTORE_READ_URL',
                 ('postgresql://datastore_default:pass@localhost/datastore_def'
                  'ault')),
-            'ckan_datapusher_url': os.environ.get(
-                'ckan_datapusher_url', 'http://127.0.0.1:8800/'),
-            'ckan_solr_url': os.environ.get(
-                'ckan_solr_url', 'http://127.0.0.1:8983/solr'),
-            'ckan_email_to': os.environ.get(
-                'ckan_email_to', 'you@yourdomain.com'),
-            'ckan_error_email_from': os.environ.get(
-                'ckan_error_email_from', 'paste@localhost'),
-            'ckan_site_id': os.environ.get('ckan_site_id', 'default'),
-            'ckan_site_url': os.environ.get('ckan_site_url', ''),
-            'ckan_plugins': os.environ.get(
-                'ckan_plugins', 'stats text_preview recline_preview'),
-            'ckan_site_title': os.environ.get('ckan_site_title', 'CKAN'),
+            'CKAN_DATAPUSHER_URL': os.environ.get(
+                'CKAN_DATAPUSHER_URL', 'Http://127.0.0.1:8800/'),
+            'CKAN_SOLR_URL': os.environ.get(
+                'CKAN_SOLR_URL', 'HTTP://127.0.0.1:8983/solr'),
+            'CKAN_EMAIL_TO': os.environ.get(
+                'CKAN_EMAIL_TO', 'you@yourdomain.com'),
+            'CKAN_ERROR_EMAIL_FROM': os.environ.get(
+                'CKAN_ERROR_EMAIL_FROM', 'paste@localhost'),
+            'CKAN_SITE_ID': os.environ.get('CKAN_SITE_ID', 'default'),
+            'CKAN_SITE_URL': os.environ.get('CKAN_SITE_URL', ''),
+            'CKAN_PLUGINS': os.environ.get(
+                'CKAN_PLUGINS', 'stats text_preview recline_preview'),
+            'CKAN_SITE_TITLE': os.environ.get('CKAN_SITE_TITLE', 'CKAN'),
         }
         vars.update(environment_variables)
 

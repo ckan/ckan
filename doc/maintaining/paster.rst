@@ -212,43 +212,43 @@ settings in the config file, but:
 
 At the time of writing, the following environment variables are supported:
 
-ckan_sqlalchemy_url
+CKAN_SQLALCHEMY_URL
    The :ref:`sqlalchemy.url` setting.
 
-ckan_beaker_session_type
+CKAN_BEAKER_SESSION_TYPE
    The :ref:`beaker.session.type` setting.
 
-ckan_beaker_session_url
+CKAN_BEAKER_SESSION_URL
    The :ref:`beaker.session.url` setting.
 
-ckan_datastore_write_url
+CKAN_DATASTORE_WRITE_URL
    The :ref:`ckan.datastore.write_url` setting.
 
-ckan_datastore_read_url
+CKAN_DATASTORE_READ_URL
    The :ref:`ckan.datastore.read_url` setting.
 
-ckan_datapusher_url
+CKAN_DATAPUSHER_URL
    The :ref:`ckan.datapusher.url` setting.
 
-ckan_solr_url
+CKAN_SOLR_URL
    The :ref:`solr_url` setting.
 
-ckan_email_to
+CKAN_EMAIL_TO
    The :ref:`email_to` setting.
 
-ckan_error_email_from
+CKAN_ERROR_EMAIL_FROM
    The :ref:`error_email_from` setting.
 
-ckan_site_id
+CKAN_SITE_ID
    The :ref:`ckan.site_id` setting.
 
-ckan_site_url
+CKAN_SITE_URL
    The :ref:`ckan.site_url` setting.
 
-ckan_plugins
+CKAN_PLUGINS
    The :ref:`ckan.plugins` setting.
 
-ckan_site_title
+CKAN_SITE_TITLE
    The :ref:`ckan.site_title` setting.
 
 But see :py:meth:`CKANInstaller.config_content` in ``ckan/config/install.py``

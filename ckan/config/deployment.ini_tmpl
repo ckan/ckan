@@ -31,8 +31,8 @@ beaker.session.key = ckan
 # to the client. `paster make-config` generates a unique value for this each
 # time it generates a config file.
 beaker.session.secret = ${app_instance_secret}
-beaker.session.type = ${ckan_beaker_session_type}
-beaker.session.url = ${ckan_beaker_session_url}
+beaker.session.type = ${CKAN_BEAKER_SESSION_TYPE}
+beaker.session.url = ${CKAN_BEAKER_SESSION_URL}
 
 # `paster make-config` generates a unique value for this each time it generates
 # a config file.
@@ -45,15 +45,15 @@ who.log_file = %(cache_dir)s/who_log.ini
 
 
 ## Database Settings
-sqlalchemy.url = ${ckan_sqlalchemy_url}
+sqlalchemy.url = ${CKAN_SQLALCHEMY_URL}
 
-ckan.datastore.write_url = ${ckan_datastore_write_url}
-ckan.datastore.read_url = ${ckan_datastore_read_url}
+ckan.datastore.write_url = ${CKAN_DATASTORE_WRITE_URL}
+ckan.datastore.read_url = ${CKAN_DATASTORE_READ_URL}
 
 
 ## Site Settings
 
-ckan.site_url = ${ckan_site_url}
+ckan.site_url = ${CKAN_SITE_URL}
 
 
 ## Authorization Settings
@@ -72,8 +72,8 @@ ckan.auth.roles_that_cascade_to_sub_groups = admin
 
 ## Search Settings
 
-ckan.site_id = ${ckan_site_id}
-solr_url = ${ckan_solr_url}
+ckan.site_id = ${CKAN_SITE_ID}
+solr_url = ${CKAN_SOLR_URL}
 
 #ckan.simple_search = 1
 
@@ -85,11 +85,11 @@ solr_url = ${ckan_solr_url}
 #       Add ``pdf_preview`` to enable the resource preview for PDFs
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = ${ckan_plugins}
+ckan.plugins = ${CKAN_PLUGINS}
 
 
 ## Front-End Settings
-ckan.site_title = ${ckan_site_title}
+ckan.site_title = ${CKAN_SITE_TITLE}
 ckan.site_logo = /base/images/ckan-logo.png
 ckan.site_description =
 ckan.favicon = /images/icons/ckan.ico
@@ -131,7 +131,7 @@ ckan.feeds.author_link =
 # Make sure you have set up the DataStore
 
 #ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-ckan.datapusher.url = ${ckan_datapusher_url}
+ckan.datapusher.url = ${CKAN_DATAPUSHER_URL}
 
 ## Activity Streams Settings
 
@@ -144,8 +144,8 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 
 ## Email settings
 
-email_to = ${ckan_email_to}
-error_email_from = ${ckan_error_email_from}
+email_to = ${CKAN_EMAIL_TO}
+error_email_from = ${CKAN_ERROR_EMAIL_FROM}
 smtp.server = localhost
 smtp.starttls = False
 #smtp.user = your_username@gmail.com
