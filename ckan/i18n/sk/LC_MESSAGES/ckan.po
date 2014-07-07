@@ -2137,13 +2137,13 @@ msgstr "Nie je možné autentifikovať nahrávku"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:30
 msgid "Unable to get data for uploaded file"
-msgstr ""
+msgstr "Nie je možné pristúpiť k nahranému súboru"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
 "You are uploading a file. Are you sure you want to navigate away and stop "
 "this upload?"
-msgstr ""
+msgstr "Nahrávate súbor. Chcete odísť preč a prerušiť nahrávanie?"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:35
 #: ckan/templates/group/snippets/group_form.html:18
@@ -2174,24 +2174,24 @@ msgstr "Upraviť"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:9
 msgid "Show more"
-msgstr ""
+msgstr "Ukázať viac"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:10
 msgid "Hide"
-msgstr ""
+msgstr "Skryť"
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
-msgstr ""
+msgstr "Chyba %(error_code)s"
 
 #: ckan/templates/footer.html:8
 msgid "About {0}"
-msgstr ""
+msgstr "Informácie o {0}"
 
 #: ckan/templates/footer.html:14
 msgid "CKAN API"
-msgstr ""
+msgstr "CKAN API"
 
 #: ckan/templates/footer.html:15 ckan/templates_legacy/layout_base.html:207
 msgid "Open Knowledge Foundation"
@@ -2202,26 +2202,28 @@ msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
 msgstr ""
+"<strong>Beží na</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
-msgstr ""
+msgstr "Nastavenia systémového administrátora"
 
 #: ckan/templates/header.html:18
 msgid "View profile"
-msgstr ""
+msgstr "Ukázaž profil"
 
 #: ckan/templates/header.html:25
 #, python-format
 msgid "Dashboard (%(num)d new item)"
 msgid_plural "Dashboard (%(num)d new items)"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Zobraziť (%(num)d novú položku)"
+msgstr[1] "Zobraziť (%(num)d novú položku)"
+msgstr[2] "Zobraziť (%(num)d nové položky)"
 
 #: ckan/templates/header.html:33 ckan/templates/user/dashboard.html:16
 msgid "Edit settings"
-msgstr ""
+msgstr "Úprava nastavení"
 
 #: ckan/templates/header.html:40 ckan/templates_legacy/user/layout.html:14
 msgid "Log out"
@@ -2229,7 +2231,7 @@ msgstr "Odhlásiť sa"
 
 #: ckan/templates/header.html:52 ckan/templates/user/logout_first.html:15
 msgid "Log in"
-msgstr ""
+msgstr "Prihlásiť sa"
 
 #: ckan/templates/header.html:54 ckan/templates/user/new.html:3
 #: ckan/templates_legacy/layout_base.html:60
@@ -2263,46 +2265,46 @@ msgstr "Datasety"
 
 #: ckan/templates/header.html:107
 msgid "Search Datasets"
-msgstr ""
+msgstr "Vyhľadať datasety"
 
 #: ckan/templates/header.html:108 ckan/templates/group/read.html:14
 #: ckan/templates/organization/read.html:18
 #: ckan/templates/snippets/search_form.html:3
 msgid "Search datasets..."
-msgstr ""
+msgstr "Vyhľadať datasety..."
 
 #: ckan/templates/activity_streams/activity_stream_items.html:7
 msgid "Load less"
-msgstr ""
+msgstr "Načítať menej"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:15
 msgid "Load more"
-msgstr ""
+msgstr "Načítať viac"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:19
 msgid "No activities are within this activity stream"
-msgstr ""
+msgstr "Žiadne udalosti nie sú dostupné"
 
 #: ckan/templates/admin/base.html:3
 msgid "Administration"
-msgstr ""
+msgstr "Administrácia"
 
 #: ckan/templates/admin/base.html:8
 msgid "Sysadmins"
-msgstr ""
+msgstr "Systémoví administrátori"
 
 #: ckan/templates/admin/base.html:9
 msgid "Config"
-msgstr ""
+msgstr "Konfigurácia"
 
 #: ckan/templates/admin/config.html:11
 #: ckan/templates/admin/confirm_reset.html:7
 msgid "Are you sure you want to reset the config?"
-msgstr ""
+msgstr "Chcete obnoviť konfiguráciu?"
 
 #: ckan/templates/admin/config.html:12
 msgid "Reset"
-msgstr ""
+msgstr "Obnoviť"
 
 #: ckan/templates/admin/config.html:13
 msgid "Update Config"
