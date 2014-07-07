@@ -607,33 +607,33 @@ msgstr "Požadovaná súvisiaca položka nebola nájdená."
 
 #: ckan/controllers/related.py:148 ckan/controllers/related.py:224
 msgid "Related item not found"
-msgstr ""
+msgstr "Súvisiaca položka nebola nájdená"
 
 #: ckan/controllers/related.py:158 ckan/logic/auth/get.py:10
 #: ckan/logic/auth/get.py:245
 msgid "Not authorized"
-msgstr ""
+msgstr "Neoprávnený"
 
 #: ckan/controllers/related.py:163
 msgid "Package not found"
-msgstr ""
+msgstr "Balíček nenájdený"
 
 #: ckan/controllers/related.py:183
 msgid "Related item was successfully created"
-msgstr ""
+msgstr "Súvisiaca položka bola úspešne vytvorená"
 
 #: ckan/controllers/related.py:185
 msgid "Related item was successfully updated"
-msgstr ""
+msgstr "Súvisiaca položka bola úspešne aktualizovaná"
 
 #: ckan/controllers/related.py:216
 msgid "Related item has been deleted."
-msgstr ""
+msgstr "Súvisiaca položka bola úspešne vytvorená"
 
 #: ckan/controllers/related.py:222
 #, python-format
 msgid "Unauthorized to delete related item %s"
-msgstr ""
+msgstr "Nie ste oprávnený na vymazanie súvisiacej položky %s"
 
 #: ckan/controllers/related.py:232 ckan/templates/package/search.html:51
 #: ckan/templates_legacy/js_strings.html:16
@@ -666,13 +666,13 @@ msgstr "Článok o novinkách"
 #: ckan/templates_legacy/related/add-related.html:28
 #: ckan/templates_legacy/related/dashboard.html:38
 msgid "Paper"
-msgstr ""
+msgstr "Odborný článok"
 
 #: ckan/controllers/related.py:237
 #: ckan/templates_legacy/related/add-related.html:29
 #: ckan/templates_legacy/related/dashboard.html:39
 msgid "Post"
-msgstr "Post"
+msgstr "Príspevok"
 
 #: ckan/controllers/related.py:238 ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/related/add-related.html:30
@@ -714,7 +714,7 @@ msgstr "Používateľ nebol nájdený"
 
 #: ckan/controllers/user.py:147
 msgid "Unauthorized to register as a user."
-msgstr ""
+msgstr "Nemáte oprávnenie registrovať sa ako používateľ."
 
 #: ckan/controllers/user.py:164
 msgid "Unauthorized to create a user"
@@ -722,7 +722,7 @@ msgstr "Nemáte oprávnenie vytvoriť používateľa"
 
 #: ckan/controllers/user.py:195
 msgid "Unauthorized to delete user with id \"{user_id}\"."
-msgstr ""
+msgstr "Nemáte oprávnenie vymazať používateľa s id \"{user_id}\"."
 
 #: ckan/controllers/user.py:206
 #, python-format
@@ -746,7 +746,7 @@ msgstr "Nebol vybraný žiadny používateľ"
 
 #: ckan/controllers/user.py:251
 msgid "Unauthorized to edit a user."
-msgstr ""
+msgstr "Nemáte oprávnenie upravovať používateľa."
 
 #: ckan/controllers/user.py:269 ckan/controllers/user.py:310
 #: ckan/controllers/user.py:486
@@ -770,15 +770,15 @@ msgstr "%s je práve prihlásených"
 
 #: ckan/controllers/user.py:365
 msgid "Login failed. Bad username or password."
-msgstr "Prihlásenie sa nepodarilo.  Zlé prihlasovacie meno alebo heslo."
+msgstr "Prihlásenie sa nepodarilo. Zlé prihlasovacie meno alebo heslo."
 
 #: ckan/controllers/user.py:367
 msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
-msgstr "(Ak používate OpenID, nebolo priradené k používateľskému účtu.)"
+msgstr " (Ak používate OpenID, nebolo priradené k používateľskému účtu.)"
 
 #: ckan/controllers/user.py:402
 msgid "Unauthorized to request reset password."
-msgstr ""
+msgstr "Nemáte oprávnenie požiadať o reset hesla."
 
 #: ckan/controllers/user.py:431
 #, python-format
