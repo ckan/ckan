@@ -53,11 +53,13 @@ def test_building_the_docs():
     ]
 
     # Remove the allowed warnings from the list of collected warnings.
+    # Be sure to only remove one warning for each allowed warning.
     warnings_to_remove = []
     for allowed_warning in allowed_warnings:
         for warning in warnings:
             if allowed_warning in warning:
                 warnings_to_remove.append(warning)
+                break
     new_warnings = [warning for warning in warnings
                     if warning not in warnings_to_remove]
 
