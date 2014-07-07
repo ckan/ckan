@@ -5711,7 +5711,7 @@ msgstr "Naposledy prezerané"
 
 #: ckan/templates_legacy/related/dashboard.html:55
 msgid "Featured items only?"
-msgstr ""
+msgstr "Len vybrané položky"
 
 #: ckan/templates_legacy/related/related_list.html:17
 #: ckan/templates_legacy/related/related_list.html:21
@@ -6210,7 +6210,7 @@ msgid ""
 "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
 "\n"
 "[1] https://developers.google.com/closure/compiler/"
-msgstr "Táto zkompilovaná verzia SlickGrid bola získana pomocou Google Closure\n Compiler s využitím nasledujúceho príkazu:\n\n java -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n\nĎaľšie dva súbory sú potrebné k tomu, aby SlickGrid náhľad fungoval správne: "
+msgstr "Táto zkompilovaná verzia SlickGrid bola získana pomocou Google Closure\n Compiler s využitím nasledujúceho príkazu:\n\n java -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n\nĎaľšie dva súbory sú potrebné k tomu, aby SlickGrid náhľad fungoval správne:\n* jquery-ui-1.8.16.custom.min.js\n* jquery.event.drag-2.0.min.js\n\nTieto súbory sú súčasťou zdrojového kódu Recline, ale neboli zaradené do buildu s účelom zjednodušenia riešenia problému s kompatibilitou.\n\nProsím, oboznámte sa s licenciou SlickGrid, ktorá je súčasťou súboru MIT-LICENSE.txt file.\n\n[1] https://developers.google.com/closure/compiler/"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:57
