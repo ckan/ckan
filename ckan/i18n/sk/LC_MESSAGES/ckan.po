@@ -1676,11 +1676,11 @@ msgstr "Používateľ %s nemá oprávnenie na pridanie datasetu tejto organizác
 
 #: ckan/logic/auth/create.py:52
 msgid "You must be a sysadmin to create a featured related item"
-msgstr "Musíte byť sysadmin, aby ste vytvorili funkčné súvisiace položky."
+msgstr "Musíte byť systémový administrátor, aby ste mohli vytvoriť funkčné súvisiace položky"
 
 #: ckan/logic/auth/create.py:56
 msgid "You must be logged in to add a related item"
-msgstr "Ak chcete pridať súvisiacu položku, musíte byť prihlásený."
+msgstr "Ak chcete pridať súvisiacu položku, musíte byť prihlásený"
 
 #: ckan/logic/auth/create.py:80
 #, python-format
@@ -1695,19 +1695,19 @@ msgstr "Používateľ %s nemá oprávnenie vytvárať skupiny"
 #: ckan/logic/auth/create.py:101
 #, python-format
 msgid "User %s not authorized to create organizations"
-msgstr "Používateľ %s nemá oprávnenie na vytváranie organizácií."
+msgstr "Používateľ %s nemá oprávnenie na vytváranie organizácií"
 
 #: ckan/logic/auth/create.py:117
 msgid "User {user} not authorized to create users via the API"
-msgstr "Používateľ {user} nemá oprávnenie na vytvorenie používteľom prostredníctvom API."
+msgstr "Používateľ {user} nemá oprávnenie na vytvorenie používteľom prostredníctvom API"
 
 #: ckan/logic/auth/create.py:120
 msgid "Not authorized to create users"
-msgstr "Nemáte oprávnenie na vytvorenie používateľov."
+msgstr "Nemáte oprávnenie na vytvorenie používateľov"
 
 #: ckan/logic/auth/create.py:163
 msgid "Group was not found."
-msgstr "Skupina nebola nájdená"
+msgstr "Skupina nebola nájdená."
 
 #: ckan/logic/auth/create.py:183
 msgid "Valid API key needed to create a package"
@@ -1720,7 +1720,7 @@ msgstr "Na vytvorenie skupiny je potrebný API kľúč"
 #: ckan/logic/auth/create.py:211
 #, python-format
 msgid "User %s not authorized to add members"
-msgstr "Používateľ %s nemá oprávnenie na pridanie členov."
+msgstr "Používateľ %s nemá oprávnenie na pridanie členov"
 
 #: ckan/logic/auth/create.py:235 ckan/logic/auth/update.py:107
 #, python-format
@@ -1740,7 +1740,7 @@ msgstr "Nenašiel sa žiadny balík pre tento zdroj, nie je možné skontrolova�
 #: ckan/logic/auth/delete.py:41
 #, python-format
 msgid "User %s not authorized to delete resource %s"
-msgstr "Používateľ %s nemá oprávnenie na odstránenie zdroj %s."
+msgstr "Používateľ %s nemá oprávnenie na odstránenie zdroja %s"
 
 #: ckan/logic/auth/delete.py:50 ckan/logic/auth/delete.py:64
 msgid "Only the owner can delete a related item"
@@ -1754,7 +1754,7 @@ msgstr "Používateľ %s nemá oprávnenie zmazať vzťah %s"
 #: ckan/logic/auth/delete.py:85
 #, python-format
 msgid "User %s not authorized to delete groups"
-msgstr "Používateľ %s nemá oprávnenie na odstránenie skupín."
+msgstr "Používateľ %s nemá oprávnenie na odstránenie skupín"
 
 #: ckan/logic/auth/delete.py:89
 #, python-format
@@ -1764,12 +1764,12 @@ msgstr "Používateľ %s nemá oprávnenie zmazať skupinu %s"
 #: ckan/logic/auth/delete.py:106
 #, python-format
 msgid "User %s not authorized to delete organizations"
-msgstr "Používateľ %s nemá oprávnenie na odstránenie organizácií."
+msgstr "Používateľ %s nemá oprávnenie na odstránenie organizácií"
 
 #: ckan/logic/auth/delete.py:110
 #, python-format
 msgid "User %s not authorized to delete organization %s"
-msgstr "Používateľ %s nemá oprávnenie na odstránenie organizácie %s."
+msgstr "Používateľ %s nemá oprávnenie na odstránenie organizácie %s"
 
 #: ckan/logic/auth/delete.py:123
 #, python-format
