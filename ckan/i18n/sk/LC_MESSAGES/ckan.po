@@ -1774,12 +1774,12 @@ msgstr "Používateľ %s nemá oprávnenie na odstránenie organizácie %s"
 #: ckan/logic/auth/delete.py:123
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr "Používateľ %s nemá oprávnenie odstrániť task_status"
+msgstr "Používateľ %s nemá oprávnenie na odstránenie task_status"
 
 #: ckan/logic/auth/delete.py:139
 #, python-format
 msgid "User %s not authorized to delete organization %s members"
-msgstr "Používateľ %s nemá oprávnenie na odstránenie členov organizácie %s."
+msgstr "Používateľ %s nemá oprávnenie na odstránenie členov organizácie %s"
 
 #: ckan/logic/auth/get.py:93
 #, python-format
@@ -1808,7 +1808,7 @@ msgstr "Používateľ %s nemá oprávnenie upravovať balík %s"
 #: ckan/logic/auth/update.py:69
 #, python-format
 msgid "User %s not authorized to edit resource %s"
-msgstr "Používateľ %s nemá oprávnenie na úpravu zdroja %s."
+msgstr "Používateľ %s nemá oprávnenie na úpravu zdroja %s"
 
 #: ckan/logic/auth/update.py:92
 #, python-format
@@ -1818,7 +1818,7 @@ msgstr "Používateľ %s nemá oprávnenie meniť stav balíka %s"
 #: ckan/logic/auth/update.py:120
 #, python-format
 msgid "User %s not authorized to edit organization %s"
-msgstr "Používateľ %s nemá oprávnenie na zmenu organizácie %s."
+msgstr "Používateľ %s nemá oprávnenie na zmenu organizácie %s"
 
 #: ckan/logic/auth/update.py:131 ckan/logic/auth/update.py:137
 msgid "Only the owner can update a related item"
@@ -1826,7 +1826,7 @@ msgstr "Súvisiacu položku môže aktualizovať len vlasník"
 
 #: ckan/logic/auth/update.py:142
 msgid "You must be a sysadmin to change a related item's featured field."
-msgstr "Aby ste mohli zmeniť funkčné pole súvisiacej položky, musíte byť sysadmin."
+msgstr "Aby ste mohli zmeniť funkčné pole súvisiacej položky, musíte byť systémový administrátor."
 
 #: ckan/logic/auth/update.py:159
 #, python-format
@@ -1840,7 +1840,7 @@ msgstr "Používateľ %s nemá oprávnenie meniť práva skupiny %s"
 
 #: ckan/logic/auth/update.py:203
 msgid "Have to be logged in to edit user"
-msgstr "Musíte byť pripojený na úpravu používateľa."
+msgstr "Musíte byť pripojený na úpravu používateľa"
 
 #: ckan/logic/auth/update.py:211
 #, python-format
@@ -1938,7 +1938,7 @@ msgstr "záleží od  %s"
 #: ckan/model/package_relationship.py:52
 #, python-format
 msgid "is a dependency of %s"
-msgstr "je závislosť %s"
+msgstr "je závislosť od %s"
 
 #: ckan/model/package_relationship.py:53
 #, python-format
@@ -1988,15 +1988,15 @@ msgstr "Prebieha načítavanie..."
 
 #: ckan/public/base/javascript/modules/api-info.js:20
 msgid "There is no API data to load for this resource"
-msgstr "Neexistuje dátové API na načítanie tohto zdroja."
+msgstr "Neexistuje dátové API na načítanie tohto zdroja"
 
 #: ckan/public/base/javascript/modules/api-info.js:21
 msgid "Failed to load data API information"
-msgstr "Zlyhalo načítanie informácie o dátovom API."
+msgstr "Zlyhalo načítanie informácie o dátovom API"
 
 #: ckan/public/base/javascript/modules/autocomplete.js:31
 msgid "No matches found"
-msgstr "Žiadna zhoda."
+msgstr "Žiadna zhoda"
 
 #: ckan/public/base/javascript/modules/autocomplete.js:32
 msgid "Start typing…"
@@ -2004,15 +2004,15 @@ msgstr "Začnite písať..."
 
 #: ckan/public/base/javascript/modules/autocomplete.js:34
 msgid "Input is too short, must be at least one character"
-msgstr "Vstup je príliš krátky, zadajte aspoň jeden znak."
+msgstr "Vstup je príliš krátky, zadajte aspoň jeden znak"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
-msgstr "Neluložili ste úpravu tohto formuláru."
+msgstr "Neuložili ste vykonané zmeny vo formulári"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:7
 msgid "Please Confirm Action"
-msgstr "Prosím, potvrďte túto akciu."
+msgstr "Prosím, potvrďte túto akciu"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:8
 msgid "Are you sure you want to perform this action?"
@@ -2104,7 +2104,7 @@ msgstr "ukázať menej"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:8
 msgid "Reorder resources"
-msgstr "Preusporiadaj zdroje"
+msgstr "Preusporiadať zdroje"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:9
 msgid "Save order"
@@ -2121,7 +2121,7 @@ msgstr "Nahrať súbor"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:26
 msgid "An Error Occurred"
-msgstr "Chyba sa vyskytla"
+msgstr "Vyskytla sa chyba"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:27
 msgid "Resource uploaded"
@@ -2133,7 +2133,7 @@ msgstr "Nie je možné nahrať súbor"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:29
 msgid "Unable to authenticate upload"
-msgstr "Nie je možné autentifikovať nahrávku"
+msgstr "Nie je možné autentifikovať nahraté súbory"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:30
 msgid "Unable to get data for uploaded file"
@@ -2211,14 +2211,14 @@ msgstr "Nastavenia systémového administrátora"
 
 #: ckan/templates/header.html:18
 msgid "View profile"
-msgstr "Ukázaž profil"
+msgstr "Ukázať profil"
 
 #: ckan/templates/header.html:25
 #, python-format
 msgid "Dashboard (%(num)d new item)"
 msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "Zobraziť (%(num)d novú položku)"
-msgstr[1] "Zobraziť (%(num)d novú položku)"
+msgstr[1] "Zobraziť (%(num)d nové položky)"
 msgstr[2] "Zobraziť (%(num)d nové položky)"
 
 #: ckan/templates/header.html:33 ckan/templates/user/dashboard.html:16
@@ -2333,6 +2333,13 @@ msgid ""
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p> "
 msgstr ""
+" <p><strong>Názov stránky:</strong> Názov CKAN objektu sa vyskytuje "
+"na viacerých miestach prostredníctvom CKAN</p> <p><strong>Štýl:</strong> "
+"Zvoľte niektorú z jednoduchších kombinácií farebných schém pre vytvorenie jednoduchej témy.</p> <p><strong>Logo stránky:</strong> Toto"
+" logo vyskytujúce sa v hlavičkých každej CKAN šablóny.</p> <p><strong>Informácie o:</strong> "
+"Tento text sa zobrazí v CKAN objektoch <a href=\"%(about_url)s\">o stránke</a>.</p> <p><strong>Intro "
+"Text:</strong> Tento text sa objaví na <a href=\"%(home_url)s\">domovskej stránke</a> tento CKAN objekt pre privítání návštěvníkov.</p> <p><strong>Vlastné alebo upravené CSS:</strong> Toto je blok pre CSS, ktorý sa objaví v <code>&lt;head&gt;</code> tagu každej stránky. Ak si želáte upraviť šablóny viac, prečítajte si <a href=\"%(docs_url)s\" target=\"_blank\">dokumentáciu</a>.</p> <p><strong>Hlavná stránka:</strong> Touto voľbou sa určí predpripravené rozloženie modulu, ktoré se zobrazuje na hlavnej stránke.</p>"
+
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
