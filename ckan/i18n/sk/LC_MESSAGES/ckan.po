@@ -2123,7 +2123,7 @@ msgstr "Zdroj nahraný"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:28
 msgid "Unable to upload file"
-msgstr ""
+msgstr "Nie je možné nahrať súbor"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:29
 msgid "Unable to authenticate upload"
