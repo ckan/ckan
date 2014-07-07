@@ -4394,92 +4394,92 @@ msgstr "Odhlásiť sa"
 #: ckan/templates/user/logout_first.html:13
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr ""
+msgstr "Zapamätať si ma
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
-msgstr ""
+msgstr "Už ste prihlásený"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
-msgstr ""
+msgstr "Ak sa chcete prihlásiť pod iným účtom, musíte sa najskôr odhlásiť."
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
-msgstr ""
+msgstr "Ihneď odhlásiť"
 
 #: ckan/templates/user/new.html:6
 msgid "Registration"
-msgstr ""
+msgstr "Registrácia"
 
 #: ckan/templates/user/new.html:13
 msgid "Register for an Account"
-msgstr ""
+msgstr "Registrujte sa a vytvorte si účet"
 
 #: ckan/templates/user/new.html:22
 msgid "Why Sign Up?"
-msgstr ""
+msgstr "Prečo by som sa mal prihlásiť?"
 
 #: ckan/templates/user/new.html:24
 msgid "Create datasets, groups and other exciting things"
-msgstr ""
+msgstr "Aby ste mohli vytvárať datasety, skupiny a veľa ďalších zaujímavých vecí"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
-msgstr ""
+msgstr "Celé meno"
 
 #: ckan/templates/user/new_user_form.html:16
 msgid "Create Account"
-msgstr ""
+msgstr "Vytvoriť účet"
 
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:13
 #: ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:12
 msgid "Reset Your Password"
-msgstr ""
+msgstr "Obnoviť heslo"
 
 #: ckan/templates/user/perform_reset.html:7
 #: ckan/templates/user/request_reset.html:6
 msgid "Password Reset"
-msgstr ""
+msgstr "Obnoviť hesla"
 
 #: ckan/templates/user/perform_reset.html:22
 msgid "Update Password"
-msgstr ""
+msgstr "Zmeniť heslo"
 
 #: ckan/templates/user/perform_reset.html:32
 #: ckan/templates/user/request_reset.html:26
 msgid "How does this work?"
-msgstr ""
+msgstr "Ako to funguje?"
 
 #: ckan/templates/user/perform_reset.html:34
 msgid "Simply enter a new password and we'll update your account"
-msgstr ""
+msgstr "Jednoducho vložte nové heslo a my Vám zaktualizujeme účet"
 
 #: ckan/templates/user/read.html:21
 msgid "User hasn't created any datasets."
-msgstr ""
+msgstr "Používateľ zatiaľ nevytvoril žiadny dataset"
 
 #: ckan/templates/user/read_base.html:34
 msgid "You have not provided a biography."
-msgstr ""
+msgstr "Nezadali ste svoj životopis."
 
 #: ckan/templates/user/read_base.html:36
 msgid "This user has no biography."
-msgstr ""
+msgstr "Tento používateľ nemá zadaný životopis."
 
 #: ckan/templates/user/read_base.html:62
 msgid "Open ID"
-msgstr ""
+msgstr "Open ID"
 
 #: ckan/templates/user/read_base.html:71 ckan/templates/user/read_base.html:85
 msgid "This means only you can see this"
-msgstr ""
+msgstr "To znamená, že len vy to môžete vidieť"
 
 #: ckan/templates/user/read_base.html:76
 msgid "Member Since"
-msgstr ""
+msgstr "Členom od"
 
 #: ckan/templates/user/read_base.html:85
 #: ckan/templates_legacy/user/read.html:42
@@ -4488,35 +4488,35 @@ msgstr "Kľúč API"
 
 #: ckan/templates/user/request_reset.html:17
 msgid "Request Reset"
-msgstr ""
+msgstr "Požadujem obnovenie"
 
 #: ckan/templates/user/request_reset.html:28
 msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
-msgstr ""
+msgstr "Zadajte svoje používateľské meno do poľa a bude Vám zaslaný email s odkazom pre zadanie nového hesla."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:12
 #: ckan/templates/user/snippets/followee_dropdown.html:13
 msgid "Activity from:"
-msgstr ""
+msgstr "Aktívny od:"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:21
 msgid "Search list..."
-msgstr ""
+msgstr "Prehľadať zoznamu..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:42
 msgid "You are not following anything"
-msgstr ""
+msgstr "Momentálne nič nenasledujete"
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"
-msgstr ""
+msgstr "Žiadny nasledovatelia"
 
 #: ckan/templates/user/snippets/user_search.html:5
 #: ckan/templates_legacy/user/list.html:11
 msgid "Search Users"
-msgstr "Hľadať Používateľov"
+msgstr "Hľadať používateľov"
 
 #: ckan/templates_legacy/_util.html:18
 msgid "You can use"
