@@ -1601,11 +1601,11 @@ msgstr "Nie je možné nájsť tag \"%s\""
 
 #: ckan/logic/action/delete.py:498 ckan/logic/action/delete.py:502
 msgid "You must be logged in to unfollow something."
-msgstr ""
+msgstr "Musíte byť pripojený pre odber."
 
 #: ckan/logic/action/delete.py:513
 msgid "You are not following {0}."
-msgstr ""
+msgstr "Neodoberáte."
 
 #: ckan/logic/action/get.py:1649
 msgid "Do not specify if using \"query\" parameter"
