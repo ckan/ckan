@@ -4085,7 +4085,7 @@ msgstr "Domov"
 
 #: ckan/templates/snippets/language_selector.html:4
 msgid "Language"
-msgstr "jazyk"
+msgstr "Jazyk"
 
 #: ckan/templates/snippets/language_selector.html:12
 #: ckan/templates/snippets/search_form.html:37
