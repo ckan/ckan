@@ -10,7 +10,6 @@ assert_not_in = helpers.assert_not_in
 
 
 class TestPackageSearchIndex:
-
     @staticmethod
     def _get_pkg_dict():
         # This is a simple package, enough to be indexed, in the format that
@@ -23,6 +22,26 @@ class TestPackageSearchIndex:
                 'metadata_created': '2014-06-10T08:24:12.782257',
                 'metadata_modified': '2014-06-10T08:24:12.782257',
                 }
+
+    @staticmethod
+    def _get_pkg_dict_with_resources():
+        # A simple package with some resources
+        pkg_dict = TestPackageSearchIndex._get_pkg_dict()
+        pkg_dict['resources'] = [
+            {'description': 'A river quality report',
+             'format': 'pdf',
+             'url': 'http://www.foo.com/riverquality.pdf',
+             'alt_url': 'http://www.bar.com/riverquality.pdf',
+             'city': 'Asuncion'
+             },
+            {'description': 'A river quality table',
+             'format': 'csv',
+             'url': 'http://www.foo.com/riverquality.csv',
+             'alt_url': 'http://www.bar.com/riverquality.csv',
+             'institution': 'Global River Foundation'
+             }
+        ]
+        return pkg_dict
 
     def test_index_package_stores_basic_solr_fields(self):
         index = ckan.lib.search.index.PackageSearchIndex()
@@ -76,3 +95,19 @@ class TestPackageSearchIndex:
 
         validated_data_dict = json.loads(indexed_pkg['validated_data_dict'])
         assert_not_in('data_dict', validated_data_dict)
+
+    def test_index_package_stores_resource_extras_in_config_file(self):
+        index = ckan.lib.search.index.PackageSearchIndex()
+        pkg_dict = self._get_pkg_dict_with_resources()
+
+        index.index_package(pkg_dict)
+        indexed_pkg = ckan.lib.search.show(pkg_dict['name'])
+
+        # Resource fields given by ckan.extra_resource_fields are indexed
+        assert_equal(indexed_pkg['res_extras_alt_url'],
+                     ['http://www.bar.com/riverquality.pdf',
+                      'http://www.bar.com/riverquality.csv'])
+
+        #Other resource fields are ignored
+        assert_equal(indexed_pkg.get('res_extras_institution', None), None)
+        assert_equal(indexed_pkg.get('res_extras_city', None), None)
