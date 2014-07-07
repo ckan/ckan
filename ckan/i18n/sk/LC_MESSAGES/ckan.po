@@ -30,15 +30,15 @@ msgstr "Autorizačná funkcia nenájdená: %s"
 
 #: ckan/new_authz.py:201
 msgid "Admin"
-msgstr ""
+msgstr "Administrátor"
 
 #: ckan/new_authz.py:205
 msgid "Editor"
-msgstr ""
+msgstr "Editor"
 
 #: ckan/new_authz.py:209
 msgid "Member"
-msgstr ""
+msgstr "Člen"
 
 #: ckan/controllers/admin.py:27
 msgid "Need to be system administrator to administer"
