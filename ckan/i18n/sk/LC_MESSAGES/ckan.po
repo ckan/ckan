@@ -802,7 +802,7 @@ msgstr "Nepodarilo sa odoslať odkaz pre obnovenie: %s"
 
 #: ckan/controllers/user.py:459
 msgid "Unauthorized to reset password."
-msgstr ""
+msgstr "Neoprávnený na obnovenie hesla."
 
 #: ckan/controllers/user.py:471
 msgid "Invalid reset key. Please try again."
@@ -822,291 +822,289 @@ msgstr "Zadané heslá nie sú totožné."
 
 #: ckan/controllers/user.py:510
 msgid "You must provide a password"
-msgstr ""
+msgstr "Musíte zadať heslo"
 
 #: ckan/controllers/user.py:572
 msgid "Follow item not found"
-msgstr ""
+msgstr "Sledovaná položka nebola nájdená"
 
 #: ckan/controllers/user.py:576
 msgid "{0} not found"
-msgstr ""
+msgstr "Nepodarilo sa nájsť {0}"
 
 #: ckan/controllers/user.py:578
 msgid "Unauthorized to read {0} {1}"
-msgstr ""
+msgstr "Neoprávnený čítať {0} {1}"
 
 #: ckan/controllers/user.py:593
 msgid "Everything"
-msgstr ""
+msgstr "Všetko"
 
 #: ckan/lib/activity_streams.py:64
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} pridal tag {tag} do datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:67
 msgid "{actor} updated the group {group}"
-msgstr ""
+msgstr "{actor} aktualizoval skupinu {group}"
 
 #: ckan/lib/activity_streams.py:70
 msgid "{actor} updated the organization {organization}"
-msgstr ""
+msgstr "{actor} aktualizoval organizáciu {organization}"
 
 #: ckan/lib/activity_streams.py:73
 msgid "{actor} updated the dataset {dataset}"
-msgstr ""
+msgstr "{actor} aktualizoval dataset {dataset}"
 
 #: ckan/lib/activity_streams.py:76
 msgid "{actor} changed the extra {extra} of the dataset {dataset}"
-msgstr ""
+msgstr "{actor} zmenil rozšírujúci atribút {extra} datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:79
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
-msgstr ""
+msgstr "{actor} aktualizoval zdroj {resource} v datasete {dataset}"
 
 #: ckan/lib/activity_streams.py:82
 msgid "{actor} updated their profile"
 msgstr "{actor} aktualizoval svoj profil"
 
 #: ckan/lib/activity_streams.py:86
-msgid ""
-"{actor} updated the {related_type} {related_item} of the dataset {dataset}"
-msgstr ""
+msgid "{actor} updated the {related_type} {related_item} of the dataset {dataset}"
+msgstr "{actor} aktualizoval {related_type} {related_item} v datasete {dataset}"
 
 #: ckan/lib/activity_streams.py:89
 msgid "{actor} updated the {related_type} {related_item}"
-msgstr ""
+msgstr "{actor} aktualizoval {related_type} {related_item}"
 
 #: ckan/lib/activity_streams.py:92
 msgid "{actor} deleted the group {group}"
-msgstr ""
+msgstr "{actor} vymazal skupinu {group}"
 
 #: ckan/lib/activity_streams.py:95
 msgid "{actor} deleted the organization {organization}"
-msgstr ""
+msgstr "{actor} vymazal organizáciu {organization}"
 
 #: ckan/lib/activity_streams.py:98
 msgid "{actor} deleted the dataset {dataset}"
-msgstr ""
+msgstr "{actor} vymazal dataset {dataset}"
 
 #: ckan/lib/activity_streams.py:101
 msgid "{actor} deleted the extra {extra} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} vymazal rozširovací atribút {extra} datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:104
 msgid "{actor} deleted the resource {resource} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} vymazal zdroj {resource} datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:108
 msgid "{actor} created the group {group}"
-msgstr ""
+msgstr "{actor} vytvoril skupinu {group}"
 
 #: ckan/lib/activity_streams.py:111
 msgid "{actor} created the organization {organization}"
-msgstr ""
+msgstr "{actor} vytvoril organizáciu {organization}"
 
 #: ckan/lib/activity_streams.py:114
 msgid "{actor} created the dataset {dataset}"
-msgstr ""
+msgstr "{actor} vytvoril dataset {dataset}"
 
 #: ckan/lib/activity_streams.py:117
 msgid "{actor} added the extra {extra} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} pridal rozširovací atribút {extra} do datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:120
 msgid "{actor} added the resource {resource} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} pridal zdroj {resource} do datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:123
 msgid "{actor} signed up"
-msgstr "{actor} sa prihlásil"
+msgstr "{actor} sa zaregistroval"
 
 #: ckan/lib/activity_streams.py:126
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} vymazal tag {tag} z datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:129
 msgid "{actor} deleted the related item {related_item}"
-msgstr ""
+msgstr "{actor} vymazal príbuznú položku {related_item}"
 
 #: ckan/lib/activity_streams.py:132
 msgid "{actor} started following {dataset}"
-msgstr ""
+msgstr "{actor} začal sledovať {dataset}"
 
 #: ckan/lib/activity_streams.py:135
 msgid "{actor} started following {user}"
-msgstr ""
+msgstr "{actor} začal sledovať {user}"
 
 #: ckan/lib/activity_streams.py:138
 msgid "{actor} started following {group}"
-msgstr ""
+msgstr "{actor} začal sledovať {group}"
 
 #: ckan/lib/activity_streams.py:142
-msgid ""
-"{actor} added the {related_type} {related_item} to the dataset {dataset}"
-msgstr ""
+msgid "{actor} added the {related_type} {related_item} to the dataset {dataset}"
+msgstr "{actor} pridal {related_type} {related_item} do datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:145
 msgid "{actor} added the {related_type} {related_item}"
-msgstr ""
+msgstr "{actor} pridal {related_type} {related_item}"
 
 #: ckan/lib/email_notifications.py:103
 msgid "1 new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "žiadne nové aktivity z {site_title}"
+msgstr[1] "{n} nová aktivita z {site_title}"
+msgstr[2] "{n} nových aktivít z {site_title}"
 
 #: ckan/lib/formatters.py:17
 msgid "January"
-msgstr ""
+msgstr "Január"
 
 #: ckan/lib/formatters.py:21
 msgid "February"
-msgstr ""
+msgstr "Február"
 
 #: ckan/lib/formatters.py:25
 msgid "March"
-msgstr ""
+msgstr "Marec"
 
 #: ckan/lib/formatters.py:29
 msgid "April"
-msgstr ""
+msgstr "Apríl"
 
 #: ckan/lib/formatters.py:33
 msgid "May"
-msgstr ""
+msgstr "Máj"
 
 #: ckan/lib/formatters.py:37
 msgid "June"
-msgstr ""
+msgstr "Jún"
 
 #: ckan/lib/formatters.py:41
 msgid "July"
-msgstr ""
+msgstr "Júl"
 
 #: ckan/lib/formatters.py:45
 msgid "August"
-msgstr ""
+msgstr "August"
 
 #: ckan/lib/formatters.py:49
 msgid "September"
-msgstr ""
+msgstr "September"
 
 #: ckan/lib/formatters.py:53
 msgid "October"
-msgstr ""
+msgstr "Október"
 
 #: ckan/lib/formatters.py:57
 msgid "November"
-msgstr ""
+msgstr "November"
 
 #: ckan/lib/formatters.py:61
 msgid "December"
-msgstr ""
+msgstr "December"
 
 #: ckan/lib/formatters.py:109
 msgid "Just now"
-msgstr ""
+msgstr "Práve teraz"
 
 #: ckan/lib/formatters.py:111
 msgid "{mins} minute ago"
 msgid_plural "{mins} minutes ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pred {mins} minutami"
+msgstr[1] "pred {mins} minútou"
+msgstr[2] "pred {mins} minutami"
 
 #: ckan/lib/formatters.py:114
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pred {hours} hodinami"
+msgstr[1] "pred {hours} hodinou"
+msgstr[2] "pred {hours} hodinami"
 
 #: ckan/lib/formatters.py:120
 msgid "{days} day ago"
 msgid_plural "{days} days ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pred {days} dňami"
+msgstr[1] "pred {days} dňom"
+msgstr[2] "pred {days} dňami"
 
 #: ckan/lib/formatters.py:123
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pred {months} mesiacmi"
+msgstr[1] "pred {months} mesiacom"
+msgstr[2] "pred {months} mesiacmi"
 
 #: ckan/lib/formatters.py:125
 msgid "over {years} year ago"
 msgid_plural "over {years} years ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pred viac než {years} rokmi"
+msgstr[1] "pred viac než {years} rokom"
+msgstr[2] "pred viac než {years} rokmi"
 
 #: ckan/lib/formatters.py:138
 msgid "{month} {day}, {year}, {hour:02}:{min:02}"
-msgstr ""
+msgstr "{day} {month}, {year}, {hour:02}:{min:02}"
 
 #: ckan/lib/formatters.py:142
 msgid "{month} {day}, {year}"
-msgstr ""
+msgstr "{day} {month}, {year}"
 
 #: ckan/lib/formatters.py:158
 msgid "{bytes} bytes"
-msgstr ""
+msgstr "{bytes} bajtov"
 
 #: ckan/lib/formatters.py:160
 msgid "{kibibytes} KiB"
-msgstr ""
+msgstr "{kibibytes} KB"
 
 #: ckan/lib/formatters.py:162
 msgid "{mebibytes} MiB"
-msgstr ""
+msgstr "{mebibytes} MB"
 
 #: ckan/lib/formatters.py:164
 msgid "{gibibytes} GiB"
-msgstr ""
+msgstr "{gibibytes} GB"
 
 #: ckan/lib/formatters.py:166
 msgid "{tebibytes} TiB"
-msgstr ""
+msgstr "{tebibytes} TB"
 
 #: ckan/lib/formatters.py:178
 msgid "{n}"
-msgstr ""
+msgstr "{n}"
 
 #: ckan/lib/formatters.py:180
 msgid "{k}k"
-msgstr ""
+msgstr "{k}k"
 
 #: ckan/lib/formatters.py:182
 msgid "{m}M"
-msgstr ""
+msgstr "{m}M"
 
 #: ckan/lib/formatters.py:184
 msgid "{g}G"
-msgstr ""
+msgstr "{g}G"
 
 #: ckan/lib/formatters.py:186
 msgid "{t}T"
-msgstr ""
+msgstr "{t}T"
 
 #: ckan/lib/formatters.py:188
 msgid "{p}P"
-msgstr ""
+msgstr "{p}P"
 
 #: ckan/lib/formatters.py:190
 msgid "{e}E"
-msgstr ""
+msgstr "{e}E"
 
 #: ckan/lib/formatters.py:192
 msgid "{z}Z"
-msgstr ""
+msgstr "{z}Z"
 
 #: ckan/lib/formatters.py:194
 msgid "{y}Y"
-msgstr ""
+msgstr "{y}Y"
 
 #: ckan/lib/helpers.py:774
 msgid "Update your avatar at gravatar.com"
@@ -1119,11 +1117,11 @@ msgstr "Neznáme"
 
 #: ckan/lib/helpers.py:1033
 msgid "Unnamed resource"
-msgstr ""
+msgstr "Nepomenovaný zdroj"
 
 #: ckan/lib/helpers.py:1080
 msgid "Created new dataset."
-msgstr "Vytvorený nový dataset."
+msgstr "Nový dataset vytvorený."
 
 #: ckan/lib/helpers.py:1082
 msgid "Edited resources."
@@ -1136,28 +1134,28 @@ msgstr "Upravené nastavenia."
 #: ckan/lib/helpers.py:1346
 msgid "{number} view"
 msgid_plural "{number} views"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} videní"
+msgstr[1] "{number} videnie"
+msgstr[2] "{number} videní"
 
 #: ckan/lib/helpers.py:1348
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} nedávnych videní"
+msgstr[1] "{number} nedávne videnie"
+msgstr[2] "{number} nedávnych videní"
 
 #: ckan/lib/helpers.py:1589
 msgid "The resource url is not specified."
-msgstr ""
+msgstr "Nezadaná zdrojová adresa."
 
 #: ckan/lib/helpers.py:1607
 msgid "No preview handler for resource of type {0}"
-msgstr ""
+msgstr "Žiadny obslužný program pre zdroj typu {0}"
 
 #: ckan/lib/helpers.py:1611
 msgid "The resource format is not specified."
-msgstr ""
+msgstr "Formát zdroja nieje uvedený"
 
 #: ckan/lib/mailer.py:25
 #, python-format
@@ -1195,6 +1193,13 @@ msgid ""
 "       %(reset_link)s\n"
 "    "
 msgstr ""
+"Boli ste pozvaný na %(site_title)s. Bol vám vytvorený profil s menom\n"
+"     %(user_name)s. Môžete ho zmeniť neskôr.\n"
+"\n"
+"    Pre akceptovanie tejto pozvánky resetujte heslo na:\n"
+"\n"
+"       %(reset_link)s\n"
+"    "
 
 #: ckan/lib/mailer.py:145 ckan/templates_legacy/user/perform_reset.html:6
 #: ckan/templates_legacy/user/perform_reset.html:14
@@ -1203,7 +1208,7 @@ msgstr "Obnoviť heslo"
 
 #: ckan/lib/mailer.py:151
 msgid "Invite for {site_title}"
-msgstr ""
+msgstr "Pozvánka na {site_title}"
 
 #: ckan/lib/package_saver.py:29
 msgid "No web page given"
@@ -1302,23 +1307,23 @@ msgstr "Skupina"
 
 #: ckan/logic/converters.py:181
 msgid "Could not parse as valid JSON"
-msgstr ""
+msgstr "Nepodarilo sa parsovať validný JSON"
 
 #: ckan/logic/validators.py:28
 msgid "A organization must be supplied"
-msgstr ""
+msgstr "Organizácia musí byť zadaná"
 
 #: ckan/logic/validators.py:38
 msgid "You cannot remove a dataset from an existing organization"
-msgstr ""
+msgstr "Nemôžete odstrániť dataset z existujúcej organizácie"
 
 #: ckan/logic/validators.py:43
 msgid "Organization does not exist"
-msgstr ""
+msgstr "Organizácia neexistuje"
 
 #: ckan/logic/validators.py:48
 msgid "You cannot add a dataset to this organization"
-msgstr ""
+msgstr "Nieje požné pridať dataset do tejto organizácie"
 
 #: ckan/logic/validators.py:68
 msgid "Invalid integer"
@@ -1326,11 +1331,11 @@ msgstr "Neplatné číslo"
 
 #: ckan/logic/validators.py:73
 msgid "Must be a natural number"
-msgstr ""
+msgstr "Musí byť ṕrirodzené číslo"
 
 #: ckan/logic/validators.py:79
 msgid "Must be a postive integer"
-msgstr ""
+msgstr "Musí byť kladné číslo"
 
 #: ckan/logic/validators.py:97
 msgid "Date format incorrect"
@@ -1357,7 +1362,7 @@ msgstr "Zdroj"
 
 #: ckan/logic/validators.py:310
 msgid "Names must be strings"
-msgstr ""
+msgstr "Mená musia byť reťazce znakov"
 
 #: ckan/logic/validators.py:314
 msgid "That name cannot be used"
@@ -1429,7 +1434,7 @@ msgstr "Tag \"%s\" nesmie obsahovať veľké písmená"
 
 #: ckan/logic/validators.py:524
 msgid "User names must be strings"
-msgstr ""
+msgstr "Užívateľské mená musia byť textove reťazce"
 
 #: ckan/logic/validators.py:540
 msgid "That login name is not available."
@@ -1441,7 +1446,7 @@ msgstr "Prosím zadajte obe heslá"
 
 #: ckan/logic/validators.py:557
 msgid "Passwords must be strings"
-msgstr ""
+msgstr "Heslá musia byť textove reťazce"
 
 #: ckan/logic/validators.py:561
 msgid "Your password must be 4 characters or longer"
@@ -1490,23 +1495,23 @@ msgstr "Prosím, úveďte platnú URL"
 
 #: ckan/logic/validators.py:687
 msgid "role does not exist."
-msgstr ""
+msgstr "rola neexistuje"
 
 #: ckan/logic/validators.py:695
 msgid "Datasets with no organization can't be private."
-msgstr ""
+msgstr "Dataset, ktorý nepatrí organizácii nemôže byť súkromný"
 
 #: ckan/logic/validators.py:701
 msgid "Not a list"
-msgstr ""
+msgstr "Toto nieje zoznam"
 
 #: ckan/logic/validators.py:704
 msgid "Not a string"
-msgstr ""
+msgstr "Toto nieje textový reťazec"
 
 #: ckan/logic/validators.py:722
 msgid "This parent would create a loop in the hierarchy"
-msgstr ""
+msgstr "Tento predok by vytvoril zacyklenie v hierarchii"
 
 #: ckan/logic/action/create.py:158 ckan/logic/action/create.py:534
 #, python-format
@@ -1525,7 +1530,7 @@ msgstr "REST API: Vytvoriť objekt %s"
 
 #: ckan/logic/action/create.py:667
 msgid "Trying to create an organization as a group"
-msgstr ""
+msgstr "Skúšam vytvoriť organizáciu ako skupinu"
 
 #: ckan/logic/action/create.py:751
 msgid "You must supply a package id or name (parameter \"package\")."
@@ -1546,7 +1551,7 @@ msgstr "Hodnotenie musí byť medzi %i a %i."
 
 #: ckan/logic/action/create.py:1105 ckan/logic/action/create.py:1112
 msgid "You must be logged in to follow users"
-msgstr ""
+msgstr "Musíte byť prihlásený, ak chcete sledovať užívateľov"
 
 #: ckan/logic/action/create.py:1125
 msgid "You cannot follow yourself"
@@ -1555,19 +1560,19 @@ msgstr "Nemôžete odoberať sám seba"
 #: ckan/logic/action/create.py:1133 ckan/logic/action/create.py:1190
 #: ckan/logic/action/create.py:1318
 msgid "You are already following {0}"
-msgstr ""
+msgstr "Už sledujete {0}"
 
 #: ckan/logic/action/create.py:1164 ckan/logic/action/create.py:1172
 msgid "You must be logged in to follow a dataset."
-msgstr ""
+msgstr "Musíte byť prihlásený ak chcete sledovať dataset"
 
 #: ckan/logic/action/create.py:1224
 msgid "User {username} does not exist."
-msgstr ""
+msgstr "Uživateľ {username} neexistuje"
 
 #: ckan/logic/action/create.py:1294 ckan/logic/action/create.py:1302
 msgid "You must be logged in to follow a group."
-msgstr ""
+msgstr "Musíte byť prihlásený, ak chcete sledovať skupinu."
 
 #: ckan/logic/action/delete.py:68
 #, python-format
@@ -1582,7 +1587,7 @@ msgstr "REST API: Zmazať %s"
 #: ckan/logic/action/delete.py:241
 #, python-format
 msgid "REST API: Delete Member: %s"
-msgstr ""
+msgstr "REST API: Zmazať člena: %s"
 
 #: ckan/logic/action/delete.py:438 ckan/logic/action/delete.py:464
 #: ckan/logic/action/get.py:2065 ckan/logic/action/update.py:896
