@@ -5052,7 +5052,7 @@ msgid ""
 "who owns it and whether it is freely available, and what subject areas the "
 "data is about. Other users can improve or add to this information (CKAN "
 "keeps a fully versioned history)."
-msgstr "ieto stránky sú postavené na robustnom open source katalogizačnom softvéri nazvanom CKAN, ktorý napísala a o ktorý sa stará Open Knowledge Foundation. Každý \"dataset\" záznam na CKAN-e obsahuje popis konkrétnych dát a dodatočné informácie, ako napríklad, v ktorom formáte sú dostupné, kto ich vlastní a či sú voľne dostupné, a o akej oblasti tieto dáta sú. Ostatní užívatelia môžu vylepšovať alebo pridávať dodatočné informácie (CKAN umožňuje plne zaznamenávať a ukladať zmeny v histórii).\n\nCKAN podporuje mnoho katalógov dát na Internete. Data Hub je otvorený katalóg dát v štýle Wikipédie a môže ho upravovať ktokoľvek. Britský parlament používa CKAN na prevádzku portálu data.gov.uk, ktorý momentálne obsahuje 8000 vládnych datasetov. Oficiálne verejné dáta z väčšiny európskych krajín sú zaradené v CKAN katalógu na publicdata.eu. Zoznam katalógov z celého sveta podobných tomuto sa nachádza na datacatalogs.org, ktorý je takisto podporovaný CKAN-om."
+msgstr "Tieto stránky sú postavené na robustnom open source katalogizačnom softvéri nazvanom CKAN, ktorý napísala a o ktorý sa stará Open Knowledge Foundation. Každý \"dataset\" záznam na CKAN-e obsahuje popis konkrétnych dát a dodatočné informácie, ako napríklad, v ktorom formáte sú dostupné, kto ich vlastní a či sú voľne dostupné, a o akej oblasti tieto dáta sú. Ostatní užívatelia môžu vylepšovať alebo pridávať dodatočné informácie (CKAN umožňuje plne zaznamenávať a ukladať zmeny v histórii).\n\nCKAN podporuje mnoho katalógov dát na Internete. Data Hub je otvorený katalóg dát v štýle Wikipédie a môže ho upravovať ktokoľvek. Britský parlament používa CKAN na prevádzku portálu data.gov.uk, ktorý momentálne obsahuje 8000 vládnych datasetov. Oficiálne verejné dáta z väčšiny európskych krajín sú zaradené v CKAN katalógu na publicdata.eu. Zoznam katalógov z celého sveta podobných tomuto sa nachádza na datacatalogs.org, ktorý je takisto podporovaný CKAN-om."
 
 #: ckan/templates_legacy/home/about.html:27
 msgid ""
@@ -5162,37 +5162,37 @@ msgstr "datasety"
 
 #: ckan/templates_legacy/importer/importer.html:5
 msgid "Importer"
-msgstr ""
+msgstr "Importér"
 
 #: ckan/templates_legacy/importer/importer.html:8
 msgid "Import Datasets"
-msgstr ""
+msgstr "Vlož dataset"
 
 #: ckan/templates_legacy/importer/importer.html:9
 msgid ""
 "Here you can supply an Excel file with details of multiple datasets and "
 "import these into"
-msgstr ""
+msgstr "Tu môžete určiť Excel súbor s podrobnosťami o viacerých datasetoch a importovať ich do"
 
 #: ckan/templates_legacy/importer/importer.html:30
 msgid "Log in to use this tool"
-msgstr ""
+msgstr "Pre použitie tohto nástroja je potrebné prihlásenie"
 
 #: ckan/templates_legacy/importer/preview.html:6
 msgid "Preview - Importer"
-msgstr ""
+msgstr "Prehľad - Importér"
 
 #: ckan/templates_legacy/importer/preview.html:9
 msgid "Import Preview"
-msgstr ""
+msgstr "Importuj prehľad"
 
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "read from"
-msgstr ""
+msgstr "čítaj od"
 
 #: ckan/templates_legacy/importer/preview.html:25
 msgid "Further dataset previews not shown."
-msgstr ""
+msgstr "Ďalšie prehľady datasetov nie sú zobrazené"
 
 #: ckan/templates_legacy/importer/preview.html:28
 #: ckan/templates_legacy/package/edit_form.html:13
@@ -5210,15 +5210,15 @@ msgstr "Autor"
 
 #: ckan/templates_legacy/importer/preview.html:34
 msgid "Import"
-msgstr ""
+msgstr "Importovať"
 
 #: ckan/templates_legacy/importer/result.html:5
 msgid "Results - Importer"
-msgstr ""
+msgstr "Výsledky - Importér"
 
 #: ckan/templates_legacy/importer/result.html:8
 msgid "Import Results"
-msgstr ""
+msgstr "Importuj výsledky"
 
 #: ckan/templates_legacy/package/comments.html:5
 #: ckan/templates_legacy/package/history.html:6
