@@ -4395,7 +4395,7 @@ msgstr "Odhlásiť sa"
 #: ckan/templates/user/logout_first.html:13
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr "Zapamätať si ma
+msgstr "Zapamätať si ma"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
