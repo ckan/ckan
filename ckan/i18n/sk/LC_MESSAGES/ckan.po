@@ -4443,7 +4443,7 @@ msgstr "Obnoviť heslo"
 #: ckan/templates/user/perform_reset.html:7
 #: ckan/templates/user/request_reset.html:6
 msgid "Password Reset"
-msgstr "Obnoviť hesla"
+msgstr "Obnoviť heslo"
 
 #: ckan/templates/user/perform_reset.html:22
 msgid "Update Password"
@@ -4504,7 +4504,7 @@ msgstr "Aktívny od:"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:21
 msgid "Search list..."
-msgstr "Prehľadať zoznamu..."
+msgstr "Prehľadať zoznam..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:42
 msgid "You are not following anything"
