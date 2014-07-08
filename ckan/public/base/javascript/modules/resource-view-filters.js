@@ -86,7 +86,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
         dropdowns.append(dropdown);
       });
 
-      var queryLimit = 100;
+      var queryLimit = 20;
       dropdowns.find('input').select2({
         allowClear: true,
         placeholder: ' ', // select2 needs a placeholder to allow clearing
