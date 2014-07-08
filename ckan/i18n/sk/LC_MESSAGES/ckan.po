@@ -3225,15 +3225,15 @@ msgstr  "<p><strong>Administrátor:</strong> Môže pridávať, upravovať a maz
 #: ckan/templates/organization/new.html:7
 #: ckan/templates/organization/new.html:12
 msgid "Create an Organization"
-msgstr ""
+msgstr "Vytvoriť Organizáciu"
 
 #: ckan/templates/organization/new_organization_form.html:17
 msgid "Update Organization"
-msgstr ""
+msgstr "Aktualizovať Organizáciu"
 
 #: ckan/templates/organization/new_organization_form.html:19
 msgid "Create Organization"
-msgstr ""
+msgstr "Vytvoriť Organizáciu"
 
 #: ckan/templates/organization/read.html:5
 #: ckan/templates/package/search.html:16
@@ -3246,7 +3246,7 @@ msgstr "Pridať dataset"
 #: ckan/templates/organization/snippets/help.html:4
 #: ckan/templates/organization/snippets/helper.html:4
 msgid "What are Organizations?"
-msgstr ""
+msgstr "Čo sú to Organizácie"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
@@ -3263,11 +3263,13 @@ msgid ""
 " CKAN Organizations are used to create, manage and publish collections of "
 "datasets. Users can have different roles within an Organization, depending "
 "on their level of authorisation to create, edit and publish. "
-msgstr ""
+msgstr "Organizácie sú používané na vytváranie, spravovanie a publikovanie "
+"zbierok datasetov. Používatelia môžu mať rozličné role v Organizácii, v závislosti "
+"od ich úrovne autorizácie vytvárať, upravovať a pulikovať"
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
-msgstr ""
+msgstr "Moja Organizácia"
 
 #: ckan/templates/organization/snippets/organization_form.html:18
 msgid "my-organization"
@@ -3275,7 +3277,7 @@ msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:20
 msgid "A little information about my organization..."
-msgstr ""
+msgstr "Zopár informácií o mojej organizácií"
 
 #: ckan/templates/organization/snippets/organization_form.html:81
 msgid ""
@@ -3285,16 +3287,16 @@ msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:85
 msgid "Save Organization"
-msgstr ""
+msgstr "Uložiť Organizáciu"
 
 #: ckan/templates/organization/snippets/organization_item.html:26
 msgid "This organization has no description"
-msgstr ""
+msgstr "Táto organizácia nemá žiaden popis"
 
 #: ckan/templates/organization/snippets/organization_item.html:36
 #: ckan/templates/organization/snippets/organization_item.html:37
 msgid "View {organization_name}"
-msgstr ""
+msgstr "Zobraziť {organization_name}"
 
 #: ckan/templates/package/base.html:22 ckan/templates/package/new.html:3
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
