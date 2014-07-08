@@ -120,7 +120,8 @@ class CKANInstaller(PylonsInstaller):
                 'CKAN_FEEDS_AUTHOR_NAME', ''),
             'CKAN_FEEDS_AUTHOR_LINK': os.environ.get(
                 'CKAN_FEEDS_AUTHOR_LINK', ''),
-            'CKAN_STORAGE_PATH': os.environ.get('CKAN_STORAGE_PATH', '10'),
+            'CKAN_STORAGE_PATH': os.environ.get(
+                'CKAN_STORAGE_PATH', '/var/lib/ckan/default'),
             'CKAN_MAX_RESOURCE_SIZE': os.environ.get(
                 'CKAN_MAX_RESOURCE_SIZE', '10'),
             'CKAN_MAX_IMAGE_SIZE': os.environ.get('CKAN_MAX_IMAGE_SIZE', '2'),
