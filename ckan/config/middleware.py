@@ -94,6 +94,9 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         }
     app = Fanstatic(app, **fanstatic_config)
 
+    for plugin in PluginImplementations(IMiddleware):
+        app = plugin.make_error_log_middleware(app, config)
+
     if asbool(full_stack):
         # Handle Python exceptions
         app = ErrorHandler(app, conf, **config['pylons.errorware'])
