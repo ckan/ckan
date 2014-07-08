@@ -108,22 +108,20 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
               limit: queryLimit + 1,
               offset: offset,
               fields: filterName,
+              distinct: true,
               sort: filterName
             };
           },
           results: function (data, page) {
-            var uniqueResults = {},
-                results = data.result.records.slice(0, queryLimit),
+            var slicedData = data.result.records.slice(0, queryLimit),
                 hasMore = (data.result.records.length == queryLimit + 1),
-                theData;
-            $.each(results, function (i, record) {
-              uniqueResults[record[filterName]] = true;
-            });
-            theData = $.map(Object.keys(uniqueResults), function (record) {
-              return { id: record, text: record };
+                results;
+
+            results = $.map(slicedData, function (record) {
+              return { id: record[filterName], text: record[filterName] };
             });
 
-            return { results: theData, more: hasMore };
+            return { results: results, more: hasMore };
           }
         },
         initSelection: function (element, callback) {
