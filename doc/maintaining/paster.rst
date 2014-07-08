@@ -193,66 +193,24 @@ Write a CKAN config file to the filesystem. Usage:
 
    paster make-config ckan |development.ini|
 
-The values for certain config settings will be read from environment variables
-if the environment variables are set, otherwise defaults will be used. This is
-particularly useful for automated install/deployment tools that need to create
-a config file with certain settings in it. You can of course just edit the
-config file with your text editor, after creating it.
+The values for the settings in the config file will be read from environment
+variables if the environment variables are set, otherwise defaults will be
+used. This is particularly useful for automated install/deployment tools that
+need to create a config file with certain settings in it. You can of course
+just edit the config file with your text editor, after creating it.
 
-The names of the environment variables are based on the names of the config
-settings in the config file, but:
+The names of the environment variables are based on the names of the settings
+in the config file, but:
+
+* All environment variable names are in ``ALL_CAPS``.
 
 * Each ``.`` in the config setting name is replaced with an ``_`` in the
   environment variable name (because environment variable names can't
   contain ``.``'s).
 
-* The environment variable names always begin with ``ckan_``, even if
+* The environment variable names always begin with ``CKAN_``, even if
   some of the config setting names don't (to prevent clashing with
   environment variables from other programs).
-
-At the time of writing, the following environment variables are supported:
-
-CKAN_SQLALCHEMY_URL
-   The :ref:`sqlalchemy.url` setting.
-
-CKAN_BEAKER_SESSION_TYPE
-   The :ref:`beaker.session.type` setting.
-
-CKAN_BEAKER_SESSION_URL
-   The :ref:`beaker.session.url` setting.
-
-CKAN_DATASTORE_WRITE_URL
-   The :ref:`ckan.datastore.write_url` setting.
-
-CKAN_DATASTORE_READ_URL
-   The :ref:`ckan.datastore.read_url` setting.
-
-CKAN_DATAPUSHER_URL
-   The :ref:`ckan.datapusher.url` setting.
-
-CKAN_SOLR_URL
-   The :ref:`solr_url` setting.
-
-CKAN_EMAIL_TO
-   The :ref:`email_to` setting.
-
-CKAN_ERROR_EMAIL_FROM
-   The :ref:`error_email_from` setting.
-
-CKAN_SITE_ID
-   The :ref:`ckan.site_id` setting.
-
-CKAN_SITE_URL
-   The :ref:`ckan.site_url` setting.
-
-CKAN_PLUGINS
-   The :ref:`ckan.plugins` setting.
-
-CKAN_SITE_TITLE
-   The :ref:`ckan.site_title` setting.
-
-But see :py:meth:`CKANInstaller.config_content` in ``ckan/config/install.py``
-for the definitive list of supported environment variables.
 
 
 celeryd: Control celery daemon
