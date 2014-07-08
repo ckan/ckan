@@ -195,9 +195,12 @@ Write a CKAN config file to the filesystem. Usage:
 
 The values for the settings in the config file will be read from environment
 variables if the environment variables are set, otherwise defaults will be
-used. This is particularly useful for automated install/deployment tools that
-need to create a config file with certain settings in it. You can of course
-just edit the config file with your text editor, after creating it.
+used. For example, the value for the ``sqlalchemy.url`` config file setting
+will be read from the ``CKAN_SQLALCHEMY_URL`` environment variable.
+
+This is particularly useful for automated install/deployment tools that need to
+create a config file with certain settings in it. You can of course just edit
+the config file with your text editor, after creating it.
 
 The names of the environment variables are based on the names of the settings
 in the config file, but:
