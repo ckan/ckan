@@ -1,18 +1,16 @@
 #
-# CKAN - Pylons configuration
+# CKAN config file.
 #
-# These are some of the configuration options available for your CKAN
-# instance. Check the documentation in 'doc/configuration.rst' or at the
-# following URL for a description of what they do and the full list of
-# available options:
+# These are some of the configuration settings available for your CKAN
+# instance. For complete documentation of all config settings, see
+# 'doc/maintaining/configuration.rst' or:
 #
-# http://docs.ckan.org/en/${doc_version}/configuration.html
+# http://docs.ckan.org/en/latest/maintaining/configuration.html
 #
-# The %(here)s variable will be replaced with the parent directory of this file
-#
+# The %(here)s variable will be replaced with the parent directory of this
+# file.
 
 [DEFAULT]
-
 # WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
 debug = false
 
@@ -38,26 +36,20 @@ beaker.session.url = ${CKAN_BEAKER_SESSION_URL}
 # a config file.
 app_instance_uuid = ${app_instance_uuid}
 
-# repoze.who config
+# repoze.who settings
 who.config_file = ${CKAN_WHO_CONFIG_FILE}
 who.log_level = ${CKAN_WHO_LOG_LEVEL}
 who.log_file = ${CKAN_WHO_LOG_FILE}
 
-
-## Database Settings
+# Database settings
 sqlalchemy.url = ${CKAN_SQLALCHEMY_URL}
-
 ckan.datastore.write_url = ${CKAN_DATASTORE_WRITE_URL}
 ckan.datastore.read_url = ${CKAN_DATASTORE_READ_URL}
 
-
-## Site Settings
-
+# Site settings
 ckan.site_url = ${CKAN_SITE_URL}
 
-
-## Authorization Settings
-
+# Authorization settings
 ckan.auth.anon_create_dataset = ${CKAN_AUTH_ANON_CREATE_DATASET}
 ckan.auth.create_unowned_dataset = ${CKAN_AUTH_CREATE_UNOWNED_DATASET}
 ckan.auth.create_dataset_if_not_in_organization = ${CKAN_AUTH_CREATE_DATASET_IF_NOT_IN_ORGANIZATION}
@@ -69,26 +61,19 @@ ckan.auth.create_user_via_api = ${CKAN_AUTH_CREATE_USER_VIA_API}
 ckan.auth.create_user_via_web = ${CKAN_AUTH_CREATE_USER_VIA_WEB}
 ckan.auth.roles_that_cascade_to_sub_groups = ${CKAN_AUTH_ROLES_THAT_CASCADE_TO_SUB_GROUPS}
 
-
-## Search Settings
-
+# Search settings
 ckan.site_id = ${CKAN_SITE_ID}
 solr_url = ${CKAN_SOLR_URL}
 
-#ckan.simple_search = 1
-
-
-## Plugins Settings
-
+# Plugins settings
 # Note: Add ``datastore`` to enable the CKAN DataStore
 #       Add ``datapusher`` to enable DataPusher
 #       Add ``pdf_preview`` to enable the resource preview for PDFs
-#		Add ``resource_proxy`` to enable resorce proxying and get around the
-#		same origin policy
+#       Add ``resource_proxy`` to enable resorce proxying and get around the
+#       same origin policy
 ckan.plugins = ${CKAN_PLUGINS}
 
-
-## Front-End Settings
+# Frontend settings
 ckan.site_title = ${CKAN_SITE_TITLE}
 ckan.site_logo = ${CKAN_SITE_LOGO}
 ckan.site_description = ${CKAN_SITE_DESCRIPTION}
@@ -97,60 +82,36 @@ ckan.gravatar_default = ${CKAN_GRAVATAR_DEFAULT}
 ckan.preview.direct = ${CKAN_PREVIEW_DIRECT}
 ckan.preview.loadable = ${CKAN_PREVIEW_LOADABLE}
 
-# package_hide_extras = for_search_index_only
-#package_edit_return_url = http://another.frontend/dataset/<NAME>
-#package_new_return_url = http://another.frontend/dataset/<NAME>
-#ckan.recaptcha.publickey =
-#ckan.recaptcha.privatekey =
-#licenses_group_url = http://licenses.opendefinition.org/licenses/groups/ckan.json
-# ckan.template_footer_end =
-
-
-## Internationalisation Settings
+# Internationalization settings
 ckan.locale_default = ${CKAN_LOCALE_DEFAULT}
 ckan.locale_order = ${CKAN_LOCALE_ORDER}
 ckan.locales_offered = ${CKAN_LOCALES_OFFERED}
 ckan.locales_filtered_out = ${CKAN_LOCALES_FILTERED_OUT}
 
-
-## Feeds Settings
-
+# Feeds settings
 ckan.feeds.authority_name = ${CKAN_FEEDS_AUTHORITY_NAME}
 ckan.feeds.date = ${CKAN_FEEDS_DATE}
 ckan.feeds.author_name = ${CKAN_FEEDS_AUTHOR_NAME}
 ckan.feeds.author_link = ${CKAN_FEEDS_AUTHOR_LINK}
 
-## Storage Settings
-
+# FileStore settings
 ckan.storage_path = ${CKAN_STORAGE_PATH}
 ckan.max_resource_size = ${CKAN_MAX_RESOURCE_SIZE}
 ckan.max_image_size = ${CKAN_MAX_IMAGE_SIZE}
 
-## Datapusher settings
-
-# Make sure you have set up the DataStore
-
-#ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+# Datapusher settings
 ckan.datapusher.url = ${CKAN_DATAPUSHER_URL}
 
-## Activity Streams Settings
-
-#ckan.activity_streams_enabled = true
-#ckan.activity_list_limit = 31
-#ckan.activity_streams_email_notifications = true
-#ckan.email_notifications_since = 2 days
+# Activity streams settings
 ckan.hide_activity_from_users = ${CKAN_HIDE_ACTIVITY_STREAMS_FROM_USERS}
 
-
-## Email settings
-
+# Email settings
 email_to = ${CKAN_EMAIL_TO}
 error_email_from = ${CKAN_ERROR_EMAIL_FROM}
 smtp.server = ${CKAN_SMTP_SERVER}
 smtp.starttls = ${CKAN_SMTP_STARTTLS}
 
-
-## Logging configuration
+# Logging configuration
 [loggers]
 keys = root, ckan, ckanext
 
