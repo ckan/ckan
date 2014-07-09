@@ -661,7 +661,7 @@ msgstr "Nápad"
 #: ckan/templates_legacy/related/add-related.html:27
 #: ckan/templates_legacy/related/dashboard.html:37
 msgid "News Article"
-msgstr "Článok o novinkách"
+msgstr "Novinový článok"
 
 #: ckan/controllers/related.py:236
 #: ckan/templates_legacy/related/add-related.html:28
@@ -683,7 +683,7 @@ msgstr "Vizualizácia"
 
 #: ckan/controllers/revision.py:42
 msgid "CKAN Repository Revision History"
-msgstr "Historia revízií CKAN úložiska"
+msgstr "Historia zmien CKAN úložiska"
 
 #: ckan/controllers/revision.py:44
 msgid "Recent changes to the CKAN repository."
@@ -767,7 +767,7 @@ msgstr "Profil upravený"
 #: ckan/controllers/user.py:361
 #, python-format
 msgid "%s is now logged in"
-msgstr "%s je práve prihlásených"
+msgstr "%s je práve prihlásený"
 
 #: ckan/controllers/user.py:365
 msgid "Login failed. Bad username or password."
@@ -784,7 +784,7 @@ msgstr "Nemáte oprávnenie požiadať o reset hesla."
 #: ckan/controllers/user.py:431
 #, python-format
 msgid "\"%s\" matched several users"
-msgstr "\"%s\" zodpovedá viacerým používateľom"
+msgstr "\"%s\" vyhovuje viacerým používateľom"
 
 #: ckan/controllers/user.py:433 ckan/controllers/user.py:435
 #, python-format
@@ -2433,11 +2433,11 @@ msgstr "Jednoduchá ajaxová (JSONP) požiadavka pre dátovú API využívajúcu
 
 #: ckan/templates/ajax_snippets/api_info.html:118
 msgid "Example: Python"
-msgstr "Ukážka" Python"
+msgstr "Príklad: Python"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:9
 msgid "This resource can not be previewed at the moment."
-msgstr "Pre tento zdroj aktuálne nemôže byť zobrazený náhľad"
+msgstr "Pre tento zdroj nemôže byť zobrazený náhľad"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:11
 msgid "Click here for more information."
@@ -2449,7 +2449,7 @@ msgstr "Stiahnuť zdroj"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:23
 msgid "Your browser does not support iframes."
-msgstr "Tvôj webový prehliadač nepodporuje iframe"
+msgstr "Váš webový prehliadač nepodporuje iframe"
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:3
 msgid "No preview available."
@@ -2486,7 +2486,7 @@ msgstr "Celý"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full Width Input"
-msgstr "Vstup celej šírky"
+msgstr "Vstup na celú šírku"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large"
