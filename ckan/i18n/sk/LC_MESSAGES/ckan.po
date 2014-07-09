@@ -58,7 +58,7 @@ msgstr "Popis portálu"
 
 #: ckan/controllers/admin.py:46
 msgid "Site Tag Logo"
-msgstr "Maĺe logo potálu"
+msgstr "Malé logo portálu"
 
 #: ckan/controllers/admin.py:47 ckan/templates/header.html:97
 #: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:19
@@ -78,7 +78,7 @@ msgstr "O projekte"
 
 #: ckan/controllers/admin.py:47
 msgid "About page text"
-msgstr "O stránke"
+msgstr "Text stránky o projekte"
 
 #: ckan/controllers/admin.py:48
 msgid "Intro Text"
@@ -86,7 +86,7 @@ msgstr "Úvodný Text"
 
 #: ckan/controllers/admin.py:48
 msgid "Text on home page"
-msgstr "Text na domácej stránke"
+msgstr "Text na hlavnej stránke"
 
 #: ckan/controllers/admin.py:49
 msgid "Custom CSS"
@@ -94,11 +94,11 @@ msgstr "Vlastné CSS"
 
 #: ckan/controllers/admin.py:49
 msgid "Customisable css inserted into the page header"
-msgstr "Prispôsobitelný css súbor bol vložený do hlavičky stránky"
+msgstr "Prispôsobiteľný css súbor bol vložený do hlavičky stránky"
 
 #: ckan/controllers/admin.py:50
 msgid "Homepage"
-msgstr "Domovská stránka"
+msgstr "Hlavná stránka"
 
 #: ckan/controllers/admin.py:131
 #, python-format
@@ -114,11 +114,11 @@ msgstr "Problém pri čistení revízie %s: %s"
 
 #: ckan/controllers/admin.py:155
 msgid "Purge complete"
-msgstr "Vymazať celé"
+msgstr "Mazanie ukončené"
 
 #: ckan/controllers/admin.py:157
 msgid "Action not implemented."
-msgstr "Akcia nebola vykonaná."
+msgstr "Akcia nieje implementovaná."
 
 #: ckan/controllers/api.py:60 ckan/controllers/group.py:151
 #: ckan/controllers/home.py:29 ckan/controllers/package.py:127
@@ -127,7 +127,7 @@ msgstr "Akcia nebola vykonaná."
 #: ckan/controllers/user.py:46 ckan/controllers/user.py:73
 #: ckan/controllers/user.py:101 ckan/controllers/user.py:534
 msgid "Not authorized to see this page"
-msgstr "Nemáte oprávnenie na prezeranie tejto stránky"
+msgstr "Nemáte oprávnenie na zobrazenie tejto stránky"
 
 #: ckan/controllers/api.py:118 ckan/controllers/api.py:201
 msgid "Access denied"
@@ -834,7 +834,7 @@ msgstr "Nepodarilo sa nájsť {0}"
 
 #: ckan/controllers/user.py:578
 msgid "Unauthorized to read {0} {1}"
-msgstr "Neoprávnený čítať {0} {1}"
+msgstr "Nemáte oprávnenie čítať {0} {1}"
 
 #: ckan/controllers/user.py:593
 msgid "Everything"
