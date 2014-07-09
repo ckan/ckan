@@ -15,62 +15,31 @@ import ckan.lib.munge as munge
 ## package save
 
 def group_list_dictize(obj_list, context,
-                       sort_key=lambda x:x['display_name'], reverse=False,
-                       with_package_counts=True):
+                       sort_key=lambda x: x['display_name'], reverse=False,
+                       with_package_counts=True,
+                       include_groups=False):
 
-    active = context.get('active', True)
-    with_private = context.get('include_private_packages', False)
+    group_dictize_context = dict(context.items()[:])
+    # Set options to avoid any SOLR queries for each group, which would
+    # slow things further.
+    group_dictize_context.update((
+        ('include_dataset_count', with_package_counts),
+        ('dataset_count_instead_of_dicts', True),
+        ('include_groups', include_groups),
+        ('include_datasets', False),  # too slow - don't allow
+        ('include_users', False),  # too slow - don't allow
+        ))
+    if with_package_counts and 'dataset_counts' not in group_dictize_context:
+        group_dictize_context['dataset_counts'] = _get_group_package_counts()
+    if context.get('with_capacity'):
+        group_list = [group_dictize(group, group_dictize_context,
+                                    capacity=capacity)
+                      for group, capacity in obj_list]
+    else:
+        group_list = [group_dictize(group, group_dictize_context)
+                      for group in obj_list]
 
-    if with_package_counts:
-        query = search.PackageSearchQuery()
-        q = {'q': '+capacity:public' if not with_private else '*:*',
-             'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
-             'facet.limit': -1, 'rows': 1}
-        query.run(q)
-
-    result_list = []
-
-    for obj in obj_list:
-        if context.get('with_capacity'):
-            obj, capacity = obj
-            group_dict = d.table_dictize(obj, context, capacity=capacity)
-        else:
-            group_dict = d.table_dictize(obj, context)
-        group_dict.pop('created')
-        if active and obj.state not in ('active', 'pending'):
-            continue
-
-        group_dict['display_name'] = (group_dict.get('title') or
-                                      group_dict.get('name'))
-
-        image_url = group_dict.get('image_url')
-        group_dict['image_display_url'] = image_url
-        if image_url and not image_url.startswith('http'):
-            #munge here should not have an effect only doing it incase
-            #of potential vulnerability of dodgy api input
-            image_url = munge.munge_filename(image_url)
-            group_dict['image_display_url'] = h.url_for_static(
-                'uploads/group/%s' % group_dict.get('image_url'),
-                qualified=True
-            )
-
-        if with_package_counts:
-            facets = query.facets
-            if obj.is_organization:
-                group_dict['packages'] = facets['owner_org'].get(obj.id, 0)
-            else:
-                group_dict['packages'] = facets['groups'].get(obj.name, 0)
-
-        if context.get('for_view'):
-            if group_dict['is_organization']:
-                plugin = plugins.IOrganizationController
-            else:
-                plugin = plugins.IGroupController
-            for item in plugins.PluginImplementations(plugin):
-                group_dict = item.before_view(group_dict)
-
-        result_list.append(group_dict)
-    return sorted(result_list, key=sort_key, reverse=reverse)
+    return sorted(group_list, key=sort_key, reverse=reverse)
 
 def resource_list_dictize(res_list, context):
 
@@ -257,7 +226,10 @@ def package_dictize(pkg, context):
     context['with_capacity'] = False
     ## no package counts as cannot fetch from search index at the same
     ## time as indexing to it.
-    result_dict["groups"] = group_list_dictize(result, context,
+    group_list_dictize_context = dict(context.items()[:])
+    group_list_dictize_context['include_extras'] = False  # for speed
+    result_dict["groups"] = group_list_dictize(result,
+                                               group_list_dictize_context,
                                                with_package_counts=False)
     #owning organization
     group_rev = model.group_revision_table
@@ -323,54 +295,106 @@ def _get_members(context, group, member_type):
     return q.all()
 
 
-def group_dictize(group, context):
+def _get_group_package_counts():
+    '''For all public groups, return their package counts, as a SOLR facet'''
+    query = search.PackageSearchQuery()
+    q = {'q': '+capacity:public',
+            'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
+            'facet.limit': -1, 'rows': 1}
+    query.run(q)
+    return query.facets
+
+
+def group_dictize(group, context, **kw):
     result_dict = d.table_dictize(group, context)
-
-    result_dict['display_name'] = group.display_name
-
-    result_dict['extras'] = extras_dict_dictize(
-        group._extras, context)
+    result_dict.update(kw)
 
     include_datasets = context.get('include_datasets', True)
+    include_dataset_count = context.get('include_dataset_count', True)
+    include_groups = context.get('include_groups', True)
+    include_tags = context.get('include_tags', True)
+    include_users = context.get('include_users', True)
+    include_extras = context.get('include_extras', True)
 
-    q = {
-        'facet': 'false',
-        'rows': 0,
-    }
+    result_dict['display_name'] = group.title or group.name
 
-    if group.is_organization:
-        q['fq'] = 'owner_org:"{0}"'.format(group.id)
-    else:
-        q['fq'] = 'groups:"{0}"'.format(group.name)
-
-    is_group_member = (context.get('user') and
-         new_authz.has_user_permission_for_group_or_org(group.id, context.get('user'), 'read'))
-    if is_group_member:
-        context['ignore_capacity_check'] = True
-
-    if include_datasets:
-        q['rows'] = 1000    # Only the first 1000 datasets are returned
-
-    context_ = dict((k, v) for (k, v) in context.items() if k != 'schema')
-    search_results = logic.get_action('package_search')(context_, q)
-
-    if include_datasets:
-        result_dict['packages'] = search_results['results']
-
-    result_dict['package_count'] = search_results['count']
+    if include_extras:
+        result_dict['extras'] = extras_dict_dictize(
+            group._extras, context)
 
     context['with_capacity'] = True
-    result_dict['tags'] = tag_list_dictize(
-        _get_members(context, group, 'tags'),
-        context)
 
-    result_dict['groups'] = group_list_dictize(
-        _get_members(context, group, 'groups'),
-        context)
+    if include_datasets or include_dataset_count:
+        # group_list traditionally returned count instead of the dicts. It is
+        # deprecated, but this behaviour is maintained for now by setting:
+        # dataset_count_instead_of_dicts = True
+        # dataset_counts = _get_group_package_counts()
+        dataset_count_instead_of_dicts = context.get('dataset_count_instead_of_dicts', False)
+        dataset_counts = context.get('dataset_counts')
 
-    result_dict['users'] = user_list_dictize(
-        _get_members(context, group, 'users'),
-        context)
+        if dataset_count_instead_of_dicts is False or dataset_counts is None:
+            # Ask SOLR for the packages for this org/group
+            q = {
+                'facet': 'false',
+                'rows': 0,
+            }
+
+            if group.is_organization:
+                q['fq'] = 'owner_org:"{0}"'.format(group.id)
+            else:
+                q['fq'] = 'groups:"{0}"'.format(group.name)
+
+            is_group_member = (context.get('user') and
+                new_authz.has_user_permission_for_group_or_org(group.id, context.get('user'), 'read'))
+            if is_group_member:
+                context['ignore_capacity_check'] = True
+
+            if include_datasets and not context.get('for_view'):
+                q['rows'] = 1000    # Only the first 1000 datasets are returned
+
+            search_context = dict((k, v) for (k, v) in context.items() if k != 'schema')
+            search_results = logic.get_action('package_search')(search_context, q)
+            package_count = search_results['count']
+        else:
+            # Use the package_counts passed in
+            facets = dataset_counts
+            if group.is_organization:
+                package_count = facets['owner_org'].get(group.id, 0)
+            else:
+                package_count = facets['groups'].get(group.name, 0)
+
+        if dataset_count_instead_of_dicts:
+            result_dict['packages'] = package_count
+        elif include_datasets:
+            result_dict['packages'] = search_results['results']
+
+        result_dict['package_count'] = package_count
+
+    if include_tags:
+        result_dict['tags'] = tag_list_dictize(
+            _get_members(context, group, 'tags'),
+            context)
+
+    if include_groups:
+        group_list_context = dict(context.items()[:])
+        group_list_context.update((
+            ('include_tags', False),
+            ('include_users', False),
+            ))
+        result_dict['groups'] = group_list_dictize(
+            _get_members(group_list_context, group, 'groups'),
+            context)
+
+    import pdb; pdb.set_trace()
+    if include_users:
+        if 'is_group_member' not in dir():
+            # expensive call, so avoid if was done earlier in this method
+            is_group_member = (context.get('user') and
+                new_authz.has_user_permission_for_group_or_org(group.id, context.get('user'), 'read'))
+        if is_group_member:
+            result_dict['users'] = user_list_dictize(
+                _get_members(context, group, 'users'),
+                context)
 
     context['with_capacity'] = False
 

@@ -8,6 +8,7 @@ import socket
 
 from pylons import config
 import sqlalchemy
+from paste.deploy.converters import asbool
 
 import ckan.lib.dictization
 import ckan.logic as logic
@@ -387,8 +388,13 @@ def _group_or_org_list(context, data_dict, is_org=False):
                                total=1)
 
     all_fields = data_dict.get('all_fields', None)
+    include_extras = asbool(data_dict.get('include_extras', False))
 
     query = model.Session.query(model.Group).join(model.GroupRevision)
+    if all_fields and include_extras:
+        # this does an eager load of the extras, avoiding an sql query every
+        # time group_list_dictize accesses a group's extra.
+        query = query.options(sqlalchemy.orm.joinedload(model.Group._extras))
     query = query.filter(model.GroupRevision.state == 'active')
     query = query.filter(model.GroupRevision.current == True)
     if groups:
@@ -404,9 +410,23 @@ def _group_or_org_list(context, data_dict, is_org=False):
     query = query.filter(model.GroupRevision.is_organization == is_org)
 
     groups = query.all()
-    group_list = model_dictize.group_list_dictize(groups, context,
-                                                  lambda x: x[sort_info[0][0]],
-                                                  sort_info[0][1] == 'desc')
+    group_list_context = dict(context.items()[:])
+    if not all_fields:
+        group_list_context.update((
+            ('include_tags', False),
+            ('include_extras', False),
+            ))
+    else:
+        group_list_context.update((
+            ('include_tags', asbool(data_dict.get('include_tags', False))),
+            ('include_extras', include_extras),
+            ))
+    group_list = model_dictize.group_list_dictize(
+        groups, group_list_context,
+        sort_key=lambda x: x[sort_info[0][0]],
+        reverse=sort_info[0][1] == 'desc',
+        with_package_counts=all_fields or sort_info[0][0] == 'packages',
+        include_groups=asbool(data_dict.get('include_groups', False)))
 
     if not all_fields:
         group_list = [group[ref_group_by] for group in group_list]
@@ -427,9 +447,19 @@ def group_list(context, data_dict):
     :param groups: a list of names of the groups to return, if given only
         groups whose names are in this list will be returned (optional)
     :type groups: list of strings
-    :param all_fields: return full group dictionaries instead of  just names
+    :param all_fields: return group dictionaries instead of just names. Only
+        core fields are returned - get some more using the include_* options
         (optional, default: ``False``)
     :type all_fields: boolean
+    :param include_extras: if all_fields, include the group extra fields
+        (optional, default: ``False``)
+    :type include_extras: boolean
+    :param include_tags: if all_fields, include the group tags
+        (optional, default: ``False``)
+    :type include_tags: boolean
+    :param include_groups: if all_fields, include the groups the groups are in
+        (optional, default: ``False``)
+    :type include_groups: boolean
 
     :rtype: list of strings
 
@@ -453,7 +483,17 @@ def organization_list(context, data_dict):
         if given only groups whose names are in this list will be
         returned (optional)
     :type organizations: list of strings
-    :param all_fields: return full group dictionaries instead of  just names
+    :param all_fields: return group dictionaries instead of just names. Only
+        core fields are returned - get some more using the include_* options
+        (optional, default: ``False``)
+    :type all_fields: boolean
+    :param include_extras: if all_fields, include the group extra fields
+        (optional, default: ``False``)
+    :type include_extras: boolean
+    :param include_tags: if all_fields, include the group tags
+        (optional, default: ``False``)
+    :type include_tags: boolean
+    :param include_groups: if all_fields, include the groups the groups are in
         (optional, default: ``False``)
     :type all_fields: boolean
 
