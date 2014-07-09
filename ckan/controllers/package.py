@@ -542,13 +542,12 @@ class PackageController(base.BaseController):
         data['group_id'] = request.params.get('group') or \
             request.params.get('groups__0__id')
 
-        dataset_snippet = self._package_form(package_type=package_type)
-        vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary,
-                'action': 'new', 'stage': stage,
-                'dataset_type': package_type,
-                'dataset_snippet': dataset_snippet,
-                }
+        form_snippet = self._package_form(package_type=package_type)
+        form_vars = {'data': data, 'errors': errors,
+                     'error_summary': error_summary,
+                     'action': 'new', 'stage': stage,
+                     'dataset_type': package_type,
+                    }
         c.errors_json = h.json.dumps(errors)
 
         self._setup_template_variables(context, {},
@@ -562,7 +561,9 @@ class PackageController(base.BaseController):
             lambda: render(dataset_snippet, extra_vars=vars))
 
         return render(self._new_template(package_type),
-                      extra_vars=vars)
+                      extra_vars={'form_vars': form_vars,
+                                  'form_snippet': form_snippet,
+                                  'dataset_type': package_type})
 
     def resource_edit(self, id, resource_id, data=None, errors=None,
                       error_summary=None):
@@ -787,12 +788,11 @@ class PackageController(base.BaseController):
             data['tag_string'] = ', '.join(h.dict_list_reduce(
                 c.pkg_dict.get('tags', {}), 'name'))
         errors = errors or {}
-        dataset_snippet = self._package_form(package_type=package_type)
-        vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary, 'action': 'edit',
-                'dataset_type': package_type,
-                'dataset_snippet': dataset_snippet,
-                }
+        form_snippet = self._package_form(package_type=package_type)
+        form_vars = {'data': data, 'errors': errors,
+                     'error_summary': error_summary, 'action': 'edit',
+                     'dataset_type': package_type,
+                    }
         c.errors_json = h.json.dumps(errors)
 
         self._setup_template_variables(context, {'id': id},
@@ -800,18 +800,20 @@ class PackageController(base.BaseController):
         c.related_count = c.pkg.related_count
 
         # we have already completed stage 1
-        vars['stage'] = ['active']
+        form_vars['stage'] = ['active']
         if data.get('state', '').startswith('draft'):
-            vars['stage'] = ['active', 'complete']
+            form_vars['stage'] = ['active', 'complete']
 
         maintain.deprecate_context_item(
             'form',
-            'see ckan/templates/package/new.html for new form snippet')
+            'see ckan/templates/package/edit.html for new form snippet')
         c.form = ckan.lib.render.LazyRenderer(
             lambda: render(dataset_snippet, extra_vars=vars))
 
         return render(self._edit_template(package_type),
-                      extra_vars=vars)
+                      extra_vars={'form_vars': form_vars,
+                                  'form_snippet': form_snippet,
+                                  'dataset_type': package_type})
 
     def read_ajax(self, id, revision=None):
         package_type = self._get_package_type(id)
