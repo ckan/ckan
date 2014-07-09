@@ -299,7 +299,8 @@ class PackageController(base.BaseController):
         self._setup_template_variables(context, {},
                                        package_type=package_type)
 
-        return render(self._search_template(package_type))
+        return render(self._search_template(package_type),
+                      extra_vars={'dataset_type': package_type})
 
     def _content_type_from_extension(self, ext):
         ct, mu, ext = accept.parse_extension(ext)
@@ -342,7 +343,8 @@ class PackageController(base.BaseController):
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
 
-        return render('package/resources.html')
+        return render('package/resources.html',
+                      extra_vars={'dataset_type': package_type})
 
     def read(self, id, format='html'):
         if not format == 'html':
@@ -411,7 +413,7 @@ class PackageController(base.BaseController):
 
         try:
             return render(template, loader_class=loader,
-                          extra_vars={'package_type': package_type})
+                          extra_vars={'dataset_type': package_type})
         except ckan.lib.render.TemplateNotFound:
             msg = _("Viewing {package_type} datasets in {format} format is "
                     "not supported (template file {file} not found).".format(
@@ -498,8 +500,9 @@ class PackageController(base.BaseController):
             return feed.writeString('utf-8')
 
         c.related_count = c.pkg.related_count
-        return render(self._history_template(c.pkg_dict.get('type',
-                                                            package_type)))
+        return render(
+            self._history_template(c.pkg_dict.get('type', package_type)),
+            extra_vars={'dataset_type': package_type})
 
     def new(self, data=None, errors=None, error_summary=None):
         package_type = self._guess_package_type(True)
@@ -542,7 +545,7 @@ class PackageController(base.BaseController):
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary,
                 'action': 'new', 'stage': stage,
-                'package_type': package_type,
+                'dataset_type': package_type,
                 }
         c.errors_json = h.json.dumps(errors)
 
@@ -557,7 +560,7 @@ class PackageController(base.BaseController):
             c.form = render(self._package_form(package_type=package_type),
                             extra_vars=vars)
         return render(self._new_template(package_type),
-                      extra_vars={'stage': stage})
+                      extra_vars=vars)
 
     def resource_edit(self, id, resource_id, data=None, errors=None,
                       error_summary=None):
@@ -621,7 +624,7 @@ class PackageController(base.BaseController):
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'new',
                 'resource_form_snippet': self._resource_form(package_type),
-                'package_type':package_type}
+                'dataset_type':package_type}
         return render('package/resource_edit.html', extra_vars=vars)
 
     def new_resource(self, id, data=None, errors=None, error_summary=None):
@@ -718,7 +721,7 @@ class PackageController(base.BaseController):
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'new',
                 'resource_form_snippet': self._resource_form(package_type),
-                'package_type': package_type}
+                'dataset_type': package_type}
         vars['pkg_name'] = id
         # get resources for sidebar
         context = {'model': model, 'session': model.Session,
@@ -784,7 +787,7 @@ class PackageController(base.BaseController):
         errors = errors or {}
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'edit',
-                'package_type': package_type,
+                'dataset_type': package_type,
                 }
         c.errors_json = h.json.dumps(errors)
 
@@ -806,7 +809,7 @@ class PackageController(base.BaseController):
                             extra_vars=vars)
 
         return render(self._edit_template(package_type),
-                      extra_vars={'stage': vars['stage']})
+                      extra_vars=vars)
 
     def read_ajax(self, id, revision=None):
         package_type = self._get_package_type(id)
@@ -1051,11 +1054,13 @@ class PackageController(base.BaseController):
                 h.flash_notice(_('Dataset has been deleted.'))
                 h.redirect_to(controller='package', action='search')
             c.pkg_dict = get_action('package_show')(context, {'id': id})
+            dataset_type = c.pkg_dict['type'] or 'dataset'
         except NotAuthorized:
             abort(401, _('Unauthorized to delete package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
-        return render('package/confirm_delete.html')
+        return render('package/confirm_delete.html',
+                      extra_vars={'dataset_type': dataset_type})
 
     def resource_delete(self, id, resource_id):
 
@@ -1081,7 +1086,8 @@ class PackageController(base.BaseController):
             abort(401, _('Unauthorized to delete resource %s') % '')
         except NotFound:
             abort(404, _('Resource not found'))
-        return render('package/confirm_delete_resource.html')
+        return render('package/confirm_delete_resource.html',
+                      {'dataset_type': self._get_package_type(id)})
 
     def autocomplete(self):
         # DEPRECATED in favour of /api/2/util/dataset/autocomplete
@@ -1155,6 +1161,7 @@ class PackageController(base.BaseController):
             # required for nav menu
             c.pkg = context['package']
             c.pkg_dict = c.package
+            dataset_type = c.pkg.type or 'dataset'
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
@@ -1174,7 +1181,8 @@ class PackageController(base.BaseController):
 
         c.resource['can_be_previewed'] = self._resource_preview(
             {'resource': c.resource, 'package': c.package})
-        return render('package/resource_read.html')
+        return render('package/resource_read.html',
+            extra_vars={'dataset_type': dataset_type})
 
     def _resource_preview(self, data_dict):
         return bool(datapreview.res_format(data_dict['resource'])
@@ -1268,12 +1276,14 @@ class PackageController(base.BaseController):
                     {'id': c.pkg_dict['id']})
 
             c.related_count = c.pkg.related_count
+            dataset_type = c.pkg.type or 'dataset'
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read package %s') % id)
 
-        return render('package/followers.html')
+        return render('package/followers.html',
+            {'dataset_type': dataset_type})
 
     def groups(self, id):
         context = {'model': model, 'session': model.Session,
@@ -1282,6 +1292,7 @@ class PackageController(base.BaseController):
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
+            dataset_type = c.pkg_dict['type'] or 'dataset'
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
@@ -1333,7 +1344,8 @@ class PackageController(base.BaseController):
         for group in c.pkg_dict.get('groups', []):
             group['user_member'] = (group['id'] in user_group_ids)
 
-        return render('package/group_list.html')
+        return render('package/group_list.html',
+                      {'dataset_type': dataset_type})
 
     def activity(self, id):
         '''Render this package's public activity stream page.'''
@@ -1349,12 +1361,14 @@ class PackageController(base.BaseController):
                     'package_activity_list_html')(context,
                             {'id': c.pkg_dict['id']})
             c.related_count = c.pkg.related_count
+            dataset_type = c.pkg_dict['type'] or 'dataset'
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read dataset %s') % id)
 
-        return render('package/activity.html')
+        return render('package/activity.html',
+                      {'dataset_type': dataset_type})
 
     def resource_embedded_dataviewer(self, id, resource_id,
                                      width=500, height=500):
@@ -1376,6 +1390,7 @@ class PackageController(base.BaseController):
             if not c.resource['id'] in [r['id']
                                         for r in c.package['resources']]:
                 raise NotFound
+            dataset_type = c.package['type'] or 'dataset'
 
         except NotFound:
             abort(404, _('Resource not found'))
@@ -1395,7 +1410,8 @@ class PackageController(base.BaseController):
         c.height = max(int(request.params.get('height', height)), 100)
         c.embedded = True
 
-        return render('package/resource_embedded_dataviewer.html')
+        return render('package/resource_embedded_dataviewer.html',
+                      extra_vars={'dataset_type': dataset_type})
 
     def _parse_recline_state(self, params):
         state_version = int(request.params.get('state_version', '1'))
@@ -1459,9 +1475,11 @@ class PackageController(base.BaseController):
 
             preview_plugin.setup_template_variables(context, data_dict)
             c.resource_json = json.dumps(c.resource)
+            dataset_type = c.package['type'] or 'dataset'
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read resource %s') % id)
         else:
-            return render(preview_plugin.preview_template(context, data_dict))
+            return render(preview_plugin.preview_template(context, data_dict),
+                          extra_vars={'dataset_type': dataset_type})
