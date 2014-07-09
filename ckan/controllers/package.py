@@ -542,18 +542,25 @@ class PackageController(base.BaseController):
         data['group_id'] = request.params.get('group') or \
             request.params.get('groups__0__id')
 
+        dataset_snippet = self._package_form(package_type=package_type)
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary,
                 'action': 'new', 'stage': stage,
                 'dataset_type': package_type,
+                'dataset_snippet': dataset_snippet,
                 }
         c.errors_json = h.json.dumps(errors)
 
         self._setup_template_variables(context, {},
                                        package_type=package_type)
 
-        c.form = render(self._package_form(package_type=package_type),
-                        extra_vars=vars)
+        maintain.deprecate_context_item(
+            'form',
+            'see ckan/templates/package/base_form_page.html for '
+            'new form snippet')
+        c.form = ckan.lib.render.LazyRenderer(
+            lambda: render(dataset_snippet, extra_vars=vars))
+
         return render(self._new_template(package_type),
                       extra_vars=vars)
 
@@ -780,9 +787,11 @@ class PackageController(base.BaseController):
             data['tag_string'] = ', '.join(h.dict_list_reduce(
                 c.pkg_dict.get('tags', {}), 'name'))
         errors = errors or {}
+        dataset_snippet = self._package_form(package_type=package_type)
         vars = {'data': data, 'errors': errors,
                 'error_summary': error_summary, 'action': 'edit',
                 'dataset_type': package_type,
+                'dataset_snippet': dataset_snippet,
                 }
         c.errors_json = h.json.dumps(errors)
 
@@ -795,8 +804,12 @@ class PackageController(base.BaseController):
         if data.get('state', '').startswith('draft'):
             vars['stage'] = ['active', 'complete']
 
-        c.form = render(self._package_form(package_type=package_type),
-                        extra_vars=vars)
+        maintain.deprecate_context_item(
+            'form',
+            'see ckan/templates/package/new.html for new form snippet')
+        c.form = ckan.lib.render.LazyRenderer(
+            lambda: render(dataset_snippet, extra_vars=vars))
+
         return render(self._edit_template(package_type),
                       extra_vars=vars)
 

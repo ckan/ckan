@@ -58,3 +58,22 @@ def template_info(template_name):
                   'template_type' : t_type,}
         _template_info_cache[template_name] = t_data
     return template_path, t_type
+
+
+class LazyRenderer(object):
+    '''
+    An object that will defer rendering until absolutely necessary to
+    pass to a template that might do {{ the_object | safe }}.
+
+    Used maintain backwards compatibility with templates that used to
+    expect a pre-rendered HTML snippet but have been updated to use
+    a normal {% snippet %} tag.
+    '''
+    def __init__(self, render):
+        self._html = None
+        self._render = render
+
+    def __html__(self):
+        if not self._html:
+            self._html = self._render()
+        return self._html
