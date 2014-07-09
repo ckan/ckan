@@ -795,14 +795,8 @@ class PackageController(base.BaseController):
         if data.get('state', '').startswith('draft'):
             vars['stage'] = ['active', 'complete']
 
-        # TODO: This check is to maintain backwards compatibility with the
-        # old way of creating custom forms. This behaviour is now deprecated.
-        if hasattr(self, 'package_form'):
-            c.form = render(self.package_form, extra_vars=vars)
-        else:
-            c.form = render(self._package_form(package_type=package_type),
-                            extra_vars=vars)
-
+        c.form = render(self._package_form(package_type=package_type),
+                        extra_vars=vars)
         return render(self._edit_template(package_type),
                       extra_vars=vars)
 
