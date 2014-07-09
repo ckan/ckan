@@ -552,13 +552,8 @@ class PackageController(base.BaseController):
         self._setup_template_variables(context, {},
                                        package_type=package_type)
 
-        # TODO: This check is to maintain backwards compatibility with the
-        # old way of creating custom forms. This behaviour is now deprecated.
-        if hasattr(self, 'package_form'):
-            c.form = render(self.package_form, extra_vars=vars)
-        else:
-            c.form = render(self._package_form(package_type=package_type),
-                            extra_vars=vars)
+        c.form = render(self._package_form(package_type=package_type),
+                        extra_vars=vars)
         return render(self._new_template(package_type),
                       extra_vars=vars)
 
