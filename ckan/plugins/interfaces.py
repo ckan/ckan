@@ -833,7 +833,7 @@ class IDatasetForm(Interface):
         :rtype: string
         '''
 
-    def validate(self, context, data_dict, schema, action, package_type):
+    def validate(self, context, data_dict, schema, action, dataset_type):
         """Customize validation of datasets.
 
         When this method is implemented it is used to perform all validation
@@ -858,8 +858,8 @@ class IDatasetForm(Interface):
         :param action: ``'package_show'``, ``'package_create'`` or
           ``'package_update'``
         :type action: string
-        :param package_type: the type of the dataset
-        :type package_type: string
+        :param dataset_type: the type of the dataset
+        :type dataset_type: string
         :returns: (data_dict, errors) where data_dict is the possibly-modified
           dataset and errors is a dictionary with keys matching data_dict
           and lists-of-string-error-messages as values
