@@ -111,7 +111,7 @@ def datastore_search_schema():
     schema = {
         'resource_id': [not_missing, not_empty, unicode],
         'id': [ignore_missing],
-        'q': [ignore_missing, unicode],
+        'q': [ignore_missing],
         'plain': [ignore_missing, boolean_validator],
         'filters': [ignore_missing, json_validator],
         'language': [ignore_missing, unicode],

@@ -285,6 +285,10 @@ class DatastorePlugin(p.SingletonPlugin):
         if q:
             if isinstance(q, basestring):
                 del data_dict['q']
+            elif isinstance(q, dict):
+                for key in q.keys():
+                    if key in column_names and isinstance(q[key], basestring):
+                        del q[key]
 
         language = data_dict.get('language')
         if language:
@@ -378,30 +382,29 @@ class DatastorePlugin(p.SingletonPlugin):
             clauses.append(clause)
 
         # add full-text search where clause
-        if data_dict.get('q'):
-            clause = (u'_full_text @@ query',)
-            clauses.append(clause)
+        q = data_dict.get('q')
+        if q:
+            if isinstance(q, basestring):
+                clause = (u'_full_text @@ {0}'.format(self._ts_query_alias()),)
+                clauses.append(clause)
+            elif isinstance(q, dict):
+                for field, value in q.iteritems():
+                    query_field = self._ts_query_alias(field)
+                    clause_str = u'"{0}" @@ {1}'.format(field, query_field)
+                    clause = (clause_str, value)
+                    clauses.append(clause)
 
         return clauses
-
-    def _textsearch_query(self, data_dict):
-        q = data_dict.get('q')
-        lang = data_dict.get(u'language', u'english')
-        if q:
-            if data_dict.get('plain', True):
-                statement = u", plainto_tsquery('{lang}', '{query}') query"
-            else:
-                statement = u", to_tsquery('{lang}', '{query}') query"
-
-            rank_column = u', ts_rank(_full_text, query, 32) AS rank'
-            return statement.format(lang=lang, query=q), rank_column
-        return '', ''
 
     def _sort(self, data_dict):
         sort = data_dict.get('sort')
         if not sort:
-            if data_dict.get('q'):
-                return [u'rank']
+            q = data_dict.get('q')
+            if q:
+                if isinstance(q, basestring):
+                    return [self._ts_rank_alias()]
+                elif isinstance(q, dict):
+                    return [self._ts_rank_alias(field) for field in q]
             else:
                 return []
 
@@ -422,3 +425,57 @@ class DatastorePlugin(p.SingletonPlugin):
             clause_parsed.append(u'"{0}" {1}'.format(field, sort))
 
         return clause_parsed
+
+    def _textsearch_query(self, data_dict):
+        q = data_dict.get('q')
+        lang = data_dict.get(u'language', u'english')
+
+        if not q:
+            return '', ''
+
+        statements = []
+        rank_columns = []
+        plain = data_dict.get('plain', True)
+        if isinstance(q, basestring):
+            query, rank = self._build_query_and_rank_statements(lang,
+                                                                q,
+                                                                plain)
+            statements.append(query)
+            rank_columns.append(rank)
+        elif isinstance(q, dict):
+            for field, value in q.iteritems():
+                query, rank = self._build_query_and_rank_statements(lang,
+                                                                    value,
+                                                                    plain,
+                                                                    field)
+                statements.append(query)
+                rank_columns.append(rank)
+
+        statements_str = ', ' + ', '.join(statements)
+        rank_columns_str = ', ' + ', '.join(rank_columns)
+        return statements_str, rank_columns_str
+
+    def _build_query_and_rank_statements(self, lang, query, plain, field=None):
+        query_alias = self._ts_query_alias(field)
+        rank_alias = self._ts_rank_alias(field)
+        if plain:
+            statement = u"plainto_tsquery('{lang}', '{query}') {alias}"
+        else:
+            statement = u"to_tsquery('{lang}', '{query}') {alias}"
+        rank_statement = u'ts_rank(_full_text, {query_alias}, 32) AS {alias}'
+        statement = statement.format(lang=lang, query=query, alias=query_alias)
+        rank_statement = rank_statement.format(query_alias=query_alias,
+                                               alias=rank_alias)
+        return statement, rank_statement
+
+    def _ts_query_alias(self, field=None):
+        query_alias = u'query'
+        if field:
+            query_alias += u' ' + field
+        return u'"{0}"'.format(query_alias)
+
+    def _ts_rank_alias(self, field=None):
+        rank_alias = u'rank'
+        if field:
+            rank_alias += u' ' + field
+        return u'"{0}"'.format(rank_alias)
