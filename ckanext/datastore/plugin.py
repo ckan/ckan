@@ -391,6 +391,8 @@ class DatastorePlugin(p.SingletonPlugin):
                 clauses.append(clause)
             elif isinstance(q, dict):
                 for field, value in q.iteritems():
+                    if field not in column_names:
+                        continue
                     query_field = self._ts_query_alias(field)
                     clause_str = u'"{0}" @@ {1}'.format(field, query_field)
                     clause = (clause_str, value)
@@ -398,7 +400,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return clauses
 
-    def _sort(self, data_dict, field_ids):
+    def _sort(self, data_dict, column_names):
         sort = data_dict.get('sort')
         if not sort:
             q = data_dict.get('q')
@@ -406,7 +408,8 @@ class DatastorePlugin(p.SingletonPlugin):
                 if isinstance(q, basestring):
                     return [self._ts_rank_alias()]
                 elif isinstance(q, dict):
-                    return [self._ts_rank_alias(field) for field in q]
+                    return [self._ts_rank_alias(field) for field in q
+                            if field in column_names]
             else:
                 return []
 
