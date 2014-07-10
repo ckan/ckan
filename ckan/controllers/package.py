@@ -553,14 +553,16 @@ class PackageController(base.BaseController):
         self._setup_template_variables(context, {},
                                        package_type=package_type)
 
-        maintain.deprecate_context_item(
-            'form',
-            'see ckan/templates/package/base_form_page.html for '
-            'new form snippet')
-        c.form = ckan.lib.render.LazyRenderer(
-            lambda: render(dataset_snippet, extra_vars=vars))
-
-        return render(self._new_template(package_type),
+        new_template = self._new_template(package_type)
+        c.form = ckan.lib.render.deprecated_lazy_render(
+            new_template,
+            form_snippet,
+            lambda: render(form_snippet, extra_vars=form_vars),
+            'use of c.form is deprecated. please see '
+            'ckan/templates/package/base_form_page.html for an example '
+            'of the new way to include the form snippet'
+            )
+        return render(new_template,
                       extra_vars={'form_vars': form_vars,
                                   'form_snippet': form_snippet,
                                   'dataset_type': package_type})
@@ -804,13 +806,16 @@ class PackageController(base.BaseController):
         if data.get('state', '').startswith('draft'):
             form_vars['stage'] = ['active', 'complete']
 
-        maintain.deprecate_context_item(
-            'form',
-            'see ckan/templates/package/edit.html for new form snippet')
-        c.form = ckan.lib.render.LazyRenderer(
-            lambda: render(dataset_snippet, extra_vars=vars))
-
-        return render(self._edit_template(package_type),
+        edit_template = self._edit_template(package_type)
+        c.form = ckan.lib.render.deprecated_lazy_render(
+            edit_template,
+            form_snippet,
+            lambda: render(form_snippet, extra_vars=form_vars),
+            'use of c.form is deprecated. please see '
+            'ckan/templates/package/edit.html for an example '
+            'of the new way to include the form snippet'
+            )
+        return render(edit_template,
                       extra_vars={'form_vars': form_vars,
                                   'form_snippet': form_snippet,
                                   'dataset_type': package_type})
