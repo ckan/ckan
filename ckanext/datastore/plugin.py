@@ -359,8 +359,8 @@ class DatastorePlugin(p.SingletonPlugin):
         limit = data_dict.get('limit', 100)
         offset = data_dict.get('offset', 0)
 
-        sort = self._sort(data_dict)
-        where = self._where(data_dict)
+        sort = self._sort(data_dict, field_ids)
+        where = self._where(data_dict, field_ids)
 
         select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
                       [u'count(*) over() as "_full_count" %s' % rank_column]
@@ -374,10 +374,12 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return query_dict
 
-    def _where(self, data_dict):
+    def _where(self, data_dict, column_names):
         filters = data_dict.get('filters', {})
         clauses = []
         for field, value in filters.iteritems():
+            if field not in column_names:
+                continue
             clause = (u'"{0}" = %s'.format(field), value)
             clauses.append(clause)
 
@@ -396,7 +398,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return clauses
 
-    def _sort(self, data_dict):
+    def _sort(self, data_dict, field_ids):
         sort = data_dict.get('sort')
         if not sort:
             q = data_dict.get('q')
