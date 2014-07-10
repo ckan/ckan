@@ -1116,49 +1116,6 @@ class PackageController(base.BaseController):
                                        replace('|', ' '), pkg['name']))
         return '\n'.join(pkg_list)
 
-    def _render_edit_form(self, fs, params={}, clear_session=False):
-        # errors arrive in c.error and fs.errors
-        c.log_message = params.get('log_message', '')
-        # rgrp: expunge everything from session before dealing with
-        # validation errors) so we don't have any problematic saves
-        # when the fs.render causes a flush.
-        # seb: If the session is *expunged*, then the form can't be
-        # rendered; I've settled with a rollback for now, which isn't
-        # necessarily what's wanted here.
-        # dread: I think this only happened with tags because until
-        # this changeset, Tag objects were created in the Renderer
-        # every time you hit preview. So I don't believe we need to
-        # clear the session any more. Just in case I'm leaving it in
-        # with the log comments to find out.
-        if clear_session:
-            # log to see if clearing the session is ever required
-            if model.Session.new or model.Session.dirty or \
-                    model.Session.deleted:
-                log.warn('Expunging session changes which were not expected: '
-                         '%r %r %r', (model.Session.new, model.Session.dirty,
-                                      model.Session.deleted))
-            try:
-                model.Session.rollback()
-            except AttributeError:
-                # older SQLAlchemy versions
-                model.Session.clear()
-        edit_form_html = fs.render()
-        c.form = h.literal(edit_form_html)
-        return h.literal(render('package/edit_form.html'))
-
-    def _update_authz(self, fs):
-        validation = fs.validate()
-        if not validation:
-            c.form = self._render_edit_form(fs, request.params)
-            raise package_saver.ValidationException(fs)
-        try:
-            fs.sync()
-        except Exception, inst:
-            model.Session.rollback()
-            raise
-        else:
-            model.Session.commit()
-
     def resource_read(self, id, resource_id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj}
