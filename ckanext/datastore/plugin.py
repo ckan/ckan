@@ -359,8 +359,8 @@ class DatastorePlugin(p.SingletonPlugin):
         limit = data_dict.get('limit', 100)
         offset = data_dict.get('offset', 0)
 
-        sort = self._sort(data_dict, field_ids)
-        where = self._where(data_dict, field_ids)
+        sort = self._sort(data_dict, column_names)
+        where = self._where(data_dict, column_names)
 
         select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
                       [u'count(*) over() as "_full_count" %s' % rank_column]
