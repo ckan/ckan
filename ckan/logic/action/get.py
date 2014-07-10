@@ -388,10 +388,11 @@ def _group_or_org_list(context, data_dict, is_org=False):
                                total=1)
 
     all_fields = data_dict.get('all_fields', None)
-    include_extras = asbool(data_dict.get('include_extras', False))
+    include_extras = all_fields and \
+                     asbool(data_dict.get('include_extras', False))
 
     query = model.Session.query(model.Group).join(model.GroupRevision)
-    if all_fields and include_extras:
+    if include_extras:
         # this does an eager load of the extras, avoiding an sql query every
         # time group_list_dictize accesses a group's extra.
         query = query.options(sqlalchemy.orm.joinedload(model.Group._extras))
@@ -410,23 +411,21 @@ def _group_or_org_list(context, data_dict, is_org=False):
     query = query.filter(model.GroupRevision.is_organization == is_org)
 
     groups = query.all()
-    group_list_context = dict(context.items()[:])
-    if not all_fields:
-        group_list_context.update((
-            ('include_tags', False),
-            ('include_extras', False),
-            ))
+    if all_fields:
+        include_tags = asbool(data_dict.get('include_tags', False))
     else:
-        group_list_context.update((
-            ('include_tags', asbool(data_dict.get('include_tags', False))),
-            ('include_extras', include_extras),
-            ))
+        include_tags = False
+    # even if we are not going to return all_fields, we need to dictize all the
+    # groups so that we can sort by any field.
     group_list = model_dictize.group_list_dictize(
-        groups, group_list_context,
+        groups, context,
         sort_key=lambda x: x[sort_info[0][0]],
         reverse=sort_info[0][1] == 'desc',
         with_package_counts=all_fields or sort_info[0][0] == 'packages',
-        include_groups=asbool(data_dict.get('include_groups', False)))
+        include_groups=asbool(data_dict.get('include_groups', False)),
+        include_tags=include_tags,
+        include_extras=include_extras,
+        )
 
     if not all_fields:
         group_list = [group[ref_group_by] for group in group_list]
@@ -1059,7 +1058,8 @@ def _group_or_org_show(context, data_dict, is_org=False):
     include_datasets = data_dict.get('include_datasets', True)
     if isinstance(include_datasets, basestring):
         include_datasets = (include_datasets.lower() in ('true', '1'))
-    context['include_datasets'] = include_datasets
+    packages_field = 'datasets' if include_datasets \
+                     else 'none_but_include_package_count'
 
     if group is None:
         raise NotFound
@@ -1073,7 +1073,8 @@ def _group_or_org_show(context, data_dict, is_org=False):
     else:
         _check_access('group_show', context, data_dict)
 
-    group_dict = model_dictize.group_dictize(group, context)
+    group_dict = model_dictize.group_dictize(group, context,
+                                             packages_field=packages_field)
 
     if is_org:
         plugin_type = plugins.IOrganizationController
