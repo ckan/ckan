@@ -27,6 +27,30 @@ class TestGet(object):
         assert (sorted(group_list) ==
                 sorted([g['name'] for g in [group1, group2]]))
 
+    def test_group_list_sort_by_package_count(self):
+
+        factories.Group(name='aa')
+        factories.Group(name='bb')
+        factories.Dataset(groups=[{'name': 'aa'}, {'name': 'bb'}])
+        factories.Dataset(groups=[{'name': 'bb'}])
+
+        group_list = helpers.call_action('group_list', sort='package_count')
+        # default is descending order
+
+        eq(group_list, ['bb', 'aa'])
+
+    def test_group_list_sort_by_package_count_ascending(self):
+
+        factories.Group(name='aa')
+        factories.Group(name='bb')
+        factories.Dataset(groups=[{'name': 'aa'}, {'name': 'bb'}])
+        factories.Dataset(groups=[{'name': 'aa'}])
+
+        group_list = helpers.call_action('group_list',
+                                         sort='package_count asc')
+
+        eq(group_list, ['bb', 'aa'])
+
     def test_group_list_all_fields(self):
 
         group = factories.Group()
@@ -88,6 +112,20 @@ class TestGet(object):
         # FIXME: Should this be returned by group_create?
         group_dict.pop('num_followers', None)
         assert group_dict == group
+
+    def test_group_show_error_not_found(self):
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'group_show', id='does_not_exist')
+
+    def test_group_show_error_for_organization(self):
+
+        org = factories.Organization()
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'group_show', id=org['id'])
 
     def test_group_show_packages_returned(self):
 
@@ -151,6 +189,20 @@ class TestGet(object):
         # FIXME: Should this be returned by organization_create?
         org_dict.pop('num_followers', None)
         assert org_dict == org
+
+    def test_organization_show_error_not_found(self):
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'organization_show', id='does_not_exist')
+
+    def test_organization_show_error_for_group(self):
+
+        group = factories.Group()
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'organization_show', id=group['id'])
 
     def test_organization_show_packages_returned(self):
 

@@ -380,11 +380,12 @@ def _group_or_org_list(context, data_dict, is_org=False):
             sort = order_by
     # if the sort is packages and no sort direction is supplied we want to do a
     # reverse sort to maintain compatibility.
-    if sort.strip() == 'packages':
-        sort = 'packages desc'
+    if sort.strip() in ('packages', 'package_count'):
+        sort = 'package_count desc'
 
     sort_info = _unpick_search(sort,
-                               allowed_fields=['name', 'packages'],
+                               allowed_fields=['name', 'packages',
+                                               'package_count'],
                                total=1)
 
     all_fields = data_dict.get('all_fields', None)
@@ -421,7 +422,8 @@ def _group_or_org_list(context, data_dict, is_org=False):
         groups, context,
         sort_key=lambda x: x[sort_info[0][0]],
         reverse=sort_info[0][1] == 'desc',
-        with_package_counts=all_fields or sort_info[0][0] == 'packages',
+        with_package_counts=all_fields or
+        sort_info[0][0] in ('packages', 'package_count'),
         include_groups=asbool(data_dict.get('include_groups', False)),
         include_tags=include_tags,
         include_extras=include_extras,
@@ -441,7 +443,7 @@ def group_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'packages'
+        'name' and 'package_count'
     :type sort: string
     :param groups: a list of names of the groups to return, if given only
         groups whose names are in this list will be returned (optional)
@@ -472,14 +474,14 @@ def group_list(context, data_dict):
 
 
 def organization_list(context, data_dict):
-    '''Return a list of the names of the site's organizations. 
+    '''Return a list of the names of the site's organizations.
 
     :param order_by: the field to sort the list by, must be ``'name'`` or
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'packages'
+        'name' and 'package_count'
     :type sort: string
     :param organizations: a list of names of the groups to return,
         if given only groups whose names are in this list will be

@@ -53,10 +53,27 @@ class TestDictize:
         assert_equal(group_dicts[0]['name'], 'bb')
         assert_equal(group_dicts[1]['name'], 'aa')
 
+    def test_group_list_dictize_sort_by_package_count(self):
+        factories.Group(name='aa')
+        factories.Group(name='bb')
+        factories.Dataset(groups=[{'name': 'aa'}, {'name': 'bb'}])
+        factories.Dataset(groups=[{'name': 'bb'}])
+        group_list = [model.Group.get(u'bb'),
+                      model.Group.get(u'aa')]
+        context = {'model': model, 'session': model.Session}
+
+        group_dicts = model_dictize.group_list_dictize(
+            group_list, context, sort_key=lambda x: x['package_count'],
+            with_package_counts=True)
+
+        # list is resorted by package counts
+        assert_equal(group_dicts[0]['name'], 'aa')
+        assert_equal(group_dicts[1]['name'], 'bb')
+
     def test_group_list_dictize_without_package_count(self):
-        group = factories.Group()
-        factories.Dataset(group=group['name'])
-        group_list = [model.Group.get(group['name'])]
+        group_ = factories.Group()
+        factories.Dataset(groups=[{'name': group_['name']}])
+        group_list = [model.Group.get(group_['name'])]
         context = {'model': model, 'session': model.Session}
 
         group_dicts = model_dictize.group_list_dictize(
@@ -113,7 +130,6 @@ class TestDictize:
 
     def test_group_dictize(self):
         group = factories.Group()
-        factories.Dataset(group=group['name'])
         group_obj = model.Session.query(model.Group).filter_by().first()
         context = {'model': model, 'session': model.Session}
 
@@ -124,6 +140,39 @@ class TestDictize:
         assert_equal(group['extras'], [])
         assert_equal(group['tags'], [])
         assert_equal(group['groups'], [])
+
+    def test_group_dictize_group_with_dataset(self):
+        group_ = factories.Group()
+        package = factories.Dataset(groups=[{'name': group_['name']}])
+        group_obj = model.Session.query(model.Group).filter_by().first()
+        context = {'model': model, 'session': model.Session}
+
+        group = model_dictize.group_dictize(group_obj, context)
+
+        assert_equal(group['packages'][0]['name'], package['name'])
+        assert_equal(group['packages'][0]['groups'][0]['name'], group_['name'])
+
+    def test_group_dictize_group_with_extra(self):
+        factories.Group(extras=[{'key': 'k1', 'value': 'v1'}])
+        group_obj = model.Session.query(model.Group).filter_by().first()
+        context = {'model': model, 'session': model.Session}
+
+        group = model_dictize.group_dictize(group_obj, context)
+
+        assert_equal(group['extras'][0]['key'], 'k1')
+
+    def test_group_dictize_group_with_parent_group(self):
+        factories.Group(name='parent')
+        factories.Group(name='child', groups=[{'name': 'parent'}])
+        group_obj = model.Group.get('child')
+        context = {'model': model, 'session': model.Session}
+
+        group = model_dictize.group_dictize(group_obj, context)
+
+        assert_equal(len(group['groups']), 1)
+        assert_equal(group['groups'][0]['name'], 'parent')
+        assert_equal(group['groups'][0]['packages'], 0)  # deprecated
+        assert_equal(group['groups'][0]['package_count'], 0)
 
     def test_group_dictize_without_packages(self):
         # group_list_dictize might not be interested in packages at all
