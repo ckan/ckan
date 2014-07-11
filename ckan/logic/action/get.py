@@ -447,7 +447,10 @@ def group_list(context, data_dict):
         groups whose names are in this list will be returned (optional)
     :type groups: list of strings
     :param all_fields: return group dictionaries instead of just names. Only
-        core fields are returned - get some more using the include_* options
+        core fields are returned - get some more using the include_* options.
+        Returning a list of packages is too expensive, so the `packages`
+        property for each group is deprecated, but there is a count of the
+        packages in the `package_count` property.
         (optional, default: ``False``)
     :type all_fields: boolean
     :param include_extras: if all_fields, include the group extra fields
@@ -469,7 +472,7 @@ def group_list(context, data_dict):
 
 
 def organization_list(context, data_dict):
-    '''Return a list of the names of the site's organizations.
+    '''Return a list of the names of the site's organizations. 
 
     :param order_by: the field to sort the list by, must be ``'name'`` or
       ``'packages'`` (optional, default: ``'name'``) Deprecated use sort.
@@ -483,7 +486,10 @@ def organization_list(context, data_dict):
         returned (optional)
     :type organizations: list of strings
     :param all_fields: return group dictionaries instead of just names. Only
-        core fields are returned - get some more using the include_* options
+        core fields are returned - get some more using the include_* options.
+        Returning a list of packages is too expensive, so the `packages`
+        property for each group is deprecated, but there is a count of the
+        packages in the `package_count` property.
         (optional, default: ``False``)
     :type all_fields: boolean
     :param include_extras: if all_fields, include the group extra fields

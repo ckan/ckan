@@ -104,7 +104,7 @@ class TestDictize:
         context = {'model': model, 'session': model.Session}
 
         child_dict, parent_dict = model_dictize.group_list_dictize(
-                group_list, context, include_groups=True)
+            group_list, context, include_groups=True)
 
         assert_equal(parent_dict['name'], 'parent')
         assert_equal(child_dict['name'], 'child')
@@ -174,7 +174,8 @@ class TestDictize:
         # not supplying dataset_counts in this case either
 
         group = model_dictize.group_dictize(group_obj, context,
-                           packages_field='none_but_include_package_count')
+                                            packages_field=
+                                            'none_but_include_package_count')
 
         assert 'packages' not in group
         assert_equal(group['package_count'], 1)

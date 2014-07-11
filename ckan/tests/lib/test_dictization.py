@@ -885,8 +885,17 @@ class TestBasicDictize:
                              'title': 'simple',
                              'type': 'organization',
                             }
+        anna2_dictized = {
+            u'license_id': u'other-open',
+            u'name': u'annakarenina2',
+            u'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+            u'title': u'A Novel By Tolstoy',
+            u'url': u'http://www.annakarenina.com',
+            u'version': u'0.7a',
+            }
         model.repo.new_revision()
         group_dict_save(simple_group_dict, context)
+        table_dict_save(anna2_dictized, model.Package, context)
         model.Session.commit()
         model.Session.remove()
 
@@ -922,12 +931,14 @@ class TestBasicDictize:
                                {'key': u'media', 'state': u'active', 'value': u'"dvd"'}],
                     'tags': [{'capacity': u'public', 'display_name': u'russian', 'name': u'russian'}],
                     'groups': [{'description': u'',
-                               'capacity' : 'public',
+                               'capacity': u'public',
                                'display_name': u'simple',
                                'image_url': u'',
                                'image_display_url': u'',
                                'name': u'simple',
                                'packages': 0,
+                               'package_count': 0,
+                               'groups': [],
                                'state': u'active',
                                'is_organization': False,
                                'title': u'simple',
