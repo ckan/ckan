@@ -99,7 +99,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         try:
             app = plugin.make_error_log_middleware(app, config)
         except AttributeError:
-            log.critical('Middleware class {} is missing the method'
+            log.critical('Middleware class {0} is missing the method'
                          'make_error_log_middleware.'.format(plugin.__class__.__name__))
 
     if asbool(full_stack):
