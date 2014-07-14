@@ -44,8 +44,8 @@ class _Toolkit(object):
         'aslist',               # converts an object to a list
         'literal',              # stop tags in a string being escaped
         'get_action',           # get logic action function
-        'get_converter',        # get validator function
-        'get_validator',        # get convertor action function
+        'get_converter',        # get navl schema converter
+        'get_validator',        # get navl schema validator
         'check_access',         # check logic function authorisation
         'navl_validate',        # implements validate method with navl schema
         'ObjectNotFound',       # action not found exception
