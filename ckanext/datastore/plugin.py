@@ -296,6 +296,11 @@ class DatastorePlugin(p.SingletonPlugin):
             if isinstance(plain, bool):
                 del data_dict['plain']
 
+        distinct = data_dict.get('distinct')
+        if distinct:
+            if isinstance(distinct, bool):
+                del data_dict['distinct']
+
         sort_clauses = data_dict.get('sort')
         if sort_clauses:
             invalid_clauses = [c for c in sort_clauses
@@ -361,6 +366,7 @@ class DatastorePlugin(p.SingletonPlugin):
         select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
                       [u'count(*) over() as "_full_count" %s' % rank_column]
 
+        query_dict['distinct'] = data_dict.get('distinct', False)
         query_dict['select'] += select_cols
         query_dict['ts_query'] = ts_query
         query_dict['sort'] += sort
