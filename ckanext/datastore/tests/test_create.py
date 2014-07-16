@@ -98,8 +98,28 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result['resource_id']
         assert not self._has_index_on_field(resource_id, '_full_text')
 
+    def test_create_add_full_text_search_indexes_on_every_text_field(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'book': 'crime',
+                'author': ['tolstoy', 'dostoevsky'],
+                'package_id': package['id']
+            },
+            'fields': [{'id': 'boo%k', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+            'indexes': ['author'],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        resource_id = result['resource_id']
+        index_names = self._get_index_names(resource_id)
+        fts_indexes = [x[0] for x in index_names
+                       if x[0].find('to_tsvector') != -1]
+        number_of_textual_fields = 2
+        assert len(fts_indexes) == number_of_textual_fields
+
     def _has_index_on_field(self, resource_id, field):
-        sql_get_index_string = u"""
+        sql = u"""
             SELECT
                 a.attname as column_name
             FROM
@@ -116,12 +136,31 @@ class TestDatastoreCreateNewTests(object):
                 AND t.relname = %s
                 AND a.attname = %s
             """
+        results = self._execute_sql(sql, resource_id, field).fetchall()
+        return bool(results)
+
+    def _get_index_names(self, resource_id):
+        sql = u"""
+            SELECT
+                i.relname AS index_name
+            FROM
+                pg_class t,
+                pg_class i,
+                pg_index idx
+            WHERE
+                t.oid = idx.indrelid
+                AND i.oid = idx.indexrelid
+                AND t.relkind = 'r'
+                AND t.relname = %s
+            """
+        results = self._execute_sql(sql, resource_id).fetchall()
+        return results
+
+    def _execute_sql(self, sql, *args):
         engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
-        c = session.connection()
-        results = c.execute(sql_get_index_string, resource_id, field).fetchall()
-        return bool(results)
+        return session.connection().execute(sql, *args)
 
 
 class TestDatastoreCreate(tests.WsgiAppCase):
