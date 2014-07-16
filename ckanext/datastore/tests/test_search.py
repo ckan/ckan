@@ -224,6 +224,21 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 1
         assert_equals(result['records'], [self.expected_records[0]])
 
+    def test_search_multiple_filters_on_same_field(self):
+        data = {'resource_id': self.data['resource_id'],
+                'filters': {
+                    u'b\xfck': [u'annakarenina', u'warandpeace']
+                }}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 2
+        assert_equals(result['records'], self.expected_records)
+
     def test_search_filters_get(self):
         filters = {u'b\xfck': 'annakarenina'}
         res = self.app.get('/api/action/datastore_search?resource_id={0}&filters={1}'.format(
