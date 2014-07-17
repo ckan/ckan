@@ -878,14 +878,15 @@ def search_data(context, data_dict):
     where_clause, where_values = _where(query_dict['where'])
 
     # FIXME: Remove duplicates on select columns
-    select_columns = ', '.join(query_dict['select'])
-    ts_query = query_dict['ts_query']
+    select_columns = ', '.join(query_dict['select']).replace('%', '%%')
+    ts_query = query_dict['ts_query'].replace('%', '%%')
+    resource_id = data_dict['resource_id'].replace('%', '%%')
     sort = query_dict['sort']
     limit = query_dict['limit']
     offset = query_dict['offset']
 
     if sort:
-        sort_clause = 'ORDER BY %s' % ', '.join(sort)
+        sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
     else:
         sort_clause = ''
 
@@ -893,13 +894,12 @@ def search_data(context, data_dict):
                     FROM "{resource}" {ts_query}
                     {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
         select=select_columns,
-        resource=data_dict['resource_id'],
+        resource=resource_id,
         ts_query=ts_query,
-        where='{where}',
+        where=where_clause,
         sort=sort_clause,
         limit=limit,
         offset=offset)
-    sql_string = sql_string.replace('%', '%%').format(where=where_clause)
 
     results = _execute_single_statement(context, sql_string, where_values)
 
