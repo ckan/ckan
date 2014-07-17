@@ -9,7 +9,8 @@ import types as _types
 import domain_object
 
 
-__all__ = ['GroupExtra', 'group_extra_table', 'GroupExtraRevision']
+__all__ = ['GroupExtra', 'group_extra_table', 'group_extra_revision_table',
+           'GroupExtraRevision']
 
 group_extra_table = Table('group_extra', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
