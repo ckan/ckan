@@ -411,12 +411,16 @@ def create_indexes(context, data_dict):
             name=generate_index_name(),
             method='gist', fields='_full_text'))
 
+        # Get Postgres' default ts language
+        ts_config_sql = 'SELECT get_current_ts_config()'
+        ts_config = context['connection'].execute(ts_config_sql).first()[0]
         # create index on each textual field, so we can do FTS on a single
         # field
         text_fields = [x['id'] for x in fields if x['type'] == 'text']
         for text_field in text_fields:
-            # FIXME: This shouldn't be hardcoded for English
-            tsvector_field = "to_tsvector('english', '%s')" % text_field
+            tsvector_field = "to_tsvector('{ts_config}', '{field}')"
+            tsvector_field = tsvector_field.format(ts_config=ts_config,
+                                                   field=text_field)
             sql_index_strings.append(sql_index_string_method.format(
                 res_id=data_dict['resource_id'],
                 unique='',
