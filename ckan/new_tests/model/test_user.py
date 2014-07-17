@@ -3,7 +3,7 @@ import hashlib
 import unittest
 
 import nose.tools as nt
-import passlib.hash as plh
+from passlib.hash import pbkdf2_sha512
 
 import ckan.new_tests.factories as factories
 import ckan.new_tests.helpers as helpers
@@ -50,8 +50,8 @@ class TestPassword(unittest.TestCase):
 
         user_obj.validate_password('testpass')
         nt.assert_not_equals(old_hash, user_obj.password)
-        nt.assert_true(plh.pbkdf2_sha512.identify(user_obj.password))
-        nt.assert_true(plh.pbkdf2_sha512.verify('testpass', user_obj.password))
+        nt.assert_true(pbkdf2_sha512.identify(user_obj.password))
+        nt.assert_true(pbkdf2_sha512.verify('testpass', user_obj.password))
 
     def test_upgrade_from_sha_with_unicode_password(self):
         user = factories.User()
@@ -65,11 +65,11 @@ class TestPassword(unittest.TestCase):
 
         nt.assert_true(user_obj.validate_password(password))
         nt.assert_not_equals(old_hash, user_obj.password)
-        nt.assert_true(plh.pbkdf2_sha512.identify(user_obj.password))
-        nt.assert_true(plh.pbkdf2_sha512.verify(password, user_obj.password))
+        nt.assert_true(pbkdf2_sha512.identify(user_obj.password))
+        nt.assert_true(pbkdf2_sha512.verify(password, user_obj.password))
 
         # check that we now allow unicode characters
-        nt.assert_false(plh.pbkdf2_sha512.verify('testpassword',
+        nt.assert_false(pbkdf2_sha512.verify('testpassword',
                                                  user_obj.password))
 
     def test_upgrade_from_sha_with_wrong_password_fails_to_upgrade(self):
@@ -83,7 +83,7 @@ class TestPassword(unittest.TestCase):
 
         nt.assert_false(user_obj.validate_password('wrongpass'))
         nt.assert_equals(old_hash, user_obj.password)
-        nt.assert_false(plh.pbkdf2_sha512.identify(user_obj.password))
+        nt.assert_false(pbkdf2_sha512.identify(user_obj.password))
 
     def test_upgrade_from_pbkdf2_with_less_rounds(self):
         '''set up a pbkdf key with less than the default rounds
@@ -96,22 +96,22 @@ class TestPassword(unittest.TestCase):
         user_obj = model.User.by_name(user['name'])
 
         # setup hash with salt/rounds less than the default
-        old_hash = plh.pbkdf2_sha512.encrypt(password, salt_size=2, rounds=10)
+        old_hash = pbkdf2_sha512.encrypt(password, salt_size=2, rounds=10)
         user_obj._password = old_hash
         user_obj.save()
 
         nt.assert_true(user_obj.validate_password(password.encode('utf-8')))
         # check that the hash has been updated
         nt.assert_not_equals(old_hash, user_obj.password)
-        new_hash = plh.pbkdf2_sha512.from_string(user_obj.password)
+        new_hash = pbkdf2_sha512.from_string(user_obj.password)
 
-        nt.assert_true(plh.pbkdf2_sha512.default_rounds > 10)
-        nt.assert_equals(plh.pbkdf2_sha512.default_rounds, new_hash.rounds)
+        nt.assert_true(pbkdf2_sha512.default_rounds > 10)
+        nt.assert_equals(pbkdf2_sha512.default_rounds, new_hash.rounds)
 
-        nt.assert_true(plh.pbkdf2_sha512.default_salt_size, 2)
-        nt.assert_equals(plh.pbkdf2_sha512.default_salt_size,
+        nt.assert_true(pbkdf2_sha512.default_salt_size, 2)
+        nt.assert_equals(pbkdf2_sha512.default_salt_size,
                          len(new_hash.salt))
-        nt.assert_true(plh.pbkdf2_sha512.verify(password, user_obj.password))
+        nt.assert_true(pbkdf2_sha512.verify(password, user_obj.password))
 
     def test_upgrade_from_pbkdf2_fails_with_wrong_password(self):
         user = factories.User()
@@ -119,7 +119,8 @@ class TestPassword(unittest.TestCase):
         user_obj = model.User.by_name(user['name'])
 
         # setup hash with salt/rounds less than the default
-        old_hash = plh.pbkdf2_sha512.encrypt(password, salt_size=2, rounds=10)
+
+        old_hash = pbkdf2_sha512.encrypt(password, salt_size=2, rounds=10)
         user_obj._password = old_hash
         user_obj.save()
 

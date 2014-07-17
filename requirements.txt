@@ -4,7 +4,6 @@ FormAlchemy==1.4.3
 FormEncode==1.2.6
 Genshi==0.6
 Jinja2==2.6
-M2Crypto==0.22.3
 Mako==0.9.0
 MarkupSafe==0.18
 Pairtree==0.7.1-T

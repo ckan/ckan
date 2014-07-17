@@ -14,7 +14,7 @@ fi
 
 # Install postgres and solr
 sudo apt-get update -qq
-sudo apt-get install postgresql-$PGVERSION solr-jetty libcommons-fileupload-java:amd64=1.2.2-1 swig
+sudo apt-get install postgresql-$PGVERSION solr-jetty libcommons-fileupload-java:amd64=1.2.2-1
 
 if [ $PGVERSION == '8.4' ]
 then
