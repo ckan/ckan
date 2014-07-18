@@ -198,6 +198,20 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['records'] == [{u'b\xfck': 'annakarenina', 'author': 'tolstoy'},
                     {u'b\xfck': 'warandpeace', 'author': 'tolstoy'}], result['records']
 
+    def test_search_distinct(self):
+        data = {'resource_id': self.data['resource_id'],
+                'fields': [u'author'],
+                'distinct': True}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 2
+        assert result['records'] == [{u'author': 'tolstoy'}], result['records']
+
     def test_search_filters(self):
         data = {'resource_id': self.data['resource_id'],
                 'filters': {u'b\xfck': 'annakarenina'}}
@@ -222,7 +236,22 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == 1
-        assert result['records'] == [self.expected_records[0]]
+        assert_equals(result['records'], [self.expected_records[0]])
+
+    def test_search_multiple_filters_on_same_field(self):
+        data = {'resource_id': self.data['resource_id'],
+                'filters': {
+                    u'b\xfck': [u'annakarenina', u'warandpeace']
+                }}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 2
+        assert_equals(result['records'], self.expected_records)
 
     def test_search_filter_normal_field_passing_multiple_values_in_array(self):
         data = {'resource_id': self.data['resource_id'],
@@ -249,8 +278,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     def test_search_invalid_filter(self):
         data = {'resource_id': self.data['resource_id'],
-                # invalid because author is not an array
-                'filters': {u'author': {u'tolstoy': 'book'}}}
+                # invalid because author is not a numeric field
+                'filters': {u'author': 42}}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,

@@ -91,7 +91,7 @@ The response from CKAN will look like this::
 
 The response is a JSON dictionary with three keys:
 
-1. ``"sucess"``: ``true`` or ``false``.
+1. ``"success"``: ``true`` or ``false``.
 
    The API aims to always return ``200 OK`` as the status code of its HTTP
    response, whether there were errors with the request or not, so it's
