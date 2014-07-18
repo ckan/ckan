@@ -414,7 +414,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     def test_search_full_text_on_specific_column(self):
         data = {'resource_id': self.data['resource_id'],
-                'q': {u'b\xfck': 'tolstoy'}
+                'q': {u"b\xfck": "annakarenina"}
                 }
 
         postparams = '%s=1' % json.dumps(data)
@@ -423,7 +423,24 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
-        assert_equals(res_dict['result']['records'], [])
+        assert_equals(len(res_dict['result']['records']), 1)
+        assert_equals(res_dict['result']['records'][0]['_id'],
+                      self.expected_records[0]['_id'])
+
+    def test_search_full_text_on_specific_column_even_if_q_is_a_json_string(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': u'{"b\xfck": "annakarenina"}'
+                }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        assert_equals(len(res_dict['result']['records']), 1)
+        assert_equals(res_dict['result']['records'][0]['_id'],
+                      self.expected_records[0]['_id'])
 
     def test_search_full_text_invalid_field_name(self):
         data = {'resource_id': self.data['resource_id'],
