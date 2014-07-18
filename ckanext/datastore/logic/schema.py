@@ -65,6 +65,15 @@ def json_validator(value, context):
     return value
 
 
+def unicode_or_json_validator(value, context):
+    try:
+        if value is None:
+            return value
+        return json_validator(value, context)
+    except df.Invalid:
+        return unicode(value)
+
+
 def datastore_create_schema():
     schema = {
         'resource_id': [ignore_missing, unicode, resource_id_exists],
@@ -111,7 +120,7 @@ def datastore_search_schema():
     schema = {
         'resource_id': [not_missing, not_empty, unicode],
         'id': [ignore_missing],
-        'q': [ignore_missing, unicode],
+        'q': [ignore_missing, unicode_or_json_validator],
         'plain': [ignore_missing, boolean_validator],
         'filters': [ignore_missing, json_validator],
         'language': [ignore_missing, unicode],

@@ -418,6 +418,22 @@ def create_indexes(context, data_dict):
             unique='',
             name=generate_index_name(),
             method='gist', fields='_full_text'))
+
+        # Get Postgres' default ts language
+        ts_config_sql = 'SELECT get_current_ts_config()'
+        ts_config = context['connection'].execute(ts_config_sql).first()[0]
+        # create index on each textual field, so we can do FTS on a single
+        # field
+        text_fields = [x['id'] for x in fields if x['type'] == 'text']
+        for text_field in text_fields:
+            tsvector_field = "to_tsvector('{ts_config}', '{field}')"
+            tsvector_field = tsvector_field.format(ts_config=ts_config,
+                                                   field=text_field)
+            sql_index_strings.append(sql_index_string_method.format(
+                res_id=data_dict['resource_id'],
+                unique='',
+                name=generate_index_name(),
+                method='gist', fields=tsvector_field))
     else:
         indexes = []
 
@@ -865,8 +881,9 @@ def search_data(context, data_dict):
     where_clause, where_values = _where(query_dict['where'])
 
     # FIXME: Remove duplicates on select columns
-    select_columns = ', '.join(query_dict['select'])
-    ts_query = query_dict['ts_query']
+    select_columns = ', '.join(query_dict['select']).replace('%', '%%')
+    ts_query = query_dict['ts_query'].replace('%', '%%')
+    resource_id = data_dict['resource_id'].replace('%', '%%')
     sort = query_dict['sort']
     limit = query_dict['limit']
     offset = query_dict['offset']
@@ -877,7 +894,7 @@ def search_data(context, data_dict):
         distinct = ''
 
     if sort:
-        sort_clause = 'ORDER BY %s' % ', '.join(sort)
+        sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
     else:
         sort_clause = ''
 
@@ -886,13 +903,12 @@ def search_data(context, data_dict):
                     {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
         distinct=distinct,
         select=select_columns,
-        resource=data_dict['resource_id'],
+        resource=resource_id,
         ts_query=ts_query,
-        where='{where}',
+        where=where_clause,
         sort=sort_clause,
         limit=limit,
         offset=offset)
-    sql_string = sql_string.replace('%', '%%').format(where=where_clause)
 
     results = _execute_single_statement(context, sql_string, where_values)
 
