@@ -185,11 +185,13 @@ class PackageSearchIndex(SearchIndex):
             pkg_dict['views_total'] = tracking_summary['total']
             pkg_dict['views_recent'] = tracking_summary['recent']
 
+        resource_fields = [('description', 'res_description'),
+                            ('format', 'res_format'), ('url', 'res_url')]
+        resource_extras = [(e, 'res_extras_' + e) for e
+                            in model.Resource.get_extra_columns()]
         # flatten the structure for indexing:
         for resource in pkg_dict.get('resources', []):
-            for (okey, nkey) in [('description', 'res_description'),
-                                 ('format', 'res_format'),
-                                 ('url', 'res_url')]:
+            for (okey, nkey) in resource_fields + resource_extras:
                 pkg_dict[nkey] = pkg_dict.get(nkey, []) + [resource.get(okey, u'')]
         pkg_dict.pop('resources', None)
 

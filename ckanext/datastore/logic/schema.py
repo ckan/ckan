@@ -128,6 +128,7 @@ def datastore_search_schema():
         'offset': [ignore_missing, int_validator],
         'fields': [ignore_missing, list_of_strings_or_string],
         'sort': [ignore_missing, list_of_strings_or_string],
+        'distinct': [ignore_missing, boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }
