@@ -373,15 +373,11 @@ def create_alias(context, data_dict):
 
 
 def create_indexes(context, data_dict):
+    connection = context['connection']
     indexes = datastore_helpers.get_list(data_dict.get('indexes'))
     # primary key is not a real primary key
     # it's just a unique key
     primary_key = datastore_helpers.get_list(data_dict.get('primary_key'))
-
-    # index and primary key could be [],
-    # which means that indexes should be deleted
-    if indexes is None and primary_key is None:
-        return
 
     sql_index_tmpl = u'CREATE {unique} INDEX {name} ON "{res_id}"'
     sql_index_string_method = sql_index_tmpl + u' USING {method}({fields})'
@@ -392,40 +388,14 @@ def create_indexes(context, data_dict):
     field_ids = _pluck('id', fields)
     json_fields = [x['id'] for x in fields if x['type'] == 'nested']
 
-    def generate_index_name():
-        # pg 9.0+ do not require an index name
-        if _pg_version_is_at_least(context['connection'], '9.0'):
-            return ''
-        else:
-            src = string.ascii_letters + string.digits
-            random_string = ''.join([random.choice(src) for n in xrange(10)])
-            return 'idx_' + random_string
+    fts_indexes = _build_fts_indexes(connection,
+                                     data_dict['resource_id'],
+                                     sql_index_string_method,
+                                     fields)
+    sql_index_strings = sql_index_strings + fts_indexes
 
     if indexes is not None:
         _drop_indexes(context, data_dict, False)
-
-        # create index for faster full text search (indexes: gin or gist)
-        sql_index_strings.append(sql_index_string_method.format(
-            res_id=data_dict['resource_id'],
-            unique='',
-            name=generate_index_name(),
-            method='gist', fields='_full_text'))
-
-        # Get Postgres' default ts language
-        ts_config_sql = 'SELECT get_current_ts_config()'
-        ts_config = context['connection'].execute(ts_config_sql).first()[0]
-        # create index on each textual field, so we can do FTS on a single
-        # field
-        text_fields = [x['id'] for x in fields if x['type'] == 'text']
-        for text_field in text_fields:
-            tsvector_field = "to_tsvector('{ts_config}', '{field}')"
-            tsvector_field = tsvector_field.format(ts_config=ts_config,
-                                                   field=text_field)
-            sql_index_strings.append(sql_index_string_method.format(
-                res_id=data_dict['resource_id'],
-                unique='',
-                name=generate_index_name(),
-                method='gist', fields=tsvector_field))
     else:
         indexes = []
 
@@ -453,11 +423,49 @@ def create_indexes(context, data_dict):
         sql_index_strings.append(sql_index_string.format(
             res_id=data_dict['resource_id'],
             unique='unique' if index == primary_key else '',
-            name=generate_index_name(),
+            name=_generate_index_name(connection),
             fields=fields_string))
 
     sql_index_strings = map(lambda x: x.replace('%', '%%'), sql_index_strings)
-    map(context['connection'].execute, sql_index_strings)
+    map(connection.execute, sql_index_strings)
+
+
+def _build_fts_indexes(connection, resource_id, sql_index_str_method, fields):
+    fts_indexes = []
+    # create index for faster full text search (indexes: gin or gist)
+    fts_indexes.append(sql_index_str_method.format(
+        res_id=resource_id,
+        unique='',
+        name=_generate_index_name(connection),
+        method='gist', fields='_full_text'))
+
+    # Get Postgres' default ts language
+    ts_config_sql = 'SELECT get_current_ts_config()'
+    ts_config = connection.execute(ts_config_sql).first()[0]
+    # create index on each textual field, so we can do FTS on a single
+    # field
+    text_fields = [x['id'] for x in fields if x['type'] == 'text']
+    for text_field in text_fields:
+        tsvector_field = u"to_tsvector('{ts_config}', '{field}')"
+        tsvector_field = tsvector_field.format(ts_config=ts_config,
+                                               field=text_field)
+        fts_indexes.append(sql_index_str_method.format(
+            res_id=resource_id,
+            unique='',
+            name=_generate_index_name(connection),
+            method='gist', fields=tsvector_field))
+
+    return fts_indexes
+
+
+def _generate_index_name(connection):
+    # pg 9.0+ do not require an index name
+    if _pg_version_is_at_least(connection, '9.0'):
+        return ''
+    else:
+        src = string.ascii_letters + string.digits
+        random_string = ''.join([random.choice(src) for n in xrange(10)])
+        return 'idx_' + random_string
 
 
 def _drop_indexes(context, data_dict, unique=False):

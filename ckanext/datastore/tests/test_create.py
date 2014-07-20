@@ -83,7 +83,7 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result['resource_id']
         assert self._has_index_on_field(resource_id, '_full_text')
 
-    def test_create_doesnt_add_index_on_full_text_search_if_were_not_creating_other_indexes(self):
+    def test_create_adds_index_on_full_text_search_when_not_creating_other_indexes(self):
         package = factories.Dataset()
         data = {
             'resource': {
@@ -96,7 +96,7 @@ class TestDatastoreCreateNewTests(object):
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        assert not self._has_index_on_field(resource_id, '_full_text')
+        assert self._has_index_on_field(resource_id, '_full_text')
 
     def test_create_add_full_text_search_indexes_on_every_text_field(self):
         package = factories.Dataset()
@@ -108,7 +108,6 @@ class TestDatastoreCreateNewTests(object):
             },
             'fields': [{'id': 'boo%k', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}],
-            'indexes': ['author'],
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
