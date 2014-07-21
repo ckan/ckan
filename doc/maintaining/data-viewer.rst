@@ -122,7 +122,7 @@ Or:
 Viewing highlighted XML, JSON and plain text data
 -------------------------------------------------
 
-**Configuration required:** The ``text_preview`` extension must be added to
+**Configuration required:** The ``text_view`` extension must be added to
 ``ckan.plugins`` in your CKAN configuration file.
 This extension is part of CKAN and does not need to be installed
 separately.
@@ -138,7 +138,7 @@ separately.
 * ``text/plain``, ``txt``, ``plain``
    (can be configured  by setting ``ckan.preview.text_formats``)
 
-The ``text_preview`` extension provides previews of many file types that have
+The ``text_view`` extension provides previews of many file types that have
 been added to a CKAN instance.  To view the data the resource format must be
 set to one of the resource formats from above (case insensitive).
 

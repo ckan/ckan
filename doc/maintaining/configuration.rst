@@ -32,7 +32,7 @@ settings, for reference.
 
         [app:main]
         # This setting will work.
-        ckan.plugins = stats text_preview recline_view
+        ckan.plugins = stats text_view recline_view
 
    If the same option is set more than once in your config file, the last
    setting given in the file will override the others.
@@ -512,7 +512,7 @@ Example::
 
   ckan.plugins = disqus datapreview googleanalytics follower
 
-Default value: ``stats text_preview recline_view``
+Default value: ``stats text_view recline_view``
 
 Specify which CKAN plugins are to be enabled.
 

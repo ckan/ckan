@@ -71,7 +71,7 @@ entry_points = {
         'datapusher=ckanext.datapusher.plugin:DatapusherPlugin',
         'test_tag_vocab_plugin = ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin',
         'resource_proxy = ckanext.resourceproxy.plugin:ResourceProxy',
-        'text_preview = ckanext.textpreview.plugin:TextPreview',
+        'text_view = ckanext.textview.plugin:TextView',
         'pdf_view = ckanext.pdfview.plugin:PdfView',
         'recline_view = ckanext.reclineview.plugin:ReclineView',
         'recline_grid_view = ckanext.reclineview.plugin:ReclineGridView',
@@ -79,6 +79,7 @@ entry_points = {
         'recline_map_view = ckanext.reclineview.plugin:ReclineMapView',
         # FIXME: Remove deprecated resource previews below. You should use the
         # versions as *_view instead.
+        'text_preview = ckanext.textview.plugin:TextView',
         'pdf_preview = ckanext.pdfview.plugin:PdfView',
         'recline_preview = ckanext.reclineview.plugin:ReclineView',
         'recline_grid = ckanext.reclineview.plugin:ReclineGridView',

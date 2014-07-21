@@ -6,7 +6,7 @@ import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
-import ckanext.textpreview.plugin as previewplugin
+import ckanext.textview.plugin as plugin
 import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
 
@@ -27,7 +27,7 @@ def _create_test_view(view_type):
     return resource_view, package, resource_id
 
 
-class TestTextPreview(tests.WsgiAppCase):
+class TestTextView(tests.WsgiAppCase):
     view_type = 'text'
 
     @classmethod
@@ -35,9 +35,9 @@ class TestTextPreview(tests.WsgiAppCase):
         cls.config_templates = config['ckan.legacy_templates']
         config['ckan.legacy_templates'] = 'false'
         wsgiapp = middleware.make_app(config['global_conf'], **config)
-        plugins.load('text_preview')
+        plugins.load('text_view')
         cls.app = paste.fixture.TestApp(wsgiapp)
-        cls.p = previewplugin.TextPreview()
+        cls.p = plugin.TextView()
 
         create_test_data.CreateTestData.create()
 
@@ -47,7 +47,7 @@ class TestTextPreview(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         config['ckan.legacy_templates'] = cls.config_templates
-        plugins.unload('text_preview')
+        plugins.unload('text_view')
         model.repo.rebuild_db()
 
     def test_can_view(self):

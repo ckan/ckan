@@ -2126,7 +2126,7 @@ class ViewsCommand(CkanCommand):
     an error will be raised:
         * "grid"-> "recline_grid_view"
         * "pdf" -> "pdf_view"
-        * "text -> "text_preview"
+        * "text -> "text_view"
     '''
 
     summary = __doc__.split('\n')[0]
@@ -2188,8 +2188,8 @@ class ViewsCommand(CkanCommand):
         print 'Deleted resource views.'
 
     def create_text_views(self):
-        if not p.plugin_loaded('text_preview'):
-            print 'Please enable the text_preview plugin to make the text views.'
+        if not p.plugin_loaded('text_view'):
+            print 'Please enable the text_view plugin to make the text views.'
             return
 
         if not p.plugin_loaded('resource_proxy'):

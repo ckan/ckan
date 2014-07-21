@@ -13,7 +13,7 @@ DEFAULT_JSON_FORMATS = ['json', 'gjson', 'geojson']
 DEFAULT_JSONP_FORMATS = ['jsonp']
 
 
-class TextPreview(p.SingletonPlugin):
+class TextView(p.SingletonPlugin):
     '''This extension previews JSON(P).'''
 
     p.implements(p.IConfigurer, inherit=True)
