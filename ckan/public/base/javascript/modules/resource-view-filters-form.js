@@ -28,6 +28,7 @@ ckan.module('resource-view-filters-form', function (jQuery) {
           return {
             q: JSON.stringify(q),
             plain: false,
+            distinct: true,
             resource_id: resourceId,
             limit: queryLimit + 1,
             offset: offset,
