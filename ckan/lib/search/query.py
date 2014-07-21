@@ -264,7 +264,7 @@ class PackageSearchQuery(SearchQuery):
     def get_index(self,reference):
         query = {
             'rows': 1,
-            'q': 'name:%s OR id:%s' % (reference,reference),
+            'q': 'name:"%s" OR id:"%s"' % (reference,reference),
             'wt': 'json',
             'fq': 'site_id:"%s"' % config.get('ckan.site_id')}
 
