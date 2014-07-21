@@ -10,6 +10,7 @@ import logging
 import pprint
 import copy
 
+import pylons
 import distutils.version
 import sqlalchemy
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
@@ -110,7 +111,6 @@ def _cache_types(context):
             log.info("Create nested type. Native JSON: {0}".format(
                 native_json))
 
-            import pylons
             data_dict = {
                 'connection_url': pylons.config['ckan.datastore.write_url']}
             engine = _get_engine(data_dict)
@@ -397,7 +397,7 @@ def create_indexes(context, data_dict):
     json_fields = [x['id'] for x in fields if x['type'] == 'nested']
 
     fts_indexes = _build_fts_indexes(connection,
-                                     data_dict['resource_id'],
+                                     data_dict,
                                      sql_index_string_method,
                                      fields)
     sql_index_strings = sql_index_strings + fts_indexes
@@ -438,8 +438,9 @@ def create_indexes(context, data_dict):
     map(connection.execute, sql_index_strings)
 
 
-def _build_fts_indexes(connection, resource_id, sql_index_str_method, fields):
+def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     fts_indexes = []
+    resource_id = data_dict['resource_id']
     # create index for faster full text search (indexes: gin or gist)
     fts_indexes.append(sql_index_str_method.format(
         res_id=resource_id,
@@ -448,14 +449,16 @@ def _build_fts_indexes(connection, resource_id, sql_index_str_method, fields):
         method='gist', fields='_full_text'))
 
     # Get Postgres' default ts language
-    ts_config_sql = 'SELECT get_current_ts_config()'
-    ts_config = connection.execute(ts_config_sql).first()[0]
+    default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
+    if default_fts_lang is None:
+        default_fts_lang = u'english'
+    fts_lang = data_dict.get('lang', default_fts_lang)
     # create index on each textual field, so we can do FTS on a single
     # field
     text_fields = [x['id'] for x in fields if x['type'] == 'text']
     for text_field in text_fields:
-        tsvector_field = u"to_tsvector('{ts_config}', '{field}')"
-        tsvector_field = tsvector_field.format(ts_config=ts_config,
+        tsvector_field = u"to_tsvector('{fts_lang}', '{field}')"
+        tsvector_field = tsvector_field.format(fts_lang=fts_lang,
                                                field=text_field)
         fts_indexes.append(sql_index_str_method.format(
             res_id=resource_id,

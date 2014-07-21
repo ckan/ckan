@@ -2,6 +2,7 @@ import sys
 import logging
 import shlex
 
+import pylons
 import sqlalchemy.engine.url as sa_url
 
 import ckan.plugins as p
@@ -450,7 +451,10 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def _textsearch_query(self, data_dict):
         q = data_dict.get('q')
-        lang = data_dict.get(u'language', u'english')
+        default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
+        if default_fts_lang is None:
+            default_fts_lang = u'english'
+        lang = data_dict.get(u'lang', default_fts_lang)
 
         if not q:
             return '', ''
