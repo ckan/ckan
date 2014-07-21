@@ -185,6 +185,9 @@ class IDomainObjectModification(Interface):
     def notify(self, entity, operation):
         pass
 
+    def notify_after_commit(self, entity, operation):
+        pass
+
 
 class IResourceUrlChange(Interface):
     """

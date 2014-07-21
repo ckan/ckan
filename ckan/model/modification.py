@@ -32,7 +32,12 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
 
 
     def before_commit(self, session):
+        self.notify_observers(session, self.notify)
 
+    def after_commit(self, session):
+        self.notify_observers(session, self.notify_after_commit)
+
+    def notify_observers(self, session, method):
         session.flush()
         if not hasattr(session, '_object_cache'):
             return
@@ -44,13 +49,13 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
 
         for obj in set(new):
             if isinstance(obj, (_package.Package, resource.Resource)):
-                self.notify(obj, domain_object.DomainObjectOperation.new)
+                method(obj, domain_object.DomainObjectOperation.new)
         for obj in set(deleted):
             if isinstance(obj, (_package.Package, resource.Resource)):
-                self.notify(obj, domain_object.DomainObjectOperation.deleted)
+                method(obj, domain_object.DomainObjectOperation.deleted)
         for obj in set(changed):
             if isinstance(obj, resource.Resource):
-                self.notify(obj, domain_object.DomainObjectOperation.changed)
+                method(obj, domain_object.DomainObjectOperation.changed)
             if getattr(obj, 'url_changed', False):
                 for item in plugins.PluginImplementations(plugins.IResourceUrlChange):
                     item.notify(obj)
@@ -69,7 +74,7 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                     if package and package not in deleted | new:
                         changed_pkgs.add(package)
         for obj in changed_pkgs:
-            self.notify(obj, domain_object.DomainObjectOperation.changed)
+            method(obj, domain_object.DomainObjectOperation.changed)
 
 
     def notify(self, entity, operation):
@@ -77,6 +82,17 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 plugins.IDomainObjectModification):
             try:
                 observer.notify(entity, operation)
+            except Exception, ex:
+                log.exception(ex)
+                # We reraise all exceptions so they are obvious there
+                # is something wrong
+                raise
+
+    def notify_after_commit(self, entity, operation):
+        for observer in plugins.PluginImplementations(
+                plugins.IDomainObjectModification):
+            try:
+                observer.notify_after_commit(entity, operation)
             except Exception, ex:
                 log.exception(ex)
                 # We reraise all exceptions so they are obvious there
