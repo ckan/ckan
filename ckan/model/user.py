@@ -4,7 +4,7 @@ import os
 from hashlib import sha1, md5
 
 import passlib.utils 
-import passlib.hash as plh
+from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table
@@ -103,15 +103,21 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         return ref
 
     def _set_password(self, password):
-        '''Hash password on the fly.'''
-        hashed_password = plh.pbkdf2_sha512.encrypt(password)
+        '''Hash using pbkdf2
+        
+        Use passlib to hash the password using pkbdf2, upgrading
+        passlib will also upgrade the number of rounds and salt of the
+        hash as the user logs in automatically. Changing hashing
+        algorithm will require this code to be changed (perhaps using
+        passlib's CryptContext)
+        '''
+        hashed_password = pbkdf2_sha512.encrypt(password)
 
         if not isinstance(hashed_password, unicode):
             hashed_password = hashed_password.decode('utf-8')
         self._password = hashed_password
 
     def _get_password(self):
-        '''Return the password hashed'''
         return self._password
 
     def _verify_and_upgrade_from_sha1(self, password):
@@ -132,7 +138,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
             return False
 
     def _verify_and_upgrade_pbkdf2(self, password):
-        if plh.pbkdf2_sha512.verify(password, self.password):
+        if pbkdf2_sha512.verify(password, self.password):
             self._set_password(password)
             self.save()
             return True
@@ -153,16 +159,16 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         if not password or not self.password:
             return False
 
-        if not plh.pbkdf2_sha512.identify(self.password):
+        if not pbkdf2_sha512.identify(self.password):
             return self._verify_and_upgrade_from_sha1(password)
         else:
-            current_hash = plh.pbkdf2_sha512.from_string(self.password)
-            if (current_hash.rounds < plh.pbkdf2_sha512.default_rounds or
-                len(current_hash.salt) < plh.pbkdf2_sha512.default_salt_size):
+            current_hash = pbkdf2_sha512.from_string(self.password)
+            if (current_hash.rounds < pbkdf2_sha512.default_rounds or
+                len(current_hash.salt) < pbkdf2_sha512.default_salt_size):
 
                 return self._verify_and_upgrade_pbkdf2(password)
             else:
-                return plh.pbkdf2_sha512.verify(password, self.password)
+                return pbkdf2_sha512.verify(password, self.password)
 
     password = property(_get_password, _set_password)
 

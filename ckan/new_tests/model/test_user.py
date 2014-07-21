@@ -70,7 +70,7 @@ class TestPassword(unittest.TestCase):
 
         # check that we now allow unicode characters
         nt.assert_false(pbkdf2_sha512.verify('testpassword',
-                                                 user_obj.password))
+                                             user_obj.password))
 
     def test_upgrade_from_sha_with_wrong_password_fails_to_upgrade(self):
         user = factories.User()
