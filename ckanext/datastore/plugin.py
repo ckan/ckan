@@ -484,9 +484,14 @@ class DatastorePlugin(p.SingletonPlugin):
             statement = u"plainto_tsquery('{lang}', '{query}') {alias}"
         else:
             statement = u"to_tsquery('{lang}', '{query}') {alias}"
-        rank_statement = u'ts_rank(_full_text, {query_alias}, 32) AS {alias}'
+        if field is None:
+            rank_field = '_full_text'
+        else:
+            rank_field = 'to_tsvector("%s")' % field
+        rank_statement = u'ts_rank({rank_field}, {query_alias}, 32) AS {alias}'
         statement = statement.format(lang=lang, query=query, alias=query_alias)
-        rank_statement = rank_statement.format(query_alias=query_alias,
+        rank_statement = rank_statement.format(rank_field=rank_field,
+                                               query_alias=query_alias,
                                                alias=rank_alias)
         return statement, rank_statement
 

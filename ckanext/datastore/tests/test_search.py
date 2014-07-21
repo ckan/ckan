@@ -14,9 +14,44 @@ import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
 
 import ckan.new_tests.helpers as helpers
+import ckan.new_tests.factories as factories
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+
+
+class TestDatastoreSearchNewTest(object):
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('datastore')
+        helpers.reset_db()
+
+    def test_fts_on_field_calculates_ranks_only_on_that_specific_field(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'from': 'Brazil', 'to': 'Brazil'},
+                {'from': 'Brazil', 'to': 'Italy'}
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            'fields': 'from',
+            'q': {
+                'from': 'Brazil'
+            },
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        ranks = [r['rank from'] for r in result['records']]
+        assert_equals(len(result['records']), 2)
+        assert_equals(len(set(ranks)), 1)
 
 
 class TestDatastoreSearch(tests.WsgiAppCase):
