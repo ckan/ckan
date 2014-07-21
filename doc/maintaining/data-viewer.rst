@@ -86,9 +86,9 @@ Viewing structured data: the Data Explorer
 ------------------------------------------
 
 .. versionadded:: 2.0
-   the ``recline_preview`` extension is new in CKAN 2.0.
+   the ``recline_view`` extension is new in CKAN 2.0.
 
-**Configuration required:** The ``recline_preview`` extension must be added to
+**Configuration required:** The ``recline_view`` extension must be added to
 ``ckan.plugins`` in your CKAN configuration file.
 This extension is part of CKAN and so does not need to be installed separately.
 

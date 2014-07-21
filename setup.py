@@ -72,12 +72,19 @@ entry_points = {
         'test_tag_vocab_plugin = ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin',
         'resource_proxy = ckanext.resourceproxy.plugin:ResourceProxy',
         'text_preview = ckanext.textpreview.plugin:TextPreview',
-        'pdf_preview = ckanext.pdfview.plugin:PdfView', # FIXME: Remove deprecated pdf_preview. Now we should use pdf_view
         'pdf_view = ckanext.pdfview.plugin:PdfView',
-        'recline_preview = ckanext.reclinepreview.plugin:ReclinePreview',
-        'recline_grid=ckanext.reclinepreview.plugin:ReclineGrid',
-        'recline_graph=ckanext.reclinepreview.plugin:ReclineGraph',
-        'recline_map=ckanext.reclinepreview.plugin:ReclineMap',
+        'recline_view = ckanext.reclineview.plugin:ReclineView',
+        'recline_grid_view = ckanext.reclineview.plugin:ReclineGridView',
+        'recline_graph_view = ckanext.reclineview.plugin:ReclineGraphView',
+        'recline_map_view = ckanext.reclineview.plugin:ReclineMapView',
+        # FIXME: Remove deprecated resource previews below. You should use the
+        # versions as *_view instead.
+        'pdf_preview = ckanext.pdfview.plugin:PdfView',
+        'recline_preview = ckanext.reclineview.plugin:ReclineView',
+        'recline_grid = ckanext.reclineview.plugin:ReclineGridView',
+        'recline_graph = ckanext.reclineview.plugin:ReclineGraphView',
+        'recline_map = ckanext.reclineview.plugin:ReclineMapView',
+        # End of deprecated previews
         'example_itemplatehelpers = ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin',
         'example_idatasetform = ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin',
         'example_idatasetform_v1 = ckanext.example_idatasetform.plugin_v1:ExampleIDatasetFormPlugin',
