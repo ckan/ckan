@@ -270,7 +270,10 @@ def resource_create(context, data_dict):
         _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError, e:
-        errors = e.error_dict['resources'][-1]
+        try:
+            errors = e.error_dict['resources'][-1]
+        except KeyError:
+            errors = e.error_dict
         raise ValidationError(errors)
 
     ## Get out resource_id resource from model as it will not appear in
