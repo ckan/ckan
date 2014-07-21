@@ -1,5 +1,7 @@
 def upgrade(migrate_engine):
     migrate_engine.execute('''
+        BEGIN;
+
         CREATE TABLE resource_view (
             id text NOT NULL,
             resource_id text,
@@ -16,4 +18,6 @@ def upgrade(migrate_engine):
         ALTER TABLE resource_view
             ADD CONSTRAINT resource_view_resource_id_fkey
             FOREIGN KEY (resource_id) REFERENCES resource(id);
+
+        COMMIT;
     ''')
