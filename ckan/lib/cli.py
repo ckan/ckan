@@ -2125,7 +2125,7 @@ class ViewsCommand(CkanCommand):
     sure the relevant plugins are loaded for the following types, otherwise
     an error will be raised:
         * "grid"-> "recline_grid"
-        * "pdf" -> "pdf_preview"
+        * "pdf" -> "pdf_view"
         * "text -> "text_preview"
     '''
 
@@ -2268,8 +2268,8 @@ class ViewsCommand(CkanCommand):
         print '%s webpage resource views created!' % count
 
     def create_pdf_views(self):
-        if not p.plugin_loaded('pdf_preview'):
-            print 'Please enable the pdf_preview plugin to make the PDF views.'
+        if not p.plugin_loaded('pdf_view'):
+            print 'Please enable the pdf_view plugin to make the PDF views.'
             return
 
         if not p.plugin_loaded('resource_proxy'):

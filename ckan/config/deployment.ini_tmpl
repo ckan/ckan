@@ -80,7 +80,7 @@ ckan.site_id = default
 
 # Note: Add ``datastore`` to enable the CKAN DataStore
 #       Add ``datapusher`` to enable DataPusher
-#       Add ``pdf_preview`` to enable the resource preview for PDFs
+#       Add ``pdf_view`` to enable the resource views for PDFs
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
 ckan.plugins = stats text_preview recline_preview

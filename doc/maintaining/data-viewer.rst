@@ -156,13 +156,13 @@ set to one of the resource formats from above (case insensitive).
 Viewing PDF documents
 ---------------------
 
-**Configuration required:** The ``pdf_preview`` extension must be added to
+**Configuration required:** The ``pdf_view`` extension must be added to
 ``ckan.plugins`` in your CKAN configuration file.  This extension is part of
 CKAN and does not need to be installed separately.
 
 **Resource formats:** ``pdf``, ``x-pdf``, ``acrobat``, ``vnd.pdf``.
 
-The ``pdf_preview`` extension provides previews of any ``pdf`` documents that
+The ``pdf_view`` extension provides previews of any ``pdf`` documents that
 have been added to a CKAN instance.  This extension uses Mozilla's `pdf.js
 <http://mozilla.github.io/pdf.js>`_ library.
 

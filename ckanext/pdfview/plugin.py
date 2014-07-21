@@ -6,8 +6,8 @@ import ckan.lib.datapreview as datapreview
 log = logging.getLogger(__name__)
 
 
-class PdfPreview(p.SingletonPlugin):
-    '''This extension previews PDFs. '''
+class PdfView(p.SingletonPlugin):
+    '''This extension views PDFs. '''
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IResourceView, inherit=True)
