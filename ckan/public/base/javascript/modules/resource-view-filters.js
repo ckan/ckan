@@ -102,14 +102,9 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
                                         // so we can test later if there's more
                                         // data
                 offset = (page - 1) * queryLimit,
-                q = {};
-            if (term === '') {
-              q[filterName] = term;
-            } else {
-              q[filterName] = term + ':*';
-            }
-            return {
-              q: JSON.stringify(q),
+                query;
+
+            query = {
               plain: false,
               resource_id: resourceId,
               limit: queryLimit + 1,
@@ -118,6 +113,13 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
               distinct: true,
               sort: filterName
             };
+
+            if (term !== '') {
+              query.q = {};
+              query.q[filterName] = term + ':*';
+            }
+
+            return query;
           },
           results: function (data, page) {
             var slicedData = data.result.records.slice(0, queryLimit),
