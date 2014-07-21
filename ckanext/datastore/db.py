@@ -20,6 +20,7 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 import ckanext.datastore.interfaces as interfaces
 import ckanext.datastore.helpers as datastore_helpers
+from ckan.common import OrderedDict
 
 log = logging.getLogger(__name__)
 
@@ -221,6 +222,13 @@ def _get_fields(context, data_dict):
                 'type': _get_type(context, field[1])
             })
     return fields
+
+
+def _get_fields_types(context, data_dict):
+    all_fields = _get_fields(context, data_dict)
+    all_fields.insert(0, {'id': '_id', 'type': 'int'})
+    field_types = OrderedDict([(f['id'], f['type']) for f in all_fields])
+    return field_types
 
 
 def json_get_values(obj, current_list=None):
@@ -779,8 +787,7 @@ def _insert_links(data_dict, limit, offset):
 
 def delete_data(context, data_dict):
     validate(context, data_dict)
-    fields = _get_fields(context, data_dict)
-    field_ids = set([field['id'] for field in fields])
+    fields_types = _get_fields_types(context, data_dict)
 
     query_dict = {
         'where': []
@@ -788,7 +795,7 @@ def delete_data(context, data_dict):
 
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         query_dict = plugin.datastore_delete(context, data_dict,
-                                             field_ids, query_dict)
+                                             fields_types, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
     sql_string = u'DELETE FROM "{0}" {1}'.format(
@@ -800,9 +807,7 @@ def delete_data(context, data_dict):
 
 
 def validate(context, data_dict):
-    all_fields = _get_fields(context, data_dict)
-    column_names = _pluck('id', all_fields)
-    column_names.insert(0, '_id')
+    fields_types = _get_fields_types(context, data_dict)
     data_dict_copy = copy.deepcopy(data_dict)
 
     # TODO: Convert all attributes that can be a comma-separated string to
@@ -817,7 +822,7 @@ def validate(context, data_dict):
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         data_dict_copy = plugin.datastore_validate(context,
                                                    data_dict_copy,
-                                                   column_names)
+                                                   fields_types)
 
     # Remove default elements in data_dict
     del data_dict_copy['connection_url']
@@ -845,9 +850,7 @@ def validate(context, data_dict):
 
 def search_data(context, data_dict):
     validate(context, data_dict)
-    all_fields = _get_fields(context, data_dict)
-    column_names = _pluck('id', all_fields)
-    column_names.insert(0, '_id')
+    fields_types = _get_fields_types(context, data_dict)
 
     query_dict = {
         'select': [],
@@ -857,7 +860,7 @@ def search_data(context, data_dict):
 
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         query_dict = plugin.datastore_search(context, data_dict,
-                                             column_names, query_dict)
+                                             fields_types, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
 
@@ -868,14 +871,20 @@ def search_data(context, data_dict):
     limit = query_dict['limit']
     offset = query_dict['offset']
 
+    if query_dict.get('distinct'):
+        distinct = 'DISTINCT'
+    else:
+        distinct = ''
+
     if sort:
         sort_clause = 'ORDER BY %s' % ', '.join(sort)
     else:
         sort_clause = ''
 
-    sql_string = u'''SELECT {select}
+    sql_string = u'''SELECT {distinct} {select}
                     FROM "{resource}" {ts_query}
                     {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
+        distinct=distinct,
         select=select_columns,
         resource=data_dict['resource_id'],
         ts_query=ts_query,

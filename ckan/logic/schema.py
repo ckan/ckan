@@ -463,6 +463,12 @@ def default_update_user_schema():
 
     return schema
 
+def default_generate_apikey_user_schema():
+    schema = default_update_user_schema()
+
+    schema['apikey'] = [not_empty, unicode]
+    return schema
+
 def default_user_invite_schema():
     schema = {
         'email': [not_empty, unicode],

@@ -225,6 +225,16 @@ def user_update(context, data_dict):
                         (user, user_obj.id)}
 
 
+def user_generate_apikey(context, data_dict):
+    user = context['user']
+    user_obj = logic_auth.get_user_object(context, data_dict)
+    if user == user_obj.name:
+        # Allow users to update only their own user accounts.
+        return {'success': True}
+    return {'success': False, 'msg': _('User {0} not authorized to update user'
+            ' {1}'.format(user, user_obj.id))}
+
+
 def revision_change_state(context, data_dict):
     # FIXME currently only sysadmins can change state
     user = context['user']
