@@ -18,9 +18,16 @@ ckan.module('resource-view-filters-form', function (jQuery) {
           var limit = queryLimit + 1, // Get 1 more than the queryLimit
                                       // so we can test later if there's more
                                       // data
-              offset = (page - 1) * queryLimit;
+              offset = (page - 1) * queryLimit,
+              q = {};
+          if (term === '') {
+            q[filterName] = term;
+          } else {
+            q[filterName] = term + ':*';
+          }
           return {
-            q: term,
+            q: JSON.stringify(q),
+            plain: false,
             resource_id: resourceId,
             limit: queryLimit + 1,
             offset: offset,
