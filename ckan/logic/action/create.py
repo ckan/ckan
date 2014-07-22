@@ -145,7 +145,8 @@ def package_create(context, data_dict):
         package_plugin, context, data_dict, schema, 'package_create')
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
-              data.get('name'), data_dict)
+              data.get('name') if isinstance(data.get('name'), basestring)
+              else None, data_dict)
 
     if errors:
         model.Session.rollback()
