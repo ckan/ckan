@@ -79,6 +79,12 @@ def resource_update(context, data_dict):
         return {'success': True}
 
 
+def resource_view_update(context, data_dict):
+    return resource_update(context, data_dict)
+
+def resource_view_reorder(context, data_dict):
+    return resource_update(context, data_dict)
+
 def package_relationship_update(context, data_dict):
     return new_authz.is_authorized('package_relationship_create',
                                    context,

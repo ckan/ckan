@@ -39,6 +39,7 @@ entry_points = {
         'less = ckan.lib.cli:LessCommand',
         'datastore = ckanext.datastore.commands:SetupDatastoreCommand',
         'front-end-build = ckan.lib.cli:FrontEndBuildCommand',
+        'views = ckan.lib.cli:ViewsCommand',
     ],
     'console_scripts': [
         'ckan-admin = bin.ckan_admin:Command',
@@ -70,9 +71,21 @@ entry_points = {
         'datapusher=ckanext.datapusher.plugin:DatapusherPlugin',
         'test_tag_vocab_plugin = ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin',
         'resource_proxy = ckanext.resourceproxy.plugin:ResourceProxy',
-        'text_preview = ckanext.textpreview.plugin:TextPreview',
-        'pdf_preview = ckanext.pdfpreview.plugin:PdfPreview',
-        'recline_preview = ckanext.reclinepreview.plugin:ReclinePreview',
+        'text_view = ckanext.textview.plugin:TextView',
+        'pdf_view = ckanext.pdfview.plugin:PdfView',
+        'recline_view = ckanext.reclineview.plugin:ReclineView',
+        'recline_grid_view = ckanext.reclineview.plugin:ReclineGridView',
+        'recline_graph_view = ckanext.reclineview.plugin:ReclineGraphView',
+        'recline_map_view = ckanext.reclineview.plugin:ReclineMapView',
+        # FIXME: Remove deprecated resource previews below. You should use the
+        # versions as *_view instead.
+        'text_preview = ckanext.textview.plugin:TextView',
+        'pdf_preview = ckanext.pdfview.plugin:PdfView',
+        'recline_preview = ckanext.reclineview.plugin:ReclineView',
+        'recline_grid = ckanext.reclineview.plugin:ReclineGridView',
+        'recline_graph = ckanext.reclineview.plugin:ReclineGraphView',
+        'recline_map = ckanext.reclineview.plugin:ReclineMapView',
+        # End of deprecated previews
         'example_itemplatehelpers = ckanext.example_itemplatehelpers.plugin:ExampleITemplateHelpersPlugin',
         'example_idatasetform = ckanext.example_idatasetform.plugin:ExampleIDatasetFormPlugin',
         'example_idatasetform_v1 = ckanext.example_idatasetform.plugin_v1:ExampleIDatasetFormPlugin',
@@ -110,6 +123,8 @@ entry_points = {
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
+        'image_view = ckanext.imageview.plugin:ImageView',
+        'webpage_view = ckanext.webpageview.plugin:WebPageView',
     ],
     'ckan.test_plugins': [
         'routes_plugin = tests.ckantestplugins:RoutesPlugin',

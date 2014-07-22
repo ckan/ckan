@@ -136,6 +136,49 @@
   display: none;
 }
 
+.view-list.reordering {
+  .resource-view-item {
+    border: 1px solid @moduleHeadingBorderColor;
+    margin-bottom: 10px;
+    cursor: move;
+    .handle {
+      display: block;
+      position: absolute;
+      color: @moduleHeadingActionTextColor;
+      left: -40px;
+      top: 32px;
+      margin-top: -15px;
+      width: 20px;
+      height: 15px;
+      min-height: 15px;
+      line-height: 0px;
+      text-align: center;
+      border: 1px solid @moduleHeadingBorderColor;
+      border-width: 1px 0 1px 1px;
+      background-color: @moduleBackgroundColor;
+      .border-radius(20px 0 0 20px);
+      &:hover {
+        text-decoration: none;
+      }
+    }
+    &:hover .handle {
+      background-color: @layoutBackgroundColor;
+    }
+    &.ui-sortable-helper {
+      background-color: @layoutBackgroundColor;
+      border: 1px solid @layoutLinkColor;
+      .handle {
+        background-color: @layoutBackgroundColor;
+        border-color: @layoutLinkColor;
+        color: @navLinkColor;
+      }
+    }
+  }
+}
+.resource-item .handle {
+  display: none;
+}
+
 // Dataset Forms
 
 // Tag List
@@ -214,4 +257,117 @@
 .label[data-format*=ntriples],
 .label[data-format*=turtle] {
   background-color: #0b4498;
+}
+
+// Views
+.view-list {
+  .unstyled;
+  li {
+    position: relative;
+    margin-bottom: 10px;
+    a {
+      display: block;
+      min-height: 50px;
+      padding: 10px;
+      border: 1px solid @moduleHeadingBorderColor;
+      overflow: hidden;
+      .border-radius(3px);
+      .icon {
+        float: left;
+        width: 50px;
+        height: 50px;
+        overflow: hidden;
+        margin-right: 10px;
+        color: @layoutTextColor;
+        background-color: @layoutBackgroundColor;
+        .border-radius(3px);
+        i {
+          display: block;
+          text-align: center;
+          font-size: 28px;
+          line-height: 50px;
+        }
+      }
+      h3 {
+        font-weight: bold;
+        color: @layoutBoldColor;
+        font-weight: bold;
+        font-size: 16px;
+        margin: 0 0 3px 0;
+      }
+      p {
+        margin: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        color: @layoutTextColor;
+      }
+      &.active,
+      &:hover {
+        text-decoration: none;
+        border-color: @layoutLinkColor;
+        .icon {
+          background-color: @layoutLinkColor;
+          color: @navActiveBackgroundColor;
+        }
+      }
+    }
+    .arrow {
+      position: absolute;
+      display: none;
+      border: 8px solid transparent;
+      border-top-color: @layoutLinkColor;
+      left: 50%;
+      bottom: -15px;
+      margin-left: -4px;
+    }
+    &.active {
+      a {
+        text-decoration: none;
+        border-color: @layoutLinkColor;
+        .icon {
+          background-color: @layoutLinkColor;
+          color: @navActiveBackgroundColor;
+        }
+      }
+      .arrow {
+        display: block;
+      }
+    }
+  }
+  &.stacked {
+    overflow-y: hidden;
+    overflow-x: auto;
+    height: 100px;
+    white-space: nowrap;
+    li {
+      display: inline-block;
+      width: 250px;
+      margin-right: 10px;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+
+    &::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 10px;
+      background-color: @navActiveBackgroundColor;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      background-color: darken(@navActiveBackgroundColor, 20%);
+      &:hover {
+        background-color: @layoutLinkColor;
+      }
+    }
+
+  }
+}
+
+.resource-view {
+  margin-top: 20px;
 }

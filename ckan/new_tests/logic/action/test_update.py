@@ -8,6 +8,9 @@ import ckan.logic as logic
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
+assert_equals = nose.tools.assert_equals
+assert_raises = nose.tools.assert_raises
+
 
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
@@ -416,3 +419,42 @@ class TestUpdate(object):
         assert reordered_resource_urls == ["http://b.html",
                                            "http://c.html",
                                            "http://a.html"]
+
+
+class TestResourceViewUpdate(object):
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def setup(cls):
+        helpers.reset_db()
+
+    def test_resource_view_update(self):
+        resource_view = factories.ResourceView()
+        params = {
+            'id': resource_view['id'],
+            'title': 'new title',
+            'description': 'new description'
+        }
+
+        result = helpers.call_action('resource_view_update', **params)
+
+        assert_equals(result['title'], params['title'])
+        assert_equals(result['description'], params['description'])
+
+    def test_resource_view_update_requires_id(self):
+        params = {}
+
+        nose.tools.assert_raises(logic.ValidationError,
+                                 helpers.call_action,
+                                 'resource_view_update', **params)
+
+    def test_resource_view_update_requires_existing_id(self):
+        params = {
+            'id': 'inexistent_id'
+        }
+
+        nose.tools.assert_raises(logic.NotFound,
+                                 helpers.call_action,
+                                 'resource_view_update', **params)
