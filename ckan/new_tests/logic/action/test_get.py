@@ -6,6 +6,9 @@ import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
 
+eq = nose.tools.eq_
+
+
 class TestGet(object):
 
     @classmethod
@@ -187,6 +190,20 @@ class TestGet(object):
         assert got_user['apikey'] == user['apikey']
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
+
+    def test_package_autocomplete_does_not_return_private_datasets(self):
+
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset1 = factories.Dataset(user=user, owner_org=org['name'],
+                                     title='Some public stuff')
+        dataset2 = factories.Dataset(user=user, owner_org=org['name'],
+                                     private=True, title='Some private stuff')
+
+        package_list = helpers.call_action('package_autocomplete',
+                                           q='some')
+        eq(len(package_list), 1)
+
 
 
 class TestBadLimitQueryParameters(object):
