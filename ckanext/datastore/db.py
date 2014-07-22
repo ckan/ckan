@@ -4,11 +4,10 @@ import os
 import urllib
 import urllib2
 import urlparse
-import random
-import string
 import logging
 import pprint
 import copy
+import hashlib
 
 import pylons
 import distutils.version
@@ -387,7 +386,7 @@ def create_indexes(context, data_dict):
     # it's just a unique key
     primary_key = datastore_helpers.get_list(data_dict.get('primary_key'))
 
-    sql_index_tmpl = u'CREATE {unique} INDEX {name} ON "{res_id}"'
+    sql_index_tmpl = u'CREATE {unique} INDEX "{name}" ON "{res_id}"'
     sql_index_string_method = sql_index_tmpl + u' USING {method}({fields})'
     sql_index_string = sql_index_tmpl + u' ({fields})'
     sql_index_strings = []
@@ -431,11 +430,17 @@ def create_indexes(context, data_dict):
         sql_index_strings.append(sql_index_string.format(
             res_id=data_dict['resource_id'],
             unique='unique' if index == primary_key else '',
-            name=_generate_index_name(connection),
+            name=_generate_index_name(data_dict['resource_id'], fields_string),
             fields=fields_string))
 
     sql_index_strings = map(lambda x: x.replace('%', '%%'), sql_index_strings)
-    map(connection.execute, sql_index_strings)
+    current_indexes = _get_index_names(context['connection'],
+                                       data_dict['resource_id'])
+    for sql_index_string in sql_index_strings:
+        has_index = [c for c in current_indexes
+                     if sql_index_string.find(c) != -1]
+        if not has_index:
+            connection.execute(sql_index_string)
 
 
 def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
@@ -455,20 +460,33 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
         fts_indexes.append(sql_index_str_method.format(
             res_id=resource_id,
             unique='',
-            name=_generate_index_name(connection),
+            name=_generate_index_name(resource_id, text_field),
             method='gist', fields=text_field))
 
     return fts_indexes
 
 
-def _generate_index_name(connection):
-    # pg 9.0+ do not require an index name
-    if _pg_version_is_at_least(connection, '9.0'):
-        return ''
-    else:
-        src = string.ascii_letters + string.digits
-        random_string = ''.join([random.choice(src) for n in xrange(10)])
-        return 'idx_' + random_string
+def _generate_index_name(resource_id, field):
+    value = (resource_id + field).encode('utf-8')
+    return hashlib.sha1(value).hexdigest()
+
+
+def _get_index_names(connection, resource_id):
+    sql = u"""
+        SELECT
+            i.relname AS index_name
+        FROM
+            pg_class t,
+            pg_class i,
+            pg_index idx
+        WHERE
+            t.oid = idx.indrelid
+            AND i.oid = idx.indexrelid
+            AND t.relkind = 'r'
+            AND t.relname = %s
+        """
+    results = connection.execute(sql, resource_id).fetchall()
+    return [result[0] for result in results]
 
 
 def _drop_indexes(context, data_dict, unique=False):

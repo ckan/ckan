@@ -114,6 +114,28 @@ class TestDatastoreCreateNewTests(object):
         index_names = self._get_index_names(resource_id)
         assert_equal(len(index_names), 4)
 
+    def test_create_doesnt_add_more_indexes_when_updating_data(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'book': 'annakarenina', 'author': 'tolstoy'}
+            ]
+        }
+        result = helpers.call_action('datastore_create', **data)
+        previous_index_names = self._get_index_names(resource['id'])
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'book': 'warandpeace', 'author': 'tolstoy'}
+            ]
+        }
+        result = helpers.call_action('datastore_create', **data)
+        current_index_names = self._get_index_names(resource['id'])
+        assert_equal(previous_index_names, current_index_names)
+
     def _has_index_on_field(self, resource_id, field):
         sql = u"""
             SELECT
