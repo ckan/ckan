@@ -441,30 +441,22 @@ def create_indexes(context, data_dict):
 def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     fts_indexes = []
     resource_id = data_dict['resource_id']
-    # create index for faster full text search (indexes: gin or gist)
-    fts_indexes.append(sql_index_str_method.format(
-        res_id=resource_id,
-        unique='',
-        name=_generate_index_name(connection),
-        method='gist', fields='_full_text'))
-
-    # Get Postgres' default ts language
     default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
     if default_fts_lang is None:
         default_fts_lang = u'english'
     fts_lang = data_dict.get('lang', default_fts_lang)
-    # create index on each textual field, so we can do FTS on a single
-    # field
+
+    # create full-text search indexes
+    to_tsvector = lambda x: u"to_tsvector('{0}', '{1}')".format(fts_lang, x)
     text_fields = [x['id'] for x in fields if x['type'] == 'text']
-    for text_field in text_fields:
-        tsvector_field = u"to_tsvector('{fts_lang}', '{field}')"
-        tsvector_field = tsvector_field.format(fts_lang=fts_lang,
-                                               field=text_field)
+    for text_field in ['_full_text'] + text_fields:
+        if text_field != '_full_text':
+            text_field = to_tsvector(text_field)
         fts_indexes.append(sql_index_str_method.format(
             res_id=resource_id,
             unique='',
             name=_generate_index_name(connection),
-            method='gist', fields=tsvector_field))
+            method='gist', fields=text_field))
 
     return fts_indexes
 
