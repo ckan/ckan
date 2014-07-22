@@ -274,8 +274,10 @@ def datastore_search(context, data_dict):
     :type resource_id: string
     :param filters: matching conditions to select, e.g {"key1": "a", "key2": "b"} (optional)
     :type filters: dictionary
-    :param q: full text query (optional)
-    :type q: string
+    :param q: full text query. If it's a string, it'll search on all fields on
+              each row. If it's a dictionary as {"key1": "a", "key2": "b"},
+              it'll search on each specific field (optional)
+    :type q: string or dictionary
     :param distinct: return only distinct rows (optional, default: false)
     :type distinct: bool
     :param plain: treat as plain text query (optional, default: true)
