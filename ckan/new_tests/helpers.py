@@ -17,8 +17,6 @@ potential drawbacks.
 This module is reserved for these very useful functions.
 
 '''
-import os
-
 import webtest
 from pylons import config
 import nose.tools

@@ -112,10 +112,7 @@ class TestDatastoreCreateNewTests(object):
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
         index_names = self._get_index_names(resource_id)
-        fts_indexes = [x[0] for x in index_names
-                       if x[0].find('to_tsvector') != -1]
-        number_of_textual_fields = 2
-        assert_equal(len(fts_indexes), number_of_textual_fields)
+        assert_equal(len(index_names), 4)
 
     def _has_index_on_field(self, resource_id, field):
         sql = u"""
