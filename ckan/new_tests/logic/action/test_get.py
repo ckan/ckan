@@ -329,7 +329,6 @@ class TestGet(object):
         eq(len(package_list), 1)
 
 
-
 class TestBadLimitQueryParameters(object):
     '''test class for #1258 non-int query parameters cause 500 errors
 
