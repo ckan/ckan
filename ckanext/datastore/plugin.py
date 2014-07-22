@@ -2,6 +2,7 @@ import sys
 import logging
 import shlex
 
+import pylons
 import sqlalchemy.engine.url as sa_url
 
 import ckan.plugins as p
@@ -288,7 +289,7 @@ class DatastorePlugin(p.SingletonPlugin):
                 del data_dict['q']
             elif isinstance(q, dict):
                 for key in q.keys():
-                    if key in column_names and isinstance(q[key], basestring):
+                    if key in fields_types and isinstance(q[key], basestring):
                         del q[key]
 
         language = data_dict.get('language')
@@ -355,12 +356,11 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def datastore_search(self, context, data_dict, fields_types, query_dict):
         fields = data_dict.get('fields')
-        column_names = fields_types.keys()
 
         if fields:
             field_ids = datastore_helpers.get_list(fields)
         else:
-            field_ids = column_names
+            field_ids = fields_types.keys()
 
         ts_query, rank_column = self._textsearch_query(data_dict)
         limit = data_dict.get('limit', 100)
@@ -451,7 +451,10 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def _textsearch_query(self, data_dict):
         q = data_dict.get('q')
-        lang = data_dict.get(u'language', u'english')
+        default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
+        if default_fts_lang is None:
+            default_fts_lang = u'english'
+        lang = data_dict.get(u'lang', default_fts_lang)
 
         if not q:
             return '', ''
@@ -485,9 +488,14 @@ class DatastorePlugin(p.SingletonPlugin):
             statement = u"plainto_tsquery('{lang}', '{query}') {alias}"
         else:
             statement = u"to_tsquery('{lang}', '{query}') {alias}"
-        rank_statement = u'ts_rank(_full_text, {query_alias}, 32) AS {alias}'
+        if field is None:
+            rank_field = '_full_text'
+        else:
+            rank_field = 'to_tsvector("%s")' % field
+        rank_statement = u'ts_rank({rank_field}, {query_alias}, 32) AS {alias}'
         statement = statement.format(lang=lang, query=query, alias=query_alias)
-        rank_statement = rank_statement.format(query_alias=query_alias,
+        rank_statement = rank_statement.format(rank_field=rank_field,
+                                               query_alias=query_alias,
                                                alias=rank_alias)
         return statement, rank_statement
 

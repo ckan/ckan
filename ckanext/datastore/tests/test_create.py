@@ -49,7 +49,8 @@ class TestDatastoreCreateNewTests(object):
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        assert self._has_index_on_field(resource_id, '_id')
+        index_names = self._get_index_names(resource_id)
+        assert resource_id + '_pkey' in index_names
 
     def test_create_index_on_specific_fields(self):
         package = factories.Dataset()
@@ -65,7 +66,7 @@ class TestDatastoreCreateNewTests(object):
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        assert self._has_index_on_field(resource_id, 'author')
+        assert self._has_index_on_field(resource_id, '"author"')
 
     def test_create_adds_index_on_full_text_search_when_creating_other_indexes(self):
         package = factories.Dataset()
@@ -83,7 +84,7 @@ class TestDatastoreCreateNewTests(object):
         resource_id = result['resource_id']
         assert self._has_index_on_field(resource_id, '_full_text')
 
-    def test_create_doesnt_add_index_on_full_text_search_if_were_not_creating_other_indexes(self):
+    def test_create_adds_index_on_full_text_search_when_not_creating_other_indexes(self):
         package = factories.Dataset()
         data = {
             'resource': {
@@ -96,7 +97,7 @@ class TestDatastoreCreateNewTests(object):
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        assert not self._has_index_on_field(resource_id, '_full_text')
+        assert self._has_index_on_field(resource_id, '_full_text')
 
     def test_create_add_full_text_search_indexes_on_every_text_field(self):
         package = factories.Dataset()
@@ -108,35 +109,48 @@ class TestDatastoreCreateNewTests(object):
             },
             'fields': [{'id': 'boo%k', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}],
-            'indexes': ['author'],
+            'lang': 'english',
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        index_names = self._get_index_names(resource_id)
-        fts_indexes = [x[0] for x in index_names
-                       if x[0].find('to_tsvector') != -1]
-        number_of_textual_fields = 2
-        assert len(fts_indexes) == number_of_textual_fields
+        assert self._has_index_on_field(resource_id,
+                                        "to_tsvector('english', 'boo%k')")
+        assert self._has_index_on_field(resource_id,
+                                        "to_tsvector('english', 'author')")
+
+    def test_create_doesnt_add_more_indexes_when_updating_data(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'book': 'annakarenina', 'author': 'tolstoy'}
+            ]
+        }
+        result = helpers.call_action('datastore_create', **data)
+        previous_index_names = self._get_index_names(resource['id'])
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'book': 'warandpeace', 'author': 'tolstoy'}
+            ]
+        }
+        result = helpers.call_action('datastore_create', **data)
+        current_index_names = self._get_index_names(resource['id'])
+        assert_equal(previous_index_names, current_index_names)
 
     def _has_index_on_field(self, resource_id, field):
         sql = u"""
             SELECT
-                a.attname as column_name
+                relname
             FROM
-                pg_class t,
-                pg_class i,
-                pg_index idx,
-                pg_attribute a
+                pg_class
             WHERE
-                t.oid = idx.indrelid
-                AND i.oid = idx.indexrelid
-                AND a.attrelid = t.oid
-                AND a.attnum = ANY(idx.indkey)
-                AND t.relkind = 'r'
-                AND t.relname = %s
-                AND a.attname = %s
+                pg_class.relname = %s
             """
-        results = self._execute_sql(sql, resource_id, field).fetchall()
+        index_name = db._generate_index_name(resource_id, field)
+        results = self._execute_sql(sql, index_name).fetchone()
         return bool(results)
 
     def _get_index_names(self, resource_id):
@@ -154,7 +168,7 @@ class TestDatastoreCreateNewTests(object):
                 AND t.relname = %s
             """
         results = self._execute_sql(sql, resource_id).fetchall()
-        return results
+        return [result[0] for result in results]
 
     def _execute_sql(self, sql, *args):
         engine = db._get_engine(

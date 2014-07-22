@@ -108,6 +108,21 @@ with read permissions only. The format is the same as in :ref:`sqlalchemy.url`.
 
 .. end_config-datastore-urls
 
+.. _ckan.datastore.default_fts_lang:
+
+ckan.datastore.default_fts_lang
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.default_fts_lang = english
+
+This can be ignored if you're not using the :doc:`datastore`.
+
+The default language used when creating full-text search indexes and querying
+them. If this value isn't set, it'll default to "english". It can be
+overwritten by the user by passing the "lang" parameter to "datastore_search"
+and "datastore_create".
 
 Site Settings
 -------------
