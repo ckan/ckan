@@ -49,7 +49,8 @@ class TestDatastoreCreateNewTests(object):
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        assert self._has_index_on_field(resource_id, '_id')
+        index_names = self._get_index_names(resource_id)
+        assert resource_id + '_pkey' in index_names
 
     def test_create_index_on_specific_fields(self):
         package = factories.Dataset()
@@ -65,7 +66,7 @@ class TestDatastoreCreateNewTests(object):
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        assert self._has_index_on_field(resource_id, 'author')
+        assert self._has_index_on_field(resource_id, '"author"')
 
     def test_create_adds_index_on_full_text_search_when_creating_other_indexes(self):
         package = factories.Dataset()
@@ -108,11 +109,14 @@ class TestDatastoreCreateNewTests(object):
             },
             'fields': [{'id': 'boo%k', 'type': 'text'},
                        {'id': 'author', 'type': 'text'}],
+            'lang': 'english',
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        index_names = self._get_index_names(resource_id)
-        assert_equal(len(index_names), 4)
+        assert self._has_index_on_field(resource_id,
+                                        "to_tsvector('english', 'boo%k')")
+        assert self._has_index_on_field(resource_id,
+                                        "to_tsvector('english', 'author')")
 
     def test_create_doesnt_add_more_indexes_when_updating_data(self):
         resource = factories.Resource()
@@ -139,22 +143,14 @@ class TestDatastoreCreateNewTests(object):
     def _has_index_on_field(self, resource_id, field):
         sql = u"""
             SELECT
-                a.attname as column_name
+                relname
             FROM
-                pg_class t,
-                pg_class i,
-                pg_index idx,
-                pg_attribute a
+                pg_class
             WHERE
-                t.oid = idx.indrelid
-                AND i.oid = idx.indexrelid
-                AND a.attrelid = t.oid
-                AND a.attnum = ANY(idx.indkey)
-                AND t.relkind = 'r'
-                AND t.relname = %s
-                AND a.attname = %s
+                pg_class.relname = %s
             """
-        results = self._execute_sql(sql, resource_id, field).fetchall()
+        index_name = db._generate_index_name(resource_id, field)
+        results = self._execute_sql(sql, index_name).fetchone()
         return bool(results)
 
     def _get_index_names(self, resource_id):
@@ -172,7 +168,7 @@ class TestDatastoreCreateNewTests(object):
                 AND t.relname = %s
             """
         results = self._execute_sql(sql, resource_id).fetchall()
-        return results
+        return [result[0] for result in results]
 
     def _execute_sql(self, sql, *args):
         engine = db._get_engine(
