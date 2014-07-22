@@ -98,16 +98,13 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
           quietMillis: 200,
           cache: true,
           data: function (term, page) {
-            var limit = queryLimit + 1, // Get 1 more than the queryLimit
-                                        // so we can test later if there's more
-                                        // data
-                offset = (page - 1) * queryLimit,
+            var offset = (page - 1) * queryLimit,
                 query;
 
             query = {
               plain: false,
               resource_id: resourceId,
-              limit: queryLimit + 1,
+              limit: queryLimit,
               offset: offset,
               fields: filterName,
               distinct: true,
@@ -122,11 +119,11 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
             return query;
           },
           results: function (data, page) {
-            var slicedData = data.result.records.slice(0, queryLimit),
-                hasMore = (data.result.records.length == queryLimit + 1),
+            var records = data.result.records,
+                hasMore = (records.length < data.result.total),
                 results;
 
-            results = $.map(slicedData, function (record) {
+            results = $.map(records, function (record) {
               return { id: record[filterName], text: record[filterName] };
             });
 

@@ -4,7 +4,7 @@ ckan.module('resource-view-filters-form', function (jQuery) {
   function applyDropdown(selectField, resourceId) {
     var inputField = selectField.parent().find('input'),
         filterName = selectField.val(),
-        queryLimit = 100;
+        queryLimit = 20;
 
     inputField.select2({
       width: 'resolve',
@@ -15,40 +15,36 @@ ckan.module('resource-view-filters-form', function (jQuery) {
         quietMillis: 200,
         cache: true,
         data: function (term, page) {
-          var limit = queryLimit + 1, // Get 1 more than the queryLimit
-                                      // so we can test later if there's more
-                                      // data
-              offset = (page - 1) * queryLimit,
-              q = {};
-          if (term === '') {
-            q[filterName] = term;
-          } else {
-            q[filterName] = term + ':*';
-          }
-          return {
-            q: JSON.stringify(q),
-            plain: false,
-            distinct: true,
-            resource_id: resourceId,
-            limit: queryLimit + 1,
-            offset: offset,
-            fields: filterName,
-            sort: filterName
-          };
+            var offset = (page - 1) * queryLimit,
+                query;
+
+            query = {
+              plain: false,
+              resource_id: resourceId,
+              limit: queryLimit,
+              offset: offset,
+              fields: filterName,
+              distinct: true,
+              sort: filterName
+            };
+
+            if (term !== '') {
+              query.q = {};
+              query.q[filterName] = term + ':*';
+            }
+
+            return query;
         },
         results: function (data, page) {
-          var uniqueResults = {},
-              results = data.result.records.slice(0, queryLimit),
-              hasMore = (data.result.records.length == queryLimit + 1),
-              theData;
-          $.each(results, function (i, record) {
-            uniqueResults[record[filterName]] = true;
-          });
-          theData = $.map(Object.keys(uniqueResults), function (record) {
-            return { id: record, text: record };
+          var records = data.result.records,
+              hasMore = (records.length < data.result.total),
+              results;
+
+          results = $.map(records, function (record) {
+            return { id: record[filterName], text: record[filterName] };
           });
 
-          return { results: theData, more: hasMore };
+          return { results: results, more: hasMore };
         },
       },
       initSelection: function (element, callback) {
