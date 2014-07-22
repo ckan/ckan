@@ -50,6 +50,11 @@ class IMiddleware(Interface):
         '''
         return app
 
+    def make_error_log_middleware(self, app, config):
+        '''Return an app configured with this error log middleware
+        '''
+        return app
+
 
 class IGenshiStreamFilter(Interface):
     '''
