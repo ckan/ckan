@@ -1,4 +1,3 @@
-// recline preview module
 this.ckan.module('reclineview', function (jQuery, _) {
   return {
     options: {
@@ -32,7 +31,7 @@ this.ckan.module('reclineview', function (jQuery, _) {
       var self = this;
 
       function showError(msg){
-        msg = msg || _('error loading preview');
+        msg = msg || _('error loading view');
         window.parent.ckan.pubsub.publish('data-viewer-error', msg);
       }
 

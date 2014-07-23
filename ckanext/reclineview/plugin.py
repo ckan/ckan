@@ -51,7 +51,7 @@ class ReclineViewBase(p.SingletonPlugin):
     def update_config(self, config):
         '''
         Set up the resource library, public directory and
-        template directory for the preview
+        template directory for the view
         '''
         toolkit.add_public_directory(config, 'theme/public')
         toolkit.add_template_directory(config, 'theme/templates')
