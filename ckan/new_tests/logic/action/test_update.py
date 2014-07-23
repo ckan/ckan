@@ -8,6 +8,9 @@ import ckan.logic as logic
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
+assert_equals = nose.tools.assert_equals
+assert_raises = nose.tools.assert_raises
+
 
 def datetime_from_string(s):
     '''Return a standard datetime.datetime object initialised from a string in
@@ -79,6 +82,37 @@ class TestUpdate(object):
 
     ## END-BEFORE
 
+    def test_user_generate_apikey(self):
+        user = factories.User()
+        context = {'user': user['name']}
+        result = helpers.call_action('user_generate_apikey', context=context,
+                                     id=user['id'])
+        updated_user = helpers.call_action('user_show', context=context,
+                                           id=user['id'])
+
+        assert updated_user['apikey'] != user['apikey']
+        assert result['apikey'] == updated_user['apikey']
+
+    def test_user_generate_apikey_sysadmin_user(self):
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        context = {'user': sysadmin['name'], 'ignore_auth': False}
+        result = helpers.call_action('user_generate_apikey', context=context,
+                                     id=user['id'])
+        updated_user = helpers.call_action('user_show', context=context,
+                                           id=user['id'])
+
+        assert updated_user['apikey'] != user['apikey']
+        assert result['apikey'] == updated_user['apikey']
+
+    def test_user_generate_apikey_nonexistent_user(self):
+        user = {'id': 'nonexistent', 'name': 'nonexistent', 'email':
+                'does@notexist.com'}
+        context = {'user': user['name']}
+        nose.tools.assert_raises(logic.NotFound, helpers.call_action,
+                                 'user_generate_apikey', context=context,
+                                 id=user['id'])
+
     def test_user_update_with_id_that_does_not_exist(self):
         user_dict = factories.User.attributes()
         user_dict['id'] = "there's no user with this id"
@@ -98,7 +132,7 @@ class TestUpdate(object):
         user = factories.User()
 
         invalid_names = ('', 'a', False, 0, -1, 23, 'new', 'edit', 'search',
-                         'a'*200, 'Hi!', 'i++%')
+                         'a' * 200, 'Hi!', 'i++%')
         for name in invalid_names:
             user['name'] = name
             nose.tools.assert_raises(logic.ValidationError,
@@ -385,3 +419,42 @@ class TestUpdate(object):
         assert reordered_resource_urls == ["http://b.html",
                                            "http://c.html",
                                            "http://a.html"]
+
+
+class TestResourceViewUpdate(object):
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def setup(cls):
+        helpers.reset_db()
+
+    def test_resource_view_update(self):
+        resource_view = factories.ResourceView()
+        params = {
+            'id': resource_view['id'],
+            'title': 'new title',
+            'description': 'new description'
+        }
+
+        result = helpers.call_action('resource_view_update', **params)
+
+        assert_equals(result['title'], params['title'])
+        assert_equals(result['description'], params['description'])
+
+    def test_resource_view_update_requires_id(self):
+        params = {}
+
+        nose.tools.assert_raises(logic.ValidationError,
+                                 helpers.call_action,
+                                 'resource_view_update', **params)
+
+    def test_resource_view_update_requires_existing_id(self):
+        params = {
+            'id': 'inexistent_id'
+        }
+
+        nose.tools.assert_raises(logic.NotFound,
+                                 helpers.call_action,
+                                 'resource_view_update', **params)

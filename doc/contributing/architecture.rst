@@ -26,6 +26,25 @@ we add a ``get()`` method to ``ckan.model.user.User``::
 
 Now we can call this method from the logic package.
 
+
+-----------------------------------
+Don't pass ORM objects to templates
+-----------------------------------
+
+Don't pass SQLAlchemy ORM objects (e.g. :py:class:`ckan.model.User` objects)
+to templates (for example by adding them to :py:data:`c`, passing them to
+:py:func:`~ckan.lib.base.render` in the ``extra_vars`` dict, returning them
+from template helper functions, etc.)
+
+Using ORM objects in the templates often creates SQLAlchemy "detached instance"
+errors that cause 500 Server Errors and can be difficult to debug.
+
+Instead, ORM objects should be dictized and their dictionary forms should be
+passed to templates. Controllers can dictize ORM objects using the funtions in
+:py:mod:`ckan.lib.dictization`, but they should probably just get dictionaries
+from :py:mod:`ckan.logic.action` functions instead.
+
+
 --------------------------------------
 Always go through the action functions
 --------------------------------------
@@ -160,21 +179,32 @@ the helper functions found in ``ckan.lib.helpers.__allowed_functions__``.
 Deprecation
 -----------
 
-- Anything that may be used by extensions (see :doc:`/extensions/index`) needs
-  to maintain backward compatibility at call-site.  ie - template helper
-  functions and functions defined in the plugins toolkit.
+- Anything that may be used by :doc:`extensions </extensions/index>`,
+  :doc:`themes </theming/index>` or :doc:`API clients </api/index>` needs to
+  maintain backward compatibility at call-site. For example: action functions,
+  template helper functions and functions defined in the plugins toolkit.
 
 - The length of time of deprecation is evaluated on a function-by-function
-  basis.  At minimum, a function should be marked as deprecated during a point
+  basis. At minimum, a function should be marked as deprecated during a point
   release.
 
-- To mark a helper function, use the ``deprecated`` decorator found in
-  ``ckan.lib.maintain`` eg: ::
+- To deprecate a function use the :py:func:`ckan.lib.maintain.deprecated`
+  decorator and add "deprecated" to the function's docstring::
 
-    @deprecated()
-    def facet_items(*args, **kwargs):
-        """
-        DEPRECATED: Use the new facet data structure, and `unselected_facet_items()`
-        """
-        # rest of function definition.
+    @maintain.deprecated("helpers.get_action() is deprecated and will be removed "
+                        "in a future version of CKAN. Instead, please use the "
+                        "extra_vars param to render() in your controller to pass "
+                        "results from action functions to your templates.")
+    def get_action(action_name, data_dict=None):
+        '''Calls an action function from a template. Deprecated in CKAN 2.3.'''
+        if data_dict is None:
+            data_dict = {}
+        return logic.get_action(action_name)({}, data_dict)
 
+- Any deprecated functions should be added to an *API changes and deprecations*
+  section in the :doc:`/changelog` entry for the next release (do this before
+  merging the deprecation into master)
+
+- Keep the deprecation messages passed to the decorator short, they appear in
+  logs. Put longer explanations of why something was deprecated in the
+  changelog.

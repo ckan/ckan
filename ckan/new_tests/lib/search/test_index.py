@@ -1,12 +1,16 @@
 import datetime
 import hashlib
+import json
+import nose.tools
 import nose
 
 from pylons import config
 import ckan.lib.search as search
+import ckan.new_tests.helpers as helpers
 
-
-eq_ = nose.tools.eq_
+assert_equal = nose.tools.assert_equal
+assert_in = helpers.assert_in
+assert_not_in = helpers.assert_not_in
 
 
 class TestSearchIndex(object):
@@ -45,18 +49,18 @@ class TestSearchIndex(object):
 
         response = self.solr_client.query('name:monkey', fq=self.fq)
 
-        eq_(len(response), 1)
+        assert_equal(len(response), 1)
 
-        eq_(response.results[0]['id'], 'test-index')
-        eq_(response.results[0]['name'], 'monkey')
-        eq_(response.results[0]['title'], 'Monkey')
+        assert_equal(response.results[0]['id'], 'test-index')
+        assert_equal(response.results[0]['name'], 'monkey')
+        assert_equal(response.results[0]['title'], 'Monkey')
 
         index_id = hashlib.md5(
             '{0}{1}'.format(self.base_package_dict['id'],
                             config['ckan.site_id'])
         ).hexdigest()
 
-        eq_(response.results[0]['index_id'], index_id)
+        assert_equal(response.results[0]['index_id'], index_id)
 
     def test_no_state_no_index(self):
         pkg_dict = self.base_package_dict.copy()
@@ -68,7 +72,7 @@ class TestSearchIndex(object):
 
         response = self.solr_client.query('name:monkey', fq=self.fq)
 
-        eq_(len(response), 0)
+        assert_equal(len(response), 0)
 
     def test_clear_index(self):
 
@@ -77,7 +81,7 @@ class TestSearchIndex(object):
         self.package_index.clear()
 
         response = self.solr_client.query('name:monkey', fq=self.fq)
-        eq_(len(response), 0)
+        assert_equal(len(response), 0)
 
     def test_index_illegal_xml_chars(self):
 
@@ -90,8 +94,9 @@ class TestSearchIndex(object):
 
         response = self.solr_client.query('name:monkey', fq=self.fq)
 
-        eq_(len(response), 1)
-        eq_(response.results[0]['title'], u'\u00c3altimo n\u00famero penguin')
+        assert_equal(len(response), 1)
+        assert_equal(response.results[0]['title'],
+                     u'\u00c3altimo n\u00famero penguin')
 
     def test_index_date_field(self):
 
@@ -107,13 +112,15 @@ class TestSearchIndex(object):
 
         response = self.solr_client.query('name:monkey', fq=self.fq)
 
-        eq_(len(response), 1)
+        assert_equal(len(response), 1)
 
         assert isinstance(response.results[0]['test_date'], datetime.datetime)
-        eq_(response.results[0]['test_date'].strftime('%Y-%m-%d'),
-            '2014-03-22')
-        eq_(response.results[0]['test_tim_date'].strftime('%Y-%m-%d %H:%M:%S'),
-            '2014-03-22 05:42:14')
+        assert_equal(response.results[0]['test_date'].strftime('%Y-%m-%d'),
+                     '2014-03-22')
+        assert_equal(
+            response.results[0]['test_tim_date'].strftime('%Y-%m-%d %H:%M:%S'),
+            '2014-03-22 05:42:14'
+            )
 
     def test_index_date_field_wrong_value(self):
 
@@ -129,7 +136,7 @@ class TestSearchIndex(object):
 
         response = self.solr_client.query('name:monkey', fq=self.fq)
 
-        eq_(len(response), 1)
+        assert_equal(len(response), 1)
 
         assert 'test_wrong_date' not in response.results[0]
         assert 'test_another_wrong_date' not in response.results[0]
@@ -147,6 +154,110 @@ class TestSearchIndex(object):
 
         response = self.solr_client.query('name:monkey', fq=self.fq)
 
-        eq_(len(response), 1)
+        assert_equal(len(response), 1)
 
         assert 'test_empty_date' not in response.results[0]
+
+
+class TestPackageSearchIndex:
+    @staticmethod
+    def _get_pkg_dict():
+        # This is a simple package, enough to be indexed, in the format that
+        # package_show would return
+        return {'name': 'river-quality',
+                'id': 'd9567b82-d3f0-4c17-b222-d9a7499f7940',
+                'state': 'active',
+                'private': '',
+                'type': 'dataset',
+                'metadata_created': '2014-06-10T08:24:12.782257',
+                'metadata_modified': '2014-06-10T08:24:12.782257',
+                }
+
+    @staticmethod
+    def _get_pkg_dict_with_resources():
+        # A simple package with some resources
+        pkg_dict = TestPackageSearchIndex._get_pkg_dict()
+        pkg_dict['resources'] = [
+            {'description': 'A river quality report',
+             'format': 'pdf',
+             'url': 'http://www.foo.com/riverquality.pdf',
+             'alt_url': 'http://www.bar.com/riverquality.pdf',
+             'city': 'Asuncion'
+             },
+            {'description': 'A river quality table',
+             'format': 'csv',
+             'url': 'http://www.foo.com/riverquality.csv',
+             'alt_url': 'http://www.bar.com/riverquality.csv',
+             'institution': 'Global River Foundation'
+             }
+        ]
+        return pkg_dict
+
+    def test_index_package_stores_basic_solr_fields(self):
+        index = search.index.PackageSearchIndex()
+        pkg_dict = self._get_pkg_dict()
+
+        index.index_package(pkg_dict)
+        indexed_pkg = search.show(pkg_dict['name'])
+
+        # At root level are the fields that SOLR uses
+        assert_equal(indexed_pkg['name'], 'river-quality')
+        assert_equal(indexed_pkg['metadata_modified'],
+                     '2014-06-10T08:24:12.782Z')
+        assert_equal(indexed_pkg['entity_type'], 'package')
+        assert_equal(indexed_pkg['dataset_type'], 'dataset')
+
+    def test_index_package_stores_unvalidated_data_dict(self):
+        index = search.index.PackageSearchIndex()
+        pkg_dict = self._get_pkg_dict()
+
+        index.index_package(pkg_dict)
+        indexed_pkg = search.show(pkg_dict['name'])
+
+        # data_dict is the result of package_show, unvalidated
+        data_dict = json.loads(indexed_pkg['data_dict'])
+        assert_equal(data_dict['name'], 'river-quality')
+        # title is inserted (copied from the name) during validation
+        # so its absence shows it is not validated
+        assert_not_in('title', data_dict)
+
+    def test_index_package_stores_validated_data_dict(self):
+        index = search.index.PackageSearchIndex()
+        pkg_dict = self._get_pkg_dict()
+
+        index.index_package(pkg_dict)
+        indexed_pkg = search.show(pkg_dict['name'])
+
+        # validated_data_dict is the result of package_show, validated
+        validated_data_dict = json.loads(indexed_pkg['validated_data_dict'])
+        assert_equal(validated_data_dict['name'], 'river-quality')
+        # title is inserted (copied from the name) during validation
+        # so its presence shows it is validated
+        assert_in('title', validated_data_dict)
+
+    def test_index_package_stores_validated_data_dict_without_unvalidated_data_dict(self):
+        # This is a regression test for #1764
+        index = search.index.PackageSearchIndex()
+        pkg_dict = self._get_pkg_dict()
+
+        index.index_package(pkg_dict)
+        indexed_pkg = search.show(pkg_dict['name'])
+
+        validated_data_dict = json.loads(indexed_pkg['validated_data_dict'])
+        assert_not_in('data_dict', validated_data_dict)
+
+    def test_index_package_stores_resource_extras_in_config_file(self):
+        index = search.index.PackageSearchIndex()
+        pkg_dict = self._get_pkg_dict_with_resources()
+
+        index.index_package(pkg_dict)
+        indexed_pkg = search.show(pkg_dict['name'])
+
+        # Resource fields given by ckan.extra_resource_fields are indexed
+        assert_equal(indexed_pkg['res_extras_alt_url'],
+                     ['http://www.bar.com/riverquality.pdf',
+                      'http://www.bar.com/riverquality.csv'])
+
+        # Other resource fields are ignored
+        assert_equal(indexed_pkg.get('res_extras_institution', None), None)
+        assert_equal(indexed_pkg.get('res_extras_city', None), None)

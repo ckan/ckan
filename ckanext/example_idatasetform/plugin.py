@@ -92,6 +92,10 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
                 'custom_text': [tk.get_validator('ignore_missing'),
                     tk.get_converter('convert_to_extras')]
                 })
+        # Add our custom_resource_text metadata field to the schema
+        schema['resources'].update({
+                'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
+                })
         return schema
 
     def create_package_schema(self):
@@ -124,6 +128,9 @@ class ExampleIDatasetFormPlugin(plugins.SingletonPlugin,
                 tk.get_validator('ignore_missing')]
             })
 
+        schema['resources'].update({
+                'custom_resource_text' : [ tk.get_validator('ignore_missing') ]
+            })
         return schema
 
     # These methods just record how many times they're called, for testing

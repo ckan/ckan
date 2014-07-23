@@ -63,7 +63,7 @@ def compare_domains(urls):
     return True
 
 
-def _on_same_domain(data_dict):
+def on_same_domain(data_dict):
     # compare CKAN domain and resource URL
     ckan_url = config.get('ckan.site_url', '//localhost:5000')
     resource_url = data_dict['resource']['url']
@@ -83,7 +83,7 @@ def get_preview_plugin(data_dict, return_first=False):
 
     Returns a dict of plugins that can preview or ones that are fixable'''
 
-    data_dict['resource']['on_same_domain'] = _on_same_domain(data_dict)
+    data_dict['resource']['on_same_domain'] = on_same_domain(data_dict)
 
     plugins_that_can_preview = []
     plugins_fixable = []
@@ -121,3 +121,38 @@ def get_preview_plugin(data_dict, return_first=False):
         preview_plugin = max(plugins_that_can_preview,
                              key=lambda x: x['quality'])['plugin']
     return preview_plugin
+
+
+def get_view_plugin(view_type):
+    '''
+    Returns the IResourceView plugin associated with the given view_type.
+    '''
+    for plugin in p.PluginImplementations(p.IResourceView):
+        info = plugin.info()
+        name = info.get('name')
+        if name == view_type:
+            return plugin
+
+
+def get_allowed_view_plugins(data_dict):
+    can_view = []
+    for plugin in p.PluginImplementations(p.IResourceView):
+        if plugin.can_view(data_dict):
+            can_view.append(plugin)
+    return can_view
+
+
+def get_new_resources(context, data_dict):
+    ''' Get out all new resources in this commit,
+    needs to be run in extension point after_create and after_update '''
+    model = context['model']
+    session = model.Session()
+    session.flush()
+    if hasattr(session, '_object_cache'):
+        import ckan.lib.dictization.model_dictize as model_dictize
+        new_objs = session._object_cache['new']
+        new_resources = [obj for obj in new_objs
+                         if isinstance(obj, model.Resource)]
+        return model_dictize.resource_list_dictize(new_resources, context)
+    else:
+        return ()

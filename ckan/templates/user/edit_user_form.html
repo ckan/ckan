@@ -37,6 +37,12 @@
         <a class="btn btn-danger pull-left" href="{% url_for controller='user', action='delete', id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
       {% endif %}
     {% endblock %}
+    {% block generate_button %}
+      {% if h.check_access('user_generate_apikey', {'id': data.id})  %}
+        {% set locale = h.dump_json({'content': _('Are you sure you want to regenerate the API key?')}) %}
+        <a class="btn btn-warning" href="{% url_for controller='user', action='generate_apikey', id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block generate_button_text %}{{ _('Regenerate API Key') }}{% endblock %}</a>
+      {% endif %}
+    {% endblock %}
     {{ form.required_message() }}
     <button class="btn btn-primary" type="submit" name="save">{{ _('Update Profile') }}</button>
   </div>

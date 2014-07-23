@@ -98,6 +98,10 @@ from resource import (
     ResourceGroupRevision,
     resource_group_revision_table,
 )
+from resource_view import (
+    ResourceView,
+    resource_view_table,
+)
 from tracking import (
     tracking_summary_table,
     TrackingSummary,

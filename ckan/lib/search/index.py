@@ -108,8 +108,6 @@ class PackageSearchIndex(SearchIndex):
         if pkg_dict is None:
             return
 
-        pkg_dict['data_dict'] = json.dumps(pkg_dict)
-
         if config.get('ckan.cache_validated_datasets', True):
             package_plugin = lib_plugins.lookup_package_plugin(
                 pkg_dict.get('type'))
@@ -119,6 +117,8 @@ class PackageSearchIndex(SearchIndex):
                 'model': model, 'session': model.Session})
             pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
                 cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
+
+        pkg_dict['data_dict'] = json.dumps(pkg_dict)
 
         # add to string field for sorting
         title = pkg_dict.get('title')
@@ -186,11 +186,13 @@ class PackageSearchIndex(SearchIndex):
             pkg_dict['views_total'] = tracking_summary['total']
             pkg_dict['views_recent'] = tracking_summary['recent']
 
+        resource_fields = [('description', 'res_description'),
+                            ('format', 'res_format'), ('url', 'res_url')]
+        resource_extras = [(e, 'res_extras_' + e) for e
+                            in model.Resource.get_extra_columns()]
         # flatten the structure for indexing:
         for resource in pkg_dict.get('resources', []):
-            for (okey, nkey) in [('description', 'res_description'),
-                                 ('format', 'res_format'),
-                                 ('url', 'res_url')]:
+            for (okey, nkey) in resource_fields + resource_extras:
                 pkg_dict[nkey] = pkg_dict.get(nkey, []) + [resource.get(okey, u'')]
         pkg_dict.pop('resources', None)
 
