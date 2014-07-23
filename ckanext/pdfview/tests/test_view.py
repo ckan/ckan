@@ -52,7 +52,7 @@ class TestPdfView(tests.WsgiAppCase):
         plugins.unload('pdf_view')
         model.repo.rebuild_db()
 
-    def test_can_preview(self):
+    def test_can_view(self):
         url_same_domain = urlparse.urljoin(
             config.get('ckan.site_url', '//localhost:5000'),
             '/resource.txt')
@@ -73,8 +73,8 @@ class TestPdfView(tests.WsgiAppCase):
                         id=self.package.name, resource_id=self.resource_id,
                         view_id=self.resource_view['id'])
         result = self.app.get(url)
-        assert (('preview_pdf.js' in result.body) or
-                ('preview_pdf.min.js' in result.body))
+        assert (('pdfview.js' in result.body) or
+                ('pdfview.min.js' in result.body))
 
     def test_title_description_iframe_shown(self):
         url = h.url_for(controller='package', action='resource_read',
