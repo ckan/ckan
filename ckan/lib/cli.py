@@ -2198,7 +2198,7 @@ class ViewsCommand(CkanCommand):
 
         print 'Text resource views are being created'
 
-        import ckanext.textpreview.plugin as textplugin
+        import ckanext.textview.plugin as textplugin
 
         formats = tuple(textplugin.DEFAULT_TEXT_FORMATS + textplugin.DEFAULT_XML_FORMATS +
                         textplugin.DEFAULT_JSON_FORMATS + textplugin.DEFAULT_JSONP_FORMATS)

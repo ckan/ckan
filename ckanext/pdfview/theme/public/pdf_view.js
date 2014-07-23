@@ -1,5 +1,4 @@
-// pdf preview module
-ckan.module('pdfpreview', function () {
+ckan.module('pdf_view', function () {
   return {
     initialize: function () {
       // set pdfjs worker uri

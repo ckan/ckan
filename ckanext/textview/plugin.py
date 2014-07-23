@@ -47,7 +47,7 @@ class TextView(p.SingletonPlugin):
 
         p.toolkit.add_public_directory(config, 'theme/public')
         p.toolkit.add_template_directory(config, 'theme/templates')
-        p.toolkit.add_resource('theme/public', 'ckanext-textpreview')
+        p.toolkit.add_resource('theme/public', 'ckanext-textview')
 
     def info(self):
         return {'name': 'text', 'title': 'Text', 'icon': 'file-text-alt'}

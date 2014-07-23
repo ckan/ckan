@@ -32,7 +32,7 @@ class BaseTestReclineViewBase(tests.WsgiAppCase):
         p.unload(cls.view_type)
         model.repo.rebuild_db()
 
-    def test_can_preview(self):
+    def test_can_view(self):
         data_dict = {'resource': {'datastore_active': True}}
         assert self.p.can_view(data_dict)
 

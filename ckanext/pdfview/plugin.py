@@ -22,7 +22,7 @@ class PdfView(p.SingletonPlugin):
     def update_config(self, config):
         p.toolkit.add_public_directory(config, 'theme/public')
         p.toolkit.add_template_directory(config, 'theme/templates')
-        p.toolkit.add_resource('theme/public', 'ckanext-pdfpreview')
+        p.toolkit.add_resource('theme/public', 'ckanext-pdfview')
 
     def configure(self, config):
         enabled = config.get('ckan.resource_proxy_enabled', False)

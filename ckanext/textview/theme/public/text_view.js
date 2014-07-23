@@ -1,5 +1,4 @@
-// json preview module
-ckan.module('textpreview', function (jQuery, _) {
+ckan.module('text_view', function (jQuery, _) {
   return {
     options: {
       i18n: {

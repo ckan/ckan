@@ -2,7 +2,7 @@
 
 {% block page %}
 
-  <div data-module="reclineview"
+  <div data-module="recline_view"
        data-module-site_url="{{ h.dump_json(h.url('/', locale='default', qualified=true)) }}"
        data-module-resource = "{{ h.dump_json(resource_json) }}";
        data-module-resource-view = "{{ h.dump_json(resource_view_json) }}";
