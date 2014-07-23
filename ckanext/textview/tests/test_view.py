@@ -89,5 +89,5 @@ class TestTextView(tests.WsgiAppCase):
                         id=self.package.name, resource_id=self.resource_id,
                         view_id=self.resource_view['id'])
         result = self.app.get(url)
-        assert (('textview.js' in result.body) or
-                ('textview.min.js' in result.body))
+        assert (('text_view.js' in result.body) or
+                ('text_view.min.js' in result.body))

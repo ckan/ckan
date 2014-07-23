@@ -73,8 +73,8 @@ class TestPdfView(tests.WsgiAppCase):
                         id=self.package.name, resource_id=self.resource_id,
                         view_id=self.resource_view['id'])
         result = self.app.get(url)
-        assert (('pdfview.js' in result.body) or
-                ('pdfview.min.js' in result.body))
+        assert (('pdf_view.js' in result.body) or
+                ('pdf_view.min.js' in result.body))
 
     def test_title_description_iframe_shown(self):
         url = h.url_for(controller='package', action='resource_read',

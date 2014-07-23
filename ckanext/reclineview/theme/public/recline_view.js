@@ -1,4 +1,4 @@
-this.ckan.module('reclineview', function (jQuery, _) {
+this.ckan.module('recline_view', function (jQuery, _) {
   return {
     options: {
       i18n: {

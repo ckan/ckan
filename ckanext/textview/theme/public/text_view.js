@@ -1,4 +1,4 @@
-ckan.module('textview', function (jQuery, _) {
+ckan.module('text_view', function (jQuery, _) {
   return {
     options: {
       i18n: {
