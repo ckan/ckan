@@ -37,7 +37,7 @@
                     <i class="icon-eye-open"></i> {{ _('View') }}
                   {% elif  res.resource_type == 'api' %}
                     <i class="icon-key"></i> {{ _('API Endpoint') }}
-                  {% elif not res.can_be_previewed %}
+                  {% elif not res.has_views or not res.can_be_previewed %}
                     <i class="icon-external-link"></i> {{ _('Go to resource') }}
                   {% else %}
                     <i class="icon-download"></i> {{ _('Download') }}
@@ -72,7 +72,45 @@
         {% endblock %}
       </div>
       {% block data_preview %}
-        {{ h.resource_preview(c.resource, c.package) }}
+      {% block resource_view %}
+        <div class="module-content">
+          {% block resource_view_nav %}
+            {% set resource_preview = h.resource_preview(c.resource, c.package) %}
+            {% snippet "package/snippets/resource_views_list.html",
+               views=resource_views,
+               pkg=pkg,
+               is_edit=false,
+               extra_class='stacked',
+               view_id=current_resource_view['id'],
+               resource_preview=resource_preview,
+               resource=c.resource
+             %}
+          {% endblock %}
+          {% block resource_view_content %}
+            <div class="resource-view">
+              {% set resource_preview = h.resource_preview(c.resource, c.package) %}
+              {% set views_created = res.has_views or resource_preview %}
+              {% if not views_created %}
+                {{ _("There're no views created for this resource yet.") }}
+              {% else %}
+                {% if resource_preview and not current_resource_view %}
+                  {{ h.resource_preview(c.resource, c.package) }}
+                {% else %}
+                  {% for resource_view in resource_views %}
+                    {% if resource_view == current_resource_view %}
+                      {% snippet 'package/snippets/resource_view.html',
+                         resource_view=resource_view,
+                         resource=c.resource,
+                         package=c.package
+                       %}
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              {% endif %}
+            </div>
+          {% endblock %}
+        </div>
+      {% endblock %}
       {% endblock %}
       {% endblock %}
     </section>

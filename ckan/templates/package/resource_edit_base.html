@@ -9,7 +9,7 @@
   {{ super() }}
   {% if res %}
     <li>{% link_for h.resource_display_name(res)|truncate(30), controller='package', action='resource_read', id=pkg.name, resource_id=res.id %}</li>
-    <li class="active"><a href="">{{ _('Edit') }}</a></li>
+    <li{% block breadcrumb_edit_selected %} class="active"{% endblock %}><a href="">{{ _('Edit') }}</a></li>
   {% endif %}
 {% endblock %}
 
@@ -25,6 +25,7 @@
   {% if 'datapusher' in g.plugins %}
     {{ h.build_nav_icon('resource_data', _('DataStore'), id=pkg.name, resource_id=res.id) }}
   {% endif %}
+  {{ h.build_nav_icon('views', _('Views'), id=pkg.name, resource_id=res.id) }}
 {% endblock %}
 
 {% block primary_content_inner %}

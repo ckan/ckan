@@ -347,15 +347,9 @@ class BaseController(WSGIController):
         finally:
             model.Session.remove()
 
-        # Clean out any old cookies as they may contain api keys etc
-        # This also improves the cachability of our pages as cookies
-        # prevent proxy servers from caching content unless they have
-        # been configured to ignore them.
         for cookie in request.cookies:
-            if cookie.startswith('ckan') and cookie not in ['ckan']:
-                response.delete_cookie(cookie)
             # Remove the ckan session cookie if not used e.g. logged out
-            elif cookie == 'ckan' and not c.user:
+            if cookie == 'ckan' and not c.user:
                 # Check session for valid data (including flash messages)
                 # (DGU also uses session for a shopping basket-type behaviour)
                 is_valid_cookie_data = False

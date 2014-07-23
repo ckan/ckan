@@ -35,7 +35,7 @@
         <p>
             You can also access this registry using the 
             ${h.link_to(_('API'), h.url_for(controller='api', action='get_api', id=None, ver=3))}
-            (see ${h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api.html')})<py:if test="dumps_url">
+            (see ${h.link_to(_('API Docs'), 'http://docs.ckan.org/en/latest/api/')})<py:if test="dumps_url">
                 or download a <a href="${dumps_url}">full ${dumps_format} 
                 dump</a></py:if>.
         </p>

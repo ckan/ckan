@@ -316,6 +316,8 @@ class PackageController(base.BaseController):
 
         try:
             check_access('package_update', context, data_dict)
+        except NotFound:
+            abort(404, _('Dataset not found'))
         except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
         # check if package exists
@@ -386,8 +388,13 @@ class PackageController(base.BaseController):
 
         # can the resources be previewed?
         for resource in c.pkg_dict['resources']:
+            # Backwards compatibility with preview interface
             resource['can_be_previewed'] = self._resource_preview(
                 {'resource': resource, 'package': c.pkg_dict})
+
+            resource_views = get_action('resource_view_list')(
+                context, {'id': resource['id']})
+            resource['has_views'] = len(resource_views) > 0
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
@@ -406,6 +413,7 @@ class PackageController(base.BaseController):
             abort(404, msg)
 
         assert False, "We should never get here"
+
 
     def history(self, id):
         package_type = self._get_package_type(id.split('@')[0])
@@ -518,10 +526,8 @@ class PackageController(base.BaseController):
         # in the phased add dataset we need to know that
         # we have already completed stage 1
         stage = ['active']
-        if data.get('state') == 'draft':
+        if data.get('state', '').startswith('draft'):
             stage = ['active', 'complete']
-        elif data.get('state') == 'draft-complete':
-            stage = ['active', 'complete', 'complete']
 
         # if we are creating from a group then this allows the group to be
         # set automatically
@@ -677,9 +683,13 @@ class PackageController(base.BaseController):
                 abort(404,
                     _('The dataset {id} could not be found.').format(id=id))
             if save_action == 'go-metadata':
-                # go to final stage of add dataset
+                # XXX race condition if another user edits/deletes
+                data_dict = get_action('package_show')(context, {'id': id})
+                get_action('package_update')(
+                    dict(context, allow_state_change=True),
+                    dict(data_dict, state='active'))
                 redirect(h.url_for(controller='package',
-                                   action='new_metadata', id=id))
+                                   action='read', id=id))
             elif save_action == 'go-dataset':
                 # go to first stage of add dataset
                 redirect(h.url_for(controller='package',
@@ -704,73 +714,18 @@ class PackageController(base.BaseController):
             pkg_dict = get_action('package_show')(context, {'id': id})
         except NotFound:
             abort(404, _('The dataset {id} could not be found.').format(id=id))
+        try:
+            check_access('resource_create', context, pkg_dict)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to create a resource for this package'))
+
         # required for nav menu
         vars['pkg_dict'] = pkg_dict
         template = 'package/new_resource_not_draft.html'
-        if pkg_dict['state'] == 'draft':
+        if pkg_dict['state'].startswith('draft'):
             vars['stage'] = ['complete', 'active']
             template = 'package/new_resource.html'
-        elif pkg_dict['state'] == 'draft-complete':
-            vars['stage'] = ['complete', 'active', 'complete']
-            template = 'package/new_resource.html'
         return render(template, extra_vars=vars)
-
-    def new_metadata(self, id, data=None, errors=None, error_summary=None):
-        ''' FIXME: This is a temporary action to allow styling of the
-        forms. '''
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
-
-        if request.method == 'POST' and not data:
-            save_action = request.params.get('save')
-            data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
-                request.POST))))
-            # we don't want to include save as it is part of the form
-            del data['save']
-
-            data_dict = get_action('package_show')(context, {'id': id})
-
-            data_dict['id'] = id
-            # update the state
-            if save_action == 'finish':
-                # we want this to go live when saved
-                data_dict['state'] = 'active'
-            elif save_action in ['go-resources', 'go-dataset']:
-                data_dict['state'] = 'draft-complete'
-            # allow the state to be changed
-            context['allow_state_change'] = True
-            data_dict.update(data)
-            try:
-                get_action('package_update')(context, data_dict)
-            except ValidationError, e:
-                errors = e.error_dict
-                error_summary = e.error_summary
-                return self.new_metadata(id, data, errors, error_summary)
-            except NotAuthorized:
-                abort(401, _('Unauthorized to update dataset'))
-            if save_action == 'go-resources':
-                # we want to go back to the add resources form stage
-                redirect(h.url_for(controller='package',
-                                   action='new_resource', id=id))
-            elif save_action == 'go-dataset':
-                # we want to go back to the add dataset stage
-                redirect(h.url_for(controller='package',
-                                   action='edit', id=id))
-
-            redirect(h.url_for(controller='package', action='read', id=id))
-
-        if not data:
-            data = get_action('package_show')(context, {'id': id})
-        errors = errors or {}
-        error_summary = error_summary or {}
-        vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
-        vars['pkg_name'] = id
-
-        package_type = self._get_package_type(id)
-        self._setup_template_variables(context, {},
-                                       package_type=package_type)
-
-        return render('package/new_package_metadata.html', extra_vars=vars)
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         package_type = self._get_package_type(id)
@@ -824,10 +779,8 @@ class PackageController(base.BaseController):
 
         # we have already completed stage 1
         vars['stage'] = ['active']
-        if data.get('state') == 'draft':
+        if data.get('state', '').startswith('draft'):
             vars['stage'] = ['active', 'complete']
-        elif data.get('state') == 'draft-complete':
-            vars['stage'] = ['active', 'complete', 'complete']
 
         # TODO: This check is to maintain backwards compatibility with the
         # old way of creating custom forms. This behaviour is now deprecated.
@@ -931,6 +884,8 @@ class PackageController(base.BaseController):
                     # This is actually an update not a save
                     data_dict['id'] = data_dict['pkg_name']
                     del data_dict['pkg_name']
+                    # don't change the dataset state
+                    data_dict['state'] = 'draft'
                     # this is actually an edit not a save
                     pkg_dict = get_action('package_update')(context, data_dict)
 
@@ -1112,7 +1067,7 @@ class PackageController(base.BaseController):
         return render('package/confirm_delete_resource.html')
 
     def autocomplete(self):
-        # DEPRECATED in favour of /api/2/util/dataset/autocomplete
+        '''Deprecated in favour of /api/2/util/dataset/autocomplete'''
         q = unicode(request.params.get('q', ''))
         if not len(q):
             return ''
@@ -1202,13 +1157,36 @@ class PackageController(base.BaseController):
 
         c.resource['can_be_previewed'] = self._resource_preview(
             {'resource': c.resource, 'package': c.package})
-        return render('package/resource_read.html')
 
+        resource_views = get_action('resource_view_list')(
+            context, {'id': resource_id})
+        c.resource['has_views'] = len(resource_views) > 0
+
+        current_resource_view = None
+        view_id = request.GET.get('view_id')
+        if c.resource['can_be_previewed'] and not view_id:
+            current_resource_view = None
+        elif c.resource['has_views']:
+            if view_id:
+                current_resource_view = [rv for rv in resource_views
+                                         if rv['id'] == view_id]
+                if len(current_resource_view) == 1:
+                    current_resource_view = current_resource_view[0]
+                else:
+                    abort(404, _('Resource view not found'))
+            else:
+                current_resource_view = resource_views[0]
+
+        vars = {'resource_views': resource_views,
+                'current_resource_view': current_resource_view}
+
+        return render('package/resource_read.html', extra_vars=vars)
+
+    @maintain.deprecated('Resource preview is deprecated. Please use the new '
+                         'resource views')
     def _resource_preview(self, data_dict):
-        return bool(datapreview.res_format(data_dict['resource'])
-                    in datapreview.direct() + datapreview.loadable()
-                    or datapreview.get_preview_plugin(
-                        data_dict, return_first=True))
+        '''Deprecated in 2.3'''
+        return bool(datapreview.get_preview_plugin(data_dict, return_first=True))
 
     def resource_download(self, id, resource_id, filename=None):
         """
@@ -1387,7 +1365,7 @@ class PackageController(base.BaseController):
     def resource_embedded_dataviewer(self, id, resource_id,
                                      width=500, height=500):
         """
-        Embeded page for a read-only resource dataview. Allows
+        Embedded page for a read-only resource dataview. Allows
         for width and height to be specified as part of the
         querystring (as well as accepting them via routes).
         """
@@ -1458,9 +1436,207 @@ class PackageController(base.BaseController):
                 recline_state.pop(k)
         return recline_state
 
+    def resource_views(self, id, resource_id):
+        package_type = self._get_package_type(id.split('@')[0])
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj}
+        data_dict = {'id': id}
+
+        try:
+            check_access('package_update', context, data_dict)
+        except NotAuthorized:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+        # check if package exists
+        try:
+            c.pkg_dict = get_action('package_show')(context, data_dict)
+            c.pkg = context['package']
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read dataset %s') % id)
+
+        try:
+            c.resource = get_action('resource_show')(context,
+                                                     {'id': resource_id})
+            c.views = get_action('resource_view_list')(context,
+                                                       {'id': resource_id})
+
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        self._setup_template_variables(context, {'id': id},
+                                       package_type=package_type)
+
+        return render('package/resource_views.html')
+
+    def edit_view(self, id, resource_id, view_id=None):
+        package_type = self._get_package_type(id.split('@')[0])
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user or c.author, 'for_view': True,
+                   'auth_user_obj': c.userobj}
+
+        # update resource should tell us early if the user has privilages.
+        try:
+            check_access('resource_update', context, {'id': resource_id})
+        except NotAuthorized, e:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+
+        # get resource and package data
+        try:
+            c.pkg_dict = get_action('package_show')(context, {'id': id})
+            c.pkg = context['package']
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read dataset %s') % id)
+        try:
+            c.resource = get_action('resource_show')(context,
+                                                     {'id': resource_id})
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+
+        data = {}
+        errors = {}
+        error_summary = {}
+        view_type = None
+        to_preview = False
+
+        if request.method == 'POST':
+            request.POST.pop('save', None)
+            to_preview = request.POST.pop('preview', False)
+            if to_preview:
+                context['preview'] = True
+            to_delete = request.POST.pop('delete', None)
+            data = clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
+                request.params, ignore_keys=CACHE_PARAMETERS))))
+            data['resource_id'] = resource_id
+
+            try:
+                if to_delete:
+                    data['id'] = view_id
+                    get_action('resource_view_delete')(context, data)
+                elif view_id:
+                    data['id'] = view_id
+                    get_action('resource_view_update')(context, data)
+                else:
+                    get_action('resource_view_create')(context, data)
+            except ValidationError, e:
+                ## Could break preview if validation error
+                to_preview = False
+                errors = e.error_dict
+                error_summary = e.error_summary
+            except NotAuthorized:
+                ## This should never happen unless the user maliciously changed
+                ## the resource_id in the url.
+                abort(401, _('Unauthorized to edit resource'))
+            else:
+                if not to_preview:
+                    redirect(h.url_for(controller='package',
+                                       action='resource_views',
+                                       id=id, resource_id=resource_id))
+
+        ## view_id exists only when updating
+        if view_id:
+            try:
+                old_data = get_action('resource_view_show')(context,
+                                                            {'id': view_id})
+                data = data or old_data
+                view_type = old_data.get('view_type')
+                ## might as well preview when loading good existing view
+                if not errors:
+                    to_preview = True
+            except NotFound:
+                abort(404, _('View not found'))
+            except NotAuthorized:
+                abort(401, _('Unauthorized to view View %s') % view_id)
+
+        view_type = view_type or request.GET.get('view_type')
+        data['view_type'] = view_type
+        view_plugin = datapreview.get_view_plugin(view_type)
+        if not view_plugin:
+            abort(404, _('View Type Not found'))
+
+        self._setup_template_variables(context, {'id': id},
+                                       package_type=package_type)
+
+        data_dict = {'package': c.pkg_dict, 'resource': c.resource,
+                     'resource_view': data}
+
+        view_template = view_plugin.view_template(context, data_dict)
+        form_template = view_plugin.form_template(context, data_dict)
+
+        vars = {'form_template': form_template,
+                'view_template': view_template,
+                'data': data,
+                'errors': errors,
+                'error_summary': error_summary,
+                'to_preview': to_preview}
+        vars.update(
+            view_plugin.setup_template_variables(context, data_dict) or {})
+        vars.update(data_dict)
+
+        if view_id:
+            return render('package/edit_view.html', extra_vars=vars)
+
+        return render('package/new_view.html', extra_vars=vars)
+
+    def resource_view(self, id, resource_id, view_id=None):
+        '''
+        Embedded page for a resource view.
+
+        Depending on the type, different views are loaded. This could be an
+        img tag where the image is loaded directly or an iframe that embeds a
+        webpage, recline or a pdf preview.
+        '''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user or c.author,
+                   'auth_user_obj': c.userobj}
+
+        try:
+            package = get_action('package_show')(context, {'id': id})
+        except NotFound:
+            abort(404, _('Dataset not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read dataset %s') % id)
+
+        try:
+            resource = get_action('resource_show')(
+                context, {'id': resource_id})
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % resource_id)
+
+        view = None
+        if request.params.get('resource_view', ''):
+            try:
+                view = json.loads(request.params.get('resource_view', ''))
+            except ValueError:
+                abort(409, _('Bad resource view data'))
+        elif view_id:
+            try:
+                view = get_action('resource_view_show')(
+                    context, {'id': view_id})
+            except NotFound:
+                abort(404, _('Resource view not found'))
+            except NotAuthorized:
+                abort(401,
+                      _('Unauthorized to read resource view %s') % view_id)
+
+        if not view or not isinstance(view, dict):
+            abort(404, _('Resource view not supplied'))
+
+        return h.rendered_resource_view(view, resource, package, embed=True)
+
     def resource_datapreview(self, id, resource_id):
         '''
-        Embeded page for a resource data-preview.
+        Embedded page for a resource data-preview.
 
         Depending on the type, different previews are loaded.  This could be an
         img tag where the image is loaded directly or an iframe that embeds a
