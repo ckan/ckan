@@ -48,6 +48,8 @@ sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
 #ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
 #ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
 
+# Default Postgres' full-text search index language
+ckan.datastore.default_fts_lang = english
 
 ## Site Settings
 
@@ -109,7 +111,6 @@ ckan.locale_default = en
 ckan.locale_order = en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv
 ckan.locales_offered =
 ckan.locales_filtered_out = en_GB
-
 
 ## Feeds Settings
 

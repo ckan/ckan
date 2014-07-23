@@ -14,9 +14,44 @@ import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
 
 import ckan.new_tests.helpers as helpers
+import ckan.new_tests.factories as factories
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
+
+
+class TestDatastoreSearchNewTest(object):
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('datastore')
+        helpers.reset_db()
+
+    def test_fts_on_field_calculates_ranks_only_on_that_specific_field(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'from': 'Brazil', 'to': 'Brazil'},
+                {'from': 'Brazil', 'to': 'Italy'}
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            'fields': 'from',
+            'q': {
+                'from': 'Brazil'
+            },
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        ranks = [r['rank from'] for r in result['records']]
+        assert_equals(len(result['records']), 2)
+        assert_equals(len(set(ranks)), 1)
 
 
 class TestDatastoreSearch(tests.WsgiAppCase):
@@ -453,6 +488,60 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
         for field in expected_fields:
             assert field in result['fields'], field
+
+    def test_search_full_text_on_specific_column(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': {u"b\xfck": "annakarenina"}
+                }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        assert_equals(len(res_dict['result']['records']), 1)
+        assert_equals(res_dict['result']['records'][0]['_id'],
+                      self.expected_records[0]['_id'])
+
+    def test_search_full_text_on_specific_column_even_if_q_is_a_json_string(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': u'{"b\xfck": "annakarenina"}'
+                }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        assert_equals(len(res_dict['result']['records']), 1)
+        assert_equals(res_dict['result']['records'][0]['_id'],
+                      self.expected_records[0]['_id'])
+
+    def test_search_full_text_invalid_field_name(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': {'invalid_field_name': 'value'}
+                }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_search_full_text_invalid_field_value(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': {'author': ['invalid', 'value']}
+                }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
 
     def test_search_table_metadata(self):
         data = {'resource_id': "_table_metadata"}
