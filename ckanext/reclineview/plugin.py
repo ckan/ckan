@@ -41,7 +41,7 @@ def datastore_fields(resource, valid_field_types):
             if f['type'] in valid_field_types]
 
 
-class ReclineView(p.SingletonPlugin):
+class ReclineViewBase(p.SingletonPlugin):
     '''
     This base class for the Recline view extensions.
     '''
@@ -51,11 +51,11 @@ class ReclineView(p.SingletonPlugin):
     def update_config(self, config):
         '''
         Set up the resource library, public directory and
-        template directory for the preview
+        template directory for the view
         '''
         toolkit.add_public_directory(config, 'theme/public')
         toolkit.add_template_directory(config, 'theme/templates')
-        toolkit.add_resource('theme/public', 'ckanext-reclinepreview')
+        toolkit.add_resource('theme/public', 'ckanext-reclineview')
 
     def can_view(self, data_dict):
         if data_dict['resource'].get('datastore_active'):
@@ -70,31 +70,31 @@ class ReclineView(p.SingletonPlugin):
         return 'recline_view.html'
 
 
-class ReclinePreview(ReclineView):
+class ReclineView(ReclineViewBase):
     '''
     This extension views resources using a Recline MultiView.
     '''
 
     def info(self):
-        return {'name': 'recline_preview',
+        return {'name': 'recline_view',
                 'title': 'Data Explorer',
                 'filterable': True,
                 'icon': 'table'}
 
 
-class ReclineGrid(ReclineView):
+class ReclineGridView(ReclineViewBase):
     '''
     This extension views resources using a Recline grid.
     '''
 
     def info(self):
-        return {'name': 'recline_grid',
+        return {'name': 'recline_grid_view',
                 'title': 'Grid',
                 'filterable': True,
                 'icon': 'table'}
 
 
-class ReclineGraph(ReclineView):
+class ReclineGraphView(ReclineViewBase):
     '''
     This extension views resources using a Recline graph.
     '''
@@ -127,7 +127,7 @@ class ReclineGraph(ReclineView):
             'group': [ignore_empty, in_list(self.list_datastore_fields)],
             'series': [ignore_empty, in_list(self.list_datastore_fields)]
         }
-        return {'name': 'recline_graph',
+        return {'name': 'recline_graph_view',
                 'title': 'Graph',
                 'icon': 'bar-chart',
                 'filterable': True,
@@ -136,7 +136,8 @@ class ReclineGraph(ReclineView):
     def setup_template_variables(self, context, data_dict):
         self.datastore_fields = datastore_fields(data_dict['resource'],
                                                  self.datastore_field_types)
-        vars = ReclineView.setup_template_variables(self, context, data_dict)
+        vars = ReclineViewBase.setup_template_variables(self, context,
+                                                        data_dict)
         vars.update({'graph_types': self.graph_types,
                      'graph_fields': self.datastore_fields})
         return vars
@@ -145,7 +146,7 @@ class ReclineGraph(ReclineView):
         return 'recline_graph_form.html'
 
 
-class ReclineMap(ReclineView):
+class ReclineMapView(ReclineViewBase):
     '''
     This extension views resources using a Recline map.
     '''
@@ -182,7 +183,7 @@ class ReclineMap(ReclineView):
             'auto_zoom': [ignore_empty],
             'cluster_markers': [ignore_empty]
         }
-        return {'name': 'recline_map',
+        return {'name': 'recline_map_view',
                 'title': 'Map',
                 'schema': schema,
                 'filterable': True,
@@ -191,7 +192,8 @@ class ReclineMap(ReclineView):
     def setup_template_variables(self, context, data_dict):
         self.datastore_fields = datastore_fields(data_dict['resource'],
                                                  self.datastore_field_types)
-        vars = ReclineView.setup_template_variables(self, context, data_dict)
+        vars = ReclineViewBase.setup_template_variables(self, context,
+                                                        data_dict)
         vars.update({'map_field_types': self.map_field_types,
                      'map_fields': self.datastore_fields})
         return vars

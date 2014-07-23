@@ -25,6 +25,7 @@ decorator==3.4.0
 fanstatic==0.12
 nose==1.3.0
 ofs==0.4.1
+passlib==1.6.2
 psycopg2==2.4.5
 python-dateutil==1.5
 python-openid==2.2.5

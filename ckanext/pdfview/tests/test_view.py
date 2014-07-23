@@ -6,7 +6,7 @@ import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
-import ckanext.pdfpreview.plugin as previewplugin
+import ckanext.pdfview.plugin as plugin
 import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
 
@@ -27,7 +27,7 @@ def _create_test_view(view_type):
     return resource_view, package, resource_id
 
 
-class TestPdfPreview(tests.WsgiAppCase):
+class TestPdfView(tests.WsgiAppCase):
     view_type = 'pdf'
 
     @classmethod
@@ -36,9 +36,9 @@ class TestPdfPreview(tests.WsgiAppCase):
         config['ckan.legacy_templates'] = 'false'
         wsgiapp = middleware.make_app(config['global_conf'], **config)
 
-        plugins.load('pdf_preview')
+        plugins.load('pdf_view')
         cls.app = paste.fixture.TestApp(wsgiapp)
-        cls.p = previewplugin.PdfPreview()
+        cls.p = plugin.PdfView()
         cls.p.proxy_is_enabled = False
 
         create_test_data.CreateTestData.create()
@@ -49,10 +49,10 @@ class TestPdfPreview(tests.WsgiAppCase):
     @classmethod
     def teardown_class(cls):
         config['ckan.legacy_templates'] = cls.config_templates
-        plugins.unload('pdf_preview')
+        plugins.unload('pdf_view')
         model.repo.rebuild_db()
 
-    def test_can_preview(self):
+    def test_can_view(self):
         url_same_domain = urlparse.urljoin(
             config.get('ckan.site_url', '//localhost:5000'),
             '/resource.txt')
@@ -73,8 +73,8 @@ class TestPdfPreview(tests.WsgiAppCase):
                         id=self.package.name, resource_id=self.resource_id,
                         view_id=self.resource_view['id'])
         result = self.app.get(url)
-        assert (('preview_pdf.js' in result.body) or
-                ('preview_pdf.min.js' in result.body))
+        assert (('pdf_view.js' in result.body) or
+                ('pdf_view.min.js' in result.body))
 
     def test_title_description_iframe_shown(self):
         url = h.url_for(controller='package', action='resource_read',

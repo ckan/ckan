@@ -1,5 +1,7 @@
 def upgrade(migrate_engine):
     migrate_engine.execute('''
+        BEGIN;
+
         ALTER TABLE resource_view
             DROP CONSTRAINT resource_view_resource_id_fkey;
 
@@ -7,4 +9,6 @@ def upgrade(migrate_engine):
             ADD CONSTRAINT resource_view_resource_id_fkey
             FOREIGN KEY (resource_id) REFERENCES resource(id)
             ON UPDATE CASCADE ON DELETE CASCADE;
+
+        COMMIT;
     ''')

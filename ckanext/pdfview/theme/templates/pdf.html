@@ -1,11 +1,11 @@
 {% extends 'dataviewer/base.html' %}
 
 {% block styles %}
-  <link rel="resource" type="application/l10n" href="{{ h.urls_for_resource('ckanext-pdfpreview/vendor/l10n/locale.properties.js')[-1] }}"/>
+  <link rel="resource" type="application/l10n" href="{{ h.urls_for_resource('ckanext-pdfview/vendor/l10n/locale.properties.js')[-1] }}"/>
 {% endblock %}
 
 {% block page %}
-<div id="outerContainer" class="loadingInProgress" data-module="pdfpreview">
+<div id="outerContainer" class="loadingInProgress" data-module="pdf_view">
   <div id="sidebarContainer">
     <div id="toolbarSidebar">
       <div class="splitToolbarButton toggled">
@@ -172,8 +172,8 @@
 
   <script>
     var resource_url = "{{ h.view_resource_url(resource_view, resource, package) }}";
-    var pdfjs_workerSrc = "{{ h.urls_for_resource('ckanext-pdfpreview/vendor/pdfjs/pdf.js')[-1] }}";
+    var pdfjs_workerSrc = "{{ h.urls_for_resource('ckanext-pdfview/vendor/pdfjs/pdf.js')[-1] }}";
   </script>
-  {% resource 'ckanext-pdfpreview/vendor/pdfjs/pdf.js' %}
-  {% resource 'ckanext-pdfpreview/main' %}
+  {% resource 'ckanext-pdfview/vendor/pdfjs/pdf.js' %}
+  {% resource 'ckanext-pdfview/main' %}
 {% endblock %}

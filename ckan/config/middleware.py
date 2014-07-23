@@ -29,6 +29,7 @@ import ckan.lib.uploader as uploader
 from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
 
+log = logging.getLogger(__name__)
 
 def make_app(conf, full_stack=True, static_files=True, **app_conf):
     """Create a Pylons WSGI application and return it
@@ -93,6 +94,13 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             'bundle': True,
         }
     app = Fanstatic(app, **fanstatic_config)
+
+    for plugin in PluginImplementations(IMiddleware):
+        try:
+            app = plugin.make_error_log_middleware(app, config)
+        except AttributeError:
+            log.critical('Middleware class {0} is missing the method'
+                         'make_error_log_middleware.'.format(plugin.__class__.__name__))
 
     if asbool(full_stack):
         # Handle Python exceptions

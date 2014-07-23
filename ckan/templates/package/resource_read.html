@@ -76,7 +76,15 @@
         <div class="module-content">
           {% block resource_view_nav %}
             {% set resource_preview = h.resource_preview(c.resource, c.package) %}
-            {% snippet "package/snippets/resource_views_list.html", views=resource_views, pkg=pkg, is_edit=false, extra_class='stacked', view_id=current_resource_view, resource_preview=resource_preview, resource=c.resource %}
+            {% snippet "package/snippets/resource_views_list.html",
+               views=resource_views,
+               pkg=pkg,
+               is_edit=false,
+               extra_class='stacked',
+               view_id=current_resource_view['id'],
+               resource_preview=resource_preview,
+               resource=c.resource
+             %}
           {% endblock %}
           {% block resource_view_content %}
             <div class="resource-view">
@@ -89,8 +97,12 @@
                   {{ h.resource_preview(c.resource, c.package) }}
                 {% else %}
                   {% for resource_view in resource_views %}
-                    {% if resource_view.id == current_resource_view %}
-                      {% snippet 'package/snippets/resource_view.html', resource_view=resource_view, resource=c.resource, package=c.package %}
+                    {% if resource_view == current_resource_view %}
+                      {% snippet 'package/snippets/resource_view.html',
+                         resource_view=resource_view,
+                         resource=c.resource,
+                         package=c.package
+                       %}
                     {% endif %}
                   {% endfor %}
                 {% endif %}

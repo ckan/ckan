@@ -6,8 +6,8 @@ import ckan.lib.datapreview as datapreview
 log = logging.getLogger(__name__)
 
 
-class PdfPreview(p.SingletonPlugin):
-    '''This extension previews PDFs. '''
+class PdfView(p.SingletonPlugin):
+    '''This extension views PDFs. '''
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IResourceView, inherit=True)
@@ -22,7 +22,7 @@ class PdfPreview(p.SingletonPlugin):
     def update_config(self, config):
         p.toolkit.add_public_directory(config, 'theme/public')
         p.toolkit.add_template_directory(config, 'theme/templates')
-        p.toolkit.add_resource('theme/public', 'ckanext-pdfpreview')
+        p.toolkit.add_resource('theme/public', 'ckanext-pdfview')
 
     def configure(self, config):
         enabled = config.get('ckan.resource_proxy_enabled', False)

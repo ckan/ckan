@@ -13,7 +13,7 @@ DEFAULT_JSON_FORMATS = ['json', 'gjson', 'geojson']
 DEFAULT_JSONP_FORMATS = ['jsonp']
 
 
-class TextPreview(p.SingletonPlugin):
+class TextView(p.SingletonPlugin):
     '''This extension previews JSON(P).'''
 
     p.implements(p.IConfigurer, inherit=True)
@@ -47,7 +47,7 @@ class TextPreview(p.SingletonPlugin):
 
         p.toolkit.add_public_directory(config, 'theme/public')
         p.toolkit.add_template_directory(config, 'theme/templates')
-        p.toolkit.add_resource('theme/public', 'ckanext-textpreview')
+        p.toolkit.add_resource('theme/public', 'ckanext-textview')
 
     def info(self):
         return {'name': 'text', 'title': 'Text', 'icon': 'file-text-alt'}

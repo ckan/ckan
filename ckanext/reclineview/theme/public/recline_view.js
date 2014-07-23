@@ -1,5 +1,4 @@
-// recline preview module
-this.ckan.module('reclinepreview', function (jQuery, _) {
+this.ckan.module('recline_view', function (jQuery, _) {
   return {
     options: {
       i18n: {
@@ -32,7 +31,7 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       var self = this;
 
       function showError(msg){
-        msg = msg || _('error loading preview');
+        msg = msg || _('error loading view');
         window.parent.ckan.pubsub.publish('data-viewer-error', msg);
       }
 
@@ -85,14 +84,14 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
           state,
           controls = [];
 
-      if(reclineView.view_type === "recline_graph") {
+      if(reclineView.view_type === "recline_graph_view") {
         state = {
           "graphType": reclineView.graph_type,
           "group": reclineView.group,
           "series": [reclineView.series]
         };
         view = new recline.View.Graph({model: dataset, state: state});
-      } else if(reclineView.view_type === "recline_map") {
+      } else if(reclineView.view_type === "recline_map_view") {
         state = {
           geomField: null,
           latField: null,
@@ -109,7 +108,7 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         }
 
         view = new recline.View.Map({model: dataset, state: state});
-      } else if(reclineView.view_type === "recline_preview") {
+      } else if(reclineView.view_type === "recline_view") {
         view = this._newDataExplorer(dataset);
       } else {
         // default to Grid
@@ -121,9 +120,9 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         ];
       }
 
-      // recline_preview automatically adds itself to the DOM, so we don't
+      // recline_view automatically adds itself to the DOM, so we don't
       // need to bother with it.
-      if(reclineView.view_type !== 'recline_preview') {
+      if(reclineView.view_type !== 'recline_view') {
         var newElements = $('<div />');
         this._renderControls(newElements, controls, this.options.controlsClassName);
         newElements.append(view.el);
@@ -132,7 +131,7 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
         view.render();
       }
 
-      if(reclineView.view_type === "recline_graph") {
+      if(reclineView.view_type === "recline_graph_view") {
         view.redraw();
       }
     },

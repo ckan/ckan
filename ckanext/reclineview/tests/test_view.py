@@ -5,12 +5,12 @@ import ckan.model as model
 import ckan.tests as tests
 import ckan.plugins as p
 import ckan.lib.helpers as h
-import ckanext.reclinepreview.plugin as previewplugin
+import ckanext.reclineview.plugin as plugin
 import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
 
 
-class BaseTestReclineView(tests.WsgiAppCase):
+class BaseTestReclineViewBase(tests.WsgiAppCase):
     @classmethod
     def setup_class(cls):
         cls.config_templates = config['ckan.legacy_templates']
@@ -32,7 +32,7 @@ class BaseTestReclineView(tests.WsgiAppCase):
         p.unload(cls.view_type)
         model.repo.rebuild_db()
 
-    def test_can_preview(self):
+    def test_can_view(self):
         data_dict = {'resource': {'datastore_active': True}}
         assert self.p.can_view(data_dict)
 
@@ -48,27 +48,27 @@ class BaseTestReclineView(tests.WsgiAppCase):
         assert 'data-module="data-viewer"' in result.body
 
 
-class TestReclinePreview(BaseTestReclineView):
-    view_type = 'recline_preview'
-    view_class = previewplugin.ReclinePreview
+class TestReclineView(BaseTestReclineViewBase):
+    view_type = 'recline_view'
+    view_class = plugin.ReclineView
 
     def test_it_has_no_schema(self):
         schema = self.p.info().get('schema')
         assert schema is None, schema
 
 
-class TestReclineGrid(BaseTestReclineView):
-    view_type = 'recline_grid'
-    view_class = previewplugin.ReclineGrid
+class TestReclineGridView(BaseTestReclineViewBase):
+    view_type = 'recline_grid_view'
+    view_class = plugin.ReclineGridView
 
     def test_it_has_no_schema(self):
         schema = self.p.info().get('schema')
         assert schema is None, schema
 
 
-class TestReclineGraph(BaseTestReclineView):
-    view_type = 'recline_graph'
-    view_class = previewplugin.ReclineGraph
+class TestReclineGraphView(BaseTestReclineViewBase):
+    view_type = 'recline_graph_view'
+    view_class = plugin.ReclineGraphView
 
     def test_it_has_the_correct_schema_keys(self):
         schema = self.p.info().get('schema')
@@ -76,9 +76,9 @@ class TestReclineGraph(BaseTestReclineView):
         _assert_schema_exists_and_has_keys(schema, expected_keys)
 
 
-class TestReclineMap(BaseTestReclineView):
-    view_type = 'recline_map'
-    view_class = previewplugin.ReclineMap
+class TestReclineMapView(BaseTestReclineViewBase):
+    view_type = 'recline_map_view'
+    view_class = plugin.ReclineMapView
 
     def test_it_has_the_correct_schema_keys(self):
         schema = self.p.info().get('schema')

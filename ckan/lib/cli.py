@@ -2124,9 +2124,9 @@ class ViewsCommand(CkanCommand):
     Supported types are "pdf", "text", "webpage", "image" and "grid".  Make
     sure the relevant plugins are loaded for the following types, otherwise
     an error will be raised:
-        * "grid"-> "recline_grid"
-        * "pdf" -> "pdf_preview"
-        * "text -> "text_preview"
+        * "grid"-> "recline_grid_view"
+        * "pdf" -> "pdf_view"
+        * "text -> "text_view"
     '''
 
     summary = __doc__.split('\n')[0]
@@ -2188,8 +2188,8 @@ class ViewsCommand(CkanCommand):
         print 'Deleted resource views.'
 
     def create_text_views(self):
-        if not p.plugin_loaded('text_preview'):
-            print 'Please enable the text_preview plugin to make the text views.'
+        if not p.plugin_loaded('text_view'):
+            print 'Please enable the text_view plugin to make the text views.'
             return
 
         if not p.plugin_loaded('resource_proxy'):
@@ -2198,7 +2198,7 @@ class ViewsCommand(CkanCommand):
 
         print 'Text resource views are being created'
 
-        import ckanext.textpreview.plugin as textplugin
+        import ckanext.textview.plugin as textplugin
 
         formats = tuple(textplugin.DEFAULT_TEXT_FORMATS + textplugin.DEFAULT_XML_FORMATS +
                         textplugin.DEFAULT_JSON_FORMATS + textplugin.DEFAULT_JSONP_FORMATS)
@@ -2268,8 +2268,8 @@ class ViewsCommand(CkanCommand):
         print '%s webpage resource views created!' % count
 
     def create_pdf_views(self):
-        if not p.plugin_loaded('pdf_preview'):
-            print 'Please enable the pdf_preview plugin to make the PDF views.'
+        if not p.plugin_loaded('pdf_view'):
+            print 'Please enable the pdf_view plugin to make the PDF views.'
             return
 
         if not p.plugin_loaded('resource_proxy'):
@@ -2304,8 +2304,8 @@ class ViewsCommand(CkanCommand):
             print 'The datastore plugin needs to be enabled to generate the grid views.'
             return
 
-        if not p.plugin_loaded('recline_grid'):
-            print 'Please enable the recline_grid plugin to make the grid views.'
+        if not p.plugin_loaded('recline_grid_view'):
+            print 'Please enable the recline_grid_view plugin to make the grid views.'
             return
 
         print 'Grid resource views are being created'
@@ -2330,7 +2330,7 @@ class ViewsCommand(CkanCommand):
                 continue
             count += 1
             resource_view = {'resource_id': row[0],
-                             'view_type': 'recline_grid',
+                             'view_type': 'recline_grid_view',
                              'title': 'Grid view',
                              'description': 'View of data within the DataStore'}
             logic.get_action('resource_view_create')(context, resource_view)
