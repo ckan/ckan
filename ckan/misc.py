@@ -78,6 +78,9 @@ class MarkdownFormat(TextFormat):
         text = self.whitelist_escp.sub(r'<\1>', text)
         text = self.link_escp.sub(r'<\1>', text)
 
+        # Not sure how <pre><code> is added
+        text = text.replace("<pre><code>", "<p>").replace("</code></pre>", "</p>");
+
         return text
 
     def _create_tag_link(self, match_object):
