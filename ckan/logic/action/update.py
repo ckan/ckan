@@ -1188,6 +1188,7 @@ def dashboard_mark_activities_old(context, data_dict):
         model.repo.commit()
 
 
+@logic.auth_audit_exempt
 def send_email_notifications(context, data_dict):
     '''Send any pending activity stream notification emails to users.
 
