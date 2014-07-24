@@ -2091,8 +2091,7 @@ def get_site_user(context, data_dict):
     '''Return the ckan site user
 
     :param defer_commit: by default (or if set to false) get_site_user will
-        commit and clean up the current transaction, it will also close and
-        discard the current session in the context. If set to true, caller
+        commit and clean up the current transaction. If set to true, caller
         is responsible for commiting transaction after get_site_user is
         called. Leaving open connections can cause cli commands to hang!
         (optional, default: False)
@@ -2111,8 +2110,8 @@ def get_site_user(context, data_dict):
         user.sysadmin = True
         model.Session.add(user)
         model.Session.flush()
-    if not context.get('defer_commit'):
-        model.repo.commit_and_remove()
+        if not context.get('defer_commit'):
+            model.repo.commit()
 
     return {'name': user.name,
             'apikey': user.apikey}
