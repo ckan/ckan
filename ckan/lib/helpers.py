@@ -489,6 +489,8 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
             return []
     facets = []
     for facet_item in c.search_facets.get(facet)['items']:
+        if facet_item['display_name'].count('"') == 1:
+           continue
         if not len(facet_item['name'].strip()):
             continue
         if not (facet, facet_item['name']) in request.params.items():
@@ -508,6 +510,7 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
                 facets.append(dict(active=False, **added_facet_item))
             elif not exclude_active:
                 facets.append(dict(active=True, **added_facet_item))
+                
     # need a fake facet_item for metadata_type
     if facet == 'metadata_type' and facets == []:
         added_facet_item = {
@@ -521,7 +524,8 @@ def get_facet_items_dict(facet, limit=10, exclude_active=False):
             elif not exclude_active:
                 facets.append(dict(active=True, **added_facet_item))
 
-    facets = sorted(facets, key=lambda item: item['count'], reverse=True)
+    facets = sorted(facets, key=lambda item: item['count'], reverse=True)   
+    
     if c.search_facets_limits:
         limit = c.search_facets_limits.get(facet)
     if limit:
