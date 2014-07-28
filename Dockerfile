@@ -36,9 +36,9 @@ RUN ln -s $CKAN_HOME/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini
 ADD ./contrib/docker/apache.wsgi $CKAN_CONFIG/apache.wsgi
 
 # Configure apache
-ADD ./contrib/docker/apache.conf /etc/apache2/sites-available/ckan.conf
+ADD ./contrib/docker/apache.conf /etc/apache2/sites-available/ckan_default.conf
 RUN echo "Listen 8080" > /etc/apache2/ports.conf
-RUN a2ensite ckan
+RUN a2ensite ckan_default
 RUN a2dissite 000-default
 
 # Configure nginx

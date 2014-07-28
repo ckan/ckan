@@ -144,3 +144,37 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         webtest_submit(form, 'save', status=302, extra_environ=env)
         pkg = model.Package.by_name(u'previous-next-maintains-draft')
         assert_equal(pkg.state, 'draft')
+
+
+class TestPackageResourceRead(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(cls, cls).setup_class()
+        helpers.reset_db()
+
+    def setup(self):
+        model.repo.rebuild_db()
+
+    def test_existent_resource_view_page_returns_ok_code(self):
+        resource_view = factories.ResourceView()
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=resource_view['package_id'],
+                      resource_id=resource_view['resource_id'],
+                      view_id=resource_view['id'])
+
+        app = self._get_test_app()
+        app.get(url, status=200)
+
+    def test_inexistent_resource_view_page_returns_not_found_code(self):
+        resource_view = factories.ResourceView()
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=resource_view['package_id'],
+                      resource_id=resource_view['resource_id'],
+                      view_id='inexistent-view-id')
+
+        app = self._get_test_app()
+        app.get(url, status=404)

@@ -110,6 +110,28 @@ def resource_delete(context, data_dict):
     model.repo.commit()
 
 
+def resource_view_delete(context, data_dict):
+    '''Delete a resource_view.
+
+    :param id: the id of the resource_view
+    :type id: string
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    resource_view = model.ResourceView.get(id)
+    if not resource_view:
+        raise NotFound
+
+    context["resource_view"] = resource_view
+    context['resource'] = model.Resource.get(resource_view.resource_id)
+    _check_access('resource_view_delete', context, data_dict)
+
+    resource_view.delete()
+    model.repo.commit()
+
+
 def package_relationship_delete(context, data_dict):
     '''Delete a dataset (package) relationship.
 

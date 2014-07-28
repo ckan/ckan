@@ -86,9 +86,9 @@ Viewing structured data: the Data Explorer
 ------------------------------------------
 
 .. versionadded:: 2.0
-   the ``recline_preview`` extension is new in CKAN 2.0.
+   the ``recline_view`` extension is new in CKAN 2.0.
 
-**Configuration required:** The ``recline_preview`` extension must be added to
+**Configuration required:** The ``recline_view`` extension must be added to
 ``ckan.plugins`` in your CKAN configuration file.
 This extension is part of CKAN and so does not need to be installed separately.
 
@@ -122,7 +122,7 @@ Or:
 Viewing highlighted XML, JSON and plain text data
 -------------------------------------------------
 
-**Configuration required:** The ``text_preview`` extension must be added to
+**Configuration required:** The ``text_view`` extension must be added to
 ``ckan.plugins`` in your CKAN configuration file.
 This extension is part of CKAN and does not need to be installed
 separately.
@@ -138,7 +138,7 @@ separately.
 * ``text/plain``, ``txt``, ``plain``
    (can be configured  by setting ``ckan.preview.text_formats``)
 
-The ``text_preview`` extension provides previews of many file types that have
+The ``text_view`` extension provides previews of many file types that have
 been added to a CKAN instance.  To view the data the resource format must be
 set to one of the resource formats from above (case insensitive).
 
@@ -156,13 +156,13 @@ set to one of the resource formats from above (case insensitive).
 Viewing PDF documents
 ---------------------
 
-**Configuration required:** The ``pdf_preview`` extension must be added to
+**Configuration required:** The ``pdf_view`` extension must be added to
 ``ckan.plugins`` in your CKAN configuration file.  This extension is part of
 CKAN and does not need to be installed separately.
 
 **Resource formats:** ``pdf``, ``x-pdf``, ``acrobat``, ``vnd.pdf``.
 
-The ``pdf_preview`` extension provides previews of any ``pdf`` documents that
+The ``pdf_view`` extension provides previews of any ``pdf`` documents that
 have been added to a CKAN instance.  This extension uses Mozilla's `pdf.js
 <http://mozilla.github.io/pdf.js>`_ library.
 

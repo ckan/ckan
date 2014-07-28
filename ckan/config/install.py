@@ -63,7 +63,7 @@ class CKANInstaller(PylonsInstaller):
             'CKAN_SITE_ID': os.environ.get('CKAN_SITE_ID', 'default'),
             'CKAN_SITE_URL': os.environ.get('CKAN_SITE_URL', ''),
             'CKAN_PLUGINS': os.environ.get(
-                'CKAN_PLUGINS', 'stats text_preview recline_preview'),
+                'CKAN_PLUGINS', 'stats text_view recline_view'),
             'CKAN_SITE_TITLE': os.environ.get('CKAN_SITE_TITLE', 'CKAN'),
             'CKAN_CACHE_DIR': os.environ.get(
                 'CKAN_CACHE_DIR', '/tmp/%(ckan.site_id)s/'),
@@ -131,6 +131,8 @@ class CKANInstaller(PylonsInstaller):
                 'CKAN_SMTP_SERVER', 'localhost'),
             'CKAN_SMTP_STARTTLS': os.environ.get(
                 'CKAN_SMTP_STARTTLS', 'False'),
+            'CKAN_DATASTORE_DEFAULT_FTS_LANG': os.environ.get(
+                'CKAN_DATASTORE_DEFAULT_FTS_LANG', 'english'),
             }
         vars.update(environment_variables)
 

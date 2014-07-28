@@ -1669,9 +1669,7 @@ def resource_preview(resource, package):
     '''
 
     if not resource['url']:
-        return snippet("dataviewer/snippets/no_preview.html",
-                       resource_type=format_lower,
-                       reason=_(u'The resource url is not specified.'))
+        return False
 
     format_lower = datapreview.res_format(resource)
     directly = False
@@ -1680,29 +1678,84 @@ def resource_preview(resource, package):
     if datapreview.get_preview_plugin(data_dict, return_first=True):
         url = url_for(controller='package', action='resource_datapreview',
                       resource_id=resource['id'], id=package['id'], qualified=True)
-    elif format_lower in datapreview.direct():
-        directly = True
-        url = resource['url']
-    elif format_lower in datapreview.loadable():
-        url = resource['url']
     else:
-        reason = None
-        if format_lower:
-            log.info(
-                _(u'No preview handler for resource of type {0}'.format(
-                    format_lower))
-            )
-        else:
-            reason = _(u'The resource format is not specified.')
-        return snippet("dataviewer/snippets/no_preview.html",
-                       reason=reason,
-                       resource_type=format_lower)
+        return False
 
     return snippet("dataviewer/snippets/data_preview.html",
                    embed=directly,
                    resource_url=url,
                    raw_resource_url=resource.get('url'))
 
+
+def get_allowed_view_types(resource, package):
+    data_dict = {'resource': resource, 'package': package}
+    plugins = datapreview.get_allowed_view_plugins(data_dict)
+
+    allowed_view_types = []
+    for plugin in plugins:
+        info = plugin.info()
+        allowed_view_types.append((info['name'],
+                                   info.get('title', info['name']),
+                                   info.get('icon', 'image')))
+    allowed_view_types.sort(key=lambda item: item[1])
+    return allowed_view_types
+
+
+def rendered_resource_view(resource_view, resource, package, embed=False):
+    '''
+    Returns a rendered resource view snippet.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    context = {}
+    data_dict = {'resource_view': resource_view,
+                 'resource': resource,
+                 'package': package}
+    vars = view_plugin.setup_template_variables(context, data_dict) or {}
+    template = view_plugin.view_template(context, data_dict)
+    data_dict.update(vars)
+
+    if not view_plugin.info().get('iframed', True) and embed:
+        template = "package/snippets/resource_view_embed.html"
+
+    import ckan.lib.base as base
+    return literal(base.render(template, extra_vars=data_dict))
+
+
+def view_resource_url(resource_view, resource, package, **kw):
+    '''
+    Returns url for resource. made to be overridden by extensions. i.e
+    by resource proxy.
+    '''
+    return resource['url']
+
+
+def resource_view_is_iframed(resource_view):
+    '''
+    Returns true if the given resource view should be displayed in an iframe.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    return view_plugin.info().get('iframed', True)
+
+def resource_view_icon(resource_view):
+    '''
+    Returns the icon for a particular view type.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    return view_plugin.info().get('icon', 'picture')
+
+def resource_view_display_preview(resource_view):
+    '''
+    Returns if the view should display a preview.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    return view_plugin.info().get('preview_enabled', True)
+
+def resource_view_full_page(resource_view):
+    '''
+    Returns if the edit view page should be full page.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    return view_plugin.info().get('full_page_edit', False)
 
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
@@ -1973,6 +2026,11 @@ __allowed_functions__ = [
     'render_markdown',
     'format_resource_items',
     'resource_preview',
+    'rendered_resource_view',
+    'resource_view_is_iframed',
+    'resource_view_icon',
+    'resource_view_display_preview',
+    'resource_view_full_page',
     'SI_number_span',
     'localised_number',
     'localised_SI_number',
@@ -1998,5 +2056,8 @@ __allowed_functions__ = [
     'get_featured_organizations',
     'get_featured_groups',
     'get_site_statistics',
+    'get_allowed_view_types',
+    'urlencode',
     'check_config_permission',
+    'view_resource_url',
 ]
