@@ -44,7 +44,6 @@ Version: 3.4.8 Timestamp: Thu May  1 09:50:32 EDT 2014
 
     -webkit-touch-callout: none;
       -webkit-user-select: none;
-       -khtml-user-select: none;
          -moz-user-select: none;
           -ms-user-select: none;
               user-select: none;
@@ -53,8 +52,6 @@ Version: 3.4.8 Timestamp: Thu May  1 09:50:32 EDT 2014
     background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #eee), color-stop(0.5, #fff));
     background-image: -webkit-linear-gradient(center bottom, #eee 0%, #fff 50%);
     background-image: -moz-linear-gradient(center bottom, #eee 0%, #fff 50%);
-    background-image: -o-linear-gradient(bottom, #eee 0%, #fff 50%);
-    background-image: -ms-linear-gradient(top, #fff 0%, #eee 50%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#ffffff', endColorstr = '#eeeeee', GradientType = 0);
     background-image: linear-gradient(to top, #eee 0%, #fff 50%);
 }
@@ -67,8 +64,6 @@ Version: 3.4.8 Timestamp: Thu May  1 09:50:32 EDT 2014
     background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #eee), color-stop(0.9, #fff));
     background-image: -webkit-linear-gradient(center bottom, #eee 0%, #fff 90%);
     background-image: -moz-linear-gradient(center bottom, #eee 0%, #fff 90%);
-    background-image: -o-linear-gradient(bottom, #eee 0%, #fff 90%);
-    background-image: -ms-linear-gradient(top, #eee 0%, #fff 90%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0);
     background-image: linear-gradient(to bottom, #eee 0%, #fff 90%);
 }
@@ -130,7 +125,6 @@ Version: 3.4.8 Timestamp: Thu May  1 09:50:32 EDT 2014
     z-index: 9998;
     /* styles required for IE to work */
     background-color: #fff;
-    opacity: 0;
     filter: alpha(opacity=0);
 }
 
@@ -198,8 +192,6 @@ Version: 3.4.8 Timestamp: Thu May  1 09:50:32 EDT 2014
     background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #ccc), color-stop(0.6, #eee));
     background-image: -webkit-linear-gradient(center bottom, #ccc 0%, #eee 60%);
     background-image: -moz-linear-gradient(center bottom, #ccc 0%, #eee 60%);
-    background-image: -o-linear-gradient(bottom, #ccc 0%, #eee 60%);
-    background-image: -ms-linear-gradient(top, #ccc 0%, #eee 60%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#eeeeee', endColorstr = '#cccccc', GradientType = 0);
     background-image: linear-gradient(to top, #ccc 0%, #eee 60%);
 }
@@ -282,8 +274,6 @@ Version: 3.4.8 Timestamp: Thu May  1 09:50:32 EDT 2014
     background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #fff), color-stop(0.5, #eee));
     background-image: -webkit-linear-gradient(center bottom, #fff 0%, #eee 50%);
     background-image: -moz-linear-gradient(center bottom, #fff 0%, #eee 50%);
-    background-image: -o-linear-gradient(bottom, #fff 0%, #eee 50%);
-    background-image: -ms-linear-gradient(top, #fff 0%, #eee 50%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#ffffff', GradientType=0);
     background-image: linear-gradient(to top, #fff 0%, #eee 50%);
 }
@@ -296,8 +286,6 @@ Version: 3.4.8 Timestamp: Thu May  1 09:50:32 EDT 2014
     background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fff), color-stop(0.5, #eee));
     background-image: -webkit-linear-gradient(center top, #fff 0%, #eee 50%);
     background-image: -moz-linear-gradient(center top, #fff 0%, #eee 50%);
-    background-image: -o-linear-gradient(top, #fff 0%, #eee 50%);
-    background-image: -ms-linear-gradient(bottom, #fff 0%, #eee 50%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#ffffff', GradientType=0);
     background-image: linear-gradient(to bottom, #fff 0%, #eee 50%);
 }
@@ -357,7 +345,6 @@ Version: 3.4.8 Timestamp: Thu May  1 09:50:32 EDT 2014
 
     -webkit-touch-callout: none;
       -webkit-user-select: none;
-       -khtml-user-select: none;
          -moz-user-select: none;
           -ms-user-select: none;
               user-select: none;
@@ -537,7 +524,6 @@ html[dir="rtl"] .select2-container-multi .select2-choices li
 
     -webkit-touch-callout: none;
       -webkit-user-select: none;
-       -khtml-user-select: none;
          -moz-user-select: none;
           -ms-user-select: none;
               user-select: none;
