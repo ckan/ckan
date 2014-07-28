@@ -11,29 +11,97 @@ eq = nose.tools.eq_
 
 class TestGet(object):
 
-    @classmethod
-    def setup_class(cls):
-        helpers.reset_db()
-
     def setup(self):
-        import ckan.model as model
-
-        # Reset the db before each test method.
-        model.repo.rebuild_db()
+        helpers.reset_db()
 
         # Clear the search index
         search.clear()
 
     def test_group_list(self):
 
-        user = factories.User()
-        group1 = factories.Group(user=user)
-        group2 = factories.Group(user=user)
+        group1 = factories.Group()
+        group2 = factories.Group()
 
         group_list = helpers.call_action('group_list')
 
         assert (sorted(group_list) ==
                 sorted([g['name'] for g in [group1, group2]]))
+
+    def test_group_list_sort_by_package_count(self):
+
+        factories.Group(name='aa')
+        factories.Group(name='bb')
+        factories.Dataset(groups=[{'name': 'aa'}, {'name': 'bb'}])
+        factories.Dataset(groups=[{'name': 'bb'}])
+
+        group_list = helpers.call_action('group_list', sort='package_count')
+        # default is descending order
+
+        eq(group_list, ['bb', 'aa'])
+
+    def test_group_list_sort_by_package_count_ascending(self):
+
+        factories.Group(name='aa')
+        factories.Group(name='bb')
+        factories.Dataset(groups=[{'name': 'aa'}, {'name': 'bb'}])
+        factories.Dataset(groups=[{'name': 'aa'}])
+
+        group_list = helpers.call_action('group_list',
+                                         sort='package_count asc')
+
+        eq(group_list, ['bb', 'aa'])
+
+    def test_group_list_all_fields(self):
+
+        group = factories.Group()
+
+        group_list = helpers.call_action('group_list', all_fields=True)
+
+        expected_group = dict(group.items()[:])
+        for field in ('users', 'tags', 'extras', 'groups'):
+            del expected_group[field]
+        expected_group['packages'] = 0
+        assert group_list[0] == expected_group
+        assert 'extras' not in group_list[0]
+        assert 'tags' not in group_list[0]
+        assert 'groups' not in group_list[0]
+        assert 'users' not in group_list[0]
+        assert 'datasets' not in group_list[0]
+
+    def test_group_list_extras_returned(self):
+
+        group = factories.Group(extras=[{'key': 'key1', 'value': 'val1'}])
+
+        group_list = helpers.call_action('group_list', all_fields=True,
+                                         include_extras=True)
+
+        eq(group_list[0]['extras'], group['extras'])
+        eq(group_list[0]['extras'][0]['key'], 'key1')
+
+    # NB there is no test_group_list_tags_returned because tags are not in the
+    # group_create schema (yet)
+
+    def test_group_list_groups_returned(self):
+
+        parent_group = factories.Group(tags=[{'name': 'river'}])
+        child_group = factories.Group(groups=[{'name': parent_group['name']}],
+                                      tags=[{'name': 'river'}])
+
+        group_list = helpers.call_action('group_list', all_fields=True,
+                                         include_groups=True)
+
+        child_group_returned = group_list[0]
+        if group_list[0]['name'] == child_group['name']:
+            child_group_returned, parent_group_returned = group_list
+        else:
+            child_group_returned, parent_group_returned = group_list[::-1]
+        expected_parent_group = dict(parent_group.items()[:])
+        for field in ('users', 'tags', 'extras'):
+            del expected_parent_group[field]
+        expected_parent_group['capacity'] = u'public'
+        expected_parent_group['packages'] = 0
+        expected_parent_group['package_count'] = 0
+        eq(child_group_returned['groups'], [expected_parent_group])
 
     def test_group_show(self):
 
@@ -44,6 +112,20 @@ class TestGet(object):
         # FIXME: Should this be returned by group_create?
         group_dict.pop('num_followers', None)
         assert group_dict == group
+
+    def test_group_show_error_not_found(self):
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'group_show', id='does_not_exist')
+
+    def test_group_show_error_for_organization(self):
+
+        org = factories.Organization()
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'group_show', id=org['id'])
 
     def test_group_show_packages_returned(self):
 
@@ -107,6 +189,20 @@ class TestGet(object):
         # FIXME: Should this be returned by organization_create?
         org_dict.pop('num_followers', None)
         assert org_dict == org
+
+    def test_organization_show_error_not_found(self):
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'organization_show', id='does_not_exist')
+
+    def test_organization_show_error_for_group(self):
+
+        group = factories.Group()
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'organization_show', id=group['id'])
 
     def test_organization_show_packages_returned(self):
 
