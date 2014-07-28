@@ -42,9 +42,9 @@ Installing CKAN
 In the simplest case, installing CKAN should be a matter of running three
 commands: to run |postgres|, |solr|, and CKAN::
 
-    $ docker run -d --name db ckan/postgresql
+    $ docker run -d --name postgresql ckan/postgresql
     $ docker run -d --name solr ckan/solr
-    $ docker run -d -p 80:80 --link db:db --link solr:solr ckan/ckan
+    $ docker run -d -p 80:80 --link postgresql:postgresql --link solr:solr ckan/ckan
 
 This start a new CKAN container in the background, connected to default
 installations of |postgres| and |solr| also running in containers.
@@ -68,7 +68,7 @@ like the following::
     $ docker ps
     CONTAINER ID        IMAGE                         COMMAND               CREATED             STATUS              PORTS                     NAMES
     cab6e63c77b1        ckan/ckan:latest              /sbin/my_init         30 days ago         Up 1 minutes        0.0.0.0:80->80/tcp        jovial_perlman
-    fb47b3744d6d        ckan/postgresql:latest        /usr/local/bin/run    9 days ago          Up 1 minutes        5432/tcp                  db,jovial_perlman/db
+    fb47b3744d6d        ckan/postgresql:latest        /usr/local/bin/run    9 days ago          Up 1 minutes        5432/tcp                  postgresql,jovial_perlman/postgresql
     96e963812fc9        ckan/solr:latest              java -jar start.jar   15 days ago         Up 1 minutes        8983/tcp                  solr,jovial_perlman/solr
 
 Using the CKAN container id (here it's ``cab6e63c77b1``), you can perform other
@@ -105,7 +105,7 @@ You can run maintenance commands in their own ephemeral container by specifying
 a custom command for the container. For example, to create a sysadmin user
 called ``joebloggs``::
 
-    $ docker run -i -t --link db:db --link solr:solr \
+    $ docker run -i -t --link postgresql:postgresql --link solr:solr \
         ckan/ckan \
         /sbin/my_init -- \
         /bin/bash -c \

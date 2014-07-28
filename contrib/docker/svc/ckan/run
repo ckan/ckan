@@ -2,7 +2,7 @@
 exec 2>&1
 
 # URL for the primary database, in the format expected by sqlalchemy (required
-# unless linked to a container called 'db')
+# unless linked to a container called 'postgresql')
 : ${DATABASE_URL:=}
 # URL for solr (required unless linked to a container called 'solr')
 : ${SOLR_URL:=}
@@ -37,11 +37,11 @@ bootstrap () {
 }
 
 link_postgres_url () {
-  local user=$DB_ENV_POSTGRESQL_USER
-  local pass=$DB_ENV_POSTGRESQL_USER
-  local db=$DB_ENV_POSTGRESQL_DB
-  local host=$DB_PORT_5432_TCP_ADDR
-  local port=$DB_PORT_5432_TCP_PORT
+  local user=$POSTGRESQL_ENV_POSTGRESQL_USER
+  local pass=$POSTGRESQL_ENV_POSTGRESQL_USER
+  local db=$POSTGRESQL_ENV_POSTGRESQL_DB
+  local host=$POSTGRESQL_PORT_5432_TCP_ADDR
+  local port=$POSTGRESQL_PORT_5432_TCP_PORT
   echo "postgresql://${user}:${pass}@${host}:${port}/${db}"
 }
 
@@ -55,7 +55,7 @@ link_solr_url () {
 if [ ! -e "$CONFIG" ]; then
   if [ -z "$DATABASE_URL" ]; then
     if ! DATABASE_URL=$(link_postgres_url); then
-      abort "no DATABASE_URL specified and linked container called 'db' was not found"
+      abort "no DATABASE_URL specified and linked container called 'postgresql' was not found"
     fi
   fi
   if [ -z "$SOLR_URL" ]; then
