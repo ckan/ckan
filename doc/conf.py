@@ -18,6 +18,8 @@ import sys
 import os
 import subprocess
 
+import ckan.lib.util as util
+
 # If your extensions (or modules documented by autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -123,7 +125,8 @@ def latest_release_tag():
     This requires git to be installed.
 
     '''
-    git_tags = subprocess.check_output(['git', 'tag', '-l']).split()
+    git_tags = util.check_output(
+        ['git', 'tag', '-l'], stderr=subprocess.STDOUT).split()
 
     # FIXME: We could do more careful pattern matching against ckan-X.Y.Z here.
     release_tags = [tag for tag in git_tags if tag.startswith('ckan-')]
@@ -132,7 +135,10 @@ def latest_release_tag():
     # on that, sort them again here for good measure.
     release_tags.sort()
 
-    return release_tags[-1]
+    if release_tags:
+        return release_tags[-1]
+    else:
+        return 'COULD_NOT_DETECT_VERSION_NUMBER'
 
 
 def latest_release_version():
