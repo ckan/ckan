@@ -206,7 +206,9 @@ class IResourceView(Interface):
 
     '''
     def info(self):
-        '''Return configuration for the view. Info can return
+        '''
+        Return configuration for the view. Info can return the following.
+
         :param name: name of view type
         :param title: title of view type (Optional)
         :param schema: schema to validate extra view config (Optional)
