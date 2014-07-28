@@ -441,12 +441,8 @@ def group_list(context, data_dict):
     '''
     _check_access('group_list', context, data_dict)
 
-    # DGU - for backwards compatibility, return organizations instead of groups
-    # (essentially reverts change 0ab4408f7)
-    #data_dict['type'] = 'group'
-    #return _group_or_org_list(context, data_dict)
-    data_dict['type'] = 'organization'
-    return _group_or_org_list(context, data_dict, is_org=True)
+    data_dict['type'] = 'group'
+    return _group_or_org_list(context, data_dict)
 
 
 def organization_list(context, data_dict):
