@@ -6,17 +6,13 @@ import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
 
+eq = nose.tools.eq_
+
+
 class TestGet(object):
 
-    @classmethod
-    def setup_class(cls):
-        helpers.reset_db()
-
     def setup(self):
-        import ckan.model as model
-
-        # Reset the db before each test method.
-        model.repo.rebuild_db()
+        helpers.reset_db()
 
         # Clear the search index
         search.clear()
@@ -31,9 +27,85 @@ class TestGet(object):
         assert (sorted(group_list) ==
                 sorted([g['name'] for g in [group1, group2]]))
 
-    def test_group_show(self):
+    def test_group_list_sort_by_package_count(self):
+
+        factories.Group(name='aa')
+        factories.Group(name='bb')
+        factories.Dataset(groups=[{'name': 'aa'}, {'name': 'bb'}])
+        factories.Dataset(groups=[{'name': 'bb'}])
+
+        group_list = helpers.call_action('group_list', sort='package_count')
+        # default is descending order
+
+        eq(group_list, ['bb', 'aa'])
+
+    def test_group_list_sort_by_package_count_ascending(self):
+
+        factories.Group(name='aa')
+        factories.Group(name='bb')
+        factories.Dataset(groups=[{'name': 'aa'}, {'name': 'bb'}])
+        factories.Dataset(groups=[{'name': 'aa'}])
+
+        group_list = helpers.call_action('group_list',
+                                         sort='package_count asc')
+
+        eq(group_list, ['bb', 'aa'])
+
+    def test_group_list_all_fields(self):
 
         group = factories.Group()
+
+        group_list = helpers.call_action('group_list', all_fields=True)
+
+        expected_group = dict(group.items()[:])
+        for field in ('users', 'tags', 'extras', 'groups'):
+            del expected_group[field]
+        expected_group['packages'] = 0
+        assert group_list[0] == expected_group
+        assert 'extras' not in group_list[0]
+        assert 'tags' not in group_list[0]
+        assert 'groups' not in group_list[0]
+        assert 'users' not in group_list[0]
+        assert 'datasets' not in group_list[0]
+
+    def test_group_list_extras_returned(self):
+
+        group = factories.Group(extras=[{'key': 'key1', 'value': 'val1'}])
+
+        group_list = helpers.call_action('group_list', all_fields=True,
+                                         include_extras=True)
+
+        eq(group_list[0]['extras'], group['extras'])
+        eq(group_list[0]['extras'][0]['key'], 'key1')
+
+    # NB there is no test_group_list_tags_returned because tags are not in the
+    # group_create schema (yet)
+
+    def test_group_list_groups_returned(self):
+
+        parent_group = factories.Group(tags=[{'name': 'river'}])
+        child_group = factories.Group(groups=[{'name': parent_group['name']}],
+                                      tags=[{'name': 'river'}])
+
+        group_list = helpers.call_action('group_list', all_fields=True,
+                                         include_groups=True)
+
+        child_group_returned = group_list[0]
+        if group_list[0]['name'] == child_group['name']:
+            child_group_returned, parent_group_returned = group_list
+        else:
+            child_group_returned, parent_group_returned = group_list[::-1]
+        expected_parent_group = dict(parent_group.items()[:])
+        for field in ('users', 'tags', 'extras'):
+            del expected_parent_group[field]
+        expected_parent_group['capacity'] = u'public'
+        expected_parent_group['packages'] = 0
+        expected_parent_group['package_count'] = 0
+        eq(child_group_returned['groups'], [expected_parent_group])
+
+    def test_group_show(self):
+
+        group = factories.Group(user=factories.User())
 
         group_dict = helpers.call_action('group_show', id=group['id'])
 
@@ -41,11 +113,25 @@ class TestGet(object):
         group_dict.pop('num_followers', None)
         assert group_dict == group
 
+    def test_group_show_error_not_found(self):
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'group_show', id='does_not_exist')
+
+    def test_group_show_error_for_organization(self):
+
+        org = factories.Organization()
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'group_show', id=org['id'])
+
     def test_group_show_packages_returned(self):
 
         user_name = helpers.call_action('get_site_user')['name']
 
-        group = factories.Group()
+        group = factories.Group(user=factories.User())
 
         datasets = [
             {'name': 'dataset_1', 'groups': [{'name': group['name']}]},
@@ -66,7 +152,7 @@ class TestGet(object):
 
         user_name = helpers.call_action('get_site_user')['name']
 
-        group = factories.Group()
+        group = factories.Group(user=factories.User())
 
         datasets = [
             {'name': 'dataset_1', 'groups': [{'name': group['name']}]},
@@ -103,6 +189,20 @@ class TestGet(object):
         # FIXME: Should this be returned by organization_create?
         org_dict.pop('num_followers', None)
         assert org_dict == org
+
+    def test_organization_show_error_not_found(self):
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'organization_show', id='does_not_exist')
+
+    def test_organization_show_error_for_group(self):
+
+        group = factories.Group()
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'organization_show', id=group['id'])
 
     def test_organization_show_packages_returned(self):
 
@@ -188,6 +288,99 @@ class TestGet(object):
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
+    def test_related_list_with_no_params(self):
+        '''
+        Test related_list with no parameters and default sort
+        '''
+        user = factories.User()
+        related1 = factories.Related(user=user, featured=True)
+        related2 = factories.Related(user=user, type='application')
+
+        related_list = helpers.call_action('related_list')
+        assert ([related1, related2] == related_list)
+
+    def test_related_list_type_filter(self):
+        '''
+        Test related_list with type filter
+        '''
+        user = factories.User()
+        related1 = factories.Related(user=user, featured=True)
+        related2 = factories.Related(user=user, type='application')
+
+        related_list = helpers.call_action('related_list',
+                                           type_filter='application')
+        assert ([related2] == related_list)
+
+    def test_related_list_sorted(self):
+        '''
+        Test related_list with sort parameter
+        '''
+        user = factories.User()
+        related1 = factories.Related(user=user, featured=True)
+        related2 = factories.Related(user=user, type='application')
+
+        related_list = helpers.call_action('related_list', sort='created_desc')
+        assert ([related2, related1] == related_list)
+
+    def test_related_list_invalid_sort_parameter(self):
+        '''
+        Test related_list with invalid value for sort parameter
+        '''
+        user = factories.User()
+        related1 = factories.Related(user=user, featured=True)
+        related2 = factories.Related(user=user, type='application')
+
+        related_list = helpers.call_action('related_list', sort='invalid')
+        assert ([related1, related2] == related_list)
+
+    def test_related_list_featured(self):
+        '''
+        Test related_list with no featured filter
+        '''
+        user = factories.User()
+        related1 = factories.Related(user=user, featured=True)
+        related2 = factories.Related(user=user, type='application')
+
+        related_list = helpers.call_action('related_list', featured=True)
+        assert ([related1] == related_list)
+        # TODO: Create related items associated with a dataset and test
+        # related_list with them
+
+    def test_current_package_list(self):
+        '''
+        Test current_package_list_with_resources with no parameters
+        '''
+        user = factories.User()
+        dataset1 = factories.Dataset(user=user)
+        dataset2 = factories.Dataset(user=user)
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources')
+        eq(len(current_package_list), 2)
+
+    def test_current_package_list_limit_param(self):
+        '''
+        Test current_package_list_with_resources with limit parameter
+        '''
+        user = factories.User()
+        dataset1 = factories.Dataset(user=user)
+        dataset2 = factories.Dataset(user=user)
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources', limit=1)
+        eq(len(current_package_list), 1)
+        eq(current_package_list[0]['name'], dataset2['name'])
+
+    def test_current_package_list_offset_param(self):
+        '''
+        Test current_package_list_with_resources with offset parameter
+        '''
+        user = factories.User()
+        dataset1 = factories.Dataset(user=user)
+        dataset2 = factories.Dataset(user=user)
+        current_package_list = helpers. \
+            call_action('current_package_list_with_resources', offset=1)
+        eq(len(current_package_list), 1)
+        eq(current_package_list[0]['name'], dataset1['name'])
+
 
 class TestBadLimitQueryParameters(object):
     '''test class for #1258 non-int query parameters cause 500 errors
@@ -208,6 +401,7 @@ class TestBadLimitQueryParameters(object):
             'group_activity_list_html',
             'organization_activity_list_html',
             'recently_changed_packages_activity_list_html',
+            'current_package_list_with_resources',
         ]
         for action in actions:
             nose.tools.assert_raises(

@@ -44,6 +44,26 @@ import ckan.logic
 import ckan.new_tests.helpers as helpers
 
 
+def _get_action_user_name(kwargs):
+    '''Return the name of the user in kwargs, defaulting to the site user
+
+    It can be overriden by explictly setting {'user': None} in the keyword
+    arguments. In that case, this method will return None.
+    '''
+
+    if 'user' in kwargs:
+        user = kwargs['user']
+    else:
+        user = helpers.call_action('get_site_user')
+
+    if user is None:
+        user_name = None
+    else:
+        user_name = user['name']
+
+    return user_name
+
+
 def _generate_email(user):
     '''Return an email address for the given User factory stub object.'''
 
@@ -60,6 +80,11 @@ def _generate_user_id(user):
     '''Return a user id for the given User factory stub object.'''
 
     return '{0}_user_id'.format(user.name).lower()
+
+def _generate_group_title(group):
+    '''Return a title for the given Group factory stub object.'''
+
+    return group.name.replace('_', ' ').title()
 
 
 class User(factory.Factory):
@@ -110,9 +135,12 @@ class Group(factory.Factory):
     type = 'group'
     is_organization = False
 
-    title = 'Test Group'
+    title = factory.LazyAttribute(_generate_group_title)
     description = 'Just another test group.'
     image_url = 'http://placekitten.com/g/200/200'
+
+    user = factory.LazyAttribute(lambda _:
+                                 helpers.call_action('get_site_user'))
 
     # Generate a different group name param for each user that gets created.
     name = factory.Sequence(lambda n: 'test_group_{n}'.format(n=n))
@@ -126,11 +154,7 @@ class Group(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        #TODO: we will need to be able to define this when creating the
-        #      instance perhaps passing a 'user' param?
-        context = {
-            'user': helpers.call_action('get_site_user')['name']
-        }
+        context = {'user': _get_action_user_name(kwargs)}
 
         group_dict = helpers.call_action('group_create',
                                          context=context,
@@ -166,16 +190,67 @@ class Organization(factory.Factory):
         if args:
             assert False, "Positional args aren't supported, use keyword args."
 
-        #TODO: we will need to be able to define this when creating the
-        #      instance perhaps passing a 'user' param?
-        context = {
-            'user': helpers.call_action('get_site_user')['name']
-        }
+        context = {'user': _get_action_user_name(kwargs)}
 
         group_dict = helpers.call_action('organization_create',
                                          context=context,
                                          **kwargs)
         return group_dict
+
+
+class Related(factory.Factory):
+    '''A factory class for creating related items.'''
+
+    FACTORY_FOR = ckan.model.Related
+
+    type = 'idea'
+    description = 'Look, a description!'
+    url = 'http://example.com'
+
+    title = factory.Sequence(lambda n: 'test title {n}'.format(n=n))
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        context = {'user': _get_action_user_name(kwargs)}
+        related_dict = helpers.call_action('related_create', context=context,
+                                           **kwargs)
+        return related_dict
+
+
+class Dataset(factory.Factory):
+    '''A factory class for creating CKAN datasets.'''
+
+    FACTORY_FOR = ckan.model.Package
+
+    # These are the default params that will be used to create new groups.
+    title = 'Test Dataset'
+    description = 'Just another test dataset.'
+
+    # Generate a different group name param for each user that gets created.
+    name = factory.Sequence(lambda n: 'test_dataset_{n}'.format(n=n))
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        context = {'user': _get_action_user_name(kwargs)}
+
+        dataset_dict = helpers.call_action('package_create',
+                                           context=context,
+                                           **kwargs)
+        return dataset_dict
 
 
 class MockUser(factory.Factory):
