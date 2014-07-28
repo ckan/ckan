@@ -43,12 +43,6 @@ def group_list_dictize(obj_list, context,
             'include_extras': include_extras,
             'include_users': False,  # too slow - don't allow
             }
-        #('include_dataset_count', with_package_counts),
-        #('dataset_count_instead_of_dicts', True),
-        #('include_groups', include_groups),
-        #('include_datasets', False),  # too slow - don't allow
-        #('include_users', False),  # too slow - don't allow
-        #))
     if with_package_counts and 'dataset_counts' not in group_dictize_context:
         # 'dataset_counts' will already be in the context in the case that
         # group_list_dictize recurses via group_dictize (groups in groups)
