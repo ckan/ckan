@@ -120,7 +120,7 @@ class TestSearchIndex(object):
         assert_equal(
             response.results[0]['test_tim_date'].strftime('%Y-%m-%d %H:%M:%S'),
             '2014-03-22 05:42:14'
-            )
+        )
 
     def test_index_date_field_wrong_value(self):
 
