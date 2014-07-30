@@ -635,7 +635,7 @@ def upsert_data(context, data_dict):
 
             for field in fields:
                 value = record.get(field['id'])
-                if value and field['type'].lower() == 'nested':
+                if value is not None and field['type'].lower() == 'nested':
                     ## a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
 
