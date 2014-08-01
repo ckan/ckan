@@ -1315,7 +1315,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
     count = 0
     q = []
     for id in datasets:
-        q.append('id:%s' % (id))
+        q.append('id:"%s"' % (id))
         count += 1
         if count % BATCH_SIZE == 0:
             process_solr(' OR '.join(q))
