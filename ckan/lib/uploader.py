@@ -27,8 +27,8 @@ def get_storage_path():
         if storage_path:
             _storage_path = storage_path
         elif ofs_impl == 'pairtree' and ofs_storage_dir:
-            log.warn('''Please use config option ckan.storage_path instaed of
-                     ofs.storage_path''')
+            log.warn('''Please use config option ckan.storage_path instead of
+                     ofs.storage_dir''')
             _storage_path = ofs_storage_dir
             return _storage_path
         elif ofs_impl:
