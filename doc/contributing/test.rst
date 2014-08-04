@@ -45,7 +45,7 @@ Create test databases:
 
     sudo -u postgres createdb -O |database_user| |test_database| -E utf-8
     sudo -u postgres createdb -O |database_user| |test_datastore| -E utf-8
-    paster datastore set-permissions postgres -c test-core.ini
+    paster datastore set-permissions -c test-core.ini | sudo -u postgres psql
 
 This database connection is specified in the ``test-core.ini`` file by the
 ``sqlalchemy.url`` parameter.
@@ -71,8 +71,6 @@ option::
 
      nosetests --ckan --reset-db --with-pylons=test-core.ini ckan
 
-If you are have the ``ckan-migration`` option on the tests will reset the
-reset the database before the test run.
 
 
 .. _migrationtesting:
@@ -84,7 +82,7 @@ Migration testing
 If you're a CKAN developer or extension developer and your new code requires a
 change to CKAN's model, you'll need to write a migration script. To ensure that
 the migration script itself gets tested, you should run the tests with
-they ``--ckan-migration`` option, for example::
+the ``--ckan-migration`` option, for example::
 
      nosetests --ckan --ckan-migration --with-pylons=test-core.ini ckan ckanext
 

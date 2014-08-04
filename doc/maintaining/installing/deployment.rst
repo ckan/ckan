@@ -139,8 +139,25 @@ This tells the Apache modwsgi module to redirect any requests to the web server
 to the WSGI script that you created above. Your WSGI script in turn directs the
 requests to your CKAN instance.
 
+------------------------------------
+7. Modify the Apache ports.conf file
+------------------------------------
+
+Open ``/etc/apache2/ports.conf``. Look in the file for the following lines:
+
+.. parsed-literal::
+
+    NameVirtualHost \*:80
+    Listen 80
+
+Change the entries from ``80`` to ``8080`` to look like the following:
+
+.. parsed-literal::
+    NameVirtualHost \*:8080
+    Listen 8080
+
 -------------------------------
-7. Create the Nginx config file
+8. Create the Nginx config file
 -------------------------------
 
 Create your site's Nginx config file at |nginx_config_file|, with the
@@ -169,7 +186,7 @@ following contents:
 
 
 ------------------------
-8. Enable your CKAN site
+9. Enable your CKAN site
 ------------------------
 
 Finally, enable your CKAN site in Apache:

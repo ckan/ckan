@@ -40,6 +40,10 @@ def resource_delete(context, data_dict):
         return {'success': True}
 
 
+def resource_view_delete(context, data_dict):
+    return resource_delete(context, data_dict)
+
+
 def related_delete(context, data_dict):
     model = context['model']
     user = context['user']

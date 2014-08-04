@@ -131,4 +131,49 @@ class TestUpdate(object):
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
                                  'user_update', context=context, **params)
 
-    # TODO: Tests for user_update's reset_key behavior.
+    def test_user_generate_own_apikey(self):
+        fred = factories.MockUser(name='fred')
+        mock_model = mock.MagicMock()
+        mock_model.User.get.return_value = fred
+        # auth_user_obj shows user as logged in for non-anonymous auth
+        # functions
+        context = {'model': mock_model, 'auth_user_obj': fred}
+        context['user'] = fred.name
+        params = {
+            'id': fred.id,
+        }
+
+        result = helpers.call_auth('user_generate_apikey', context=context,
+                                   **params)
+        assert result is True
+
+    def test_user_generate_apikey_without_logged_in_user(self):
+        fred = factories.MockUser(name='fred')
+        mock_model = mock.MagicMock()
+        mock_model.User.get.return_value = fred
+        context = {'model': mock_model}
+        context['user'] = None
+        params = {
+            'id': fred.id,
+        }
+
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'user_generate_apikey', context=context,
+                                 **params)
+
+    def test_user_generate_apikey_for_another_user(self):
+        fred = factories.MockUser(name='fred')
+        bob = factories.MockUser(name='bob')
+        mock_model = mock.MagicMock()
+        mock_model.User.get.return_value = fred
+        # auth_user_obj shows user as logged in for non-anonymous auth
+        # functions
+        context = {'model': mock_model, 'auth_user_obj': bob}
+        context['user'] = bob.name
+        params = {
+            'id': fred.id,
+        }
+
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'user_generate_apikey', context=context,
+                                 **params)

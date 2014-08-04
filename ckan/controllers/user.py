@@ -14,7 +14,7 @@ import ckan.lib.mailer as mailer
 import ckan.lib.navl.dictization_functions as dictization_functions
 import ckan.plugins as p
 
-from ckan.common import _, c, g, request
+from ckan.common import _, c, g, request, response
 
 log = logging.getLogger(__name__)
 
@@ -194,6 +194,30 @@ class UserController(base.BaseController):
             msg = _('Unauthorized to delete user with id "{user_id}".')
             abort(401, msg.format(user_id=id))
 
+    def generate_apikey(self, id):
+        '''Cycle the API key of a user'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user,
+                   'auth_user_obj': c.userobj,
+                   }
+        if id is None:
+            if c.userobj:
+                id = c.userobj.id
+            else:
+                abort(400, _('No user specified'))
+        data_dict = {'id': id}
+
+        try:
+            result = get_action('user_generate_apikey')(context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to edit user %s') % '')
+        except NotFound:
+            abort(404, _('User not found'))
+
+        h.flash_success(_('Profile updated'))
+        h.redirect_to(controller='user', action='read', id=result['name'])
+
     def _save_new(self, context):
         try:
             data_dict = logic.clean_dict(unflatten(
@@ -216,20 +240,12 @@ class UserController(base.BaseController):
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
         if not c.user:
-            # Redirect to a URL picked up by repoze.who which performs the
-            # login
-            login_url = self._get_repoze_handler('login_handler_path')
-
-            # We need to pass the logged in URL as came_from parameter
-            # otherwise we lose the language setting
-            came_from = h.url_for(controller='user', action='logged_in',
-                                  __ckan_no_root=True)
-            redirect_url = '{0}?login={1}&password={2}&came_from={3}'
-            h.redirect_to(redirect_url.format(
-                login_url,
-                str(data_dict['name']),
-                quote(data_dict['password1'].encode('utf-8')),
-                came_from))
+            # log the user in programatically
+            rememberer = request.environ['repoze.who.plugins']['friendlyform']
+            identity = {'repoze.who.userid': data_dict['name']}
+            response.headerlist += rememberer.remember(request.environ,
+                                                       identity)
+            h.redirect_to(controller='user', action='me', __ckan_no_root=True)
         else:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.

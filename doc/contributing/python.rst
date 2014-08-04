@@ -36,15 +36,32 @@ We also use triple single-quotes for docstrings, see `Docstrings`_.
 Imports
 -------
 
-- Don't use ``from module import *`` or ``from module import name``. Instead
-  just ``import module`` and then access names with ``module.name``.
-  See `Idioms and Anti-Idioms in Python`_.
+- Avoid creating circular imports by only importing modules more
+  specialized than the one you are editing.
 
-  You can make long module names more concise by aliasing them::
-  
-    import foo.bar.baz as baz
+  CKAN often uses code imported into a data structure instead of
+  importing names directly. For example CKAN controllers only use
+  ``get_action`` to access logic functions. This allows
+  customization by CKAN plugins.
 
-  and then access it with ``baz`` in your code. 
+  .. image:: /images/ckan_importing_diagram.png
+     :alt: CKAN importing diagram, general modules import
+           more specific modules
+
+- Don't use ``from module import *``. Instead list the names you
+  need explicitly::
+
+    from module import name1, name2
+
+  Use parenthesis around the names if they are longer than one line::
+
+    from module import (name1, name2, ...
+        name12, name13)
+
+  Most of the current CKAN code base imports just the modules and
+  then accesses names with ``module.name``. This allows circular
+  imports in some cases and may still be necessary for exsiting
+  code, but is not recommended for new code.
 
 - Make all imports at the start of the file, after the module docstring.
   Imports should be grouped in the following order:
@@ -53,7 +70,6 @@ Imports
   2. Third-party imports
   3. CKAN imports
 
-.. _Idioms and Anti-Idioms in Python: http://docs.python.org/2/howto/doanddont.html
 
 Logging
 -------
@@ -83,8 +99,7 @@ String formatting
 ------------------
 
 Don't use the old ``%s`` style string formatting, e.g. ``"i am a %s" % sub``.
-This kind of string formatting is not helpful for internationalization and is
-going away in Python 3.
+This kind of string formatting is not helpful for internationalization.
 
 Use the `new .format() method`_ instead, and give meaningful names to each
 replacement field, for example::
