@@ -112,8 +112,9 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
             };
 
             if (term !== '') {
-              query.q = {};
-              query.q[filterName] = term + ':*';
+              var q = {};
+              q[filterName] = term + ':*';
+              query.q = JSON.stringify(q);
             }
 
             return query;

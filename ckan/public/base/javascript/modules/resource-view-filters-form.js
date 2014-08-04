@@ -29,8 +29,9 @@ ckan.module('resource-view-filters-form', function (jQuery) {
             };
 
             if (term !== '') {
-              query.q = {};
-              query.q[filterName] = term + ':*';
+              var q = {};
+              q[filterName] = term + ':*';
+              query.q = JSON.stringify(q);
             }
 
             return query;
