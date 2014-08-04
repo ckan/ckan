@@ -18,6 +18,6 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
 
     def test_bulk_process_throws_404_for_nonexistent_org(self):
         app = self._get_test_app()
-        response = app.get(url=url_for(controller='organization',
-                            action='bulk_process', id='does-not-exist'),
-                            status=404)
+        bulk_process_url = url_for(controller='organization',
+                                   action='bulk_process', id='does-not-exist')
+        response = app.get(url=bulk_process_url, status=404)
