@@ -63,7 +63,7 @@ government departments, each of which publishes data. Each organization can
 have its own workflow and authorizations, allowing it to manage its own
 publishing process.
 
-An organization's administrators can add add individual users to it, with
+An organization's administrators can add individual users to it, with
 different roles depending on the level of authorization needed. A user in an
 organization can create a dataset owned by that organization. In the default
 setup, this dataset is initially private, and visible only to other users in
