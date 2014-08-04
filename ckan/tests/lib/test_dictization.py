@@ -10,7 +10,6 @@ from ckan.lib.dictization import (table_dictize,
 
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_dictize,
-                                                group_dictize,
                                                 activity_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
@@ -876,130 +875,6 @@ class TestBasicDictize:
 
         package_dictized = self.remove_changable_columns(package_dictize(pkg, context))
 
-    def test_16_group_dictized(self):
-
-        context = {"model": model,
-                  "session": model.Session}
-
-        simple_group_dict = {'name': 'simple',
-                             'title': 'simple',
-                             'type': 'organization',
-                            }
-        model.repo.new_revision()
-        group_dict_save(simple_group_dict, context)
-        model.Session.commit()
-        model.Session.remove()
-
-        context = {"model": model,
-                  "session": model.Session}
-
-        group_dict = {'name': 'help',
-                      'title': 'help',
-                      'approval_status': 'approved',
-                      'extras': [{'key': 'genre', 'value': u'"horror"'},
-                                 {'key': 'media', 'value': u'"dvd"'}],
-                      'packages':[{'name': 'annakarenina2'}],
-                      'users':[{'name': 'annafan'}],
-                      'groups':[{'name': 'simple'}],
-                      'tags':[{'name': 'russian'}]
-                      }
-
-        model.repo.new_revision()
-        group_dict_save(group_dict, context)
-        model.Session.commit()
-        model.Session.remove()
-
-        group = model.Session.query(model.Group).filter_by(name=u'help').one()
-
-        context = {"model": model,
-                  "session": model.Session,
-                  "user": None}
-
-        group_dictized = group_dictize(group, context)
-
-        expected = {'description': u'',
-                    'extras': [{'key': u'genre', 'state': u'active', 'value': u'"horror"'},
-                               {'key': u'media', 'state': u'active', 'value': u'"dvd"'}],
-                    'tags': [{'capacity': u'public', 'display_name': u'russian', 'name': u'russian'}],
-                    'groups': [{'description': u'',
-                               'capacity' : 'public',
-                               'display_name': u'simple',
-                               'image_url': u'',
-                               'image_display_url': u'',
-                               'name': u'simple',
-                               'packages': 0,
-                               'state': u'active',
-                               'is_organization': False,
-                               'title': u'simple',
-                               'type': u'organization',
-                               'approval_status': u'approved'}],
-                    'users': [{'about': u'I love reading Annakarenina. My site: http://anna.com',
-                              'display_name': u'annafan',
-                              'capacity' : 'public',
-                              'state': 'active',
-                              'sysadmin': False,
-                              'email_hash': 'd41d8cd98f00b204e9800998ecf8427e',
-                              'fullname': None,
-                              'name': u'annafan',
-                              'number_administered_packages': 1L,
-                              'number_of_edits': 0L,
-                              'activity_streams_email_notifications': False,
-                              }],
-                    'name': u'help',
-                    'display_name': u'help',
-                    'image_url': u'',
-                    'image_display_url': u'',
-                    'package_count': 1,
-                    'is_organization': False,
-                    'packages': [{u'author': None,
-                              u'author_email': None,
-                              u'creator_user_id': None,
-                              u'extras': [],
-                              u'groups':[
-                                 {u'title': u'help',
-                                  u'display_name': u'help',
-                                  u'description': u'',
-                                  u'name': u'help',
-                                  u'image_display_url': u''}
-                              ],
-                              u'isopen': True,
-                              u'license_id': u'other-open',
-                              u'license_title': u'Other (Open)',
-                              u'maintainer': None,
-                              u'maintainer_email': None,
-                              u'name': u'annakarenina2',
-                              u'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
-                              u'num_resources': 0,
-                              u'num_tags': 0,
-                              u'organization': None,
-                              u'owner_org': None,
-                              u'private': False,
-                              u'relationships_as_object': [],
-                              u'relationships_as_subject': [],
-                              u'resources': [],
-                              u'state': u'active',
-                              u'tags': [],
-                              u'title': u'A Novel By Tolstoy',
-                              u'tracking_summary': {u'recent': 0, u'total': 0},
-                              u'type': u'dataset',
-                              u'url': u'http://www.annakarenina.com',
-                              u'version': u'0.7a'},
-                    ],
-                    'state': u'active',
-                    'approval_status': u'approved',
-                    'title': u'help',
-                    'type': u'group'}
-        expected['packages'] = sorted(expected['packages'], key=lambda x: x['name'])
-        result = self.remove_changable_columns(group_dictized)
-        result['packages'] = sorted(result['packages'], key=lambda x: x['name'])
-
-        assert_equal(sorted(result.keys()), sorted(expected.keys()))
-        
-        for key in result:
-            if key in ('is_organization', 'package_count'):
-                continue
-            assert_equal(sorted(result[key]), sorted(expected[key]))
-        assert_equal(result['package_count'], expected['package_count'])
 
     def test_17_group_apis_to_dict(self):
 

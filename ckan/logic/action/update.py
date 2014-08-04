@@ -1187,6 +1187,7 @@ def dashboard_mark_activities_old(context, data_dict):
         model.repo.commit()
 
 
+@logic.auth_audit_exempt
 def send_email_notifications(context, data_dict):
     '''Send any pending activity stream notification emails to users.
 
@@ -1313,7 +1314,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
     count = 0
     q = []
     for id in datasets:
-        q.append('id:%s' % (id))
+        q.append('id:"%s"' % (id))
         count += 1
         if count % BATCH_SIZE == 0:
             process_solr(' OR '.join(q))

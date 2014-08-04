@@ -192,7 +192,8 @@ with:
 Tag vocabularies
 ----------------
 If you need to add a custom field where the input options are restricted to a
-provided list of options, you can use tag vocabularies :doc:`/tag-vocabularies`.
+provided list of options, you can use tag vocabularies
+:doc:`/maintaining/tag-vocabularies`.
 We will need to create our vocabulary first. By calling
 :func:`~ckan.logic.action.vocabulary_create`. Add a function to your plugin.py
 above your plugin class.
