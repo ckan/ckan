@@ -1183,12 +1183,17 @@ def search_sql(context, data_dict):
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to read resource.']
             })
+
+        def _remove_explain(msg):
+            return (msg.replace('EXPLAIN (FORMAT JSON) ', '')
+                       .replace('EXPLAIN ', ''))
+
         raise ValidationError({
-            'query': [str(e)],
+            'query': [_remove_explain(str(e))],
             'info': {
-                'statement': [e.statement],
+                'statement': [_remove_explain(e.statement)],
                 'params': [e.params],
-                'orig': [str(e.orig)]
+                'orig': [_remove_explain(str(e.orig))]
             }
         })
     except DBAPIError, e:
