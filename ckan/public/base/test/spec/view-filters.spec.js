@@ -56,6 +56,24 @@ describe('ckan.views.filters', function(){
       filters._initialize('?filters=country:Brazil|country:Argentina');
       assert.deepEqual(expectedFiltersReverse, filters.get());
     });
+
+    it('should work with a single numeric filter', function() {
+      var expectedFilters = {
+            year: ['2014']
+          };
+
+      filters._initialize('?filters=year:2014');
+      assert.deepEqual(expectedFilters, filters.get());
+    });
+
+    it('should work with quoted filters', function() {
+      var expectedFilters = {
+            country: ['"Brazil"']
+          };
+
+      filters._initialize('?filters=country:"Brazil"');
+      assert.deepEqual(expectedFilters, filters.get());
+    });
   });
 
   describe('#get', function(){
