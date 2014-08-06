@@ -125,7 +125,7 @@ this.ckan.module('resource-view-filters', function (jQuery, _) {
                 results;
 
             results = $.map(records, function (record) {
-              return { id: record[filterName], text: record[filterName] };
+              return { id: record[filterName], text: String(record[filterName]) };
             });
 
             return { results: results, more: hasMore };
