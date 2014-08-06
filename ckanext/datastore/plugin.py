@@ -409,8 +409,7 @@ class DatastorePlugin(p.SingletonPlugin):
                     if field not in fields_types:
                         continue
                     query_field = self._ts_query_alias(field)
-                    clause_str = u'"{0}" @@ {1}'.format(field, query_field)
-                    clause = (clause_str, value)
+                    clause = (u'"{0}" @@ {1}'.format(field, query_field),)
                     clauses.append(clause)
 
         return clauses
