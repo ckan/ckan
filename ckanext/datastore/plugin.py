@@ -402,15 +402,15 @@ class DatastorePlugin(p.SingletonPlugin):
         q = data_dict.get('q')
         if q:
             if isinstance(q, basestring):
-                clause = (u'_full_text @@ {0}'.format(self._ts_query_alias()),)
-                clauses.append(clause)
+                clause_str = u'_full_text @@ {0}'.format(self._ts_query_alias())
+                clauses.append((clause_str,))
             elif isinstance(q, dict):
                 for field, value in q.iteritems():
                     if field not in fields_types:
                         continue
                     query_field = self._ts_query_alias(field)
-                    clause = (u'"{0}" @@ {1}'.format(field, query_field),)
-                    clauses.append(clause)
+                    clause_str = u'"{0}" @@ {1}'.format(field, query_field)
+                    clauses.append((clause_str,))
 
         return clauses
 
