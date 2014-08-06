@@ -219,9 +219,9 @@ this.ckan.views.filters = (function (queryString) {
           len;
 
       for (i = 0, len = fieldValuesStr.length; i < len; i++) {
-        var fieldValue = fieldValuesStr[i].split(':'),
-            field = fieldValue[0],
-            value = fieldValue[1];
+        var fieldValue = fieldValuesStr[i].match(/([^:]+):(.*)/),
+            field = fieldValue[1],
+            value = fieldValue[2];
 
         filters[field] = filters[field] || [];
         filters[field].push(value);

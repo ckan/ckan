@@ -74,6 +74,15 @@ describe('ckan.views.filters', function(){
       filters._initialize('?filters=country:"Brazil"');
       assert.deepEqual(expectedFilters, filters.get());
     });
+
+    it('should work with filters with colons', function() {
+      var expectedFilters = {
+            time: ['11:00', '']
+          };
+
+      filters._initialize('?filters=time:11:00|time:');
+      assert.deepEqual(expectedFilters, filters.get());
+    });
   });
 
   describe('#get', function(){
