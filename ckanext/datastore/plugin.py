@@ -409,7 +409,7 @@ class DatastorePlugin(p.SingletonPlugin):
                     if field not in fields_types:
                         continue
                     query_field = self._ts_query_alias(field)
-                    clause_str = u'"{0}" @@ {1}'.format(field, query_field)
+                    clause_str = u'cast("{0}" as text) @@ {1}'.format(field, query_field)
                     clauses.append((clause_str,))
 
         return clauses
@@ -490,7 +490,7 @@ class DatastorePlugin(p.SingletonPlugin):
         if field is None:
             rank_field = '_full_text'
         else:
-            rank_field = 'to_tsvector("%s")' % field
+            rank_field = u'to_tsvector(cast("{0}" as text))'.format(field)
         rank_statement = u'ts_rank({rank_field}, {query_alias}, 32) AS {alias}'
         statement = statement.format(lang=lang, query=query, alias=query_alias)
         rank_statement = rank_statement.format(rank_field=rank_field,

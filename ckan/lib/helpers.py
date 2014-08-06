@@ -1749,11 +1749,7 @@ def resource_view_get_fields(resource):
     }
     result = logic.get_action('datastore_search')({}, data)
 
-    fields = []
-    for field in result.get('fields', []):
-        if field['type'] != 'text' and field['type'] != 'timestamp':
-            continue
-        fields.append(field['id'])
+    fields = [field['id'] for field in result.get('fields', [])]
 
     return sorted(fields)
 
