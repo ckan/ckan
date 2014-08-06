@@ -452,18 +452,31 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     fts_lang = data_dict.get('lang', default_fts_lang)
 
     # create full-text search indexes
-    to_tsvector = lambda x: u"to_tsvector('{0}', '{1}')".format(fts_lang, x)
-    text_fields = [x['id'] for x in fields if x['type'] == 'text']
-    for text_field in ['_full_text'] + text_fields:
-        if text_field != '_full_text':
-            text_field = to_tsvector(text_field)
+    to_tsvector = lambda x: u"to_tsvector('{0}', {1})".format(fts_lang, x)
+    cast_as_text = lambda x: u'cast("{0}" AS text)'.format(x)
+    full_text_field = {'type': 'text', 'id': '_full_text'}
+    for field in [full_text_field] + fields:
+        if not _should_index_field(field):
+            continue
+
+        field_str = field['id']
+        if field['type'] != 'text':
+            field_str = cast_as_text(field_str)
+        else:
+            field_str = u'"{0}"'.format(field_str)
+        if field['id'] != '_full_text':
+            field_str = to_tsvector(field_str)
         fts_indexes.append(sql_index_str_method.format(
             res_id=resource_id,
             unique='',
-            name=_generate_index_name(resource_id, text_field),
-            method='gist', fields=text_field))
+            name=_generate_index_name(resource_id, field_str),
+            method='gist', fields=field_str))
 
     return fts_indexes
+
+
+def _should_index_field(field):
+    return field['type'] in ['text', 'number']
 
 
 def _generate_index_name(resource_id, field):
