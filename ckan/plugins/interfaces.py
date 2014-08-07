@@ -258,7 +258,7 @@ class IResourceModification(Interface):
         """
         pass
 
-    def before_delete(self, context, resource):
+    def before_delete(self, context, resource, resources):
         """
         Extensions will receive this before a previously created resource is
         deleted.
@@ -267,12 +267,17 @@ class IResourceModification(Interface):
             includes for example access to the ``model`` and the ``user``.
         :type context: dictionary
         :param resource: An object representing the resource that is about
-            to be deleted.
+            to be deleted. This is a dictionary with one key: ``id`` which
+            holds the id ``string`` of the resource that should be deleted.
         :type resource: dictionary
+        :param resources: The list of resources from which the resource will
+            be deleted (including the resource to be deleted if it existed
+            in the package).
+        :type resources: list
         """
         pass
 
-    def after_delete(self, context, resource):
+    def after_delete(self, context, resources):
         """
         Extensions will receive this after a previously created resource is
         deleted.
@@ -280,9 +285,9 @@ class IResourceModification(Interface):
         :param context: The context object of the current request, this
             includes for example access to the ``model`` and the ``user``.
         :type context: dictionary
-        :param resource: An object representing the resource that was deleted
-            from the dataset.
-        :type resource: dictionary
+        :param resources: A list of objects representing the remaining
+            resources after a resource has been removed.
+        :type resource: list
         """
         pass
 
