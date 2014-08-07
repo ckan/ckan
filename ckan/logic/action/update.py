@@ -225,6 +225,9 @@ def resource_update(context, data_dict):
         logging.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
+    for plugin in plugins.PluginImplementations(plugins.IResourceModification):
+        plugin.before_update(context, pkg_dict['resources'][n], data_dict)
+
     upload = uploader.ResourceUpload(data_dict)
 
     pkg_dict['resources'][n] = data_dict

@@ -198,6 +198,19 @@ class IResourceModification(Interface):
     Add custom processing after a resource is created, updated or deleted.
     """
 
+    def before_create(self, context, resource):
+        """
+        Extensions will receive this before a resource is created.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the resource to be added
+            to the dataset (the one that is about to be created).
+        :type resource: dictionary
+        """
+        pass
+
     def after_create(self, context, resource):
         """
         Extensions will receive this after a resource is created.
@@ -214,8 +227,23 @@ class IResourceModification(Interface):
         """
         pass
 
+    def before_update(self, context, current, resource):
+        """
+        Extensions will receive this before a resource is updated.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param current: The current resource which is about to be updated
+        :type current: dictionary
+        :param resource: An object representing the updated resource which
+            will replace the ``current`` one.
+        :type resource: dictionary
+        """
+        pass
+
     def after_update(self, context, resource):
-                """
+        """
         Extensions will receive this after a resource is updated.
 
         :param context: The context object of the current request, this
@@ -226,6 +254,20 @@ class IResourceModification(Interface):
             ``after_create``, a noteworthy key in the resource dictionary
             ``url_type`` which is set to ``upload`` when the resource file
             is uploaded instead of linked.
+        :type resource: dictionary
+        """
+        pass
+
+    def before_delete(self, context, resource):
+        """
+        Extensions will receive this before a previously created resource is
+        deleted.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the resource that is about
+            to be deleted.
         :type resource: dictionary
         """
         pass

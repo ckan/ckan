@@ -268,6 +268,9 @@ def resource_create(context, data_dict):
 
     _check_access('resource_create', context, data_dict)
 
+    for plugin in plugins.PluginImplementations(plugins.IResourceModification):
+        plugin.before_create(context, data_dict)
+
     if not 'resources' in pkg_dict:
         pkg_dict['resources'] = []
 
