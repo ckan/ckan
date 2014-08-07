@@ -1,0 +1,56 @@
+body {
+  background-color: #fff;
+}
+
+.recline-data-explorer {
+  position: relative;
+  overflow: auto;
+}
+
+.recline-record-count {
+  float: left;
+  margin-left: 10px;
+  line-height: 26px;
+}
+
+.loading-dialog {
+  width: 120px;
+}
+
+.recline-slickgrid {
+  height: 600px;
+}
+
+.recline-timeline .vmm-timeline {
+  height: 600px;
+}
+
+.recline-pager .pagination {
+  margin: 0;
+  float: left;
+}
+
+.recline-pager .pagination a {
+  line-height: 26px;
+}
+
+.recline-pager .pagination input {
+  width: 30px;
+  margin: 0;
+  padding: 2px 4px;
+}
+
+.recline-query-editor {
+  float: right;
+}
+
+.loading-spinner {
+  float: right;
+  background-image: url('../img/ajaxload-circle.gif');
+  width: 32px;
+  height: 32px;
+}
+
+.recline-pager label, .recline-query-editor label {
+  display: none;
+}

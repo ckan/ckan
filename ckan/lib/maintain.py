@@ -69,12 +69,12 @@ def deprecate_context_item(item_name, message=''):
         def custom__getattr__(self, name):
             # get the origional __getattr__ so we can access things
             __old_getattr__ = self.__class__.__dict__['__old_getattr__']
-            # see if we have a __depricated_properties__ for this name and
+            # see if we have a __deprecated_properties__ for this name and
             # if so log a warning
             try:
-                depricated = __old_getattr__(self, '__depricated_properties__')
-                if name in depricated:
-                    log.warn(depricated[name])
+                deprecated = __old_getattr__(self, '__deprecated_properties__')
+                if name in deprecated:
+                    log.warn(deprecated[name])
             except AttributeError:
                 pass
             # return the requested value
@@ -85,10 +85,10 @@ def deprecate_context_item(item_name, message=''):
         setattr(c.__class__, '__old_getattr__', __old_getattr__)
         setattr(c.__class__, '__getattr__', custom__getattr__)
 
-    # if c.__depricated_properties__ is not set it returns ''
-    if not c.__depricated_properties__:
-        c.__depricated_properties__ = {}
-    c.__depricated_properties__[item_name] = message
+    # if c.__deprecated_properties__ is not set it returns ''
+    if not c.__deprecated_properties__:
+        c.__deprecated_properties__ = {}
+    c.__deprecated_properties__[item_name] = message
 
 
 def defer_context_item(item_name, function):

@@ -154,6 +154,18 @@ def datapusher_hook(context, data_dict):
     task['state'] = status
     task['last_updated'] = str(datetime.datetime.now())
 
+    if status == 'complete' and p.plugin_loaded('recline_grid_view'):
+        view_list = p.toolkit.get_action(
+            'resource_view_list')(context, {'id': res_id})
+
+        if not view_list:
+            view = {'resource_id': res_id,
+                    'view_type': 'recline_grid_view',
+                    'title': 'Grid view',
+                    'description': 'View of data within the DataStore'}
+            view_list = p.toolkit.get_action('resource_view_create')(context,
+                                                                     view)
+
     context['ignore_auth'] = True
     p.toolkit.get_action('task_status_update')(context, task)
 
@@ -197,7 +209,7 @@ def datapusher_status(context, data_dict):
             r.raise_for_status()
             job_detail = r.json()
         except (requests.exceptions.ConnectionError,
-                requests.exceptions.HTTPError), e:
+                requests.exceptions.HTTPError):
             job_detail = {'error': 'cannot connect to datapusher'}
 
     return {

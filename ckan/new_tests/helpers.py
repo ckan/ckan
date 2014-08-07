@@ -17,8 +17,6 @@ potential drawbacks.
 This module is reserved for these very useful functions.
 
 '''
-import os
-
 import webtest
 from pylons import config
 import nose.tools
@@ -27,6 +25,17 @@ import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
 import ckan.new_authz as new_authz
+
+
+try:
+    from nose.tools import assert_in, assert_not_in
+except ImportError:
+    # Python 2.6 doesn't have these, so define them here
+    def assert_in(a, b, msg=None):
+        assert a in b, msg or '%r was not in %r' % (a, b)
+
+    def assert_not_in(a, b, msg=None):
+        assert a not in b, msg or '%r was in %r' % (a, b)
 
 
 def reset_db():
@@ -143,7 +152,7 @@ def _get_test_app():
     return app
 
 
-class FunctionalTestBase():
+class FunctionalTestBase(object):
     '''A base class for functional test classes to inherit from.
 
     Allows configuration changes by overriding _apply_config_changes and

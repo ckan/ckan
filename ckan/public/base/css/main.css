@@ -6280,6 +6280,48 @@ textarea {
 .resource-item .handle {
   display: none;
 }
+.view-list.reordering .resource-view-item {
+  border: 1px solid #dddddd;
+  margin-bottom: 10px;
+  cursor: move;
+}
+.view-list.reordering .resource-view-item .handle {
+  display: block;
+  position: absolute;
+  color: #888888;
+  left: -40px;
+  top: 32px;
+  margin-top: -15px;
+  width: 20px;
+  height: 15px;
+  min-height: 15px;
+  line-height: 0px;
+  text-align: center;
+  border: 1px solid #dddddd;
+  border-width: 1px 0 1px 1px;
+  background-color: #ffffff;
+  -webkit-border-radius: 20px 0 0 20px;
+  -moz-border-radius: 20px 0 0 20px;
+  border-radius: 20px 0 0 20px;
+}
+.view-list.reordering .resource-view-item .handle:hover {
+  text-decoration: none;
+}
+.view-list.reordering .resource-view-item:hover .handle {
+  background-color: #eeeeee;
+}
+.view-list.reordering .resource-view-item.ui-sortable-helper {
+  background-color: #eeeeee;
+  border: 1px solid #187794;
+}
+.view-list.reordering .resource-view-item.ui-sortable-helper .handle {
+  background-color: #eeeeee;
+  border-color: #187794;
+  color: #333333;
+}
+.resource-item .handle {
+  display: none;
+}
 .tag-list {
   margin: 0;
   list-style: none;
@@ -6338,6 +6380,117 @@ textarea {
 .label[data-format*=ntriples],
 .label[data-format*=turtle] {
   background-color: #0b4498;
+}
+.view-list {
+  margin: 0;
+  list-style: none;
+}
+.view-list li {
+  position: relative;
+  margin-bottom: 10px;
+}
+.view-list li a {
+  display: block;
+  min-height: 50px;
+  padding: 10px;
+  border: 1px solid #dddddd;
+  overflow: hidden;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.view-list li a .icon {
+  float: left;
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  margin-right: 10px;
+  color: #444444;
+  background-color: #eeeeee;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.view-list li a .icon i {
+  display: block;
+  text-align: center;
+  font-size: 28px;
+  line-height: 50px;
+}
+.view-list li a h3 {
+  color: #000000;
+  font-weight: bold;
+  font-size: 16px;
+  margin: 0 0 3px 0;
+}
+.view-list li a p {
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #444444;
+}
+.view-list li a.active,
+.view-list li a:hover {
+  text-decoration: none;
+  border-color: #187794;
+}
+.view-list li a.active .icon,
+.view-list li a:hover .icon {
+  background-color: #187794;
+  color: #f6f6f6;
+}
+.view-list li .arrow {
+  position: absolute;
+  display: none;
+  border: 8px solid transparent;
+  border-top-color: #187794;
+  left: 50%;
+  bottom: -15px;
+  margin-left: -4px;
+}
+.view-list li.active a {
+  text-decoration: none;
+  border-color: #187794;
+}
+.view-list li.active a .icon {
+  background-color: #187794;
+  color: #f6f6f6;
+}
+.view-list li.active .arrow {
+  display: block;
+}
+.view-list.stacked {
+  overflow-y: hidden;
+  overflow-x: auto;
+  height: 100px;
+  white-space: nowrap;
+}
+.view-list.stacked li {
+  display: inline-block;
+  width: 250px;
+  margin-right: 10px;
+}
+.view-list.stacked li:last-child {
+  margin-right: 0;
+}
+.view-list.stacked::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.view-list.stacked::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: #f6f6f6;
+}
+.view-list.stacked::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #c3c3c3;
+}
+.view-list.stacked::-webkit-scrollbar-thumb:hover {
+  background-color: #187794;
+}
+.resource-view {
+  margin-top: 20px;
 }
 .search-form {
   margin-bottom: 20px;
@@ -8023,6 +8176,16 @@ h4 small {
   display: block;
   font-size: 16px;
   margin: 3px 0;
+}
+.resource-view-embed textarea {
+  width: 100%;
+}
+.resource-view-embed label {
+  float: left;
+}
+.resource-view-embed input {
+  width: 11em;
+  float: right;
 }
 .datapusher-status-link:hover {
   text-decoration: none;

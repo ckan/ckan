@@ -6,6 +6,7 @@ import re
 
 from pylons import config
 import paste.deploy.converters
+from sqlalchemy import func
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
@@ -20,6 +21,7 @@ import ckan.lib.navl.dictization_functions
 import ckan.lib.uploader as uploader
 import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
+import ckan.lib.datapreview as datapreview
 
 from ckan.common import _
 
@@ -294,6 +296,65 @@ def resource_create(context, data_dict):
     resource = pkg_dict['resources'][-1]
 
     return resource
+
+
+def resource_view_create(context, data_dict):
+    '''Creates a new resource view.
+
+    :param resource_id: id of the resource
+    :type resource_id: string
+    :param title: the title of the view
+    :type title: string
+    :param description: a description of the view (optional)
+    :type description: string
+    :param view_type: type of view
+    :type view_type: string
+    :param config: options necessary to recreate a view state (optional)
+    :type config: JSON string
+
+    :returns: the newly created resource view
+    :rtype: dictionary
+
+    '''
+    model = context['model']
+    schema = (context.get('schema') or
+              ckan.logic.schema.default_create_resource_view_schema())
+
+    resource_id = _get_or_bust(data_dict, 'resource_id')
+    view_type = _get_or_bust(data_dict, 'view_type')
+    view_plugin = datapreview.get_view_plugin(view_type)
+    if not view_plugin:
+        raise ValidationError(
+            {"view_type": "No plugin found for view_type {view_type}".format(
+                view_type=view_type
+            )}
+        )
+    plugin_schema = view_plugin.info().get('schema', {})
+    schema.update(plugin_schema)
+
+    data, errors = _validate(data_dict, schema, context)
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    _check_access('resource_view_create', context, data_dict)
+
+    if context.get('preview'):
+        return data
+
+    max_order = model.Session.query(
+        func.max(model.ResourceView.order)
+        ).filter_by(resource_id=resource_id).first()
+
+    order = 0
+    if max_order[0] is not None:
+        order = max_order[0] + 1
+    data['order'] = order
+
+    resource_view = model_save.resource_view_dict_save(data, context)
+    if not context.get('defer_commit'):
+        model.repo.commit()
+    return model_dictize.resource_view_dictize(resource_view, context)
 
 
 def related_create(context, data_dict):
