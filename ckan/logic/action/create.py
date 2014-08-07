@@ -286,8 +286,8 @@ def resource_create(context, data_dict):
 
     ## Get out resource_id resource from model as it will not appear in
     ## package_show until after commit
-    result = upload.upload(context['package'].resources[-1].id,
-                            uploader.get_max_resource_size())
+    upload.upload(context['package'].resources[-1].id,
+                  uploader.get_max_resource_size())
     model.repo.commit()
 
     ##  Run package show again to get out actual last_resource
@@ -295,11 +295,7 @@ def resource_create(context, data_dict):
     resource = pkg_dict['resources'][-1]
 
     for plugin in plugins.PluginImplementations(plugins.IResourceModification):
-        if result == 'file deleted':
-            plugin.after_delete(context, resource)
-        else:
-            uploaded = (result == 'file uploaded')
-            plugin.after_create(context, resource, upload=uploaded)
+        plugin.after_create(context, resource)
 
     return resource
 

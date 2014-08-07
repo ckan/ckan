@@ -234,7 +234,7 @@ class ResourceUpload(object):
                     )
             output_file.close()
             os.rename(tmp_filepath, filepath)
-            return 'file uploaded'
+            return
 
         # The resource form only sets self.clear (via the input clear_upload)
         # to True when an uploaded file is not replaced by another uploaded
@@ -246,4 +246,3 @@ class ResourceUpload(object):
                 os.remove(filepath)
             except OSError, e:
                 pass
-            return 'file deleted'

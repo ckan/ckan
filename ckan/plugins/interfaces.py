@@ -198,7 +198,7 @@ class IResourceModification(Interface):
     Add custom processing after a resource is created, updated or deleted.
     """
 
-    def after_create(self, context, resource, upload):
+    def after_create(self, context, resource):
         """
         Extensions will receive this after a resource is created.
 
@@ -206,11 +206,11 @@ class IResourceModification(Interface):
             includes for example access to the ``model`` and the ``user``.
         :type context: dictionary
         :param resource: An object representing the latest resource added
-            to the dataset (the one that was just created).
+            to the dataset (the one that was just created). A key in the
+            resource dictionary worth mentioning is ``url_type`` which is
+            set to ``upload`` when the resource file is uploaded instead
+            of linked.
         :type resource: dictionary
-        :param upload: Representation of whether the resource was
-            uploaded (True) or not (False).
-        :type upload: boolean
         """
         pass
 
