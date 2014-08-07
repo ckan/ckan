@@ -732,13 +732,13 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             name='test_org',
             apikey=cls.sysadmin_user.apikey)
 
-        cls.expected_records = [{u'_full_text': u"'annakarenina':1 'b':3 'moo':4 'tolstoy':2",
+        cls.expected_records = [{u'_full_text': u"'-01':3 '-03':2 '2005':1 'annakarenina':7 'b':6 'moo':4 'tolstoy':5",
                                  u'_id': 1,
                                  u'author': u'tolstoy',
                                  u'b\xfck': u'annakarenina',
                                  u'nested': [u'b', {u'moo': u'moo'}],
                                  u'published': u'2005-03-01T00:00:00'},
-                                {u'_full_text': u"'b':3 'tolstoy':2 'warandpeac':1",
+                                {u'_full_text': u"'b':4 'tolstoy':3 'warandpeac':2",
                                  u'_id': 2,
                                  u'author': u'tolstoy',
                                  u'b\xfck': u'warandpeace',

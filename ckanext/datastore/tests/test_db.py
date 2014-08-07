@@ -102,3 +102,23 @@ class TestCreateIndexes(object):
 
         assert was_called, ("Expected 'connection.execute' to have been "
                             "called with a string containing '%s'" % sql_str)
+
+
+class TestJsonGetValues(object):
+    def test_returns_empty_list_if_called_with_none(self):
+        assert_equal(db.json_get_values(None), [])
+
+    def test_returns_list_with_value_if_called_with_string(self):
+        assert_equal(db.json_get_values('foo'), ['foo'])
+
+    def test_returns_list_with_only_the_original_truthy_values_if_called(self):
+        data = [None, 'foo', 42, 'bar', {}, []]
+        assert_equal(db.json_get_values(data), ['foo', '42', 'bar'])
+
+    def test_returns_flattened_list(self):
+        data = ['foo', ['bar', ('baz', 42)]]
+        assert_equal(db.json_get_values(data), ['foo', 'bar', 'baz', '42'])
+
+    def test_returns_only_truthy_values_from_dict(self):
+        data = {'foo': 'bar', 'baz': [42, None, {}, [], 'hey']}
+        assert_equal(db.json_get_values(data), ['foo', 'bar', 'baz', '42', 'hey'])

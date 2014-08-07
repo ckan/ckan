@@ -233,14 +233,13 @@ def _get_fields_types(context, data_dict):
 def json_get_values(obj, current_list=None):
     if current_list is None:
         current_list = []
-    if isinstance(obj, basestring):
-        current_list.append(obj)
-    if isinstance(obj, list):
+    if isinstance(obj, list) or isinstance(obj, tuple):
         for item in obj:
             json_get_values(item, current_list)
-    if isinstance(obj, dict):
-        for item in obj.values():
-            json_get_values(item, current_list)
+    elif isinstance(obj, dict):
+        json_get_values(obj.items(), current_list)
+    elif obj:
+        current_list.append(str(obj))
     return current_list
 
 
@@ -454,17 +453,17 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     # create full-text search indexes
     to_tsvector = lambda x: u"to_tsvector('{0}', {1})".format(fts_lang, x)
     cast_as_text = lambda x: u'cast("{0}" AS text)'.format(x)
-    full_text_field = {'type': 'text', 'id': '_full_text'}
+    full_text_field = {'type': 'tsvector', 'id': '_full_text'}
     for field in [full_text_field] + fields:
-        if not _should_index_field(field):
+        if not datastore_helpers.should_fts_index_field_type(field['type']):
             continue
 
         field_str = field['id']
-        if field['type'] != 'text':
+        if field['type'] not in ['text', 'tsvector']:
             field_str = cast_as_text(field_str)
         else:
             field_str = u'"{0}"'.format(field_str)
-        if field['id'] != '_full_text':
+        if field['type'] != 'tsvector':
             field_str = to_tsvector(field_str)
         fts_indexes.append(sql_index_str_method.format(
             res_id=resource_id,
@@ -473,10 +472,6 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
             method='gist', fields=field_str))
 
     return fts_indexes
-
-
-def _should_index_field(field):
-    return field['type'] in ['text', 'number']
 
 
 def _generate_index_name(resource_id, field):
@@ -765,11 +760,14 @@ def _to_full_text(fields, record):
     full_text = []
     for field in fields:
         value = record.get(field['id'])
-        if field['type'].lower() == 'nested' and value:
-            full_text.extend(json_get_values(value))
-        elif field['type'].lower() == 'text' and value:
+        if not value:
+            continue
+
+        if field['type'].lower() == 'text':
             full_text.append(value)
-    return ' '.join(full_text)
+        else:
+            full_text.extend(json_get_values(value))
+    return ' '.join(set(full_text))
 
 
 def _where(where_clauses_and_values):

@@ -402,14 +402,23 @@ class DatastorePlugin(p.SingletonPlugin):
         q = data_dict.get('q')
         if q:
             if isinstance(q, basestring):
-                clause_str = u'_full_text @@ {0}'.format(self._ts_query_alias())
+                ts_query_alias = self._ts_query_alias()
+                clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
                 clauses.append((clause_str,))
             elif isinstance(q, dict):
+                lang = self._fts_lang(data_dict.get('lang'))
                 for field, value in q.iteritems():
                     if field not in fields_types:
                         continue
                     query_field = self._ts_query_alias(field)
-                    clause_str = u'cast("{0}" as text) @@ {1}'.format(field, query_field)
+
+                    ftyp = fields_types[field]
+                    if not datastore_helpers.should_fts_index_field_type(ftyp):
+                        clause_str = u'_full_text @@ {0}'.format(query_field)
+                        clauses.append((clause_str,))
+
+                    clause_str = (u'to_tsvector(\'{0}\', cast("{1}" as text)) '
+                                  u'@@ {2}').format(lang, field, query_field)
                     clauses.append((clause_str,))
 
         return clauses
@@ -450,10 +459,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def _textsearch_query(self, data_dict):
         q = data_dict.get('q')
-        default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
-        if default_fts_lang is None:
-            default_fts_lang = u'english'
-        lang = data_dict.get(u'lang', default_fts_lang)
+        lang = self._fts_lang(data_dict.get('lang'))
 
         if not q:
             return '', ''
@@ -480,6 +486,12 @@ class DatastorePlugin(p.SingletonPlugin):
         rank_columns_str = ', ' + ', '.join(rank_columns)
         return statements_str, rank_columns_str
 
+    def _fts_lang(self, lang=None):
+        default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
+        if default_fts_lang is None:
+            default_fts_lang = u'english'
+        return lang or default_fts_lang
+
     def _build_query_and_rank_statements(self, lang, query, plain, field=None):
         query_alias = self._ts_query_alias(field)
         rank_alias = self._ts_rank_alias(field)
@@ -490,7 +502,8 @@ class DatastorePlugin(p.SingletonPlugin):
         if field is None:
             rank_field = '_full_text'
         else:
-            rank_field = u'to_tsvector(cast("{0}" as text))'.format(field)
+            rank_field = u'to_tsvector(\'{lang}\', cast("{field}" as text))'
+            rank_field = rank_field.format(lang=lang, field=field)
         rank_statement = u'ts_rank({rank_field}, {query_alias}, 32) AS {alias}'
         statement = statement.format(lang=lang, query=query, alias=query_alias)
         rank_statement = rank_statement.format(rank_field=rank_field,

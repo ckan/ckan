@@ -33,3 +33,7 @@ def _strip(input):
     if isinstance(input, basestring) and len(input) and input[0] == input[-1]:
         return input.strip().strip('"')
     return input
+
+
+def should_fts_index_field_type(field_type):
+    return field_type.lower() in ['tsvector', 'text', 'number']

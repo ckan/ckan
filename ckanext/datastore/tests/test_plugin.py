@@ -1,4 +1,5 @@
 import nose
+import mock
 
 import ckan.new_tests.helpers as helpers
 import ckan.plugins as p
@@ -91,6 +92,104 @@ class TestPluginDatastoreSearch(object):
         result = self._datastore_search(data_dict=data_dict)
 
         assert_equal(result['ts_query'], expected_ts_query)
+
+    def test_fts_rank_column_uses_lang_when_casting_to_tsvector(self):
+        expected_select_content = u'to_tsvector(\'french\', cast("country" as text))'
+        data_dict = {
+            'q': {'country': 'Brazil'},
+            'lang': 'french',
+        }
+
+        result = self._datastore_search(data_dict=data_dict)
+
+        assert expected_select_content in result['select'][0], result['select']
+
+    def test_adds_fts_on_full_text_field_when_q_is_a_string(self):
+        expected_where = [(u'_full_text @@ "query"',)]
+        data_dict = {
+            'q': 'foo',
+        }
+
+        result = self._datastore_search(data_dict=data_dict)
+
+        assert_equal(result['where'], expected_where)
+
+    def test_ignores_fts_searches_on_inexistent_fields(self):
+        data_dict = {
+            'q': {'inexistent-field': 'value'},
+        }
+
+        result = self._datastore_search(data_dict=data_dict, fields_types={})
+
+        assert_equal(result['where'], [])
+
+    @helpers.change_config('ckan.datastore.default_fts_lang', None)
+    def test_fts_where_clause_lang_uses_english_by_default(self):
+        expected_where = [(u'to_tsvector(\'english\', cast("country" as text))'
+                           u' @@ "query country"',)]
+        data_dict = {
+            'q': {'country': 'Brazil'},
+        }
+        fields_types = {
+            'country': 'text',
+        }
+
+        result = self._datastore_search(data_dict=data_dict,
+                                        fields_types=fields_types)
+
+        assert_equal(result['where'], expected_where)
+
+    @helpers.change_config('ckan.datastore.default_fts_lang', 'simple')
+    def test_fts_where_clause_lang_can_be_overwritten_by_config(self):
+        expected_where = [(u'to_tsvector(\'simple\', cast("country" as text))'
+                           u' @@ "query country"',)]
+        data_dict = {
+            'q': {'country': 'Brazil'},
+        }
+        fields_types = {
+            'country': 'text',
+        }
+
+        result = self._datastore_search(data_dict=data_dict,
+                                        fields_types=fields_types)
+
+        assert_equal(result['where'], expected_where)
+
+    @helpers.change_config('ckan.datastore.default_fts_lang', 'simple')
+    def test_fts_where_clause_lang_can_be_overwritten_using_lang_param(self):
+        expected_where = [(u'to_tsvector(\'french\', cast("country" as text))'
+                           u' @@ "query country"',)]
+        data_dict = {
+            'q': {'country': 'Brazil'},
+            'lang': 'french',
+        }
+        fields_types = {
+            'country': 'text',
+        }
+
+        result = self._datastore_search(data_dict=data_dict,
+                                        fields_types=fields_types)
+
+        assert_equal(result['where'], expected_where)
+
+    @mock.patch('ckanext.datastore.helpers.should_fts_index_field_type')
+    def test_fts_adds_where_clause_on_full_text_when_querying_non_indexed_fields(self, should_fts_index_field_type):
+        should_fts_index_field_type.return_value = False
+        expected_where = [('_full_text @@ "query country"',),
+                          (u'to_tsvector(\'english\', cast("country" as text))'
+                           u' @@ "query country"',)]
+        data_dict = {
+            'q': {'country': 'Brazil'},
+            'lang': 'english',
+        }
+        fields_types = {
+            'country': 'non-indexed field type',
+        }
+
+        result = self._datastore_search(data_dict=data_dict,
+                                        fields_types=fields_types)
+
+        assert_equal(result['where'], expected_where)
 
     def _datastore_search(self, context={}, data_dict={}, fields_types={}, query_dict={}):
         _query_dict = {
