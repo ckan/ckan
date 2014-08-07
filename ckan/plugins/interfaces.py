@@ -249,8 +249,8 @@ class IResourceModification(Interface):
         :param context: The context object of the current request, this
             includes for example access to the ``model`` and the ``user``.
         :type context: dictionary
-        :param resource: An object representing the updated resource added
-            to the dataset (the one that was just updated). As with
+        :param resource: An object representing the updated resource in
+            the dataset (the one that was just updated). As with
             ``after_create``, a noteworthy key in the resource dictionary
             ``url_type`` which is set to ``upload`` when the resource file
             is uploaded instead of linked.
@@ -280,8 +280,8 @@ class IResourceModification(Interface):
         :param context: The context object of the current request, this
             includes for example access to the ``model`` and the ``user``.
         :type context: dictionary
-        :param resource: An object representing the latest resource added
-            to the dataset (the one that was just deleted).
+        :param resource: An object representing the resource that was deleted
+            from the dataset.
         :type resource: dictionary
         """
         pass
