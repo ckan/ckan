@@ -244,7 +244,7 @@ def resource_update(context, data_dict):
     resource = _get_action('resource_show')(context, {'id': id})
 
     for plugin in plugins.PluginImplementations(plugins.IResourceModification):
-        plugin.after_create(context, resource)
+        plugin.after_update(context, resource)
 
     return resource
 

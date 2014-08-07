@@ -214,6 +214,22 @@ class IResourceModification(Interface):
         """
         pass
 
+    def after_update(self, context, resource):
+                """
+        Extensions will receive this after a resource is updated.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the updated resource added
+            to the dataset (the one that was just updated). As with
+            ``after_create``, a noteworthy key in the resource dictionary
+            ``url_type`` which is set to ``upload`` when the resource file
+            is uploaded instead of linked.
+        :type resource: dictionary
+        """
+        pass
+
     def after_delete(self, context, resource):
         """
         Extensions will receive this after a previously created resource is
