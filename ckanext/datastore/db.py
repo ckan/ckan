@@ -445,6 +445,7 @@ def create_indexes(context, data_dict):
 def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     fts_indexes = []
     resource_id = data_dict['resource_id']
+    # FIXME: This is repeated on the plugin.py, we should keep it DRY
     default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
     if default_fts_lang is None:
         default_fts_lang = u'english'
@@ -469,7 +470,7 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
             res_id=resource_id,
             unique='',
             name=_generate_index_name(resource_id, field_str),
-            method='gist', fields=field_str))
+            method=_get_fts_index_method(), fields=field_str))
 
     return fts_indexes
 
@@ -477,6 +478,11 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
 def _generate_index_name(resource_id, field):
     value = (resource_id + field).encode('utf-8')
     return hashlib.sha1(value).hexdigest()
+
+
+def _get_fts_index_method():
+    method = pylons.config.get('ckan.datastore.default_fts_index_method')
+    return method or 'gist'
 
 
 def _get_index_names(connection, resource_id):

@@ -9,7 +9,8 @@ assert_equal = nose.tools.assert_equal
 
 
 class TestCreateIndexes(object):
-    def test_creates_fts_index_by_default(self):
+    @helpers.change_config('ckan.datastore.default_fts_index_method', None)
+    def test_creates_fts_index_using_gist_by_default(self):
         connection = mock.MagicMock()
         context = {
             'connection': connection
@@ -21,7 +22,24 @@ class TestCreateIndexes(object):
 
         db.create_indexes(context, data_dict)
 
-        self._assert_created_index_on('_full_text', connection, resource_id)
+        self._assert_created_index_on('_full_text', connection, resource_id,
+                                      method='gist')
+
+    @helpers.change_config('ckan.datastore.default_fts_index_method', 'gin')
+    def test_default_fts_index_method_can_be_overwritten_by_config_var(self):
+        connection = mock.MagicMock()
+        context = {
+            'connection': connection
+        }
+        resource_id = 'resource_id'
+        data_dict = {
+            'resource_id': resource_id,
+        }
+
+        db.create_indexes(context, data_dict)
+
+        self._assert_created_index_on('_full_text', connection, resource_id,
+                                      method='gin')
 
     @helpers.change_config('ckan.datastore.default_fts_lang', None)
     @mock.patch('ckanext.datastore.db._get_fields')
@@ -87,15 +105,18 @@ class TestCreateIndexes(object):
 
         self._assert_created_index_on('foo', connection, resource_id, 'french')
 
-    def _assert_created_index_on(self, field, connection, resource_id, lang=None, cast=False):
+    def _assert_created_index_on(self, field, connection, resource_id,
+                                 lang=None, cast=False, method='gist'):
         field = u'"{0}"'.format(field)
         if cast:
             field = u'cast({0} AS text)'.format(field)
         if lang is not None:
-            sql_str = u'ON "resource_id" USING gist(to_tsvector(\'{lang}\', {field}))'
-            sql_str = sql_str.format(lang=lang, field=field)
+            sql_str = (u'ON "resource_id" '
+                       u'USING {method}(to_tsvector(\'{lang}\', {field}))')
+            sql_str = sql_str.format(method=method, lang=lang, field=field)
         else:
-            sql_str = u'USING gist({field})'.format(field=field)
+            sql_str = u'USING {method}({field})'.format(method=method,
+                                                        field=field)
 
         calls = connection.execute.call_args_list
         was_called = [call for call in calls if call[0][0].find(sql_str) != -1]
