@@ -125,7 +125,7 @@ The default language used when creating full-text search indexes and querying
 them. It can be overwritten by the user by passing the "lang" parameter to
 "datastore_search" and "datastore_create".
 
-.. _ckan.datastore.default_fts_index_method
+.. _ckan.datastore.default_fts_index_method:
 
 ckan.datastore.default_fts_index_method
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
