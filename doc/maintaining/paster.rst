@@ -158,6 +158,7 @@ Paster Commands Reference
 The following paster commands are supported by CKAN:
 
 ================= ============================================================
+make-config       Make a CKAN config file.
 celeryd           Control celery daemon.
 check-po-files    Check po files for common mistakes
 color             Create or remove a color scheme.
@@ -179,6 +180,40 @@ tracking          Update tracking statistics.
 trans             Translation helper functions
 user              Manage users.
 ================= ============================================================
+
+
+.. _make-config:
+
+make-config
+===========
+
+Write a CKAN config file to the filesystem. Usage:
+
+.. parsed-literal::
+
+   paster make-config ckan |development.ini|
+
+The values for the settings in the config file will be read from environment
+variables if the environment variables are set, otherwise defaults will be
+used. For example, the value for the ``sqlalchemy.url`` config file setting
+will be read from the ``CKAN_SQLALCHEMY_URL`` environment variable.
+
+This is particularly useful for automated install/deployment tools that need to
+create a config file with certain settings in it. You can of course just edit
+the config file with your text editor, after creating it.
+
+The names of the environment variables are based on the names of the settings
+in the config file, but:
+
+* All environment variable names are in ``ALL_CAPS``.
+
+* Each ``.`` in the config setting name is replaced with an ``_`` in the
+  environment variable name (because environment variable names can't
+  contain ``.``'s).
+
+* The environment variable names always begin with ``CKAN_``, even if
+  some of the config setting names don't (to prevent clashing with
+  environment variables from other programs).
 
 
 celeryd: Control celery daemon
