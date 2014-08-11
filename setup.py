@@ -139,7 +139,6 @@ entry_points = {
         'auth_plugin = tests.ckantestplugins:AuthPlugin',
         'test_group_plugin = tests.ckantestplugins:MockGroupControllerPlugin',
         'test_package_controller_plugin = tests.ckantestplugins:MockPackageControllerPlugin',
-        'test_resource_modification_plugin = tests.ckantestplugins:MockResourceModificationPlugin',
         'test_resource_preview = tests.ckantestplugins:MockResourcePreviewExtension',
         'test_json_resource_preview = tests.ckantestplugins:JsonMockResourcePreviewExtension',
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin'

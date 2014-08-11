@@ -328,24 +328,7 @@ class TestAction(WsgiAppCase):
 
         assert json.loads(res.body)['error'] ==  {"__type": "Validation Error", "created": ["Date format incorrect"]}
 
-    def test_resource_create_plugin_hook(self):
-        plugins.load('test_resource_modification_plugin')
-        plugin = plugins.get_plugin('test_resource_modification_plugin')
 
-        anna_id = model.Package.by_name(u'annakarenina').id
-        resource = {'package_id': anna_id, 'url': 'http://new_url'}
-        api_key = model.User.get('testsysadmin').apikey.encode('utf8')
-        postparams = '%s=1' % json.dumps(resource)
-        res = self.app.post('/api/action/resource_create', params=postparams,
-                            extra_environ={'Authorization': api_key })
-
-        assert plugin.calls['before_create'] == 1, plugin.calls
-        assert plugin.calls['after_create'] == 1, plugin.calls
-        assert plugin.calls['before_update'] == 0, plugin.calls
-        assert plugin.calls['after_update'] == 0, plugin.calls
-        assert plugin.calls['before_delete'] == 0, plugin.calls
-        assert plugin.calls['after_delete'] == 0, plugin.calls
-        plugins.unload('test_resource_modification_plugin')
 
     def test_04_user_list(self):
         # Create deleted user to make sure he won't appear in the user_list
@@ -666,48 +649,6 @@ class TestAction(WsgiAppCase):
         resource_created.pop('revision_id')
         resource_created.pop('revision_timestamp', None)
         assert_equal(resource_updated, resource_created)
-
-    def test_update_resource_plugin_hook(self):
-        package = {
-            'name': u'update_resource_plugin',
-            'resources': [{
-                'alt_url': u'alt123',
-                'description': u'Full text.',
-                'extras': {u'alt_url': u'alt123', u'size': u'123'},
-                'format': u'plain text',
-                'hash': u'abc123',
-                'position': 0,
-                'url': u'http://www.annakarenina.com/download/'
-            }],
-            'title': u'A Novel By Tolstoy',
-            'url': u'http://www.annakarenina.com',
-        }
-
-        postparams = '%s=1' % json.dumps(package)
-        res = self.app.post(
-            '/api/action/package_create', params=postparams,
-            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-        package_created = json.loads(res.body)['result']
-        resource_created = package_created['resources'][0]
-
-        plugins.load('test_resource_modification_plugin')
-        plugin = plugins.get_plugin('test_resource_modification_plugin')
-
-        new_resource_url = u'http://www.annakareinanew.com/download/'
-        resource_created['url'] = new_resource_url
-        postparams = '%s=1' % json.dumps(resource_created)
-        res = self.app.post(
-            '/api/action/resource_update', params=postparams,
-            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-
-        assert plugin.calls['before_update'] == 1, plugin.calls
-        assert plugin.calls['after_update'] == 1, plugin.calls
-        assert plugin.calls['before_create'] == 0, plugin.calls
-        assert plugin.calls['after_create'] == 0, plugin.calls
-        assert plugin.calls['before_delete'] == 0, plugin.calls
-        assert plugin.calls['after_delete'] == 0, plugin.calls
-        plugins.unload('test_resource_modification_plugin')
-
 
     def test_20_task_status_update(self):
         package_created = self._add_basic_package(u'test_task_status_update')
@@ -1957,29 +1898,6 @@ class TestResourceAction(WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
         assert len(res_dict['result']['resources']) == resource_count - 1
-
-    def test_delete_resource_plugin_hook(self):
-        plugins.load('test_resource_modification_plugin')
-        plugin = plugins.get_plugin('test_resource_modification_plugin')
-
-        res_dict = self._add_basic_package(package_name='delete_resource_hook')
-        pkg_id = res_dict['id']
-
-        resource_count = len(res_dict['resources'])
-        id = res_dict['resources'][0]['id']
-        url = '/api/action/resource_delete'
-
-        # Use the sysadmin user because this package doesn't belong to an org
-        res = self.app.post(url, params=json.dumps({'id': id}),
-                extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-
-        assert plugin.calls['before_delete'] == 1, plugin.calls
-        assert plugin.calls['after_delete'] == 1, plugin.calls
-        assert plugin.calls['before_create'] == 0, plugin.calls
-        assert plugin.calls['after_create'] == 0, plugin.calls
-        assert plugin.calls['before_update'] == 0, plugin.calls
-        assert plugin.calls['after_update'] == 0, plugin.calls
-        plugins.unload('test_resource_modification_plugin')
 
 
 class TestMember(WsgiAppCase):

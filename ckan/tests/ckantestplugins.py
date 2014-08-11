@@ -154,30 +154,6 @@ class MockPackageControllerPlugin(p.SingletonPlugin):
         return facet_titles
 
 
-class MockResourceModificationPlugin(p.SingletonPlugin):
-    p.implements(p.IResourceModification)
-
-    def __init__(self, *args, **kw):
-        self.calls = defaultdict(int)
-
-    def before_create(self, context, resource):
-        self.calls['before_create'] += 1
-
-    def after_create(self, context, resource):
-        self.calls['after_create'] += 1
-
-    def before_update(self, context, current, resource):
-        self.calls['before_update'] += 1
-
-    def after_update(self, context, resource):
-        self.calls['after_update'] += 1
-
-    def before_delete(self, context, resource, resources):
-        self.calls['before_delete'] += 1
-
-    def after_delete(self, context, resources):
-        self.calls['after_delete'] += 1
-
 
 class MockResourcePreviewExtension(mock_plugin.MockSingletonPlugin):
     p.implements(p.IResourcePreview)
