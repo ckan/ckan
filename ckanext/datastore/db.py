@@ -1263,3 +1263,13 @@ def make_public(context, data_dict):
         trans.commit()
     finally:
         context['connection'].close()
+
+
+def get_all_resources_ids_in_datastore():
+    data_dict = {
+        'connection_url': pylons.config['ckan.datastore.read_url']
+    }
+    resources_sql = sqlalchemy.text(u'''SELECT name FROM "_table_metadata"
+                                        WHERE alias_of IS NULL''')
+    query = _get_engine(data_dict).execute(resources_sql)
+    return [q[0] for q in query.fetchall()]

@@ -1,7 +1,9 @@
 import mock
 import nose
 
+import ckan.plugins as p
 import ckan.new_tests.helpers as helpers
+import ckan.new_tests.factories as factories
 
 import ckanext.datastore.db as db
 
@@ -143,3 +145,28 @@ class TestJsonGetValues(object):
     def test_returns_only_truthy_values_from_dict(self):
         data = {'foo': 'bar', 'baz': [42, None, {}, [], 'hey']}
         assert_equal(db.json_get_values(data), ['foo', 'bar', 'baz', '42', 'hey'])
+
+
+class TestGetAllResourcesIdsInDatastore(object):
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('datastore')
+        helpers.reset_db()
+
+    def test_get_all_resources_ids_in_datastore(self):
+        resource_in_datastore = factories.Resource()
+        resource_not_in_datastore = factories.Resource()
+        data = {
+            'resource_id': resource_in_datastore['id'],
+            'force': True,
+        }
+        helpers.call_action('datastore_create', **data)
+
+        resource_ids = db.get_all_resources_ids_in_datastore()
+
+        assert resource_in_datastore['id'] in resource_ids
+        assert resource_not_in_datastore['id'] not in resource_ids
