@@ -1,6 +1,7 @@
 import sys
 import logging
 import shlex
+import re
 
 import pylons
 import sqlalchemy.engine.url as sa_url
@@ -310,7 +311,7 @@ class DatastorePlugin(p.SingletonPlugin):
         sort_clauses = data_dict.get('sort')
         if sort_clauses:
             invalid_clauses = [c for c in sort_clauses
-                               if not self._is_valid_sort(c, fields_types)]
+                               if not self._parse_sort_clause(c, fields_types)]
             data_dict['sort'] = invalid_clauses
 
         limit = data_dict.get('limit')
@@ -330,25 +331,21 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return data_dict
 
-    def _is_valid_sort(self, clause, fields_types):
-        clause = clause.encode('utf-8')
-        clause_parts = shlex.split(clause)
+    def _parse_sort_clause(self, clause, fields_types):
+        clause = ' '.join(shlex.split(clause.encode('utf-8')))
+        clause_match = re.match('^(.+?)( +(asc|desc) *)?$', clause, re.I)
 
-        if len(clause_parts) == 1:
-            field, sort = clause_parts[0], 'asc'
-        elif len(clause_parts) == 2:
-            field, sort = clause_parts
-        else:
+        if not clause_match:
             return False
+
+        field = clause_match.group(1)
+        sort = (clause_match.group(3) or 'asc').lower()
 
         field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
-
         if field not in fields_types:
             return False
-        if sort.lower() not in ('asc', 'desc'):
-            return False
 
-        return True
+        return field, sort
 
     def datastore_delete(self, context, data_dict, fields_types, query_dict):
         query_dict['where'] += self._where(data_dict, fields_types)
@@ -444,15 +441,7 @@ class DatastorePlugin(p.SingletonPlugin):
         clause_parsed = []
 
         for clause in clauses:
-            clause = clause.encode('utf-8')
-            clause_parts = shlex.split(clause)
-            if len(clause_parts) == 1:
-                field, sort = clause_parts[0], 'asc'
-            elif len(clause_parts) == 2:
-                field, sort = clause_parts
-
-            field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
-
+            field, sort = self._parse_sort_clause(clause, fields_types)
             clause_parsed.append(u'"{0}" {1}'.format(field, sort))
 
         return clause_parsed
