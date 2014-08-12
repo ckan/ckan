@@ -1266,8 +1266,10 @@ def make_public(context, data_dict):
 
 
 def get_all_resources_ids_in_datastore():
+    read_url = pylons.config.get('ckan.datastore.read_url')
+    write_url = pylons.config.get('ckan.datastore.write_url')
     data_dict = {
-        'connection_url': pylons.config['ckan.datastore.read_url']
+        'connection_url': read_url or write_url
     }
     resources_sql = sqlalchemy.text(u'''SELECT name FROM "_table_metadata"
                                         WHERE alias_of IS NULL''')
