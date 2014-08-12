@@ -1108,22 +1108,39 @@ def search_sql(context, data_dict):
     timeout = context.get('query_timeout', 60000)
     _cache_types(context)
 
+    sql = data_dict['sql'].replace('%', '%%')
+
     try:
+
         context['connection'].execute(
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
-        results = context['connection'].execute(
-            data_dict['sql'].replace('%', '%%')
-        )
+
+        table_names = datastore_helpers.get_table_names_from_sql(context, sql)
+        log.debug('Tables involved in input SQL: {0}'.format(table_names))
+
+        system_tables = [t for t in table_names if t.startswith('pg_')]
+        if len(system_tables):
+            raise toolkit.NotAuthorized({
+                'permissions': ['Not authorized to access system tables']
+            })
+
+        results = context['connection'].execute(sql)
+
         return format_results(context, results, data_dict)
 
     except ProgrammingError, e:
+
+        def _remove_explain(msg):
+            return (msg.replace('EXPLAIN (FORMAT JSON) ', '')
+                       .replace('EXPLAIN ', ''))
+
         raise ValidationError({
-         'query': [str(e)],
-         'info': {
-            'statement': [e.statement],
-            'params': [e.params],
-            'orig': [str(e.orig)]
-         }
+            'query': [_remove_explain(str(e))],
+            'info': {
+                'statement': [_remove_explain(e.statement)],
+                'params': [e.params],
+                'orig': [_remove_explain(str(e.orig))]
+            }
         })
     except DBAPIError, e:
         if e.orig.pgcode == _PG_ERR_CODE['query_canceled']:
