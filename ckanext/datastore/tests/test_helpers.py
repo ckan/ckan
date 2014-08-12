@@ -14,9 +14,13 @@ class TestGetTables(object):
 
     @classmethod
     def setup_class(cls):
+
+        if not pylons.config('ckan.datastore.read_url'):
+            raise nose.SkipTest('Datastore runs on legacy mode, skipping...')
+
         engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']}
-            )
+        )
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
         datastore_test_helpers.clear_db(cls.Session)
