@@ -48,7 +48,7 @@ class TestGetTables(object):
     @classmethod
     def setup_class(cls):
 
-        if not pylons.config('ckan.datastore.read_url'):
+        if not pylons.config.get('ckan.datastore.read_url'):
             raise nose.SkipTest('Datastore runs on legacy mode, skipping...')
 
         engine = db._get_engine(
