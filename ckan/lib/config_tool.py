@@ -10,31 +10,59 @@ def config_edit(config_filepath, section, option, edit=False):
     key, value = OPTION_RE.search(option).group('option', 'value')
     key = key.strip()
 
+    # Read the file in
+    with open(config_filepath, 'rb') as f:
+        input_lines = [line.rstrip('\n') for line in f]
+
     # See if the key already exists in the file.
     # Use ConfigParser as that is what Pylons will use to parse it
     try:
         config.get(section, key)
         action = 'edit'
     except ConfigParser.NoOptionError:
-        if edit:
-            raise ConfigToolError('Key "%s" does not exist in section "%s"' %
-                                  (key, section))
-        action = 'add'
+        if is_option_there_but_commented(input_lines, section, key):
+            action = 'edit'
+        else:
+            action = 'add'
+            if edit:
+                raise ConfigToolError(
+                    'Key "%s" does not exist in section "%s"' %
+                    (key, section))
     except ConfigParser.NoSectionError:
         action = 'add-section'
 
     # Read & write the file, changing the value.
     # (Can't just use config.set as it does not store all the comments and
     # ordering)
-    with open(config_filepath, 'rb') as f:
-        input_lines = [line.rstrip('\n') for line in f]
     output = config_edit_core(input_lines, section, key, value, action)
     with open(config_filepath, 'wb') as f:
         f.write('\n'.join(output) + '\n')
 
 
+def is_option_there_but_commented(input_lines, section, key):
+    section_ = None
+    for line in input_lines:
+        # ignore blank lines
+        if line.strip() == '':
+            continue
+        # section heading
+        section_match = SECTION_RE.match(line)
+        if section_match:
+            section_ = section_match.group('header')
+        if section_ != section:
+            continue
+        # option
+        option_match = OPTION_RE.match(line)
+        if option_match:
+            is_commented_out, key_, existing_value = option_match.group(
+                'commentedout', 'option', 'value')
+            if key_.strip() == key:
+                return True
+
+
 def config_edit_core(input_lines, section, key, value, action):
     assert action in ('edit', 'add', 'add-section')
+
     output = []
     section_ = None
 
@@ -42,8 +70,8 @@ def config_edit_core(input_lines, section, key, value, action):
         output.append('%s = %s' % (key, value))
 
     for line in input_lines:
-        # leave blank and comment lines alone
-        if line.strip() == '' or line[0] in '#;':
+        # leave blank lines alone
+        if line.strip() == '':
             output.append(line)
             continue
         if action == 'add':
@@ -61,9 +89,16 @@ def config_edit_core(input_lines, section, key, value, action):
             # is it the option line we want to change
             option_match = OPTION_RE.match(line)
             if option_match:
-                key_, existing_value = option_match.group('option', 'value')
+                is_commented_out, key_, existing_value = option_match.group(
+                    'commentedout', 'option', 'value')
                 if key_.strip() == key:
-                    if existing_value == value:
+                    if is_commented_out:
+                        print 'Option uncommented and set %s = "%s" ' \
+                            '(section "%s")' % \
+                            (key, value, section)
+                        write_option()
+                        continue
+                    elif existing_value == value:
                         print 'Option unchanged %s = "%s" ' \
                             '(section "%s")' % \
                             (key, existing_value, section)
@@ -85,9 +120,10 @@ def config_edit_core(input_lines, section, key, value, action):
     return output
 
 
-# Regexes same as in ConfigParser - OPTCRE & SECTCRE
+# Regexes basically the same as in ConfigParser - OPTCRE & SECTCRE
 # Expressing them here because they move between Python 2 and 3
-OPTION_RE = re.compile(r'(?P<option>[^:=\s][^:=]*)'
+OPTION_RE = re.compile(r'(?P<commentedout>[#;]\s*)?'  # custom
+                       r'(?P<option>[^:=\s][^:=]*)'
                        r'\s*(?P<vi>[:=])\s*'
                        r'(?P<value>.*)$')
 SECTION_RE = re.compile(r'\[(?P<header>.+)\]')
