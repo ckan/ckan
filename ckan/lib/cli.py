@@ -2334,3 +2334,48 @@ class ViewsCommand(CkanCommand):
             logic.get_action('resource_view_create')(context, resource_view)
 
         print '%s grid resource views created!' % count
+
+
+class ConfigToolCommand(paste.script.command.Command):
+    '''Tool for editing options in a CKAN config file
+
+    paster config-tool <default.ini> option [option option ...]
+
+    e.g. paster config-tool sqlalchemy.url=123 'ckan.site_title=My Site'
+    '''
+    parser = paste.script.command.Command.standard_parser(verbose=True)
+    default_verbosity = 1
+    group_name = 'ckan'
+    usage = __doc__
+    summary = usage.split('\n')[0]
+
+    parser.add_option('-s', '--section', dest='section',
+                      default='app:main', help='Section of the config file')
+    parser.add_option(
+        '-e', '--edit', action='store_true', dest='edit', default=False,
+        help='Checks the option already exists in the config file')
+
+    def command(self):
+        import config_tool
+        if len(self.args) < 2:
+            self.parser.error('Not enough arguments (got %i, need at least 2)'
+                              % len(self.args))
+        config_filepath = self.args[0]
+        if not os.path.exists(config_filepath):
+            self.parser.error('Config filename %r does not exist.' %
+                              config_filepath)
+        options = self.args[1:]
+        for option in options:
+            if '=' not in option:
+                sys.stderr.write(
+                    'An option does not have an equals sign: %r '
+                    'It should be \'key=value\'. If there are spaces you\'ll '
+                    'need to quote the option.\n' % option)
+                sys.exit(1)
+        for option in options:
+            try:
+                config_tool.config_edit(config_filepath, self.options.section,
+                                        option, edit=self.options.edit)
+            except config_tool.ConfigToolError, e:
+                sys.stderr.write(e.message)
+                sys.exit(1)
