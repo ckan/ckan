@@ -2,4 +2,5 @@
 
 nose==1.2.1
 -e git+https://github.com/okfn/ckanclient#egg=ckanclient
+mock==1.0.1
 
