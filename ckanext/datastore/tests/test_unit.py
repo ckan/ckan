@@ -1,9 +1,11 @@
 import unittest
 import pylons
 import nose
+import mock
 
 import ckan.tests as tests
 import ckanext.datastore.db as db
+import ckanext.datastore.plugin as plugin
 
 
 class TestTypeGetters(unittest.TestCase):
@@ -35,3 +37,57 @@ class TestTypeGetters(unittest.TestCase):
         connection = engine.connect()
         assert db._pg_version_is_at_least(connection, '8.0')
         assert not db._pg_version_is_at_least(connection, '10.0')
+
+    @mock.patch('ckanext.datastore.db._pg_version_is_at_least')
+    def test_legacy_mode_set_if_no_read_url_and_pg_9(self, pgv):
+
+        pgv.return_value = True
+
+        from pylons import config
+
+        test_config = {
+            'ckan.datastore.write_url': config['ckan.datastore.write_url'],
+        }
+
+        assert plugin._is_legacy_mode(test_config)
+
+    @mock.patch('ckanext.datastore.db._pg_version_is_at_least')
+    def test_legacy_mode_set_if_no_read_url_and_pg_8(self, pgv):
+
+        pgv.return_value = False
+
+        from pylons import config
+
+        test_config = {
+            'ckan.datastore.write_url': config['ckan.datastore.write_url'],
+        }
+
+        assert plugin._is_legacy_mode(test_config)
+
+    @mock.patch('ckanext.datastore.db._pg_version_is_at_least')
+    def test_legacy_mode_set_if_read_url_and_pg_8(self, pgv):
+
+        pgv.return_value = False
+
+        from pylons import config
+
+        test_config = {
+            'ckan.datastore.write_url': config['ckan.datastore.write_url'],
+            'ckan.datastore.read_url': config['ckan.datastore.read_url'],
+        }
+
+        assert plugin._is_legacy_mode(test_config)
+
+    @mock.patch('ckanext.datastore.db._pg_version_is_at_least')
+    def test_legacy_mode_not_set_if_read_url_and_pg_9(self, pgv):
+
+        pgv.return_value = True
+
+        from pylons import config
+
+        test_config = {
+            'ckan.datastore.write_url': config['ckan.datastore.write_url'],
+            'ckan.datastore.read_url': config['ckan.datastore.read_url'],
+        }
+
+        assert not plugin._is_legacy_mode(test_config)
