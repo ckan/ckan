@@ -40,7 +40,6 @@ six==1.7.3
 solrpy==0.9.5
 sqlalchemy-migrate==0.9.1
 unicodecsv==0.9.4
-# Temporal, this will be vdm=0.13
--e git+https://github.com/okfn/vdm@sqlalchemy-0.9-support#egg=vdm
+vdm==0.13
 wsgiref==0.1.2
 zope.interface==4.0.1

@@ -24,8 +24,7 @@ Routes==1.13
 solrpy==0.9.5
 sqlalchemy-migrate==0.9.1
 SQLAlchemy==0.9.6
-# Temporal, this will be vdm=0.13
--e git+https://github.com/okfn/vdm@sqlalchemy-0.9-support
+vdm==0.13
 WebHelpers==1.3
 WebOb==1.0.8
 zope.interface==4.0.1
