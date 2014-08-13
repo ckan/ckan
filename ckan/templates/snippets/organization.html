@@ -11,7 +11,8 @@ Example:
 
 #}
 
-{% with truncate=truncate or 0, url=h.url_for(controller='organization', action='read', id=organization.name) %}
+{% set truncate = truncate or 0 %}
+{% set url = h.url_for(controller='organization', action='read', id=organization.name) %}
   <div class="module context-info">
     <section class="module-content">
       <div class="image">
@@ -46,4 +47,3 @@ Example:
       {% endif %}
     </section>
   </div>
-{% endwith %}
