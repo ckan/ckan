@@ -197,8 +197,8 @@ Custom validators and converters
 
 You may define custom validators and converters in your extensions and
 you can share converters and validators between extensions by registering
-them with either the :py:class:`~ckan.plugins.interfaces.IValidators` or
-:py:class:`~ckan.plugins.interfaces.IConverters` interfaces.
+them with the :py:class:`~ckan.plugins.interfaces.IValidators` or
+:py:class:`~ckan.plugins.interfaces.IConverters` interface.
 
 Any of the following objects may be used as validators/converters as part
 of a custom dataset, group or organization schema. CKAN's validation
@@ -211,7 +211,7 @@ code will check for and attempt to use them in this order:
 3. a callable object taking a single parameter: ``validator(value)``
 
 4. a callable object taking four parameters:
-   ``validator(key, converted_data, errors, context)``
+   ``validator(key, flattened_data, errors, context)``
 
 5. a callable object taking two parameters
    ``validator(value, context)``
@@ -230,13 +230,13 @@ parameter. For example::
             raise Invalid("Doesn't start with b")
         return value
 
-The ``starts_with_b`` validator will allow only values starting with 'b',
-and cause a
-validation error otherwise. On a web form this validation error would
+The ``starts_with_b`` validator causes a validation error for values
+not starting with 'b'.
+On a web form this validation error would
 appear next to the field to which the validator was applied.
 
-``return value`` must be used by validators in this form to when accepting data
-or the value will be converted to None. This makes this form useful
+``return value`` must be used by validators when accepting data
+or the value will be converted to None. This form is useful
 for converters as well, because the return value will
 replace the field value passed::
 
@@ -267,25 +267,31 @@ Otherwise this is the same as the single-parameter form above.
 ``validator(key, flattened_data, errors, context)``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Validators and converters that need to access or update fields other than
-the one they are applied to may be written as a callable taking four
-parameters. ``context`` is the same value passed to the two-parameter
-form above.
+Validators and converters that need to access or update multiple fields
+may be written as a callable taking four parameters.
 
 This form of validator or converter is passed the all the fields and
-errors for all the fields in a "flattened" form. The validator must fetch
+errors in a "flattened" form. Validator must fetch
 values from ``flattened_data`` and converters may replace values in
-``flattened_data``.
+``flattened_data``. The return value from this function is ignored.
 
 ``key`` is the flattened key for the field to which this validator was
 applied. For example ``('notes',)`` for the dataset notes field or
 ``('resources', 0, 'url')`` for the url of the first resource of the dataset.
-These flattened keys are used in the ``flattened_data`` and ``errors``
+These flattened keys are the same in both the ``flattened_data`` and ``errors``
 dicts passed.
 
-Note that this form is tricky to use because some of the values in
+``errors`` contains lists of validation errors for each field.
+
+``context`` is the same value passed to the two-parameter
+form above.
+
+Note that this form can be tricky to use because some of the values in
 ``flattened_data`` will have had validators and converters applied
-but other fields won't.
+but other fields won't. You may add this type of validator to the
+special schema fields ``'__before'`` or ``'__after'`` to have them
+run before or after all the other validation takes place to avoid
+the problem of working with partially-validated data.
 
 
 Tag vocabularies
