@@ -1,6 +1,7 @@
 from ckan.plugins import toolkit
 from ckan import plugins
 
+
 class ExampleIValidatorsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IValidators)
 
@@ -17,6 +18,7 @@ class ExampleIConvertersPlugin(plugins.SingletonPlugin):
         return {
             'negate': negate,
             }
+
 
 def equals_fortytwo(value):
     if value != 42:
