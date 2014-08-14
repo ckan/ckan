@@ -4,12 +4,12 @@ import os
 import urllib
 import urllib2
 import urlparse
-import random
-import string
 import logging
 import pprint
 import copy
+import hashlib
 
+import pylons
 import distutils.version
 import sqlalchemy
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
@@ -20,6 +20,7 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 import ckanext.datastore.interfaces as interfaces
 import ckanext.datastore.helpers as datastore_helpers
+from ckan.common import OrderedDict
 
 log = logging.getLogger(__name__)
 
@@ -109,7 +110,6 @@ def _cache_types(context):
             log.info("Create nested type. Native JSON: {0}".format(
                 native_json))
 
-            import pylons
             data_dict = {
                 'connection_url': pylons.config['ckan.datastore.write_url']}
             engine = _get_engine(data_dict)
@@ -221,6 +221,13 @@ def _get_fields(context, data_dict):
                 'type': _get_type(context, field[1])
             })
     return fields
+
+
+def _get_fields_types(context, data_dict):
+    all_fields = _get_fields(context, data_dict)
+    all_fields.insert(0, {'id': '_id', 'type': 'int'})
+    field_types = OrderedDict([(f['id'], f['type']) for f in all_fields])
+    return field_types
 
 
 def json_get_values(obj, current_list=None):
@@ -373,17 +380,13 @@ def create_alias(context, data_dict):
 
 
 def create_indexes(context, data_dict):
+    connection = context['connection']
     indexes = datastore_helpers.get_list(data_dict.get('indexes'))
     # primary key is not a real primary key
     # it's just a unique key
     primary_key = datastore_helpers.get_list(data_dict.get('primary_key'))
 
-    # index and primary key could be [],
-    # which means that indexes should be deleted
-    if indexes is None and primary_key is None:
-        return
-
-    sql_index_tmpl = u'CREATE {unique} INDEX {name} ON "{res_id}"'
+    sql_index_tmpl = u'CREATE {unique} INDEX "{name}" ON "{res_id}"'
     sql_index_string_method = sql_index_tmpl + u' USING {method}({fields})'
     sql_index_string = sql_index_tmpl + u' ({fields})'
     sql_index_strings = []
@@ -392,24 +395,14 @@ def create_indexes(context, data_dict):
     field_ids = _pluck('id', fields)
     json_fields = [x['id'] for x in fields if x['type'] == 'nested']
 
-    def generate_index_name():
-        # pg 9.0+ do not require an index name
-        if _pg_version_is_at_least(context['connection'], '9.0'):
-            return ''
-        else:
-            src = string.ascii_letters + string.digits
-            random_string = ''.join([random.choice(src) for n in xrange(10)])
-            return 'idx_' + random_string
+    fts_indexes = _build_fts_indexes(connection,
+                                     data_dict,
+                                     sql_index_string_method,
+                                     fields)
+    sql_index_strings = sql_index_strings + fts_indexes
 
     if indexes is not None:
         _drop_indexes(context, data_dict, False)
-
-        # create index for faster full text search (indexes: gin or gist)
-        sql_index_strings.append(sql_index_string_method.format(
-            res_id=data_dict['resource_id'],
-            unique='',
-            name=generate_index_name(),
-            method='gist', fields='_full_text'))
     else:
         indexes = []
 
@@ -437,11 +430,63 @@ def create_indexes(context, data_dict):
         sql_index_strings.append(sql_index_string.format(
             res_id=data_dict['resource_id'],
             unique='unique' if index == primary_key else '',
-            name=generate_index_name(),
+            name=_generate_index_name(data_dict['resource_id'], fields_string),
             fields=fields_string))
 
     sql_index_strings = map(lambda x: x.replace('%', '%%'), sql_index_strings)
-    map(context['connection'].execute, sql_index_strings)
+    current_indexes = _get_index_names(context['connection'],
+                                       data_dict['resource_id'])
+    for sql_index_string in sql_index_strings:
+        has_index = [c for c in current_indexes
+                     if sql_index_string.find(c) != -1]
+        if not has_index:
+            connection.execute(sql_index_string)
+
+
+def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
+    fts_indexes = []
+    resource_id = data_dict['resource_id']
+    default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
+    if default_fts_lang is None:
+        default_fts_lang = u'english'
+    fts_lang = data_dict.get('lang', default_fts_lang)
+
+    # create full-text search indexes
+    to_tsvector = lambda x: u"to_tsvector('{0}', '{1}')".format(fts_lang, x)
+    text_fields = [x['id'] for x in fields if x['type'] == 'text']
+    for text_field in ['_full_text'] + text_fields:
+        if text_field != '_full_text':
+            text_field = to_tsvector(text_field)
+        fts_indexes.append(sql_index_str_method.format(
+            res_id=resource_id,
+            unique='',
+            name=_generate_index_name(resource_id, text_field),
+            method='gist', fields=text_field))
+
+    return fts_indexes
+
+
+def _generate_index_name(resource_id, field):
+    value = (resource_id + field).encode('utf-8')
+    return hashlib.sha1(value).hexdigest()
+
+
+def _get_index_names(connection, resource_id):
+    sql = u"""
+        SELECT
+            i.relname AS index_name
+        FROM
+            pg_class t,
+            pg_class i,
+            pg_index idx
+        WHERE
+            t.oid = idx.indrelid
+            AND i.oid = idx.indexrelid
+            AND t.relkind = 'r'
+            AND t.relname = %s
+        """
+    results = connection.execute(sql, resource_id).fetchall()
+    return [result[0] for result in results]
 
 
 def _drop_indexes(context, data_dict, unique=False):
@@ -590,7 +635,7 @@ def upsert_data(context, data_dict):
 
             for field in fields:
                 value = record.get(field['id'])
-                if value and field['type'].lower() == 'nested':
+                if value is not None and field['type'].lower() == 'nested':
                     ## a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
 
@@ -599,7 +644,7 @@ def upsert_data(context, data_dict):
             if non_existing_filed_names:
                 raise ValidationError({
                     'fields': [u'fields "{0}" do not exist'.format(
-                        ', '.join(missing_fields))]
+                        ', '.join(non_existing_filed_names))]
                 })
 
             unique_values = [record[key] for key in unique_keys]
@@ -779,8 +824,7 @@ def _insert_links(data_dict, limit, offset):
 
 def delete_data(context, data_dict):
     validate(context, data_dict)
-    fields = _get_fields(context, data_dict)
-    field_ids = set([field['id'] for field in fields])
+    fields_types = _get_fields_types(context, data_dict)
 
     query_dict = {
         'where': []
@@ -788,7 +832,7 @@ def delete_data(context, data_dict):
 
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         query_dict = plugin.datastore_delete(context, data_dict,
-                                             field_ids, query_dict)
+                                             fields_types, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
     sql_string = u'DELETE FROM "{0}" {1}'.format(
@@ -800,9 +844,7 @@ def delete_data(context, data_dict):
 
 
 def validate(context, data_dict):
-    all_fields = _get_fields(context, data_dict)
-    column_names = _pluck('id', all_fields)
-    column_names.insert(0, '_id')
+    fields_types = _get_fields_types(context, data_dict)
     data_dict_copy = copy.deepcopy(data_dict)
 
     # TODO: Convert all attributes that can be a comma-separated string to
@@ -817,7 +859,7 @@ def validate(context, data_dict):
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         data_dict_copy = plugin.datastore_validate(context,
                                                    data_dict_copy,
-                                                   column_names)
+                                                   fields_types)
 
     # Remove default elements in data_dict
     del data_dict_copy['connection_url']
@@ -845,9 +887,7 @@ def validate(context, data_dict):
 
 def search_data(context, data_dict):
     validate(context, data_dict)
-    all_fields = _get_fields(context, data_dict)
-    column_names = _pluck('id', all_fields)
-    column_names.insert(0, '_id')
+    fields_types = _get_fields_types(context, data_dict)
 
     query_dict = {
         'select': [],
@@ -857,33 +897,39 @@ def search_data(context, data_dict):
 
     for plugin in p.PluginImplementations(interfaces.IDatastore):
         query_dict = plugin.datastore_search(context, data_dict,
-                                             column_names, query_dict)
+                                             fields_types, query_dict)
 
     where_clause, where_values = _where(query_dict['where'])
 
     # FIXME: Remove duplicates on select columns
-    select_columns = ', '.join(query_dict['select'])
-    ts_query = query_dict['ts_query']
+    select_columns = ', '.join(query_dict['select']).replace('%', '%%')
+    ts_query = query_dict['ts_query'].replace('%', '%%')
+    resource_id = data_dict['resource_id'].replace('%', '%%')
     sort = query_dict['sort']
     limit = query_dict['limit']
     offset = query_dict['offset']
 
+    if query_dict.get('distinct'):
+        distinct = 'DISTINCT'
+    else:
+        distinct = ''
+
     if sort:
-        sort_clause = 'ORDER BY %s' % ', '.join(sort)
+        sort_clause = 'ORDER BY %s' % (', '.join(sort)).replace('%', '%%')
     else:
         sort_clause = ''
 
-    sql_string = u'''SELECT {select}
+    sql_string = u'''SELECT {distinct} {select}
                     FROM "{resource}" {ts_query}
                     {where} {sort} LIMIT {limit} OFFSET {offset}'''.format(
+        distinct=distinct,
         select=select_columns,
-        resource=data_dict['resource_id'],
+        resource=resource_id,
         ts_query=ts_query,
-        where='{where}',
+        where=where_clause,
         sort=sort_clause,
         limit=limit,
         offset=offset)
-    sql_string = sql_string.replace('%', '%%').format(where=where_clause)
 
     results = _execute_single_statement(context, sql_string, where_values)
 

@@ -173,6 +173,15 @@ def package_id_or_name_exists(package_id_or_name, context):
 
     return package_id_or_name
 
+
+def resource_id_exists(value, context):
+    model = context['model']
+    session = context['session']
+    if not session.query(model.Resource).get(value):
+        raise Invalid('%s: %s' % (_('Not found'), _('Resource')))
+    return value
+
+
 def user_id_exists(user_id, context):
     '''Raises Invalid if the given user_id does not exist in the model given
     in the context, otherwise returns the given user_id.

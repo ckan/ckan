@@ -1,0 +1,8 @@
+{% import 'macros/form.html' as form %}
+
+{{ form.input('offset', id='field-offset', label=_('Row offset'), placeholder=_('eg: 0'), value=data.offset, error=errors.offset, classes=['control-medium']) }}
+{{ form.input('limit', id='field-limit', label=_('Number of rows'), placeholder=_('eg: 100'), value=data.limit, error=errors.limit, classes=['control-medium']) }}
+
+{{ form.select('graph_type', label=_('Graph type'), options=graph_types, selected=data.graph_type, error=errors.graph_type) }}
+{{ form.select('group', label=_('Group (Axis 1)'), options=graph_fields, selected=data.group, error=errors.group) }}
+{{ form.select('series', label=_('Series (Axis 2)'), options=graph_fields, selected=data.series, error=errors.series) }}

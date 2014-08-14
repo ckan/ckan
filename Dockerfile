@@ -49,6 +49,7 @@ RUN mkdir /var/cache/nginx
 ADD ./contrib/docker/main.cf /etc/postfix/main.cf
 
 # Configure runit
+ADD ./contrib/docker/my_init.d /etc/my_init.d
 ADD ./contrib/docker/svc /etc/service
 CMD ["/sbin/my_init"]
 

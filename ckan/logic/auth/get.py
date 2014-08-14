@@ -142,6 +142,13 @@ def resource_show(context, data_dict):
     else:
         return {'success': True}
 
+
+def resource_view_show(context, data_dict):
+    return resource_show(context, data_dict)
+
+def resource_view_list(context, data_dict):
+    return resource_show(context, data_dict)
+
 def revision_show(context, data_dict):
     # No authz check in the logic function
     return {'success': True}

@@ -3,6 +3,7 @@ import string
 import logging
 import collections
 import json
+import datetime
 from dateutil.parser import parse
 
 import re
@@ -219,11 +220,18 @@ class PackageSearchIndex(SearchIndex):
         # be needed?  For my data not changing the keys seems to not cause a
         # problem.
         new_dict = {}
+        bogus_date = datetime.datetime(1, 1, 1)
         for key, value in pkg_dict.items():
             key = key.encode('ascii', 'ignore')
             if key.endswith('_date'):
                 try:
-                    value = parse(value).isoformat() + 'Z'
+                    date = parse(value, default=bogus_date)
+                    if date != bogus_date:
+                        value = date.isoformat() + 'Z'
+                    else:
+                        # The date field was empty, so dateutil filled it with
+                        # the default bogus date
+                        value = None
                 except ValueError:
                     continue
             new_dict[key] = value

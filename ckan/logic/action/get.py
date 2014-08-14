@@ -8,6 +8,7 @@ import socket
 
 from pylons import config
 import sqlalchemy
+from paste.deploy.converters import asbool
 
 import ckan.lib.dictization
 import ckan.logic as logic
@@ -21,6 +22,7 @@ import ckan.plugins as plugins
 import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
+import ckan.lib.datapreview as datapreview
 import ckan.new_authz as new_authz
 
 from ckan.common import _
@@ -379,16 +381,23 @@ def _group_or_org_list(context, data_dict, is_org=False):
             sort = order_by
     # if the sort is packages and no sort direction is supplied we want to do a
     # reverse sort to maintain compatibility.
-    if sort.strip() == 'packages':
-        sort = 'packages desc'
+    if sort.strip() in ('packages', 'package_count'):
+        sort = 'package_count desc'
 
     sort_info = _unpick_search(sort,
-                               allowed_fields=['name', 'packages'],
+                               allowed_fields=['name', 'packages',
+                                               'package_count'],
                                total=1)
 
     all_fields = data_dict.get('all_fields', None)
+    include_extras = all_fields and \
+                     asbool(data_dict.get('include_extras', False))
 
     query = model.Session.query(model.Group).join(model.GroupRevision)
+    if include_extras:
+        # this does an eager load of the extras, avoiding an sql query every
+        # time group_list_dictize accesses a group's extra.
+        query = query.options(sqlalchemy.orm.joinedload(model.Group._extras))
     query = query.filter(model.GroupRevision.state == 'active')
     query = query.filter(model.GroupRevision.current == True)
     if groups:
@@ -404,9 +413,22 @@ def _group_or_org_list(context, data_dict, is_org=False):
     query = query.filter(model.GroupRevision.is_organization == is_org)
 
     groups = query.all()
-    group_list = model_dictize.group_list_dictize(groups, context,
-                                                  lambda x: x[sort_info[0][0]],
-                                                  sort_info[0][1] == 'desc')
+    if all_fields:
+        include_tags = asbool(data_dict.get('include_tags', False))
+    else:
+        include_tags = False
+    # even if we are not going to return all_fields, we need to dictize all the
+    # groups so that we can sort by any field.
+    group_list = model_dictize.group_list_dictize(
+        groups, context,
+        sort_key=lambda x: x[sort_info[0][0]],
+        reverse=sort_info[0][1] == 'desc',
+        with_package_counts=all_fields or
+        sort_info[0][0] in ('packages', 'package_count'),
+        include_groups=asbool(data_dict.get('include_groups', False)),
+        include_tags=include_tags,
+        include_extras=include_extras,
+        )
 
     if not all_fields:
         group_list = [group[ref_group_by] for group in group_list]
@@ -422,14 +444,27 @@ def group_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'packages'
+        'name' and 'package_count'
     :type sort: string
     :param groups: a list of names of the groups to return, if given only
         groups whose names are in this list will be returned (optional)
     :type groups: list of strings
-    :param all_fields: return full group dictionaries instead of  just names
+    :param all_fields: return group dictionaries instead of just names. Only
+        core fields are returned - get some more using the include_* options.
+        Returning a list of packages is too expensive, so the `packages`
+        property for each group is deprecated, but there is a count of the
+        packages in the `package_count` property.
         (optional, default: ``False``)
     :type all_fields: boolean
+    :param include_extras: if all_fields, include the group extra fields
+        (optional, default: ``False``)
+    :type include_extras: boolean
+    :param include_tags: if all_fields, include the group tags
+        (optional, default: ``False``)
+    :type include_tags: boolean
+    :param include_groups: if all_fields, include the groups the groups are in
+        (optional, default: ``False``)
+    :type include_groups: boolean
 
     :rtype: list of strings
 
@@ -447,13 +482,26 @@ def organization_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'packages'
+        'name' and 'package_count'
     :type sort: string
     :param organizations: a list of names of the groups to return,
         if given only groups whose names are in this list will be
         returned (optional)
     :type organizations: list of strings
-    :param all_fields: return full group dictionaries instead of  just names
+    :param all_fields: return group dictionaries instead of just names. Only
+        core fields are returned - get some more using the include_* options.
+        Returning a list of packages is too expensive, so the `packages`
+        property for each group is deprecated, but there is a count of the
+        packages in the `package_count` property.
+        (optional, default: ``False``)
+    :type all_fields: boolean
+    :param include_extras: if all_fields, include the group extra fields
+        (optional, default: ``False``)
+    :type include_extras: boolean
+    :param include_tags: if all_fields, include the group tags
+        (optional, default: ``False``)
+    :type include_tags: boolean
+    :param include_groups: if all_fields, include the groups the groups are in
         (optional, default: ``False``)
     :type all_fields: boolean
 
@@ -955,6 +1003,55 @@ def resource_show(context, data_dict):
     return resource_dict
 
 
+def resource_view_show(context, data_dict):
+    '''
+    Return the metadata of a resource_view.
+
+    :param id: the id of the resource_view
+    :type id: string
+
+    :rtype: dictionary
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    resource_view = model.ResourceView.get(id)
+    if not resource_view:
+        _check_access('resource_view_show', context, data_dict)
+        raise NotFound
+
+    context['resource_view'] = resource_view
+    context['resource'] = model.Resource.get(resource_view.resource_id)
+
+    _check_access('resource_view_show', context, data_dict)
+    return model_dictize.resource_view_dictize(resource_view, context)
+
+
+def resource_view_list(context, data_dict):
+    '''
+    Return the metadata of a resource_view.
+
+    :param id: the id of the resource
+    :type id: string
+
+    :rtype: list of dictionaries.
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+    resource = model.Resource.get(id)
+    if not resource:
+        raise NotFound
+    context['resource'] = resource
+    _check_access('resource_view_list', context, data_dict)
+    q = model.Session.query(model.ResourceView).filter_by(resource_id=id)
+    ## only show views when there is the correct plugin enabled
+    resource_views = [
+        resource_view for resource_view
+        in q.order_by(model.ResourceView.order).all()
+        if datapreview.get_view_plugin(resource_view.view_type)
+    ]
+    return model_dictize.resource_view_list_dictize(resource_views, context)
+
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
 
@@ -1019,7 +1116,8 @@ def _group_or_org_show(context, data_dict, is_org=False):
     include_datasets = data_dict.get('include_datasets', True)
     if isinstance(include_datasets, basestring):
         include_datasets = (include_datasets.lower() in ('true', '1'))
-    context['include_datasets'] = include_datasets
+    packages_field = 'datasets' if include_datasets \
+                     else 'none_but_include_package_count'
 
     if group is None:
         raise NotFound
@@ -1033,7 +1131,8 @@ def _group_or_org_show(context, data_dict, is_org=False):
     else:
         _check_access('group_show', context, data_dict)
 
-    group_dict = model_dictize.group_dictize(group, context)
+    group_dict = model_dictize.group_dictize(group, context,
+                                             packages_field=packages_field)
 
     if is_org:
         plugin_type = plugins.IOrganizationController
@@ -1281,6 +1380,7 @@ def package_autocomplete(context, data_dict):
 
     query = model.Session.query(model.PackageRevision)
     query = query.filter(model.PackageRevision.state == 'active')
+    query = query.filter(model.PackageRevision.private == False)
     query = query.filter(model.PackageRevision.current == True)
     query = query.filter(_or_(model.PackageRevision.name.ilike(like_q),
                               model.PackageRevision.title.ilike(like_q)))
@@ -2040,8 +2140,7 @@ def get_site_user(context, data_dict):
     '''Return the ckan site user
 
     :param defer_commit: by default (or if set to false) get_site_user will
-        commit and clean up the current transaction, it will also close and
-        discard the current session in the context. If set to true, caller
+        commit and clean up the current transaction. If set to true, caller
         is responsible for commiting transaction after get_site_user is
         called. Leaving open connections can cause cli commands to hang!
         (optional, default: False)
@@ -2060,8 +2159,8 @@ def get_site_user(context, data_dict):
         user.sysadmin = True
         model.Session.add(user)
         model.Session.flush()
-    if not context.get('defer_commit'):
-        model.repo.commit_and_remove()
+        if not context.get('defer_commit'):
+            model.repo.commit()
 
     return {'name': user.name,
             'apikey': user.apikey}
