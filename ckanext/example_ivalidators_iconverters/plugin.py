@@ -1,4 +1,4 @@
-from ckan.plugins import toolkit
+from ckan.plugins.toolkit import Invalid
 from ckan import plugins
 
 
@@ -22,7 +22,7 @@ class ExampleIConvertersPlugin(plugins.SingletonPlugin):
 
 def equals_fortytwo(value):
     if value != 42:
-        raise toolkit.Invalid('not 42')
+        raise Invalid('not 42')
     return value
 
 
