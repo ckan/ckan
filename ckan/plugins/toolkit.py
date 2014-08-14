@@ -1,20 +1,4 @@
-import inspect
-import os
-import re
-
-import paste.deploy.converters as converters
-import webhelpers.html.tags
-
-__all__ = ['toolkit']
-
-
-class CkanVersionException(Exception):
-    '''Exception raised by
-    :py:func:`~ckan.plugins.toolkit.requires_ckan_version` if the required CKAN
-    version is not available.
-
-    '''
-    pass
+import sys
 
 
 class _Toolkit(object):
@@ -102,7 +86,12 @@ class _Toolkit(object):
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
         import ckan.lib.datapreview as datapreview
+        from ckan.exceptions import CkanVersionException
+
+        from paste.deploy import converters
         import pylons
+        import webhelpers.html.tags
+
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -251,6 +240,9 @@ content type, cookies, etc.
     @classmethod
     def _add_served_directory(cls, config, relative_path, config_var):
         ''' Add extra public/template directories to config. '''
+        import inspect
+        import os
+
         assert config_var in ('extra_template_paths', 'extra_public_paths')
         # we want the filename that of the function caller but they will
         # have used one of the available helper functions
@@ -275,6 +267,9 @@ content type, cookies, etc.
         See :doc:`/theming/index` for more details.
 
         '''
+        import inspect
+        import os
+
         # we want the filename that of the function caller but they will
         # have used one of the available helper functions
         frame, filename, line_number, function_name, lines, index =\
@@ -289,6 +284,7 @@ content type, cookies, etc.
     def _version_str_2_list(cls, v_str):
         ''' convert a version string into a list of ints
         eg 1.6.1b --> [1, 6, 1] '''
+        import re
         v_str = re.sub(r'[^0-9.]', '', v_str)
         return [int(part) for part in v_str.split('.')]
 
@@ -347,6 +343,7 @@ content type, cookies, etc.
         :type max_version: string
 
         '''
+        from ckan.exceptions import CkanVersionException
         if not cls._check_ckan_version(min_version=min_version,
                                        max_version=max_version):
             if not max_version:
@@ -373,5 +370,5 @@ content type, cookies, etc.
         return sorted(self._toolkit.keys())
 
 
-toolkit = _Toolkit()
-del _Toolkit
+# https://mail.python.org/pipermail/python-ideas/2012-May/014969.html
+sys.modules[__name__] = _Toolkit()
