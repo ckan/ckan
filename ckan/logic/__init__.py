@@ -630,13 +630,13 @@ def get_validator(validator):
         _validators_cache.update({'OneOf': formencode.validators.OneOf})
 
         for plugin in p.PluginImplementations(p.IValidators):
-            for name, validator in plugin.get_validators().items():
+            for name, fn in plugin.get_validators().items():
                 if name in _validators_cache:
                     raise NameConflict(
                         'The validator %r is already defined' % (name,)
                     )
                 log.debug('Validator function {0} from plugin {1} was inserted'.format(name, plugin.name))
-                _validators_cache[name] = validator
+                _validators_cache[name] = fn
     try:
         return _validators_cache[validator]
     except KeyError:
@@ -677,13 +677,13 @@ def get_converter(converter):
         _converters_cache.update(converters)
 
         for plugin in p.PluginImplementations(p.IConverters):
-            for name, converter in plugin.get_converters().items():
+            for name, fn in plugin.get_converters().items():
                 if name in _converters_cache:
                     raise NameConflict(
                         'The converter %r is already defined' % (name,)
                     )
                 log.debug('Converter function {0} from plugin {1} was inserted'.format(name, plugin.name))
-                _converters_cache[name] = validator
+                _converters_cache[name] = fn
     try:
         return _converters_cache[converter]
     except KeyError:
