@@ -600,23 +600,40 @@ class IActions(Interface):
 
 class IValidators(Interface):
     """
-    Allow adding of validators to be returned by ``get_validator()``.
+    Add extra validators to be returned by
+    :py:func:`ckan.plugins.toolkit.get_validator`.
     """
     def get_validators(self):
-        """
-        Should return a dict, the keys being the name of the validator
-        function and the values being the functions themselves.
+        """Return the validator functions provided by this plugin.
+
+        Return a dictionary mapping validator names (strings) to
+        validator functions. For example::
+
+            {'valid_shoe_size': shoe_size_validator,
+             'valid_hair_color': hair_color_validator}
+
+        These validator functions would then be available when a
+        plugin calls :py:func:`ckan.plugins.toolkit.get_validator`.
         """
 
 
 class IConverters(Interface):
     """
-    Allow adding of converters to be returned by ``get_converter()``.
+    Add extra converters to be returned by
+    :py:func:`ckan.plugins.toolkit.get_converter`.
+
     """
     def get_converters(self):
-        """
-        Should return a dict, the keys being the name of the converter
-        function and the values being the functions themselves.
+        """Return the converter functions provided by this plugin.
+
+        Return a dictionary mapping converter names (strings) to
+        converter functions. For example::
+
+            {'truncate_words': word_truncator,
+             'insert_links': link_inserter}
+
+        These converter functions would then be available when a
+        plugin calls :py:func:`ckan.plugins.toolkit.get_converter`.
         """
 
 
