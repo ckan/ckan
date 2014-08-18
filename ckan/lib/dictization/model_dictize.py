@@ -465,22 +465,26 @@ def tag_list_dictize(tag_list, context):
 
 def tag_dictize(tag, context):
     tag_dict = d.table_dictize(tag, context)
-    query = search.PackageSearchQuery()
 
-    tag_query = u'+capacity:public '
-    vocab_id = tag_dict.get('vocabulary_id')
+    include_datasets = context.get('include_datasets', True)
 
-    if vocab_id:
-        model = context['model']
-        vocab = model.Vocabulary.get(vocab_id)
-        tag_query += u'+vocab_{0}:"{1}"'.format(vocab.name, tag.name)
-    else:
-        tag_query += u'+tags:"{0}"'.format(tag.name)
+    if include_datasets:
+        query = search.PackageSearchQuery()
 
-    q = {'q': tag_query, 'fl': 'data_dict', 'wt': 'json', 'rows': 1000}
+        tag_query = u'+capacity:public '
+        vocab_id = tag_dict.get('vocabulary_id')
 
-    package_dicts = [h.json.loads(result['data_dict'])
-                     for result in query.run(q)['results']]
+        if vocab_id:
+            model = context['model']
+            vocab = model.Vocabulary.get(vocab_id)
+            tag_query += u'+vocab_{0}:"{1}"'.format(vocab.name, tag.name)
+        else:
+            tag_query += u'+tags:"{0}"'.format(tag.name)
+
+        q = {'q': tag_query, 'fl': 'data_dict', 'wt': 'json', 'rows': 1000}
+
+        package_dicts = [h.json.loads(result['data_dict'])
+                         for result in query.run(q)['results']]
 
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
@@ -492,13 +496,15 @@ def tag_dictize(tag, context):
         for item in plugins.PluginImplementations(plugins.ITagController):
             tag_dict = item.before_view(tag_dict)
 
-        tag_dict['packages'] = []
-        for package_dict in package_dicts:
-            for item in plugins.PluginImplementations(plugins.IPackageController):
-                package_dict = item.before_view(package_dict)
-            tag_dict['packages'].append(package_dict)
+        if include_datasets:
+            tag_dict['packages'] = []
+            for package_dict in package_dicts:
+                for item in plugins.PluginImplementations(plugins.IPackageController):
+                    package_dict = item.before_view(package_dict)
+                tag_dict['packages'].append(package_dict)
     else:
-        tag_dict['packages'] = package_dicts
+        if include_datasets:
+            tag_dict['packages'] = package_dicts
 
     return tag_dict
 
@@ -663,6 +669,12 @@ def package_to_api(pkg, context):
 def vocabulary_dictize(vocabulary, context):
     vocabulary_dict = d.table_dictize(vocabulary, context)
     assert not vocabulary_dict.has_key('tags')
+
+    # We don't want to include each tag's list of datasets in the tag dict by
+    # default because it's slow.
+    if 'include_datasets' not in context:
+        context['include_datasets'] = False
+
     vocabulary_dict['tags'] = [tag_dictize(tag, context) for tag
             in vocabulary.tags]
     return vocabulary_dict
