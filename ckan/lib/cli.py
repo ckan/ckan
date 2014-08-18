@@ -1046,7 +1046,7 @@ class Tracking(CkanCommand):
         while start_date < end_date:
             stop_date = start_date + datetime.timedelta(1)
             self.update_tracking(engine, start_date)
-            print 'tracking updated for %s' % start_date
+            print str(datetime.datetime.now()) + ' tracking updated for %s' % start_date
             start_date = stop_date
 
         # update solr for changed datesets.
