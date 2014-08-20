@@ -5,10 +5,10 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-<${ h.url_for(controller='package',action='read',id=c.pkg_dict['name'], qualified=True)}>
+{{ h.url_for(controller='package',action='read',id=c.pkg_dict['name'], qualified=True) }}
 a dcat:Dataset;
-     dct:description "${c.pkg_dict['notes']}";
-     dct:identifier "${c.pkg_dict['name']}";
+     dct:description "{{ c.pkg_dict['notes'] }}";
+     dct:identifier "{{ c.pkg_dict['name'] }}";
      dct:relation  [
          rdf:value "";
          :label "change_note" ],
@@ -39,7 +39,7 @@ a dcat:Dataset;
              [
          rdf:value "";
          :label "update_frequency" ];
-     dct:title "${c.pkg_dict['title']}";
-     :label "${c.pkg_dict['name']}";
-     = <urn:uuid:${c.pkg_dict['id']}>;
+     dct:title "{{ c.pkg_dict['title'] }}";
+     :label "{{ c.pkg_dict['name'] }}";
+     = <urn:uuid:{{ c.pkg_dict['id'] }}>;
      foaf:homepage <http://127.0.0.1:5000/dataset/testt> .
