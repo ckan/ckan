@@ -384,6 +384,11 @@ class GroupController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
 
+        try:
+            self._check_access('group_update', context)
+        except NotAuthorized, e:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+
         # Search within group
         action = request.params.get('bulk_action')
         # If no action then just show the datasets
@@ -614,6 +619,12 @@ class GroupController(base.BaseController):
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
+
+        try:
+            self._check_access('group_update', context)
+        except NotAuthorized, e:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+
         return self._render_template('group/members.html')
 
     def member_new(self, id):
