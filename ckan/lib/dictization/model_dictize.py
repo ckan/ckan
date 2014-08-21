@@ -463,10 +463,8 @@ def tag_list_dictize(tag_list, context):
 
     return result_list
 
-def tag_dictize(tag, context):
+def tag_dictize(tag, context, include_datasets=True):
     tag_dict = d.table_dictize(tag, context)
-
-    include_datasets = context.get('include_datasets', True)
 
     if include_datasets:
         query = search.PackageSearchQuery()
@@ -666,17 +664,12 @@ def package_to_api(pkg, context):
 
     return dictized
 
-def vocabulary_dictize(vocabulary, context):
+def vocabulary_dictize(vocabulary, context, include_datasets=False):
     vocabulary_dict = d.table_dictize(vocabulary, context)
     assert not vocabulary_dict.has_key('tags')
 
-    # We don't want to include each tag's list of datasets in the tag dict by
-    # default because it's slow.
-    if 'include_datasets' not in context:
-        context['include_datasets'] = False
-
-    vocabulary_dict['tags'] = [tag_dictize(tag, context) for tag
-            in vocabulary.tags]
+    vocabulary_dict['tags'] = [tag_dictize(tag, context, include_datasets)
+                               for tag in vocabulary.tags]
     return vocabulary_dict
 
 def vocabulary_list_dictize(vocabulary_list, context):
