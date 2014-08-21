@@ -13,6 +13,7 @@ __all__ = [
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
+    'IValidators', 'IConverters',
     'IResourcePreview',
     'IResourceView',
     'IResourceController',
@@ -594,6 +595,45 @@ class IActions(Interface):
         By decorating a function with the `ckan.logic.side_effect_free`
         decorator, the associated action will be made available by a GET
         request (as well as the usual POST request) through the action API.
+        """
+
+
+class IValidators(Interface):
+    """
+    Add extra validators to be returned by
+    :py:func:`ckan.plugins.toolkit.get_validator`.
+    """
+    def get_validators(self):
+        """Return the validator functions provided by this plugin.
+
+        Return a dictionary mapping validator names (strings) to
+        validator functions. For example::
+
+            {'valid_shoe_size': shoe_size_validator,
+             'valid_hair_color': hair_color_validator}
+
+        These validator functions would then be available when a
+        plugin calls :py:func:`ckan.plugins.toolkit.get_validator`.
+        """
+
+
+class IConverters(Interface):
+    """
+    Add extra converters to be returned by
+    :py:func:`ckan.plugins.toolkit.get_converter`.
+
+    """
+    def get_converters(self):
+        """Return the converter functions provided by this plugin.
+
+        Return a dictionary mapping converter names (strings) to
+        converter functions. For example::
+
+            {'truncate_words': word_truncator,
+             'insert_links': link_inserter}
+
+        These converter functions would then be available when a
+        plugin calls :py:func:`ckan.plugins.toolkit.get_converter`.
         """
 
 

@@ -32,8 +32,8 @@ For example, the schemas can allow optional values by using the
 :func:`~ckan.lib.navl.validators.ignore_missing` validator or check that a
 dataset exists using :func:`~ckan.logic.validators.package_id_exists`. A list
 of available validators and converters can be found at the :doc:`validators` 
-and :doc:`converters`. You can also define your own validators for custom
-validation.
+and :doc:`converters`. You can also define your own
+:ref:`custom-validators`.
 
 We will be customizing these schemas to add our additional fields. The
 :py:class:`~ckan.plugins.interfaces.IDatasetForm` interface allows us to 
@@ -188,6 +188,111 @@ with:
 .. literalinclude:: ../../ckanext/example_idatasetform/plugin_v3.py
     :start-after: p.implements(p.IDatasetForm)
     :end-before: def show_package_schema(self):
+
+
+.. _custom-validators:
+
+Custom validators and converters
+--------------------------------
+
+You may define custom validators and converters in your extensions and
+you can share converters and validators between extensions by registering
+them with the :py:class:`~ckan.plugins.interfaces.IValidators` or
+:py:class:`~ckan.plugins.interfaces.IConverters` interface.
+
+Any of the following objects may be used as validators/converters as part
+of a custom dataset, group or organization schema. CKAN's validation
+code will check for and attempt to use them in this order:
+
+1. a `formencode Validator class <http://www.formencode.org/en/latest/Validator.html>`_ (not discussed)
+
+2. a formencode Validator instance (not discussed)
+
+3. a callable object taking a single parameter: ``validator(value)``
+
+4. a callable object taking four parameters:
+   ``validator(key, flattened_data, errors, context)``
+
+5. a callable object taking two parameters
+   ``validator(value, context)``
+
+
+``validator(value)``
+^^^^^^^^^^^^^^^^^^^^
+
+The simplest form of validator is a callable taking a single
+parameter. For example::
+
+    from ckan.plugins.toolkit import Invalid
+
+    def starts_with_b(value):
+        if not value.startswith('b'):
+            raise Invalid("Doesn't start with b")
+        return value
+
+The ``starts_with_b`` validator causes a validation error for values
+not starting with 'b'.
+On a web form this validation error would
+appear next to the field to which the validator was applied.
+
+``return value`` must be used by validators when accepting data
+or the value will be converted to None. This form is useful
+for converters as well, because the return value will
+replace the field value passed::
+
+    def embiggen(value):
+        return value.upper()
+
+The ``embiggen`` converter will convert values passed to all-uppercase.
+
+
+``validator(value, context)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Validators and converters that need access to the database or information
+about the user may be written as a callable taking two parameters.
+``context['session']`` is the sqlalchemy session object and
+``context['user']`` is the username of the logged-in user::
+
+    from ckan.plugins.toolkit import Invalid
+
+    def fred_only(value, context):
+        if value and context['user'] != 'fred':
+            raise Invalid('only fred may set this value')
+        return value
+
+Otherwise this is the same as the single-parameter form above.
+
+
+``validator(key, flattened_data, errors, context)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Validators and converters that need to access or update multiple fields
+may be written as a callable taking four parameters.
+
+This form of validator or converter is passed the all the fields and
+errors in a "flattened" form. Validator must fetch
+values from ``flattened_data`` and converters may replace values in
+``flattened_data``. The return value from this function is ignored.
+
+``key`` is the flattened key for the field to which this validator was
+applied. For example ``('notes',)`` for the dataset notes field or
+``('resources', 0, 'url')`` for the url of the first resource of the dataset.
+These flattened keys are the same in both the ``flattened_data`` and ``errors``
+dicts passed.
+
+``errors`` contains lists of validation errors for each field.
+
+``context`` is the same value passed to the two-parameter
+form above.
+
+Note that this form can be tricky to use because some of the values in
+``flattened_data`` will have had validators and converters applied
+but other fields won't. You may add this type of validator to the
+special schema fields ``'__before'`` or ``'__after'`` to have them
+run before or after all the other validation takes place to avoid
+the problem of working with partially-validated data.
+
 
 Tag vocabularies
 ----------------

@@ -147,12 +147,10 @@ class CkanCommand(paste.script.command.Command):
 
             self.registry.register(pylons.c, c)
 
-            self.site_user = logic.get_action('get_site_user')({'ignore_auth': True,
-                'defer_commit': True}, {})
+            self.site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
 
             pylons.c.user = self.site_user['name']
             pylons.c.userobj = model.User.get(self.site_user['name'])
-            model.repo.commit_and_remove()
 
         ## give routes enough information to run url_for
         parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
@@ -1201,7 +1199,7 @@ class Tracking(CkanCommand):
                               for r in total_views])
 
     def update_tracking(self, engine, summary_date):
-        PACKAGE_URL = '%/dataset/'
+        PACKAGE_URL = '/dataset/'
         # clear out existing data before adding new
         sql = '''DELETE FROM tracking_summary
                  WHERE tracking_date='%s'; ''' % summary_date
@@ -1227,7 +1225,7 @@ class Tracking(CkanCommand):
         sql = '''UPDATE tracking_summary t
                  SET package_id = COALESCE(
                         (SELECT id FROM package p
-                        WHERE t.url LIKE  %s || p.name)
+                        WHERE p.name = regexp_replace(' ' || t.url, '^[ ]{1}(/\w{2}){0,1}' || %s, ''))
                      ,'~~not~found~~')
                  WHERE t.package_id IS NULL
                  AND tracking_type = 'page';'''
