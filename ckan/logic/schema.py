@@ -11,7 +11,6 @@ from ckan.logic.validators import (package_id_not_changed,
                                    package_id_exists,
                                    package_id_or_name_exists,
                                    resource_id_exists,
-                                   extras_unicode_convert,
                                    name_validator,
                                    package_name_validator,
                                    package_version_validator,
@@ -61,6 +60,7 @@ from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,
                                    convert_to_json_if_string,
                                    remove_whitespace,
+                                   extras_unicode_convert,
                                    )
 from formencode.validators import OneOf
 import ckan.model
