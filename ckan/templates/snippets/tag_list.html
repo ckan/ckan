@@ -5,8 +5,8 @@ tags: list of tags
 {% set _class = _class or 'tag-list' %}
 <ul class="{{ _class }}">
   {% for tag in tags %}
-    <li>
-      <a class="tag" href="{% url_for controller='package', action='search', tags=tag.name %}">{{ h.truncate(tag.display_name, 22) }}</a>
+    <li itemprop="keywords">
+      <a itemscope itemtype="http://schema.org/Text" class="tag" href="{% url_for controller='package', action='search', tags=tag.name %}">{{ h.truncate(tag.display_name, 22) }}</a>
     </li>
   {% endfor %}
 </ul>
