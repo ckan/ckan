@@ -100,7 +100,7 @@ class TestConvertToExtras(object):
         eq_(sorted([e['value'] for e in data['extras']]),
             ['Bye', 'Bye2', 'Hi'])
 
-    def test_convert_to_extras_field_can_be_combined_with_more_extras_deleted(self):
+    def test_convert_to_extras_field_can_be_combined_with_extras_deleted(self):
 
         data_dict = {
             'name': 'test-dataset',
@@ -127,3 +127,27 @@ class TestConvertToExtras(object):
             ['custom_text', 'proper_extra', 'proper_extra2'])
         eq_(sorted([e['value'] for e in data['extras']]),
             ['Bye', 'Bye2', 'Hi'])
+
+    def test_convert_to_extras_free_extra_can_not_have_the_same_key(self):
+
+        data_dict = {
+            'name': 'test-dataset',
+            'custom_text': 'Hi',
+            'extras': [
+                {'key': 'custom_text', 'value': 'Bye'},
+            ]
+        }
+
+        context = {
+            'model': model,
+            'session': model.Session,
+        }
+
+        package_plugin = lib_plugins.lookup_package_plugin('dataset')
+        schema = package_plugin.create_package_schema()
+
+        data, errors = validate(data_dict, schema, context)
+
+        assert 'extras' in errors
+        eq_(errors['extras'],
+            [{'key': [u'There is a schema field with the same name']}])

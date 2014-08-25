@@ -52,6 +52,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    datasets_with_no_organization_cannot_be_private,
                                    list_of_strings,
                                    no_loops_in_hierarchy,
+                                   extra_key_not_in_root_schema,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
@@ -349,7 +350,7 @@ def default_extras_schema():
 
     schema = {
         'id': [ignore],
-        'key': [not_empty, unicode],
+        'key': [not_empty, extra_key_not_in_root_schema, unicode],
         'value': [not_missing],
         'state': [ignore],
         'deleted': [ignore_missing],
