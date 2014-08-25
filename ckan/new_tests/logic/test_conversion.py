@@ -1,3 +1,6 @@
+'''Functional tests for converters in ckan/logic/converters.py.
+
+'''
 import nose
 
 from ckan import model
@@ -76,6 +79,34 @@ class TestConvertToExtras(object):
             'custom_text': 'Hi',
             'extras': [
                 {'key': 'proper_extra', 'value': 'Bye'},
+                {'key': 'proper_extra2', 'value': 'Bye2'},
+            ]
+        }
+
+        context = {
+            'model': model,
+            'session': model.Session,
+        }
+
+        package_plugin = lib_plugins.lookup_package_plugin('dataset')
+        schema = package_plugin.create_package_schema()
+
+        data, errors = validate(data_dict, schema, context)
+
+        assert 'extras' in data
+        eq_(len(data['extras']), 3)
+        eq_(sorted([e['key'] for e in data['extras']]),
+            ['custom_text', 'proper_extra', 'proper_extra2'])
+        eq_(sorted([e['value'] for e in data['extras']]),
+            ['Bye', 'Bye2', 'Hi'])
+
+    def test_convert_to_extras_field_can_be_combined_with_more_extras_deleted(self):
+
+        data_dict = {
+            'name': 'test-dataset',
+            'custom_text': 'Hi',
+            'extras': [
+                {'key': 'proper_extra', 'value': 'Bye', 'deleted': True},
                 {'key': 'proper_extra2', 'value': 'Bye2'},
             ]
         }
