@@ -144,7 +144,8 @@ the templates. Create a directory called
 ``ckanext-extrafields/ckanext/extrafields/templates/package/snippets/``.
 
 We need to override a few templates in order to get our custom field rendered.
-Firstly we need to remove the default custom field handling. Create a template
+A common option when using a custom schema is to remove the default custom
+field handling that allows arbitrary key/value pairs. Create a template
 file in our templates directory called 
 ``package/snippets/package_metadata_fields.html`` containing
 
@@ -154,7 +155,16 @@ file in our templates directory called
     :end-before: {% block package_metadata_fields %}
 
 This overrides the custom_fields block with an empty block so the default CKAN
-custom fields form does not render. Next add a template in our template 
+custom fields form does not render.
+
+
+.. versionadded:: 2.2.1
+
+    Starting from CKAN 2.2.1 you can combine free extras with custom fields
+    handled with ``convert_to_extras`` and ``convert_from_extras``. On prior
+    versions you'll always need to remove the free extras handling.
+
+Next add a template in our template
 directory called ``package/snippets/package_basic_fields.html`` containing
 
 .. literalinclude:: ../../ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html
