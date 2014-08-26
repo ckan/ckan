@@ -150,7 +150,18 @@ class MultilingualDataset(SingletonPlugin):
 
     def before_search(self, search_params):
         lang_set = set(LANGS)
-        current_lang = pylons.request.environ['CKAN_LANG']
+
+        try:
+            current_lang = pylons.request.environ['CKAN_LANG']
+        except TypeError as err:
+            if err.message == ('No object (name: request) has been registered '
+                               'for this thread'):
+                # This happens when this code gets called as part of a paster
+                # command rather then as part of an HTTP request.
+                current_lang = config.get('ckan.locale_default')
+            else:
+                raise
+
         # fallback to default locale if locale not in suported langs
         if not current_lang in lang_set:
             current_lang = config.get('ckan.locale_default')
