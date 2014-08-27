@@ -511,7 +511,10 @@ class PackageController(base.BaseController):
             extra_vars={'dataset_type': package_type})
 
     def new(self, data=None, errors=None, error_summary=None):
-        package_type = self._guess_package_type(True)
+        if data and 'type' in data:
+            package_type = data['type']
+        else:
+            package_type = self._guess_package_type(True)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
