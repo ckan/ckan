@@ -2,7 +2,6 @@ from nose.tools import assert_equals, assert_raises
 import pylons.config as config
 
 from ckan.plugins.toolkit import get_validator, get_converter, Invalid
-from ckan.logic import clear_converters_cache, clear_validators_cache
 from ckan import plugins
 
 
@@ -10,7 +9,6 @@ class TestIValidators(object):
     @classmethod
     def setup_class(cls):
         plugins.load('example_ivalidators')
-        clear_validators_cache()
 
     @classmethod
     def teardown_class(cls):
@@ -29,7 +27,6 @@ class TestIConverters(object):
     @classmethod
     def setup_class(cls):
         plugins.load('example_iconverters')
-        clear_converters_cache()
 
     @classmethod
     def teardown_class(cls):
