@@ -15,6 +15,8 @@ import ckan.tests as tests
 # Todo: Remove this ckan.model stuff.
 import ckan.model as model
 
+import ckan.tests as tests
+
 class PackagesTestCase(BaseModelApiTestCase):
 
     @classmethod
@@ -773,6 +775,37 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.get(self.offset('/rest/dataset/%s/revisions' % 'annakarenina'))
         revisions = res.json
         assert len(revisions) == 3, len(revisions)
+
+    def test_create_extra_with_non_string_value(self):
+        '''Test that creating a package extra with a non-string value returns
+        the right error message.
+
+        '''
+        user = model.User.by_name(u'testsysadmin')
+        extras = [{'key': 'test', 'value': {'foo': 'bar'}}]
+        result = tests.call_action_api(self.app, 'package_create',
+                name='this_package_should_not_be_created', extras=extras,
+                apikey=user.apikey, status=409)
+        assert result == {
+                '__type': 'Validation Error',
+                'extras': [{'value': ['Must be a string or null']}]}
+
+    def test_update_extra_with_non_string_value(self):
+        '''Test that updating a package extra with a non-string value returns
+        the right error message.
+
+        '''
+        user = model.User.by_name(u'testsysadmin')
+        extras = [{'key': 'test', 'value': 'foo'}]
+        result = tests.call_action_api(self.app, 'package_create',
+                name='test_non_string_extra', extras=extras,
+                apikey=user.apikey)
+        extras = [{'key': 'test', 'value': {'foo': 'bar'}}]
+        result = tests.call_action_api(self.app, 'package_update',
+                name='test', extras=extras, apikey=user.apikey, status=409)
+        assert result == {
+                '__type': 'Validation Error',
+                'extras': [{'value': ['Must be a string or null']}]}
 
     def test_create_private_package_with_no_organization(self):
         '''Test that private packages with no organization cannot be created.

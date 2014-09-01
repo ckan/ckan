@@ -61,6 +61,12 @@ def package_id_not_changed(value, context):
                       'This key is read-only' % (package.id, value))
     return value
 
+def string_or_none(value, context):
+    if value is None or isinstance(value, basestring):
+        return value
+    else:
+        raise Invalid(_("Must be a string or null"))
+
 def int_validator(value, context):
     '''
     Return an integer for value, which may be a string in base 10 or
