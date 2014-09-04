@@ -31,9 +31,8 @@ different value.
 For example, the schemas can allow optional values by using the
 :func:`~ckan.lib.navl.validators.ignore_missing` validator or check that a
 dataset exists using :func:`~ckan.logic.validators.package_id_exists`. A list
-of available validators and converters can be found at the :doc:`validators` 
-and :doc:`converters`. You can also define your own
-:ref:`custom-validators`.
+of available validators can be found at the :doc:`validators`.
+You can also define your own :ref:`custom-validators`.
 
 We will be customizing these schemas to add our additional fields. The
 :py:class:`~ckan.plugins.interfaces.IDatasetForm` interface allows us to 
@@ -192,15 +191,14 @@ with:
 
 .. _custom-validators:
 
-Custom validators and converters
---------------------------------
+Custom validators
+-----------------
 
-You may define custom validators and converters in your extensions and
-you can share converters and validators between extensions by registering
-them with the :py:class:`~ckan.plugins.interfaces.IValidators` or
-:py:class:`~ckan.plugins.interfaces.IConverters` interface.
+You may define custom validators in your extensions and
+you can share validators between extensions by registering
+them with the :py:class:`~ckan.plugins.interfaces.IValidators` interface.
 
-Any of the following objects may be used as validators/converters as part
+Any of the following objects may be used as validators as part
 of a custom dataset, group or organization schema. CKAN's validation
 code will check for and attempt to use them in this order:
 
@@ -237,19 +235,19 @@ appear next to the field to which the validator was applied.
 
 ``return value`` must be used by validators when accepting data
 or the value will be converted to None. This form is useful
-for converters as well, because the return value will
+for converting data as well, because the return value will
 replace the field value passed::
 
     def embiggen(value):
         return value.upper()
 
-The ``embiggen`` converter will convert values passed to all-uppercase.
+The ``embiggen`` validator will convert values passed to all-uppercase.
 
 
 ``validator(value, context)``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Validators and converters that need access to the database or information
+Validators that need access to the database or information
 about the user may be written as a callable taking two parameters.
 ``context['session']`` is the sqlalchemy session object and
 ``context['user']`` is the username of the logged-in user::
@@ -267,12 +265,12 @@ Otherwise this is the same as the single-parameter form above.
 ``validator(key, flattened_data, errors, context)``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Validators and converters that need to access or update multiple fields
+Validators that need to access or update multiple fields
 may be written as a callable taking four parameters.
 
-This form of validator or converter is passed the all the fields and
+This form of validator is passed the all the fields and
 errors in a "flattened" form. Validator must fetch
-values from ``flattened_data`` and converters may replace values in
+values from ``flattened_data`` may replace values in
 ``flattened_data``. The return value from this function is ignored.
 
 ``key`` is the flattened key for the field to which this validator was
@@ -287,7 +285,7 @@ dicts passed.
 form above.
 
 Note that this form can be tricky to use because some of the values in
-``flattened_data`` will have had validators and converters applied
+``flattened_data`` will have had validators applied
 but other fields won't. You may add this type of validator to the
 special schema fields ``'__before'`` or ``'__after'`` to have them
 run before or after all the other validation takes place to avoid

@@ -13,7 +13,7 @@ __all__ = [
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
-    'IValidators', 'IConverters',
+    'IValidators',
     'IResourcePreview',
     'IResourceView',
     'IResourceController',
@@ -614,26 +614,6 @@ class IValidators(Interface):
 
         These validator functions would then be available when a
         plugin calls :py:func:`ckan.plugins.toolkit.get_validator`.
-        """
-
-
-class IConverters(Interface):
-    """
-    Add extra converters to be returned by
-    :py:func:`ckan.plugins.toolkit.get_converter`.
-
-    """
-    def get_converters(self):
-        """Return the converter functions provided by this plugin.
-
-        Return a dictionary mapping converter names (strings) to
-        converter functions. For example::
-
-            {'truncate_words': word_truncator,
-             'insert_links': link_inserter}
-
-        These converter functions would then be available when a
-        plugin calls :py:func:`ckan.plugins.toolkit.get_converter`.
         """
 
 
