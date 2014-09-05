@@ -467,7 +467,7 @@ class TestGet(object):
             if user is None:
                 context = None  # No user logged-in.
             else:
-                context= {'user': user['name']}
+                context = {'user': user['name']}
 
             group = helpers.call_action('group_show', id=group['id'],
                                         context=context)
