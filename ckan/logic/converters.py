@@ -34,6 +34,11 @@ def convert_from_extras(key, data, errors, context):
         return
     remove_from_extras(data, data_key[1])
 
+def extras_unicode_convert(extras, context):
+    for extra in extras:
+        extras[extra] = unicode(extras[extra])
+    return extras
+
 def date_to_db(value, context):
     try:
         value = field_types.DateType.form_to_db(value)
