@@ -1141,12 +1141,15 @@ class Tracking(CkanCommand):
                     AND
                       t1.tracking_date = t2.max_date
                     WHERE t1.recent_views > 0
+                  ), t4 AS (
+                    SELECT * from t3 GROUP BY url, package_id, tracking_type
                   )
                 INSERT INTO tracking_summary
                   (url, package_id, count, tracking_date, tracking_type)
                 SELECT url, package_id, 0, '%s', tracking_type
-                FROM t3;
-                COMMIT;''' % (summary_date, summary_date)
+                FROM t4
+                WHERE url NOT IN (SELECT url FROM tracking_summary WHERE tracking_date = '%s');
+                COMMIT;''' % (summary_date, summary_date, summary_date)
         engine.execute(sql)
 
         # get ids for dataset urls
@@ -1156,8 +1159,9 @@ class Tracking(CkanCommand):
                         WHERE p.name = regexp_replace(' ' || t.url, '^[ ]{1}(/\w{2}){0,1}' || %s, ''))
                      ,'~~not~found~~')
                  WHERE t.package_id IS NULL
-                 AND tracking_type = 'page';'''
-        engine.execute(sql, PACKAGE_URL)
+                 AND tracking_type = 'page'
+                 AND tracking_date = %s;'''
+        engine.execute(sql, PACKAGE_URL, summary_date)
 
         # update summary totals for resources
         sql = '''UPDATE tracking_summary t1
@@ -1173,7 +1177,10 @@ class Tracking(CkanCommand):
                     WHERE t1.url = t2.url
                     AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
                  )
-                 WHERE t1.running_total = 0 AND tracking_type = 'resource';'''
+                 WHERE t1.running_total = 0
+                 AND tracking_type = 'resource'
+                 AND tracking_date = '%s'
+                 ;'''% (summary_date)
         engine.execute(sql)
 
         # update summary totals for pages
@@ -1192,7 +1199,8 @@ class Tracking(CkanCommand):
                  )
                  WHERE t1.running_total = 0 AND tracking_type = 'page'
                  AND t1.package_id IS NOT NULL
-                 AND t1.package_id != '~~not~found~~';'''
+                 AND t1.package_id != '~~not~found~~'
+                 AND t1.tracking_date = '%s';'''% (summary_date)
         engine.execute(sql)
 
     def update_tracking_solr(self, engine, start_date):
