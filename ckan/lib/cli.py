@@ -1131,7 +1131,7 @@ class Tracking(CkanCommand):
                     SELECT package_id, max(tracking_date) AS max_date
                     FROM tracking_summary
                     GROUP BY package_id
-                    HAVING max(tracking_date) != '%s'
+                    HAVING max(tracking_date) < '%s'
                   ), t3 AS (
                     SELECT t1.url, t1.package_id,t1.tracking_type
                     FROM tracking_summary t1
