@@ -37,7 +37,7 @@ pip install -r dev-requirements.txt --allow-all-external
 python setup.py develop
 
 # Install npm dpes for mocha
-npm install -g mocha-phantomjs phantomjs
+npm install -g mocha-phantomjs@3.5.0 phantomjs@~1.9.1
 
 paster db init -c test-core.ini
 
