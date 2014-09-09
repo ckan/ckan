@@ -136,49 +136,6 @@
   display: none;
 }
 
-.view-list.reordering {
-  .resource-view-item {
-    border: 1px solid @moduleHeadingBorderColor;
-    margin-bottom: 10px;
-    cursor: move;
-    .handle {
-      display: block;
-      position: absolute;
-      color: @moduleHeadingActionTextColor;
-      left: -40px;
-      top: 32px;
-      margin-top: -15px;
-      width: 20px;
-      height: 15px;
-      min-height: 15px;
-      line-height: 0px;
-      text-align: center;
-      border: 1px solid @moduleHeadingBorderColor;
-      border-width: 1px 0 1px 1px;
-      background-color: @moduleBackgroundColor;
-      .border-radius(20px 0 0 20px);
-      &:hover {
-        text-decoration: none;
-      }
-    }
-    &:hover .handle {
-      background-color: @layoutBackgroundColor;
-    }
-    &.ui-sortable-helper {
-      background-color: @layoutBackgroundColor;
-      border: 1px solid @layoutLinkColor;
-      .handle {
-        background-color: @layoutBackgroundColor;
-        border-color: @layoutLinkColor;
-        color: @navLinkColor;
-      }
-    }
-  }
-}
-.resource-item .handle {
-  display: none;
-}
-
 // Dataset Forms
 
 // Tag List
