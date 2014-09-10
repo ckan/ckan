@@ -987,19 +987,26 @@ def resource_show(context, data_dict):
     id = _get_or_bust(data_dict, 'id')
 
     resource = model.Resource.get(id)
-    context['resource'] = resource
+    resource_context = dict(context, resource=resource)
 
     if not resource:
         raise NotFound
 
-    _check_access('resource_show', context, data_dict)
-    resource_dict = model_dictize.resource_dictize(resource, context)
+    _check_access('resource_show', resource_context, data_dict)
 
-    _add_tracking_summary_to_resource_dict(resource_dict, model)
+    pkg_dict = logic.get_action('package_show')(
+        dict(context),
+        {'id': resource.resource_group.package.id})
 
-    for item in plugins.PluginImplementations(plugins.IResourceController):
-        resource_dict = item.before_show(resource_dict)
+    for resource_dict in pkg_dict['resources']:
+        if resource_dict['id'] == id:
+            break
+    else:
+        logging.error('Could not find resource ' + id)
+        raise NotFound(_('Resource was not found.'))
 
+    # original dictized version didn't include this field:
+    resource_dict.pop('revision_timestamp')
     return resource_dict
 
 
