@@ -784,3 +784,9 @@ def no_loops_in_hierarchy(key, data, errors, context):
             raise Invalid(_('This parent would create a loop in the '
                             'hierarchy'))
 
+
+def extra_key_not_in_root_schema(key, data, errors, context):
+
+    for schema_key in context.get('schema_keys', []):
+        if schema_key == data[key]:
+            raise Invalid(_('There is a schema field with the same name'))
