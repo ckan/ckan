@@ -744,3 +744,17 @@ class TestOrganizationListForUser(object):
                                             context=context)
 
         assert organizations == []
+
+    def test_with_no_authorized_user(self):
+        """
+
+        organization_list_for_user() should return an empty list if there's no
+        authorized user. Users who aren't logged-in don't have any permissions.
+
+        """
+        # Create an organization so we can test that it doesn't get returned.
+        organization = factories.Organization()
+
+        organizations = helpers.call_action('organization_list_for_user')
+
+        assert organizations == []
