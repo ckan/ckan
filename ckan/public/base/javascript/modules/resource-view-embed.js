@@ -1,4 +1,4 @@
-this.ckan.module('resource-view-embed', function (jQuery, _) {
+this.ckan.module('resource-view-embed', function ($, _) {
   var modal;
   var self;
 
