@@ -459,3 +459,288 @@ class TestBadLimitQueryParameters(object):
         nose.tools.assert_raises(
             logic.ValidationError, helpers.call_action, 'package_search',
             **kwargs)
+
+
+class TestOrganizationListForUser(object):
+    '''Functional tests for the organization_list_for_user() action function.'''
+
+    def setup(self):
+        helpers.reset_db()
+        search.clear()
+
+    def test_when_user_is_not_a_member_of_any_organizations(self):
+        """
+
+        When the user isn't a member of any organizations (in any capacity)
+        organization_list_for_user() should return an empty list.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+
+        # Create an organization so we can test that it does not get returned.
+        factories.Organization()
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
+
+    def test_when_user_is_an_admin_of_one_organization(self):
+        """
+
+        When the user is an admin of one organization
+        organization_list_for_user() should return a list of just that one
+        organization.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        # Create a second organization just so we can test that it does not get
+        # returned.
+        factories.Organization()
+
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='admin')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert len(organizations) == 1
+        assert organizations[0]['id'] == organization['id']
+
+    def test_when_user_is_an_admin_of_three_organizations(self):
+        """
+
+        When the user is an admin of three organizations
+        organization_list_for_user() should return a list of all three
+        organizations.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization_1 = factories.Organization()
+        organization_2 = factories.Organization()
+        organization_3 = factories.Organization()
+
+        # Create a second organization just so we can test that it does not get
+        # returned.
+        factories.Organization()
+
+        # Make the user an admin of all three organizations:
+        for organization in (organization_1, organization_2, organization_3):
+            helpers.call_action('member_create', id=organization['id'],
+                                object=user['id'], object_type='user',
+                                capacity='admin')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert len(organizations) == 3
+        ids = [organization['id'] for organization in organizations]
+        for organization in (organization_1, organization_2, organization_3):
+            assert organization['id'] in ids
+
+    def test_does_not_return_members(self):
+        """
+
+        By default organization_list_for_user() should not return organizations
+        that the user is just a member (not an admin) of.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='member')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
+
+    def test_does_not_return_editors(self):
+        """
+
+        By default organization_list_for_user() should not return organizations
+        that the user is just an editor (not an admin) of.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='editor')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
+
+    def test_editor_permission(self):
+        """
+
+        organization_list_for_user() should return organizations that the user
+        is an editor of if passed a permission that belongs to the editor role.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='editor')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            permission='create_dataset',
+                                            context=context)
+
+        assert [org['id'] for org in organizations] == [organization['id']]
+
+    def test_member_permission(self):
+        """
+
+        organization_list_for_user() should return organizations that the user
+        is a member of if passed a permission that belongs to the member role.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='member')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            permission='read',
+                                            context=context)
+
+        assert [org['id'] for org in organizations] == [organization['id']]
+
+    def test_invalid_permission(self):
+        '''
+
+        organization_list_for_user() should return an empty list if passed a
+        non-existent or invalid permission.
+
+        Note that we test this with a user who is an editor of one organization.
+        If the user was an admin of the organization then it would return that
+        organization - admins have all permissions, including permissions that
+        don't exist.
+
+        '''
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+        factories.Organization()
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='editor')
+
+        for permission in ('', ' ', 'foo', 27.3, 5, True, False, None):
+            organizations = helpers.call_action('organization_list_for_user',
+                                                permission=permission,
+                                                context=context)
+
+        assert organizations == []
+
+    def test_that_it_does_not_return_groups(self):
+        """
+
+        organization_list_for_user() should not return groups that the user is
+        a member, editor or admin of.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        group_1 = factories.Group()
+        group_2 = factories.Group()
+        group_3 = factories.Group()
+        helpers.call_action('member_create', id=group_1['id'],
+                            object=user['id'], object_type='user',
+                            capacity='member')
+        helpers.call_action('member_create', id=group_2['id'],
+                            object=user['id'], object_type='user',
+                            capacity='editor')
+        helpers.call_action('member_create', id=group_3['id'],
+                            object=user['id'], object_type='user',
+                            capacity='admin')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
+
+    def test_that_it_does_not_return_previous_memberships(self):
+        """
+
+        organization_list_for_user() should return organizations that the user
+        was previously an admin of.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        # Make the user an admin of the organization.
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='admin')
+
+        # Remove the user from the organization.
+        helpers.call_action('member_delete', id=organization['id'],
+                            object=user['id'], object_type='user')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
+
+    def test_when_user_is_sysadmin(self):
+        """
+
+        When the user is a sysadmin organization_list_for_user() should just
+        return all organizations, even if the user is not a member of them.
+
+        """
+        user = factories.Sysadmin()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert [org['id'] for org in organizations] == [organization['id']]
+
+    def test_that_it_does_not_return_deleted_organizations(self):
+        """
+
+        organization_list_for_user() should not return deleted organizations
+        that the user was an admin of.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        # Make the user an admin of the organization.
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='admin')
+
+        # Delete the organization.
+        helpers.call_action('organization_delete', id=organization['id'])
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
