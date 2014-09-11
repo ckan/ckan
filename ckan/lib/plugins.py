@@ -259,6 +259,9 @@ class DefaultDatasetForm(object):
     def history_template(self):
         return 'package/history.html'
 
+    def resource_template(self):
+        return 'package/resource_read.html'
+
     def package_form(self):
         return 'package/new_package_form.html'
 

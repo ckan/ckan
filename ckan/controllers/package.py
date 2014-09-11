@@ -100,6 +100,16 @@ class PackageController(base.BaseController):
                 return result
         return lookup_package_plugin().resource_form()
 
+    def _resource_template(self, package_type):
+        # backwards compatibility with plugins not inheriting from
+        # DefaultDatasetPlugin and not implmenting resource_template
+        plugin = lookup_package_plugin(package_type)
+        if hasattr(plugin, 'resource_template'):
+            result = plugin.resource_template()
+            if result is not None:
+                return result
+        return lookup_package_plugin().resource_template()
+
     def _guess_package_type(self, expecting_name=False):
         """
             Guess the type of package from the URL handling the case
@@ -1180,7 +1190,8 @@ class PackageController(base.BaseController):
                 'current_resource_view': current_resource_view,
                 'dataset_type': dataset_type}
 
-        return render('package/resource_read.html', extra_vars=vars)
+        template = self._resource_template(dataset_type)
+        return render(template, extra_vars=vars)
 
     @maintain.deprecated('Resource preview is deprecated. Please use the new '
                          'resource views')
