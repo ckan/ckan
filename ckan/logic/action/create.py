@@ -1234,7 +1234,8 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
         'user': user,
         'session': session
     }
-    logic.get_action('member_create')(member_create_context, member_dict)
+    return logic.get_action('member_create')(member_create_context,
+                                             member_dict)
 
 def group_member_create(context, data_dict):
     '''Make a user a member of a group.

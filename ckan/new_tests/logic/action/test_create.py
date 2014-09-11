@@ -7,8 +7,11 @@ import nose.tools
 
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
-import ckan.model
+import ckan.model as model
 import ckan.logic
+
+
+assert_equals = nose.tools.assert_equals
 
 
 class TestUserInvite(object):
@@ -86,4 +89,45 @@ class TestUserInvite(object):
 
         result = helpers.call_action('user_invite', context, **params)
 
-        return ckan.model.User.get(result['id'])
+        return model.User.get(result['id'])
+
+
+class TestMemberCreate(object):
+    @classmethod
+    def setup_class(cls):
+        helpers.reset_db()
+
+    def setup(self):
+        model.repo.rebuild_db()
+
+    def test_group_member_creation(self):
+        user = factories.User()
+        group = factories.Group()
+
+        new_membership = helpers.call_action(
+            'group_member_create',
+            id=group['id'],
+            username=user['name'],
+            role='member',
+        )
+
+        assert_equals(new_membership['group_id'], group['id'])
+        assert_equals(new_membership['table_name'], 'user')
+        assert_equals(new_membership['table_id'], user['id'])
+        assert_equals(new_membership['capacity'], 'member')
+
+    def test_organization_member_creation(self):
+        user = factories.User()
+        organization = factories.Organization()
+
+        new_membership = helpers.call_action(
+            'organization_member_create',
+            id=organization['id'],
+            username=user['name'],
+            role='member',
+        )
+
+        assert_equals(new_membership['group_id'], organization['id'])
+        assert_equals(new_membership['table_name'], 'user')
+        assert_equals(new_membership['table_id'], user['id'])
+        assert_equals(new_membership['capacity'], 'member')
