@@ -12,7 +12,7 @@ __all__ = [
     'IOrganizationController',
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer',
-    'IActions', 'IResourceUrlChange', 'IDatasetForm',
+    'IActions', 'IResourceModification', 'IResourceUrlChange', 'IDatasetForm',
     'IValidators', 'IConverters',
     'IResourcePreview',
     'IResourceView',
@@ -22,7 +22,6 @@ __all__ = [
     'ITemplateHelpers',
     'IFacets',
     'IAuthenticator',
-    'IResourceUpload',
 ]
 
 from inspect import isclass
@@ -191,6 +190,42 @@ class IDomainObjectModification(Interface):
     """
 
     def notify(self, entity, operation):
+        pass
+
+
+class IResourceModification(Interface):
+    """
+    Add custom processing after a resource is created, updated or deleted.
+    """
+
+    def after_create(self, context, resource, upload):
+        """
+        Extensions will receive this after a resource is created.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the latest resource added
+            to the dataset (the one that was just created).
+        :type resource: dictionary
+        :param upload: Representation of whether the resource was
+            uploaded (True) or not (False).
+        :type upload: boolean
+        """
+        pass
+
+    def after_delete(self, context, resource):
+        """
+        Extensions will receive this after a previously created resource is
+        deleted.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the latest resource added
+            to the dataset (the one that was just deleted).
+        :type resource: dictionary
+        """
         pass
 
 
@@ -1266,12 +1301,3 @@ class IAuthenticator(Interface):
         '''called on abort.  This allows aborts due to authorization issues
         to be overriden'''
         return (status_code, detail, headers, comment)
-
-
-class IResourceUpload(Interface):
-
-    def after_upload(self, context, resource):
-        pass
-
-    def after_delete(self, context, resource):
-        pass

@@ -294,12 +294,12 @@ def resource_create(context, data_dict):
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = pkg_dict['resources'][-1]
 
-    if result == 'file uploaded':
-        for plugin in plugins.PluginImplementations(plugins.IResourceUpload):
-            plugin.after_upload(context, resource)
-    elif result == 'file deleted':
-        for plugin in plugins.PluginImplementations(plugins.IResourceUpload):
+    for plugin in plugins.PluginImplementations(plugins.IResourceModification):
+        if result == 'file deleted':
             plugin.after_delete(context, resource)
+        else:
+            uploaded = (result == 'file uploaded')
+            plugin.after_create(context, resource, upload=uploaded)
 
     return resource
 

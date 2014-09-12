@@ -243,12 +243,12 @@ def resource_update(context, data_dict):
 
     resource = _get_action('resource_show')(context, {'id': id})
 
-    if result == 'file uploaded':
-        for plugin in plugins.PluginImplementations(plugins.IResourceUpload):
-            plugin.after_upload(context, resource)
-    elif result == 'file deleted':
-        for plugin in plugins.PluginImplementations(plugins.IResourceUpload):
+    for plugin in plugins.PluginImplementations(plugins.IResourceModification):
+        if result == 'file deleted':
             plugin.after_delete(context, resource)
+        else:
+            uploaded = (result == 'file uploaded')
+            plugin.after_create(context, resource, uploaded)
 
     return resource
 
