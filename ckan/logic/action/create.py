@@ -268,7 +268,7 @@ def resource_create(context, data_dict):
 
     _check_access('resource_create', context, data_dict)
 
-    for plugin in plugins.PluginImplementations(plugins.IResourceModification):
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_create(context, data_dict)
 
     if not 'resources' in pkg_dict:
@@ -297,7 +297,7 @@ def resource_create(context, data_dict):
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = pkg_dict['resources'][-1]
 
-    for plugin in plugins.PluginImplementations(plugins.IResourceModification):
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_create(context, resource)
 
     return resource

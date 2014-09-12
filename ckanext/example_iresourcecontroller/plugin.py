@@ -2,9 +2,9 @@ from collections import defaultdict
 import ckan.plugins as plugins
 
 
-class ExampleIResourceModificationPlugin(plugins.SingletonPlugin):
+class ExampleIResourceControllerPlugin(plugins.SingletonPlugin):
 
-    plugins.implements(plugins.IResourceModification)
+    plugins.implements(plugins.IResourceController)
 
     def __init__(self, *args, **kwargs):
         self.counter = defaultdict(int)
@@ -26,3 +26,6 @@ class ExampleIResourceModificationPlugin(plugins.SingletonPlugin):
 
     def after_delete(self, context, resources):
         self.counter['after_delete'] += 1
+
+    def before_show(self, resource):
+        self.counter['before_show'] += 1
