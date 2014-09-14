@@ -1255,8 +1255,9 @@ class Tracking(CkanCommand):
                         WHERE p.name = regexp_replace(' ' || t.url, '^[ ]{1}(/\w{2}){0,1}' || %s, ''))
                      ,'~~not~found~~')
                  WHERE t.package_id IS NULL
-                 AND tracking_type = 'page';'''
-        engine.execute(sql, PACKAGE_URL)
+                 AND tracking_type = 'page'
+                 AND tracking_date = %s;'''
+        engine.execute(sql, PACKAGE_URL, summary_date)
 
         # update summary totals for resources
         sql = '''UPDATE tracking_summary t1
@@ -1272,7 +1273,10 @@ class Tracking(CkanCommand):
                     WHERE t1.url = t2.url
                     AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
                  )
-                 WHERE t1.running_total = 0 AND tracking_type = 'resource';'''
+                 WHERE t1.running_total = 0
+                 AND tracking_type = 'resource'
+                 AND tracking_date = '%s'
+                 ;'''% (summary_date)
         engine.execute(sql)
 
         # update summary totals for pages
@@ -1291,7 +1295,8 @@ class Tracking(CkanCommand):
                  )
                  WHERE t1.running_total = 0 AND tracking_type = 'page'
                  AND t1.package_id IS NOT NULL
-                 AND t1.package_id != '~~not~found~~';'''
+                 AND t1.package_id != '~~not~found~~'
+                 AND t1.tracking_date = '%s';'''% (summary_date)
         engine.execute(sql)
 
 class PluginInfo(CkanCommand):
