@@ -1221,6 +1221,33 @@ class Tracking(CkanCommand):
                  COMMIT;''' % summary_date
         engine.execute(sql)
 
+        # Any records with recent views, even not viewed on this date,
+        # need to be tracking-updated. We add them with a 0 view count.
+        sql = '''WITH t2 AS  (
+                    SELECT package_id, max(tracking_date) AS max_date
+                    FROM tracking_summary
+                    GROUP BY package_id
+                    HAVING max(tracking_date) < '%s'
+                  ), t3 AS (
+                    SELECT t1.url, t1.package_id,t1.tracking_type
+                    FROM tracking_summary t1
+                    JOIN t2
+                    ON
+                      t1.package_id = t2.package_id
+                    AND
+                      t1.tracking_date = t2.max_date
+                    WHERE t1.recent_views > 0
+                  ), t4 AS (
+                    SELECT * from t3 GROUP BY url, package_id, tracking_type
+                  )
+                INSERT INTO tracking_summary
+                  (url, package_id, count, tracking_date, tracking_type)
+                SELECT url, package_id, 0, '%s', tracking_type
+                FROM t4
+                WHERE url NOT IN (SELECT url FROM tracking_summary WHERE tracking_date = '%s');
+                COMMIT;''' % (summary_date, summary_date, summary_date)
+        engine.execute(sql)
+
         # get ids for dataset urls
         sql = '''UPDATE tracking_summary t
                  SET package_id = COALESCE(
