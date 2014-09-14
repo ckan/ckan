@@ -1140,6 +1140,7 @@ class Tracking(CkanCommand):
                 start_date = combine(start_date, datetime.time(0))
             else:
                 start_date = datetime.datetime(2011, 1, 1)
+        start_date_solrsync = start_date
         end_date = datetime.datetime.now()
 
         while start_date < end_date:
@@ -1147,6 +1148,8 @@ class Tracking(CkanCommand):
             self.update_tracking(engine, start_date)
             print 'tracking updated for %s' % start_date
             start_date = stop_date
+
+        self.update_tracking_solr(engine, start_date_solrsync)
 
     def _total_views(self, engine):
         sql = '''
@@ -1266,6 +1269,34 @@ class Tracking(CkanCommand):
                  AND t1.package_id IS NOT NULL
                  AND t1.package_id != '~~not~found~~';'''
         engine.execute(sql)
+
+    def update_tracking_solr(self, engine, start_date):
+        sql = '''SELECT package_id FROM tracking_summary
+                where package_id!='~~not~found~~'
+                and tracking_date >= '%s';''' % start_date
+        results = engine.execute(sql)
+
+        package_ids = set()
+        for row in results:
+            package_ids.add(row['package_id'])
+
+        total = len(package_ids)
+        not_found = 0
+        print '%i package index%s to be rebuilt starting from %s' % (total, '' if total < 2 else 'es', start_date)
+
+        from ckan.lib.search import rebuild
+        for package_id in package_ids:
+            try:
+                rebuild(package_id)
+            except logic.NotFound:
+                print "Error: package %s not found." % (package_id)
+                not_found += 1
+            except KeyboardInterrupt:
+                print "Stopped."
+                return
+            except:
+                raise
+        print 'search index rebuilding done.' + (' %i not found.' % (not_found) if not_found else "")
 
 class PluginInfo(CkanCommand):
     '''Provide info on installed plugins.
