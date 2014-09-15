@@ -1669,6 +1669,14 @@ def package_search(context, data_dict):
                         package_dict = item.before_view(package_dict)
                 results.append(package_dict)
             else:
+                # If data not available in search index:
+                pkg_query = session.query(model.PackageRevision)\
+                    .filter(model.PackageRevision.id == package)\
+                    .filter(_and_(
+                        model.PackageRevision.state == u'active',
+                        model.PackageRevision.current == True
+                    ))
+                pkg = pkg_query.first()                
                 results.append(model_dictize.package_dictize(pkg, context))
 
         count = query.count
