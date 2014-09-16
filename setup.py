@@ -120,6 +120,7 @@ entry_points = {
         'example_theme_v20_pubsub = ckanext.example_theme.v20_pubsub.plugin:ExampleThemePlugin',
         'example_theme_v21_custom_jquery_plugin = ckanext.example_theme.v21_custom_jquery_plugin.plugin:ExampleThemePlugin',
         'example_theme_custom_config_setting = ckanext.example_theme.custom_config_setting.plugin:ExampleThemePlugin',
+        'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',
         'example_ivalidators = ckanext.example_ivalidators_iconverters.plugin:ExampleIValidatorsPlugin',
         'example_iconverters = ckanext.example_ivalidators_iconverters.plugin:ExampleIConvertersPlugin',
     ],
