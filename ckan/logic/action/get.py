@@ -577,15 +577,38 @@ def group_list_authz(context, data_dict):
 
 
 def organization_list_for_user(context, data_dict):
-    '''Return the list of organizations that the user is a member of.
+    '''Return the organizations that the user has a given permission for.
+
+    By default this returns the list of organizations that the currently
+    authorized user can edit, i.e. the list of organizations that the user is an
+    admin of.
+
+    Specifically it returns the list of organizations that the currently
+    authorized user has a given permission (for example: "edit_group") against.
+
+    When a user becomes a member of an organization in CKAN they're given a
+    "capacity" (sometimes called a "role"), for example "member", "editor" or
+    "admin".
+
+    Each of these roles has certain permissions associated with it. For example
+    the admin role has the "admin" permission (which means they have permission
+    to do anything). The editor role has permissions like "create_dataset",
+    "update_dataset" and "delete_dataset".  The member role has the "read"
+    permission.
+
+    This function returns the list of organizations that the authorized user has
+    a given permission for. For example the list of organizations that the user
+    is an admin of, or the list of organizations that the user can create
+    datasets in.
 
     :param permission: the permission the user has against the
-        returned organizations (optional, default: ``edit_group``)
+        returned organizations, for example ``"read"`` or ``"create_dataset"``
+        (optional, default: ``"edit_group"``)
     :type permission: string
 
-    :returns: list of dictized organizations that the user is
-        authorized to edit
+    :returns: list of organizations that the user has the given permission for
     :rtype: list of dicts
+
     '''
     model = context['model']
     user = context['user']
@@ -613,7 +636,8 @@ def organization_list_for_user(context, data_dict):
         q = model.Session.query(model.Member) \
             .filter(model.Member.table_name == 'user') \
             .filter(model.Member.capacity.in_(roles)) \
-            .filter(model.Member.table_id == user_id)
+            .filter(model.Member.table_id == user_id) \
+            .filter(model.Member.state == 'active')
 
         group_ids = []
         for row in q.all():
