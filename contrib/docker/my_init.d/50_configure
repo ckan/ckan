@@ -18,12 +18,10 @@ abort () {
 }
 
 write_config () {
-  "$CKAN_HOME"/bin/paster make-config ckan "$CONFIG"
-
   sed -i \
       -e "s&^sqlalchemy\.url =.*&sqlalchemy.url = ${DATABASE_URL}&" \
-      -e "s&^#solr_url.*&solr_url = ${SOLR_URL}&" \
-      -e "s&^#ckan.storage_path.*&ckan.storage_path = /var/lib/ckan&" \
+      -e "s&^#\?solr_url.*&solr_url = ${SOLR_URL}&" \
+      -e "s&^#\?ckan.storage_path.*&ckan.storage_path = /var/lib/ckan&" \
       -e "s&^email_to.*&#email_to = disabled@example.com&" \
       -e "s&^error_email_from.*&error_email_from = ckan@$(hostname -f)&" \
       "${CONFIG}"
@@ -50,15 +48,18 @@ link_solr_url () {
 
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
-  if [ -z "$DATABASE_URL" ]; then
-    if ! DATABASE_URL=$(link_postgres_url); then
-      abort "no DATABASE_URL specified and linked container called 'db' was not found"
-    fi
-  fi
-  if [ -z "$SOLR_URL" ]; then
-    if ! SOLR_URL=$(link_solr_url); then
-      abort "no SOLR_URL specified and linked container called 'solr' was not found"
-    fi
-  fi
-  write_config
+  "$CKAN_HOME"/bin/paster make-config ckan "$CONFIG"
 fi
+
+# Update config file
+if [ -z "$DATABASE_URL" ]; then
+  if ! DATABASE_URL=$(link_postgres_url); then
+    abort "no DATABASE_URL specified and linked container called 'db' was not found"
+  fi
+fi
+if [ -z "$SOLR_URL" ]; then
+  if ! SOLR_URL=$(link_solr_url); then
+    abort "no SOLR_URL specified and linked container called 'solr' was not found"
+  fi
+fi
+write_config
