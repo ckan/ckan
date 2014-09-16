@@ -1411,6 +1411,10 @@ class Celery(CkanCommand):
                                action='store',
                                dest='queue',
                                help="Refer to a particular queue")
+        self.parser.add_option('-n', '--hostname',
+                               action='store',
+                               dest='hostname',
+                               help="Set custom hostname")
 
     def command(self):
         # Load config with the basic options
@@ -1452,6 +1456,14 @@ class Celery(CkanCommand):
             celery_args.append('--concurrency=%s' % processes)
         if self.options.queue:
             celery_args.append('--queue=%s' % self.options.queue)
+
+        if self.options.hostname:
+            celery_args.append('--hostname=%s' % self.options.hostname)
+        else:
+            # Each worker should have a unique name
+            # Default the worker name to the name of the queue being listened to
+            celery_args.append('--hostname=%s' % self.options.queue)
+
         celery.worker_main(argv=['celeryd', '--loglevel=INFO'] + celery_args)
 
     def get_celery_db_session(self):
