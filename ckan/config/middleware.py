@@ -5,7 +5,6 @@ import logging
 import json
 import hashlib
 import os
-import warnings
 
 import sqlalchemy as sa
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -31,6 +30,7 @@ from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
 
 log = logging.getLogger(__name__)
+
 
 def make_app(conf, full_stack=True, static_files=True, **app_conf):
     """Create a Pylons WSGI application and return it
@@ -119,7 +119,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     who_parser.parse(open(app_conf['who.config_file']))
 
     if asbool(config.get('openid_enabled', 'false')):
-        warnings.warn("OpenID auth is deprecated", DeprecationWarning)
+        log.warning("OpenID auth is deprecated")
         from repoze.who.plugins.openid.identification import OpenIdIdentificationPlugin
         # Monkey patches for repoze.who.openid
         # Fixes #1659 - enable log-out when CKAN mounted at non-root URL
