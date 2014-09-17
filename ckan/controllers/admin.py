@@ -33,6 +33,7 @@ class AdminController(base.BaseController):
                   {'text': 'Red', 'value': '/base/css/red.css'},
                   {'text': 'Green', 'value': '/base/css/green.css'},
                   {'text': 'Maroon', 'value': '/base/css/maroon.css'},
+                  {'text': 'Sirca', 'value': '/base/css/sirca.css'},
                   {'text': 'Fuchsia', 'value': '/base/css/fuchsia.css'}]
 
         homepages = [{'value': '1', 'text': 'Introductory area, search, featured group and featured organization'},
