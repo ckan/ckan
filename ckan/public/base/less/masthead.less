@@ -150,7 +150,7 @@
       padding: 4px 10px;
     }
   }
-  
+
   .btn-navbar,
   .btn-navbar:hover,
   .btn-navbar:focus,
@@ -190,12 +190,18 @@
     padding-left:20px;
     padding-right:20px;
   }
+  .masthead .section {
+    float: none;
+    .nav-collapse {
+      margin-bottom: @gutterX;
+    }
+  }
 }
-@media (max-width: 979px) { 
+@media (max-width: 979px) {
   .masthead {
     .container {
       padding-left:20px;
-      padding-right:20px;   
+      padding-right:20px;
     }
     .site-search {
       display:none;

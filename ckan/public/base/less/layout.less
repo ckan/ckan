@@ -13,7 +13,7 @@
     background-position:-54px 0px;
   }
 }
-@media (min-width: 980px) { 
+@media (min-width: 980px) {
   .wrapper {
     background-position:0px 0px;
   }
@@ -65,6 +65,12 @@
   display:none;
 }
 @media (max-width: 768px) {
+  .wrapper {
+    margin: 0 -20px;
+    border-width: 0;
+    .box-shadow(0);
+    .border-radius(0);
+  }
   .js [role=main] .secondary .filters {
     display:none;
     position:fixed;
@@ -101,8 +107,6 @@
       font-size:18px;
     }
   }
-}
-@media (max-width: 768px) {
   .js .show-filters.btn {
     display:inline-block;
   }
@@ -245,4 +249,3 @@
     .box-shadow(0 0 0 1px white);
   }
 }
-
