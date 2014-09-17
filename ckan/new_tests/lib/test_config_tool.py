@@ -162,6 +162,7 @@ ckan.site_title = CKAN
             "'app:main-ckan.site_title': <Option [app:main] #ckan.site_title = CKAN>" \
             "}"
 
+
 class TestParseOptionString:
     def test_parse_basic(self):
         input_line = 'ckan.site_title = CKAN'
@@ -180,4 +181,4 @@ class TestParseOptionString:
     def test_parse_invalid_space(self):
         input_line = ' ckan.site_title = CKAN'
         out = config_tool.parse_option_string('app:main', input_line)
-        assert out == None
+        assert out is None
