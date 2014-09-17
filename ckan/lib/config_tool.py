@@ -49,13 +49,15 @@ def parse_option_string(section, option_string, raise_on_error=False):
     option_match = OPTION_RE.match(option_string)
     if not option_match:
         if raise_on_error:
-            raise ConfigToolError('Option did not parse: "%s". Must be: "key = value"' % option_string)
+            raise ConfigToolError('Option did not parse: "%s". Must be: '
+                                  '"key = value"' % option_string)
         return
     is_commented_out, key, value = option_match.group('commentedout',
                                                       'option', 'value')
     key = key.strip()
     value = value.strip()
-    return Option(section, key, value, is_commented_out, original=option_string)
+    return Option(section, key, value, is_commented_out,
+                  original=option_string)
 
 
 class Option(object):
@@ -67,7 +69,7 @@ class Option(object):
         self.original = original
 
     def __repr__(self):
-        return '<Option [%s] %s>' % (self.section, str(self))
+        return '<Option [%s] %s>' % (self.section, self)
 
     def __str__(self):
         if self.original:
@@ -82,6 +84,7 @@ class Option(object):
     def comment_out(self):
         self.is_commented_out = True
         self.original = None  # it is no longer accurate
+
 
 def calculate_new_sections(existing_options, desired_options):
     existing_sections = set([option.section for option in existing_options])
@@ -193,38 +196,39 @@ def make_changes(input_lines, new_sections, changes):
             # leave alone comments (does not include commented options)
             output.append(line)
             continue
-        updated_option = options_to_edit_in_this_section.get(existing_option.key)
+        updated_option = \
+            options_to_edit_in_this_section.get(existing_option.key)
         if updated_option:
             changes_made = None
             key = existing_option.key
             if existing_option.id in options_already_edited:
                 if not existing_option.is_commented_out:
                     print 'Commented out repeat of %s (section "%s")' % \
-                                (key, section)
+                        (key, section)
                     existing_option.comment_out()
                 else:
                     print 'Left commented out repeat of %s (section "%s")' % \
-                                (key, section)
+                        (key, section)
             elif not existing_option.is_commented_out and \
                     updated_option.is_commented_out:
                 changes_made = 'Commented out %s (section "%s")' % \
-                            (key, section)
+                    (key, section)
             elif existing_option.is_commented_out and \
                     not updated_option.is_commented_out:
                 changes_made = 'Option uncommented and set %s = "%s" ' \
-                            '(section "%s")' % \
-                            (key, updated_option.value, section)
+                    '(section "%s")' % \
+                    (key, updated_option.value, section)
             elif not existing_option.is_commented_out and \
                     not updated_option.is_commented_out:
                 if existing_option.value != updated_option.value:
                     changes_made = 'Edited option %s = "%s"->"%s" ' \
-                            '(section "%s")' % \
-                            (key, existing_option.value,
-                             updated_option.value, section)
+                        '(section "%s")' % \
+                        (key, existing_option.value,
+                         updated_option.value, section)
                 else:
                     changes_made = 'Option unchanged %s = "%s" ' \
-                            '(section "%s")' % \
-                            (key, existing_option.value, section)
+                        '(section "%s")' % \
+                        (key, existing_option.value, section)
 
             if changes_made:
                 print changes_made
