@@ -103,7 +103,7 @@ entry_points = {
 }
 
 setup(
-    name='ckan',
+    name='bdkd-ckan',
     version=__version__,
     author='Open Knowledge Foundation',
     author_email='info@okfn.org',
