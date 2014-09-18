@@ -6,7 +6,7 @@
  * secondary text color: #777
  * primary background color: #fff
  * secondary background color: #F7F9F9
- * primary highlight color: #3DBCC3 #43D4AF
+ * primary highlight color: #3DBCC3 #43D4AF || #23890D
  * nav {
     background: linear-gradient(to right, rgba(54, 186, 194, 0.96) 0px, rgba(60, 211, 173, 0.96) 100%) repeat scroll 0% 0% transparent;
     z-index: 3000;
@@ -63,13 +63,14 @@ p {
  *
  */
 .account-masthead {
-    background: #333;
-    opacity: 0.5;
-    transition: opacity 0.2s ease-in;
+    background: #000;
+    opacity: 1;
+    height: auto;
+    transition: all 0.2s ease-in 0s;
 }
 .account-masthead:hover {
     opacity: 1;
-    transition: opacity 0.2s ease-in;
+    transition: all 0.2s ease-in 0s;
 }
 .account-masthead .account ul li a {
     color: #fff;
@@ -83,6 +84,11 @@ p {
     /*border-top: 1px solid #EEE;*/
     border-bottom: 1px solid #EEE;
     margin-top: 30px;
+}
+.masthead hgroup h2 {
+    bottom: 0;
+    left: 8px;
+    color: #36A81E;
 }
 .masthead .content {
     top: 0;
@@ -107,7 +113,7 @@ p {
     color: #000;
    /* background-color: #EEE;*/
     background-color: transparent;
-    border-bottom: 3px solid #F04124; 
+    border-bottom: 3px solid #36A81E; 
     border-radius: 0;
 }
 .masthead .container hgroup h1 {
@@ -126,13 +132,13 @@ p {
 }
 
 aside .module-footer a.read-more {
-    color: #008CBA;
+    color: #36A81E;
     font-weight: 300;
     border-color:  transparent;
     transition: all .2s ease-in;
 }
 aside .module-footer a.read-more:hover {
-    border-color: #008CBA;
+    border-color: #36A81E;
     transition: all .2s ease-in;
 }
 .module-heading {
@@ -145,7 +151,7 @@ p > a {
     border-bottom: 1px solid transparent
 }
 .module-content p > a {
-    color: #008CBA;
+    color: #36A81E;
 }
 .module-content a.btn {
 }
@@ -166,7 +172,7 @@ p > a {
 }
 .nav.nav-tabs li.active a {
     color: #fff;
-    background-color: #008CBA;
+    background-color: #36A81E;
     cursor: pointer;
     border: 1px solid #0079A1;
     transition: all .2s ease-in;
@@ -200,7 +206,7 @@ p > a {
 .media-grid .media-view:hover {
     box-shadow: none;
     border-color: #DDD;
-    border-bottom-color: #008CBA;
+    border-bottom-color: #36A81E;
 }
 .media-grid .media-item a {
     border-radius: 0;
@@ -210,7 +216,7 @@ p > a {
 }
 .media-item .count, .media-item span.count {
     font-weight: 300;
-    color: #008CBA;
+    color: #36A81E;
 }
 /*
  *  Search hero
@@ -228,8 +234,26 @@ p > a {
 .search-giant :-ms-input-placeholder {  
         color: #000;  
 }
+.search-giant {
+    overflow: hidden;
+}
+.search-giant button {
+    transform: translate3d(100%, 0, 0);
+    opacity: 0;
+    transition: all 0.2s ease-in 0.2s;
+}
+.search-giant.search-input button i {
+    color: #000;
+}
+.search-giant:hover button {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    transition: all 0.2s ease-in 0.2s;
+}
 .hero {
-    background: linear-gradient(to right, rgba(54, 186, 194, 0.96) 0px, rgba(60, 211, 173, 0.96) 100%) repeat scroll 0% 0% transparent;
+/*    background: linear-gradient(to right, rgba(54, 186, 194, 0.96) 0px, rgba(60, 211, 173, 0.96) 100%) repeat scroll 0% 0% transparent;*/
+ background: linear-gradient(to right, rgba(35, 137, 13, 1) 0px, rgba(54, 168, 30, 1) 100%) repeat scroll 0% 0% transparent;
+
     box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
 }
 .homepage .hero { 
@@ -357,7 +381,7 @@ aside .nav-item.active a:hover {
    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05); 
 }
 .dataset-item:hover {
-    border-bottom-color: #008CBA;
+    border-bottom-color: #36A81E;
 }
 .dataset-item .dataset-heading {
     color: #333;
@@ -402,6 +426,7 @@ aside .nav-item.active a:hover {
 .resource-item:hover {
     background-color: transparent;
 }
+
 .context-info .image img, .context-info .image a {
     border-radius: 0;
 }
@@ -469,7 +494,7 @@ aside .nav-item.active a:hover {
     font-size: 14px;
     border: none;
     border-bottom: none;
-    color: #008CBA;
+    color: #36A81E;
 }
 .toolbar .breadcrumb a:hover {
     border-bottom: 1px solid;
@@ -513,6 +538,9 @@ aside .nav-item.active a:hover {
  *  Content styling
  *
  */
+.context-info p {
+    overflow: initial;
+}
 .context-info .nums {
     border-top: none;
 }
