@@ -15,7 +15,7 @@ class TestStatsPlugin(StatsFixture):
         CreateTestData.create_arbitrary([
             {'name':'test1', 'groups':['grp1'], 'tags':['tag1']},
             {'name':'test2', 'groups':['grp1', 'grp2'], 'tags':['tag1']},
-            {'name':'test3', 'groups':['grp1', 'grp2'], 'tags':['tag1', 'tag2']},
+            {'name':'test3', 'groups':['grp1', 'grp2'], 'tags':['tag1', 'tag2'], 'private': True},
             {'name':'test4'},
             ],
             extra_user_names=['bob'],
@@ -63,10 +63,10 @@ class TestStatsPlugin(StatsFixture):
     def test_most_edited_packages(self):
         pkgs = Stats.most_edited_packages()
         pkgs = [(pkg.name, count) for pkg, count in pkgs]
-        assert_equal(pkgs[0], ('test3', 3))
-        assert_equal(pkgs[1][1], 2) 
-        assert_equal(pkgs[2][1], 2) 
-        assert_equal(pkgs[3], ('test1', 1)) 
+        # test2 does not come up because it was deleted
+        # test3 does not come up because it is private
+        assert_equal(pkgs[0], ('test4', 2))
+        assert_equal(pkgs[1], ('test1', 1))
 
     def test_largest_groups(self):
         grps = Stats.largest_groups()
@@ -83,7 +83,8 @@ class TestStatsPlugin(StatsFixture):
     def test_top_package_owners(self):
         owners = Stats.top_package_owners()
         owners = [(owner.name, count) for owner, count in owners]
-        assert_equal(owners, [('bob', 4)])
+        # Only 2 shown because one of them was deleted and the other one is private
+        assert_equal(owners, [('bob', 2)])
 
     def test_new_packages_by_week(self):
         new_packages_by_week = RevisionStats.get_by_week('new_packages')
