@@ -371,7 +371,7 @@ def group_dictize(group, context,
             if is_group_member:
                 context['ignore_capacity_check'] = True
 
-            if not just_the_count and not context.get('for_view'):
+            if not just_the_count:
                 q['rows'] = 1000    # Only the first 1000 datasets are returned
 
             search_context = dict((k, v) for (k, v) in context.items()

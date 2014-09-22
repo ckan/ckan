@@ -165,7 +165,7 @@ class TestGet(object):
                                 **dataset)
 
         group_dict = helpers.call_action('group_show', id=group['id'],
-                                         content={'for_view': True})
+                                         context={'for_view': True})
 
         assert len(group_dict['packages']) == 2
         assert group_dict['package_count'] == 2
