@@ -148,6 +148,28 @@ class TestGet(object):
         assert len(group_dict['packages']) == 2
         assert group_dict['package_count'] == 2
 
+    def test_group_show_packages_returned_for_view(self):
+
+        user_name = helpers.call_action('get_site_user')['name']
+
+        group = factories.Group(user=factories.User())
+
+        datasets = [
+            {'name': 'dataset_1', 'groups': [{'name': group['name']}]},
+            {'name': 'dataset_2', 'groups': [{'name': group['name']}]},
+        ]
+
+        for dataset in datasets:
+            helpers.call_action('package_create',
+                                context={'user': user_name},
+                                **dataset)
+
+        group_dict = helpers.call_action('group_show', id=group['id'],
+                                         content={'for_view': True})
+
+        assert len(group_dict['packages']) == 2
+        assert group_dict['package_count'] == 2
+
     def test_group_show_no_packages_returned(self):
 
         user_name = helpers.call_action('get_site_user')['name']
