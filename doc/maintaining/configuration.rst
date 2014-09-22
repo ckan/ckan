@@ -32,7 +32,7 @@ settings, for reference.
 
         [app:main]
         # This setting will work.
-        ckan.plugins = stats text_preview recline_preview
+        ckan.plugins = stats text_view recline_view
 
    If the same option is set more than once in your config file, the last
    setting given in the file will override the others.
@@ -108,6 +108,21 @@ with read permissions only. The format is the same as in :ref:`sqlalchemy.url`.
 
 .. end_config-datastore-urls
 
+.. _ckan.datastore.default_fts_lang:
+
+ckan.datastore.default_fts_lang
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.default_fts_lang = english
+
+This can be ignored if you're not using the :doc:`datastore`.
+
+The default language used when creating full-text search indexes and querying
+them. If this value isn't set, it'll default to "english". It can be
+overwritten by the user by passing the "lang" parameter to "datastore_search"
+and "datastore_create".
 
 Site Settings
 -------------
@@ -512,7 +527,7 @@ Example::
 
   ckan.plugins = disqus datapreview googleanalytics follower
 
-Default value: ``stats text_preview recline_preview``
+Default value: ``stats text_view recline_view``
 
 Specify which CKAN plugins are to be enabled.
 

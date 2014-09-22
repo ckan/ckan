@@ -43,12 +43,6 @@ def group_list_dictize(obj_list, context,
             'include_extras': include_extras,
             'include_users': False,  # too slow - don't allow
             }
-        #('include_dataset_count', with_package_counts),
-        #('dataset_count_instead_of_dicts', True),
-        #('include_groups', include_groups),
-        #('include_datasets', False),  # too slow - don't allow
-        #('include_users', False),  # too slow - don't allow
-        #))
     if with_package_counts and 'dataset_counts' not in group_dictize_context:
         # 'dataset_counts' will already be in the context in the case that
         # group_list_dictize recurses via group_dictize (groups in groups)
@@ -734,5 +728,19 @@ def user_following_dataset_dictize(follower, context):
 def user_following_group_dictize(follower, context):
     return d.table_dictize(follower, context)
 
-    base_columns = set(['id', 'resource_id', 'title', 'description',
-                        'view_type', 'order', 'config'])
+def resource_view_dictize(resource_view, context):
+    dictized = d.table_dictize(resource_view, context)
+    dictized.pop('order')
+    config = dictized.pop('config', {})
+    dictized.update(config)
+    resource = context['model'].Resource.get(resource_view.resource_id)
+    package_id = resource.resource_group.package_id
+    dictized['package_id'] = package_id
+    return dictized
+
+def resource_view_list_dictize(resource_views, context):
+    resource_view_dicts = []
+    for view in resource_views:
+        resource_view_dicts.append(resource_view_dictize(view, context))
+    return resource_view_dicts
+

@@ -3,6 +3,8 @@ import re
 import os
 from hashlib import sha1, md5
 
+import passlib.utils 
+from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table
@@ -12,6 +14,7 @@ import meta
 import core
 import types as _types
 import domain_object
+
 
 user_table = Table('user', meta.metadata,
         Column('id', types.UnicodeText, primary_key=True,
@@ -100,23 +103,47 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         return ref
 
     def _set_password(self, password):
-        '''Hash password on the fly.'''
-        if isinstance(password, unicode):
-            password_8bit = password.encode('ascii', 'ignore')
-        else:
-            password_8bit = password
-
-        salt = sha1(os.urandom(60))
-        hash = sha1(password_8bit + salt.hexdigest())
-        hashed_password = salt.hexdigest() + hash.hexdigest()
+        '''Hash using pbkdf2
+        
+        Use passlib to hash the password using pkbdf2, upgrading
+        passlib will also upgrade the number of rounds and salt of the
+        hash as the user logs in automatically. Changing hashing
+        algorithm will require this code to be changed (perhaps using
+        passlib's CryptContext)
+        '''
+        hashed_password = pbkdf2_sha512.encrypt(password)
 
         if not isinstance(hashed_password, unicode):
             hashed_password = hashed_password.decode('utf-8')
         self._password = hashed_password
 
     def _get_password(self):
-        '''Return the password hashed'''
         return self._password
+
+    def _verify_and_upgrade_from_sha1(self, password):
+        if isinstance(password, unicode):
+            password_8bit = password.encode('ascii', 'ignore')
+        else:
+            password_8bit = password
+
+        hashed_pass = sha1(password_8bit + self.password[:40])
+        current_hash = passlib.utils.to_native_str(self.password[40:])
+
+        if passlib.utils.consteq(hashed_pass.hexdigest(), current_hash):
+            #we've passed the old sha1 check, upgrade our password
+            self._set_password(password)
+            self.save()
+            return True
+        else:
+            return False
+
+    def _verify_and_upgrade_pbkdf2(self, password):
+        if pbkdf2_sha512.verify(password, self.password):
+            self._set_password(password)
+            self.save()
+            return True
+        else:
+            return False
 
     def validate_password(self, password):
         '''
@@ -131,12 +158,17 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         '''
         if not password or not self.password:
             return False
-        if isinstance(password, unicode):
-            password_8bit = password.encode('ascii', 'ignore')
+
+        if not pbkdf2_sha512.identify(self.password):
+            return self._verify_and_upgrade_from_sha1(password)
         else:
-            password_8bit = password
-        hashed_pass = sha1(password_8bit + self.password[:40])
-        return self.password[40:] == hashed_pass.hexdigest()
+            current_hash = pbkdf2_sha512.from_string(self.password)
+            if (current_hash.rounds < pbkdf2_sha512.default_rounds or
+                len(current_hash.salt) < pbkdf2_sha512.default_salt_size):
+
+                return self._verify_and_upgrade_pbkdf2(password)
+            else:
+                return pbkdf2_sha512.verify(password, self.password)
 
     password = property(_get_password, _set_password)
 

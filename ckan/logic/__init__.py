@@ -16,6 +16,10 @@ log = logging.getLogger(__name__)
 _validate = df.validate
 
 
+class NameConflict(Exception):
+    pass
+
+
 class AttributeDict(dict):
     def __getattr__(self, name):
         try:
@@ -94,11 +98,17 @@ class ValidationError(ActionError):
                 return _(field_name.replace('_', ' '))
 
             summary = {}
+
             for key, error in error_dict.iteritems():
                 if key == 'resources':
                     summary[_('Resources')] = _('Package resource(s) invalid')
                 elif key == 'extras':
-                    summary[_('Extras')] = _('Missing Value')
+                    errors_extras = []
+                    for item in error:
+                        if (item.get('key')
+                                and item['key'][0] not in errors_extras):
+                            errors_extras.append(item.get('key')[0])
+                    summary[_('Extras')] = ', '.join(errors_extras)
                 elif key == 'extras_validation':
                     summary[_('Extras')] = error[0]
                 elif key == 'tags':
@@ -377,7 +387,7 @@ def get_action(action):
     for plugin in p.PluginImplementations(p.IActions):
         for name, auth_function in plugin.get_actions().items():
             if name in resolved_action_plugins:
-                raise Exception(
+                raise NameConflict(
                     'The action %r is already implemented in %r' % (
                         name,
                         resolved_action_plugins[name]
@@ -624,6 +634,15 @@ def get_validator(validator):
         validators = _import_module_functions('ckan.logic.validators')
         _validators_cache.update(validators)
         _validators_cache.update({'OneOf': formencode.validators.OneOf})
+
+        for plugin in p.PluginImplementations(p.IValidators):
+            for name, fn in plugin.get_validators().items():
+                if name in _validators_cache:
+                    raise NameConflict(
+                        'The validator %r is already defined' % (name,)
+                    )
+                log.debug('Validator function {0} from plugin {1} was inserted'.format(name, plugin.name))
+                _validators_cache[name] = fn
     try:
         return _validators_cache[validator]
     except KeyError:
@@ -662,6 +681,15 @@ def get_converter(converter):
     if not _converters_cache:
         converters = _import_module_functions('ckan.logic.converters')
         _converters_cache.update(converters)
+
+        for plugin in p.PluginImplementations(p.IConverters):
+            for name, fn in plugin.get_converters().items():
+                if name in _converters_cache:
+                    raise NameConflict(
+                        'The converter %r is already defined' % (name,)
+                    )
+                log.debug('Converter function {0} from plugin {1} was inserted'.format(name, plugin.name))
+                _converters_cache[name] = fn
     try:
         return _converters_cache[converter]
     except KeyError:

@@ -79,6 +79,12 @@ def resource_update(context, data_dict):
         return {'success': True}
 
 
+def resource_view_update(context, data_dict):
+    return resource_update(context, data_dict)
+
+def resource_view_reorder(context, data_dict):
+    return resource_update(context, data_dict)
+
 def package_relationship_update(context, data_dict):
     return new_authz.is_authorized('package_relationship_create',
                                    context,
@@ -217,6 +223,16 @@ def user_update(context, data_dict):
         return {'success': False,
                 'msg': _('User %s not authorized to edit user %s') %
                         (user, user_obj.id)}
+
+
+def user_generate_apikey(context, data_dict):
+    user = context['user']
+    user_obj = logic_auth.get_user_object(context, data_dict)
+    if user == user_obj.name:
+        # Allow users to update only their own user accounts.
+        return {'success': True}
+    return {'success': False, 'msg': _('User {0} not authorized to update user'
+            ' {1}'.format(user, user_obj.id))}
 
 
 def revision_change_state(context, data_dict):

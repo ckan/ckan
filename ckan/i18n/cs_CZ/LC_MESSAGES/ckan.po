@@ -4379,7 +4379,7 @@ msgstr "Nyní jste odhlášeni"
 
 #: ckan/templates/user/logout.html:11
 msgid "You are now logged out."
-msgstr "Nyní jste přihlášeni"
+msgstr "Nyní jste odhlášeni"
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."

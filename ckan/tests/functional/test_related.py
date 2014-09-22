@@ -346,6 +346,33 @@ class TestRelated:
         result = logic.get_action('related_update')(context, result)
         assert_equal(result['title'], 'New Title')
 
+    def test_update_related_item_check_owner_status(self):
+        '''After edit of a related item by a sysadmin, check that the owner id is unchanged
+        '''
+        offset = h.url_for(controller='related',
+                           action='new', id='warandpeace')
+        data = {
+            "title": "testing_create",
+            "url": u"http://ckan.org/feed/",
+        }
+        user = model.User.by_name('tester')
+        admin = model.User.by_name('testsysadmin')
+        
+        #create related item
+        context = dict(model=model, user=user.name, session=model.Session)
+        data_dict = dict(title="testing_create",description="description",
+                         url="http://ckan.org/feed/",image_url="",type="visualization")
+        res = logic.get_action("related_create")( context, data_dict )
+
+        #edit related item
+        data_dict = dict(id=res['id'],title="testing_update",description="description",
+                         url="http://ckan.org/feed/",image_url="",type="visualization")
+
+        context = dict(model=model, user=admin.name, session=model.Session)
+        result = logic.get_action('related_update')(context,data_dict)
+        #Confirm related item owner status
+        assert result['owner_id'] == user.id
+
     def test_related_show(self):
         rel = self._related_create("Title", "Description",
                         "visualization",

@@ -1,20 +1,4 @@
-import inspect
-import os
-import re
-
-import paste.deploy.converters as converters
-import webhelpers.html.tags
-
-__all__ = ['toolkit']
-
-
-class CkanVersionException(Exception):
-    '''Exception raised by
-    :py:func:`~ckan.plugins.toolkit.requires_ckan_version` if the required CKAN
-    version is not available.
-
-    '''
-    pass
+import sys
 
 
 class _Toolkit(object):
@@ -44,10 +28,11 @@ class _Toolkit(object):
         'aslist',               # converts an object to a list
         'literal',              # stop tags in a string being escaped
         'get_action',           # get logic action function
-        'get_converter',        # get validator function
-        'get_validator',        # get convertor action function
+        'get_converter',        # get navl schema converter
+        'get_validator',        # get navl schema validator
         'check_access',         # check logic function authorisation
         'navl_validate',        # implements validate method with navl schema
+        'missing',              # placeholder for missing values for validation
         'ObjectNotFound',       # action not found exception
                                 # (ckan.logic.NotFound)
         'NotAuthorized',        # action not authorized exception
@@ -67,6 +52,7 @@ class _Toolkit(object):
         'auth_sysadmins_check', # allow auth functions to be checked for sysadmins
         'auth_allow_anonymous_access', # allow anonymous access to an auth function
         'auth_disallow_anonymous_access', # disallow anonymous access to an auth function
+        'get_new_resources', # gets all new resources in current commit
 
         ## Fully defined in this file ##
         'add_template_directory',
@@ -100,7 +86,13 @@ class _Toolkit(object):
         import ckan.lib.cli as cli
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
+        import ckan.lib.datapreview as datapreview
+        from ckan.exceptions import CkanVersionException
+
+        from paste.deploy import converters
         import pylons
+        import webhelpers.html.tags
+
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -170,6 +162,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
         t['navl_validate'] = dictization_functions.validate
+        t['missing'] = dictization_functions.missing
         t['ObjectNotFound'] = logic.NotFound  # Name change intentional
         t['NotAuthorized'] = logic.NotAuthorized
         t['ValidationError'] = logic.ValidationError
@@ -197,6 +190,7 @@ content type, cookies, etc.
         t['auth_sysadmins_check'] = logic.auth_sysadmins_check
         t['auth_allow_anonymous_access'] = logic.auth_allow_anonymous_access
         t['auth_disallow_anonymous_access'] = logic.auth_disallow_anonymous_access
+        t['get_new_resources'] = datapreview.get_new_resources
 
         # class functions
         t['render_snippet'] = self._render_snippet
@@ -248,6 +242,9 @@ content type, cookies, etc.
     @classmethod
     def _add_served_directory(cls, config, relative_path, config_var):
         ''' Add extra public/template directories to config. '''
+        import inspect
+        import os
+
         assert config_var in ('extra_template_paths', 'extra_public_paths')
         # we want the filename that of the function caller but they will
         # have used one of the available helper functions
@@ -272,6 +269,9 @@ content type, cookies, etc.
         See :doc:`/theming/index` for more details.
 
         '''
+        import inspect
+        import os
+
         # we want the filename that of the function caller but they will
         # have used one of the available helper functions
         frame, filename, line_number, function_name, lines, index =\
@@ -286,6 +286,7 @@ content type, cookies, etc.
     def _version_str_2_list(cls, v_str):
         ''' convert a version string into a list of ints
         eg 1.6.1b --> [1, 6, 1] '''
+        import re
         v_str = re.sub(r'[^0-9.]', '', v_str)
         return [int(part) for part in v_str.split('.')]
 
@@ -344,6 +345,7 @@ content type, cookies, etc.
         :type max_version: string
 
         '''
+        from ckan.exceptions import CkanVersionException
         if not cls._check_ckan_version(min_version=min_version,
                                        max_version=max_version):
             if not max_version:
@@ -370,5 +372,5 @@ content type, cookies, etc.
         return sorted(self._toolkit.keys())
 
 
-toolkit = _Toolkit()
-del _Toolkit
+# https://mail.python.org/pipermail/python-ideas/2012-May/014969.html
+sys.modules[__name__] = _Toolkit()
