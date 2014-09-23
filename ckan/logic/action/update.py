@@ -225,6 +225,9 @@ def resource_update(context, data_dict):
         logging.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.before_update(context, pkg_dict['resources'][n], data_dict)
+
     upload = uploader.ResourceUpload(data_dict)
 
     pkg_dict['resources'][n] = data_dict
@@ -240,7 +243,13 @@ def resource_update(context, data_dict):
 
     upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
-    return _get_action('resource_show')(context, {'id': id})
+
+    resource = _get_action('resource_show')(context, {'id': id})
+
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.after_update(context, resource)
+
+    return resource
 
 
 def resource_view_update(context, data_dict):

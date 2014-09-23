@@ -98,11 +98,17 @@ class ValidationError(ActionError):
                 return _(field_name.replace('_', ' '))
 
             summary = {}
+
             for key, error in error_dict.iteritems():
                 if key == 'resources':
                     summary[_('Resources')] = _('Package resource(s) invalid')
                 elif key == 'extras':
-                    summary[_('Extras')] = _('Missing Value')
+                    errors_extras = []
+                    for item in error:
+                        if (item.get('key')
+                                and item['key'][0] not in errors_extras):
+                            errors_extras.append(item.get('key')[0])
+                    summary[_('Extras')] = ', '.join(errors_extras)
                 elif key == 'extras_validation':
                     summary[_('Extras')] = error[0]
                 elif key == 'tags':
