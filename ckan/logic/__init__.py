@@ -634,6 +634,8 @@ def get_validator(validator):
         validators = _import_module_functions('ckan.logic.validators')
         _validators_cache.update(validators)
         _validators_cache.update({'OneOf': formencode.validators.OneOf})
+        converters = _import_module_functions('ckan.logic.converters')
+        _validators_cache.update(converters)
 
         for plugin in p.PluginImplementations(p.IValidators):
             for name, fn in plugin.get_validators().items():
@@ -647,53 +649,6 @@ def get_validator(validator):
         return _validators_cache[validator]
     except KeyError:
         raise UnknownValidator('Validator `%s` does not exist' % validator)
-
-
-class UnknownConverter(Exception):
-    '''Exception raised when a requested converter function cannot be found.
-
-    '''
-    pass
-
-
-_converters_cache = {}
-
-def clear_converters_cache():
-    _converters_cache.clear()
-
-
-# This function exists mainly so that converters can be made available to
-# extensions via ckan.plugins.toolkit.
-def get_converter(converter):
-    '''Return a converter function by name.
-
-    :param converter: the name of the converter function to return,
-        eg. ``'convert_to_extras'``
-    :type converter: string
-
-    :raises: :py:exc:`~ckan.plugins.toolkit.UnknownConverter` if the named
-        converter is not found
-
-    :returns: the named converter function
-    :rtype: ``types.FunctionType``
-
-    '''
-    if not _converters_cache:
-        converters = _import_module_functions('ckan.logic.converters')
-        _converters_cache.update(converters)
-
-        for plugin in p.PluginImplementations(p.IConverters):
-            for name, fn in plugin.get_converters().items():
-                if name in _converters_cache:
-                    raise NameConflict(
-                        'The converter %r is already defined' % (name,)
-                    )
-                log.debug('Converter function {0} from plugin {1} was inserted'.format(name, plugin.name))
-                _converters_cache[name] = fn
-    try:
-        return _converters_cache[converter]
-    except KeyError:
-        raise UnknownConverter('Converter `%s` does not exist' % converter)
 
 
 def model_name_to_class(model_module, model_name):

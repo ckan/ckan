@@ -8,14 +8,6 @@ class ExampleIValidatorsPlugin(plugins.SingletonPlugin):
     def get_validators(self):
         return {
             'equals_fortytwo': equals_fortytwo,
-            }
-
-
-class ExampleIConvertersPlugin(plugins.SingletonPlugin):
-    plugins.implements(plugins.IConverters)
-
-    def get_converters(self):
-        return {
             'negate': negate,
             }
 

@@ -138,7 +138,7 @@ def load(*plugins):
     '''
     Load named plugin(s).
     '''
-    from ckan.logic import clear_validators_cache, clear_converters_cache
+    from ckan.logic import clear_validators_cache
 
     output = []
 
@@ -159,8 +159,6 @@ def load(*plugins):
                      'IGenshiStreamFilter' % plugin)
         if interfaces.IValidators in service.__interfaces__:
             clear_validators_cache()
-        if interfaces.IConverters in service.__interfaces__:
-            clear_converters_cache()
 
         _PLUGINS.append(plugin)
         _PLUGINS_CLASS.append(service.__class__)
