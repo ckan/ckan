@@ -10,4 +10,4 @@ polib==1.0.3
 mock==1.0.1
 factory-boy==2.1.1
 coveralls==0.4.1
-sphinx_rtd_theme==0.1.5
+sphinx-rtd-theme==0.1.6
