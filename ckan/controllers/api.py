@@ -79,21 +79,25 @@ class ApiController(base.BaseController):
         '''
         assert(isinstance(status_int, int))
         response.status_int = status_int
-        response_msg = ''
+        out = ''
         if response_data is not None:
-            response.headers['Content-Type'] = CONTENT_TYPES[content_type]
             if content_type == 'json':
-                response_msg = h.json.dumps(response_data)
+                out = h.json.dumps(response_data,
+                                   sort_keys=True,
+                                   indent=2,
+                                   separators=(',', ': '),
+                                   ensure_ascii=False)
             else:
-                response_msg = response_data
+                out = response_data
             # Support "JSONP" callback.
             if status_int == 200 and 'callback' in request.params and \
                 (request.method == 'GET' or
                  c.logic_function and request.method == 'POST'):
                 # escape callback to remove '<', '&', '>' chars
                 callback = cgi.escape(request.params['callback'])
-                response_msg = self._wrap_jsonp(callback, response_msg)
-        return response_msg
+                out = self._wrap_jsonp(callback, out)
+            response.headers['Content-Type'] = CONTENT_TYPES[content_type]
+        return out
 
     def _finish_ok(self, response_data=None,
                    content_type='json',
@@ -569,6 +573,11 @@ class ApiController(base.BaseController):
                     if 'callback' in params:
                         del params['callback']
                     results = query.run(params)
+                    # strip out the data dict if it exists.  This is because it
+                    # breaks unicode output from the api
+                    for x in results['results']:
+                        if 'data_dict' in x:
+                            del x['data_dict']
                 return self._finish_ok(results)
             except search.SearchError, e:
                 log.exception(e)
@@ -602,7 +611,7 @@ class ApiController(base.BaseController):
 
     def markdown(self, ver=None):
         raw_markdown = request.params.get('q', '')
-        results = h.render_markdown(raw_markdown)
+        results = unicode(h.render_markdown(raw_markdown))
 
         return self._finish_ok(results)
 

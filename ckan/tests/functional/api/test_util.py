@@ -6,6 +6,10 @@ from ckan.tests import TestController as ControllerTestCase
 from ckan.tests import url_for
 from ckan.common import json
 
+def json_reformat(string):
+    # just cleans up the string format
+    return json.dumps(json.loads(string))
+
 class TestUtil(ControllerTestCase):
     @classmethod
     def setup_class(cls):
@@ -24,7 +28,7 @@ class TestUtil(ControllerTestCase):
             },
             status=200,
         )
-        assert_equal(response.body, '{"valid": false}')
+        assert_equal(json_reformat(response.body), '{"valid": false}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
         response = self.app.get(
@@ -35,7 +39,7 @@ class TestUtil(ControllerTestCase):
             },
             status=200,
         )
-        assert_equal(response.body, '{"valid": false}')
+        assert_equal(json_reformat(response.body), '{"valid": false}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_package_slug_valid(self):
@@ -47,7 +51,7 @@ class TestUtil(ControllerTestCase):
             },
             status=200,
         )
-        assert_equal(response.body, '{"valid": true}')
+        assert_equal(json_reformat(response.body), '{"valid": true}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
         response = self.app.get(
@@ -58,7 +62,7 @@ class TestUtil(ControllerTestCase):
             },
             status=200,
         )
-        assert_equal(response.body, '{"valid": false}')
+        assert_equal(json_reformat(response.body), '{"valid": false}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_dataset_autocomplete_match_name(self):
@@ -71,7 +75,7 @@ class TestUtil(ControllerTestCase):
             },
             status=200,
         )
-        assert_equal(response.body, '{"ResultSet": {"Result": [{"match_field": "name", "match_displayed": "annakarenina", "name": "annakarenina", "title": "A Novel By Tolstoy"}]}}')
+        assert_equal(json_reformat(response.body), '{"ResultSet": {"Result": [{"match_field": "name", "match_displayed": "annakarenina", "name": "annakarenina", "title": "A Novel By Tolstoy"}]}}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_dataset_autocomplete_match_title(self):
@@ -84,7 +88,7 @@ class TestUtil(ControllerTestCase):
             },
             status=200,
         )
-        assert_equal(response.body, '{"ResultSet": {"Result": [{"match_field": "title", "match_displayed": "A Novel By Tolstoy (annakarenina)", "name": "annakarenina", "title": "A Novel By Tolstoy"}]}}')
+        assert_equal(json_reformat(response.body), '{"ResultSet": {"Result": [{"match_field": "title", "match_displayed": "A Novel By Tolstoy (annakarenina)", "name": "annakarenina", "title": "A Novel By Tolstoy"}]}}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_tag_autocomplete(self):
@@ -97,7 +101,7 @@ class TestUtil(ControllerTestCase):
             },
             status=200,
         )
-        assert_equal(response.body, '{"ResultSet": {"Result": [{"Name": "russian"}]}}')
+        assert_equal(json_reformat(response.body), '{"ResultSet": {"Result": [{"Name": "russian"}]}}')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_group_autocomplete(self):

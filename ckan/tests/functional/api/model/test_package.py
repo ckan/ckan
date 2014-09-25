@@ -1,4 +1,5 @@
 import copy
+import re
 
 from nose.tools import assert_equal, assert_raises
 
@@ -14,6 +15,11 @@ import ckan.tests as tests
 
 # Todo: Remove this ckan.model stuff.
 import ckan.model as model
+from ckan.common import json
+
+def json_reformat(string):
+    # just cleans up the string format
+    return json.dumps(json.loads(string))
 
 class PackagesTestCase(BaseModelApiTestCase):
 
@@ -260,7 +266,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         res = self.app.post(offset, params=postparams,
                             status=self.STATUS_409_CONFLICT,
                             extra_environ=self.admin_extra_environ)
-        assert_equal(res.body, '{"id": ["The input field id was not expected."]}')
+        assert_equal(json_reformat(res.body), '{"id": ["The input field id was not expected."]}')
 
     def test_register_post_indexerror(self):
         """
@@ -301,8 +307,8 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_get_ok_jsonp(self):
         offset = self.anna_offset(postfix='?callback=jsoncallback')
         res = self.app.get(offset, status=self.STATUS_200_OK)
-        import re
-        assert re.match('jsoncallback\(.*\);', res.body), res
+        assert re.match('jsoncallback\(.*\);', res.body,
+                       flags=re.M|re.S), res
         # Unwrap JSONP callback (we want to look at the data).
         msg = res.body[len('jsoncallback')+1:-2]
         self.assert_msg_represents_anna(msg=msg)

@@ -75,7 +75,8 @@ class ResourceSearchApiTestCase(ApiTestCase, ControllerTestCase):
     def test_05_options(self):
         offset = self.base_url + '?url=site&all_fields=1&callback=mycallback'
         result = self.app.get(offset, status=200)
-        assert re.match('^mycallback\(.*\);$', result.body), result.body
+        assert re.match('^mycallback\(.*\);$', result.body,
+                        flags=re.MULTILINE|re.DOTALL), result.body
         assert 'package_id' in result.body, result.body
 
 

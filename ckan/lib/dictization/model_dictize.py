@@ -613,7 +613,7 @@ def package_to_api(pkg, context):
     dictized['license'] = pkg.license.title if pkg.license else None
     dictized['ratings_average'] = pkg.get_average_rating()
     dictized['ratings_count'] = len(pkg.ratings)
-    dictized['notes_rendered'] = h.render_markdown(pkg.notes)
+    dictized['notes_rendered'] = unicode(h.render_markdown(pkg.notes))
 
     site_url = config.get('ckan.site_url', None)
     if site_url:

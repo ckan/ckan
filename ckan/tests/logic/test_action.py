@@ -132,7 +132,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'id': anna_id})
         res = self.app.post('/api/action/package_show?callback=jsoncallback', params=postparams)
 
-        assert re.match('jsoncallback\(.*\);', res.body), res
+        assert re.match('jsoncallback\(.*\);', res.body, flags=re.M | re.S), res
         # Unwrap JSONP callback (we want to look at the data).
         msg = res.body[len('jsoncallback')+1:-2]
         res_dict = json.loads(msg)

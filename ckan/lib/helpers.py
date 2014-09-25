@@ -1488,8 +1488,8 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
         action_function = logic.get_action(action_functions.get(filter_type))
         return action_function(context, {'id': filter_id, 'offset': offset})
     else:
-        return logic.get_action('dashboard_activity_list_html')(
-            context, {'offset': offset})
+        return literal(logic.get_action('dashboard_activity_list_html')(
+            context, {'offset': offset}))
 
 
 def recently_changed_packages_activity_stream(limit=None):

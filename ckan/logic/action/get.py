@@ -3200,8 +3200,10 @@ def dashboard_activity_list_html(context, data_dict):
         'action': 'dashboard',
         'offset': offset,
     }
-    return activity_streams.activity_list_to_html(context, activity_stream,
-                                                  extra_vars)
+
+    # We want this to be a plane unicode string not a literal
+    return unicode(activity_streams.activity_list_to_html(
+        context, activity_stream, extra_vars))
 
 
 def dashboard_new_activities_count(context, data_dict):
