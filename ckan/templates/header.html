@@ -61,15 +61,20 @@
     </div>
   </header>
 {% endblock %}
-<header class="masthead">
+<header class="navbar navbar-static-top masthead">
   {% block header_debug %}
     {% if g.debug and not g.debug_supress_header %}
       <div class="debug">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
     {% endif %}
   {% endblock %}
   <div class="container">
+    <button data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar" type="button">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
     {# The .header-image class hides the main text and uses image replacement for the title #}
-    <hgroup class="{{ g.header_class }}">
+    <hgroup class="{{ g.header_class }} pull-left">
 
       {% block header_logo %}
         {% if g.site_logo %}
@@ -84,7 +89,7 @@
 
     </hgroup>
 
-    <div class="content">
+    <div class="nav-collapse collapse">
 
       {% block header_site_navigation %}
         <nav class="section navigation">
