@@ -29,6 +29,20 @@ API changes and deprecations
   Note that logic.get_action() and toolkit.get_action() are *not* deprecated,
   core code and plugin code should still use ``get_action()``.
 
+Template changes
+----------------
+
+* Note to people with custom themes: If you've changed the
+  ``{% block secondary_content %}`` in templates/package/search.html pay close
+  attention as this pull request changes the structure of that template block a
+  little.
+
+  Also: There's a few more bootstrap classes (especially for grid layout) that
+  are now going to be in the templates. Take a look if any of the following
+  changes might effect your content blocks:
+
+  https://github.com/ckan/ckan/pull/1935
+
 
 v2.2 2014-02-04
 ===============
