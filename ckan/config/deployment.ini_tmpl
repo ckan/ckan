@@ -14,7 +14,7 @@
 [DEFAULT]
 
 # WARNING: *THIS SETTING MUST BE SET TO FALSE ON A PRODUCTION ENVIRONMENT*
-debug = false
+debug = true
 
 [server:main]
 use = egg:Paste#http

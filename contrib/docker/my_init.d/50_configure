@@ -23,9 +23,14 @@ write_config () {
   "$CKAN_HOME"/bin/paster --plugin=ckan config-tool "$CONFIG" -e \
       "sqlalchemy.url = ${DATABASE_URL}" \
       "solr_url = ${SOLR_URL}" \
+      "ckan.site_url = $(hostname -f)" \
+      "ckan.datapusher.url = http://$(hostname -f):8800" \
       "ckan.storage_path = /var/lib/ckan" \
-      "email_to = disabled@example.com" \
-      "error_email_from = ckan@$(hostname -f)"
+      "email_to = clementmouchet@gmail.com" \
+      "error_email_from = ckan@$(hostname -f)" \
+      "ckan.datastore.write_url = ${DATASTORE_WRITE_URL}" \
+      "ckan.datastore.read_url = ${DATASTORE_READ_URL}" \
+      "ckan.plugins = datastore datapusher resource_proxy stats text_view recline_view pdf_view viewhelpers linechart barchart piechart basicgrid dashboard_preview navigablemap choroplethmap"
 
   if [ -n "$ERROR_EMAIL" ]; then
     sed -i -e "s&^#email_to.*&email_to = ${ERROR_EMAIL}&" "$CONFIG"
@@ -33,9 +38,27 @@ write_config () {
 }
 
 link_postgres_url () {
-  local user=$DB_ENV_POSTGRESQL_USER
-  local pass=$DB_ENV_POSTGRESQL_USER
-  local db=$DB_ENV_POSTGRESQL_DB
+  local user=$POSTGRESQL_USER
+  local pass=$POSTGRESQL_PASS
+  local db=$POSTGRESQL_DB
+  local host=$DB_PORT_5432_TCP_ADDR
+  local port=$DB_PORT_5432_TCP_PORT
+  echo "postgresql://${user}:${pass}@${host}:${port}/${db}"
+}
+
+link_datastore_write_url () {
+  local user=$POSTGRESQL_USER
+  local pass=$POSTGRESQL_PASS
+  local db=$POSTGRESQL_DATASTORE_DB
+  local host=$DB_PORT_5432_TCP_ADDR
+  local port=$DB_PORT_5432_TCP_PORT
+  echo "postgresql://${user}:${pass}@${host}:${port}/${db}"
+}
+
+link_datastore_read_url () {
+  local user=$POSTGRESQL_DATASTORE_USER
+  local pass=$POSTGRESQL_DATASTORE_PASS
+  local db=$POSTGRESQL_DATASTORE_DB
   local host=$DB_PORT_5432_TCP_ADDR
   local port=$DB_PORT_5432_TCP_PORT
   echo "postgresql://${user}:${pass}@${host}:${port}/${db}"
@@ -52,6 +75,12 @@ if [ ! -e "$CONFIG" ]; then
   if [ -z "$DATABASE_URL" ]; then
     if ! DATABASE_URL=$(link_postgres_url); then
       abort "no DATABASE_URL specified and linked container called 'db' was not found"
+    fi
+    if ! DATASTORE_WRITE_URL=$(link_datastore_write_url); then
+      abort "no DATASTORE_WRITE_URL specified and linked container called 'db' was not found"
+    fi
+    if ! DATASTORE_READ_URL=$(link_datastore_read_url); then
+      abort "no DATASTORE_READ_URL specified and linked container called 'db' was not found"
     fi
   fi
   if [ -z "$SOLR_URL" ]; then

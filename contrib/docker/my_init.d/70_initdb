@@ -1,4 +1,31 @@
 #!/bin/sh
 set -eu
 
+# create the CKAN database & user if they don't exist yet
+if psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres -lqt | cut -d \| -f 1 | grep -w $POSTGRESQL_DB; then
+    # database exists
+    echo "CKAN database $POSTGRESQL_DB exists, skipping"
+else
+    psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
+      --command "CREATE USER $POSTGRESQL_USER WITH PASSWORD '$POSTGRESQL_PASS';"
+    createdb -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
+      -O $POSTGRESQL_USER $POSTGRESQL_DB -T template0 -E utf-8
+fi
+
+# create the datastore database & user if they don't exist yet
+if psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres -lqt | cut -d \| -f 1 | grep -w $POSTGRESQL_DATASTORE_DB; then
+    # database exists
+    echo "Datastore database $POSTGRESQL_DATASTORE_DB exists, skipping"
+else
+    psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
+      --command "CREATE USER $POSTGRESQL_DATASTORE_USER WITH PASSWORD '$POSTGRESQL_DATASTORE_PASS';"
+    createdb -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
+      -O $POSTGRESQL_USER $POSTGRESQL_DATASTORE_DB -T template0  -E utf-8
+
+    # make sure the permissions on the datastore are correct
+    "$CKAN_HOME"/bin/paster --plugin=ckan datastore set-permissions -c "${CKAN_CONFIG}/ckan.ini" | \
+    psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres --set ON_ERROR_STOP=1
+fi
+
+# run the init script in case the database need to be upgraded
 "$CKAN_HOME"/bin/paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"
