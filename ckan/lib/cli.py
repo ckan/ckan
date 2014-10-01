@@ -1273,8 +1273,8 @@ class Tracking(CkanCommand):
     def update_tracking_solr(self, engine, start_date):
         sql = '''SELECT package_id FROM tracking_summary
                 where package_id!='~~not~found~~'
-                and tracking_date >= '%s';''' % start_date
-        results = engine.execute(sql)
+                and tracking_date >= %s;'''
+        results = engine.execute(sql, start_date)
 
         package_ids = set()
         for row in results:
