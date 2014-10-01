@@ -1,13 +1,17 @@
 FROM ubuntu:14.04
 MAINTAINER Open Knowledge
 
+# set UTF-8 locale
+RUN locale-gen en_US.UTF-8 && \
+    echo 'LANG="en_US.UTF-8"' > /etc/default/locale
+
 # Install Java
-RUN apt-get -q -y update
-RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y install default-jre-headless
+RUN apt-get -qq update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -qq -y install default-jre-headless
 
 # Install Solr
 ENV SOLR_HOME /opt/solr/example/solr
-ENV SOLR_VERSION 4.8.1
+ENV SOLR_VERSION 4.10.1
 ENV SOLR solr-$SOLR_VERSION
 RUN mkdir -p /opt/solr
 ADD https://archive.apache.org/dist/lucene/solr/$SOLR_VERSION/$SOLR.tgz /opt/$SOLR.tgz

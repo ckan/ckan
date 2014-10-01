@@ -1,4 +1,4 @@
-FROM phusion/baseimage:0.9.10
+FROM phusion/baseimage:0.9.13
 MAINTAINER Open Knowledge
 
 # Disable SSH
@@ -12,17 +12,17 @@ ENV CKAN_DATAPUSHER_HOME /usr/lib/ckan/datapusher
 
 # Customize postgres user/pass/db
 ENV POSTGRESQL_USER ckan
-ENV POSTGRESQL_PASS A12ddk543
+ENV POSTGRESQL_PASS ckan
 ENV POSTGRESQL_DB ckan
 
 # Customize datastore user/pass/db
 ENV POSTGRESQL_DATASTORE_USER datastore
-ENV POSTGRESQL_DATASTORE_PASS A12ddk543
+ENV POSTGRESQL_DATASTORE_PASS datastore
 ENV POSTGRESQL_DATASTORE_DB datastore
 
 # Install required packages
-RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y install \
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
         python-minimal \
         python-dev \
         python-virtualenv \
@@ -51,13 +51,13 @@ RUN $CKAN_HOME/bin/pip install -e $CKAN_HOME/src/ckan/
 RUN ln -s $CKAN_HOME/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini
 
 # Install CKAN Plugins that have no dependencies
+# pages
 RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-pages.git#egg=ckanext-pages
+# viewhelpers
 RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-viewhelpers.git#egg=ckanext-viewhelpers
 RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-basiccharts.git#egg=ckanext-basiccharts
 RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-dashboard.git#egg=ckanext-dashboard
 RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-mapviews.git#egg=ckanext-mapviews
-RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-apihelper.git#egg=ckanext-apihelper
-RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-archiver.git#egg=ckanext-archiver
 
 # Install CKAN Datapusher
 RUN virtualenv $CKAN_DATAPUSHER_HOME
@@ -72,7 +72,6 @@ ADD ./contrib/docker/apache.wsgi $CKAN_CONFIG/apache.wsgi
 ADD ./contrib/docker/apache.conf /etc/apache2/sites-available/ckan_default.conf
 RUN echo "Listen 8080" > /etc/apache2/ports.conf
 RUN a2ensite ckan_default
-
 ## datapusher configuration
 ADD ./contrib/docker/datapusher.wsgi /etc/ckan/datapusher.wsgi
 ADD ./contrib/docker/datapusher_settings.py /etc/ckan/datapusher_settings.py
@@ -92,7 +91,7 @@ ADD ./contrib/docker/my_init.d /etc/my_init.d
 ADD ./contrib/docker/svc /etc/service
 CMD ["/sbin/my_init"]
 
-VOLUME [$CKAN_DATA, $CKAN_HOME, $CKAN_CONFIG, "/var/log"]
+VOLUME ["/var/lib/ckan", "/usr/lib/ckan/default", "/etc/ckan/default", "/var/log"]
 EXPOSE 80 8800
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

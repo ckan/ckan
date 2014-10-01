@@ -3,6 +3,8 @@
 # URL for the primary database, in the format expected by sqlalchemy (required
 # unless linked to a container called 'db')
 : ${DATABASE_URL:=}
+: ${DATASTORE_WRITE_URL:=}
+: ${DATASTORE_READ_URL:=}
 # URL for solr (required unless linked to a container called 'solr')
 : ${SOLR_URL:=}
 # Email to which errors should be sent (optional, default: none)
@@ -23,15 +25,15 @@ write_config () {
   "$CKAN_HOME"/bin/paster --plugin=ckan config-tool "$CONFIG" -e \
       "sqlalchemy.url = ${DATABASE_URL}" \
       "solr_url = ${SOLR_URL}" \
-      "ckan.site_url = $(hostname -f)" \
-      "ckan.datapusher.url = http://$(hostname -f):8800" \
+      "ckan.site_url = http://$(hostname -f)/" \
+      "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
+      "ckan.datapusher.url = http://$(hostname -f):8800/" \
       "ckan.storage_path = /var/lib/ckan" \
-      "email_to = clementmouchet@gmail.com" \
+      "email_to = admin@$(hostname -f)" \
       "error_email_from = ckan@$(hostname -f)" \
       "ckan.datastore.write_url = ${DATASTORE_WRITE_URL}" \
       "ckan.datastore.read_url = ${DATASTORE_READ_URL}" \
       "ckan.plugins = datastore datapusher resource_proxy stats text_view recline_view pdf_view viewhelpers linechart barchart piechart basicgrid dashboard_preview navigablemap choroplethmap"
-
   if [ -n "$ERROR_EMAIL" ]; then
     sed -i -e "s&^#email_to.*&email_to = ${ERROR_EMAIL}&" "$CONFIG"
   fi
@@ -76,9 +78,13 @@ if [ ! -e "$CONFIG" ]; then
     if ! DATABASE_URL=$(link_postgres_url); then
       abort "no DATABASE_URL specified and linked container called 'db' was not found"
     fi
+  fi
+  if [ -z "$DATASTORE_WRITE_URL" ]; then
     if ! DATASTORE_WRITE_URL=$(link_datastore_write_url); then
       abort "no DATASTORE_WRITE_URL specified and linked container called 'db' was not found"
     fi
+  fi
+  if [ -z "$DATASTORE_READ_URL" ]; then
     if ! DATASTORE_READ_URL=$(link_datastore_read_url); then
       abort "no DATASTORE_READ_URL specified and linked container called 'db' was not found"
     fi

@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+
+# Start PostgreSQL
+echo "Starting PostgreSQL 9.3 database server"
+setuser postgres /usr/lib/postgresql/9.3/bin/postgres -D /etc/postgresql/9.3/main
+echo "...done."

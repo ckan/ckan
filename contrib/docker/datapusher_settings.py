@@ -19,8 +19,8 @@ PORT = 8800
 
 # logging
 
-FROM_EMAIL = 'server-error@localhost'
-ADMINS = ['clement.mouchet@gmail.com']  # where to send emails
+#FROM_EMAIL = 'server-error@example.com'
+#ADMINS = ['yourname@example.com']  # where to send emails
 
-LOG_FILE = '/tmp/ckan_service.log'
+#LOG_FILE = '/tmp/ckan_service.log'
 STDERR = True

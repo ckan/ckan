@@ -6,10 +6,26 @@ if psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres -lqt
     # database exists
     echo "CKAN database $POSTGRESQL_DB exists, skipping"
 else
+    # create CKAN user
     psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
       --command "CREATE USER $POSTGRESQL_USER WITH PASSWORD '$POSTGRESQL_PASS';"
+    # create CKAN database
     createdb -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
       -O $POSTGRESQL_USER $POSTGRESQL_DB -T template0 -E utf-8
+    # setup PostGIS in the database
+    psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
+      -d $POSTGRESQL_DB -f $CKAN_HOME/src/ckan/contrib/docker/postgresql/postgis-2.1/postgis.sql
+    psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
+      -d $POSTGRESQL_DB -f $CKAN_HOME/src/ckan/contrib/docker/postgresql/postgis-2.1/spatial_ref_sys.sql
+    psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
+      -d $POSTGRESQL_DB -f $CKAN_HOME/src/ckan/contrib/docker/postgresql/postgis-2.1/postgis_comments.sql
+    # change the ownership of the spatial tables
+    psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
+      -d $POSTGRESQL_DB -c "ALTER TABLE spatial_ref_sys OWNER TO $POSTGRESQL_USER;" \
+      --set ON_ERROR_STOP=1
+    psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
+      -d $POSTGRESQL_DB -c "ALTER TABLE geometry_columns OWNER TO $POSTGRESQL_USER;" \
+      --set ON_ERROR_STOP=1
 fi
 
 # create the datastore database & user if they don't exist yet
@@ -17,8 +33,10 @@ if psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres -lqt
     # database exists
     echo "Datastore database $POSTGRESQL_DATASTORE_DB exists, skipping"
 else
+    # create Datastore user
     psql -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
       --command "CREATE USER $POSTGRESQL_DATASTORE_USER WITH PASSWORD '$POSTGRESQL_DATASTORE_PASS';"
+    # create Datastore database
     createdb -h "$DB_PORT_5432_TCP_ADDR" -p "$DB_PORT_5432_TCP_PORT" -U postgres \
       -O $POSTGRESQL_USER $POSTGRESQL_DATASTORE_DB -T template0  -E utf-8
 
