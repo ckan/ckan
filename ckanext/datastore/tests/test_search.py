@@ -945,3 +945,23 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
+
+    def test_not_authorized_to_access_system_tables(self):
+        test_cases = [
+            'SELECT * FROM pg_roles',
+            'SELECT * FROM pg_catalog.pg_database',
+            'SELECT rolpassword FROM pg_roles',
+            '''SELECT p.rolpassword
+               FROM pg_roles p
+               JOIN "{0}" r
+               ON p.rolpassword = r.author'''.format(self.data['resource_id']),
+        ]
+        for query in test_cases:
+            data = {'sql': query.replace('\n', '')}
+            postparams = json.dumps(data)
+            res = self.app.post('/api/action/datastore_search_sql',
+                                params=postparams,
+                                status=403)
+            res_dict = json.loads(res.body)
+            assert res_dict['success'] is False
+            assert res_dict['error']['__type'] == 'Authorization Error'
