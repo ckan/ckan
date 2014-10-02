@@ -424,6 +424,58 @@ class TestGet(object):
                                            q='some')
         eq(len(package_list), 1)
 
+    def test_group_show_does_not_show_private_datasets(self):
+        '''group_show() should never show private datasets.
+
+        If a dataset is a private member of an organization and also happens to
+        be a member of a group, group_show() should not return the dataset as
+        part of the group dict, even if the user calling group_show() is a
+        member or admin of the group or the organization or is a sysadmin.
+
+        '''
+        org_member = factories.User()
+        org = factories.Organization(user=org_member)
+        private_dataset = factories.Dataset(user=org_member,
+                                            owner_org=org['name'], private=True)
+
+        group = factories.Group()
+
+        # Add the private dataset to the group.
+        helpers.call_action('member_create', id=group['id'],
+                            object=private_dataset['id'], object_type='package',
+                            capacity='public')
+
+        # Create a member user and an admin user of the group.
+        group_member = factories.User()
+        helpers.call_action('member_create', id=group['id'],
+                            object=group_member['id'], object_type='user',
+                            capacity='member')
+        group_admin = factories.User()
+        helpers.call_action('member_create', id=group['id'],
+                            object=group_admin['id'], object_type='user',
+                            capacity='admin')
+
+        # Create a user who isn't a member of any group or organization.
+        non_member = factories.User()
+
+        sysadmin = factories.Sysadmin()
+
+        # None of the users should see the dataset when they call group_show().
+        for user in (org_member, group_member, group_admin, non_member,
+                     sysadmin, None):
+
+            if user is None:
+                context = None  # No user logged-in.
+            else:
+                context = {'user': user['name']}
+
+            group = helpers.call_action('group_show', id=group['id'],
+                                        context=context)
+
+            assert private_dataset['id'] not in [dataset['id'] for dataset
+                                                 in group['packages']], (
+                "group_show() should never show private datasets")
+
 
 class TestBadLimitQueryParameters(object):
     '''test class for #1258 non-int query parameters cause 500 errors
