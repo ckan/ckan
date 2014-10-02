@@ -10,7 +10,10 @@ from ckanext.stats.tests import StatsFixture
 class TestStatsPlugin(StatsFixture):
     @classmethod
     def setup_class(cls):
+
         super(TestStatsPlugin, cls).setup_class()
+
+        model.repo.rebuild_db()
 
         CreateTestData.create_arbitrary([
             {'name':'test1', 'groups':['grp1'], 'tags':['tag1']},
@@ -54,8 +57,11 @@ class TestStatsPlugin(StatsFixture):
 
     @classmethod
     def teardown_class(cls):
-        CreateTestData.delete()
-        
+
+        model.repo.rebuild_db()
+
+        model.Session.remove()
+
     def test_top_rated_packages(self):
         pkgs = Stats.top_rated_packages()
         assert pkgs == []
