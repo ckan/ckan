@@ -15,7 +15,7 @@ sudo add-apt-repository -yy ppa:pitti/postgresql
 sudo apt-get update -qq
 sudo apt-get install solr-jetty postgresql-$PGVERSION
 
-if [ $PGVERSION == '8.4' ]
+if [ $PGVERSION = '8.4' ]
 then
     # force postgres to use 5432 as it's port
     sudo sed -i -e 's/port = 5433/port = 5432/g' /etc/postgresql/8.4/main/postgresql.conf
