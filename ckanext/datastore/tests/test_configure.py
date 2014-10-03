@@ -6,7 +6,7 @@ import ckan.plugins
 import ckanext.datastore.plugin as plugin
 
 
-class TestConfiguration(unittest.TestCase):
+class _TestConfiguration(unittest.TestCase):
     def setUp(self):
         self._original_plugin = ckan.plugins.unload('datastore')
         pyutilib.component.core.PluginGlobals.singleton_services()[plugin.DatastorePlugin] = True
