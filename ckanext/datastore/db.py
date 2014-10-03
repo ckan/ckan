@@ -14,6 +14,8 @@ import sqlalchemy
 from sqlalchemy.exc import ProgrammingError, IntegrityError, DBAPIError
 import psycopg2.extras
 
+import ckanext.datastore.helpers as datastore_helpers
+
 log = logging.getLogger(__name__)
 
 if not os.environ.get('DATASTORE_LOAD'):
