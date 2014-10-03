@@ -56,7 +56,7 @@ To install {{ project }}:
 Config Settings
 ---------------
 
-Document any required or optional config settings here. For example::
+Document any optional config settings here. For example::
 
     # The minimum number of hours to wait before re-checking a resource
     # (optional, default: 24).
