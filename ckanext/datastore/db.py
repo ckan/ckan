@@ -18,6 +18,8 @@ import psycopg2.extras
 import ckan.lib.cli as cli
 import ckan.plugins.toolkit as toolkit
 
+import ckanext.datastore.helpers as datastore_helpers
+
 log = logging.getLogger(__name__)
 
 if not os.environ.get('DATASTORE_LOAD'):
