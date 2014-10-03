@@ -8,10 +8,6 @@ import ckan.model as model
 
 class TestPackageControllerNew(helpers.FunctionalTestBase):
 
-    @classmethod
-    def setup_class(cls):
-        super(TestPackageControllerNew, cls).setup_class()
-
     def test_bulk_process_throws_404_for_nonexistent_org(self):
         app = self._get_test_app()
         bulk_process_url = url_for(controller='organization',
