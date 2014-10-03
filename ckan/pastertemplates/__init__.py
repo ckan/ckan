@@ -1,11 +1,20 @@
-"""
-Paste template for new ckanext.plugins projects
-"""
+"""A Paste template for creating new CKAN extensions.
 
-from paste.script.templates import Template, var
-from paste.util.template import paste_script_template_renderer
-from paste.script.create_distro import Command
+Usage::
+
+  paster --plugin=ckan create -t ckanext
+
+See:
+
+* http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/advanced_pylons/creating_paste_templates.html
+* http://pythonpaste.org/script/developer.html#templates
+
+"""
 import sys
+
+import jinja2
+from paste.script.templates import Template, var
+from paste.script.create_distro import Command
 
 # Horrible hack to change the behaviour of Paste itself
 # Since this module is only imported when commands are
@@ -13,29 +22,51 @@ import sys
 import re
 Command._bad_chars_re = re.compile('[^a-zA-Z0-9_-]')
 
+
+def jinja2_template_renderer(content_as_string, vars_as_dict, filename=None):
+    return jinja2.Environment().from_string(content_as_string).render(
+        vars_as_dict)
+
+
 class CkanextTemplate(Template):
+    """A Paste template for a skeleton CKAN extension package.
 
     """
-    Template to build a skeleton ckanext.plugins package
-    """
-
     _template_dir = 'template/'
     summary = 'CKAN extension project template'
-    template_renderer = staticmethod(paste_script_template_renderer)
+    use_cheetah = True
+    template_renderer = staticmethod(jinja2_template_renderer)
 
     vars = [
-        var('version', 'Version (like 0.1)'),
-        var('description', 'One-line description of the package'),
-        var('author', 'Author name'),
-        var('author_email', 'Author email'),
-        var('url', 'URL of homepage'),
-        var('license_name', 'License name'),
+        var('description', 'a one-line description of the extension, '
+                           'for example: "A simple blog extension for CKAN"'),
+        var('author', 'for example: "Sean Hammond"'),
+        var('author_email', 'for example: "hello@seanh.cc"'),
+        var('keywords', 'a space-separated list of keywords, for example: '
+                        '"CKAN blog"'),
+        var('github_user_name', 'your GitHub user or organization name, for '
+                                'example: "seanh" or "ckan"'),
     ]
 
     def check_vars(self, vars, cmd):
         vars = Template.check_vars(self, vars, cmd)
+
         if not vars['project'].startswith('ckanext-'):
-            print "\nError: Expected the project name to start with 'ckanext-'"
+            print "\nError: Project name must start with 'ckanext-'"
             sys.exit(1)
-        vars['project'] = vars['project'][len('ckanext-'):]
+
+        # The project name without the ckanext-.
+        vars['project_shortname'] = vars['project'][len('ckanext-'):]
+
+        # Make sure keywords contains "CKAN" (upper-case) once only.
+        keywords = vars['keywords'].strip().split()
+        keywords = [keyword for keyword in keywords
+                    if keyword not in ('ckan', 'CKAN')]
+        keywords.insert(0, 'CKAN')
+        vars['keywords'] = ' '.join(keywords)
+
+        # For an extension named ckanext-example we want a plugin class
+        # named ExamplePlugin.
+        vars['plugin_class_name'] = vars['project_shortname'].title() + 'Plugin'
+
         return vars
