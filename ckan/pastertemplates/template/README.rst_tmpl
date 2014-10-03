@@ -60,7 +60,7 @@ Document any optional config settings here. For example::
 
     # The minimum number of hours to wait before re-checking a resource
     # (optional, default: 24).
-    ckanext.deadoralive.recheck_resources_after = 24
+    ckanext.{{ project_shortname }}.some_setting = some_default_value
 
 
 ------------------------
