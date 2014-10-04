@@ -1,4 +1,5 @@
 #!/bin/sh
+set -eu
 
 # URL for the primary database, in the format expected by sqlalchemy (required
 # unless linked to a container called 'db')
@@ -9,8 +10,6 @@
 : ${SOLR_URL:=}
 # Email to which errors should be sent (optional, default: none)
 : ${ERROR_EMAIL:=}
-
-set -eu
 
 CONFIG="${CKAN_CONFIG}/ckan.ini"
 
@@ -40,29 +39,29 @@ write_config () {
 }
 
 link_postgres_url () {
-  local user=$POSTGRESQL_USER
-  local pass=$POSTGRESQL_PASS
-  local db=$POSTGRESQL_DB
-  local host=$DB_PORT_5432_TCP_ADDR
-  local port=$DB_PORT_5432_TCP_PORT
+  local user=$POSTGRES_ENV_CKAN_USER
+  local pass=$POSTGRES_ENV_CKAN_PASS
+  local db=$POSTGRES_ENV_CKAN_DB
+  local host=$POSTGRES_PORT_5432_TCP_ADDR
+  local port=$POSTGRES_PORT_5432_TCP_PORT
   echo "postgresql://${user}:${pass}@${host}:${port}/${db}"
 }
 
 link_datastore_write_url () {
-  local user=$POSTGRESQL_USER
-  local pass=$POSTGRESQL_PASS
-  local db=$POSTGRESQL_DATASTORE_DB
-  local host=$DB_PORT_5432_TCP_ADDR
-  local port=$DB_PORT_5432_TCP_PORT
+  local user=$POSTGRES_ENV_CKAN_USER
+  local pass=$POSTGRES_ENV_CKAN_PASS
+  local db=$POSTGRES_ENV_DATASTORE_DB
+  local host=$POSTGRES_PORT_5432_TCP_ADDR
+  local port=$POSTGRES_PORT_5432_TCP_PORT
   echo "postgresql://${user}:${pass}@${host}:${port}/${db}"
 }
 
 link_datastore_read_url () {
-  local user=$POSTGRESQL_DATASTORE_USER
-  local pass=$POSTGRESQL_DATASTORE_PASS
-  local db=$POSTGRESQL_DATASTORE_DB
-  local host=$DB_PORT_5432_TCP_ADDR
-  local port=$DB_PORT_5432_TCP_PORT
+  local user=$POSTGRES_ENV_DATASTORE_USER
+  local pass=$POSTGRES_ENV_DATASTORE_PASS
+  local db=$POSTGRES_ENV_DATASTORE_DB
+  local host=$POSTGRES_PORT_5432_TCP_ADDR
+  local port=$POSTGRES_PORT_5432_TCP_PORT
   echo "postgresql://${user}:${pass}@${host}:${port}/${db}"
 }
 
@@ -76,17 +75,17 @@ link_solr_url () {
 if [ ! -e "$CONFIG" ]; then
   if [ -z "$DATABASE_URL" ]; then
     if ! DATABASE_URL=$(link_postgres_url); then
-      abort "no DATABASE_URL specified and linked container called 'db' was not found"
+      abort "no DATABASE_URL specified and linked container called 'postgres' was not found"
     fi
   fi
   if [ -z "$DATASTORE_WRITE_URL" ]; then
     if ! DATASTORE_WRITE_URL=$(link_datastore_write_url); then
-      abort "no DATASTORE_WRITE_URL specified and linked container called 'db' was not found"
+      abort "no DATASTORE_WRITE_URL specified and linked container called 'postgres' was not found"
     fi
   fi
   if [ -z "$DATASTORE_READ_URL" ]; then
     if ! DATASTORE_READ_URL=$(link_datastore_read_url); then
-      abort "no DATASTORE_READ_URL specified and linked container called 'db' was not found"
+      abort "no DATASTORE_READ_URL specified and linked container called 'postgres' was not found"
     fi
   fi
   if [ -z "$SOLR_URL" ]; then

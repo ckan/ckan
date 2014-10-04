@@ -4,24 +4,18 @@ MAINTAINER Open Knowledge
 # Disable SSH
 RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh
 
+# set UTF-8 locale
+RUN locale-gen en_US.UTF-8 && \
+    echo 'LANG="en_US.UTF-8"' > /etc/default/locale
+
 ENV HOME /root
 ENV CKAN_HOME /usr/lib/ckan/default
 ENV CKAN_CONFIG /etc/ckan/default
 ENV CKAN_DATA /var/lib/ckan
 ENV CKAN_DATAPUSHER_HOME /usr/lib/ckan/datapusher
 
-# Customize postgres user/pass/db
-ENV POSTGRESQL_USER ckan
-ENV POSTGRESQL_PASS ckan
-ENV POSTGRESQL_DB ckan
-
-# Customize datastore user/pass/db
-ENV POSTGRESQL_DATASTORE_USER datastore
-ENV POSTGRESQL_DATASTORE_PASS datastore
-ENV POSTGRESQL_DATASTORE_DB datastore
-
 # Install required packages
-RUN apt-get update -qq && \
+RUN apt-get -qq update && \
     DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
         python-minimal \
         python-dev \
@@ -34,7 +28,6 @@ RUN apt-get update -qq && \
         postfix \
         build-essential \
         git \
-        postgresql-client \
         libxml2-dev \
         libxslt1-dev \
         libgeos-c1
