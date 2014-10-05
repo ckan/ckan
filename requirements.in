@@ -20,6 +20,9 @@ repoze.who-friendlyform==1.0.8
 repoze.who.plugins.openid==0.5.3
 repoze.who==1.0.19
 requests==2.3.0
+ndg-httpsclient==0.3.2 # needed for requests lib to work with SNI (https://en.wikipedia.org/wiki/Server_Name_Indication)
+pyasn1==0.1.7 # needed for requests lib to work with SNI
+pyOpenSSL==0.14 # needed for requests lib to work with SNI
 Routes==1.13
 solrpy==0.9.5
 sqlalchemy-migrate==0.7.2
@@ -30,3 +33,4 @@ WebHelpers==1.3
 WebOb==1.0.8
 zope.interface==4.0.1
 unicodecsv>=0.9
+pip>=1.5.6
