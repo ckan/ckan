@@ -7,8 +7,8 @@ Installing CKAN using a Docker image
    The released version of Docker is 1.2 as at this writing, this is compatible with `boot2docker`_
    
 .. important:: 
-   The CKAN container supports and enables the datastore & datapusher by default
-   The Postgres container supports and configures PostGIS on the ckan database 
+   The CKAN container supports and enables the datastore & datapusher by default.
+   The Postgres container supports and configures PostGIS on the ckan database
    but the spatial extention is not enabled by default
 
 .. note::
@@ -189,3 +189,37 @@ You can customise & build this image::
 
 You would then reference your built image instead of ``ckan/ckan`` when calling
 the ``docker run`` commands listed above.
+
+----------------------------
+Testing the Custom Docker image
+----------------------------
+The example in ``contrib/docker/custom`` enables the following extensions::
+
+    datastore datapusher archiver harvest ckan_harvester dcat_xml_harvester dcat_json_harvester dcat_json_interface spatial_harvest_metadata_api csw_harvester waf_harvester doc_harvester spatial_metadata spatial_query wms_preview geojson_preview cswserver viewhelpers dashboard_preview basicgrid linechart barchart piechart navigablemap choroplethmap resource_proxy stats search_history
+
+This can be changed like any other options in the ``custom_options.ini`` file that is used to configure CKAN at runtime.
+This is only done the first time you build the container.
+Because it enables ``ckanex-harvest`` extensions, a Redis container is needed.
+
+Build it::
+
+    docker build --tag="clementmouchet/ckan_custom" .
+
+run the containers::
+
+    $ docker run -d --name postgres -h postgres.docker.local ckan/postgres
+    $ docker run -d --name solr -h solr.docker.local ckan/solr
+    $ docker run -d --name redis -h redis.docker.local redis
+
+Run your custom build::
+
+    $ docker run \
+         -d \
+         --name ckan \
+         -h ckan.docker.local \
+         -p 80:80 \
+         -p 8800:8800 \
+         --link postgres:postgres \
+         --link solr:solr \
+         --link redis:redis \
+         clementmouchet/ckan_custom
