@@ -11,7 +11,7 @@ set -eu
 # Email to which errors should be sent (optional, default: none)
 : ${ERROR_EMAIL:=}
 
-CONFIG="${CKAN_CONFIG}/ckan.ini"
+CONFIG="${CKAN_CONFIG}/${CONFIG_FILE}"
 
 abort () {
   echo "$@" >&2

@@ -11,6 +11,7 @@ RUN locale-gen en_US.UTF-8 && \
 ENV HOME /root
 ENV CKAN_HOME /usr/lib/ckan/default
 ENV CKAN_CONFIG /etc/ckan/default
+ENV CONFIG_FILE ckan.ini
 ENV CKAN_DATA /var/lib/ckan
 ENV CKAN_DATAPUSHER_HOME /usr/lib/ckan/datapusher
 
@@ -45,17 +46,24 @@ RUN ln -s $CKAN_HOME/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini
 
 # Install CKAN Plugins that have no dependencies
 # pages
-RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-pages.git#egg=ckanext-pages
+RUN $CKAN_HOME/bin/pip install \
+      -e git+https://github.com/ckan/ckanext-pages.git#egg=ckanext-pages
 # viewhelpers
-RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-viewhelpers.git#egg=ckanext-viewhelpers
-RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-basiccharts.git#egg=ckanext-basiccharts
-RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-dashboard.git#egg=ckanext-dashboard
-RUN $CKAN_HOME/bin/pip install -e git+https://github.com/ckan/ckanext-mapviews.git#egg=ckanext-mapviews
+RUN $CKAN_HOME/bin/pip install \
+      -e git+https://github.com/ckan/ckanext-viewhelpers.git#egg=ckanext-viewhelpers
+RUN $CKAN_HOME/bin/pip install \
+      -e git+https://github.com/ckan/ckanext-basiccharts.git#egg=ckanext-basiccharts
+RUN $CKAN_HOME/bin/pip install \
+      -e git+https://github.com/ckan/ckanext-dashboard.git#egg=ckanext-dashboard
+RUN $CKAN_HOME/bin/pip install \
+      -e git+https://github.com/ckan/ckanext-mapviews.git#egg=ckanext-mapviews
 
 # Install CKAN Datapusher
 RUN virtualenv $CKAN_DATAPUSHER_HOME
-RUN $CKAN_DATAPUSHER_HOME/bin/pip install -e git+https://github.com/ckan/datapusher.git#egg=datapusher
-RUN $CKAN_DATAPUSHER_HOME/bin/pip install -r $CKAN_DATAPUSHER_HOME/src/datapusher/requirements.txt
+RUN $CKAN_DATAPUSHER_HOME/bin/pip install \
+      -e git+https://github.com/ckan/datapusher.git#egg=datapusher
+RUN $CKAN_DATAPUSHER_HOME/bin/pip install \
+      -r $CKAN_DATAPUSHER_HOME/src/datapusher/requirements.txt
 
 # Configure apache
 RUN a2dissite 000-default
