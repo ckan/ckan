@@ -31,7 +31,8 @@ RUN apt-get -qq update && \
         git \
         libxml2-dev \
         libxslt1-dev \
-        libgeos-c1
+        libgeos-c1 \
+        supervisor
 
 # Install CKAN
 RUN virtualenv $CKAN_HOME
@@ -58,11 +59,45 @@ RUN $CKAN_HOME/bin/pip install \
 RUN $CKAN_HOME/bin/pip install \
       -e git+https://github.com/ckan/ckanext-mapviews.git#egg=ckanext-mapviews
 
+# archiver
+RUN . $CKAN_HOME && \
+    $CKAN_HOME/bin/pip install \
+      -e git+http://github.com/ckan/ckanext-archiver.git#egg=ckanext-archiver && \
+    $CKAN_HOME/bin/pip install \
+      -r $CKAN_HOME/src/ckanext-archiver/pip-requirements.txt
+
+## spatial
+RUN . $CKAN_HOME && \
+    $CKAN_HOME/bin/pip install \
+      -e git+https://github.com/ckan/ckanext-spatial.git#egg=ckanext-spatial && \
+    $CKAN_HOME/bin/pip install \
+      -r $CKAN_HOME/src/ckanext-spatial/pip-requirements.txt
+
+## harvest
+RUN . $CKAN_HOME && \
+    $CKAN_HOME/bin/pip install \
+      -e git+https://github.com/ckan/ckanext-harvest.git#egg=ckanext-harvest && \
+    $CKAN_HOME/bin/pip install \
+      -r $CKAN_HOME/src/ckanext-harvest/pip-requirements.txt
+
+## searchhistory
+RUN . $CKAN_HOME && \
+    $CKAN_HOME/bin/pip install \
+      -e git+https://github.com/ckan/ckanext-searchhistory.git#egg=ckanext-searchhistory
+
+## dcat
+RUN . $CKAN_HOME && \
+    $CKAN_HOME/bin/pip install \
+      -e git+https://github.com/ckan/ckanext-dcat.git#egg=ckanext-dcat
+
+# create log files directories
+RUN mkdir /var/log/ckan
+
 # Install CKAN Datapusher
 RUN virtualenv $CKAN_DATAPUSHER_HOME
 RUN $CKAN_DATAPUSHER_HOME/bin/pip install \
-      -e git+https://github.com/ckan/datapusher.git#egg=datapusher
-RUN $CKAN_DATAPUSHER_HOME/bin/pip install \
+      -e git+https://github.com/ckan/datapusher.git#egg=datapusher && \
+    $CKAN_DATAPUSHER_HOME/bin/pip install \
       -r $CKAN_DATAPUSHER_HOME/src/datapusher/requirements.txt
 
 # Configure apache

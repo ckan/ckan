@@ -1,0 +1,32 @@
+#!/bin/sh
+set -eu
+
+CONFIG="${CKAN_CONFIG}/${CONFIG_FILE}"
+
+# do we have a bash script to run to configure extensions
+if [ -e "$CKAN_HOME/src/install_extensions.sh" ]; then
+  echo "Install custom extensions"
+
+  # install the extensions
+  .$CKAN_HOME/src/install_extensions.sh
+  rm $CKAN_HOME/src/install_extensions.sh
+else
+  echo "Custom extensions have been installed already"
+fi
+
+# do we have config options to apply
+if [ -e "$CKAN_CONFIG/$CONFIG_OPTIONS" ]; then
+  echo "Configuring custom options from $CONFIG_OPTIONS"
+
+  # use the config-tool to set existing options based on the custom config file
+  "$CKAN_HOME"/bin/paster --plugin=ckan config-tool "$CONFIG" -f "$CKAN_CONFIG/$CONFIG_OPTIONS"
+  # if you need to specify any dynamic IP addresses do it now
+  "$CKAN_HOME"/bin/paster --plugin=ckan config-tool "$CONFIG" -e \
+      "ckan.harvest.mq.hostname = $REDIS_PORT_6379_TCP_ADDR" \
+      "ckan.harvest.mq.port = $REDIS_PORT_6379_TCP_PORT"
+
+  # done, remove the options file
+  rm "$CKAN_CONFIG/$CONFIG_OPTIONS"
+else
+  echo "Custom options from $CONFIG_OPTIONS have been configured already"
+fi

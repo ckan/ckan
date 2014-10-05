@@ -2,6 +2,8 @@
 exec 2>&1
 
 set -e
+service supervisor start
+sleep 10
 
 . /etc/apache2/envvars
 exec /usr/sbin/apache2 -D FOREGROUND
