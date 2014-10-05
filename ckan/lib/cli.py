@@ -849,6 +849,9 @@ class UserCmd(CkanCommand):
         if 'password' not in data_dict:
             data_dict['password'] = self.password_prompt()
 
+        if 'fullname' in data_dict:
+            data_dict['fullname'] = data_dict['fullname'].decode(sys.getfilesystemencoding())
+
         print('Creating user: %r' % username)
 
         try:
