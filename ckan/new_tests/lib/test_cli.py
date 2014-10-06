@@ -24,7 +24,8 @@ class TestUserAdd(object):
     def test_cli_user_add_valid_args(self):
         '''Command shouldn't raise SystemExit when valid args are provided.'''
         self.user_cmd.args = ['add', 'berty', 'password=password123',
-                              'fullname=Berty Guffball', 'email=berty@example.com']
+                              'fullname=Berty Guffball',
+                              'email=berty@example.com']
         try:
             self.user_cmd.add()
         except SystemExit:
@@ -33,8 +34,7 @@ class TestUserAdd(object):
     def test_cli_user_add_no_args(self):
         '''Command with no args raises SystemExit.'''
         self.user_cmd.args = ['add', ]
-        with assert_raises(SystemExit):
-            self.user_cmd.add()
+        assert_raises(SystemExit, self.user_cmd.add)
 
     def test_cli_user_add_no_fullname(self):
         '''Command shouldn't raise SystemExit when fullname arg not present.'''
@@ -51,7 +51,8 @@ class TestUserAdd(object):
         characters outside of the ascii characterset.
         '''
         self.user_cmd.args = ['add', 'berty', 'password=password123',
-                              'fullname=Harold Müffintøp', 'email=berty@example.com']
+                              'fullname=Harold Müffintøp',
+                              'email=berty@example.com']
         try:
             self.user_cmd.add()
         except UnicodeDecodeError:
@@ -63,7 +64,8 @@ class TestUserAdd(object):
         characters outside of the ascii characterset.
         '''
         self.user_cmd.args = ['add', 'berty', 'password=password123',
-                              'fullname=Harold Müffintøp', 'email=berty@example.com']
+                              'fullname=Harold Müffintøp',
+                              'email=berty@example.com']
         try:
             self.user_cmd.add()
         except SystemExit:
