@@ -3,9 +3,9 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# amercader <amercadero@gmail.com>, 2012
+# Adrià Mercader <adria.mercader@okfn.org>, 2012
 # Carlos Brys <brys@misiones.gov.ar>, 2013
-# edobejar <wonka@fundapi.org>, 2013
+# Eduardo Bejar <wonka@fundapi.org>, 2013
 # Félix Pedrera <felix.pedrera@gmail.com>, 2012
 # ilabastida <ilabastida@ub.edu>, 2011-2012
 # <internet@davidread.org>, 2011
@@ -13,12 +13,12 @@
 # Jesús García <>, 2012
 # jgcasta <jgcasta@gmail.com>, 2012
 # jgcasta <jgcasta@gmail.com>, 2013
-# Open Knowledge Foundation <sysadmin@okfn.org>, 2011
+# Open Knowledge Foundation <translations@okfn.org>, 2011
 # Sean Hammond <sean.hammond@okfn.org>, 2012-2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
 "PO-Revision-Date: 2013-04-24 09:21+0000\n"
 "Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"

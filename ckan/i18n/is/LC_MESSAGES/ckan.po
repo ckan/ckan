@@ -3,21 +3,21 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# baldur.helgason <baldur.helgason@gmail.com>, 2013
+# Baldur Már Helgason <baldur.helgason@gmail.com>, 2013
 # Bjarki Sigursveinsson <bjarki@gmail.com>, 2013
-# Gommit <gommit@gmail.com>, 2013
-# hjortur <hjortur@gmail.com>, 2013
-# hjortur <hjortur@gmail.com>, 2012
-# jakobjs <jakobjs@gmail.com>, 2013
-# jakobjs <jakobjs@gmail.com>, 2013
+# Finnur Magnusson <gommit@gmail.com>, 2013
+# Hjörtur Einarsson <hjortur@gmail.com>, 2013
+# Hjörtur Einarsson <hjortur@gmail.com>, 2012
+# Jakob <jakobjs@gmail.com>, 2013
+# Jakob <jakobjs@gmail.com>, 2013
 # Páll Hilmarsson <pallih@kaninka.net>, 2012
 # Sean Hammond <sean.hammond@okfn.org>, 2013
-# fjalars <fjalars@gmail.com>, 2013
-# Sthf <stefan.thor.finnsson@reykjavik.is>, 2013
+# Sigurður Fjalar Sigurðarson <fjalars@gmail.com>, 2013
+# Stefan Thor <stefan.thor.finnsson@reykjavik.is>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
 "PO-Revision-Date: 2013-04-24 09:05+0000\n"
 "Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"

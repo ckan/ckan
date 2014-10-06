@@ -8,7 +8,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
 "PO-Revision-Date: 2013-04-19 22:00+0000\n"
 "Last-Translator: Gromislav <igromislav@gmail.com>\n"

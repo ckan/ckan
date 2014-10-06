@@ -3,16 +3,16 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# amercader <amercadero@gmail.com>, 2011
-# amercader <amercadero@gmail.com>, 2011-2012
-# amercader <amercadero@gmail.com>, 2013
+# Adrià Mercader <adria.mercader@okfn.org>, 2011
+# Adrià Mercader <adria.mercader@okfn.org>, 2011-2012
+# Adrià Mercader <adria.mercader@okfn.org>, 2013
 # ilabastida <ilabastida@ub.edu>, 2011
 # ilabastida <ilabastida@ub.edu>, 2011-2012
 # Sean Hammond <sean.hammond@okfn.org>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
 "PO-Revision-Date: 2013-04-24 08:44+0000\n"
 "Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"

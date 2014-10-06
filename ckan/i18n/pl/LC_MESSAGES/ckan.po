@@ -3,16 +3,17 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Adrian Budasz <adrianbudasz@gmail.com>, 2014
 # apohllo <apohllo@o2.pl>, 2011-2012
-# Open Knowledge Foundation <sysadmin@okfn.org>, 2011
+# Open Knowledge Foundation <translations@okfn.org>, 2011
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-03-11 14:02+0000\n"
-"Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"
+"PO-Revision-Date: 2014-09-27 06:35+0000\n"
+"Last-Translator: Adrian Budasz <adrianbudasz@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/projects/p/ckan/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -35,11 +36,11 @@ msgstr ""
 #: ckan/new_authz.py:86
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:27
 msgid "Editor"
-msgstr ""
+msgstr "Edytor"
 
 #: ckan/new_authz.py:89
 msgid "Member"
-msgstr ""
+msgstr "Członek"
 
 #: ckan/controllers/admin.py:24
 msgid "Need to be system administrator to administer"
@@ -47,11 +48,11 @@ msgstr "Aby zarządzać trzeba mieć uprawnienia administratora"
 
 #: ckan/controllers/admin.py:35
 msgid "Site Title"
-msgstr ""
+msgstr "Tytuł strony"
 
 #: ckan/controllers/admin.py:36
 msgid "Style"
-msgstr ""
+msgstr "Styl"
 
 #: ckan/controllers/admin.py:37
 msgid "Site Tag Line"
@@ -79,7 +80,7 @@ msgstr "O serwisie"
 
 #: ckan/controllers/admin.py:39
 msgid "About page text"
-msgstr ""
+msgstr "Tekst na stronie \"O nas\""
 
 #: ckan/controllers/admin.py:40
 msgid "Intro Text"
@@ -87,11 +88,11 @@ msgstr ""
 
 #: ckan/controllers/admin.py:40
 msgid "Text on home page"
-msgstr ""
+msgstr "Tekst na stronie głównej"
 
 #: ckan/controllers/admin.py:41
 msgid "Custom CSS"
-msgstr ""
+msgstr "Własny CSS"
 
 #: ckan/controllers/admin.py:41
 msgid "Customisable css inserted into the page header"
@@ -257,7 +258,7 @@ msgstr "Grupa nie została znaleziona"
 #: ckan/controllers/feed.py:286 ckan/controllers/feed.py:288
 #: ckan/controllers/feed.py:440 ckan/controllers/feed.py:442
 msgid "\"page\" parameter must be a positive integer"
-msgstr ""
+msgstr "Parametr \"strona\" musi być dodatnią liczbą całkowitą"
 
 #: ckan/controllers/group.py:171 ckan/controllers/group.py:368
 #: ckan/controllers/group.py:409 ckan/controllers/group.py:442
@@ -305,7 +306,7 @@ msgstr "Tagi"
 #: ckan/controllers/group.py:254 ckan/controllers/home.py:68
 #: ckan/controllers/package.py:240 ckan/lib/helpers.py:529
 msgid "Formats"
-msgstr ""
+msgstr "Formaty"
 
 #: ckan/controllers/group.py:255 ckan/controllers/home.py:69
 #: ckan/controllers/package.py:241 ckan/lib/helpers.py:530
@@ -332,20 +333,20 @@ msgstr "Użytkownik %r nie posiada autoryzacji by edytować autoryzacje %s"
 #: ckan/controllers/group.py:512 ckan/controllers/group.py:566
 #, python-format
 msgid "Unauthorized to delete group %s"
-msgstr ""
+msgstr "Brak autoryzacji by usunąć grupę %s"
 
 #: ckan/controllers/group.py:492
 msgid "Organization has been deleted."
-msgstr ""
+msgstr "Organizacja została usunięta."
 
 #: ckan/controllers/group.py:494
 msgid "Group has been deleted."
-msgstr ""
+msgstr "Grupa została usunięta"
 
 #: ckan/controllers/group.py:539
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr ""
+msgstr "Brak autoryzacji by dodać członka do grupy %s"
 
 #: ckan/controllers/group.py:554
 #, python-format

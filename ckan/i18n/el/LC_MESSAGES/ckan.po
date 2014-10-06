@@ -3,27 +3,27 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# drew <systemdrew@gmail.com>, 2013
+# Andreas Ganimas <systemdrew@gmail.com>, 2013
 # dimispan <dimi.span@gmail.com>, 2012
 # Giorgos Karamanolis <>, 2012
 # Lia Vrikou <>, 2012
 # Marios Bekatoros <>, 2013
-# mtsapanos <mtsapano@auth.gr>, 2012
+# Micahel Tsapanos <mtsapano@auth.gr>, 2012
 # Nikos Roussos <nikos@roussos.cc>, 2012
-# ophelia <ophelia@ucnet.uoc.gr>, 2012
+# Οφηλία Νεοφύτου <ophelia@ucnet.uoc.gr>, 2012
 # Sean Hammond <sean.hammond@okfn.org>, 2012-2013
 # Sofia Karampataki <>, 2012
 # Spiros Alexiou <spiros.alexiou@gmail.com>, 2012
-# themiszamani <themiszamani@gmail.com>, 2013
+# Themis Zamani <themiszamani@gmail.com>, 2013
 # thodoris <>, 2013
 # trap_cat <trap_cat@hotmail.com>, 2012
-# czeginis <zegchris@csd.uoc.gr>, 2012
+# CHRYSOSTOMOS ZEGKINIS <zegchris@csd.uoc.gr>, 2012
 # Γιάννης Κασκαμανίδης <kiolalis@gmail.com>, 2013
-# leoart_ <leonidas7812@gmail.com>, 2013
+# λεωνίδας ζώης <leonidas7812@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
 "PO-Revision-Date: 2013-04-24 08:48+0000\n"
 "Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"

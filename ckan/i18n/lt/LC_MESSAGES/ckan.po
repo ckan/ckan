@@ -5,13 +5,13 @@
 # Translators:
 # Albertas <albertasgim@gmail.com>, 2013
 # Sean Hammond <sean.hammond@okfn.org>, 2012
-# zezere <zezere@gmail.com>, 2013
+# Viktorija Trubaciute <zezere@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-04-24 09:25+0000\n"
+"PO-Revision-Date: 2013-04-24 09:29+0000\n"
 "Last-Translator: Albertas <albertasgim@gmail.com>\n"
 "Language-Team: Lithuanian (http://www.transifex.com/projects/p/ckan/language/lt/)\n"
 "MIME-Version: 1.0\n"
@@ -3277,11 +3277,11 @@ msgstr "Sekantis: papildoma informacija"
 
 #: ckan/templates/package/snippets/resource_item.html:13
 msgid "No description for this resource"
-msgstr ""
+msgstr "Šiam ištekliui aprašymo nėra"
 
 #: ckan/templates/package/snippets/resource_item.html:20
 msgid "Explore"
-msgstr ""
+msgstr "Naršyti"
 
 #: ckan/templates/package/snippets/resource_item.html:28
 #: ckan/templates/snippets/datapreview_embed_dialog.html:16
@@ -3296,39 +3296,39 @@ msgstr "Peržiūrėti"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
-msgstr ""
+msgstr "Duomenys ir ištekliai"
 
 #: ckan/templates/package/snippets/resources_list.html:23
 #, python-format
 msgid ""
 " <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
 "add some?</a> "
-msgstr ""
+msgstr "<p class=\"empty\">Ši rinkmena neturi duomenų, <a href=\"%(url)s\">kodėl jų nepridėjus?</a>"
 
 #: ckan/templates/package/snippets/search_form.html:39
 msgid ""
 " <strong>There was an error while searching.</strong> Please try again. "
-msgstr ""
+msgstr "<strong>Atliekant paiešką įvyko klaida.</strong> Prašome bandyti dar kartą."
 
 #: ckan/templates/package/snippets/stages.html:32
 #: ckan/templates/package/snippets/stages.html:36
 #: ckan/templates/package/snippets/stages.html:38
 msgid "Add data"
-msgstr ""
+msgstr "Pridėti duomenų"
 
 #: ckan/templates/package/snippets/stages.html:44
 #: ckan/templates/package/snippets/stages.html:48
 #: ckan/templates/package/snippets/stages.html:50
 msgid "Additional data"
-msgstr ""
+msgstr "Paildomi duomenys"
 
 #: ckan/templates/related/base_form_page.html:12
 msgid "Related Form"
-msgstr ""
+msgstr "Susijusi forma"
 
 #: ckan/templates/related/base_form_page.html:20
 msgid "What are related items?"
-msgstr ""
+msgstr "Kas yra susiję įrašai?"
 
 #: ckan/templates/related/base_form_page.html:22
 msgid ""

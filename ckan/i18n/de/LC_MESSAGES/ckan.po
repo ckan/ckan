@@ -3,12 +3,13 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# alexanderbrateanu <alexander.brateanu@gmail.com>, 2013
+# Alexander Brateanu <alexander.brateanu@gmail.com>, 2013
 # ddie <ddie@me.com>, 2011
-# domoritz <domoritz@gmail.com>, 2013
+# Dominik Moritz <domoritz@gmail.com>, 2013
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2011
 # pudo <friedrich@pudo.org>, 2011
 # jbspeakr <jan.brennenstuhl@okfn.org>, 2013
+# Ondics Githubler, 2013
 # PhilFOKUS <philipp.laemmel@fokus.fraunhofer.de>, 2011
 # relet <thomas.hirsch@gmail.com>, 2012
 # Sean Hammond <sean.hammond@okfn.org>, 2012
@@ -16,10 +17,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-04-19 12:42+0000\n"
-"Last-Translator: stefanw <stefanwehrmeyer@gmail.com>\n"
+"PO-Revision-Date: 2013-05-29 16:03+0000\n"
+"Last-Translator: Dominik Moritz <domoritz@gmail.com>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/ckan/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1202,7 +1203,7 @@ msgstr "Datumsformat ungültig."
 #: ckan/logic/validators.py:181 ckan/templates/package/read_base.html:44
 #: ckan/templates/snippets/related.html:2
 msgid "Related"
-msgstr "Ähnliche"
+msgstr "Verwandt"
 
 #: ckan/logic/validators.py:191
 msgid "That group name or ID does not exist."
@@ -1493,11 +1494,11 @@ msgstr "Benutzer %s hat keine Berechtigung diese Gruppen zu bearbeiten"
 
 #: ckan/logic/auth/create.py:43
 msgid "You must be a sysadmin to create a featured related item"
-msgstr "Du musst System-Administrator sein, um ein zugehöriges Element hinzuzufügen"
+msgstr "Du musst System-Administrator sein, um ein verwandtes Element hinzuzufügen"
 
 #: ckan/logic/auth/create.py:47
 msgid "You must be logged in to add a related item"
-msgstr "Du musst eingeloggt sein, um ein zugehöriges Element hinzuzufügen"
+msgstr "Du musst eingeloggt sein, um ein verwandtes Element hinzuzufügen"
 
 #: ckan/logic/auth/create.py:71
 #, python-format
@@ -1553,7 +1554,7 @@ msgstr "Benutzer %s ist nicht berechtigt, Ressource %s zu löschen"
 
 #: ckan/logic/auth/delete.py:44 ckan/logic/auth/delete.py:58
 msgid "Only the owner can delete a related item"
-msgstr "Nur der Eigentümer darf ein zugehöriges Element löschen"
+msgstr "Nur der Eigentümer darf ein verwandtes Element löschen"
 
 #: ckan/logic/auth/delete.py:70
 #, python-format
@@ -1636,11 +1637,11 @@ msgstr "Benutzer %s hat keine Berechtigung, um die Organisation %s zu bearbeiten
 
 #: ckan/logic/auth/update.py:97 ckan/logic/auth/update.py:102
 msgid "Only the owner can update a related item"
-msgstr "Nur der Eigentümer kann ein zugehöriges Element aktualisieren"
+msgstr "Nur der Eigentümer kann ein verwandtes Element aktualisieren"
 
 #: ckan/logic/auth/update.py:107
 msgid "You must be a sysadmin to change a related item's featured field."
-msgstr "Du musst System-Administrator sein, um das hervorgehobene Feld eines zugehörigen Elements zu ändern."
+msgstr "Du musst System-Administrator sein, um das hervorgehobene Feld eines verwandten Elements zu ändern."
 
 #: ckan/logic/auth/update.py:120
 #, python-format
@@ -1794,7 +1795,7 @@ msgstr "hat einen Zwilling %s"
 #: ckanext/jsonpreview/theme/templates/json.html:7
 #: ckanext/reclinepreview/theme/templates/recline.html:7
 msgid "Loading..."
-msgstr "Läd..."
+msgstr "Lädt..."
 
 #: ckan/public/base/javascript/modules/api-info.js:20
 #: ckan/public/base/javascript/modules/api-info.min.js:1
@@ -2190,35 +2191,35 @@ msgstr "Medium"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium Width Input"
-msgstr ""
+msgstr "Eingabe mittlere Breite"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full"
-msgstr ""
+msgstr "Ganz"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full Width Input"
-msgstr ""
+msgstr "Eingabe ganze Breite"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large"
-msgstr ""
+msgstr "Umfangreich"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large Input"
-msgstr ""
+msgstr "Umfangreiche Eingabe"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend"
-msgstr ""
+msgstr "vorne anfügen"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend Input"
-msgstr ""
+msgstr "Eingabe vorne anfügen"
 
 #: ckan/templates/development/snippets/form.html:13
 msgid "Custom Field (empty)"
-msgstr ""
+msgstr "Benutzerdefiniertes Feld (leer)"
 
 #: ckan/templates/development/snippets/form.html:19
 #: ckan/templates/group/snippets/group_form.html:32
@@ -2228,19 +2229,19 @@ msgstr ""
 #: ckan/templates/snippets/custom_form_fields.html:20
 #: ckan/templates/snippets/custom_form_fields.html:37
 msgid "Custom Field"
-msgstr ""
+msgstr "Benutzerdefiniertes Feld"
 
 #: ckan/templates/development/snippets/form.html:22
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown Auszeichnungen"
 
 #: ckan/templates/development/snippets/form.html:23
 msgid "Textarea"
-msgstr ""
+msgstr "Textbereich"
 
 #: ckan/templates/development/snippets/form.html:24
 msgid "Select"
-msgstr ""
+msgstr "Auswahl"
 
 #: ckan/templates/group/about.html:11 ckan/templates/group/read_base.html:50
 #: ckan/templates/snippets/group.html:24
@@ -2611,7 +2612,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
+msgstr " <p>CKAN ist die weltweit führende Open Souce Data Portalsoftware.</p> <p>CKAN ist eine vollständige und schlüsselfertige Software, die Daten verfügbar, zugreifbar und benutzbar macht. Sie bietet Hilfsmittel, um Daten zu veröffentlichen, teilen, finden und zu benutzen (einschließlich der Datenspeicherung und robuster Datenschnittstellen/APIs). CKAN wurde entwickelt für Datenherausgeber, die ihre Daten öffentlich verfügbar machen wollen, zum Beispiel Regierungen, Behörden, Unternehmen und Organisationen.</p> <p>CKAN wird weltweit von öffentlicher Seite und Benutzergruppen eingesetzt und ist Grundlage einer Vielzahl von offiziellen und Community-Portale sowie Portale für Kommunen, Länder und Internationale Behörden, darunter das Datenportal für Deutschland <a href=\"https://govdata.de/\">govdata.de</a>, das englische Portal <a href=\"http://data.gov.uk\">data.gov.uk</a>, das Portal der Europäische Union <a href=\"http://publicdata.eu/\">publicdata.eu</a>, das brasilianische Portal <a href=\"http://dados.gov.br/\">dados.gov.br</a>, sowie kommunale und Städteportale in allen Teilen der Welt.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Kennenlern-Tour: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Leistungsüberblick: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/macros/form.html:120
 msgid ""
@@ -2861,15 +2862,15 @@ msgstr "Dies ist die aktuelle Version dieses Datensatzes vom %(timestamp)s."
 
 #: ckan/templates/package/related_list.html:7
 msgid "Related Media for {dataset}"
-msgstr "Zugehörige Inhalte zu {dataset}"
+msgstr "Verwandte Inhalte zu {dataset}"
 
 #: ckan/templates/package/related_list.html:11
 msgid "No related items"
-msgstr "Keine zugehörigen Elemente"
+msgstr "Keine verwandten Elemente"
 
 #: ckan/templates/package/related_list.html:14
 msgid "Add Related Item"
-msgstr "Füge zugehöriges Element hinzu"
+msgstr "Füge verwandtes Element hinzu"
 
 #: ckan/templates/package/resource_edit.html:16
 msgid "View resource"
@@ -3323,11 +3324,11 @@ msgstr "Zusätzliche Daten"
 
 #: ckan/templates/related/base_form_page.html:12
 msgid "Related Form"
-msgstr "Zugehörige Form"
+msgstr "Verwandtes Form"
 
 #: ckan/templates/related/base_form_page.html:20
 msgid "What are related items?"
-msgstr "Was sind zugehörige Elemente?"
+msgstr "Was sind verwandte Elemente?"
 
 #: ckan/templates/related/base_form_page.html:22
 msgid ""
@@ -3339,7 +3340,7 @@ msgstr " <p>Related Media is any app, article, visualisation or idea related to 
 
 #: ckan/templates/related/confirm_delete.html:10
 msgid "Are you sure you want to delete related item - {name}?"
-msgstr "Bist du sicher, dass du das zugehörige Element {name} löschen willst?"
+msgstr "Bist du sicher, dass du das verwandte Element {name} löschen willst?"
 
 #: ckan/templates/related/dashboard.html:6
 #: ckan/templates/related/dashboard.html:9
@@ -3354,12 +3355,12 @@ msgstr "Apps & Ideen"
 msgid ""
 " <p>Showing items <strong>%(first)s - %(last)s</strong> of "
 "<strong>%(item_count)s</strong> related items found</p> "
-msgstr " <p><strong>%(first)s - %(last)s</strong> von <strong>%(item_count)s</strong> gefundenen zugehörigen Elementen werden angezeigt</p> "
+msgstr " <p><strong>%(first)s - %(last)s</strong> von <strong>%(item_count)s</strong> gefundenen verwandten Elementen werden angezeigt</p> "
 
 #: ckan/templates/related/dashboard.html:22
 #, python-format
 msgid " <p><strong>%(item_count)s</strong> related items found</p> "
-msgstr " <p><strong>%(item_count)s</strong> zugehörige Elemente gefunden</p> "
+msgstr " <p><strong>%(item_count)s</strong> verwandte Elemente gefunden</p> "
 
 #: ckan/templates/related/dashboard.html:26
 msgid "There have been no apps submitted yet."
@@ -3411,15 +3412,15 @@ msgstr "Anwenden"
 
 #: ckan/templates/related/edit.html:3
 msgid "Edit related item"
-msgstr "Zugehöriges Element bearbeiten"
+msgstr "Verwandtes Element bearbeiten"
 
 #: ckan/templates/related/edit.html:6
 msgid "Edit Related"
-msgstr "Bearbeite zugehöriges Element"
+msgstr "Bearbeite verwandtes Element"
 
 #: ckan/templates/related/edit.html:8
 msgid "Edit Related Item"
-msgstr "Bearbeite zugehöriges Element"
+msgstr "Bearbeite verwandtes Element"
 
 #: ckan/templates/related/edit_form.html:7
 msgid "Create"
@@ -3427,19 +3428,19 @@ msgstr "Erstellen"
 
 #: ckan/templates/related/new.html:3
 msgid "Create a related item"
-msgstr "Erstelle ein zugehöriges Element"
+msgstr "Erstelle ein verwandtes Element"
 
 #: ckan/templates/related/new.html:5
 msgid "Create Related"
-msgstr "Erstelle zugehöriges Element"
+msgstr "Erstelle verwandtes Element"
 
 #: ckan/templates/related/new.html:7
 msgid "Create Related Item"
-msgstr "Erstelle zugehöriges Element"
+msgstr "Erstelle verwandtes Element"
 
 #: ckan/templates/related/snippets/related_form.html:18
 msgid "My Related Item"
-msgstr "Mein zugehöriges Element"
+msgstr "Mein verwandtes Element"
 
 #: ckan/templates/related/snippets/related_form.html:19
 msgid "http://example.com/"
@@ -3459,7 +3460,7 @@ msgstr "Typ"
 
 #: ckan/templates/related/snippets/related_form.html:28
 msgid "Are you sure you want to delete this related item?"
-msgstr "Bist du sicher, dass du dieses zugehörige Element löschen willst?"
+msgstr "Bist du sicher, dass du dieses verwandte Element löschen willst?"
 
 #: ckan/templates/related/snippets/related_item.html:38
 msgid "This item has no description"
@@ -4805,11 +4806,11 @@ msgstr "Ressourcen bearbeiten:"
 
 #: ckan/templates_legacy/package/followers.html:6
 msgid "- Datasets - Followers"
-msgstr ""
+msgstr "- Datensätze - Folgende Benutzer (Follower)"
 
 #: ckan/templates_legacy/package/followers.html:7
 msgid "Followers:"
-msgstr ""
+msgstr "Folgende Personen (Follower)"
 
 #: ckan/templates_legacy/package/followers.html:8
 #: ckan/templates_legacy/related/dashboard.html:14
@@ -4830,7 +4831,7 @@ msgstr "mit Wert"
 #: ckan/templates_legacy/package/history.html:37
 #, python-format
 msgid "Read dataset as of %s"
-msgstr ""
+msgstr "Datensatz mit Datum vom %s "
 
 #: ckan/templates_legacy/package/history.html:48
 #: ckan/templates_legacy/package/read.html:101
@@ -4840,21 +4841,21 @@ msgstr "Datensatzhistorie"
 
 #: ckan/templates_legacy/package/layout.html:14
 msgid "Resources (0)"
-msgstr ""
+msgstr "Ressourcen (0)"
 
 #: ckan/templates_legacy/package/layout.html:23
 msgid "Add / Edit resources"
-msgstr ""
+msgstr "Ressourcen hinzufügen / ändern"
 
 #: ckan/templates_legacy/package/layout.html:37
 #: ckan/templates_legacy/related/related_list.html:26
 msgid "Apps, Ideas etc"
-msgstr ""
+msgstr "Apps, Ideen, etc."
 
 #: ckan/templates_legacy/package/layout.html:40
 #: ckan/templates_legacy/user/layout.html:27
 msgid "Followers ({num_followers})"
-msgstr ""
+msgstr "Folgende Benutzer (Follower) ({num_followers})"
 
 #: ckan/templates_legacy/package/new.html:6
 msgid "Add - Datasets"
@@ -4889,15 +4890,15 @@ msgstr "z.B. http://www.example.com/growth-figures.html"
 msgid ""
 "(Don't worry if you don't know which license the data has been released "
 "under)."
-msgstr ""
+msgstr "(Kein Problem, wenn Sie die Lizenz nicht kennen, unter der die Daten veröffentlicht wurden)."
 
 #: ckan/templates_legacy/package/new_package_form.html:96
 msgid "Member of:"
-msgstr ""
+msgstr "Mitglied von:"
 
 #: ckan/templates_legacy/package/new_package_form.html:105
 msgid "Add to:"
-msgstr ""
+msgstr "Hinzufügen zu:"
 
 #: ckan/templates_legacy/package/new_package_form.html:112
 msgid "Cannot add any groups."
@@ -4918,18 +4919,18 @@ msgstr "z.B. pollution, rivers, water quality"
 #: ckan/templates_legacy/package/new_package_form.html:130
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:142
 msgid "Add Resources"
-msgstr ""
+msgstr "Ressourcen hinzufügen"
 
 #: ckan/templates_legacy/package/new_package_form.html:132
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:144
 msgid ""
 "Upload or link data files, APIs and other materials related to your dataset."
-msgstr ""
+msgstr "Hochladen oder verlinken von Datendateien, API's/Schnittstellen und anderem, das zu Ihrem Datensatz gehört."
 
 #: ckan/templates_legacy/package/new_package_form.html:139
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:151
 msgid "New resource..."
-msgstr ""
+msgstr "Neues Ressource..."
 
 #: ckan/templates_legacy/package/new_package_form.html:144
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:156
@@ -5005,7 +5006,7 @@ msgstr "Ja!"
 #: ckan/templates_legacy/package/new_package_form.html:268
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:280
 msgid "This dataset is"
-msgstr ""
+msgstr "Dieser Datensatz ist"
 
 #: ckan/templates_legacy/package/new_package_form.html:281
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:293
@@ -5015,7 +5016,7 @@ msgstr "Zusammenfassung"
 #: ckan/templates_legacy/package/new_package_form.html:283
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:295
 msgid "Briefly describe the changes you have made..."
-msgstr ""
+msgstr "Deschreiben Sie kurz die von Ihnen durchgeführten Änderungen..."
 
 #: ckan/templates_legacy/package/new_package_form.html:294
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:306
@@ -5026,32 +5027,32 @@ msgstr "Weil Sie nicht angemeldet sind, wir dies Ihre IP-Adresse sein.\n      Vo
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid "Important:"
-msgstr ""
+msgstr "Wichtig:"
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid ""
 "By submitting content, you agree to release your contributions under the"
-msgstr ""
+msgstr "Mit dem Absenden des Inhalts stimmen Sie der Veröffentlichung zu unter der"
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid ". Please"
-msgstr ""
+msgstr ". Bitte"
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid "refrain"
-msgstr ""
+msgstr "zurückhalten"
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid "from editing this page if you are"
-msgstr ""
+msgstr "der Seitenänderungen wenn Sie"
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid "not"
-msgstr ""
+msgstr "nicht"
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid "happy to do this."
-msgstr ""
+msgstr "dem zustimmen."
 
 #: ckan/templates_legacy/package/read.html:14
 msgid "- Datasets"
@@ -5069,7 +5070,7 @@ msgstr "[Open data]"
 
 #: ckan/templates_legacy/package/read.html:58
 msgid "Related Datasets"
-msgstr "Ähnliche Datensätze"
+msgstr "Verwandte Datensätze"
 
 #: ckan/templates_legacy/package/read.html:86
 msgid "This is an old revision of this dataset, as edited"
@@ -5107,7 +5108,7 @@ msgstr "(keine)"
 
 #: ckan/templates_legacy/package/read_core.html:51
 msgid "(settings)"
-msgstr ""
+msgstr "(settings)"
 
 #: ckan/templates_legacy/package/read_core.html:83
 msgid "Country"
@@ -5131,11 +5132,11 @@ msgstr "- Datensatz - Ressource"
 
 #: ckan/templates_legacy/package/resource_read.html:87
 msgid "Data API is unavailable for this resource as DataStore is disabled"
-msgstr ""
+msgstr "Data API / Datenschnittstelle ist nicht verfügbar für diese Ressource, weil der DataStore / Datenspeicher ausgeschaltet ist."
 
 #: ckan/templates_legacy/package/resource_read.html:113
 msgid "License unknown"
-msgstr ""
+msgstr "Lizenz nicht angegeben"
 
 #: ckan/templates_legacy/package/resource_read.html:137
 msgid "From the [1:Dataset]:"
@@ -5143,12 +5144,12 @@ msgstr "Aus dem [1:Datensatz]:"
 
 #: ckan/templates_legacy/package/resource_read.html:151
 msgid "Cannot embed as resource is private."
-msgstr ""
+msgstr "Ressource ist nicht öffentlich und kann nicht eingebettet werden."
 
 #: ckan/templates_legacy/package/resource_read.html:151
 #: ckan/templates_legacy/package/resource_read.html:152
 msgid "Embed"
-msgstr ""
+msgstr "Einbettung"
 
 #: ckan/templates_legacy/package/search.html:9
 #: ckan/templates_legacy/package/search.html:10
@@ -5205,70 +5206,70 @@ msgstr "Wollen Sie einen [1:Datensatz anlegen]?"
 #: ckan/templates_legacy/related/add-related.html:12
 #: ckan/templates_legacy/related/related_list.html:26
 msgid "Add item"
-msgstr ""
+msgstr "Inhalt hinzufügen"
 
 #: ckan/templates_legacy/related/add-related.html:18
 #: ckan/templates_legacy/related/add-related.html:38
 msgid "(required)"
-msgstr ""
+msgstr "(benötigt)"
 
 #: ckan/templates_legacy/related/add-related.html:19
 msgid "Please add the title for the item"
-msgstr ""
+msgstr "Bitte Überschrift für den Inhalt angeben"
 
 #: ckan/templates_legacy/related/add-related.html:22
 msgid "Type of item"
-msgstr ""
+msgstr "Inhalts-Typ"
 
 #: ckan/templates_legacy/related/add-related.html:35
 msgid "Please describe the item"
-msgstr ""
+msgstr "Bitte beschreiben Sie den Inhalt"
 
 #: ckan/templates_legacy/related/add-related.html:39
 msgid "Please add a url"
-msgstr ""
+msgstr "Bitte eine URL angeben"
 
 #: ckan/templates_legacy/related/add-related.html:43
 msgid "Please add a link to the image"
-msgstr ""
+msgstr "Bitte Link zu dem Bild angeben"
 
 #: ckan/templates_legacy/related/dashboard.html:24
 msgid "Showing items"
-msgstr ""
+msgstr "Inhalte anzeigen"
 
 #: ckan/templates_legacy/related/dashboard.html:24
 msgid "of"
-msgstr ""
+msgstr "von"
 
 #: ckan/templates_legacy/related/dashboard.html:24
 #: ckan/templates_legacy/related/dashboard.html:25
 msgid "related items found"
-msgstr ""
+msgstr "verwandte Inhalte gefunden"
 
 #: ckan/templates_legacy/related/dashboard.html:47
 msgid "Least viewed"
-msgstr ""
+msgstr "Zuletzt angesehen"
 
 #: ckan/templates_legacy/related/dashboard.html:55
 msgid "Featured items only?"
-msgstr ""
+msgstr "Nur herausgehobene Elemente?"
 
 #: ckan/templates_legacy/related/related_list.html:17
 #: ckan/templates_legacy/related/related_list.html:21
 msgid "- Apps, Ideas etc"
-msgstr ""
+msgstr "- Apps, Ideen, etc."
 
 #: ckan/templates_legacy/related/related_list.html:28
 msgid "There are no items here yet"
-msgstr ""
+msgstr "Es gibt hierzu noch keine Inhalte"
 
 #: ckan/templates_legacy/related/related_list.html:29
 msgid ", why not"
-msgstr ""
+msgstr ", sollten Sie nicht lieber"
 
 #: ckan/templates_legacy/related/related_list.html:29
 msgid "add one"
-msgstr ""
+msgstr "eines hinzufügen"
 
 #: ckan/templates_legacy/revision/diff.html:5
 msgid "Differences - Revisions"
@@ -5296,7 +5297,7 @@ msgstr "Keine Differenzen"
 
 #: ckan/templates_legacy/revision/layout.html:9
 msgid "List"
-msgstr ""
+msgstr "Liste"
 
 #: ckan/templates_legacy/revision/list.html:5
 #: ckan/templates_legacy/revision/list.html:6
@@ -5350,11 +5351,11 @@ msgstr ",\n      Tag -"
 
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:19
 msgid "Embed this view"
-msgstr ""
+msgstr "Diese Ansicht einbetten"
 
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:19
 msgid "by copying this into your webpage:"
-msgstr ""
+msgstr "indem Sie folgendes in Ihre Webseite kopieren;"
 
 #: ckan/templates_legacy/snippets/package_list.html:39
 msgid "Not Openly Licensed"
@@ -5422,35 +5423,35 @@ msgstr "Es gibt %(count)s Datensätze, die mit [1:%(tagname)s] verschlagwortet s
 
 #: ckan/templates_legacy/user/dashboard.html:6
 msgid "- Dashboard - User"
-msgstr ""
+msgstr "- Dashboard - Benutzer"
 
 #: ckan/templates_legacy/user/dashboard.html:17
 msgid "What's going on?"
-msgstr ""
+msgstr "Was tut sich?"
 
 #: ckan/templates_legacy/user/dashboard.html:25
 msgid "Nothing new on CKAN?"
-msgstr ""
+msgstr "Nichts Neues in CKAN?"
 
 #: ckan/templates_legacy/user/dashboard.html:26
 msgid "So, why don't you ..."
-msgstr ""
+msgstr "Warum starten Sie nicht mit ..."
 
 #: ckan/templates_legacy/user/dashboard.html:28
 msgid "Add a new dataset"
-msgstr ""
+msgstr "Einen neuen Datensatz hinzufügen"
 
 #: ckan/templates_legacy/user/dashboard.html:29
 msgid "Follow another user"
-msgstr ""
+msgstr "Einem anderen Benutzer folgen"
 
 #: ckan/templates_legacy/user/dashboard.html:30
 msgid "Create a group or a tag"
-msgstr ""
+msgstr "Eine Gruppe/Kategorie oder ein Tag erstellen"
 
 #: ckan/templates_legacy/user/dashboard.html:31
 msgid "Or simply browse the repository"
-msgstr ""
+msgstr "Oder stöbern Sie einfach nur im Repository."
 
 #: ckan/templates_legacy/user/edit.html:6
 msgid "- Edit - User"
@@ -5462,11 +5463,11 @@ msgstr "Benutzer bearbeiten:"
 
 #: ckan/templates_legacy/user/edit_user_form.html:27
 msgid "E-mail"
-msgstr ""
+msgstr "E-mail"
 
 #: ckan/templates_legacy/user/edit_user_form.html:33
 msgid "OpenId"
-msgstr ""
+msgstr "OpenID"
 
 #: ckan/templates_legacy/user/edit_user_form.html:41
 msgid "A little about you..."
@@ -5475,7 +5476,7 @@ msgstr "Einen Absatz über Sie..."
 #: ckan/templates_legacy/user/edit_user_form.html:54
 #: ckan/templates_legacy/user/new_user_form.html:47
 msgid "Password (repeat)"
-msgstr ""
+msgstr "Kennwort (Wiederholung)"
 
 #: ckan/templates_legacy/user/edit_user_form.html:61
 msgid "Change your username"
@@ -5485,15 +5486,15 @@ msgstr "Nutzername ändern"
 msgid ""
 "Changing your username will log you out, and require you to log back in with"
 " the new username"
-msgstr ""
+msgstr "Zur Änderung des Benutzernames müssen Sie sich abmelden und mit dem neuen Benutzernamen wieder anmelden."
 
 #: ckan/templates_legacy/user/followers.html:6
 msgid "- Followers - User"
-msgstr ""
+msgstr "- Folgende Personen (Followers) - Benutzer"
 
 #: ckan/templates_legacy/user/followers.html:8
 msgid "'s Followers"
-msgstr ""
+msgstr "folgende Personen (Followers)"
 
 #: ckan/templates_legacy/user/layout.html:12
 msgid "My Profile"
@@ -5505,7 +5506,7 @@ msgstr "Profil bearbeiten"
 
 #: ckan/templates_legacy/user/layout.html:16
 msgid "My Followers ({num_followers})"
-msgstr ""
+msgstr "Mir folgende personen ({num_followers})"
 
 #: ckan/templates_legacy/user/layout.html:25
 msgid "View Profile"
@@ -5551,11 +5552,11 @@ msgstr "Passwort:"
 
 #: ckan/templates_legacy/user/login.html:41
 msgid "Remember me:"
-msgstr ""
+msgstr "Meine Erinnerungen:"
 
 #: ckan/templates_legacy/user/login.html:49
 msgid "Sign In"
-msgstr ""
+msgstr "Anmelden"
 
 #: ckan/templates_legacy/user/login.html:61
 msgid "Login using Open ID"
@@ -5590,7 +5591,7 @@ msgstr "OpenID ist ein Dienst der die Anmeldung bei verschiedenen Webseiten mit 
 
 #: ckan/templates_legacy/user/login.html:83
 msgid "Sign in with OpenID"
-msgstr ""
+msgstr "Anmelden mit OpenID"
 
 #: ckan/templates_legacy/user/logout.html:5
 msgid "Logout - User"
@@ -5606,27 +5607,27 @@ msgstr "Sie haben sich erfolgreich abgemeldet."
 
 #: ckan/templates_legacy/user/logout_first.html:6
 msgid "Logged in - User"
-msgstr ""
+msgstr "Angemeldet - Benutzer"
 
 #: ckan/templates_legacy/user/logout_first.html:7
 msgid "Logged into"
-msgstr ""
+msgstr "Angemeldet"
 
 #: ckan/templates_legacy/user/logout_first.html:12
 msgid "is currently logged in"
-msgstr ""
+msgstr "ist derzeit angemeldet"
 
 #: ckan/templates_legacy/user/logout_first.html:15
 msgid "To register or log in as another user, you need to"
-msgstr ""
+msgstr "Um sich zu registrieren oder als anderer Benutzer anzumelden, müssen Sie sich"
 
 #: ckan/templates_legacy/user/logout_first.html:17
 msgid "logout"
-msgstr ""
+msgstr "zuerst"
 
 #: ckan/templates_legacy/user/logout_first.html:17
 msgid "first."
-msgstr ""
+msgstr "abmelden."
 
 #: ckan/templates_legacy/user/new.html:5
 msgid "Register - User"
@@ -5642,7 +5643,7 @@ msgstr "Mehr als drei Zeichen, nur 'a-z0-9' und '-_' benutzen"
 
 #: ckan/templates_legacy/user/new_user_form.html:27
 msgid "Full name (optional)"
-msgstr ""
+msgstr "Vollständiger Name (optional)"
 
 #: ckan/templates_legacy/user/new_user_form.html:34
 msgid "E-Mail"
@@ -5650,7 +5651,7 @@ msgstr "E-Mail"
 
 #: ckan/templates_legacy/user/new_user_form.html:65
 msgid "Register now"
-msgstr ""
+msgstr "Jetzt registrieren"
 
 #: ckan/templates_legacy/user/perform_reset.html:18
 msgid "Password (repeat):"
@@ -5691,31 +5692,31 @@ msgstr "Benutzername:"
 #: ckanext/datastore/logic/action.py:54 ckanext/datastore/logic/action.py:122
 #: ckanext/datastore/logic/action.py:161 ckanext/datastore/logic/action.py:236
 msgid "Resource \"{0}\" was not found."
-msgstr ""
+msgstr "Ressource  \"{0}\" nicht gefunden."
 
 #: ckanext/datastore/logic/auth.py:15
 msgid "User {0} not authorized to update resource {1}"
-msgstr ""
+msgstr "Benutzer {0} darf die Ressource {1} nicht ändern"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:7
 msgid "Add to Groups"
-msgstr ""
+msgstr "Zu Gruppen hinzufügen"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:10
 msgid "Select a group..."
-msgstr ""
+msgstr "Eine Gruppe auswählen..."
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:27
 msgid "Country Code"
-msgstr ""
+msgstr "Ländercode"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:36
 msgid "Custom Text"
-msgstr ""
+msgstr "Benutzerspezifischer Text"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:36
 msgid "custom text"
-msgstr ""
+msgstr "benutzerspezifischer Text"
 
 #: ckanext/organizations/controllers.py:32
 msgid ""
@@ -5758,7 +5759,7 @@ msgstr "von"
 #: ckanext/organizations/templates_legacy/organizations/email/join_publisher_request.txt:3
 #, python-format
 msgid "{% if requester.fullname %}("
-msgstr ""
+msgstr "{% if requester.fullname %}("
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:3
 #: ckanext/organizations/templates_legacy/organizations/email/join_publisher_request.txt:3
@@ -5769,7 +5770,7 @@ msgid ""
 "The reason given for the request was:\n"
 "\n"
 "\""
-msgstr ""
+msgstr "){% end %}⏎\n⏎\nThe reason given for the request was:⏎\n⏎\n\""
 
 #: ckanext/organizations/templates/email/join_publisher_request.txt:7
 #: ckanext/organizations/templates_legacy/organizations/email/join_publisher_request.txt:7
@@ -5846,15 +5847,15 @@ msgstr "Benutzer verwalten"
 
 #: ckanext/organizations/templates_legacy/organizations/form.html:146
 msgid "There are no users currently in this publisher."
-msgstr ""
+msgstr "Dieser Veröffentlicher/Publisher hat noch keine Benutzer."
 
 #: ckanext/organizations/templates_legacy/organizations/history.html:54
 msgid "Organization History"
-msgstr ""
+msgstr "Organisations-Historie"
 
 #: ckanext/organizations/templates_legacy/organizations/index.html:11
 msgid "What Are Organizations?"
-msgstr ""
+msgstr "Was sind Organisationen?"
 
 #: ckanext/organizations/templates_legacy/organizations/index.html:12
 msgid ""
@@ -5862,11 +5863,11 @@ msgid ""
 "when you want to restrict users from editing a collection. An "
 "[1:organization] can be set-up to specify which users have permission to add"
 " or remove datasets from it."
-msgstr ""
+msgstr "Mit Tags/Schlagworten können Datensätze gebündelt werden; manchmal sollen Benutzer aber auf solche Collections/Bündel nicht ändern dürfen. Eine [1:organization] sollte verwendet werden, wenn Benutzern Rechte eingeräumt werden sollen, Datensätze zu Collections/Bündel hinzuzufügen oder zu entfernen."
 
 #: ckanext/organizations/templates_legacy/organizations/layout.html:28
 msgid "Join"
-msgstr ""
+msgstr "Beitreten"
 
 #: ckanext/organizations/templates_legacy/organizations/layout.html:34
 msgid "List Organizations"
@@ -5883,16 +5884,16 @@ msgstr "Organisation hinzufügen"
 
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:125
 msgid "Cannot add to any organizations. Please join an organization"
-msgstr ""
+msgstr "Keine Organisationen können hinzugefügt werden. Bitte einer Organisation beitreten."
 
 #: ckanext/organizations/templates_legacy/organizations/users.html:5
 #: ckanext/organizations/templates_legacy/organizations/users.html:6
 msgid "Users:"
-msgstr ""
+msgstr "Benutzer:"
 
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:34
 msgid "There are no users currently in this organization."
-msgstr ""
+msgstr "In dieser Organisation sind gegenwärtig keine Benutzer."
 
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:36
 msgid "Add users"
@@ -5920,7 +5921,7 @@ msgid ""
 "LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
 "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
 "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
-msgstr ""
+msgstr "Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid ⏎\n⏎\nPermission is hereby granted, free of charge, to any person obtaining⏎\na copy of this software and associated documentation files (the⏎\n\"Software\"), to deal in the Software without restriction, including⏎\nwithout limitation the rights to use, copy, modify, merge, publish,⏎\ndistribute, sublicense, and/or sell copies of the Software, and to⏎\npermit persons to whom the Software is furnished to do so, subject to⏎\nthe following conditions:⏎\n⏎\nThe above copyright notice and this permission notice shall be⏎\nincluded in all copies or substantial portions of the Software.⏎\n⏎\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,⏎\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF⏎\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND⏎\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE⏎\nLIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION⏎\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION⏎\nWITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
 
 #: ckanext/reclinepreview/theme/public/vendor/slickgrid/2.0.1/README.txt:1
 msgid ""
@@ -5940,7 +5941,7 @@ msgid ""
 "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
 "\n"
 "[1] https://developers.google.com/closure/compiler/"
-msgstr ""
+msgstr "This compiled version of SlickGrid has been obtained with the Google Closure⏎\nCompiler, using the following command:⏎\n⏎\njava -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js⏎\n⏎\nThere are two other files required for the SlickGrid view to work properly:⏎\n⏎\n* jquery-ui-1.8.16.custom.min.js ⏎\n* jquery.event.drag-2.0.min.js⏎\n⏎\nThese are included in the Recline source, but have not been included in the⏎\nbuilt file to make easier to handle compatibility problems.⏎\n⏎\nPlease check SlickGrid license in the included MIT-LICENSE.txt file.⏎\n⏎\n[1] https://developers.google.com/closure/compiler/"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:57

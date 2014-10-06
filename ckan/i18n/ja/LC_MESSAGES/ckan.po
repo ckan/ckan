@@ -6,14 +6,14 @@
 # Fumihiro Kato <>, 2012-2013
 # Fumihiro Kato <fumi@fumi.me>, 2012
 # Iwao Kobayashi <>, 2012-2013
-# nyampire <>, 2013
+# nyampire <nyampire@gmail.com>, 2013
 # nyampire  <>, 2012
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 # Shu Higashi <higa432@gmail.com>, 2012-2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
 "PO-Revision-Date: 2013-04-10 06:22+0000\n"
 "Last-Translator: Fumihiro Kato <>\n"

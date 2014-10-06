@@ -6,17 +6,18 @@
 # <internet@davidread.org>, 2011
 # Kalman Kemenczy <kkemenczy@gmail.com>, 2011-2012
 # kitzinger <kitzinger@gmail.com>, 2012
-# Open Knowledge Foundation <sysadmin@okfn.org>, 2011
+# Open Knowledge Foundation <translations@okfn.org>, 2011
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 # stf <stefan.marsiske@gmail.com>, 2011
 # stf <stefan.marsiske@gmail.com>, 2011
+# vargaviktor <viktor.varga@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-03-11 13:59+0000\n"
-"Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"
+"PO-Revision-Date: 2014-08-12 20:59+0000\n"
+"Last-Translator: vargaviktor <viktor.varga@gmail.com>\n"
 "Language-Team: Hungarian (http://www.transifex.com/projects/p/ckan/language/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -34,16 +35,16 @@ msgstr "%s nevű authorizációs funkció nem található"
 #: ckan/templates/organization/read_base.html:13
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:26
 msgid "Admin"
-msgstr ""
+msgstr "Adminisztrátor"
 
 #: ckan/new_authz.py:86
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:27
 msgid "Editor"
-msgstr ""
+msgstr "Szerkesztő"
 
 #: ckan/new_authz.py:89
 msgid "Member"
-msgstr ""
+msgstr "Tag"
 
 #: ckan/controllers/admin.py:24
 msgid "Need to be system administrator to administer"
@@ -51,11 +52,11 @@ msgstr "A rendszer kezeléséhez adminisztrátornak kell lennie"
 
 #: ckan/controllers/admin.py:35
 msgid "Site Title"
-msgstr ""
+msgstr "Oldal címe"
 
 #: ckan/controllers/admin.py:36
 msgid "Style"
-msgstr ""
+msgstr "Stílus"
 
 #: ckan/controllers/admin.py:37
 msgid "Site Tag Line"

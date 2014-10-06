@@ -6,7 +6,7 @@
 # EdoPlantinga <edo.plantinga@koop.wmrijk.nl>, 2012
 # egonwillighagen <egon.willighagen@gmail.com>, 2012
 # <internet@davidread.org>, 2011
-# mabtam <mblumenfrucht@totalactivemedia.nl>, 2013
+# Marc B <mblumenfrucht@totalactivemedia.nl>, 2013
 # Paul Suijkerbuijk <paul@oller.nl>, 2011
 # Paul Suijkerbuijk <paul@oller.nl>, 2013
 # Sean Hammond <sean.hammond@okfn.org>, 2012-2013
@@ -14,10 +14,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-04-24 09:22+0000\n"
-"Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"
+"PO-Revision-Date: 2013-05-02 10:07+0000\n"
+"Last-Translator: Marc B <mblumenfrucht@totalactivemedia.nl>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/ckan/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2048,7 +2048,7 @@ msgstr "Datasets"
 #: ckanext/organizations/templates_legacy/organizations/index.html:6
 #: ckanext/organizations/templates_legacy/organizations/index.html:7
 msgid "Organizations"
-msgstr "organisaties"
+msgstr "Organisaties"
 
 #: ckan/templates/header.html:90
 msgid "Search Datasets"
