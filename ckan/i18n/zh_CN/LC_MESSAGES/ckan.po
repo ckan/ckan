@@ -5,7 +5,7 @@
 # Translators:
 # okfncn <okfncn@gmail.com>, 2013
 # Sean Hammond <sean.hammond@okfn.org>, 2013
-# xzhang <xzhang50@yahoo.com>, 2013
+# Xiaohong Zhang <xzhang50@yahoo.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"

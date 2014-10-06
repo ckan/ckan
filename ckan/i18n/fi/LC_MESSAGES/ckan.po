@@ -3,24 +3,24 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# amercader <amercadero@gmail.com>, 2012-2013
+# Adrià Mercader <adria.mercader@okfn.org>, 2012-2013
 # apoikola <antti.poikola@gmail.com>, 2013-2014
 # apoikola <antti.poikola@gmail.com>, 2013
 # floapps <jaakko.louhio@floapps.com>, 2012
-# hami <hami.kekkonen@hel.fi>, 2013
+# Hami Kekkonen <hami.kekkonen@hel.fi>, 2013
 # <internet@davidread.org>, 2011
-# Jaakko Korhonen <jaakko.korhonen@outlook.com>, 2014
+# jaakkokorhonen <jaakko.korhonen@outlook.com>, 2014
 # kyyberi <jarkko.moilanen@want3d.fi>, 2013
 # Open Knowledge Foundation <translations@okfn.org>, 2011
-# razz0 <mikko.koho@csc.fi>, 2013
-# tarmo <tarmo@iki.fi>, 2014
+# Mikko Koho <mikko.koho@csc.fi>, 2013
+# Tarmo Toikkanen <tarmo@iki.fi>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
 "PO-Revision-Date: 2014-01-10 13:43+0000\n"
-"Last-Translator: Jaakko Korhonen <jaakko.korhonen@outlook.com>\n"
+"Last-Translator: jaakkokorhonen <jaakko.korhonen@outlook.com>\n"
 "Language-Team: Finnish (http://www.transifex.com/projects/p/ckan/language/fi/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"

@@ -3,18 +3,19 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Börje Lewin <borjelewin@gmail.com>, 2014
 # endast <endast@gmail.com>, 2014
 # <internet@davidread.org>, 2011
-# morusrikard <rikard@morus.se>, 2013
+# Rikard Fröberg <rikard@morus.se>, 2013
 # Peter Krantz <peter.krantz@gmail.com>, 2013
-# morusrikard <rikard@morus.se>, 2013
+# Rikard Fröberg <rikard@morus.se>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2014-01-07 08:36+0000\n"
-"Last-Translator: endast <endast@gmail.com>\n"
+"PO-Revision-Date: 2014-09-28 12:54+0000\n"
+"Last-Translator: Börje Lewin <borjelewin@gmail.com>\n"
 "Language-Team: Swedish (http://www.transifex.com/projects/p/ckan/language/sv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -459,7 +460,7 @@ msgstr "Parametern \"{parameter_name}\" är inte ett heltal"
 #: ckan/controllers/package.py:1313 ckan/controllers/package.py:1376
 #: ckan/controllers/related.py:113 ckan/controllers/related.py:122
 msgid "Dataset not found"
-msgstr "Datasetet kunde inte hittas"
+msgstr "Dataset hittades inte"
 
 #: ckan/controllers/package.py:328 ckan/controllers/package.py:381
 #: ckan/controllers/package.py:440 ckan/controllers/package.py:795
@@ -1206,7 +1207,7 @@ msgstr "Upphovsman saknas"
 
 #: ckan/lib/package_saver.py:36
 msgid "Maintainer not given"
-msgstr "Redaktör saknas"
+msgstr "Förvaltare saknas"
 
 #: ckan/lib/package_saver.py:94 ckan/logic/validators.py:106
 msgid "No links are allowed in the log_message."
@@ -1497,7 +1498,7 @@ msgstr "Inte text"
 
 #: ckan/logic/validators.py:722
 msgid "This parent would create a loop in the hierarchy"
-msgstr "Denna förälder skulle skapa en otillåten slinga i hierarkin"
+msgstr "Denna överordnade entitet skulle skapa en otillåten slinga i hierarkin"
 
 #: ckan/logic/action/create.py:158 ckan/logic/action/create.py:534
 #, python-format
@@ -1949,12 +1950,12 @@ msgstr "är länkad från %s"
 #: ckan/model/package_relationship.py:55
 #, python-format
 msgid "is a child of %s"
-msgstr "är ett barn av %s"
+msgstr "är underordnad till %s"
 
 #: ckan/model/package_relationship.py:55
 #, python-format
 msgid "is a parent of %s"
-msgstr "är förälder till %s"
+msgstr "är överordnad till %s"
 
 #: ckan/model/package_relationship.py:59
 #, python-format
@@ -2470,15 +2471,15 @@ msgstr "Stor inmatning"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend"
-msgstr ""
+msgstr "Infoga"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend Input"
-msgstr ""
+msgstr "Infoga före inmatning"
 
 #: ckan/templates/development/snippets/form.html:13
 msgid "Custom Field (empty)"
-msgstr ""
+msgstr "Anpassat fält (tomt)"
 
 #: ckan/templates/development/snippets/form.html:19
 #: ckan/templates/group/snippets/group_form.html:35
@@ -2488,7 +2489,7 @@ msgstr ""
 #: ckan/templates/snippets/custom_form_fields.html:20
 #: ckan/templates/snippets/custom_form_fields.html:37
 msgid "Custom Field"
-msgstr ""
+msgstr "Anpassat fält"
 
 #: ckan/templates/development/snippets/form.html:22
 msgid "Markdown"
@@ -2754,7 +2755,7 @@ msgid ""
 " <p><strong>Admin:</strong> Can edit group information, as well as manage "
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
-msgstr ""
+msgstr " <p><strong>Administratör:</strong>Kan redigera gruppinformation och administrera organisationens medlemmar.</p> <p><strong>Medlem:</strong>Kan lägga till och ta bort dataset från grupper.</p> "
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -3532,19 +3533,19 @@ msgstr "fullständig dump i {format}-format"
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
-msgstr ""
+msgstr "Du kan också komma åt katalogen via %(api_link)s (se %(api_doc_link)s) eller ladda ner en %(dump_link)s. "
 
 #: ckan/templates/package/search.html:59
 #, python-format
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
-msgstr ""
+msgstr " Du kan också komma åt katalogen via %(api_link)s (se %(api_doc_link)s). "
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
 msgid "Additional Info"
-msgstr ""
+msgstr "Ytterligare information"
 
 #: ckan/templates/package/snippets/additional_info.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
@@ -3610,7 +3611,7 @@ msgstr "t.ex. ekonomi, psykisk hälsa, offentlig sektor"
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
-msgstr ""
+msgstr " Licensdefinitioner och ytterligare information finns på <a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
 
 #: ckan/templates/package/snippets/package_basic_fields.html:69
 #: ckan/templates/snippets/organization.html:20
@@ -3641,7 +3642,7 @@ msgstr "Det saknas en beskrivning för detta dataset"
 msgid ""
 "Important: By submitting content, you agree to release your contributions "
 "under the Open Database License."
-msgstr ""
+msgstr "Viktigt: Genom att skicka in material samtycker du till att använda den öppna databaslicensen."
 
 #: ckan/templates/package/snippets/package_form.html:37
 msgid "Are you sure you want to delete this dataset?"
@@ -3662,7 +3663,7 @@ msgstr "1.0"
 #: ckan/templates/package/snippets/package_metadata_fields.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:20
 msgid "Joe Bloggs"
-msgstr ""
+msgstr "Joe Exempelsson"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 msgid "Author Email"
@@ -3730,15 +3731,15 @@ msgstr "t. ex. application/json"
 
 #: ckan/templates/package/snippets/resource_form.html:61
 msgid "Are you sure you want to delete this resource?"
-msgstr ""
+msgstr "Vill du verkligen ta bort denna resurs?"
 
 #: ckan/templates/package/snippets/resource_form.html:71
 msgid "Save & add another"
-msgstr ""
+msgstr "Spara och lägg till nästa"
 
 #: ckan/templates/package/snippets/resource_form.html:73
 msgid "Next: Additional Info"
-msgstr ""
+msgstr "Nästa steg: Ytterligare information"
 
 #: ckan/templates/package/snippets/resource_help.html:2
 msgid "What's a resource?"
@@ -3779,7 +3780,7 @@ msgstr "Data och resurser"
 msgid ""
 " <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
 "add some?</a> "
-msgstr ""
+msgstr " <p class=\"empty\">Detta dataset saknar data, <a href=\"%(url)s\">varför inte lägga till data?</a> "
 
 #: ckan/templates/package/snippets/revisions_table.html:24
 #: ckan/templates_legacy/package/history.html:37
@@ -3806,11 +3807,11 @@ msgstr "Ytterligare information"
 
 #: ckan/templates/related/base_form_page.html:12
 msgid "Related Form"
-msgstr ""
+msgstr "Relaterat formulär"
 
 #: ckan/templates/related/base_form_page.html:20
 msgid "What are related items?"
-msgstr ""
+msgstr "Vad är relaterade poster?"
 
 #: ckan/templates/related/base_form_page.html:22
 msgid ""
@@ -3818,11 +3819,11 @@ msgid ""
 " dataset.</p> <p>For example, it could be a custom visualisation, pictograph"
 " or bar chart, an app using all or part of the data or even a news story "
 "that references this dataset.</p> "
-msgstr ""
+msgstr " <p>Relaterad Media är valfri app, artikel, visualisering eller idé som är relaterad till detta dataset.</p> <p>Det kan till exempel vara en egen visualisering, bildtecken, stapeldiagram, en app som använder hela datamängden eller varför inte nyhetsartiklar som refererar till detta dataset.</p> "
 
 #: ckan/templates/related/confirm_delete.html:11
 msgid "Are you sure you want to delete related item - {name}?"
-msgstr ""
+msgstr "Vill du verkligen radera den relaterade posten: {name}?"
 
 #: ckan/templates/related/dashboard.html:6
 #: ckan/templates/related/dashboard.html:9
@@ -3837,26 +3838,26 @@ msgstr "Appar & Idéer"
 msgid ""
 " <p>Showing items <strong>%(first)s - %(last)s</strong> of "
 "<strong>%(item_count)s</strong> related items found</p> "
-msgstr ""
+msgstr " <p>Visar posterna <strong>%(first)s - %(last)s</strong> av totalt <strong>%(item_count)s</strong> relaterade poster som hittats.</p> "
 
 #: ckan/templates/related/dashboard.html:25
 #, python-format
 msgid " <p><strong>%(item_count)s</strong> related items found</p> "
-msgstr ""
+msgstr " <p><strong>%(item_count)s</strong> relaterade poster har hittats</p> "
 
 #: ckan/templates/related/dashboard.html:29
 msgid "There have been no apps submitted yet."
-msgstr ""
+msgstr "Inga appar har skickats in ännu."
 
 #: ckan/templates/related/dashboard.html:48
 msgid "What are applications?"
-msgstr ""
+msgstr "Vad är applikationer?"
 
 #: ckan/templates/related/dashboard.html:50
 msgid ""
 " These are applications built with the datasets as well as ideas for things "
 "that could be done with them. "
-msgstr ""
+msgstr "Detta är applikationer som byggts med dataset, men även med idéer om vad man kan göra med dem."
 
 #: ckan/templates/related/dashboard.html:58
 msgid "Filter Results"
@@ -3884,7 +3885,7 @@ msgstr "Default"
 
 #: ckan/templates/related/dashboard.html:85
 msgid "Only show featured items"
-msgstr ""
+msgstr "Visa endast utvalda poster"
 
 #: ckan/templates/related/dashboard.html:90
 #: ckan/templates_legacy/related/dashboard.html:57
@@ -3921,7 +3922,7 @@ msgstr "Skapa relaterad post"
 
 #: ckan/templates/related/snippets/related_form.html:18
 msgid "My Related Item"
-msgstr ""
+msgstr "Min relaterade post"
 
 #: ckan/templates/related/snippets/related_form.html:19
 msgid "http://example.com/"
@@ -3933,7 +3934,7 @@ msgstr "http://example.com/image.png"
 
 #: ckan/templates/related/snippets/related_form.html:21
 msgid "A little information about the item..."
-msgstr ""
+msgstr "Lite information om posten..."
 
 #: ckan/templates/related/snippets/related_form.html:22
 msgid "Type"
@@ -3941,7 +3942,7 @@ msgstr "Typ"
 
 #: ckan/templates/related/snippets/related_form.html:28
 msgid "Are you sure you want to delete this related item?"
-msgstr ""
+msgstr "Vill du verkligen radera den här relaterade posten?"
 
 #: ckan/templates/related/snippets/related_item.html:16
 msgid "Go to {related_item_type}"
@@ -3958,7 +3959,7 @@ msgstr "Skillnader"
 #: ckan/templates/revision/diff.html:13 ckan/templates/revision/diff.html:18
 #: ckan/templates/revision/diff.html:23
 msgid "Revision Differences"
-msgstr ""
+msgstr "Versionsskillnader"
 
 #: ckan/templates/revision/diff.html:44
 #: ckan/templates_legacy/revision/diff.html:32
@@ -4006,7 +4007,7 @@ msgstr "Objekt"
 
 #: ckan/templates/snippets/activity_item.html:3
 msgid "New activity item"
-msgstr ""
+msgstr "Ny aktivitetspost"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:4
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:13
@@ -4042,15 +4043,15 @@ msgstr "Trackback URL"
 
 #: ckan/templates/snippets/facet_list.html:72
 msgid "Show More {facet_type}"
-msgstr ""
+msgstr "Visa mer {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:74
 msgid "Show Only Popular {facet_type}"
-msgstr ""
+msgstr "Visa endast populär {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:78
 msgid "There are no {facet_type} that match this search"
-msgstr ""
+msgstr "Det finns ingen {facet_type} som matchar sökningen"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 #: ckan/templates_legacy/admin/layout.html:10
@@ -4067,7 +4068,7 @@ msgstr "Språk"
 #: ckan/templates/snippets/simple_search.html:15
 #: ckan/templates/snippets/sort_by.html:22
 msgid "Go"
-msgstr ""
+msgstr "Kör"
 
 #: ckan/templates/snippets/license.html:14
 #: ckan/templates_legacy/package/read.html:32
@@ -4084,7 +4085,7 @@ msgstr "Licens ej angiven"
 msgid ""
 "No apps, ideas, news stories or images have been related to this dataset "
 "yet."
-msgstr ""
+msgstr "Inga appar, idéer, nya berättelser eller bilder har relaterats till detta dataset än."
 
 #: ckan/templates/snippets/related.html:18
 msgid "Add Item"
@@ -4109,37 +4110,37 @@ msgstr " <p class=\"extra\">Försök med en ny sökfråga.</p> "
 msgid ""
 " <p><strong>There was an error while searching.</strong> Please try "
 "again.</p> "
-msgstr ""
+msgstr " <p><strong>Fel vid sökning.</strong> Försök igen.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} dataset hittades för \"{query}\""
+msgstr[1] "{number} dataset hittades för \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
-msgstr ""
+msgstr "Hittade inga dataset för \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} dataset hittades"
+msgstr[1] "{number} dataset hittades"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
-msgstr ""
+msgstr "Inga dataset hittades"
 
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{number} grupp hittades för \"{query}\""
+msgstr[1] "{number} grupper hittades för \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
-msgstr ""
+msgstr "Hittade inga grupper för \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:23
 msgid "{number} group found"
@@ -4173,7 +4174,7 @@ msgstr "Inga organisationer hittades"
 
 #: ckan/templates/snippets/social.html:3
 msgid "Social"
-msgstr ""
+msgstr "Social"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
@@ -4227,12 +4228,12 @@ msgstr "Mina grupper"
 
 #: ckan/templates/user/dashboard.html:39
 msgid "Activity from items that I'm following"
-msgstr ""
+msgstr "Aktivitet från poster som jag följer"
 
 #: ckan/templates/user/dashboard_datasets.html:17
 #: ckan/templates/user/read.html:14
 msgid "You haven't created any datasets."
-msgstr ""
+msgstr "Du har inte skapat något dataset"
 
 #: ckan/templates/user/dashboard_datasets.html:19
 #: ckan/templates/user/dashboard_groups.html:22
@@ -4243,11 +4244,11 @@ msgstr "Skapa ett nu?"
 
 #: ckan/templates/user/dashboard_groups.html:20
 msgid "You are not a member of any groups."
-msgstr ""
+msgstr "Du är inte medlem i någon grupp."
 
 #: ckan/templates/user/dashboard_organizations.html:20
 msgid "You are not a member of any organizations."
-msgstr ""
+msgstr "Du är inte medlem i någon organisation."
 
 #: ckan/templates/user/edit.html:6 ckan/templates/user/edit_base.html:3
 #: ckan/templates/user/list.html:6 ckan/templates/user/list.html:13
@@ -4266,11 +4267,11 @@ msgstr "Kontoinformation"
 #: ckan/templates/user/edit.html:19
 msgid ""
 " Your profile lets other CKAN users know about who you are and what you do. "
-msgstr ""
+msgstr "Din profil visar andra CKAN-användare vem du är och vad du gör."
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change details"
-msgstr ""
+msgstr "Ändringar"
 
 #: ckan/templates/user/edit_user_form.html:11
 #: ckan/templates_legacy/user/edit_user_form.html:21
@@ -4279,7 +4280,7 @@ msgstr "Namn"
 
 #: ckan/templates/user/edit_user_form.html:11
 msgid "eg. Joe Bloggs"
-msgstr "t. ex. Joe Bloggs"
+msgstr "t. ex. Joe Exempelsson"
 
 #: ckan/templates/user/edit_user_form.html:13
 msgid "eg. joe@example.com"
@@ -4359,7 +4360,7 @@ msgstr "Glömt ditt lösenord?"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
 msgid "Logged Out"
-msgstr ""
+msgstr "Utloggad"
 
 #: ckan/templates/user/logout.html:11
 msgid "You are now logged out."
@@ -4367,7 +4368,7 @@ msgstr "Du är nu utloggad."
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
-msgstr ""
+msgstr "Du är redan inloggad som {user}."
 
 #: ckan/templates/user/logout_first.html:9
 #: ckan/templates_legacy/layout_base.html:56
@@ -4386,7 +4387,7 @@ msgstr "Du är redan inloggad"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
-msgstr ""
+msgstr "Du måste logga ut innan du kan logga in med ett annat konto."
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
@@ -4402,7 +4403,7 @@ msgstr "Skapa ett nytt konto"
 
 #: ckan/templates/user/new.html:22
 msgid "Why Sign Up?"
-msgstr ""
+msgstr "Varför registrera sig?"
 
 #: ckan/templates/user/new.html:24
 msgid "Create datasets, groups and other exciting things"
@@ -4430,28 +4431,28 @@ msgstr "Återställ lösenord"
 
 #: ckan/templates/user/perform_reset.html:22
 msgid "Update Password"
-msgstr ""
+msgstr "Uppdatera lösenord"
 
 #: ckan/templates/user/perform_reset.html:32
 #: ckan/templates/user/request_reset.html:26
 msgid "How does this work?"
-msgstr ""
+msgstr "Så här fungerar det:"
 
 #: ckan/templates/user/perform_reset.html:34
 msgid "Simply enter a new password and we'll update your account"
-msgstr ""
+msgstr "Ange ett nytt lösenord så blir ditt konto uppdaterat."
 
 #: ckan/templates/user/read.html:21
 msgid "User hasn't created any datasets."
-msgstr ""
+msgstr "Användaren har inte skapat något dataset."
 
 #: ckan/templates/user/read_base.html:34
 msgid "You have not provided a biography."
-msgstr ""
+msgstr "Du har inte angivit någon biografi."
 
 #: ckan/templates/user/read_base.html:36
 msgid "This user has no biography."
-msgstr ""
+msgstr "Den här användaren har ingen biografi."
 
 #: ckan/templates/user/read_base.html:62
 msgid "Open ID"
@@ -4459,11 +4460,11 @@ msgstr "Open ID"
 
 #: ckan/templates/user/read_base.html:71 ckan/templates/user/read_base.html:85
 msgid "This means only you can see this"
-msgstr ""
+msgstr "Det innebär att bara du kan se denna"
 
 #: ckan/templates/user/read_base.html:76
 msgid "Member Since"
-msgstr ""
+msgstr "Medlem sedan"
 
 #: ckan/templates/user/read_base.html:85
 #: ckan/templates_legacy/user/read.html:42
@@ -4472,7 +4473,7 @@ msgstr "API-nyckel"
 
 #: ckan/templates/user/request_reset.html:17
 msgid "Request Reset"
-msgstr ""
+msgstr "Begär återställning"
 
 #: ckan/templates/user/request_reset.html:28
 msgid ""
@@ -4483,15 +4484,15 @@ msgstr "Mata in ditt användarnamn i fältet, så skickar vi ett email med en l�
 #: ckan/templates/user/snippets/followee_dropdown.html:12
 #: ckan/templates/user/snippets/followee_dropdown.html:13
 msgid "Activity from:"
-msgstr ""
+msgstr "Aktivitet från:"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:21
 msgid "Search list..."
-msgstr ""
+msgstr "Sök lista..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:42
 msgid "You are not following anything"
-msgstr ""
+msgstr "Du följer ingenting."
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"
@@ -5063,7 +5064,7 @@ msgid ""
 " artworks when you visit the city. Open data means more enterprise, "
 "collaborative science and transparent government. You can read more about "
 "open data in the [1:Open Data Handbook]."
-msgstr ""
+msgstr "Merparten av alla data på %(site_title)s är tillgängliga med en öppen licens vilket innebär att vem som helst får använda informationen som de vill. Kanske tar någon ditt dataset om offentliga utsmyckningar och använder det när de tar fram en turistkarta. Eller så dyker informationen upp i en app. Öppna data innebär bättre möjligheter för företagande, samarbete och insyn i offentlig sektor. Du kan läsa mer om öppna data i guiden [1:Open Data Handbook]."
 
 #: ckan/templates_legacy/home/about.html:34
 msgid ""
@@ -5100,7 +5101,7 @@ msgstr "Dela data"
 msgid ""
 "Add your own datasets to share them with others and\n"
 "          to find other people interested in your data."
-msgstr ""
+msgstr "Lägg till egna dataset för att dela med andra \noch hitta personer som är intresserade av dina data."
 
 #: ckan/templates_legacy/home/index.html:38
 msgid "Create a dataset »"
@@ -5118,7 +5119,7 @@ msgstr "Samarbeta"
 msgid ""
 "Find out more about working with open data by exploring \n"
 "          these resources:"
-msgstr ""
+msgstr "Ta reda på mer om att arbeta med öppna data genom att \nundersöka följande resurser:"
 
 #: ckan/templates_legacy/home/index.html:54
 msgid "GetTheData.org"
@@ -5150,13 +5151,13 @@ msgstr ""
 
 #: ckan/templates_legacy/importer/importer.html:8
 msgid "Import Datasets"
-msgstr ""
+msgstr "Importera dataset"
 
 #: ckan/templates_legacy/importer/importer.html:9
 msgid ""
 "Here you can supply an Excel file with details of multiple datasets and "
 "import these into"
-msgstr ""
+msgstr "Här kan du leverera en Excel-fil med information om flera dataset och importera dem till"
 
 #: ckan/templates_legacy/importer/importer.html:30
 msgid "Log in to use this tool"
@@ -5172,11 +5173,11 @@ msgstr ""
 
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "read from"
-msgstr ""
+msgstr "läs från"
 
 #: ckan/templates_legacy/importer/preview.html:25
 msgid "Further dataset previews not shown."
-msgstr ""
+msgstr "Fler förhandsgranskningar av dataset visas inte."
 
 #: ckan/templates_legacy/importer/preview.html:28
 #: ckan/templates_legacy/package/edit_form.html:13
@@ -5194,7 +5195,7 @@ msgstr "Författare:"
 
 #: ckan/templates_legacy/importer/preview.html:34
 msgid "Import"
-msgstr ""
+msgstr "Import"
 
 #: ckan/templates_legacy/importer/result.html:5
 msgid "Results - Importer"
@@ -5250,7 +5251,7 @@ msgstr "Redigera resurser"
 
 #: ckan/templates_legacy/package/followers.html:6
 msgid "- Datasets - Followers"
-msgstr ""
+msgstr "- Dataset - Följare"
 
 #: ckan/templates_legacy/package/followers.html:7
 msgid "Followers:"
@@ -5647,7 +5648,7 @@ msgstr "Vänligen lägg till en rubrik för posten"
 
 #: ckan/templates_legacy/related/add-related.html:22
 msgid "Type of item"
-msgstr ""
+msgstr "Typ av post"
 
 #: ckan/templates_legacy/related/add-related.html:35
 msgid "Please describe the item"
@@ -5659,7 +5660,7 @@ msgstr "Ange en URL"
 
 #: ckan/templates_legacy/related/add-related.html:43
 msgid "Please add a link to the image"
-msgstr ""
+msgstr "Ange en länk till bilden"
 
 #: ckan/templates_legacy/related/dashboard.html:24
 msgid "Showing items"
@@ -5680,7 +5681,7 @@ msgstr "Minst visade"
 
 #: ckan/templates_legacy/related/dashboard.html:55
 msgid "Featured items only?"
-msgstr ""
+msgstr "Endast utvalda poster?"
 
 #: ckan/templates_legacy/related/related_list.html:17
 #: ckan/templates_legacy/related/related_list.html:21
@@ -5689,7 +5690,7 @@ msgstr "- Appar, Idér etc"
 
 #: ckan/templates_legacy/related/related_list.html:28
 msgid "There are no items here yet"
-msgstr ""
+msgstr "Det finns inga poster än."
 
 #: ckan/templates_legacy/related/related_list.html:29
 msgid ", why not"
@@ -5829,31 +5830,31 @@ msgstr "- Dashboard - Användare"
 
 #: ckan/templates_legacy/user/dashboard.html:17
 msgid "What's going on?"
-msgstr ""
+msgstr "Vad är på gång?"
 
 #: ckan/templates_legacy/user/dashboard.html:25
 msgid "Nothing new on CKAN?"
-msgstr ""
+msgstr "Inget nytt på CKAN?"
 
 #: ckan/templates_legacy/user/dashboard.html:26
 msgid "So, why don't you ..."
-msgstr ""
+msgstr "Varför inte ..."
 
 #: ckan/templates_legacy/user/dashboard.html:28
 msgid "Add a new dataset"
-msgstr ""
+msgstr "Lägg till ett nytt dataset"
 
 #: ckan/templates_legacy/user/dashboard.html:29
 msgid "Follow another user"
-msgstr ""
+msgstr "Följ en annan användare"
 
 #: ckan/templates_legacy/user/dashboard.html:30
 msgid "Create a group or a tag"
-msgstr ""
+msgstr "Skapa en grupp eller tagg"
 
 #: ckan/templates_legacy/user/dashboard.html:31
 msgid "Or simply browse the repository"
-msgstr ""
+msgstr "Eller bara bläddra bland alla dataset"
 
 #: ckan/templates_legacy/user/edit.html:6
 msgid "- Edit - User"
@@ -5892,15 +5893,15 @@ msgstr "Ändra ditt användarnamn"
 msgid ""
 "Changing your username will log you out, and require you to log back in with"
 " the new username"
-msgstr ""
+msgstr "Om du ändrar användarnamn så loggas du ut och måste logga in igen med det nya användarnamnet."
 
 #: ckan/templates_legacy/user/followers.html:6
 msgid "- Followers - User"
-msgstr ""
+msgstr "- Följare - Användare"
 
 #: ckan/templates_legacy/user/followers.html:8
 msgid "'s Followers"
-msgstr ""
+msgstr "s följare"
 
 #: ckan/templates_legacy/user/layout.html:12
 msgid "My Profile"
@@ -5912,7 +5913,7 @@ msgstr "Redigera profil"
 
 #: ckan/templates_legacy/user/layout.html:16
 msgid "My Followers ({num_followers})"
-msgstr ""
+msgstr "Mina följare ({num_followers})"
 
 #: ckan/templates_legacy/user/layout.html:25
 msgid "View Profile"
@@ -5958,7 +5959,7 @@ msgstr "Lösenord:"
 
 #: ckan/templates_legacy/user/login.html:41
 msgid "Remember me:"
-msgstr ""
+msgstr "Kom ihåg mig:"
 
 #: ckan/templates_legacy/user/login.html:49
 msgid "Sign In"
@@ -6101,15 +6102,15 @@ msgstr "Färdig"
 
 #: ckanext/datapusher/helpers.py:20
 msgid "Pending"
-msgstr ""
+msgstr "Väntar"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Submitting"
-msgstr ""
+msgstr "Skickar"
 
 #: ckanext/datapusher/helpers.py:27
 msgid "Not Uploaded Yet"
-msgstr ""
+msgstr "Inte uppladdad än"
 
 #: ckanext/datastore/controller.py:31
 msgid "DataStore resource not found"
@@ -6119,23 +6120,23 @@ msgstr ""
 #: ckanext/datastore/logic/action.py:328 ckanext/datastore/logic/action.py:412
 #: ckanext/datastore/logic/action.py:438
 msgid "Resource \"{0}\" was not found."
-msgstr ""
+msgstr "Resursen \"{0}\" hittades inte."
 
 #: ckanext/datastore/logic/auth.py:15
 msgid "User {0} not authorized to update resource {1}"
-msgstr ""
+msgstr "Användare {0} har inte behörighet att uppdatera resurs {1}"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 msgid "Custom Text"
-msgstr ""
+msgstr "Egen text"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 msgid "custom text"
-msgstr ""
+msgstr "egen text"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:13
 msgid "Country Code"
-msgstr ""
+msgstr "Landkod"
 
 #: ckanext/reclinepreview/theme/public/vendor/slickgrid/2.0.1/MIT-LICENSE.txt:1
 msgid ""
@@ -6193,12 +6194,12 @@ msgstr "Datum"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
-msgstr ""
+msgstr "Totalt antal dataset"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
 msgid "Dataset Revisions per Week"
-msgstr ""
+msgstr "Versioner av dataset per vecka"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
@@ -6206,7 +6207,7 @@ msgstr "Alla versioner av detta dataset"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
-msgstr ""
+msgstr "Nya dataset"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 #: ckanext/stats/templates/ckanext/stats/index.html:180
@@ -6242,7 +6243,7 @@ msgstr "Antal redigeringar"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:103
 msgid "No edited datasets"
-msgstr ""
+msgstr "Inga redigerade dataset"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:108
 #: ckanext/stats/templates/ckanext/stats/index.html:182
@@ -6262,12 +6263,12 @@ msgstr "Mest använda taggar"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:136
 msgid "Tag Name"
-msgstr ""
+msgstr "Taggnamn"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:137
 #: ckanext/stats/templates/ckanext/stats/index.html:157
 msgid "Number of Datasets"
-msgstr ""
+msgstr "Antal dataset"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
@@ -6280,7 +6281,7 @@ msgstr "Statistikmeny"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:178
 msgid "Total Number of Datasets"
-msgstr ""
+msgstr "Totalt antal dataset"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:60
 msgid "Revisions to Datasets per week"
