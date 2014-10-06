@@ -3,25 +3,28 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# amercader <amercadero@gmail.com>, 2014
+# Adrià Mercader <adria.mercader@okfn.org>, 2014
 # Anne-Marie Luigi-Way, 2013
 # arthur.lutz <arthur.lutz@gmail.com>, 2012
 # Emmanuel <emmanuel@raviart.com>, 2013
 # <internet@davidread.org>, 2011
 # keronos <aka.keronos@gmail.com>, 2012
 # Open Knowledge Foundation <translations@okfn.org>, 2011
-# pchrzanowski <pierre.chrzanowski@gmail.com>, 2013
+# pierre chrzanowski <pierre.chrzanowski@gmail.com>, 2013
 # Philippe Duchesne, 2014
 # Philippe Duchesne, 2014
-# ppezziardi <pierre@pezziardi.net>, 2013
-# Regards Citoyens <contact@regardscitoyens.org>, 2013
+# Philippe Duchesne, 2014
+# pierre chrzanowski <pierre.chrzanowski@gmail.com>, 2013
+# Pierre Pezziardi <pierre@pezziardi.net>, 2013
+# Pierre Pezziardi <pierre@pezziardi.net>, 2013
+# Regards Citoyens <contact@regardscitoyens.org>, 2013-2014
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2014-01-13 22:40+0000\n"
-"Last-Translator: amercader <amercadero@gmail.com>\n"
+"PO-Revision-Date: 2014-07-06 18:21+0000\n"
+"Last-Translator: Roux <b.ooghe@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/ckan/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1180,7 +1183,7 @@ msgid ""
 "\n"
 "       %(reset_link)s\n"
 "    "
-msgstr "Vous avez demandé le réinitialisation de votre mot de passe sur le site %(site_title)s.\n\nMerci de cliquer sur le lien suivant pour confirmer votre requête:\n\n%(reset_link)s"
+msgstr "Vous avez demandé la réinitialisation de votre mot de passe sur le site %(site_title)s.\n\nMerci de cliquer sur le lien suivant pour confirmer votre requête:\n\n%(reset_link)s"
 
 #: ckan/lib/mailer.py:119
 #, python-format
@@ -2221,7 +2224,7 @@ msgstr "Déconnexion"
 
 #: ckan/templates/header.html:52 ckan/templates/user/logout_first.html:15
 msgid "Log in"
-msgstr "Connection"
+msgstr "Connexion"
 
 #: ckan/templates/header.html:54 ckan/templates/user/new.html:3
 #: ckan/templates_legacy/layout_base.html:60
@@ -2566,12 +2569,12 @@ msgstr "Confirmer la suppression"
 
 #: ckan/templates/group/confirm_delete.html:11
 msgid "Are you sure you want to delete group - {name}?"
-msgstr "Etes-vous sûr de vouloir supprimer le groupe - {name}?"
+msgstr "Êtes-vous sûr de vouloir supprimer le groupe - {name}?"
 
 #: ckan/templates/group/confirm_delete_member.html:11
 #: ckan/templates/organization/confirm_delete_member.html:11
 msgid "Are you sure you want to delete member - {name}?"
-msgstr "Etes-vous sûr de vouloir supprimer le membre - {name}?"
+msgstr "Êtes-vous sûr de vouloir supprimer le membre - {name}?"
 
 #: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:3
 #: ckan/templates/group/edit_base.html:11
@@ -2583,7 +2586,7 @@ msgstr "Etes-vous sûr de vouloir supprimer le membre - {name}?"
 #: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
 #: ckan/templates/user/read_base.html:14
 msgid "Manage"
-msgstr "Gérer"
+msgstr "Éditer"
 
 #: ckan/templates/group/edit.html:12
 msgid "Edit Group"

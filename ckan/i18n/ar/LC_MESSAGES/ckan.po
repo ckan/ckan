@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# mireilleraad <mir.mir@gmail.com>, 2013
+# Adrià Mercader <adria.mercader@okfn.org>, 2014
+# Mireille Raad <mir.mir@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2013-12-13 11:51+0000\n"
-"Last-Translator: amercader <amercadero@gmail.com>\n"
+"PO-Revision-Date: 2014-10-06 11:56+0000\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/projects/p/ckan/language/ar/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -422,7 +423,7 @@ msgid ""
 "Please <a href=\"{link}\">update your profile</a> and add your email address"
 " and your full name. {site} uses your email address if you need to reset "
 "your password."
-msgstr "يرجى  <\"{a href=\"{link> تحديث ملفك الشخصي </a> و إضافة عنوان البريد الإلكتروني الخاص بك واسمك الكامل. {site} يستخدم عنوان البريد الإلكتروني الخاص بك إذا كنت تحتاج إلى إعادة تعيين كلمة السر الخاصة بك."
+msgstr "يرجى  <\"{a href=\"{link> تحديث ملفك الشخصي <a/> و إضافة عنوان البريد الإلكتروني الخاص بك واسمك الكامل. {site} يستخدم عنوان البريد الإلكتروني الخاص بك إذا كنت تحتاج إلى إعادة تعيين كلمة السر الخاصة بك."
 
 #: ckan/controllers/home.py:103
 #, python-format

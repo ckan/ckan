@@ -5,10 +5,10 @@
 # Translators:
 # EdoPlantinga <edo.plantinga@koop.wmrijk.nl>, 2012
 # egonwillighagen <egon.willighagen@gmail.com>, 2012
-# gpersoon <mail@gpersoon.com>, 2014
+# Gerard Persoon <mail@gpersoon.com>, 2014
 # <internet@davidread.org>, 2011
-# mabtam <mblumenfrucht@totalactivemedia.nl>, 2013
-# miblon <milo@dogodigi.net>, 2014
+# Marc B <mblumenfrucht@totalactivemedia.nl>, 2013
+# Milo van der Linden <milo@dogodigi.net>, 2014
 # Paul Suijkerbuijk <paul@oller.nl>, 2011,2013
 # TonZijlstra <ton.zijlstra@gmail.com>, 2011
 msgid ""
@@ -17,7 +17,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
 "PO-Revision-Date: 2014-01-06 20:11+0000\n"
-"Last-Translator: gpersoon <mail@gpersoon.com>\n"
+"Last-Translator: Gerard Persoon <mail@gpersoon.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/ckan/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
