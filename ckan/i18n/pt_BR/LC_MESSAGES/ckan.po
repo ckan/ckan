@@ -4,14 +4,14 @@
 # 
 # Translators:
 # Augusto Herrmann <augusto.herrmann@gmail.com>, 2013
-# christian.miranda <christian.miranda@planejamento.gov.br>, 2013
-# christianmoryah <christianmoryah@gmail.com>, 2012
+# christian moryah contiero miranda <christian.miranda@planejamento.gov.br>, 2013
+# Christian Moryah Contiero Miranda <christianmoryah@gmail.com>, 2012
 # Pablo Mendes <>, 2012
 # Yaso <yasodara.cordova@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-07-01 17:35+0100\n"
 "PO-Revision-Date: 2013-07-18 16:33+0000\n"
 "Last-Translator: Augusto Herrmann <augusto.herrmann@gmail.com>\n"

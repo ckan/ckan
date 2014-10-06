@@ -8,11 +8,11 @@
 # Olav A. Øvrebø <olav.ovrebo@gmail.com>, 2011-2013
 # Open Knowledge Foundation <translations@okfn.org>, 2011
 # Sean Hammond <sean.hammond@okfn.org>, 2012
-# Thomas Hirsch <thomas.hirsch@gmail.com>, 2012
+# relet <thomas.hirsch@gmail.com>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-07-01 17:35+0100\n"
 "PO-Revision-Date: 2013-07-02 16:43+0000\n"
 "Last-Translator: Olav A. Øvrebø <olav.ovrebo@gmail.com>\n"
