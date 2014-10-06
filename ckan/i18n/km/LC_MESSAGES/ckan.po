@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# ODM Cambodia <cambodia@opendevmekong.net>, 2014
 # Vantharith Oum <vantharith.oum@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2013-12-13 11:51+0000\n"
-"Last-Translator: amercader <amercadero@gmail.com>\n"
+"PO-Revision-Date: 2014-10-03 10:52+0000\n"
+"Last-Translator: ODM Cambodia <cambodia@opendevmekong.net>\n"
 "Language-Team: Khmer (http://www.transifex.com/projects/p/ckan/language/km/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -22,7 +23,7 @@ msgstr ""
 #: ckan/new_authz.py:189
 #, python-format
 msgid "Authorization function not found: %s"
-msgstr ""
+msgstr "ពុំមានមុខងារអនុញ្ញាត៖  %s"
 
 #: ckan/new_authz.py:201
 msgid "Admin"
@@ -30,7 +31,7 @@ msgstr "អ្នកអភិបាល"
 
 #: ckan/new_authz.py:205
 msgid "Editor"
-msgstr "Editor"
+msgstr "ពណ្ណាធីការ"
 
 #: ckan/new_authz.py:209
 msgid "Member"
@@ -38,7 +39,7 @@ msgstr "សមាជិក"
 
 #: ckan/controllers/admin.py:27
 msgid "Need to be system administrator to administer"
-msgstr ""
+msgstr "ចាំបាច់ត្រូវតែជាអ្នកគ្រប់គ្រងប្រព័ន្ធដើម្បីធ្វើការគ្រប់គ្រង"
 
 #: ckan/controllers/admin.py:43
 msgid "Site Title"
@@ -46,15 +47,15 @@ msgstr "ចំណងជើងតំបន់បណ្តាញ"
 
 #: ckan/controllers/admin.py:44
 msgid "Style"
-msgstr ""
+msgstr "  រចនាបថ"
 
 #: ckan/controllers/admin.py:45
 msgid "Site Tag Line"
-msgstr ""
+msgstr "ស្លាកបន្ទាត់របស់គេហទំព័រ"
 
 #: ckan/controllers/admin.py:46
 msgid "Site Tag Logo"
-msgstr ""
+msgstr "ស្លាករូបសំគាល់របស់គេហទំព័រ"
 
 #: ckan/controllers/admin.py:47 ckan/templates/header.html:97
 #: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:19
@@ -86,15 +87,15 @@ msgstr "អត្ថបទលើគេហទំព័រ"
 
 #: ckan/controllers/admin.py:49
 msgid "Custom CSS"
-msgstr "Custom CSS"
+msgstr "កែរសំរួល CSS"
 
 #: ckan/controllers/admin.py:49
 msgid "Customisable css inserted into the page header"
-msgstr ""
+msgstr "CSS ដែលកែរសំរួលត្រូវបានបញ្ចូលទៅក្នុងបឋមកថាទំព័រ​"
 
 #: ckan/controllers/admin.py:50
 msgid "Homepage"
-msgstr ""
+msgstr "គេហទំព័រដើម"
 
 #: ckan/controllers/admin.py:131
 #, python-format
@@ -110,11 +111,11 @@ msgstr ""
 
 #: ckan/controllers/admin.py:155
 msgid "Purge complete"
-msgstr ""
+msgstr "សម្អាតទាំងស្រុង"
 
 #: ckan/controllers/admin.py:157
 msgid "Action not implemented."
-msgstr ""
+msgstr "សកម្មភាពមិនត្រូវបានអនុវត្ត។"
 
 #: ckan/controllers/api.py:60 ckan/controllers/group.py:151
 #: ckan/controllers/home.py:29 ckan/controllers/package.py:127
@@ -123,11 +124,11 @@ msgstr ""
 #: ckan/controllers/user.py:46 ckan/controllers/user.py:73
 #: ckan/controllers/user.py:101 ckan/controllers/user.py:534
 msgid "Not authorized to see this page"
-msgstr ""
+msgstr "ពសិទ្ធិដើម្បីមើលទំព័រនេះ"
 
 #: ckan/controllers/api.py:118 ckan/controllers/api.py:201
 msgid "Access denied"
-msgstr ""
+msgstr "ការចូលត្រូវបានបដិសេធ"
 
 #: ckan/controllers/api.py:124 ckan/controllers/api.py:210
 #: ckan/logic/converters.py:122 ckan/logic/converters.py:147
@@ -138,11 +139,11 @@ msgstr ""
 #: ckan/logic/validators.py:230 ckan/logic/validators.py:239
 #: ckan/logic/validators.py:681 ckan/logic/action/create.py:764
 msgid "Not found"
-msgstr "រកមិនឃើញ"
+msgstr "ពុំអាចរកបាន"
 
 #: ckan/controllers/api.py:130
 msgid "Bad request"
-msgstr ""
+msgstr "ការស្នើរសុំមិនត្រូវលក្ខខណ្ឌ"
 
 #: ckan/controllers/api.py:164
 #, python-format
@@ -153,12 +154,12 @@ msgstr ""
 #: ckan/controllers/api.py:412
 #, python-format
 msgid "JSON Error: %s"
-msgstr ""
+msgstr "កំហុស​ JSON៖ %s"
 
 #: ckan/controllers/api.py:182
 #, python-format
 msgid "Bad request data: %s"
-msgstr ""
+msgstr "ទិន្នន័យដែលបានស្នើរសុំមិនត្រូវលក្ខខណ្ឌ៖​ %s"
 
 #: ckan/controllers/api.py:280 ckan/logic/action/get.py:2003
 #, python-format
@@ -186,7 +187,7 @@ msgstr ""
 
 #: ckan/controllers/api.py:442
 msgid "Unable to update search index"
-msgstr ""
+msgstr "មិនអាចធ្វើបច្ចុប្បន្នភាពលិបិក្រមស្វែងរកទេ"
 
 #: ckan/controllers/api.py:466
 #, python-format
@@ -195,12 +196,12 @@ msgstr ""
 
 #: ckan/controllers/api.py:491
 msgid "No revision specified"
-msgstr ""
+msgstr "មិនមានការកែប្រែណាមួយត្រូវបាន​បញ្ជាក់"
 
 #: ckan/controllers/api.py:495
 #, python-format
 msgid "There is no revision with id: %s"
-msgstr ""
+msgstr "មិនមានការកែប្រែណាមួយមានលេខសម្គាល់នេះ៖ %s"
 
 #: ckan/controllers/api.py:505
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
@@ -219,7 +220,7 @@ msgstr ""
 #: ckan/controllers/api.py:579
 #, python-format
 msgid "Unknown register: %s"
-msgstr ""
+msgstr "បញ្ជីមិនស្គាល់៖ %s"
 
 #: ckan/controllers/api.py:588
 #, python-format
@@ -239,7 +240,7 @@ msgstr ""
 #: ckan/controllers/group.py:776 ckan/controllers/group.py:858
 #: ckan/controllers/package.py:1327 ckan/controllers/package.py:1338
 msgid "Group not found"
-msgstr "រកមិនឃើញ"
+msgstr " ក្រុមរកមិនឃើញ"
 
 #: ckan/controllers/feed.py:285 ckan/controllers/feed.py:287
 #: ckan/controllers/feed.py:437 ckan/controllers/feed.py:439
@@ -248,14 +249,14 @@ msgstr ""
 
 #: ckan/controllers/group.py:172
 msgid "Incorrect group type"
-msgstr ""
+msgstr "ប្រភេទក្រុមមិនត្រឹមត្រូវ"
 
 #: ckan/controllers/group.py:192 ckan/controllers/group.py:387
 #: ckan/controllers/group.py:474 ckan/controllers/group.py:515
 #: ckan/controllers/group.py:547 ckan/controllers/group.py:860
 #, python-format
 msgid "Unauthorized to read group %s"
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតក្នុងការអានក្រុម %s"
 
 #: ckan/controllers/group.py:289 ckan/controllers/home.py:70
 #: ckan/controllers/package.py:225 ckan/lib/helpers.py:601
@@ -268,7 +269,7 @@ msgstr ""
 #: ckan/templates/organization/read_base.html:6
 #: ckan/templates/package/base.html:14
 msgid "Organizations"
-msgstr ""
+msgstr "អង្គភាព"
 
 #: ckan/controllers/group.py:290 ckan/controllers/home.py:71
 #: ckan/controllers/package.py:226 ckan/lib/helpers.py:602
@@ -308,7 +309,7 @@ msgstr "ស្លាក"
 #: ckan/controllers/group.py:292 ckan/controllers/home.py:73
 #: ckan/controllers/package.py:228 ckan/lib/helpers.py:604
 msgid "Formats"
-msgstr ""
+msgstr "ទ្រង់ទ្រាយ"
 
 #: ckan/controllers/group.py:293 ckan/controllers/home.py:74
 #: ckan/lib/helpers.py:605 ckan/templates/package/resource_read.html:109
@@ -317,7 +318,7 @@ msgstr ""
 #: ckan/templates_legacy/package/new_package_form.html:73
 #: ckan/templates_legacy/package/resource_read.html:106
 msgid "License"
-msgstr ""
+msgstr "អាជ្ញាប័ណ្ឌ"
 
 #: ckan/controllers/group.py:417
 msgid "Not authorized to perform bulk update"
@@ -325,74 +326,74 @@ msgstr ""
 
 #: ckan/controllers/group.py:434
 msgid "Unauthorized to create a group"
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតអោយបង្កើតក្រុម"
 
 #: ckan/controllers/group.py:483 ckan/controllers/package.py:320
 #: ckan/controllers/package.py:811
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr ""
+msgstr "អ្នកប្រើ %r មិនត្រូវបានអនុញ្ញាតក្នុងការកែសម្រួល  %s ទេ"
 
 #: ckan/controllers/group.py:519 ckan/controllers/group.py:551
 #: ckan/controllers/package.py:971 ckan/controllers/package.py:1022
 #: ckan/controllers/related.py:190 ckan/controllers/user.py:210
 #: ckan/controllers/user.py:314 ckan/controllers/user.py:490
 msgid "Integrity Error"
-msgstr ""
+msgstr "កំហុសឆ្គងនៃភាពត្រឹមត្រូវ"
 
 #: ckan/controllers/group.py:574
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
-msgstr ""
+msgstr "អ្នកប្រើ %r មិនត្រូវបានអនុញ្ញាតក្នុងការកែសម្រួលទៅលើការអនុញ្ញាត %s ទេ"
 
 #: ckan/controllers/group.py:591 ckan/controllers/group.py:603
 #: ckan/controllers/group.py:618 ckan/controllers/group.py:687
 #, python-format
 msgid "Unauthorized to delete group %s"
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតអោយលុបក្រុម %s"
 
 #: ckan/controllers/group.py:597
 msgid "Organization has been deleted."
-msgstr ""
+msgstr "អង្គការត្រូវបានលុប។"
 
 #: ckan/controllers/group.py:599
 msgid "Group has been deleted."
-msgstr ""
+msgstr "ក្រុមត្រូវបានលុបចោល"
 
 #: ckan/controllers/group.py:658
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតអោយបន្ថែមសមាជិកក្រុម %s"
 
 #: ckan/controllers/group.py:675
 #, python-format
 msgid "Unauthorized to delete group %s members"
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតអោយលុបសមាជិកក្រុម %s"
 
 #: ckan/controllers/group.py:681
 msgid "Group member has been deleted."
-msgstr ""
+msgstr "សមាជិកក្រុមត្រូវបានលុបចោល"
 
 #: ckan/controllers/group.py:703 ckan/controllers/package.py:423
 msgid "Select two revisions before doing the comparison."
-msgstr ""
+msgstr "ជ្រើសការកែប្រែពីរមុនពេលធ្វើការប្រៀបធៀប។"
 
 #: ckan/controllers/group.py:722
 #, python-format
 msgid "User %r not authorized to edit %r"
-msgstr ""
+msgstr "អ្នកប្រើ %r មិនត្រូវបានអនុញ្ញាតក្នុងការកែសម្រួលទៅលើ​ %r ទេ"
 
 #: ckan/controllers/group.py:729
 msgid "CKAN Group Revision History"
-msgstr ""
+msgstr "ប្រវត្តិនៃការកែប្រែក្រុមរបស់ CKAN"
 
 #: ckan/controllers/group.py:732
 msgid "Recent changes to CKAN Group: "
-msgstr ""
+msgstr "ការផ្លាស់ប្តូរថ្មីដើម្បីក្រុម CKAN៖"
 
 #: ckan/controllers/group.py:753 ckan/controllers/package.py:473
 msgid "Log message: "
-msgstr ""
+msgstr "សារកំណត់ហេតុ៖"
 
 #: ckan/controllers/group.py:779
 msgid "Unauthorized to read group {group_id}"
@@ -415,33 +416,33 @@ msgstr ""
 
 #: ckan/controllers/home.py:37
 msgid "This site is currently off-line. Database is not initialised."
-msgstr ""
+msgstr "បណ្តាញនេះគឺស្ថិតនៅក្រៅបណ្តាញក្នុងពេលបច្ចុប្បន្ន។ មូលដ្ឋានទិន្នន័យមិនត្រូវបានធ្វើការចាប់ផ្ដើម។"
 
 #: ckan/controllers/home.py:100
 msgid ""
 "Please <a href=\"{link}\">update your profile</a> and add your email address"
 " and your full name. {site} uses your email address if you need to reset "
 "your password."
-msgstr ""
+msgstr "សូម<a href=\"{link}\">ធ្វើបច្ចុប្បន្នភាពអំពីពត៍មានផ្ទាល់ខ្លួនរបស់អ្នក</a> ​ហើយនឹងបំពេញអាស័យដ្ឋានអ៊ីម៉ែលនិងឈ្មោះពេញរបស់អ្នក។ {site} ប្រើអាសយដ្ឋានអ៊ីម៉ែលរបស់អ្នក ប្រសិនបើអ្នកត្រូវការធ្វើការកំណត់ពាក្យសម្ងាត់សារជាថ្មី។"
 
 #: ckan/controllers/home.py:103
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
-msgstr ""
+msgstr "សូម<a href=\"%s\">ធ្វើបច្ចុប្បន្នភាពអំពីពត៍មានផ្ទាល់ខ្លួនរបស់អ្នក</a> ​ហើយនឹងបំពេញអាស័យដ្ឋានអ៊ីម៉ែលរបស់អ្នក។"
 
 #: ckan/controllers/home.py:105
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr ""
+msgstr "%s ប្រើអ៊ីម៉ែលរបស់អ្នកប្រសិនបើអ្នកត្រូវការកំណត់ពាក្យសម្ងាត់របស់អ្នកឡើងវិញ។"
 
 #: ckan/controllers/home.py:109
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your full name."
-msgstr ""
+msgstr "សូម <a href=\"%s\">ធ្វើបច្ចុប្បន្នភាពអំពីពត៍មានផ្ទាល់ខ្លួនរបស់អ្នក</a> ​ហើយនឹងបំពេញឈ្មោះពេញរបស់អ្នក។"
 
 #: ckan/controllers/package.py:229
 msgid "Licenses"
-msgstr ""
+msgstr "អាជ្ញាប័ណ្ណ"
 
 #: ckan/controllers/package.py:279
 msgid "Parameter \"{parameter_name}\" is not an integer"
@@ -455,7 +456,7 @@ msgstr ""
 #: ckan/controllers/package.py:1313 ckan/controllers/package.py:1376
 #: ckan/controllers/related.py:113 ckan/controllers/related.py:122
 msgid "Dataset not found"
-msgstr "រកមិនឃើញសំនំុទិន្នន័យ"
+msgstr "រកមិនឃើញបណ្តុំទិន្នន័យ"
 
 #: ckan/controllers/package.py:328 ckan/controllers/package.py:381
 #: ckan/controllers/package.py:440 ckan/controllers/package.py:795
@@ -470,7 +471,7 @@ msgstr ""
 #: ckan/controllers/package.py:371
 #, python-format
 msgid "Invalid revision format: %r"
-msgstr ""
+msgstr "ទ្រង់ទ្រាយនៃការកែប្រែមិនត្រឹមត្រូវ៖ %r"
 
 #: ckan/controllers/package.py:404
 msgid ""
@@ -480,11 +481,11 @@ msgstr ""
 
 #: ckan/controllers/package.py:449
 msgid "CKAN Dataset Revision History"
-msgstr ""
+msgstr "ប្រវត្តិនៃការកែប្រែបណ្តុំទិន្នន័យរបស់ CKAN"
 
 #: ckan/controllers/package.py:452
 msgid "Recent changes to CKAN Dataset: "
-msgstr ""
+msgstr "ការផ្លាស់ប្តូរថ្មីលើ បណ្តុំទិន្នន័យ CKAN៖"
 
 #: ckan/controllers/package.py:503
 msgid "Unauthorized to create a package"
@@ -492,7 +493,7 @@ msgstr ""
 
 #: ckan/controllers/package.py:574 ckanext/datapusher/plugin.py:52
 msgid "Unauthorized to edit this resource"
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតអោយធ្វើការកែសម្រួលធនធាននេះ"
 
 #: ckan/controllers/package.py:594 ckan/controllers/package.py:1111
 #: ckan/controllers/package.py:1187 ckan/controllers/package.py:1225
@@ -503,7 +504,7 @@ msgstr "រកមិនឃើញ ធនធាន"
 
 #: ckan/controllers/package.py:643 ckan/controllers/package.py:750
 msgid "Unauthorized to update dataset"
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតអោយធ្វើបច្ចុប្បន្នភាពទិន្នន័យទេ"
 
 #: ckan/controllers/package.py:646 ckan/controllers/package.py:678
 #: ckan/controllers/package.py:706
@@ -518,7 +519,7 @@ msgstr ""
 #: ckan/templates_legacy/error_document_template.html:5
 #: ckanext/datapusher/helpers.py:22
 msgid "Error"
-msgstr ""
+msgstr "កំហុស"
 
 #: ckan/controllers/package.py:675
 msgid "Unauthorized to create a resource"
@@ -540,11 +541,11 @@ msgstr ""
 
 #: ckan/controllers/package.py:1079
 msgid "Dataset has been deleted."
-msgstr ""
+msgstr "បណ្តុំទិន្នន័យត្រូវបានលុបចោល"
 
 #: ckan/controllers/package.py:1104
 msgid "Resource has been deleted."
-msgstr ""
+msgstr "ធនធានត្រូវបានលុបចោល"
 
 #: ckan/controllers/package.py:1109
 #, python-format
@@ -577,15 +578,15 @@ msgstr ""
 #: ckan/controllers/related.py:69
 #: ckan/templates_legacy/related/dashboard.html:46
 msgid "Most viewed"
-msgstr ""
+msgstr "ដែលបានចូលមើលច្រើនបំផុត"
 
 #: ckan/controllers/related.py:70
 msgid "Most Viewed"
-msgstr ""
+msgstr "ដែលបានចូលមើលច្រើនបំផុត"
 
 #: ckan/controllers/related.py:71
 msgid "Least Viewed"
-msgstr ""
+msgstr "ដែលបានចូលមើលតិចបំផុត"
 
 #: ckan/controllers/related.py:72
 #: ckan/templates_legacy/related/dashboard.html:49
@@ -608,7 +609,7 @@ msgstr "រកមិនឃើញ វត្ថុដែលទាក់ទិន"
 #: ckan/controllers/related.py:158 ckan/logic/auth/get.py:10
 #: ckan/logic/auth/get.py:245
 msgid "Not authorized"
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាត"
 
 #: ckan/controllers/related.py:163
 msgid "Package not found"
@@ -644,7 +645,7 @@ msgstr "API"
 #: ckan/templates_legacy/related/add-related.html:25
 #: ckan/templates_legacy/related/dashboard.html:35
 msgid "Application"
-msgstr ""
+msgstr "កម្មវិធីអនុវត្ត"
 
 #: ckan/controllers/related.py:234
 #: ckan/templates_legacy/related/add-related.html:26
@@ -656,19 +657,19 @@ msgstr "គំនិត"
 #: ckan/templates_legacy/related/add-related.html:27
 #: ckan/templates_legacy/related/dashboard.html:37
 msgid "News Article"
-msgstr ""
+msgstr "អត្ថបទព័ត៌មាន"
 
 #: ckan/controllers/related.py:236
 #: ckan/templates_legacy/related/add-related.html:28
 #: ckan/templates_legacy/related/dashboard.html:38
 msgid "Paper"
-msgstr ""
+msgstr "ក្រដាស"
 
 #: ckan/controllers/related.py:237
 #: ckan/templates_legacy/related/add-related.html:29
 #: ckan/templates_legacy/related/dashboard.html:39
 msgid "Post"
-msgstr ""
+msgstr "ប្រកាស"
 
 #: ckan/controllers/related.py:238 ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/related/add-related.html:30
@@ -691,11 +692,11 @@ msgstr ""
 
 #: ckan/controllers/revision.py:197
 msgid "Revision updated"
-msgstr ""
+msgstr "ការកែប្រែបានធ្វើបច្ចុប្បន្នភាព"
 
 #: ckan/controllers/tag.py:56
 msgid "Other"
-msgstr ""
+msgstr "ផ្សេងៗទៀត"
 
 #: ckan/controllers/tag.py:70
 msgid "Tag not found"
@@ -710,63 +711,63 @@ msgstr "រកមិនឃើញអ្នកប្រើប្រាស់"
 
 #: ckan/controllers/user.py:147
 msgid "Unauthorized to register as a user."
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតអោយធ្វើការចុះឈ្មោះជា អ្នកប្រើ"
 
 #: ckan/controllers/user.py:164
 msgid "Unauthorized to create a user"
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតអោយបង្កើតអ្នកប្រើប្រាស់"
 
 #: ckan/controllers/user.py:195
 msgid "Unauthorized to delete user with id \"{user_id}\"."
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតដើម្បីលុបអ្នកប្រើប្រាស់ដែលមានលេខសំគាល់  \"{user_id}\"."
 
 #: ckan/controllers/user.py:206
 #, python-format
 msgid "Unauthorized to create user %s"
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតអោយបង្កើតអ្បង្កើតអ្នកប្រើ %s"
 
 #: ckan/controllers/user.py:212
 msgid "Bad Captcha. Please try again."
-msgstr ""
+msgstr "ការបញ្ចូលមិនត្រឹមត្រូវ។ សូមព្យាយាមម្តងទៀត។"
 
 #: ckan/controllers/user.py:230
 #, python-format
 msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
-msgstr ""
+msgstr "អ្នកប្រើ \"%s\" ឥឡូវនេះបានចុះឈ្មោះហើយ ប៉ុន្តែអ្នកនៅតែត្រូវបានកត់ត្រាចូលជា \"%s\"  ពីមុនមក"
 
 #: ckan/controllers/user.py:245
 msgid "No user specified"
-msgstr ""
+msgstr "មិនមានអ្នកប្រើប្រាស់ណាមួយត្រូវបាន​បញ្ជាក់"
 
 #: ckan/controllers/user.py:251
 msgid "Unauthorized to edit a user."
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតអោយធ្វើការកែសម្រួលព័ត៍មានអ្នកប្រើប្រាស់"
 
 #: ckan/controllers/user.py:269 ckan/controllers/user.py:310
 #: ckan/controllers/user.py:486
 #, python-format
 msgid "Unauthorized to edit user %s"
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតអោយធ្វើការកែសម្រួលព័ត៍មានអ្នកប្រើប្រាស់​ %s"
 
 #: ckan/controllers/user.py:277
 #, python-format
 msgid "User %s not authorized to edit %s"
-msgstr ""
+msgstr "អ្នកប្រើ %s មិនត្រូវបានអនុញ្ញាតអោយធ្វើការកែសម្រួល %s ទេ"
 
 #: ckan/controllers/user.py:307
 msgid "Profile updated"
-msgstr ""
+msgstr "ជិវប្រវត្តិត្រូវបានធ្វើបច្ចុប្បន្នភាព"
 
 #: ckan/controllers/user.py:361
 #, python-format
 msgid "%s is now logged in"
-msgstr ""
+msgstr "%s ត្រូវបានកត់ត្រា​ចូលឥឡូវនេះ"
 
 #: ckan/controllers/user.py:365
 msgid "Login failed. Bad username or password."
-msgstr ""
+msgstr "កត់ត្រា​ចូលបានបរាជ័យ។ ឈ្មោះអ្នកប្រើឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។"
 
 #: ckan/controllers/user.py:367
 msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
@@ -774,21 +775,21 @@ msgstr ""
 
 #: ckan/controllers/user.py:402
 msgid "Unauthorized to request reset password."
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតក្នុងការស្នើសុំការកំណត់ពាក្យសម្ងាត់ឡើងវិញទេ។"
 
 #: ckan/controllers/user.py:431
 #, python-format
 msgid "\"%s\" matched several users"
-msgstr ""
+msgstr "\"%s\" ផ្គូផ្គងត្រូវ អ្នកប្រើប្រាស់ជាច្រើន"
 
 #: ckan/controllers/user.py:433 ckan/controllers/user.py:435
 #, python-format
 msgid "No such user: %s"
-msgstr ""
+msgstr "មិនមានអ្នកប្រើប្រាស់នេះទេ៖ %s"
 
 #: ckan/controllers/user.py:440
 msgid "Please check your inbox for a reset code."
-msgstr ""
+msgstr "សូមពិនិត្យមើលប្រអប់សំបុត្ររបស់អ្នកសម្រាប់កូដកំណត់។"
 
 #: ckan/controllers/user.py:444
 #, python-format
@@ -797,7 +798,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:459
 msgid "Unauthorized to reset password."
-msgstr ""
+msgstr "ពុំត្រូវបានអនុញ្ញាតក្នុងការកំណត់ពាក្យសម្ងាត់ឡើងវិញទេ។"
 
 #: ckan/controllers/user.py:471
 msgid "Invalid reset key. Please try again."
@@ -805,19 +806,19 @@ msgstr ""
 
 #: ckan/controllers/user.py:483
 msgid "Your password has been reset."
-msgstr ""
+msgstr "ពាក្យសម្ងាត់របស់លោកអ្នកត្រូវកំណត់ឡើងវិញ។"
 
 #: ckan/controllers/user.py:504
 msgid "Your password must be 4 characters or longer."
-msgstr ""
+msgstr "ពាក្យសម្ងាត់របស់អ្នកត្រូវតែ៤តួអក្សរ ឬលើសពីនេះ។"
 
 #: ckan/controllers/user.py:507
 msgid "The passwords you entered do not match."
-msgstr ""
+msgstr "ពាក្យសម្ងាត់ដែលអ្នកបានបញ្ចូលមិនត្រូវគ្នា។"
 
 #: ckan/controllers/user.py:510
 msgid "You must provide a password"
-msgstr ""
+msgstr "អ្នកត្រូវតែផ្ដល់ពាក្យសម្ងាត់"
 
 #: ckan/controllers/user.py:572
 msgid "Follow item not found"
@@ -833,7 +834,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:593
 msgid "Everything"
-msgstr ""
+msgstr "គ្រប់យ៉ាង"
 
 #: ckan/lib/activity_streams.py:64
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
@@ -952,55 +953,55 @@ msgstr[0] ""
 
 #: ckan/lib/formatters.py:17
 msgid "January"
-msgstr ""
+msgstr "មករា"
 
 #: ckan/lib/formatters.py:21
 msgid "February"
-msgstr ""
+msgstr "កុម្ភៈ"
 
 #: ckan/lib/formatters.py:25
 msgid "March"
-msgstr ""
+msgstr "មិនា"
 
 #: ckan/lib/formatters.py:29
 msgid "April"
-msgstr ""
+msgstr "មេសា"
 
 #: ckan/lib/formatters.py:33
 msgid "May"
-msgstr ""
+msgstr "ឧសភា"
 
 #: ckan/lib/formatters.py:37
 msgid "June"
-msgstr ""
+msgstr "មិថុនា"
 
 #: ckan/lib/formatters.py:41
 msgid "July"
-msgstr ""
+msgstr "កក្កដា"
 
 #: ckan/lib/formatters.py:45
 msgid "August"
-msgstr ""
+msgstr "សីហា"
 
 #: ckan/lib/formatters.py:49
 msgid "September"
-msgstr ""
+msgstr "កញ្ញា"
 
 #: ckan/lib/formatters.py:53
 msgid "October"
-msgstr ""
+msgstr "តុលា"
 
 #: ckan/lib/formatters.py:57
 msgid "November"
-msgstr ""
+msgstr "វិច្ឆិកា"
 
 #: ckan/lib/formatters.py:61
 msgid "December"
-msgstr ""
+msgstr "ធ្នូ"
 
 #: ckan/lib/formatters.py:109
 msgid "Just now"
-msgstr ""
+msgstr "ពេលឥឡូវនេះ"
 
 #: ckan/lib/formatters.py:111
 msgid "{mins} minute ago"
@@ -1015,7 +1016,7 @@ msgstr[0] ""
 #: ckan/lib/formatters.py:120
 msgid "{days} day ago"
 msgid_plural "{days} days ago"
-msgstr[0] ""
+msgstr[0] "{days} កន្លងទៅ"
 
 #: ckan/lib/formatters.py:123
 msgid "{months} month ago"
@@ -1102,19 +1103,19 @@ msgstr ""
 
 #: ckan/lib/helpers.py:1033
 msgid "Unnamed resource"
-msgstr ""
+msgstr "ធនធានដែលគ្មានឈ្មោះ"
 
 #: ckan/lib/helpers.py:1080
 msgid "Created new dataset."
-msgstr ""
+msgstr "បានបង្កើតបណ្តុំទិន្នន័យថ្មី"
 
 #: ckan/lib/helpers.py:1082
 msgid "Edited resources."
-msgstr ""
+msgstr "ធនធានដែលបានកែ"
 
 #: ckan/lib/helpers.py:1084
 msgid "Edited settings."
-msgstr ""
+msgstr "ការកំណត់ទុកដែលបានកែ"
 
 #: ckan/lib/helpers.py:1346
 msgid "{number} view"
@@ -1136,7 +1137,7 @@ msgstr ""
 
 #: ckan/lib/helpers.py:1611
 msgid "The resource format is not specified."
-msgstr ""
+msgstr "ទ្រង់ទ្រាយនៃធនធានមិនត្រូវបានបញ្ជាក់"
 
 #: ckan/lib/mailer.py:25
 #, python-format
@@ -1161,7 +1162,7 @@ msgid ""
 "\n"
 "       %(reset_link)s\n"
 "    "
-msgstr ""
+msgstr "អ្នកបានស្នើសុំពាក្យសម្ងាត់របស់អ្នកនៅលើ  %(site_title)s ដើម្បីធ្វើការកំណត់ជាថ្មីម្តងទៀត។\n\nសូមចុចលើតំណខាងក្រោមដើម្បីបញ្ជាក់ពីការស្នើរសុំនេះ៖\n%(reset_link)s"
 
 #: ckan/lib/mailer.py:119
 #, python-format
@@ -1178,7 +1179,7 @@ msgstr ""
 #: ckan/lib/mailer.py:145 ckan/templates_legacy/user/perform_reset.html:6
 #: ckan/templates_legacy/user/perform_reset.html:14
 msgid "Reset your password"
-msgstr ""
+msgstr "កំណត់ពាក្យសម្ងាត់របស់អ្នកជាថ្មីម្តងទៀត"
 
 #: ckan/lib/mailer.py:151
 msgid "Invite for {site_title}"
@@ -1186,15 +1187,15 @@ msgstr ""
 
 #: ckan/lib/package_saver.py:29
 msgid "No web page given"
-msgstr ""
+msgstr "ពុំមានទំព័រអ៊ីនធើណែតណាមួយត្រូវបានផ្តល់អោយ"
 
 #: ckan/lib/package_saver.py:33
 msgid "Author not given"
-msgstr ""
+msgstr "អ្នកនិពន្ធមិនត្រូវផ្តល់អោយ"
 
 #: ckan/lib/package_saver.py:36
 msgid "Maintainer not given"
-msgstr ""
+msgstr "អ្នករក្សាទុកមិនត្រូវបានផ្តល់អោយ"
 
 #: ckan/lib/package_saver.py:94 ckan/logic/validators.py:106
 msgid "No links are allowed in the log_message."
@@ -1211,7 +1212,7 @@ msgstr ""
 #: ckan/lib/navl/validators.py:30 ckan/lib/navl/validators.py:50
 #: ckan/logic/validators.py:581 ckan/logic/action/get.py:1645
 msgid "Missing value"
-msgstr ""
+msgstr "តំលៃដែលមិនឃើញ"
 
 #: ckan/lib/navl/validators.py:60
 #, python-format
@@ -1220,7 +1221,7 @@ msgstr ""
 
 #: ckan/lib/navl/validators.py:112
 msgid "Please enter an integer value"
-msgstr ""
+msgstr "សូមបញ្ចូលតំលៃជាចំនួនគត់"
 
 #: ckan/logic/__init__.py:99 ckan/logic/action/__init__.py:54
 #: ckan/templates/package/edit_base.html:19
@@ -1231,7 +1232,7 @@ msgstr ""
 #: ckan/templates_legacy/package/layout.html:19
 #: ckan/templates_legacy/package/read_core.html:26
 msgid "Resources"
-msgstr ""
+msgstr "ធនធាន"
 
 #: ckan/logic/__init__.py:99 ckan/logic/action/__init__.py:54
 msgid "Package resource(s) invalid"
@@ -1246,7 +1247,7 @@ msgstr ""
 
 #: ckan/logic/__init__.py:101 ckan/logic/action/__init__.py:56
 msgid "Missing Value"
-msgstr ""
+msgstr "តំលៃដែលមិនឃើញ"
 
 #: ckan/logic/converters.py:75 ckan/logic/converters.py:90
 #, python-format
@@ -1281,7 +1282,7 @@ msgstr "ក្រុម"
 
 #: ckan/logic/converters.py:181
 msgid "Could not parse as valid JSON"
-msgstr ""
+msgstr "មិនអាចផ្តល់អោយជា JSON បានការ"
 
 #: ckan/logic/validators.py:28
 msgid "A organization must be supplied"
@@ -1301,7 +1302,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:68
 msgid "Invalid integer"
-msgstr ""
+msgstr "ចំនួនគត់មិនត្រឹមត្រូវ"
 
 #: ckan/logic/validators.py:73
 msgid "Must be a natural number"
@@ -1309,17 +1310,17 @@ msgstr ""
 
 #: ckan/logic/validators.py:79
 msgid "Must be a postive integer"
-msgstr ""
+msgstr "ត្រូវតែជាចំនួនគត់វិជ្ជមាន"
 
 #: ckan/logic/validators.py:97
 msgid "Date format incorrect"
-msgstr ""
+msgstr "ទ្រង់ទ្រាយកាលបរិច្ឆេទមិនត្រឹមត្រូវ"
 
 #: ckan/logic/validators.py:206 ckan/templates/package/read_base.html:27
 #: ckan/templates/package/related_list.html:5
 #: ckan/templates/snippets/related.html:2
 msgid "Related"
-msgstr ""
+msgstr "ដែលជាប់ទាក់ទង"
 
 #: ckan/logic/validators.py:216
 msgid "That group name or ID does not exist."
@@ -1327,20 +1328,20 @@ msgstr ""
 
 #: ckan/logic/validators.py:230
 msgid "Activity type"
-msgstr ""
+msgstr "ប្រភេទសកម្មភាព"
 
 #: ckan/logic/validators.py:239
 #: ckan/templates_legacy/package/new_package_form.html:20
 msgid "Resource"
-msgstr ""
+msgstr "ធនធាន"
 
 #: ckan/logic/validators.py:310
 msgid "Names must be strings"
-msgstr ""
+msgstr "ឈ្មោះត្រូវតែជាអក្សរ"
 
 #: ckan/logic/validators.py:314
 msgid "That name cannot be used"
-msgstr ""
+msgstr "ឈ្មោះនោះមិនត្រូវបានប្រើប្រាស់"
 
 #: ckan/logic/validators.py:317 ckan/logic/validators.py:594
 #, python-format
@@ -1360,7 +1361,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:340
 msgid "That URL is already in use."
-msgstr ""
+msgstr "អាស័យដ្ឋាន URL នោះស្ថិតក្នុងការប្រើប្រាស់រួចហើយ"
 
 #: ckan/logic/validators.py:345
 #, python-format
@@ -1384,7 +1385,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:389
 msgid "Group name already exists in database"
-msgstr ""
+msgstr "ឈ្មោះក្រុមមានរួចហើយនៅក្នុងមូលដ្ឋានទិន្នន័យ"
 
 #: ckan/logic/validators.py:395
 #, python-format
@@ -1408,27 +1409,27 @@ msgstr ""
 
 #: ckan/logic/validators.py:524
 msgid "User names must be strings"
-msgstr ""
+msgstr "ឈ្មោះអ្នកប្រើប្រាស់ត្រូវតែជាអក្សរ"
 
 #: ckan/logic/validators.py:540
 msgid "That login name is not available."
-msgstr ""
+msgstr "កំណត់ត្រា​ឈ្មោះចូលនោះមិនមានទេ។"
 
 #: ckan/logic/validators.py:549
 msgid "Please enter both passwords"
-msgstr ""
+msgstr "សូមបញ្ចូលពាក្យសម្ងាត់ទាំងពីរ"
 
 #: ckan/logic/validators.py:557
 msgid "Passwords must be strings"
-msgstr ""
+msgstr "ពាក្យសម្ងាត់ត្រូវតែជាខ្សែអក្សរ"
 
 #: ckan/logic/validators.py:561
 msgid "Your password must be 4 characters or longer"
-msgstr ""
+msgstr "ពាក្យសម្ងាត់របស់អ្នកត្រូវតែ៤តួអក្សរ ឬលើសពីនេះ។"
 
 #: ckan/logic/validators.py:569
 msgid "The passwords you entered do not match"
-msgstr ""
+msgstr "ពាក្យសម្ងាត់ដែលអ្នកបានបញ្ចូលមិនត្រូវគ្នា។"
 
 #: ckan/logic/validators.py:585
 msgid ""
@@ -1438,7 +1439,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:602
 msgid "That vocabulary name is already in use."
-msgstr ""
+msgstr "ឈ្មោះវាក្យស័ព្ទនោះស្ថិតក្នុងការប្រើប្រាស់រួចហើយ"
 
 #: ckan/logic/validators.py:608
 #, python-format
@@ -1447,7 +1448,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:617
 msgid "Tag vocabulary was not found."
-msgstr ""
+msgstr "វាក្យស័ព្ទនៃស្លាកពាក្យរកមិនឃើញ"
 
 #: ckan/logic/validators.py:630
 #, python-format
@@ -1456,7 +1457,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:636
 msgid "No tag name"
-msgstr ""
+msgstr "គ្មានឈ្មោះស្លាកពាក្យ"
 
 #: ckan/logic/validators.py:649
 #, python-format
@@ -1465,11 +1466,11 @@ msgstr ""
 
 #: ckan/logic/validators.py:672
 msgid "Please provide a valid URL"
-msgstr ""
+msgstr "សូមផ្តល់អាស័យដ្ឋាន URL បានការ"
 
 #: ckan/logic/validators.py:687
 msgid "role does not exist."
-msgstr ""
+msgstr "តួនាទីមិនមាន"
 
 #: ckan/logic/validators.py:695
 msgid "Datasets with no organization can't be private."
@@ -1477,11 +1478,11 @@ msgstr ""
 
 #: ckan/logic/validators.py:701
 msgid "Not a list"
-msgstr ""
+msgstr "មិនមែនជាបញ្ជី"
 
 #: ckan/logic/validators.py:704
 msgid "Not a string"
-msgstr ""
+msgstr "មិនមែនជាអក្សរ"
 
 #: ckan/logic/validators.py:722
 msgid "This parent would create a loop in the hierarchy"
@@ -1516,7 +1517,7 @@ msgstr ""
 
 #: ckan/logic/action/create.py:758
 msgid "Rating must be an integer value."
-msgstr ""
+msgstr "ការវាយតំលៃត្រូវតែជា"
 
 #: ckan/logic/action/create.py:762
 #, python-format
@@ -1601,7 +1602,7 @@ msgstr ""
 
 #: ckan/logic/action/get.py:2012
 msgid "unknown user:"
-msgstr ""
+msgstr "អ្នកប្រើប្រាស់មិនស្គាល់អត្តសញ្ញាណ៖"
 
 #: ckan/logic/action/update.py:143
 msgid "Item was not found."
@@ -1677,7 +1678,7 @@ msgstr ""
 
 #: ckan/logic/auth/create.py:120
 msgid "Not authorized to create users"
-msgstr ""
+msgstr "ពុំបានអនុញ្ញាតអោយបង្កើតអ្នកប្រើប្រាស់"
 
 #: ckan/logic/auth/create.py:163
 msgid "Group was not found."
@@ -1824,7 +1825,7 @@ msgstr ""
 #: ckan/logic/auth/update.py:220
 #, python-format
 msgid "User %s not authorized to change state of revision"
-msgstr ""
+msgstr "អ្នកប្រើ %s មិនត្រូវបានអនុញ្ញាតឱ្យផ្លាស់ប្តូរស្ថានភាពនៃការកែប្រែ"
 
 #: ckan/logic/auth/update.py:229
 #, python-format
@@ -2193,7 +2194,7 @@ msgstr[0] ""
 
 #: ckan/templates/header.html:33 ckan/templates/user/dashboard.html:16
 msgid "Edit settings"
-msgstr ""
+msgstr "កែការកំណត់ទុក"
 
 #: ckan/templates/header.html:40 ckan/templates_legacy/user/layout.html:14
 msgid "Log out"
@@ -2206,7 +2207,7 @@ msgstr ""
 #: ckan/templates/header.html:54 ckan/templates/user/new.html:3
 #: ckan/templates_legacy/layout_base.html:60
 msgid "Register"
-msgstr ""
+msgstr "ចុះឈ្មោះ"
 
 #: ckan/templates/header.html:94 ckan/templates/group/read_base.html:17
 #: ckan/templates/group/snippets/info.html:24
@@ -2231,11 +2232,11 @@ msgstr ""
 #: ckan/templates_legacy/user/read.html:55
 #: ckan/templates_legacy/user/read.html:78
 msgid "Datasets"
-msgstr ""
+msgstr "បណ្តុំទិន្នន័យ"
 
 #: ckan/templates/header.html:107
 msgid "Search Datasets"
-msgstr ""
+msgstr "ស្វែងរកបណ្តុំទិន្នន័យ"
 
 #: ckan/templates/header.html:108 ckan/templates/group/read.html:14
 #: ckan/templates/organization/read.html:18
@@ -2764,7 +2765,7 @@ msgstr ""
 #: ckan/templates/group/snippets/feeds.html:4
 #: ckan/templates/organization/snippets/feeds.html:4
 msgid "Recent Revision History"
-msgstr ""
+msgstr "ប្រវត្តិនៃការកែប្រែដែលថ្មី"
 
 #: ckan/templates/group/snippets/group_form.html:10
 #: ckan/templates/organization/snippets/organization_form.html:10
@@ -2864,7 +2865,7 @@ msgstr ""
 #: ckan/templates_legacy/revision/read.html:5
 #: ckan/templates_legacy/snippets/revision_list.html:11
 msgid "Revision"
-msgstr ""
+msgstr "ការកែប្រែ"
 
 #: ckan/templates/group/snippets/revisions_table.html:8
 #: ckan/templates/package/snippets/revisions_table.html:8
@@ -3327,7 +3328,7 @@ msgstr ""
 #, python-format
 msgid ""
 "This is the current revision of this dataset, as edited at %(timestamp)s."
-msgstr ""
+msgstr "នេះគឺជាការកែប្រែពេលបច្ចុប្បន្នរបស់សំណុំទិន្នន័យនេះ, ដូចដែលបានកែសម្រួលកនៅ %(timestamp)s."
 
 #: ckan/templates/package/related_list.html:8
 msgid "Related Media for {dataset}"
@@ -3944,7 +3945,7 @@ msgstr ""
 #: ckan/templates/revision/diff.html:13 ckan/templates/revision/diff.html:18
 #: ckan/templates/revision/diff.html:23
 msgid "Revision Differences"
-msgstr ""
+msgstr " ភាពខុសគ្នានៃការកែប្រែ"
 
 #: ckan/templates/revision/diff.html:44
 #: ckan/templates_legacy/revision/diff.html:32
@@ -3960,14 +3961,14 @@ msgstr ""
 #: ckan/templates_legacy/revision/list.html:5
 #: ckan/templates_legacy/revision/list.html:6
 msgid "Revision History"
-msgstr ""
+msgstr "ប្រវត្តិនៃការកែប្រែ"
 
 #: ckan/templates/revision/list.html:6 ckan/templates/revision/read.html:8
 #: ckan/templates_legacy/layout_base.html:175
 #: ckan/templates_legacy/group/history.html:9
 #: ckan/templates_legacy/package/history.html:11
 msgid "Revisions"
-msgstr ""
+msgstr "ការកែប្រែ"
 
 #: ckan/templates/revision/read.html:30
 #: ckan/templates_legacy/revision/read.html:23
@@ -4275,7 +4276,7 @@ msgstr ""
 
 #: ckan/templates/user/edit_user_form.html:26
 msgid "Change password"
-msgstr ""
+msgstr "លាស់ប្តូរពាក្យសម្ងាត់"
 
 #: ckan/templates/user/edit_user_form.html:28
 #: ckan/templates/user/logout_first.html:12
@@ -4285,11 +4286,11 @@ msgstr ""
 #: ckan/templates_legacy/user/edit_user_form.html:48
 #: ckan/templates_legacy/user/new_user_form.html:40
 msgid "Password"
-msgstr ""
+msgstr "ពាក្យសម្ងាត់"
 
 #: ckan/templates/user/edit_user_form.html:30
 msgid "Confirm Password"
-msgstr ""
+msgstr "បញ្ជាក់ពាក្យសម្ងាត់"
 
 #: ckan/templates/user/edit_user_form.html:36
 msgid "Are you sure you want to delete this User?"
@@ -4311,7 +4312,7 @@ msgstr ""
 #: ckan/templates_legacy/user/layout.html:38
 #: ckan/templates_legacy/user/new_user_form.html:19
 msgid "Login"
-msgstr ""
+msgstr "កត់ត្រា​ចូល"
 
 #: ckan/templates/user/login.html:23
 msgid "Need an Account?"
@@ -4327,15 +4328,15 @@ msgstr ""
 
 #: ckan/templates/user/login.html:34
 msgid "Forgotten your password?"
-msgstr ""
+msgstr "ភ្លេចពាក្យសម្ងាត់របស់អ្នក?"
 
 #: ckan/templates/user/login.html:36
 msgid "No problem, use our password recovery form to reset it."
-msgstr ""
+msgstr "គ្មានបញ្ហាទេ, សូមប្រើប្រាស់ទម្រង់បែបបទទាញយកពាក្យសម្ងាត់របស់យើងដើម្បីកំណត់ឡើងវិញ។"
 
 #: ckan/templates/user/login.html:38 ckan/templates_legacy/user/login.html:51
 msgid "Forgot your password?"
-msgstr ""
+msgstr "ភ្លេច​ពាក្យសម្ងាត់​របស់​អ្នក?"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
 msgid "Logged Out"
@@ -4378,7 +4379,7 @@ msgstr ""
 
 #: ckan/templates/user/new.html:13
 msgid "Register for an Account"
-msgstr ""
+msgstr "ចុះឈ្មោះសំរាប់គណនីមួយ"
 
 #: ckan/templates/user/new.html:22
 msgid "Why Sign Up?"
@@ -4401,16 +4402,16 @@ msgstr ""
 #: ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:12
 msgid "Reset Your Password"
-msgstr ""
+msgstr "កំណត់ពាក្យសម្ងាត់របស់អ្នកជាថ្មីម្តងទៀត"
 
 #: ckan/templates/user/perform_reset.html:7
 #: ckan/templates/user/request_reset.html:6
 msgid "Password Reset"
-msgstr ""
+msgstr "កំណត់ពាក្យសម្ងាត់ជាថ្មីម្តងទៀត"
 
 #: ckan/templates/user/perform_reset.html:22
 msgid "Update Password"
-msgstr ""
+msgstr "ធ្វើបច្ចុប្បន្នភាពពាក្យសម្ងាត់"
 
 #: ckan/templates/user/perform_reset.html:32
 #: ckan/templates/user/request_reset.html:26
@@ -4419,7 +4420,7 @@ msgstr ""
 
 #: ckan/templates/user/perform_reset.html:34
 msgid "Simply enter a new password and we'll update your account"
-msgstr ""
+msgstr "គ្រាន់តែបញ្ចូលពាក្យសម្ងាត់ថ្មី ហើយយើងនឹងធ្វើបច្ចុប្បន្នភាពគណនីរបស់អ្នក"
 
 #: ckan/templates/user/read.html:21
 msgid "User hasn't created any datasets."
@@ -4458,7 +4459,7 @@ msgstr ""
 msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
-msgstr ""
+msgstr "សូមបញ្ចូលឈ្មោះអ្នកប្រើរបស់អ្នកចូលទៅក្នុងប្រអប់នេះ ហើយយើងនឹងផ្ញើកអ៊ីមែលទៅអ្នក ដោយុមានតំណភ្ជាប់ដើម្បីបញ្ចូលពាក្យសម្ងាត់ជាថ្មី។"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:12
 #: ckan/templates/user/snippets/followee_dropdown.html:13
@@ -4822,7 +4823,7 @@ msgstr ""
 
 #: ckan/templates_legacy/admin/trash.html:10
 msgid "Deleted Revisions"
-msgstr ""
+msgstr "ការកែប្រែត្រូវបានលុប"
 
 #: ckan/templates_legacy/admin/trash.html:21
 #: ckan/templates_legacy/admin/trash.html:39
@@ -4902,7 +4903,7 @@ msgstr ""
 
 #: ckan/templates_legacy/group/layout.html:35
 msgid "Login to Add a Group"
-msgstr ""
+msgstr "កត់ត្រា​ចូលដើម្បីបន្ថែមក្រុម"
 
 #: ckan/templates_legacy/group/new.html:5
 #: ckan/templates_legacy/group/new.html:6
@@ -5478,7 +5479,7 @@ msgstr ""
 
 #: ckan/templates_legacy/package/read.html:86
 msgid "This is an old revision of this dataset, as edited"
-msgstr ""
+msgstr "នេះគឺជាការកែប្រែចាស់របស់សំណុំទិន្នន័យនេះ, ដូចដែលបានកែសម្រួល"
 
 #: ckan/templates_legacy/package/read.html:86
 #: ckan/templates_legacy/package/read.html:87
@@ -5491,11 +5492,11 @@ msgstr ""
 
 #: ckan/templates_legacy/package/read.html:86
 msgid "current revision"
-msgstr ""
+msgstr "ការកែប្រែពេលបច្ចុប្បន្ន"
 
 #: ckan/templates_legacy/package/read.html:87
 msgid "This is the current revision of this dataset, as edited"
-msgstr ""
+msgstr "នេះគឺជាការកែប្រែពេលបច្ចុប្បន្នរបស់សំណុំទិន្នន័យនេះ, ដូចដែលបានកែសម្រួល"
 
 #: ckan/templates_legacy/package/read.html:97
 #: ckan/templates_legacy/related/related_list.html:63
@@ -5566,7 +5567,7 @@ msgstr ""
 
 #: ckan/templates_legacy/package/search.html:20
 msgid "Register it now"
-msgstr ""
+msgstr "ចុះឈ្មោះឥលូវនេះ"
 
 #: ckan/templates_legacy/package/search.html:29
 msgid "Other access"
@@ -5681,11 +5682,11 @@ msgstr ""
 
 #: ckan/templates_legacy/revision/diff.html:5
 msgid "Differences - Revisions"
-msgstr ""
+msgstr " ភាពខុសគ្នា - ការកែប្រែ"
 
 #: ckan/templates_legacy/revision/diff.html:9
 msgid "Revision Differences -"
-msgstr ""
+msgstr "ភាពខុសគ្នានៃការកែប្រែ"
 
 #: ckan/templates_legacy/revision/diff.html:21
 msgid "From:"
@@ -5711,11 +5712,11 @@ msgstr ""
 
 #: ckan/templates_legacy/revision/read.html:6
 msgid "Revision:"
-msgstr ""
+msgstr "ការកែប្រែ៖"
 
 #: ckan/templates_legacy/revision/read.html:10
 msgid "Revision Actions"
-msgstr ""
+msgstr "សកម្មភាពនៃការកែប្រែ"
 
 #: ckan/templates_legacy/revision/read.html:39
 msgid "Timestamp:"
@@ -5857,12 +5858,12 @@ msgstr ""
 
 #: ckan/templates_legacy/user/edit_user_form.html:46
 msgid "Change your password"
-msgstr ""
+msgstr "ធ្វើបច្ចុប្បន្នភាពពាក្យសម្ងាត់របស់អ្នក"
 
 #: ckan/templates_legacy/user/edit_user_form.html:54
 #: ckan/templates_legacy/user/new_user_form.html:47
 msgid "Password (repeat)"
-msgstr ""
+msgstr "ពាក្យសម្ងាត់ (ម្តងទៀត)"
 
 #: ckan/templates_legacy/user/edit_user_form.html:61
 msgid "Change your username"
@@ -5900,7 +5901,7 @@ msgstr ""
 
 #: ckan/templates_legacy/user/layout.html:39
 msgid "Register Account"
-msgstr ""
+msgstr "ចុះឈ្មោះគណនី"
 
 #: ckan/templates_legacy/user/list.html:16
 #, python-format
@@ -5921,20 +5922,20 @@ msgstr ""
 
 #: ckan/templates_legacy/user/login.html:19
 msgid "Login - User"
-msgstr ""
+msgstr "កត់ត្រា​ចូល-អ្នកប្រើប្រាស់"
 
 #: ckan/templates_legacy/user/login.html:20
 msgid "Login to"
-msgstr ""
+msgstr "ចូលទៅ"
 
 #: ckan/templates_legacy/user/login.html:29
 msgid "Login:"
-msgstr ""
+msgstr "កត់ត្រា​ចូល៖"
 
 #: ckan/templates_legacy/user/login.html:35
 #: ckan/templates_legacy/user/perform_reset.html:15
 msgid "Password:"
-msgstr ""
+msgstr "ពាក្យសម្ងាត់៖"
 
 #: ckan/templates_legacy/user/login.html:41
 msgid "Remember me:"
@@ -5946,13 +5947,13 @@ msgstr ""
 
 #: ckan/templates_legacy/user/login.html:61
 msgid "Login using Open ID"
-msgstr ""
+msgstr "កត់ត្រា​ចូលដោយប្រើលេខសម្គាល់ (Open ID)"
 
 #: ckan/templates_legacy/user/login.html:62
 msgid ""
 "NB: To set-up your OpenID for this site, you first need to [1:Register] and "
 "then edit your Profile to provide your OpenID."
-msgstr ""
+msgstr "សំគាល់: ដើម្បីបង្កើតឡើង OpenID សម្រាប់បណ្ដាញនេះ ជាដំបូង អ្នកត្រូវ​  [1:Register]ហើយបន្ទាប់មកកែសម្រួលពត៌មានផ្ទាល់ខ្លួនរបស់អ្នកដើម្បីផ្តល់នូវ OpenID របស់អ្នក។"
 
 #: ckan/templates_legacy/user/login.html:64
 msgid "Please click your account provider:"
@@ -6005,7 +6006,7 @@ msgstr ""
 
 #: ckan/templates_legacy/user/logout_first.html:15
 msgid "To register or log in as another user, you need to"
-msgstr ""
+msgstr "ចុះឈ្មោះឬកត់ត្រាចូលជាអ្នកប្រើមួយផ្សេងទៀត អ្នកត្រូវ"
 
 #: ckan/templates_legacy/user/logout_first.html:17
 msgid "logout"
@@ -6017,11 +6018,11 @@ msgstr ""
 
 #: ckan/templates_legacy/user/new.html:5
 msgid "Register - User"
-msgstr ""
+msgstr "ចុះឈ្មោះ - អ្នកប្រើប្រាស់"
 
 #: ckan/templates_legacy/user/new.html:6
 msgid "Register for a new Account"
-msgstr ""
+msgstr "ចុះឈ្មោះសំរាប់គណនីថ្មី"
 
 #: ckan/templates_legacy/user/new_user_form.html:22
 msgid "3+ chars, using only 'a-z0-9' and '-_'"
@@ -6037,11 +6038,11 @@ msgstr ""
 
 #: ckan/templates_legacy/user/new_user_form.html:65
 msgid "Register now"
-msgstr ""
+msgstr "ចុះឈ្មោះឥលូវនេះ"
 
 #: ckan/templates_legacy/user/perform_reset.html:18
 msgid "Password (repeat):"
-msgstr ""
+msgstr "ពាក្យសម្ងាត់ (ម្តងទៀត)៖"
 
 #: ckan/templates_legacy/user/read.html:5
 msgid "- User"
@@ -6065,11 +6066,11 @@ msgstr ""
 
 #: ckan/templates_legacy/user/request_reset.html:6
 msgid "Reset password"
-msgstr ""
+msgstr "កំណត់ពាក្យសម្ងាត់ជាថ្មីម្តងទៀត"
 
 #: ckan/templates_legacy/user/request_reset.html:7
 msgid "Request a password reset"
-msgstr ""
+msgstr "ស្នើការកំណត់ពាក្យសម្ងាត់ជាថ្មីម្តងទៀត"
 
 #: ckan/templates_legacy/user/request_reset.html:13
 msgid "User name:"
@@ -6178,11 +6179,11 @@ msgstr ""
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
 msgid "Dataset Revisions per Week"
-msgstr ""
+msgstr "ការកែប្រែបណ្តុំទិន្នន័យក្នុងមួយសប្តាហ៍"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
-msgstr ""
+msgstr "ការកែប្រែសំណុំទិន្នន័យទាំងអស់"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
@@ -6264,7 +6265,7 @@ msgstr ""
 
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:60
 msgid "Revisions to Datasets per week"
-msgstr ""
+msgstr "ការកែប្រែចំពោះបណ្តុំទិន្នន័យក្នុងមួយសប្តាហ៍"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:95
 msgid "Users owning most datasets"

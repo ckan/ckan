@@ -4,12 +4,12 @@
 # 
 # Translators:
 # geirmund <geirmund@gmail.com>, 2012
-# hildea <hilde.austlid@vegvesen.no>, 2013-2014
+# Hilde Austlid <hilde.austlid@vegvesen.no>, 2013-2014
 # <internet@davidread.org>, 2011
 # Olav A. Øvrebø <olav.ovrebo@gmail.com>, 2014
 # Open Knowledge Foundation <translations@okfn.org>, 2011
 # Sean Hammond <sean.hammond@okfn.org>, 2012
-# Thomas Hirsch <thomas.hirsch@gmail.com>, 2012
+# relet <thomas.hirsch@gmail.com>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"

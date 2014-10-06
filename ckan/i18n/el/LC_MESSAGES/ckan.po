@@ -3,29 +3,31 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# czeginis <zegchris@csd.uoc.gr>, 2012
+# CHRYSOSTOMOS ZEGKINIS <zegchris@csd.uoc.gr>, 2012
 # dimispan <dimi.span@gmail.com>, 2012
-# drew <systemdrew@gmail.com>, 2013
+# Andreas Ganimas <systemdrew@gmail.com>, 2013
 # Giorgos Karamanolis <>, 2012
-# leoart_ <leonidas7812@gmail.com>, 2013
+# λεωνίδας ζώης <leonidas7812@gmail.com>, 2013
 # Lia Vrikou <>, 2012
 # Marios Bekatoros <>, 2013
-# mtsapanos <mtsapano@auth.gr>, 2012
+# Micahel Tsapanos <mtsapano@auth.gr>, 2012
 # Nikos Roussos <nikos@roussos.cc>, 2012
-# ophelia <ophelia@ucnet.uoc.gr>, 2012
+# Οφηλία Νεοφύτου <ophelia@ucnet.uoc.gr>, 2012
 # Sofia Karampataki <>, 2012
 # Spiros Alexiou <spiros.alexiou@gmail.com>, 2012
-# themiszamani <themiszamani@gmail.com>, 2013
+# Themis Zamani <themiszamani@gmail.com>, 2013
 # thodoris <>, 2013
+# Thodoris Vakkas <t.vakkas@gmail.com>, 2014
 # trap_cat <trap_cat@hotmail.com>, 2012
+# Thodoris Vakkas <t.vakkas@gmail.com>, 2014
 # Γιάννης Κασκαμανίδης <kiolalis@gmail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2013-12-13 11:50+0000\n"
-"Last-Translator: amercader <amercadero@gmail.com>\n"
+"PO-Revision-Date: 2014-09-14 20:35+0000\n"
+"Last-Translator: Thodoris Vakkas <t.vakkas@gmail.com>\n"
 "Language-Team: Greek (http://www.transifex.com/projects/p/ckan/language/el/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -109,7 +111,7 @@ msgstr "Εισαγωγή προσαρμοσμένου css στην κεφαλί�
 
 #: ckan/controllers/admin.py:50
 msgid "Homepage"
-msgstr ""
+msgstr "Αρχική σελίδα"
 
 #: ckan/controllers/admin.py:131
 #, python-format
@@ -239,7 +241,7 @@ msgstr "Άγνωστη Καταχώρηση: %s"
 #: ckan/controllers/api.py:588
 #, python-format
 msgid "Malformed qjson value: %r"
-msgstr ""
+msgstr "Λανθασμένη τιμή qjson: %r"
 
 #: ckan/controllers/api.py:598
 msgid "Request params must be in form of a json encoded dictionary."
@@ -263,7 +265,7 @@ msgstr "Η παράμετρος \"page\" πρέπει να είναι ένας �
 
 #: ckan/controllers/group.py:172
 msgid "Incorrect group type"
-msgstr ""
+msgstr "Λανθασμένος τύπος ομάδας"
 
 #: ckan/controllers/group.py:192 ckan/controllers/group.py:387
 #: ckan/controllers/group.py:474 ckan/controllers/group.py:515
@@ -336,7 +338,7 @@ msgstr "Άδεια"
 
 #: ckan/controllers/group.py:417
 msgid "Not authorized to perform bulk update"
-msgstr ""
+msgstr "Δεν υπάρχει εξουσιοδότηση για μαζική ενημέρωση"
 
 #: ckan/controllers/group.py:434
 msgid "Unauthorized to create a group"
@@ -426,7 +428,7 @@ msgstr "Δεν ακολουθείτε το {0}"
 #: ckan/controllers/group.py:835 ckan/controllers/user.py:521
 #, python-format
 msgid "Unauthorized to view followers %s"
-msgstr ""
+msgstr "Χωρίς δικαιώματα θέασης των ακολούθων %s"
 
 #: ckan/controllers/home.py:37
 msgid "This site is currently off-line. Database is not initialised."
@@ -456,7 +458,7 @@ msgstr "Παρακαλούμε <a href=\"%s\">  ενημερώστε το προ
 
 #: ckan/controllers/package.py:229
 msgid "Licenses"
-msgstr ""
+msgstr "Άδειες"
 
 #: ckan/controllers/package.py:279
 msgid "Parameter \"{parameter_name}\" is not an integer"
@@ -523,7 +525,7 @@ msgstr "Μη εξουσιοδοτημένοι να αναβαθμίσετε σύ
 #: ckan/controllers/package.py:646 ckan/controllers/package.py:678
 #: ckan/controllers/package.py:706
 msgid "The dataset {id} could not be found."
-msgstr ""
+msgstr "Δεν ήταν δυνατή η εύρεση του πόρου {id}."
 
 #: ckan/controllers/package.py:649
 msgid "You must add at least one data resource"
@@ -574,7 +576,7 @@ msgstr "Μη εξουσιοδοτημένοι να διαβάσετε πόρου
 
 #: ckan/controllers/package.py:1236
 msgid "Resource data not found"
-msgstr ""
+msgstr "Δε βρέθηκαν δεδομένα πόρου"
 
 #: ckan/controllers/package.py:1243
 msgid "No download is available"
@@ -757,7 +759,7 @@ msgstr "Δεν έχει οριστεί χρήστης"
 
 #: ckan/controllers/user.py:251
 msgid "Unauthorized to edit a user."
-msgstr ""
+msgstr "Δεν έχετε δικαίωμα επεξεργασίας χρηστών"
 
 #: ckan/controllers/user.py:269 ckan/controllers/user.py:310
 #: ckan/controllers/user.py:486
@@ -789,7 +791,7 @@ msgstr "(Ή αν χρησιμοποιείτε το OpenID, δεν σχετίζε
 
 #: ckan/controllers/user.py:402
 msgid "Unauthorized to request reset password."
-msgstr ""
+msgstr "Δεν έχετε δικαίωμα αίτησης επαναφοράς κωδικού πρόσβασης."
 
 #: ckan/controllers/user.py:431
 #, python-format
@@ -1039,14 +1041,14 @@ msgstr[1] "πρίν {days} ημέρες"
 #: ckan/lib/formatters.py:123
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "πριν {months} μήνες"
+msgstr[1] "πριν {months} μήνες"
 
 #: ckan/lib/formatters.py:125
 msgid "over {years} year ago"
 msgid_plural "over {years} years ago"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "πάνω από {years} έτη πριν"
+msgstr[1] "πάνω από {years} έτη πριν"
 
 #: ckan/lib/formatters.py:138
 msgid "{month} {day}, {year}, {hour:02}:{min:02}"
@@ -1123,7 +1125,7 @@ msgstr "Άγνωστος"
 
 #: ckan/lib/helpers.py:1033
 msgid "Unnamed resource"
-msgstr ""
+msgstr "Πόρος δίχως όνομα"
 
 #: ckan/lib/helpers.py:1080
 msgid "Created new dataset."
@@ -1151,7 +1153,7 @@ msgstr[1] "{number} πρόσφτατες προβολές"
 
 #: ckan/lib/helpers.py:1589
 msgid "The resource url is not specified."
-msgstr ""
+msgstr "Δεν ορίστηκε url για τον πόρο"
 
 #: ckan/lib/helpers.py:1607
 msgid "No preview handler for resource of type {0}"
@@ -1159,7 +1161,7 @@ msgstr ""
 
 #: ckan/lib/helpers.py:1611
 msgid "The resource format is not specified."
-msgstr ""
+msgstr "Δεν ορίστηκε ο μορφότυπος του πόρου"
 
 #: ckan/lib/mailer.py:25
 #, python-format
@@ -1304,7 +1306,7 @@ msgstr "Ομάδα"
 
 #: ckan/logic/converters.py:181
 msgid "Could not parse as valid JSON"
-msgstr ""
+msgstr "Δεν ήταν δυνατή η ανάλυση ως έγκυρου αρχείου JSON"
 
 #: ckan/logic/validators.py:28
 msgid "A organization must be supplied"
@@ -1328,11 +1330,11 @@ msgstr "Άκυρος ακέραιος"
 
 #: ckan/logic/validators.py:73
 msgid "Must be a natural number"
-msgstr ""
+msgstr "Πρέπει να είναι φυσικός αριθμός"
 
 #: ckan/logic/validators.py:79
 msgid "Must be a postive integer"
-msgstr ""
+msgstr "Πρέπει να είναι θετικός ακέραιος"
 
 #: ckan/logic/validators.py:97
 msgid "Date format incorrect"
@@ -1359,7 +1361,7 @@ msgstr "Πόρος"
 
 #: ckan/logic/validators.py:310
 msgid "Names must be strings"
-msgstr ""
+msgstr "Τα ονόματα πρέπει να αποτελούνται από αλφαριθμητικά"
 
 #: ckan/logic/validators.py:314
 msgid "That name cannot be used"
@@ -1431,7 +1433,7 @@ msgstr "Η ετικέτα \"%s\" δεν μπορεί να περιέχει κε�
 
 #: ckan/logic/validators.py:524
 msgid "User names must be strings"
-msgstr ""
+msgstr "Τα ονόματα χρηστών πρέπει να αποτελούνται από αλφαριθμητικά"
 
 #: ckan/logic/validators.py:540
 msgid "That login name is not available."
@@ -1443,7 +1445,7 @@ msgstr "Παρακαλώ εισάγετε τους δύο κωδικούς πρ�
 
 #: ckan/logic/validators.py:557
 msgid "Passwords must be strings"
-msgstr ""
+msgstr "Οι κωδικοί πρόσβασης πρέπει να αποτελούνται από αλφαριθμητικά"
 
 #: ckan/logic/validators.py:561
 msgid "Your password must be 4 characters or longer"
@@ -1496,15 +1498,15 @@ msgstr "ο ρόλος δεν υπάρχει."
 
 #: ckan/logic/validators.py:695
 msgid "Datasets with no organization can't be private."
-msgstr ""
+msgstr "Τα σύνολα δεδομένων που δεν ανήκουν σε φορέα δε μπορούν να είναι ιδιωτικά."
 
 #: ckan/logic/validators.py:701
 msgid "Not a list"
-msgstr ""
+msgstr "Δεν είναι λίστα"
 
 #: ckan/logic/validators.py:704
 msgid "Not a string"
-msgstr ""
+msgstr "Σςν είναι αλφαριθμητικό"
 
 #: ckan/logic/validators.py:722
 msgid "This parent would create a loop in the hierarchy"
@@ -1565,7 +1567,7 @@ msgstr "Πρέπει να είστε συνδεδεμένος για να ακο
 
 #: ckan/logic/action/create.py:1224
 msgid "User {username} does not exist."
-msgstr ""
+msgstr "Ο χρήστης {username} δεν υπάρχει."
 
 #: ckan/logic/action/create.py:1294 ckan/logic/action/create.py:1302
 msgid "You must be logged in to follow a group."
@@ -1837,7 +1839,7 @@ msgstr "Ο χρήστης %s δεν έχει εξουσιοδότηση για �
 
 #: ckan/logic/auth/update.py:203
 msgid "Have to be logged in to edit user"
-msgstr ""
+msgstr "Απαιτείται σύνδεση για την επεξεργασία χρηστών"
 
 #: ckan/logic/auth/update.py:211
 #, python-format
@@ -2064,7 +2066,7 @@ msgstr "Ανεβάστε"
 
 #: ckan/public/base/javascript/modules/image-upload.js:16
 msgid "Link"
-msgstr ""
+msgstr "Σύνδεσμος"
 
 #: ckan/public/base/javascript/modules/image-upload.js:17
 #: ckan/templates/group/snippets/group_item.html:41
@@ -2081,7 +2083,7 @@ msgstr "Εικόνα"
 
 #: ckan/public/base/javascript/modules/image-upload.js:19
 msgid "Upload a file on your computer"
-msgstr ""
+msgstr "Μεταφόρτωση αρχείου στον υπολογιστή σας"
 
 #: ckan/public/base/javascript/modules/image-upload.js:20
 msgid "Link to a URL on the internet (you can also link to an API)"
@@ -2089,7 +2091,7 @@ msgstr ""
 
 #: ckan/public/base/javascript/modules/image-upload.js:21
 msgid "Reset this"
-msgstr ""
+msgstr "Επαναφορά"
 
 #: ckan/public/base/javascript/modules/related-item.js:25
 msgid "show more"
@@ -2101,15 +2103,15 @@ msgstr "λιγότερα"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:8
 msgid "Reorder resources"
-msgstr ""
+msgstr "Επαναταξινόμηση πόρων"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:9
 msgid "Save order"
-msgstr ""
+msgstr "Αποθήκευση ταξινόμησης"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:10
 msgid "Saving..."
-msgstr ""
+msgstr "Αποθήκευση..."
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:25
 #: ckan/templates_legacy/package/new_package_form.html:149
@@ -2265,7 +2267,7 @@ msgstr "Αναζήτηση Συνόλων Δεδομένων"
 #: ckan/templates/organization/read.html:18
 #: ckan/templates/snippets/search_form.html:3
 msgid "Search datasets..."
-msgstr ""
+msgstr "Αναζήτηση συνόλων δεδομένων"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:7
 msgid "Load less"
@@ -2350,7 +2352,7 @@ msgstr "Διαβάστε την τεκμηρίωση"
 
 #: ckan/templates/ajax_snippets/api_info.html:19
 msgid "CKAN Data API"
-msgstr ""
+msgstr "CKAN Data API"
 
 #: ckan/templates/ajax_snippets/api_info.html:23
 msgid "Access resource data via a web API with powerful query support"
@@ -2380,35 +2382,35 @@ msgstr "Δημιουργία"
 
 #: ckan/templates/ajax_snippets/api_info.html:46
 msgid "Update / Insert"
-msgstr ""
+msgstr "Ενημέρωση / Εισαγωγή"
 
 #: ckan/templates/ajax_snippets/api_info.html:50
 msgid "Query"
-msgstr ""
+msgstr "Ερώτημα"
 
 #: ckan/templates/ajax_snippets/api_info.html:54
 msgid "Query (via SQL)"
-msgstr ""
+msgstr "Ερώτημα (μέσω γλώσσας SQL)"
 
 #: ckan/templates/ajax_snippets/api_info.html:66
 msgid "Querying"
-msgstr ""
+msgstr "Εκτέλεση ερωτήματος"
 
 #: ckan/templates/ajax_snippets/api_info.html:70
 msgid "Query example (first 5 results)"
-msgstr ""
+msgstr "Παράδειγμα ερωτήματος (5 πρώτα αποτελέσματα)"
 
 #: ckan/templates/ajax_snippets/api_info.html:75
 msgid "Query example (results containing 'jones')"
-msgstr ""
+msgstr "Παράδειγμα ερωτήματος (αποτελέσματα που περιέχουν το λεκτικό 'jones')"
 
 #: ckan/templates/ajax_snippets/api_info.html:81
 msgid "Query example (via SQL statement)"
-msgstr ""
+msgstr "Παράδειγμα εκτέλεσης ερωτήματος (με χρήση γλώσσας SQL)"
 
 #: ckan/templates/ajax_snippets/api_info.html:93
 msgid "Example: Javascript"
-msgstr ""
+msgstr "Παράδειγμα: Javascript"
 
 #: ckan/templates/ajax_snippets/api_info.html:97
 msgid "A simple ajax (JSONP) request to the data API using jQuery."
@@ -2416,7 +2418,7 @@ msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:118
 msgid "Example: Python"
-msgstr ""
+msgstr "Παράδειγμα: Python"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:9
 msgid "This resource can not be previewed at the moment."
@@ -2436,7 +2438,7 @@ msgstr "Ο φυλλομετρητής σας δεν υποστηρίζει ifram
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:3
 msgid "No preview available."
-msgstr ""
+msgstr "Δεν υπάρχει διαθέσιμη προεπισκόπηση"
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:5
 msgid "More details..."
@@ -2587,7 +2589,7 @@ msgstr "Είστε σίγουροι ότι θέλετε να διαγράψετ�
 #: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
 #: ckan/templates/user/read_base.html:14
 msgid "Manage"
-msgstr ""
+msgstr "Διαχείριση"
 
 #: ckan/templates/group/edit.html:12
 msgid "Edit Group"
@@ -2640,7 +2642,7 @@ msgstr "Προσθήκη ομάδας."
 
 #: ckan/templates/group/index.html:20
 msgid "Search groups..."
-msgstr ""
+msgstr "Αναζήτηση σε ομάδες..."
 
 #: ckan/templates/group/index.html:29
 msgid "There are currently no groups for this site"
@@ -2673,7 +2675,7 @@ msgstr "Προσθήκη Μέλους"
 #: ckan/templates/group/member_new.html:17
 #: ckan/templates/organization/member_new.html:19
 msgid "Existing User"
-msgstr ""
+msgstr "Υπάρχων χρήστης"
 
 #: ckan/templates/group/member_new.html:20
 #: ckan/templates/organization/member_new.html:22
@@ -2683,12 +2685,12 @@ msgstr ""
 #: ckan/templates/group/member_new.html:35
 #: ckan/templates/organization/member_new.html:37
 msgid "or"
-msgstr ""
+msgstr "ή"
 
 #: ckan/templates/group/member_new.html:39
 #: ckan/templates/organization/member_new.html:41
 msgid "New User"
-msgstr ""
+msgstr "Νέος Χρήστης"
 
 #: ckan/templates/group/member_new.html:42
 #: ckan/templates/organization/member_new.html:44
@@ -2871,7 +2873,7 @@ msgstr ""
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
 msgid "Compare"
-msgstr ""
+msgstr "Σύγκριση"
 
 #: ckan/templates/group/snippets/info.html:12
 #: ckan/templates/package/snippets/package_context.html:7
@@ -2992,7 +2994,7 @@ msgstr "Δημοφιλείς ετικέτες"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
-msgstr ""
+msgstr "{0} στατιστικά"
 
 #: ckan/templates/home/snippets/stats.html:10
 #: ckan/templates_legacy/importer/preview.html:16
@@ -3014,19 +3016,19 @@ msgstr ""
 
 #: ckan/templates/home/snippets/stats.html:22
 msgid "group"
-msgstr ""
+msgstr "ομάδα"
 
 #: ckan/templates/home/snippets/stats.html:22
 msgid "groups"
-msgstr ""
+msgstr "ομάδες"
 
 #: ckan/templates/home/snippets/stats.html:28
 msgid "related item"
-msgstr ""
+msgstr "σχετικό στοιχείο"
 
 #: ckan/templates/home/snippets/stats.html:28
 msgid "related items"
-msgstr ""
+msgstr "σχετικά στοιχεία"
 
 #: ckan/templates/macros/form.html:125
 msgid ""
@@ -3036,7 +3038,7 @@ msgstr ""
 
 #: ckan/templates/macros/form.html:264
 msgid "This field is required"
-msgstr ""
+msgstr "Το πεδίο απαιτεί συμπλήρωση"
 
 #: ckan/templates/macros/form.html:264
 msgid "Custom"
@@ -3054,7 +3056,7 @@ msgstr "Η φόρμα περιέχει μη έγκυρες εγγραφές:"
 
 #: ckan/templates/macros/form.html:394
 msgid "Required field"
-msgstr ""
+msgstr "Απαιτούμενο πεδίο"
 
 #: ckan/templates/macros/form.html:409
 msgid "http://example.com/my-image.jpg"
@@ -3068,7 +3070,7 @@ msgstr "URL εικόνας"
 
 #: ckan/templates/macros/form.html:423
 msgid "Clear Upload"
-msgstr ""
+msgstr "Εκκαθάριση Μεταφόρτωσης"
 
 #: ckan/templates/organization/about.html:11
 #: ckan/templates/snippets/organization.html:37
@@ -3083,11 +3085,11 @@ msgstr "Φόρμα Φορέα"
 #: ckan/templates/organization/bulk_process.html:3
 #: ckan/templates/organization/bulk_process.html:11
 msgid "Edit datasets"
-msgstr ""
+msgstr "Επεξεργασία Συνόλων Δεδομένων"
 
 #: ckan/templates/organization/bulk_process.html:6
 msgid "Add dataset"
-msgstr ""
+msgstr "Προσθήκη συνόλου δεδομένων"
 
 #: ckan/templates/organization/bulk_process.html:16
 msgid " found for \"{query}\""
@@ -3099,11 +3101,11 @@ msgstr "Δεν βρέθηκαν σύνολα δεδομένων βρέθηκαν
 
 #: ckan/templates/organization/bulk_process.html:37
 msgid "Make public"
-msgstr ""
+msgstr "Ορισμός ως Δημόσιο"
 
 #: ckan/templates/organization/bulk_process.html:41
 msgid "Make private"
-msgstr ""
+msgstr "Ορισμός ως Ιδιωτικό"
 
 #: ckan/templates/organization/bulk_process.html:70
 #: ckan/templates/package/read.html:18
@@ -3176,7 +3178,7 @@ msgstr "Προσθέστε έναν Οργανισμό"
 
 #: ckan/templates/organization/index.html:20
 msgid "Search organizations..."
-msgstr ""
+msgstr "Αναζήτηση οργανισμών..."
 
 #: ckan/templates/organization/index.html:29
 msgid "There are currently no organizations for this site"
@@ -3184,7 +3186,7 @@ msgstr "Δεν έχουν ακόμη οριστεί Φορείς για αυτό
 
 #: ckan/templates/organization/member_new.html:58
 msgid "Update Member"
-msgstr ""
+msgstr "Ενημέρωση Μέλους"
 
 #: ckan/templates/organization/member_new.html:78
 msgid ""
@@ -3301,7 +3303,7 @@ msgstr "Προβολή συνόλου δεδομένων"
 
 #: ckan/templates/package/edit_base.html:18
 msgid "Edit metadata"
-msgstr ""
+msgstr "Επεξεργασία μεταδεδομένων"
 
 #: ckan/templates/package/group_list.html:14
 msgid "Associate this group with this dataset"
@@ -3309,7 +3311,7 @@ msgstr ""
 
 #: ckan/templates/package/group_list.html:14
 msgid "Add to group"
-msgstr ""
+msgstr "Προσθήκη στε Ομάδα"
 
 #: ckan/templates/package/group_list.html:23
 msgid "There are no groups associated with this dataset"
@@ -3335,11 +3337,11 @@ msgstr "Πρόσθεσε μία πηγή"
 #: ckan/templates/package/new_resource_not_draft.html:3
 #: ckan/templates/package/new_resource_not_draft.html:4
 msgid "Add resource"
-msgstr ""
+msgstr "Προσθήκη πόρου"
 
 #: ckan/templates/package/new_resource_not_draft.html:15
 msgid "New resource"
-msgstr ""
+msgstr "Νέος πόρος"
 
 #: ckan/templates/package/read_base.html:39
 #, python-format
@@ -3372,7 +3374,7 @@ msgstr ""
 
 #: ckan/templates/package/resource_data.html:19
 msgid "Upload error:"
-msgstr ""
+msgstr "Σφάλμα μεταφόρτωσης:"
 
 #: ckan/templates/package/resource_data.html:24
 #: ckan/templates_legacy/group/history.html:24
@@ -3386,7 +3388,7 @@ msgstr "Λάθος:"
 
 #: ckan/templates/package/resource_data.html:34
 msgid "Status"
-msgstr ""
+msgstr "Κατάσταση:"
 
 #: ckan/templates/package/resource_data.html:38
 #: ckan/templates/package/resource_read.html:97
@@ -3396,23 +3398,23 @@ msgstr "Τελευταία ενημέρωση"
 
 #: ckan/templates/package/resource_data.html:42
 msgid "Never"
-msgstr ""
+msgstr "Ποτέ"
 
 #: ckan/templates/package/resource_data.html:48
 msgid "Upload Log"
-msgstr ""
+msgstr "Αρχείο καταγραφής μεταφόρτωσης"
 
 #: ckan/templates/package/resource_data.html:60
 msgid "Details"
-msgstr ""
+msgstr "Λεπτομέρειες"
 
 #: ckan/templates/package/resource_data.html:67
 msgid "End of log"
-msgstr ""
+msgstr "Τέλος αρχείου καταγραφής"
 
 #: ckan/templates/package/resource_edit_base.html:15
 msgid "All resources"
-msgstr ""
+msgstr "Όλοι οι πόροι"
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "View resource"
@@ -3421,7 +3423,7 @@ msgstr "Προβολή πόρου"
 #: ckan/templates/package/resource_edit_base.html:22
 #: ckan/templates/package/resource_edit_base.html:29
 msgid "Edit resource"
-msgstr ""
+msgstr "Επεξεργασία πόρου"
 
 #: ckan/templates/package/resource_edit_base.html:24
 msgid "DataStore"
@@ -3435,7 +3437,7 @@ msgstr "Σημείο τερματισμού API"
 #: ckan/templates/package/resource_read.html:40
 #: ckan/templates/package/snippets/resource_item.html:47
 msgid "Go to resource"
-msgstr ""
+msgstr "Μετάβαση στον πόρο"
 
 #: ckan/templates/package/resource_read.html:42
 #: ckan/templates/package/snippets/resource_item.html:44
@@ -3507,7 +3509,7 @@ msgstr "Διαμόρφωση"
 
 #: ckan/templates/package/resources.html:8
 msgid "Add new resource"
-msgstr ""
+msgstr "Προσθήκη νέου πόρου"
 
 #: ckan/templates/package/resources.html:19
 #, python-format
@@ -3642,7 +3644,7 @@ msgstr "Δημόσιο"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:108
 msgid "Active"
-msgstr ""
+msgstr "Ενεργό"
 
 #: ckan/templates/package/snippets/package_context.html:10
 msgid "There is no description for this dataset"
@@ -3668,7 +3670,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:10
 msgid "1.0"
-msgstr ""
+msgstr "1.0"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:20
@@ -3703,7 +3705,7 @@ msgstr "Ενημέρωση Πόρου"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "File"
-msgstr ""
+msgstr "Αρχείο"
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
@@ -3779,7 +3781,7 @@ msgstr "Προεπισκόπηση"
 
 #: ckan/templates/package/snippets/resource_item.html:36
 msgid "More information"
-msgstr ""
+msgstr "Περισσότερες πληροφορίες"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
@@ -3813,7 +3815,7 @@ msgstr "Προσθέστε δεδομένα"
 #: ckan/templates/package/snippets/stages.html:48
 #: ckan/templates/package/snippets/stages.html:50
 msgid "Additional info"
-msgstr ""
+msgstr "Επιπρόσθετες πληροφορίες"
 
 #: ckan/templates/related/base_form_page.html:12
 msgid "Related Form"
@@ -3964,7 +3966,7 @@ msgstr "Αυτό το στοιχείο δεν έχει περιγραφή"
 
 #: ckan/templates/revision/diff.html:6
 msgid "Differences"
-msgstr ""
+msgstr "Διαφορές"
 
 #: ckan/templates/revision/diff.html:13 ckan/templates/revision/diff.html:18
 #: ckan/templates/revision/diff.html:23
@@ -3978,7 +3980,7 @@ msgstr "Διαφορά"
 
 #: ckan/templates/revision/diff.html:54
 msgid "No Differences"
-msgstr ""
+msgstr "Δεν υπάρχουν διαφορές"
 
 #: ckan/templates/revision/list.html:3 ckan/templates/revision/list.html:6
 #: ckan/templates/revision/list.html:10
@@ -4140,7 +4142,7 @@ msgstr[1] "βρέθηκαν {number} σύνολα δεδομένων"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
-msgstr ""
+msgstr "Δε βρέθηκαν σύνολα δεδομένων"
 
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
@@ -4229,12 +4231,12 @@ msgstr "Τα σύνολα δεδομένων μου"
 #: ckan/templates/user/dashboard.html:21
 #: ckan/templates/user/dashboard_organizations.html:12
 msgid "My Organizations"
-msgstr ""
+msgstr "Οι Οργανισμοί μου"
 
 #: ckan/templates/user/dashboard.html:22
 #: ckan/templates/user/dashboard_groups.html:12
 msgid "My Groups"
-msgstr ""
+msgstr "Οι Ομάδες μου"
 
 #: ckan/templates/user/dashboard.html:39
 msgid "Activity from items that I'm following"
@@ -4281,7 +4283,7 @@ msgstr "Το προφίλ σας επιτρέπει σε άλλους χρήστ
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change details"
-msgstr ""
+msgstr "Τροποποίηση λεπτομερειών"
 
 #: ckan/templates/user/edit_user_form.html:11
 #: ckan/templates_legacy/user/edit_user_form.html:21
@@ -4306,7 +4308,7 @@ msgstr "Εγγραφείτε στο e-mail ειδοποιήσεων"
 
 #: ckan/templates/user/edit_user_form.html:26
 msgid "Change password"
-msgstr ""
+msgstr "Αλλαγή κωδικού πρόσβασης"
 
 #: ckan/templates/user/edit_user_form.html:28
 #: ckan/templates/user/logout_first.html:12
@@ -4358,7 +4360,7 @@ msgstr "Δημιουργείστε έναν λογαριασμό"
 
 #: ckan/templates/user/login.html:34
 msgid "Forgotten your password?"
-msgstr ""
+msgstr "Ξεχάσατε τον κωδικό πρόσβασης;"
 
 #: ckan/templates/user/login.html:36
 msgid "No problem, use our password recovery form to reset it."
@@ -6108,19 +6110,19 @@ msgstr "Όνομα χρήστη:"
 
 #: ckanext/datapusher/helpers.py:19
 msgid "Complete"
-msgstr ""
+msgstr "Ολοκληρώθηκε"
 
 #: ckanext/datapusher/helpers.py:20
 msgid "Pending"
-msgstr ""
+msgstr "Εκκρεμεί"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Submitting"
-msgstr ""
+msgstr "Γίνεται υποβολή"
 
 #: ckanext/datapusher/helpers.py:27
 msgid "Not Uploaded Yet"
-msgstr ""
+msgstr "Δε μεταφορτώθηκε ακόμα"
 
 #: ckanext/datastore/controller.py:31
 msgid "DataStore resource not found"

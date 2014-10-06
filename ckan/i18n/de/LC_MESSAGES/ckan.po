@@ -3,27 +3,27 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# alexanderbrateanu <alexander.brateanu@gmail.com>, 2013
-# amercader <amercadero@gmail.com>, 2013
+# Alexander Brateanu <alexander.brateanu@gmail.com>, 2013
+# Adrià Mercader <adria.mercader@okfn.org>, 2013
 # ddie <ddie@me.com>, 2011
-# domoritz <domoritz@gmail.com>, 2013
+# Dominik Moritz <domoritz@gmail.com>, 2013
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2011
 # jbspeakr <jan.brennenstuhl@okfn.org>, 2013
 # Ondics, 2013
-# Ondics, 2013
+# Ondics Githubler, 2013
 # PhilFOKUS <philipp.laemmel@fokus.fraunhofer.de>, 2011
 # pudo <friedrich@pudo.org>, 2011
 # Sean Hammond <sean.hammond@okfn.org>, 2012
-# odi <oderbolz@gmail.com>, 2013
+# Stefan Oderbolz <oderbolz@gmail.com>, 2013
 # stefanw <stefanwehrmeyer@gmail.com>, 2013
-# Thomas Hirsch <thomas.hirsch@gmail.com>, 2012
+# relet <thomas.hirsch@gmail.com>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
 "PO-Revision-Date: 2013-12-16 10:53+0000\n"
-"Last-Translator: Ondics\n"
+"Last-Translator: Ondics Githubler\n"
 "Language-Team: German (http://www.transifex.com/projects/p/ckan/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
