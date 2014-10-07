@@ -40,12 +40,12 @@ class CkanextTemplate(Template):
     vars = [
         var('description', 'a one-line description of the extension, '
                            'for example: "A simple blog extension for CKAN"'),
-        var('author', 'for example: "Sean Hammond"'),
-        var('author_email', 'for example: "hello@seanh.cc"'),
+        var('author', 'for example: "Guybrush Threepwood"'),
+        var('author_email', 'for example: "guybrush@meleeisland.com"'),
         var('keywords', 'a space-separated list of keywords, for example: '
                         '"CKAN blog"'),
         var('github_user_name', 'your GitHub user or organization name, for '
-                                'example: "seanh" or "ckan"'),
+                                'example: "guybrush" or "ckan"'),
     ]
 
     def check_vars(self, vars, cmd):
