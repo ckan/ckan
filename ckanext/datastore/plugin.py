@@ -347,24 +347,22 @@ class DatastorePlugin(p.SingletonPlugin):
         return data_dict
 
     def _is_valid_sort(self, clause, fields_types):
+        '''Return True if clause is a valid sort expression, False otheriwse.
+
+        A valid sort expression is defined as an (optionally double quoted)
+        field name, optionally followed by spaces and either 'asc' or 'desc'
+        '''
         clause = clause.encode('utf-8')
-        clause_parts = shlex.split(clause)
 
-        if len(clause_parts) == 1:
-            field, sort = clause_parts[0], 'asc'
-        elif len(clause_parts) == 2:
-            field, sort = clause_parts
-        else:
-            return False
+        if len(clause) > 4 and clause[-4:].lower() == ' asc':
+            clause = clause[0:-4].strip()
+        elif len(clause) > 5 and clause[-5:].lower() == ' desc':
+            clause = clause[0:-5].strip()
 
-        field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
+        if clause.startswith('"') and clause.endswith('"') and len(clause) > 2:
+            clause = clause[1:-1].replace('""', '"')
 
-        if field not in fields_types:
-            return False
-        if sort.lower() not in ('asc', 'desc'):
-            return False
-
-        return True
+        return unicode(clause, 'utf-8') in fields_types
 
     def datastore_delete(self, context, data_dict, fields_types, query_dict):
         query_dict['where'] += self._where(data_dict, fields_types)
@@ -453,11 +451,17 @@ class DatastorePlugin(p.SingletonPlugin):
 
         for clause in clauses:
             clause = clause.encode('utf-8')
-            clause_parts = shlex.split(clause)
-            if len(clause_parts) == 1:
-                field, sort = clause_parts[0], 'asc'
-            elif len(clause_parts) == 2:
-                field, sort = clause_parts
+            sort = 'asc'
+            if len(clause) > 4 and clause[-4:].lower() == ' asc':
+                clause = clause[0:-4].strip()
+            elif len(clause) > 5 and clause[-5:].lower() == ' desc':
+                sort = 'desc'
+                clause = clause[0:-5].strip()
+
+            if clause.startswith('"') and clause.endswith('"') and len(clause) > 2:
+                field = clause[1:-1].replace('""', '"')
+            else:
+                field = clause
 
             field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
 
