@@ -13,7 +13,9 @@ __all__ = [
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
+    'IValidators',
     'IResourcePreview',
+    'IResourceView',
     'IResourceController',
     'IGroupForm',
     'ITagController',
@@ -47,6 +49,11 @@ class IMiddleware(Interface):
     '''
     def make_middleware(self, app, config):
         '''Return an app configured with this middleware
+        '''
+        return app
+
+    def make_error_log_middleware(self, app, config):
+        '''Return an app configured with this error log middleware
         '''
         return app
 
@@ -185,6 +192,9 @@ class IDomainObjectModification(Interface):
     def notify(self, entity, operation):
         pass
 
+    def notify_after_commit(self, entity, operation):
+        pass
+
 
 class IResourceUrlChange(Interface):
     """
@@ -195,10 +205,79 @@ class IResourceUrlChange(Interface):
         pass
 
 
-class IResourcePreview(Interface):
-    '''Add custom data previews for resource file-types.
+class IResourceView(Interface):
+    '''Add custom data view for resource file-types.
 
     '''
+    def info(self):
+        '''
+        Return configuration for the view. Info can return the following.
+
+        :param name: name of view type
+        :param title: title of view type (Optional)
+        :param schema: schema to validate extra view config (Optional)
+        :param icon: icon from
+            http://fortawesome.github.io/Font-Awesome/3.2.1/icons/
+            without the icon- prefix eg. compass (Optional).
+        :param iframed: should we iframe the view template before rendering.
+            If the styles or JavaScript clash with the main site theme this
+            should be set to true. Default is true. (Optional)
+        :param preview_enabled:
+            Says if the preview button appears for this resource. Some preview
+            types have their  previews integrated with the form.
+            Some preview types have their previews integrated with the form.
+            Default false (Optional)
+        :param full_page_edit:  Says if the edit form is the full page width
+            of the page. Default false (Optional)
+
+        eg:
+            {'name': 'image',
+             'title': 'Image',
+             'schema': {'image_url': [ignore_empty, unicode]},
+             'icon': 'compass',
+             'iframed': false,
+             }
+
+        '''
+        return {'name': self.__class__.__name__}
+
+    def can_view(self, data_dict):
+        '''Return info on whether the plugin can preview the resource.
+        The ``data_dict`` contains: ``resource`` and ``package``.
+
+        return ``True`` or ``False``.
+        '''
+
+    def setup_template_variables(self, context, data_dict):
+        '''
+        Add variables to the ``data_dict`` that is passed to the
+        template being rendered.
+        Should return a new dict instead of updating the input ``data_dict``.
+
+        The ``data_dict`` contains: ``resource_view``, ``resource`` and
+        ``package``.
+        '''
+
+    def view_template(self, context, data_dict):
+        '''
+        Returns a string representing the location of the template to be
+        rendered when the view is rendered.
+
+        The ``data_dict`` contains: ``resource_view``, ``resource`` and
+        ``package``.
+        '''
+
+    def form_template(self, context, data_dict):
+        '''
+        Returns a string representing the location of the template to be
+        rendered for the read page.
+
+        The ``data_dict`` contains: ``resource_view``, ``resource`` and
+        ``package``.
+        '''
+
+class IResourcePreview(Interface):
+    ''' For backwards compatibility with the old resource preview code. '''
     def can_preview(self, data_dict):
         '''Return info on whether the plugin can preview the resource.
 
@@ -246,7 +325,6 @@ class IResourcePreview(Interface):
         rendered for the read page.
         The ``data_dict`` contains the resource and the package.
         '''
-
 
 class ITagController(Interface):
     '''
@@ -445,10 +523,107 @@ class IResourceController(Interface):
     Hook into the resource controller.
     """
 
+    def before_create(self, context, resource):
+        """
+        Extensions will receive this before a resource is created.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the resource to be added
+            to the dataset (the one that is about to be created).
+        :type resource: dictionary
+        """
+        pass
+
+    def after_create(self, context, resource):
+        """
+        Extensions will receive this after a resource is created.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the latest resource added
+            to the dataset (the one that was just created). A key in the
+            resource dictionary worth mentioning is ``url_type`` which is
+            set to ``upload`` when the resource file is uploaded instead
+            of linked.
+        :type resource: dictionary
+        """
+        pass
+
+    def before_update(self, context, current, resource):
+        """
+        Extensions will receive this before a resource is updated.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param current: The current resource which is about to be updated
+        :type current: dictionary
+        :param resource: An object representing the updated resource which
+            will replace the ``current`` one.
+        :type resource: dictionary
+        """
+        pass
+
+    def after_update(self, context, resource):
+        """
+        Extensions will receive this after a resource is updated.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the updated resource in
+            the dataset (the one that was just updated). As with
+            ``after_create``, a noteworthy key in the resource dictionary
+            ``url_type`` which is set to ``upload`` when the resource file
+            is uploaded instead of linked.
+        :type resource: dictionary
+        """
+        pass
+
+    def before_delete(self, context, resource, resources):
+        """
+        Extensions will receive this before a previously created resource is
+        deleted.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the resource that is about
+            to be deleted. This is a dictionary with one key: ``id`` which
+            holds the id ``string`` of the resource that should be deleted.
+        :type resource: dictionary
+        :param resources: The list of resources from which the resource will
+            be deleted (including the resource to be deleted if it existed
+            in the package).
+        :type resources: list
+        """
+        pass
+
+    def after_delete(self, context, resources):
+        """
+        Extensions will receive this after a previously created resource is
+        deleted.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resources: A list of objects representing the remaining
+            resources after a resource has been removed.
+        :type resource: list
+        """
+        pass
+
     def before_show(self, resource_dict):
         '''
-            Extensions will receive the validated data dict before the resource
-            is ready for display.
+        Extensions will receive the validated data dict before the resource
+        is ready for display.
+
+        Be aware that this method is not only called for UI display, but also
+        in other methods like when a resource is deleted because showing a
+        package is used to get access to the resources in a package.
         '''
         return resource_dict
 
@@ -520,6 +695,25 @@ class IActions(Interface):
         By decorating a function with the `ckan.logic.side_effect_free`
         decorator, the associated action will be made available by a GET
         request (as well as the usual POST request) through the action API.
+        """
+
+
+class IValidators(Interface):
+    """
+    Add extra validators to be returned by
+    :py:func:`ckan.plugins.toolkit.get_validator`.
+    """
+    def get_validators(self):
+        """Return the validator functions provided by this plugin.
+
+        Return a dictionary mapping validator names (strings) to
+        validator functions. For example::
+
+            {'valid_shoe_size': shoe_size_validator,
+             'valid_hair_color': hair_color_validator}
+
+        These validator functions would then be available when a
+        plugin calls :py:func:`ckan.plugins.toolkit.get_validator`.
         """
 
 

@@ -45,7 +45,7 @@
             </div>
           {% endblock %}
 
-          <div class="wrapper{% block wrapper_class %}{% endblock %}{% if self.secondary()|trim == '' %} no-nav{% endif %}">
+          <div class="row wrapper{% block wrapper_class %}{% endblock %}{% if self.secondary()|trim == '' %} no-nav{% endif %}">
 
             {#
             The pre_primary block can be used to add content to before the
@@ -55,7 +55,7 @@
             {% endblock %}
 
             {% block primary %}
-              <div class="primary">
+              <div class="primary span9">
                 {#
                 The primary_content block can be used to add content to the page.
                 This is the main block that is likely to be used within a template.
@@ -96,7 +96,7 @@
             {% endblock %}
 
             {% block secondary %}
-              <aside class="secondary">
+              <aside class="secondary span3">
                 {#
                 The secondary_content block can be used to add content to the
                 sidebar of the page. This is the main block that is likely to be

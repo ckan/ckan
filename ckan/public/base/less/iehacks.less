@@ -61,10 +61,20 @@
 // Internet Explorer 7 & 8
 .ie8,
 .ie7 {
+  .masthead  .nav-collapse {
+    float:right;
+  }
+  [role=main], .main {
+    padding-top: 10px;
+    background: @layoutBackgroundColor url("@{bgPath}");
+  }
   // Homepage
-  .hero .hero-primary.module-popup .box {
-    padding-bottom: 20px !important;
-    margin-bottom: 0 !important;
+  .hero {
+    background: url("@{imagePath}/background-tile.png");
+    .hero-primary.module-popup .box {
+      padding-bottom: 20px !important;
+      margin-bottom: 0 !important;
+    }
   }
   // Footer
   .lang-dropdown {

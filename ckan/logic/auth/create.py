@@ -61,6 +61,7 @@ def related_create(context, data_dict=None):
 
     return {'success': False, 'msg': _('You must be logged in to add a related item')}
 
+
 def resource_create(context, data_dict):
     # resource_create runs through package_update, no need to
     # check users eligibility to add resource to package here.
@@ -69,6 +70,11 @@ def resource_create(context, data_dict):
     # should be using package_update permissions and have better errors.  I
     # am also not sure about the need for the group issue
     return new_authz.is_authorized('package_create', context, data_dict)
+
+
+def resource_view_create(context, data_dict):
+    return resource_create(context, data_dict)
+
 
 def package_relationship_create(context, data_dict):
     user = context['user']

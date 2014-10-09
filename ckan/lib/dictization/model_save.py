@@ -613,3 +613,18 @@ def follower_dict_save(data_dict, context, FollowerClass):
             object_id=data_dict['id'])
     session.add(follower_obj)
     return follower_obj
+
+
+def resource_view_dict_save(data_dict, context):
+    model = context['model']
+    resource_view = context.get('resource_view')
+    if resource_view:
+        data_dict['id'] = resource_view.id
+    config = {}
+    for key, value in data_dict.iteritems():
+        if key not in model.ResourceView.get_columns():
+            config[key]  = value
+    data_dict['config'] = config
+
+
+    return d.table_dict_save(data_dict, model.ResourceView, context)

@@ -68,6 +68,15 @@ textarea {
 .control-medium textarea {
   width: 320px;
 }
+@media (max-width: 768px) {
+  .control-medium input,
+  .control-medium select,
+  .control-medium textarea {
+    width: 100%;
+    .box-sizing(border-box);
+    min-height:28px;
+  }
+}
 
 .control-large input,
 .control-large .control-label {
@@ -99,16 +108,24 @@ textarea {
   margin-right: -@gutterX;
   margin-bottom: 0; // Prevents reduces the padding when included in a module.
   padding-bottom: 0;
-  text-align: right;
+}
+@media (min-width: 768px) {
+  .form-actions {
+    text-align: right;
+  }
 }
 
 .form-actions .action-info {
-  float: left;
-  width: 50%;
   line-height: 2;
   text-align: left;
   color: @formInfoText;
   margin: 0;
+}
+@media (min-width: 768px) {
+  .form-actions .action-info {
+    float: left;
+    width: 50%;
+  }
 }
 
 .form-actions .action-info.small {
@@ -116,13 +133,20 @@ textarea {
   line-height: 1.2;
 }
 
+@media (max-width: 768px) {
+  .form-actions .btn {
+    margin-top:5px;
+  }
+}
+
 // Override the default form widths.
 .form-horizontal .control-label {
   width: 120px;
 }
-
-.form-horizontal .controls {
-  margin-left: 130px;
+@media (min-width: 768px) {
+  .form-horizontal .controls {
+    margin-left: 130px;
+  }
 }
 
 .form-horizontal .info-block {
@@ -131,7 +155,6 @@ textarea {
   font-size: 11px;
   color: @emptyTextColor;
   line-height: 1.3;
-  padding: 6px 0 6px 25px;
   margin-top: 6px;
 }
 
@@ -145,11 +168,16 @@ textarea {
   margin-top: -10px;
 }
 
-.form-horizontal .info-inline {
-  float: right;
-  width: 265px;
-  margin-top: 0;
-  padding-bottom: 0;
+@media (min-width: 980px) {
+  .form-horizontal .info-block {
+    padding: 6px 0 6px 25px;
+  }
+  .form-horizontal .info-inline {
+    float: right;
+    width: 265px;
+    margin-top: 0;
+    padding-bottom: 0;
+  }
 }
 
 .form-horizontal .control-medium .info-block.info-inline {
@@ -281,6 +309,27 @@ textarea {
 .editor .editor-info-block a {
   color: @layoutLinkColor;
   text-decoration: none;
+}
+
+// Custom Fields
+@media (max-width: 768px) {
+  [data-module="custom-fields"] {
+    .input-prepend .add-on {
+      display:block;
+    }
+  }
+}
+@media (max-width: 480px) {
+  [data-module="custom-fields"] {
+    .input-prepend {
+      width:100%;
+    }
+    .control-custom input {
+      width:100%;
+      .box-sizing(border-box);
+      min-height:28px;
+    }
+  }
 }
 
 // Controls
@@ -535,7 +584,11 @@ textarea {
   line-height: 27px;
   z-index: -1;
 }
-
+@media (max-width: 768px) {
+  .stages li .highlight {
+    text-indent:-9999px;
+  }
+}
 .stages li.active .highlight {
   color: @stagesActiveTextColor;
   background: @stagesActiveBackground;
@@ -667,9 +720,10 @@ textarea {
 }
 
 .control-full .select2-container {
-  // Important is bad but select2 incorrectly calculates the width and
-  // sets it on the element.
-  width: 520px !important;
+  // Important is bad but select2 incorrectly calculates the width and sets it on the element.
+  // Commenting out, as I cannot reproduce this problem (SS)
+  //width: 520px !important;
+  max-width:100%;
 }
 
 .control-group.error .select2-container {
