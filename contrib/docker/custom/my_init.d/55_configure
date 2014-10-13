@@ -25,8 +25,6 @@ if [ -e "$CKAN_CONFIG/$CONFIG_OPTIONS" ]; then
       "ckan.harvest.mq.hostname = $REDIS_PORT_6379_TCP_ADDR" \
       "ckan.harvest.mq.port = $REDIS_PORT_6379_TCP_PORT"
 
-  # done, remove the options file
-  rm "$CKAN_CONFIG/$CONFIG_OPTIONS"
 else
   echo "Custom options from $CONFIG_OPTIONS have been configured already"
 fi
