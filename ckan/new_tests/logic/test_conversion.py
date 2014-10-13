@@ -7,8 +7,6 @@ from ckan import model
 import ckan.plugins as p
 import ckan.lib.plugins as lib_plugins
 from ckan.lib.navl.dictization_functions import validate
-from ckan.logic.schema import default_extras_schema
-from ckan.logic.converters import convert_to_extras
 
 
 eq_ = nose.tools.eq_
@@ -16,9 +14,18 @@ eq_ = nose.tools.eq_
 
 class TestConvertToExtras(object):
 
+    @classmethod
+    def setup_class(cls):
+        p.load('example_idatasetform')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('example_idatasetform')
+
     def test_convert_to_extras_field_gets_stored_as_extra(self):
 
         data_dict = {
+            'name': 'test-dataset',
             'custom_text': 'Hi',
         }
 
@@ -27,10 +34,8 @@ class TestConvertToExtras(object):
             'session': model.Session,
         }
 
-        schema = {
-            'custom_text': [convert_to_extras],
-            'extras': default_extras_schema(),
-        }
+        package_plugin = lib_plugins.lookup_package_plugin('dataset')
+        schema = package_plugin.create_package_schema()
 
         data, errors = validate(data_dict, schema, context)
 
@@ -42,6 +47,7 @@ class TestConvertToExtras(object):
     def test_convert_to_extras_field_can_be_combined_with_a_proper_extra(self):
 
         data_dict = {
+            'name': 'test-dataset',
             'custom_text': 'Hi',
             'extras': [
                 {'key': 'proper_extra', 'value': 'Bye'},
@@ -49,15 +55,13 @@ class TestConvertToExtras(object):
             ]
         }
 
-        schema = {
-            'custom_text': [convert_to_extras],
-            'extras': default_extras_schema(),
-        }
-
         context = {
             'model': model,
             'session': model.Session,
         }
+
+        package_plugin = lib_plugins.lookup_package_plugin('dataset')
+        schema = package_plugin.create_package_schema()
 
         data, errors = validate(data_dict, schema, context)
 
@@ -71,6 +75,7 @@ class TestConvertToExtras(object):
     def test_convert_to_extras_field_can_be_combined_with_more_extras(self):
 
         data_dict = {
+            'name': 'test-dataset',
             'custom_text': 'Hi',
             'extras': [
                 {'key': 'proper_extra', 'value': 'Bye'},
@@ -78,15 +83,13 @@ class TestConvertToExtras(object):
             ]
         }
 
-        schema = {
-            'custom_text': [convert_to_extras],
-            'extras': default_extras_schema(),
-        }
-
         context = {
             'model': model,
             'session': model.Session,
         }
+
+        package_plugin = lib_plugins.lookup_package_plugin('dataset')
+        schema = package_plugin.create_package_schema()
 
         data, errors = validate(data_dict, schema, context)
 
@@ -100,6 +103,7 @@ class TestConvertToExtras(object):
     def test_convert_to_extras_field_can_be_combined_with_extras_deleted(self):
 
         data_dict = {
+            'name': 'test-dataset',
             'custom_text': 'Hi',
             'extras': [
                 {'key': 'proper_extra', 'value': 'Bye', 'deleted': True},
@@ -107,15 +111,13 @@ class TestConvertToExtras(object):
             ]
         }
 
-        schema = {
-            'custom_text': [convert_to_extras],
-            'extras': default_extras_schema(),
-        }
-
         context = {
             'model': model,
             'session': model.Session,
         }
+
+        package_plugin = lib_plugins.lookup_package_plugin('dataset')
+        schema = package_plugin.create_package_schema()
 
         data, errors = validate(data_dict, schema, context)
 
@@ -129,21 +131,20 @@ class TestConvertToExtras(object):
     def test_convert_to_extras_free_extra_can_not_have_the_same_key(self):
 
         data_dict = {
+            'name': 'test-dataset',
             'custom_text': 'Hi',
             'extras': [
                 {'key': 'custom_text', 'value': 'Bye'},
             ]
         }
 
-        schema = {
-            'custom_text': [convert_to_extras],
-            'extras': default_extras_schema(),
-        }
-
         context = {
             'model': model,
             'session': model.Session,
         }
+
+        package_plugin = lib_plugins.lookup_package_plugin('dataset')
+        schema = package_plugin.create_package_schema()
 
         data, errors = validate(data_dict, schema, context)
 
