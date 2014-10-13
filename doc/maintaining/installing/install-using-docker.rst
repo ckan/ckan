@@ -3,10 +3,11 @@ Installing CKAN using a Docker image
 ====================================
 
 .. important::
-   These instructions require Docker >=1.0. 
-   The released version of Docker is 1.2 as at this writing, this is compatible with `boot2docker`_
-   
-.. important:: 
+   These instructions require Docker >=1.0.
+   The released version of Docker is 1.2 as at this writing, this is compatible
+   with `boot2docker`_
+
+.. important::
    The CKAN container supports and enables the datastore & datapusher by default.
    The Postgres container supports and configures PostGIS on the ckan database
    but the spatial extention is not enabled by default
@@ -15,20 +16,24 @@ Installing CKAN using a Docker image
    Installing CKAN using a Docker image is currently under evaluation. There may
    be omissions or inaccuracies in this documentation.
 
-This section describes how to install CKAN & extensions using a Docker_ image. Docker is a
-tool that allows all kinds of software to be shipped and deployed in a standard
-format, much as cargo is shipped around the world in `standardised shipping
-containers`_.
+This section describes how to install CKAN & extensions using Docker_ containers.
+Docker is a tool that allows all kinds of software to be shipped and deployed
+in a standard format, much as cargo is shipped around the world in
+`standardised shipping containers`_.
 
 CKAN is built into a binary image, which you can then use as a blueprint to
 launch multiple containers which run CKAN and attendant services in an isolated
 environment. Providing a full introduction to Docker concepts is out of the
 scope of this document: you can learn more in the `Docker documentation`_.
 
+`Fig`_ service definitions are also provided to start all the containers with
+the appropiate links.
+
 .. _Docker: http://www.docker.com/
 .. _Docker documentation: http://docs.docker.com/
 .. _standardised shipping containers: https://en.wikipedia.org/wiki/Intermodal_container
 .. _boot2docker: https://github.com/boot2docker/boot2docker
+.. _Fig: http://www.fig.sh/
 
 
 -------------
@@ -39,22 +44,36 @@ In order to install CKAN using Docker, you will need to have installed Docker.
 Please follow the instructions for installing Docker from `the Docker
 documentation <https://docs.docker.com/installation/>`_.
 
+
 ---------------
-Installing CKAN
+Installing CKAN with Docker & Fig
+---------------
+
+In the simplest case, installing CKAN should be a matter of running
+the following command from the root of the project::
+
+    fig up
+
+`Fig`_ has other commands to start, stop and rebuild services,
+view the status of running services or tail logs.
+
+
+---------------
+Installing CKAN with Docker alone
 ---------------
 
 In the simplest case, installing CKAN should be a matter of running three
 commands: to run |postgres|, |solr|, and CKAN::
 
-    $ docker docker run 
-         -d 
-         --name postgres 
-         -h postgres.docker.local 
+    $ docker docker run \
+         -d \
+         --name postgres \
+         -h postgres.docker.local \
          ckan/postgresql
-    $ docker run 
-         -d 
-         --name solr 
-         -h solr.docker.local 
+    $ docker run \
+         -d \
+         --name solr \
+         -h solr.docker.local \
          ckan/solr
     $ docker run \
          -d \
@@ -74,17 +93,17 @@ installations of |postgres| and |solr| also running in containers.
    default database username and password is "ckan_user:ckan_pass" and if you do not
    change this the contents of your database may well be exposed to the public.
    You can provide secure credentials when the container is created by overriding the environment variables
-   
+
 You can provide secure credentials when the container is created by overriding the environment variables
 The same approach can be taken to use a different database & user name::
-   
+
      ENV CKAN_DB ckan
      ENV CKAN_USER ckan_user
      ENV CKAN_PASS ckan_pass
      ENV DATASTORE_DB datastore
      ENV DATASTORE_USER datastore_user
      ENV DATASTORE_PASS datastore_pass
-   
+
 Example with custom passwords for the database & datastore::
 
     $ docker run \
@@ -94,6 +113,8 @@ Example with custom passwords for the database & datastore::
          -e CKAN_PASS=mypassword \
          -e DATASTORE_PASS=mypassword \
          ckan/postgresql
+
+When using Fig you can provide environment variables in the ``fig.yml`` file.
 
 .. note::
    The first time you run these ``docker run`` commands, Docker will have to
@@ -108,8 +129,8 @@ like the following::
 
     $ docker ps -a
     CONTAINER ID        IMAGE                   COMMAND                CREATED             STATUS              PORTS                                        NAMES
-    0e6acf77679a        ckan/ckan:latest        "/sbin/my_init"        34 minutes ago      Up 2 seconds        0.0.0.0:80->80/tcp, 0.0.0.0:8800->8800/tcp   ckan                     
-    bc0be2622c0d        ckan/postgres:latest    "/sbin/my_init"        35 minutes ago      Up About a minute   5432/tcp                                     ckan/postgres,postgres   
+    0e6acf77679a        ckan/ckan:latest        "/sbin/my_init"        34 minutes ago      Up 2 seconds        0.0.0.0:80->80/tcp, 0.0.0.0:8800->8800/tcp   ckan
+    bc0be2622c0d        ckan/postgres:latest    "/sbin/my_init"        35 minutes ago      Up About a minute   5432/tcp                                     ckan/postgres,postgres
     a592d07ffffc        ckan/solr:latest        "/sbin/my_init"        36 minutes ago      Up 2 minutes        8983/tcp                                     ckan/solr,solr
 
 Using the CKAN container name or id (here it's ``0e6acf77679a``), you can perform other
@@ -126,12 +147,12 @@ on the machine, please consult the output of ``docker help run`` to see valid
 values for the ``-p/--publish`` option.
 
 You can also configure the CKAN container to connect to remote |postgres| and
-|solr| services, without using Docker links, by setting the ``DATABASE_URL``, 
+|solr| services, without using Docker links, by setting the ``DATABASE_URL``,
 ``DATASTORE_WRITE_URL``, ``DATASTORE_READ_URL`` and
 ``SOLR_URL`` environment variables::
 
-    $ docker run 
-         -d 
+    $ docker run
+         -d
          --name ckan \
          -h ckan.docker.local \
          -p 80:80 \
@@ -165,7 +186,7 @@ a custom command for the container::
          ckan/ckan \
          /sbin/my_init -- \
          /bin/bash
-         
+
 For example, to create a sysadmin user::
 
     $ $CKAN_HOME/bin/paster --plugin=ckan sysadmin -c $CKAN_CONFIG/ckan.ini add admin
@@ -201,7 +222,26 @@ This can be changed like any other options in the ``custom_options.ini`` file th
 This is only done the first time you build the container.
 Because it enables ``ckanex-harvest`` extensions, a Redis container is needed.
 
-Build it::
+The current version of docker (1.2) seems to be unable to save the changes applied to intermediate containers when building a custom container  based on the CKAN container with other extension.
+This means you have to install the extensions in the main container and leave the configuration to the custom one that inherits all the properties of the parent container.
+
+Examples of install instructions are available (and commented out) in the custom container::
+
+    # archiver
+    RUN . $CKAN_HOME && \
+        $CKAN_HOME/bin/pip install \
+          -e git+http://github.com/ckan/ckanext-archiver.git#egg=ckanext-archiver && \
+        $CKAN_HOME/bin/pip install \
+          -r $CKAN_HOME/src/ckanext-archiver/pip-requirements.txt
+
+
+Build it the hard way (using Docker only):
+
+Modify the CKAN container (at the root) and build it::
+
+    docker build --tag="clementmouchet/ckan" .
+
+Then build the custom (``contrib/docker/custom``) container::
 
     docker build --tag="clementmouchet/ckan_custom" .
 
@@ -223,3 +263,13 @@ Run your custom build::
          --link solr:solr \
          --link redis:redis \
          clementmouchet/ckan_custom
+
+Or the easy way using fig.
+
+Modify the CKAN container (at the root) and build it::
+
+    fig build
+
+Then build & run your custom (``contrib/docker/custom``) container::
+
+    fig up
