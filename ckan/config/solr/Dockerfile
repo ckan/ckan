@@ -27,10 +27,11 @@ RUN cp -R $SOLR_HOME/collection1/ $SOLR_HOME/ckan/
 RUN echo name=ckan > $SOLR_HOME/ckan/core.properties
 ADD schema.xml $SOLR_HOME/ckan/conf/schema.xml
 
-EXPOSE 8983
-VOLUME  ["/var/lib/solr/solr", "/var/log"]
-
 # Configure runit
 ADD ./svc /etc/service/
 CMD ["/sbin/my_init"]
 
+VOLUME  ["/var/lib/solr/solr", "/var/log"]
+EXPOSE 8983
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

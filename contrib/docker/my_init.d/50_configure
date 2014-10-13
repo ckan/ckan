@@ -32,7 +32,7 @@ write_config () {
       "error_email_from = ckan@$(hostname -f)" \
       "ckan.datastore.write_url = ${DATASTORE_WRITE_URL}" \
       "ckan.datastore.read_url = ${DATASTORE_READ_URL}" \
-      "ckan.plugins = datastore datapusher resource_proxy stats text_view recline_view pdf_view viewhelpers linechart barchart piechart basicgrid dashboard_preview navigablemap choroplethmap"
+      "ckan.plugins = datastore datapusher resource_proxy stats text_view recline_view pdf_view"
   if [ -n "$ERROR_EMAIL" ]; then
     sed -i -e "s&^#email_to.*&email_to = ${ERROR_EMAIL}&" "$CONFIG"
   fi

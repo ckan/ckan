@@ -1,0 +1,21 @@
+postgres:
+  build: contrib/docker/postgresql
+  hostname: postgres
+  domainname: docker.local
+  environment:
+    - CKAN_PASS=ckan_pass
+    - DATASTORE_PASS=datastore_pass
+solr:
+  build: contrib/docker/solr
+  hostname: solr
+  domainname: docker.local
+ckan:
+  build: .
+  hostname: ckan
+  domainname: docker.local
+  ports:
+    - "80:80"
+    - "8800:8800"
+  links:
+    - postgres:postgres
+    - solr:solr
