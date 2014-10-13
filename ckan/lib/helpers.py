@@ -1575,11 +1575,11 @@ localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
 
 
-def get_organization(org=None):
+def get_organization(org=None, include_datasets=False):
     if org is None:
         return {}
     try:
-        return logic.get_action('organization_show')({}, {'id': org})
+        return logic.get_action('organization_show')({}, {'id': org, 'include_datasets': include_datasets})
     except (NotFound, ValidationError, NotAuthorized):
         return {}
 
