@@ -6,7 +6,7 @@ postgres:
     - CKAN_PASS=ckan_pass
     - DATASTORE_PASS=datastore_pass
 solr:
-  build: contrib/docker/solr
+  build: ckan/config/solr
   hostname: solr
   domainname: docker.local
 ckan:

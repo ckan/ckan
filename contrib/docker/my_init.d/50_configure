@@ -19,8 +19,6 @@ abort () {
 }
 
 write_config () {
-  "$CKAN_HOME"/bin/paster make-config ckan "$CONFIG"
-
   "$CKAN_HOME"/bin/paster --plugin=ckan config-tool "$CONFIG" -e \
       "sqlalchemy.url = ${DATABASE_URL}" \
       "solr_url = ${SOLR_URL}" \
@@ -73,25 +71,30 @@ link_solr_url () {
 
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
-  if [ -z "$DATABASE_URL" ]; then
-    if ! DATABASE_URL=$(link_postgres_url); then
-      abort "no DATABASE_URL specified and linked container called 'postgres' was not found"
-    fi
-  fi
-  if [ -z "$DATASTORE_WRITE_URL" ]; then
-    if ! DATASTORE_WRITE_URL=$(link_datastore_write_url); then
-      abort "no DATASTORE_WRITE_URL specified and linked container called 'postgres' was not found"
-    fi
-  fi
-  if [ -z "$DATASTORE_READ_URL" ]; then
-    if ! DATASTORE_READ_URL=$(link_datastore_read_url); then
-      abort "no DATASTORE_READ_URL specified and linked container called 'postgres' was not found"
-    fi
-  fi
-  if [ -z "$SOLR_URL" ]; then
-    if ! SOLR_URL=$(link_solr_url); then
-      abort "no SOLR_URL specified and linked container called 'solr' was not found"
-    fi
-  fi
-  write_config
+  "$CKAN_HOME"/bin/paster make-config ckan "$CONFIG"
 fi
+
+# We need to override the options everytime because
+# if you restart any of the containers it can come back with a different IP
+if [ -z "$DATABASE_URL" ]; then
+  if ! DATABASE_URL=$(link_postgres_url); then
+    abort "no DATABASE_URL specified and linked container called 'postgres' was not found"
+  fi
+fi
+if [ -z "$DATASTORE_WRITE_URL" ]; then
+  if ! DATASTORE_WRITE_URL=$(link_datastore_write_url); then
+    abort "no DATASTORE_WRITE_URL specified and linked container called 'postgres' was not found"
+  fi
+fi
+if [ -z "$DATASTORE_READ_URL" ]; then
+  if ! DATASTORE_READ_URL=$(link_datastore_read_url); then
+    abort "no DATASTORE_READ_URL specified and linked container called 'postgres' was not found"
+  fi
+fi
+if [ -z "$SOLR_URL" ]; then
+  if ! SOLR_URL=$(link_solr_url); then
+    abort "no SOLR_URL specified and linked container called 'solr' was not found"
+  fi
+fi
+# update the config
+write_config
