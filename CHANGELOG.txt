@@ -1,6 +1,19 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v2.0.5 2014-10-15
+=================
+
+Bug fixes:
+ * organization_list_for_user() fixes (#1918)
+ * Incorrect link in Organization snippet on dataset page (#1882)
+ * Prevent reading system tables on DataStore SQL search (#1871)
+ * Ensure that the DataStore is running on legacy mode when using PostgreSQL < 9.x (#1879)
+ * Current date indexed on empty "\*_date" fields (#1701)
+ * Able to list private datasets via the API (#1580)
+ * Insecure content warning when running Recline under SSL (#1729)
+ * Inserting empty arrays in JSON type fields in datastore fails (#1776)
+ * Deleted Users bug (#1668)
 
 v2.0.4 2014-02-04
 =================
