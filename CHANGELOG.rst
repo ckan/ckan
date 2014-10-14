@@ -7,6 +7,31 @@
 Changelog
 ---------
 
+v2.1.3 2014-10-15
+=================
+
+Bug fixes:
+ * Organization image_url is not displayed in the dataset view. (#1934)
+ * i18n: Close a tag in French translation in Markdown syntax link (#1919)
+ * organization_list_for_user() fixes (#1918)
+ * Incorrect link in Organization snippet on dataset page (#1882)
+ * Prevent reading system tables on DataStore SQL search (#1871)
+ * Ensure that the DataStore is running on legacy mode when using PostgreSQL < 9.x (#1879)
+ * Edit user encoding error (#1436)
+ * Able to list private datasets via the API (#1580)
+ * Insecure content warning when running Recline under SSL (#1729)
+ * Add quotes to package ID in Solr query in _bulk_update_dataset to prevent Solr errors with custom dataset IDs. (#1853)
+ * Ordering a dataset listing loses the existing filters (#1791)
+ * Inserting empty arrays in JSON type fields in datastore fails (#1776)
+ * programatically log user in after registration (#1721)
+ * Deleted Users bug (#1668)
+ * Catch NotFound error in resources page (#1685)
+ * bulk_process page for non-existent organization throws Exception (#1682)
+ * Default search ordering on organization home page is broken (#1368)
+ * Term translations of organizations (#1274)
+ * Preview fails on private datastore resources (#1221)
+ * Strip whitespace from title in model dictize (#1228)
+
 v2.1.2 2014-02-04
 =================
 
@@ -124,6 +149,20 @@ Deprecated and removed:
 Known issues:
  * Under certain authorization setups the forntend for the groups functionality
    may not work as expected (See #1176 #1175).
+
+v2.0.5 2014-10-15
+=================
+
+Bug fixes:
+ * organization_list_for_user() fixes (#1918)
+ * Incorrect link in Organization snippet on dataset page (#1882)
+ * Prevent reading system tables on DataStore SQL search (#1871)
+ * Ensure that the DataStore is running on legacy mode when using PostgreSQL < 9.x (#1879)
+ * Current date indexed on empty "\*_date" fields (#1701)
+ * Able to list private datasets via the API (#1580)
+ * Insecure content warning when running Recline under SSL (#1729)
+ * Inserting empty arrays in JSON type fields in datastore fails (#1776)
+ * Deleted Users bug (#1668)
 
 v2.0.4 2014-02-04
 =================
