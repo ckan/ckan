@@ -1322,3 +1322,21 @@ class TestBasicDictize:
 
         # Passwords should never be available
         assert 'password' not in user_dict
+
+    def test_26_package_dictize_whitespace_strippped_from_title(self):
+
+        context = {"model": model,
+                   "session": model.Session}
+
+        pkg = model.Session.query(model.Package).first()
+        original_title = pkg.title
+        pkg.title = "     whitespace title    \t"
+        model.Session.add(pkg)
+        model.Session.commit()
+
+        result = package_dictize(pkg, context)
+        assert result['title'] == 'whitespace title'
+        pkg.title = original_title
+        model.Session.add(pkg)
+        model.Session.commit()
+

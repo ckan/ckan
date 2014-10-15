@@ -1587,6 +1587,16 @@ localised_SI_number = formatters.localised_SI_number
 localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
 
+
+def get_organization(org=None, include_datasets=False):
+    if org is None:
+        return {}
+    try:
+        return logic.get_action('organization_show')({}, {'id': org, 'include_datasets': include_datasets})
+    except (NotFound, ValidationError, NotAuthorized):
+        return {}
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -1671,6 +1681,7 @@ __allowed_functions__ = [
     'localised_nice_date',
     'localised_filesize',
     'list_dict_filter',
+    'get_organization',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',

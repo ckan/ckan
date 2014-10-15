@@ -15,7 +15,7 @@ import ckan.lib.mailer as mailer
 import ckan.lib.navl.dictization_functions as dictization_functions
 import ckan.plugins as p
 
-from ckan.common import _, c, g, request
+from ckan.common import _, c, g, request, response
 
 log = logging.getLogger(__name__)
 
@@ -196,13 +196,12 @@ class UserController(base.BaseController):
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
         if not c.user:
-            # Redirect to a URL picked up by repoze.who which performs the
-            # login
-            login_url = self._get_repoze_handler('login_handler_path')
-            h.redirect_to('%s?login=%s&password=%s' % (
-                login_url,
-                str(data_dict['name']),
-                quote(data_dict['password1'].encode('utf-8'))))
+            # log the user in programatically
+            rememberer = request.environ['repoze.who.plugins']['friendlyform']
+            identity = {'repoze.who.userid': data_dict['name']}
+            response.headerlist += rememberer.remember(request.environ,
+                                                       identity)
+            h.redirect_to(controller='user', action='me', __ckan_no_root=True)
         else:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.

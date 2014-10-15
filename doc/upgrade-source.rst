@@ -31,6 +31,12 @@ CKAN release you're upgrading to:
 
      pip install --upgrade -r pip-requirements.txt
 
+#. Register any new or updated plugins:
+
+   ::
+
+     python setup.py develop
+
 #. If you are upgrading to a new :ref:`major release <releases>` you need to
    update your Solr schema symlink.
 

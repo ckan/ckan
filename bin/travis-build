@@ -15,7 +15,12 @@ sudo add-apt-repository -yy ppa:pitti/postgresql
 sudo apt-get update -qq
 sudo apt-get install solr-jetty postgresql-$PGVERSION
 
-sudo service postgresql reload
+if [ $PGVERSION = '8.4' ]
+then
+    # force postgres to use 5432 as it's port
+    sudo sed -i -e 's/port = 5433/port = 5432/g' /etc/postgresql/8.4/main/postgresql.conf
+fi
+sudo service postgresql restart
 
 # Setup postgres' users and databases
 sudo -u postgres psql -c "CREATE USER ckan_default WITH PASSWORD 'pass';"

@@ -3,15 +3,16 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Adrian Budasz <adrianbudasz@gmail.com>, 2014
 # Open Knowledge Foundation <translations@okfn.org>, 2011
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-07-01 17:35+0100\n"
-"PO-Revision-Date: 2013-07-01 17:03+0000\n"
-"Last-Translator: amercader <amercadero@gmail.com>\n"
+"PO-Revision-Date: 2014-08-13 06:45+0000\n"
+"Last-Translator: Adrian Budasz <adrianbudasz@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/projects/p/ckan/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -32,11 +33,11 @@ msgstr ""
 
 #: ckan/new_authz.py:95
 msgid "Editor"
-msgstr ""
+msgstr "Edytor"
 
 #: ckan/new_authz.py:98
 msgid "Member"
-msgstr ""
+msgstr "Członek"
 
 #: ckan/controllers/admin.py:24
 msgid "Need to be system administrator to administer"
@@ -44,11 +45,11 @@ msgstr "Aby zarządzać trzeba mieć uprawnienia administratora"
 
 #: ckan/controllers/admin.py:35
 msgid "Site Title"
-msgstr ""
+msgstr "Tytuł strony"
 
 #: ckan/controllers/admin.py:36
 msgid "Style"
-msgstr ""
+msgstr "Styl"
 
 #: ckan/controllers/admin.py:37
 msgid "Site Tag Line"
@@ -76,7 +77,7 @@ msgstr "O serwisie"
 
 #: ckan/controllers/admin.py:39
 msgid "About page text"
-msgstr ""
+msgstr "Tekst na stronie \"O nas\""
 
 #: ckan/controllers/admin.py:40
 msgid "Intro Text"
@@ -84,11 +85,11 @@ msgstr ""
 
 #: ckan/controllers/admin.py:40
 msgid "Text on home page"
-msgstr ""
+msgstr "Tekst na stronie głównej"
 
 #: ckan/controllers/admin.py:41
 msgid "Custom CSS"
-msgstr ""
+msgstr "Własny CSS"
 
 #: ckan/controllers/admin.py:41
 msgid "Customisable css inserted into the page header"

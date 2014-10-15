@@ -3,18 +3,19 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# bminev <boriss.minev@gmail.com>, 2014
 # <internet@davidread.org>, 2011
 # Open Knowledge Foundation <translations@okfn.org>, 2011
-# RealEnder <alex@stanev.org>, 2013
+# Alex Stanev <alex@stanev.org>, 2013
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
-"Report-Msgid-Bugs-To: http://trac.ckan.org/\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-07-01 17:35+0100\n"
-"PO-Revision-Date: 2013-07-01 17:01+0000\n"
-"Last-Translator: amercader <amercadero@gmail.com>\n"
-"Language-Team: Bulgarian <ckan-dev@lists.okfn.org>\n"
+"PO-Revision-Date: 2014-09-01 14:55+0000\n"
+"Last-Translator: bminev <boriss.minev@gmail.com>\n"
+"Language-Team: Bulgarian (http://www.transifex.com/projects/p/ckan/language/bg/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -38,7 +39,7 @@ msgstr "Редактор"
 
 #: ckan/new_authz.py:98
 msgid "Member"
-msgstr ""
+msgstr "Член"
 
 #: ckan/controllers/admin.py:24
 msgid "Need to be system administrator to administer"
@@ -50,7 +51,7 @@ msgstr ""
 
 #: ckan/controllers/admin.py:36
 msgid "Style"
-msgstr ""
+msgstr "Стил"
 
 #: ckan/controllers/admin.py:37
 msgid "Site Tag Line"
@@ -244,7 +245,7 @@ msgstr "Групата не е намерена"
 #: ckan/controllers/feed.py:285 ckan/controllers/feed.py:287
 #: ckan/controllers/feed.py:437 ckan/controllers/feed.py:439
 msgid "\"page\" parameter must be a positive integer"
-msgstr ""
+msgstr "\"page\" параметърът трябва да бъде положително цяло число"
 
 #: ckan/controllers/group.py:184 ckan/controllers/group.py:371
 #: ckan/controllers/group.py:455 ckan/controllers/group.py:496
@@ -289,7 +290,7 @@ msgstr "Етикети"
 #: ckan/controllers/group.py:283 ckan/controllers/home.py:71
 #: ckan/controllers/package.py:220 ckan/lib/helpers.py:545
 msgid "Formats"
-msgstr ""
+msgstr "Формати"
 
 #: ckan/controllers/group.py:284 ckan/controllers/home.py:72
 #: ckan/controllers/package.py:221 ckan/lib/helpers.py:546
@@ -334,11 +335,11 @@ msgstr ""
 
 #: ckan/controllers/group.py:579
 msgid "Organization has been deleted."
-msgstr ""
+msgstr "Организацията бе изтрита"
 
 #: ckan/controllers/group.py:581
 msgid "Group has been deleted."
-msgstr ""
+msgstr "Групата бе изтрита"
 
 #: ckan/controllers/group.py:627
 #, python-format
@@ -352,7 +353,7 @@ msgstr ""
 
 #: ckan/controllers/group.py:650
 msgid "Group member has been deleted."
-msgstr ""
+msgstr "Член на групата бе изтрит"
 
 #: ckan/controllers/group.py:672 ckan/controllers/package.py:375
 msgid "Select two revisions before doing the comparison."
@@ -428,7 +429,7 @@ msgstr "Моля, <a href=\"%s\"> актуализирайте вашия про
 #: ckan/templates/organization/read_base.html:6
 #: ckan/templates/package/base.html:12
 msgid "Organizations"
-msgstr ""
+msgstr "Организации"
 
 #: ckan/controllers/package.py:327 ckan/controllers/package.py:329
 #: ckan/controllers/package.py:331
@@ -547,11 +548,11 @@ msgstr ""
 #: ckan/controllers/related.py:68
 #: ckan/templates_legacy/related/dashboard.html:46
 msgid "Most viewed"
-msgstr ""
+msgstr "Най-разглеждани"
 
 #: ckan/controllers/related.py:69
 msgid "Most Viewed"
-msgstr ""
+msgstr "Най-разглеждани"
 
 #: ckan/controllers/related.py:70
 msgid "Least Viewed"
@@ -560,12 +561,12 @@ msgstr ""
 #: ckan/controllers/related.py:71
 #: ckan/templates_legacy/related/dashboard.html:49
 msgid "Newest"
-msgstr ""
+msgstr "Най-нови"
 
 #: ckan/controllers/related.py:72
 #: ckan/templates_legacy/related/dashboard.html:50
 msgid "Oldest"
-msgstr ""
+msgstr "Най-стари"
 
 #: ckan/controllers/related.py:91
 msgid "The requested related item was not found"
@@ -707,13 +708,13 @@ msgstr "Потребителят не съществува"
 
 #: ckan/controllers/user.py:234
 msgid "Unauthorized to edit a user."
-msgstr ""
+msgstr "Неупълномощен да редактира потребител"
 
 #: ckan/controllers/user.py:252 ckan/controllers/user.py:293
 #: ckan/controllers/user.py:472
 #, python-format
 msgid "Unauthorized to edit user %s"
-msgstr "Неупълномощен да обработва потребител %s"
+msgstr "Неупълномощен да редактира потребител %s"
 
 #: ckan/controllers/user.py:260
 #, python-format
@@ -731,7 +732,7 @@ msgstr "%s е включен "
 
 #: ckan/controllers/user.py:348
 msgid "Login failed. Bad username or password."
-msgstr ""
+msgstr "Вход неуспешен. Грешно потребителско име или парола."
 
 #: ckan/controllers/user.py:350
 msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
@@ -918,55 +919,55 @@ msgstr[1] ""
 
 #: ckan/lib/formatters.py:17
 msgid "January"
-msgstr ""
+msgstr "Януари"
 
 #: ckan/lib/formatters.py:21
 msgid "February"
-msgstr ""
+msgstr "Февруари"
 
 #: ckan/lib/formatters.py:25
 msgid "March"
-msgstr ""
+msgstr "Март"
 
 #: ckan/lib/formatters.py:29
 msgid "April"
-msgstr ""
+msgstr "Април"
 
 #: ckan/lib/formatters.py:33
 msgid "May"
-msgstr ""
+msgstr "Май"
 
 #: ckan/lib/formatters.py:37
 msgid "June"
-msgstr ""
+msgstr "Юни"
 
 #: ckan/lib/formatters.py:41
 msgid "July"
-msgstr ""
+msgstr "Юли"
 
 #: ckan/lib/formatters.py:45
 msgid "August"
-msgstr ""
+msgstr "Август"
 
 #: ckan/lib/formatters.py:49
 msgid "September"
-msgstr ""
+msgstr "Септември"
 
 #: ckan/lib/formatters.py:53
 msgid "October"
-msgstr ""
+msgstr "Октомври"
 
 #: ckan/lib/formatters.py:57
 msgid "November"
-msgstr ""
+msgstr "Ноември"
 
 #: ckan/lib/formatters.py:61
 msgid "December"
-msgstr ""
+msgstr "Декември"
 
 #: ckan/lib/formatters.py:82
 msgid "Just now"
-msgstr ""
+msgstr "Сега"
 
 #: ckan/lib/formatters.py:84
 msgid "{mins} minute ago"
@@ -1388,7 +1389,7 @@ msgstr "Моля въведете валиден URL"
 
 #: ckan/logic/validators.py:631
 msgid "role does not exist."
-msgstr ""
+msgstr "ролята не съществува"
 
 #: ckan/logic/validators.py:638
 msgid "Not a list"
@@ -1504,7 +1505,7 @@ msgstr ""
 
 #: ckan/logic/action/get.py:115
 msgid "Must be larger than 0"
-msgstr ""
+msgstr "Трябва да е по-голям от 0"
 
 #: ckan/logic/action/get.py:1526
 msgid "Do not specify if using \"query\" parameter"
@@ -1913,7 +1914,7 @@ msgstr ""
 #: ckan/templates/user/new_user_form.html:9
 #: ckan/templates/user/perform_reset.html:20
 msgid "Confirm"
-msgstr ""
+msgstr "Потвърди"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:10
 #: ckan/templates/admin/confirm_reset.html:9
@@ -1950,11 +1951,11 @@ msgstr ""
 
 #: ckan/public/base/javascript/modules/related-item.js:25
 msgid "show more"
-msgstr ""
+msgstr "покажи повече"
 
 #: ckan/public/base/javascript/modules/related-item.js:26
 msgid "show less"
-msgstr ""
+msgstr "покажи по-малко"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:25
 #: ckan/templates_legacy/package/new_package_form.html:149
@@ -1963,7 +1964,7 @@ msgstr "Качване на файл"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:26
 msgid "An Error Occurred"
-msgstr ""
+msgstr "Възникна грешка"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:27
 msgid "Resource uploaded"
@@ -2020,7 +2021,7 @@ msgstr ""
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:10
 msgid "Hide"
-msgstr ""
+msgstr "Скрий"
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
@@ -2047,11 +2048,11 @@ msgstr ""
 
 #: ckan/templates/header.html:11
 msgid "Sysadmin settings"
-msgstr ""
+msgstr "Администраторски настройки"
 
 #: ckan/templates/header.html:17
 msgid "View profile"
-msgstr ""
+msgstr "Покажи профил"
 
 #: ckan/templates/header.html:23
 #, python-format
@@ -2063,7 +2064,7 @@ msgstr[1] ""
 #: ckan/templates/header.html:31 ckan/templates/user/dashboard.html:10
 #: ckan/templates/user/edit.html:8
 msgid "Edit settings"
-msgstr ""
+msgstr "Редактирай настройки"
 
 #: ckan/templates/header.html:38 ckan/templates_legacy/user/layout.html:14
 msgid "Log out"
@@ -2072,7 +2073,7 @@ msgstr "Изход"
 #: ckan/templates/header.html:50 ckan/templates/user/logout_first.html:15
 #: ckan/templates/user/snippets/login_form.html:27
 msgid "Log in"
-msgstr ""
+msgstr "Вход"
 
 #: ckan/templates/header.html:51 ckan/templates/user/new.html:3
 #: ckan/templates_legacy/layout_base.html:60
@@ -2122,11 +2123,11 @@ msgstr "Търсене"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:7
 msgid "Load less"
-msgstr ""
+msgstr "Зареди по-малко"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:15
 msgid "Load more"
-msgstr ""
+msgstr "Зареди повече"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:19
 msgid "No activities are within this activity stream"
@@ -2138,11 +2139,11 @@ msgstr ""
 
 #: ckan/templates/admin/base.html:9
 msgid "Sysadmins"
-msgstr ""
+msgstr "Системни администратори"
 
 #: ckan/templates/admin/base.html:10
 msgid "Config"
-msgstr ""
+msgstr "Конфигурация"
 
 #: ckan/templates/admin/config.html:9
 #: ckan/templates/admin/confirm_reset.html:7
@@ -2151,11 +2152,11 @@ msgstr ""
 
 #: ckan/templates/admin/config.html:10
 msgid "Reset"
-msgstr ""
+msgstr "Изчисти"
 
 #: ckan/templates/admin/config.html:11 ckan/templates/related/edit_form.html:5
 msgid "Update"
-msgstr ""
+msgstr "Обнови"
 
 #: ckan/templates/admin/config.html:20
 msgid "CKAN config options"
@@ -2186,7 +2187,7 @@ msgstr ""
 
 #: ckan/templates/admin/index.html:15
 msgid "What are sysadmins?"
-msgstr ""
+msgstr "Какво са системни администратори?"
 
 #: ckan/templates/admin/index.html:19
 msgid ""
@@ -2197,7 +2198,7 @@ msgstr ""
 
 #: ckan/templates/admin/index.html:24
 msgid "Read the documentation"
-msgstr ""
+msgstr "Прочетете документацията"
 
 #: ckan/templates/ajax_snippets/api_info.html:19
 msgid "CKAN Data API"
@@ -2227,7 +2228,7 @@ msgstr ""
 #: ckan/templates/ajax_snippets/api_info.html:42
 #: ckan/templates/related/edit_form.html:7
 msgid "Create"
-msgstr ""
+msgstr "Създай"
 
 #: ckan/templates/ajax_snippets/api_info.html:46
 msgid "Update / Insert"
@@ -2275,7 +2276,7 @@ msgstr ""
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:11
 msgid "Click here for more information."
-msgstr ""
+msgstr "Натиснете тук за повече информация."
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:18
 msgid "Download resource"
@@ -2291,7 +2292,7 @@ msgstr ""
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:5
 msgid "More details..."
-msgstr ""
+msgstr "Повече информация..."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:12
 #, python-format
@@ -2324,11 +2325,11 @@ msgstr ""
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large"
-msgstr ""
+msgstr "Голям"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large Input"
-msgstr ""
+msgstr "Голям вход"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend"
@@ -2369,7 +2370,7 @@ msgstr ""
 #: ckan/templates/snippets/group.html:24
 #: ckan/templates/snippets/group_item.html:18
 msgid "There is no description for this group"
-msgstr ""
+msgstr "Няма описание за тази група"
 
 #: ckan/templates/group/activity_stream.html:3
 #: ckan/templates/group/activity_stream.html:6
@@ -2398,7 +2399,7 @@ msgstr "Администратор"
 #: ckan/templates/group/base_form_page.html:7
 #: ckan/templates_legacy/group/layout.html:32
 msgid "Add a Group"
-msgstr ""
+msgstr "Добави Група"
 
 #: ckan/templates/group/base_form_page.html:11
 msgid "Group Form"
@@ -2419,7 +2420,7 @@ msgstr ""
 #: ckan/templates/related/confirm_delete.html:3
 #: ckan/templates/related/confirm_delete.html:15
 msgid "Confirm Delete"
-msgstr ""
+msgstr "Потвърдете изтриването"
 
 #: ckan/templates/group/confirm_delete.html:11
 msgid "Are you sure you want to delete group - {name}?"
@@ -2432,11 +2433,11 @@ msgstr ""
 
 #: ckan/templates/group/edit.html:11 ckan/templates/group/edit.html:14
 msgid "Edit Group"
-msgstr ""
+msgstr "Редактирай Група"
 
 #: ckan/templates/group/edit_base.html:14
 msgid "View group"
-msgstr ""
+msgstr "Покажи група"
 
 #: ckan/templates/group/edit_base.html:19 ckan/templates/group/members.html:3
 #: ckan/templates/organization/edit_base.html:25
@@ -2459,7 +2460,7 @@ msgstr "Членове"
 #: ckan/templates_legacy/package/followers.html:11
 #: ckan/templates_legacy/user/read.html:65
 msgid "Followers"
-msgstr ""
+msgstr "Последователи"
 
 #: ckan/templates/group/history.html:3 ckan/templates/group/history.html:7
 #: ckan/templates/package/history.html:3 ckan/templates/package/history.html:6
@@ -2482,7 +2483,7 @@ msgstr "Добавяне на група"
 
 #: ckan/templates/group/index.html:20
 msgid "Search groups..."
-msgstr ""
+msgstr "Търси групи..."
 
 #: ckan/templates/group/index.html:27
 msgid "There are currently no groups for this site"
@@ -2496,18 +2497,18 @@ msgstr ""
 #: ckan/templates/group/member_new.html:8
 #: ckan/templates/organization/member_new.html:10
 msgid "Back to all members"
-msgstr ""
+msgstr "Обратно към всички членове"
 
 #: ckan/templates/group/member_new.html:10
 #: ckan/templates/organization/member_new.html:12
 msgid "Edit Member"
-msgstr ""
+msgstr "Редактирай Член"
 
 #: ckan/templates/group/member_new.html:10 ckan/templates/group/members.html:6
 #: ckan/templates/organization/member_new.html:12
 #: ckan/templates/organization/members.html:6
 msgid "Add Member"
-msgstr ""
+msgstr "Добави Член"
 
 #: ckan/templates/group/member_new.html:20
 #: ckan/templates/organization/member_new.html:22
@@ -2526,7 +2527,7 @@ msgstr "Потребителско име"
 #: ckan/templates/organization/member_new.html:25
 #: ckan/templates/organization/members.html:18
 msgid "Role"
-msgstr ""
+msgstr "Роля"
 
 #: ckan/templates/group/member_new.html:26
 #: ckan/templates/group/members.html:27
@@ -2573,7 +2574,7 @@ msgstr "Добавяне"
 #: ckan/templates/group/member_new.html:46
 #: ckan/templates/organization/member_new.html:49
 msgid "What are roles?"
-msgstr ""
+msgstr "Какво са ролите?"
 
 #: ckan/templates/group/member_new.html:49
 msgid ""
@@ -2585,15 +2586,15 @@ msgstr ""
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:7
 msgid "Create a Group"
-msgstr ""
+msgstr "Създай Група"
 
 #: ckan/templates/group/new.html:5 ckan/templates/group/new_group_form.html:19
 msgid "Create Group"
-msgstr ""
+msgstr "Създай Група"
 
 #: ckan/templates/group/new_group_form.html:17
 msgid "Update Group"
-msgstr ""
+msgstr "Обнови група"
 
 #: ckan/templates/group/read.html:6 ckan/templates/organization/read.html:5
 #: ckan/templates/package/search.html:16
@@ -2651,7 +2652,7 @@ msgstr "Описание"
 
 #: ckan/templates/group/snippets/group_form.html:20
 msgid "A little information about my group..."
-msgstr ""
+msgstr "Малко информация за групата ми..."
 
 #: ckan/templates/group/snippets/group_form.html:22
 #: ckan/templates/organization/snippets/organization_form.html:22
@@ -2671,11 +2672,11 @@ msgstr ""
 
 #: ckan/templates/group/snippets/group_form.html:79
 msgid "Save Group"
-msgstr ""
+msgstr "Запази група"
 
 #: ckan/templates/group/snippets/group_item.html:26
 msgid "This group has no description"
-msgstr ""
+msgstr "Тази група няма описание"
 
 #: ckan/templates/group/snippets/group_item.html:31
 #: ckan/templates/organization/snippets/organization_item.html:32
@@ -2710,13 +2711,13 @@ msgstr ""
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
 msgid "Compare"
-msgstr ""
+msgstr "Сравни"
 
 #: ckan/templates/group/snippets/info.html:12
 #: ckan/templates/package/snippets/package_context.html:7
 #: ckan/templates/snippets/organization.html:26
 msgid "read more"
-msgstr ""
+msgstr "прочети повече"
 
 #: ckan/templates/group/snippets/revisions_table.html:7
 #: ckan/templates/package/snippets/revisions_table.html:7
@@ -2793,7 +2794,7 @@ msgstr ""
 
 #: ckan/templates/home/index.html:73
 msgid "Popular Tags"
-msgstr ""
+msgstr "Популярни тагове"
 
 #: ckan/templates/home/snippets/about_text.html:1
 msgid ""
@@ -2826,7 +2827,7 @@ msgstr ""
 #: ckan/templates/macros/form.html:226
 #: ckan/templates/snippets/search_form.html:60
 msgid "Remove"
-msgstr ""
+msgstr "Премахни"
 
 #: ckan/templates/macros/form.html:255
 msgid "Custom"
