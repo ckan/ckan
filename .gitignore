@@ -25,6 +25,7 @@ fl_notes.txt
 *.ini
 .noseids
 *~
+.vagrant
 
 # custom style
 ckan/public/base/less/custom.less
