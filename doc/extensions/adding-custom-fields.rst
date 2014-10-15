@@ -15,8 +15,9 @@ plugin interface, a CKAN plugin can add custom, first-class metadata fields to
 CKAN datasets, and can do custom validation of these fields.
 
 .. seealso::
-    In this tutorial we are assuming that you have read the
-    :doc:`/extensions/tutorial`
+
+   In this tutorial we are assuming that you have read the
+   :doc:`/extensions/tutorial`
 
 CKAN schemas and validation
 ---------------------------
