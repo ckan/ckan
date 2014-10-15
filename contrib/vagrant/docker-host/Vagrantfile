@@ -4,7 +4,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Define a Vagrant VM (Linux host) for Docker
   config.vm.define "dockerHost" do |host|
-    host.vm.box = "ubuntu/trusty64"
+    host.vm.box = "hashicorp/precise64"
     host.vm.provision "docker"
     # disable SSH
     host.vm.provision "shell", inline:

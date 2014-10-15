@@ -13,6 +13,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       d.vagrant_machine = "#{DOCKER_HOST_NAME}"
       # Build the container & run it
       d.build_dir = "contrib/docker/postgresql"
+      d.build_args = ["--tag=postgres"]
       d.name = "postgres"
       d.ports = ["5432:5432"]
       d.env = {
@@ -31,6 +32,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       d.vagrant_machine = "#{DOCKER_HOST_NAME}"
       # Build the container & run it
       d.build_dir = "ckan/config/solr"
+      d.build_args = ["--tag=solr"]
       d.name = "solr"
       d.ports = ["8983:8983"]
       d.has_ssh = false
@@ -44,7 +46,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       d.vagrant_vagrantfile = "#{DOCKER_HOST_VAGRANTFILE}"
       d.vagrant_machine = "#{DOCKER_HOST_NAME}"
       # Build the container & run it
-      d.build_dir = "ckan/config/solr"
+      d.build_dir = "."
+      d.build_args = ["--tag=ckan"]
       d.name = "ckan"
       d.ports = ["80:80", "8800:8800"]
       d.link("postgres:postgres")
