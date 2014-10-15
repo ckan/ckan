@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Asier Murciego <amurcieg@orkestra.deusto.es>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2013-12-13 11:50+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2014-10-06 13:04+0000\n"
+"Last-Translator: Asier Murciego <amurcieg@orkestra.deusto.es>\n"
 "Language-Team: Basque (http://www.transifex.com/projects/p/ckan/language/eu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -286,7 +287,7 @@ msgstr ""
 #: ckan/templates_legacy/package/search.html:26
 #: ckan/templates_legacy/revision/read.html:64
 msgid "Groups"
-msgstr ""
+msgstr "Taldeak"
 
 #: ckan/controllers/group.py:291 ckan/controllers/home.py:72
 #: ckan/controllers/package.py:227 ckan/lib/helpers.py:603
@@ -576,11 +577,11 @@ msgstr ""
 #: ckan/controllers/related.py:69
 #: ckan/templates_legacy/related/dashboard.html:46
 msgid "Most viewed"
-msgstr ""
+msgstr "Ikusiena"
 
 #: ckan/controllers/related.py:70
 msgid "Most Viewed"
-msgstr ""
+msgstr "Ikusiena"
 
 #: ckan/controllers/related.py:71
 msgid "Least Viewed"
@@ -589,12 +590,12 @@ msgstr ""
 #: ckan/controllers/related.py:72
 #: ckan/templates_legacy/related/dashboard.html:49
 msgid "Newest"
-msgstr ""
+msgstr "Berriena"
 
 #: ckan/controllers/related.py:73
 #: ckan/templates_legacy/related/dashboard.html:50
 msgid "Oldest"
-msgstr ""
+msgstr "Zaharrena"
 
 #: ckan/controllers/related.py:93
 msgid "The requested related item was not found"
@@ -649,7 +650,7 @@ msgstr ""
 #: ckan/templates_legacy/related/add-related.html:26
 #: ckan/templates_legacy/related/dashboard.html:36
 msgid "Idea"
-msgstr ""
+msgstr "Ideia"
 
 #: ckan/controllers/related.py:235
 #: ckan/templates_legacy/related/add-related.html:27
