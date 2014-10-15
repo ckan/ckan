@@ -10,12 +10,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     host.vm.provision "shell", inline:
       "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"
     # forward ports as required
-    # host.vm.network "forwarded_port",
-    #   guest: 80, host: 8080, auto_correct: true
-    # host.vm.network "forwarded_port",
-    #   guest: 8983, host: 8983, auto_correct: true
-    # host.vm.network "forwarded_port",
-    #   guest: 5432, host: 5432, auto_correct: true
+    host.vm.network "forwarded_port",
+      guest: 80, host: 8080, auto_correct: true
+    host.vm.network "forwarded_port",
+      guest: 8983, host: 8983, auto_correct: true
+    host.vm.network "forwarded_port",
+      guest: 5432, host: 5432, auto_correct: true
   end
 
 end
