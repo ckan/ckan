@@ -201,8 +201,6 @@ def related_show(context, data_dict=None):
 def related_list(context, data_dict=None):
     '''Return a dataset's related items.
 
-    Either the ``id`` or the ``dataset`` parameter must be given.
-
     :param id: id or name of the dataset (optional)
     :type id: string
     :param dataset: dataset dictionary of the dataset (optional)
@@ -251,10 +249,12 @@ def related_list(context, data_dict=None):
 
         if data_dict.get('featured', False):
             related_list = related_list.filter(model.Related.featured == 1)
+        related_items = related_list.all()
+        context['sorted'] = True
     else:
         relateds = model.Related.get_for_dataset(dataset, status='active')
         related_items = (r.related for r in relateds)
-        related_list = model_dictize.related_list_dictize( related_items, context)
+    related_list = model_dictize.related_list_dictize( related_items, context)
     return related_list
 
 
@@ -527,7 +527,8 @@ def organization_list_for_user(context, data_dict):
     orgs_list = model_dictize.group_list_dictize(orgs_q.all(), context)
     return orgs_list
 
-def group_revision_list(context, data_dict):
+
+def _group_or_org_revision_list(context, data_dict):
     '''Return a group's revisions.
 
     :param id: the name or id of the group
@@ -542,7 +543,6 @@ def group_revision_list(context, data_dict):
     if group is None:
         raise NotFound
 
-    _check_access('group_revision_list',context, data_dict)
 
     revision_dicts = []
     for revision, object_revisions in group.all_related_revisions:
@@ -550,6 +550,32 @@ def group_revision_list(context, data_dict):
                                                      include_packages=False,
                                                      include_groups=False))
     return revision_dicts
+
+def group_revision_list(context, data_dict):
+    '''Return a group's revisions.
+
+    :param id: the name or id of the group
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+
+    _check_access('group_revision_list',context, data_dict)
+    return _group_or_org_revision_list(context, data_dict)
+
+def organization_revision_list(context, data_dict):
+    '''Return an organization's revisions.
+
+    :param id: the name or id of the organization
+    :type id: string
+
+    :rtype: list of dictionaries
+
+    '''
+
+    _check_access('organization_revision_list',context, data_dict)
+    return _group_or_org_revision_list(context, data_dict)
 
 def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
@@ -1359,9 +1385,6 @@ def package_search(context, data_dict):
     # the extension may have decided that it is not necessary to perform
     # the query
     abort = data_dict.get('abort_search', False)
-
-    if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = 'score desc, metadata_modified desc'
 
     if data_dict.get('sort') in (None, 'rank'):
         data_dict['sort'] = 'score desc, metadata_modified desc'
@@ -2271,7 +2294,16 @@ def organization_activity_list_html(context, data_dict):
 
     '''
     activity_stream = organization_activity_list(context, data_dict)
-    return activity_streams.activity_list_to_html(context, activity_stream)
+    offset = int(data_dict.get('offset', 0))
+    extra_vars = {
+        'controller': 'organization',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset,
+        }
+
+    return activity_streams.activity_list_to_html(context, activity_stream,
+            extra_vars)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.

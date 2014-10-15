@@ -21,7 +21,6 @@ of the revision history, rather than a feed of datasets.
 # TODO fix imports
 import logging
 import urlparse
-from urllib import urlencode
 
 import webhelpers.feedgenerator
 from pylons import config
@@ -277,8 +276,6 @@ class FeedController(base.BaseController):
                 search_params[param] = value
                 fq += ' %s:"%s"' % (param, value)
 
-        search_url_params = urlencode(search_params)
-
         try:
             page = int(request.params.get('page', 1))
         except ValueError:
@@ -307,6 +304,9 @@ class FeedController(base.BaseController):
                                   controller='feed',
                                   action='custom')
 
+        atom_url = h._url_with_params('/feeds/custom.atom',
+                                      search_params.items())
+
         alternate_url = self._alternate_url(request.params)
 
         return self.output_feed(results,
@@ -315,8 +315,7 @@ class FeedController(base.BaseController):
                                 ' datasets on %s. Custom query: \'%s\'' %
                                 (g.site_title, q),
                                 feed_link=alternate_url,
-                                feed_guid=_create_atom_id
-                                (u'/feeds/custom.atom?%s' % search_url_params),
+                                feed_guid=_create_atom_id(atom_url),
                                 feed_url=feed_url,
                                 navigation_urls=navigation_urls)
 
@@ -376,11 +375,7 @@ class FeedController(base.BaseController):
         parameters.
         """
         path = h.url_for(controller=controller, action=action, **kwargs)
-        query = [(k, v.encode('utf-8') if isinstance(v, basestring)
-                  else str(v)) for k, v in query.items()]
-
-        # a trailing '?' is valid.
-        return self.base_url + path + u'?' + urlencode(query)
+        return h._url_with_params(self.base_url + path, query.items())
 
     def _navigation_urls(self, query, controller, action,
                          item_count, limit, **kwargs):
