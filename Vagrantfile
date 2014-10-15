@@ -1,5 +1,9 @@
 VAGRANTFILE_API_VERSION = "2"
+# set docker as the default provider
 ENV['VAGRANT_DEFAULT_PROVIDER'] = 'docker'
+# disable parallellism so that the containers come up in order
+ENV['VAGRANT_NO_PARALLEL'] = '1'
+
 DOCKER_HOST_NAME = "dockerHost"
 DOCKER_HOST_VAGRANTFILE = "contrib/vagrant/docker-host/Vagrantfile"
 
