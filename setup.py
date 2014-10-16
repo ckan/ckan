@@ -66,6 +66,7 @@ entry_points = {
         'multilingual_dataset = ckanext.multilingual.plugin:MultilingualDataset',
         'multilingual_group = ckanext.multilingual.plugin:MultilingualGroup',
         'multilingual_tag = ckanext.multilingual.plugin:MultilingualTag',
+        'multilingual_resource = ckanext.multilingual.plugin:MultilingualResource',    
         'organizations = ckanext.organizations.forms:OrganizationForm',
         'organizations_dataset = ckanext.organizations.forms:OrganizationDatasetForm',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
