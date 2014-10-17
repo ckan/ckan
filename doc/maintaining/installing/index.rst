@@ -15,7 +15,7 @@ From package is the quickest and easiest way to install CKAN, but it requires
 Ubuntu 12.04 64-bit. **You should install CKAN from package if**:
 
 * You want to install CKAN on an Ubuntu 12.04, 64-bit server, *and*
-* You only want to run one CKAN website per server, *and*
+* You only want to run one CKAN website per server
 
 See :doc:`install-from-package`.
 
