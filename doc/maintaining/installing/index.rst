@@ -16,7 +16,6 @@ Ubuntu 12.04 64-bit. **You should install CKAN from package if**:
 
 * You want to install CKAN on an Ubuntu 12.04, 64-bit server, *and*
 * You only want to run one CKAN website per server, *and*
-* You want to run CKAN, |solr| and |postgres| on the same server
 
 See :doc:`install-from-package`.
 
@@ -27,7 +26,6 @@ See :doc:`install-from-package`.
 * You want to install CKAN on another operating system
   (eg. RedHat, CentOS, OS X), *or*
 * You want to run multiple CKAN websites on the same server, *or*
-* You want to run CKAN, |solr| and |postgres| on different servers, *or*
 * You want to install CKAN for development
 
 See :doc:`install-from-source`.
