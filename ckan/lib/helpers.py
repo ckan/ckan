@@ -1556,7 +1556,7 @@ RE_MD_INTERNAL_LINK = re.compile(
 
 # find external links eg http://foo.com, https://bar.org/foobar.html
 RE_MD_EXTERNAL_LINK = re.compile(
-    r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*)',
+    r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*[\w\-@?^=%&:\/~\\+#])',
     flags=re.UNICODE
 )
 
