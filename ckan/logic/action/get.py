@@ -364,9 +364,9 @@ def member_list(context, data_dict=None):
 
 def _group_or_org_list(context, data_dict, is_org=False):
     model = context['model']
-    user = context['user']
     api = context.get('api_version')
     groups = data_dict.get('groups')
+    group_type = data_dict.get('type', 'group')
     ref_group_by = 'id' if api == 2 else 'name'
 
     sort = data_dict.get('sort', 'name')
@@ -411,6 +411,8 @@ def _group_or_org_list(context, data_dict, is_org=False):
         ))
 
     query = query.filter(model.GroupRevision.is_organization == is_org)
+    if not is_org:
+        query = query.filter(model.GroupRevision.type == group_type)
 
     groups = query.all()
     if all_fields:
@@ -470,7 +472,6 @@ def group_list(context, data_dict):
 
     '''
     _check_access('group_list', context, data_dict)
-    data_dict['type'] = 'group'
     return _group_or_org_list(context, data_dict)
 
 

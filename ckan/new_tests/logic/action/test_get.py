@@ -27,6 +27,47 @@ class TestGet(object):
         assert (sorted(group_list) ==
                 sorted([g['name'] for g in [group1, group2]]))
 
+    def test_group_list_in_presence_of_organizations(self):
+        '''
+        Getting the group_list should only return groups of type 'group' (not
+        organizations).
+        '''
+        group1 = factories.Group()
+        group2 = factories.Group()
+        factories.Organization()
+        factories.Organization()
+
+        group_list = helpers.call_action('group_list')
+
+        assert (sorted(group_list) ==
+                sorted([g['name'] for g in [group1, group2]]))
+
+    def test_group_list_in_presence_of_custom_group_types(self):
+        '''Getting the group_list shouldn't return custom group types.'''
+        group1 = factories.Group()
+        group2 = factories.Group()
+        factories.Group(type='custom')
+
+        group_list = helpers.call_action('group_list')
+
+        assert (sorted(group_list) ==
+                sorted([g['name'] for g in [group1, group2]]))
+
+    def test_group_list_return_custom_group(self):
+        '''
+        Getting the group_list with a type defined should only return
+        groups of that type.
+        '''
+        group1 = factories.Group(type='custom')
+        group2 = factories.Group(type='custom')
+        factories.Group()
+        factories.Group()
+
+        group_list = helpers.call_action('group_list', type='custom')
+
+        assert (sorted(group_list) ==
+                sorted([g['name'] for g in [group1, group2]]))
+
     def test_group_list_sort_by_package_count(self):
 
         factories.Group(name='aa')
@@ -174,6 +215,36 @@ class TestGet(object):
 
         org1 = factories.Organization()
         org2 = factories.Organization()
+
+        org_list = helpers.call_action('organization_list')
+
+        assert (sorted(org_list) ==
+                sorted([g['name'] for g in [org1, org2]]))
+
+    def test_organization_list_in_presence_of_groups(self):
+        '''
+        Getting the organization_list only returns organization group
+        types.
+        '''
+        org1 = factories.Organization()
+        org2 = factories.Organization()
+        factories.Group()
+        factories.Group()
+
+        org_list = helpers.call_action('organization_list')
+
+        assert (sorted(org_list) ==
+                sorted([g['name'] for g in [org1, org2]]))
+
+    def test_organization_list_in_presence_of_custom_group_types(self):
+        '''
+        Getting the organization_list only returns organization group
+        types.
+        '''
+        org1 = factories.Organization()
+        org2 = factories.Organization()
+        factories.Group(type="custom")
+        factories.Group(type="custom")
 
         org_list = helpers.call_action('organization_list')
 
