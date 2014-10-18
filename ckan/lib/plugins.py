@@ -78,8 +78,8 @@ def register_package_plugins(map):
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
         if plugin.is_fallback():
             if _default_package_plugin is not None:
-                raise ValueError, "More than one fallback "\
-                                  "IDatasetForm has been registered"
+                raise ValueError("More than one fallback "
+                                 "IDatasetForm has been registered")
             _default_package_plugin = plugin
 
         for package_type in plugin.package_types():
@@ -96,15 +96,14 @@ def register_package_plugins(map):
 
             for action in ['edit', 'authz', 'history']:
                 map.connect('%s_%s' % (package_type, action),
-                        '/%s/%s/{id}' % (package_type, action),
-                        controller='package',
-                        action=action
-                )
+                            '/%s/%s/{id}' % (package_type, action),
+                            controller='package',
+                            action=action)
 
             if package_type in _package_plugins:
-                raise ValueError, "An existing IDatasetForm is "\
-                                  "already associated with the package type "\
-                                  "'%s'" % package_type
+                raise ValueError("An existing IDatasetForm is "
+                                 "already associated with the package type "
+                                 "'%s'" % package_type)
             _package_plugins[package_type] = plugin
 
     # Setup the fallback behaviour if one hasn't been defined.
@@ -132,8 +131,8 @@ def register_group_plugins(map):
     for plugin in plugins.PluginImplementations(plugins.IGroupForm):
         if plugin.is_fallback():
             if _default_group_plugin is not None:
-                raise ValueError, "More than one fallback "\
-                                  "IGroupForm has been registered"
+                raise ValueError("More than one fallback IGroupForm has been "
+                                 "registered")
             _default_group_plugin = plugin
 
         for group_type in plugin.group_types():
@@ -156,13 +155,12 @@ def register_group_plugins(map):
                         controller='group', action='read')
             map.connect('%s_action' % group_type,
                         '/%s/{action}/{id}' % group_type, controller='group',
-                requirements=dict(action='|'.join(['edit', 'authz', 'history']))
-            )
+                        requirements=dict(action='|'.join(['edit', 'authz', 'history'])))
 
             if group_type in _group_plugins:
-                raise ValueError, "An existing IGroupForm is "\
-                                  "already associated with the group type "\
-                                  "'%s'" % group_type
+                raise ValueError("An existing IGroupForm is "
+                                 "already associated with the group type "
+                                 "'%s'" % group_type)
             _group_plugins[group_type] = plugin
 
     # Setup the fallback behaviour if one hasn't been defined.
