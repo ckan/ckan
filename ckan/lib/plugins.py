@@ -135,6 +135,13 @@ def register_group_plugins(map):
                                  "registered")
             _default_group_plugin = plugin
 
+        # Get group_controller from plugin if there is one,
+        # otherwise use 'group'
+        try:
+            group_controller = plugin.group_controller()
+        except AttributeError:
+            group_controller = 'group'
+
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will
             # allow us to have top level objects that are actually
@@ -148,13 +155,13 @@ def register_group_plugins(map):
             # routing setup
 
             map.connect('%s_index' % group_type, '/%s' % group_type,
-                        controller='group', action='index')
+                        controller=group_controller, action='index')
             map.connect('%s_new' % group_type, '/%s/new' % group_type,
-                        controller='group', action='new')
+                        controller=group_controller, action='new')
             map.connect('%s_read' % group_type, '/%s/{id}' % group_type,
-                        controller='group', action='read')
+                        controller=group_controller, action='read')
             map.connect('%s_action' % group_type,
-                        '/%s/{action}/{id}' % group_type, controller='group',
+                        '/%s/{action}/{id}' % group_type, controller=group_controller,
                         requirements=dict(action='|'.join(['edit', 'authz', 'history'])))
 
             if group_type in _group_plugins:
