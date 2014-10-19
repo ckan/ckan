@@ -22,7 +22,7 @@ write_config () {
   "$CKAN_HOME"/bin/paster --plugin=ckan config-tool "$CONFIG" -e \
       "sqlalchemy.url = ${DATABASE_URL}" \
       "solr_url = ${SOLR_URL}" \
-      "ckan.site_url = http://$(hostname -f)/" \
+      "ckan.site_url = http://$(hostname -f):5000/" \
       "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
       "ckan.datapusher.url = http://$(hostname -f):8800/" \
       "ckan.storage_path = /var/lib/ckan" \
