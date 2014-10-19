@@ -2,10 +2,12 @@ VAGRANTFILE_API_VERSION = "2"
 # set docker as the default provider
 ENV['VAGRANT_DEFAULT_PROVIDER'] = 'docker'
 # disable parallellism so that the containers come up in order
-ENV['VAGRANT_NO_PARALLEL'] = '1'
+ENV['VAGRANT_NO_PARALLEL'] = "1"
+ENV['FORWARD_DOCKER_PORTS'] = "1"
 
-DOCKER_HOST_NAME = "dockerHost"
+DOCKER_HOST_NAME = "dockerhost"
 DOCKER_HOST_VAGRANTFILE = "contrib/vagrant/docker-host/Vagrantfile"
+CKAN_HOME = "/usr/lib/ckan/default"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
@@ -45,19 +47,30 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # define a CKAN Vagrant VM with a docker provider
   config.vm.define "ckan" do |app|
+
     app.vm.provider "docker" do |d|
       # use a vagrant host if required (OSX & Windows)
       d.vagrant_vagrantfile = "#{DOCKER_HOST_VAGRANTFILE}"
       d.vagrant_machine = "#{DOCKER_HOST_NAME}"
       # Build the container & run it
-      d.build_dir = "."
+      d.build_dir = "contrib/docker/development"
       d.build_args = ["--tag=ckan"]
       d.name = "ckan"
-      d.ports = ["80:80", "8800:8800"]
+      d.ports = ["5000:5000", "8800:8800"]
       d.link("postgres:postgres")
       d.link("solr:solr")
-      d.has_ssh = false
+      d.cmd     = ["/sbin/my_init", "--enable-insecure-key"]
     end
+
+    app.vm.synced_folder ".", "#{CKAN_HOME}/src/ckan",
+      owner: "root",
+      group: "root",
+      mount_options: ["dmode=775,fmode=664"],
+      create: true
+
+    app.ssh.username = "root"
+    app.ssh.private_key_path = "contrib/vagrant/insecure_key"
+
   end
 
 end

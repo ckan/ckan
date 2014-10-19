@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+# run the init script in case the database need to be upgraded
+"$CKAN_HOME"/bin/paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"

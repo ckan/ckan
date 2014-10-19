@@ -1,16 +1,14 @@
 FROM phusion/baseimage:0.9.13
 MAINTAINER Open Knowledge
 
-# Disable SSH
-RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh
-
 # set UTF-8 locale
 RUN locale-gen en_US.UTF-8 && \
     echo 'LANG="en_US.UTF-8"' > /etc/default/locale
 
+RUN apt-get -qq update
+
 # Install PostgreSQL and PostGIS
-RUN apt-get -qq update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
+RUN DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
         postgresql \
         postgresql-contrib \
         postgis postgresql-9.3-postgis-2.1 \
@@ -39,3 +37,6 @@ VOLUME ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql", "/var/l
 EXPOSE 5432
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Disable SSH
+RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh

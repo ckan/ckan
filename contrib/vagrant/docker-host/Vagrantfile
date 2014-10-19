@@ -2,16 +2,23 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  # Define a Vagrant VM (Linux host) for Docker
-  config.vm.define "dockerHost" do |host|
-    host.vm.box = "hashicorp/precise64"
+    # Configure cached packages to be shared between instances of the same base box.
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+  end
+
+  # Define a Docker host (Vagrant VM) with a Linux kernel
+  config.vm.define "dockerhost" do |host|
+    host.vm.box = "chef/centos-6.5"
     host.vm.provision "docker"
     # disable SSH
     host.vm.provision "shell", inline:
       "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"
     # forward ports as required
     host.vm.network "forwarded_port",
-      guest: 80, host: 8080, auto_correct: true
+      guest: 5000, host: 5000, auto_correct: true
+    host.vm.network "forwarded_port",
+      guest: 8800, host: 8800, auto_correct: true
     host.vm.network "forwarded_port",
       guest: 8983, host: 8983, auto_correct: true
     host.vm.network "forwarded_port",
