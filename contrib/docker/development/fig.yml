@@ -18,6 +18,7 @@ ckan:
   hostname: ckan
   domainname: ckan.docker.local
   ports:
+    - "2222:22"
     - "5000:5000"
     - "8800:8800"
   links:

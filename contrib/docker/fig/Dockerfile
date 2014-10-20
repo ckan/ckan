@@ -22,6 +22,6 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # ==============================================================================
 # Usage:
-# docker build --tag="fig" .
-# docker run --name="fig" -t -p 2375 -v /var/run/docker.sock:/docker.sock -v /path/to/src:/src fig
+# docker build --tag="fig_container" .
+# docker run --name="fig" -t -p 2375 -v /var/run/docker.sock:/docker.sock -v /path/to/src:/src fig_container
 # ==============================================================================
