@@ -1,0 +1,28 @@
+postgres:
+  build: ckan/contrib/docker/postgresql
+  hostname: postgres
+  domainname: postgres.docker.local
+  ports:
+    - "5432:5432"
+  environment:
+    - CKAN_PASS=ckan_pass
+    - DATASTORE_PASS=datastore_pass
+solr:
+  build: ckan/ckan/config/solr
+  hostname: solr
+  domainname: solr.docker.local
+  ports:
+    - "8983:8983"
+ckan:
+  build: ckan/contrib/docker/development
+  hostname: ckan
+  domainname: ckan.docker.local
+  ports:
+    - "5000:5000"
+    - "8800:8800"
+  links:
+    - postgres:postgres
+    - solr:solr
+  command: /sbin/my_init --enable-insecure-key
+  volumes:
+    - /path/to/src:/usr/lib/ckan/default/src
