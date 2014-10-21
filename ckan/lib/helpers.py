@@ -1555,8 +1555,11 @@ RE_MD_INTERNAL_LINK = re.compile(
 )
 
 # find external links eg http://foo.com, https://bar.org/foobar.html
+# but ignore trailing punctuation since it is probably not part of the link
 RE_MD_EXTERNAL_LINK = re.compile(
-    r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*[\w\-@?^=%&:\/~\\+#])',
+    r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*'
+     '[\w\-@?^=%&:\/~\\+#]' # but last character can't be punctuation [.,;]
+     ')',
     flags=re.UNICODE
 )
 
