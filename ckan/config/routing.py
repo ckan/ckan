@@ -282,10 +282,6 @@ def make_map():
     map.redirect('/groups', '/group')
     map.redirect('/groups/{url:.*}', '/group/{url}')
 
-    ##to get back formalchemy uncomment these lines
-    ##map.connect('/group/new', controller='group_formalchemy', action='new')
-    ##map.connect('/group/edit/{id}', controller='group_formalchemy', action='edit')
-
     # These named routes are used for custom group forms which will use the
     # names below based on the group.type ('group' is the default type)
     with SubMapper(map, controller='group') as m:
