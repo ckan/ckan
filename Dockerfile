@@ -1,4 +1,4 @@
-FROM phusion/baseimage:0.9.13
+FROM phusion/baseimage:0.9.15
 MAINTAINER Open Knowledge
 
 # set UTF-8 locale

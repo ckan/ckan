@@ -1,4 +1,4 @@
-FROM phusion/baseimage:0.9.13
+FROM phusion/baseimage:0.9.15
 MAINTAINER Open Knowledge
 
 # set UTF-8 locale
@@ -15,13 +15,35 @@ RUN curl -L https://github.com/docker/fig/releases/download/1.0.0/fig-`uname -s`
 ENV DOCKER_HOST unix:///docker.sock
 
 WORKDIR /src
-CMD ["fig", "up"]
+CMD ["/bin/bash"]
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
 # ==============================================================================
 # Usage:
-# docker build --tag="fig_container" .
-# docker run --name="fig" -t -p 2375 -v /var/run/docker.sock:/docker.sock -v /path/to/src:/src fig_container
+# from your source directory
+#
+# docker build --tag="fig_container" ckan/contrib/docker/fig
+#
+# docker run -it -d --name="fig-cli" --hostname="fig-cli" -p 2375 -v /var/run/docker.sock:/docker.sock -v $(pwd):/src fig_container
+#
+# copy the fig definition to your source directory
+#
+# cp ckan/contrib/docker/development/fig.yml .
+#
+# set the source volume path to yours
+#
+## bring it back up
+# docker exec -it fig-cli fig up
+#
+## stop it
+# docker exec -it fig-cli fig stop
+#
+## delete the containers
+# docker exec -it fig-cli fig rm
+#
+## Build new images
+# docker exec -it fig-cli fig build
+#
 # ==============================================================================

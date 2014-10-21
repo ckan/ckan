@@ -26,4 +26,4 @@ ckan:
     - solr:solr
   command: /sbin/my_init --enable-insecure-key
   volumes:
-    - /path/to/src:/usr/lib/ckan/default/src
+    - $(pwd):/usr/lib/ckan/default/src

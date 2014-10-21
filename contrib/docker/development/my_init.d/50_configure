@@ -71,9 +71,27 @@ link_solr_url () {
 
 # If we don't already have a virtual environment, create it
 if [ ! -d "$CKAN_HOME/lib" ]; then
+  echo "creating virtualenv"
   virtualenv --no-site-packages $CKAN_HOME
-  $CKAN_HOME/bin/pip install -r $CKAN_HOME/src/ckan/requirements.txt
-  $CKAN_HOME/bin/pip install -e $CKAN_HOME/src/ckan/
+  # install any extensions in the source directory
+  cd $CKAN_HOME/src/
+  for module in *
+  do
+    if [ -d "$module" ]; then
+      cd $module
+      if [ -e "setup.py" ]; then
+        echo "installing $module"
+        $CKAN_HOME/bin/pip install -e .
+
+        if [ -f "requirements.txt" ]; then
+            $CKAN_HOME/bin/pip install -r requirements.txt
+        elif [ -f "pip-requirements.txt" ]; then
+            $CKAN_HOME/bin/pip install -r pip-requirements.txt
+        fi
+      fi
+      cd ..
+    fi
+  done
 fi
 
 # If we don't already have a who.ini symlink create it
@@ -83,7 +101,7 @@ fi
 
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
-  "$CKAN_HOME"/bin/paster make-config ckan "$CONFIG"
+  $CKAN_HOME/bin/paster make-config ckan "$CONFIG"
 fi
 
 # We need to override the options everytime because
