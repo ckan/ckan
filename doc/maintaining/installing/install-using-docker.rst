@@ -3,9 +3,9 @@ Installing CKAN using a Docker image
 ====================================
 
 .. important::
-   These instructions require Docker >=1.0.
-   The released version of Docker is 1.2 as at this writing, this is compatible
-   with `boot2docker`_
+   These instructions require Docker >=1.3.
+   The released version of Docker is 1.3 as at this writing, Docker 1.3 or above is required 
+   to use the Development Container, run `docker exec` commands & also to support shared folders with `boot2docker`_ 1.3
 
 .. important::
    The CKAN container supports and enables the datastore & datapusher by default.
@@ -26,8 +26,8 @@ launch multiple containers which run CKAN and attendant services in an isolated
 environment. Providing a full introduction to Docker concepts is out of the
 scope of this document: you can learn more in the `Docker documentation`_.
 
-`Fig`_ service definitions are also provided to start all the containers with
-the appropiate links.
+`Fig`_ service definitions are also provided to manage the containers with
+the appropriate links & volumes
 
 .. _Docker: http://www.docker.com/
 .. _Docker documentation: http://docs.docker.com/
@@ -57,13 +57,16 @@ the following command from the root of the project::
 `Fig`_ has other commands to start, stop and rebuild services,
 view the status of running services or tail logs.
 
+.. note::
+    A container is provided to avoid the need to install Fig on your host, see 
+    "Managing the development Docker image using Fig"
 
 ---------------
 Installing CKAN with Docker alone
 ---------------
 
 In the simplest case, installing CKAN should be a matter of running three
-commands: to run |postgres|, |solr|, and CKAN::
+commands: to run postgres, solr, and CKAN::
 
     $ docker docker run \
          -d \
@@ -273,3 +276,86 @@ Modify the CKAN container (at the root) and build it::
 Then build & run your custom (``contrib/docker/custom``) container::
 
     fig up
+
+----------------------------
+Development Docker image
+----------------------------
+
+The Dockerfile in ``contrib/docker/development`` is a lightweight container designed for development.
+Unlike the other containers, the source code is not copied on the container but shared via a volume.
+
+The development Dockerfile is slightly different, Apache & Nginx are not installed. Paster is used instead. 
+you can ssh directly into the container using an insecure key, all you need to know if the IP address
+
+If you are using Docker natively, you need the container IP address::
+
+    $(docker inspect --format '{{ .NetworkSettings.IPAddress }}' <container id/name>)
+
+    ssh -i ckan/contrib/vagrant/insecure_key root@<ip address> -p 2222
+
+
+If you are using Boot2Docker, you need to know boot2docker IP address::
+    
+    ssh -i ckan/contrib/vagrant/insecure_key root@$(boot2docker ip) -p 2222
+
+You can then do anything you want/need to do on the container.
+
+
+----------------------------
+Managing the development Docker image using Fig
+----------------------------
+
+.. warning::
+    This requires Docker 1.3
+
+.. note::
+    The following steps take place in your source directory (where ckan and your custom extensions are)
+
+Build the fig container::
+    
+    docker build --tag="fig_container" ckan/contrib/docker/fig
+
+Run it as a daemon::
+    
+    docker run -it -d --name="fig-cli" --hostname="fig-cli" -p 2375 -v /var/run/docker.sock:/docker.sock -v $(pwd):/src fig_container
+
+Copy the fig definition to your source directory::
+
+    cp ckan/contrib/docker/development/fig.yml .
+
+.. warning::
+    Make sure you edit the source volume path to yours
+
+You can them 
+
+fig up::
+
+    docker exec -it fig-cli fig up
+
+fig it::
+
+    docker exec -it fig-cli fig stop
+
+delete the containers::
+
+    docker exec -it fig-cli fig rm
+
+Build new images::
+
+    docker exec -it fig-cli fig build
+
+----------------------------
+Managing the development Docker image using Vagrant
+----------------------------
+
+.. note::
+    This doesn't require Docker 1.3 but requires Vagrant >=1.6.
+    This is significantly slower than using Docker natively or even with Boot2Docker >=1.3
+
+
+.. note::
+    The following steps take place in the ckan directory
+
+ vagrant up up::
+
+    vagrant up --provider=docker --no-parallel
