@@ -1063,14 +1063,14 @@ class IGroupForm(Interface):
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
-    at once.  With each instance associating itself with 0 or more package
-    type strings.  When a package controller action is invoked, the package
+    at once.  With each instance associating itself with 0 or more group
+    type strings.  When a group controller action is invoked, the group
     type determines which of the registered plugins to delegate to.  Each
     implementation must implement two methods which are used to determine the
-    package-type -> plugin mapping:
+    group-type -> plugin mapping:
 
      - is_fallback(self)
-     - package_types(self)
+     - group_types(self)
 
     Implementations might want to consider mixing in
     ckan.lib.plugins.DefaultGroupForm which provides
@@ -1082,8 +1082,8 @@ class IGroupForm(Interface):
 
     def is_fallback(self):
         """
-        Returns true iff this provides the fallback behaviour, when no other
-        plugin instance matches a package's type.
+        Returns true if this provides the fallback behaviour, when no other
+        plugin instance matches a group's type.
 
         There must be exactly one fallback controller defined, any attempt to
         register more than one will throw an exception at startup.  If there's
@@ -1095,7 +1095,7 @@ class IGroupForm(Interface):
         """
         Returns an iterable of group type strings.
 
-        If a request involving a package of one of those types is made, then
+        If a request involving a group of one of those types is made, then
         this plugin instance will be delegated to.
 
         There must only be one plugin registered to each group type.  Any
