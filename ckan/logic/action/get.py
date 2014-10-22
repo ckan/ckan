@@ -1674,20 +1674,20 @@ def package_search(context, data_dict):
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
 
-        for package in query.results:
-            # get the package object
-            package, package_dict = package['id'], package.get(data_source)
-            pkg_query = session.query(model.PackageRevision)\
-                .filter(model.PackageRevision.id == package)\
+        pkg_ids_query = session.query(model.PackageRevision.id)\
                 .filter(_and_(
                     model.PackageRevision.state == u'active',
                     model.PackageRevision.current == True
-                ))
-            pkg = pkg_query.first()
+                )).distinct()
+        pkg_ids = [x[0] for x in pkg_ids_query.all()]
+
+        for package in query.results:
+            # get the package object
+            package, package_dict = package['id'], package.get(data_source)
 
             ## if the index has got a package that is not in ckan then
             ## ignore it.
-            if not pkg:
+            if not package in pkg_ids:
                 log.warning('package %s in index but not in database'
                             % package)
                 continue
@@ -1701,6 +1701,14 @@ def package_search(context, data_dict):
                         package_dict = item.before_view(package_dict)
                 results.append(package_dict)
             else:
+                # If data not available in search index:
+                pkg_query = session.query(model.PackageRevision)\
+                    .filter(model.PackageRevision.id == package)\
+                    .filter(_and_(
+                        model.PackageRevision.state == u'active',
+                        model.PackageRevision.current == True
+                    ))
+                pkg = pkg_query.first()                
                 results.append(model_dictize.package_dictize(pkg, context))
 
         count = query.count
