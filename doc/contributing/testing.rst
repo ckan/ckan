@@ -156,15 +156,31 @@ updating things in CKAN. This means that
 number of test functions.
 
 So as well as the name of each test method explaining the intent of the test,
-it's important to name the test function after the function it's testing, for
-example all the tests for ``user_update`` should be named
-``test_user_update_*``.
+tests should be grouped by a test class that aggregates tests against a model
+entity or action type, for instance::
+
+    class TestPackageCreate(object):
+        # ...
+        def test_it_validates_name(self):
+            # ...
+
+        def test_it_validates_url(self):
+            # ...
+
+
+    class TestResourceCreate(object)
+        # ...
+        def test_it_validates_package_id(self):
+            # ...
+
+    # ...
+
 
 Good test names:
 
-* ``test_user_update_with_id_that_does_not_exist``
-* ``test_user_update_with_no_id``
-* ``test_user_update_with_invalid_name``
+* ``TestUserUpdate.test_update_with_id_that_does_not_exist``
+* ``TestUserUpdate.test_update_with_no_id``
+* ``TestUserUpdate.test_update_with_invalid_name``
 
 Bad test names:
 
