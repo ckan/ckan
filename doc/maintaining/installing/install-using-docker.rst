@@ -45,9 +45,9 @@ Please follow the instructions for installing Docker from `the Docker
 documentation <https://docs.docker.com/installation/>`_.
 
 
----------------
+---------------------------------
 Installing CKAN with Docker & Fig
----------------
+---------------------------------
 
 In the simplest case, installing CKAN should be a matter of running
 the following command from the root of the project::
@@ -61,9 +61,9 @@ view the status of running services or tail logs.
     A container is provided to avoid the need to install Fig on your host, see 
     "Managing the development Docker image using Fig"
 
----------------
+---------------------------------
 Installing CKAN with Docker alone
----------------
+---------------------------------
 
 In the simplest case, installing CKAN should be a matter of running three
 commands: to run postgres, solr, and CKAN::
@@ -214,9 +214,9 @@ You can customise & build this image::
 You would then reference your built image instead of ``ckan/ckan`` when calling
 the ``docker run`` commands listed above.
 
-----------------------------
+-------------------------------
 Testing the Custom Docker image
-----------------------------
+-------------------------------
 The example in ``contrib/docker/custom`` enables the following extensions::
 
     datastore datapusher archiver harvest ckan_harvester dcat_xml_harvester dcat_json_harvester dcat_json_interface spatial_harvest_metadata_api csw_harvester waf_harvester doc_harvester spatial_metadata spatial_query wms_preview geojson_preview cswserver viewhelpers dashboard_preview basicgrid linechart barchart piechart navigablemap choroplethmap resource_proxy stats search_history
@@ -277,9 +277,9 @@ Then build & run your custom (``contrib/docker/custom``) container::
 
     fig up
 
-----------------------------
+------------------------
 Development Docker image
-----------------------------
+------------------------
 
 The Dockerfile in ``contrib/docker/development`` is a lightweight container designed for development.
 Unlike the other containers, the source code is not copied on the container but shared via a volume.
@@ -301,9 +301,9 @@ If you are using Boot2Docker, you need to know boot2docker IP address::
 You can then do anything you want/need to do on the container.
 
 
-----------------------------
+-----------------------------------------------
 Managing the development Docker image using Fig
-----------------------------
+-----------------------------------------------
 
 .. warning::
     This requires Docker 1.3
@@ -344,9 +344,9 @@ Build new images::
 
     docker exec -it fig-cli fig build
 
-----------------------------
+---------------------------------------------------
 Managing the development Docker image using Vagrant
-----------------------------
+---------------------------------------------------
 
 .. note::
     This doesn't require Docker 1.3 but requires Vagrant >=1.6.
