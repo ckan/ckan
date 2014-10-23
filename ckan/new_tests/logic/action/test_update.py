@@ -426,10 +426,13 @@ class TestUpdate(object):
 
     def test_update_dataset_cant_change_type(self):
         user = factories.User()
-        dataset = factories.Dataset(type='dataset', name='unchanging',
+        dataset = factories.Dataset(
+            type='dataset',
+            name='unchanging',
             user=user)
 
-        dataset = helpers.call_action('package_update',
+        dataset = helpers.call_action(
+            'package_update',
             id=dataset['id'],
             name='unchanging',
             type='cabinet')
@@ -442,10 +445,13 @@ class TestUpdate(object):
     def test_update_organization_cant_change_type(self):
         user = factories.User()
         context = {'user': user['name']}
-        org = factories.Organization(type='organization', name='unchanging',
+        org = factories.Organization(
+            type='organization',
+            name='unchanging',
             user=user)
 
-        org = helpers.call_action('organization_update',
+        org = helpers.call_action(
+            'organization_update',
             context=context,
             id=org['id'],
             name='unchanging',
@@ -461,7 +467,8 @@ class TestUpdate(object):
         context = {'user': user['name']}
         group = factories.Group(type='group', name='unchanging', user=user)
 
-        group = helpers.call_action('group_update',
+        group = helpers.call_action(
+            'group_update',
             context=context,
             id=group['id'],
             name='unchanging',
