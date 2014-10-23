@@ -52,6 +52,11 @@ class _Toolkit(object):
         'ValidationError',      # model update validation error
         'CkanCommand',          # class for providing cli interfaces
         'DefaultDatasetForm',   # base class for IDatasetForm plugins
+        'response',             # response object for cookies etc
+        'BaseController',       # Allow controllers to be created
+        'url_for',              # create urls
+        'redirect_to',          # allow redirections
+        'abort',                # abort actions
 
         ## Fully defined in this file ##
         'add_template_directory',
@@ -104,6 +109,13 @@ class _Toolkit(object):
 
         t['CkanCommand'] = cli.CkanCommand
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
+        
+        t['response'] = pylons.response
+
+        t['BaseController'] = base.BaseController
+        t['url_for'] = h.url_for
+        t['redirect_to'] = h.redirect_to
+        t['abort'] = base.abort
 
         # class functions
         t['render_snippet'] = self._render_snippet
