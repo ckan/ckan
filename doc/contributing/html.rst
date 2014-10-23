@@ -12,17 +12,16 @@ Formatting
 ----------
 
 All HTML documents must use **two spaces** for indentation and there should be
-no trailing whitespace. XHTML syntax must be used (this is more a Genshi
-requirement) and all attributes must use double quotes around attributes. ::
+no trailing whitespace. HTML5 syntax must be used and all attributes must use
+double quotes around attributes. ::
 
-    <!-- XHTML boolean attributes must still have values and self closing tags must have a closing / -->
     <video autoplay="autoplay" poster="poster_image.jpg">
-      <source src="foo.ogg" type="video/ogg" />
+      <source src="foo.ogg" type="video/ogg">
     </video>
 
-HTML5 elements should be used where appropriate reserving ``<div>`` and ``<span>``
-elements for situations where there is no semantic value (such as wrapping
-elements to provide styling hooks).
+HTML5 elements should be used where appropriate reserving ``<div>`` and
+``<span>`` elements for situations where there is no semantic value (such as
+wrapping elements to provide styling hooks).
 
 ------------------
 Doctype and layout
@@ -32,7 +31,7 @@ All documents must be using the HTML5 doctype and the ``<html>`` element should
 have a ``"lang"`` attribute. The ``<head>`` should also at a minimum include
 ``"viewport"`` and ``"charset"`` meta tags. ::
 
-    <!doctype html>
+    <!DOCTYPE html>
     <html lang="en">
       <head>
         <meta charset="utf-8" />
@@ -64,15 +63,15 @@ tailored inputs and keyboards. ::
 
     <div>
       <label for="field-email">Email</label>
-      <input type="email" id="field-email" name="email" value="name@example.com" />
+      <input type="email" id="field-email" name="email" value="name@example.com">
     </div>
     <div>
       <label for="field-phone">Phone</label>
-      <input type="phone" id="field-phone" name="phone" value="" placeholder="+44 077 12345 678" />
+      <input type="phone" id="field-phone" name="phone" value="" placeholder="+44 077 12345 678">
     </div>
     <div>
       <label for="field-url">Homepage</label>
-      <input type="url" id="field-url" name="url" value="" placeholder="http://example.com" />
+      <input type="url" id="field-url" name="url" value="" placeholder="http://example.com">
     </div>
 
 Wufoo provides an `excellent reference`_ for these attributes.
@@ -84,7 +83,7 @@ Including meta data
 -------------------
 
 Classes should ideally only be used as styling hooks. If you need to include
-additional data in the html document, for example to pass data to JavaScript,
+additional data in the HTML document, for example to pass data to JavaScript,
 then the HTML5 ``data-`` attributes should be used. ::
 
     <a class="btn" data-format="csv">Download CSV</a>
@@ -108,6 +107,11 @@ Will become: ::
     jQuery('.btn').data('fileFormat'); //=> "csv"
     jQuery('.btn').data(); => {fileFormat: "csv"}
 
+Ideally you should be using `CKAN's JavaScript module`_ format for defining
+how JavaScript is initiated and interacts with the DOM.
+
+.. _CKAN's JavaScript module: ./frontend/javascript-module-tutorial.html
+
 ---------------------------
 Targeting Internet Explorer
 ---------------------------
@@ -119,7 +123,7 @@ stylesheet but try to avoid this if at all possible.
 
 Adding IE specific classes: ::
 
-    <!doctype html>
+    <!DOCTYPE html>
     <!--[if lt IE 7]> <html lang="en" class="ie ie6"> <![endif]-->
     <!--[if IE 7]>    <html lang="en" class="ie ie7"> <![endif]-->
     <!--[if IE 8]>    <html lang="en" class="ie ie8"> <![endif]-->
