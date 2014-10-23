@@ -151,7 +151,8 @@ def package_create(context, data_dict):
                 package_plugin.check_data_dict(data_dict)
 
     data, errors = lib_plugins.plugin_validate(
-        package_plugin, context, data_dict, schema, 'package_create')
+        package_plugin, context, data_dict, schema,
+        'package_create', package_type)
     log.debug('package_create validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               data.get('name'), data_dict)
@@ -582,8 +583,8 @@ def _group_or_org_create(context, data_dict, is_org=False):
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
     # get the schema
-    group_plugin = lib_plugins.lookup_group_plugin(
-        group_type=data_dict.get('type'))
+    group_type = data_dict.get('type')
+    group_plugin = lib_plugins.lookup_group_plugin(group_type)
     try:
         schema = group_plugin.form_to_db_schema_options({
             'type': 'create', 'api': 'api_version' in context,
@@ -601,7 +602,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
 
     data, errors = lib_plugins.plugin_validate(
         group_plugin, context, data_dict, schema,
-        'organization_create' if is_org else 'group_create')
+        'organization_create' if is_org else 'group_create', group_type)
     log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'), data_dict.get('name'), data_dict)
 

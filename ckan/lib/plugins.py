@@ -175,13 +175,14 @@ def register_group_plugins(map):
         _default_group_plugin = DefaultGroupForm()
 
 
-def plugin_validate(plugin, context, data_dict, schema, action):
+def plugin_validate(plugin, context, data_dict, schema, action, thing_type):
     """
     Backwards compatibility with 2.x dataset group and org plugins:
     return a default validate method if one has not been provided.
     """
     if hasattr(plugin, 'validate'):
-        result = plugin.validate(context, data_dict, schema, action)
+        result = plugin.validate(
+            context, data_dict, schema, action, thing_type)
         if result is not None:
             return result
 
@@ -263,8 +264,14 @@ class DefaultDatasetForm(object):
     def history_template(self):
         return 'package/history.html'
 
+    def resource_template(self):
+        return 'package/resource_read.html'
+
     def package_form(self):
         return 'package/new_package_form.html'
+
+    def resource_form(self):
+        return 'package/snippets/resource_form.html'
 
 
 class DefaultGroupForm(object):

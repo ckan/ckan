@@ -1008,6 +1008,16 @@ class IDatasetForm(Interface):
 
         '''
 
+    def resource_template(self):
+        '''Return the path to the template for the resource read page.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/resource_read.html'``.
+
+        :rtype: string
+
+        '''
+
     def package_form(self):
         '''Return the path to the template for the dataset form.
 
@@ -1018,7 +1028,16 @@ class IDatasetForm(Interface):
 
         '''
 
-    def validate(self, context, data_dict, schema, action):
+    def resource_form(self):
+        '''Return the path to the template for the resource form.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/snippets/resource_form.html'``
+
+        :rtype: string
+        '''
+
+    def validate(self, context, data_dict, schema, action, dataset_type):
         """Customize validation of datasets.
 
         When this method is implemented it is used to perform all validation
@@ -1043,6 +1062,8 @@ class IDatasetForm(Interface):
         :param action: ``'package_show'``, ``'package_create'`` or
           ``'package_update'``
         :type action: string
+        :param dataset_type: the type of the dataset
+        :type dataset_type: string
         :returns: (data_dict, errors) where data_dict is the possibly-modified
           dataset and errors is a dictionary with keys matching data_dict
           and lists-of-string-error-messages as values
@@ -1169,7 +1190,7 @@ class IGroupForm(Interface):
         Add variables to c just prior to the template being rendered.
         """
 
-    def validate(self, context, data_dict, schema, action):
+    def validate(self, context, data_dict, schema, action, group_type):
         """Customize validation of groups.
 
         When this method is implemented it is used to perform all validation
@@ -1195,6 +1216,8 @@ class IGroupForm(Interface):
           ``'group_update'``, ``'organization_show'``,
           ``'organization_create'`` or ``'organization_update'``
         :type action: string
+        :param group_type: the type of the group
+        :type group_type: string
         :returns: (data_dict, errors) where data_dict is the possibly-modified
           group and errors is a dictionary with keys matching data_dict
           and lists-of-string-error-messages as values

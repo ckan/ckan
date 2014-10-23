@@ -982,7 +982,7 @@ def package_show(context, data_dict):
             if schema and context.get('validate', True):
                 package_dict, errors = lib_plugins.plugin_validate(
                     package_plugin, context, package_dict, schema,
-                    'package_show')
+                    'package_show', package_dict['type'])
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
@@ -1191,7 +1191,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
         schema = logic.schema.default_show_group_schema()
     group_dict, errors = lib_plugins.plugin_validate(
         group_plugin, context, group_dict, schema,
-        'organization_show' if is_org else 'group_show')
+        'organization_show' if is_org else 'group_show', group_dict['type'])
     return group_dict
 
 
