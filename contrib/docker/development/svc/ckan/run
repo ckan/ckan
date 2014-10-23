@@ -1,0 +1,4 @@
+#!/bin/sh
+exec 2>&1
+
+$CKAN_HOME/bin/paster serve --reload $CKAN_CONFIG/$CONFIG_FILE

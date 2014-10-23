@@ -22,7 +22,7 @@ write_config () {
   "$CKAN_HOME"/bin/paster --plugin=ckan config-tool "$CONFIG" -e \
       "sqlalchemy.url = ${DATABASE_URL}" \
       "solr_url = ${SOLR_URL}" \
-      "ckan.site_url = http://$(hostname -f)/" \
+      "ckan.site_url = http://$(hostname -f):5000/" \
       "ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" \
       "ckan.datapusher.url = http://$(hostname -f):8800/" \
       "ckan.storage_path = /var/lib/ckan" \
@@ -69,9 +69,39 @@ link_solr_url () {
   echo "http://${host}:${port}/solr/ckan"
 }
 
+# If we don't already have a virtual environment, create it
+if [ ! -d "$CKAN_HOME/lib" ]; then
+  echo "creating virtualenv"
+  virtualenv --no-site-packages $CKAN_HOME
+  # install any extensions in the source directory
+  cd $CKAN_HOME/src/
+  for module in *
+  do
+    if [ -d "$module" ]; then
+      cd $module
+      if [ -e "setup.py" ]; then
+        echo "installing $module"
+        $CKAN_HOME/bin/pip install -e .
+
+        if [ -f "requirements.txt" ]; then
+            $CKAN_HOME/bin/pip install -r requirements.txt
+        elif [ -f "pip-requirements.txt" ]; then
+            $CKAN_HOME/bin/pip install -r pip-requirements.txt
+        fi
+      fi
+      cd ..
+    fi
+  done
+fi
+
+# If we don't already have a who.ini symlink create it
+if [ ! -h "$CKAN_CONFIG/who.ini" ]; then
+  ln -s $CKAN_HOME/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini
+fi
+
 # If we don't already have a config file, bootstrap
 if [ ! -e "$CONFIG" ]; then
-  "$CKAN_HOME"/bin/paster make-config ckan "$CONFIG"
+  $CKAN_HOME/bin/paster make-config ckan "$CONFIG"
 fi
 
 # We need to override the options everytime because

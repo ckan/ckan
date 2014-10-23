@@ -1,0 +1,83 @@
+#!/bin/bash
+set -eu
+
+if [[ -e /configure_db ]]; then
+  init_db () {
+    echo "Configuring CKAN database, PostGIS & datastore"
+
+    # create CKAN user
+    setuser postgres psql \
+      -c "CREATE USER $CKAN_USER WITH PASSWORD '$CKAN_PASS';"
+    # create CKAN database
+    setuser postgres createdb \
+      -O $CKAN_USER $CKAN_DB -T template0 -E utf-8
+
+    # setup PostGIS for the database
+    setuser postgres psql \
+      -d $CKAN_DB -f /usr/share/postgresql/9.3/contrib/postgis-2.1/postgis.sql
+    setuser postgres psql \
+      -d $CKAN_DB -f /usr/share/postgresql/9.3/contrib/postgis-2.1/spatial_ref_sys.sql
+    setuser postgres psql \
+      -d $CKAN_DB -f /usr/share/postgresql/9.3/contrib/postgis-2.1/postgis_comments.sql
+    # change the ownership of the spatial tables
+    setuser postgres psql \
+      -d $CKAN_DB -c "ALTER TABLE spatial_ref_sys OWNER TO $CKAN_USER;"
+    setuser postgres psql \
+      -d $CKAN_DB -c "ALTER TABLE geometry_columns OWNER TO $CKAN_USER;"
+
+    # create Datastore user
+    setuser postgres psql \
+      -c "CREATE USER $DATASTORE_USER WITH PASSWORD '$DATASTORE_PASS';"
+    # create Datastore database
+    setuser postgres createdb \
+      -O $CKAN_USER $DATASTORE_DB -T template0  -E utf-8
+
+    # configure the permissions for the datastore
+    setuser postgres psql \
+      -q <<-EOF
+    \connect $DATASTORE_DB
+
+    -- revoke permissions for the read-only user
+    REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+    REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+
+    GRANT CREATE ON SCHEMA public TO $CKAN_USER;
+    GRANT USAGE ON SCHEMA public TO $CKAN_USER;
+
+    -- take connect permissions from main db
+    REVOKE CONNECT ON DATABASE $CKAN_DB FROM $DATASTORE_USER;
+
+    -- grant select permissions for read-only user
+    GRANT CONNECT ON DATABASE $DATASTORE_DB TO $DATASTORE_USER;
+    GRANT USAGE ON SCHEMA public TO $DATASTORE_USER;
+
+    -- grant access to current tables and views to read-only user
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO $DATASTORE_USER;
+
+    -- grant access to new tables and views by default
+    ALTER DEFAULT PRIVILEGES FOR USER $CKAN_USER IN SCHEMA public
+       GRANT SELECT ON TABLES TO $DATASTORE_USER;
+EOF
+    # Database configured
+    rm /configure_db
+  }
+else
+  init_db () {
+    echo "CKAN database & datastore already configured"
+  }
+fi
+
+init_db_when_ready () {
+  # calls init_db when postgres is running
+  while [[ ! -e /run/postgresql/9.3-main.pid ]]; do
+      inotifywait -q -e create /run/postgresql/ >> /dev/null
+  done
+
+  init_db
+}
+
+init_db_when_ready &
+
+# Start PostgreSQL
+echo "Starting PostgreSQL..."
+setuser postgres /usr/lib/postgresql/9.3/bin/postgres -D /etc/postgresql/9.3/main

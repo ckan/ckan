@@ -1,0 +1,4 @@
+#!/bin/sh
+exec 2>&1
+
+. $CKAN_DATAPUSHER_HOME/bin/activate && JOB_CONFIG='$CKAN_DATAPUSHER_HOME/src/datapusher/deployment/datapusher_settings.py' python $CKAN_DATAPUSHER_HOME/src/datapusher/wsgi.py

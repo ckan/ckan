@@ -1,0 +1,11 @@
+#
+# cron-jobs for ckan
+#
+
+#----------------------------------------
+# run the harvester run job every minute to add jobs to the gather queue
+#----------------------------------------
+
+# m h  dom mon dow   command
+*/1 * * * * root /usr/lib/ckan/default/bin/paster --plugin=ckanext-harvest harvester run --config=/etc/ckan/default/ckan.ini > /dev/null 2>&1
+

@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+
+# # create the necessary tables in the database
+# "$CKAN_HOME"/bin/paster --plugin=ckanext-harvest harvester initdb -c "${CKAN_CONFIG}/ckan.ini"
+
+# # create the necessary tables in the database
+# "$CKAN_HOME"/bin/paster --plugin=ckanext-spatial spatial initdb 4326 -c "${CKAN_CONFIG}/ckan.ini"
