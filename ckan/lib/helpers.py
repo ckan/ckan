@@ -41,7 +41,7 @@ import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -1940,7 +1940,7 @@ def unified_resource_format(format):
     return format_new
 
 def check_config_permission(permission):
-    return new_authz.check_config_permission(permission)
+    return authz.check_config_permission(permission)
 
 
 def get_organization(org=None, include_datasets=False):

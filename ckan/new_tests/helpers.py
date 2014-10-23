@@ -24,7 +24,7 @@ import nose.tools
 import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 
 
 try:
@@ -292,13 +292,13 @@ def change_config(key, value):
         def wrapper(*args, **kwargs):
             _original_config = config.copy()
             config[key] = value
-            new_authz.clear_auth_functions_cache()
+            authz.clear_auth_functions_cache()
 
             return_value = func(*args, **kwargs)
 
             config.clear()
             config.update(_original_config)
-            new_authz.clear_auth_functions_cache()
+            authz.clear_auth_functions_cache()
 
             return return_value
         return nose.tools.make_decorator(func)(wrapper)

@@ -3,7 +3,7 @@ import mock
 import ckan.tests as tests
 from ckan.logic import get_action
 import ckan.model as model
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 from ckan.lib.create_test_data import CreateTestData
 import json
 
@@ -30,12 +30,12 @@ class TestAuth(tests.WsgiAppCase):
         ## add apikeys as they go along
         cls.apikeys = {'sysadmin': admin_api, 'random_key': 'moo'}
 
-        cls.old_perm = new_authz.CONFIG_PERMISSIONS.copy()
-        new_authz.CONFIG_PERMISSIONS.update(INITIAL_TEST_CONFIG_PERMISSIONS)
+        cls.old_perm = authz.CONFIG_PERMISSIONS.copy()
+        authz.CONFIG_PERMISSIONS.update(INITIAL_TEST_CONFIG_PERMISSIONS)
 
     @classmethod
     def teardown_class(cls):
-        new_authz.CONFIG_PERMISSIONS.update(cls.old_perm)
+        authz.CONFIG_PERMISSIONS.update(cls.old_perm)
         model.repo.rebuild_db()
 
     @classmethod
@@ -71,8 +71,8 @@ class TestAuthUsers(TestAuth):
 
     def test_auth_deleted_users_are_always_unauthorized(self):
         always_success = lambda x,y: {'success': True}
-        new_authz._AuthFunctions._build()
-        new_authz._AuthFunctions._functions['always_success'] = always_success
+        authz._AuthFunctions._build()
+        authz._AuthFunctions._functions['always_success'] = always_success
         # We can't reuse the username with the other tests because we can't
         # rebuild_db(), because in the setup_class we get the sysadmin. If we
         # rebuild the DB, we would delete the sysadmin as well.
@@ -80,8 +80,8 @@ class TestAuthUsers(TestAuth):
         self.create_user(username)
         user = model.User.get(username)
         user.delete()
-        assert not new_authz.is_authorized_boolean('always_success', {'user': username})
-        del new_authz._AuthFunctions._functions['always_success']
+        assert not authz.is_authorized_boolean('always_success', {'user': username})
+        del authz._AuthFunctions._functions['always_success']
 
 
 class TestAuthOrgs(TestAuth):
@@ -241,7 +241,7 @@ class TestAuthOrgHierarchy(TestAuth):
         CreateTestData.create_group_hierarchy_test_data()
         for user in model.Session.query(model.User):
             cls.apikeys[user.name] = str(user.apikey)
-        new_authz.CONFIG_PERMISSIONS.update(ORG_HIERARCHY_PERMISSIONS)
+        authz.CONFIG_PERMISSIONS.update(ORG_HIERARCHY_PERMISSIONS)
         CreateTestData.create_arbitrary(
             package_dicts= [{'name': 'adataset',
                              'groups': ['national-health-service']}],

@@ -7,7 +7,7 @@ from pyutilib.component.core import PluginGlobals
 from pylons import config
 
 import ckan.logic as logic
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 import ckan.plugins as plugins
 from ckan.plugins.core import find_system_plugins
 from ckan.lib.create_test_data import CreateTestData
@@ -161,10 +161,10 @@ class TestPlugins(object):
         assert logic.get_action('status_show')(None, {}) == status_show_original
 
     def test_auth_plugin_override(self):
-        package_list_original = new_authz.is_authorized('package_list', {})
+        package_list_original = authz.is_authorized('package_list', {})
         with plugins.use_plugin('auth_plugin'):
-            assert new_authz.is_authorized('package_list', {}) != package_list_original
-        assert new_authz.is_authorized('package_list', {}) == package_list_original
+            assert authz.is_authorized('package_list', {}) != package_list_original
+        assert authz.is_authorized('package_list', {}) == package_list_original
 
     @raises(plugins.PluginNotFoundException)
     def test_inexistent_plugin_loading(self):

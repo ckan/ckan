@@ -268,8 +268,8 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
             cls.openid.ilike(qstr),
         ]
         # sysadmins can search on user emails
-        import ckan.new_authz as new_authz
-        if user_name and new_authz.is_sysadmin(user_name):
+        import ckan.authz as authz
+        if user_name and authz.is_sysadmin(user_name):
             filters.append(cls.email.ilike(qstr))
 
         query = query.filter(or_(*filters))

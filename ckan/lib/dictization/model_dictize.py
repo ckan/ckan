@@ -19,7 +19,7 @@ import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckan.lib.dictization as d
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 import ckan.lib.search as search
 import ckan.lib.munge as munge
 
@@ -369,7 +369,7 @@ def group_dictize(group, context,
             # Allow members of organizations to see private datasets.
             if group_.is_organization:
                 is_group_member = (context.get('user') and
-                    new_authz.has_user_permission_for_group_or_org(
+                    authz.has_user_permission_for_group_or_org(
                         group_.id, context.get('user'), 'read'))
                 if is_group_member:
                     context['ignore_capacity_check'] = True
@@ -557,7 +557,7 @@ def user_dictize(user, context):
         result_dict['email'] = email
 
     ## this should not really really be needed but tests need it
-    if new_authz.is_sysadmin(requester):
+    if authz.is_sysadmin(requester):
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 

@@ -3,7 +3,7 @@ from pylons import config
 from nose.tools import assert_equal
 
 import ckan.logic as logic
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests import TestController as ControllerTestCase
@@ -68,7 +68,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
     def setup_class(cls):
         CreateTestData.create()
         cls._original_config = config.copy()
-        new_authz.clear_auth_functions_cache()
+        authz.clear_auth_functions_cache()
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
@@ -79,7 +79,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
     def teardown_class(cls):
         config.clear()
         config.update(cls._original_config)
-        new_authz.clear_auth_functions_cache()
+        authz.clear_auth_functions_cache()
         PylonsTestCase.teardown_class()
 
         model.repo.rebuild_db()
@@ -120,7 +120,7 @@ class TestCreateUserApiEnabled(PylonsTestCase):
         CreateTestData.create()
         cls._original_config = config.copy()
         config['ckan.auth.create_user_via_api'] = True
-        new_authz.clear_auth_functions_cache()
+        authz.clear_auth_functions_cache()
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
@@ -131,7 +131,7 @@ class TestCreateUserApiEnabled(PylonsTestCase):
     def teardown_class(cls):
         config.clear()
         config.update(cls._original_config)
-        new_authz.clear_auth_functions_cache()
+        authz.clear_auth_functions_cache()
         PylonsTestCase.teardown_class()
 
         model.repo.rebuild_db()
@@ -170,7 +170,7 @@ class TestCreateUserWebDisabled(PylonsTestCase):
         CreateTestData.create()
         cls._original_config = config.copy()
         config['ckan.auth.create_user_via_web'] = False
-        new_authz.clear_auth_functions_cache()
+        authz.clear_auth_functions_cache()
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
@@ -181,7 +181,7 @@ class TestCreateUserWebDisabled(PylonsTestCase):
     def teardown_class(cls):
         config.clear()
         config.update(cls._original_config)
-        new_authz.clear_auth_functions_cache()
+        authz.clear_auth_functions_cache()
         PylonsTestCase.teardown_class()
 
         model.repo.rebuild_db()
@@ -208,7 +208,7 @@ class TestCreateUserWebEnabled(PylonsTestCase):
         CreateTestData.create()
         cls._original_config = config.copy()
         config['ckan.auth.create_user_via_web'] = True
-        new_authz.clear_auth_functions_cache()
+        authz.clear_auth_functions_cache()
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
@@ -219,7 +219,7 @@ class TestCreateUserWebEnabled(PylonsTestCase):
     def teardown_class(cls):
         config.clear()
         config.update(cls._original_config)
-        new_authz.clear_auth_functions_cache()
+        authz.clear_auth_functions_cache()
         PylonsTestCase.teardown_class()
 
         model.repo.rebuild_db()
