@@ -8,8 +8,7 @@ from dateutil.parser import parse
 
 import re
 
-import solr
-
+import pysolr
 from pylons import config
 from paste.deploy.converters import asbool
 
@@ -45,22 +44,19 @@ def escape_xml_illegal_chars(val, replacement=''):
 
 
 def clear_index():
-    import solr.core
     conn = make_connection()
     query = "+site_id:\"%s\"" % (config.get('ckan.site_id'))
     try:
-        conn.delete_query(query)
-        conn.commit()
+        conn.delete(q=query)
     except socket.error, e:
         err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
         log.error(err)
         raise SearchIndexError(err)
-    except solr.core.SolrException, e:
+    except pysolr.SolrError, e:
         err = 'SOLR %r exception: %r' % (conn.url, e)
         log.error(err)
         raise SearchIndexError(err)
-    finally:
-        conn.close()
+
 
 class SearchIndex(object):
     """
@@ -286,18 +282,16 @@ class PackageSearchIndex(SearchIndex):
             commit = not defer_commit
             if not asbool(config.get('ckan.search.solr_commit', 'true')):
                 commit = False
-            conn.add_many([pkg_dict], _commit=commit)
-        except solr.core.SolrException, e:
-            msg = 'Solr returned an error: {0} {1} - {2}'.format(
-                e.httpcode, e.reason, e.body[:1000] # limit huge responses
+            conn.add(docs=[pkg_dict], commit=commit)
+        except pysolr.SolrError, e:
+            msg = 'Solr returned an error: {0}'.format(
+                e[:1000] # limit huge responses
             )
             raise SearchIndexError(msg)
         except socket.error, e:
             err = 'Could not connect to Solr using {0}: {1}'.format(conn.url, str(e))
             log.error(err)
             raise SearchIndexError(err)
-        finally:
-            conn.close()
 
         commit_debug_msg = 'Not commited yet' if defer_commit else 'Commited'
         log.debug('Updated index for %s [%s]' % (pkg_dict.get('name'), commit_debug_msg))
@@ -305,12 +299,10 @@ class PackageSearchIndex(SearchIndex):
     def commit(self):
         try:
             conn = make_connection()
-            conn.commit(wait_searcher=False)
+            conn.commit(waitSearcher=False)
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)
-        finally:
-            conn.close()
 
 
     def delete_package(self, pkg_dict):
@@ -319,11 +311,8 @@ class PackageSearchIndex(SearchIndex):
                                                        pkg_dict.get('id'), pkg_dict.get('id'),
                                                        config.get('ckan.site_id'))
         try:
-            conn.delete_query(query)
-            if asbool(config.get('ckan.search.solr_commit', 'true')):
-                conn.commit()
+            commit = asbool(config.get('ckan.search.solr_commit', 'true'))
+            conn.delete(q=query, commit=commit)
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)
-        finally:
-            conn.close()

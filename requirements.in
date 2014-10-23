@@ -13,13 +13,13 @@ Pairtree==0.7.1-T
 paste==1.7.5.1
 passlib==1.6.2
 psycopg2==2.4.5
+pysolr==3.3.0
 python-dateutil>=1.5.0,<2.0.0
 pyutilib.component.core==4.5.3
 repoze.who-friendlyform==1.0.8
 repoze.who==2.0
 requests==2.3.0
 Routes==1.13
-solrpy==0.9.5
 sqlalchemy-migrate==0.9.1
 SQLAlchemy==0.9.6
 vdm==0.13

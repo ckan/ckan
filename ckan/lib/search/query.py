@@ -2,11 +2,10 @@ import re
 import logging
 
 from pylons import config
-from solr import SolrException
+import pysolr
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict
 
-from ckan.common import json
 from ckan.lib.search.common import make_connection, SearchError, SearchQueryError
 import ckan.logic as logic
 import ckan.model as model
@@ -254,12 +253,8 @@ class PackageSearchQuery(SearchQuery):
         fq += "+state:active "
 
         conn = make_connection()
-        try:
-            data = conn.query(query, fq=fq, rows=max_results, fields='id')
-        finally:
-            conn.close()
-
-        return [r.get('id') for r in data.results]
+        data = conn.search(query, fq=fq, rows=max_results, fields='id')
+        return [r.get('id') for r in data.docs]
 
     def get_index(self,reference):
         query = {
@@ -268,26 +263,18 @@ class PackageSearchQuery(SearchQuery):
             'wt': 'json',
             'fq': 'site_id:"%s"' % config.get('ckan.site_id')}
 
-        conn = make_connection()
+        conn = make_connection(decode_dates=False)
         log.debug('Package query: %r' % query)
         try:
-            solr_response = conn.raw_query(**query)
-        except SolrException, e:
+            solr_response = conn.search(**query)
+        except pysolr.SolrError, e:
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
-                              (query, e.reason))
-        try:
-            data = json.loads(solr_response)
+                              (query, e))
 
-            if data['response']['numFound'] == 0:
-                raise SearchError('Dataset not found in the search index: %s' % reference)
-            else:
-                return data['response']['docs'][0]
-        except Exception, e:
-            if not isinstance(e, SearchError):
-                log.exception(e)
-            raise SearchError(e)
-        finally:
-            conn.close()
+        if solr_response.hits == 0:
+            raise SearchError('Dataset not found in the search index: %s' % reference)
+        else:
+            return solr_response.docs[0]
 
 
     def run(self, query):
@@ -355,44 +342,36 @@ class PackageSearchQuery(SearchQuery):
             query['qf'] = query.get('qf', QUERY_FIELDS)
 
 
-        conn = make_connection()
+        conn = make_connection(decode_dates=False)
         log.debug('Package query: %r' % query)
         try:
-            solr_response = conn.raw_query(**query)
-        except SolrException, e:
+            solr_response = conn.search(**query)
+        except pysolr.SolrError, e:
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
-                              (query, e.reason))
-        try:
-            data = json.loads(solr_response)
-            response = data['response']
-            self.count = response.get('numFound', 0)
-            self.results = response.get('docs', [])
+                              (query, e))
+        self.count = solr_response.hits
+        self.results = solr_response.docs
 
-            # #1683 Filter out the last row that is sometimes out of order
-            self.results = self.results[:rows_to_return]
+        # #1683 Filter out the last row that is sometimes out of order
+        self.results = self.results[:rows_to_return]
 
-            # get any extras and add to 'extras' dict
-            for result in self.results:
-                extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
-                extras = {}
-                for extra_key in extra_keys:
-                    value = result.pop(extra_key)
-                    extras[extra_key[len('extras_'):]] = value
-                if extra_keys:
-                    result['extras'] = extras
+        # get any extras and add to 'extras' dict
+        for result in self.results:
+            extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
+            extras = {}
+            for extra_key in extra_keys:
+                value = result.pop(extra_key)
+                extras[extra_key[len('extras_'):]] = value
+            if extra_keys:
+                result['extras'] = extras
 
-            # if just fetching the id or name, return a list instead of a dict
-            if query.get('fl') in ['id', 'name']:
-                self.results = [r.get(query.get('fl')) for r in self.results]
+        # if just fetching the id or name, return a list instead of a dict
+        if query.get('fl') in ['id', 'name']:
+            self.results = [r.get(query.get('fl')) for r in self.results]
 
-            # get facets and convert facets list to a dict
-            self.facets = data.get('facet_counts', {}).get('facet_fields', {})
-            for field, values in self.facets.iteritems():
-                self.facets[field] = dict(zip(values[0::2], values[1::2]))
-        except Exception, e:
-            log.exception(e)
-            raise SearchError(e)
-        finally:
-            conn.close()
+        # get facets and convert facets list to a dict
+        self.facets = solr_response.facets.get('facet_fields', {})
+        for field, values in self.facets.iteritems():
+            self.facets[field] = dict(zip(values[0::2], values[1::2]))
 
         return {'results': self.results, 'count': self.count}

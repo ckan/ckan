@@ -26,6 +26,7 @@ ofs==0.4.1
 passlib==1.6.2
 pbr==0.8.2
 psycopg2==2.4.5
+pysolr==3.3.0
 python-dateutil==1.5
 pyutilib.component.core==4.5.3
 repoze.lru==0.6
@@ -34,7 +35,6 @@ repoze.who-friendlyform==1.0.8
 requests==2.3.0
 simplejson==3.3.1
 six==1.7.3
-solrpy==0.9.5
 sqlalchemy-migrate==0.9.1
 sqlparse==0.1.11
 unicodecsv==0.9.4
