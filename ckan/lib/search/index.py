@@ -31,7 +31,7 @@ PACKAGE_TYPE = "package"
 KEY_CHARS = string.digits + string.letters + "_-"
 SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts", "site_id"]
 RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_description",
-                                 "res_format", "res_url"]
+                                 "res_format", "res_url", "res_type"]
 RELATIONSHIP_TYPES = PackageRelationship.types
 
 # Regular expression used to strip invalid XML characters
@@ -187,7 +187,9 @@ class PackageSearchIndex(SearchIndex):
             pkg_dict['views_recent'] = tracking_summary['recent']
 
         resource_fields = [('description', 'res_description'),
-                            ('format', 'res_format'), ('url', 'res_url')]
+                           ('format', 'res_format'),
+                           ('url', 'res_url'),
+                           ('resource_type', 'res_type')]
         resource_extras = [(e, 'res_extras_' + e) for e
                             in model.Resource.get_extra_columns()]
         # flatten the structure for indexing:
