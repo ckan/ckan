@@ -79,6 +79,7 @@ class _Toolkit(object):
         import ckan.logic as logic
         import ckan.lib.cli as cli
         import ckan.lib.plugins as lib_plugins
+        import ckan.lib.helpers as h
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
