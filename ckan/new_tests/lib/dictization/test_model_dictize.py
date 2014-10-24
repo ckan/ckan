@@ -7,7 +7,7 @@ from ckan.lib import search
 from ckan.new_tests import helpers, factories
 
 
-class TestDictize:
+class TestGroupListDictize:
 
     def setup(self):
         helpers.reset_db()
@@ -127,6 +127,13 @@ class TestDictize:
         assert_equal(child_dict['name'], 'child')
         assert_equal(parent_dict['groups'], [])
         assert_equal(child_dict['groups'][0]['name'], 'parent')
+
+
+class TestGroupDictize:
+
+    def setup(self):
+        helpers.reset_db()
+        search.clear()
 
     def test_group_dictize(self):
         group = factories.Group()
