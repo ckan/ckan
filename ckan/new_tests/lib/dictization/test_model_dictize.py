@@ -206,6 +206,36 @@ class TestGroupDictize:
         assert_equal(len(group['packages']), 1)
         assert_equal(group['packages'][0]['name'], package['name'])
 
+    def test_group_dictize_with_package_list_limited(self):
+        '''
+        Packages returned in group are limited by context var.
+        '''
+        group_ = factories.Group()
+        for _ in range(10):
+            factories.Dataset(groups=[{'name': group_['name']}])
+        group_obj = model.Session.query(model.Group).filter_by().first()
+        # limit packages to 4
+        context = {'model': model, 'session': model.Session, 'limits': {'packages': 4}}
+
+        group = model_dictize.group_dictize(group_obj, context)
+
+        assert_equal(len(group['packages']), 4)
+
+    def test_group_dictize_with_package_list_limited_over(self):
+        '''
+        Packages limit is set higher than number of packages in group.
+        '''
+        group_ = factories.Group()
+        for _ in range(3):
+            factories.Dataset(groups=[{'name': group_['name']}])
+        group_obj = model.Session.query(model.Group).filter_by().first()
+        # limit packages to 4
+        context = {'model': model, 'session': model.Session, 'limits': {'packages': 4}}
+
+        group = model_dictize.group_dictize(group_obj, context)
+
+        assert_equal(len(group['packages']), 3)
+
     def test_group_dictize_with_package_count(self):
         # group_list_dictize calls it like this by default
         group_ = factories.Group()

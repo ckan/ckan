@@ -375,7 +375,13 @@ def group_dictize(group, context,
                     context['ignore_capacity_check'] = True
 
             if not just_the_count:
-                q['rows'] = 1000    # Only the first 1000 datasets are returned
+                # Is there a packages limit in the context?
+                try:
+                    packages_limit = context['limits']['packages']
+                except KeyError:
+                    q['rows'] = 1000  # Only the first 1000 datasets are returned
+                else:
+                    q['rows'] = packages_limit
 
             search_context = dict((k, v) for (k, v) in context.items()
                                   if k != 'schema')
