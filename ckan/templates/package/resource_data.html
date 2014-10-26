@@ -46,29 +46,19 @@
         <td>{{ _('Never') }}</td>
       {% endif %}
     </tr>
-    {% if status.task_info and status.task_info.error and status.task_info.error and status.task_info.error.response %}
-      {% if status.task_info.error.response.error and status.task_info.error.response.error.__type %}
+    {% if status.task_info and status.task_info.error %}
+      {% for error_key, error_value in status.task_info.error.response.error.iteritems() %}
         <tr>
-          <th>{{ _('Error type') }}</th>
-          <td>{{ status.task_info.error.response.error.__type }}</td>
+          <th>Error {{ error_key }}</th>
+          <td>{{ error_value }}</td>
         </tr>
-        <p>
-        </p>
-      {% endif %}
-      {% if status.task_info.error.response.error and status.task_info.error.response.error.data %}
-        <tr>
-          <th>{{ _('Error info') }}</th>
-          <td>{{ status.task_info.error.response.error.data }}</td>
-        </tr>
-        <p>
-        </p>
-      {% endif %}
-      {% if status.task_info.error.response.error and status.task_info.error.response %}
-      <tr class="toggle-more">
-        <th>{{ _('Error Raw Response') }}</th>
-        <td>{{ status.task_info.error.response }}</td>
-      </tr>
-      {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if status.task_info.error.response %}
+    <tr class="toggle-more">
+      <th>{{ _('Error Raw Response') }}</th>
+      <td>{{ status.task_info.error.response }}</td>
+    </tr>
     {% endif %}
   </table>
 
