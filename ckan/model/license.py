@@ -239,7 +239,7 @@ class LicenseGNUFreeDocument(DefaultLicense):
     @property
     def title(self):
         return _("GNU Free Documentation License")
-O
+
 class LicenseOpenGovernment(DefaultLicense):
     domain_content = True
     id = "uk-ogl"
