@@ -57,13 +57,8 @@ class LicenseRegister(object):
                 LicenseCreativeCommonsAttribution(),
                 LicenseCreativeCommonsAttributionShareAlike(),
                 LicenseGNUFreeDocument(),
-                LicenseOtherOpen(),
-                LicenseOtherPublicDomain(),
-                LicenseOtherAttribution(),
                 LicenseOpenGovernment(),
                 LicenseCreativeCommonsNonCommercial(),
-                LicenseOtherNonCommercial(),
-                LicenseOtherClosed(),
                 ]
             self._create_license_list(default_license_list)
 
@@ -244,37 +239,7 @@ class LicenseGNUFreeDocument(DefaultLicense):
     @property
     def title(self):
         return _("GNU Free Documentation License")
-
-class LicenseOtherOpen(DefaultLicense):
-    domain_content = True
-    id = "other-open"
-    is_generic = True
-    is_okd_compliant = True
-
-    @property
-    def title(self):
-        return _("Other (Open)")
-
-class LicenseOtherPublicDomain(DefaultLicense):
-    domain_content = True
-    id = "other-pd"
-    is_generic = True
-    is_okd_compliant = True
-
-    @property
-    def title(self):
-        return _("Other (Public Domain)")
-
-class LicenseOtherAttribution(DefaultLicense):
-    domain_content = True
-    id = "other-at"
-    is_generic = True
-    is_okd_compliant = True
-
-    @property
-    def title(self):
-        return _("Other (Attribution)")
-
+O
 class LicenseOpenGovernment(DefaultLicense):
     domain_content = True
     id = "uk-ogl"
@@ -294,19 +259,3 @@ class LicenseCreativeCommonsNonCommercial(DefaultLicense):
     @property
     def title(self):
         return _("Creative Commons Non-Commercial (Any)")
-
-class LicenseOtherNonCommercial(DefaultLicense):
-    id = "other-nc"
-    is_generic = True
-
-    @property
-    def title(self):
-        return _("Other (Non-Commercial)")
-
-class LicenseOtherClosed(DefaultLicense):
-    id = "other-closed"
-    is_generic = True
-
-    @property
-    def title(self):
-        return _("Other (Not Open)")
