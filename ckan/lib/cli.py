@@ -106,7 +106,7 @@ class CkanCommand(paste.script.command.Command):
     '''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
-            default='development.ini', help='Config file to use.')
+            default='', help='Config file to use.')
     parser.add_option('-f', '--file',
         action='store',
         dest='file_path',
@@ -117,11 +117,13 @@ class CkanCommand(paste.script.command.Command):
     def _get_config(self):
         from paste.deploy import appconfig
 
-        self.filename = os.environ.get('CKAN_INI',
-            os.path.abspath('development.ini'))
+        self.filename = os.environ.get('CKAN_INI')
 
         if self.options.config:
             self.filename = os.path.abspath(self.options.config)
+
+        if not self.filename:
+            self.filename = 'development.ini'
 
         if not os.path.exists(self.filename):
             msg = 'No config file supplied or found in $CKAN_INI'
