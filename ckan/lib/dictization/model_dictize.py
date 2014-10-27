@@ -732,7 +732,7 @@ def resource_view_dictize(resource_view, context):
     config = dictized.pop('config', {})
     dictized.update(config)
     resource = context['model'].Resource.get(resource_view.resource_id)
-    package_id = resource.resource_group.package_id
+    package_id = resource.package_id
     dictized['package_id'] = package_id
     return dictized
 

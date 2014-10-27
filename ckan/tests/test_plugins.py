@@ -144,7 +144,7 @@ class TestPlugins(object):
             CreateTestData.create_arbitrary([{'name':u'testpkg'}])
             # remove this data
             CreateTestData.delete()
-            assert len(mapper_plugin.added) == 2 # resource group table added automatically
+            assert len(mapper_plugin.added) == 1
             assert mapper_plugin.added[0].name == 'testpkg'
 
     def test_routes_plugin_fired(self):

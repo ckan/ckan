@@ -644,6 +644,7 @@ class TestAction(WsgiAppCase):
 
         resource_updated.pop('url')
         resource_updated.pop('revision_id')
+        print resource_updated
         resource_updated.pop('package_id')
         resource_updated.pop('revision_timestamp', None)
         resource_created.pop('url')

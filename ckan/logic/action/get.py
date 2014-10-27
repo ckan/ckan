@@ -1021,7 +1021,7 @@ def resource_show(context, data_dict):
 
     pkg_dict = logic.get_action('package_show')(
         dict(context),
-        {'id': resource.resource_group.package.id})
+        {'id': resource.package.id})
 
     for resource_dict in pkg_dict['resources']:
         if resource_dict['id'] == id:
@@ -1029,6 +1029,8 @@ def resource_show(context, data_dict):
     else:
         logging.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
+
+    resource_dict['package_id'] = pkg_dict['id']
 
     # original dictized version didn't include this field:
     resource_dict.pop('revision_timestamp')
