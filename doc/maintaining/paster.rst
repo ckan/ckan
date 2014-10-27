@@ -45,6 +45,17 @@ The ``--config`` option tells CKAN where to find your config file, which it
 reads for example to know which database it should use. As you'll see in the
 examples below, this option can be given as ``-c`` for short.
 
+.. note::
+
+  You may also specify the location of your config file using the CKAN_INI
+  environment variable. You will no longer need to use --config= or -c= to
+  tell paster where the config file is:
+
+  .. parsed-literal::
+
+     export CKAN_INI=\ |development.ini|
+
+
 ``command`` should be replaced with the name of the CKAN command that you wish
 to execute. Most commands have their own subcommands and options. For example,
 to print out a list of all of your CKAN site's users do:
@@ -471,7 +482,7 @@ won't clear the index before starting rebuilding it::
 
     paster --plugin=ckan search-index rebuild -r --config=/etc/ckan/std/std.ini
 
-There is also an option available which works like the refresh option but tries to use all processes on the 
+There is also an option available which works like the refresh option but tries to use all processes on the
 computer to reindex faster::
 
     paster --plugin=ckan search-index rebuild_fast --config=/etc/ckan/std/std.ini
