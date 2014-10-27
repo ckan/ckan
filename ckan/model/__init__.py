@@ -94,6 +94,10 @@ from resource import (
     resource_table,
     resource_revision_table,
 )
+from resource_view import (
+    ResourceView,
+    resource_view_table,
+)
 from tracking import (
     tracking_summary_table,
     TrackingSummary,
@@ -223,6 +227,7 @@ class Repository(vdm.sqlalchemy.Repository):
         log.info('Database initialised')
 
     def clean_db(self):
+        self.commit_and_remove()
         meta.metadata = MetaData(self.metadata.bind)
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|tsvector).*')

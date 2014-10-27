@@ -23,11 +23,18 @@ def package_update(context, data_dict):
         )
     else:
         # If dataset is not owned then we can edit if config permissions allow
-        if not new_authz.auth_is_anon_user(context):
-            check1 = new_authz.check_config_permission(
-                'create_dataset_if_not_in_organization')
+        if new_authz.auth_is_anon_user(context):
+            check1 = all(new_authz.check_config_permission(p) for p in (
+                'anon_create_dataset',
+                'create_dataset_if_not_in_organization',
+                'create_unowned_dataset',
+                ))
         else:
-            check1 = new_authz.check_config_permission('anon_create_dataset')
+            check1 = all(new_authz.check_config_permission(p) for p in (
+                'create_dataset_if_not_in_organization',
+                'create_unowned_dataset',
+                )) or new_authz.has_user_permission_for_some_org(
+                user, 'create_dataset')
     if not check1:
         return {'success': False,
                 'msg': _('User %s not authorized to edit package %s') %
@@ -67,6 +74,12 @@ def resource_update(context, data_dict):
     else:
         return {'success': True}
 
+
+def resource_view_update(context, data_dict):
+    return resource_update(context, data_dict)
+
+def resource_view_reorder(context, data_dict):
+    return resource_update(context, data_dict)
 
 def package_relationship_update(context, data_dict):
     return new_authz.is_authorized('package_relationship_create',
@@ -206,6 +219,16 @@ def user_update(context, data_dict):
         return {'success': False,
                 'msg': _('User %s not authorized to edit user %s') %
                         (user, user_obj.id)}
+
+
+def user_generate_apikey(context, data_dict):
+    user = context['user']
+    user_obj = logic_auth.get_user_object(context, data_dict)
+    if user == user_obj.name:
+        # Allow users to update only their own user accounts.
+        return {'success': True}
+    return {'success': False, 'msg': _('User {0} not authorized to update user'
+            ' {1}'.format(user, user_obj.id))}
 
 
 def revision_change_state(context, data_dict):

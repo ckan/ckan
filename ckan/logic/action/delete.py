@@ -97,6 +97,10 @@ def resource_delete(context, data_dict):
     package_id = entity.get_package_id()
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.before_delete(context, data_dict,
+                             pkg_dict.get('resources', []))
 
     if pkg_dict.get('resources'):
         pkg_dict['resources'] = [r for r in pkg_dict['resources'] if not
@@ -107,6 +111,31 @@ def resource_delete(context, data_dict):
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.after_delete(context, pkg_dict.get('resources', []))
+
+    model.repo.commit()
+
+
+def resource_view_delete(context, data_dict):
+    '''Delete a resource_view.
+
+    :param id: the id of the resource_view
+    :type id: string
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    resource_view = model.ResourceView.get(id)
+    if not resource_view:
+        raise NotFound
+
+    context["resource_view"] = resource_view
+    context['resource'] = model.Resource.get(resource_view.resource_id)
+    _check_access('resource_view_delete', context, data_dict)
+
+    resource_view.delete()
     model.repo.commit()
 
 

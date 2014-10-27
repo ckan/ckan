@@ -61,7 +61,8 @@ Independent
 Clear
   It should be quick and easy to see what went wrong when a test fails, or
   to see what a test does and how it works if you have to debug or update
-  a test.
+  a test. If you think the test or helper method isn't clear by itself, add
+  docstrings.
 
   You shouldn't have to figure out what a complex test method does, or go and
   look up a lot of code in other files to understand a test method.
@@ -75,8 +76,6 @@ Clear
 
   * The name of a test method should clearly explain the intent of the test.
     See :ref:`naming`.
-
-  * Test methods and helper functions should have docstrings.
 
 Easy to find
   It should be easy to know where to add new tests for some new or changed
@@ -157,15 +156,31 @@ updating things in CKAN. This means that
 number of test functions.
 
 So as well as the name of each test method explaining the intent of the test,
-it's important to name the test function after the function it's testing, for
-example all the tests for ``user_update`` should be named
-``test_user_update_*``.
+tests should be grouped by a test class that aggregates tests against a model
+entity or action type, for instance::
+
+    class TestPackageCreate(object):
+        # ...
+        def test_it_validates_name(self):
+            # ...
+
+        def test_it_validates_url(self):
+            # ...
+
+
+    class TestResourceCreate(object)
+        # ...
+        def test_it_validates_package_id(self):
+            # ...
+
+    # ...
+
 
 Good test names:
 
-* ``test_user_update_with_id_that_does_not_exist``
-* ``test_user_update_with_no_id``
-* ``test_user_update_with_invalid_name``
+* ``TestUserUpdate.test_update_with_id_that_does_not_exist``
+* ``TestUserUpdate.test_update_with_no_id``
+* ``TestUserUpdate.test_update_with_invalid_name``
 
 Bad test names:
 

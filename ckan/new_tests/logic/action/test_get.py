@@ -11,29 +11,138 @@ eq = nose.tools.eq_
 
 class TestGet(object):
 
-    @classmethod
-    def setup_class(cls):
-        helpers.reset_db()
-
     def setup(self):
-        import ckan.model as model
-
-        # Reset the db before each test method.
-        model.repo.rebuild_db()
+        helpers.reset_db()
 
         # Clear the search index
         search.clear()
 
     def test_group_list(self):
 
-        user = factories.User()
-        group1 = factories.Group(user=user)
-        group2 = factories.Group(user=user)
+        group1 = factories.Group()
+        group2 = factories.Group()
 
         group_list = helpers.call_action('group_list')
 
         assert (sorted(group_list) ==
                 sorted([g['name'] for g in [group1, group2]]))
+
+    def test_group_list_in_presence_of_organizations(self):
+        '''
+        Getting the group_list should only return groups of type 'group' (not
+        organizations).
+        '''
+        group1 = factories.Group()
+        group2 = factories.Group()
+        factories.Organization()
+        factories.Organization()
+
+        group_list = helpers.call_action('group_list')
+
+        assert (sorted(group_list) ==
+                sorted([g['name'] for g in [group1, group2]]))
+
+    def test_group_list_in_presence_of_custom_group_types(self):
+        '''Getting the group_list shouldn't return custom group types.'''
+        group1 = factories.Group()
+        group2 = factories.Group()
+        factories.Group(type='custom')
+
+        group_list = helpers.call_action('group_list')
+
+        assert (sorted(group_list) ==
+                sorted([g['name'] for g in [group1, group2]]))
+
+    def test_group_list_return_custom_group(self):
+        '''
+        Getting the group_list with a type defined should only return
+        groups of that type.
+        '''
+        group1 = factories.Group(type='custom')
+        group2 = factories.Group(type='custom')
+        factories.Group()
+        factories.Group()
+
+        group_list = helpers.call_action('group_list', type='custom')
+
+        assert (sorted(group_list) ==
+                sorted([g['name'] for g in [group1, group2]]))
+
+    def test_group_list_sort_by_package_count(self):
+
+        factories.Group(name='aa')
+        factories.Group(name='bb')
+        factories.Dataset(groups=[{'name': 'aa'}, {'name': 'bb'}])
+        factories.Dataset(groups=[{'name': 'bb'}])
+
+        group_list = helpers.call_action('group_list', sort='package_count')
+        # default is descending order
+
+        eq(group_list, ['bb', 'aa'])
+
+    def test_group_list_sort_by_package_count_ascending(self):
+
+        factories.Group(name='aa')
+        factories.Group(name='bb')
+        factories.Dataset(groups=[{'name': 'aa'}, {'name': 'bb'}])
+        factories.Dataset(groups=[{'name': 'aa'}])
+
+        group_list = helpers.call_action('group_list',
+                                         sort='package_count asc')
+
+        eq(group_list, ['bb', 'aa'])
+
+    def test_group_list_all_fields(self):
+
+        group = factories.Group()
+
+        group_list = helpers.call_action('group_list', all_fields=True)
+
+        expected_group = dict(group.items()[:])
+        for field in ('users', 'tags', 'extras', 'groups'):
+            del expected_group[field]
+        expected_group['packages'] = 0
+        assert group_list[0] == expected_group
+        assert 'extras' not in group_list[0]
+        assert 'tags' not in group_list[0]
+        assert 'groups' not in group_list[0]
+        assert 'users' not in group_list[0]
+        assert 'datasets' not in group_list[0]
+
+    def test_group_list_extras_returned(self):
+
+        group = factories.Group(extras=[{'key': 'key1', 'value': 'val1'}])
+
+        group_list = helpers.call_action('group_list', all_fields=True,
+                                         include_extras=True)
+
+        eq(group_list[0]['extras'], group['extras'])
+        eq(group_list[0]['extras'][0]['key'], 'key1')
+
+    # NB there is no test_group_list_tags_returned because tags are not in the
+    # group_create schema (yet)
+
+    def test_group_list_groups_returned(self):
+
+        parent_group = factories.Group(tags=[{'name': 'river'}])
+        child_group = factories.Group(groups=[{'name': parent_group['name']}],
+                                      tags=[{'name': 'river'}])
+
+        group_list = helpers.call_action('group_list', all_fields=True,
+                                         include_groups=True)
+
+        child_group_returned = group_list[0]
+        if group_list[0]['name'] == child_group['name']:
+            child_group_returned, parent_group_returned = group_list
+        else:
+            child_group_returned, parent_group_returned = group_list[::-1]
+        expected_parent_group = dict(parent_group.items()[:])
+        for field in ('users', 'tags', 'extras'):
+            del expected_parent_group[field]
+        expected_parent_group['capacity'] = u'public'
+        expected_parent_group['packages'] = 0
+        expected_parent_group['package_count'] = 0
+        eq(child_group_returned['groups'], [expected_parent_group])
 
     def test_group_show(self):
 
@@ -44,6 +153,20 @@ class TestGet(object):
         # FIXME: Should this be returned by group_create?
         group_dict.pop('num_followers', None)
         assert group_dict == group
+
+    def test_group_show_error_not_found(self):
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'group_show', id='does_not_exist')
+
+    def test_group_show_error_for_organization(self):
+
+        org = factories.Organization()
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'group_show', id=org['id'])
 
     def test_group_show_packages_returned(self):
 
@@ -62,6 +185,28 @@ class TestGet(object):
                                 **dataset)
 
         group_dict = helpers.call_action('group_show', id=group['id'])
+
+        assert len(group_dict['packages']) == 2
+        assert group_dict['package_count'] == 2
+
+    def test_group_show_packages_returned_for_view(self):
+
+        user_name = helpers.call_action('get_site_user')['name']
+
+        group = factories.Group(user=factories.User())
+
+        datasets = [
+            {'name': 'dataset_1', 'groups': [{'name': group['name']}]},
+            {'name': 'dataset_2', 'groups': [{'name': group['name']}]},
+        ]
+
+        for dataset in datasets:
+            helpers.call_action('package_create',
+                                context={'user': user_name},
+                                **dataset)
+
+        group_dict = helpers.call_action('group_show', id=group['id'],
+                                         context={'for_view': True})
 
         assert len(group_dict['packages']) == 2
         assert group_dict['package_count'] == 2
@@ -98,6 +243,36 @@ class TestGet(object):
         assert (sorted(org_list) ==
                 sorted([g['name'] for g in [org1, org2]]))
 
+    def test_organization_list_in_presence_of_groups(self):
+        '''
+        Getting the organization_list only returns organization group
+        types.
+        '''
+        org1 = factories.Organization()
+        org2 = factories.Organization()
+        factories.Group()
+        factories.Group()
+
+        org_list = helpers.call_action('organization_list')
+
+        assert (sorted(org_list) ==
+                sorted([g['name'] for g in [org1, org2]]))
+
+    def test_organization_list_in_presence_of_custom_group_types(self):
+        '''
+        Getting the organization_list only returns organization group
+        types.
+        '''
+        org1 = factories.Organization()
+        org2 = factories.Organization()
+        factories.Group(type="custom")
+        factories.Group(type="custom")
+
+        org_list = helpers.call_action('organization_list')
+
+        assert (sorted(org_list) ==
+                sorted([g['name'] for g in [org1, org2]]))
+
     def test_organization_show(self):
 
         org = factories.Organization()
@@ -107,6 +282,20 @@ class TestGet(object):
         # FIXME: Should this be returned by organization_create?
         org_dict.pop('num_followers', None)
         assert org_dict == org
+
+    def test_organization_show_error_not_found(self):
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'organization_show', id='does_not_exist')
+
+    def test_organization_show_error_for_group(self):
+
+        group = factories.Group()
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'organization_show', id=group['id'])
 
     def test_organization_show_packages_returned(self):
 
@@ -315,6 +504,71 @@ class TestGet(object):
                         sysadmin['name']})
         eq(len(current_package_list), 2)
 
+    def test_package_autocomplete_does_not_return_private_datasets(self):
+
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset1 = factories.Dataset(user=user, owner_org=org['name'],
+                                     title='Some public stuff')
+        dataset2 = factories.Dataset(user=user, owner_org=org['name'],
+                                     private=True, title='Some private stuff')
+
+        package_list = helpers.call_action('package_autocomplete',
+                                           q='some')
+        eq(len(package_list), 1)
+
+    def test_group_show_does_not_show_private_datasets(self):
+        '''group_show() should never show private datasets.
+
+        If a dataset is a private member of an organization and also happens to
+        be a member of a group, group_show() should not return the dataset as
+        part of the group dict, even if the user calling group_show() is a
+        member or admin of the group or the organization or is a sysadmin.
+
+        '''
+        org_member = factories.User()
+        org = factories.Organization(user=org_member)
+        private_dataset = factories.Dataset(user=org_member,
+                                            owner_org=org['name'], private=True)
+
+        group = factories.Group()
+
+        # Add the private dataset to the group.
+        helpers.call_action('member_create', id=group['id'],
+                            object=private_dataset['id'], object_type='package',
+                            capacity='public')
+
+        # Create a member user and an admin user of the group.
+        group_member = factories.User()
+        helpers.call_action('member_create', id=group['id'],
+                            object=group_member['id'], object_type='user',
+                            capacity='member')
+        group_admin = factories.User()
+        helpers.call_action('member_create', id=group['id'],
+                            object=group_admin['id'], object_type='user',
+                            capacity='admin')
+
+        # Create a user who isn't a member of any group or organization.
+        non_member = factories.User()
+
+        sysadmin = factories.Sysadmin()
+
+        # None of the users should see the dataset when they call group_show().
+        for user in (org_member, group_member, group_admin, non_member,
+                     sysadmin, None):
+
+            if user is None:
+                context = None  # No user logged-in.
+            else:
+                context = {'user': user['name']}
+
+            group = helpers.call_action('group_show', id=group['id'],
+                                        context=context)
+
+            assert private_dataset['id'] not in [dataset['id'] for dataset
+                                                 in group['packages']], (
+                "group_show() should never show private datasets")
+
 
 class TestBadLimitQueryParameters(object):
     '''test class for #1258 non-int query parameters cause 500 errors
@@ -350,3 +604,302 @@ class TestBadLimitQueryParameters(object):
         nose.tools.assert_raises(
             logic.ValidationError, helpers.call_action, 'package_search',
             **kwargs)
+
+
+class TestOrganizationListForUser(object):
+    '''Functional tests for the organization_list_for_user() action function.'''
+
+    def setup(self):
+        helpers.reset_db()
+        search.clear()
+
+    def test_when_user_is_not_a_member_of_any_organizations(self):
+        """
+
+        When the user isn't a member of any organizations (in any capacity)
+        organization_list_for_user() should return an empty list.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+
+        # Create an organization so we can test that it does not get returned.
+        factories.Organization()
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
+
+    def test_when_user_is_an_admin_of_one_organization(self):
+        """
+
+        When the user is an admin of one organization
+        organization_list_for_user() should return a list of just that one
+        organization.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        # Create a second organization just so we can test that it does not get
+        # returned.
+        factories.Organization()
+
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='admin')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert len(organizations) == 1
+        assert organizations[0]['id'] == organization['id']
+
+    def test_when_user_is_an_admin_of_three_organizations(self):
+        """
+
+        When the user is an admin of three organizations
+        organization_list_for_user() should return a list of all three
+        organizations.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization_1 = factories.Organization()
+        organization_2 = factories.Organization()
+        organization_3 = factories.Organization()
+
+        # Create a second organization just so we can test that it does not get
+        # returned.
+        factories.Organization()
+
+        # Make the user an admin of all three organizations:
+        for organization in (organization_1, organization_2, organization_3):
+            helpers.call_action('member_create', id=organization['id'],
+                                object=user['id'], object_type='user',
+                                capacity='admin')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert len(organizations) == 3
+        ids = [organization['id'] for organization in organizations]
+        for organization in (organization_1, organization_2, organization_3):
+            assert organization['id'] in ids
+
+    def test_does_not_return_members(self):
+        """
+
+        By default organization_list_for_user() should not return organizations
+        that the user is just a member (not an admin) of.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='member')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
+
+    def test_does_not_return_editors(self):
+        """
+
+        By default organization_list_for_user() should not return organizations
+        that the user is just an editor (not an admin) of.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='editor')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
+
+    def test_editor_permission(self):
+        """
+
+        organization_list_for_user() should return organizations that the user
+        is an editor of if passed a permission that belongs to the editor role.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='editor')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            permission='create_dataset',
+                                            context=context)
+
+        assert [org['id'] for org in organizations] == [organization['id']]
+
+    def test_member_permission(self):
+        """
+
+        organization_list_for_user() should return organizations that the user
+        is a member of if passed a permission that belongs to the member role.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='member')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            permission='read',
+                                            context=context)
+
+        assert [org['id'] for org in organizations] == [organization['id']]
+
+    def test_invalid_permission(self):
+        '''
+
+        organization_list_for_user() should return an empty list if passed a
+        non-existent or invalid permission.
+
+        Note that we test this with a user who is an editor of one organization.
+        If the user was an admin of the organization then it would return that
+        organization - admins have all permissions, including permissions that
+        don't exist.
+
+        '''
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+        factories.Organization()
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='editor')
+
+        for permission in ('', ' ', 'foo', 27.3, 5, True, False, None):
+            organizations = helpers.call_action('organization_list_for_user',
+                                                permission=permission,
+                                                context=context)
+
+        assert organizations == []
+
+    def test_that_it_does_not_return_groups(self):
+        """
+
+        organization_list_for_user() should not return groups that the user is
+        a member, editor or admin of.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        group_1 = factories.Group()
+        group_2 = factories.Group()
+        group_3 = factories.Group()
+        helpers.call_action('member_create', id=group_1['id'],
+                            object=user['id'], object_type='user',
+                            capacity='member')
+        helpers.call_action('member_create', id=group_2['id'],
+                            object=user['id'], object_type='user',
+                            capacity='editor')
+        helpers.call_action('member_create', id=group_3['id'],
+                            object=user['id'], object_type='user',
+                            capacity='admin')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
+
+    def test_that_it_does_not_return_previous_memberships(self):
+        """
+
+        organization_list_for_user() should return organizations that the user
+        was previously an admin of.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        # Make the user an admin of the organization.
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='admin')
+
+        # Remove the user from the organization.
+        helpers.call_action('member_delete', id=organization['id'],
+                            object=user['id'], object_type='user')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
+
+    def test_when_user_is_sysadmin(self):
+        """
+
+        When the user is a sysadmin organization_list_for_user() should just
+        return all organizations, even if the user is not a member of them.
+
+        """
+        user = factories.Sysadmin()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert [org['id'] for org in organizations] == [organization['id']]
+
+    def test_that_it_does_not_return_deleted_organizations(self):
+        """
+
+        organization_list_for_user() should not return deleted organizations
+        that the user was an admin of.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        organization = factories.Organization()
+
+        # Make the user an admin of the organization.
+        helpers.call_action('member_create', id=organization['id'],
+                            object=user['id'], object_type='user',
+                            capacity='admin')
+
+        # Delete the organization.
+        helpers.call_action('organization_delete', id=organization['id'])
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert organizations == []
+
+    def test_with_no_authorized_user(self):
+        """
+
+        organization_list_for_user() should return an empty list if there's no
+        authorized user. Users who aren't logged-in don't have any permissions.
+
+        """
+        # Create an organization so we can test that it doesn't get returned.
+        organization = factories.Organization()
+
+        organizations = helpers.call_action('organization_list_for_user')
+
+        assert organizations == []

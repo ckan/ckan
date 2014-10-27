@@ -163,6 +163,24 @@ database user you just created:
 
     sudo -u postgres createdb -O |database_user| |database| -E utf-8
 
+.. note::
+
+    If PostgreSQL is run on a separate server, you will need to edit
+    `postgresql.conf` and `pg_hba.conf`. For PostgreSQL 9.1 on Ubuntu, these
+    files are located in `etc/postgresql/9.1/main`.
+
+    Uncomment the `listen_addresses` parameter and specify a comma-separated
+    list of IP addresses of the network interfaces PostgreSQL should listen on
+    or '*' to listen on all interfaces. For example,
+
+    ``listen_addresses = 'localhost,192.168.1.21'``
+
+    Add a line similar to the line below to the bottom of `pg_hba.conf` to
+    allow the machine running Apache to connect to PostgreSQL. Please change
+    the IP address as desired according to your network settings.
+
+    ``host    all             all             192.168.1.22/32                 md5``
+
 ----------------------------
 4. Create a CKAN config file
 ----------------------------
@@ -399,3 +417,18 @@ and then restart Solr:
 .. parsed-literal::
 
    |restart_solr|
+
+AttributeError: 'module' object has no attribute 'css/main.debug.css'
+---------------------------------------------------------------------
+
+This error is likely to show up when `debug` is set to `True`. To fix this
+error, install frontend dependencies. See :doc:`/contributing/frontend/index`.
+
+After installing the dependencies, run `bin/less` and then start paster server
+again.
+
+If you do not want to compile CSS, you can also copy the main.css to
+main.debug.css to get CKAN running.
+
+    cp /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.css \
+    /usr/lib/ckan/default/src/ckan/ckan/public/base/css/main.debug.css

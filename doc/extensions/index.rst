@@ -33,7 +33,7 @@ features by developing your own CKAN extensions.
    custom-config-settings
    testing-extensions
    best-practices
+   adding-custom-fields
    plugin-interfaces
    plugins-toolkit
-   converters
    validators

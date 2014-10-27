@@ -45,8 +45,8 @@ CKAN.Utils = CKAN.Utils || {};
       CKAN.DataPreview.loadPreviewDialog(preload_resource);
     }
 
-    var isEmbededDataviewer = false;//$('body.package.resource_embedded_dataviewer').length > 0;
-    if (isEmbededDataviewer) {
+    var isEmbeddedDataviewer = false;//$('body.package.resource_embedded_dataviewer').length > 0;
+    if (isEmbeddedDataviewer) {
       CKAN.DataPreview.loadEmbeddedPreview(preload_resource, reclineState);
     }
 

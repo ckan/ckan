@@ -63,7 +63,7 @@ government departments, each of which publishes data. Each organization can
 have its own workflow and authorizations, allowing it to manage its own
 publishing process.
 
-An organization's administrators can add add individual users to it, with
+An organization's administrators can add individual users to it, with
 different roles depending on the level of authorization needed. A user in an
 organization can create a dataset owned by that organization. In the default
 setup, this dataset is initially private, and visible only to other users in
@@ -239,9 +239,6 @@ select "Next: Additional Info".
   talk to your site administrator about changing the default schema and dataset
   forms.
 
-* *Group* -- Moderated collection of datasets. You can add the dataset to
-  an existing group here.
-
 .. image:: /images/add_dataset_3.jpg
 
 .. note::
@@ -249,6 +246,11 @@ select "Next: Additional Info".
     Everything on this screen is optional, but you should ensure the
     "Visibility" is set correctly. It is also good practice to ensure an Author is
     named.
+
+.. versionchanged:: 2.2
+   Previous versions of CKAN used to allow adding the dataset to existing
+   groups in this step. This was changed. To add a dataset to an existing group
+   now, go to the "Group" tab in the Dataset's page.
 
 **Step 8**. Select the 'Finish' button. CKAN creates the dataset and shows you
 the result. You have finished!

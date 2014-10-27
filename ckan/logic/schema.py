@@ -10,7 +10,7 @@ from ckan.lib.navl.validators import (ignore_missing,
 from ckan.logic.validators import (package_id_not_changed,
                                    package_id_exists,
                                    package_id_or_name_exists,
-                                   extras_unicode_convert,
+                                   resource_id_exists,
                                    name_validator,
                                    package_name_validator,
                                    package_version_validator,
@@ -54,12 +54,14 @@ from ckan.logic.validators import (package_id_not_changed,
                                    if_empty_guess_format,
                                    clean_format,
                                    no_loops_in_hierarchy,
+                                   extra_key_not_in_root_schema,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,
                                    convert_to_json_if_string,
                                    remove_whitespace,
+                                   extras_unicode_convert,
                                    )
 from formencode.validators import OneOf
 import ckan.model
@@ -325,6 +327,22 @@ def default_update_group_schema():
     schema["name"] = [ignore_missing, group_name_validator, unicode]
     return schema
 
+def default_show_group_schema():
+    schema = default_group_schema()
+
+    # make default show schema behave like when run with no validation
+    schema['num_followers'] = []
+    schema['created'] = []
+    schema['display_name'] = []
+    schema['extras'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['package_count'] = []
+    schema['packages'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['revision_id'] = []
+    schema['state'] = []
+    schema['users'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+
+    return schema
+
 
 def default_related_schema():
     schema = {
@@ -354,7 +372,7 @@ def default_extras_schema():
 
     schema = {
         'id': [ignore],
-        'key': [not_empty, unicode],
+        'key': [not_empty, extra_key_not_in_root_schema, unicode],
         'value': [not_missing],
         'state': [ignore],
         'deleted': [ignore_missing],
@@ -442,6 +460,12 @@ def default_update_user_schema():
     schema['name'] = [ignore_missing, name_validator, user_name_validator, unicode]
     schema['password'] = [user_password_validator,ignore_missing, unicode]
 
+    return schema
+
+def default_generate_apikey_user_schema():
+    schema = default_update_user_schema()
+
+    schema['apikey'] = [not_empty, unicode]
     return schema
 
 def default_user_invite_schema():
@@ -598,4 +622,26 @@ def create_schema_for_required_keys(keys):
     each key from keys is validated against ``not_missing``.
     '''
     schema = dict([(x, [not_missing]) for x in keys])
+    return schema
+
+
+def default_create_resource_view_schema():
+    schema = {
+        'resource_id': [not_empty, resource_id_exists],
+        'title': [not_empty, unicode],
+        'description': [ignore_missing, unicode],
+        'view_type': [not_empty, unicode],
+        '__extras': [empty],
+    }
+    return schema
+
+
+def default_update_resource_view_schema():
+    schema = default_create_resource_view_schema()
+    schema.update({
+        'id': [not_missing, not_empty, unicode],
+        'resource_id': [ignore_missing, resource_id_exists],
+        'view_type': [ignore],# can not change after create
+        'package_id': [ignore]
+    })
     return schema

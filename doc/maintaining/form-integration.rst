@@ -2,7 +2,7 @@
 Form Integration
 ================
 
-CKAN allows you to integrate its Edit Dataset and New Dataset forms forms into an external front-end. To that end, CKAN also provides a simple way to redirect these forms back to the external front-end upon submission. 
+CKAN allows you to integrate its Edit Dataset and New Dataset forms into an external front-end. To that end, CKAN also provides a simple way to redirect these forms back to the external front-end upon submission. 
 
 Redirecting CKAN Forms
 ======================

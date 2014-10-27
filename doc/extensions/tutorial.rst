@@ -158,7 +158,7 @@ you gave to your plugin class in the :ref:`left-hand-side of the assignment in
 the setup.py file <setup.py>` (``example_iauthfunctions`` in this example) is
 the name you'll use for your plugin in CKAN's config file::
 
-    ckan.plugins = stats text_preview recline_preview example_iauthfunctions
+    ckan.plugins = stats text_view recline_view example_iauthfunctions
 
 You should now be able to start CKAN in the development web server and have it
 start up without any problems:
@@ -380,11 +380,11 @@ posting the same data dict to the ``/api/3/action/member_list`` API endpoint.
 For other action functions available from
 :func:`~ckan.plugins.toolkit.get_action`, see :ref:`api-reference`.
 
-The toolkit's :func:`~ckan.plugins.toolkit.get_converter` function returns
-converter functions from :mod:`ckan.logic.converters` for plugins to use.  This
+The toolkit's :func:`~ckan.plugins.toolkit.get_validator` function returns
+validator and converter functions from :mod:`ckan.logic.converters` for plugins to use.  This
 is the same set of converter functions that CKAN's action functions use to
 convert user-provided data. Our code uses
-:func:`~ckan.plugins.toolkit.get_converter` to get the
+:func:`~ckan.plugins.toolkit.get_validator` to get the
 :func:`~ckan.logic.converters.convert_user_name_or_id_to_id()` converter
 function, which it uses to convert the name of the logged-in user to their user
 ``id``:

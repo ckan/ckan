@@ -6,7 +6,7 @@ from sqlalchemy import orm
 from pylons import config
 import vdm.sqlalchemy
 import vdm.sqlalchemy.stateful
-from sqlalchemy import types, Column, Table, ForeignKey, and_
+from sqlalchemy import types, func, Column, Table, ForeignKey, and_
 
 import meta
 import core
@@ -17,6 +17,7 @@ import activity
 import domain_object
 import ckan.lib.dictization
 from .package import Package
+import ckan.model
 
 __all__ = ['Resource', 'resource_table',
            'ResourceRevision', 'resource_revision_table',
@@ -132,6 +133,25 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
             for field in cls.extra_columns:
                 setattr(cls, field, DictProxy(field, 'extras'))
         return cls.extra_columns
+
+    @classmethod
+    def get_all_without_views(cls, formats=[]):
+        '''Returns all resources that have no resource views
+
+        :param formats: if given, returns only resources that have no resource
+            views and are in any of the received formats
+        :type formats: list
+
+        :rtype: list of ckan.model.Resource objects
+        '''
+        query = meta.Session.query(cls).outerjoin(ckan.model.ResourceView) \
+                    .filter(ckan.model.ResourceView.id == None)
+
+        if formats:
+            lowercase_formats = [f.lower() for f in formats]
+            query = query.filter(func.lower(cls.format).in_(lowercase_formats))
+
+        return query.all()
 
     def related_packages(self):
         return [self.package]

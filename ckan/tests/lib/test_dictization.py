@@ -10,7 +10,6 @@ from ckan.lib.dictization import (table_dictize,
 
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 resource_dictize,
-                                                group_dictize,
                                                 activity_dictize,
                                                 package_to_api1,
                                                 package_to_api2,
@@ -1017,6 +1016,7 @@ class TestBasicDictize:
                 continue
             assert_equal(sorted(result[key]), sorted(expected[key]))
         assert_equal(result['package_count'], expected['package_count'])
+
 
     def test_17_group_apis_to_dict(self):
 

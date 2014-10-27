@@ -116,6 +116,8 @@ class RelatedController(base.BaseController):
 
         try:
             c.pkg_dict = logic.get_action('package_show')(context, data_dict)
+            c.related_list = logic.get_action('related_list')(context,
+                                                              data_dict)
             c.pkg = context['package']
             c.resources_json = h.json.dumps(c.pkg_dict.get('resources', []))
         except logic.NotFound:
@@ -175,7 +177,7 @@ class RelatedController(base.BaseController):
                     data['id'] = related_id
                 else:
                     data['dataset_id'] = id
-                data['owner_id'] = c.userobj.id
+                    data['owner_id'] = c.userobj.id
 
                 related = logic.get_action(action_name)(context, data)
 

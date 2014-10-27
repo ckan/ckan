@@ -27,8 +27,10 @@ Extensions can add their own CSS files to modify or extend CKAN's default CSS.
 Create an ``example_theme.css`` file in your extension's ``public`` directory::
 
     ckanext-example_theme/
-      public/
-        example_theme.css
+      ckanext/
+        example_theme/
+          public/
+            example_theme.css
 
 Add this CSS into the ``example_theme.css`` file, to change the color of CKAN's
 "account masthead" (the bar across the top of the site that shows the logged-in
@@ -46,8 +48,10 @@ we include a CSS file in this base template then the file will be included in
 every page of your CKAN site. Create the file::
 
     ckanext-example_theme/
-      templates/
-        base.html
+      ckanext/
+        example_theme/
+          templates/
+            base.html
 
 and put this Jinja code in it:
 

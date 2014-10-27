@@ -13,6 +13,46 @@ import ckan.tests as tests
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
 
+import ckan.new_tests.helpers as helpers
+import ckan.new_tests.factories as factories
+
+assert_equals = nose.tools.assert_equals
+assert_raises = nose.tools.assert_raises
+
+
+class TestDatastoreSearchNewTest(object):
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('datastore')
+        helpers.reset_db()
+
+    def test_fts_on_field_calculates_ranks_only_on_that_specific_field(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'from': 'Brazil', 'to': 'Brazil'},
+                {'from': 'Brazil', 'to': 'Italy'}
+            ],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        search_data = {
+            'resource_id': resource['id'],
+            'fields': 'from',
+            'q': {
+                'from': 'Brazil'
+            },
+        }
+        result = helpers.call_action('datastore_search', **search_data)
+        ranks = [r['rank from'] for r in result['records']]
+        assert_equals(len(result['records']), 2)
+        assert_equals(len(set(ranks)), 1)
+
 
 class TestDatastoreSearch(tests.WsgiAppCase):
     sysadmin_user = None
@@ -193,6 +233,20 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['records'] == [{u'b\xfck': 'annakarenina', 'author': 'tolstoy'},
                     {u'b\xfck': 'warandpeace', 'author': 'tolstoy'}], result['records']
 
+    def test_search_distinct(self):
+        data = {'resource_id': self.data['resource_id'],
+                'fields': [u'author'],
+                'distinct': True}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 2
+        assert result['records'] == [{u'author': 'tolstoy'}], result['records']
+
     def test_search_filters(self):
         data = {'resource_id': self.data['resource_id'],
                 'filters': {u'b\xfck': 'annakarenina'}}
@@ -206,7 +260,7 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert result['total'] == 1
         assert result['records'] == [self.expected_records[0]]
 
-    def test_search_array_filters(self):
+    def test_search_filter_array_field(self):
         data = {'resource_id': self.data['resource_id'],
                 'filters': {u'characters': [u'Princess Anna', u'Sergius']}}
         postparams = '%s=1' % json.dumps(data)
@@ -217,7 +271,35 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         assert res_dict['success'] is True
         result = res_dict['result']
         assert result['total'] == 1
-        assert result['records'] == [self.expected_records[0]]
+        assert_equals(result['records'], [self.expected_records[0]])
+
+    def test_search_multiple_filters_on_same_field(self):
+        data = {'resource_id': self.data['resource_id'],
+                'filters': {
+                    u'b\xfck': [u'annakarenina', u'warandpeace']
+                }}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 2
+        assert_equals(result['records'], self.expected_records)
+
+    def test_search_filter_normal_field_passing_multiple_values_in_array(self):
+        data = {'resource_id': self.data['resource_id'],
+                'filters': {u'b\xfck': [u'annakarenina', u'warandpeace']}}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        result = res_dict['result']
+        assert result['total'] == 2
+        assert result['records'] == self.expected_records, result['records']
 
     def test_search_filters_get(self):
         filters = {u'b\xfck': 'annakarenina'}
@@ -231,8 +313,8 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     def test_search_invalid_filter(self):
         data = {'resource_id': self.data['resource_id'],
-                # invalid because author is not an array
-                'filters': {u'author': [u'tolstoy']}}
+                # invalid because author is not a numeric field
+                'filters': {u'author': 42}}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
@@ -275,7 +357,9 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                             extra_environ=auth, status=409)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
-        assert res_dict['error']['sort'][0] == u'field "f\xfc\xfc" not in table'
+        error_msg = res_dict['error']['sort'][0]
+        assert u'f\xfc\xfc' in error_msg, \
+            'Expected "{0}" to contain "{1}"'.format(error_msg, u'f\xfc\xfc')
 
     def test_search_limit(self):
         data = {'resource_id': self.data['resource_id'],
@@ -405,6 +489,60 @@ class TestDatastoreSearch(tests.WsgiAppCase):
         for field in expected_fields:
             assert field in result['fields'], field
 
+    def test_search_full_text_on_specific_column(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': {u"b\xfck": "annakarenina"}
+                }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        assert_equals(len(res_dict['result']['records']), 1)
+        assert_equals(res_dict['result']['records'][0]['_id'],
+                      self.expected_records[0]['_id'])
+
+    def test_search_full_text_on_specific_column_even_if_q_is_a_json_string(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': u'{"b\xfck": "annakarenina"}'
+                }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True
+        assert_equals(len(res_dict['result']['records']), 1)
+        assert_equals(res_dict['result']['records'][0]['_id'],
+                      self.expected_records[0]['_id'])
+
+    def test_search_full_text_invalid_field_name(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': {'invalid_field_name': 'value'}
+                }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
+    def test_search_full_text_invalid_field_value(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': {'author': ['invalid', 'value']}
+                }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+
     def test_search_table_metadata(self):
         data = {'resource_id': "_table_metadata"}
         postparams = '%s=1' % json.dumps(data)
@@ -413,6 +551,49 @@ class TestDatastoreSearch(tests.WsgiAppCase):
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
+
+    def test_search_is_unsuccessful_when_called_with_filters_not_as_dict(self):
+        data = {
+            'resource_id': self.data['resource_id'],
+            'filters': 'the-filter'
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error'].get('filters') is not None, res_dict['error']
+
+    def test_search_is_unsuccessful_when_called_with_invalid_filters(self):
+        data = {
+            'resource_id': self.data['resource_id'],
+            'filters': {
+                'invalid-column-name': 'value'
+            }
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error'].get('filters') is not None, res_dict['error']
+
+    def test_search_is_unsuccessful_when_called_with_invalid_fields(self):
+        data = {
+            'resource_id': self.data['resource_id'],
+            'fields': [
+                'invalid-column-name'
+            ]
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error'].get('fields') is not None, res_dict['error']
 
 
 class TestDatastoreFullTextSearch(tests.WsgiAppCase):
@@ -551,21 +732,14 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
 
-    def test_is_single_statement(self):
-        singles = ['SELECT * FROM footable',
-            'SELECT * FROM "bartable"',
-            'SELECT * FROM "bartable";',
-            "select 'foo'||chr(59)||'bar'"]
+    def test_validates_sql_has_a_single_statement(self):
+        sql = 'SELECT * FROM public."{0}"; SELECT * FROM public."{0}";'.format(self.data['resource_id'])
+        assert_raises(p.toolkit.ValidationError,
+                      helpers.call_action, 'datastore_search_sql', sql=sql)
 
-        for single in singles:
-            assert db._is_single_statement(single) is True
-
-        multiples = ['SELECT * FROM abc; SET LOCAL statement_timeout to'
-            'SET LOCAL statement_timeout to; SELECT * FROM abc',
-            'SELECT * FROM "foo"; SELECT * FROM "abc"']
-
-        for multiple in multiples:
-            assert db._is_single_statement(multiple) is False
+    def test_works_with_semicolons_inside_strings(self):
+        sql = 'SELECT * FROM public."{0}" WHERE "author" = \'foo; bar\''.format(self.data['resource_id'])
+        helpers.call_action('datastore_search_sql', sql=sql)
 
     def test_invalid_statement(self):
         query = 'SELECT ** FROM foobar'
@@ -771,3 +945,23 @@ class TestDatastoreSQL(tests.WsgiAppCase):
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
+
+    def test_not_authorized_to_access_system_tables(self):
+        test_cases = [
+            'SELECT * FROM pg_roles',
+            'SELECT * FROM pg_catalog.pg_database',
+            'SELECT rolpassword FROM pg_roles',
+            '''SELECT p.rolpassword
+               FROM pg_roles p
+               JOIN "{0}" r
+               ON p.rolpassword = r.author'''.format(self.data['resource_id']),
+        ]
+        for query in test_cases:
+            data = {'sql': query.replace('\n', '')}
+            postparams = json.dumps(data)
+            res = self.app.post('/api/action/datastore_search_sql',
+                                params=postparams,
+                                status=403)
+            res_dict = json.loads(res.body)
+            assert res_dict['success'] is False
+            assert res_dict['error']['__type'] == 'Authorization Error'
