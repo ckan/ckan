@@ -171,6 +171,7 @@ def _execute_with_revision(q, rev_table, context):
     elif pending:
         q = q.where(rev_table.c.expired_timestamp == datetime.datetime(9999, 12, 31))
     else:
+        # TODO: Use the most recent timestamp.
         q = q.where(rev_table.c.current == True)
 
     return session.execute(q)

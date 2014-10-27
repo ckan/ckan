@@ -89,7 +89,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             return []
 
         assert len(self.resource_groups_all) == 1, "can only use resources on packages if there is only one resource_group"
-        return [resource for resource in 
+        return [resource for resource in
                 self.resource_groups_all[0].resources_all
                 if resource.state <> 'deleted']
 
@@ -156,12 +156,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         """
         import ckan.model as model
         query = meta.Session.query(model.Tag)
-        query = query.join(PackageTagRevision)
-        query = query.filter(PackageTagRevision.tag_id == model.Tag.id)
-        query = query.filter(PackageTagRevision.package_id == self.id)
-        query = query.filter(and_(
-            PackageTagRevision.state == 'active',
-            PackageTagRevision.current == True))
+        query = query.join(PackageTag)
+        query = query.filter(PackageTag.tag_id == model.Tag.id)
+        query = query.filter(PackageTag.package_id == self.id)
+        query = query.filter(PackageTag.state == 'active')
         if vocab:
             query = query.filter(model.Tag.vocabulary_id == vocab.id)
         else:

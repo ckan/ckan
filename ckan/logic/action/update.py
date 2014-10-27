@@ -37,7 +37,10 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 def _make_latest_rev_active(context, q):
-
+    """
+    This still happens, but we don't really care that it happens as we are
+    ignoring the current flag.
+    """
     session = context['model'].Session
 
     old_current = q.filter_by(current=True).first()
@@ -347,7 +350,7 @@ def package_update(context, data_dict):
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
-    
+
     It is recommended to call
     :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
     the result, and then call ``package_update()`` with it.
@@ -869,7 +872,7 @@ def task_status_update_many(context, data_dict):
     '''Update many task statuses at once.
 
     :param data: the task_status dictionaries to update, for the format of task
-        status dictionaries see 
+        status dictionaries see
         :py:func:`~task_status_update`
     :type data: list of dictionaries
 
@@ -1290,10 +1293,9 @@ def _bulk_update_dataset(context, data_dict, update_dict):
         .update(update_dict, synchronize_session=False)
 
     # revisions
-    model.Session.query(model.package_revision_table) \
-        .filter(model.PackageRevision.id.in_(datasets)) \
-        .filter(model.PackageRevision.owner_org == org_id) \
-        .filter(model.PackageRevision.current == True) \
+    model.Session.query(model.package_table) \
+        .filter(model.Package.id.in_(datasets)) \
+        .filter(model.Package.owner_org == org_id) \
         .update(update_dict, synchronize_session=False)
 
     model.Session.commit()
