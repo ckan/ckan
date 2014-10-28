@@ -1066,24 +1066,6 @@ class PackageController(base.BaseController):
             abort(404, _('Resource not found'))
         return render('package/confirm_delete_resource.html')
 
-    def autocomplete(self):
-        '''Deprecated in favour of /api/2/util/dataset/autocomplete'''
-        q = unicode(request.params.get('q', ''))
-        if not len(q):
-            return ''
-
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
-
-        data_dict = {'q': q}
-        packages = get_action('package_autocomplete')(context, data_dict)
-
-        pkg_list = []
-        for pkg in packages:
-            pkg_list.append('%s|%s' % (pkg['match_displayed'].
-                                       replace('|', ' '), pkg['name']))
-        return '\n'.join(pkg_list)
-
     def _render_edit_form(self, fs, params={}, clear_session=False):
         # errors arrive in c.error and fs.errors
         c.log_message = params.get('log_message', '')
