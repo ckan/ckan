@@ -515,6 +515,34 @@ Default value: ``None``
 List of the extra resource fields that would be used when searching.
 
 
+CORS Settings
+-------------
+
+Cross-Origin Resource Sharing (CORS) can be enabled and controlled with the following settings:
+
+.. _ckan.cors.origin_allow_all:
+
+ckan.cors.origin_allow_all
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.cors.origin_allow_all = True
+
+This setting must be present to enable CORS. If True, all origins will be allowed (the response header Access-Control-Allow-Origin is set to '*'). If False, only origins from the ``ckan.cors.origin_whitelist`` setting will be allowed.
+
+.. _ckan.cors.origin_whitelist:
+
+ckan.cors.origin_whitelist
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.cors.origin_whitelist = http://www.myremotedomain1.com http://myremotedomain1.com
+
+A space separated list of allowable origins. This setting is used when ``ckan.cors.origin_allow_all = False``.
+
+
 Plugins Settings
 ----------------
 
