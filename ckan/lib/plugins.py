@@ -175,14 +175,13 @@ def register_group_plugins(map):
         _default_group_plugin = DefaultGroupForm()
 
 
-def plugin_validate(plugin, context, data_dict, schema, action, thing_type):
+def plugin_validate(plugin, context, data_dict, schema, action):
     """
     Backwards compatibility with 2.x dataset group and org plugins:
     return a default validate method if one has not been provided.
     """
     if hasattr(plugin, 'validate'):
-        result = plugin.validate(
-            context, data_dict, schema, action, thing_type)
+        result = plugin.validate(context, data_dict, schema, action)
         if result is not None:
             return result
 

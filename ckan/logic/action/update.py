@@ -377,6 +377,7 @@ def package_update(context, data_dict):
         raise NotFound(_('Package was not found.'))
     context["package"] = pkg
     data_dict["id"] = pkg.id
+    data_dict['type'] = pkg.type
 
     _check_access('package_update', context, data_dict)
 
@@ -401,8 +402,7 @@ def package_update(context, data_dict):
                 package_plugin.check_data_dict(data_dict)
 
     data, errors = lib_plugins.plugin_validate(
-        package_plugin, context, data_dict, schema,
-        'package_update', pkg.type)
+        package_plugin, context, data_dict, schema, 'package_update')
     log.debug('package_update validate_errs=%r user=%s package=%s data=%r',
               errors, context.get('user'),
               context.get('package').name if context.get('package') else '',
@@ -578,6 +578,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
     if group is None:
         raise NotFound('Group was not found.')
 
+    data_dict['type'] = group.type
+
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)
     try:
@@ -606,7 +608,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
 
     data, errors = lib_plugins.plugin_validate(
         group_plugin, context, data_dict, schema,
-        'organization_update' if is_org else 'group_update', group.type)
+        'organization_update' if is_org else 'group_update')
     log.debug('group_update validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'),
               context.get('group').name if context.get('group') else '',
