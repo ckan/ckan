@@ -46,7 +46,7 @@ def _make_latest_rev_active(context, q):
 
     latest_rev = q.filter_by(expired_timestamp=datetime.datetime(9999, 12, 31)).one()
     latest_rev.current = True
-    if latest_rev.state in ('pending-deleted', 'deleted'):
+    if latest_rev.state in ('deleted'):
         latest_rev.state = 'deleted'
         latest_rev.continuity.state = 'deleted'
     else:

@@ -731,8 +731,7 @@ class PackageController(base.BaseController):
         package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
-                   'save': 'save' in request.params,
-                   'pending': True}
+                   'save': 'save' in request.params}
 
         if context['save'] and not data:
             return self._save_edit(id, context, package_type=package_type)

@@ -156,7 +156,6 @@ def _execute_with_revision(q, rev_table, context):
     session = model.Session
     revision_id = context.get('revision_id')
     revision_date = context.get('revision_date')
-    pending = context.get('pending')
 
     if revision_id:
         revision = session.query(context['model'].Revision).filter_by(

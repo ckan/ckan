@@ -433,8 +433,7 @@ class TestBasicDictize:
         """
         context = {'model': model,
                    'session': model.Session,
-                   "user": 'testsysadmin',
-                   'pending': True}
+                   "user": 'testsysadmin'}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed').one()
 
