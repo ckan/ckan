@@ -97,7 +97,7 @@ def extras_list_dictize(extras_list, context):
     active = context.get('active', True)
     for extra in extras_list:
         dictized = d.table_dictize(extra, context)
-        if active and extra.state not in ('active', 'pending'):
+        if active and extra.state not in ('active'):
             continue
         value = dictized["value"]
         result_list.append(dictized)
@@ -141,7 +141,7 @@ def _execute_with_revision(q, rev_table, context):
     'current' object revision (latest which has been moderated) and
     returns that.
 
-    But you can provide revision_id, revision_date or pending in the
+    But you can provide revision_id or revision_date in the
     context and it will filter to an earlier time or the latest unmoderated
     object revision.
 
@@ -168,8 +168,6 @@ def _execute_with_revision(q, rev_table, context):
     if revision_date:
         q = q.where(rev_table.c.revision_timestamp <= revision_date)
         q = q.where(rev_table.c.expired_timestamp > revision_date)
-    elif pending:
-        q = q.where(rev_table.c.expired_timestamp == datetime.datetime(9999, 12, 31))
     else:
         # TODO: Use the most recent timestamp.
         q = q.where(rev_table.c.current == True)

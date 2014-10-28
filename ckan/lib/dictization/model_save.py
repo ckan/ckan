@@ -49,11 +49,7 @@ def resource_dict_save(res_dict, context):
     for delete_me in extras_to_delete:
         del obj.extras[delete_me]
 
-    if context.get('pending'):
-        if session.is_modified(obj, include_collections=False, passive=True):
-            obj.state = u'pending'
-    else:
-        obj.state = u'active'
+    obj.state = u'active'
 
     session.add(obj)
     return obj
@@ -62,8 +58,6 @@ def package_resource_list_save(res_dicts, package, context):
     allow_partial_update = context.get("allow_partial_update", False)
     if res_dicts is None and allow_partial_update:
         return
-
-    pending = context.get('pending')
 
     resource_list = package.resource_groups_all[0].resources_all
     old_list = package.resource_groups_all[0].resources_all[:]
@@ -76,10 +70,7 @@ def package_resource_list_save(res_dicts, package, context):
     resource_list[:] = obj_list
 
     for resource in set(old_list) - set(obj_list):
-        if pending and resource.state != 'deleted':
-            resource.state = 'pending-deleted'
-        else:
-            resource.state = 'deleted'
+        resource.state = 'deleted'
         resource_list.append(resource)
 
 
@@ -105,17 +96,16 @@ def package_extras_save(extra_dicts, obj, context):
             new_extras[extra_dict["key"]] = extra_dict["value"]
     #new
     for key in set(new_extras.keys()) - set(old_extras.keys()):
-        state = 'pending' if context.get('pending') else 'active'
+        state = 'active'
         extra = model.PackageExtra(state=state, key=key, value=new_extras[key])
         session.add(extra)
         extras_list.append(extra)
     #changed
     for key in set(new_extras.keys()) & set(old_extras.keys()):
         extra = old_extras[key]
-        #dont change state to pending if nothing has changed
         if new_extras[key] == extra.value and extra.state != 'deleted':
             continue
-        state = 'pending' if context.get('pending') else 'active'
+        state = 'active'
         extra.value = new_extras[key]
         extra.state = state
         session.add(extra)
@@ -124,7 +114,7 @@ def package_extras_save(extra_dicts, obj, context):
         extra = old_extras[key]
         if extra.state == 'deleted':
             continue
-        state = 'pending-deleted' if context.get('pending') else 'deleted'
+        state = 'deleted'
         extra.state = state
 
 def group_extras_save(extras_dicts, context):
@@ -147,7 +137,6 @@ def package_tag_list_save(tag_dicts, package, context):
 
     model = context["model"]
     session = context["session"]
-    pending = context.get('pending')
 
     tag_package_tag = dict((package_tag.tag, package_tag)
                             for package_tag in
@@ -155,7 +144,7 @@ def package_tag_list_save(tag_dicts, package, context):
 
     tag_package_tag_inactive = dict(
         [ (tag,pt) for tag,pt in tag_package_tag.items() if
-            pt.state in ['deleted', 'pending-deleted'] ]
+            pt.state in ['deleted'] ]
         )
 
     tag_name_vocab = set()
@@ -170,21 +159,18 @@ def package_tag_list_save(tag_dicts, package, context):
     # case 1: currently active but not in new list
     for tag in set(tag_package_tag.keys()) - tags:
         package_tag = tag_package_tag[tag]
-        if pending and package_tag.state != 'deleted':
-            package_tag.state = 'pending-deleted'
-        else:
-            package_tag.state = 'deleted'
+        package_tag.state = 'deleted'
 
     # case 2: in new list but never used before
     for tag in tags - set(tag_package_tag.keys()):
-        state = 'pending' if pending else 'active'
+        state = 'active'
         package_tag_obj = model.PackageTag(package, tag, state)
         session.add(package_tag_obj)
         tag_package_tag[tag] = package_tag_obj
 
     # case 3: in new list and already used but in deleted state
     for tag in tags.intersection(set(tag_package_tag_inactive.keys())):
-        state = 'pending' if pending else 'active'
+        state = 'active'
         package_tag = tag_package_tag[tag]
         package_tag.state = state
 
@@ -199,7 +185,6 @@ def package_membership_list_save(group_dicts, package, context):
     capacity = 'public'
     model = context["model"]
     session = context["session"]
-    pending = context.get('pending')
     user = context.get('user')
 
     members = session.query(model.Member) \
@@ -266,7 +251,6 @@ def relationship_list_save(relationship_dicts, package, attr, context):
 
     model = context["model"]
     session = context["session"]
-    pending = context.get('pending')
 
     relationship_list = getattr(package, attr)
     old_list = relationship_list[:]
@@ -280,10 +264,7 @@ def relationship_list_save(relationship_dicts, package, attr, context):
     relationship_list[:] = relationships
 
     for relationship in set(old_list) - set(relationship_list):
-        if pending and relationship.state <> 'deleted':
-            relationship.state = 'pending-deleted'
-        else:
-            relationship.state = 'deleted'
+        relationship.state = 'deleted'
         relationship_list.append(relationship)
 
 def package_dict_save(pkg_dict, context):

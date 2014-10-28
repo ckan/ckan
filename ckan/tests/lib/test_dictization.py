@@ -428,7 +428,9 @@ class TestBasicDictize:
         assert "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 
     def test_10_package_alter_pending(self):
-
+        """
+        This test still exists as following tests depend on data it creates
+        """
         context = {'model': model,
                    'session': model.Session,
                    "user": 'testsysadmin',
@@ -449,83 +451,15 @@ class TestBasicDictize:
         model.Session.commit()
         model.Session.remove()
 
-        pkgrevisions = model.Session.query(model.PackageRevision).filter_by(id=anna1.id).all()
-
-        sorted_packages = sorted(pkgrevisions, key=lambda x:x.revision_timestamp)[::-1]
-
-        assert len(sorted_packages) == 3
-        assert sorted_packages[0].state == 'pending'
-        assert sorted_packages[1].state == 'active'
-        assert sorted_packages[1].current
-        assert sorted_packages[2].state == 'active'
-
-        assert str(sorted_packages[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_packages[1].expired_timestamp) != '9999-12-31 00:00:00'
-        assert str(sorted_packages[2].expired_timestamp) != '9999-12-31 00:00:00'
-
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
-        sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
-
-        for pkg in sorted_resources:
-            print pkg.url, pkg.id, pkg.revision_timestamp, pkg.expired_timestamp, pkg.state, pkg.current
-
-        assert len(sorted_resources) == 4
-        assert sorted_resources[0].state == 'pending'
-        assert sorted_resources[1].state == 'active'
-        assert sorted_resources[1].current
-        assert sorted_resources[2].state == 'active'
-        assert sorted_resources[2].current
-        assert sorted_resources[3].state == 'active'
-
-        assert str(sorted_resources[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_resources[1].expired_timestamp) != '9999-12-31 00:00:00'
-        assert str(sorted_resources[2].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_resources[3].expired_timestamp) != '9999-12-31 00:00:00'
-
-        tag_revisions = model.Session.query(model.PackageTagRevision).filter_by(package_id=anna1.id).all()
-
-        sorted_tags = sorted(tag_revisions, key=lambda x: (x.revision_timestamp, x.tag.name))[::-1]
-
-        print [(tag.state, tag.tag.name) for tag in sorted_tags]
-
-        assert len(sorted_tags) == 5, len(sorted_tags)
-        assert sorted_tags[0].state == 'pending'            # new_tag
-        assert sorted_tags[1].state == 'pending-deleted'    # Flexible
-        assert sorted_tags[2].state == 'active'             # tolstoy
-        assert sorted_tags[3].state == 'active'             # russian
-        assert sorted_tags[4].state == 'active'             # Flexible
-        assert sorted_tags[2].current
-        assert sorted_tags[3].current
-        assert sorted_tags[4].current
-
-        assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[1].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[2].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[3].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[4].expired_timestamp) != '9999-12-31 00:00:00'
-
-        extras_revisions = model.Session.query(model.PackageExtra).filter_by(package_id=anna1.id).all()
-
-        sorted_extras = sorted(extras_revisions,
-                               key=lambda x: (x.revision_timestamp, x.key))[::-1]
-
-        assert sorted_extras[0].state == 'pending'
-        assert sorted_resources[1].current
-        assert sorted_extras[1].state == 'active'
-        assert sorted_resources[1].current
-        assert sorted_extras[2].state == 'active'
-
-        assert str(sorted_extras[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_extras[1].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_extras[2].expired_timestamp) != '9999-12-31 00:00:00'
-
 
     def test_11_add_pending(self):
+        """
+        This test still exists as following tests depend on data it creates
+        """
 
         context = {'model': model,
                    'session': model.Session,
-                   "user": 'testsysadmin',
-                   'pending': True}
+                   "user": 'testsysadmin'}
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
         anna_dictized = package_dictize(anna1, context)
@@ -545,72 +479,10 @@ class TestBasicDictize:
         model.Session.commit()
         model.Session.remove()
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
-
-        sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
-        pprint(anna_dictized['resources'])
-
-        for pkg in sorted_resources:
-            print pkg.url, pkg.id, pkg.revision_timestamp, pkg.expired_timestamp, pkg.state, pkg.current
-
-
-        assert len(sorted_resources) == 5, len(sorted_resources)
-        assert sorted_resources[0].state == 'pending'
-        assert sorted_resources[1].state == 'pending'
-        assert sorted_resources[2].current
-        assert sorted_resources[2].state == 'active'
-        assert sorted_resources[3].current
-        assert sorted_resources[3].state == 'active'
-        assert sorted_resources[4].state == 'active'
-
-        assert str(sorted_resources[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_resources[1].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_resources[2].expired_timestamp) != '9999-12-31 00:00:00'
-        assert str(sorted_resources[3].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_resources[4].expired_timestamp) != '9999-12-31 00:00:00'
-
-        tag_revisions = model.Session.query(model.PackageTagRevision).filter_by(package_id=anna1.id).all()
-
-        sorted_tags = sorted(tag_revisions, key=lambda x: (x.revision_timestamp, x.tag.name))[::-1]
-
-        print [(tag.state, tag.tag.name) for tag in sorted_tags]
-
-        assert len(sorted_tags) == 6, len(sorted_tags)
-        assert sorted_tags[0].state == 'pending'            # newnew_tag
-        assert sorted_tags[1].state == 'pending'            # new_tag
-        assert sorted_tags[2].state == 'pending-deleted'    # Flexible
-        assert sorted_tags[3].state == 'active'             # tolstoy
-        assert sorted_tags[4].state == 'active'             # russian
-        assert sorted_tags[5].state == 'active'             # Flexible
-        assert sorted_tags[3].current
-        assert sorted_tags[4].current
-        assert sorted_tags[5].current
-
-        assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[1].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[2].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[3].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[4].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[5].expired_timestamp) != '9999-12-31 00:00:00'
-
-        extras_revisions = model.Session.query(model.PackageExtra).filter_by(package_id=anna1.id).all()
-
-        sorted_extras = sorted(extras_revisions,
-                               key=lambda x: (x.revision_timestamp, x.key))[::-1]
-
-        print [(extra.state, extra.key, extra.value) for extra in sorted_extras]
-
-        assert sorted_extras[0].state == 'pending'
-        assert sorted_extras[1].state == 'pending'
-        assert sorted_extras[2].state == 'active'
-        assert sorted_extras[3].state == 'active'
-
-        assert str(sorted_extras[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_extras[1].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_extras[2].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_extras[3].expired_timestamp) != '9999-12-31 00:00:00'
-
     def test_12_make_active(self):
+        """
+        This test still exists as following tests depend on data it creates
+        """
 
         model.repo.new_revision()
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
@@ -620,79 +492,7 @@ class TestBasicDictize:
 
         make_latest_pending_package_active(context, {'id': anna1.id})
 
-        pkgrevisions = model.Session.query(model.PackageRevision).filter_by(id=anna1.id).all()
-        sorted_packages = sorted(pkgrevisions, key=lambda x:x.revision_timestamp)[::-1]
 
-        assert len(sorted_packages) == 4
-        assert sorted_packages[0].state == 'active', sorted_packages[0].state #was pending
-        assert sorted_packages[0].current == True
-
-        assert sorted_packages[1].state == 'pending'
-        assert sorted_packages[2].state == 'active'
-        assert sorted_packages[3].state == 'active'
-
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
-        sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
-
-        assert len(sorted_resources) == 5
-        for res in sorted_resources:
-            print res.id, res.revision_timestamp, res.expired_timestamp, res.state
-        assert sorted_resources[0].state == 'active'
-        assert sorted_resources[0].current == True
-        assert sorted_resources[1].state == 'active'
-        assert sorted_resources[1].current == True
-        assert sorted_resources[2].state == 'active'
-        assert sorted_resources[3].state == 'active'
-        assert sorted_resources[3].current == True
-        assert sorted_resources[4].state == 'active'
-
-        assert str(sorted_resources[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_resources[1].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_resources[2].expired_timestamp) != '9999-12-31 00:00:00'
-        assert str(sorted_resources[3].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_resources[4].expired_timestamp) != '9999-12-31 00:00:00'
-
-        tag_revisions = model.Session.query(model.PackageTagRevision).filter_by(package_id=anna1.id).all()
-
-        sorted_tags = sorted(tag_revisions, key=lambda x: (x.revision_timestamp, x.tag.name))[::-1]
-
-        print [(tag.state, tag.tag.name) for tag in sorted_tags]
-
-        assert len(sorted_tags) == 6, len(sorted_tags)
-        assert sorted_tags[0].state == 'active'     # newnew_tag
-        assert sorted_tags[1].state == 'active'     # new_tag
-        assert sorted_tags[2].state == 'deleted'    # Flexible
-        assert sorted_tags[3].state == 'active'     # tolstoy
-        assert sorted_tags[4].state == 'active'     # russian
-        assert sorted_tags[5].state == 'active'     # Flexible
-        assert sorted_tags[0].current
-        assert sorted_tags[1].current
-        assert sorted_tags[2].current
-        assert not sorted_tags[5].current
-
-        assert str(sorted_tags[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[1].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[2].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[3].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[4].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_tags[5].expired_timestamp) != '9999-12-31 00:00:00'
-
-        extras_revisions = model.Session.query(model.PackageExtra).filter_by(package_id=anna1.id).all()
-
-        sorted_extras = sorted(extras_revisions,
-                               key=lambda x: (x.revision_timestamp, x.key))[::-1]
-
-        print [(extra.state, extra.key, extra.value) for extra in sorted_extras]
-
-        assert sorted_extras[0].state == 'active'
-        assert sorted_extras[1].state == 'active'
-        assert sorted_extras[2].state == 'active'
-        assert sorted_extras[3].state == 'active'
-
-        assert str(sorted_extras[0].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_extras[1].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_extras[2].expired_timestamp) == '9999-12-31 00:00:00'
-        assert str(sorted_extras[3].expired_timestamp) != '9999-12-31 00:00:00'
 
     def test_13_get_package_in_past(self):
 
@@ -726,7 +526,7 @@ class TestBasicDictize:
         second_dictized['tags'][0]['name'] = u'new_tag'
         second_dictized['tags'][0]['display_name'] = u'new_tag'
         second_dictized['extras'][0]['value'] = u'new_value'
-        second_dictized['state'] = 'pending'
+        second_dictized['state'] = 'active'
 
         print '\n'.join(unified_diff(pformat(second_dictized).split('\n'), pformat(third_dictized).split('\n')))
         assert second_dictized == third_dictized

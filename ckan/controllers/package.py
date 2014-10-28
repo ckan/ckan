@@ -732,7 +732,6 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'save': 'save' in request.params,
-                   'moderated': config.get('moderated'),
                    'pending': True}
 
         if context['save'] and not data:
@@ -958,8 +957,6 @@ class PackageController(base.BaseController):
                 del data_dict['_ckan_phase']
                 del data_dict['save']
             context['message'] = data_dict.get('log_message', '')
-            if not context['moderated']:
-                context['pending'] = False
             data_dict['id'] = name_or_id
             pkg = get_action('package_update')(context, data_dict)
             if request.params.get('save', '') == 'Approve':

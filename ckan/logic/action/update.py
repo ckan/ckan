@@ -37,10 +37,6 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 def _make_latest_rev_active(context, q):
-    """
-    This still happens, but we don't really care that it happens as we are
-    ignoring the current flag.
-    """
     session = context['model'].Session
 
     old_current = q.filter_by(current=True).first()
