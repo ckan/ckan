@@ -78,6 +78,15 @@ ckan.site_id = default
 #ckan.simple_search = 1
 
 
+## CORS Settings
+
+# If cors.origin_allow_all is true, all origins are allowed.
+# If false, the cors.origin_whitelist is used.
+# ckan.cors.origin_allow_all = true
+# cors.origin_whitelist is a space separated list of allowed domains.
+# ckan.cors.origin_whitelist = http://example1.com http://example2.com
+
+
 ## Plugins Settings
 
 # Note: Add ``datastore`` to enable the CKAN DataStore
