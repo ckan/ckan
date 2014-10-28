@@ -126,7 +126,7 @@ class CkanCommand(paste.script.command.Command):
             self.filename = 'development.ini'
 
         if not os.path.exists(self.filename):
-            msg = 'No config file supplied or found in $CKAN_INI'
+            msg = 'No config file found and not specified in $CKAN_INI'
             raise self.BadCommand(msg)
 
         fileConfig(self.filename)
