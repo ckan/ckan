@@ -46,15 +46,13 @@
         <td>{{ _('Never') }}</td>
       {% endif %}
     </tr>
-    {% if status.task_info and status.task_info.error %}
+    {% if status.task_info and status.task_info.error and status.task_info.error.response %}
       {% for error_key, error_value in status.task_info.error.response.error.iteritems() %}
         <tr>
           <th>Error {{ error_key }}</th>
           <td>{{ error_value }}</td>
         </tr>
       {% endfor %}
-    {% endif %}
-    {% if status.task_info.error.response %}
     <tr class="toggle-more">
       <th>{{ _('Error Raw Response') }}</th>
       <td>{{ status.task_info.error.response }}</td>
