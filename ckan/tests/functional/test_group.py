@@ -313,29 +313,6 @@ Ho ho ho
         # now look at datasets
         assert len(group.packages()) == 3
 
-    def test_3_edit_form_has_new_package(self):
-        # check for dataset in autocomplete
-        offset = url_for(controller='package', action='autocomplete', q='an')
-        res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'testsysadmin'})
-        assert 'annakarenina' in res, res
-        assert not 'newone' in res, res
-        model.repo.new_revision()
-        pkg = model.Package(name=u'anewone')
-        model.Session.add(pkg)
-        model.repo.commit_and_remove()
-
-        model.repo.new_revision()
-        pkg = model.Package.by_name(u'anewone')
-        user = model.User.by_name(u'testsysadmin')
-        model.setup_default_user_roles(pkg, [user])
-        model.repo.commit_and_remove()
-
-        res = self.app.get(offset, status=200,
-                           extra_environ={'REMOTE_USER': 'testsysadmin'})
-        assert 'annakarenina' in res, res
-        assert 'newone' in res
-
     def test_4_new_duplicate_package(self):
         prefix = ''
 
