@@ -1,4 +1,5 @@
 """Pylons middleware initialization"""
+import math
 import urllib
 import urllib2
 import logging
@@ -195,6 +196,8 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 def ckan_auth_tkt_make_app(**kw):
     if not len(kw.get('secret', '')) or kw.get('secret') == 'somesecret':
         kw['secret'] = config['beaker.session.secret']
+    if kw.get('timeout') and not kw.get('reissue_time'):
+        kw['reissue_time'] = int(math.ceil(int(kw.get('timeout')) * 0.1))
     return auth_tkt_make_plugin(**kw)
 
 
