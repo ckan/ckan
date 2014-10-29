@@ -40,6 +40,7 @@ entry_points = {
         'datastore = ckanext.datastore.commands:SetupDatastoreCommand',
         'front-end-build = ckan.lib.cli:FrontEndBuildCommand',
         'views = ckan.lib.cli:ViewsCommand',
+        'config-tool = ckan.lib.cli:ConfigToolCommand',
     ],
     'console_scripts': [
         'ckan-admin = bin.ckan_admin:Command',
@@ -120,8 +121,8 @@ entry_points = {
         'example_theme_v20_pubsub = ckanext.example_theme.v20_pubsub.plugin:ExampleThemePlugin',
         'example_theme_v21_custom_jquery_plugin = ckanext.example_theme.v21_custom_jquery_plugin.plugin:ExampleThemePlugin',
         'example_theme_custom_config_setting = ckanext.example_theme.custom_config_setting.plugin:ExampleThemePlugin',
-        'example_ivalidators = ckanext.example_ivalidators_iconverters.plugin:ExampleIValidatorsPlugin',
-        'example_iconverters = ckanext.example_ivalidators_iconverters.plugin:ExampleIConvertersPlugin',
+        'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',
+        'example_ivalidators = ckanext.example_ivalidators.plugin:ExampleIValidatorsPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',

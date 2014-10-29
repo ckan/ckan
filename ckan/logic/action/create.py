@@ -268,6 +268,9 @@ def resource_create(context, data_dict):
 
     _check_access('resource_create', context, data_dict)
 
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.before_create(context, data_dict)
+
     if not 'resources' in pkg_dict:
         pkg_dict['resources'] = []
 
@@ -293,6 +296,9 @@ def resource_create(context, data_dict):
     ##  Run package show again to get out actual last_resource
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = pkg_dict['resources'][-1]
+
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.after_create(context, resource)
 
     return resource
 
@@ -576,8 +582,8 @@ def _group_or_org_create(context, data_dict, is_org=False):
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
     # get the schema
-    group_plugin = lib_plugins.lookup_group_plugin(
-        group_type=data_dict.get('type'))
+    group_type = data_dict.get('type')
+    group_plugin = lib_plugins.lookup_group_plugin(group_type)
     try:
         schema = group_plugin.form_to_db_schema_options({
             'type': 'create', 'api': 'api_version' in context,
@@ -1320,7 +1326,8 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
         'session': session,
         'ignore_auth': context.get('ignore_auth'),
     }
-    logic.get_action('member_create')(member_create_context, member_dict)
+    return logic.get_action('member_create')(member_create_context,
+                                             member_dict)
 
 
 def group_member_create(context, data_dict):

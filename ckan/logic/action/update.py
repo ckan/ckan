@@ -225,6 +225,9 @@ def resource_update(context, data_dict):
         logging.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.before_update(context, pkg_dict['resources'][n], data_dict)
+
     upload = uploader.ResourceUpload(data_dict)
 
     pkg_dict['resources'][n] = data_dict
@@ -240,7 +243,13 @@ def resource_update(context, data_dict):
 
     upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
-    return _get_action('resource_show')(context, {'id': id})
+
+    resource = _get_action('resource_show')(context, {'id': id})
+
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.after_update(context, resource)
+
+    return resource
 
 
 def resource_view_update(context, data_dict):
@@ -368,6 +377,7 @@ def package_update(context, data_dict):
         raise NotFound(_('Package was not found.'))
     context["package"] = pkg
     data_dict["id"] = pkg.id
+    data_dict['type'] = pkg.type
 
     _check_access('package_update', context, data_dict)
 
@@ -567,6 +577,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
     context["group"] = group
     if group is None:
         raise NotFound('Group was not found.')
+
+    data_dict['type'] = group.type
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)

@@ -354,7 +354,7 @@ def group_dictize(group, context,
     context['with_capacity'] = True
 
     if packages_field:
-        def get_packages_for_this_group(group_):
+        def get_packages_for_this_group(group_, just_the_count=False):
             # Ask SOLR for the list of packages for this org/group
             q = {
                 'facet': 'false',
@@ -366,16 +366,21 @@ def group_dictize(group, context,
             else:
                 q['fq'] = 'groups:"{0}"'.format(group_.name)
 
-            is_group_member = (context.get('user') and
-                new_authz.has_user_permission_for_group_or_org(group_.id, context.get('user'), 'read'))
-            if is_group_member:
-                context['ignore_capacity_check'] = True
+            # Allow members of organizations to see private datasets.
+            if group_.is_organization:
+                is_group_member = (context.get('user') and
+                    new_authz.has_user_permission_for_group_or_org(
+                        group_.id, context.get('user'), 'read'))
+                if is_group_member:
+                    context['ignore_capacity_check'] = True
 
-            if not context.get('for_view'):
+            if not just_the_count:
                 q['rows'] = 1000    # Only the first 1000 datasets are returned
 
-            search_context = dict((k, v) for (k, v) in context.items() if k != 'schema')
-            search_results = logic.get_action('package_search')(search_context, q)
+            search_context = dict((k, v) for (k, v) in context.items()
+                                  if k != 'schema')
+            search_results = logic.get_action('package_search')(search_context,
+                                                                q)
             return search_results['count'], search_results['results']
         if packages_field == 'datasets':
             package_count, packages = get_packages_for_this_group(group)
@@ -384,7 +389,8 @@ def group_dictize(group, context,
             # i.e. packages_field is 'dataset_count' or
             # 'none_but_include_package_count'
             if dataset_counts is None:
-                package_count, packages = get_packages_for_this_group(group)
+                package_count, packages = get_packages_for_this_group(
+                    group, just_the_count=True)
             else:
                 # Use the pre-calculated package_counts passed in.
                 facets = dataset_counts
@@ -433,7 +439,7 @@ def group_dictize(group, context,
         image_url = munge.munge_filename(image_url)
         result_dict['image_display_url'] = h.url_for_static(
             'uploads/group/%s' % result_dict.get('image_url'),
-            qualified = True
+            qualified=True
         )
     return result_dict
 

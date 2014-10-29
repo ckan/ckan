@@ -598,7 +598,8 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
     facets = sorted(facets, key=lambda item: item['count'], reverse=True)
     if c.search_facets_limits and limit is None:
         limit = c.search_facets_limits.get(facet)
-    if limit is not None:
+    # zero treated as infinite for hysterical raisins
+    if limit is not None and limit > 0:
         return facets[:limit]
     return facets
 
@@ -1554,8 +1555,11 @@ RE_MD_INTERNAL_LINK = re.compile(
 )
 
 # find external links eg http://foo.com, https://bar.org/foobar.html
+# but ignore trailing punctuation since it is probably not part of the link
 RE_MD_EXTERNAL_LINK = re.compile(
-    r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*)',
+    r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*'
+     '[\w\-@?^=%&:\/~\\+#]' # but last character can't be punctuation [.,;]
+     ')',
     flags=re.UNICODE
 )
 
@@ -1939,11 +1943,11 @@ def check_config_permission(permission):
     return new_authz.check_config_permission(permission)
 
 
-def get_organization(org=None):
+def get_organization(org=None, include_datasets=False):
     if org is None:
         return {}
     try:
-        return logic.get_action('organization_show')({}, {'id': org})
+        return logic.get_action('organization_show')({}, {'id': org, 'include_datasets': include_datasets})
     except (NotFound, ValidationError, NotAuthorized):
         return {}
 

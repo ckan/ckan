@@ -36,5 +36,4 @@ features by developing your own CKAN extensions.
    adding-custom-fields
    plugin-interfaces
    plugins-toolkit
-   converters
    validators

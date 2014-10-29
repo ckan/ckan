@@ -36,7 +36,6 @@ class _Toolkit(object):
         'ObjectNotFound',       # action not found exception
                                 # (ckan.logic.NotFound)
         'NotAuthorized',        # action not authorized exception
-        'UnknownConverter',     # convertor not found exception
         'UnknownValidator',     # validator not found exception
         'ValidationError',      # model update validation error
         'Invalid',              # validation invalid exception
@@ -158,7 +157,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['literal'] = webhelpers.html.tags.literal
 
         t['get_action'] = logic.get_action
-        t['get_converter'] = logic.get_converter
+        t['get_converter'] = logic.get_validator  # For backwards compatibility
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
         t['navl_validate'] = dictization_functions.validate
@@ -166,7 +165,6 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['ObjectNotFound'] = logic.NotFound  # Name change intentional
         t['NotAuthorized'] = logic.NotAuthorized
         t['ValidationError'] = logic.ValidationError
-        t['UnknownConverter'] = logic.UnknownConverter
         t['UnknownValidator'] = logic.UnknownValidator
         t['Invalid'] = logic_validators.Invalid
 

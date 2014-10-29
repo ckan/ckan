@@ -3,6 +3,11 @@
   padding-bottom: 20px;
   margin-bottom: 20px;
 }
+@media (max-width: 768px) {
+  .dataset-item {
+    word-wrap:break-word;
+  }
+}
 
 .dataset-item:last-of-type {
   border-bottom: none;
@@ -92,6 +97,11 @@
   position: absolute;
   top: 14px;
   right: 10px;
+}
+@media (max-width: 768px) {
+  .resource-item .btn-group {
+    display:none;
+  }
 }
 
 .resource-list.reordering {

@@ -23,7 +23,9 @@ If your language is present, you can switch the default language simply by setti
 
  ckan.locale_default=de
 
-.. seealso:: :ref:`config-i18n`
+.. seealso::
+
+   :ref:`config-i18n`
 
 If your language is not supported yet, the remainder of this section section provides instructions on how to prepare a translation file and add it to CKAN. 
 
