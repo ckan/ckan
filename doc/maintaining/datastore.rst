@@ -119,6 +119,11 @@ Replace ``pass`` with the passwords you created for your |database_user| and
 Set permissions
 ---------------
 
+.. versionchanged:: 2.3
+
+   If you're using CKAN 2.2 or earlier the commands to set the datastore
+   permissions are different, see the docs for your version of CKAN.
+
 .. tip:: See :ref:`legacy-mode` if these steps continue to fail or seem too complicated for your set-up. However, keep in mind that the legacy mode is limited in its capabilities.
 
 Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. CKAN provides a paster command to help you correctly set these permissions.
