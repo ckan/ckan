@@ -259,7 +259,7 @@ installed, we need to install and configure Solr.
    following variables::
 
     NO_START=0            # (line 4)
-    JETTY_HOST=127.0.0.1  # (line 15)
+    JETTY_HOST=0.0.0.0    # (line 15)
     JETTY_PORT=8983       # (line 18)
 
    Start the Jetty server::
