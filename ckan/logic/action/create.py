@@ -217,6 +217,7 @@ def resource_create(context, data_dict):
     '''Appends a new resource to a datasets list of resources.
 
     :param package_id: id of package that the resource should be added to.
+
     :type package_id: string
     :param url: url of resource
     :type url: string
@@ -582,8 +583,8 @@ def _group_or_org_create(context, data_dict, is_org=False):
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
     # get the schema
-    group_plugin = lib_plugins.lookup_group_plugin(
-        group_type=data_dict.get('type'))
+    group_type = data_dict.get('type')
+    group_plugin = lib_plugins.lookup_group_plugin(group_type)
     try:
         schema = group_plugin.form_to_db_schema_options({
             'type': 'create', 'api': 'api_version' in context,

@@ -1008,6 +1008,16 @@ class IDatasetForm(Interface):
 
         '''
 
+    def resource_template(self):
+        '''Return the path to the template for the resource read page.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/resource_read.html'``.
+
+        :rtype: string
+
+        '''
+
     def package_form(self):
         '''Return the path to the template for the dataset form.
 
@@ -1016,6 +1026,15 @@ class IDatasetForm(Interface):
 
         :rtype: string
 
+        '''
+
+    def resource_form(self):
+        '''Return the path to the template for the resource form.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/snippets/resource_form.html'``
+
+        :rtype: string
         '''
 
     def validate(self, context, data_dict, schema, action):

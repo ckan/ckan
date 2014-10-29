@@ -91,7 +91,7 @@ def make_latest_pending_package_active(context, data_dict):
     _make_latest_rev_active(context, q)
 
     #resources
-    for resource in pkg.resource_groups_all[0].resources_all:
+    for resource in pkg.resources_all:
         q = session.query(model.ResourceRevision).filter_by(id=resource.id)
         _make_latest_rev_active(context, q)
 
@@ -215,7 +215,7 @@ def resource_update(context, data_dict):
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
-    package_id = resource.resource_group.package.id
+    package_id = resource.package.id
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
@@ -377,6 +377,7 @@ def package_update(context, data_dict):
         raise NotFound(_('Package was not found.'))
     context["package"] = pkg
     data_dict["id"] = pkg.id
+    data_dict['type'] = pkg.type
 
     _check_access('package_update', context, data_dict)
 
@@ -598,6 +599,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
     context["group"] = group
     if group is None:
         raise NotFound('Group was not found.')
+
+    data_dict['type'] = group.type
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)

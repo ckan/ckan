@@ -16,12 +16,11 @@ import extension
 import activity
 import domain_object
 import ckan.lib.dictization
+from .package import Package
 import ckan.model
 
 __all__ = ['Resource', 'resource_table',
-           'ResourceGroup', 'resource_group_table',
            'ResourceRevision', 'resource_revision_table',
-           'ResourceGroupRevision', 'resource_group_revision_table',
            ]
 
 CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
@@ -35,8 +34,8 @@ resource_table = Table(
     'resource', meta.metadata,
     Column('id', types.UnicodeText, primary_key=True,
            default=_types.make_uuid),
-    Column('resource_group_id', types.UnicodeText,
-           ForeignKey('resource_group.id')),
+    Column('package_id', types.UnicodeText,
+           ForeignKey('package.id')),
     Column('url', types.UnicodeText, nullable=False),
     Column('format', types.UnicodeText),
     Column('description', types.UnicodeText),
@@ -58,22 +57,8 @@ resource_table = Table(
     Column('extras', _types.JsonDictType),
 )
 
-resource_group_table = Table(
-    'resource_group', meta.metadata,
-    Column('id', types.UnicodeText, primary_key=True,
-           default=_types.make_uuid),
-    Column('package_id', types.UnicodeText, ForeignKey('package.id')),
-    Column('label', types.UnicodeText),
-    Column('sort_order', types.UnicodeText),
-    Column('extras', _types.JsonDictType),
-)
-
 vdm.sqlalchemy.make_table_stateful(resource_table)
 resource_revision_table = core.make_revisioned_table(resource_table)
-
-vdm.sqlalchemy.make_table_stateful(resource_group_table)
-resource_group_revision_table = core.make_revisioned_table(
-    resource_group_table)
 
 
 class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
@@ -81,17 +66,14 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
                domain_object.DomainObject):
     extra_columns = None
 
-    def __init__(self, resource_group_id=None, url=u'',
-                 format=u'', description=u'', hash=u'',
-                 extras=None,
-                 **kwargs):
+    def __init__(self, url=u'', format=u'', description=u'', hash=u'',
+                 extras=None, package_id=None, **kwargs):
         self.id = _types.make_uuid()
-        if resource_group_id:
-            self.resource_group_id = resource_group_id
         self.url = url
         self.format = format
         self.description = description
         self.hash = hash
+        self.package_id = package_id
         # The base columns historically defaulted to empty strings
         # not None (Null). This is why they are seperate here.
         base_columns = ['url', 'format', 'description', 'hash']
@@ -110,7 +92,7 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
         _dict = OrderedDict()
         cols = self.get_columns()
         if not core_columns_only:
-            cols = ['id', 'resource_group_id'] + cols + ['position']
+            cols = ['id'] + cols + ['position']
         for col in cols:
             value = getattr(self, col)
             if isinstance(value, datetime.datetime):
@@ -118,20 +100,13 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
             _dict[col] = value
         for k, v in self.extras.items() if self.extras else []:
             _dict[k] = v
-        if self.resource_group and not core_columns_only:
-            _dict["package_id"] = self.resource_group.package_id
+        if self.package_id and not core_columns_only:
+            _dict["package_id"] = self.package_id
         return _dict
 
     def get_package_id(self):
         '''Returns the package id for a resource. '''
-        query = meta.Session.query(ResourceGroupRevision) \
-            .filter(and_(ResourceGroupRevision.id == self.resource_group_id,
-                         ResourceGroupRevision.state == u'active',
-                         ResourceGroupRevision.current == True))
-        resource_group = query.first()
-        if resource_group is None:
-            return None
-        return resource_group.package_id
+        return self.package_id
 
     @classmethod
     def get(cls, reference):
@@ -179,7 +154,7 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
         return query.all()
 
     def related_packages(self):
-        return [self.resource_group.package]
+        return [self.package]
 
     def activity_stream_detail(self, activity_id, activity_type):
         import ckan.model as model
@@ -198,60 +173,12 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
                                        {'resource': res_dict})
 
 
-class ResourceGroup(vdm.sqlalchemy.RevisionedObjectMixin,
-                    vdm.sqlalchemy.StatefulObjectMixin,
-                    domain_object.DomainObject):
-    extra_columns = None
 
-    def __init__(self, package_id=None, sort_order=u'', label=u'',
-                 extras=None, **kwargs):
-        if package_id:
-            self.package_id = package_id
-        self.sort_order = sort_order
-        self.label = label
-        self.extras = extras or {}
-        self.state = 'active'
-
-        extra_columns = self.get_extra_columns()
-        for field in extra_columns:
-            value = kwargs.pop(field, u'')
-            setattr(self, field, value)
-        if kwargs:
-            raise TypeError('unexpected keywords %s' % kwargs)
-
-    def as_dict(self, core_columns_only=False):
-        _dict = OrderedDict()
-        cols = self.get_columns()
-        if not core_columns_only:
-            cols = ['package_id', 'label', 'sort_order'] + cols
-        for col in cols:
-            _dict[col] = getattr(self, col)
-        for k, v in self.extras.items() if self.extras else []:
-            _dict[k] = v
-        return _dict
-
-    @classmethod
-    def get_columns(cls, extra_columns=True):
-        '''Returns the core editable columns of the resource.'''
-        if extra_columns:
-            return ['label', 'sort_order'] + cls.get_extra_columns()
-        else:
-            return ['label', 'sort_order']
-
-    @classmethod
-    def get_extra_columns(cls):
-        if cls.extra_columns is None:
-            cls.extra_columns = config.get(
-                'ckan.extra_resource_group_fields', '').split()
-            for field in cls.extra_columns:
-                setattr(cls, field, DictProxy(field, 'extras'))
-        return cls.extra_columns
-
-        ## Mappers
+## Mappers
 
 meta.mapper(Resource, resource_table, properties={
-    'resource_group': orm.relation(
-        ResourceGroup,
+    'package': orm.relation(
+        Package,
         # all resources including deleted
         # formally package_resources_all
         backref=orm.backref('resources_all',
@@ -261,27 +188,12 @@ meta.mapper(Resource, resource_table, properties={
                             ),
     )
 },
-order_by=[resource_table.c.resource_group_id],
+order_by=[resource_table.c.package_id],
 extension=[vdm.sqlalchemy.Revisioner(resource_revision_table),
            extension.PluginMapperExtension(),
            ],
 )
 
-meta.mapper(ResourceGroup, resource_group_table, properties={
-    'package': orm.relation(
-        _package.Package,
-        # all resources including deleted
-        backref=orm.backref('resource_groups_all',
-                            cascade='all, delete, delete-orphan',
-                            order_by=resource_group_table.c.sort_order,
-                            ),
-    )
-},
-order_by=[resource_group_table.c.package_id],
-extension=[vdm.sqlalchemy.Revisioner(resource_group_revision_table),
-           extension.PluginMapperExtension(),
-           ],
-)
 
 ## VDM
 
@@ -289,14 +201,6 @@ vdm.sqlalchemy.modify_base_object_mapper(Resource, core.Revision, core.State)
 ResourceRevision = vdm.sqlalchemy.create_object_version(
     meta.mapper, Resource, resource_revision_table)
 
-vdm.sqlalchemy.modify_base_object_mapper(ResourceGroup, core.Revision,
-                                         core.State)
-ResourceGroupRevision = vdm.sqlalchemy.create_object_version(
-    meta.mapper, ResourceGroup, resource_group_revision_table)
-
-ResourceGroupRevision.related_packages = lambda self: [
-    self.continuity.package
-]
 ResourceRevision.related_packages = lambda self: [
     self.continuity.resouce_group.package
 ]
