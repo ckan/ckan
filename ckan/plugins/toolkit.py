@@ -362,7 +362,7 @@ content type, cookies, etc.
         else:
             if name == '__bases__':
                 return self.__class__.__bases__
-            raise Exception('`%s` not found in plugins toolkit' % name)
+            raise AttributeError('`%s` not found in plugins toolkit' % name)
 
     def __dir__(self):
         if not self._toolkit:
