@@ -234,7 +234,9 @@ def load_environment(global_conf, app_conf):
 
 def update_config():
     ''' This code needs to be run when the config is changed to take those
-    changes into account. '''
+    changes into account. It is called whenever a plugin is loaded as the
+    plugin might have changed the config values (for instance it might
+    change ckan.site_url) '''
 
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
@@ -248,6 +250,11 @@ def update_config():
         config['ckan.site_id'] = site_id
 
     site_url = config.get('ckan.site_url', '')
+    if not site_url:
+        raise RuntimeError(
+            'ckan.site_url is not configured and it must have a value.'
+            ' Please amend your .ini file.')
+
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
     if config.get('ckan.site_id') is None:
         if ':' in ckan_host:

@@ -143,7 +143,7 @@ site use this setting.
 
 .. warning::
 
-  This setting should not have a trailing / on the end.
+  This setting is mandatory should not have a trailing / on the end.
 
 .. _apikey_header_name:
 
