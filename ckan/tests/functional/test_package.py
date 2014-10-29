@@ -696,12 +696,12 @@ class TestEdit(TestPackageForm):
             pkg.url = u'editpkgurl.com'
             pr1 = model.Resource(url=u'editpkgurl1',
                   format=u'plain text', description=u'Full text',
-                  hash=u'123abc',)
+                  hash=u'123abc')
             pr2 = model.Resource(url=u'editpkgurl2',
                   format=u'plain text2', description=u'Full text2',
-                  hash=u'456abc',)
-            pkg.resources.append(pr1)
-            pkg.resources.append(pr2)
+                  hash=u'456abc')
+            pkg.resources_all.append(pr1)
+            pkg.resources_all.append(pr2)
             pkg.notes= u'this is editpkg'
             pkg.version = u'2.2'
             t1 = model.Tag(name=u'one')
