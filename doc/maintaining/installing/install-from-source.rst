@@ -272,6 +272,20 @@ installed, we need to install and configure Solr.
 
    .. note::
 
+      If you get the following error message when opening the Solr page in your
+      browser::
+
+        java.lang.NoClassDefFoundError: org/apache/tomcat/util/descriptor/LocalResolver
+
+      Then run these commands::
+
+        sudo sh -c 'echo /usr/share/java/tomcat-coyote.jar >> /etc/jetty/start.config'
+        sudo service jetty restart
+
+      Then reload the page and you should see the Solr admin interface.
+
+   .. note::
+
     If you get the message ``Could not start Jetty servlet engine because no
     Java Development Kit (JDK) was found.`` then you will have to edit the
     ``JAVA_HOME`` setting in ``/etc/default/jetty`` to point to your machine's
