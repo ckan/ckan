@@ -116,13 +116,15 @@ b. Install the CKAN source code into your virtualenv.
 
 c. Install the Python modules that CKAN requires into your virtualenv:
 
-   .. versionchanged:: 2.1
-      In CKAN 2.0 and earlier the requirement file was called
-      ``pip-requirements.txt`` not ``requirements.txt`` as below.
-
    .. parsed-literal::
 
        pip install -r |virtualenv|/src/ckan/requirements.txt
+
+   .. versionchanged:: 2.1
+
+      If you're installing CKAN version 2.0 or earlier then the requirements
+      file is called ``pip-requirements.txt``, not ``requirements.txt`` as
+      above.
 
 d. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
