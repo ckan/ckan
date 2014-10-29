@@ -32,6 +32,7 @@ import ckan.lib.app_globals as app_globals
 
 log = logging.getLogger(__name__)
 
+
 def make_app(conf, full_stack=True, static_files=True, **app_conf):
     """Create a Pylons WSGI application and return it
 
@@ -128,22 +129,23 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         OpenIdIdentificationPlugin._redirect_to_loginform = repoze_patch._redirect_to_loginform
         OpenIdIdentificationPlugin.challenge = repoze_patch.challenge
 
-        who_parser.identifiers = [i for i in who_parser.identifiers if \
-                not isinstance(i, OpenIdIdentificationPlugin)]
-        who_parser.challengers = [i for i in who_parser.challengers if \
-                not isinstance(i, OpenIdIdentificationPlugin)]
+        who_parser.identifiers = [i for i in who_parser.identifiers if
+                                  not isinstance(i, OpenIdIdentificationPlugin)]
+        who_parser.challengers = [i for i in who_parser.challengers if
+                                  not isinstance(i, OpenIdIdentificationPlugin)]
 
-    app = PluggableAuthenticationMiddleware(app,
-                who_parser.identifiers,
-                who_parser.authenticators,
-                who_parser.challengers,
-                who_parser.mdproviders,
-                who_parser.request_classifier,
-                who_parser.challenge_decider,
-                logging.getLogger('repoze.who'),
-                logging.WARN,  # ignored
-                who_parser.remote_user_key,
-           )
+    app = PluggableAuthenticationMiddleware(
+        app,
+        who_parser.identifiers,
+        who_parser.authenticators,
+        who_parser.challengers,
+        who_parser.mdproviders,
+        who_parser.request_classifier,
+        who_parser.challenge_decider,
+        logging.getLogger('repoze.who'),
+        logging.WARN,  # ignored
+        who_parser.remote_user_key
+    )
 
     # Establish the Registry for this application
     app = RegistryManager(app)
@@ -156,7 +158,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             else int(config.get('ckan.static_max_age', 3600))
 
         static_app = StaticURLParser(config['pylons.paths']['static_files'],
-                cache_max_age=static_max_age)
+                                     cache_max_age=static_max_age)
         static_parsers = [static_app, app]
 
         storage_directory = uploader.get_storage_path()
@@ -169,8 +171,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
                 if e.errno != 17:
                     raise
 
-            storage_app = StaticURLParser(path,
-                cache_max_age=static_max_age)
+            storage_app = StaticURLParser(path, cache_max_age=static_max_age)
             static_parsers.insert(0, storage_app)
 
         # Configurable extra static file paths
@@ -179,7 +180,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             if public_path.strip():
                 extra_static_parsers.append(
                     StaticURLParser(public_path.strip(),
-                        cache_max_age=static_max_age)
+                                    cache_max_age=static_max_age)
                 )
         app = Cascade(extra_static_parsers + static_parsers)
 
@@ -192,6 +193,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         app = TrackingMiddleware(app, config)
 
     return app
+
 
 def ckan_auth_tkt_make_app(**kw):
     if not len(kw.get('secret', '')) or kw.get('secret') == 'somesecret':
