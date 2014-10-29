@@ -290,6 +290,10 @@ def update_config():
     if asbool(config.get('ckan.legacy_templates', 'no')):
         # We want the new template path for extra snippets like the
         # dataviewer and also for some testing stuff
+        msg = 'Support for Genshi templates is deprecated and will be removed'\
+            ' in a future release'
+        log.warn(msg)
+
         template_paths = [legacy_templates_path, jinja2_templates_path]
     else:
         template_paths = [jinja2_templates_path, legacy_templates_path]

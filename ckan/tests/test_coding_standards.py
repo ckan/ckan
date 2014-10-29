@@ -585,7 +585,6 @@ class TestPep8(object):
         'ckan/tests/functional/test_admin.py',
         'ckan/tests/functional/test_cors.py',
         'ckan/tests/functional/test_error.py',
-        'ckan/tests/functional/test_follow.py',
         'ckan/tests/functional/test_home.py',
         'ckan/tests/functional/test_package.py',
         'ckan/tests/functional/test_package_relationships.py',
