@@ -60,6 +60,25 @@ files, and enables CKAN templates' debugging features.
    commands.
 
 
+Repoze.who Settings
+-------------------
+
+.. _who.timeout
+
+who.timeout
+^^^^^^^^^^^
+
+Example::
+
+ who.timeout = 3600
+
+Default value: 3600
+
+This defines how long (in seconds) until a user is logged out after a period
+of inactivity. If this isn't defined, the session doesn't expire. Default
+value is 3600 seconds (1 hour).
+
+
 Database Settings
 -----------------
 
