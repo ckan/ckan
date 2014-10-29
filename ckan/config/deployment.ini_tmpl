@@ -42,7 +42,6 @@ who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
 # Session timeout (user logged out after period of inactivity, in seconds)
 who.timeout = 3600
-#who.reissue_time = 360
 
 ## Database Settings
 sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
