@@ -63,7 +63,7 @@ files, and enables CKAN templates' debugging features.
 Repoze.who Settings
 -------------------
 
-.. _who.timeout
+.. _who.timeout:
 
 who.timeout
 ^^^^^^^^^^^
