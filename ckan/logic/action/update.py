@@ -91,7 +91,7 @@ def make_latest_pending_package_active(context, data_dict):
     _make_latest_rev_active(context, q)
 
     #resources
-    for resource in pkg.resource_groups_all[0].resources_all:
+    for resource in pkg.resources_all:
         q = session.query(model.ResourceRevision).filter_by(id=resource.id)
         _make_latest_rev_active(context, q)
 
@@ -215,7 +215,7 @@ def resource_update(context, data_dict):
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
-    package_id = resource.resource_group.package.id
+    package_id = resource.package.id
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
@@ -347,7 +347,7 @@ def package_update(context, data_dict):
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
-    
+
     It is recommended to call
     :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
     the result, and then call ``package_update()`` with it.
@@ -872,7 +872,7 @@ def task_status_update_many(context, data_dict):
     '''Update many task statuses at once.
 
     :param data: the task_status dictionaries to update, for the format of task
-        status dictionaries see 
+        status dictionaries see
         :py:func:`~task_status_update`
     :type data: list of dictionaries
 

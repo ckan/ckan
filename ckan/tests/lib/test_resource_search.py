@@ -120,7 +120,7 @@ class TestSearch(object):
         assert isinstance(res_dict, dict)
         res_keys = set(res_dict.keys())
         expected_res_keys = set(model.Resource.get_columns())
-        expected_res_keys.update(['id', 'resource_group_id', 'package_id', 'position', 'size_extra'])
+        expected_res_keys.update(['id', 'package_id', 'position', 'size_extra'])
         assert_equal(res_keys, expected_res_keys)
         pkg1 = model.Package.by_name(u'pkg1')
         ab = pkg1.resources[0]

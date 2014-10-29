@@ -103,12 +103,12 @@ class TestRevisionController(TestController):
         package = self.get_package(name)
         if 'resources' in kwds:
             resources = kwds.pop('resources')
-            for resource in package.resource_groups_all[0].resources_all:
+            for resource in package.resources_all:
                 resource.state = 'deleted'
             for resource in resources:
                 resource = model.Resource(**resource)
                 model.Session.add(resource)
-                package.resource_groups_all[0].resources_all.append(resource)
+                package.resources_all.append(resource)
         if 'extras' in kwds:
             extras_data = kwds.pop('extras')
         #    extras = []
@@ -134,7 +134,7 @@ class TestRevisionController(TestController):
         model.repo.commit()
 
     def get_package(self, name):
-        return model.Package.by_name(name) 
+        return model.Package.by_name(name)
 
     def test_read(self):
         anna = model.Package.by_name(u'annakarenina')
@@ -151,7 +151,7 @@ class TestRevisionController(TestController):
         #assert "Datasets' Tags" in res
         #res = res.click('annakarenina', index=0)
         #assert 'Datasets - annakarenina' in res
-        
+
     def test_list_format_atom(self):
         self.create_40_revisions()
         self.create_updating_revision(u'warandpeace',
