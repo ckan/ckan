@@ -480,6 +480,7 @@ class GroupController(base.BaseController):
             return self._save_edit(id, context)
 
         try:
+            data_dict['include_datasets'] = False
             old_data = self._action('group_show')(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
@@ -629,7 +630,9 @@ class GroupController(base.BaseController):
             c.members = self._action('member_list')(
                 context, {'id': id, 'object_type': 'user'}
             )
-            c.group_dict = self._action('group_show')(context, {'id': id})
+            data_dict = {'id': id}
+            data_dict['include_datasets'] = False
+            c.group_dict = self._action('group_show')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
@@ -642,7 +645,9 @@ class GroupController(base.BaseController):
 
         #self._check_access('group_delete', context, {'id': id})
         try:
-            c.group_dict = self._action('group_show')(context, {'id': id})
+            data_dict = {'id': id}
+            data_dict['include_datasets'] = False
+            c.group_dict = self._action('group_show')(context, data_dict)
             group_type = 'organization' if c.group_dict['is_organization'] else 'group'
             c.roles = self._action('member_roles_list')(
                 context, {'group_type': group_type}
