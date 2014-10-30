@@ -769,13 +769,16 @@ class TestDatastoreSQL(tests.WsgiAppCase):
             name='test_org',
             apikey=cls.sysadmin_user.apikey)
 
-        cls.expected_records = [{u'_full_text': u"'annakarenina':1 'b':3 'moo':4 'tolstoy':2",
+        cls.expected_records = [{u'_full_text': [u"'annakarenina'", u"'b'",
+                                                 u"'moo'", u"'tolstoy'",
+                                                 u"'2005'"],
                                  u'_id': 1,
                                  u'author': u'tolstoy',
                                  u'b\xfck': u'annakarenina',
                                  u'nested': [u'b', {u'moo': u'moo'}],
                                  u'published': u'2005-03-01T00:00:00'},
-                                {u'_full_text': u"'b':3 'tolstoy':2 'warandpeac':1",
+                                {u'_full_text': [u"'tolstoy'", u"'warandpeac'",
+                                                 u"'b'"],
                                  u'_id': 2,
                                  u'author': u'tolstoy',
                                  u'b\xfck': u'warandpeace',
@@ -821,7 +824,16 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
         result = res_dict['result']
-        assert result['records'] == self.expected_records
+        assert len(result['records']) == len(self.expected_records)
+        for (row_index, row) in enumerate(result['records']):
+            expected_row = self.expected_records[row_index]
+            assert set(row.keys()) == set(expected_row.keys())
+            for field in row:
+                if field == '_full_text':
+                    for ft_value in expected_row['_full_text']:
+                        assert ft_value in row['_full_text']
+                else:
+                    assert row[field] == expected_row[field]
 
         # test alias search
         query = 'SELECT * FROM "{0}"'.format(self.data['aliases'])
@@ -843,7 +855,16 @@ class TestDatastoreSQL(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is True
         result = res_dict['result']
-        assert result['records'] == self.expected_records
+        assert len(result['records']) == len(self.expected_records)
+        for (row_index, row) in enumerate(result['records']):
+            expected_row = self.expected_records[row_index]
+            assert set(row.keys()) == set(expected_row.keys())
+            for field in row:
+                if field == '_full_text':
+                    for ft_value in expected_row['_full_text']:
+                        assert ft_value in row['_full_text']
+                else:
+                    assert row[field] == expected_row[field]
 
     def test_self_join(self):
         query = '''
