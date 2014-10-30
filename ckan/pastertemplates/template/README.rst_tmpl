@@ -8,6 +8,26 @@
 .. image:: https://coveralls.io/repos/{{ github_user_name }}/{{ project }}/badge.png?branch=master
   :target: https://coveralls.io/r/{{ github_user_name }}/{{ project }}?branch=master
 
+.. image:: https://pypip.in/download/{{ project }}/badge.svg
+    :target: https://pypi.python.org/pypi//{{ project }}/
+    :alt: Downloads
+
+.. image:: https://pypip.in/version/{{ project }}/badge.svg
+    :target: https://pypi.python.org/pypi/{{ project }}/
+    :alt: Latest Version
+
+.. image:: https://pypip.in/py_versions/{{ project }}/badge.svg
+    :target: https://pypi.python.org/pypi/{{ project }}/
+    :alt: Supported Python versions
+
+.. image:: https://pypip.in/status/{{ project }}/badge.svg
+    :target: https://pypi.python.org/pypi/{{ project }}/
+    :alt: Development Status
+
+.. image:: https://pypip.in/license/{{ project }}/badge.svg
+    :target: https://pypi.python.org/pypi/{{ project }}/
+    :alt: License
+
 =============
 {{ project }}
 =============
