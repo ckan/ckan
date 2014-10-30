@@ -621,12 +621,12 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
               {'id': 'lon'}
             ],
             records=[
-              {'id': 0, 'date': '2011-01-01', 'x': 1, 'y': 2, 'z': 3, 'country': 'DE', 'title': 'first 4', 'lat':52.56, 'lon':13.40},
+              {'id': 0, 'date': '2011-01-01', 'x': 1, 'y': 2, 'z': 3, 'country': 'DE', 'title': 'first 99', 'lat':52.56, 'lon':13.40},
               {'id': 1, 'date': '2011-02-02', 'x': 2, 'y': 4, 'z': 24, 'country': 'UK', 'title': 'second', 'lat':54.97, 'lon':-1.60},
               {'id': 2, 'date': '2011-03-03', 'x': 3, 'y': 6, 'z': 9, 'country': 'US', 'title': 'third', 'lat':40.00, 'lon':-75.5},
               {'id': 3, 'date': '2011-04-04', 'x': 4, 'y': 8, 'z': 6, 'country': 'UK', 'title': 'fourth', 'lat':57.27, 'lon':-6.20},
               {'id': 4, 'date': '2011-05-04', 'x': 5, 'y': 10, 'z': 15, 'country': 'UK', 'title': 'fifth', 'lat':51.58, 'lon':0},
-              {'id': 5, 'date': '2011-06-02', 'x': 6, 'y': 12, 'z': 18, 'country': 'DE', 'title': 'sixth 52.56', 'lat':51.04, 'lon':7.9}
+              {'id': 5, 'date': '2011-06-02', 'x': 6, 'y': 12, 'z': 18, 'country': 'DE', 'title': 'sixth 53.56', 'lat':51.04, 'lon':7.9}
             ]
         )
         postparams = '%s=1' % json.dumps(cls.data)
@@ -664,16 +664,35 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
 
     def test_full_text_search_on_integers_within_text_strings(self):
         data = {'resource_id': self.data['resource_id'],
-                'q': '4'}
+                'q': '99'}
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.normal_user.apikey)}
         res = self.app.post('/api/action/datastore_search', params=postparams,
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['result']['total'] == 1, pprint.pformat(res_dict)
-        assert res_dict['result']['records'][0]['id'] == 0
+
+    def test_full_text_search_on_integers(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': '4'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['result']['total'] == 3, pprint.pformat(res_dict)
 
     def test_full_text_search_on_decimal_within_text_strings(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': '53.56'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['result']['total'] == 1, pprint.pformat(res_dict)
+
+    def test_full_text_search_on_decimal(self):
         data = {'resource_id': self.data['resource_id'],
                 'q': '52.56'}
         postparams = '%s=1' % json.dumps(data)
@@ -682,7 +701,16 @@ class TestDatastoreFullTextSearch(tests.WsgiAppCase):
                             extra_environ=auth)
         res_dict = json.loads(res.body)
         assert res_dict['result']['total'] == 1, pprint.pformat(res_dict)
-        assert res_dict['result']['records'][0]['id'] == 5
+
+    def test_full_text_search_on_date(self):
+        data = {'resource_id': self.data['resource_id'],
+                'q': '2011-01-01'}
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_search', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['result']['total'] == 1, pprint.pformat(res_dict)
 
     def test_full_text_search_on_json_like_string_succeeds(self):
         data = {'resource_id': self.data['resource_id'],
