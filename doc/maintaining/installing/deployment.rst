@@ -138,6 +138,11 @@ following contents:
             RPAFsethostname On
             RPAFproxy_ips 127.0.0.1
         </IfModule>
+
+        <Directory />
+            Require all granted
+        </Directory>
+
     </VirtualHost>
 
 Replace ``default.ckanhosted.com`` and ``www.default.ckanhosted.com`` with the
@@ -151,18 +156,13 @@ requests to your CKAN instance.
 7. Modify the Apache ports.conf file
 ------------------------------------
 
-Open ``/etc/apache2/ports.conf``. Look in the file for the following lines:
+Open ``/etc/apache2/ports.conf``. Change this line::
 
-.. parsed-literal::
+   Listen 80
 
-    NameVirtualHost \*:80
-    Listen 80
+to::
 
-Change the entries from ``80`` to ``8080`` to look like the following:
-
-.. parsed-literal::
-    NameVirtualHost \*:8080
-    Listen 8080
+   Listen 8080
 
 -------------------------------
 8. Create the Nginx config file
@@ -194,11 +194,20 @@ following contents:
     }
 
 
-------------------------
-9. Enable your CKAN site
-------------------------
+-----------------------------------
+9. Disable the default |nginx| site
+-----------------------------------
 
-Finally, enable your CKAN site in Apache:
+Run this command to disable the default |nginx| site::
+
+    sudo rm /etc/nginx/sites-enabled/default
+
+
+-------------------------
+10. Enable your CKAN site
+-------------------------
+
+Finally, enable your CKAN site in Apache and |nginx|:
 
 .. parsed-literal::
 
