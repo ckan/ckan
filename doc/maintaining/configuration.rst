@@ -72,11 +72,11 @@ Example::
 
  who.timeout = 3600
 
-Default value: 3600
+Default value: None
 
 This defines how long (in seconds) until a user is logged out after a period
-of inactivity. If this isn't defined, the session doesn't expire. Default
-value is 3600 seconds (1 hour).
+of inactivity. If the setting isn't defined, the session doesn't expire. Not
+active by default.
 
 
 Database Settings

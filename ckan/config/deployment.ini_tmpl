@@ -40,8 +40,9 @@ app_instance_uuid = ${app_instance_uuid}
 who.config_file = %(here)s/who.ini
 who.log_level = warning
 who.log_file = %(cache_dir)s/who_log.ini
-# Session timeout (user logged out after period of inactivity, in seconds)
-who.timeout = 3600
+# Session timeout (user logged out after period of inactivity, in seconds).
+# Inactive by default, so the session doesn't expire.
+# who.timeout = 86400
 
 ## Database Settings
 sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
