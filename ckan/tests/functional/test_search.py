@@ -72,7 +72,7 @@ class TestSearch(FunctionalTestCase):
     def test_3_sort(self):
         # tests sort by titles for groups
         res = self.app.get('/group?sort=title+asc')
-        assert '200' in res.status
+        assert '200' == res.status
 
 class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
 
