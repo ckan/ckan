@@ -69,6 +69,11 @@ class TestSearch(FunctionalTestCase):
         res = self.app.get('/dataset?q=Government%20Expenditure')
         result = self._check_results(res, 1, 'uk-government-expenditure')
 
+    def test_3_sort(self):
+        # tests sort by titles for groups
+        res = self.app.get('/group?sort=title+asc')
+        assert '200' in res.status
+
 class TestSearch2(FunctionalTestCase, PylonsTestCase):#, TestPackageForm):
 
     @classmethod
