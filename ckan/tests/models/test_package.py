@@ -26,7 +26,7 @@ class TestPackage:
     @classmethod
     def teardown_class(self):
         pkg1 = model.Session.query(model.Package).filter_by(name=self.name).one()
-        
+
         pkg1.purge()
         model.Session.commit()
         model.repo.rebuild_db()
@@ -151,7 +151,7 @@ class TestPackageWithTags:
         pkg = model.Package.by_name(self.pkgname)
         # TODO: go back to this
         # 2 default packages each with 2 tags so we have 2 + 4
-        all = model.Session.query(model.Tag).all() 
+        all = model.Session.query(model.Tag).all()
         assert len(all) == 3, all
 
     def test_add_tag_by_name(self):
@@ -180,7 +180,7 @@ class TestPackageWithTags:
 
 
 class TestPackageTagSearch:
-    @classmethod 
+    @classmethod
     def setup_class(self):
         CreateTestData.create()
 
@@ -204,7 +204,7 @@ class TestPackageTagSearch:
         pkg.add_tag(tagordered)
         model.repo.commit_and_remove()
 
-    @classmethod 
+    @classmethod
     def teardown_class(self):
         model.Session.remove()
         model.repo.rebuild_db()
@@ -227,7 +227,7 @@ class TestPackageTagSearch:
     def test_1_tag_search_3(self):
         out = list(model.Tag.search_by_name(u's'))
         assert len(out) == 3
-    
+
     def test_alphabetical_ordering(self):
         pkg = model.Package.by_name(u'annakarenina')
         tag = pkg.get_tags()[0]
@@ -259,7 +259,7 @@ class TestPackageRevisions:
             pkg1.extras['mykey'] = self.notes[i]
             model.repo.commit_and_remove()
 
-        self.pkg1 = model.Package.by_name(self.name)        
+        self.pkg1 = model.Package.by_name(self.name)
 
     @classmethod
     def teardown_class(self):
@@ -317,7 +317,7 @@ class TestRelatedRevisions:
         # edit pkg - ResourceRevision
         rev = model.repo.new_revision()
         pkg1 = model.Package.by_name(self.name)
-        pkg1.resource_groups_all[0].resources_all.append(model.Resource(url=u'http://url1.com',
+        pkg1.resources_all.append(model.Resource(url=u'http://url1.com',
                                                     format=u'xls',
                                                     description=u'It is.',
                                                     hash=u'abc123'))
@@ -327,8 +327,8 @@ class TestRelatedRevisions:
         # edit pkg - ResourceRevision
         rev = model.repo.new_revision()
         pkg1 = model.Package.by_name(self.name)
-        pkg1.resource_groups_all[0].resources_all[0].url = u'http://url1.com/edited'
-        pkg1.resource_groups_all[0].resources_all.append(model.Resource(url=u'http://url2.com'))
+        pkg1.resources_all[0].url = u'http://url1.com/edited'
+        pkg1.resources_all.append(model.Resource(url=u'http://url2.com'))
         rev.message = u'Added resource'
         model.repo.commit_and_remove()
 
@@ -354,7 +354,7 @@ class TestRelatedRevisions:
 
     def test_1_all_revisions(self):
         assert len(self.pkg1.all_revisions) == 3, self.pkg1.all_revisions
-        assert len(self.pkg1.all_related_revisions) == 7, self.pkg1.all_related_revisions        
+        assert len(self.pkg1.all_related_revisions) == 7, self.pkg1.all_related_revisions
 
     def test_2_diff(self):
         rev_q = model.repo.history()

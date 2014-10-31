@@ -33,7 +33,10 @@
     color: @navItemActiveTextColor;
     background-color: @navItemActiveBackgroundColor;
   }
-  &:before {
+}
+@media (min-width: 768px) {
+  .nav-item.active > a:before,
+  .nav-aside li.active a:before {
     content: ' ';
     position: absolute;
     top: 0;

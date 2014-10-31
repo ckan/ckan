@@ -23,6 +23,22 @@ DEFAULT_FORMATS = []
 ValidationError = p.toolkit.ValidationError
 
 
+def _is_legacy_mode(config):
+    '''
+        Decides if the DataStore should run on legacy mode
+
+        Returns True if `ckan.datastore.read_url` is not set in the provided
+        config object or CKAN is running on Postgres < 9.x
+    '''
+    write_url = config.get('ckan.datastore.write_url')
+
+    engine = db._get_engine({'connection_url': write_url})
+    connection = engine.connect()
+
+    return (not config.get('ckan.datastore.read_url') or
+            not db._pg_version_is_at_least(connection, '9.0'))
+
+
 class DatastoreException(Exception):
     pass
 
@@ -62,7 +78,7 @@ class DatastorePlugin(p.SingletonPlugin):
         # Legacy mode means that we have no read url. Consequently sql search is not
         # available and permissions do not have to be changed. In legacy mode, the
         # datastore runs on PG prior to 9.0 (for example 8.4).
-        self.legacy_mode = 'ckan.datastore.read_url' not in self.config
+        self.legacy_mode = _is_legacy_mode(self.config)
 
         datapusher_formats = config.get('datapusher.formats', '').split()
         self.datapusher_formats = datapusher_formats or DEFAULT_FORMATS

@@ -20,13 +20,12 @@ abort () {
 write_config () {
   "$CKAN_HOME"/bin/paster make-config ckan "$CONFIG"
 
-  sed -i \
-      -e "s&^sqlalchemy\.url =.*&sqlalchemy.url = ${DATABASE_URL}&" \
-      -e "s&^#solr_url.*&solr_url = ${SOLR_URL}&" \
-      -e "s&^#ckan.storage_path.*&ckan.storage_path = /var/lib/ckan&" \
-      -e "s&^email_to.*&#email_to = disabled@example.com&" \
-      -e "s&^error_email_from.*&error_email_from = ckan@$(hostname -f)&" \
-      "${CONFIG}"
+  "$CKAN_HOME"/bin/paster --plugin=ckan config-tool "$CONFIG" -e \
+      "sqlalchemy.url = ${DATABASE_URL}" \
+      "solr_url = ${SOLR_URL}" \
+      "ckan.storage_path = /var/lib/ckan" \
+      "email_to = disabled@example.com" \
+      "error_email_from = ckan@$(hostname -f)"
 
   if [ -n "$ERROR_EMAIL" ]; then
     sed -i -e "s&^#email_to.*&email_to = ${ERROR_EMAIL}&" "$CONFIG"

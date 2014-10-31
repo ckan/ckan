@@ -21,6 +21,7 @@ import webtest
 from pylons import config
 import nose.tools
 
+import ckan.lib.search as search
 import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
@@ -185,7 +186,9 @@ class FunctionalTestBase(object):
         pass
 
     def setup(self):
+        '''Reset the database and clear the search indexes.'''
         reset_db()
+        search.clear()
 
     @classmethod
     def teardown_class(cls):

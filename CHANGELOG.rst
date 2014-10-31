@@ -29,6 +29,65 @@ API changes and deprecations
   Note that logic.get_action() and toolkit.get_action() are *not* deprecated,
   core code and plugin code should still use ``get_action()``.
 
+Template changes
+----------------
+
+* Note to people with custom themes: If you've changed the
+  ``{% block secondary_content %}`` in templates/package/search.html pay close
+  attention as this pull request changes the structure of that template block a
+  little.
+
+  Also: There's a few more bootstrap classes (especially for grid layout) that
+  are now going to be in the templates. Take a look if any of the following
+  changes might effect your content blocks:
+
+  https://github.com/ckan/ckan/pull/1935
+
+v2.2.1 2014-10-15
+=================
+
+Bug fixes:
+ * Organization image_url is not displayed in the dataset view. (#1934)
+ * list of member roles disappears on add member page if you enter a user that doesn't exist  (#1873)
+ * group/organization_member_create do not return a value. (#1878)
+ * i18n: Close a tag in French translation in Markdown syntax link (#1919)
+ * organization_list_for_user() fixes (#1918)
+ * Don't show private datasets to group members (#1902)
+ * Incorrect link in Organization snippet on dataset page (#1882)
+ * Prevent reading system tables on DataStore SQL search (#1871)
+ * Ensure that the DataStore is running on legacy mode when using PostgreSQL < 9.x (#1879)
+ * Select2 in the Tags field is broken(#1864)
+ * Edit user encoding error (#1436)
+ * Able to list private datasets via the API (#1580)
+ * Insecure content warning when running Recline under SSL (#1729)
+ * Add quotes to package ID in Solr query in _bulk_update_dataset to prevent Solr errors with custom dataset IDs. (#1853)
+ * Ordering a dataset listing loses the existing filters (#1791)
+ * Inserting empty arrays in JSON type fields in datastore fails (#1776)
+ * email notifications via paster plugin post erroneously demands authentication (#1767)
+ * "Add some resources" link shown to unauthorized users (#1766)
+ * Current date indexed on empty "\*_date" fields (#1701)
+ * Edit member page shows wrong fields (#1723)
+ * programatically log user in after registration (#1721)
+ * Dataset tags autocomplete doesn't work (#1512)
+ * Deleted Users bug (#1668)
+ * UX problem with previous and next during dataset creation (#1598)
+ * Catch NotFound error in resources page (#1685)
+ * _tracking page should only respond to POST (#1683)
+ * bulk_process page for non-existent organization throws Exception (#1682)
+ * Fix package permission checks for create+update (#1664)
+ * Creating a DataStore resource with the package_id fails for a normal user (#1652)
+ * Trailing whitespace in resource URLs not stripped (#1634)
+ * Move the closing div inside the block (#1620)
+ * Fix open redirect (#1419)
+ * Show more facets only if there are more facts to show (#1612)
+ * Fix breakage in package groups page (#1594)
+ * Fix broken links in RSS feed (#1589)
+ * Activity Stream from: Organization Error group not found (#1519)
+ * DataPusher and harvester collision (#1500)
+ * Can't download resources with geojson extension (#1534)
+ * Oversized Forgot Password button and field (#1508)
+ * Invite to organization causes Internal Server error (#1505)
+
 
 v2.2 2014-02-04
 ===============
@@ -186,6 +245,31 @@ Troubleshooting:
    leaving the fields empty. Also make sure to restart running processes like
    harvesters after the update to make sure they use the new code base.
 
+v2.1.3 2014-10-15
+=================
+
+Bug fixes:
+ * Organization image_url is not displayed in the dataset view. (#1934)
+ * i18n: Close a tag in French translation in Markdown syntax link (#1919)
+ * organization_list_for_user() fixes (#1918)
+ * Incorrect link in Organization snippet on dataset page (#1882)
+ * Prevent reading system tables on DataStore SQL search (#1871)
+ * Ensure that the DataStore is running on legacy mode when using PostgreSQL < 9.x (#1879)
+ * Edit user encoding error (#1436)
+ * Able to list private datasets via the API (#1580)
+ * Insecure content warning when running Recline under SSL (#1729)
+ * Add quotes to package ID in Solr query in _bulk_update_dataset to prevent Solr errors with custom dataset IDs. (#1853)
+ * Ordering a dataset listing loses the existing filters (#1791)
+ * Inserting empty arrays in JSON type fields in datastore fails (#1776)
+ * programatically log user in after registration (#1721)
+ * Deleted Users bug (#1668)
+ * Catch NotFound error in resources page (#1685)
+ * bulk_process page for non-existent organization throws Exception (#1682)
+ * Default search ordering on organization home page is broken (#1368)
+ * Term translations of organizations (#1274)
+ * Preview fails on private datastore resources (#1221)
+ * Strip whitespace from title in model dictize (#1228)
+
 v2.1.2 2014-02-04
 =================
 
@@ -303,6 +387,20 @@ Deprecated and removed:
 Known issues:
  * Under certain authorization setups the frontend for the groups functionality
    may not work as expected (See #1176 #1175).
+
+v2.0.5 2014-10-15
+=================
+
+Bug fixes:
+ * organization_list_for_user() fixes (#1918)
+ * Incorrect link in Organization snippet on dataset page (#1882)
+ * Prevent reading system tables on DataStore SQL search (#1871)
+ * Ensure that the DataStore is running on legacy mode when using PostgreSQL < 9.x (#1879)
+ * Current date indexed on empty "\*_date" fields (#1701)
+ * Able to list private datasets via the API (#1580)
+ * Insecure content warning when running Recline under SSL (#1729)
+ * Inserting empty arrays in JSON type fields in datastore fails (#1776)
+ * Deleted Users bug (#1668)
 
 v2.0.4 2014-02-04
 =================

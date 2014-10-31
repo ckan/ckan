@@ -316,11 +316,6 @@ def object_id_validator(key, activity_dict, errors, context):
         raise Invalid('There is no object_id validator for '
             'activity type "%s"' % activity_type)
 
-def extras_unicode_convert(extras, context):
-    for extra in extras:
-        extras[extra] = unicode(extras[extra])
-    return extras
-
 name_match = re.compile('[a-z0-9_\-]*$')
 def name_validator(value, context):
     '''Return the given value if it's a valid name, otherwise raise Invalid.
@@ -789,3 +784,9 @@ def no_loops_in_hierarchy(key, data, errors, context):
             raise Invalid(_('This parent would create a loop in the '
                             'hierarchy'))
 
+
+def extra_key_not_in_root_schema(key, data, errors, context):
+
+    for schema_key in context.get('schema_keys', []):
+        if schema_key == data[key]:
+            raise Invalid(_('There is a schema field with the same name'))

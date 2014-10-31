@@ -44,16 +44,18 @@ file you created in :doc:`install-from-source` earlier:
     cp |development.ini| |production.ini|
 
 
------------------------------
-2. Install Apache and modwsgi
------------------------------
+-----------------------------------
+2. Install Apache, modwsgi, modrpaf
+-----------------------------------
 
-Install Apache_ (a web server) and modwsgi_ (an Apache module that adds WSGI
-support to Apache)::
+Install Apache_ (a web server), modwsgi_ (an Apache module that adds WSGI
+support to Apache), and modrpaf_ (an Apache module that sets the right IP
+address when there is a proxy forwarding to Apache)::
 
-  sudo apt-get install apache2 libapache2-mod-wsgi
+  sudo apt-get install apache2 libapache2-mod-wsgi libapache2-mod-rpaf
 
 .. _modwsgi: https://code.google.com/p/modwsgi/
+.. _modrpaf: https://github.com/gnif/mod_rpaf
 
 
 ----------------
@@ -115,7 +117,7 @@ following contents:
 
 .. parsed-literal::
 
-    <VirtualHost 0.0.0.0:8080>
+    <VirtualHost 127.0.0.1:8080>
         ServerName default.ckanhosted.com
         ServerAlias www.default.ckanhosted.com
         WSGIScriptAlias / |apache.wsgi|
@@ -130,6 +132,12 @@ following contents:
 
         ErrorLog /var/log/apache2/ckan_default.error.log
         CustomLog /var/log/apache2/ckan_default.custom.log combined
+
+        <IfModule mod_rpaf.c>
+            RPAFenable On
+            RPAFsethostname On
+            RPAFproxy_ips 127.0.0.1
+        </IfModule>
     </VirtualHost>
 
 Replace ``default.ckanhosted.com`` and ``www.default.ckanhosted.com`` with the
@@ -172,6 +180,7 @@ following contents:
         client_max_body_size 100M;
         location / {
             proxy_pass http://127.0.0.1:8080/;
+            proxy_set_header X-Forwarded-For $remote_addr;
             proxy_set_header Host $host;
             proxy_cache cache;
             proxy_cache_bypass $cookie_auth_tkt;

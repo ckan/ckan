@@ -1,17 +1,12 @@
 .homepage {
 
-  [role=main] {
-    padding: 20px 0;
-    min-height: 0;
-  }
-
   .row {
     position: relative;
   }
 
   .module-search {
     padding: 5px;
-    margin: 0;
+    margin: 20px 0 0 0;
     color: @mastheadTextColor;
     background: @layoutTrimBackgroundColor;
     .search-giant {
@@ -83,8 +78,19 @@
       }
     }
   }
+  
 
-  &.layout-1 .row1 .col2 {
+  &.layout-2 .stats {
+    margin-top: @gutterY;
+  }
+
+}
+
+@media (min-width: 768px) {
+  .homepage [role=main] {
+    padding: 20px 0;
+  }
+  .homepage.layout-1 .row1 .col2 {
     position: absolute;
     bottom: 0;
     right: 0;
@@ -94,9 +100,4 @@
       right: 0;
     }
   }
-
-  &.layout-2 .stats {
-    margin-top: @gutterY;
-  }
-
 }
