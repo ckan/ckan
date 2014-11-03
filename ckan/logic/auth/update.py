@@ -48,10 +48,6 @@ def package_update(context, data_dict):
 
     return {'success': True}
 
-@logic.auth_allow_anonymous_access
-def package_patch(context, data_dict):
-    return package_update(context, data_dict)
-
 def package_resource_reorder(context, data_dict):
     ## the action function runs package update so no need to run it twice
     return {'success': True}
