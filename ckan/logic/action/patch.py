@@ -3,6 +3,7 @@
 import ckan.logic.action.update as _update
 from ckan.logic import get_action as _get_action, check_access as _check_access
 
+
 def package_patch(context, data_dict):
     '''Patch a dataset (package).
 
@@ -26,7 +27,9 @@ def package_patch(context, data_dict):
         'auth_user_obj': context['auth_user_obj'],
         }
 
-    package_dict = _get_action('package_show')(show_context, {'id': name_or_id})
+    package_dict = _get_action('package_show')(
+        show_context,
+        {'id': name_or_id})
 
     patched = dict(package_dict.items() + data_dict.items())
     return _update.package_update(context, patched)

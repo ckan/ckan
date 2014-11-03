@@ -1,13 +1,12 @@
-'''Unit tests for ckan/logic/action/update.py.'''
+'''Unit tests for ckan/logic/action/patch.py.'''
 import datetime
 
 from nose.tools import assert_equals, assert_raises
 import mock
 import pylons.config as config
 
-#import ckan.logic as logic
-from ckan.new_tests import helpers
-#import ckan.new_tests.factories as factories
+from ckan.new_tests import helpers, factories
+
 
 class TestPatch(helpers.FunctionalTestBase):
 
@@ -21,8 +20,7 @@ class TestPatch(helpers.FunctionalTestBase):
         dataset = helpers.call_action(
             'package_patch',
             id=dataset['id'],
-            name='somethingnew',
-            )
+            name='somethingnew')
 
         assert_equals(dataset['name'], 'somethingnew')
         assert_equals(dataset['notes'], 'some test now')
