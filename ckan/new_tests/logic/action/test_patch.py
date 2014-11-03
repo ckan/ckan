@@ -25,6 +25,7 @@ class TestPatch(helpers.FunctionalTestBase):
         assert_equals(dataset['name'], 'somethingnew')
         assert_equals(dataset['notes'], 'some test now')
 
-        assert_equals(
-            helpers.call_action('package_show', id='somethingnew')['notes'],
-            'some test now')
+        dataset2 = helpers.call_action('package_show', id=dataset['id'])
+
+        assert_equals(dataset2['name'], 'somethingnew')
+        assert_equals(dataset2['notes'], 'some test now')

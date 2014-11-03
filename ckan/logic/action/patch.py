@@ -1,7 +1,11 @@
 '''API functions for partial updates of existing data in CKAN'''
 
 import ckan.logic.action.update as _update
-from ckan.logic import get_action as _get_action, check_access as _check_access
+from ckan.logic import (
+    get_action as _get_action,
+    check_access as _check_access,
+    get_or_bust as _get_or_bust,
+)
 
 
 def package_patch(context, data_dict):
@@ -19,7 +23,6 @@ def package_patch(context, data_dict):
 
     _check_access('package_patch', context, data_dict)
 
-    name_or_id = data_dict.get("name") or _get_or_bust(data_dict, "id")
     show_context = {
         'model': context['model'],
         'session': context['session'],
@@ -29,7 +32,7 @@ def package_patch(context, data_dict):
 
     package_dict = _get_action('package_show')(
         show_context,
-        {'id': name_or_id})
+        {'id': _get_or_bust(data_dict, 'id')})
 
     patched = dict(package_dict.items() + data_dict.items())
     return _update.package_update(context, patched)
