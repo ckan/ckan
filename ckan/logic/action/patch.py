@@ -1,7 +1,7 @@
 '''API functions for partial updates of existing data in CKAN'''
 
 import ckan.logic.action.update as _update
-from ckan.logic import get_action as _get_action
+from ckan.logic import get_action as _get_action, check_access as _check_access
 
 def package_patch(context, data_dict):
     '''Patch a dataset (package).
