@@ -100,9 +100,7 @@ class CkanSessionExtension(SessionExtension):
                 values = {}
                 if rev_obj.revision_id == revision.id:
                     values['revision_timestamp'] = revision.timestamp
-                    values['current'] = '1'
                 else:
-                    values['expired_id'] = revision.id
                     values['expired_timestamp'] = revision.timestamp
                 session.execute(
                     revision_table.update().where(
