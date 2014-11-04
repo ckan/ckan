@@ -12,24 +12,8 @@ import pylons.config as config
 
 import ckan.plugins as p
 
-DEFAULT_DIRECT_EMBED = ['png', 'jpg', 'jpeg', 'gif']
-DEFAULT_LOADABLE_IFRAME = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml',
-                           'n3', 'n-triples', 'turtle', 'plain',
-                           'atom', 'rss', 'txt']
 
 log = logging.getLogger(__name__)
-
-
-def direct():
-    ''' Directly embeddable formats.'''
-    direct_embed = config.get('ckan.preview.direct', '').split()
-    return direct_embed or DEFAULT_DIRECT_EMBED
-
-
-def loadable():
-    ''' Iframe loadable formats. '''
-    loadable_in_iframe = config.get('ckan.preview.loadable', '').split()
-    return loadable_in_iframe or DEFAULT_LOADABLE_IFRAME
 
 
 def res_format(resource):
@@ -135,6 +119,11 @@ def get_view_plugin(view_type):
 
 
 def get_allowed_view_plugins(data_dict):
+    '''
+    Returns a list of view plugins that work against the resource provided
+
+    The ``data_dict`` contains: ``resource`` and ``package``.
+    '''
     can_view = []
     for plugin in p.PluginImplementations(p.IResourceView):
         if plugin.can_view(data_dict):
@@ -142,9 +131,19 @@ def get_allowed_view_plugins(data_dict):
     return can_view
 
 
+#TODO: remove
 def get_new_resources(context, data_dict):
-    ''' Get out all new resources in this commit,
-    needs to be run in extension point after_create and after_update '''
+    '''
+    Returns a list of all new resources in this transaction
+
+    This is to be used only before commiting eg on `package_create` or
+    `package_update` as it uses a cache object stored in the Session and
+    filled on flushig it.
+
+    The `context` dict must contain a `model` key
+
+    Returns a list of new dictized resources.
+    '''
     model = context['model']
     session = model.Session()
     session.flush()

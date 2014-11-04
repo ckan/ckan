@@ -772,34 +772,6 @@ When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on t
 
 .. note::  This only applies to the legacy Genshi-based templates
 
-.. _ckan.preview.direct:
-
-ckan.preview.direct
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.preview.direct = png jpg jpeg gif
-
-Default value: ``png jpg jpeg gif``
-
-Defines the resource formats which should be embedded directly in an ``img`` tag
-when previewing them.
-
-.. _ckan.preview.loadable:
-
-ckan.preview.loadable
-^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt
-
-Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt``
-
-Defines the resource formats which should be loaded directly in an ``iframe``
-tag when previewing them if no :doc:`data-viewer` can preview it.
-
 .. _ckan.dumps_url:
 
 ckan.dumps_url
