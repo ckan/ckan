@@ -206,3 +206,92 @@ def get_default_view_plugins(get_datastore_views=False):
             default_view_plugins.append(view_plugin)
 
     return default_view_plugins
+
+
+def add_default_views_to_resource(context,
+                                  resource_dict,
+                                  dataset_dict=None,
+                                  create_datastore_views=False):
+    '''
+    Creates the default views (if necessary) on the provided resource
+
+    The function will get the plugins for the default views defined in
+    the configuration, and if some were found the `can_view` method of
+    each one of them will be called to determine if a resource view should
+    be created.
+
+    Resource views extensions get the resource dict and the parent dataset
+    dict. If the latter is not provided, `package_show` is called to get it.
+
+    By default only views that don't require the resource data to be in the
+    DataStore are called. See ``add_default_views_to_dataset_resources``
+    for details on the ``create_datastore_views`` parameter.
+
+    Returns a list of resource views created (empty if none were created)
+    '''
+    if not dataset_dict:
+        dataset_dict = logic.get_action('package_show')(
+            context, {resource_dict['package_id']})
+
+    default_view_plugins = get_default_view_plugins(create_datastore_views)
+
+    if not default_view_plugins:
+        return []
+
+    existing_views = p.toolkit.get_action('resource_view_list')(
+        context, {'id': resource_dict['id']})
+
+    existing_view_types = ([v['view_type'] for v in existing_views]
+                           if existing_views
+                           else [])
+
+    created_views = []
+    for view_plugin in default_view_plugins:
+
+        view_info = view_plugin.info()
+
+        # Check if a view of this type already exists
+        if view_info['name'] in existing_view_types:
+            continue
+
+        # Check if a view of this type can preview this resource
+        if view_plugin.can_view({
+            'resource': resource_dict,
+            'package': dataset_dict
+                }):
+            view = {'resource_id': resource_dict['id'],
+                    'view_type': view_info['name'],
+                    'title': view_info.get('default_title', _('View')),
+                    'description': view_info.get('default_description', '')}
+
+            view_dict = p.toolkit.get_action('resource_view_create')(context,
+                                                                     view)
+            created_views.append(view_dict)
+
+    return created_views
+
+
+def add_default_views_to_dataset_resources(context,
+                                           dataset_dict,
+                                           create_datastore_views=False):
+    '''
+    Creates the default views on all resources of the provided dataset
+
+    By default only views that don't require the resource data to be in the
+    DataStore are called. Passing `create_datastore_views` as True will only
+    create views that require data to be in the DataStore. The first case
+    happens when the function is called from `package_create` or
+    `package_update`, the second when it's called from the DataPusher when
+    data was uploaded to the DataStore.
+
+    Returns a list of resource views created (empty if none were created)
+    '''
+    created_views = []
+    for resource_dict in dataset_dict.get('resources', []):
+        new_views = add_default_views_to_resource(context,
+                                                  resource_dict,
+                                                  dataset_dict,
+                                                  create_datastore_views)
+        created_views.extend(new_views)
+
+    return created_views
