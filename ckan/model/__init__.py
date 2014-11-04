@@ -396,7 +396,6 @@ class Repository(vdm.sqlalchemy.Repository):
                             if num == 0:
                                 continue
 
-                            obj.current = True
                             obj.expired_timestamp = datetime(9999, 12, 31)
                             self.session.add(obj)
                             break

@@ -23,7 +23,6 @@ from ckan.lib.dictization.model_save import (package_dict_save,
                                              group_api_to_dict,
                                              package_tag_list_save,
                                             )
-from ckan.logic.action.update import make_latest_pending_package_active
 import ckan.logic.action.get
 
 
@@ -325,10 +324,10 @@ class TestBasicDictize:
 
         resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
 
-        sorted_resources = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
-        for res in sorted_resources:
-            print res.id, res.revision_timestamp, res.expired_timestamp, res.state, res.current
-        assert len(sorted_resources) == 3
+        sorted_resource_revisions = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
+        for res in sorted_resource_revisions:
+            print res.id, res.revision_timestamp, res.state
+        assert len(sorted_resource_revisions) == 3
 
         anna_original = pformat(anna_dictized)
         anna_after_save = pformat(package_dictized)
@@ -339,18 +338,9 @@ class TestBasicDictize:
         assert self.remove_changable_columns(anna_dictized) == self.remove_changable_columns(package_dictized)
         assert "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 
-    def test_10_package_alter_pending(self):
-        """
-        This test still exists as following tests depend on data it creates
-        """
-        context = {'model': model,
-                   'session': model.Session,
-                   "user": 'testsysadmin'}
-
+        # changes to the package, relied upon by later tests
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed').one()
-
         anna_dictized = package_dictize(anna1, context)
-
         anna_dictized['name'] = u'annakarenina_changed2'
         anna_dictized['resources'][0]['url'] = u'http://new_url2'
         anna_dictized['tags'][0]['name'] = u'new_tag'
@@ -362,20 +352,8 @@ class TestBasicDictize:
         model.Session.commit()
         model.Session.remove()
 
-
-    def test_11_add_pending(self):
-        """
-        This test still exists as following tests depend on data it creates
-        """
-
-        context = {'model': model,
-                   'session': model.Session,
-                   "user": 'testsysadmin'}
-
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
         anna_dictized = package_dictize(anna1, context)
-
-
         anna_dictized['notes'] = 'wee'
         anna_dictized['resources'].append({
                             'format': u'plain text',
@@ -389,20 +367,6 @@ class TestBasicDictize:
         package_dict_save(anna_dictized, context)
         model.Session.commit()
         model.Session.remove()
-
-    def test_12_make_active(self):
-        """
-        This test still exists as following tests depend on data it creates
-        """
-
-        model.repo.new_revision()
-        anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed2').one()
-        context = {"model": model,
-                   "session": model.Session,
-                   'user': 'testsysadmin'}
-
-        make_latest_pending_package_active(context, {'id': anna1.id})
-
 
 
     def test_13_get_package_in_past(self):
@@ -420,7 +384,7 @@ class TestBasicDictize:
         first_dictized = self.remove_changable_columns(package_dictize(anna1, context))
         assert self.package_expected == first_dictized
 
-        context['revision_id'] = sorted_packages[1].revision_id #original state
+        context['revision_id'] = sorted_packages[1].revision_id
 
         second_dictized = self.remove_changable_columns(package_dictize(anna1, context))
 
@@ -429,7 +393,7 @@ class TestBasicDictize:
 
         assert second_dictized == first_dictized
 
-        context['revision_id'] = sorted_packages[2].revision_id #original state
+        context['revision_id'] = sorted_packages[2].revision_id
         third_dictized = self.remove_changable_columns(package_dictize(anna1, context))
 
         second_dictized['name'] = u'annakarenina_changed2'

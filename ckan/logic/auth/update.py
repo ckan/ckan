@@ -7,9 +7,6 @@ from ckan.common import _
 from ckan.logic.auth.create import _check_group_auth
 
 
-def make_latest_pending_package_active(context, data_dict):
-    return new_authz.is_authorized('package_update', context, data_dict)
-
 @logic.auth_allow_anonymous_access
 def package_update(context, data_dict):
     user = context.get('user')

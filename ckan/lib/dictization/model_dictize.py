@@ -150,14 +150,9 @@ def _execute(q, table, context):
 
 def _execute_with_revision(q, rev_table, context):
     '''
-    Takes an SqlAlchemy query (q) that is (at its base) a Select on an
-    object revision table (rev_table), and normally it filters to the
-    'current' object revision (latest which has been moderated) and
-    returns that.
-
-    But you can provide revision_id or revision_date in the
-    context and it will filter to an earlier time or the latest unmoderated
-    object revision.
+    Takes an SqlAlchemy query (q) that is (at its base) a Select on an object
+    revision table (rev_table), and you provide revision_id or revision_date in
+    the context and it will filter the object revision(s) to an earlier time.
 
     Raises NotFound if context['revision_id'] is provided, but the revision
     ID does not exist.
@@ -177,12 +172,8 @@ def _execute_with_revision(q, rev_table, context):
             raise logic.NotFound
         revision_date = revision.timestamp
 
-    if revision_date:
-        q = q.where(rev_table.c.revision_timestamp <= revision_date)
-        q = q.where(rev_table.c.expired_timestamp > revision_date)
-    else:
-        # The most recent timestamp (caller will do .first())
-        q = q.order_by(rev_table.c.revision_timestamp.desc())
+    q = q.where(rev_table.c.revision_timestamp <= revision_date)
+    q = q.where(rev_table.c.expired_timestamp > revision_date)
 
     return session.execute(q)
 

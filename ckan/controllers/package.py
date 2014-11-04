@@ -958,9 +958,6 @@ class PackageController(base.BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = name_or_id
             pkg = get_action('package_update')(context, data_dict)
-            if request.params.get('save', '') == 'Approve':
-                get_action('make_latest_pending_package_active')(
-                    context, data_dict)
             c.pkg = context['package']
             c.pkg_dict = pkg
 

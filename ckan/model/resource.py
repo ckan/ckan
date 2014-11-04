@@ -124,10 +124,9 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def get_package_id(self):
         '''Returns the package id for a resource. '''
-        query = meta.Session.query(ResourceGroupRevision) \
-            .filter(and_(ResourceGroupRevision.id == self.resource_group_id,
-                         ResourceGroupRevision.state == u'active',
-                         ResourceGroupRevision.current == True))
+        query = meta.Session.query(ResourceGroup) \
+            .filter(and_(ResourceGroup.id == self.resource_group_id,
+                         ResourceGroup.state == u'active'))
         resource_group = query.first()
         if resource_group is None:
             return None
