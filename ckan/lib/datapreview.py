@@ -11,9 +11,14 @@ import logging
 import pylons.config as config
 
 import ckan.plugins as p
+from ckan import logic
+from ckan.common import _
 
 
 log = logging.getLogger(__name__)
+
+
+DEFAULT_RESOURCE_VIEW_TYPES = ['image', 'webpage']
 
 
 def res_format(resource):
@@ -131,7 +136,7 @@ def get_allowed_view_plugins(data_dict):
     return can_view
 
 
-#TODO: remove
+# TODO: remove
 def get_new_resources(context, data_dict):
     '''
     Returns a list of all new resources in this transaction
@@ -154,4 +159,50 @@ def get_new_resources(context, data_dict):
                          if isinstance(obj, model.Resource)]
         return model_dictize.resource_list_dictize(new_resources, context)
     else:
-        return ()
+        return []
+
+
+def get_default_view_plugins(get_datastore_views=False):
+    '''
+    Returns the list of view plugins to be created by default on new resources
+
+    The default view types are defined via the `ckan.views.default_views`
+    configuration option. If this is not set (as opposed to empty, which means
+    no default views), the value of DEFAULT_RESOURCE_VIEW_TYPES is used to
+    look up the plugins.
+
+    If get_datastore_views is False, only the ones not requiring data to be in
+    the DataStore are returned, and if True, only the ones requiring it are.
+
+    To flag a view plugin as requiring the DataStore, it must have the
+    `requires_datastore` key set to True in the dict returned by its `info()`
+    method.
+
+    Returns a list of IResourceView plugins
+    '''
+
+    if config.get('ckan.views.default_views') is None:
+        default_view_types = DEFAULT_RESOURCE_VIEW_TYPES
+    else:
+        default_view_types = config.get('ckan.views.default_views').split(' ')
+
+    default_view_plugins = []
+    for view_type in default_view_types:
+
+        view_plugin = get_view_plugin(view_type)
+
+        if not view_plugin:
+            log.warning('Plugin for view {0} could not be found'
+                        .format(view_type))
+            # We should probably check on startup if the default
+            # view types exist
+            continue
+
+        info = view_plugin.info()
+
+        plugin_requires_datastore = info.get('requires_datastore', False)
+
+        if plugin_requires_datastore == get_datastore_views:
+            default_view_plugins.append(view_plugin)
+
+    return default_view_plugins

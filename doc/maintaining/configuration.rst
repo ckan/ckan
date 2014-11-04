@@ -882,6 +882,40 @@ receiving the request being is shown in the header.
 
 .. end_config-front-end
 
+Resource Views Settings
+-----------------------
+
+.. start_resource-views
+
+.. _ckan.views.default_views:
+
+ckan.views.default_views
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+
+ ckan.views.default_views = image webpage recline_grid_view
+
+Default value: ``image webpage``
+
+Defines the resource views that should be created by default when creating or
+updating a dataset. From this list only the views that are relevant to a particular
+resource format will be created. This is determined by each individual view.
+
+If not present (or commented), the default value is used. If left empty, no
+default views are created.
+
+.. note:: You must have the relevant view plugins loaded on the ``ckan.plugins``
+    setting to be able to create the default views, eg::
+
+        ckan.plugins = image_view webpage_view recline_grid_view ...
+
+        ckan.views.default_views = image webpage recline_grid_view
+
+
+.. end_resource-views
+
 Theming Settings
 ----------------
 
