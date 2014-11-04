@@ -80,7 +80,6 @@ def default_resource_schema():
         'hash': [ignore_missing, unicode],
         'state': [ignore],
         'position': [ignore],
-        'revision_timestamp': [ignore],
         'name': [ignore_missing, unicode],
         'resource_type': [ignore_missing, unicode],
         'url_type': [ignore_missing, unicode],
@@ -211,7 +210,6 @@ def default_show_package_schema():
         'last_modified': [ckan.lib.navl.validators.ignore_missing],
         'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
-        'revision_timestamp': [],
         'revision_id': [],
         'resource_group_id': [],
         'cache_last_updated': [],
@@ -264,7 +262,6 @@ def default_show_package_schema():
     schema['owner_org'] = []
     schema['private'] = []
     schema['revision_id'] = []
-    schema['revision_timestamp'] = []
     schema['tracking_summary'] = []
     schema['license_title'] = []
 

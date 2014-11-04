@@ -210,12 +210,10 @@ class TestAction(WsgiAppCase):
 
         package_updated = json.loads(res.body)['result']
         package_updated.pop('revision_id')
-        package_updated.pop('revision_timestamp')
         package_updated.pop('metadata_created')
         package_updated.pop('metadata_modified')
 
         package_created.pop('revision_id')
-        package_created.pop('revision_timestamp')
         package_created.pop('metadata_created')
         package_created.pop('metadata_modified')
         assert package_updated == package_created#, (pformat(json.loads(res.body)), pformat(package_created['result']))

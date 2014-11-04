@@ -64,7 +64,7 @@ def resource_list_dictize(res_list, context):
     result_list = []
     for res in res_list:
         resource_dict = resource_dictize(res, context)
-        if active and res.state not in ('active', 'pending'):
+        if active and res.state != 'active':
             continue
 
         result_list.append(resource_dict)
@@ -97,7 +97,7 @@ def extras_list_dictize(extras_list, context):
     active = context.get('active', True)
     for extra in extras_list:
         dictized = d.table_dictize(extra, context)
-        if active and extra.state not in ('active'):
+        if active and extra.state != 'active':
             continue
         value = dictized["value"]
         result_list.append(dictized)
@@ -134,6 +134,20 @@ def resource_dictize(res, context):
 def related_dictize(rel, context):
     return d.table_dictize(rel, context)
 
+
+def _execute(q, table, context):
+    '''
+    Takes an SqlAlchemy query (q) that is (at its base) a Select on an
+    object table (table), and it returns the object.
+
+    Analogous with _execute_with_revision, so takes the same params, even
+    though it doesn't need the table.
+    '''
+    model = context['model']
+    session = model.Session
+    return session.execute(q)
+
+
 def _execute_with_revision(q, rev_table, context):
     '''
     Takes an SqlAlchemy query (q) that is (at its base) a Select on an
@@ -152,7 +166,6 @@ def _execute_with_revision(q, rev_table, context):
 
     '''
     model = context['model']
-    meta = model.meta
     session = model.Session
     revision_id = context.get('revision_id')
     revision_date = context.get('revision_date')
@@ -168,8 +181,8 @@ def _execute_with_revision(q, rev_table, context):
         q = q.where(rev_table.c.revision_timestamp <= revision_date)
         q = q.where(rev_table.c.expired_timestamp > revision_date)
     else:
-        # TODO: Use the most recent timestamp.
-        q = q.where(rev_table.c.current == True)
+        # The most recent timestamp (caller will do .first())
+        q = q.order_by(rev_table.c.revision_timestamp.desc())
 
     return session.execute(q)
 
@@ -178,19 +191,27 @@ def package_dictize(pkg, context):
     '''
     Given a Package object, returns an equivalent dictionary.
 
-    Normally this is the current revision (most recent moderated version),
-    but you can provide revision_id, revision_date or pending in the
-    context and it will filter to an earlier time or the latest unmoderated
-    object revision.
+    Normally this is the current revision (most recent moderated version), but
+    you can provide revision_id or revision_date in the context and it will
+    filter to an earlier time.
 
-    May raise NotFound. TODO: understand what the specific set of
-    circumstances are that cause this.
+    May raise NotFound if:
+    * the specified revision_id doesn't exist
+    * the specified revision_date was before the package was created
     '''
     model = context['model']
+    is_latest_revision = not(context.get('revision_id') or
+                             context.get('revision_date'))
+    execute = _execute if is_latest_revision else _execute_with_revision
     #package
-    package_rev = model.package_revision_table
-    q = select([package_rev]).where(package_rev.c.id == pkg.id)
-    result = _execute_with_revision(q, package_rev, context).first()
+    if is_latest_revision:
+        if isinstance(pkg, model.PackageRevision):
+            pkg = model.Package.get(pkg.id)
+        result = pkg
+    else:
+        package_rev = model.package_revision_table
+        q = select([package_rev]).where(package_rev.c.id == pkg.id)
+        result = execute(q, package_rev, context).first()
     if not result:
         raise logic.NotFound
     result_dict = d.table_dictize(result, context)
@@ -198,71 +219,96 @@ def package_dictize(pkg, context):
     if result_dict.get('title'):
         result_dict['title'] = result_dict['title'].strip()
     #resources
-    res_rev = model.resource_revision_table
-    resource_group = model.resource_group_table
-    q = select([res_rev], from_obj = res_rev.join(resource_group,
-               resource_group.c.id == res_rev.c.resource_group_id))
-    q = q.where(resource_group.c.package_id == pkg.id)
-    result = _execute_with_revision(q, res_rev, context)
+    if is_latest_revision:
+        res = model.resource_table
+        res_group = model.resource_group_table
+    else:
+        res = model.resource_revision_table
+        res_group = model.resource_group_table
+    q = select([res], from_obj=res.join(res_group,
+               res_group.c.id == res.c.resource_group_id))
+    q = q.where(res_group.c.package_id == pkg.id)
+    result = execute(q, res, context)
     result_dict["resources"] = resource_list_dictize(result, context)
     result_dict['num_resources'] = len(result_dict.get('resources', []))
 
     #tags
-    tag_rev = model.package_tag_revision_table
     tag = model.tag_table
-    q = select([tag, tag_rev.c.state, tag_rev.c.revision_timestamp],
-        from_obj=tag_rev.join(tag, tag.c.id == tag_rev.c.tag_id)
-        ).where(tag_rev.c.package_id == pkg.id)
-    result = _execute_with_revision(q, tag_rev, context)
-    result_dict["tags"] = d.obj_list_dictize(result, context, lambda x: x["name"])
+    if is_latest_revision:
+        pkg_tag = model.package_tag_table
+    else:
+        pkg_tag = model.package_tag_revision_table
+    q = select([tag, pkg_tag.c.state],
+               from_obj=pkg_tag.join(tag, tag.c.id == pkg_tag.c.tag_id)
+               ).where(pkg_tag.c.package_id == pkg.id)
+    result = execute(q, pkg_tag, context)
+    result_dict["tags"] = d.obj_list_dictize(result, context,
+                                             lambda x: x["name"])
     result_dict['num_tags'] = len(result_dict.get('tags', []))
 
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
     # translated into another language by the multilingual extension).
     for tag in result_dict['tags']:
-        assert not tag.has_key('display_name')
+        assert not 'display_name' in tag
         tag['display_name'] = tag['name']
 
     #extras
-    extra_rev = model.extra_revision_table
-    q = select([extra_rev]).where(extra_rev.c.package_id == pkg.id)
-    result = _execute_with_revision(q, extra_rev, context)
+    if is_latest_revision:
+        extra = model.package_extra_table
+    else:
+        extra = model.extra_revision_table
+    q = select([extra]).where(extra.c.package_id == pkg.id)
+    result = execute(q, extra, context)
     result_dict["extras"] = extras_list_dictize(result, context)
+
     #groups
-    member_rev = model.member_revision_table
+    if is_latest_revision:
+        member = model.member_table
+    else:
+        member = model.member_revision_table
     group = model.group_table
-    q = select([group, member_rev.c.capacity],
-               from_obj=member_rev.join(group, group.c.id == member_rev.c.group_id)
-               ).where(member_rev.c.table_id == pkg.id)\
-                .where(member_rev.c.state == 'active') \
+    q = select([group, member.c.capacity],
+               from_obj=member.join(group, group.c.id == member.c.group_id)
+               ).where(member.c.table_id == pkg.id)\
+                .where(member.c.state == 'active') \
                 .where(group.c.is_organization == False)
-    result = _execute_with_revision(q, member_rev, context)
+    result = execute(q, member, context)
     context['with_capacity'] = False
     ## no package counts as cannot fetch from search index at the same
     ## time as indexing to it.
     ## tags, extras and sub-groups are not included for speed
     result_dict["groups"] = group_list_dictize(result, context,
                                                with_package_counts=False)
+
     #owning organization
-    group_rev = model.group_revision_table
-    q = select([group_rev]
-               ).where(group_rev.c.id == pkg.owner_org) \
-                .where(group_rev.c.state == 'active')
-    result = _execute_with_revision(q, group_rev, context)
+    if is_latest_revision:
+        group = model.group_table
+    else:
+        group = model.group_revision_table
+    q = select([group]
+               ).where(group.c.id == pkg.owner_org) \
+                .where(group.c.state == 'active')
+    result = execute(q, group, context)
     organizations = d.obj_list_dictize(result, context)
     if organizations:
         result_dict["organization"] = organizations[0]
     else:
         result_dict["organization"] = None
+
     #relations
-    rel_rev = model.package_relationship_revision_table
-    q = select([rel_rev]).where(rel_rev.c.subject_package_id == pkg.id)
-    result = _execute_with_revision(q, rel_rev, context)
-    result_dict["relationships_as_subject"] = d.obj_list_dictize(result, context)
-    q = select([rel_rev]).where(rel_rev.c.object_package_id == pkg.id)
-    result = _execute_with_revision(q, rel_rev, context)
-    result_dict["relationships_as_object"] = d.obj_list_dictize(result, context)
+    if is_latest_revision:
+        rel = model.package_relationship_table
+    else:
+        rel = model.package_relationship_revision_table
+    q = select([rel]).where(rel.c.subject_package_id == pkg.id)
+    result = execute(q, rel, context)
+    result_dict["relationships_as_subject"] = \
+        d.obj_list_dictize(result, context)
+    q = select([rel]).where(rel.c.object_package_id == pkg.id)
+    result = execute(q, rel, context)
+    result_dict["relationships_as_object"] = \
+        d.obj_list_dictize(result, context)
 
     # Extra properties from the domain object
     # We need an actual Package object for this, not a PackageRevision
@@ -270,20 +316,21 @@ def package_dictize(pkg, context):
         pkg = model.Package.get(pkg.id)
 
     # isopen
-    result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen,bool) else pkg.isopen()
+    result_dict['isopen'] = pkg.isopen if isinstance(pkg.isopen, bool) \
+                            else pkg.isopen()
 
     # type
     # if null assign the default value to make searching easier
-    result_dict['type']= pkg.type or u'dataset'
+    result_dict['type'] = pkg.type or u'dataset'
 
     # license
     if pkg.license and pkg.license.url:
-        result_dict['license_url']= pkg.license.url
-        result_dict['license_title']= pkg.license.title.split('::')[-1]
+        result_dict['license_url'] = pkg.license.url
+        result_dict['license_title'] = pkg.license.title.split('::')[-1]
     elif pkg.license:
-        result_dict['license_title']= pkg.license.title
+        result_dict['license_title'] = pkg.license.title
     else:
-        result_dict['license_title']= pkg.license_id
+        result_dict['license_title'] = pkg.license_id
 
     # creation and modification date
     result_dict['metadata_modified'] = pkg.metadata_modified.isoformat()
@@ -291,6 +338,7 @@ def package_dictize(pkg, context):
         if pkg.metadata_created else None
 
     return result_dict
+
 
 def _get_members(context, group, member_type):
 
@@ -600,7 +648,6 @@ def tag_to_api(tag, context):
 def resource_dict_to_api(res_dict, package_id, context):
     res_dict.pop("revision_id")
     res_dict.pop("state")
-    res_dict.pop("revision_timestamp")
     res_dict["package_id"] = package_id
 
 
@@ -608,7 +655,6 @@ def package_to_api(pkg, context):
     api_version = context.get('api_version')
     assert api_version, 'No api_version supplied in context'
     dictized = package_dictize(pkg, context)
-    dictized.pop("revision_timestamp")
 
     dictized["tags"] = [tag["name"] for tag in dictized["tags"] \
                         if not tag.get('vocabulary_id')]

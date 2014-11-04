@@ -48,9 +48,13 @@ class PackageSaver(object):
             c.pkg_extras.append((k, v))
         if context.get('revision_id') or context.get('revision_date'):
             # request was for a specific revision id or date
-            c.pkg_revision_id = c.pkg_dict[u'revision_id']
-            c.pkg_revision_timestamp = c.pkg_dict[u'revision_timestamp']
-            c.pkg_revision_not_latest = c.pkg_dict[u'revision_id'] != c.pkg.revision.id
+            if context.get('revision_id'):
+                rev = model.Session.query(model.Revision) \
+                           .filter_by(id=context['revision_id']) \
+                           .first()
+                c.revision_date = rev.timestamp if rev else '?'
+            else:
+                c.revision_date = context.get('revision_date')
 
     @classmethod
     def commit_pkg(cls, fs, log_message, author, client=None):

@@ -496,8 +496,9 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         pkg_html = self.named_div('dataset', res)
         side_html = self.named_div('sidebar', res)
         print 'MAIN', main_html
-        assert 'This is an old revision of this dataset' not in main_html
-        assert 'This is the current revision of this dataset' in main_html
+        assert 'This is an old revision of this dataset' in main_html
+        # It is not an old revision, but working that out is hard. The request
+        # was for a particular revision, so assume it is old.
         assert 'at January 3, 2011, 00:00' in main_html
         self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
         print 'PKG', pkg_html

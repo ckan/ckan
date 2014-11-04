@@ -163,94 +163,6 @@ class TestBasicDictize:
                     self.remove_revision_id(new_dict)
         return dict
 
-    def test_01_dictize_main_objects_simple(self):
-
-        context = {"model": model,
-                   "session": model.Session}
-
-        ## package
-        pkg = model.Session.query(model.Package).filter_by(name='annakarenina').first()
-        result = table_dictize(pkg, context)
-        self.remove_changable_columns(result)
-
-        expected = {
-            'author': None,
-            'author_email': None,
-            'license_id': u'other-open',
-            'creator_user_id': None,
-            'maintainer': None,
-            'maintainer_email': None,
-            'name': u'annakarenina',
-            'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
-            'state': u'active',
-            'title': u'A Novel By Tolstoy',
-            'type': u'dataset',
-            'url': u'http://www.annakarenina.com',
-            'owner_org': None,
-            'private': False,
-            'version': u'0.7a'
-        }
-        assert result == expected, pprint(result)
-
-        ## resource
-
-        resource = pkg.resource_groups_all[0].resources_all[0]
-
-        result = resource_dictize(resource, context)
-        self.remove_changable_columns(result)
-
-
-        assert result == {
-            u'alt_url': u'alt123',
-             'cache_last_updated': None,
-             'cache_url': None,
-             'description': u'Full text. Needs escaping: " Umlaut: \xfc',
-             'format': u'plain text',
-             'hash': u'abc123',
-             'last_modified': None,
-             'mimetype': None,
-             'mimetype_inner': None,
-             'name': None,
-             'position': 0,
-             'resource_type': None,
-             'size': None,
-             u'size_extra': u'123',
-             'state': u'active',
-             'url': u'http://www.annakarenina.com/download/x=1&y=2',
-             'url_type': None,
-             'webstore_last_updated': None,
-             'webstore_url': None
-            }, pprint(result)
-
-        ## package extra
-
-        key, package_extras = pkg._extras.popitem()
-
-        result = table_dictize(package_extras, context)
-        self.remove_changable_columns(result)
-
-        assert result == {
-            'key': u'genre',
-            'state': u'active',
-            'value': u'romantic novel'
-        }, pprint(result)
-
-
-    def test_02_package_dictize(self):
-
-        context = {"model": model,
-                   "session": model.Session}
-
-        model.Session.remove()
-        pkg = model.Session.query(model.Package).filter_by(name='annakarenina').first()
-
-        result = package_dictize(pkg, context)
-        self.remove_changable_columns(result)
-
-        print "\n".join(unified_diff(pformat(result).split("\n"), pformat(self.package_expected).split("\n")))
-        assert sorted(result.values()) == sorted(self.package_expected.values())
-        assert result == self.package_expected
-
     def test_03_package_to_api1(self):
 
         context = {"model": model,
@@ -896,21 +808,4 @@ class TestBasicDictize:
 
         # Passwords should never be available
         assert 'password' not in user_dict
-
-    def test_26_package_dictize_whitespace_strippped_from_title(self):
-
-        context = {"model": model,
-                   "session": model.Session}
-
-        pkg = model.Session.query(model.Package).first()
-        original_title = pkg.title
-        pkg.title = "     whitespace title    \t"
-        model.Session.add(pkg)
-        model.Session.commit()
-
-        result = package_dictize(pkg, context)
-        assert result['title'] == 'whitespace title'
-        pkg.title = original_title
-        model.Session.add(pkg)
-        model.Session.commit()
 

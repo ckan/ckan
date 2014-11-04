@@ -81,10 +81,9 @@
   </py:match>
 
   <div py:match="content">
-    <py:if test="c.pkg_revision_id">
+    <py:if test="c.revision_date">
       <div id="revision" class="widget-container">
-        <p py:if="c.pkg_revision_not_latest">This is an old revision of this dataset, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}. It may differ significantly from the <a href="${h.url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
-        <p py:if="not c.pkg_revision_not_latest">This is the current revision of this dataset, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.pkg_revision_timestamp, with_hours=True)}.</p>
+        <p>This is an old revision of this dataset, as edited <!--!by ${h.linked_user(rev.author)}-->at ${h.render_datetime(c.revision_date, with_hours=True)}. It may differ significantly from the <a href="${h.url(controller='package', action='read', id=c.pkg.name)}">current revision</a>.</p>
       </div>
     </py:if>
 

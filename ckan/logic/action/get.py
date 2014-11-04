@@ -1028,8 +1028,6 @@ def resource_show(context, data_dict):
         logging.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
-    # original dictized version didn't include this field:
-    resource_dict.pop('revision_timestamp')
     return resource_dict
 
 
