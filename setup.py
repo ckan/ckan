@@ -78,6 +78,8 @@ entry_points = {
         'recline_grid_view = ckanext.reclineview.plugin:ReclineGridView',
         'recline_graph_view = ckanext.reclineview.plugin:ReclineGraphView',
         'recline_map_view = ckanext.reclineview.plugin:ReclineMapView',
+        'image_view = ckanext.imageview.plugin:ImageView',
+        'webpage_view = ckanext.webpageview.plugin:WebPageView',
         # FIXME: Remove deprecated resource previews below. You should use the
         # versions as *_view instead.
         'text_preview = ckanext.textview.plugin:TextView',
@@ -126,8 +128,6 @@ entry_points = {
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
-        'image_view = ckanext.imageview.plugin:ImageView',
-        'webpage_view = ckanext.webpageview.plugin:WebPageView',
     ],
     'ckan.test_plugins': [
         'routes_plugin = tests.ckantestplugins:RoutesPlugin',
