@@ -1,6 +1,7 @@
 import datetime
 
-from sqlalchemy import orm, types, Column, Table, ForeignKey, desc, or_
+from sqlalchemy import (
+    orm, types, Column, Table, ForeignKey, desc, or_, union_all)
 
 import ckan.model
 import meta
@@ -86,6 +87,11 @@ def _activities_limit(q, limit, offset=None):
         q = q.limit(limit)
     return q
 
+def _activities_union_all(*qlist):
+    import ckan.model as model
+    return model.Session.query(model.Activity).select_from(
+        union_all(*[q.subquery().select() for q in qlist]))
+
 def _activities_at_offset(q, limit, offset):
     '''
     Return a list of all activities at an offset with a limit.
@@ -110,10 +116,9 @@ def _activities_about_user_query(user_id):
 
 def _user_activity_query(user_id, limit):
     '''Return an SQLAlchemy query for all activities from or about user_id.'''
-    q = _activities_limit(_activities_from_user_query(user_id), limit)
-    q = q.union(_activities_limit(_activities_about_user_query(user_id),
-        limit))
-    return q
+    q1 = _activities_limit(_activities_from_user_query(user_id), limit)
+    q2 = _activities_limit(_activities_about_user_query(user_id), limit)
+    return _activities_union_all(q1, q2)
 
 
 def user_activity_list(user_id, limit, offset):
@@ -206,10 +211,9 @@ def _activites_from_users_followed_by_user_query(user_id, limit):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter("0=1")
 
-    q = _user_activity_query(follower_objects[0].object_id, limit)
-    q = q.union_all(*[_user_activity_query(follower.object_id, limit)
-        for follower in follower_objects[1:]])
-    return q
+    return _activities_union_all(*[
+        _user_activity_query(follower.object_id, limit)
+        for follower in follower_objects])
 
 
 def _activities_from_datasets_followed_by_user_query(user_id, limit):
@@ -222,13 +226,9 @@ def _activities_from_datasets_followed_by_user_query(user_id, limit):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter("0=1")
 
-    q = _activities_limit(
-        _package_activity_query(follower_objects[0].object_id),
-        limit)
-    q = q.union_all(*[
+    return _activities_union_all(*[
         _activities_limit(_package_activity_query(follower.object_id), limit)
-        for follower in follower_objects[1:]])
-    return q
+        for follower in follower_objects])
 
 
 def _activities_from_groups_followed_by_user_query(user_id, limit):
@@ -247,23 +247,17 @@ def _activities_from_groups_followed_by_user_query(user_id, limit):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter("0=1")
 
-    q = _activities_limit(
-        _group_activity_query(follower_objects[0].object_id),
-        limit)
-    q = q.union_all(*[
+    return _activities_union_all(*[
         _activities_limit(_group_activity_query(follower.object_id), limit)
-        for follower in follower_objects[1:]])
-    return q
+        for follower in follower_objects])
 
 
 def _activities_from_everything_followed_by_user_query(user_id, limit):
     '''Return a query for all activities from everything user_id follows.'''
-    q = _activites_from_users_followed_by_user_query(user_id, limit)
-    q = q.union(_activities_from_datasets_followed_by_user_query(
-        user_id, limit))
-    q = q.union(_activities_from_groups_followed_by_user_query(
-        user_id, limit))
-    return q
+    q1 = _activites_from_users_followed_by_user_query(user_id, limit)
+    q2 = _activities_from_datasets_followed_by_user_query(user_id, limit)
+    q3 = _activities_from_groups_followed_by_user_query(user_id, limit)
+    return _activities_union_all(q1, q2, q3)
 
 
 def activities_from_everything_followed_by_user(user_id, limit, offset):
@@ -281,10 +275,9 @@ def activities_from_everything_followed_by_user(user_id, limit, offset):
 
 def _dashboard_activity_query(user_id, limit):
     '''Return an SQLAlchemy query for user_id's dashboard activity stream.'''
-    q = _user_activity_query(user_id, limit)
-    q = q.union(_activities_from_everything_followed_by_user_query(user_id,
-        limit))
-    return q
+    q1 = _user_activity_query(user_id, limit)
+    q2 = _activities_from_everything_followed_by_user_query(user_id, limit)
+    return _activities_union_all(q1, q2)
 
 
 def dashboard_activity_list(user_id, limit, offset):
