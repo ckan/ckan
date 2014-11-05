@@ -231,7 +231,7 @@ def add_default_views_to_resource(context,
     '''
     if not dataset_dict:
         dataset_dict = logic.get_action('package_show')(
-            context, {resource_dict['package_id']})
+            context, {'id': resource_dict['package_id']})
 
     default_view_plugins = get_default_view_plugins(create_datastore_views)
 
