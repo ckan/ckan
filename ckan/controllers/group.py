@@ -506,7 +506,10 @@ class GroupController(base.BaseController):
                 tuplize_dict(parse_params(request.params))))
             data_dict['type'] = group_type or 'group'
             context['message'] = data_dict.get('log_message', '')
-            data_dict['users'] = [{'name': c.user, 'capacity': 'admin'}]
+
+            # DGU don't add the user as an admin because all groups are created by sysadmin
+            # issue #1612
+            #data_dict['users'] = [{'name': c.user, 'capacity': 'admin'}]
             group = self._action('group_create')(context, data_dict)
 
             # Redirect to the appropriate _read route for the type of group
