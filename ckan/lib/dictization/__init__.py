@@ -72,7 +72,7 @@ def obj_list_dictize(obj_list, context, sort_key=lambda x:x):
             dictized = table_dictize(obj, context, capacity=capacity)
         else:
             dictized = table_dictize(obj, context)
-        if active and obj.state not in ('active'):
+        if active and obj.state != 'active':
             continue
         result_list.append(dictized)
 
