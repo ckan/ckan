@@ -1,8 +1,10 @@
 import nose.tools
 
+import ckan.model as model
+import ckan.plugins as p
+
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
-import ckan.model as model
 
 assert_equals = nose.tools.assert_equals
 assert_not_equals = nose.tools.assert_not_equals
@@ -12,7 +14,17 @@ ResourceView = model.ResourceView
 class TestResourceView(object):
     @classmethod
     def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+        if not p.plugin_loaded('webpage_view'):
+            p.load('webpage_view')
+
         helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+        p.unload('webpage_view')
 
     def setup(self):
         model.repo.rebuild_db()

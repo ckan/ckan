@@ -6,6 +6,7 @@ import mock
 import pylons.config as config
 
 import ckan.logic as logic
+import ckan.plugins as p
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
@@ -507,7 +508,14 @@ class TestUpdateSendEmailNotifications(object):
 class TestResourceViewUpdate(object):
 
     @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+    @classmethod
     def teardown_class(cls):
+        p.unload('image_view')
+
         helpers.reset_db()
 
     def setup(cls):

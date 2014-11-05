@@ -153,7 +153,24 @@ class Resource(factory.Factory):
 
 
 class ResourceView(factory.Factory):
-    '''A factory class for creating CKAN resource views.'''
+    '''A factory class for creating CKAN resource views.
+
+    Note: if you use this factory, you need to load the `image_view` plugin
+    on your test class (and unload it later), otherwise you will get an error.
+
+    Example::
+
+        class TestSomethingWithResourceViews(object):
+            @classmethod
+            def setup_class(cls):
+                if not p.plugin_loaded('image_view'):
+                    p.load('image_view')
+
+            @classmethod
+            def teardown_class(cls):
+                p.unload('image_view')
+
+    '''
 
     FACTORY_FOR = ckan.model.ResourceView
 

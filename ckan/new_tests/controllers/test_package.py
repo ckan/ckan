@@ -2,9 +2,12 @@ from nose.tools import assert_equal, assert_true
 
 from routes import url_for
 
+import ckan.model as model
+import ckan.plugins as p
+
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
-import ckan.model as model
+
 
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
@@ -150,7 +153,15 @@ class TestPackageResourceRead(helpers.FunctionalTestBase):
     @classmethod
     def setup_class(cls):
         super(cls, cls).setup_class()
+
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
         helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
 
     def setup(self):
         model.repo.rebuild_db()
