@@ -369,17 +369,35 @@ class BaseController(WSGIController):
         return res
 
     def __after__(self, action, **params):
-        self._set_cors()
+        # Do we have CORS settings in config?
+        if config.get('ckan.cors.origin_allow_all') \
+                and request.headers.get('Origin'):
+            self._set_cors()
         r_time = time.time() - c.__timer
         url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
         log.info(' %s render time %.3f seconds' % (url, r_time))
 
     def _set_cors(self):
-        response.headers['Access-Control-Allow-Origin'] = "*"
-        response.headers['Access-Control-Allow-Methods'] = \
-            "POST, PUT, GET, DELETE, OPTIONS"
-        response.headers['Access-Control-Allow-Headers'] = \
-            "X-CKAN-API-KEY, Authorization, Content-Type"
+        '''
+        Set up Access Control Allow headers if either origin_allow_all is
+        True, or the request Origin is in the origin_whitelist.
+        '''
+        cors_origin_allowed = None
+        if asbool(config.get('ckan.cors.origin_allow_all')):
+            cors_origin_allowed = "*"
+        elif config.get('ckan.cors.origin_whitelist') and \
+                request.headers.get('Origin') \
+                in config['ckan.cors.origin_whitelist'].split(" "):
+            # set var to the origin to allow it.
+            cors_origin_allowed = request.headers.get('Origin')
+
+        if cors_origin_allowed is not None:
+            response.headers['Access-Control-Allow-Origin'] = \
+                cors_origin_allowed
+            response.headers['Access-Control-Allow-Methods'] = \
+                "POST, PUT, GET, DELETE, OPTIONS"
+            response.headers['Access-Control-Allow-Headers'] = \
+                "X-CKAN-API-KEY, Authorization, Content-Type"
 
     def _get_user_for_apikey(self):
         apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,
