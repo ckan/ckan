@@ -18,7 +18,6 @@ WebError==0.10.3
 WebHelpers==1.3
 WebOb==1.0.8
 WebTest==1.4.3
-apachemiddleware==0.1.1
 argparse==1.2.1
 decorator==3.4.0
 fanstatic==0.12
