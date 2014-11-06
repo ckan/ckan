@@ -202,7 +202,7 @@ Finally, enable your CKAN site in Apache:
 
 .. parsed-literal::
 
-    sudo a2ensite ckan_default
+    sudo a2ensite ckan_default.conf
     sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan_default
     |reload_apache|
     |reload_nginx|
