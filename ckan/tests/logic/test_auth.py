@@ -1,24 +1,12 @@
-import mock
-
+import paste
+from pylons import config
+import ckan.config.middleware
 import ckan.tests as tests
 from ckan.logic import get_action
 import ckan.model as model
 import ckan.new_authz as new_authz
 from ckan.lib.create_test_data import CreateTestData
 import json
-
-INITIAL_TEST_CONFIG_PERMISSIONS = {
-    'anon_create_dataset': False,
-    'create_dataset_if_not_in_organization': False,
-    'user_create_groups': False,
-    'user_create_organizations': False,
-    'user_delete_groups': False,
-    'user_delete_organizations': False,
-    'create_unowned_dataset': False,
-    'create_user_via_api': False,
-    'create_user_via_web': True,
-    'roles_that_cascade_to_sub_groups': ['admin'],
-}
 
 
 class TestAuth(tests.WsgiAppCase):
@@ -30,12 +18,28 @@ class TestAuth(tests.WsgiAppCase):
         ## add apikeys as they go along
         cls.apikeys = {'sysadmin': admin_api, 'random_key': 'moo'}
 
-        cls.old_perm = new_authz.CONFIG_PERMISSIONS.copy()
-        new_authz.CONFIG_PERMISSIONS.update(INITIAL_TEST_CONFIG_PERMISSIONS)
+        cls._original_config = config.copy()
+
+        config['ckan.auth.anon_create_dataset'] = False
+        config['ckan.auth.create_dataset_if_not_in_organization'] = False
+        config['ckan.auth.user_create_groups'] = False
+        config['ckan.auth.user_create_organizations'] = False
+        config['ckan.auth.user_delete_groups'] = False
+        config['ckan.auth.user_delete_organizations'] = False
+        config['ckan.auth.create_unowned_dataset'] = False
+        config['ckan.auth.create_user_via_api'] = False
+        config['ckan.auth.create_user_via_web'] = True
+        config['ckan.auth.roles_that_cascade_to_sub_groups'] = 'admin'
+
+        wsgiapp = ckan.config.middleware.make_app(
+            config['global_conf'], **config)
+        cls.app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod
     def teardown_class(cls):
-        new_authz.CONFIG_PERMISSIONS.update(cls.old_perm)
+        config.clear()
+        config.update(cls._original_config)
+
         model.repo.rebuild_db()
 
     @classmethod
@@ -227,9 +231,6 @@ class TestAuthOrgs(TestAuth):
         self._call_api('organization_delete', org, 'org_editor', 403)
         self._call_api('organization_delete', org, 'org_admin', 403)
 
-ORG_HIERARCHY_PERMISSIONS = {
-    'roles_that_cascade_to_sub_groups': ['admin'],
-    }
 
 class TestAuthOrgHierarchy(TestAuth):
     # Tests are in the same vein as TestAuthOrgs, testing the cases where the
@@ -241,11 +242,24 @@ class TestAuthOrgHierarchy(TestAuth):
         CreateTestData.create_group_hierarchy_test_data()
         for user in model.Session.query(model.User):
             cls.apikeys[user.name] = str(user.apikey)
-        new_authz.CONFIG_PERMISSIONS.update(ORG_HIERARCHY_PERMISSIONS)
+
+        cls._original_config = config.copy()
+
+        config['ckan.auth.roles_that_cascade_to_sub_groups'] = 'admin'
+
+        wsgiapp = ckan.config.middleware.make_app(
+            config['global_conf'], **config)
+        cls.app = paste.fixture.TestApp(wsgiapp)
+
         CreateTestData.create_arbitrary(
             package_dicts= [{'name': 'adataset',
                              'groups': ['national-health-service']}],
             extra_user_names=['john'])
+
+    @classmethod
+    def teardown_class(cls):
+        config.clear()
+        config.update(cls._original_config)
 
     def _reset_a_datasets_owner_org(self):
         rev = model.repo.new_revision()
