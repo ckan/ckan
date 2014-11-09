@@ -206,7 +206,8 @@ def make_map():
     with SubMapper(map, controller='package') as m:
         m.connect('search', '/dataset', action='search',
                   highlight_actions='index search')
-        m.connect('add dataset', '/dataset/new', action='new')
+        m.connect('add raw dataset', '/dataset/new_raw', action='new_raw')
+        m.connect('add semantic dataset', '/dataset/new_semantic', action='new_semantic')
         m.connect('/dataset/{action}',
                   requirements=dict(action='|'.join([
                       'list',
@@ -285,6 +286,11 @@ def make_map():
     ##to get back formalchemy uncomment these lines
     ##map.connect('/group/new', controller='group_formalchemy', action='new')
     ##map.connect('/group/edit/{id}', controller='group_formalchemy', action='edit')
+
+    
+    with SubMapper(map, controller='analytics') as m:
+        m.connect('analytic_index', '/analytic', action='index',
+                  highlight_actions='index search')
 
     # These named routes are used for custom group forms which will use the
     # names below based on the group.type ('group' is the default type)

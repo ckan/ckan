@@ -270,7 +270,7 @@ msgstr "没有权限读取群组 %s"
 #: ckan/templates/organization/read_base.html:6
 #: ckan/templates/package/base.html:14
 msgid "Organizations"
-msgstr "机构"
+msgstr "组织机构"
 
 #: ckan/controllers/group.py:290 ckan/controllers/home.py:71
 #: ckan/controllers/package.py:226 ckan/lib/helpers.py:602
@@ -289,7 +289,10 @@ msgstr "机构"
 #: ckan/templates_legacy/package/search.html:26
 #: ckan/templates_legacy/revision/read.html:64
 msgid "Groups"
-msgstr "群组"
+msgstr "关注群组"
+
+msgid "Analytics"
+msgstr "教育分析应用"
 
 #: ckan/controllers/group.py:291 ckan/controllers/home.py:72
 #: ckan/controllers/package.py:227 ckan/lib/helpers.py:603
@@ -2835,7 +2838,7 @@ msgstr "从这个群组中移除数据集"
 
 #: ckan/templates/group/snippets/helper.html:4
 msgid "What are Groups?"
-msgstr "什么是群组?"
+msgstr "什么是关注群组?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
@@ -2843,7 +2846,7 @@ msgid ""
 "could be to catalogue datasets for a particular project or team, or on a "
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets. "
-msgstr "你可以使用 CKAN 提供的群组功能来创建和管理数据集的集合。这可以用来整理同一个项目或者团队的数据集，或者仅是方便其他人搜索到你发布的数据集。"
+msgstr "关注群组（Interest Group）是一个用于管理的容器，它包含了一些相关的数据集，一群关注这些数据集的用户，以及在这些数据集上定义的一些教育分析应用。"
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
@@ -2931,25 +2934,25 @@ msgstr " <p>CKAN is the world’s leading open-source data portal platform.</p> 
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
-msgstr "欢迎來到CKAN"
+msgstr "欢迎使用教育大数据分析平台"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will "
-msgstr "这是一个关于CKAN或网站的简单介绍资讯。目前沒有文案，但很快就会有"
+msgstr "番禺智慧教育示范项目"
 
 #: ckan/templates/home/snippets/promoted.html:17
 msgid "This is a featured section"
 msgstr "这是一个特殊的区段"
 
 #: ckan/templates/home/snippets/search.html:2
-msgid "eg. Gold Prices"
-msgstr "比如:黄金价格"
+msgid "E.g. environment"
+msgstr "比如:番禺小学 2013年1年级 学籍"
 
 #: ckan/templates/home/snippets/search.html:6
-msgid "Search Your Data"
-msgstr "搜索你的数据"
+msgid "Search data"
+msgstr "用标签搜索已上传的数据"
 
 #: ckan/templates/home/snippets/search.html:11
 #: ckan/templates/snippets/simple_search.html:5
@@ -2964,7 +2967,7 @@ msgid "Search"
 msgstr "搜索"
 
 #: ckan/templates/home/snippets/search.html:16
-msgid "Popular Tags"
+msgid "Popular tags"
 msgstr "热门标签"
 
 #: ckan/templates/home/snippets/stats.html:5
@@ -3192,8 +3195,12 @@ msgstr "创建组织"
 #: ckan/templates/user/dashboard_datasets.html:7
 #: ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/group/layout.html:16
-msgid "Add Dataset"
-msgstr "增加数据集"
+msgid "Add Raw Dataset"
+msgstr "增加原始数据集"
+
+msgid "Add Semantic Dataset"
+msgstr "增加语义化数据集"
+
 
 #: ckan/templates/organization/snippets/help.html:4
 #: ckan/templates/organization/snippets/helper.html:4
@@ -3250,19 +3257,25 @@ msgstr "查看{organization_name}"
 
 #: ckan/templates/package/base.html:22 ckan/templates/package/new.html:3
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
-msgid "Create Dataset"
-msgstr "创建数据集"
+msgid "Create Raw Dataset"
+msgstr "创建原始数据集"
 
 #: ckan/templates/package/base_form_page.html:17
-msgid "What are datasets?"
-msgstr "什么是数据集?"
+msgid "What are raw datasets?"
+msgstr "什么是原始数据集?"
 
 #: ckan/templates/package/base_form_page.html:20
 msgid ""
 " A CKAN Dataset is a collection of data resources (such as files), together "
 "with a description and other information, at a fixed URL. Datasets are what "
 "users see when searching for data. "
-msgstr "一个 CKAN 数据集是指数据资源的集合，并包含其相应的简介和相关信息。它拥有一个固定的 URL 地址。当用户搜索数据时，他们得到的结果均以数据集呈现。"
+msgstr "原始数据集由用于上传的若干数据文件组成。对于数据文件的格式没有任何要求，文本、图片、二进制文件都可以。对于某些特定类型的格式（例如csv，网页等）平台提供可视化预览功能。"
+
+msgid "Dataset type"
+msgstr "一个数据集是指数据资源的集合，并包含其相应的简介和相关信息。它拥有一个固定的 URL 地址，是数据管理的基本单位。"
+
+msgid "Dataset type description"
+msgstr "平台定义两种基本的数据集类型：原始数据集和语义化数据集。原始数据集可以包含任意格式的文件，用来管理上传的原始数据。而语义化数据集是对原始数据集进行语义化解析后生成的数据，作为平台上的教育分析应用的输入。"
 
 #: ckan/templates/package/confirm_delete.html:11
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -3538,7 +3551,7 @@ msgstr "其他信息"
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 #: ckan/templates_legacy/package/read_core.html:63
 msgid "Source"
-msgstr "源"
+msgstr "数据集来源"
 
 #: ckan/templates/package/snippets/additional_info.html:33
 #: ckan/templates/package/snippets/additional_info.html:38
@@ -3580,11 +3593,11 @@ msgstr "标题"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 msgid "eg. A descriptive title"
-msgstr "例如：一个描述性的标题"
+msgstr "一个描述性的标题，例如'2014同方番禺试点'。"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:13
 msgid "eg. my-dataset"
-msgstr "例如：我的数据"
+msgstr "数据集标志符（只支持英文）"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:19
 msgid "eg. Some useful notes about the data"
@@ -3592,7 +3605,7 @@ msgstr "例如：关于数据的有用信息"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:24
 msgid "eg. economy, mental health, government"
-msgstr "例如：经济，健康，政府"
+msgstr "例如：学籍，会考成绩，语文"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:40
 msgid ""
@@ -3637,11 +3650,11 @@ msgstr "你确定要删除此数据集吗？"
 
 #: ckan/templates/package/snippets/package_form.html:41
 msgid "Next: Add Data"
-msgstr "下一步：添加数据"
+msgstr "下一步：添加数据文件"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "http://example.com/dataset.json"
-msgstr "http://example.com/dataset.json"
+msgstr "数据集来源网址，如'www.pyedu.cn/2014'"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:10
 msgid "1.0"
@@ -3650,7 +3663,7 @@ msgstr "1.0"
 #: ckan/templates/package/snippets/package_metadata_fields.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:20
 msgid "Joe Bloggs"
-msgstr "Joe Bloggs"
+msgstr "番禺教育局"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 msgid "Author Email"
@@ -3659,7 +3672,7 @@ msgstr "作者邮箱"
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 msgid "joe@example.com"
-msgstr "joe@example.com"
+msgstr "panyu@guangzhou.gov.cn"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 msgid "Maintainer Email"
@@ -3684,7 +3697,7 @@ msgstr "文件"
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
-msgstr "例如：2011年1月的黄金价格"
+msgstr "例如：2011年度学生列表"
 
 #: ckan/templates/package/snippets/resource_form.html:32
 msgid "Some useful notes about the data"
@@ -3777,8 +3790,8 @@ msgstr "以%s形式查看数据集"
 
 #: ckan/templates/package/snippets/stages.html:25
 #: ckan/templates/package/snippets/stages.html:27
-msgid "Create dataset"
-msgstr "创建数据集"
+msgid "Create raw dataset"
+msgstr "创建原始数据集"
 
 #: ckan/templates/package/snippets/stages.html:32
 #: ckan/templates/package/snippets/stages.html:36
@@ -4486,15 +4499,15 @@ msgstr ""
 
 #: ckan/templates_legacy/_util.html:18
 msgid "You can use"
-msgstr ""
+msgstr "可以使用"
 
 #: ckan/templates_legacy/_util.html:18
 msgid "Markdown formatting"
-msgstr ""
+msgstr "格式标记"
 
 #: ckan/templates_legacy/_util.html:18
 msgid "here."
-msgstr ""
+msgstr "。"
 
 #: ckan/templates_legacy/_util.html:69 ckan/templates_legacy/_util.html:82
 #: ckanext/stats/templates/ckanext/stats/index.html:114
@@ -4670,7 +4683,7 @@ msgstr ""
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "You can use %aMarkdown formatting%b here."
-msgstr ""
+msgstr "可以使用%a格式标记%b。"
 
 #: ckan/templates_legacy/js_strings.html:16
 #, python-format

@@ -13,7 +13,8 @@
       {% block page_primary_action %}
         {% if h.check_access('package_create') %}
           <div class="page_primary_action">
-            {% link_for _('Add Dataset'), controller='package', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
+            {% link_for _('Add Raw Dataset'), controller='package', action='new_raw', class_='btn btn-primary', icon='plus-sign-alt' %}
+            {% link_for _('Add Semantic Dataset'), controller='package', action='new_semantic', class_='btn btn-primary', icon='plus-sign-alt' %}
           </div>
         {% endif %}
       {% endblock %}
@@ -69,6 +70,22 @@
 {% endblock %}
 
 {% block secondary_content %}
+
+<div class="module module-narrow module-shallow">
+  <h2 class="module-heading">
+    <i class="icon-info-sign"></i>
+    {{ _('What are datasets?') }}
+  </h2>
+  <div class="module-content">
+    <p>
+      {{ _('Dataset type') }}
+    </p>
+    <p>
+      {{ _('Dataset type description') }}
+    </p>
+  </div>
+</div>
+
   {% for facet in c.facet_titles %}
     {{ h.snippet('snippets/facet_list.html', title=c.facet_titles[facet], name=facet) }}
   {% endfor %}
