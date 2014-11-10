@@ -88,3 +88,14 @@ this.jQuery.fn.ie7redraw = function() {
     jQuery(this).css('zoom', 1);
   }
 };
+
+
+// Show / hide filters for mobile
+$(function() {
+  $(".show-filters").click(function() {
+    $("body").addClass("filters-modal");
+  });
+  $(".hide-filters").click(function() {
+    $("body").removeClass("filters-modal");
+  });
+});

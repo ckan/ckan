@@ -76,3 +76,18 @@ class TestHelpers(object):
         strType = ''.__class__
         assert result.__class__ == strType,\
             '"remove_linebreaks" casts into str()'
+
+    def test_render_markdown_auto_link_without_path(self):
+        data = 'http://example.com'
+        output = '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a>\n</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_render_markdown_auto_link(self):
+        data = 'https://example.com/page.html'
+        output = '<p><a href="https://example.com/page.html" target="_blank" rel="nofollow">https://example.com/page.html</a>\n</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_render_markdown_auto_link_ignoring_trailing_punctuation(self):
+        data = 'My link: http://example.com/page.html.'
+        output = '<p>My link: <a href="http://example.com/page.html" target="_blank" rel="nofollow">http://example.com/page.html</a>.\n</p>'
+        eq_(h.render_markdown(data), output)

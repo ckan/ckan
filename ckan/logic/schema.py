@@ -11,7 +11,6 @@ from ckan.logic.validators import (package_id_not_changed,
                                    package_id_exists,
                                    package_id_or_name_exists,
                                    resource_id_exists,
-                                   extras_unicode_convert,
                                    name_validator,
                                    package_name_validator,
                                    package_version_validator,
@@ -57,6 +56,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    no_loops_in_hierarchy,
                                    filter_fields_and_values_should_have_same_length,
                                    filter_fields_and_values_exist_and_are_valid,
+                                   extra_key_not_in_root_schema,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
@@ -64,6 +64,7 @@ from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_to_json_if_string,
                                    convert_to_list_if_string,
                                    remove_whitespace,
+                                   extras_unicode_convert,
                                    )
 from formencode.validators import OneOf
 import ckan.model
@@ -73,8 +74,7 @@ def default_resource_schema():
 
     schema = {
         'id': [ignore_empty, unicode],
-        'revision_id': [ignore],
-        'resource_group_id': [ignore],
+        'revision_id': [ignore_missing, unicode],
         'package_id': [ignore],
         'url': [not_empty, unicode, remove_whitespace],
         'description': [ignore_missing, unicode],
@@ -215,7 +215,6 @@ def default_show_package_schema():
         'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'revision_timestamp': [],
         'revision_id': [],
-        'resource_group_id': [],
         'cache_last_updated': [],
         'webstore_last_updated': [],
         'size': [],
@@ -376,7 +375,7 @@ def default_extras_schema():
 
     schema = {
         'id': [ignore],
-        'key': [not_empty, unicode],
+        'key': [not_empty, extra_key_not_in_root_schema, unicode],
         'value': [not_missing],
         'state': [ignore],
         'deleted': [ignore_missing],

@@ -424,6 +424,61 @@ class TestUpdate(object):
                                            "http://c.html",
                                            "http://a.html"]
 
+    def test_update_dataset_cant_change_type(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            type='dataset',
+            name='unchanging',
+            user=user)
+
+        dataset = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            name='unchanging',
+            type='cabinet')
+
+        assert_equals(dataset['type'], 'dataset')
+        assert_equals(
+            helpers.call_action('package_show', id='unchanging')['type'],
+            'dataset')
+
+    def test_update_organization_cant_change_type(self):
+        user = factories.User()
+        context = {'user': user['name']}
+        org = factories.Organization(
+            type='organization',
+            name='unchanging',
+            user=user)
+
+        org = helpers.call_action(
+            'organization_update',
+            context=context,
+            id=org['id'],
+            name='unchanging',
+            type='ragtagband')
+
+        assert_equals(org['type'], 'organization')
+        assert_equals(helpers.call_action(
+            'organization_show', id='unchanging')['type'],
+            'organization')
+
+    def test_update_group_cant_change_type(self):
+        user = factories.User()
+        context = {'user': user['name']}
+        group = factories.Group(type='group', name='unchanging', user=user)
+
+        group = helpers.call_action(
+            'group_update',
+            context=context,
+            id=group['id'],
+            name='unchanging',
+            type='favouritecolour')
+
+        assert_equals(group['type'], 'group')
+        assert_equals(
+            helpers.call_action('group_show', id='unchanging')['type'],
+            'group')
+
 
 class TestUpdateSendEmailNotifications(object):
     @classmethod

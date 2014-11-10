@@ -147,12 +147,10 @@ class CkanCommand(paste.script.command.Command):
 
             self.registry.register(pylons.c, c)
 
-            self.site_user = logic.get_action('get_site_user')({'ignore_auth': True,
-                'defer_commit': True}, {})
+            self.site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
 
             pylons.c.user = self.site_user['name']
             pylons.c.userobj = model.User.get(self.site_user['name'])
-            model.repo.commit_and_remove()
 
         ## give routes enough information to run url_for
         parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
@@ -1142,6 +1140,7 @@ class Tracking(CkanCommand):
                 start_date = combine(start_date, datetime.time(0))
             else:
                 start_date = datetime.datetime(2011, 1, 1)
+        start_date_solrsync = start_date
         end_date = datetime.datetime.now()
 
         while start_date < end_date:
@@ -1149,6 +1148,8 @@ class Tracking(CkanCommand):
             self.update_tracking(engine, start_date)
             print 'tracking updated for %s' % start_date
             start_date = stop_date
+
+        self.update_tracking_solr(engine, start_date_solrsync)
 
     def _total_views(self, engine):
         sql = '''
@@ -1201,7 +1202,7 @@ class Tracking(CkanCommand):
                               for r in total_views])
 
     def update_tracking(self, engine, summary_date):
-        PACKAGE_URL = '%/dataset/'
+        PACKAGE_URL = '/dataset/'
         # clear out existing data before adding new
         sql = '''DELETE FROM tracking_summary
                  WHERE tracking_date='%s'; ''' % summary_date
@@ -1227,7 +1228,7 @@ class Tracking(CkanCommand):
         sql = '''UPDATE tracking_summary t
                  SET package_id = COALESCE(
                         (SELECT id FROM package p
-                        WHERE t.url LIKE  %s || p.name)
+                        WHERE p.name = regexp_replace(' ' || t.url, '^[ ]{1}(/\w{2}){0,1}' || %s, ''))
                      ,'~~not~found~~')
                  WHERE t.package_id IS NULL
                  AND tracking_type = 'page';'''
@@ -1268,6 +1269,34 @@ class Tracking(CkanCommand):
                  AND t1.package_id IS NOT NULL
                  AND t1.package_id != '~~not~found~~';'''
         engine.execute(sql)
+
+    def update_tracking_solr(self, engine, start_date):
+        sql = '''SELECT package_id FROM tracking_summary
+                where package_id!='~~not~found~~'
+                and tracking_date >= %s;'''
+        results = engine.execute(sql, start_date)
+
+        package_ids = set()
+        for row in results:
+            package_ids.add(row['package_id'])
+
+        total = len(package_ids)
+        not_found = 0
+        print '%i package index%s to be rebuilt starting from %s' % (total, '' if total < 2 else 'es', start_date)
+
+        from ckan.lib.search import rebuild
+        for package_id in package_ids:
+            try:
+                rebuild(package_id)
+            except logic.NotFound:
+                print "Error: package %s not found." % (package_id)
+                not_found += 1
+            except KeyboardInterrupt:
+                print "Stopped."
+                return
+            except:
+                raise
+        print 'search index rebuilding done.' + (' %i not found.' % (not_found) if not_found else "")
 
 class PluginInfo(CkanCommand):
     '''Provide info on installed plugins.
@@ -2336,3 +2365,61 @@ class ViewsCommand(CkanCommand):
             logic.get_action('resource_view_create')(context, resource_view)
 
         print '%s grid resource views created!' % count
+
+
+class ConfigToolCommand(paste.script.command.Command):
+    '''Tool for editing options in a CKAN config file
+
+    paster config-tool <default.ini> <key>=<value> [<key>=<value> ...]
+    paster config-tool <default.ini> -f <custom_options.ini>
+
+    Examples:
+      paster config-tool default.ini sqlalchemy.url=123 'ckan.site_title=ABC'
+      paster config-tool default.ini -s server:main -e port=8080
+      paster config-tool default.ini -f custom_options.ini
+    '''
+    parser = paste.script.command.Command.standard_parser(verbose=True)
+    default_verbosity = 1
+    group_name = 'ckan'
+    usage = __doc__
+    summary = usage.split('\n')[0]
+
+    parser.add_option('-s', '--section', dest='section',
+                      default='app:main', help='Section of the config file')
+    parser.add_option(
+        '-e', '--edit', action='store_true', dest='edit', default=False,
+        help='Checks the option already exists in the config file')
+    parser.add_option(
+        '-f', '--file', dest='merge_filepath', metavar='FILE',
+        help='Supply an options file to merge in')
+
+    def command(self):
+        import config_tool
+        if len(self.args) < 1:
+            self.parser.error('Not enough arguments (got %i, need at least 1)'
+                              % len(self.args))
+        config_filepath = self.args[0]
+        if not os.path.exists(config_filepath):
+            self.parser.error('Config filename %r does not exist.' %
+                              config_filepath)
+        if self.options.merge_filepath:
+            config_tool.config_edit_using_merge_file(
+                config_filepath, self.options.merge_filepath)
+        options = self.args[1:]
+        if not (options or self.options.merge_filepath):
+            self.parser.error('No options provided')
+        if options:
+            for option in options:
+                if '=' not in option:
+                    sys.stderr.write(
+                        'An option does not have an equals sign: %r '
+                        'It should be \'key=value\'. If there are spaces '
+                        'you\'ll need to quote the option.\n' % option)
+                    sys.exit(1)
+            try:
+                config_tool.config_edit_using_option_strings(
+                    config_filepath, options, self.options.section,
+                    edit=self.options.edit)
+            except config_tool.ConfigToolError, e:
+                sys.stderr.write(e.message)
+                sys.exit(1)

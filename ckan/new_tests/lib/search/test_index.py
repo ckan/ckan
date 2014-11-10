@@ -180,12 +180,14 @@ class TestPackageSearchIndex:
         pkg_dict['resources'] = [
             {'description': 'A river quality report',
              'format': 'pdf',
+             'resource_type': 'doc',
              'url': 'http://www.foo.com/riverquality.pdf',
              'alt_url': 'http://www.bar.com/riverquality.pdf',
              'city': 'Asuncion'
              },
             {'description': 'A river quality table',
              'format': 'csv',
+             'resource_type': 'file',
              'url': 'http://www.foo.com/riverquality.csv',
              'alt_url': 'http://www.bar.com/riverquality.csv',
              'institution': 'Global River Foundation'
@@ -261,3 +263,13 @@ class TestPackageSearchIndex:
         # Other resource fields are ignored
         assert_equal(indexed_pkg.get('res_extras_institution', None), None)
         assert_equal(indexed_pkg.get('res_extras_city', None), None)
+
+    def test_indexed_package_stores_resource_type(self):
+        index = search.index.PackageSearchIndex()
+        pkg_dict = self._get_pkg_dict_with_resources()
+
+        index.index_package(pkg_dict)
+        indexed_pkg = search.show(pkg_dict['name'])
+
+        # Resource types are indexed
+        assert_equal(indexed_pkg['res_type'], ['doc', 'file'])

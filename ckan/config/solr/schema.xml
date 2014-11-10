@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<schema name="ckan" version="2.0">
+<schema name="ckan" version="2.3">
 
 <types>
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
@@ -100,6 +100,7 @@
     <field name="res_description" type="textgen" indexed="true" stored="true" multiValued="true"/>
     <field name="res_format" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="res_url" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="res_type" type="string" indexed="true" stored="true" multiValued="true"/>
 
     <!-- catchall field, containing all other searchable text fields (implemented
          via copyField further on in this schema  -->

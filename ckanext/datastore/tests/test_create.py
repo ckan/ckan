@@ -303,39 +303,21 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     def test_create_invalid_field_name(self):
         resource = model.Package.get('annakarenina').resources[0]
-        data = {
-            'resource_id': resource.id,
-            'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': '_author', 'type': 'text'}]
-        }
-        postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
+        invalid_names = ['_author', '"author', '', ' author', 'author ',
+                         '\tauthor', 'author\n']
 
-        data = {
-            'resource_id': resource.id,
-            'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': '"author', 'type': 'text'}]
-        }
-        postparams = '%s=1' % json.dumps(data)
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-
-        data = {
-            'resource_id': resource.id,
-            'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': '', 'type': 'text'}]
-        }
-        postparams = '%s=1' % json.dumps(data)
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
+        for field_name in invalid_names:
+            data = {
+                'resource_id': resource.id,
+                'fields': [{'id': 'book', 'type': 'text'},
+                           {'id': field_name, 'type': 'text'}]
+            }
+            postparams = '%s=1' % json.dumps(data)
+            res = self.app.post('/api/action/datastore_create', params=postparams,
+                                extra_environ=auth, status=409)
+            res_dict = json.loads(res.body)
+            assert res_dict['success'] is False
 
     def test_create_invalid_record_field(self):
         resource = model.Package.get('annakarenina').resources[0]

@@ -13,6 +13,7 @@ __all__ = [
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
+    'IValidators',
     'IResourcePreview',
     'IResourceView',
     'IResourceController',
@@ -189,6 +190,9 @@ class IDomainObjectModification(Interface):
     """
 
     def notify(self, entity, operation):
+        pass
+
+    def notify_after_commit(self, entity, operation):
         pass
 
 
@@ -519,10 +523,107 @@ class IResourceController(Interface):
     Hook into the resource controller.
     """
 
+    def before_create(self, context, resource):
+        """
+        Extensions will receive this before a resource is created.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the resource to be added
+            to the dataset (the one that is about to be created).
+        :type resource: dictionary
+        """
+        pass
+
+    def after_create(self, context, resource):
+        """
+        Extensions will receive this after a resource is created.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the latest resource added
+            to the dataset (the one that was just created). A key in the
+            resource dictionary worth mentioning is ``url_type`` which is
+            set to ``upload`` when the resource file is uploaded instead
+            of linked.
+        :type resource: dictionary
+        """
+        pass
+
+    def before_update(self, context, current, resource):
+        """
+        Extensions will receive this before a resource is updated.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param current: The current resource which is about to be updated
+        :type current: dictionary
+        :param resource: An object representing the updated resource which
+            will replace the ``current`` one.
+        :type resource: dictionary
+        """
+        pass
+
+    def after_update(self, context, resource):
+        """
+        Extensions will receive this after a resource is updated.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the updated resource in
+            the dataset (the one that was just updated). As with
+            ``after_create``, a noteworthy key in the resource dictionary
+            ``url_type`` which is set to ``upload`` when the resource file
+            is uploaded instead of linked.
+        :type resource: dictionary
+        """
+        pass
+
+    def before_delete(self, context, resource, resources):
+        """
+        Extensions will receive this before a previously created resource is
+        deleted.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the resource that is about
+            to be deleted. This is a dictionary with one key: ``id`` which
+            holds the id ``string`` of the resource that should be deleted.
+        :type resource: dictionary
+        :param resources: The list of resources from which the resource will
+            be deleted (including the resource to be deleted if it existed
+            in the package).
+        :type resources: list
+        """
+        pass
+
+    def after_delete(self, context, resources):
+        """
+        Extensions will receive this after a previously created resource is
+        deleted.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resources: A list of objects representing the remaining
+            resources after a resource has been removed.
+        :type resource: list
+        """
+        pass
+
     def before_show(self, resource_dict):
         '''
-            Extensions will receive the validated data dict before the resource
-            is ready for display.
+        Extensions will receive the validated data dict before the resource
+        is ready for display.
+
+        Be aware that this method is not only called for UI display, but also
+        in other methods like when a resource is deleted because showing a
+        package is used to get access to the resources in a package.
         '''
         return resource_dict
 
@@ -594,6 +695,25 @@ class IActions(Interface):
         By decorating a function with the `ckan.logic.side_effect_free`
         decorator, the associated action will be made available by a GET
         request (as well as the usual POST request) through the action API.
+        """
+
+
+class IValidators(Interface):
+    """
+    Add extra validators to be returned by
+    :py:func:`ckan.plugins.toolkit.get_validator`.
+    """
+    def get_validators(self):
+        """Return the validator functions provided by this plugin.
+
+        Return a dictionary mapping validator names (strings) to
+        validator functions. For example::
+
+            {'valid_shoe_size': shoe_size_validator,
+             'valid_hair_color': hair_color_validator}
+
+        These validator functions would then be available when a
+        plugin calls :py:func:`ckan.plugins.toolkit.get_validator`.
         """
 
 
@@ -888,6 +1008,16 @@ class IDatasetForm(Interface):
 
         '''
 
+    def resource_template(self):
+        '''Return the path to the template for the resource read page.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/resource_read.html'``.
+
+        :rtype: string
+
+        '''
+
     def package_form(self):
         '''Return the path to the template for the dataset form.
 
@@ -896,6 +1026,15 @@ class IDatasetForm(Interface):
 
         :rtype: string
 
+        '''
+
+    def resource_form(self):
+        '''Return the path to the template for the resource form.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/snippets/resource_form.html'``
+
+        :rtype: string
         '''
 
     def validate(self, context, data_dict, schema, action):
@@ -943,14 +1082,14 @@ class IGroupForm(Interface):
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
-    at once.  With each instance associating itself with 0 or more package
-    type strings.  When a package controller action is invoked, the package
+    at once.  With each instance associating itself with 0 or more group
+    type strings.  When a group controller action is invoked, the group
     type determines which of the registered plugins to delegate to.  Each
     implementation must implement two methods which are used to determine the
-    package-type -> plugin mapping:
+    group-type -> plugin mapping:
 
      - is_fallback(self)
-     - package_types(self)
+     - group_types(self)
 
     Implementations might want to consider mixing in
     ckan.lib.plugins.DefaultGroupForm which provides
@@ -962,8 +1101,8 @@ class IGroupForm(Interface):
 
     def is_fallback(self):
         """
-        Returns true iff this provides the fallback behaviour, when no other
-        plugin instance matches a package's type.
+        Returns true if this provides the fallback behaviour, when no other
+        plugin instance matches a group's type.
 
         There must be exactly one fallback controller defined, any attempt to
         register more than one will throw an exception at startup.  If there's
@@ -975,7 +1114,7 @@ class IGroupForm(Interface):
         """
         Returns an iterable of group type strings.
 
-        If a request involving a package of one of those types is made, then
+        If a request involving a group of one of those types is made, then
         this plugin instance will be delegated to.
 
         There must only be one plugin registered to each group type.  Any

@@ -46,6 +46,19 @@
 .toolbar .breadcrumb a {
   color: @breadcrumbTextColor;
 }
+@media (max-width: 767px) {
+  .toolbar .breadcrumb {
+    color:#fff;
+    text-shadow:none;
+    .home {
+      display:none;
+    }
+    a {
+      color:#fff;
+      text-shadow:none;
+    }
+  }
+}
 
 .toolbar .breadcrumb .active a,
 .toolbar .breadcrumb a.active {
@@ -96,4 +109,37 @@
 
 .no-nav .page-header {
   .border-radius(3px 3px 0 0);
+}
+
+.nav-tabs-plain {
+  padding: 0 @gutterX;
+  & > .active > a,
+  & > .active > a:hover {
+    background-color: @moduleBackgroundColor;
+  }
+}
+
+@media (min-width: 768px) {
+  .span9 .page-header {
+    margin-left:-17px;
+  }
+}
+@media (max-width: 768px) {
+  .page-header .nav-tabs {
+    margin:5px 10px 10px -5px;
+    border:none;
+  }
+  .page-header .nav-tabs > li {
+    float: none;
+   }
+  .page-header .nav-tabs > li a {
+     -webkit-border-radius: 4px;
+      -moz-border-radius: 4px;
+      border-radius: 4px;
+   }
+   .page-header .nav-tabs > .active > a,
+   .page-header .nav-tabs > .active > a:hover,
+   .page-header .nav-tabs > .active > a:focus {
+      border-bottom-color:#dddddd;
+   }
 }

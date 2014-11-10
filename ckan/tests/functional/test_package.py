@@ -696,12 +696,12 @@ class TestEdit(TestPackageForm):
             pkg.url = u'editpkgurl.com'
             pr1 = model.Resource(url=u'editpkgurl1',
                   format=u'plain text', description=u'Full text',
-                  hash=u'123abc',)
+                  hash=u'123abc')
             pr2 = model.Resource(url=u'editpkgurl2',
                   format=u'plain text2', description=u'Full text2',
-                  hash=u'456abc',)
-            pkg.resources.append(pr1)
-            pkg.resources.append(pr2)
+                  hash=u'456abc')
+            pkg.resources_all.append(pr1)
+            pkg.resources_all.append(pr2)
             pkg.notes= u'this is editpkg'
             pkg.version = u'2.2'
             t1 = model.Tag(name=u'one')
@@ -1490,23 +1490,6 @@ alert('Hello world!');
     def fail_if_fragment(self, fragment):
         assert fragment not in self.body, (fragment, self.body)
 
-class TestAutocomplete(PylonsTestCase, TestPackageBase):
-    @classmethod
-    def setup_class(cls):
-        PylonsTestCase.setup_class()
-        CreateTestData.create()
-
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-
-    def test_package_autocomplete(self):
-        query = 'a'
-        res = self.app.get('/dataset/autocomplete?q=%s' % query)
-
-        expected = ['A Wonderful Story (warandpeace)|warandpeace','annakarenina|annakarenina']
-        received = sorted(res.body.split('\n'))
-        assert expected == received
 
 class TestResourceListing(TestPackageBase):
     @classmethod

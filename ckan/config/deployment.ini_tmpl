@@ -6,7 +6,7 @@
 # following URL for a description of what they do and the full list of
 # available options:
 #
-# http://docs.ckan.org/en/${doc_version}/configuration.html
+# http://docs.ckan.org/en/latest/maintaining/configuration.html
 #
 # The %(here)s variable will be replaced with the parent directory of this file
 #
@@ -77,6 +77,15 @@ ckan.site_id = default
 #solr_url = http://127.0.0.1:8983/solr
 
 #ckan.simple_search = 1
+
+
+## CORS Settings
+
+# If cors.origin_allow_all is true, all origins are allowed.
+# If false, the cors.origin_whitelist is used.
+# ckan.cors.origin_allow_all = true
+# cors.origin_whitelist is a space separated list of allowed domains.
+# ckan.cors.origin_whitelist = http://example1.com http://example2.com
 
 
 ## Plugins Settings

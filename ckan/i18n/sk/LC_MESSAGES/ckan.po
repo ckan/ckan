@@ -30,15 +30,15 @@ msgstr "Autorizačná funkcia nenájdená: %s"
 
 #: ckan/new_authz.py:201
 msgid "Admin"
-msgstr ""
+msgstr "Administrátor"
 
 #: ckan/new_authz.py:205
 msgid "Editor"
-msgstr ""
+msgstr "Editor"
 
 #: ckan/new_authz.py:209
 msgid "Member"
-msgstr ""
+msgstr "Člen"
 
 #: ckan/controllers/admin.py:27
 msgid "Need to be system administrator to administer"
@@ -46,19 +46,19 @@ msgstr "Na spravovanie musíte byť systémový administrátor"
 
 #: ckan/controllers/admin.py:43
 msgid "Site Title"
-msgstr ""
+msgstr "Nadpis stránky"
 
 #: ckan/controllers/admin.py:44
 msgid "Style"
-msgstr ""
+msgstr "Štýl"
 
 #: ckan/controllers/admin.py:45
 msgid "Site Tag Line"
-msgstr ""
+msgstr "Popis portálu"
 
 #: ckan/controllers/admin.py:46
 msgid "Site Tag Logo"
-msgstr ""
+msgstr "Malé logo portálu"
 
 #: ckan/controllers/admin.py:47 ckan/templates/header.html:97
 #: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:19
@@ -78,27 +78,27 @@ msgstr "O projekte"
 
 #: ckan/controllers/admin.py:47
 msgid "About page text"
-msgstr ""
+msgstr "Text stránky o projekte"
 
 #: ckan/controllers/admin.py:48
 msgid "Intro Text"
-msgstr ""
+msgstr "Úvodný Text"
 
 #: ckan/controllers/admin.py:48
 msgid "Text on home page"
-msgstr ""
+msgstr "Text na hlavnej stránke"
 
 #: ckan/controllers/admin.py:49
 msgid "Custom CSS"
-msgstr ""
+msgstr "Vlastné CSS"
 
 #: ckan/controllers/admin.py:49
 msgid "Customisable css inserted into the page header"
-msgstr ""
+msgstr "Prispôsobiteľný css súbor bol vložený do hlavičky stránky"
 
 #: ckan/controllers/admin.py:50
 msgid "Homepage"
-msgstr ""
+msgstr "Hlavná stránka"
 
 #: ckan/controllers/admin.py:131
 #, python-format
@@ -114,11 +114,11 @@ msgstr "Problém pri čistení revízie %s: %s"
 
 #: ckan/controllers/admin.py:155
 msgid "Purge complete"
-msgstr "Vymazať celé"
+msgstr "Mazanie ukončené"
 
 #: ckan/controllers/admin.py:157
 msgid "Action not implemented."
-msgstr "Akcia nebola vykonaná."
+msgstr "Akcia nieje implementovaná."
 
 #: ckan/controllers/api.py:60 ckan/controllers/group.py:151
 #: ckan/controllers/home.py:29 ckan/controllers/package.py:127
@@ -127,7 +127,7 @@ msgstr "Akcia nebola vykonaná."
 #: ckan/controllers/user.py:46 ckan/controllers/user.py:73
 #: ckan/controllers/user.py:101 ckan/controllers/user.py:534
 msgid "Not authorized to see this page"
-msgstr "Nemáte oprávnenie na prezeranie tejto stránky"
+msgstr "Nemáte oprávnenie na zobrazenie tejto stránky"
 
 #: ckan/controllers/api.py:118 ckan/controllers/api.py:201
 msgid "Access denied"
@@ -228,7 +228,7 @@ msgstr "Neznámy register: %s"
 #: ckan/controllers/api.py:588
 #, python-format
 msgid "Malformed qjson value: %r"
-msgstr ""
+msgstr "Poškodená qjson hodnota: %r"
 
 #: ckan/controllers/api.py:598
 msgid "Request params must be in form of a json encoded dictionary."
@@ -248,11 +248,11 @@ msgstr "Skupina nenájdená"
 #: ckan/controllers/feed.py:285 ckan/controllers/feed.py:287
 #: ckan/controllers/feed.py:437 ckan/controllers/feed.py:439
 msgid "\"page\" parameter must be a positive integer"
-msgstr ""
+msgstr "Parameter \"page\" musí byť celé kladné číslo"
 
 #: ckan/controllers/group.py:172
 msgid "Incorrect group type"
-msgstr ""
+msgstr "Nesprávny typ skupiny"
 
 #: ckan/controllers/group.py:192 ckan/controllers/group.py:387
 #: ckan/controllers/group.py:474 ckan/controllers/group.py:515
@@ -312,7 +312,7 @@ msgstr "Tagy"
 #: ckan/controllers/group.py:292 ckan/controllers/home.py:73
 #: ckan/controllers/package.py:228 ckan/lib/helpers.py:604
 msgid "Formats"
-msgstr ""
+msgstr "Formáty"
 
 #: ckan/controllers/group.py:293 ckan/controllers/home.py:74
 #: ckan/lib/helpers.py:605 ckan/templates/package/resource_read.html:109
@@ -325,7 +325,7 @@ msgstr "Licencia"
 
 #: ckan/controllers/group.py:417
 msgid "Not authorized to perform bulk update"
-msgstr ""
+msgstr "Nemáte opravnenie na vykonanie hromadnej aktualizácie"
 
 #: ckan/controllers/group.py:434
 msgid "Unauthorized to create a group"
@@ -353,29 +353,29 @@ msgstr "Užívateľ %r nemá oprávnenie meniť oprávnenie pre %s"
 #: ckan/controllers/group.py:618 ckan/controllers/group.py:687
 #, python-format
 msgid "Unauthorized to delete group %s"
-msgstr ""
+msgstr "Nemáte oprávnenie na vymazanie skupiny %s"
 
 #: ckan/controllers/group.py:597
 msgid "Organization has been deleted."
-msgstr ""
+msgstr "Organizácia bola vymazaná"
 
 #: ckan/controllers/group.py:599
 msgid "Group has been deleted."
-msgstr ""
+msgstr "Skupina bola vymazaná"
 
 #: ckan/controllers/group.py:658
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr ""
+msgstr "Nemáte oprávnenie na pridanie člena do skupiny %s"
 
 #: ckan/controllers/group.py:675
 #, python-format
 msgid "Unauthorized to delete group %s members"
-msgstr ""
+msgstr "Nemáte oprávnenie na mazanie členov skupiny %s"
 
 #: ckan/controllers/group.py:681
 msgid "Group member has been deleted."
-msgstr ""
+msgstr "Člen skupiny bol vymazaný"
 
 #: ckan/controllers/group.py:703 ckan/controllers/package.py:423
 msgid "Select two revisions before doing the comparison."
@@ -400,22 +400,22 @@ msgstr "Správa logu: "
 
 #: ckan/controllers/group.py:779
 msgid "Unauthorized to read group {group_id}"
-msgstr ""
+msgstr "Nemáte oprávnenie na čítanie skupiny {group_id}"
 
 #: ckan/controllers/group.py:798 ckan/controllers/package.py:1255
 #: ckan/controllers/user.py:654
 msgid "You are now following {0}"
-msgstr ""
+msgstr "Teraz sledujete {0}"
 
 #: ckan/controllers/group.py:817 ckan/controllers/package.py:1274
 #: ckan/controllers/user.py:674
 msgid "You are no longer following {0}"
-msgstr ""
+msgstr "Už nesledujete {0}"
 
 #: ckan/controllers/group.py:835 ckan/controllers/user.py:521
 #, python-format
 msgid "Unauthorized to view followers %s"
-msgstr ""
+msgstr "Nemate povolenie na sledovanie odberateľov %s"
 
 #: ckan/controllers/home.py:37
 msgid "This site is currently off-line. Database is not initialised."
@@ -445,11 +445,11 @@ msgstr "Prosím <a href=\"%s\"> aktualizujte svoj profil</a> a pridajte svoje ce
 
 #: ckan/controllers/package.py:229
 msgid "Licenses"
-msgstr ""
+msgstr "Licencie"
 
 #: ckan/controllers/package.py:279
 msgid "Parameter \"{parameter_name}\" is not an integer"
-msgstr ""
+msgstr "Parameter \"{parameter_name}\" nie je celé číslo"
 
 #: ckan/controllers/package.py:326 ckan/controllers/package.py:379
 #: ckan/controllers/package.py:442 ckan/controllers/package.py:797
@@ -480,7 +480,8 @@ msgstr "Neplatný formát revízie: %r"
 msgid ""
 "Viewing {package_type} datasets in {format} format is not supported "
 "(template file {file} not found)."
-msgstr ""
+msgstr "Prezeranie {package_type} datasetu v {format} formáte is nie je podporované "
+       "(súbor šablóny {file} nebol nájdený)."
 
 #: ckan/controllers/package.py:449
 msgid "CKAN Dataset Revision History"
@@ -496,7 +497,7 @@ msgstr "Nemáte oprávnenie vytvoriť balík."
 
 #: ckan/controllers/package.py:574 ckanext/datapusher/plugin.py:52
 msgid "Unauthorized to edit this resource"
-msgstr ""
+msgstr "Nemáte oprávnenie na upravovanie tohto zdroja"
 
 #: ckan/controllers/package.py:594 ckan/controllers/package.py:1111
 #: ckan/controllers/package.py:1187 ckan/controllers/package.py:1225
@@ -507,16 +508,16 @@ msgstr "Nenájdený zdroj"
 
 #: ckan/controllers/package.py:643 ckan/controllers/package.py:750
 msgid "Unauthorized to update dataset"
-msgstr ""
+msgstr "Nemáte oprávnenie na aktualizáciu datasetu"
 
 #: ckan/controllers/package.py:646 ckan/controllers/package.py:678
 #: ckan/controllers/package.py:706
 msgid "The dataset {id} could not be found."
-msgstr ""
+msgstr "Dataset {id} nebol nájdený."
 
 #: ckan/controllers/package.py:649
 msgid "You must add at least one data resource"
-msgstr ""
+msgstr "Musíte pridať aspon jeden zdroj"
 
 #: ckan/controllers/package.py:657
 #: ckan/templates_legacy/error_document_template.html:5
@@ -526,7 +527,7 @@ msgstr "Chyba"
 
 #: ckan/controllers/package.py:675
 msgid "Unauthorized to create a resource"
-msgstr ""
+msgstr "Nemáte oprávnenie na vytvorenie zdroja"
 
 #: ckan/controllers/package.py:977
 msgid "Unable to add package to search index."
@@ -540,20 +541,20 @@ msgstr "Vyhľadávací index nemožno aktualizovať"
 #: ckan/controllers/package.py:1099
 #, python-format
 msgid "Unauthorized to delete package %s"
-msgstr ""
+msgstr "Nemáte oprávnenie na zmazanie balíka %s"
 
 #: ckan/controllers/package.py:1079
 msgid "Dataset has been deleted."
-msgstr ""
+msgstr "Dataset bol vymazaný"
 
 #: ckan/controllers/package.py:1104
 msgid "Resource has been deleted."
-msgstr ""
+msgstr "Zdroj bol vymazaný"
 
 #: ckan/controllers/package.py:1109
 #, python-format
 msgid "Unauthorized to delete resource %s"
-msgstr ""
+msgstr "Nemáte oprávnenie na zmazanie zdroja %s"
 
 #: ckan/controllers/package.py:1189 ckan/controllers/package.py:1227
 #: ckan/controllers/package.py:1406 ckan/controllers/package.py:1488
@@ -563,7 +564,7 @@ msgstr "Nemáte oprávnenie na čítanie zdroja %s"
 
 #: ckan/controllers/package.py:1236
 msgid "Resource data not found"
-msgstr ""
+msgstr "Zdroj nebol nájdený"
 
 #: ckan/controllers/package.py:1243
 msgid "No download is available"
@@ -572,11 +573,11 @@ msgstr "Žiadne stiahnutie nie je dostupné"
 #: ckan/controllers/package.py:1315 ckan/controllers/package.py:1378
 #, python-format
 msgid "Unauthorized to read dataset %s"
-msgstr ""
+msgstr "Nemáte oprávnenie na čítanie datasetu %s"
 
 #: ckan/controllers/package.py:1481
 msgid "No preview has been defined."
-msgstr ""
+msgstr "Žiadny náhľad ešte nebol definovaný"
 
 #: ckan/controllers/related.py:69
 #: ckan/templates_legacy/related/dashboard.html:46
@@ -585,11 +586,11 @@ msgstr "Najviac prezerané"
 
 #: ckan/controllers/related.py:70
 msgid "Most Viewed"
-msgstr ""
+msgstr "Najviac prezerané"
 
 #: ckan/controllers/related.py:71
 msgid "Least Viewed"
-msgstr ""
+msgstr "Najmenej prezerané"
 
 #: ckan/controllers/related.py:72
 #: ckan/templates_legacy/related/dashboard.html:49
@@ -607,33 +608,33 @@ msgstr "Požadovaná súvisiaca položka nebola nájdená."
 
 #: ckan/controllers/related.py:148 ckan/controllers/related.py:224
 msgid "Related item not found"
-msgstr ""
+msgstr "Súvisiaca položka nebola nájdená"
 
 #: ckan/controllers/related.py:158 ckan/logic/auth/get.py:10
 #: ckan/logic/auth/get.py:245
 msgid "Not authorized"
-msgstr ""
+msgstr "Neoprávnený"
 
 #: ckan/controllers/related.py:163
 msgid "Package not found"
-msgstr ""
+msgstr "Balíček nenájdený"
 
 #: ckan/controllers/related.py:183
 msgid "Related item was successfully created"
-msgstr ""
+msgstr "Súvisiaca položka bola úspešne vytvorená"
 
 #: ckan/controllers/related.py:185
 msgid "Related item was successfully updated"
-msgstr ""
+msgstr "Súvisiaca položka bola úspešne aktualizovaná"
 
 #: ckan/controllers/related.py:216
 msgid "Related item has been deleted."
-msgstr ""
+msgstr "Súvisiaca položka bola úspešne vytvorená"
 
 #: ckan/controllers/related.py:222
 #, python-format
 msgid "Unauthorized to delete related item %s"
-msgstr ""
+msgstr "Nie ste oprávnený na vymazanie súvisiacej položky %s"
 
 #: ckan/controllers/related.py:232 ckan/templates/package/search.html:51
 #: ckan/templates_legacy/js_strings.html:16
@@ -660,19 +661,19 @@ msgstr "Nápad"
 #: ckan/templates_legacy/related/add-related.html:27
 #: ckan/templates_legacy/related/dashboard.html:37
 msgid "News Article"
-msgstr "Článok o novinkách"
+msgstr "Novinový článok"
 
 #: ckan/controllers/related.py:236
 #: ckan/templates_legacy/related/add-related.html:28
 #: ckan/templates_legacy/related/dashboard.html:38
 msgid "Paper"
-msgstr ""
+msgstr "Odborný článok"
 
 #: ckan/controllers/related.py:237
 #: ckan/templates_legacy/related/add-related.html:29
 #: ckan/templates_legacy/related/dashboard.html:39
 msgid "Post"
-msgstr "Post"
+msgstr "Príspevok"
 
 #: ckan/controllers/related.py:238 ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/related/add-related.html:30
@@ -682,7 +683,7 @@ msgstr "Vizualizácia"
 
 #: ckan/controllers/revision.py:42
 msgid "CKAN Repository Revision History"
-msgstr "Historia revízií CKAN úložiska"
+msgstr "Historia zmien CKAN úložiska"
 
 #: ckan/controllers/revision.py:44
 msgid "Recent changes to the CKAN repository."
@@ -714,7 +715,7 @@ msgstr "Používateľ nebol nájdený"
 
 #: ckan/controllers/user.py:147
 msgid "Unauthorized to register as a user."
-msgstr ""
+msgstr "Nemáte oprávnenie registrovať sa ako používateľ."
 
 #: ckan/controllers/user.py:164
 msgid "Unauthorized to create a user"
@@ -722,7 +723,7 @@ msgstr "Nemáte oprávnenie vytvoriť používateľa"
 
 #: ckan/controllers/user.py:195
 msgid "Unauthorized to delete user with id \"{user_id}\"."
-msgstr ""
+msgstr "Nemáte oprávnenie vymazať používateľa s id \"{user_id}\"."
 
 #: ckan/controllers/user.py:206
 #, python-format
@@ -746,7 +747,7 @@ msgstr "Nebol vybraný žiadny používateľ"
 
 #: ckan/controllers/user.py:251
 msgid "Unauthorized to edit a user."
-msgstr ""
+msgstr "Nemáte oprávnenie upravovať používateľa."
 
 #: ckan/controllers/user.py:269 ckan/controllers/user.py:310
 #: ckan/controllers/user.py:486
@@ -766,24 +767,24 @@ msgstr "Profil upravený"
 #: ckan/controllers/user.py:361
 #, python-format
 msgid "%s is now logged in"
-msgstr "%s je práve prihlásených"
+msgstr "%s je práve prihlásený"
 
 #: ckan/controllers/user.py:365
 msgid "Login failed. Bad username or password."
-msgstr "Prihlásenie sa nepodarilo.  Zlé prihlasovacie meno alebo heslo."
+msgstr "Prihlásenie sa nepodarilo. Zlé prihlasovacie meno alebo heslo."
 
 #: ckan/controllers/user.py:367
 msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
-msgstr "(Ak používate OpenID, nebolo priradené k používateľskému účtu.)"
+msgstr " (Ak používate OpenID, nebolo priradené k používateľskému účtu.)"
 
 #: ckan/controllers/user.py:402
 msgid "Unauthorized to request reset password."
-msgstr ""
+msgstr "Nemáte oprávnenie požiadať o reset hesla."
 
 #: ckan/controllers/user.py:431
 #, python-format
 msgid "\"%s\" matched several users"
-msgstr "\"%s\" zodpovedá viacerým používateľom"
+msgstr "\"%s\" vyhovuje viacerým používateľom"
 
 #: ckan/controllers/user.py:433 ckan/controllers/user.py:435
 #, python-format
@@ -801,7 +802,7 @@ msgstr "Nepodarilo sa odoslať odkaz pre obnovenie: %s"
 
 #: ckan/controllers/user.py:459
 msgid "Unauthorized to reset password."
-msgstr ""
+msgstr "Neoprávnený na obnovenie hesla."
 
 #: ckan/controllers/user.py:471
 msgid "Invalid reset key. Please try again."
@@ -821,291 +822,289 @@ msgstr "Zadané heslá nie sú totožné."
 
 #: ckan/controllers/user.py:510
 msgid "You must provide a password"
-msgstr ""
+msgstr "Musíte zadať heslo"
 
 #: ckan/controllers/user.py:572
 msgid "Follow item not found"
-msgstr ""
+msgstr "Sledovaná položka nebola nájdená"
 
 #: ckan/controllers/user.py:576
 msgid "{0} not found"
-msgstr ""
+msgstr "Nepodarilo sa nájsť {0}"
 
 #: ckan/controllers/user.py:578
 msgid "Unauthorized to read {0} {1}"
-msgstr ""
+msgstr "Nemáte oprávnenie čítať {0} {1}"
 
 #: ckan/controllers/user.py:593
 msgid "Everything"
-msgstr ""
+msgstr "Všetko"
 
 #: ckan/lib/activity_streams.py:64
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} pridal tag {tag} do datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:67
 msgid "{actor} updated the group {group}"
-msgstr ""
+msgstr "{actor} aktualizoval skupinu {group}"
 
 #: ckan/lib/activity_streams.py:70
 msgid "{actor} updated the organization {organization}"
-msgstr ""
+msgstr "{actor} aktualizoval organizáciu {organization}"
 
 #: ckan/lib/activity_streams.py:73
 msgid "{actor} updated the dataset {dataset}"
-msgstr ""
+msgstr "{actor} aktualizoval dataset {dataset}"
 
 #: ckan/lib/activity_streams.py:76
 msgid "{actor} changed the extra {extra} of the dataset {dataset}"
-msgstr ""
+msgstr "{actor} zmenil rozšírujúci atribút {extra} datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:79
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
-msgstr ""
+msgstr "{actor} aktualizoval zdroj {resource} v datasete {dataset}"
 
 #: ckan/lib/activity_streams.py:82
 msgid "{actor} updated their profile"
 msgstr "{actor} aktualizoval svoj profil"
 
 #: ckan/lib/activity_streams.py:86
-msgid ""
-"{actor} updated the {related_type} {related_item} of the dataset {dataset}"
-msgstr ""
+msgid "{actor} updated the {related_type} {related_item} of the dataset {dataset}"
+msgstr "{actor} aktualizoval {related_type} {related_item} v datasete {dataset}"
 
 #: ckan/lib/activity_streams.py:89
 msgid "{actor} updated the {related_type} {related_item}"
-msgstr ""
+msgstr "{actor} aktualizoval {related_type} {related_item}"
 
 #: ckan/lib/activity_streams.py:92
 msgid "{actor} deleted the group {group}"
-msgstr ""
+msgstr "{actor} vymazal skupinu {group}"
 
 #: ckan/lib/activity_streams.py:95
 msgid "{actor} deleted the organization {organization}"
-msgstr ""
+msgstr "{actor} vymazal organizáciu {organization}"
 
 #: ckan/lib/activity_streams.py:98
 msgid "{actor} deleted the dataset {dataset}"
-msgstr ""
+msgstr "{actor} vymazal dataset {dataset}"
 
 #: ckan/lib/activity_streams.py:101
 msgid "{actor} deleted the extra {extra} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} vymazal rozširovací atribút {extra} datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:104
 msgid "{actor} deleted the resource {resource} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} vymazal zdroj {resource} datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:108
 msgid "{actor} created the group {group}"
-msgstr ""
+msgstr "{actor} vytvoril skupinu {group}"
 
 #: ckan/lib/activity_streams.py:111
 msgid "{actor} created the organization {organization}"
-msgstr ""
+msgstr "{actor} vytvoril organizáciu {organization}"
 
 #: ckan/lib/activity_streams.py:114
 msgid "{actor} created the dataset {dataset}"
-msgstr ""
+msgstr "{actor} vytvoril dataset {dataset}"
 
 #: ckan/lib/activity_streams.py:117
 msgid "{actor} added the extra {extra} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} pridal rozširovací atribút {extra} do datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:120
 msgid "{actor} added the resource {resource} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} pridal zdroj {resource} do datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:123
 msgid "{actor} signed up"
-msgstr "{actor} sa prihlásil"
+msgstr "{actor} sa zaregistroval"
 
 #: ckan/lib/activity_streams.py:126
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} vymazal tag {tag} z datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:129
 msgid "{actor} deleted the related item {related_item}"
-msgstr ""
+msgstr "{actor} vymazal príbuznú položku {related_item}"
 
 #: ckan/lib/activity_streams.py:132
 msgid "{actor} started following {dataset}"
-msgstr ""
+msgstr "{actor} začal sledovať {dataset}"
 
 #: ckan/lib/activity_streams.py:135
 msgid "{actor} started following {user}"
-msgstr ""
+msgstr "{actor} začal sledovať {user}"
 
 #: ckan/lib/activity_streams.py:138
 msgid "{actor} started following {group}"
-msgstr ""
+msgstr "{actor} začal sledovať {group}"
 
 #: ckan/lib/activity_streams.py:142
-msgid ""
-"{actor} added the {related_type} {related_item} to the dataset {dataset}"
-msgstr ""
+msgid "{actor} added the {related_type} {related_item} to the dataset {dataset}"
+msgstr "{actor} pridal {related_type} {related_item} do datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:145
 msgid "{actor} added the {related_type} {related_item}"
-msgstr ""
+msgstr "{actor} pridal {related_type} {related_item}"
 
 #: ckan/lib/email_notifications.py:103
 msgid "1 new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "žiadne nové aktivity z {site_title}"
+msgstr[1] "{n} nová aktivita z {site_title}"
+msgstr[2] "{n} nových aktivít z {site_title}"
 
 #: ckan/lib/formatters.py:17
 msgid "January"
-msgstr ""
+msgstr "Január"
 
 #: ckan/lib/formatters.py:21
 msgid "February"
-msgstr ""
+msgstr "Február"
 
 #: ckan/lib/formatters.py:25
 msgid "March"
-msgstr ""
+msgstr "Marec"
 
 #: ckan/lib/formatters.py:29
 msgid "April"
-msgstr ""
+msgstr "Apríl"
 
 #: ckan/lib/formatters.py:33
 msgid "May"
-msgstr ""
+msgstr "Máj"
 
 #: ckan/lib/formatters.py:37
 msgid "June"
-msgstr ""
+msgstr "Jún"
 
 #: ckan/lib/formatters.py:41
 msgid "July"
-msgstr ""
+msgstr "Júl"
 
 #: ckan/lib/formatters.py:45
 msgid "August"
-msgstr ""
+msgstr "August"
 
 #: ckan/lib/formatters.py:49
 msgid "September"
-msgstr ""
+msgstr "September"
 
 #: ckan/lib/formatters.py:53
 msgid "October"
-msgstr ""
+msgstr "Október"
 
 #: ckan/lib/formatters.py:57
 msgid "November"
-msgstr ""
+msgstr "November"
 
 #: ckan/lib/formatters.py:61
 msgid "December"
-msgstr ""
+msgstr "December"
 
 #: ckan/lib/formatters.py:109
 msgid "Just now"
-msgstr ""
+msgstr "Práve teraz"
 
 #: ckan/lib/formatters.py:111
 msgid "{mins} minute ago"
 msgid_plural "{mins} minutes ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pred {mins} minutami"
+msgstr[1] "pred {mins} minútou"
+msgstr[2] "pred {mins} minutami"
 
 #: ckan/lib/formatters.py:114
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pred {hours} hodinami"
+msgstr[1] "pred {hours} hodinou"
+msgstr[2] "pred {hours} hodinami"
 
 #: ckan/lib/formatters.py:120
 msgid "{days} day ago"
 msgid_plural "{days} days ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pred {days} dňami"
+msgstr[1] "pred {days} dňom"
+msgstr[2] "pred {days} dňami"
 
 #: ckan/lib/formatters.py:123
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pred {months} mesiacmi"
+msgstr[1] "pred {months} mesiacom"
+msgstr[2] "pred {months} mesiacmi"
 
 #: ckan/lib/formatters.py:125
 msgid "over {years} year ago"
 msgid_plural "over {years} years ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "pred viac než {years} rokmi"
+msgstr[1] "pred viac než {years} rokom"
+msgstr[2] "pred viac než {years} rokmi"
 
 #: ckan/lib/formatters.py:138
 msgid "{month} {day}, {year}, {hour:02}:{min:02}"
-msgstr ""
+msgstr "{day} {month}, {year}, {hour:02}:{min:02}"
 
 #: ckan/lib/formatters.py:142
 msgid "{month} {day}, {year}"
-msgstr ""
+msgstr "{day} {month}, {year}"
 
 #: ckan/lib/formatters.py:158
 msgid "{bytes} bytes"
-msgstr ""
+msgstr "{bytes} bajtov"
 
 #: ckan/lib/formatters.py:160
 msgid "{kibibytes} KiB"
-msgstr ""
+msgstr "{kibibytes} KB"
 
 #: ckan/lib/formatters.py:162
 msgid "{mebibytes} MiB"
-msgstr ""
+msgstr "{mebibytes} MB"
 
 #: ckan/lib/formatters.py:164
 msgid "{gibibytes} GiB"
-msgstr ""
+msgstr "{gibibytes} GB"
 
 #: ckan/lib/formatters.py:166
 msgid "{tebibytes} TiB"
-msgstr ""
+msgstr "{tebibytes} TB"
 
 #: ckan/lib/formatters.py:178
 msgid "{n}"
-msgstr ""
+msgstr "{n}"
 
 #: ckan/lib/formatters.py:180
 msgid "{k}k"
-msgstr ""
+msgstr "{k}k"
 
 #: ckan/lib/formatters.py:182
 msgid "{m}M"
-msgstr ""
+msgstr "{m}M"
 
 #: ckan/lib/formatters.py:184
 msgid "{g}G"
-msgstr ""
+msgstr "{g}G"
 
 #: ckan/lib/formatters.py:186
 msgid "{t}T"
-msgstr ""
+msgstr "{t}T"
 
 #: ckan/lib/formatters.py:188
 msgid "{p}P"
-msgstr ""
+msgstr "{p}P"
 
 #: ckan/lib/formatters.py:190
 msgid "{e}E"
-msgstr ""
+msgstr "{e}E"
 
 #: ckan/lib/formatters.py:192
 msgid "{z}Z"
-msgstr ""
+msgstr "{z}Z"
 
 #: ckan/lib/formatters.py:194
 msgid "{y}Y"
-msgstr ""
+msgstr "{y}Y"
 
 #: ckan/lib/helpers.py:774
 msgid "Update your avatar at gravatar.com"
@@ -1118,11 +1117,11 @@ msgstr "Neznáme"
 
 #: ckan/lib/helpers.py:1033
 msgid "Unnamed resource"
-msgstr ""
+msgstr "Nepomenovaný zdroj"
 
 #: ckan/lib/helpers.py:1080
 msgid "Created new dataset."
-msgstr "Vytvorený nový dataset."
+msgstr "Nový dataset vytvorený."
 
 #: ckan/lib/helpers.py:1082
 msgid "Edited resources."
@@ -1135,28 +1134,28 @@ msgstr "Upravené nastavenia."
 #: ckan/lib/helpers.py:1346
 msgid "{number} view"
 msgid_plural "{number} views"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} videní"
+msgstr[1] "{number} videnie"
+msgstr[2] "{number} videní"
 
 #: ckan/lib/helpers.py:1348
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} nedávnych videní"
+msgstr[1] "{number} nedávne videnie"
+msgstr[2] "{number} nedávnych videní"
 
 #: ckan/lib/helpers.py:1589
 msgid "The resource url is not specified."
-msgstr ""
+msgstr "Nezadaná zdrojová adresa."
 
 #: ckan/lib/helpers.py:1607
 msgid "No preview handler for resource of type {0}"
-msgstr ""
+msgstr "Žiadny obslužný program pre zdroj typu {0}"
 
 #: ckan/lib/helpers.py:1611
 msgid "The resource format is not specified."
-msgstr ""
+msgstr "Formát zdroja nieje uvedený"
 
 #: ckan/lib/mailer.py:25
 #, python-format
@@ -1194,6 +1193,13 @@ msgid ""
 "       %(reset_link)s\n"
 "    "
 msgstr ""
+"Boli ste pozvaný na %(site_title)s. Bol vám vytvorený profil s menom\n"
+"     %(user_name)s. Môžete ho zmeniť neskôr.\n"
+"\n"
+"    Pre akceptovanie tejto pozvánky resetujte heslo na:\n"
+"\n"
+"       %(reset_link)s\n"
+"    "
 
 #: ckan/lib/mailer.py:145 ckan/templates_legacy/user/perform_reset.html:6
 #: ckan/templates_legacy/user/perform_reset.html:14
@@ -1202,7 +1208,7 @@ msgstr "Obnoviť heslo"
 
 #: ckan/lib/mailer.py:151
 msgid "Invite for {site_title}"
-msgstr ""
+msgstr "Pozvánka na {site_title}"
 
 #: ckan/lib/package_saver.py:29
 msgid "No web page given"
@@ -1301,23 +1307,23 @@ msgstr "Skupina"
 
 #: ckan/logic/converters.py:181
 msgid "Could not parse as valid JSON"
-msgstr ""
+msgstr "Nepodarilo sa parsovať validný JSON"
 
 #: ckan/logic/validators.py:28
 msgid "A organization must be supplied"
-msgstr ""
+msgstr "Organizácia musí byť zadaná"
 
 #: ckan/logic/validators.py:38
 msgid "You cannot remove a dataset from an existing organization"
-msgstr ""
+msgstr "Nemôžete odstrániť dataset z existujúcej organizácie"
 
 #: ckan/logic/validators.py:43
 msgid "Organization does not exist"
-msgstr ""
+msgstr "Organizácia neexistuje"
 
 #: ckan/logic/validators.py:48
 msgid "You cannot add a dataset to this organization"
-msgstr ""
+msgstr "Nieje požné pridať dataset do tejto organizácie"
 
 #: ckan/logic/validators.py:68
 msgid "Invalid integer"
@@ -1325,11 +1331,11 @@ msgstr "Neplatné číslo"
 
 #: ckan/logic/validators.py:73
 msgid "Must be a natural number"
-msgstr ""
+msgstr "Musí byť ṕrirodzené číslo"
 
 #: ckan/logic/validators.py:79
 msgid "Must be a postive integer"
-msgstr ""
+msgstr "Musí byť kladné číslo"
 
 #: ckan/logic/validators.py:97
 msgid "Date format incorrect"
@@ -1356,7 +1362,7 @@ msgstr "Zdroj"
 
 #: ckan/logic/validators.py:310
 msgid "Names must be strings"
-msgstr ""
+msgstr "Mená musia byť reťazce znakov"
 
 #: ckan/logic/validators.py:314
 msgid "That name cannot be used"
@@ -1428,7 +1434,7 @@ msgstr "Tag \"%s\" nesmie obsahovať veľké písmená"
 
 #: ckan/logic/validators.py:524
 msgid "User names must be strings"
-msgstr ""
+msgstr "Užívateľské mená musia byť textove reťazce"
 
 #: ckan/logic/validators.py:540
 msgid "That login name is not available."
@@ -1440,7 +1446,7 @@ msgstr "Prosím zadajte obe heslá"
 
 #: ckan/logic/validators.py:557
 msgid "Passwords must be strings"
-msgstr ""
+msgstr "Heslá musia byť textove reťazce"
 
 #: ckan/logic/validators.py:561
 msgid "Your password must be 4 characters or longer"
@@ -1489,23 +1495,23 @@ msgstr "Prosím, úveďte platnú URL"
 
 #: ckan/logic/validators.py:687
 msgid "role does not exist."
-msgstr ""
+msgstr "rola neexistuje"
 
 #: ckan/logic/validators.py:695
 msgid "Datasets with no organization can't be private."
-msgstr ""
+msgstr "Dataset, ktorý nepatrí organizácii nemôže byť súkromný"
 
 #: ckan/logic/validators.py:701
 msgid "Not a list"
-msgstr ""
+msgstr "Toto nieje zoznam"
 
 #: ckan/logic/validators.py:704
 msgid "Not a string"
-msgstr ""
+msgstr "Toto nieje textový reťazec"
 
 #: ckan/logic/validators.py:722
 msgid "This parent would create a loop in the hierarchy"
-msgstr ""
+msgstr "Tento predok by vytvoril zacyklenie v hierarchii"
 
 #: ckan/logic/action/create.py:158 ckan/logic/action/create.py:534
 #, python-format
@@ -1524,7 +1530,7 @@ msgstr "REST API: Vytvoriť objekt %s"
 
 #: ckan/logic/action/create.py:667
 msgid "Trying to create an organization as a group"
-msgstr ""
+msgstr "Skúšam vytvoriť organizáciu ako skupinu"
 
 #: ckan/logic/action/create.py:751
 msgid "You must supply a package id or name (parameter \"package\")."
@@ -1545,7 +1551,7 @@ msgstr "Hodnotenie musí byť medzi %i a %i."
 
 #: ckan/logic/action/create.py:1105 ckan/logic/action/create.py:1112
 msgid "You must be logged in to follow users"
-msgstr ""
+msgstr "Musíte byť prihlásený, ak chcete sledovať užívateľov"
 
 #: ckan/logic/action/create.py:1125
 msgid "You cannot follow yourself"
@@ -1554,19 +1560,19 @@ msgstr "Nemôžete odoberať sám seba"
 #: ckan/logic/action/create.py:1133 ckan/logic/action/create.py:1190
 #: ckan/logic/action/create.py:1318
 msgid "You are already following {0}"
-msgstr ""
+msgstr "Už sledujete {0}"
 
 #: ckan/logic/action/create.py:1164 ckan/logic/action/create.py:1172
 msgid "You must be logged in to follow a dataset."
-msgstr ""
+msgstr "Musíte byť prihlásený ak chcete sledovať dataset"
 
 #: ckan/logic/action/create.py:1224
 msgid "User {username} does not exist."
-msgstr ""
+msgstr "Uživateľ {username} neexistuje"
 
 #: ckan/logic/action/create.py:1294 ckan/logic/action/create.py:1302
 msgid "You must be logged in to follow a group."
-msgstr ""
+msgstr "Musíte byť prihlásený, ak chcete sledovať skupinu."
 
 #: ckan/logic/action/delete.py:68
 #, python-format
@@ -1581,7 +1587,7 @@ msgstr "REST API: Zmazať %s"
 #: ckan/logic/action/delete.py:241
 #, python-format
 msgid "REST API: Delete Member: %s"
-msgstr ""
+msgstr "REST API: Zmazať člena: %s"
 
 #: ckan/logic/action/delete.py:438 ckan/logic/action/delete.py:464
 #: ckan/logic/action/get.py:2065 ckan/logic/action/update.py:896
@@ -1601,11 +1607,11 @@ msgstr "Nie je možné nájsť tag \"%s\""
 
 #: ckan/logic/action/delete.py:498 ckan/logic/action/delete.py:502
 msgid "You must be logged in to unfollow something."
-msgstr ""
+msgstr "Musíte byť pripojený pre odber."
 
 #: ckan/logic/action/delete.py:513
 msgid "You are not following {0}."
-msgstr ""
+msgstr "Neodoberáte {0}."
 
 #: ckan/logic/action/get.py:1649
 msgid "Do not specify if using \"query\" parameter"
@@ -1629,7 +1635,7 @@ msgstr "Položka nebola nájdená."
 
 #: ckan/logic/action/update.py:208 ckan/logic/action/update.py:221
 msgid "Resource was not found."
-msgstr "Zdroj nebol nájdený. "
+msgstr "Zdroj nebol nájdený."
 
 #: ckan/logic/action/update.py:268 ckan/logic/action/update.py:1089
 msgid "Package was not found."
@@ -1651,12 +1657,12 @@ msgstr "TaskStatus nebol nájdený."
 
 #: ckan/logic/action/update.py:1093
 msgid "Organization was not found."
-msgstr ""
+msgstr "Organizácia nebola nájdená."
 
 #: ckan/logic/auth/create.py:19 ckan/logic/auth/create.py:37
 #, python-format
 msgid "User %s not authorized to create packages"
-msgstr "Používateľ %s nemá oprávnenie vytvárať balíky."
+msgstr "Používateľ %s nemá oprávnenie vytvárať balíky"
 
 #: ckan/logic/auth/create.py:23 ckan/logic/auth/update.py:39
 #, python-format
@@ -1666,15 +1672,15 @@ msgstr "Používateľ %s nemá oprávnenie upravovať tieto skupiny"
 #: ckan/logic/auth/create.py:30
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
-msgstr ""
+msgstr "Používateľ %s nemá oprávnenie na pridanie datasetu tejto organizácie"
 
 #: ckan/logic/auth/create.py:52
 msgid "You must be a sysadmin to create a featured related item"
-msgstr "Musíte byť sysadmin, aby ste vytvorili funkčné súvisiace položky."
+msgstr "Musíte byť systémový administrátor, aby ste mohli vytvoriť funkčné súvisiace položky"
 
 #: ckan/logic/auth/create.py:56
 msgid "You must be logged in to add a related item"
-msgstr "Ak chcete pridať súvisiacu položku, musíte byť prihlásený."
+msgstr "Ak chcete pridať súvisiacu položku, musíte byť prihlásený"
 
 #: ckan/logic/auth/create.py:80
 #, python-format
@@ -1689,19 +1695,19 @@ msgstr "Používateľ %s nemá oprávnenie vytvárať skupiny"
 #: ckan/logic/auth/create.py:101
 #, python-format
 msgid "User %s not authorized to create organizations"
-msgstr ""
+msgstr "Používateľ %s nemá oprávnenie na vytváranie organizácií"
 
 #: ckan/logic/auth/create.py:117
 msgid "User {user} not authorized to create users via the API"
-msgstr ""
+msgstr "Používateľ {user} nemá oprávnenie na vytvorenie používteľom prostredníctvom API"
 
 #: ckan/logic/auth/create.py:120
 msgid "Not authorized to create users"
-msgstr ""
+msgstr "Nemáte oprávnenie na vytvorenie používateľov"
 
 #: ckan/logic/auth/create.py:163
 msgid "Group was not found."
-msgstr "Skupina nebola nájdená"
+msgstr "Skupina nebola nájdená."
 
 #: ckan/logic/auth/create.py:183
 msgid "Valid API key needed to create a package"
@@ -1714,7 +1720,7 @@ msgstr "Na vytvorenie skupiny je potrebný API kľúč"
 #: ckan/logic/auth/create.py:211
 #, python-format
 msgid "User %s not authorized to add members"
-msgstr ""
+msgstr "Používateľ %s nemá oprávnenie na pridanie členov"
 
 #: ckan/logic/auth/create.py:235 ckan/logic/auth/update.py:107
 #, python-format
@@ -1734,7 +1740,7 @@ msgstr "Nenašiel sa žiadny balík pre tento zdroj, nie je možné skontrolova�
 #: ckan/logic/auth/delete.py:41
 #, python-format
 msgid "User %s not authorized to delete resource %s"
-msgstr ""
+msgstr "Používateľ %s nemá oprávnenie na odstránenie zdroja %s"
 
 #: ckan/logic/auth/delete.py:50 ckan/logic/auth/delete.py:64
 msgid "Only the owner can delete a related item"
@@ -1748,7 +1754,7 @@ msgstr "Používateľ %s nemá oprávnenie zmazať vzťah %s"
 #: ckan/logic/auth/delete.py:85
 #, python-format
 msgid "User %s not authorized to delete groups"
-msgstr ""
+msgstr "Používateľ %s nemá oprávnenie na odstránenie skupín"
 
 #: ckan/logic/auth/delete.py:89
 #, python-format
@@ -1758,22 +1764,22 @@ msgstr "Používateľ %s nemá oprávnenie zmazať skupinu %s"
 #: ckan/logic/auth/delete.py:106
 #, python-format
 msgid "User %s not authorized to delete organizations"
-msgstr ""
+msgstr "Používateľ %s nemá oprávnenie na odstránenie organizácií"
 
 #: ckan/logic/auth/delete.py:110
 #, python-format
 msgid "User %s not authorized to delete organization %s"
-msgstr ""
+msgstr "Používateľ %s nemá oprávnenie na odstránenie organizácie %s"
 
 #: ckan/logic/auth/delete.py:123
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr "Používateľ %s nemá oprávnenie odstrániť task_status"
+msgstr "Používateľ %s nemá oprávnenie na odstránenie task_status"
 
 #: ckan/logic/auth/delete.py:139
 #, python-format
 msgid "User %s not authorized to delete organization %s members"
-msgstr ""
+msgstr "Používateľ %s nemá oprávnenie na odstránenie členov organizácie %s"
 
 #: ckan/logic/auth/get.py:93
 #, python-format
@@ -1792,7 +1798,7 @@ msgstr "Používateľ %s nemá oprávnenie čítať zdroj %s"
 
 #: ckan/logic/auth/get.py:216
 msgid "You must be logged in to access your dashboard."
-msgstr ""
+msgstr "Musíte byť prihlásený na prístup k nástenke."
 
 #: ckan/logic/auth/update.py:33
 #, python-format
@@ -1802,7 +1808,7 @@ msgstr "Používateľ %s nemá oprávnenie upravovať balík %s"
 #: ckan/logic/auth/update.py:69
 #, python-format
 msgid "User %s not authorized to edit resource %s"
-msgstr ""
+msgstr "Používateľ %s nemá oprávnenie na úpravu zdroja %s"
 
 #: ckan/logic/auth/update.py:92
 #, python-format
@@ -1812,7 +1818,7 @@ msgstr "Používateľ %s nemá oprávnenie meniť stav balíka %s"
 #: ckan/logic/auth/update.py:120
 #, python-format
 msgid "User %s not authorized to edit organization %s"
-msgstr ""
+msgstr "Používateľ %s nemá oprávnenie na zmenu organizácie %s"
 
 #: ckan/logic/auth/update.py:131 ckan/logic/auth/update.py:137
 msgid "Only the owner can update a related item"
@@ -1820,7 +1826,7 @@ msgstr "Súvisiacu položku môže aktualizovať len vlasník"
 
 #: ckan/logic/auth/update.py:142
 msgid "You must be a sysadmin to change a related item's featured field."
-msgstr "Aby ste mohli zmeniť funkčné pole súvisiacej položky, musíte byť sysadmin."
+msgstr "Aby ste mohli zmeniť funkčné pole súvisiacej položky, musíte byť systémový administrátor."
 
 #: ckan/logic/auth/update.py:159
 #, python-format
@@ -1834,7 +1840,7 @@ msgstr "Používateľ %s nemá oprávnenie meniť práva skupiny %s"
 
 #: ckan/logic/auth/update.py:203
 msgid "Have to be logged in to edit user"
-msgstr ""
+msgstr "Musíte byť pripojený na úpravu používateľa"
 
 #: ckan/logic/auth/update.py:211
 #, python-format
@@ -1870,7 +1876,7 @@ msgstr "Nie je uvedená licencia"
 
 #: ckan/model/license.py:187
 msgid "Open Data Commons Public Domain Dedication and License (PDDL)"
-msgstr ""
+msgstr "Open Data Commons Public Domain Dedication and License (PDDL)"
 
 #: ckan/model/license.py:197
 msgid "Open Data Commons Open Database License (ODbL)"
@@ -1932,7 +1938,7 @@ msgstr "záleží od  %s"
 #: ckan/model/package_relationship.py:52
 #, python-format
 msgid "is a dependency of %s"
-msgstr "je závislosť %s"
+msgstr "je závislosť od %s"
 
 #: ckan/model/package_relationship.py:53
 #, python-format
@@ -1982,41 +1988,41 @@ msgstr "Prebieha načítavanie..."
 
 #: ckan/public/base/javascript/modules/api-info.js:20
 msgid "There is no API data to load for this resource"
-msgstr ""
+msgstr "Neexistuje dátové API na načítanie tohto zdroja"
 
 #: ckan/public/base/javascript/modules/api-info.js:21
 msgid "Failed to load data API information"
-msgstr ""
+msgstr "Zlyhalo načítanie informácie o dátovom API"
 
 #: ckan/public/base/javascript/modules/autocomplete.js:31
 msgid "No matches found"
-msgstr ""
+msgstr "Žiadna zhoda"
 
 #: ckan/public/base/javascript/modules/autocomplete.js:32
 msgid "Start typing…"
-msgstr ""
+msgstr "Začnite písať..."
 
 #: ckan/public/base/javascript/modules/autocomplete.js:34
 msgid "Input is too short, must be at least one character"
-msgstr ""
+msgstr "Vstup je príliš krátky, zadajte aspoň jeden znak"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 msgid "There are unsaved modifications to this form"
-msgstr ""
+msgstr "Neuložili ste vykonané zmeny vo formulári"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:7
 msgid "Please Confirm Action"
-msgstr ""
+msgstr "Prosím, potvrďte túto akciu"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:8
 msgid "Are you sure you want to perform this action?"
-msgstr ""
+msgstr "Chcete vykonať túto akciu?"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:9
 #: ckan/templates/user/new_user_form.html:9
 #: ckan/templates/user/perform_reset.html:20
 msgid "Confirm"
-msgstr ""
+msgstr "Potvrdiť"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:10
 #: ckan/public/base/javascript/modules/resource-reorder.js:11
@@ -2061,14 +2067,14 @@ msgstr "Nahrávanie"
 
 #: ckan/public/base/javascript/modules/image-upload.js:16
 msgid "Link"
-msgstr ""
+msgstr "Odkaz"
 
 #: ckan/public/base/javascript/modules/image-upload.js:17
 #: ckan/templates/group/snippets/group_item.html:41
 #: ckan/templates/macros/form.html:234
 #: ckan/templates/snippets/search_form.html:61
 msgid "Remove"
-msgstr ""
+msgstr "Zmazať"
 
 #: ckan/public/base/javascript/modules/image-upload.js:18
 #: ckan/templates/macros/form.html:411
@@ -2078,35 +2084,35 @@ msgstr "Obrázok"
 
 #: ckan/public/base/javascript/modules/image-upload.js:19
 msgid "Upload a file on your computer"
-msgstr ""
+msgstr "Odošlite súbor na váš počítať"
 
 #: ckan/public/base/javascript/modules/image-upload.js:20
 msgid "Link to a URL on the internet (you can also link to an API)"
-msgstr ""
+msgstr "Odkaz URL na internete (môžete prepojiť s API)"
 
 #: ckan/public/base/javascript/modules/image-upload.js:21
 msgid "Reset this"
-msgstr ""
+msgstr "Resetovať"
 
 #: ckan/public/base/javascript/modules/related-item.js:25
 msgid "show more"
-msgstr ""
+msgstr "ukázať viac"
 
 #: ckan/public/base/javascript/modules/related-item.js:26
 msgid "show less"
-msgstr ""
+msgstr "ukázať menej"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:8
 msgid "Reorder resources"
-msgstr ""
+msgstr "Preusporiadať zdroje"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:9
 msgid "Save order"
-msgstr ""
+msgstr "Uložiť výber"
 
 #: ckan/public/base/javascript/modules/resource-reorder.js:10
 msgid "Saving..."
-msgstr ""
+msgstr "Ukladám..."
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:25
 #: ckan/templates_legacy/package/new_package_form.html:149
@@ -2115,29 +2121,29 @@ msgstr "Nahrať súbor"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:26
 msgid "An Error Occurred"
-msgstr ""
+msgstr "Vyskytla sa chyba"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:27
 msgid "Resource uploaded"
-msgstr ""
+msgstr "Zdroj nahraný"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:28
 msgid "Unable to upload file"
-msgstr ""
+msgstr "Nie je možné nahrať súbor"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:29
 msgid "Unable to authenticate upload"
-msgstr ""
+msgstr "Nie je možné autentifikovať nahraté súbory"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:30
 msgid "Unable to get data for uploaded file"
-msgstr ""
+msgstr "Nie je možné pristúpiť k nahranému súboru"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
 "You are uploading a file. Are you sure you want to navigate away and stop "
 "this upload?"
-msgstr ""
+msgstr "Nahrávate súbor. Chcete odísť preč a prerušiť nahrávanie?"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:35
 #: ckan/templates/group/snippets/group_form.html:18
@@ -2168,24 +2174,24 @@ msgstr "Upraviť"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:9
 msgid "Show more"
-msgstr ""
+msgstr "Ukázať viac"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:10
 msgid "Hide"
-msgstr ""
+msgstr "Skryť"
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
-msgstr ""
+msgstr "Chyba %(error_code)s"
 
 #: ckan/templates/footer.html:8
 msgid "About {0}"
-msgstr ""
+msgstr "Informácie o {0}"
 
 #: ckan/templates/footer.html:14
 msgid "CKAN API"
-msgstr ""
+msgstr "CKAN API"
 
 #: ckan/templates/footer.html:15 ckan/templates_legacy/layout_base.html:207
 msgid "Open Knowledge Foundation"
@@ -2196,26 +2202,28 @@ msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
 msgstr ""
+"<strong>Beží na</strong> <a class=\"hide-text ckan-footer-logo\" "
+"href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
-msgstr ""
+msgstr "Nastavenia systémového administrátora"
 
 #: ckan/templates/header.html:18
 msgid "View profile"
-msgstr ""
+msgstr "Ukázať profil"
 
 #: ckan/templates/header.html:25
 #, python-format
 msgid "Dashboard (%(num)d new item)"
 msgid_plural "Dashboard (%(num)d new items)"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Zobraziť (%(num)d novú položku)"
+msgstr[1] "Zobraziť (%(num)d nové položky)"
+msgstr[2] "Zobraziť (%(num)d nové položky)"
 
 #: ckan/templates/header.html:33 ckan/templates/user/dashboard.html:16
 msgid "Edit settings"
-msgstr ""
+msgstr "Úprava nastavení"
 
 #: ckan/templates/header.html:40 ckan/templates_legacy/user/layout.html:14
 msgid "Log out"
@@ -2223,7 +2231,7 @@ msgstr "Odhlásiť sa"
 
 #: ckan/templates/header.html:52 ckan/templates/user/logout_first.html:15
 msgid "Log in"
-msgstr ""
+msgstr "Prihlásiť sa"
 
 #: ckan/templates/header.html:54 ckan/templates/user/new.html:3
 #: ckan/templates_legacy/layout_base.html:60
@@ -2257,54 +2265,54 @@ msgstr "Datasety"
 
 #: ckan/templates/header.html:107
 msgid "Search Datasets"
-msgstr ""
+msgstr "Vyhľadať datasety"
 
 #: ckan/templates/header.html:108 ckan/templates/group/read.html:14
 #: ckan/templates/organization/read.html:18
 #: ckan/templates/snippets/search_form.html:3
 msgid "Search datasets..."
-msgstr ""
+msgstr "Vyhľadať datasety..."
 
 #: ckan/templates/activity_streams/activity_stream_items.html:7
 msgid "Load less"
-msgstr ""
+msgstr "Načítať menej"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:15
 msgid "Load more"
-msgstr ""
+msgstr "Načítať viac"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:19
 msgid "No activities are within this activity stream"
-msgstr ""
+msgstr "Žiadne udalosti nie sú dostupné"
 
 #: ckan/templates/admin/base.html:3
 msgid "Administration"
-msgstr ""
+msgstr "Administrácia"
 
 #: ckan/templates/admin/base.html:8
 msgid "Sysadmins"
-msgstr ""
+msgstr "Systémoví administrátori"
 
 #: ckan/templates/admin/base.html:9
 msgid "Config"
-msgstr ""
+msgstr "Konfigurácia"
 
 #: ckan/templates/admin/config.html:11
 #: ckan/templates/admin/confirm_reset.html:7
 msgid "Are you sure you want to reset the config?"
-msgstr ""
+msgstr "Chcete obnoviť konfiguráciu?"
 
 #: ckan/templates/admin/config.html:12
 msgid "Reset"
-msgstr ""
+msgstr "Obnoviť"
 
 #: ckan/templates/admin/config.html:13
 msgid "Update Config"
-msgstr ""
+msgstr "Upraviť konfiguráciu"
 
 #: ckan/templates/admin/config.html:22
 msgid "CKAN config options"
-msgstr ""
+msgstr "CKAN konfigurácia"
 
 #: ckan/templates/admin/config.html:29
 #, python-format
@@ -2325,15 +2333,22 @@ msgid ""
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p> "
 msgstr ""
+" <p><strong>Názov stránky:</strong> Názov CKAN objektu sa vyskytuje "
+"na viacerých miestach prostredníctvom CKAN</p> <p><strong>Štýl:</strong> "
+"Zvoľte niektorú z jednoduchších kombinácií farebných schém pre vytvorenie jednoduchej témy.</p> <p><strong>Logo stránky:</strong> Toto"
+" logo vyskytujúce sa v hlavičkých každej CKAN šablóny.</p> <p><strong>Informácie o:</strong> "
+"Tento text sa zobrazí v CKAN objektoch <a href=\"%(about_url)s\">o stránke</a>.</p> <p><strong>Intro "
+"Text:</strong> Tento text sa objaví na <a href=\"%(home_url)s\">domovskej stránke</a> tento CKAN objekt pre privítání návštěvníkov.</p> <p><strong>Vlastné alebo upravené CSS:</strong> Toto je blok pre CSS, ktorý sa objaví v <code>&lt;head&gt;</code> tagu každej stránky. Ak si želáte upraviť šablóny viac, prečítajte si <a href=\"%(docs_url)s\" target=\"_blank\">dokumentáciu</a>.</p> <p><strong>Hlavná stránka:</strong> Touto voľbou sa určí predpripravené rozloženie modulu, ktoré se zobrazuje na hlavnej stránke.</p>"
+
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
 msgid "Confirm Reset"
-msgstr ""
+msgstr "Potvrďte reset"
 
 #: ckan/templates/admin/index.html:15
 msgid "What are sysadmins?"
-msgstr ""
+msgstr "Kto sú systémoví administrátori"
 
 #: ckan/templates/admin/index.html:19
 msgid ""
@@ -2341,60 +2356,64 @@ msgid ""
 "can only add CKAN sysadmins via the <code>sysadmin</code> paster "
 "command.</p> "
 msgstr ""
+" <p>Systémový administrátor má plnú kontrolu nad CKAN objektom. Pridanie CKAN administrátora môžete vykonať iba "
+"prostredníctvom príkazu <code>sysadmin</code>.</p> "
 
 #: ckan/templates/admin/index.html:24
 msgid "Read the documentation"
-msgstr ""
+msgstr "Prečítajte si dokumentáciu"
 
 #: ckan/templates/ajax_snippets/api_info.html:19
 msgid "CKAN Data API"
-msgstr ""
+msgstr "CKAN dátové API"
 
 #: ckan/templates/ajax_snippets/api_info.html:23
 msgid "Access resource data via a web API with powerful query support"
-msgstr ""
+msgstr "Prístup k zdrojom dát prostredníctvom webového API s podporou dopytovania"
 
 #: ckan/templates/ajax_snippets/api_info.html:24
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/datastore.html\" "
 "target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
-msgstr ""
+msgstr "Viac informácií na <a       "
+"href=\"http://docs.ckan.org/en/latest/datastore.html\" "
+"target=\"_blank\">CKAN dátové API a DataStore dokumentácia</a>.</p> "
 
 #: ckan/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
-msgstr ""
+msgstr "Koncové body"
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
 "The Data API can be accessed via the following actions of the CKAN action "
 "API."
-msgstr ""
+msgstr "Prístup k dátovému API prostredníctvom nasledujúcich CKAN akcií API"
 
 #: ckan/templates/ajax_snippets/api_info.html:42
 #: ckan/templates/related/edit_form.html:7
 msgid "Create"
-msgstr ""
+msgstr "Vytvoriť"
 
 #: ckan/templates/ajax_snippets/api_info.html:46
 msgid "Update / Insert"
-msgstr ""
+msgstr "Aktualizovať / Vložiť"
 
 #: ckan/templates/ajax_snippets/api_info.html:50
 msgid "Query"
-msgstr ""
+msgstr "Dopyt"
 
 #: ckan/templates/ajax_snippets/api_info.html:54
 msgid "Query (via SQL)"
-msgstr ""
+msgstr "Dopyt (prostredníctvom SQL)"
 
 #: ckan/templates/ajax_snippets/api_info.html:66
 msgid "Querying"
-msgstr ""
+msgstr "Dopytovanie"
 
 #: ckan/templates/ajax_snippets/api_info.html:70
 msgid "Query example (first 5 results)"
-msgstr ""
+msgstr "Príklad dopytu (prvých 5 výsledkov)"
 
 #: ckan/templates/ajax_snippets/api_info.html:75
 msgid "Query example (results containing 'jones')"
@@ -2402,92 +2421,92 @@ msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:81
 msgid "Query example (via SQL statement)"
-msgstr ""
+msgstr "Ukážka dopytu (cez SQL výraz)"
 
 #: ckan/templates/ajax_snippets/api_info.html:93
 msgid "Example: Javascript"
-msgstr ""
+msgstr "Ukážka: JavaScript"
 
 #: ckan/templates/ajax_snippets/api_info.html:97
 msgid "A simple ajax (JSONP) request to the data API using jQuery."
-msgstr ""
+msgstr "Jednoduchá ajaxová (JSONP) požiadavka pre dátovú API využívajúcu jQuery"
 
 #: ckan/templates/ajax_snippets/api_info.html:118
 msgid "Example: Python"
-msgstr ""
+msgstr "Príklad: Python"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:9
 msgid "This resource can not be previewed at the moment."
-msgstr ""
+msgstr "Pre tento zdroj nemôže byť zobrazený náhľad"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:11
 msgid "Click here for more information."
-msgstr ""
+msgstr "Klikni pre viac informácií"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:18
 msgid "Download resource"
-msgstr ""
+msgstr "Stiahnuť zdroj"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:23
 msgid "Your browser does not support iframes."
-msgstr ""
+msgstr "Váš webový prehliadač nepodporuje iframe"
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:3
 msgid "No preview available."
-msgstr ""
+msgstr "Náhľad nie je k dispozícii"
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:5
 msgid "More details..."
-msgstr ""
+msgstr "Viac detailov..."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:12
 #, python-format
 msgid "No handler defined for data type: %(type)s."
-msgstr ""
+msgstr "Pre dátový typ %(type)s nebol definovaný nástroj pre jeho spracovanie"
 
 #: ckan/templates/development/snippets/form.html:5
 msgid "Standard"
-msgstr ""
+msgstr "Štandardný"
 
 #: ckan/templates/development/snippets/form.html:5
 msgid "Standard Input"
-msgstr ""
+msgstr "Štandardný vstup"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium"
-msgstr ""
+msgstr "Stredný"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium Width Input"
-msgstr ""
+msgstr "Vstup strednej šírky"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full"
-msgstr ""
+msgstr "Celý"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full Width Input"
-msgstr ""
+msgstr "Vstup na celú šírku"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large"
-msgstr ""
+msgstr "Veľký"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large Input"
-msgstr ""
+msgstr "Veľký vstup"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend"
-msgstr ""
+msgstr "Predpripravený"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend Input"
-msgstr ""
+msgstr "Predpripravený vstup"
 
 #: ckan/templates/development/snippets/form.html:13
 msgid "Custom Field (empty)"
-msgstr ""
+msgstr "Vlastné pole (prázdne)"
 
 #: ckan/templates/development/snippets/form.html:19
 #: ckan/templates/group/snippets/group_form.html:35
@@ -2497,26 +2516,26 @@ msgstr ""
 #: ckan/templates/snippets/custom_form_fields.html:20
 #: ckan/templates/snippets/custom_form_fields.html:37
 msgid "Custom Field"
-msgstr ""
+msgstr "Vlastné pole"
 
 #: ckan/templates/development/snippets/form.html:22
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: ckan/templates/development/snippets/form.html:23
 msgid "Textarea"
-msgstr ""
+msgstr "Textové pole"
 
 #: ckan/templates/development/snippets/form.html:24
 msgid "Select"
-msgstr ""
+msgstr "Zvoliť"
 
 #: ckan/templates/group/about.html:11
 #: ckan/templates/group/snippets/info.html:15
 #: ckan/templates/snippets/group.html:24
 #: ckan/templates/snippets/group_item.html:18
 msgid "There is no description for this group"
-msgstr ""
+msgstr "Pre túto skupinu neexistuje žiaden opis"
 
 #: ckan/templates/group/activity_stream.html:3
 #: ckan/templates/group/activity_stream.html:6
@@ -2531,7 +2550,7 @@ msgstr ""
 #: ckan/templates/user/activity_stream.html:6
 #: ckan/templates/user/read_base.html:20
 msgid "Activity Stream"
-msgstr ""
+msgstr "Udalosti"
 
 #: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:6
 #: ckan/templates/organization/admins.html:3
@@ -2547,7 +2566,7 @@ msgstr "Pridať skupinu"
 
 #: ckan/templates/group/base_form_page.html:11
 msgid "Group Form"
-msgstr ""
+msgstr "Formulár skupiny"
 
 #: ckan/templates/group/confirm_delete.html:3
 #: ckan/templates/group/confirm_delete.html:15
@@ -2564,16 +2583,16 @@ msgstr ""
 #: ckan/templates/related/confirm_delete.html:3
 #: ckan/templates/related/confirm_delete.html:15
 msgid "Confirm Delete"
-msgstr ""
+msgstr "Potvrdiť zmazanie"
 
 #: ckan/templates/group/confirm_delete.html:11
 msgid "Are you sure you want to delete group - {name}?"
-msgstr ""
+msgstr "Naozaj chcete odstrániť skupinu - {name}?"
 
 #: ckan/templates/group/confirm_delete_member.html:11
 #: ckan/templates/organization/confirm_delete_member.html:11
 msgid "Are you sure you want to delete member - {name}?"
-msgstr ""
+msgstr "Naozaj chcete odstrániť člena - {name}?"
 
 #: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:3
 #: ckan/templates/group/edit_base.html:11
@@ -2585,11 +2604,11 @@ msgstr ""
 #: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
 #: ckan/templates/user/read_base.html:14
 msgid "Manage"
-msgstr ""
+msgstr "Spravovať"
 
 #: ckan/templates/group/edit.html:12
 msgid "Edit Group"
-msgstr ""
+msgstr "Upraviť skupinu"
 
 #: ckan/templates/group/edit_base.html:16
 #: ckan/templates/organization/edit_base.html:17
@@ -2638,27 +2657,27 @@ msgstr "Pridať skupinu"
 
 #: ckan/templates/group/index.html:20
 msgid "Search groups..."
-msgstr ""
+msgstr "Prehľadávať skupiny..."
 
 #: ckan/templates/group/index.html:29
 msgid "There are currently no groups for this site"
-msgstr ""
+msgstr "Na tejto stranke aktuálne nie sú žiadne skupiny"
 
 #: ckan/templates/group/index.html:31
 #: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
-msgstr ""
+msgstr "Čo tak jednu vytvoriť?"
 
 #: ckan/templates/group/member_new.html:8
 #: ckan/templates/organization/member_new.html:10
 msgid "Back to all members"
-msgstr ""
+msgstr "Späť na zoznam všetkých členov"
 
 #: ckan/templates/group/member_new.html:10
 #: ckan/templates/organization/member_new.html:7
 #: ckan/templates/organization/member_new.html:12
 msgid "Edit Member"
-msgstr ""
+msgstr "Upraviť člena"
 
 #: ckan/templates/group/member_new.html:10 ckan/templates/group/members.html:6
 #: ckan/templates/organization/member_new.html:7
@@ -2666,32 +2685,32 @@ msgstr ""
 #: ckan/templates/organization/member_new.html:62
 #: ckan/templates/organization/members.html:6
 msgid "Add Member"
-msgstr ""
+msgstr "Pridať člena"
 
 #: ckan/templates/group/member_new.html:17
 #: ckan/templates/organization/member_new.html:19
 msgid "Existing User"
-msgstr ""
+msgstr "Existujúci používateľ"
 
 #: ckan/templates/group/member_new.html:20
 #: ckan/templates/organization/member_new.html:22
 msgid "If you wish to add an existing user, search for their username below."
-msgstr ""
+msgstr "Pokiaľ chcete pridať existujúceho používateľa, nižšie vyhľadajte jeho používateľské meno"
 
 #: ckan/templates/group/member_new.html:35
 #: ckan/templates/organization/member_new.html:37
 msgid "or"
-msgstr ""
+msgstr "alebo"
 
 #: ckan/templates/group/member_new.html:39
 #: ckan/templates/organization/member_new.html:41
 msgid "New User"
-msgstr ""
+msgstr "Nový používateľ"
 
 #: ckan/templates/group/member_new.html:42
 #: ckan/templates/organization/member_new.html:44
 msgid "If you wish to invite a new user, enter their email address."
-msgstr ""
+msgstr "Pokiaľ chcete pozvať nového používateľa, zadajte jeho e-mail"
 
 #: ckan/templates/group/member_new.html:50
 #: ckan/templates/group/member_new.html:61
@@ -2699,7 +2718,7 @@ msgstr ""
 #: ckan/templates/organization/member_new.html:52
 #: ckan/templates/organization/members.html:18
 msgid "Role"
-msgstr ""
+msgstr "Rola"
 
 #: ckan/templates/group/member_new.html:58
 #: ckan/templates/user/edit_user_form.html:9
@@ -2717,7 +2736,7 @@ msgstr "Používateľské meno"
 #: ckan/templates/organization/member_new.html:55
 #: ckan/templates/organization/members.html:30
 msgid "Are you sure you want to delete this member?"
-msgstr ""
+msgstr "Skutočne chcete odstrániť tohto člena?"
 
 #: ckan/templates/group/member_new.html:65
 #: ckan/templates/group/members.html:32
@@ -2756,7 +2775,7 @@ msgstr "Pridať"
 #: ckan/templates/group/member_new.html:84
 #: ckan/templates/organization/member_new.html:75
 msgid "What are roles?"
-msgstr ""
+msgstr "Čo sú role?"
 
 #: ckan/templates/group/member_new.html:87
 msgid ""
@@ -2764,29 +2783,32 @@ msgid ""
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
 msgstr ""
+" <p><strong>Administrátor:</strong> Môže upravovať informácie o skupine, tak ako aj spravovať "
+"členov organizácie.</p> <p><strong>Člen:</strong> Môže pridávať/mazať "
+"datasety zo skupín</p> "
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
 msgid "Create a Group"
-msgstr ""
+msgstr "Vytvoriť skupinu"
 
 #: ckan/templates/group/new_group_form.html:17
 msgid "Update Group"
-msgstr ""
+msgstr "Aktualizovať skupinu"
 
 #: ckan/templates/group/new_group_form.html:19
 msgid "Create Group"
-msgstr ""
+msgstr "Vytvoriť skupinu"
 
 #: ckan/templates/group/snippets/feeds.html:3
 #: ckan/templates/organization/snippets/feeds.html:3
 msgid "Datasets in group: {group}"
-msgstr ""
+msgstr "Datasety v skupine: {group}"
 
 #: ckan/templates/group/snippets/feeds.html:4
 #: ckan/templates/organization/snippets/feeds.html:4
 msgid "Recent Revision History"
-msgstr ""
+msgstr "História nedávnych úprav"
 
 #: ckan/templates/group/snippets/group_form.html:10
 #: ckan/templates/organization/snippets/organization_form.html:10
@@ -2798,11 +2820,11 @@ msgstr "Názov"
 
 #: ckan/templates/group/snippets/group_form.html:10
 msgid "My Group"
-msgstr ""
+msgstr "Moja skupina"
 
 #: ckan/templates/group/snippets/group_form.html:18
 msgid "my-group"
-msgstr ""
+msgstr "moja-skupina"
 
 #: ckan/templates/group/snippets/group_form.html:20
 #: ckan/templates/organization/snippets/organization_form.html:20
@@ -2819,19 +2841,19 @@ msgstr "Popis"
 
 #: ckan/templates/group/snippets/group_form.html:20
 msgid "A little information about my group..."
-msgstr ""
+msgstr "Skrátené informácie o mojej skupine"
 
 #: ckan/templates/group/snippets/group_form.html:80
 msgid "Are you sure you want to delete this Group?"
-msgstr ""
+msgstr "Si si istý, že chceš vymazať túto skupinu?"
 
 #: ckan/templates/group/snippets/group_form.html:85
 msgid "Save Group"
-msgstr ""
+msgstr "Uložiť skupinu"
 
 #: ckan/templates/group/snippets/group_item.html:27
 msgid "This group has no description"
-msgstr ""
+msgstr "Táto skupina nemá popis"
 
 #: ckan/templates/group/snippets/group_item.html:32
 #: ckan/templates/organization/snippets/organization_item.html:31
@@ -2849,11 +2871,11 @@ msgstr ""
 #: ckan/templates/group/snippets/group_item.html:37
 #: ckan/templates/group/snippets/group_item.html:38
 msgid "View {name}"
-msgstr ""
+msgstr "Zobraziť {meno}"
 
 #: ckan/templates/group/snippets/group_item.html:41
 msgid "Remove dataset from this group"
-msgstr ""
+msgstr "Vymaž dataset, z tejto skupiny"
 
 #: ckan/templates/group/snippets/helper.html:4
 msgid "What are Groups?"
@@ -2866,17 +2888,21 @@ msgid ""
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets. "
 msgstr ""
+" Možeš využiť CKAN Groups na vytvorenie a spravovanie kolekcií datasetov. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets. "
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
 msgid "Compare"
-msgstr ""
+msgstr "Porovnaj"
 
 #: ckan/templates/group/snippets/info.html:12
 #: ckan/templates/package/snippets/package_context.html:7
 #: ckan/templates/snippets/organization.html:34
 msgid "read more"
-msgstr ""
+msgstr "dozvedieť sa viac"
 
 #: ckan/templates/group/snippets/revisions_table.html:7
 #: ckan/templates/package/snippets/revisions_table.html:7
@@ -2953,25 +2979,25 @@ msgstr ""
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
-msgstr ""
+msgstr "Vitajte v CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will "
-msgstr ""
+msgstr "Toto je milý úvodný paragraf o CKAN vo všeobecnosti. Nemáme sem zatiaľ čo dať, ale čoskoro sa to zmení"
 
 #: ckan/templates/home/snippets/promoted.html:17
 msgid "This is a featured section"
-msgstr ""
+msgstr "Toto je vybraná sekcia"
 
 #: ckan/templates/home/snippets/search.html:2
 msgid "eg. Gold Prices"
-msgstr ""
+msgstr "napr. ceny zlata"
 
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search Your Data"
-msgstr ""
+msgstr "Prehľadaj data"
 
 #: ckan/templates/home/snippets/search.html:11
 #: ckan/templates/snippets/simple_search.html:5
@@ -2987,59 +3013,59 @@ msgstr "Hľadať"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular Tags"
-msgstr ""
+msgstr "Populárne tagy"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
-msgstr ""
+msgstr "{0} štatistika"
 
 #: ckan/templates/home/snippets/stats.html:10
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "dataset"
-msgstr ""
+msgstr "dataset"
 
 #: ckan/templates/home/snippets/stats.html:10
 #: ckan/templates_legacy/home/index.html:24
 msgid "datasets"
-msgstr "datasetov"
+msgstr "datasety"
 
 #: ckan/templates/home/snippets/stats.html:16
 msgid "organization"
-msgstr ""
+msgstr "organizácia"
 
 #: ckan/templates/home/snippets/stats.html:16
 msgid "organizations"
-msgstr ""
+msgstr "organizácie"
 
 #: ckan/templates/home/snippets/stats.html:22
 msgid "group"
-msgstr ""
+msgstr "skupina"
 
 #: ckan/templates/home/snippets/stats.html:22
 msgid "groups"
-msgstr ""
+msgstr "skupiny"
 
 #: ckan/templates/home/snippets/stats.html:28
 msgid "related item"
-msgstr ""
+msgstr "súvisiaca položka"
 
 #: ckan/templates/home/snippets/stats.html:28
 msgid "related items"
-msgstr ""
+msgstr "súvisiace položky"
 
 #: ckan/templates/macros/form.html:125
 msgid ""
 "You can use <a href=\"http://daringfireball.net/projects/markdown/syntax\" "
 "target=\"_blank\">Markdown formatting</a> here"
-msgstr ""
+msgstr "Tu možete použiť <a href=\"http://daringfireball.net/projects/markdown/syntax\" target=\"_blank\">Markdown formátovanie</a>"
 
 #: ckan/templates/macros/form.html:264
 msgid "This field is required"
-msgstr ""
+msgstr "Toto pole je povinné"
 
 #: ckan/templates/macros/form.html:264
 msgid "Custom"
-msgstr ""
+msgstr "Upravené"
 
 #: ckan/templates/macros/form.html:289
 #: ckan/templates/related/snippets/related_form.html:7
@@ -3053,11 +3079,11 @@ msgstr "Formulár obsahuje neplatné položky: "
 
 #: ckan/templates/macros/form.html:394
 msgid "Required field"
-msgstr ""
+msgstr "Povinné pole"
 
 #: ckan/templates/macros/form.html:409
 msgid "http://example.com/my-image.jpg"
-msgstr ""
+msgstr "http://example.com/my-image.jpg"
 
 #: ckan/templates/macros/form.html:410
 #: ckan/templates/related/snippets/related_form.html:20
@@ -3067,54 +3093,54 @@ msgstr "Obrázok URL"
 
 #: ckan/templates/macros/form.html:423
 msgid "Clear Upload"
-msgstr ""
+msgstr "Vymazať nahrávanie"
 
 #: ckan/templates/organization/about.html:11
 #: ckan/templates/snippets/organization.html:37
 #: ckan/templates/snippets/organization_item.html:16
 msgid "There is no description for this organization"
-msgstr ""
+msgstr "Táto organizácia nemá popis"
 
 #: ckan/templates/organization/base_form_page.html:5
 msgid "Organization Form"
-msgstr ""
+msgstr "Formulár organizácie"
 
 #: ckan/templates/organization/bulk_process.html:3
 #: ckan/templates/organization/bulk_process.html:11
 msgid "Edit datasets"
-msgstr ""
+msgstr "Upravit datasety"
 
 #: ckan/templates/organization/bulk_process.html:6
 msgid "Add dataset"
-msgstr ""
+msgstr "Pridaj dataset"
 
 #: ckan/templates/organization/bulk_process.html:16
 msgid " found for \"{query}\""
-msgstr ""
+msgstr "najdené ako výsledok dotazu \"{query}\""
 
 #: ckan/templates/organization/bulk_process.html:18
 msgid "Sorry no datasets found for \"{query}\""
-msgstr ""
+msgstr "Pre dotaz \"{query}\" neboli nájdené žiadne výsledky"
 
 #: ckan/templates/organization/bulk_process.html:37
 msgid "Make public"
-msgstr ""
+msgstr "Zprístupniť verejnosti"
 
 #: ckan/templates/organization/bulk_process.html:41
 msgid "Make private"
-msgstr ""
+msgstr "Pridať do súkromných"
 
 #: ckan/templates/organization/bulk_process.html:70
 #: ckan/templates/package/read.html:18
 #: ckan/templates/snippets/package_item.html:33
 msgid "Draft"
-msgstr ""
+msgstr "Predbežný návrh"
 
 #: ckan/templates/organization/bulk_process.html:72
 #: ckan/templates/package/snippets/package_basic_fields.html:109
 #: ckan/templates/snippets/package_item.html:35
 msgid "Deleted"
-msgstr ""
+msgstr "Zmazané"
 
 #: ckan/templates/organization/bulk_process.html:75
 #: ckan/templates/package/read.html:11
@@ -3123,16 +3149,16 @@ msgstr ""
 #: ckan/templates/snippets/private.html:2
 #: ckan/templates/user/read_base.html:71 ckan/templates/user/read_base.html:85
 msgid "Private"
-msgstr ""
+msgstr "Súkromný"
 
 #: ckan/templates/organization/bulk_process.html:81
 #: ckan/templates/snippets/package_item.html:45
 msgid "This dataset has no description"
-msgstr ""
+msgstr "Tento dataset nemá popis"
 
 #: ckan/templates/organization/bulk_process.html:90
 msgid "This organization has no datasets associated to it"
-msgstr ""
+msgstr "Táto organizácia nemá žiaden dataset spojený s ňou"
 
 #: ckan/templates/organization/bulk_process.html:99
 #: ckan/templates/package/search.html:30
@@ -3140,7 +3166,7 @@ msgstr ""
 #: ckan/templates/snippets/simple_search.html:10
 #: ckan/templates/snippets/sort_by.html:15
 msgid "Name Ascending"
-msgstr ""
+msgstr "Meno vzostupne"
 
 #: ckan/templates/organization/bulk_process.html:100
 #: ckan/templates/package/search.html:31
@@ -3148,7 +3174,7 @@ msgstr ""
 #: ckan/templates/snippets/simple_search.html:10
 #: ckan/templates/snippets/sort_by.html:16
 msgid "Name Descending"
-msgstr ""
+msgstr "Meno zostupne"
 
 #: ckan/templates/organization/bulk_process.html:101
 #: ckan/templates/package/search.html:32
@@ -3160,30 +3186,30 @@ msgstr "Naposledy zmenené"
 
 #: ckan/templates/organization/confirm_delete.html:11
 msgid "Are you sure you want to delete organization - {name}?"
-msgstr ""
+msgstr "Ste si istý, že chcete zmazať organizáciu - {name}?"
 
 #: ckan/templates/organization/edit.html:6
 #: ckan/templates/organization/snippets/info.html:13
 #: ckan/templates/organization/snippets/info.html:16
 msgid "Edit Organization"
-msgstr ""
+msgstr "Upraviť organizáciu"
 
 #: ckan/templates/organization/index.html:13
 #: ckan/templates/user/dashboard_organizations.html:7
 msgid "Add Organization"
-msgstr ""
+msgstr "Pridať organizáciu"
 
 #: ckan/templates/organization/index.html:20
 msgid "Search organizations..."
-msgstr ""
+msgstr "Vyhladať organizácie"
 
 #: ckan/templates/organization/index.html:29
 msgid "There are currently no organizations for this site"
-msgstr ""
+msgstr "Na tomto portály aktuálne niesú žiadne organizácie"
 
 #: ckan/templates/organization/member_new.html:58
 msgid "Update Member"
-msgstr ""
+msgstr "Upraviť údaje o užívateľovi"
 
 #: ckan/templates/organization/member_new.html:78
 msgid ""
@@ -3192,22 +3218,22 @@ msgid ""
 "edit datasets, but not manage organization members.</p> "
 "<p><strong>Member:</strong> Can view the organization's private datasets, "
 "but not add new datasets.</p> "
-msgstr ""
+msgstr  "<p><strong>Administrátor:</strong> Môže pridávať, upravovať a mazať datasety a môže taktiež spravovat členov organizácie.</p> <p><strong>Editor:</strong> Môže pridávať, upravovať a mazať datasety, ale nemôže spravovať členov organizácie.</p> <p><strong>Člen:</strong> Môže si zobraziť súkromné datasety organizácie, ale nemôže přidávať datasety.</p>"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
 #: ckan/templates/organization/new.html:7
 #: ckan/templates/organization/new.html:12
 msgid "Create an Organization"
-msgstr ""
+msgstr "Vytvoriť Organizáciu"
 
 #: ckan/templates/organization/new_organization_form.html:17
 msgid "Update Organization"
-msgstr ""
+msgstr "Aktualizovať Organizáciu"
 
 #: ckan/templates/organization/new_organization_form.html:19
 msgid "Create Organization"
-msgstr ""
+msgstr "Vytvoriť Organizáciu"
 
 #: ckan/templates/organization/read.html:5
 #: ckan/templates/package/search.html:16
@@ -3220,7 +3246,7 @@ msgstr "Pridať dataset"
 #: ckan/templates/organization/snippets/help.html:4
 #: ckan/templates/organization/snippets/helper.html:4
 msgid "What are Organizations?"
-msgstr ""
+msgstr "Čo sú to Organizácie"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
@@ -3237,11 +3263,13 @@ msgid ""
 " CKAN Organizations are used to create, manage and publish collections of "
 "datasets. Users can have different roles within an Organization, depending "
 "on their level of authorisation to create, edit and publish. "
-msgstr ""
+msgstr "Organizácie sú používané na vytváranie, spravovanie a publikovanie "
+"zbierok datasetov. Používatelia môžu mať rozličné role v Organizácii, v závislosti "
+"od ich úrovne autorizácie vytvárať, upravovať a pulikovať"
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
-msgstr ""
+msgstr "Moja Organizácia"
 
 #: ckan/templates/organization/snippets/organization_form.html:18
 msgid "my-organization"
@@ -3249,7 +3277,7 @@ msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:20
 msgid "A little information about my organization..."
-msgstr ""
+msgstr "Zopár informácií o mojej organizácií"
 
 #: ckan/templates/organization/snippets/organization_form.html:81
 msgid ""
@@ -3259,25 +3287,25 @@ msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:85
 msgid "Save Organization"
-msgstr ""
+msgstr "Uložiť Organizáciu"
 
 #: ckan/templates/organization/snippets/organization_item.html:26
 msgid "This organization has no description"
-msgstr ""
+msgstr "Táto organizácia nemá žiaden popis"
 
 #: ckan/templates/organization/snippets/organization_item.html:36
 #: ckan/templates/organization/snippets/organization_item.html:37
 msgid "View {organization_name}"
-msgstr ""
+msgstr "Zobraziť {organization_name}"
 
 #: ckan/templates/package/base.html:22 ckan/templates/package/new.html:3
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
 msgid "Create Dataset"
-msgstr ""
+msgstr "Vytvoriť dataset"
 
 #: ckan/templates/package/base_form_page.html:17
 msgid "What are datasets?"
-msgstr ""
+msgstr "Čo sú to datasety?"
 
 #: ckan/templates/package/base_form_page.html:20
 msgid ""
@@ -3288,57 +3316,57 @@ msgstr ""
 
 #: ckan/templates/package/confirm_delete.html:11
 msgid "Are you sure you want to delete dataset - {name}?"
-msgstr ""
+msgstr "Ste si istý, že chcete vymazať dataset - {name}?"
 
 #: ckan/templates/package/confirm_delete_resource.html:11
 msgid "Are you sure you want to delete resource - {name}?"
-msgstr ""
+msgstr "Ste si istý, že chcete vymazať zdroj - {name}"
 
 #: ckan/templates/package/edit_base.html:14
 msgid "View dataset"
-msgstr ""
+msgstr "Zobraziť dataset"
 
 #: ckan/templates/package/edit_base.html:18
 msgid "Edit metadata"
-msgstr ""
+msgstr "Upraviť metadáta"
 
 #: ckan/templates/package/group_list.html:14
 msgid "Associate this group with this dataset"
-msgstr ""
+msgstr "Priradiť túto skupinu datasetu"
 
 #: ckan/templates/package/group_list.html:14
 msgid "Add to group"
-msgstr ""
+msgstr "Pridať do skupiny"
 
 #: ckan/templates/package/group_list.html:23
 msgid "There are no groups associated with this dataset"
-msgstr ""
+msgstr "S týmto datasetom nie sú spojené žiadne skupiny"
 
 #: ckan/templates/package/new_package_form.html:23
 msgid "Update Dataset"
-msgstr ""
+msgstr "Aktualizovať dataset"
 
 #: ckan/templates/package/new_package_metadata.html:3
 msgid "Add metadata to the dataset"
-msgstr ""
+msgstr "Pridať metadáta do datasetu"
 
 #: ckan/templates/package/new_resource.html:5
 msgid "Add data to the dataset"
-msgstr ""
+msgstr "Pridať dáta do datasetu"
 
 #: ckan/templates/package/new_resource.html:10
 #: ckan/templates/package/new_resource_not_draft.html:7
 msgid "Add New Resource"
-msgstr ""
+msgstr "Pridať nový zdroj"
 
 #: ckan/templates/package/new_resource_not_draft.html:3
 #: ckan/templates/package/new_resource_not_draft.html:4
 msgid "Add resource"
-msgstr ""
+msgstr "Pridať zdroj"
 
 #: ckan/templates/package/new_resource_not_draft.html:15
 msgid "New resource"
-msgstr ""
+msgstr "Nový zdroj"
 
 #: ckan/templates/package/read_base.html:39
 #, python-format
@@ -3395,32 +3423,32 @@ msgstr "Naposledy zmenené"
 
 #: ckan/templates/package/resource_data.html:42
 msgid "Never"
-msgstr ""
+msgstr "Nikdy"
 
 #: ckan/templates/package/resource_data.html:48
 msgid "Upload Log"
-msgstr ""
+msgstr "Nahrať záznam"
 
 #: ckan/templates/package/resource_data.html:60
 msgid "Details"
-msgstr ""
+msgstr "Detaily"
 
 #: ckan/templates/package/resource_data.html:67
 msgid "End of log"
-msgstr ""
+msgstr "Koniec záznamu"
 
 #: ckan/templates/package/resource_edit_base.html:15
 msgid "All resources"
-msgstr ""
+msgstr "Všetky zdroje"
 
 #: ckan/templates/package/resource_edit_base.html:17
 msgid "View resource"
-msgstr ""
+msgstr "Zobraziť zdroj"
 
 #: ckan/templates/package/resource_edit_base.html:22
 #: ckan/templates/package/resource_edit_base.html:29
 msgid "Edit resource"
-msgstr ""
+msgstr "Upraviť zdroj"
 
 #: ckan/templates/package/resource_edit_base.html:24
 msgid "DataStore"
@@ -3429,12 +3457,12 @@ msgstr ""
 #: ckan/templates/package/resource_read.html:38
 #: ckan/templates_legacy/package/resource_read.html:73
 msgid "API Endpoint"
-msgstr "koncový bod API"
+msgstr "Koncový bod API"
 
 #: ckan/templates/package/resource_read.html:40
 #: ckan/templates/package/snippets/resource_item.html:47
 msgid "Go to resource"
-msgstr ""
+msgstr "Choď ku zdroju"
 
 #: ckan/templates/package/resource_read.html:42
 #: ckan/templates/package/snippets/resource_item.html:44
@@ -3444,7 +3472,7 @@ msgstr "Stiahnuť"
 
 #: ckan/templates/package/resource_read.html:58
 msgid "URL:"
-msgstr ""
+msgstr "URL:"
 
 #: ckan/templates/package/resource_read.html:65
 msgid "There is no description for this resource"
@@ -3457,7 +3485,7 @@ msgstr ""
 #: ckan/templates/package/resource_read.html:70
 #, python-format
 msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
-msgstr ""
+msgstr "Zdroj: <a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckan/templates/package/resource_read.html:87
 #: ckan/templates_legacy/package/new_package_form.html:230
@@ -3506,7 +3534,7 @@ msgstr "Formát"
 
 #: ckan/templates/package/resources.html:8
 msgid "Add new resource"
-msgstr ""
+msgstr "Pridať nový zdroj"
 
 #: ckan/templates/package/resources.html:19
 #, python-format
@@ -3518,14 +3546,14 @@ msgstr ""
 #: ckan/templates/package/search.html:29
 #: ckan/templates/snippets/sort_by.html:14
 msgid "Relevance"
-msgstr ""
+msgstr "Relevantnosť"
 
 #: ckan/templates/package/search.html:33
 #: ckan/templates/snippets/package_item.html:40
 #: ckan/templates/snippets/popular.html:3
 #: ckan/templates/snippets/sort_by.html:19
 msgid "Popular"
-msgstr ""
+msgstr "Popularita"
 
 #: ckan/templates/package/search.html:52
 #: ckan/templates_legacy/layout_base.html:145
@@ -3554,7 +3582,7 @@ msgstr ""
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
 msgid "Additional Info"
-msgstr ""
+msgstr "Doplňujúce informácie"
 
 #: ckan/templates/package/snippets/additional_info.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
@@ -3589,7 +3617,7 @@ msgstr "Stav"
 #: ckan/templates_legacy/package/resource_read.html:84
 #: ckan/templates_legacy/package/resource_read.html:87
 msgid "Data API"
-msgstr "Dáta API"
+msgstr "Data API"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 #: ckan/templates/related/snippets/related_form.html:18
@@ -3598,7 +3626,7 @@ msgstr "Dáta API"
 #: ckan/templates_legacy/package/new_package_form.html:36
 #: ckan/templates_legacy/related/add-related.html:18
 msgid "Title"
-msgstr "Titulok"
+msgstr "Nadpis"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:4
 msgid "eg. A descriptive title"
@@ -3629,19 +3657,19 @@ msgstr "Organizácia"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:72
 msgid "No organization"
-msgstr ""
+msgstr "Žiadna organizácia"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:86
 msgid "Visibility"
-msgstr ""
+msgstr "Viditeľnosť"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:89
 msgid "Public"
-msgstr ""
+msgstr "Verejný"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:108
 msgid "Active"
-msgstr ""
+msgstr "Aktívny"
 
 #: ckan/templates/package/snippets/package_context.html:10
 msgid "There is no description for this dataset"
@@ -4016,7 +4044,7 @@ msgstr "Prvok"
 
 #: ckan/templates/snippets/activity_item.html:3
 msgid "New activity item"
-msgstr ""
+msgstr "Nová aktivita"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:4
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:13
@@ -4025,7 +4053,7 @@ msgstr "Zakomponovať prehliadač dát"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:8
 msgid "Embed this view by copying this into your webpage:"
-msgstr ""
+msgstr "Skopírovaním tohto kódu vložíte tento pohľad na vašu stránku."
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:10
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:21
@@ -4044,23 +4072,23 @@ msgstr "Výška:"
 
 #: ckan/templates/snippets/datapusher_status.html:8
 msgid "Datapusher status: {status}."
-msgstr ""
+msgstr "Stav dátovej pumpy: {status}."
 
 #: ckan/templates/snippets/disqus_trackback.html:2
 msgid "Trackback URL"
-msgstr ""
+msgstr "Sledovacia URL"
 
 #: ckan/templates/snippets/facet_list.html:72
 msgid "Show More {facet_type}"
-msgstr ""
+msgstr "Zobraziť viac {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:74
 msgid "Show Only Popular {facet_type}"
-msgstr ""
+msgstr "Zobrazť iba obľúbené {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:78
 msgid "There are no {facet_type} that match this search"
-msgstr ""
+msgstr "Neexistujú žiadne {facet_type} ktoré zodpovedajú hľadanému výrazu"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 #: ckan/templates_legacy/admin/layout.html:10
@@ -4070,14 +4098,14 @@ msgstr "Domov"
 
 #: ckan/templates/snippets/language_selector.html:4
 msgid "Language"
-msgstr ""
+msgstr "Jazyk"
 
 #: ckan/templates/snippets/language_selector.html:12
 #: ckan/templates/snippets/search_form.html:37
 #: ckan/templates/snippets/simple_search.html:15
 #: ckan/templates/snippets/sort_by.html:22
 msgid "Go"
-msgstr ""
+msgstr "Ísť"
 
 #: ckan/templates/snippets/license.html:14
 #: ckan/templates_legacy/package/read.html:32
@@ -4088,17 +4116,17 @@ msgstr "Tento dataset vyhovuje Open Definition."
 
 #: ckan/templates/snippets/license.html:22
 msgid "No License Provided"
-msgstr ""
+msgstr "Neposkytnutá žiadna licencia"
 
 #: ckan/templates/snippets/related.html:15
 msgid ""
 "No apps, ideas, news stories or images have been related to this dataset "
 "yet."
-msgstr ""
+msgstr "Zatiaľ neboli pridané žiadne aplikácie, novinky, príbehy alebo obrázky vzťahujúce sa k tomuto datasetu."
 
 #: ckan/templates/snippets/related.html:18
 msgid "Add Item"
-msgstr ""
+msgstr "Pridať položku"
 
 #: ckan/templates/snippets/search_form.html:15
 #: ckan/templates_legacy/related/add-related.html:46
@@ -4109,91 +4137,91 @@ msgstr "Vložiť"
 #: ckan/templates/snippets/simple_search.html:8
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr ""
+msgstr "Zoradiť podľa"
 
 #: ckan/templates/snippets/search_form.html:72
 msgid " <p class=\"extra\">Please try another search.</p> "
-msgstr ""
+msgstr " <p class=\"extra\">Prosím vyskúšajte iný vyhľadávací výraz.</p> "
 
 #: ckan/templates/snippets/search_form.html:78
 msgid ""
 " <p><strong>There was an error while searching.</strong> Please try "
 "again.</p> "
-msgstr ""
+msgstr " <p><strong>Počas vyhľadávania sa vyskytla chyba.</strong> Prosím skúste to znova.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} dataset nájdený na dopyt \"{query}\""
+msgstr[1] "{number} datasety nájdené na dopyt \"{query}\""
+msgstr[2] "{number} datasetov nájdených na dopyt\"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
-msgstr ""
+msgstr "Žiadne datasety nenájdené pre dopyt \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} dataset nájdený"
+msgstr[1] "{number} datasety nájdené"
+msgstr[2] "{number} datasetov nájdených"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
-msgstr ""
+msgstr "Žiadne datasety nenájdené"
 
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} skupina nájdená na dopyt \"{query}\""
+msgstr[1] "{number} skupiny nájdené na dopyt \"{query}\""
+msgstr[2] "{number} skupín nájdených na dopyt \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
-msgstr ""
+msgstr "Žiadne skupiny nenájdené na dopyt \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:23
 msgid "{number} group found"
 msgid_plural "{number} groups found"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} skupina nájdená"
+msgstr[1] "{number} skupiny nájdené"
+msgstr[2] "{number} skupín nájdených"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
-msgstr ""
+msgstr "Nenájdené žiadne skupiny"
 
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} organizácia nájdená na dopyt \"{query}\""
+msgstr[1] "{number} organizácie nájdené na dopyt \"{query}\""
+msgstr[2] "{number} organizácií nájdených na dopyt \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
-msgstr ""
+msgstr "Žiadne organizácie nenájdné na dopyt \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "{number} organizácia nájdená"
+msgstr[1] "{number} organizácie nájdené"
+msgstr[2] "{number} organizácií nájdených"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
-msgstr ""
+msgstr "Žiadne organizácie nenájdené"
 
 #: ckan/templates/snippets/social.html:3
 msgid "Social"
-msgstr ""
+msgstr "Zdieľať"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
-msgstr ""
+msgstr "Prihlásiť k odberu"
 
 #: ckan/templates/snippets/subscribe.html:4
 #: ckan/templates/user/edit_user_form.html:13
@@ -4205,7 +4233,7 @@ msgstr "Email"
 
 #: ckan/templates/snippets/subscribe.html:5
 msgid "RSS"
-msgstr ""
+msgstr "RSS"
 
 #: ckan/templates/snippets/context/user.html:23
 #: ckan/templates/user/read_base.html:50
@@ -4215,55 +4243,55 @@ msgstr "Úpravy"
 
 #: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
 msgid "Search Tags"
-msgstr ""
+msgstr "Hľadať tagy"
 
 #: ckan/templates/user/dashboard.html:6
 #: ckan/templates_legacy/user/layout.html:11
 msgid "Dashboard"
-msgstr ""
+msgstr "Nastenka"
 
 #: ckan/templates/user/dashboard.html:19 ckan/templates/user/dashboard.html:37
 msgid "News feed"
-msgstr ""
+msgstr "Novinky"
 
 #: ckan/templates/user/dashboard.html:20
 #: ckan/templates/user/dashboard_datasets.html:12
 msgid "My Datasets"
-msgstr ""
+msgstr "Moje datasety"
 
 #: ckan/templates/user/dashboard.html:21
 #: ckan/templates/user/dashboard_organizations.html:12
 msgid "My Organizations"
-msgstr ""
+msgstr "Moje organizacie"
 
 #: ckan/templates/user/dashboard.html:22
 #: ckan/templates/user/dashboard_groups.html:12
 msgid "My Groups"
-msgstr ""
+msgstr "Moje skupiny"
 
 #: ckan/templates/user/dashboard.html:39
 msgid "Activity from items that I'm following"
-msgstr ""
+msgstr "Aktivity z poloziek ktore sledujem"
 
 #: ckan/templates/user/dashboard_datasets.html:17
 #: ckan/templates/user/read.html:14
 msgid "You haven't created any datasets."
-msgstr ""
+msgstr "Nemáte vytvorené žiadne datasety."
 
 #: ckan/templates/user/dashboard_datasets.html:19
 #: ckan/templates/user/dashboard_groups.html:22
 #: ckan/templates/user/dashboard_organizations.html:22
 #: ckan/templates/user/read.html:16
 msgid "Create one now?"
-msgstr ""
+msgstr "Vytvoriť jeden teraz?"
 
 #: ckan/templates/user/dashboard_groups.html:20
 msgid "You are not a member of any groups."
-msgstr ""
+msgstr "Nie ste členom žiadnej skupiny."
 
 #: ckan/templates/user/dashboard_organizations.html:20
 msgid "You are not a member of any organizations."
-msgstr ""
+msgstr "Nie ste členom žiadnej organizácie."
 
 #: ckan/templates/user/edit.html:6 ckan/templates/user/edit_base.html:3
 #: ckan/templates/user/list.html:6 ckan/templates/user/list.html:13
@@ -4277,16 +4305,16 @@ msgstr "Používatelia"
 
 #: ckan/templates/user/edit.html:17
 msgid "Account Info"
-msgstr ""
+msgstr "Informácie o účte"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
 " Your profile lets other CKAN users know about who you are and what you do. "
-msgstr ""
+msgstr "Pomocou vášho CKAN profilu môžete povedať ostatným používateľom niečo o sebe a o tom čo robíte."
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change details"
-msgstr ""
+msgstr "Zmena údajov"
 
 #: ckan/templates/user/edit_user_form.html:11
 #: ckan/templates_legacy/user/edit_user_form.html:21
@@ -4295,23 +4323,23 @@ msgstr "Celé meno"
 
 #: ckan/templates/user/edit_user_form.html:11
 msgid "eg. Joe Bloggs"
-msgstr ""
+msgstr "napr. Joe Bloggs"
 
 #: ckan/templates/user/edit_user_form.html:13
 msgid "eg. joe@example.com"
-msgstr ""
+msgstr "napr. joe@example.com"
 
 #: ckan/templates/user/edit_user_form.html:15
 msgid "A little information about yourself"
-msgstr ""
+msgstr "Základné informácie o vás"
 
 #: ckan/templates/user/edit_user_form.html:18
 msgid "Subscribe to notification emails"
-msgstr ""
+msgstr "Prihlásiť sa k emailovým upozorneniam"
 
 #: ckan/templates/user/edit_user_form.html:26
 msgid "Change password"
-msgstr ""
+msgstr "Zmena hesla"
 
 #: ckan/templates/user/edit_user_form.html:28
 #: ckan/templates/user/logout_first.html:12
@@ -4325,20 +4353,20 @@ msgstr "Heslo"
 
 #: ckan/templates/user/edit_user_form.html:30
 msgid "Confirm Password"
-msgstr ""
+msgstr "Potvrdiť heslo"
 
 #: ckan/templates/user/edit_user_form.html:36
 msgid "Are you sure you want to delete this User?"
-msgstr ""
+msgstr "Určite chcete vymazať tohto používateľa?"
 
 #: ckan/templates/user/edit_user_form.html:41
 msgid "Update Profile"
-msgstr ""
+msgstr "Aktualizovať profil"
 
 #: ckan/templates/user/list.html:3
 #: ckan/templates/user/snippets/user_search.html:11
 msgid "All Users"
-msgstr ""
+msgstr "Všetci používatelia"
 
 #: ckan/templates/user/login.html:3 ckan/templates/user/login.html:6
 #: ckan/templates/user/login.html:12
@@ -4351,23 +4379,23 @@ msgstr "Prihlásiť sa"
 
 #: ckan/templates/user/login.html:23
 msgid "Need an Account?"
-msgstr ""
+msgstr "Potrebujete používateľsy účet?"
 
 #: ckan/templates/user/login.html:25
 msgid "Then sign right up, it only takes a minute."
-msgstr ""
+msgstr "Tak sa zaregistrujte, zaberie vám to len minútku."
 
 #: ckan/templates/user/login.html:27
 msgid "Create an Account"
-msgstr ""
+msgstr "Vytvoriť účet"
 
 #: ckan/templates/user/login.html:34
 msgid "Forgotten your password?"
-msgstr ""
+msgstr "Zabudli ste vaše heslo?"
 
 #: ckan/templates/user/login.html:36
 msgid "No problem, use our password recovery form to reset it."
-msgstr ""
+msgstr "Žiaden problém, využite formulár na obnovenie zabudnutého hesla a vyresetujte ho."
 
 #: ckan/templates/user/login.html:38 ckan/templates_legacy/user/login.html:51
 msgid "Forgot your password?"
@@ -4375,15 +4403,15 @@ msgstr "Zabudli ste heslo?"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
 msgid "Logged Out"
-msgstr ""
+msgstr "Odhlásený"
 
 #: ckan/templates/user/logout.html:11
 msgid "You are now logged out."
-msgstr ""
+msgstr "Teraz ste odhlásený."
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
-msgstr ""
+msgstr "Už ste pihlásený ako {user}"
 
 #: ckan/templates/user/logout_first.html:9
 #: ckan/templates_legacy/layout_base.html:56
@@ -4394,92 +4422,92 @@ msgstr "Odhlásiť sa"
 #: ckan/templates/user/logout_first.html:13
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr ""
+msgstr "Zapamätať si ma"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
-msgstr ""
+msgstr "Už ste prihlásený"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
-msgstr ""
+msgstr "Ak sa chcete prihlásiť pod iným účtom, musíte sa najskôr odhlásiť."
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
-msgstr ""
+msgstr "Ihneď odhlásiť"
 
 #: ckan/templates/user/new.html:6
 msgid "Registration"
-msgstr ""
+msgstr "Registrácia"
 
 #: ckan/templates/user/new.html:13
 msgid "Register for an Account"
-msgstr ""
+msgstr "Registrujte sa a vytvorte si účet"
 
 #: ckan/templates/user/new.html:22
 msgid "Why Sign Up?"
-msgstr ""
+msgstr "Prečo by som sa mal prihlásiť?"
 
 #: ckan/templates/user/new.html:24
 msgid "Create datasets, groups and other exciting things"
-msgstr ""
+msgstr "Aby ste mohli vytvárať datasety, skupiny a veľa ďalších zaujímavých vecí"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
-msgstr ""
+msgstr "Celé meno"
 
 #: ckan/templates/user/new_user_form.html:16
 msgid "Create Account"
-msgstr ""
+msgstr "Vytvoriť účet"
 
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:13
 #: ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:12
 msgid "Reset Your Password"
-msgstr ""
+msgstr "Obnoviť heslo"
 
 #: ckan/templates/user/perform_reset.html:7
 #: ckan/templates/user/request_reset.html:6
 msgid "Password Reset"
-msgstr ""
+msgstr "Obnoviť heslo"
 
 #: ckan/templates/user/perform_reset.html:22
 msgid "Update Password"
-msgstr ""
+msgstr "Zmeniť heslo"
 
 #: ckan/templates/user/perform_reset.html:32
 #: ckan/templates/user/request_reset.html:26
 msgid "How does this work?"
-msgstr ""
+msgstr "Ako to funguje?"
 
 #: ckan/templates/user/perform_reset.html:34
 msgid "Simply enter a new password and we'll update your account"
-msgstr ""
+msgstr "Jednoducho vložte nové heslo a my Vám zaktualizujeme účet"
 
 #: ckan/templates/user/read.html:21
 msgid "User hasn't created any datasets."
-msgstr ""
+msgstr "Používateľ zatiaľ nevytvoril žiadny dataset"
 
 #: ckan/templates/user/read_base.html:34
 msgid "You have not provided a biography."
-msgstr ""
+msgstr "Nezadali ste svoj životopis."
 
 #: ckan/templates/user/read_base.html:36
 msgid "This user has no biography."
-msgstr ""
+msgstr "Tento používateľ nemá zadaný životopis."
 
 #: ckan/templates/user/read_base.html:62
 msgid "Open ID"
-msgstr ""
+msgstr "Open ID"
 
 #: ckan/templates/user/read_base.html:71 ckan/templates/user/read_base.html:85
 msgid "This means only you can see this"
-msgstr ""
+msgstr "To znamená, že len vy to môžete vidieť"
 
 #: ckan/templates/user/read_base.html:76
 msgid "Member Since"
-msgstr ""
+msgstr "Členom od"
 
 #: ckan/templates/user/read_base.html:85
 #: ckan/templates_legacy/user/read.html:42
@@ -4488,35 +4516,35 @@ msgstr "Kľúč API"
 
 #: ckan/templates/user/request_reset.html:17
 msgid "Request Reset"
-msgstr ""
+msgstr "Požadujem obnovenie"
 
 #: ckan/templates/user/request_reset.html:28
 msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
-msgstr ""
+msgstr "Zadajte svoje používateľské meno do poľa a bude Vám zaslaný email s odkazom pre zadanie nového hesla."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:12
 #: ckan/templates/user/snippets/followee_dropdown.html:13
 msgid "Activity from:"
-msgstr ""
+msgstr "Aktívny od:"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:21
 msgid "Search list..."
-msgstr ""
+msgstr "Prehľadať zoznam..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:42
 msgid "You are not following anything"
-msgstr ""
+msgstr "Momentálne nič nenasledujete"
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"
-msgstr ""
+msgstr "Žiadny nasledovatelia"
 
 #: ckan/templates/user/snippets/user_search.html:5
 #: ckan/templates_legacy/user/list.html:11
 msgid "Search Users"
-msgstr "Hľadať Používateľov"
+msgstr "Hľadať používateľov"
 
 #: ckan/templates_legacy/_util.html:18
 msgid "You can use"
@@ -5052,7 +5080,7 @@ msgid ""
 "who owns it and whether it is freely available, and what subject areas the "
 "data is about. Other users can improve or add to this information (CKAN "
 "keeps a fully versioned history)."
-msgstr "ieto stránky sú postavené na robustnom open source katalogizačnom softvéri nazvanom CKAN, ktorý napísala a o ktorý sa stará Open Knowledge Foundation. Každý \"dataset\" záznam na CKAN-e obsahuje popis konkrétnych dát a dodatočné informácie, ako napríklad, v ktorom formáte sú dostupné, kto ich vlastní a či sú voľne dostupné, a o akej oblasti tieto dáta sú. Ostatní užívatelia môžu vylepšovať alebo pridávať dodatočné informácie (CKAN umožňuje plne zaznamenávať a ukladať zmeny v histórii).\n\nCKAN podporuje mnoho katalógov dát na Internete. Data Hub je otvorený katalóg dát v štýle Wikipédie a môže ho upravovať ktokoľvek. Britský parlament používa CKAN na prevádzku portálu data.gov.uk, ktorý momentálne obsahuje 8000 vládnych datasetov. Oficiálne verejné dáta z väčšiny európskych krajín sú zaradené v CKAN katalógu na publicdata.eu. Zoznam katalógov z celého sveta podobných tomuto sa nachádza na datacatalogs.org, ktorý je takisto podporovaný CKAN-om."
+msgstr "Tieto stránky sú postavené na robustnom open source katalogizačnom softvéri nazvanom CKAN, ktorý napísala a o ktorý sa stará Open Knowledge Foundation. Každý \"dataset\" záznam na CKAN-e obsahuje popis konkrétnych dát a dodatočné informácie, ako napríklad, v ktorom formáte sú dostupné, kto ich vlastní a či sú voľne dostupné, a o akej oblasti tieto dáta sú. Ostatní užívatelia môžu vylepšovať alebo pridávať dodatočné informácie (CKAN umožňuje plne zaznamenávať a ukladať zmeny v histórii).\n\nCKAN podporuje mnoho katalógov dát na Internete. Data Hub je otvorený katalóg dát v štýle Wikipédie a môže ho upravovať ktokoľvek. Britský parlament používa CKAN na prevádzku portálu data.gov.uk, ktorý momentálne obsahuje 8000 vládnych datasetov. Oficiálne verejné dáta z väčšiny európskych krajín sú zaradené v CKAN katalógu na publicdata.eu. Zoznam katalógov z celého sveta podobných tomuto sa nachádza na datacatalogs.org, ktorý je takisto podporovaný CKAN-om."
 
 #: ckan/templates_legacy/home/about.html:27
 msgid ""
@@ -5162,37 +5190,37 @@ msgstr "datasety"
 
 #: ckan/templates_legacy/importer/importer.html:5
 msgid "Importer"
-msgstr ""
+msgstr "Importér"
 
 #: ckan/templates_legacy/importer/importer.html:8
 msgid "Import Datasets"
-msgstr ""
+msgstr "Vlož dataset"
 
 #: ckan/templates_legacy/importer/importer.html:9
 msgid ""
 "Here you can supply an Excel file with details of multiple datasets and "
 "import these into"
-msgstr ""
+msgstr "Tu môžete určiť Excel súbor s podrobnosťami o viacerých datasetoch a importovať ich do"
 
 #: ckan/templates_legacy/importer/importer.html:30
 msgid "Log in to use this tool"
-msgstr ""
+msgstr "Pre použitie tohto nástroja je potrebné prihlásenie"
 
 #: ckan/templates_legacy/importer/preview.html:6
 msgid "Preview - Importer"
-msgstr ""
+msgstr "Prehľad - Importér"
 
 #: ckan/templates_legacy/importer/preview.html:9
 msgid "Import Preview"
-msgstr ""
+msgstr "Importuj prehľad"
 
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "read from"
-msgstr ""
+msgstr "čítaj od"
 
 #: ckan/templates_legacy/importer/preview.html:25
 msgid "Further dataset previews not shown."
-msgstr ""
+msgstr "Ďalšie prehľady datasetov nie sú zobrazené"
 
 #: ckan/templates_legacy/importer/preview.html:28
 #: ckan/templates_legacy/package/edit_form.html:13
@@ -5210,15 +5238,15 @@ msgstr "Autor"
 
 #: ckan/templates_legacy/importer/preview.html:34
 msgid "Import"
-msgstr ""
+msgstr "Importovať"
 
 #: ckan/templates_legacy/importer/result.html:5
 msgid "Results - Importer"
-msgstr ""
+msgstr "Výsledky - Importér"
 
 #: ckan/templates_legacy/importer/result.html:8
 msgid "Import Results"
-msgstr ""
+msgstr "Importuj výsledky"
 
 #: ckan/templates_legacy/package/comments.html:5
 #: ckan/templates_legacy/package/history.html:6
@@ -5696,7 +5724,7 @@ msgstr "Naposledy prezerané"
 
 #: ckan/templates_legacy/related/dashboard.html:55
 msgid "Featured items only?"
-msgstr ""
+msgstr "Len vybrané položky"
 
 #: ckan/templates_legacy/related/related_list.html:17
 #: ckan/templates_legacy/related/related_list.html:21
@@ -5841,7 +5869,7 @@ msgstr "Počet výsledkov pre tagy [1: %(tagname)s ] je %(count)s:"
 
 #: ckan/templates_legacy/user/dashboard.html:6
 msgid "- Dashboard - User"
-msgstr ""
+msgstr "- Nástenka - Používateľ"
 
 #: ckan/templates_legacy/user/dashboard.html:17
 msgid "What's going on?"
@@ -5916,7 +5944,7 @@ msgstr "- Odoberatelia - Požívateľ"
 
 #: ckan/templates_legacy/user/followers.html:8
 msgid "'s Followers"
-msgstr ""
+msgstr "'s Odoberatelia"
 
 #: ckan/templates_legacy/user/layout.html:12
 msgid "My Profile"
@@ -6113,45 +6141,45 @@ msgstr "Používateľské meno:"
 
 #: ckanext/datapusher/helpers.py:19
 msgid "Complete"
-msgstr ""
+msgstr "Ukončené"
 
 #: ckanext/datapusher/helpers.py:20
 msgid "Pending"
-msgstr ""
+msgstr "Čakajúce na spracovanie"
 
 #: ckanext/datapusher/helpers.py:21
 msgid "Submitting"
-msgstr ""
+msgstr "Nahrávanie"
 
 #: ckanext/datapusher/helpers.py:27
 msgid "Not Uploaded Yet"
-msgstr ""
+msgstr "Doposiaľ nenahrané"
 
 #: ckanext/datastore/controller.py:31
 msgid "DataStore resource not found"
-msgstr ""
+msgstr "Požadovaný zdroj z DataStore nebol nájdený"
 
 #: ckanext/datastore/logic/action.py:200 ckanext/datastore/logic/action.py:248
 #: ckanext/datastore/logic/action.py:328 ckanext/datastore/logic/action.py:412
 #: ckanext/datastore/logic/action.py:438
 msgid "Resource \"{0}\" was not found."
-msgstr ""
+msgstr "Zdroj \"{0}\" nebol nájdený"
 
 #: ckanext/datastore/logic/auth.py:15
 msgid "User {0} not authorized to update resource {1}"
-msgstr ""
+msgstr "Používateľ {0} nemá oprávnenie na úpravu zdroja {1}"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 msgid "Custom Text"
-msgstr ""
+msgstr "Vlastný Text"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 msgid "custom text"
-msgstr ""
+msgstr "vlastný text"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:13
 msgid "Country Code"
-msgstr ""
+msgstr "Kód krajiny"
 
 #: ckanext/reclinepreview/theme/public/vendor/slickgrid/2.0.1/MIT-LICENSE.txt:1
 msgid ""
@@ -6175,7 +6203,7 @@ msgid ""
 "LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
 "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
 "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
-msgstr ""
+msgstr "Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\nLIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\nWITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
 
 #: ckanext/reclinepreview/theme/public/vendor/slickgrid/2.0.1/README.txt:1
 msgid ""
@@ -6195,7 +6223,7 @@ msgid ""
 "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
 "\n"
 "[1] https://developers.google.com/closure/compiler/"
-msgstr ""
+msgstr "Táto zkompilovaná verzia SlickGrid bola získana pomocou Google Closure\n Compiler s využitím nasledujúceho príkazu:\n\n java -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n\nĎaľšie dva súbory sú potrebné k tomu, aby SlickGrid náhľad fungoval správne:\n* jquery-ui-1.8.16.custom.min.js\n* jquery.event.drag-2.0.min.js\n\nTieto súbory sú súčasťou zdrojového kódu Recline, ale neboli zaradené do buildu s účelom zjednodušenia riešenia problému s kompatibilitou.\n\nProsím, oboznámte sa s licenciou SlickGrid, ktorá je súčasťou súboru MIT-LICENSE.txt file.\n\n[1] https://developers.google.com/closure/compiler/"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:57
@@ -6205,24 +6233,24 @@ msgstr "Celkový počet datasetov"
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
 msgid "Date"
-msgstr ""
+msgstr "Dátum"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
-msgstr ""
+msgstr "Ceľkový počet datasetov"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
 msgid "Dataset Revisions per Week"
-msgstr ""
+msgstr "Zmeny datasetu za týždeň"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
-msgstr ""
+msgstr "Všetky zmeny datasetu"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
-msgstr ""
+msgstr "Nové datasety"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 #: ckanext/stats/templates/ckanext/stats/index.html:180
@@ -6258,7 +6286,7 @@ msgstr "Počet úprav"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:103
 msgid "No edited datasets"
-msgstr ""
+msgstr "Žiadne datasety neboli upravené"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:108
 #: ckanext/stats/templates/ckanext/stats/index.html:182
@@ -6268,7 +6296,7 @@ msgstr "Najväčšie skupiny"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:127
 msgid "No groups"
-msgstr ""
+msgstr "Žiadne skupiny"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:132
 #: ckanext/stats/templates/ckanext/stats/index.html:183
@@ -6278,25 +6306,25 @@ msgstr "Najčastejšie tagy"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:136
 msgid "Tag Name"
-msgstr ""
+msgstr "Názov tagu"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:137
 #: ckanext/stats/templates/ckanext/stats/index.html:157
 msgid "Number of Datasets"
-msgstr ""
+msgstr "Počet datasetov"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Owning Most Datasets"
-msgstr ""
+msgstr "Používatelia vlastniaci najviac datasetov"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
-msgstr ""
+msgstr "Štatistické menu"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:178
 msgid "Total Number of Datasets"
-msgstr ""
+msgstr "Ceľkový počet datasetov"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:60
 msgid "Revisions to Datasets per week"

@@ -183,7 +183,7 @@ class GroupController(base.BaseController):
         try:
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
-            context['include_datasets'] = False
+            data_dict['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
@@ -363,6 +363,9 @@ class GroupController(base.BaseController):
         private/public or delete. For organization admins.'''
 
         group_type = self._get_group_type(id.split('@')[0])
+
+        if group_type is None:
+            abort(404, _('Organization not found'))
 
         if group_type != 'organization':
             # FIXME: better error
@@ -639,12 +642,19 @@ class GroupController(base.BaseController):
 
         #self._check_access('group_delete', context, {'id': id})
         try:
+            c.group_dict = self._action('group_show')(context, {'id': id})
+            group_type = 'organization' if c.group_dict['is_organization'] else 'group'
+            c.roles = self._action('member_roles_list')(
+                context, {'group_type': group_type}
+            )
+
             if request.method == 'POST':
                 data_dict = clean_dict(dict_fns.unflatten(
                     tuplize_dict(parse_params(request.params))))
                 data_dict['id'] = id
 
                 email = data_dict.get('email')
+
                 if email:
                     user_data_dict = {
                         'email': email,
@@ -657,6 +667,8 @@ class GroupController(base.BaseController):
                     data_dict['username'] = user_dict['name']
 
                 c.group_dict = self._action('group_member_create')(context, data_dict)
+
+
                 self._redirect_to(controller='group', action='members', id=id)
             else:
                 user = request.params.get('user')
@@ -665,11 +677,6 @@ class GroupController(base.BaseController):
                     c.user_role = new_authz.users_role_for_group_or_org(id, user) or 'member'
                 else:
                     c.user_role = 'member'
-                c.group_dict = self._action('group_show')(context, {'id': id})
-                group_type = 'organization' if c.group_dict['is_organization'] else 'group'
-                c.roles = self._action('member_roles_list')(
-                    context, {'group_type': group_type}
-                )
         except NotAuthorized:
             abort(401, _('Unauthorized to add member to group %s') % '')
         except NotFound:

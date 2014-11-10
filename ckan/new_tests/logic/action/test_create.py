@@ -251,3 +251,44 @@ class TestResourceCreate(object):
 
         assert_raises(logic.ValidationError, helpers.call_action,
                       'resource_create', **data_dict)
+
+
+class TestMemberCreate(object):
+    @classmethod
+    def setup_class(cls):
+        helpers.reset_db()
+
+    def setup(self):
+        model.repo.rebuild_db()
+
+    def test_group_member_creation(self):
+        user = factories.User()
+        group = factories.Group()
+
+        new_membership = helpers.call_action(
+            'group_member_create',
+            id=group['id'],
+            username=user['name'],
+            role='member',
+        )
+
+        assert_equals(new_membership['group_id'], group['id'])
+        assert_equals(new_membership['table_name'], 'user')
+        assert_equals(new_membership['table_id'], user['id'])
+        assert_equals(new_membership['capacity'], 'member')
+
+    def test_organization_member_creation(self):
+        user = factories.User()
+        organization = factories.Organization()
+
+        new_membership = helpers.call_action(
+            'organization_member_create',
+            id=organization['id'],
+            username=user['name'],
+            role='member',
+        )
+
+        assert_equals(new_membership['group_id'], organization['id'])
+        assert_equals(new_membership['table_name'], 'user')
+        assert_equals(new_membership['table_id'], user['id'])
+        assert_equals(new_membership['capacity'], 'member')
