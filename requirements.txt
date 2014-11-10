@@ -1,6 +1,5 @@
 Babel==0.9.6
 Beaker==1.6.4
-FormAlchemy==1.4.3
 FormEncode==1.2.6
 Genshi==0.6
 Jinja2==2.6

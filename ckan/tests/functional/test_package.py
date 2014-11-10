@@ -400,7 +400,6 @@ class TestEdit(TestPackageForm):
         self._check_redirect(return_url, expected_redirect,
                              pkg_name_to_edit=self.editpkg_name, extra_environ=self.extra_environ_admin)
 
-
     def test_edit_plugin_hook(self):
         # just the absolute basics
         try:
