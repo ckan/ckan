@@ -16,7 +16,7 @@ class TestAuth(tests.WsgiAppCase):
             {'model': model, 'ignore_auth': True}, {})['apikey']
         ## This is a mutable dict on the class level so tests can
         ## add apikeys as they go along
-        cls.apikeys = {'sysadmin': admin_api, 'random_key': 'moo'}
+        cls.apikeys = {'sysadmin': str(admin_api), 'random_key': 'moo'}
 
         cls._original_config = config.copy()
 
@@ -89,13 +89,19 @@ class TestAuthUsers(TestAuth):
 
 
 class TestAuthOrgs(TestAuth):
-    def test_01_create_users(self):
-        # actual roles assigned later
-        self.create_user('org_admin')
-        self.create_user('no_org')
-        self.create_user('org_editor')
-        self.create_user('editor_wannabe')
 
+    @classmethod
+    def setup_class(cls):
+
+        super(TestAuthOrgs, cls).setup_class()
+
+        # actual roles assigned later
+        cls.create_user('org_admin')
+        cls.create_user('no_org')
+        cls.create_user('org_editor')
+        cls.create_user('editor_wannabe')
+
+    def test_01_create_users(self):
         user = {'name': 'user_no_auth',
                 'password': 'pass',
                 'email': 'moo@moo.com'}
@@ -153,7 +159,6 @@ class TestAuthOrgs(TestAuth):
                   'id': 'org_with_user'}
         self._call_api('organization_member_create', member, 'org_admin')
 
-        ## admin user should be able to add users now
         ## editor should not be able to approve others as editors
         member = {'username': 'editor_wannabe',
                   'role': 'editor',
@@ -161,7 +166,6 @@ class TestAuthOrgs(TestAuth):
         self._call_api('organization_member_create', member, 'org_editor', 403)
 
     def _add_datasets(self, user):
-
         #org admin/editor should be able to add dataset to org.
         dataset = {'name': user + '_dataset', 'owner_org': 'org_with_user'}
         self._call_api('package_create', dataset, user, 200)
@@ -238,8 +242,10 @@ class TestAuthOrgHierarchy(TestAuth):
 
     @classmethod
     def setup_class(cls):
-        TestAuth.setup_class()
+#        TestAuth.setup_class()
         CreateTestData.create_group_hierarchy_test_data()
+
+        cls.apikeys = {}
         for user in model.Session.query(model.User):
             cls.apikeys[user.name] = str(user.apikey)
 
@@ -409,10 +415,7 @@ class TestAuthOrgHierarchy(TestAuth):
     def test_10_edit_org_2(self):
         org = {'id': 'national-health-service', 'title': 'test'}
         self._flesh_out_organization(org)
-        import pprint; pprint.pprint(org)
-        print model.Session.query(model.Member).filter_by(state='deleted').all()
         self._call_api('organization_update', org, 'nhsadmin', 200)
-        print model.Session.query(model.Member).filter_by(state='deleted').all()
 
     def test_10_edit_org_3(self):
         org = {'id': 'nhs-wirral-ccg', 'title': 'test'}
@@ -441,7 +444,7 @@ class TestAuthOrgHierarchy(TestAuth):
 
     def test_11_delete_org_2(self):
         org = {'id': 'national-health-service'}
-        self._call_api('organization_delete', org, 'nhsadmin', 403)
+        self._call_api('organization_delete', org, 'nhsadmin', 200)
         self._call_api('organization_delete', org, 'nhseditor', 403)
 
     def test_11_delete_org_3(self):
