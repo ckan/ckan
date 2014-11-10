@@ -1268,6 +1268,9 @@ def remove_url_param(key, value=None, replace=None, controller=None,
 
 
 def include_resource(resource):
+    # DGU hack - disable fanstatic resources - include in dgu.css/js or templates
+    # explicitly
+    return
     r = getattr(fanstatic_resources, resource)
     r.need()
 
