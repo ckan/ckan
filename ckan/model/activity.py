@@ -80,7 +80,7 @@ def _activities_limit(q, limit, offset=None):
     Return an SQLAlchemy query for all activities at an offset with a limit.
     '''
     import ckan.model as model
-    q = q.order_by(desc(model.Activity.timestamp)).distinct()
+    q = q.order_by(desc(model.Activity.timestamp))
     if offset:
         q = q.offset(offset)
     if limit:
@@ -88,9 +88,14 @@ def _activities_limit(q, limit, offset=None):
     return q
 
 def _activities_union_all(*qlist):
+    '''
+    Return union of two or more queries sorted by timestamp,
+    and remove duplicates
+    '''
     import ckan.model as model
     return model.Session.query(model.Activity).select_from(
-        union_all(*[q.subquery().select() for q in qlist]))
+        union_all(*[q.subquery().select() for q in qlist])
+        ).distinct(model.Activity.timestamp)
 
 def _activities_at_offset(q, limit, offset):
     '''
