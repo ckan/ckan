@@ -577,7 +577,7 @@ class TestGet(object):
         package = factories.Resource(name=resource_name)
 
         search_result = helpers.call_action('package_search',  q='resource_abc')
-        assert(search_result['results'][0]['resources'][0]['name'] == resource_name)
+        eq(search_result['results'][0]['resources'][0]['name'], resource_name)
 
 
 class TestBadLimitQueryParameters(object):
