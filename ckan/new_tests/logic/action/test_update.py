@@ -549,3 +549,50 @@ class TestResourceViewUpdate(object):
         nose.tools.assert_raises(logic.NotFound,
                                  helpers.call_action,
                                  'resource_view_update', **params)
+
+    def test_resource_view_list_reorder(self):
+
+        resource_view_1 = factories.ResourceView(title='View 1')
+
+        resource_id = resource_view_1['resource_id']
+
+        resource_view_2 = factories.ResourceView(resource_id=resource_id,
+                                                 title='View 2')
+
+        resource_view_list = helpers.call_action('resource_view_list', id=resource_id)
+
+        assert_equals(resource_view_list[0]['title'], 'View 1')
+        assert_equals(resource_view_list[1]['title'], 'View 2')
+
+        # Reorder views
+
+        result = helpers.call_action('resource_view_reorder',
+                                     id=resource_id,
+                                     order=[resource_view_2['id'], resource_view_1['id']])
+        assert_equals(result['order'], [resource_view_2['id'], resource_view_1['id']])
+
+        resource_view_list = helpers.call_action('resource_view_list', id=resource_id)
+
+        assert_equals(resource_view_list[0]['title'], 'View 2')
+        assert_equals(resource_view_list[1]['title'], 'View 1')
+
+    def test_resource_view_list_reorder_just_one_id(self):
+
+        resource_view_1 = factories.ResourceView(title='View 1')
+
+        resource_id = resource_view_1['resource_id']
+
+        resource_view_2 = factories.ResourceView(resource_id=resource_id,
+                                                 title='View 2')
+
+        # Reorder Views back just by specifiying a single view to go first
+
+        result = helpers.call_action('resource_view_reorder',
+                                     id=resource_id,
+                                     order=[resource_view_2['id']])
+        assert_equals(result['order'], [resource_view_2['id'], resource_view_1['id']])
+
+        resource_view_list = helpers.call_action('resource_view_list', id=resource_id)
+
+        assert_equals(resource_view_list[0]['title'], 'View 2')
+        assert_equals(resource_view_list[1]['title'], 'View 1')
