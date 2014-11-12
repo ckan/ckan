@@ -205,4 +205,3 @@ class TestCreateResources(object):
         nose.tools.assert_raises(logic.NotFound, helpers.call_auth,
                                  'resource_create', context=context,
                                  **resource)
-
