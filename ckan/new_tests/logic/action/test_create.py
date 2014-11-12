@@ -8,10 +8,11 @@ import nose.tools
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 import ckan.model as model
-import ckan.logic
+import ckan.logic as logic
 
 
 assert_equals = nose.tools.assert_equals
+assert_raises = nose.tools.assert_raises
 
 
 class TestUserInvite(object):
@@ -59,17 +60,17 @@ class TestUserInvite(object):
             assert invited_user is not None, invited_user
 
     @mock.patch('ckan.lib.mailer.send_invite')
-    @nose.tools.raises(ckan.logic.ValidationError)
+    @nose.tools.raises(logic.ValidationError)
     def test_user_invite_requires_email(self, _):
         self._invite_user_to_group(email=None)
 
     @mock.patch('ckan.lib.mailer.send_invite')
-    @nose.tools.raises(ckan.logic.ValidationError)
+    @nose.tools.raises(logic.ValidationError)
     def test_user_invite_requires_role(self, _):
         self._invite_user_to_group(role=None)
 
     @mock.patch('ckan.lib.mailer.send_invite')
-    @nose.tools.raises(ckan.logic.ValidationError)
+    @nose.tools.raises(logic.ValidationError)
     def test_user_invite_requires_group_id(self, _):
         self._invite_user_to_group(group={'id': None})
 
@@ -90,6 +91,52 @@ class TestUserInvite(object):
         result = helpers.call_action('user_invite', context, **params)
 
         return model.User.get(result['id'])
+
+
+class TestResourceCreate(object):
+
+    @classmethod
+    def setup_class(cls):
+        helpers.reset_db()
+
+    def setup(self):
+        model.repo.rebuild_db()
+
+    def test_resource_create(self):
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        id = result.pop('id')
+
+        assert id
+
+        params.pop('package_id')
+        for key in params.keys():
+            assert_equals(params[key], result[key])
+
+    def test_it_requires_package_id(self):
+
+        data_dict = {
+            'url': 'http://data',
+        }
+
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'resource_create', **data_dict)
+
+    def test_it_requires_url(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        data_dict = {
+            'package_id': dataset['id']
+        }
+
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'resource_create', **data_dict)
 
 
 class TestMemberCreate(object):
