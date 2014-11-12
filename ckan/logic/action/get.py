@@ -1027,7 +1027,7 @@ def resource_show(context, data_dict):
         if resource_dict['id'] == id:
             break
     else:
-        logging.error('Could not find resource ' + id)
+        log.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
     resource_dict['package_id'] = pkg_dict['id']
