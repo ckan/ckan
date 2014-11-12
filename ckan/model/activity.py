@@ -93,7 +93,7 @@ def _activities_union_all(*qlist):
     and remove duplicates
     '''
     import ckan.model as model
-    return model.Session.query(model.Activity).select_from(
+    return model.Session.query(model.Activity).select_entity_from(
         union_all(*[q.subquery().select() for q in qlist])
         ).distinct(model.Activity.timestamp)
 
