@@ -6,6 +6,8 @@ import mock
 import nose
 
 import ckan.model as core_model
+import ckan.plugins as p
+
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 import ckan.logic.auth.create as auth_create
@@ -105,3 +107,74 @@ class TestCreate(object):
         gmc.return_value = {'success': True}
         result = helpers.call_auth('user_invite', context=context, **data_dict)
         assert result is True
+
+
+class TestCreateResourceViews(object):
+
+    @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+        helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+
+    def test_authorized_if_user_has_permissions_on_dataset(self):
+
+        user = factories.User()
+
+        dataset = factories.Dataset(user=user)
+
+        resource = factories.Resource(user=user, package_id=dataset['id'])
+
+        resource_view = {'resource_id': resource['id'],
+                         'title': u'Resource View',
+                         'view_type': u'image',
+                         'image_url': 'url'}
+
+        context = {'user': user['name'], 'model': core_model}
+        response = helpers.call_auth('resource_view_create',
+                                     context=context, **resource_view)
+        assert_equals(response, True)
+
+#    TODO: enable once #2037 is merged
+#    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
+#
+#        org = factories.Organization()
+#
+#        user = factories.User()
+#
+#        member = {'username': user['name'],
+#                  'role': 'admin',
+#                  'id': org['id']}
+#        helpers.call_action('organization_member_create', **member)
+#
+#        user_2 = factories.User()
+#
+#        dataset = factories.Dataset(owner_org=org['id'])
+#
+#        resource = factories.Resource(package_id=dataset['id'])
+#
+#        resource_view = {'resource_id': resource['id'],
+#                         'title': u'Resource View',
+#                         'view_type': u'image',
+#                         'image_url': 'url'}
+#
+#        context = {'user': user_2['name'], 'model': core_model}
+#        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+#                                 'resource_view_create', context=context,
+#                                 **resource_view)
+
+    def test_not_authorized_if_not_logged_in(self):
+
+        resource_view = {'title': u'Resource View',
+                         'view_type': u'image',
+                         'image_url': 'url'}
+
+        context = {'user': None, 'model': core_model}
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'resource_view_create', context=context,
+                                 **resource_view)
