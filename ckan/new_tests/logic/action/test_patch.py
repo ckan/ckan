@@ -51,3 +51,47 @@ class TestPatch(helpers.FunctionalTestBase):
         resource2 = dataset2['resources'][0]
         assert_equals(resource2['name'], 'somethingnew')
         assert_equals(resource2['url'], 'http://example.com/resource')
+
+    def test_group_patch_updating_single_field(self):
+        user = factories.User()
+        group = factories.Group(
+            name='economy',
+            description='some test now',
+            user=user)
+
+        group = helpers.call_action(
+            'group_patch',
+            id=group['id'],
+            description='somethingnew',
+            context={'user': user['name']})
+
+        assert_equals(group['name'], 'economy')
+        assert_equals(group['description'], 'somethingnew')
+
+        group2 = helpers.call_action('group_show', id=group['id'])
+
+        assert_equals(group2['name'], 'economy')
+        assert_equals(group2['description'], 'somethingnew')
+
+    def test_organization_patch_updating_single_field(self):
+        user = factories.User()
+        organization = factories.Organization(
+            name='economy',
+            description='some test now',
+            user=user)
+
+        organization = helpers.call_action(
+            'organization_patch',
+            id=organization['id'],
+            description='somethingnew',
+            context={'user': user['name']})
+
+        assert_equals(organization['name'], 'economy')
+        assert_equals(organization['description'], 'somethingnew')
+
+        organization2 = helpers.call_action(
+            'organization_show',
+            id=organization['id'])
+
+        assert_equals(organization2['name'], 'economy')
+        assert_equals(organization2['description'], 'somethingnew')
