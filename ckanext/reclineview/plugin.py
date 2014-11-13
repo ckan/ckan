@@ -78,7 +78,9 @@ class ReclineView(ReclineViewBase):
     def info(self):
         return {'name': 'recline_view',
                 'title': 'Data Explorer',
-                'icon': 'table'}
+                'icon': 'table',
+                'requires_datastore': True,
+                }
 
 
 class ReclineGridView(ReclineViewBase):
@@ -89,7 +91,9 @@ class ReclineGridView(ReclineViewBase):
     def info(self):
         return {'name': 'recline_grid_view',
                 'title': 'Grid',
-                'icon': 'table'}
+                'icon': 'table',
+                'requires_datastore': True,
+                }
 
 
 class ReclineGraphView(ReclineViewBase):
@@ -128,6 +132,7 @@ class ReclineGraphView(ReclineViewBase):
         return {'name': 'recline_graph_view',
                 'title': 'Graph',
                 'icon': 'bar-chart',
+                'requires_datastore': True,
                 'schema': schema}
 
     def setup_template_variables(self, context, data_dict):
