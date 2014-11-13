@@ -22,57 +22,6 @@ class TestRevisionController(TestController):
             rev.author = "Test Revision %s" % i
             model.repo.commit()
 
-    def test_paginated_list(self):
-        # Ugh. Why is the number of items per page hard-coded? A designer might
-        # decide that 20 is the right number of revisions to display per page,
-        # (in fact I did) but would be forced to stick to 50 because changing
-        # this test is so laborious.
-        #
-        # TODO: do we even need to test pagination in such excruciating detail
-        # every time we use it? It's the same (hard-coded) test code N times over.
-        #
-        # </rant> -- NS 2009-12-17
-
-        self.create_40_revisions()
-        revisions = model.repo.history().all()
-        revision1 = revisions[0]
-        revision2 = revisions[20]
-        revision3 = revisions[40]
-        revision4 = revisions[-1]
-        # Revisions are most recent first, with first rev on last page.
-        # Todo: Look at the model to see which revision is last.
-        # Todo: Test for last revision on first page.
-        # Todo: Test for first revision on last page.
-        # Todo: Test for last revision minus 50 on second page.
-        # Page 1.   (Implied id=1)
-        offset = url_for(controller='revision', action='list')
-        res = self.app.get(offset)
-        self.assert_click(res, revision1.id, 'Revision: %s' % revision1.id)
-
-        # Page 1.
-        res = self.app.get(offset, params={'page':1})
-        self.assert_click(res, revision1.id, 'Revision: %s' % revision1.id)
-
-        # Page 2.
-        res = self.app.get(offset, params={'page':2})
-        self.assert_click(res, revision2.id, 'Revision: %s' % revision2.id)
-
-        # Page 3.
-        res = self.app.get(offset, params={'page':3})
-        self.assert_click(res, revision3.id, 'Revision: %s' % revision3.id)
-
-        # Last page.
-        last_id = 1 + len(revisions) / 20
-        res = self.app.get(offset, params={'page':last_id})
-
-        assert 'Revision History' in res
-        assert '1' in res
-        assert 'Author' in res
-        assert 'tester' in res
-        assert 'Log Message' in res
-        assert 'Creating test data.' in res
-
-
     def assert_click(self, res, link_exp, res2_exp):
         try:
             # paginate links are also just numbers

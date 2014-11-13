@@ -56,7 +56,13 @@ def list_of_strings_or_string(key, data, errors, context):
 
 
 def json_validator(value, context):
-    if isinstance(value, dict) or isinstance(value, list):
+    '''Validate and parse a JSON value.
+
+    dicts and lists will be returned untouched, while other values
+    will be run through a JSON parser before being returned. If the
+    parsing fails, raise an Invalid exception.
+    '''
+    if isinstance(value, (list, dict)):
         return value
     try:
         value = json.loads(value)
@@ -66,10 +72,21 @@ def json_validator(value, context):
 
 
 def unicode_or_json_validator(value, context):
+    '''Return a parsed JSON object when applicable, a unicode string when not.
+
+    dicts and None will be returned untouched; otherwise return a JSON object
+    if the value can be parsed as such. Return unicode(value) in all other
+    cases.
+    '''
     try:
         if value is None:
             return value
-        return json_validator(value, context)
+        v = json_validator(value, context)
+        # json.loads will parse literals; however we want literals as unicode.
+        if not isinstance(v, dict):
+            return unicode(value)
+        else:
+            return v
     except df.Invalid:
         return unicode(value)
 
