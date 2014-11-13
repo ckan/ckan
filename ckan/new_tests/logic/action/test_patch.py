@@ -29,3 +29,25 @@ class TestPatch(helpers.FunctionalTestBase):
 
         assert_equals(dataset2['name'], 'somethingnew')
         assert_equals(dataset2['notes'], 'some test now')
+
+    def test_resource_patch_updating_single_field(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            name='annakarenina',
+            notes='some test now',
+            user=user,
+            resources=[{'url': 'http://example.com/resource'}])
+
+        resource = helpers.call_action(
+            'resource_patch',
+            id=dataset['resources'][0]['id'],
+            name='somethingnew')
+
+        assert_equals(resource['name'], 'somethingnew')
+        assert_equals(resource['url'], 'http://example.com/resource')
+
+        dataset2 = helpers.call_action('package_show', id=dataset['id'])
+
+        resource2 = dataset2['resources'][0]
+        assert_equals(resource2['name'], 'somethingnew')
+        assert_equals(resource2['url'], 'http://example.com/resource')
