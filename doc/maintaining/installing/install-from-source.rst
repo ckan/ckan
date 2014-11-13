@@ -227,6 +227,13 @@ site_id
 
    ckan.site_id = default
 
+site_url
+  Provide the site's URL (used when putting links to the site into the
+  FileStore, notification emails etc). For example::
+
+    ckan.site_url = http://demo.ckan.org
+
+  Do not add a trailing slash to the URL.
 
 .. _setting up solr:
 
