@@ -402,7 +402,7 @@ def check_config_permission(permission):
 
     if key == 'roles_that_cascade_to_sub_groups':
         # This permission is set as a list of strings (space separated)
-        value = value.split(' ') if value else []
+        value = value.split() if value else []
     else:
         value = asbool(value)
 
