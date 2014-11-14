@@ -340,17 +340,20 @@ class TestGet(object):
         assert org_dict['packages'][0]['name'] == 'dataset_1'
         assert org_dict['package_count'] == 1
 
-    def test_user_get(self):
+    def test_user_show_default_values(self):
 
         user = factories.User()
 
-        ## auth_ignored
         got_user = helpers.call_action('user_show', id=user['id'])
 
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
         assert 'apikey' not in got_user
         assert 'email' not in got_user
+
+    def test_user_show_keep_email(self):
+
+        user = factories.User()
 
         got_user = helpers.call_action('user_show',
                                        context={'keep_email': True},
@@ -361,6 +364,10 @@ class TestGet(object):
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
+    def test_user_show_keep_apikey(self):
+
+        user = factories.User()
+
         got_user = helpers.call_action('user_show',
                                        context={'keep_apikey': True},
                                        id=user['id'])
@@ -369,6 +376,10 @@ class TestGet(object):
         assert got_user['apikey'] == user['apikey']
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
+
+    def test_user_show_sysadmin_values(self):
+
+        user = factories.User()
 
         sysadmin = factories.User(sysadmin=True)
 

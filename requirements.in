@@ -9,7 +9,6 @@ Genshi==0.6
 WebTest==1.4.3  # need to pin this so that Pylons does not install a newer version that conflicts with WebOb==1.0.8
 apachemiddleware>=0.1.1
 fanstatic==0.12
-FormAlchemy>=1.4.2
 ofs==0.4.1
 Pairtree==0.7.1-T
 paste==1.7.5.1
@@ -18,7 +17,7 @@ python-dateutil>=1.5.0,<2.0.0
 pyutilib.component.core==4.5.3
 repoze.who-friendlyform==1.0.8
 repoze.who.plugins.openid==0.5.3
-repoze.who==1.0.19
+repoze.who==2.0
 requests==2.3.0
 Routes==1.13
 solrpy==0.9.5

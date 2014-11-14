@@ -534,6 +534,34 @@ Default value: ``None``
 List of the extra resource fields that would be used when searching.
 
 
+CORS Settings
+-------------
+
+Cross-Origin Resource Sharing (CORS) can be enabled and controlled with the following settings:
+
+.. _ckan.cors.origin_allow_all:
+
+ckan.cors.origin_allow_all
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.cors.origin_allow_all = True
+
+This setting must be present to enable CORS. If True, all origins will be allowed (the response header Access-Control-Allow-Origin is set to '*'). If False, only origins from the ``ckan.cors.origin_whitelist`` setting will be allowed.
+
+.. _ckan.cors.origin_whitelist:
+
+ckan.cors.origin_whitelist
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.cors.origin_whitelist = http://www.myremotedomain1.com http://myremotedomain1.com
+
+A space separated list of allowable origins. This setting is used when ``ckan.cors.origin_allow_all = False``.
+
+
 Plugins Settings
 ----------------
 
@@ -875,13 +903,13 @@ ckan.featured_groups
 
 Example::
 
- ckan.featured_groups = group_one group_two
+ ckan.featured_groups = group_one
 
 Default Value: (empty)
 
-Defines a list of group names or group ids. This setting is used to display
-groups and datasets from each group on the home page in the default templates
-(2 groups and 2 datasets for each group are displayed).
+Defines a list of group names or group ids. This setting is used to display a
+group and datasets on the home page in the default templates (1 group and 2
+datasets are displayed).
 
 .. _ckan.featured_organizations:
 
@@ -890,13 +918,13 @@ ckan.featured_orgs
 
 Example::
 
- ckan.featured_orgs = org_one org_two
+ ckan.featured_orgs = org_one
 
 Default Value: (empty)
 
 Defines a list of organization names or ids. This setting is used to display
-organization and datasets from each group on the home page in the default
-templates (2 groups and 2 datasets for each group are displayed).
+an organization and datasets on the home page in the default templates (1
+group and 2 datasets are displayed).
 
 .. _ckan.gravatar_default:
 
