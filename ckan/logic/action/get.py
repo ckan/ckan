@@ -1233,6 +1233,10 @@ def organization_show(context, data_dict):
 def group_package_show(context, data_dict):
     '''Return the datasets (packages) of a group.
 
+    .. note:: This function is deprecated and will be removed on the next
+        CKAN version. Use `package_search` with the `fq=groups:group_id`
+        filter to get the same results.
+
     :param id: the id or name of the group
     :type id: string
     :param limit: the maximum number of datasets to return (optional)
@@ -1241,11 +1245,21 @@ def group_package_show(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+
+    log.warning('"group_package_show" is deprecated and will be removed in the'
+                ' next CKAN version.')
+
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
 
-    # FIXME: What if limit is not an int? Schema and validation needed.
     limit = data_dict.get('limit')
+    if limit:
+        try:
+            limit = int(data_dict.get('limit'))
+            if limit < 0:
+                raise logic.ValidationError('Limit must be a positive integer')
+        except ValueError:
+            raise logic.ValidationError('Limit must be a positive integer')
 
     group = model.Group.get(group_id)
     context['group'] = group
@@ -1254,13 +1268,12 @@ def group_package_show(context, data_dict):
 
     _check_access('group_show', context, data_dict)
 
-    result = []
-    for pkg_rev in group.packages(
-            limit=limit,
-            return_query=context.get('return_query')):
-        result.append(model_dictize.package_dictize(pkg_rev, context))
+    result = logic.get_action('package_search')(context, {
+        'fq': 'groups:{0}'.format(group.name),
+        'rows': limit,
+    })
 
-    return result
+    return result['results']
 
 
 def tag_show(context, data_dict):
