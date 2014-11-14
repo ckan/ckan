@@ -3,7 +3,7 @@
 
 {# This provides a full page that renders a form for adding a dataset. It can
 then itself be extended to add/remove blocks of functionality. #}
-<form class="dataset-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form">
+<form id="dataset-edit" class="dataset-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form">
   {% block stages %}
     {{ h.snippet('package/snippets/stages.html', stages=stage) }}
   {% endblock %}
@@ -26,9 +26,11 @@ then itself be extended to add/remove blocks of functionality. #}
       {% block disclaimer %}
         <p class="action-info small">
           {%- trans -%}
-          Important: By submitting content, you
-          agree to release your contributions under the Open Database
-          License.
+          The <i>data license</i> you select above only applies to the contents
+          of any resource files that you add to this dataset. By submitting
+          this form, you agree to release the <i>metadata</i> values that you
+          enter into the form under the
+          <a href="http://opendatacommons.org/licenses/odbl/1-0/">Open Database License</a>.
           {%- endtrans -%}
         </p>
       {% endblock %}

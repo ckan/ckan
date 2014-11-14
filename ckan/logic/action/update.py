@@ -19,6 +19,7 @@ import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.email_notifications as email_notifications
 import ckan.lib.search as search
+import ckan.lib.datapreview as datapreview
 import ckan.lib.uploader as uploader
 
 from ckan.common import _, request
@@ -90,7 +91,7 @@ def make_latest_pending_package_active(context, data_dict):
     _make_latest_rev_active(context, q)
 
     #resources
-    for resource in pkg.resource_groups_all[0].resources_all:
+    for resource in pkg.resources_all:
         q = session.query(model.ResourceRevision).filter_by(id=resource.id)
         _make_latest_rev_active(context, q)
 
@@ -214,7 +215,7 @@ def resource_update(context, data_dict):
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
-    package_id = resource.resource_group.package.id
+    package_id = resource.package.id
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
@@ -223,6 +224,9 @@ def resource_update(context, data_dict):
     else:
         logging.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
+
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
     upload = uploader.ResourceUpload(data_dict)
 
@@ -239,7 +243,103 @@ def resource_update(context, data_dict):
 
     upload.upload(id, uploader.get_max_resource_size())
     model.repo.commit()
-    return _get_action('resource_show')(context, {'id': id})
+
+    resource = _get_action('resource_show')(context, {'id': id})
+
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.after_update(context, resource)
+
+    return resource
+
+
+def resource_view_update(context, data_dict):
+    '''Update a resource view.
+
+    To update a resource_view you must be authorized to update the resource
+    that the resource_view belongs to.
+
+    For further parameters see ``resource_view_create()``.
+
+    :param id: the id of the resource_view to update
+    :type id: string
+
+    :returns: the updated resource_view
+    :rtype: string
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, "id")
+    schema = (context.get('schema') or
+              ckan.logic.schema.default_update_resource_view_schema())
+
+
+    resource_view = model.ResourceView.get(id)
+    if not resource_view:
+        raise NotFound
+
+    view_plugin = datapreview.get_view_plugin(resource_view.view_type)
+    plugin_schema = view_plugin.info().get('schema', {})
+    schema.update(plugin_schema)
+
+    data, errors = _validate(data_dict, schema, context)
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    context["resource_view"] = resource_view
+    context['resource'] = model.Resource.get(resource_view.resource_id)
+
+    _check_access('resource_view_update', context, data_dict)
+
+    if context.get('preview'):
+        return data
+
+    resource_view = model_save.resource_view_dict_save(data, context)
+    if not context.get('defer_commit'):
+        model.repo.commit()
+    return model_dictize.resource_view_dictize(resource_view, context)
+
+def resource_view_reorder(context, data_dict):
+    '''Reorder resource views.
+
+    :param id: the id of the resource
+    :type id: string
+    :param order: the list of id of the resource to update the order of the views
+    :type order: list of strings
+
+    :returns: the updated order of the view
+    :rtype: dictionary
+    '''
+    model = context['model']
+    id, order = _get_or_bust(data_dict, ["id", "order"])
+    if not isinstance(order, list):
+        raise ValidationError({"order": "Must supply order as a list"})
+    if len(order) != len(set(order)):
+        raise ValidationError({"order": "No duplicates allowed in order"})
+    resource = model.Resource.get(id)
+    context['resource'] = resource
+
+    _check_access('resource_view_reorder', context, data_dict)
+
+    q = model.Session.query(model.ResourceView.id).filter_by(resource_id=id)
+    existing_views = [res[0] for res in
+                      q.order_by(model.ResourceView.order).all()]
+    ordered_views = []
+    for view in order:
+        try:
+            existing_views.remove(view)
+            ordered_views.append(view)
+        except ValueError:
+            raise ValidationError(
+                {"order": "View {view} does not exist".format(view=view)}
+            )
+    new_order = ordered_views + existing_views
+
+    for num, view in enumerate(new_order):
+        model.Session.query(model.ResourceView).\
+            filter_by(id=view).update({"order": num + 1})
+    model.Session.commit()
+    return {'id': id, 'order': new_order}
 
 
 def package_update(context, data_dict):
@@ -247,7 +347,7 @@ def package_update(context, data_dict):
 
     You must be authorized to edit the dataset and the groups that it belongs
     to.
-    
+
     It is recommended to call
     :py:func:`ckan.logic.action.get.package_show`, make the desired changes to
     the result, and then call ``package_update()`` with it.
@@ -277,6 +377,7 @@ def package_update(context, data_dict):
         raise NotFound(_('Package was not found.'))
     context["package"] = pkg
     data_dict["id"] = pkg.id
+    data_dict['type'] = pkg.type
 
     _check_access('package_update', context, data_dict)
 
@@ -477,6 +578,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
     if group is None:
         raise NotFound('Group was not found.')
 
+    data_dict['type'] = group.type
+
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)
     try:
@@ -523,14 +626,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
     else:
         rev.message = _(u'REST API: Update object %s') % data.get("name")
 
-    # when editing an org we do not want to update the packages if using the
-    # new templates.
-    if ((not is_org)
-            and not converters.asbool(
-                config.get('ckan.legacy_templates', False))
-            and 'api_version' not in context):
-        context['prevent_packages_update'] = True
-    group = model_save.group_dict_save(data, context)
+    group = model_save.group_dict_save(data, context,
+        prevent_packages_update=is_org)
 
     if is_org:
         plugin_type = plugins.IOrganizationController
@@ -617,6 +714,9 @@ def organization_update(context, data_dict):
 
     :param id: the name or id of the organization to update
     :type id: string
+    :param packages: ignored. use
+        :py:func:`~ckan.logic.action.update.package_owner_org_update`
+        to change package ownership
 
     :returns: the updated organization
     :rtype: dictionary
@@ -680,6 +780,40 @@ def user_update(context, data_dict):
         model.repo.commit()
     return model_dictize.user_dictize(user, context)
 
+
+def user_generate_apikey(context, data_dict):
+    '''Cycle a user's API key
+
+    :param id: the name or id of the user whose key needs to be updated
+    :type id: string
+
+    :returns: the updated user
+    :rtype: dictionary
+    '''
+    model = context['model']
+    user = context['user']
+    session = context['session']
+    schema = context.get('schema') or schema_.default_generate_apikey_user_schema()
+    context['schema'] = schema
+    # check if user id in data_dict
+    id = _get_or_bust(data_dict, 'id')
+
+    # check if user exists
+    user_obj = model.User.get(id)
+    context['user_obj'] = user_obj
+    if user_obj is None:
+        raise NotFound('User was not found.')
+
+    # check permission
+    _check_access('user_generate_apikey', context, data_dict)
+
+    # change key
+    old_data = _get_action('user_show')(context, data_dict)
+    old_data['apikey'] = model.types.make_uuid()
+    data_dict = old_data
+    return _get_action('user_update')(context, data_dict)
+
+
 def task_status_update(context, data_dict):
     '''Update a task status.
 
@@ -738,7 +872,7 @@ def task_status_update_many(context, data_dict):
     '''Update many task statuses at once.
 
     :param data: the task_status dictionaries to update, for the format of task
-        status dictionaries see 
+        status dictionaries see
         :py:func:`~task_status_update`
     :type data: list of dictionaries
 
@@ -1066,6 +1200,7 @@ def dashboard_mark_activities_old(context, data_dict):
         model.repo.commit()
 
 
+@logic.auth_audit_exempt
 def send_email_notifications(context, data_dict):
     '''Send any pending activity stream notification emails to users.
 
@@ -1192,7 +1327,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
     count = 0
     q = []
     for id in datasets:
-        q.append('id:%s' % (id))
+        q.append('id:"%s"' % (id))
         count += 1
         if count % BATCH_SIZE == 0:
             process_solr(' OR '.join(q))

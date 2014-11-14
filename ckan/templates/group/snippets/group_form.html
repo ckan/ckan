@@ -53,26 +53,6 @@
   {% endblock %}
 
   {{ form.required_message() }}
-  {# Do not update datasets here
-  {% block dataset_fields %}
-    {% if data.packages %}
-      <div class="control-group">
-        <label class="control-label">{{ _('Datasets') }}</label>
-        <div class="controls">
-          {% for dataset in data.packages %}
-            <label class="checkbox" for="field-dataset-{{ loop.index0 }}">
-              <input id="field-dataset-{{ loop.index0 }}" type="checkbox" name="packages__{{ loop.index0 }}__name" value="{{ dataset.name }}" checked="checked" />
-              {{ dataset.title }}
-            </label>
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-    {% set dataset_name = 'packages__%s__name' % data.packages|length %}
-    {% set dataset_attrs = {'data-module': 'autocomplete', 'data-module-source': '/dataset/autocomplete?q=?'} %}
-    {{ form.input(dataset_name, label=_('Add Dataset'), id="field-dataset", value=data[dataset_name], classes=['control-medium'], attrs=dataset_attrs) }}
-  {% endblock %}
-  #}
 
   <div class="form-actions">
     {% block delete_button %}

@@ -36,7 +36,7 @@ example, to create a user called ``seanh`` and make him a sysadmin:
 
 .. parsed-literal::
 
-   paster sysadmin add seanh -c |development.ini|
+   paster sysadmin add seanh -c |production.ini|
 
 If a user called ``seanh`` already exists he will be promoted to a sysadmin. If
 the user account doesn't exist yet you'll be prompted to enter a password and
@@ -61,7 +61,7 @@ command line with the ``create-test-data`` command:
 
 .. parsed-literal::
 
-   paster create-test-data -c |development.ini|
+   paster create-test-data -c |production.ini|
 
 If you later want to delete this test data and start again with an empty
 database, you can use the ``db clean`` command, see :ref:`paster db`.

@@ -126,21 +126,24 @@ def resource_show(context, data_dict):
     resource = get_resource_object(context, data_dict)
 
     # check authentication against package
-    query = model.Session.query(model.Package)\
-        .join(model.ResourceGroup)\
-        .join(model.Resource)\
-        .filter(model.ResourceGroup.id == resource.resource_group_id)
-    pkg = query.first()
+    pkg = model.Package.get(resource.package_id)
     if not pkg:
         raise logic.NotFound(_('No package found for this resource, cannot check auth.'))
 
     pkg_dict = {'id': pkg.id}
-    authorized = package_show(context, pkg_dict).get('success')
+    authorized = new_authz.is_authorized('package_show', context, pkg_dict).get('success')
 
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (user, resource.id)}
     else:
         return {'success': True}
+
+
+def resource_view_show(context, data_dict):
+    return resource_show(context, data_dict)
+
+def resource_view_list(context, data_dict):
+    return resource_show(context, data_dict)
 
 def revision_show(context, data_dict):
     # No authz check in the logic function

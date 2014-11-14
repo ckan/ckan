@@ -15,6 +15,8 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests as tests
 import ckan.config.middleware as middleware
+import ckan.new_tests.helpers as helpers
+import ckan.new_tests.factories as factories
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
@@ -24,6 +26,155 @@ from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 if sys.version_info < (2, 7, 0):
     import socket
     socket.setdefaulttimeout(1)
+
+
+class TestDatastoreCreateNewTests(object):
+    @classmethod
+    def setup_class(cls):
+        p.load('datastore')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('datastore')
+        helpers.reset_db()
+
+    def test_create_creates_index_on_primary_key(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'boo%k': 'crime',
+                'author': ['tolstoy', 'dostoevsky'],
+                'package_id': package['id']
+            },
+        }
+        result = helpers.call_action('datastore_create', **data)
+        resource_id = result['resource_id']
+        index_names = self._get_index_names(resource_id)
+        assert resource_id + '_pkey' in index_names
+
+    def test_create_index_on_specific_fields(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'boo%k': 'crime',
+                'author': ['tolstoy', 'dostoevsky'],
+                'package_id': package['id']
+            },
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+            'indexes': ['author']
+        }
+        result = helpers.call_action('datastore_create', **data)
+        resource_id = result['resource_id']
+        assert self._has_index_on_field(resource_id, '"author"')
+
+    def test_create_adds_index_on_full_text_search_when_creating_other_indexes(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'boo%k': 'crime',
+                'author': ['tolstoy', 'dostoevsky'],
+                'package_id': package['id']
+            },
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+            'indexes': ['author']
+        }
+        result = helpers.call_action('datastore_create', **data)
+        resource_id = result['resource_id']
+        assert self._has_index_on_field(resource_id, '_full_text')
+
+    def test_create_adds_index_on_full_text_search_when_not_creating_other_indexes(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'boo%k': 'crime',
+                'author': ['tolstoy', 'dostoevsky'],
+                'package_id': package['id']
+            },
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+        }
+        result = helpers.call_action('datastore_create', **data)
+        resource_id = result['resource_id']
+        assert self._has_index_on_field(resource_id, '_full_text')
+
+    def test_create_add_full_text_search_indexes_on_every_text_field(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'book': 'crime',
+                'author': ['tolstoy', 'dostoevsky'],
+                'package_id': package['id']
+            },
+            'fields': [{'id': 'boo%k', 'type': 'text'},
+                       {'id': 'author', 'type': 'text'}],
+            'lang': 'english',
+        }
+        result = helpers.call_action('datastore_create', **data)
+        resource_id = result['resource_id']
+        assert self._has_index_on_field(resource_id,
+                                        "to_tsvector('english', 'boo%k')")
+        assert self._has_index_on_field(resource_id,
+                                        "to_tsvector('english', 'author')")
+
+    def test_create_doesnt_add_more_indexes_when_updating_data(self):
+        resource = factories.Resource()
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'book': 'annakarenina', 'author': 'tolstoy'}
+            ]
+        }
+        result = helpers.call_action('datastore_create', **data)
+        previous_index_names = self._get_index_names(resource['id'])
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'book': 'warandpeace', 'author': 'tolstoy'}
+            ]
+        }
+        result = helpers.call_action('datastore_create', **data)
+        current_index_names = self._get_index_names(resource['id'])
+        assert_equal(previous_index_names, current_index_names)
+
+    def _has_index_on_field(self, resource_id, field):
+        sql = u"""
+            SELECT
+                relname
+            FROM
+                pg_class
+            WHERE
+                pg_class.relname = %s
+            """
+        index_name = db._generate_index_name(resource_id, field)
+        results = self._execute_sql(sql, index_name).fetchone()
+        return bool(results)
+
+    def _get_index_names(self, resource_id):
+        sql = u"""
+            SELECT
+                i.relname AS index_name
+            FROM
+                pg_class t,
+                pg_class i,
+                pg_index idx
+            WHERE
+                t.oid = idx.indrelid
+                AND i.oid = idx.indexrelid
+                AND t.relkind = 'r'
+                AND t.relname = %s
+            """
+        results = self._execute_sql(sql, resource_id).fetchall()
+        return [result[0] for result in results]
+
+    def _execute_sql(self, sql, *args):
+        engine = db._get_engine(
+            {'connection_url': pylons.config['ckan.datastore.write_url']})
+        session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        return session.connection().execute(sql, *args)
 
 
 class TestDatastoreCreate(tests.WsgiAppCase):
@@ -154,39 +305,21 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     def test_create_invalid_field_name(self):
         resource = model.Package.get('annakarenina').resources[0]
-        data = {
-            'resource_id': resource.id,
-            'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': '_author', 'type': 'text'}]
-        }
-        postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.sysadmin_user.apikey)}
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
+        invalid_names = ['_author', '"author', '', ' author', 'author ',
+                         '\tauthor', 'author\n']
 
-        data = {
-            'resource_id': resource.id,
-            'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': '"author', 'type': 'text'}]
-        }
-        postparams = '%s=1' % json.dumps(data)
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
-
-        data = {
-            'resource_id': resource.id,
-            'fields': [{'id': 'book', 'type': 'text'},
-                       {'id': '', 'type': 'text'}]
-        }
-        postparams = '%s=1' % json.dumps(data)
-        res = self.app.post('/api/action/datastore_create', params=postparams,
-                            extra_environ=auth, status=409)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is False
+        for field_name in invalid_names:
+            data = {
+                'resource_id': resource.id,
+                'fields': [{'id': 'book', 'type': 'text'},
+                           {'id': field_name, 'type': 'text'}]
+            }
+            postparams = '%s=1' % json.dumps(data)
+            res = self.app.post('/api/action/datastore_create', params=postparams,
+                                extra_environ=auth, status=409)
+            res_dict = json.loads(res.body)
+            assert res_dict['success'] is False
 
     def test_create_invalid_record_field(self):
         resource = model.Package.get('annakarenina').resources[0]
@@ -537,6 +670,43 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
 
         assert res_dict['success'] is True, res_dict
+
+    def test_create_datastore_resource_on_dataset(self):
+        pkg = model.Package.get('annakarenina')
+
+        data = {
+            'resource': {
+                'package_id': pkg.id,
+            },
+            'fields': [{'id': 'boo%k', 'type': 'text'},  # column with percent
+                       {'id': 'author', 'type': 'json'}],
+            'indexes': [['boo%k', 'author'], 'author'],
+            'records': [{'boo%k': 'crime', 'author': ['tolstoy', 'dostoevsky']},
+                        {'boo%k': 'annakarenina', 'author': ['tolstoy', 'putin']},
+                        {'boo%k': 'warandpeace'}]  # treat author as null
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is True
+        res = res_dict['result']
+        assert res['fields'] == data['fields'], res['fields']
+        assert res['records'] == data['records']
+
+        # Get resource details
+        data = {
+            'id': res['resource_id']
+        }
+        postparams = '%s=1' % json.dumps(data)
+        res = self.app.post('/api/action/resource_show', params=postparams)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['result']['datastore_active'] is True
+
 
     def test_guess_types(self):
         resource = model.Package.get('annakarenina').resources[1]

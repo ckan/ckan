@@ -361,7 +361,7 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         offset = self.base_url + '?groups=roger&title='
         res = self.app.get(offset, status=200)
         res_dict = self.data_from_res(res)
-        assert res_dict['count'] == 1, res_dic
+        assert res_dict['count'] == 1, res_dict
 
 class TestPackageSearchApi1(Api1TestCase, PackageSearchApiTestCase,
                             LegacyOptionsTestCase): pass

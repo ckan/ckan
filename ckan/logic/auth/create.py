@@ -9,11 +9,17 @@ def package_create(context, data_dict=None):
     user = context['user']
 
     if new_authz.auth_is_anon_user(context):
-        check1 = new_authz.check_config_permission('anon_create_dataset')
+        check1 = all(new_authz.check_config_permission(p) for p in (
+            'anon_create_dataset',
+            'create_dataset_if_not_in_organization',
+            'create_unowned_dataset',
+            ))
     else:
-        check1 = new_authz.check_config_permission('create_dataset_if_not_in_organization') \
-            or new_authz.check_config_permission('create_unowned_dataset') \
-            or new_authz.has_user_permission_for_some_org(user, 'create_dataset')
+        check1 = all(new_authz.check_config_permission(p) for p in (
+            'create_dataset_if_not_in_organization',
+            'create_unowned_dataset',
+            )) or new_authz.has_user_permission_for_some_org(
+            user, 'create_dataset')
 
     if not check1:
         return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
@@ -55,14 +61,43 @@ def related_create(context, data_dict=None):
 
     return {'success': False, 'msg': _('You must be logged in to add a related item')}
 
-def resource_create(context, data_dict):
-    # resource_create runs through package_update, no need to
-    # check users eligibility to add resource to package here.
 
-    # FIXME This is identical behaviour to what existed but feels like we
-    # should be using package_update permissions and have better errors.  I
-    # am also not sure about the need for the group issue
-    return new_authz.is_authorized('package_create', context, data_dict)
+def resource_create(context, data_dict):
+    model = context['model']
+    user = context.get('user')
+
+    package_id = data_dict.get('package_id')
+    if not package_id and data_dict.get('id'):
+        # This can happen when auth is deferred, eg from `resource_view_create`
+        resource = logic_auth.get_resource_object(context, data_dict)
+        package_id = resource.package_id
+
+    if not package_id:
+        raise logic.NotFound(
+            _('No dataset id provided, cannot check auth.')
+        )
+
+    # check authentication against package
+    pkg = model.Package.get(package_id)
+    if not pkg:
+        raise logic.NotFound(
+            _('No package found for this resource, cannot check auth.')
+        )
+
+    pkg_dict = {'id': pkg.id}
+    authorized = new_authz.is_authorized('package_update', context, pkg_dict).get('success')
+
+    if not authorized:
+        return {'success': False,
+                'msg': _('User %s not authorized to create resources on dataset %s') %
+                        (str(user), package_id)}
+    else:
+        return {'success': True}
+
+
+def resource_view_create(context, data_dict):
+    return resource_create(context, {'id': data_dict['resource_id']})
+
 
 def package_relationship_create(context, data_dict):
     user = context['user']

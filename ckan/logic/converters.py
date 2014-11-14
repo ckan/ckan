@@ -2,16 +2,22 @@ import json
 
 import ckan.model as model
 import ckan.lib.navl.dictization_functions as df
-import ckan.lib.field_types as field_types
 import ckan.logic.validators as validators
 
 from ckan.common import _
 
+
 def convert_to_extras(key, data, errors, context):
-    extras = data.get(('extras',), [])
-    if not extras:
-        data[('extras',)] = extras
-    extras.append({'key': key[-1], 'value': data[key]})
+
+    # Get the current extras index
+    current_indexes = [k[1] for k in data.keys()
+                       if len(k) > 1 and k[0] == 'extras']
+
+    new_index = max(current_indexes) + 1 if current_indexes else 0
+
+    data[('extras', new_index, 'key')] = key[-1]
+    data[('extras', new_index, 'value')] = data[key]
+
 
 def convert_from_extras(key, data, errors, context):
 
@@ -34,19 +40,10 @@ def convert_from_extras(key, data, errors, context):
         return
     remove_from_extras(data, data_key[1])
 
-def date_to_db(value, context):
-    try:
-        value = field_types.DateType.form_to_db(value)
-    except field_types.DateConvertError, e:
-        raise df.Invalid(str(e))
-    return value
-
-def date_to_form(value, context):
-    try:
-        value = field_types.DateType.db_to_form(value)
-    except field_types.DateConvertError, e:
-        raise df.Invalid(str(e))
-    return value
+def extras_unicode_convert(extras, context):
+    for extra in extras:
+        extras[extra] = unicode(extras[extra])
+    return extras
 
 def free_tags_only(key, data, errors, context):
     tag_number = key[1]

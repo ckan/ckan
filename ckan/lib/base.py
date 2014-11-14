@@ -130,12 +130,6 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         except render_.TemplateNotFound:
             raise
 
-        # snippets should not pass the context
-        # but allow for legacy genshi templates
-        if renderer == 'snippet' and template_type != 'genshi':
-            del globs['c']
-            del globs['tmpl_context']
-
         log.debug('rendering %s [%s]' % (template_path, template_type))
         if config.get('debug'):
             context_vars = globs.get('c')
@@ -347,15 +341,9 @@ class BaseController(WSGIController):
         finally:
             model.Session.remove()
 
-        # Clean out any old cookies as they may contain api keys etc
-        # This also improves the cachability of our pages as cookies
-        # prevent proxy servers from caching content unless they have
-        # been configured to ignore them.
         for cookie in request.cookies:
-            if cookie.startswith('ckan') and cookie not in ['ckan']:
-                response.delete_cookie(cookie)
             # Remove the ckan session cookie if not used e.g. logged out
-            elif cookie == 'ckan' and not c.user:
+            if cookie == 'ckan' and not c.user:
                 # Check session for valid data (including flash messages)
                 # (DGU also uses session for a shopping basket-type behaviour)
                 is_valid_cookie_data = False
@@ -381,17 +369,35 @@ class BaseController(WSGIController):
         return res
 
     def __after__(self, action, **params):
-        self._set_cors()
+        # Do we have CORS settings in config?
+        if config.get('ckan.cors.origin_allow_all') \
+                and request.headers.get('Origin'):
+            self._set_cors()
         r_time = time.time() - c.__timer
         url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
         log.info(' %s render time %.3f seconds' % (url, r_time))
 
     def _set_cors(self):
-        response.headers['Access-Control-Allow-Origin'] = "*"
-        response.headers['Access-Control-Allow-Methods'] = \
-            "POST, PUT, GET, DELETE, OPTIONS"
-        response.headers['Access-Control-Allow-Headers'] = \
-            "X-CKAN-API-KEY, Authorization, Content-Type"
+        '''
+        Set up Access Control Allow headers if either origin_allow_all is
+        True, or the request Origin is in the origin_whitelist.
+        '''
+        cors_origin_allowed = None
+        if asbool(config.get('ckan.cors.origin_allow_all')):
+            cors_origin_allowed = "*"
+        elif config.get('ckan.cors.origin_whitelist') and \
+                request.headers.get('Origin') \
+                in config['ckan.cors.origin_whitelist'].split(" "):
+            # set var to the origin to allow it.
+            cors_origin_allowed = request.headers.get('Origin')
+
+        if cors_origin_allowed is not None:
+            response.headers['Access-Control-Allow-Origin'] = \
+                cors_origin_allowed
+            response.headers['Access-Control-Allow-Methods'] = \
+                "POST, PUT, GET, DELETE, OPTIONS"
+            response.headers['Access-Control-Allow-Headers'] = \
+                "X-CKAN-API-KEY, Authorization, Content-Type"
 
     def _get_user_for_apikey(self):
         apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,

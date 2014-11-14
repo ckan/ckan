@@ -25,8 +25,10 @@ First, create a ``public`` directory in your extension with a
 ``promoted-image.jpg`` file in it::
 
  ckanext-example_theme/
-   public/
-     promoted-image.jpg
+   ckanext/
+      example_theme/
+         public/
+            promoted-image.jpg
 
 ``promoted-image.jpg`` should be a 420x220px JPEG image file. You could use
 this image file for example:
@@ -52,10 +54,12 @@ override the ``promoted.html`` template snippet. Create the following directory
 and file::
 
  ckanext-example_theme/
-   templates/
-     home/
-       snippets/
-         promoted.html
+   ckanext/
+     example_theme/
+       templates/
+         home/
+           snippets/
+             promoted.html
 
 Edit your new ``promoted.html`` snippet, and insert these contents:
 

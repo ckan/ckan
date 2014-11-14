@@ -44,16 +44,18 @@ file you created in :doc:`install-from-source` earlier:
     cp |development.ini| |production.ini|
 
 
------------------------------
-2. Install Apache and modwsgi
------------------------------
+-----------------------------------
+2. Install Apache, modwsgi, modrpaf
+-----------------------------------
 
-Install Apache_ (a web server) and modwsgi_ (an Apache module that adds WSGI
-support to Apache)::
+Install Apache_ (a web server), modwsgi_ (an Apache module that adds WSGI
+support to Apache), and modrpaf_ (an Apache module that sets the right IP
+address when there is a proxy forwarding to Apache)::
 
-  sudo apt-get install apache2 libapache2-mod-wsgi
+  sudo apt-get install apache2 libapache2-mod-wsgi libapache2-mod-rpaf
 
 .. _modwsgi: https://code.google.com/p/modwsgi/
+.. _modrpaf: https://github.com/gnif/mod_rpaf
 
 
 ----------------
@@ -115,7 +117,7 @@ following contents:
 
 .. parsed-literal::
 
-    <VirtualHost 0.0.0.0:8080>
+    <VirtualHost 127.0.0.1:8080>
         ServerName default.ckanhosted.com
         ServerAlias www.default.ckanhosted.com
         WSGIScriptAlias / |apache.wsgi|
@@ -130,6 +132,12 @@ following contents:
 
         ErrorLog /var/log/apache2/ckan_default.error.log
         CustomLog /var/log/apache2/ckan_default.custom.log combined
+
+        <IfModule mod_rpaf.c>
+            RPAFenable On
+            RPAFsethostname On
+            RPAFproxy_ips 127.0.0.1
+        </IfModule>
     </VirtualHost>
 
 Replace ``default.ckanhosted.com`` and ``www.default.ckanhosted.com`` with the
@@ -139,8 +147,25 @@ This tells the Apache modwsgi module to redirect any requests to the web server
 to the WSGI script that you created above. Your WSGI script in turn directs the
 requests to your CKAN instance.
 
+------------------------------------
+7. Modify the Apache ports.conf file
+------------------------------------
+
+Open ``/etc/apache2/ports.conf``. Look in the file for the following lines:
+
+.. parsed-literal::
+
+    NameVirtualHost \*:80
+    Listen 80
+
+Change the entries from ``80`` to ``8080`` to look like the following:
+
+.. parsed-literal::
+    NameVirtualHost \*:8080
+    Listen 8080
+
 -------------------------------
-7. Create the Nginx config file
+8. Create the Nginx config file
 -------------------------------
 
 Create your site's Nginx config file at |nginx_config_file|, with the
@@ -155,6 +180,7 @@ following contents:
         client_max_body_size 100M;
         location / {
             proxy_pass http://127.0.0.1:8080/;
+            proxy_set_header X-Forwarded-For $remote_addr;
             proxy_set_header Host $host;
             proxy_cache cache;
             proxy_cache_bypass $cookie_auth_tkt;
@@ -169,7 +195,7 @@ following contents:
 
 
 ------------------------
-8. Enable your CKAN site
+9. Enable your CKAN site
 ------------------------
 
 Finally, enable your CKAN site in Apache:

@@ -53,6 +53,18 @@
             <td class="dataset-details">{{ pkg_dict.state }}</td>
           </tr>
         {% endif %}
+        {% if pkg_dict.metadata_modified %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _("Last Updated") }}</th>
+            <td class="dataset-details">{{ h.render_datetime(pkg_dict.metadata_modified, with_hours=True) }}</td>
+          </tr>
+        {% endif %}
+        {% if pkg_dict.metadata_created %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _("Created") }}</th>
+            <td class="dataset-details">{{ h.render_datetime(pkg_dict.metadata_created, with_hours=True) }}</td>
+          </tr>
+        {% endif %}
 
       {% block extras scoped %}
         {% for extra in h.sorted_extras(pkg_dict.extras) %}

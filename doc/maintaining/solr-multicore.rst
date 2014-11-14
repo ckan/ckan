@@ -10,7 +10,7 @@ is useful when you want different applications or different versions of CKAN to
 share the same Solr instance, each application can have its own Solr core so
 each can use a different ``schema.xml`` file. This is necessary, for example,
 if you want two CKAN instances to share the same |solr| server and those two
-instances are running different versions of CKAN that require differemt
+instances are running different versions of CKAN that require different
 ``schema.xml`` files, or if the two instances have different |solr| schema
 customizations.
 

@@ -3,7 +3,7 @@ import ckan
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan.plugins import IGroupController, IOrganizationController, ITagController
 import pylons
-import ckan.logic.action.get as action_get
+from ckan.logic import get_action
 from pylons import config
 
 LANGS = ['en', 'fr', 'de', 'es', 'it', 'nl', 'ro', 'pt', 'pl']
@@ -35,7 +35,7 @@ def translate_data_dict(data_dict):
                 terms.add(item)
 
     # Get the translations of all the terms (as a list of dictionaries).
-    translations = ckan.logic.action.get.term_translation_show(
+    translations = get_action('term_translation_show')(
             {'model': ckan.model},
             {'terms': terms,
                 'lang_codes': (desired_lang_code, fallback_lang_code)})
@@ -110,7 +110,7 @@ class MultilingualDataset(SingletonPlugin):
         ## translate title
         title = search_data.get('title')
         search_data['title_' + default_lang] = title 
-        title_translations = action_get.term_translation_show(
+        title_translations = get_action('term_translation_show')(
                           {'model': ckan.model},
                           {'terms': [title],
                               'lang_codes': LANGS})
@@ -130,7 +130,7 @@ class MultilingualDataset(SingletonPlugin):
                 if isinstance(item, basestring):
                     all_terms.append(item)
 
-        field_translations = action_get.term_translation_show(
+        field_translations = get_action('term_translation_show')(
                           {'model': ckan.model},
                           {'terms': all_terms,
                               'lang_codes': LANGS})
@@ -150,7 +150,18 @@ class MultilingualDataset(SingletonPlugin):
 
     def before_search(self, search_params):
         lang_set = set(LANGS)
-        current_lang = pylons.request.environ['CKAN_LANG']
+
+        try:
+            current_lang = pylons.request.environ['CKAN_LANG']
+        except TypeError as err:
+            if err.message == ('No object (name: request) has been registered '
+                               'for this thread'):
+                # This happens when this code gets called as part of a paster
+                # command rather then as part of an HTTP request.
+                current_lang = config.get('ckan.locale_default')
+            else:
+                raise
+
         # fallback to default locale if locale not in suported langs
         if not current_lang in lang_set:
             current_lang = config.get('ckan.locale_default')
@@ -185,7 +196,7 @@ class MultilingualDataset(SingletonPlugin):
         for facet in facets.values():
             for item in facet['items']:
                 terms.add(item['display_name'])
-        translations = ckan.logic.action.get.term_translation_show(
+        translations = get_action('term_translation_show')(
                 {'model': ckan.model},
                 {'terms': terms,
                     'lang_codes': (desired_lang_code, fallback_lang_code)})
@@ -220,7 +231,7 @@ class MultilingualDataset(SingletonPlugin):
         desired_lang_code = pylons.request.environ['CKAN_LANG']
         fallback_lang_code = pylons.config.get('ckan.locale_default', 'en')
         terms = [value for param, value in c.fields]
-        translations = ckan.logic.action.get.term_translation_show(
+        translations = get_action('term_translation_show')(
                 {'model': ckan.model},
                 {'terms': terms,
                  'lang_codes': (desired_lang_code, fallback_lang_code)})
