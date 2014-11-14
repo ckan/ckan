@@ -66,7 +66,7 @@ Repoze.who Settings
 .. _who.httponly:
 
 who.httponly
-^^^^^^^^^^^
+^^^^^^^^^^^^
 
 Example::
 
