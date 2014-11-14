@@ -96,6 +96,8 @@ def package_relationships_list(context, data_dict):
 
 def package_show(context, data_dict):
     user = context.get('user')
+    # Note: if user_obj is not populated, it should happen now from model
+    user_obj = context.get('auth_user_obj')
     package = get_package_object(context, data_dict)
     # draft state indicates package is still in the creation process
     # so we need to check we have creation rights.
@@ -104,6 +106,9 @@ def package_show(context, data_dict):
                                        context, data_dict)
         authorized = auth.get('success')
     elif package.owner_org is None and package.state == 'active':
+        return {'success': True}
+    elif user_obj.id == package.creator_user_id:
+        # allow creator to see packages previously created
         return {'success': True}
     else:
         # anyone can see a public package
