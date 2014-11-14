@@ -136,18 +136,26 @@ class TestCkanAuthTktCookiePlugin(object):
                                        reissue_time=None,
                                        userid_checker=None)
 
-    def test_httponly_present(self):
-        '''HttpOnly flag should be present in cookie values.'''
+    def test_httponly_expected_cookies_with_httponly(self):
+        '''The returned cookies are still what we expect.'''
         plugin = self._make_plugin(httponly=True)
         cookies = plugin._get_cookies(environ={'SERVER_NAME': '0.0.0.0'},
-                                      value='ANYTHING')
-        for cookie in cookies:
-            assert 'HttpOnly' in cookie[1]
+                                      value='HELLO')
+        expected_cookies = [
+            ('Set-Cookie', 'auth_tkt="HELLO"; Path=/; HttpOnly'),
+            ('Set-Cookie', 'auth_tkt="HELLO"; Path=/; Domain=0.0.0.0; HttpOnly'),
+            ('Set-Cookie', 'auth_tkt="HELLO"; Path=/; Domain=.0.0.0.0; HttpOnly')
+        ]
+        assert cookies == expected_cookies
 
-    def test_httponly_absent(self):
-        '''HttpOnly flag should be absent in cookie values.'''
+    def test_httponly_expected_cookies_without_httponly(self):
+        '''The returned cookies are still what we expect.'''
         plugin = self._make_plugin(httponly=False)
         cookies = plugin._get_cookies(environ={'SERVER_NAME': '0.0.0.0'},
-                                      value='ANYTHING')
-        for cookie in cookies:
-            assert 'HttpOnly' not in cookie[1]
+                                      value='HELLO')
+        expected_cookies = [
+            ('Set-Cookie', 'auth_tkt="HELLO"; Path=/'),
+            ('Set-Cookie', 'auth_tkt="HELLO"; Path=/; Domain=0.0.0.0'),
+            ('Set-Cookie', 'auth_tkt="HELLO"; Path=/; Domain=.0.0.0.0')
+        ]
+        assert cookies == expected_cookies
