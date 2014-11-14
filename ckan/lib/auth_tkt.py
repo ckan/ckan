@@ -60,8 +60,7 @@ def _set_substring(value, substring, presence=True):
     return value
 
 
-def make_plugin(httponly=True,
-                secret=None,
+def make_plugin(secret=None,
                 secretfile=None,
                 cookie_name='auth_tkt',
                 secure=False,
@@ -74,6 +73,9 @@ def make_plugin(httponly=True,
     # ckan specific: get secret from beaker setting if necessary
     if secret is None or secret == 'somesecret':
         secret = config['beaker.session.secret']
+
+    # Set httponly based on config value. Default is True
+    httponly = config.get('who.httponly', True)
 
     # back to repoze boilerplate
     if (secret is None and secretfile is None):
@@ -91,7 +93,7 @@ def make_plugin(httponly=True,
         reissue_time = int(reissue_time)
     if userid_checker is not None:
         userid_checker = resolveDotted(userid_checker)
-    plugin = CkanAuthTktCookiePlugin(httponly,
+    plugin = CkanAuthTktCookiePlugin(_bool(httponly),
                                      secret,
                                      cookie_name,
                                      _bool(secure),
