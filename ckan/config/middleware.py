@@ -18,12 +18,12 @@ from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
-from repoze.who.plugins.auth_tkt import make_plugin as auth_tkt_make_plugin
 from fanstatic import Fanstatic
 
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
 from ckan.lib.i18n import get_locales_from_config
+from ckan.lib.auth_tkt import make_plugin as auth_tkt_make_plugin
 import ckan.lib.uploader as uploader
 
 from ckan.config.environment import load_environment
