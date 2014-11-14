@@ -23,7 +23,6 @@ from fanstatic import Fanstatic
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
 from ckan.lib.i18n import get_locales_from_config
-from ckan.lib.auth_tkt import make_plugin as auth_tkt_make_plugin
 import ckan.lib.uploader as uploader
 
 from ckan.config.environment import load_environment
@@ -191,11 +190,6 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         app = TrackingMiddleware(app, config)
 
     return app
-
-def ckan_auth_tkt_make_app(**kw):
-    if not len(kw.get('secret', '')) or kw.get('secret') == 'somesecret':
-        kw['secret'] = config['beaker.session.secret']
-    return auth_tkt_make_plugin(**kw)
 
 
 class I18nMiddleware(object):

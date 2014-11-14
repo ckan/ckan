@@ -1,5 +1,6 @@
 import os
 
+from pylons import config
 from repoze.who.plugins import auth_tkt as repoze_auth_tkt
 
 _bool = repoze_auth_tkt._bool
@@ -69,6 +70,12 @@ def make_plugin(httponly=True,
                 reissue_time=None,
                 userid_checker=None):
     from repoze.who.utils import resolveDotted
+
+    # ckan specific: get secret from beaker setting if necessary
+    if secret is None or secret == 'somesecret':
+        secret = config['beaker.session.secret']
+
+    # back to repoze boilerplate
     if (secret is None and secretfile is None):
         raise ValueError("One of 'secret' or 'secretfile' must not be None.")
     if (secret is not None and secretfile is not None):
