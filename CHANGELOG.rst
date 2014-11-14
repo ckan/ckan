@@ -35,6 +35,11 @@ API changes and deprecations
   ``*``. To re-enable CORS, use the new ``ckan.cors`` settings detailed in the
   Config File Options documentation (:doc:`/maintaining/configuration`)
 
+* The HttpOnly flag will be set on the authorization cookie by default. For
+  enhanced security, we recommend using the HttpOnly flag, but this behaviour
+  can be changed in the ``Repoze.who`` settings detailed in the Config File
+  Options documentation (:doc: `/maintaining/configuration`)
+
 Template changes
 ----------------
 

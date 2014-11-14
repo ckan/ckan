@@ -60,6 +60,24 @@ files, and enables CKAN templates' debugging features.
    commands.
 
 
+Repoze.who Settings
+-------------------
+
+.. _who.httponly:
+
+who.httponly
+^^^^^^^^^^^
+
+Example::
+
+ who.httponly = False
+
+Default value: True
+
+This determines whether the HttpOnly flag will be set on the repoze.who
+authorization cookie. The default in the absence of the setting is ``True``.
+
+
 Database Settings
 -----------------
 
