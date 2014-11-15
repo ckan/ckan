@@ -1230,39 +1230,6 @@ def organization_show(context, data_dict):
     return _group_or_org_show(context, data_dict, is_org=True)
 
 
-def group_package_show(context, data_dict):
-    '''Return the datasets (packages) of a group.
-
-    :param id: the id or name of the group
-    :type id: string
-    :param limit: the maximum number of datasets to return (optional)
-    :type limit: int
-
-    :rtype: list of dictionaries
-
-    '''
-    model = context['model']
-    group_id = _get_or_bust(data_dict, 'id')
-
-    # FIXME: What if limit is not an int? Schema and validation needed.
-    limit = data_dict.get('limit')
-
-    group = model.Group.get(group_id)
-    context['group'] = group
-    if group is None:
-        raise NotFound
-
-    _check_access('group_show', context, data_dict)
-
-    result = []
-    for pkg_rev in group.packages(
-            limit=limit,
-            return_query=context.get('return_query')):
-        result.append(model_dictize.package_dictize(pkg_rev, context))
-
-    return result
-
-
 def tag_show(context, data_dict):
     '''Return the details of a tag and all its datasets.
 
