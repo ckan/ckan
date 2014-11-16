@@ -216,7 +216,7 @@ class TestCkanAuthTktCookiePlugin(object):
 
     def test_secure_expected_cookies_without_config_secure(self):
         '''
-        The returned cookies are in the format we expect, with secure flag.
+        The returned cookies are in the format we expect, without secure flag.
         '''
         plugin = make_plugin(secret='sosecret')
         cookies = plugin._get_cookies(environ={'SERVER_NAME': '0.0.0.0'},
