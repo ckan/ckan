@@ -77,6 +77,20 @@ Default value: True
 This determines whether the HttpOnly flag will be set on the repoze.who
 authorization cookie. The default in the absence of the setting is ``True``.
 
+.. _who.secure:
+
+who.secure
+^^^^^^^^^^
+
+Example::
+ who.secure = True
+
+Default value: False
+
+This determines whether the secure flag will be set for the repoze.who
+authorization cookie. If ``True``, the cookie will be sent over HTTPS. The
+default in the absence of the setting is ``False``.
+
 
 Database Settings
 -----------------

@@ -77,6 +77,9 @@ def make_plugin(secret=None,
     # Set httponly based on config value. Default is True
     httponly = config.get('who.httponly', True)
 
+    # Set secure based on config value. Default is False
+    secure = config.get('who.secure', False)
+
     # back to repoze boilerplate
     if (secret is None and secretfile is None):
         raise ValueError("One of 'secret' or 'secretfile' must not be None.")
