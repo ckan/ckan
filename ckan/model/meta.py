@@ -85,7 +85,8 @@ class CkanSessionExtension(SessionExtension):
             revision_cls = obj.__revision_class__
             revision_table = orm.class_mapper(revision_cls).mapped_table
             ## when a normal active transaction happens
-
+    
+            ### this is an sql statement as we do not want it in object cache
             session.execute(
                 revision_table.update().where(
                     and_(revision_table.c.id == obj.id,

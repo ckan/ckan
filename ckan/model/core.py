@@ -44,4 +44,5 @@ def make_revisioned_table(table):
     revision_table.append_column(Column('current', Boolean))
     # NB columns 'current' and 'expired_id' are deprecated and not used
     # TODO remove them at a later version
+    # (expired_timestamp is still used when showing old versions of a dataset)
     return revision_table
