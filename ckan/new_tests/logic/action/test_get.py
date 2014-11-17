@@ -576,7 +576,7 @@ class TestGet(object):
         resource_name = 'resource_abc'
         package = factories.Resource(name=resource_name)
 
-        search_result = helpers.call_action('package_search',  q='resource_abc')
+        search_result = helpers.call_action('package_search', q='resource_abc')
         eq(search_result['results'][0]['resources'][0]['name'], resource_name)
 
 
