@@ -1019,13 +1019,13 @@ def resource_show(context, data_dict):
 
     pkg_dict = logic.get_action('package_show')(
         dict(context),
-        {'id': resource.resource_group.package.id})
+        {'id': resource.package.id})
 
     for resource_dict in pkg_dict['resources']:
         if resource_dict['id'] == id:
             break
     else:
-        logging.error('Could not find resource ' + id)
+        log.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
     return resource_dict
@@ -1865,12 +1865,11 @@ def resource_search(context, data_dict):
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
 
-    q = (model.Session.query(model.Resource)
-         .join(model.ResourceGroup)
-         .join(model.Package))
-    q = q.filter(model.Package.state == 'active')
-    q = q.filter(model.Package.private == False)
-    q = q.filter(model.Resource.state == 'active')
+    q = model.Session.query(model.Resource) \
+         .join(model.Package) \
+         .filter(model.Package.state == 'active') \
+         .filter(model.Package.private == False) \
+         .filter(model.Resource.state == 'active') \
 
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():

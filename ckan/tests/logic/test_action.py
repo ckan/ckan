@@ -34,6 +34,7 @@ class TestAction(WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        model.repo.rebuild_db()
         search.clear()
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')

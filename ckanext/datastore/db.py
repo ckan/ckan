@@ -71,11 +71,13 @@ def _pluck(field, arr):
 def _is_valid_field_name(name):
     '''
     Check that field name is valid:
+    * can't start or end with whitespace characters
     * can't start with underscore
     * can't contain double quote (")
     * can't be empty
     '''
-    return name.strip() and not name.startswith('_') and not '"' in name
+    return (name and name == name.strip() and not name.startswith('_')
+            and not '"' in name)
 
 
 def _is_valid_table_name(name):
@@ -750,12 +752,14 @@ def _validate_record(record, num, field_names):
 
 def _to_full_text(fields, record):
     full_text = []
+    ft_types = ['int8', 'int4', 'int2', 'float4', 'float8', 'date', 'time',
+                'timetz', 'timestamp', 'numeric', 'text']
     for field in fields:
         value = record.get(field['id'])
         if field['type'].lower() == 'nested' and value:
             full_text.extend(json_get_values(value))
-        elif field['type'].lower() == 'text' and value:
-            full_text.append(value)
+        elif field['type'].lower() in ft_types and str(value):
+            full_text.append(str(value))
     return ' '.join(full_text)
 
 

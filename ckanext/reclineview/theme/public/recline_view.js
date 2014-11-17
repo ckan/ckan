@@ -63,7 +63,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
         });
       }
 
-      dataset.query(query);
+      dataset.queryState.set(query.toJSON(), {silent: true});
 
       errorMsg = this.options.i18n.errorLoadingPreview + ': ' + this.options.i18n.errorDataStore;
       dataset.fetch()

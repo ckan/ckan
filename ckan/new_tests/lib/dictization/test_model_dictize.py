@@ -139,13 +139,13 @@ class TestGroupDictize:
         search.clear()
 
     def test_group_dictize(self):
-        group = factories.Group()
+        group = factories.Group(name='test_dictize')
         group_obj = model.Session.query(model.Group).filter_by().first()
         context = {'model': model, 'session': model.Session}
 
         group = model_dictize.group_dictize(group_obj, context)
 
-        assert_equal(group['name'], 'test_group_0')
+        assert_equal(group['name'], 'test_dictize')
         assert_equal(group['packages'], [])
         assert_equal(group['extras'], [])
         assert_equal(group['tags'], [])
@@ -208,6 +208,36 @@ class TestGroupDictize:
         assert_equal(type(group['packages']), list)
         assert_equal(len(group['packages']), 1)
         assert_equal(group['packages'][0]['name'], package['name'])
+
+    def test_group_dictize_with_package_list_limited(self):
+        '''
+        Packages returned in group are limited by context var.
+        '''
+        group_ = factories.Group()
+        for _ in range(10):
+            factories.Dataset(groups=[{'name': group_['name']}])
+        group_obj = model.Session.query(model.Group).filter_by().first()
+        # limit packages to 4
+        context = {'model': model, 'session': model.Session, 'limits': {'packages': 4}}
+
+        group = model_dictize.group_dictize(group_obj, context)
+
+        assert_equal(len(group['packages']), 4)
+
+    def test_group_dictize_with_package_list_limited_over(self):
+        '''
+        Packages limit is set higher than number of packages in group.
+        '''
+        group_ = factories.Group()
+        for _ in range(3):
+            factories.Dataset(groups=[{'name': group_['name']}])
+        group_obj = model.Session.query(model.Group).filter_by().first()
+        # limit packages to 4
+        context = {'model': model, 'session': model.Session, 'limits': {'packages': 4}}
+
+        group = model_dictize.group_dictize(group_obj, context)
+
+        assert_equal(len(group['packages']), 3)
 
     def test_group_dictize_with_package_count(self):
         # group_list_dictize calls it like this by default
@@ -298,7 +328,8 @@ class TestPackageDictize:
                 (key, result_dict[key], expected_dict[key])
 
     def test_package_dictize_basic(self):
-        dataset = factories.Dataset(notes='Some *description*',
+        dataset = factories.Dataset(name='test_dataset_dictize',
+                                    notes='Some *description*',
                                     url='http://example.com')
         dataset_obj = model.Package.get(dataset['id'])
         context = {'model': model, 'session': model.Session}
@@ -322,7 +353,7 @@ class TestPackageDictize:
             'license_title': None,
             'maintainer': None,
             'maintainer_email': None,
-            'name': u'test_dataset_0',
+            'name': u'test_dataset_dictize',
             'notes': 'Some *description*',
             'num_resources': 0,
             'num_tags': 0,
@@ -365,7 +396,8 @@ class TestPackageDictize:
 
     def test_package_dictize_resource(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package_id=dataset['id'])
+        resource = factories.Resource(package_id=dataset['id'],
+                                      name='test_pkg_dictize')
         dataset_obj = model.Package.get(dataset['id'])
         context = {'model': model, 'session': model.Session}
 
@@ -382,7 +414,7 @@ class TestPackageDictize:
             u'last_modified': None,
             u'mimetype': None,
             u'mimetype_inner': None,
-            u'name': u'test_resource_0',
+            u'name': u'test_pkg_dictize',
             u'position': 0,
             u'resource_type': None,
             u'size': None,
@@ -423,7 +455,8 @@ class TestPackageDictize:
         self.assert_equals_expected(expected_dict, result['extras'][0])
 
     def test_package_dictize_group(self):
-        group = factories.Group()
+        group = factories.Group(name='test_group_dictize',
+                                title='Test Group Dictize')
         dataset = factories.Dataset(groups=[{'name': group['name']}])
         dataset_obj = model.Package.get(dataset['id'])
         context = {'model': model, 'session': model.Session}
@@ -436,18 +469,18 @@ class TestPackageDictize:
             u'approval_status': u'approved',
             u'capacity': u'public',
             u'description': u'A test description for this test group.',
-            'display_name': u'Test Group 0',
+            'display_name': u'Test Group Dictize',
             'image_display_url': u'',
             u'image_url': u'',
             u'is_organization': False,
-            u'name': u'test_group_0',
+            u'name': u'test_group_dictize',
             u'state': u'active',
-            u'title': u'Test Group 0',
+            u'title': u'Test Group Dictize',
             u'type': u'group'}
         self.assert_equals_expected(expected_dict, result['groups'][0])
 
     def test_package_dictize_owner_org(self):
-        org = factories.Organization()
+        org = factories.Organization(name='test_package_dictize')
         dataset = factories.Dataset(owner_org=org['id'])
         dataset_obj = model.Package.get(dataset['id'])
         context = {'model': model, 'session': model.Session}
@@ -462,7 +495,7 @@ class TestPackageDictize:
             u'description': u'Just another test organization.',
             u'image_url': u'http://placekitten.com/g/200/100',
             u'is_organization': True,
-            u'name': u'test_org_0',
+            u'name': u'test_package_dictize',
             u'state': u'active',
             u'title': u'Test Organization',
             u'type': u'organization'

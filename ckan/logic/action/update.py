@@ -61,7 +61,7 @@ def related_update(context, data_dict):
     context["related"] = related
 
     if not related:
-        logging.error('Could not find related ' + id)
+        log.error('Could not find related ' + id)
         raise NotFound(_('Item was not found.'))
 
     _check_access('related_update', context, data_dict)
@@ -126,20 +126,20 @@ def resource_update(context, data_dict):
     context["resource"] = resource
 
     if not resource:
-        logging.error('Could not find resource ' + id)
+        log.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
     del context["resource"]
 
-    package_id = resource.resource_group.package.id
+    package_id = resource.package.id
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
         if p['id'] == id:
             break
     else:
-        logging.error('Could not find resource ' + id)
+        log.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
@@ -294,6 +294,7 @@ def package_update(context, data_dict):
         raise NotFound(_('Package was not found.'))
     context["package"] = pkg
     data_dict["id"] = pkg.id
+    data_dict['type'] = pkg.type
 
     _check_access('package_update', context, data_dict)
 
@@ -493,6 +494,8 @@ def _group_or_org_update(context, data_dict, is_org=False):
     context["group"] = group
     if group is None:
         raise NotFound('Group was not found.')
+
+    data_dict['type'] = group.type
 
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)

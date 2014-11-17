@@ -108,7 +108,6 @@ def extras_list_dictize(extras_list, context):
 def resource_dictize(res, context):
     model = context['model']
     resource = d.table_dictize(res, context)
-    resource_group_id = resource['resource_group_id']
     extras = resource.pop("extras", None)
     if extras:
         resource.update(extras)
@@ -117,13 +116,11 @@ def resource_dictize(res, context):
     ## for_edit is only called at the times when the dataset is to be edited
     ## in the frontend. Without for_edit the whole qualified url is returned.
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
-        resource_group = model.Session.query(
-            model.ResourceGroup).get(resource_group_id)
         last_part = url.split('/')[-1]
         cleaned_name = munge.munge_filename(last_part)
         resource['url'] = h.url_for(controller='package',
                                     action='resource_download',
-                                    id=resource_group.package_id,
+                                    id=resource['package_id'],
                                     resource_id=res.id,
                                     filename=cleaned_name,
                                     qualified=True)
@@ -209,16 +206,13 @@ def package_dictize(pkg, context):
     #strip whitespace from title
     if result_dict.get('title'):
         result_dict['title'] = result_dict['title'].strip()
+
     #resources
     if is_latest_revision:
         res = model.resource_table
-        res_group = model.resource_group_table
     else:
         res = model.resource_revision_table
-        res_group = model.resource_group_table
-    q = select([res], from_obj=res.join(res_group,
-               res_group.c.id == res.c.resource_group_id))
-    q = q.where(res_group.c.package_id == pkg.id)
+    q = select([res]).where(res.c.package_id == pkg.id)
     result = execute(q, res, context)
     result_dict["resources"] = resource_list_dictize(result, context)
     result_dict['num_resources'] = len(result_dict.get('resources', []))
@@ -412,7 +406,13 @@ def group_dictize(group, context,
                     context['ignore_capacity_check'] = True
 
             if not just_the_count:
-                q['rows'] = 1000    # Only the first 1000 datasets are returned
+                # Is there a packages limit in the context?
+                try:
+                    packages_limit = context['limits']['packages']
+                except KeyError:
+                    q['rows'] = 1000  # Only the first 1000 datasets are returned
+                else:
+                    q['rows'] = packages_limit
 
             search_context = dict((k, v) for (k, v) in context.items()
                                   if k != 'schema')
@@ -772,7 +772,7 @@ def resource_view_dictize(resource_view, context):
     config = dictized.pop('config', {})
     dictized.update(config)
     resource = context['model'].Resource.get(resource_view.resource_id)
-    package_id = resource.resource_group.package_id
+    package_id = resource.package_id
     dictized['package_id'] = package_id
     return dictized
 

@@ -35,47 +35,50 @@ class TestBasicDictize:
         CreateTestData.create()
 
         cls.package_expected = {
-            'author': None,
-            'author_email': None,
+            u'author': None,
+            u'author_email': None,
+            u'creator_user_id': None,
             'extras': [
-               {'key': u'genre',
-                'state': u'active',
-                'value': 'romantic novel'},
-               {'key': u'original media', 'state': u'active', 'value': u'book'}],
-            'groups': [{'description': u'These are books that David likes.',
-                        'name': u'david',
-                        'capacity': 'public',
-                        'image_url': u'',
-                        'image_display_url': u'',
-                        'display_name': u"Dave's books",
-                        'type': u'group',
-                        'state': u'active',
-                        'is_organization': False,
-                        'title': u"Dave's books",
-                        "approval_status": u"approved"},
-                       {'description': u'Roger likes these books.',
-                        'name': u'roger',
-                        'capacity': 'public',
-                        'image_url': u'',
+               {u'key': u'genre',
+                u'state': u'active',
+                u'value': 'romantic novel'},
+               {u'key': u'original media', u'state': u'active', u'value': u'book'}],
+            'groups': [{
+                        u'name': u'david',
+                        u'capacity': u'public',
+                        u'image_url': u'',
+                        u'image_display_url': u'',
+                        u'description': u'These are books that David likes.',
+                        u'display_name': u"Dave's books",
+                        u'type': u'group',
+                        u'state': u'active',
+                        u'is_organization': False,
+                        u'title': u"Dave's books",
+                        u"approval_status": u"approved"},
+                       {
+                        u'name': u'roger',
+                        u'capacity': u'public',
+                        u'description': u'Roger likes these books.',
+                        u'image_url': u'',
                         'image_display_url': u'',
                         'display_name': u"Roger's books",
-                        'type': u'group',
-                        'state': u'active',
-                        'is_organization': False,
-                        'title': u"Roger's books",
-                        "approval_status": u"approved"}],
+                        u'type': u'group',
+                        u'state': u'active',
+                        u'is_organization': False,
+                        u'title': u"Roger's books",
+                        u"approval_status": u"approved"}],
             'isopen': True,
-            'license_id': u'other-open',
+            u'license_id': u'other-open',
             'license_title': u'Other (Open)',
-            'creator_user_id': None,
-            'owner_org': None,
-            'private': False,
             'organization': None,
-            'maintainer': None,
-            'maintainer_email': None,
-            'type': u'dataset',
-            'name': u'annakarenina',
-            'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+            u'owner_org': None,
+            u'maintainer': None,
+            u'maintainer_email': None,
+            u'name': u'annakarenina',
+            u'notes': u'Some test notes\n\n### A 3rd level heading\n\n**Some bolded text.**\n\n*Some italicized text.*\n\nForeign characters:\nu with umlaut \xfc\n66-style quote \u201c\nforeign word: th\xfcmb\n\nNeeds escaping:\nleft arrow <\n\n<http://ckan.net/>\n\n',
+            'num_resources': 2,
+            'num_tags': 3,
+            u'private': False,
             'relationships_as_object': [],
             'relationships_as_subject': [],
             'resources': [{u'alt_url': u'alt123',
@@ -92,7 +95,7 @@ class TestBasicDictize:
                             u'resource_type': None,
                             u'size': None,
                             u'size_extra': u'123',
-                             'url_type': None,
+                            u'url_type': None,
                             u'state': u'active',
                             u'url': u'http://www.annakarenina.com/download/x=1&y=2',
                             u'webstore_last_updated': None,
@@ -109,26 +112,27 @@ class TestBasicDictize:
                             u'name': None,
                             u'position': 1,
                             u'resource_type': None,
-                             'url_type': None,
+                            u'url_type': None,
                             u'size': None,
                             u'size_extra': u'345',
                             u'state': u'active',
                             u'url': u'http://www.annakarenina.com/index.json',
                             u'webstore_last_updated': None,
                             u'webstore_url': None}],
-            'state': u'active',
-            'tags': [{'name': u'Flexible \u30a1',
+            u'state': u'active',
+            'tags': [{u'name': u'Flexible \u30a1',
                         'display_name': u'Flexible \u30a1',
-                        'state': u'active'},
-                     {'name': u'russian', 'display_name': u'russian',
-                         'state': u'active'},
-                     {'name': u'tolstoy', 'display_name': u'tolstoy',
-                         'state': u'active'}],
-            'title': u'A Novel By Tolstoy',
-            'url': u'http://www.annakarenina.com',
-            'version': u'0.7a',
-            'num_tags': 3,
-            'num_resources': 2,
+                        u'state': u'active'},
+                     {'display_name': u'russian',
+                         u'name': u'russian',
+                         u'state': u'active'},
+                     {'display_name': u'tolstoy',
+                         u'name': u'tolstoy',
+                         u'state': u'active'}],
+            u'title': u'A Novel By Tolstoy',
+            u'type': u'dataset',
+            u'url': u'http://www.annakarenina.com',
+            u'version': u'0.7a',
             }
 
 
@@ -137,9 +141,13 @@ class TestBasicDictize:
         model.repo.rebuild_db()
         model.Session.remove()
 
-    def remove_changable_columns(self, dict):
+    def remove_changable_columns(self, dict, remove_package_id=False):
+        ids_to_keep = ['license_id', 'creator_user_id']
+        if not remove_package_id:
+            ids_to_keep.append('package_id')
+
         for key, value in dict.items():
-            if key.endswith('id') and key not in ('license_id', 'creator_user_id'):
+            if key.endswith('id') and key not in ids_to_keep:
                 dict.pop(key)
             if key == 'created':
                 dict.pop(key)
@@ -149,7 +157,8 @@ class TestBasicDictize:
                 dict.pop(key)
             if isinstance(value, list):
                 for new_dict in value:
-                    self.remove_changable_columns(new_dict)
+                    self.remove_changable_columns(new_dict,
+                        key in ['resources', 'extras'] or remove_package_id)
         return dict
 
     def remove_revision_id(self, dict):
@@ -279,8 +288,6 @@ class TestBasicDictize:
 
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina').one()
 
-
-
         anna_dictized = self.remove_changable_columns(package_dictize(anna1, context))
 
         anna_dictized["name"] = u'annakarenina3'
@@ -289,6 +296,9 @@ class TestBasicDictize:
         package_dict_save(anna_dictized, context)
         model.Session.commit()
 
+        # Re-clean anna_dictized
+        anna_dictized =  self.remove_changable_columns(anna_dictized)
+
         pkg = model.Session.query(model.Package).filter_by(name='annakarenina3').one()
 
         package_dictized = self.remove_changable_columns(package_dictize(pkg, context))
@@ -296,7 +306,8 @@ class TestBasicDictize:
         anna_original = pformat(anna_dictized)
         anna_after_save = pformat(package_dictized)
 
-        assert self.remove_changable_columns(package_dictize(pkg, context)) == anna_dictized, "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
+        assert package_dictized == anna_dictized,\
+            "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 
     def test_09_package_alter(self):
 
@@ -322,21 +333,22 @@ class TestBasicDictize:
 
         package_dictized = package_dictize(pkg, context)
 
-        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(resource_group_id=anna1.resource_groups_all[0].id).all()
+        resources_revisions = model.Session.query(model.ResourceRevision).filter_by(package_id=anna1.id).all()
 
         sorted_resource_revisions = sorted(resources_revisions, key=lambda x: (x.revision_timestamp, x.url))[::-1]
         for res in sorted_resource_revisions:
             print res.id, res.revision_timestamp, res.state
         assert len(sorted_resource_revisions) == 3
 
+        # Make sure we remove changeable fields BEFORE we store the pretty-printed version
+        # for comparison
+        clean_package_dictized = self.remove_changable_columns(package_dictized)
+
         anna_original = pformat(anna_dictized)
-        anna_after_save = pformat(package_dictized)
+        anna_after_save = pformat(clean_package_dictized)
 
-        print anna_original
-        print anna_after_save
-
-        assert self.remove_changable_columns(anna_dictized) == self.remove_changable_columns(package_dictized)
-        assert "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
+        assert self.remove_changable_columns(anna_dictized) == clean_package_dictized, \
+            "\n".join(unified_diff(anna_original.split("\n"), anna_after_save.split("\n")))
 
         # changes to the package, relied upon by later tests
         anna1 = model.Session.query(model.Package).filter_by(name='annakarenina_changed').one()
@@ -470,16 +482,21 @@ class TestBasicDictize:
             'size': None,
             'size_extra': u'123',
             'resource_type': None,
-            'name': None}
+            'name': None,
+            'package_id':''  # Just so we can save
+        }
 
         model.repo.new_revision()
         resource_dict_save(new_resource, context)
         model.Session.commit()
         model.Session.remove()
 
+        # Remove the package id
+        del new_resource['package_id']
+
         res = model.Session.query(model.Resource).filter_by(url=u'http://test_new').one()
 
-        res_dictized = self.remove_changable_columns(resource_dictize(res, context))
+        res_dictized = self.remove_changable_columns(resource_dictize(res, context), True)
 
         assert res_dictized == new_resource, res_dictized
 
@@ -549,6 +566,7 @@ class TestBasicDictize:
         pkg = model.Session.query(model.Package).filter_by(name=u'testpkg').one()
 
         package_dictized = self.remove_changable_columns(package_dictize(pkg, context))
+
 
 
     def test_17_group_apis_to_dict(self):

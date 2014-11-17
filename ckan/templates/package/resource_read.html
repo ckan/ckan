@@ -73,19 +73,19 @@
       </div>
       {% block data_preview %}
       {% block resource_view %}
+        {% block resource_view_nav %}
+          {% set resource_preview = h.resource_preview(c.resource, c.package) %}
+          {% snippet "package/snippets/resource_views_list.html",
+             views=resource_views,
+             pkg=pkg,
+             is_edit=false,
+             view_id=current_resource_view['id'],
+             resource_preview=resource_preview,
+             resource=c.resource,
+             extra_class="nav-tabs-plain"
+           %}
+        {% endblock %}
         <div class="module-content">
-          {% block resource_view_nav %}
-            {% set resource_preview = h.resource_preview(c.resource, c.package) %}
-            {% snippet "package/snippets/resource_views_list.html",
-               views=resource_views,
-               pkg=pkg,
-               is_edit=false,
-               extra_class='stacked',
-               view_id=current_resource_view['id'],
-               resource_preview=resource_preview,
-               resource=c.resource
-             %}
-          {% endblock %}
           {% block resource_view_content %}
             <div class="resource-view">
               {% set resource_preview = h.resource_preview(c.resource, c.package) %}

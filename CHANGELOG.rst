@@ -29,6 +29,12 @@ API changes and deprecations
   Note that logic.get_action() and toolkit.get_action() are *not* deprecated,
   core code and plugin code should still use ``get_action()``.
 
+* Cross-Origin Resource Sharing (CORS) support is no longer enabled by
+  default. Previously, Access-Control-Allow-* response headers were added for
+  all requests, with Access-Control-Allow-Origin set to the wildcard value
+  ``*``. To re-enable CORS, use the new ``ckan.cors`` settings detailed in the
+  Config File Options documentation (:doc:`/maintaining/configuration`)
+
 Template changes
 ----------------
 
