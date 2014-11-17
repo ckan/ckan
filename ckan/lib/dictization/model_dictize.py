@@ -179,9 +179,8 @@ def package_dictize(pkg, context):
     '''
     Given a Package object, returns an equivalent dictionary.
 
-    Normally this is the current revision (most recent moderated version), but
-    you can provide revision_id or revision_date in the context and it will
-    filter to an earlier time.
+    Normally this is the most recent version, but you can provide revision_id
+    or revision_date in the context and it will filter to an earlier time.
 
     May raise NotFound if:
     * the specified revision_id doesn't exist
