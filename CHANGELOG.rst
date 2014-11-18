@@ -35,6 +35,8 @@ API changes and deprecations
   ``*``. To re-enable CORS, use the new ``ckan.cors`` settings detailed in the
   Config File Options documentation (:doc:`/maintaining/configuration`)
 
+* OpenID support has been removed and is no longer supported.
+
 Template changes
 ----------------
 
