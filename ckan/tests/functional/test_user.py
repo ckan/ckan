@@ -127,26 +127,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         offset = url_for(controller='user', action='edit', id=username)
         res = self.app.get(offset, status=302)
 
-    def _login_openid(self, res):
-        # this requires a valid account on some openid provider
-        # (or for us to stub an open_id provider ...)
-        assert 'Please Sign In' in res
-        username = u'http://okfntest.myopenid.com'
-        fv = res.forms['user-login']
-        fv['passurl'] =  username
-        web.submit()
-        web.code(200)
-        assert 'You must sign in to authenticate to' in res
-        assert username in res
-        fv['password'] =  u'okfntest'
-        res = fv.submit()
-        assert 'Please carefully verify whether you wish to trust' in res
-        fv = res.forms[0]
-        res = fv.submit('allow_once')
-        # at this point we should return
-        # but for some reason this does not work ...
-        return res
-
     def test_perform_reset_user_password_link_key_incorrect(self):
         CreateTestData.create_user(name='jack', password='test1')
         # Make up a key - i.e. trying to hack this
