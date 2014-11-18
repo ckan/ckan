@@ -33,7 +33,6 @@ pyutilib.component.core==4.5.3
 repoze.lru==0.6
 repoze.who==2.0
 repoze.who-friendlyform==1.0.8
-repoze.who.plugins.openid==0.5.3
 requests==2.3.0
 simplejson==3.3.1
 six==1.7.3

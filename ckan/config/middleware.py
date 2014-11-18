@@ -117,21 +117,6 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     who_parser = WhoConfig(conf['here'])
     who_parser.parse(open(app_conf['who.config_file']))
 
-    if asbool(config.get('openid_enabled', 'true')):
-        from repoze.who.plugins.openid.identification import OpenIdIdentificationPlugin
-        # Monkey patches for repoze.who.openid
-        # Fixes #1659 - enable log-out when CKAN mounted at non-root URL
-        from ckan.lib import repoze_patch
-        OpenIdIdentificationPlugin.identify = repoze_patch.identify
-        OpenIdIdentificationPlugin.redirect_to_logged_in = repoze_patch.redirect_to_logged_in
-        OpenIdIdentificationPlugin._redirect_to_loginform = repoze_patch._redirect_to_loginform
-        OpenIdIdentificationPlugin.challenge = repoze_patch.challenge
-
-        who_parser.identifiers = [i for i in who_parser.identifiers if \
-                not isinstance(i, OpenIdIdentificationPlugin)]
-        who_parser.challengers = [i for i in who_parser.challengers if \
-                not isinstance(i, OpenIdIdentificationPlugin)]
-
     app = PluggableAuthenticationMiddleware(app,
                 who_parser.identifiers,
                 who_parser.authenticators,
