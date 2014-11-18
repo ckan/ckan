@@ -28,7 +28,6 @@ passlib==1.6.2
 pbr==0.8.2
 psycopg2==2.4.5
 python-dateutil==1.5
-python-openid==2.2.5
 pyutilib.component.core==4.5.3
 repoze.lru==0.6
 repoze.who==2.0
