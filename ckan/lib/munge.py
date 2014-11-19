@@ -10,7 +10,7 @@ from ckan import model
 
 def munge_name(name):
     '''Munges the package name field in case it is not to spec.'''
-    # remove foreign accents
+    # substitute non-ascii characters
     if isinstance(name, unicode):
         name = substitute_ascii_equivalents(name)
     # separators become dashes
@@ -25,7 +25,7 @@ def munge_name(name):
 
 def munge_title_to_name(name):
     '''Munge a package title into a package name.'''
-    # remove foreign accents
+    # substitute non-ascii characters
     if isinstance(name, unicode):
         name = substitute_ascii_equivalents(name)
     # convert spaces and separators
