@@ -107,7 +107,7 @@ def package_show(context, data_dict):
         authorized = auth.get('success')
     elif package.owner_org is None and package.state == 'active':
         return {'success': True}
-    elif user_obj.id == package.creator_user_id:
+    elif user_obj and (getattr(user_obj, 'id', None) == package.creator_user_id):
         # allow creator to see packages previously created
         return {'success': True}
     else:
