@@ -775,7 +775,6 @@ def _to_full_text(fields, record):
 
         if field['type'].lower() in ft_types and str(value):
             full_text.append(str(value))
-            full_text.append(value)
         else:
             full_text.extend(json_get_values(value))
     return ' '.join(set(full_text))
