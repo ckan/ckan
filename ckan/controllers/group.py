@@ -474,7 +474,7 @@ class GroupController(base.BaseController):
                    'for_edit': True,
                    'parent': request.params.get('parent', None)
                    }
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_datasets': False}
 
         if context['save'] and not data:
             return self._save_edit(id, context)
