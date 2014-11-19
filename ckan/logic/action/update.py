@@ -3,6 +3,7 @@
 import logging
 import datetime
 import json
+import jsonpatch
 
 from pylons import config
 from vdm.sqlalchemy.base import SQLAlchemySession
@@ -454,6 +455,29 @@ def package_update(context, data_dict):
             else _get_action('package_show')(context, {'id': data_dict['id']})
 
     return output
+
+def package_patch(context, data_dict):
+    '''Patch a dataset (package).
+
+    Unlike package_update, patch allows for partial updates to the package -
+    without the need to provide the entire object. Instead, operations are
+    defined on the object based on RFC 6902 (http://tools.ietf.org/html/rfc6902)
+
+    Define operations in a patch_list parameter in your request.
+
+    Example: 'patch_list': [{'op':'replace', 'path':'/notes', 'value':'Notes' }]
+
+    '''
+
+    _check_access('package_patch', context, data_dict)
+
+    name_or_id = data_dict.get("name") or _get_or_bust(data_dict, "id")
+    package_dict = _get_action('package_show')(context, {'id': name_or_id})
+    patch = jsonpatch.JsonPatch(data_dict.get("patch_list"))
+    patched = patch.apply(package_dict)
+
+    return package_update(context, patched)
+
 
 def package_resource_reorder(context, data_dict):
     '''Reorder resources against datasets.  If only partial resource ids are
