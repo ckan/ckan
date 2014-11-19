@@ -429,7 +429,6 @@ class TestPep8(object):
         'ckan/lib/jsonp.py',
         'ckan/lib/mailer.py',
         'ckan/lib/maintain.py',
-        'ckan/lib/munge.py',
         'ckan/lib/navl/dictization_functions.py',
         'ckan/lib/navl/validators.py',
         'ckan/lib/package_saver.py',
