@@ -34,10 +34,8 @@ class RelatedController(base.BaseController):
 
         params_nopage = [(k, v) for k, v in base.request.params.items()
                          if k != 'page']
-        try:
-            page = int(base.request.params.get('page', 1))
-        except ValueError:
-            base.abort(400, ('"page" parameter must be an integer'))
+
+        page = self._get_page_number(request.params)
 
         # Update ordering in the context
         related_list = logic.get_action('related_list')(context, data_dict)

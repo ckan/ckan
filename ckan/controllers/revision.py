@@ -122,7 +122,7 @@ class RevisionController(base.BaseController):
             query = model.Session.query(model.Revision)
             c.page = h.Page(
                 collection=query,
-                page=request.params.get('page', 1),
+                page=self._get_page_number(request.params),
                 url=h.pager_url,
                 items_per_page=20
             )

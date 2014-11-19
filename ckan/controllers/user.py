@@ -85,7 +85,7 @@ class UserController(base.BaseController):
     def index(self):
         LIMIT = 20
 
-        page = int(request.params.get('page', 1))
+        page = self._get_page_number(request.params)
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
