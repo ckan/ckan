@@ -1,24 +1,18 @@
+from nose import tools as nose_tools
+
 from ckan.new_tests import helpers
-from ckan.lib.auth_tkt import CkanAuthTktCookiePlugin, make_plugin
+from ckan.lib.auth_tkt import make_plugin
 
 
-class TestCkanAuthTktCookiePlugin(object):
+class TestCkanAuthTktCookiePlugin(helpers.FunctionalTestBase):
 
     '''
     Test the added methods used by this subclass of
     repoze.who.plugins.auth_tkt.AuthTktCookiePlugin
-    '''
 
-    def _make_plugin(self, httponly):
-        '''Only httponly needs to be set.'''
-        return CkanAuthTktCookiePlugin(httponly=httponly,
-                                       secret=None,
-                                       cookie_name='auth_tkt',
-                                       secure=False,
-                                       include_ip=False,
-                                       timeout=None,
-                                       reissue_time=None,
-                                       userid_checker=None)
+    Subclassing FunctionalTestBase ensures the original config is restored
+    after each test.
+    '''
 
     @helpers.change_config('who.httponly', True)
     def test_httponly_expected_cookies_with_config_httponly_true(self):
@@ -109,3 +103,36 @@ class TestCkanAuthTktCookiePlugin(object):
             ('Set-Cookie', 'auth_tkt="HELLO"; Path=/; Domain=.0.0.0.0; HttpOnly')
         ]
         assert cookies == expected_cookies
+
+    def test_timeout_not_set_in_config(self):
+        '''
+        Creating a CkanAuthTktCookiePlugin instance without setting timeout in
+        config sets correct values in CkanAuthTktCookiePlugin instance.
+        '''
+        plugin = make_plugin(secret='sosecret')
+
+        nose_tools.assert_equal(plugin.timeout, None)
+        nose_tools.assert_equal(plugin.reissue_time, None)
+
+    @helpers.change_config('who.timeout', 9000)
+    def test_timeout_set_in_config(self):
+        '''
+        Setting who.timeout in config sets correct values in
+        CkanAuthTktCookiePlugin instance.
+        '''
+        plugin = make_plugin(secret='sosecret')
+
+        nose_tools.assert_equal(plugin.timeout, 9000)
+        nose_tools.assert_equal(plugin.reissue_time, 900)
+
+    @helpers.change_config('who.timeout', 9000)
+    @helpers.change_config('who.reissue_time', 200)
+    def test_reissue_set_in_config(self):
+        '''
+        Setting who.reissue in config sets correct values in
+        CkanAuthTktCookiePlugin instance.
+        '''
+        plugin = make_plugin(secret='sosecret')
+
+        nose_tools.assert_equal(plugin.timeout, 9000)
+        nose_tools.assert_equal(plugin.reissue_time, 200)
