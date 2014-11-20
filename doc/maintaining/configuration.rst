@@ -75,6 +75,20 @@ authorization cookie. The default in the absence of the setting is ``True``.
 For enhanced security it is recommended to use the HttpOnly flag and not set
 this to ``False``, unless you have a good reason for doing so.
 
+.. _who.secure:
+
+who.secure
+^^^^^^^^^^
+
+Example::
+ who.secure = True
+
+Default value: False
+
+This determines whether the secure flag will be set for the repoze.who
+authorization cookie. If ``True``, the cookie will be sent over HTTPS. The
+default in the absence of the setting is ``False``.
+
 
 Database Settings
 -----------------
