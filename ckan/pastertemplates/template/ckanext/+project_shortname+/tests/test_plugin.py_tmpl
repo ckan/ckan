@@ -1,0 +1,5 @@
+"""Tests for plugin.py."""
+import ckanext.{{ project_shortname }}.plugin as plugin
+
+def test_plugin():
+    pass
