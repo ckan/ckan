@@ -18,7 +18,6 @@ from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
-from repoze.who.plugins.auth_tkt import make_plugin as auth_tkt_make_plugin
 from fanstatic import Fanstatic
 
 from ckan.plugins import PluginImplementations
@@ -191,11 +190,6 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         app = TrackingMiddleware(app, config)
 
     return app
-
-def ckan_auth_tkt_make_app(**kw):
-    if not len(kw.get('secret', '')) or kw.get('secret') == 'somesecret':
-        kw['secret'] = config['beaker.session.secret']
-    return auth_tkt_make_plugin(**kw)
 
 
 class I18nMiddleware(object):
