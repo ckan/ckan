@@ -1039,7 +1039,7 @@ class TestAction(WsgiAppCase):
         ## need to do inserts as setting up an embedded celery is too much for these tests
         model.Session.connection().execute(
             '''INSERT INTO task_status (id, entity_id, entity_type, task_type, key, value, state, error, last_updated) VALUES ('5753adae-cd0d-4327-915d-edd832d1c9a3', '749cdcf2-3fc8-44ae-aed0-5eff8cc5032c', 'resource', 'qa', 'celery_task_id', '51f2105d-85b1-4393-b821-ac11475919d9', NULL, '', '2012-04-20 21:32:45.553986');
-               INSERT INTO celery_taskmeta (id, task_id, status, result, date_done, traceback) VALUES (2, '51f2105d-85b1-4393-b821-ac11475919d9', 'FAILURE', '52e', '2012-04-20 21:33:01.622557', 'Traceback')'''
+            '''
         )
         model.Session.commit()
         res = json.loads(self.app.post('/api/action/resource_status_show',
