@@ -1,7 +1,6 @@
 import logging
 from urllib import urlencode
 import datetime
-import os
 import mimetypes
 import cgi
 
@@ -837,7 +836,6 @@ class PackageController(base.BaseController):
                                   'dataset_type': package_type})
 
     def read_ajax(self, id, revision=None):
-        package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'revision_id': revision}
@@ -1049,16 +1047,6 @@ class PackageController(base.BaseController):
             else:
                 url = h.url_for('{0}_read'.format(package_type), id=pkgname)
         redirect(url)
-
-    def _adjust_license_id_options(self, pkg, fs):
-        options = fs.license_id.render_opts['options']
-        is_included = False
-        for option in options:
-            license_id = option[1]
-            if license_id == pkg.license_id:
-                is_included = True
-        if not is_included:
-            options.insert(1, (pkg.license_id, pkg.license_id))
 
     def delete(self, id):
 
