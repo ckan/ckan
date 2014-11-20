@@ -1233,10 +1233,6 @@ def organization_show(context, data_dict):
 def group_package_show(context, data_dict):
     '''Return the datasets (packages) of a group.
 
-    .. note:: This function is deprecated and will be removed on the next
-        CKAN version. Use `package_search` with the `fq=groups:group_id`
-        filter to get the same results.
-
     :param id: the id or name of the group
     :type id: string
     :param limit: the maximum number of datasets to return (optional)
@@ -1245,9 +1241,6 @@ def group_package_show(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-
-    log.warning('"group_package_show" is deprecated and will be removed in the'
-                ' next CKAN version.')
 
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
