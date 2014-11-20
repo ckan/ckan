@@ -1,5 +1,4 @@
 """Pylons middleware initialization"""
-import math
 import urllib
 import urllib2
 import logging
@@ -19,7 +18,6 @@ from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
-from repoze.who.plugins.auth_tkt import make_plugin as auth_tkt_make_plugin
 from fanstatic import Fanstatic
 
 from ckan.plugins import PluginImplementations
@@ -193,25 +191,6 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         app = TrackingMiddleware(app, config)
 
     return app
-
-
-def ckan_auth_tkt_make_app(**kw):
-    '''
-    Ensure keyword args are correctly set before returning
-    auth_tkt_make_plugin from repoze.who.
-
-    kw args are set in who.ini.
-    '''
-    if not len(kw.get('secret', '')) or kw.get('secret') == 'somesecret':
-        kw['secret'] = config['beaker.session.secret']
-    if not kw.get('timeout') and config.get('who.timeout'):
-        kw['timeout'] = config.get('who.timeout')
-    if not kw.get('reissue_time') and config.get('who.reissue_time'):
-        kw['reissue_time'] = config.get('who.reissue_time')
-
-    if kw.get('timeout') and not kw.get('reissue_time'):
-        kw['reissue_time'] = int(math.ceil(int(kw.get('timeout')) * 0.1))
-    return auth_tkt_make_plugin(**kw)
 
 
 class I18nMiddleware(object):
