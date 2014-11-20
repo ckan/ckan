@@ -68,14 +68,12 @@ Repoze.who Settings
 who.httponly
 ^^^^^^^^^^^^
 
-Example::
-
- who.httponly = False
-
 Default value: True
 
 This determines whether the HttpOnly flag will be set on the repoze.who
 authorization cookie. The default in the absence of the setting is ``True``.
+For enhanced security it is recommended to use the HttpOnly flag and not set
+this to ``False``, unless you have a good reason for doing so.
 
 .. _who.secure:
 
