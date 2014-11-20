@@ -14,7 +14,6 @@ import paste.fileapp
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.lib.maintain as maintain
-import ckan.lib.package_saver as package_saver
 import ckan.lib.i18n as i18n
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.accept as accept
@@ -420,8 +419,6 @@ class PackageController(base.BaseController):
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
-
-        package_saver.PackageSaver().render_package(c.pkg_dict, context)
 
         template = self._read_template(package_type)
         template = template[:template.index('.') + 1] + format
