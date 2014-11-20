@@ -105,6 +105,8 @@ from tracking import (
 )
 from rating import (
     Rating,
+    MIN_RATING,
+    MAX_RATING,
 )
 from related import (
     Related,

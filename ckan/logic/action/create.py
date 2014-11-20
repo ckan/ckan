@@ -10,7 +10,6 @@ from sqlalchemy import func
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
-import ckan.rating as ratings
 import ckan.plugins as plugins
 import ckan.lib.dictization
 import ckan.logic.action
@@ -847,16 +846,17 @@ def rating_create(context, data_dict):
             opts_err = _('Rating must be an integer value.')
         else:
             package = model.Package.get(package_ref)
-            if rating < ratings.MIN_RATING or rating > ratings.MAX_RATING:
+            if rating < model.MIN_RATING or rating > model.MAX_RATING:
                 opts_err = _('Rating must be between %i and %i.') \
-                    % (ratings.MIN_RATING, ratings.MAX_RATING)
+                    % (model.MIN_RATING, model.MAX_RATING)
             elif not package:
                 opts_err = _('Not found') + ': %r' % package_ref
     if opts_err:
         raise ValidationError(opts_err)
 
     user = model.User.by_name(user)
-    ratings.set_rating(user, package, rating_int)
+    package.set_rating(user, rating_int)
+    model.repo.commit()
 
     package = model.Package.get(package_ref)
     ret_dict = {'rating average': package.get_average_rating(),
