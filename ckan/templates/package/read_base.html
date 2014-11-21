@@ -11,7 +11,7 @@
   {{ super() }}
   {% set description = h.markdown_extract(pkg.notes, extract_length=200)|forceescape %}
   <meta property="og:title" content="{{ h.dataset_display_name(pkg) }} - {{ g.site_title }}">
-  <meta property="og:description" content="{{ description|forceescape }}">
+  <meta property="og:description" content="{{ description|forceescape|trim }}">
 {% endblock -%}
 
 {% block content_action %}

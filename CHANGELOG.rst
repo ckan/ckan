@@ -32,8 +32,13 @@ API changes and deprecations
 * Cross-Origin Resource Sharing (CORS) support is no longer enabled by
   default. Previously, Access-Control-Allow-* response headers were added for
   all requests, with Access-Control-Allow-Origin set to the wildcard value
-  ``*``. To re-enable CORS, use the new ``ckan.cors`` settings detailed in the
-  Config File Options documentation (:doc:`/maintaining/configuration`)
+  ``*``. To re-enable CORS, use the new ``ckan.cors`` configuration settings
+  (:ref:`ckan.cors.origin_allow_all` and :ref:`ckan.cors.origin_whitelist`).
+
+* The HttpOnly flag will be set on the authorization cookie by default. For
+  enhanced security, we recommend using the HttpOnly flag, but this behaviour
+  can be changed in the ``Repoze.who`` settings detailed in the Config File
+  Options documentation (:ref:`who.httponly`).
 
 Template changes
 ----------------

@@ -111,7 +111,7 @@ class HomeController(base.BaseController):
             if msg:
                 h.flash_notice(msg, allow_html=True)
 
-        # START OF DIRTYNESS
+        # START OF DIRTINESS
         def get_group(id):
             def _get_group_type(id):
                 """
@@ -178,7 +178,7 @@ class HomeController(base.BaseController):
 
         c.group_package_stuff = dirty_cached_group_stuff
 
-        # END OF DIRTYNESS
+        # END OF DIRTINESS
         return base.render('home/index.html', cache_force=True)
 
     def license(self):
