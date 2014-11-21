@@ -311,10 +311,10 @@ class PackageController(base.BaseController):
                       extra_vars={'dataset_type': package_type})
 
     def _content_type_from_extension(self, ext):
-        ct, mu, ext = accept.parse_extension(ext)
+        ct, ext = accept.parse_extension(ext)
         if not ct:
-            return None, None, None,
-        return ct, ext, (NewTextTemplate, MarkupTemplate)[mu]
+            return None, None
+        return ct, ext
 
     def _content_type_from_accept(self):
         """
@@ -323,8 +323,8 @@ class PackageController(base.BaseController):
         it accurately.  TextTemplate must be used for non-xml templates
         whilst all that are some sort of XML should use MarkupTemplate.
         """
-        ct, mu, ext = accept.parse_header(request.headers.get('Accept', ''))
-        return ct, ext, (NewTextTemplate, MarkupTemplate)[mu]
+        ct, ext = accept.parse_header(request.headers.get('Accept', ''))
+        return ct, ext
 
     def resources(self, id):
         package_type = self._get_package_type(id.split('@')[0])
@@ -356,16 +356,15 @@ class PackageController(base.BaseController):
 
     def read(self, id, format='html'):
         if not format == 'html':
-            ctype, extension, loader = \
+            ctype, extension = \
                 self._content_type_from_extension(format)
             if not ctype:
                 # An unknown format, we'll carry on in case it is a
                 # revision specifier and re-constitute the original id
                 id = "%s.%s" % (id, format)
-                ctype, format, loader = "text/html; charset=utf-8", "html", \
-                    MarkupTemplate
+                ctype, format = "text/html; charset=utf-8", "html"
         else:
-            ctype, format, loader = self._content_type_from_accept()
+            ctype, format = self._content_type_from_accept()
 
         response.headers['Content-Type'] = ctype
 
@@ -423,7 +422,7 @@ class PackageController(base.BaseController):
         template = template[:template.index('.') + 1] + format
 
         try:
-            return render(template, loader_class=loader,
+            return render(template,
                           extra_vars={'dataset_type': package_type})
         except ckan.lib.render.TemplateNotFound:
             msg = _("Viewing {package_type} datasets in {format} format is "
