@@ -178,3 +178,35 @@ class TestPackageResourceRead(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         app.get(url, status=404)
+
+
+class TestPackageRead(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(cls, cls).setup_class()
+        helpers.reset_db()
+
+    def setup(self):
+        model.repo.rebuild_db()
+
+    def test_read_rdf(self):
+        dataset1 = factories.Dataset()
+
+        offset = url_for(controller='package', action='read',
+                         id=dataset1['name']) + ".rdf"
+        app = self._get_test_app()
+        res = app.get(offset, status=200)
+
+        assert 'dcat' in res, res
+        assert '{{' not in res, res
+
+    def test_read_n3(self):
+        dataset1 = factories.Dataset()
+
+        offset = url_for(controller='package', action='read',
+                         id=dataset1['name']) + ".n3"
+        app = self._get_test_app()
+        res = app.get(offset, status=200)
+
+        assert 'dcat' in res, res
+        assert '{{' not in res, res

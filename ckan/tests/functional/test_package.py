@@ -238,18 +238,6 @@ class TestReadOnly(TestPackageForm, HtmlCheckMethods, PylonsTestCase):
         assert 'decoy</a>' not in res, res
         assert 'decoy"' not in res, res
 
-    def test_read_rdf(self):
-        name = 'annakarenina'
-        offset = url_for(controller='package', action='read', id=name) + ".rdf"
-        res = self.app.get(offset, status=200)
-        assert 'dcat' in res, res
-
-    def test_read_n3(self):
-        name = 'annakarenina'
-        offset = url_for(controller='package', action='read', id=name) + ".n3"
-        res = self.app.get(offset, status=200)
-        assert 'dcat' in res, res
-
     def test_read_plugin_hook(self):
         plugins.load('test_package_controller_plugin')
         plugin = plugins.get_plugin('test_package_controller_plugin')
