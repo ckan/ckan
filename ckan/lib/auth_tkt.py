@@ -1,3 +1,4 @@
+import math
 import os
 
 from pylons import config
@@ -41,13 +42,19 @@ def make_plugin(secret=None,
                 userid_checker=None):
     from repoze.who.utils import resolveDotted
 
-    # ckan specific: get secret from beaker setting if necessary
+    # ckan specifics:
+    # Get secret from beaker setting if necessary
     if secret is None or secret == 'somesecret':
         secret = config['beaker.session.secret']
-
+    # Session timeout and reissue time for auth cookie
+    if timeout is None and config.get('who.timeout'):
+        timeout = config.get('who.timeout')
+    if reissue_time is None and config.get('who.reissue_time'):
+        reissue_time = config.get('who.reissue_time')
+    if timeout is not None and reissue_time is None:
+        reissue_time = int(math.ceil(int(timeout) * 0.1))
     # Set httponly based on config value. Default is True
     httponly = config.get('who.httponly', True)
-
     # Set secure based on config value. Default is False
     secure = config.get('who.secure', False)
 
