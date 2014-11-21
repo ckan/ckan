@@ -44,7 +44,7 @@ class AuthFunctions:
 
         module_root = 'ckan.logic.auth'
 
-        for auth_module_name in ['get', 'create', 'update', 'delete']:
+        for auth_module_name in ['get', 'create', 'update', 'delete', 'patch']:
             module_path = '%s.%s' % (module_root, auth_module_name,)
             try:
                 module = __import__(module_path)
