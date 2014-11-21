@@ -124,7 +124,7 @@ class CkanCommand(paste.script.command.Command):
             self.filename = os.environ.get('CKAN_INI')
             config_source = '$CKAN_INI'
         else:
-            self.filename = 'development.ini'
+            self.filename = os.path.join(os.getcwd(), 'development.ini')
             config_source = 'default value'
 
         if not os.path.exists(self.filename):
