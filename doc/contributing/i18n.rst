@@ -115,19 +115,16 @@ Install it as follows with pip::
 1. Create a 'po' file for your language
 ---------------------------------------
 
-First, grab the CKAN i18n repository::
-
- hg clone http://bitbucket.org/bboissin/ckan-i18n/
-
-Then create a translation file for your language (a po file) using the pot
-file::
+First ensure you are in the CKAN source directory. Then create a translation
+file for your language (a po file) using the pot file::
 
  python setup.py init_catalog --locale YOUR_LANGUAGE
 
 Replace ``YOUR_LANGUAGE`` with the two-letter ISO language code (e.g. ``es``,
 ``de``).
 
-In future, when the pot file is updated, you can update the strings in your po file, while preserving your po edits, by doing::
+In future, when the pot file is updated, you can update the strings in your po
+file, while preserving your po edits, by doing::
 
  python setup.py update_catalog --locale YOUR-LANGUAGE
 
@@ -145,8 +142,8 @@ extensions for editors such as emacs.
 3. Commit the translation
 -------------------------
 
-When the po is complete, create a branch in your source, then commit it to the
-CKAN i18n repo::
+When the po is complete, create a branch in your source, then submit a pull
+request to the CKAN repo::
 
  git checkout master
  git branch translation-YOUR_LANGUAGE
