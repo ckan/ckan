@@ -173,24 +173,7 @@ As before, replace ``YOUR_LANGUAGE`` with your language short code, e.g.
 This will result in a binary 'mo' file of your translation at
 ``ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.mo``.
 
-5. (optional) Deploy the translation
-------------------------------------
-
-This section explains how to deploy your translation automatically to your host, if you are using a remote host.
-
-It assumes a standard layout on the server (you may want to check before you upload!) and that you are deploying to ``hu.ckan.net`` for language ``hu``.
-
-Once you have a compiled translation file, for automated deployment to your host do::
-
- fab config_0:hu.ckan.net upload_i18n:hu
-
-See the ``config_0`` options if more configuration is needed e.g. of host or location.
-
-Alternatively, if you do not want to use fab, you can just scp::
-
- scp ckan.mo /home/okfn/var/srvc/hu.ckan.net/pyenv/src/ckan/ckan/i18n/hu/LC_MESSAGES/ckan.mo
-
-6. Configure the language
+5. Configure the language
 -------------------------
 
 Finally, once the mo file is in place, you can switch between the installed
