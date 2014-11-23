@@ -34,6 +34,7 @@ class TestAction(WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        model.repo.rebuild_db()
         search.clear()
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -210,12 +211,10 @@ class TestAction(WsgiAppCase):
 
         package_updated = json.loads(res.body)['result']
         package_updated.pop('revision_id')
-        package_updated.pop('revision_timestamp')
         package_updated.pop('metadata_created')
         package_updated.pop('metadata_modified')
 
         package_created.pop('revision_id')
-        package_created.pop('revision_timestamp')
         package_created.pop('metadata_created')
         package_created.pop('metadata_modified')
         assert package_updated == package_created#, (pformat(json.loads(res.body)), pformat(package_created['result']))
@@ -644,8 +643,6 @@ class TestAction(WsgiAppCase):
 
         resource_updated.pop('url')
         resource_updated.pop('revision_id')
-        print resource_updated
-        resource_updated.pop('package_id')
         resource_updated.pop('revision_timestamp', None)
         resource_created.pop('url')
         resource_created.pop('revision_id')
@@ -863,30 +860,6 @@ class TestAction(WsgiAppCase):
         group_names = set([g.get('name') for g in group_packages])
         assert group_names == set(['annakarenina', 'warandpeace']), group_names
 
-    def test_29_group_package_show_pending(self):
-        context = {'model': model, 'session': model.Session, 'user': self.sysadmin_user.name, 'api_version': 2, 'ignore_auth': True}
-        group = {
-            'name': 'test_group_pending_package',
-            'packages': [{'id': model.Package.get('annakarenina').id}]
-        }
-        group = get_action('group_create')(context, group)
-
-        pkg = {
-            'name': 'test_pending_package',
-            'groups': [{'id': group['id']}]
-        }
-        pkg = get_action('package_create')(context, pkg)
-        # can't seem to add a package with 'pending' state, so update it
-        pkg['state'] = 'pending'
-        get_action('package_update')(context, pkg)
-
-        group_packages = get_action('group_package_show')(context, {'id': group['id']})
-        assert len(group_packages) == 2, (len(group_packages), group_packages)
-        group_names = set([g.get('name') for g in group_packages])
-        assert group_names == set(['annakarenina', 'test_pending_package']), group_names
-
-        get_action('group_delete')(context, group)
-        get_action('package_delete')(context, pkg)
 
     def test_30_status_show(self):
         postparams = '%s=1' % json.dumps({})

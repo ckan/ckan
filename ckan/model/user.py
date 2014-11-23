@@ -3,7 +3,7 @@ import re
 import os
 from hashlib import sha1, md5
 
-import passlib.utils 
+import passlib.utils
 from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
@@ -104,7 +104,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
 
     def _set_password(self, password):
         '''Hash using pbkdf2
-        
+
         Use passlib to hash the password using pkbdf2, upgrading
         passlib will also upgrade the number of rounds and salt of the
         hash as the user logs in automatically. Changing hashing

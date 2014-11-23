@@ -120,14 +120,13 @@ def package_list(context, data_dict):
 
     _check_access('package_list', context, data_dict)
 
-    package_revision_table = model.package_revision_table
-    col = (package_revision_table.c.id
-           if api == 2 else package_revision_table.c.name)
+    package_table = model.package_table
+    col = (package_table.c.id
+           if api == 2 else package_table.c.name)
     query = _select([col])
     query = query.where(_and_(
-        package_revision_table.c.state == 'active',
-        package_revision_table.c.current == True,
-        package_revision_table.c.private == False,
+        package_table.c.state == 'active',
+        package_table.c.private == False,
     ))
     query = query.order_by(col)
 
@@ -393,26 +392,25 @@ def _group_or_org_list(context, data_dict, is_org=False):
     include_extras = all_fields and \
                      asbool(data_dict.get('include_extras', False))
 
-    query = model.Session.query(model.Group).join(model.GroupRevision)
+    query = model.Session.query(model.Group)
     if include_extras:
         # this does an eager load of the extras, avoiding an sql query every
         # time group_list_dictize accesses a group's extra.
         query = query.options(sqlalchemy.orm.joinedload(model.Group._extras))
-    query = query.filter(model.GroupRevision.state == 'active')
-    query = query.filter(model.GroupRevision.current == True)
+    query = query.filter(model.Group.state == 'active')
     if groups:
-        query = query.filter(model.GroupRevision.name.in_(groups))
+        query = query.filter(model.Group.name.in_(groups))
     if q:
         q = u'%{0}%'.format(q)
         query = query.filter(_or_(
-            model.GroupRevision.name.ilike(q),
-            model.GroupRevision.title.ilike(q),
-            model.GroupRevision.description.ilike(q),
+            model.Group.name.ilike(q),
+            model.Group.title.ilike(q),
+            model.Group.description.ilike(q),
         ))
 
-    query = query.filter(model.GroupRevision.is_organization == is_org)
+    query = query.filter(model.Group.is_organization == is_org)
     if not is_org:
-        query = query.filter(model.GroupRevision.type == group_type)
+        query = query.filter(model.Group.type == group_type)
 
     groups = query.all()
     if all_fields:
@@ -1030,10 +1028,6 @@ def resource_show(context, data_dict):
         log.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
-    resource_dict['package_id'] = pkg_dict['id']
-
-    # original dictized version didn't include this field:
-    resource_dict.pop('revision_timestamp')
     return resource_dict
 
 
@@ -1412,12 +1406,11 @@ def package_autocomplete(context, data_dict):
 
     like_q = u"%s%%" % q
 
-    query = model.Session.query(model.PackageRevision)
-    query = query.filter(model.PackageRevision.state == 'active')
-    query = query.filter(model.PackageRevision.private == False)
-    query = query.filter(model.PackageRevision.current == True)
-    query = query.filter(_or_(model.PackageRevision.name.ilike(like_q),
-                              model.PackageRevision.title.ilike(like_q)))
+    query = model.Session.query(model.Package)
+    query = query.filter(model.Package.state == 'active')
+    query = query.filter(model.Package.private == False)
+    query = query.filter(_or_(model.Package.name.ilike(like_q),
+                              model.Package.title.ilike(like_q)))
     query = query.limit(limit)
 
     q_lower = q.lower()
@@ -1463,14 +1456,13 @@ def format_autocomplete(context, data_dict):
     like_q = u'%' + q + u'%'
 
     query = (session.query(
-        model.ResourceRevision.format,
-        _func.count(model.ResourceRevision.format).label('total'))
+        model.Resource.format,
+        _func.count(model.Resource.format).label('total'))
         .filter(_and_(
-            model.ResourceRevision.state == 'active',
-            model.ResourceRevision.current == True
+            model.Resource.state == 'active',
         ))
-        .filter(model.ResourceRevision.format.ilike(like_q))
-        .group_by(model.ResourceRevision.format)
+        .filter(model.Resource.format.ilike(like_q))
+        .group_by(model.Resource.format)
         .order_by('total DESC')
         .limit(limit))
 
@@ -1679,12 +1671,9 @@ def package_search(context, data_dict):
         for package in query.results:
             # get the package object
             package, package_dict = package['id'], package.get(data_source)
-            pkg_query = session.query(model.PackageRevision)\
-                .filter(model.PackageRevision.id == package)\
-                .filter(_and_(
-                    model.PackageRevision.state == u'active',
-                    model.PackageRevision.current == True
-                ))
+            pkg_query = session.query(model.Package)\
+                .filter(model.Package.id == package)\
+                .filter(model.Package.state == u'active')
             pkg = pkg_query.first()
 
             ## if the index has got a package that is not in ckan then

@@ -329,6 +329,56 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         res = self.app.get(self.offset + self.date3.strftime('@%Y@%m'),
                            status=400)
 
+    def test_read_revision1(self):
+        offset = self.offset + '@%s' % self.revision_ids[0]
+        res = self.app.get(offset, status=200)
+        main_html = pkg_html = side_html = res.body
+        print 'MAIN', main_html
+        assert 'This is an old revision of this dataset' in main_html
+        assert 'at January 1, 2011, 00:00' in main_html
+        self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
+        print 'PKG', pkg_html
+        assert 'title1' in res
+        assert 'key2' not in pkg_html
+        assert 'value3' not in pkg_html
+        print 'SIDE', side_html
+        assert 'tag3.' not in side_html
+        assert 'tag 2' not in side_html
+
+    def test_read_revision2(self):
+        offset = self.offset + '@%s' % self.revision_ids[1]
+        res = self.app.get(offset, status=200)
+        main_html = pkg_html = side_html = res.body
+        print 'MAIN', main_html
+        assert 'This is an old revision of this dataset' in main_html
+        assert 'at January 2, 2011, 00:00' in main_html
+        self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
+        print 'PKG', pkg_html
+        assert 'title2' in res
+        assert 'key2' in pkg_html
+        assert 'value2' in pkg_html
+        print 'SIDE', side_html
+        assert 'tag3.' not in side_html
+        assert 'tag 2' in side_html
+
+    def test_read_revision3(self):
+        offset = self.offset + '@%s' % self.revision_ids[2]
+        res = self.app.get(offset, status=200)
+        main_html = pkg_html = side_html = res.body
+        print 'MAIN', main_html
+        assert 'This is an old revision of this dataset' in main_html
+        # It is not an old revision, but working that out is hard. The request
+        # was for a particular revision, so assume it is old.
+        assert 'at January 3, 2011, 00:00' in main_html
+        self.check_named_element(main_html, 'a', 'href="/dataset/%s"' % self.pkg_name)
+        print 'PKG', pkg_html
+        assert 'title3' in res
+        assert 'key2' in pkg_html
+        assert 'value3' in pkg_html
+        print 'SIDE', side_html
+        assert 'tag3.' in side_html
+        assert 'tag 2' in side_html
+
     def test_read_bad_revision(self):
         # this revision doesn't exist in the db
         offset = self.offset + '@ccab6798-1f4b-4a22-bcf5-462703aa4594'

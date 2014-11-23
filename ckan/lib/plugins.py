@@ -240,9 +240,13 @@ class DefaultDatasetForm(object):
             c.pkg_notes_formatted = render_markdown(c.pkg.notes)
 
         if context.get('revision_id') or context.get('revision_date'):
-            c.pkg_revision_id = c.pkg_dict[u'revision_id']
-            c.pkg_revision_timestamp = c.pkg_dict[u'revision_timestamp']
-            c.pkg_revision_not_latest = c.pkg_dict[u'revision_id'] != c.pkg.revision.id
+            if context.get('revision_id'):
+                rev = base.model.Session.query(base.model.Revision) \
+                                .filter_by(id=context['revision_id']) \
+                                .first()
+                c.revision_date = rev.timestamp if rev else '?'
+            else:
+                c.revision_date = context.get('revision_date')
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)
