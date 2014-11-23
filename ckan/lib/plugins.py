@@ -241,9 +241,9 @@ class DefaultDatasetForm(object):
 
         if context.get('revision_id') or context.get('revision_date'):
             if context.get('revision_id'):
-                rev = model.Session.query(model.Revision) \
-                           .filter_by(id=context['revision_id']) \
-                           .first()
+                rev = base.model.Session.query(base.model.Revision) \
+                                .filter_by(id=context['revision_id']) \
+                                .first()
                 c.revision_date = rev.timestamp if rev else '?'
             else:
                 c.revision_date = context.get('revision_date')
