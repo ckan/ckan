@@ -117,7 +117,8 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     who_parser = WhoConfig(conf['here'])
     who_parser.parse(open(app_conf['who.config_file']))
 
-    if asbool(config.get('openid_enabled', 'true')):
+    if asbool(config.get('openid_enabled', 'false')):
+        log.warning("OpenID auth is deprecated")
         from repoze.who.plugins.openid.identification import OpenIdIdentificationPlugin
         # Monkey patches for repoze.who.openid
         # Fixes #1659 - enable log-out when CKAN mounted at non-root URL
