@@ -9,18 +9,6 @@ def sysadmin(context, data_dict):
     ''' This is a pseudo check if we are a sysadmin all checks are true '''
     return {'success': False, 'msg': _('Not authorized')}
 
-
-def site_read(context, data_dict):
-    """\
-    This function should be deprecated. It is only here because we couldn't
-    get hold of Friedrich to ask what it was for.
-
-    ./ckan/controllers/api.py
-    """
-
-    # FIXME we need to remove this for now we allow site read
-    return {'success': True}
-
 def package_search(context, data_dict):
     # Everyone can search by default
     return {'success': True}

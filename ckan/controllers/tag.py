@@ -13,15 +13,6 @@ LIMIT = 25
 
 class TagController(base.BaseController):
 
-    def __before__(self, action, **env):
-        base.BaseController.__before__(self, action, **env)
-        try:
-            context = {'model': model, 'user': c.user or c.author,
-                       'auth_user_obj': c.userobj}
-            logic.check_access('site_read', context)
-        except logic.NotAuthorized:
-            base.abort(401, _('Not authorized to see this page'))
-
     def index(self):
         c.q = request.params.get('q', '')
 

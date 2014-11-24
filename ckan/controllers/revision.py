@@ -25,10 +25,6 @@ class RevisionController(base.BaseController):
                 c.revision_change_state_allowed = False
         else:
             c.revision_change_state_allowed = False
-        try:
-            logic.check_access('site_read', context)
-        except logic.NotAuthorized:
-            base.abort(401, _('Not authorized to see this page'))
 
     def index(self):
         return self.list()

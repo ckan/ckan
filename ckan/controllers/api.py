@@ -51,19 +51,6 @@ class ApiController(base.BaseController):
             routes_dict['ver'] = int(api_version)
 
         self._identify_user()
-        try:
-            context = {'model': model, 'user': c.user or c.author,
-                       'auth_user_obj': c.userobj}
-            logic.check_access('site_read', context)
-        except NotAuthorized:
-            response_msg = self._finish(403,
-                                        _('Not authorized to see this page'))
-            # Call start_response manually instead of the parent __call__
-            # because we want to end the request instead of continuing.
-            response_msg = response_msg.encode('utf8')
-            body = '%i %s' % (response.status_int, response_msg)
-            start_response(body, response.headers.items())
-            return [response_msg]
 
         # avoid status_code_redirect intercepting error responses
         environ['pylons.status_code_redirect'] = True
@@ -200,7 +187,7 @@ class ApiController(base.BaseController):
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
             return_dict['success'] = False
-            
+
             if e.extra_msg:
                 return_dict['error']['message'] += ': %s' % e.extra_msg
 

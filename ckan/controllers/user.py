@@ -34,15 +34,6 @@ unflatten = dictization_functions.unflatten
 
 
 class UserController(base.BaseController):
-    def __before__(self, action, **env):
-        base.BaseController.__before__(self, action, **env)
-        try:
-            context = {'model': model, 'user': c.user or c.author,
-                       'auth_user_obj': c.userobj}
-            check_access('site_read', context)
-        except NotAuthorized:
-            if c.action not in ('login', 'request_reset', 'perform_reset',):
-                abort(401, _('Not authorized to see this page'))
 
     ## hooks for subclasses
     new_user_form = 'user/new_user_form.html'

@@ -91,15 +91,6 @@ def _package_list_with_resources(context, package_revision_list):
     return package_list
 
 
-def site_read(context, data_dict=None):
-    '''Return ``True``.
-
-    :rtype: boolean
-    '''
-    _check_access('site_read', context, data_dict)
-    return True
-
-
 @logic.validate(logic.schema.default_pagination_schema)
 def package_list(context, data_dict):
     '''Return a list of the names of the site's datasets (packages).
