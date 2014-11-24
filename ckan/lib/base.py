@@ -119,7 +119,6 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
-        globs['actions'] = model.Action
 
         # Using pylons.url() directly destroys the localisation stuff so
         # we remove it so any bad templates crash and burn
