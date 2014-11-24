@@ -199,9 +199,10 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
     def number_administered_packages(self):
         # have to import here to avoid circular imports
         import ckan.model as model
-        q = meta.Session.query(model.PackageRole)
-        q = q.filter_by(user=self, role=model.Role.ADMIN)
-        return q.count()
+        #q = meta.Session.query(model.PackageRole)
+        #q = q.filter_by(user=self, role=model.Role.ADMIN)
+        #return q.count()
+        return 0
 
     def activate(self):
         ''' Activate the user '''
