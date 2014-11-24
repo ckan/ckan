@@ -44,28 +44,6 @@ from user import (
     User,
     user_table,
 )
-from authz import (
-    NotRealUserException,
-    Enum,
-    Action,
-    Role,
-    RoleAction,
-    UserObjectRole,
-    PackageRole,
-    GroupRole,
-    SystemRole,
-    PSEUDO_USER__VISITOR,
-    PSEUDO_USER__LOGGED_IN,
-    init_authz_const_data,
-    init_authz_configuration_data,
-    add_user_to_role,
-    setup_user_roles,
-    setup_default_user_roles,
-    give_all_packages_default_user_roles,
-    user_has_role,
-    remove_user_from_role,
-    clear_user_roles,
-)
 from group import (
     Member,
     Group,
@@ -239,22 +217,9 @@ class Repository(vdm.sqlalchemy.Repository):
         self.tables_created_and_initialised = False
         log.info('Database tables dropped')
 
-    def init_const_data(self):
-        '''Creates 'constant' objects that should always be there in
-        the database. If they are already there, this method does nothing.'''
-        for username in (PSEUDO_USER__LOGGED_IN,
-                         PSEUDO_USER__VISITOR):
-            if not User.by_name(username):
-                user = User(name=username)
-                meta.Session.add(user)
-        meta.Session.flush()    # so that these objects can be used
-                                # straight away
-        init_authz_const_data()
-
     def init_configuration_data(self):
         '''Default configuration, for when CKAN is first used out of the box.
         This state may be subsequently configured by the user.'''
-        init_authz_configuration_data()
         if meta.Session.query(Revision).count() == 0:
             rev = Revision()
             rev.author = 'system'
@@ -268,7 +233,6 @@ class Repository(vdm.sqlalchemy.Repository):
         has shortcuts.
         '''
         self.metadata.create_all(bind=self.metadata.bind)
-        self.init_const_data()
         self.init_configuration_data()
         log.info('Database tables created')
 
@@ -283,7 +247,6 @@ class Repository(vdm.sqlalchemy.Repository):
             # just delete data, leaving tables - this is faster
             self.delete_all()
             # re-add default data
-            self.init_const_data()
             self.init_configuration_data()
             self.session.commit()
         else:
@@ -335,8 +298,6 @@ class Repository(vdm.sqlalchemy.Repository):
             log.info('CKAN database version upgraded: %s -> %s', version_before, version_after)
         else:
             log.info('CKAN database version remains as: %s', version_after)
-
-        self.init_const_data()
 
         ##this prints the diffs in a readable format
         ##import pprint

@@ -38,9 +38,6 @@ class PackagesTestCase(BaseModelApiTestCase):
                 groups.append(group.name)
             else:
                 groups.append(group.id)
-
-            if users:
-                model.setup_default_user_roles(group, users)
         return groups
 
     def test_register_get_ok(self):
@@ -833,12 +830,6 @@ class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
         pkg.name = test_params['name']
         pkg.download_url = test_params['download_url']
         model.Session.commit()
-
-        pkg = self.get_package_by_name(test_params['name'])
-        model.setup_default_user_roles(pkg, [self.user])
-        rev = model.repo.new_revision()
-        model.repo.commit_and_remove()
-        assert self.get_package_by_name(test_params['name'])
 
         # edit it
         pkg_vals = {'download_url':u'newurl'}
