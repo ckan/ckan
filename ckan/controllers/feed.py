@@ -306,12 +306,7 @@ class FeedController(base.BaseController):
                 search_params[param] = value
                 fq += ' %s:"%s"' % (param, value)
 
-        try:
-            page = int(request.params.get('page', 1))
-        except ValueError:
-            base.abort(400, _('"page" parameter must be a positive integer'))
-        if page < 0:
-            base.abort(400, _('"page" parameter must be a positive integer'))
+        page = self._get_page_number(request.params)
 
         limit = ITEMS_LIMIT
         data_dict = {
@@ -456,12 +451,7 @@ class FeedController(base.BaseController):
         Returns the constructed search-query dict, and the valid URL
         query parameters.
         """
-        try:
-            page = int(request.params.get('page', 1)) or 1
-        except ValueError:
-            base.abort(400, _('"page" parameter must be a positive integer'))
-        if page < 0:
-            base.abort(400, _('"page" parameter must be a positive integer'))
+        page = self._get_page_number(request.params)
 
         limit = ITEMS_LIMIT
         data_dict = {

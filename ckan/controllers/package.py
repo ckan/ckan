@@ -147,10 +147,8 @@ class PackageController(base.BaseController):
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', u'')
         c.query_error = False
-        try:
-            page = int(request.params.get('page', 1))
-        except ValueError, e:
-            abort(400, ('"page" parameter must be an integer'))
+        page = self._get_page_number(request.params)
+
         limit = g.datasets_per_page
 
         # most search operations should reset the page counter:
