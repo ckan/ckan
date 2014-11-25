@@ -132,7 +132,7 @@ def package_create(context, data_dict):
         try:
             # use first type as default if user didn't provide type
             package_type = package_plugin.package_types()[0]
-        except AttributeError:
+        except (AttributeError, IndexError):
             package_type = 'dataset'
             # in case a 'dataset' plugin was registeres w/o fallback
             package_plugin = lib_plugins.lookup_package_plugin(package_type)
