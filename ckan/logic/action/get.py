@@ -481,7 +481,7 @@ def organization_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'package_count'
+        'name', 'package_count' and 'title'
     :type sort: string
     :param organizations: a list of names of the groups to return,
         if given only groups whose names are in this list will be
