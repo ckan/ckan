@@ -619,6 +619,9 @@ def group_update(context, data_dict):
     :rtype: dictionary
 
     '''
+    # Callers that set context['allow_partial_update'] = True can choose not
+    # to specify particular keys and they will not be left at their existing
+    # values. This includes: packages, users, groups, tags, extras
     return _group_or_org_update(context, data_dict)
 
 def organization_update(context, data_dict):
@@ -639,6 +642,9 @@ def organization_update(context, data_dict):
     :rtype: dictionary
 
     '''
+    # Callers that set context['allow_partial_update'] = True can choose not
+    # to specify particular keys and they will not be left at their existing
+    # values. This includes: users, groups, tags, extras
     return _group_or_org_update(context, data_dict, is_org=True)
 
 def user_update(context, data_dict):
