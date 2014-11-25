@@ -40,6 +40,8 @@ API changes and deprecations
   can be changed in the ``Repoze.who`` settings detailed in the Config File
   Options documentation (:ref:`who.httponly`).
 
+* The OpenID login option has been removed and is no longer supported.
+
 Template changes
 ----------------
 
