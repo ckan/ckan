@@ -69,7 +69,9 @@ class TestMungeTitleToName(object):
         ('random:other%character&', 'random-othercharacter'),
         (u'u with umlaut \xfc', 'u-with-umlaut-u'),
         ('reallylong' * 12, 'reallylong' * 9 + 'reall'),
-        ('reallylong' * 12 + ' - 2012', 'reallylong' * 9 + '-2012')
+        ('reallylong' * 12 + ' - 2012', 'reallylong' * 9 + '-2012'),
+        ('10cm - 50cm Near InfraRed (NI) Digital Aerial Photography (AfA142)',
+            '10cm--50cm-near-infrared-ni-digital-aerial-photography-afa142')
     ]
 
     def test_munge_title_to_name(self):
@@ -77,14 +79,6 @@ class TestMungeTitleToName(object):
         for org, exp in self.munge_list:
             munge = munge_title_to_name(org)
             nose_tools.assert_equal(munge, exp)
-
-    def test_munge_title_to_name_multiple_pass(self):
-        '''Munging title to name multiple times produces same result.'''
-        for org, exp in self.munge_list:
-            first_munge = munge_title_to_name(org)
-            nose_tools.assert_equal(first_munge, exp)
-            second_munge = munge_title_to_name(first_munge)
-            nose_tools.assert_equal(second_munge, exp)
 
 
 class TestMungeTag:
