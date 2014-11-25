@@ -196,8 +196,8 @@ class DatastorePlugin(p.SingletonPlugin):
         read_connection_user = sa_url.make_url(self.read_url).username
 
         # create a nice random table name
-        chars = string.uppercase + string.lowercase
-        table_name = '_'.join(random.choice(chars) for _ in range(9))
+        chars = string.lowercase
+        table_name = ''.join(random.choice(chars) for _ in range(9))
         
         drop_foo_sql = u'DROP TABLE IF EXISTS ' + table_name
 
