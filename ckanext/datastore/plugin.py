@@ -197,7 +197,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
         # create a nice random table name
         chars = string.lowercase
-        table_name = ''.join(random.choice(chars) for _ in range(9))
+        table_name = '_' + ''.join(random.choice(chars) for _ in range(9))
         
         drop_foo_sql = u'DROP TABLE IF EXISTS ' + table_name
 
