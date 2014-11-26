@@ -16,10 +16,10 @@
 
   {% block home_image %}
     <section class="featured media-overlay hidden-phone">
-      <h2 class="media-heading">{% block home_image_caption %}{{ _("This is a featured section") }}{% endblock %}</h2>
+      <h2 class="media-heading">{% block home_image_caption %}{{ g.featured_text if g.featured_text else _("This is a featured section") }}{% endblock %}</h2>
       {% block home_image_content %}
-        <a class="media-image" href="#">
-          <img src="http://placehold.it/420x220" alt="Placeholder" width="420" height="220" />
+        <a class="media-image" href="{{ g.featured_link if g.featured_link else '#' }}">
+          <img src="{{ g.featured_image if g.featured_image else 'http://placehold.it/420x220' }}" alt="Placeholder" width="420" height="220" />
         </a>
       {% endblock %}
     </section>
