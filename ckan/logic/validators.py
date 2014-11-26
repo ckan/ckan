@@ -140,6 +140,16 @@ def package_id_exists(value, context):
         raise Invalid('%s: %s' % (_('Not found'), _('Dataset')))
     return value
 
+def package_id_does_not_exist(value, context):
+
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.Package).get(value)
+    if result:
+        raise Invalid(_('Dataset id already exists'))
+    return value
+
 def package_name_exists(value, context):
 
     model = context['model']
@@ -790,3 +800,18 @@ def extra_key_not_in_root_schema(key, data, errors, context):
     for schema_key in context.get('schema_keys', []):
         if schema_key == data[key]:
             raise Invalid(_('There is a schema field with the same name'))
+
+
+def empty_if_not_sysadmin(key, data, errors, context):
+    '''Only sysadmins may pass this value'''
+    from ckan.lib.navl.validators import empty
+
+    user = context.get('user')
+
+    if 'ignore_auth' in context:
+        return
+
+    if user and new_authz.is_sysadmin(user):
+        return
+
+    empty(key, data, errors, context)
