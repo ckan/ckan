@@ -385,7 +385,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     sort_info = _unpick_search(sort,
                                allowed_fields=['name', 'packages',
-                                               'package_count'],
+                                               'package_count', 'title'],
                                total=1)
 
     all_fields = data_dict.get('all_fields', None)
@@ -444,7 +444,7 @@ def group_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'package_count'
+        'name', 'package_count' and 'title'
     :type sort: string
     :param groups: a list of names of the groups to return, if given only
         groups whose names are in this list will be returned (optional)
@@ -481,7 +481,7 @@ def organization_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'package_count'
+        'name', 'package_count' and 'title'
     :type sort: string
     :param organizations: a list of names of the groups to return,
         if given only groups whose names are in this list will be
