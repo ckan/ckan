@@ -31,6 +31,7 @@ class TestDelete:
         res_obj = model.Resource.get(resource['id'])
         assert_equals(res_obj.state, 'deleted')
 
+
 class TestDeleteResourceViews(object):
 
     @classmethod

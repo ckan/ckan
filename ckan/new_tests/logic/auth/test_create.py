@@ -140,33 +140,32 @@ class TestCreateResourceViews(object):
                                      context=context, **resource_view)
         assert_equals(response, True)
 
-#    TODO: enable once #2037 is merged
-#    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
-#
-#        org = factories.Organization()
-#
-#        user = factories.User()
-#
-#        member = {'username': user['name'],
-#                  'role': 'admin',
-#                  'id': org['id']}
-#        helpers.call_action('organization_member_create', **member)
-#
-#        user_2 = factories.User()
-#
-#        dataset = factories.Dataset(owner_org=org['id'])
-#
-#        resource = factories.Resource(package_id=dataset['id'])
-#
-#        resource_view = {'resource_id': resource['id'],
-#                         'title': u'Resource View',
-#                         'view_type': u'image',
-#                         'image_url': 'url'}
-#
-#        context = {'user': user_2['name'], 'model': core_model}
-#        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-#                                 'resource_view_create', context=context,
-#                                 **resource_view)
+    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
+
+        org = factories.Organization()
+
+        user = factories.User()
+
+        member = {'username': user['name'],
+                  'role': 'admin',
+                  'id': org['id']}
+        helpers.call_action('organization_member_create', **member)
+
+        user_2 = factories.User()
+
+        dataset = factories.Dataset(owner_org=org['id'])
+
+        resource = factories.Resource(package_id=dataset['id'])
+
+        resource_view = {'resource_id': resource['id'],
+                         'title': u'Resource View',
+                         'view_type': u'image',
+                         'image_url': 'url'}
+
+        context = {'user': user_2['name'], 'model': core_model}
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'resource_view_create', context=context,
+                                 **resource_view)
 
     def test_not_authorized_if_not_logged_in(self):
 
@@ -178,6 +177,7 @@ class TestCreateResourceViews(object):
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
                                  'resource_view_create', context=context,
                                  **resource_view)
+
 
 class TestCreateResources(object):
 
