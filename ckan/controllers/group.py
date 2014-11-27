@@ -884,39 +884,3 @@ class GroupController(base.BaseController):
             abort(404, _('Group not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
-
-    def _render_edit_form(self, fs):
-        # errors arrive in c.error and fs.errors
-        c.fieldset = fs
-        return render('group/edit_form.html')
-
-    def _update(self, fs, group_name, group_id):
-        '''
-        Writes the POST data (associated with a group edit) to the database
-        @input c.error
-        '''
-        validation = fs.validate()
-        if not validation:
-            c.form = self._render_edit_form(fs)
-            raise base.ValidationException(fs)
-
-        try:
-            fs.sync()
-        except Exception, inst:
-            model.Session.rollback()
-            raise
-        else:
-            model.Session.commit()
-
-    def _update_authz(self, fs):
-        validation = fs.validate()
-        if not validation:
-            c.form = self._render_edit_form(fs)
-            raise base.ValidationException(fs)
-        try:
-            fs.sync()
-        except Exception, inst:
-            model.Session.rollback()
-            raise
-        else:
-            model.Session.commit()

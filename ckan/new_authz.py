@@ -44,7 +44,7 @@ class AuthFunctions:
 
         module_root = 'ckan.logic.auth'
 
-        for auth_module_name in ['get', 'create', 'update', 'delete']:
+        for auth_module_name in ['get', 'create', 'update', 'delete', 'patch']:
             module_path = '%s.%s' % (module_root, auth_module_name,)
             try:
                 module = __import__(module_path)
@@ -94,7 +94,6 @@ del AuthFunctions
 
 def clear_auth_functions_cache():
     _AuthFunctions.clear()
-    CONFIG_PERMISSIONS.clear()
 
 
 def auth_functions_list():
@@ -374,28 +373,41 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'roles_that_cascade_to_sub_groups': 'admin',
 }
 
-CONFIG_PERMISSIONS = {}
-
 
 def check_config_permission(permission):
-    ''' Returns the permission configuration, usually True/False '''
-    # set up perms if not already done
-    if not CONFIG_PERMISSIONS:
-        for perm in CONFIG_PERMISSIONS_DEFAULTS:
-            key = 'ckan.auth.' + perm
-            default = CONFIG_PERMISSIONS_DEFAULTS[perm]
-            CONFIG_PERMISSIONS[perm] = config.get(key, default)
-            if perm == 'roles_that_cascade_to_sub_groups':
-                # this permission is a list of strings (space separated)
-                CONFIG_PERMISSIONS[perm] = \
-                    CONFIG_PERMISSIONS[perm].split(' ') \
-                    if CONFIG_PERMISSIONS[perm] else []
-            else:
-                # most permissions are boolean
-                CONFIG_PERMISSIONS[perm] = asbool(CONFIG_PERMISSIONS[perm])
-    if permission in CONFIG_PERMISSIONS:
-        return CONFIG_PERMISSIONS[permission]
-    return False
+    '''Returns the configuration value for the provided permission
+
+    Permission is a string indentifying the auth permission (eg
+    `anon_create_dataset`), optionally prefixed with `ckan.auth.`.
+
+    The possible values for `permission` are the keys of
+    CONFIG_PERMISSIONS_DEFAULTS. These can be overriden in the config file
+    by prefixing them with `ckan.auth.`.
+
+    Returns the permission value, generally True or False, except on
+    `roles_that_cascade_to_sub_groups` which is a list of strings.
+
+    '''
+
+    key = permission.replace('ckan.auth.', '')
+
+    if key not in CONFIG_PERMISSIONS_DEFAULTS:
+        return False
+
+    default_value = CONFIG_PERMISSIONS_DEFAULTS.get(key)
+
+    config_key = 'ckan.auth.' + key
+
+    value = config.get(config_key, default_value)
+
+    if key == 'roles_that_cascade_to_sub_groups':
+        # This permission is set as a list of strings (space separated)
+        value = value.split() if value else []
+    else:
+        value = asbool(value)
+
+    return value
+
 
 @maintain.deprecated('Use auth_is_loggedin_user instead')
 def auth_is_registered_user():

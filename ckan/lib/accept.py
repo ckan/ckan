@@ -9,10 +9,10 @@ import operator
 accept_re = re.compile("^(?P<ct>[^;]+)[ \t]*(;[ \t]*q=(?P<q>[0-9.]+)){0,1}$")
 
 accept_types = {
-    #   Name         : ContentType,             Is Markup?, Extension
-    "text/html": ("text/html; charset=utf-8",  True,  'html'),
-    "text/n3": ("text/n3; charset=utf-8",    False, 'n3'),
-    "application/rdf+xml": ("application/rdf+xml; charset=utf-8", True, 'rdf'),
+    #   Name         : ContentType,                                Extension
+    "text/html": ("text/html; charset=utf-8",                     'html'),
+    "text/n3": ("text/n3; charset=utf-8",                         'n3'),
+    "application/rdf+xml": ("application/rdf+xml; charset=utf-8", 'rdf'),
 }
 accept_by_extension = {
     "rdf": "application/rdf+xml",
@@ -28,7 +28,7 @@ def parse_extension(file_ext):
     ext = accept_by_extension.get(file_ext, None)
     if ext:
         return accept_types[ext]
-    return (None, None, None,)
+    return (None, None)
 
 
 def parse_header(accept_header=''):

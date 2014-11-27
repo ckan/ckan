@@ -1,6 +1,5 @@
 Babel==0.9.6
 Beaker==1.6.4
-FormAlchemy==1.4.3
 FormEncode==1.2.6
 Genshi==0.6
 Jinja2==2.6
@@ -32,7 +31,7 @@ python-dateutil==1.5
 python-openid==2.2.5
 pyutilib.component.core==4.5.3
 repoze.lru==0.6
-repoze.who==1.0.19
+repoze.who==2.0
 repoze.who-friendlyform==1.0.8
 repoze.who.plugins.openid==0.5.3
 requests==2.3.0

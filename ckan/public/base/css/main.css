@@ -7087,48 +7087,6 @@ textarea {
 .resource-item .handle {
   display: none;
 }
-.view-list.reordering .resource-view-item {
-  border: 1px solid #dddddd;
-  margin-bottom: 10px;
-  cursor: move;
-}
-.view-list.reordering .resource-view-item .handle {
-  display: block;
-  position: absolute;
-  color: #888888;
-  left: -40px;
-  top: 32px;
-  margin-top: -15px;
-  width: 20px;
-  height: 15px;
-  min-height: 15px;
-  line-height: 0px;
-  text-align: center;
-  border: 1px solid #dddddd;
-  border-width: 1px 0 1px 1px;
-  background-color: #ffffff;
-  -webkit-border-radius: 20px 0 0 20px;
-  -moz-border-radius: 20px 0 0 20px;
-  border-radius: 20px 0 0 20px;
-}
-.view-list.reordering .resource-view-item .handle:hover {
-  text-decoration: none;
-}
-.view-list.reordering .resource-view-item:hover .handle {
-  background-color: #eeeeee;
-}
-.view-list.reordering .resource-view-item.ui-sortable-helper {
-  background-color: #eeeeee;
-  border: 1px solid #187794;
-}
-.view-list.reordering .resource-view-item.ui-sortable-helper .handle {
-  background-color: #eeeeee;
-  border-color: #187794;
-  color: #333333;
-}
-.resource-item .handle {
-  display: none;
-}
 .tag-list {
   margin: 0;
   list-style: none;
@@ -7568,6 +7526,13 @@ textarea {
   -webkit-border-radius: 3px 3px 0 0;
   -moz-border-radius: 3px 3px 0 0;
   border-radius: 3px 3px 0 0;
+}
+.nav-tabs-plain {
+  padding: 0 25px;
+}
+.nav-tabs-plain > .active > a,
+.nav-tabs-plain > .active > a:hover {
+  background-color: #ffffff;
 }
 @media (min-width: 768px) {
   .span9 .page-header {
@@ -9186,16 +9151,6 @@ h4 small {
   display: block;
   font-size: 16px;
   margin: 3px 0;
-}
-.resource-view-embed textarea {
-  width: 100%;
-}
-.resource-view-embed label {
-  float: left;
-}
-.resource-view-embed input {
-  width: 11em;
-  float: right;
 }
 .datapusher-status-link:hover {
   text-decoration: none;

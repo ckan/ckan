@@ -60,6 +60,36 @@ files, and enables CKAN templates' debugging features.
    commands.
 
 
+Repoze.who Settings
+-------------------
+
+.. _who.httponly:
+
+who.httponly
+^^^^^^^^^^^^
+
+Default value: True
+
+This determines whether the HttpOnly flag will be set on the repoze.who
+authorization cookie. The default in the absence of the setting is ``True``.
+For enhanced security it is recommended to use the HttpOnly flag and not set
+this to ``False``, unless you have a good reason for doing so.
+
+.. _who.secure:
+
+who.secure
+^^^^^^^^^^
+
+Example::
+ who.secure = True
+
+Default value: False
+
+This determines whether the secure flag will be set for the repoze.who
+authorization cookie. If ``True``, the cookie will be sent over HTTPS. The
+default in the absence of the setting is ``False``.
+
+
 Database Settings
 -----------------
 
@@ -513,6 +543,34 @@ Example::
 Default value: ``None``
 
 List of the extra resource fields that would be used when searching.
+
+
+CORS Settings
+-------------
+
+Cross-Origin Resource Sharing (CORS) can be enabled and controlled with the following settings:
+
+.. _ckan.cors.origin_allow_all:
+
+ckan.cors.origin_allow_all
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.cors.origin_allow_all = True
+
+This setting must be present to enable CORS. If True, all origins will be allowed (the response header Access-Control-Allow-Origin is set to '*'). If False, only origins from the ``ckan.cors.origin_whitelist`` setting will be allowed.
+
+.. _ckan.cors.origin_whitelist:
+
+ckan.cors.origin_whitelist
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.cors.origin_whitelist = http://www.myremotedomain1.com http://myremotedomain1.com
+
+A space separated list of allowable origins. This setting is used when ``ckan.cors.origin_allow_all = False``.
 
 
 Plugins Settings

@@ -181,6 +181,32 @@ class TestResourceCreate(object):
     def setup(self):
         model.repo.rebuild_db()
 
+    def test_resource_create(self):
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        id = result.pop('id')
+
+        assert id
+
+        params.pop('package_id')
+        for key in params.keys():
+            assert_equals(params[key], result[key])
+
+    def test_it_requires_package_id(self):
+
+        data_dict = {
+            'url': 'http://data',
+        }
+
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'resource_create', **data_dict)
+
     def test_it_requires_url(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)

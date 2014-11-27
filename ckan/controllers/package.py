@@ -1,7 +1,6 @@
 import logging
 from urllib import urlencode
 import datetime
-import os
 import mimetypes
 import cgi
 
@@ -14,7 +13,6 @@ import paste.fileapp
 import ckan.logic as logic
 import ckan.lib.base as base
 import ckan.lib.maintain as maintain
-import ckan.lib.package_saver as package_saver
 import ckan.lib.i18n as i18n
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.accept as accept
@@ -313,10 +311,10 @@ class PackageController(base.BaseController):
                       extra_vars={'dataset_type': package_type})
 
     def _content_type_from_extension(self, ext):
-        ct, mu, ext = accept.parse_extension(ext)
+        ct, ext = accept.parse_extension(ext)
         if not ct:
-            return None, None, None,
-        return ct, ext, (NewTextTemplate, MarkupTemplate)[mu]
+            return None, None
+        return ct, ext
 
     def _content_type_from_accept(self):
         """
@@ -325,8 +323,8 @@ class PackageController(base.BaseController):
         it accurately.  TextTemplate must be used for non-xml templates
         whilst all that are some sort of XML should use MarkupTemplate.
         """
-        ct, mu, ext = accept.parse_header(request.headers.get('Accept', ''))
-        return ct, ext, (NewTextTemplate, MarkupTemplate)[mu]
+        ct, ext = accept.parse_header(request.headers.get('Accept', ''))
+        return ct, ext
 
     def resources(self, id):
         package_type = self._get_package_type(id.split('@')[0])
@@ -358,16 +356,15 @@ class PackageController(base.BaseController):
 
     def read(self, id, format='html'):
         if not format == 'html':
-            ctype, extension, loader = \
+            ctype, extension = \
                 self._content_type_from_extension(format)
             if not ctype:
                 # An unknown format, we'll carry on in case it is a
                 # revision specifier and re-constitute the original id
                 id = "%s.%s" % (id, format)
-                ctype, format, loader = "text/html; charset=utf-8", "html", \
-                    MarkupTemplate
+                ctype, format = "text/html; charset=utf-8", "html"
         else:
-            ctype, format, loader = self._content_type_from_accept()
+            ctype, format = self._content_type_from_accept()
 
         response.headers['Content-Type'] = ctype
 
@@ -421,13 +418,11 @@ class PackageController(base.BaseController):
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
 
-        package_saver.PackageSaver().render_package(c.pkg_dict, context)
-
         template = self._read_template(package_type)
         template = template[:template.index('.') + 1] + format
 
         try:
-            return render(template, loader_class=loader,
+            return render(template,
                           extra_vars={'dataset_type': package_type})
         except ckan.lib.render.TemplateNotFound:
             msg = _("Viewing {package_type} datasets in {format} format is "
@@ -840,7 +835,6 @@ class PackageController(base.BaseController):
                                   'dataset_type': package_type})
 
     def read_ajax(self, id, revision=None):
-        package_type = self._get_package_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'revision_id': revision}
@@ -1052,16 +1046,6 @@ class PackageController(base.BaseController):
             else:
                 url = h.url_for('{0}_read'.format(package_type), id=pkgname)
         redirect(url)
-
-    def _adjust_license_id_options(self, pkg, fs):
-        options = fs.license_id.render_opts['options']
-        is_included = False
-        for option in options:
-            license_id = option[1]
-            if license_id == pkg.license_id:
-                is_included = True
-        if not is_included:
-            options.insert(1, (pkg.license_id, pkg.license_id))
 
     def delete(self, id):
 
