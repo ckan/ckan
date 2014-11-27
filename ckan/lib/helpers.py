@@ -161,6 +161,21 @@ def url_for_static(*args, **kw):
     return my_url
 
 
+def is_url(*args, **kw):
+    '''
+    Returns True if argument parses as a http, https or ftp URL
+    '''
+    if not args:
+        return False
+    try:
+        url = urlparse.urlparse(args[0])
+    except ValueError:
+        return False
+
+    valid_schemes = ('http', 'https', 'ftp')
+    return url.scheme in valid_schemes
+
+
 def _add_i18n_to_url(url_to_amend, **kw):
     # If the locale keyword param is provided then the url is rewritten
     # using that locale .If return_to is provided this is used as the url
@@ -1810,6 +1825,7 @@ __allowed_functions__ = [
     'url',
     'url_for',
     'url_for_static',
+    'is_url',
     'lang',
     'flash',
     'flash_error',
