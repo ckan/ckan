@@ -33,6 +33,7 @@
           {% endif %}
         </a>
       </li>
+      {% if res.url and h.is_url(res.url) %}
       <li>
         <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
           {% if res.can_be_previewed %}
@@ -44,6 +45,7 @@
           {% endif %}
         </a>
       </li>
+      {% endif %}
       {% endblock %}
     </ul>
   </div>
