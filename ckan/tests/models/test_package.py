@@ -47,7 +47,6 @@ class TestPackage:
         assert len(package.all_revisions) == 1
         assert package.all_revisions[0].revision_id == revision_id
         assert package.all_revisions[0].revision_timestamp == timestamp
-        assert package.all_revisions[0].expired_id is None
 
         # change it
         rev = model.repo.new_revision()
@@ -61,11 +60,9 @@ class TestPackage:
         assert len(package.all_revisions) == 2
         assert package.all_revisions[0].revision_id == revision_id2
         assert package.all_revisions[0].revision_timestamp == timestamp2
-        assert package.all_revisions[0].expired_id is None
 
         assert package.all_revisions[1].revision_id == revision_id
         assert package.all_revisions[1].revision_timestamp == timestamp
-        assert package.all_revisions[1].expired_id == revision_id2
 
     def test_create_package(self):
         package = model.Package.by_name(self.name)

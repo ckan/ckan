@@ -393,11 +393,10 @@ class Repository(vdm.sqlalchemy.Repository):
                         for num, obj in enumerate(trevobjs):
                             if num == 0:
                                 continue
-                            if 'pending' not in obj.state:
-                                obj.current = True
-                                obj.expired_timestamp = datetime(9999, 12, 31)
-                                self.session.add(obj)
-                                break
+
+                            obj.expired_timestamp = datetime(9999, 12, 31)
+                            self.session.add(obj)
+                            break
                 # now delete revision object
                 self.session.delete(item)
             for cont in to_purge:

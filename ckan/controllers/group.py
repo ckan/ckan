@@ -160,7 +160,7 @@ class GroupController(base.BaseController):
 
         c.page = h.Page(
             collection=results,
-            page=request.params.get('page', 1),
+            page = self._get_page_number(request.params),
             url=h.pager_url,
             items_per_page=21
         )
@@ -217,10 +217,7 @@ class GroupController(base.BaseController):
         # if we drop support for those then we can delete this line.
         c.group_admins = new_authz.get_group_or_org_admin_ids(c.group.id)
 
-        try:
-            page = int(request.params.get('page', 1))
-        except ValueError, e:
-            abort(400, ('"page" parameter must be an integer'))
+        page = self._get_page_number(request.params)
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
@@ -474,7 +471,7 @@ class GroupController(base.BaseController):
                    'for_edit': True,
                    'parent': request.params.get('parent', None)
                    }
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_datasets': False}
 
         if context['save'] and not data:
             return self._save_edit(id, context)

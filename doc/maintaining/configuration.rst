@@ -63,6 +63,21 @@ files, and enables CKAN templates' debugging features.
 Repoze.who Settings
 -------------------
 
+.. _who.timeout:
+
+who.timeout
+^^^^^^^^^^^
+
+Example::
+
+ who.timeout = 3600
+
+Default value: None
+
+This defines how long (in seconds) until a user is logged out after a period
+of inactivity. If the setting isn't defined, the session doesn't expire. Not
+active by default.
+
 .. _who.httponly:
 
 who.httponly

@@ -85,7 +85,7 @@ class UserController(base.BaseController):
     def index(self):
         LIMIT = 20
 
-        page = int(request.params.get('page', 1))
+        page = self._get_page_number(request.params)
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
@@ -347,11 +347,6 @@ class UserController(base.BaseController):
         if 'error' in request.params:
             h.flash_error(request.params['error'])
 
-        if request.environ['SCRIPT_NAME'] and g.openid_enabled:
-            # #1662 restriction
-            log.warn('Cannot mount CKAN at a URL and login with OpenID.')
-            g.openid_enabled = False
-
         if not c.user:
             came_from = request.params.get('came_from')
             if not came_from:
@@ -383,9 +378,6 @@ class UserController(base.BaseController):
             return self.me()
         else:
             err = _('Login failed. Bad username or password.')
-            if g.openid_enabled:
-                err += _(' (Or if using OpenID, it hasn\'t been associated '
-                         'with a user account.)')
             if h.asbool(config.get('ckan.legacy_templates', 'false')):
                 h.flash_error(err)
                 h.redirect_to(controller='user',

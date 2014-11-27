@@ -273,6 +273,9 @@ class DatastorePlugin(p.SingletonPlugin):
                 action='dump', resource_id=resource_dict['id'])
 
         connection = None
+
+        resource_dict['datastore_active'] = False
+
         try:
             connection = self.read_engine.connect()
             result = connection.execute(
@@ -281,8 +284,6 @@ class DatastorePlugin(p.SingletonPlugin):
             ).fetchone()
             if result:
                 resource_dict['datastore_active'] = True
-            else:
-                resource_dict['datastore_active'] = False
         finally:
             if connection:
                 connection.close()

@@ -298,11 +298,10 @@ class BaseController(WSGIController):
         b) For API calls they may set a header with an API key.
         '''
 
-        # environ['REMOTE_USER'] is set by repoze.who if it authenticates
-        # a user's cookie or OpenID. But repoze.who doesn't check the user
-        # (still) exists in our database - we need to do that here. (Another
-        # way would be with an userid_checker, but that would mean another db
-        # access.
+        # environ['REMOTE_USER'] is set by repoze.who if it authenticates a
+        # user's cookie. But repoze.who doesn't check the user (still) exists
+        # in our database - we need to do that here. (Another way would be
+        # with an userid_checker, but that would mean another db access.
         # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
         # .plugins.sql )
         c.user = request.environ.get('REMOTE_USER', '')
@@ -420,6 +419,24 @@ class BaseController(WSGIController):
         query = model.Session.query(model.User)
         user = query.filter_by(apikey=apikey).first()
         return user
+
+    def _get_page_number(self, params, key='page', default=1):
+        """
+        Returns the page number from the provided params after
+        verifies that it is an integer.
+
+        If it fails it will abort the request with a 400 error
+        """
+        p = params.get(key, default)
+
+        try:
+            p = int(p)
+            if p < 1:
+                raise ValueError("Negative number not allowed")
+        except ValueError, e:
+            abort(400, ('"page" parameter must be a positive integer'))
+
+        return p
 
 
 # Include the '_' function in the public names

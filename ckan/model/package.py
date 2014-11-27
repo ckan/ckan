@@ -22,7 +22,8 @@ import ckan.lib.dictization as dictization
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTagRevision', 'PackageRevision']
+           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTag', 'PackageTagRevision',
+           'PackageRevision']
 
 
 PACKAGE_NAME_MAX_LENGTH = 100
@@ -86,7 +87,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def resources(self):
         return [resource for resource in
                 self.resources_all
-                if resource.state <> 'deleted']
+                if resource.state != 'deleted']
 
     def related_packages(self):
         return [self]
@@ -151,12 +152,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         """
         import ckan.model as model
         query = meta.Session.query(model.Tag)
-        query = query.join(PackageTagRevision)
-        query = query.filter(PackageTagRevision.tag_id == model.Tag.id)
-        query = query.filter(PackageTagRevision.package_id == self.id)
-        query = query.filter(and_(
-            PackageTagRevision.state == 'active',
-            PackageTagRevision.current == True))
+        query = query.join(model.PackageTag)
+        query = query.filter(model.PackageTag.tag_id == model.Tag.id)
+        query = query.filter(model.PackageTag.package_id == self.id)
+        query = query.filter(model.PackageTag.state == 'active')
         if vocab:
             query = query.filter(model.Tag.vocabulary_id == vocab.id)
         else:

@@ -5,7 +5,6 @@ import datetime
 import json
 
 from pylons import config
-from vdm.sqlalchemy.base import SQLAlchemySession
 import paste.deploy.converters as converters
 
 import ckan.plugins as plugins
@@ -36,87 +35,6 @@ NotFound = logic.NotFound
 ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
-def _make_latest_rev_active(context, q):
-
-    session = context['model'].Session
-
-    old_current = q.filter_by(current=True).first()
-    if old_current:
-        old_current.current = False
-        session.add(old_current)
-
-    latest_rev = q.filter_by(expired_timestamp=datetime.datetime(9999, 12, 31)).one()
-    latest_rev.current = True
-    if latest_rev.state in ('pending-deleted', 'deleted'):
-        latest_rev.state = 'deleted'
-        latest_rev.continuity.state = 'deleted'
-    else:
-        latest_rev.continuity.state = 'active'
-        latest_rev.state = 'active'
-
-    session.add(latest_rev)
-
-    ##this is just a way to get the latest revision that changed
-    ##in order to timestamp
-    old_latest = context.get('latest_revision_date')
-    if old_latest:
-        if latest_rev.revision_timestamp > old_latest:
-            context['latest_revision_date'] = latest_rev.revision_timestamp
-            context['latest_revision'] = latest_rev.revision_id
-    else:
-        context['latest_revision_date'] = latest_rev.revision_timestamp
-        context['latest_revision'] = latest_rev.revision_id
-
-def make_latest_pending_package_active(context, data_dict):
-    '''
-
-    .. todo:: What does this function do?
-
-    You must be authorized to update the dataset.
-
-    :param id: the name or id of the dataset, e.g. ``'warandpeace'``
-    :type id: string
-
-    '''
-    model = context['model']
-    session = model.Session
-    SQLAlchemySession.setattr(session, 'revisioning_disabled', True)
-    id = _get_or_bust(data_dict, "id")
-    pkg = model.Package.get(id)
-
-    _check_access('make_latest_pending_package_active', context, data_dict)
-
-    #packages
-    q = session.query(model.PackageRevision).filter_by(id=pkg.id)
-    _make_latest_rev_active(context, q)
-
-    #resources
-    for resource in pkg.resources_all:
-        q = session.query(model.ResourceRevision).filter_by(id=resource.id)
-        _make_latest_rev_active(context, q)
-
-    #tags
-    for tag in pkg.package_tag_all:
-        q = session.query(model.PackageTagRevision).filter_by(id=tag.id)
-        _make_latest_rev_active(context, q)
-
-    #extras
-    for extra in pkg.extras_list:
-        q = session.query(model.PackageExtraRevision).filter_by(id=extra.id)
-        _make_latest_rev_active(context, q)
-
-    latest_revision = context.get('latest_revision')
-    if not latest_revision:
-        return
-
-    q = session.query(model.Revision).filter_by(id=latest_revision)
-    revision = q.first()
-    revision.approved_timestamp = datetime.datetime.now()
-    session.add(revision)
-
-    if not context.get('defer_commit'):
-        session.commit()
-
 
 def related_update(context, data_dict):
     '''Update a related item.
@@ -143,7 +61,7 @@ def related_update(context, data_dict):
     context["related"] = related
 
     if not related:
-        logging.error('Could not find related ' + id)
+        log.error('Could not find related ' + id)
         raise NotFound(_('Item was not found.'))
 
     _check_access('related_update', context, data_dict)
@@ -184,7 +102,6 @@ def related_update(context, data_dict):
     return model_dictize.related_dictize(related, context)
 
 
-
 def resource_update(context, data_dict):
     '''Update a resource.
 
@@ -209,7 +126,7 @@ def resource_update(context, data_dict):
     context["resource"] = resource
 
     if not resource:
-        logging.error('Could not find resource ' + id)
+        log.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
@@ -222,7 +139,7 @@ def resource_update(context, data_dict):
         if p['id'] == id:
             break
     else:
-        logging.error('Could not find resource ' + id)
+        log.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
@@ -1303,10 +1220,9 @@ def _bulk_update_dataset(context, data_dict, update_dict):
         .update(update_dict, synchronize_session=False)
 
     # revisions
-    model.Session.query(model.package_revision_table) \
-        .filter(model.PackageRevision.id.in_(datasets)) \
-        .filter(model.PackageRevision.owner_org == org_id) \
-        .filter(model.PackageRevision.current == True) \
+    model.Session.query(model.package_table) \
+        .filter(model.Package.id.in_(datasets)) \
+        .filter(model.Package.owner_org == org_id) \
         .update(update_dict, synchronize_session=False)
 
     model.Session.commit()

@@ -31,32 +31,6 @@ class TestGroup(FunctionalTestCase):
     def teardown_class(self):
         model.repo.rebuild_db()
 
-    def test_atom_feed_page_zero(self):
-        group_name = 'deletetest'
-        CreateTestData.create_groups([{'name': group_name,
-                                       'packages': []}],
-                                     admin_user_name='testsysadmin')
-
-        offset = url_for(controller='feed', action='group',
-                         id=group_name)
-        offset = offset + '?page=0'
-        res = self.app.get(offset)
-        assert '<feed' in res, res
-        assert 'xmlns="http://www.w3.org/2005/Atom"' in res, res
-        assert '</feed>' in res, res
-
-    def test_atom_feed_page_negative(self):
-        group_name = 'deletetest'
-        CreateTestData.create_groups([{'name': group_name,
-                                       'packages': []}],
-                                     admin_user_name='testsysadmin')
-
-        offset = url_for(controller='feed', action='group',
-                         id=group_name)
-        offset = offset + '?page=-2'
-        res = self.app.get(offset, expect_errors=True)
-        assert '"page" parameter must be a positive integer' in res, res
-
     def test_sorting(self):
         model.repo.rebuild_db()
 
