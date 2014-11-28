@@ -2,6 +2,9 @@ import sys
 import logging
 import shlex
 
+import string
+import random
+
 import pylons
 import sqlalchemy.engine.url as sa_url
 
@@ -192,14 +195,18 @@ class DatastorePlugin(p.SingletonPlugin):
             {'connection_url': self.write_url}).connect()
         read_connection_user = sa_url.make_url(self.read_url).username
 
-        drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
+        # create a nice random table name
+        chars = string.lowercase
+        table_name = '_' + ''.join(random.choice(chars) for _ in range(9))
+        
+        drop_foo_sql = u'DROP TABLE IF EXISTS ' + table_name
 
         write_connection.execute(drop_foo_sql)
 
         try:
-            write_connection.execute(u'CREATE TEMP TABLE _foo ()')
+            write_connection.execute(u'CREATE TEMP TABLE ' + table_name + ' ()')
             for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                test_privilege_sql = u"SELECT has_table_privilege(%s, '_foo', %s)"
+                test_privilege_sql = u"SELECT has_table_privilege(%s, '" + table_name + "', %s)"
                 have_privilege = write_connection.execute(
                     test_privilege_sql, (read_connection_user, privilege)).first()[0]
                 if have_privilege:
