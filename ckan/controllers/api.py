@@ -166,7 +166,15 @@ class ApiController(base.BaseController):
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver, 'auth_user_obj': c.userobj}
         model.Session()._context = context
-        return_dict = {'help': function.__doc__}
+
+        return_dict = {'help': h.url_for(controller='api',
+                                         action='action',
+                                         logic_function='help_show',
+                                         ver=ver,
+                                         name=logic_function,
+                                         qualified=True,
+                                         )
+                       }
         try:
             side_effect_free = getattr(function, 'side_effect_free', False)
             request_data = self._get_request_data(try_url_params=
