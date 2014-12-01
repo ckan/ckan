@@ -674,8 +674,8 @@ Default value:  ``1 * 1024 * 1024`` (1 MB)
 
 This sets the upper file size limit for in-line previews. 
 Increasing the value allows CKAN to preview larger files (e.g. PDFs) in-line; 
-however, this might cause time-outs, or unresponsive browsers for CKAN users 
-with lower bandwidth.
+however, a higher value might cause time-outs, or unresponsive browsers for CKAN users 
+with lower bandwidth. If left commented out, CKAN will default to 1 MB.
 
 
 Front-End Settings
