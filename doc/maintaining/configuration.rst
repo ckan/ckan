@@ -663,6 +663,20 @@ Default value:  ``True``
 
 This controls if we'll use the 1 day cache for stats.
 
+ckan.resource_proxy.max_file_size
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.resource_proxy.max_file_size = 1 * 1024 * 1024
+
+Default value:  ``1 * 1024 * 1024`` (1 MB)
+
+This sets the upper file size limit for in-line previews. 
+Increasing the value allows CKAN to preview larger files (e.g. PDFs) in-line; 
+however, this might cause time-outs, or unresponsive browsers for CKAN users 
+with lower bandwidth.
+
 
 Front-End Settings
 ------------------
