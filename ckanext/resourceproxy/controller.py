@@ -13,8 +13,7 @@ import ckan.plugins.toolkit as toolkit
 log = getLogger(__name__)
 
 MAX_FILE_SIZE = toolkit.asint(
-                    config.get('ckan.resource_proxy.max_file_size',
-                                1024 * 1024))  # default: 1MB
+    config.get('ckan.resource_proxy.max_file_size', 1024 * 1024))
 CHUNK_SIZE = 512
 
 
