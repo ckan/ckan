@@ -40,7 +40,9 @@ API changes and deprecations
   can be changed in the ``Repoze.who`` settings detailed in the Config File
   Options documentation (:ref:`who.httponly`).
 
-* The OpenID login option has been removed and is no longer supported.
+* The OpenID login option has been removed and is no longer supported. See
+  "Troubleshooting" if you are upgrading an existing CKAN instance as you may
+  need to update your ``who.ini`` file.
 
 Template changes
 ----------------
@@ -55,6 +57,37 @@ Template changes
   changes might effect your content blocks:
 
   https://github.com/ckan/ckan/pull/1935
+
+Troubleshooting:
+ * Exception on first load after upgrading from a previous CKAN version::
+
+     ImportError: <module 'ckan.lib.authenticator' from '/usr/lib/ckan/default/src/ckan/ckan/lib/authenticator.py'> has no 'OpenIDAuthenticator' attribute
+
+   There are OpenID related configuration options on your ``who.ini`` file which
+   are no longer supported.
+
+   This file is generally located in ``/etc/ckan/default/who.ini`` but its location
+   may vary if you used a custom deployment.
+
+   The options that you need to remove are:
+
+   - The whole ``[plugin:openid]`` section
+   - In ``[general]``, replace::
+
+        challenge_decider = repoze.who.plugins.openid.classifiers:openid_challenge_decider
+
+     with::
+
+        challenge_decider = repoze.who.classifiers:default_challenge_decider
+
+   - In ``[identifiers]``, remove ``openid``
+   - In ``[authenticators]``, remove ``ckan.lib.authenticator:OpenIDAuthenticator``
+   - In ``[challengers]``, remove ``openid``
+
+   This is a diff with the whole changes:
+
+    https://github.com/ckan/ckan/pull/2058/files#diff-2
+
 
 v2.2.1 2014-10-15
 =================
