@@ -134,7 +134,7 @@ def package_create(context, data_dict):
             package_type = package_plugin.package_types()[0]
         except (AttributeError, IndexError):
             package_type = 'dataset'
-            # in case a 'dataset' plugin was registeres w/o fallback
+            # in case a 'dataset' plugin was registered w/o fallback
             package_plugin = lib_plugins.lookup_package_plugin(package_type)
         data_dict['type'] = package_type
     else:
