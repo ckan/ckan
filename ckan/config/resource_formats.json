@@ -54,7 +54,7 @@
   ["RDF", "RDF", "application/rdf+xml", ["rdf/xml"]],
   ["E00", " ARC/INFO interchange file format", "application/x-e00", []],
   ["PDF", "PDF File", "application/pdf", []],
-  ["CSV", "Comma Separated Values File", "text/csv", ["text/comma-separated-values"]],
+  ["CSV", "Comma Separated Values File", "text/csv", ["text/comma-separated-values", "application/csv"]],
   ["ODC", "OpenDocument Chart", "application/vnd.oasis.opendocument.chart", []],
   ["Atom Feed", "Atom Feed", "application/atom+xml", []],
   ["MrSID", "MrSID", "image/x-mrsid", []],
