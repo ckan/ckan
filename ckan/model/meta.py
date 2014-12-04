@@ -6,6 +6,7 @@ from pylons import config
 from sqlalchemy import MetaData, and_
 import sqlalchemy.orm as orm
 from sqlalchemy.orm.session import SessionExtension
+import vdm
 
 import extension
 import ckan.lib.activity_streams_session_extension as activity
@@ -59,8 +60,12 @@ class CkanSessionExtension(SessionExtension):
                                     'deleted': set(),
                                     'changed': set()}
 
-        changed = [obj for obj in session.dirty if 
-            session.is_modified(obj, include_collections=False, passive=True)]
+        revisioner = vdm.sqlalchemy.Revisioner(None)
+        changed = [obj for obj in session.dirty if
+                   (revisioner.check_real_change(obj, None, None)
+                    if hasattr(obj, '__revision_class__') else
+                    session.is_modified(obj, include_collections=False,
+                                        passive=True))]
 
         session._object_cache['new'].update(session.new)
         session._object_cache['deleted'].update(session.deleted)
