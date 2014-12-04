@@ -69,8 +69,18 @@ def package_resource_list_save(res_dicts, package, context):
         obj = resource_dict_save(res_dict, context)
         obj_list.append(obj)
 
+    # Set the package's resources. resource_list is an ORM relation - the
+    # package's resources. If we didn't have the slice operator "[:]" then it
+    # would reassign the variable "resource_list" to be the obj_list. But with
+    # the slice operator it changes the contents of the relation, setting the
+    # package's resources.
+    # At the table level, for each resource in the obj_list, its
+    # resource.resource_group is changed to this package's resource_group
+    # (which is needed for new resources), and every resource.position is set
+    # to ascending integers, according to their ordering in the obj_list.
     resource_list[:] = obj_list
 
+    # Mark any left-over resources as deleted
     for resource in set(old_list) - set(obj_list):
         resource.state = 'deleted'
         resource_list.append(resource)
