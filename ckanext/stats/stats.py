@@ -29,6 +29,7 @@ class Stats(object):
         package = table('package')
         rating = table('rating')
         sql = select([package.c.id, func.avg(rating.c.rating), func.count(rating.c.rating)], from_obj=[package.join(rating)]).\
+              where(and_(package.c.private==False, package.c.state=='active')). \
               group_by(package.c.id).\
               order_by(func.avg(rating.c.rating).desc(), func.count(rating.c.rating).desc()).\
               limit(limit)
@@ -38,27 +39,25 @@ class Stats(object):
 
     @classmethod
     def most_edited_packages(cls, limit=10):
-        package_revision = table('package_revision')
-        s = select([package_revision.c.id, func.count(package_revision.c.revision_id)]).\
-            group_by(package_revision.c.id).\
-            order_by(func.count(package_revision.c.revision_id).desc()).\
-            limit(limit)
-        res_ids = model.Session.execute(s).fetchall()
-        res_pkgs = [(model.Session.query(model.Package).get(unicode(pkg_id)), val) for pkg_id, val in res_ids]
-        return res_pkgs
+
+        q = model.Session.query(model.Package, func.count(model.PackageRevision.revision_id)) \
+                                .join(model.PackageRevision) \
+                                .filter(and_(model.Package.private==False, model.Package.state=='active')) \
+                                .group_by(model.Package.id) \
+                                .order_by(func.count(model.PackageRevision.revision_id).desc()) \
+                                .limit(limit)
+        return q.all()
 
     @classmethod
     def largest_groups(cls, limit=10):
-        member = table('member')
-        s = select([member.c.group_id, func.count(member.c.table_id)]).\
-            group_by(member.c.group_id).\
-            where(and_(member.c.group_id!=None, member.c.table_name=='package')).\
-            order_by(func.count(member.c.table_id).desc()).\
-            limit(limit)
 
-        res_ids = model.Session.execute(s).fetchall()
-        res_groups = [(model.Session.query(model.Group).get(unicode(group_id)), val) for group_id, val in res_ids]
-        return res_groups
+        q = model.Session.query(model.Group, func.count(model.Member.table_id)) \
+                                .join(model.Member) \
+                                .filter(and_(model.Member.group_id!=None, model.Member.table_name=='package', model.Group.state=='active')) \
+                                .group_by(model.Group.id) \
+                                .order_by(func.count(model.Member.table_id).desc()) \
+                                .limit(limit)
+        return q.all()
 
     @classmethod
     def top_tags(cls, limit=10, returned_tag_info='object'): # by package
@@ -86,17 +85,19 @@ class Stats(object):
 
     @classmethod
     def top_package_owners(cls, limit=10):
-        package_role = table('package_role')
-        user_object_role = table('user_object_role')
-        s = select([user_object_role.c.user_id, func.count(user_object_role.c.role)], from_obj=[user_object_role.join(package_role)]).\
-            where(user_object_role.c.role==model.authz.Role.ADMIN).\
-            where(user_object_role.c.user_id!=None).\
-            group_by(user_object_role.c.user_id).\
-            order_by(func.count(user_object_role.c.role).desc()).\
-            limit(limit)
-        res_ids = model.Session.execute(s).fetchall()
-        res_users = [(model.Session.query(model.User).get(unicode(user_id)), val) for user_id, val in res_ids]
-        return res_users
+
+        q = model.Session.query(model.User, func.count(model.UserObjectRole.role)) \
+                                .join(model.PackageRole) \
+                                .join(model.Package) \
+                                .filter(model.UserObjectRole.role==model.authz.Role.ADMIN) \
+                                .filter(model.UserObjectRole.user_id!=None) \
+                                .filter(model.Package.private==False) \
+                                .filter(model.Package.state=='active') \
+                                .group_by(model.User.id) \
+                                .order_by(func.count(model.UserObjectRole.role).desc()) \
+                                .limit(limit)
+        return q.all()
+
 
 class RevisionStats(object):
     @classmethod
