@@ -21,7 +21,9 @@ class ImageView(p.SingletonPlugin):
                 'title': 'Image',
                 'icon': 'picture',
                 'schema': {'image_url': [ignore_empty, unicode]},
-                'iframed': False}
+                'iframed': False,
+                'always_available': True,
+                }
 
     def can_view(self, data_dict):
         return (data_dict['resource'].get('format', '').lower()

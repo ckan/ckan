@@ -19,7 +19,9 @@ class WebPageView(p.SingletonPlugin):
                 'title': 'Web Page',
                 'schema': {'page_url': [ignore_empty, unicode]},
                 'iframed': False,
-                'icon': 'link'}
+                'icon': 'link',
+                'always_available': True,
+                }
 
     def can_view(self, data_dict):
 

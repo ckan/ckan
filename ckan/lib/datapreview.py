@@ -131,7 +131,11 @@ def get_allowed_view_plugins(data_dict):
     '''
     can_view = []
     for plugin in p.PluginImplementations(p.IResourceView):
-        if plugin.can_view(data_dict):
+
+        plugin_info = plugin.info()
+
+        if (plugin_info.get('always_available', False) or
+                plugin.can_view(data_dict)):
             can_view.append(plugin)
     return can_view
 
