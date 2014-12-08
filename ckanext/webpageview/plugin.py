@@ -21,6 +21,7 @@ class WebPageView(p.SingletonPlugin):
                 'iframed': False,
                 'icon': 'link',
                 'always_available': True,
+                'default_title': p.toolkit._('Website'),
                 }
 
     def can_view(self, data_dict):

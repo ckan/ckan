@@ -23,6 +23,7 @@ class ImageView(p.SingletonPlugin):
                 'schema': {'image_url': [ignore_empty, unicode]},
                 'iframed': False,
                 'always_available': True,
+                'default_title': p.toolkit._('Image'),
                 }
 
     def can_view(self, data_dict):
