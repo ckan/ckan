@@ -132,7 +132,7 @@ class TestCreateResourceViews(object):
 
         resource_view = {'resource_id': resource['id'],
                          'title': u'Resource View',
-                         'view_type': u'image',
+                         'view_type': u'image_view',
                          'image_url': 'url'}
 
         context = {'user': user['name'], 'model': core_model}
@@ -159,7 +159,7 @@ class TestCreateResourceViews(object):
 
         resource_view = {'resource_id': resource['id'],
                          'title': u'Resource View',
-                         'view_type': u'image',
+                         'view_type': u'image_view',
                          'image_url': 'url'}
 
         context = {'user': user_2['name'], 'model': core_model}
@@ -170,7 +170,7 @@ class TestCreateResourceViews(object):
     def test_not_authorized_if_not_logged_in(self):
 
         resource_view = {'title': u'Resource View',
-                         'view_type': u'image',
+                         'view_type': u'image_view',
                          'image_url': 'url'}
 
         context = {'user': None, 'model': core_model}

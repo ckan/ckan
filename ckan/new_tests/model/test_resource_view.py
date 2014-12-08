@@ -36,31 +36,31 @@ class TestResourceView(object):
         assert_not_equals(resource_view, None)
 
     def test_get_count_view_type(self):
-        factories.ResourceView(view_type='image')
-        factories.ResourceView(view_type='webpage')
+        factories.ResourceView(view_type='image_view')
+        factories.ResourceView(view_type='webpage_view')
 
-        result = ResourceView.get_count_not_in_view_types(['image'])
+        result = ResourceView.get_count_not_in_view_types(['image_view'])
 
-        assert_equals(result, [('webpage', 1)])
+        assert_equals(result, [('webpage_view', 1)])
 
     def test_delete_view_type(self):
-        factories.ResourceView(view_type='image')
-        factories.ResourceView(view_type='webpage')
+        factories.ResourceView(view_type='image_view')
+        factories.ResourceView(view_type='webpage_view')
 
-        ResourceView.delete_not_in_view_types(['image'])
+        ResourceView.delete_not_in_view_types(['image_view'])
 
-        result = ResourceView.get_count_not_in_view_types(['image'])
+        result = ResourceView.get_count_not_in_view_types(['image_view'])
         assert_equals(result, [])
 
     def test_delete_view_type_doesnt_commit(self):
-        factories.ResourceView(view_type='image')
-        factories.ResourceView(view_type='webpage')
+        factories.ResourceView(view_type='image_view')
+        factories.ResourceView(view_type='webpage_view')
 
-        ResourceView.delete_not_in_view_types(['image'])
+        ResourceView.delete_not_in_view_types(['image_view'])
         model.Session.rollback()
 
-        result = ResourceView.get_count_not_in_view_types(['image'])
-        assert_equals(result, [('webpage', 1)])
+        result = ResourceView.get_count_not_in_view_types(['image_view'])
+        assert_equals(result, [('webpage_view', 1)])
 
     def test_purging_resource_removes_its_resource_views(self):
         resource_view_dict = factories.ResourceView()

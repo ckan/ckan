@@ -79,13 +79,13 @@ class TestDefaultViewsConfig(object):
 
         eq_(default_views, [])
 
-    @helpers.change_config('ckan.views.default_views', 'image')
+    @helpers.change_config('ckan.views.default_views', 'image_view')
     def test_in_config(self):
 
         default_views = datapreview.get_default_view_plugins()
 
         eq_(sorted([view_plugin.info()['name'] for view_plugin in default_views]),
-            ['image'])
+            ['image_view'])
 
     @helpers.change_config('ckan.views.default_views', 'test_datastore_view')
     def test_in_config_datastore_view_only(self):
@@ -102,15 +102,15 @@ class TestDefaultViewsConfig(object):
 
         eq_(default_views, [])
 
-    @helpers.change_config('ckan.views.default_views', 'image test_datastore_view')
+    @helpers.change_config('ckan.views.default_views', 'image_view test_datastore_view')
     def test_both_plugins_in_config_only_non_datastore(self):
 
         default_views = datapreview.get_default_view_plugins()
 
         eq_(sorted([view_plugin.info()['name'] for view_plugin in default_views]),
-            ['image'])
+            ['image_view'])
 
-    @helpers.change_config('ckan.views.default_views', 'image test_datastore_view')
+    @helpers.change_config('ckan.views.default_views', 'image_view test_datastore_view')
     def test_both_plugins_in_config_only_datastore(self):
 
         default_views = datapreview.get_default_view_plugins(get_datastore_views=True)
@@ -152,7 +152,7 @@ class TestDefaultViewsCreation(object):
             views_list = helpers.call_action('resource_view_list', id=resource['id'])
 
             eq_(len(views_list), 1)
-            eq_(views_list[0]['view_type'], 'image')
+            eq_(views_list[0]['view_type'], 'image_view')
 
     def test_default_views_created_on_package_update(self):
 
@@ -194,7 +194,7 @@ class TestDefaultViewsCreation(object):
 
         updated_views_list = helpers.call_action('resource_view_list', id=resource_id)
         eq_(len(updated_views_list), 1)
-        eq_(updated_views_list[0]['view_type'], 'image')
+        eq_(updated_views_list[0]['view_type'], 'image_view')
 
         pass
 
@@ -218,7 +218,7 @@ class TestDefaultViewsCreation(object):
         views_list = helpers.call_action('resource_view_list', id=new_resource_dict['id'])
 
         eq_(len(views_list), 1)
-        eq_(views_list[0]['view_type'], 'image')
+        eq_(views_list[0]['view_type'], 'image_view')
 
     def test_default_views_created_on_resource_update(self):
 
@@ -247,4 +247,4 @@ class TestDefaultViewsCreation(object):
         views_list = helpers.call_action('resource_view_list', id=updated_resource_dict['id'])
 
         eq_(len(views_list), 1)
-        eq_(views_list[0]['view_type'], 'image')
+        eq_(views_list[0]['view_type'], 'image_view')

@@ -35,7 +35,7 @@ class TestWebPageView(helpers.FunctionalTestBase):
 
         resource_view = factories.ResourceView(
             resource_id=resource['id'],
-            view_type='webpage',
+            view_type='webpage_view',
             page_url='http://some.other.website.html',)
 
         url = url_for(controller='package', action='resource_read',

@@ -944,7 +944,7 @@ class TestShowResourceView(object):
 
         resource = factories.Resource()
         resource_view = {'resource_id': resource['id'],
-                         'view_type': u'image',
+                         'view_type': u'image_view',
                          'title': u'View',
                          'description': u'A nice view',
                          'image_url': 'url'}

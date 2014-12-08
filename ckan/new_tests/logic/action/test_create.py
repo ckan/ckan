@@ -162,7 +162,7 @@ class TestResourceViewCreate(object):
     def _default_resource_view_attributes(self, **kwargs):
         default_attributes = {
             'resource_id': factories.Resource()['id'],
-            'view_type': 'image',
+            'view_type': 'image_view',
             'title': 'View',
             'description': 'A nice view'
         }

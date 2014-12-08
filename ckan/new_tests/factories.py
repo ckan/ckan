@@ -176,7 +176,7 @@ class ResourceView(factory.Factory):
 
     title = factory.Sequence(lambda n: 'test_resource_view_{n}'.format(n=n))
     description = 'Just another test resource view.'
-    view_type = 'image'
+    view_type = 'image_view'
     resource_id = factory.LazyAttribute(lambda _: Resource()['id'])
 
     @classmethod

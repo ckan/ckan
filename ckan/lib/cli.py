@@ -2279,7 +2279,7 @@ class ViewsCommand(CkanCommand):
             resource_view = {'title': 'Resource Image',
                              'description': 'View of the Image',
                              'resource_id': resource.id,
-                             'view_type': 'image'}
+                             'view_type': 'image_view'}
 
             logic.get_action('resource_view_create')(context, resource_view)
 
@@ -2301,7 +2301,7 @@ class ViewsCommand(CkanCommand):
             resource_view = {'title': 'Web Page View',
                              'description': 'View of the webpage',
                              'resource_id': resource.id,
-                             'view_type': 'webpage'}
+                             'view_type': 'webpage_view'}
 
             logic.get_action('resource_view_create')(context, resource_view)
 

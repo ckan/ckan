@@ -204,7 +204,7 @@ class TestUpdateResourceViews(object):
 
         params = {'id': resource_view['id'],
                   'title': 'Resource View Updated',
-                  'view_type': 'image',
+                  'view_type': 'image_view',
                   'image_url': 'url'}
 
         context = {'user': None, 'model': model}
@@ -225,7 +225,7 @@ class TestUpdateResourceViews(object):
         params = {'id': resource_view['id'],
                   'resource_id': resource['id'],
                   'title': 'Resource View Updated',
-                  'view_type': 'image',
+                  'view_type': 'image_view',
                   'image_url': 'url'}
 
         context = {'user': user['name'], 'model': model}
@@ -256,7 +256,7 @@ class TestUpdateResourceViews(object):
         params = {'id': resource_view['id'],
                   'resource_id': resource['id'],
                   'title': 'Resource View Updated',
-                  'view_type': 'image',
+                  'view_type': 'image_view',
                   'image_url': 'url'}
 
         context = {'user': user_2['name'], 'model': model}
