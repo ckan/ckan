@@ -17,7 +17,7 @@ class ImageView(p.SingletonPlugin):
         p.toolkit.add_template_directory(config, 'theme/templates')
 
     def info(self):
-        return {'name': 'image',
+        return {'name': 'image_view',
                 'title': 'Image',
                 'icon': 'picture',
                 'schema': {'image_url': [ignore_empty, unicode]},

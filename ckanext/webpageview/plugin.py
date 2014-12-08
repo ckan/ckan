@@ -15,7 +15,7 @@ class WebPageView(p.SingletonPlugin):
         p.toolkit.add_template_directory(config, 'theme/templates')
 
     def info(self):
-        return {'name': 'webpage',
+        return {'name': 'webpage_view',
                 'title': 'Web Page',
                 'schema': {'page_url': [ignore_empty, unicode]},
                 'iframed': False,
