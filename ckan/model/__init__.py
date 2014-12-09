@@ -202,7 +202,6 @@ class Repository(vdm.sqlalchemy.Repository):
                 except ImportError:
                     pass
 
-                self.init_configuration_data()
                 self.tables_created_and_initialised = True
         log.info('Database initialised')
 
@@ -217,23 +216,12 @@ class Repository(vdm.sqlalchemy.Repository):
         self.tables_created_and_initialised = False
         log.info('Database tables dropped')
 
-    def init_configuration_data(self):
-        '''Default configuration, for when CKAN is first used out of the box.
-        This state may be subsequently configured by the user.'''
-        if meta.Session.query(Revision).count() == 0:
-            rev = Revision()
-            rev.author = 'system'
-            rev.message = u'Initialising the Repository'
-            Session.add(rev)
-        self.commit_and_remove()
-
     def create_db(self):
         '''Ensures tables, const data and some default config is created.
         i.e. the same as init_db APART from when running tests, when init_db
         has shortcuts.
         '''
         self.metadata.create_all(bind=self.metadata.bind)
-        self.init_configuration_data()
         log.info('Database tables created')
 
     def latest_migration_version(self):
@@ -246,8 +234,6 @@ class Repository(vdm.sqlalchemy.Repository):
         if self.tables_created_and_initialised:
             # just delete data, leaving tables - this is faster
             self.delete_all()
-            # re-add default data
-            self.init_configuration_data()
             self.session.commit()
         else:
             # delete tables and data
