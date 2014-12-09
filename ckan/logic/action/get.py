@@ -797,12 +797,11 @@ def user_list(context, data_dict):
                     model.Revision.author == model.User.name,
                     model.Revision.author == model.User.openid
                 )).label('number_of_edits'),
-        _select([_func.count(model.UserObjectRole.id)],
+        _select([_func.count(model.Package.id)],
                 _and_(
-                    model.UserObjectRole.user_id == model.User.id,
-                    model.UserObjectRole.context == 'Package',
-                    model.UserObjectRole.role == 'admin'
-                )).label('number_administered_packages')
+                    model.Package.creator_user_id == model.User.id,
+                    model.Package.state == 'active',
+                )).label('number_created_packages')
     )
 
     if q:
@@ -1291,6 +1290,12 @@ def user_show(context, data_dict):
     :type id: string
     :param user_obj: the user dictionary of the user (optional)
     :type user_obj: user dictionary
+    :param include_datasets: Include user datasets
+         (optional, default:```False```)
+    :type include_datasets: boolean
+    :param include_num_followers: Include follower count
+         (optional, default:``False``)
+    :type include_num_followers: boolean
 
     :rtype: dictionary
 
@@ -1314,36 +1319,29 @@ def user_show(context, data_dict):
     user_dict = model_dictize.user_dictize(user_obj, context)
 
     if context.get('return_minimal'):
+        log.warning('Use of the "return_minimal" in user_show is '
+            'deprecated.')
         return user_dict
 
-    revisions_q = model.Session.query(model.Revision).filter_by(
-        author=user_obj.name)
+    if data_dict.get('include_datasets', False):
+        user_dict['datasets'] = []
+        dataset_q = (model.Session.query(model.Package)
+                     .filter(model.Package.creator_user_id == user_dict['id'])
+                     .limit(50))
 
-    revisions_list = []
-    for revision in revisions_q.limit(20).all():
-        revision_dict = logic.get_action('revision_show')(
-            context, {'id': revision.id})
-        revision_dict['state'] = revision.state
-        revisions_list.append(revision_dict)
-    user_dict['activity'] = revisions_list
+        for dataset in dataset_q:
+            try:
+                dataset_dict = logic.get_action('package_show')(
+                    context, {'id': dataset.id})
+                del context['package']
+            except logic.NotAuthorized:
+                continue
+            user_dict['datasets'].append(dataset_dict)
 
-    user_dict['datasets'] = []
-    dataset_q = (model.Session.query(model.Package)
-                 .join(model.PackageRole)
-                 .filter_by(user=user_obj, role=model.Role.ADMIN)
-                 .limit(50))
-
-    for dataset in dataset_q:
-        try:
-            dataset_dict = logic.get_action('package_show')(
-                context, {'id': dataset.id})
-        except logic.NotAuthorized:
-            continue
-        user_dict['datasets'].append(dataset_dict)
-
-    user_dict['num_followers'] = logic.get_action('user_follower_count')(
-        {'model': model, 'session': model.Session},
-        {'id': user_dict['id']})
+    if data_dict.get('include_num_followers', False):
+        user_dict['num_followers'] = logic.get_action('user_follower_count')(
+            {'model': model, 'session': model.Session},
+            {'id': user_dict['id']})
 
     return user_dict
 

@@ -65,7 +65,10 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
         multilingual_dataset plugin.
 
         '''
-        for user_name in ('annafan',):
+
+        # It is testsysadmin who created the dataset, so testsysadmin whom
+        # we'd expect to see the datasets for.
+        for user_name in ('testsysadmin',):
             offset = routes.url_for(
                 controller='user', action='read', id=user_name)
             for (lang_code, translations) in (
@@ -78,10 +81,10 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                     status=200,
                     extra_environ={'CKAN_LANG': lang_code,
                                    'CKAN_CURRENT_URL': offset})
-                terms = ('A Novel By Tolstoy', 'plain text', 'json')
+                terms = ('A Novel By Tolstoy')
                 for term in terms:
                     if term in translations:
-                        assert translations[term] in response
+                        assert translations[term] in response, response
                     elif term in _create_test_data.english_translations:
                         assert (_create_test_data.english_translations[term]
                                 in response)
