@@ -385,7 +385,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     sort_info = _unpick_search(sort,
                                allowed_fields=['name', 'packages',
-                                               'package_count'],
+                                               'package_count', 'title'],
                                total=1)
 
     all_fields = data_dict.get('all_fields', None)
@@ -444,7 +444,7 @@ def group_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'package_count'
+        'name', 'package_count' and 'title'
     :type sort: string
     :param groups: a list of names of the groups to return, if given only
         groups whose names are in this list will be returned (optional)
@@ -481,7 +481,7 @@ def organization_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'package_count'
+        'name', 'package_count' and 'title'
     :type sort: string
     :param organizations: a list of names of the groups to return,
         if given only groups whose names are in this list will be
@@ -549,7 +549,8 @@ def group_list_authz(context, data_dict):
         q = model.Session.query(model.Member) \
             .filter(model.Member.table_name == 'user') \
             .filter(model.Member.capacity.in_(roles)) \
-            .filter(model.Member.table_id == user_id)
+            .filter(model.Member.table_id == user_id) \
+            .filter(model.Member.state == 'active')
         group_ids = []
         for row in q.all():
             group_ids.append(row.group_id)
@@ -3268,3 +3269,28 @@ def member_roles_list(context, data_dict):
 
     _check_access('member_roles_list', context, data_dict)
     return roles_list
+
+
+def help_show(context, data_dict):
+    '''Return the help string for a particular API action.
+
+    :param name: Action function name (eg `user_create`, `package_search`)
+    :type name: string
+    :returns: The help string for the action function, or None if the function
+              does not have a docstring.
+    :rtype: string
+
+    :raises: :class:`ckan.logic.NotFound`: if the action function doesn't exist
+
+    '''
+
+    function_name = logic.get_or_bust(data_dict, 'name')
+
+    _check_access('help_show', context, data_dict)
+
+    try:
+        function = logic.get_action(function_name)
+    except KeyError:
+        raise NotFound('Action function not found')
+
+    return function.__doc__

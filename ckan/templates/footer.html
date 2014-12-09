@@ -14,7 +14,7 @@
               {% set api_url = 'http://docs.ckan.org/en/{0}/api/'.format(g.ckan_doc_version) %}
               <li><a href="{{ api_url }}">{{ _('CKAN API') }}</a></li>
               <li><a href="http://www.okfn.org/">{{ _('Open Knowledge Foundation') }}</a></li>
-              <li><a href="http://www.opendefinition.org/okd/"><img src="//assets.okfn.org/images/ok_buttons/od_80x15_blue.png"></a></li>
+              <li><a href="http://www.opendefinition.org/okd/"><img src="{{ h.url_for_static('/base/images/od_80x15_blue.png') }}"></a></li>
             {% endblock %}
           </ul>
         {% endblock %}
