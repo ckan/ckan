@@ -75,9 +75,9 @@ def package_resource_list_save(res_dicts, package, context):
     # the slice operator it changes the contents of the relation, setting the
     # package's resources.
     # At the table level, for each resource in the obj_list, its
-    # resource.resource_group is changed to this package's resource_group
-    # (which is needed for new resources), and every resource.position is set
-    # to ascending integers, according to their ordering in the obj_list.
+    # resource.package_id is changed to this package (which is needed for new
+    # resources), and every resource.position is set to ascending integers,
+    # according to their ordering in the obj_list.
     resource_list[:] = obj_list
 
     # Mark any left-over resources as deleted
