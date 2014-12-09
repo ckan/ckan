@@ -4,7 +4,7 @@
     {% if item %}
       {% with url = h.url_for(controller='related', action='list', id=pkg_name) %}
         <a class="image logo" href="{{ url }}">
-          <img src="{{ item.image_url or "http://placehold.it/200x125" }}" width="200" height="125" alt="{{ item.title }}" />
+          <img src="{{ item.image_url or h.url_for_static('/base/images/placeholder-200x125.png') }}" width="200" height="125" alt="{{ item.title }}" />
         </a>
         <div class="media-content">
           <h3 class="media-heading"><a href="{{ url }}">{{ item.title }}</a></h3>
