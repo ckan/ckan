@@ -66,6 +66,10 @@ def license_list(context, data_dict):
     # Licenses list is visible by default
     return {'success': True}
 
+def vocabulary_list(context, data_dict):
+    # List of all vocabularies are visible by default
+    return {'success': True}
+
 def tag_list(context, data_dict):
     # Tags list is visible by default
     return {'success': True}
@@ -155,6 +159,10 @@ def group_show(context, data_dict):
 
 def organization_show(context, data_dict):
     # anyone can see a organization
+    return {'success': True}
+
+def vocabulary_show(context, data_dict):
+    # Allow viewing of vocabs by default
     return {'success': True}
 
 def tag_show(context, data_dict):

@@ -2266,6 +2266,8 @@ def vocabulary_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('vocabulary_list', context, data_dict)
+
     model = context['model']
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
     return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
@@ -2280,6 +2282,8 @@ def vocabulary_show(context, data_dict):
     :rtype: dictionary
 
     '''
+    _check_access('vocabulary_show', context, data_dict)
+
     model = context['model']
     vocab_id = data_dict.get('id')
     if not vocab_id:
