@@ -46,6 +46,9 @@ class AdminController(base.BaseController):
             {'name': 'ckan.site_logo', 'control': 'input', 'label': _('Site Tag Logo'), 'placeholder': ''},
             {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
             {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
+            {'name': 'ckan.featured_image', 'control': 'input', 'label': _('Featured Image'), 'placeholder': ''},
+            {'name': 'ckan.featured_link', 'control': 'input', 'label': _('Featured Link'), 'placeholder': ''},
+            {'name': 'ckan.featured_text', 'control': 'input', 'label': _('Featured Text'), 'placeholder': ''},
             {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
             {'name': 'ckan.homepage_style', 'control': 'select', 'options': homepages, 'label': _('Homepage'), 'placeholder': ''},
         ]
