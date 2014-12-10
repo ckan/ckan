@@ -116,6 +116,22 @@ class TestUtil(ControllerTestCase):
         assert_equal(results[0]['title'], 'Dave\'s books')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
+    def test_organization_autocomplete(self):
+        url = url_for(controller='api', action='organization_autocomplete', ver=2)
+        assert_equal(url, '/api/2/util/organization/autocomplete')
+        response = self.app.get(
+            url=url,
+            params={
+                'q': u'test_or'
+            },
+            status=200,
+        )
+        results = json.loads(response.body)
+        assert_equal(len(results), 1)
+        assert_equal(results[0]['name'], 'test_org')
+        assert_equal(results[0]['title'], 'Test org')
+        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+
     def test_markdown(self):
         markdown = '''##Title'''
         response = self.app.get(
