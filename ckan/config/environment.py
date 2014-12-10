@@ -366,6 +366,7 @@ def update_config():
 
     # clear other caches
     logic.clear_actions_cache()
+    logic.clear_validators_cache()
     new_authz.clear_auth_functions_cache()
 
     # Here we create the site user if they are not already in the database

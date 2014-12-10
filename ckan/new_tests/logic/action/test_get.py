@@ -924,3 +924,40 @@ class TestOrganizationListForUser(object):
         organizations = helpers.call_action('organization_list_for_user')
 
         assert organizations == []
+
+
+class TestGetHelpShow(object):
+
+    def test_help_show_basic(self):
+
+        function_name = 'package_search'
+
+        result = helpers.call_action('help_show', name=function_name)
+
+        function = logic.get_action(function_name)
+
+        eq(result, function.__doc__)
+
+    def test_help_show_no_docstring(self):
+
+        function_name = 'package_search'
+
+        function = logic.get_action(function_name)
+
+        actual_docstring = function.__doc__
+
+        function.__doc__ = None
+
+        result = helpers.call_action('help_show', name=function_name)
+
+        function.__doc__ = actual_docstring
+
+        eq(result, None)
+
+    def test_help_show_not_found(self):
+
+        function_name = 'unknown_action'
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'help_show', name=function_name)
