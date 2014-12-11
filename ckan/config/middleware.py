@@ -4,6 +4,7 @@ import urllib2
 import logging
 import json
 import hashlib
+import os
 
 import sqlalchemy as sa
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -22,9 +23,12 @@ from fanstatic import Fanstatic
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
 from ckan.lib.i18n import get_locales_from_config
+import ckan.lib.uploader as uploader
 
 from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
+
+log = logging.getLogger(__name__)
 
 
 def make_app(conf, full_stack=True, static_files=True, **app_conf):
@@ -91,6 +95,13 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         }
     app = Fanstatic(app, **fanstatic_config)
 
+    for plugin in PluginImplementations(IMiddleware):
+        try:
+            app = plugin.make_error_log_middleware(app, config)
+        except AttributeError:
+            log.critical('Middleware class {0} is missing the method'
+                         'make_error_log_middleware.'.format(plugin.__class__.__name__))
+
     if asbool(full_stack):
         # Handle Python exceptions
         app = ErrorHandler(app, conf, **config['pylons.errorware'])
@@ -106,32 +117,18 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     who_parser = WhoConfig(conf['here'])
     who_parser.parse(open(app_conf['who.config_file']))
 
-    if asbool(config.get('openid_enabled', 'true')):
-        from repoze.who.plugins.openid.identification import OpenIdIdentificationPlugin
-        # Monkey patches for repoze.who.openid
-        # Fixes #1659 - enable log-out when CKAN mounted at non-root URL
-        from ckan.lib import repoze_patch
-        OpenIdIdentificationPlugin.identify = repoze_patch.identify
-        OpenIdIdentificationPlugin.redirect_to_logged_in = repoze_patch.redirect_to_logged_in
-        OpenIdIdentificationPlugin._redirect_to_loginform = repoze_patch._redirect_to_loginform
-        OpenIdIdentificationPlugin.challenge = repoze_patch.challenge
-
-        who_parser.identifiers = [i for i in who_parser.identifiers if \
-                not isinstance(i, OpenIdIdentificationPlugin)]
-        who_parser.challengers = [i for i in who_parser.challengers if \
-                not isinstance(i, OpenIdIdentificationPlugin)]
-
-    app = PluggableAuthenticationMiddleware(app,
-                who_parser.identifiers,
-                who_parser.authenticators,
-                who_parser.challengers,
-                who_parser.mdproviders,
-                who_parser.request_classifier,
-                who_parser.challenge_decider,
-                logging.getLogger('repoze.who'),
-                logging.WARN,  # ignored
-                who_parser.remote_user_key,
-           )
+    app = PluggableAuthenticationMiddleware(
+        app,
+        who_parser.identifiers,
+        who_parser.authenticators,
+        who_parser.challengers,
+        who_parser.mdproviders,
+        who_parser.request_classifier,
+        who_parser.challenge_decider,
+        logging.getLogger('repoze.who'),
+        logging.WARN,  # ignored
+        who_parser.remote_user_key
+    )
 
     # Establish the Registry for this application
     app = RegistryManager(app)
@@ -144,8 +141,21 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             else int(config.get('ckan.static_max_age', 3600))
 
         static_app = StaticURLParser(config['pylons.paths']['static_files'],
-                cache_max_age=static_max_age)
+                                     cache_max_age=static_max_age)
         static_parsers = [static_app, app]
+
+        storage_directory = uploader.get_storage_path()
+        if storage_directory:
+            path = os.path.join(storage_directory, 'storage')
+            try:
+                os.makedirs(path)
+            except OSError, e:
+                ## errno 17 is file already exists
+                if e.errno != 17:
+                    raise
+
+            storage_app = StaticURLParser(path, cache_max_age=static_max_age)
+            static_parsers.insert(0, storage_app)
 
         # Configurable extra static file paths
         extra_static_parsers = []
@@ -153,7 +163,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             if public_path.strip():
                 extra_static_parsers.append(
                     StaticURLParser(public_path.strip(),
-                        cache_max_age=static_max_age)
+                                    cache_max_age=static_max_age)
                 )
         app = Cascade(extra_static_parsers + static_parsers)
 
@@ -323,7 +333,8 @@ class TrackingMiddleware(object):
 
     def __call__(self, environ, start_response):
         path = environ['PATH_INFO']
-        if path == '/_tracking':
+        method = environ.get('REQUEST_METHOD')
+        if path == '/_tracking' and method == 'POST':
             # do the tracking
             # get the post data
             payload = environ['wsgi.input'].read()

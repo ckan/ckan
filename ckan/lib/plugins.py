@@ -7,6 +7,7 @@ from ckan import logic
 import logic.schema
 from ckan import plugins
 import ckan.new_authz
+import ckan.plugins.toolkit as toolkit
 
 log = logging.getLogger(__name__)
 
@@ -53,7 +54,8 @@ def lookup_group_plugin(group_type=None):
     """
     if group_type is None:
         return _default_group_plugin
-    return _group_plugins.get(group_type, _default_group_plugin)
+    return _group_plugins.get(group_type, _default_organization_plugin
+        if group_type == 'organization' else _default_group_plugin)
 
 
 def register_package_plugins(map):
@@ -76,8 +78,8 @@ def register_package_plugins(map):
     for plugin in plugins.PluginImplementations(plugins.IDatasetForm):
         if plugin.is_fallback():
             if _default_package_plugin is not None:
-                raise ValueError, "More than one fallback "\
-                                  "IDatasetForm has been registered"
+                raise ValueError("More than one fallback "
+                                 "IDatasetForm has been registered")
             _default_package_plugin = plugin
 
         for package_type in plugin.package_types():
@@ -94,15 +96,14 @@ def register_package_plugins(map):
 
             for action in ['edit', 'authz', 'history']:
                 map.connect('%s_%s' % (package_type, action),
-                        '/%s/%s/{id}' % (package_type, action),
-                        controller='package',
-                        action=action
-                )
+                            '/%s/%s/{id}' % (package_type, action),
+                            controller='package',
+                            action=action)
 
             if package_type in _package_plugins:
-                raise ValueError, "An existing IDatasetForm is "\
-                                  "already associated with the package type "\
-                                  "'%s'" % package_type
+                raise ValueError("An existing IDatasetForm is "
+                                 "already associated with the package type "
+                                 "'%s'" % package_type)
             _package_plugins[package_type] = plugin
 
     # Setup the fallback behaviour if one hasn't been defined.
@@ -114,7 +115,7 @@ def register_group_plugins(map):
     """
     Register the various IGroupForm instances.
 
-    This method will setup the mappings between package types and the
+    This method will setup the mappings between group types and the
     registered IGroupForm instances. If it's called more than once an
     exception will be raised.
     """
@@ -130,9 +131,16 @@ def register_group_plugins(map):
     for plugin in plugins.PluginImplementations(plugins.IGroupForm):
         if plugin.is_fallback():
             if _default_group_plugin is not None:
-                raise ValueError, "More than one fallback "\
-                                  "IGroupForm has been registered"
+                raise ValueError("More than one fallback IGroupForm has been "
+                                 "registered")
             _default_group_plugin = plugin
+
+        # Get group_controller from plugin if there is one,
+        # otherwise use 'group'
+        try:
+            group_controller = plugin.group_controller()
+        except AttributeError:
+            group_controller = 'group'
 
         for group_type in plugin.group_types():
             # Create the routes based on group_type here, this will
@@ -147,20 +155,19 @@ def register_group_plugins(map):
             # routing setup
 
             map.connect('%s_index' % group_type, '/%s' % group_type,
-                        controller='group', action='index')
+                        controller=group_controller, action='index')
             map.connect('%s_new' % group_type, '/%s/new' % group_type,
-                        controller='group', action='new')
+                        controller=group_controller, action='new')
             map.connect('%s_read' % group_type, '/%s/{id}' % group_type,
-                        controller='group', action='read')
+                        controller=group_controller, action='read')
             map.connect('%s_action' % group_type,
-                        '/%s/{action}/{id}' % group_type, controller='group',
-                requirements=dict(action='|'.join(['edit', 'authz', 'history']))
-            )
+                        '/%s/{action}/{id}' % group_type, controller=group_controller,
+                        requirements=dict(action='|'.join(['edit', 'authz', 'history'])))
 
             if group_type in _group_plugins:
-                raise ValueError, "An existing IGroupForm is "\
-                                  "already associated with the package type "\
-                                  "'%s'" % group_type
+                raise ValueError("An existing IGroupForm is "
+                                 "already associated with the group type "
+                                 "'%s'" % group_type)
             _group_plugins[group_type] = plugin
 
     # Setup the fallback behaviour if one hasn't been defined.
@@ -168,21 +175,40 @@ def register_group_plugins(map):
         _default_group_plugin = DefaultGroupForm()
 
 
+def plugin_validate(plugin, context, data_dict, schema, action):
+    """
+    Backwards compatibility with 2.x dataset group and org plugins:
+    return a default validate method if one has not been provided.
+    """
+    if hasattr(plugin, 'validate'):
+        result = plugin.validate(context, data_dict, schema, action)
+        if result is not None:
+            return result
+
+    return toolkit.navl_validate(data_dict, schema, context)
+
+
 class DefaultDatasetForm(object):
-    '''The default implementation of IDatasetForm.
+    '''The default implementation of
+    :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
 
-    See ckan.plugins.interfaces.IDatasetForm.
+    This class serves two purposes:
 
-    This class has two purposes:
+    1. It provides a base class for plugin classes that implement
+       :py:class:`~ckan.plugins.interfaces.IDatasetForm` to inherit from, so
+       they can inherit the default behavior and just modify the bits they
+       need to.
 
-    1. It provides a base class for IDatasetForm implementations to inherit
-       from.
+    2. It is used as the default fallback plugin when no registered
+       :py:class:`~ckan.plugins.interfaces.IDatasetForm` plugin handles the
+       given dataset type and no other plugin has registered itself as the
+       fallback plugin.
 
-    2. It is used as the default fallback plugin, if no IDatasetForm plugin
-       registers itself as the fallback.
+    .. note::
 
-    Note - this isn't a plugin implementation. This is deliberate, as we
-           don't want this being registered.
+       :py:class:`~ckan.plugins.toolkit.DefaultDatasetForm` doesn't call
+       :py:func:`~ckan.plugins.core.implements`, because we don't want it
+       being registered.
 
     '''
     def create_package_schema(self):
@@ -195,6 +221,8 @@ class DefaultDatasetForm(object):
         return ckan.logic.schema.default_show_package_schema()
 
     def setup_template_variables(self, context, data_dict):
+        from ckan.lib.helpers import render_markdown
+
         authz_fn = logic.get_action('group_list_authz')
         c.groups_authz = authz_fn(context, data_dict)
         data_dict.update({'available_only': True})
@@ -209,6 +237,16 @@ class DefaultDatasetForm(object):
 
         if c.pkg:
             c.related_count = c.pkg.related_count
+            c.pkg_notes_formatted = render_markdown(c.pkg.notes)
+
+        if context.get('revision_id') or context.get('revision_date'):
+            if context.get('revision_id'):
+                rev = base.model.Session.query(base.model.Revision) \
+                                .filter_by(id=context['revision_id']) \
+                                .first()
+                c.revision_date = rev.timestamp if rev else '?'
+            else:
+                c.revision_date = context.get('revision_date')
 
         ## This is messy as auths take domain object not data_dict
         context_pkg = context.get('package', None)
@@ -237,8 +275,14 @@ class DefaultDatasetForm(object):
     def history_template(self):
         return 'package/history.html'
 
+    def resource_template(self):
+        return 'package/resource_read.html'
+
     def package_form(self):
         return 'package/new_package_form.html'
+
+    def resource_form(self):
+        return 'package/snippets/resource_form.html'
 
 
 class DefaultGroupForm(object):
@@ -319,14 +363,6 @@ class DefaultGroupForm(object):
         rendered for the bulk_process page
         """
         return 'group/bulk_process.html'
-
-    def about_template(self):
-        '''Return the path to the template for the group's 'about' page.
-
-        :rtype: string
-
-        '''
-        return 'group/about.html'
 
     def group_form(self):
         return 'group/new_group_form.html'
@@ -412,3 +448,39 @@ class DefaultGroupForm(object):
                 c.auth_for_change_state = True
             except logic.NotAuthorized:
                 c.auth_for_change_state = False
+
+
+class DefaultOrganizationForm(DefaultGroupForm):
+    def group_form(self):
+        return 'organization/new_organization_form.html'
+
+    def setup_template_variables(self, context, data_dict):
+        pass
+
+    def new_template(self):
+        return 'organization/new.html'
+
+    def about_template(self):
+        return 'organization/about.html'
+
+    def index_template(self):
+        return 'organization/index.html'
+
+    def admins_template(self):
+        return 'organization/admins.html'
+
+    def bulk_process_template(self):
+        return 'organization/bulk_process.html'
+
+    def read_template(self):
+        return 'organization/read.html'
+
+    # don't override history_template - use group template for history
+
+    def edit_template(self):
+        return 'organization/edit.html'
+
+    def activity_template(self):
+        return 'organization/activity_stream.html'
+
+_default_organization_plugin = DefaultOrganizationForm()

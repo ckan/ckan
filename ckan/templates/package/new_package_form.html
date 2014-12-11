@@ -8,14 +8,6 @@
   {% endif %}
 {% endblock %}
 
-{% block metadata_fields %}
-  {% if form_style == 'edit' %}{{ super() }}{% endif %}
-{% endblock %}
-
-{% block disclaimer %}
-  {% if form_style != 'edit' %}{{ super() }}{% endif %}
-{% endblock %}
-
 {% block save_button_text %}
   {% if form_style != 'edit' %}
     {{ super() }}

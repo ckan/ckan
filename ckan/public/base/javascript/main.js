@@ -29,13 +29,15 @@ this.ckan = this.ckan || {};
 
     ckan.SITE_ROOT   = getRootFromData('siteRoot');
     ckan.LOCALE_ROOT = getRootFromData('localeRoot');
-    ckan.API_ROOT    = getRootFromData('apiRoot');
 
     // Load the localisations before instantiating the modules.
     ckan.sandbox().client.getLocaleData(locale).done(function (data) {
       ckan.i18n.load(data);
       ckan.module.initialize();
     });
+    if (jQuery.fn.popover !== undefined) {
+      jQuery('[data-target="popover"]').popover();
+    }
   };
 
   /* Returns a full url for the current site with the provided path appended.
@@ -86,3 +88,14 @@ this.jQuery.fn.ie7redraw = function() {
     jQuery(this).css('zoom', 1);
   }
 };
+
+
+// Show / hide filters for mobile
+$(function() {
+  $(".show-filters").click(function() {
+    $("body").addClass("filters-modal");
+  });
+  $(".hide-filters").click(function() {
+    $("body").removeClass("filters-modal");
+  });
+});

@@ -21,13 +21,14 @@
 {% block pre_primary %}
   {% block resource %}
     <section class="module module-resource">
+      {% block resource_inner %}
       <div class="module-content">
         <div class="actions">
           {% block resource_actions %}
           <ul>
             {% block resource_actions_inner %}
             {% if h.check_access('package_update', {'id':pkg.id }) %}
-              <li>{% link_for _('Edit'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
+              <li>{% link_for _('Manage'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
             {% endif %}
             {% if res.url %}
               <li>
@@ -36,7 +37,7 @@
                     <i class="icon-eye-open"></i> {{ _('View') }}
                   {% elif  res.resource_type == 'api' %}
                     <i class="icon-key"></i> {{ _('API Endpoint') }}
-                  {% elif not res.can_be_previewed %}
+                  {% elif not res.has_views or not res.can_be_previewed %}
                     <i class="icon-external-link"></i> {{ _('Go to resource') }}
                   {% else %}
                     <i class="icon-download"></i> {{ _('Download') }}
@@ -61,19 +62,56 @@
           <div class="prose notes" property="rdfs:label">
             {% if res.description %}
               {{ h.render_markdown(res.description) }}
-            {% else %}
-              <p class="empty">{{ _('There is no description for this resource') }}</p>
             {% endif %}
             {% if not res.description and c.package.notes %}
               <h3>{{ _('From the dataset abstract') }}</h3>
               <blockquote>{{ h.markdown_extract(c.package.get('notes')) }}</blockquote>
               <p>{% trans dataset=c.package.title, url=h.url_for(controller='package', action='read', id=c.package['name']) %}Source: <a href="{{ url }}">{{ dataset }}</a>{% endtrans %}
             {% endif %}
-          {% endblock %}
-        </div>
+          </div>
+        {% endblock %}
       </div>
       {% block data_preview %}
-        {{ h.resource_preview(c.resource, c.package) }}
+      {% block resource_view %}
+        {% block resource_view_nav %}
+          {% set resource_preview = h.resource_preview(c.resource, c.package) %}
+          {% snippet "package/snippets/resource_views_list.html",
+             views=resource_views,
+             pkg=pkg,
+             is_edit=false,
+             view_id=current_resource_view['id'],
+             resource_preview=resource_preview,
+             resource=c.resource,
+             extra_class="nav-tabs-plain"
+           %}
+        {% endblock %}
+        <div class="module-content">
+          {% block resource_view_content %}
+            <div class="resource-view">
+              {% set resource_preview = h.resource_preview(c.resource, c.package) %}
+              {% set views_created = res.has_views or resource_preview %}
+              {% if not views_created %}
+                {{ _("There're no views created for this resource yet.") }}
+              {% else %}
+                {% if resource_preview and not current_resource_view %}
+                  {{ h.resource_preview(c.resource, c.package) }}
+                {% else %}
+                  {% for resource_view in resource_views %}
+                    {% if resource_view == current_resource_view %}
+                      {% snippet 'package/snippets/resource_view.html',
+                         resource_view=resource_view,
+                         resource=c.resource,
+                         package=c.package
+                       %}
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              {% endif %}
+            </div>
+          {% endblock %}
+        </div>
+      {% endblock %}
+      {% endblock %}
       {% endblock %}
     </section>
   {% endblock %}
@@ -83,6 +121,7 @@
   {% block resource_additional_information %}
     {% if res %}
       <section class="module">
+        {% block resource_additional_information_inner %}
         <div class="module-content">
           <h2>{{ _('Additional Information') }}</h2>
           <table class="table table-striped table-bordered table-condensed" data-module="table-toggle-more">
@@ -115,6 +154,7 @@
             </tbody>
           </table>
         </div>
+        {% endblock %}
       </section>
     {% endif %}
   {% endblock %}

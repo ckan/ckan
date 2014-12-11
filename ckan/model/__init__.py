@@ -89,14 +89,14 @@ from package_extra import (
 )
 from resource import (
     Resource,
-    ResourceGroup,
     ResourceRevision,
     DictProxy,
-    resource_group_table,
     resource_table,
     resource_revision_table,
-    ResourceGroupRevision,
-    resource_group_revision_table,
+)
+from resource_view import (
+    ResourceView,
+    resource_view_table,
 )
 from tracking import (
     tracking_summary_table,
@@ -105,6 +105,8 @@ from tracking import (
 )
 from rating import (
     Rating,
+    MIN_RATING,
+    MAX_RATING,
 )
 from related import (
     Related,
@@ -227,6 +229,7 @@ class Repository(vdm.sqlalchemy.Repository):
         log.info('Database initialised')
 
     def clean_db(self):
+        self.commit_and_remove()
         meta.metadata = MetaData(self.metadata.bind)
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|tsvector).*')
@@ -390,11 +393,10 @@ class Repository(vdm.sqlalchemy.Repository):
                         for num, obj in enumerate(trevobjs):
                             if num == 0:
                                 continue
-                            if 'pending' not in obj.state:
-                                obj.current = True
-                                obj.expired_timestamp = datetime(9999, 12, 31)
-                                self.session.add(obj)
-                                break
+
+                            obj.expired_timestamp = datetime(9999, 12, 31)
+                            self.session.add(obj)
+                            break
                 # now delete revision object
                 self.session.delete(item)
             for cont in to_purge:
@@ -408,7 +410,7 @@ class Repository(vdm.sqlalchemy.Repository):
 
 repo = Repository(meta.metadata, meta.Session,
                   versioned_objects=[Package, PackageTag, Resource,
-                                     ResourceGroup, PackageExtra, Member,
+                                     PackageExtra, Member,
                                      Group]
         )
 

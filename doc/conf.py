@@ -14,7 +14,11 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
+import subprocess
+
+import ckan.lib.util as util
 
 # If your extensions (or modules documented by autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -33,7 +37,7 @@ rst_epilog = '''
 .. |config_dir| replace:: |config_parent_dir|/default
 .. |production.ini| replace:: |config_dir|/production.ini
 .. |development.ini| replace:: |config_dir|/development.ini
-.. |git_url| replace:: https://github.com/okfn/ckan.git
+.. |git_url| replace:: \https://github.com/ckan/ckan.git
 .. |postgres| replace:: PostgreSQL
 .. |database| replace:: ckan_default
 .. |database_user| replace:: ckan_default
@@ -47,8 +51,10 @@ rst_epilog = '''
 .. |sstore| replace:: |config_dir|/sstore
 .. |storage_parent_dir| replace:: /var/lib/ckan
 .. |storage_dir| replace:: |storage_parent_dir|/default
+.. |storage_path| replace:: |storage_parent_dir|/default
 .. |reload_apache| replace:: sudo service apache2 reload
 .. |restart_apache| replace:: sudo service apache2 restart
+.. |restart_solr| replace:: sudo service jetty restart
 .. |solr| replace:: Solr
 .. |restructuredtext| replace:: reStructuredText
 .. |nginx| replace:: Nginx
@@ -57,17 +63,23 @@ rst_epilog = '''
 .. |sqlalchemy| replace:: SQLAlchemy
 .. |javascript| replace:: JavaScript
 .. |apache| replace:: Apache
+.. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan_default
+.. |reload_nginx| replace:: sudo service nginx reload
+.. |jquery| replace:: jQuery
+
+.. _Jinja2: http://jinja.pocoo.org/
+.. _CKAN front page: http://127.0.0.1:5000
+.. _bootstrap: http://getbootstrap.com/2.3.2/
+.. _CKAN issue tracker: https://github.com/ckan/ckan/issues
 
 '''
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo']
-
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo',
+    'sphinx.ext.autosummary', 'ckan.plugins.toolkit_sphinx_extension']
 autodoc_member_order = 'bysource'
-
 todo_include_todos = True
-
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -79,17 +91,17 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'contents'
 
 # General information about the project.
-project = u'CKAN Documentation'
+project = u'CKAN'
 project_short_name = u'CKAN'
 copyright = u'''&copy; 2009-2013, <a href="http://okfn.org/">Open Knowledge Foundation</a>.
     Licensed under <a
     href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons
     Attribution ShareAlike (Unported) v3.0 License</a>.<br />
     <img src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" alt="CC License Logo" />
-    <a href="http://opendefinition.org/"><img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0" 
+    <a href="http://opendefinition.org/"><img src="http://assets.okfn.org/images/ok_buttons/oc_80x15_blue.png" border="0"
       alt="{{ _('Open Content') }}" /></a>
   '''
 html_show_sphinx = False
@@ -103,6 +115,96 @@ import ckan
 version = ckan.__version__.rstrip('abcdefgh')
 # The full version, including alpha/beta/rc tags.
 release = ckan.__version__
+
+
+def latest_release_tag():
+    '''Return the name of the git tag for the latest stable release.
+
+    e.g.: "ckan-2.1.1"
+
+    This requires git to be installed.
+
+    '''
+    git_tags = util.check_output(
+        ['git', 'tag', '-l'], stderr=subprocess.STDOUT).split()
+
+    # FIXME: We could do more careful pattern matching against ckan-X.Y.Z here.
+    release_tags = [tag for tag in git_tags if tag.startswith('ckan-')]
+
+    # git tag -l prints out the tags in the right order anyway, but don't rely
+    # on that, sort them again here for good measure.
+    release_tags.sort()
+
+    if release_tags:
+        return release_tags[-1]
+    else:
+        return 'COULD_NOT_DETECT_VERSION_NUMBER'
+
+
+def latest_release_version():
+    '''Return the version number of the latest stable release.
+
+    e.g. "2.1.1"
+
+    '''
+    version = latest_release_tag()[len('ckan-'):]
+
+    # TODO: We could assert here that latest_version matches X.Y.Z.
+
+    return version
+
+
+def latest_package_name():
+    '''Return the filename of the Ubuntu package for the latest stable release.
+
+    e.g. "python-ckan_2.1_amd64.deb"
+
+    '''
+    # We don't create a new package file name for a patch release like 2.1.1,
+    # instead we just update the existing 2.1 package. So package names only
+    # have the X.Y part of the version number in them, not X.Y.Z.
+    latest_minor_version = latest_release_version()[:3]
+
+    return 'python-ckan_{version}_amd64.deb'.format(
+        version=latest_minor_version)
+
+
+def write_latest_release_file():
+    '''Write a file in the doc/ dir containing reStructuredText substitutions
+    for the latest release tag name and version number.
+
+    '''
+    filename = '_latest_release.rst'
+    template = ''':orphan:
+
+.. Some common reStructuredText substitutions.
+
+   **This file is autogenerated!** So don't edit it by hand.
+
+   You can include this file at the top of your ``*.rst`` file with a line
+   like::
+
+     .. include:: {filename}
+
+   Then use the substitutions in this file, e.g.::
+
+     |latest_release_version|
+
+.. |latest_release_tag| replace:: {latest_tag}
+.. |latest_release_version| replace:: {latest_version}
+.. |latest_package_name| replace:: {package_name}
+
+'''
+    open(filename, 'w').write(template.format(
+        filename=filename,
+        latest_tag=latest_release_tag(),
+        latest_version=latest_release_version(),
+        package_name=latest_package_name(),
+        ))
+
+
+write_latest_release_file()
+
 
 # The language for content autogenerated by Sphinx. Refer to documentation
 # for a list of supported languages.
@@ -141,28 +243,14 @@ pygments_style = 'sphinx'
 
 # Options for HTML output
 # -----------------------
-
-#html_theme = 'default'
-#html_theme_options = {
-#"relbarbgcolor": "#777",
-#'sidebarbgcolor': '#F2F2F2',
-#'sidebartextcolor': 'black',
-#'sidebarlinkcolor': '#355F7C',
-#'headfont': 'Trebuchet MS'    
-#}
-sys.path.append(os.path.abspath('_themes'))
-html_theme_path = ['_themes']
-html_theme = 'sphinx-theme-okfn'
-html_theme_options = {
-        'logo_icon': 'http://assets.okfn.org/p/opendatahandbook/img/data-wrench-inverted.png',
-        'show_version': True
-    }
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if not on_rtd:
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 html_sidebars = {
-    '**':  ['relations.html', 'globaltoc.html'],
-    # There's no point in showing the table of contents in the sidebar on the
-    # table of contents page! So:
-    'index': ['relations.html'],
+    '**':  ['globaltoc.html'],
 }
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name
@@ -189,7 +277,7 @@ html_sidebars = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['.static']
+html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -224,7 +312,7 @@ html_sidebars = {
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ComprehensiveKnowledgeArchiveNetworkCKANdoc'
+htmlhelp_basename = 'CKANdoc'
 
 
 # Options for LaTeX output
@@ -239,7 +327,7 @@ htmlhelp_basename = 'ComprehensiveKnowledgeArchiveNetworkCKANdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'ComprehensiveKnowledgeArchiveNetworkCKAN.tex', ur'Comprehensive Knowledge Archive Network (CKAN) Developer Documentation',
+  ('contents', 'CKAN.tex', ur'CKAN documentation',
    ur'Open Knowledge Foundation', 'manual'),
 ]
 

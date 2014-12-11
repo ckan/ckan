@@ -193,10 +193,8 @@ class Tag(domain_object.DomainObject):
             query = meta.Session.query(Tag).filter(Tag.vocabulary_id==vocab.id)
         else:
             query = meta.Session.query(Tag).filter(Tag.vocabulary_id == None)
-            query = query.distinct().join(_package.PackageTagRevision)
-            query = query.filter(and_(
-                _package.PackageTagRevision.state == 'active',
-                _package.PackageTagRevision.current == True))
+            query = query.distinct().join(PackageTag)
+            query = query.filter_by(state='active')
         return query
 
     @property
@@ -207,11 +205,9 @@ class Tag(domain_object.DomainObject):
 
         '''
         q = meta.Session.query(_package.Package)
-        q = q.join(_package.PackageTagRevision)
-        q = q.filter(_package.PackageTagRevision.tag_id == self.id)
-        q = q.filter(and_(
-            _package.PackageTagRevision.state == 'active',
-            _package.PackageTagRevision.current == True))
+        q = q.join(PackageTag)
+        q = q.filter_by(tag_id=self.id)
+        q = q.filter_by(state='active')
         q = q.order_by(_package.Package.name)
         packages = q.all()
         return packages

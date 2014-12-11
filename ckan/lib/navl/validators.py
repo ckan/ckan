@@ -55,28 +55,45 @@ def both_not_empty(other_key):
 def empty(key, data, errors, context):
 
     value = data.pop(key, None)
-    
+
     if value and value is not missing:
+        key_name = key[-1]
+        if key_name == '__junk':
+            # for junked fields, the field name is contained in the value
+            key_name = value.keys()
         errors[key].append(_(
-            'The input field %(name)s was not expected.') % {"name": key[-1]})
+            'The input field %(name)s was not expected.') % {"name": key_name})
 
 def ignore(key, data, errors, context):
 
     value = data.pop(key, None)
     raise StopOnError
 
-def default(defalult_value):
+def default(default_value):
 
     def callable(key, data, errors, context):
 
         value = data.get(key)
         if not value or value is missing:
-            data[key] = defalult_value
+            data[key] = default_value
 
     return callable
 
 def ignore_missing(key, data, errors, context):
+    '''If the key is missing from the data, ignore the rest of the key's
+    schema.
 
+    By putting ignore_missing at the start of the schema list for a key,
+    you can allow users to post a dict without the key and the dict will pass
+    validation. But if they post a dict that does contain the key, then any
+    validators after ignore_missing in the key's schema list will be applied.
+
+    :raises ckan.lib.navl.dictization_functions.StopOnError: if ``data[key]``
+        is :py:data:`ckan.lib.navl.dictization_functions.missing` or ``None``
+
+    :returns: ``None``
+
+    '''
     value = data.get(key)
 
     if value is missing or value is None:

@@ -10,7 +10,7 @@ from ckan.lib.navl.validators import (ignore_missing,
 from ckan.logic.validators import (package_id_not_changed,
                                    package_id_exists,
                                    package_id_or_name_exists,
-                                   extras_unicode_convert,
+                                   resource_id_exists,
                                    name_validator,
                                    package_name_validator,
                                    package_version_validator,
@@ -32,6 +32,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    isodate,
                                    int_validator,
                                    natural_number_validator,
+                                   is_positive_integer,
                                    boolean_validator,
                                    user_about_validator,
                                    vocabulary_name_validator,
@@ -50,10 +51,18 @@ from ckan.logic.validators import (package_id_not_changed,
                                    url_validator,
                                    datasets_with_no_organization_cannot_be_private,
                                    list_of_strings,
+                                   if_empty_guess_format,
+                                   clean_format,
+                                   no_loops_in_hierarchy,
+                                   extra_key_not_in_root_schema,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
-                                   convert_group_name_or_id_to_id,)
+                                   convert_group_name_or_id_to_id,
+                                   convert_to_json_if_string,
+                                   remove_whitespace,
+                                   extras_unicode_convert,
+                                   )
 from formencode.validators import OneOf
 import ckan.model
 import ckan.lib.maintain as maintain
@@ -63,15 +72,13 @@ def default_resource_schema():
     schema = {
         'id': [ignore_empty, unicode],
         'revision_id': [ignore_missing, unicode],
-        'resource_group_id': [ignore],
         'package_id': [ignore],
-        'url': [not_empty, unicode],#, URL(add_http=False)],
+        'url': [not_empty, unicode, remove_whitespace],
         'description': [ignore_missing, unicode],
-        'format': [ignore_missing, unicode],
+        'format': [if_empty_guess_format, ignore_missing, clean_format, unicode],
         'hash': [ignore_missing, unicode],
         'state': [ignore],
         'position': [ignore],
-        'revision_timestamp': [ignore],
         'name': [ignore_missing, unicode],
         'resource_type': [ignore_missing, unicode],
         'url_type': [ignore_missing, unicode],
@@ -85,6 +92,7 @@ def default_resource_schema():
         'cache_last_updated': [ignore_missing, isodate],
         'webstore_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
+        'datastore_active': [ignore],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
@@ -164,6 +172,8 @@ def default_create_package_schema():
 def default_update_package_schema():
     schema = default_create_package_schema()
 
+    schema['resources'] = default_update_resource_schema()
+
     # Users can (optionally) supply the package id when updating a package, but
     # only to identify the package to be updated, they cannot change the id.
     schema['id'] = [ignore_missing, package_id_not_changed]
@@ -193,13 +203,14 @@ def default_show_package_schema():
     # Add several keys to the 'resources' subschema so they don't get stripped
     # from the resource dicts by validation.
     schema['resources'].update({
+        'format': [ignore_missing, clean_format, unicode],
         'created': [ckan.lib.navl.validators.ignore_missing],
         'position': [not_empty],
         'last_modified': [ckan.lib.navl.validators.ignore_missing],
         'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
-        'revision_timestamp': [],
-        'resource_group_id': [],
+        'revision_id': [],
+        'package_id': [],
         'cache_last_updated': [],
         'webstore_last_updated': [],
         'size': [],
@@ -218,10 +229,13 @@ def default_show_package_schema():
         'state': [ckan.lib.navl.validators.ignore_missing],
         'isopen': [ignore_missing],
         'license_url': [ignore_missing],
+        'revision_id': [],
         })
 
     schema['groups'].update({
         'description': [ignore_missing],
+        'display_name': [ignore_missing],
+        'image_display_url': [ignore_missing],
         })
 
     # Remove validators for several keys from the schema so validation doesn't
@@ -247,7 +261,6 @@ def default_show_package_schema():
     schema['owner_org'] = []
     schema['private'] = []
     schema['revision_id'] = []
-    schema['revision_timestamp'] = []
     schema['tracking_summary'] = []
     schema['license_title'] = []
 
@@ -262,6 +275,7 @@ def default_group_schema():
         'title': [ignore_missing, unicode],
         'description': [ignore_missing, unicode],
         'image_url': [ignore_missing, unicode],
+        'image_display_url': [ignore_missing, unicode],
         'type': [ignore_missing, unicode],
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],
@@ -269,15 +283,11 @@ def default_group_schema():
         'approval_status': [ignore_missing, unicode],
         'extras': default_extras_schema(),
         '__extras': [ignore],
+        '__junk': [ignore],
         'packages': {
             "id": [not_empty, unicode, package_id_or_name_exists],
             "title":[ignore_missing, unicode],
             "name":[ignore_missing, unicode],
-            "__extras": [ignore]
-        },
-         'groups': {
-            "name": [not_empty, unicode],
-            "capacity": [ignore_missing],
             "__extras": [ignore]
         },
         'users': {
@@ -286,7 +296,7 @@ def default_group_schema():
             "__extras": [ignore]
         },
         'groups': {
-            "name": [not_empty, unicode],
+            "name": [not_empty, no_loops_in_hierarchy, unicode],
             "capacity": [ignore_missing],
             "__extras": [ignore]
         }
@@ -315,6 +325,22 @@ def default_update_group_schema():
     schema["name"] = [ignore_missing, group_name_validator, unicode]
     return schema
 
+def default_show_group_schema():
+    schema = default_group_schema()
+
+    # make default show schema behave like when run with no validation
+    schema['num_followers'] = []
+    schema['created'] = []
+    schema['display_name'] = []
+    schema['extras'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['package_count'] = []
+    schema['packages'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['revision_id'] = []
+    schema['state'] = []
+    schema['users'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+
+    return schema
+
 
 def default_related_schema():
     schema = {
@@ -331,15 +357,25 @@ def default_related_schema():
     return schema
 
 
+def default_update_related_schema():
+    schema = default_related_schema()
+    schema['id'] = [not_empty, unicode]
+    schema['title'] = [ignore_missing, unicode]
+    schema['type'] = [ignore_missing, unicode]
+    schema['owner_id'] = [ignore_missing, unicode]
+    return schema
+
+
 def default_extras_schema():
 
     schema = {
         'id': [ignore],
-        'key': [not_empty, unicode],
+        'key': [not_empty, extra_key_not_in_root_schema, unicode],
         'value': [not_missing],
         'state': [ignore],
         'deleted': [ignore_missing],
         'revision_timestamp': [ignore],
+        '__extras': [ignore],
     }
     return schema
 
@@ -395,6 +431,7 @@ def default_user_schema():
         'apikey': [ignore],
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing],
+        'state': [ignore_missing],
     }
     return schema
 
@@ -421,6 +458,20 @@ def default_update_user_schema():
     schema['name'] = [ignore_missing, name_validator, user_name_validator, unicode]
     schema['password'] = [user_password_validator,ignore_missing, unicode]
 
+    return schema
+
+def default_generate_apikey_user_schema():
+    schema = default_update_user_schema()
+
+    schema['apikey'] = [not_empty, unicode]
+    return schema
+
+def default_user_invite_schema():
+    schema = {
+        'email': [not_empty, unicode],
+        'group_id': [not_empty],
+        'role': [not_empty],
+    }
     return schema
 
 def default_task_status_schema():
@@ -502,7 +553,7 @@ def default_package_list_schema():
     schema = {
         'limit': [ignore_missing, natural_number_validator],
         'offset': [ignore_missing, natural_number_validator],
-        'page': [ignore_missing, natural_number_validator]
+        'page': [ignore_missing, is_positive_integer]
     }
     return schema
 
@@ -518,6 +569,12 @@ def default_pagination_schema():
 def default_dashboard_activity_list_schema():
     schema = default_pagination_schema()
     schema['id'] = [unicode]
+    return schema
+
+
+def default_activity_list_schema():
+    schema = default_pagination_schema()
+    schema['id'] = [not_missing, unicode]
     return schema
 
 
@@ -539,8 +596,9 @@ def default_package_search_schema():
         'qf': [ignore_missing, unicode],
         'facet': [ignore_missing, unicode],
         'facet.mincount': [ignore_missing, natural_number_validator],
-        'facet.limit': [ignore_missing, natural_number_validator],
-        'facet.field': [ignore_missing, list_of_strings],
+        'facet.limit': [ignore_missing, int_validator],
+        'facet.field': [ignore_missing, convert_to_json_if_string,
+            list_of_strings],
         'extras': [ignore_missing]  # Not used by Solr, but useful for extensions
     }
     return schema
@@ -562,4 +620,26 @@ def create_schema_for_required_keys(keys):
     each key from keys is validated against ``not_missing``.
     '''
     schema = dict([(x, [not_missing]) for x in keys])
+    return schema
+
+
+def default_create_resource_view_schema():
+    schema = {
+        'resource_id': [not_empty, resource_id_exists],
+        'title': [not_empty, unicode],
+        'description': [ignore_missing, unicode],
+        'view_type': [not_empty, unicode],
+        '__extras': [empty],
+    }
+    return schema
+
+
+def default_update_resource_view_schema():
+    schema = default_create_resource_view_schema()
+    schema.update({
+        'id': [not_missing, not_empty, unicode],
+        'resource_id': [ignore_missing, resource_id_exists],
+        'view_type': [ignore],# can not change after create
+        'package_id': [ignore]
+    })
     return schema

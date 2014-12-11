@@ -11,7 +11,9 @@ import ckan.model as model
 import ckan.tests as tests
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs
+from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
+
+assert_equal = nose.tools.assert_equal
 
 
 class TestDatastoreUpsert(tests.WsgiAppCase):
@@ -26,6 +28,8 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
@@ -236,6 +240,33 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
 
         assert res_dict['success'] is False
 
+    def test_upsert_works_with_empty_list_in_json_field(self):
+        hhguide = u"hitchhiker's guide to the galaxy"
+
+        data = {
+            'resource_id': self.data['resource_id'],
+            'method': 'upsert',
+            'records': [{
+                'nested': [],
+                u'b\xfck': hhguide}]
+        }
+
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_upsert', params=postparams,
+                            extra_environ=auth)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is True, res_dict
+
+        c = self.Session.connection()
+        results = c.execute('select * from "{0}"'.format(data['resource_id']))
+        record = [r for r in results.fetchall() if r[2] == hhguide]
+        self.Session.remove()
+        assert len(record) == 1, record
+        assert_equal(json.loads(record[0][4].json),
+                     data['records'][0]['nested'])
+
+
 
 class TestDatastoreInsert(tests.WsgiAppCase):
     sysadmin_user = None
@@ -249,6 +280,8 @@ class TestDatastoreInsert(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
@@ -349,6 +382,8 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
         resource = model.Package.get('annakarenina').resources[0]
         hhguide = u"hitchhiker's guide to the galaxy"
         cls.data = {

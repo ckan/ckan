@@ -22,7 +22,8 @@ class HomeController(base.BaseController):
     def __before__(self, action, **env):
         try:
             base.BaseController.__before__(self, action, **env)
-            context = {'model': model, 'user': c.user or c.author}
+            context = {'model': model, 'user': c.user or c.author,
+                       'auth_user_obj': c.userobj}
             logic.check_access('site_read', context)
         except logic.NotAuthorized:
             base.abort(401, _('Not authorized to see this page'))
@@ -43,7 +44,7 @@ class HomeController(base.BaseController):
         try:
             # package search
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author}
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
             data_dict = {
                 'q': '*:*',
                 'facet.field': g.facets,
@@ -66,13 +67,14 @@ class HomeController(base.BaseController):
             c.search_facets = query['search_facets']
 
             c.facet_titles = {
+                'organization': _('Organizations'),
                 'groups': _('Groups'),
                 'tags': _('Tags'),
                 'res_format': _('Formats'),
-                'license': _('License'),
+                'license': _('Licenses'),
             }
 
-            data_dict = {'sort': 'packages', 'all_fields': 1}
+            data_dict = {'sort': 'package_count desc', 'all_fields': 1}
             # only give the terms to group dictize that are returned in the
             # facets as full results take a lot longer
             if 'groups' in c.search_facets:
@@ -109,7 +111,7 @@ class HomeController(base.BaseController):
             if msg:
                 h.flash_notice(msg, allow_html=True)
 
-        # START OF DIRTYNESS
+        # START OF DIRTINESS
         def get_group(id):
             def _get_group_type(id):
                 """
@@ -129,10 +131,11 @@ class HomeController(base.BaseController):
             context = {'model': model, 'session': model.Session,
                        'ignore_auth': True,
                        'user': c.user or c.author,
+                       'auth_user_obj': c.userobj,
                        'schema': db_to_form_schema(group_type=group_type),
                        'limits': {'packages': 2},
                        'for_view': True}
-            data_dict = {'id': id}
+            data_dict = {'id': id, 'include_datasets': True}
 
             try:
                 group_dict = logic.get_action('group_show')(context, data_dict)
@@ -175,8 +178,7 @@ class HomeController(base.BaseController):
 
         c.group_package_stuff = dirty_cached_group_stuff
 
-        # END OF DIRTYNESS
-
+        # END OF DIRTINESS
         return base.render('home/index.html', cache_force=True)
 
     def license(self):

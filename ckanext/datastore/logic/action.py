@@ -1,10 +1,6 @@
 import logging
-import json
-import urlparse
-import datetime
 
 import pylons
-import requests
 import sqlalchemy
 
 import ckan.lib.navl.dictization_functions
@@ -12,6 +8,7 @@ import ckan.logic as logic
 import ckan.plugins as p
 import ckanext.datastore.db as db
 import ckanext.datastore.logic.schema as dsschema
+import ckanext.datastore.helpers as datastore_helpers
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -39,6 +36,8 @@ def datastore_create(context, data_dict):
 
     :param resource_id: resource id that the data is going to be stored against.
     :type resource_id: string
+    :param force: set to True to edit a read-only resource
+    :type force: bool (optional, default: False)
     :param resource: resource dictionary that is passed to
         :meth:`~ckan.logic.action.create.resource_create`.
         Use instead of ``resource_id`` (optional)
@@ -90,27 +89,39 @@ def datastore_create(context, data_dict):
 
     if 'resource' in data_dict:
         has_url = 'url' in data_dict['resource']
-        data_dict['resource'].setdefault('url', '_tmp')
+        # A datastore only resource does not have a url in the db
+        data_dict['resource'].setdefault('url', '_datastore_only_resource')
         res = p.toolkit.get_action('resource_create')(context,
                                                       data_dict['resource'])
         data_dict['resource_id'] = res['id']
 
         # create resource from file
         if has_url:
+            if not p.plugin_loaded('datapusher'):
+                raise p.toolkit.ValidationError({'resource': [
+                    'The datapusher has to be enabled.']})
             p.toolkit.get_action('datapusher_submit')(context, {
                 'resource_id': res['id'],
-                'set_url_to_dump': True
+                'set_url_type': True
             })
+            # since we'll overwrite the datastore resource anyway, we
+            # don't need to create it here
+            return
+
         # create empty resource
         else:
             # no need to set the full url because it will be set in before_show
             res['url_type'] = 'datastore'
             p.toolkit.get_action('resource_update')(context, res)
+    else:
+        if not data_dict.pop('force', False):
+            resource_id = data_dict['resource_id']
+            _check_read_only(context, resource_id)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     # validate aliases
-    aliases = db._get_list(data_dict.get('aliases', []))
+    aliases = datastore_helpers.get_list(data_dict.get('aliases', []))
     for alias in aliases:
         if not db._is_valid_table_name(alias):
             raise p.toolkit.ValidationError({
@@ -121,7 +132,7 @@ def datastore_create(context, data_dict):
     model = _get_or_bust(context, 'model')
     resource = model.Resource.get(data_dict['resource_id'])
     legacy_mode = 'ckan.datastore.read_url' not in pylons.config
-    if not legacy_mode and resource.resource_group.package.private:
+    if not legacy_mode and resource.package.private:
         data_dict['private'] = True
 
     result = db.create(context, data_dict)
@@ -153,6 +164,8 @@ def datastore_upsert(context, data_dict):
 
     :param resource_id: resource id that the data is going to be stored under.
     :type resource_id: string
+    :param force: set to True to edit a read-only resource
+    :type force: bool (optional, default: False)
     :param records: the data, eg: [{"dob": "2005", "some_stuff": ["a","b"]}] (optional)
     :type records: list of dictionaries
     :param method: the method to use to put the data into the datastore.
@@ -173,6 +186,12 @@ def datastore_upsert(context, data_dict):
     if errors:
         raise p.toolkit.ValidationError(errors)
 
+    p.toolkit.check_access('datastore_upsert', context, data_dict)
+
+    if not data_dict.pop('force', False):
+        resource_id = data_dict['resource_id']
+        _check_read_only(context, resource_id)
+
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     res_id = data_dict['resource_id']
@@ -186,8 +205,6 @@ def datastore_upsert(context, data_dict):
             u'Resource "{0}" was not found.'.format(res_id)
         ))
 
-    p.toolkit.check_access('datastore_upsert', context, data_dict)
-
     result = db.upsert(context, data_dict)
     result.pop('id', None)
     result.pop('connection_url')
@@ -199,6 +216,8 @@ def datastore_delete(context, data_dict):
 
     :param resource_id: resource id that the data will be deleted from. (optional)
     :type resource_id: string
+    :param force: set to True to edit a read-only resource
+    :type force: bool (optional, default: False)
     :param filters: filters to apply before deleting (eg {"name": "fred"}).
                    If missing delete whole table and all dependent views. (optional)
     :type filters: dictionary
@@ -217,6 +236,12 @@ def datastore_delete(context, data_dict):
     if errors:
         raise p.toolkit.ValidationError(errors)
 
+    p.toolkit.check_access('datastore_delete', context, data_dict)
+
+    if not data_dict.pop('force', False):
+        resource_id = data_dict['resource_id']
+        _check_read_only(context, resource_id)
+
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     res_id = data_dict['resource_id']
@@ -229,8 +254,6 @@ def datastore_delete(context, data_dict):
         raise p.toolkit.ObjectNotFound(p.toolkit._(
             u'Resource "{0}" was not found.'.format(res_id)
         ))
-
-    p.toolkit.check_access('datastore_delete', context, data_dict)
 
     result = db.delete(context, data_dict)
     result.pop('id', None)
@@ -251,8 +274,12 @@ def datastore_search(context, data_dict):
     :type resource_id: string
     :param filters: matching conditions to select, e.g {"key1": "a", "key2": "b"} (optional)
     :type filters: dictionary
-    :param q: full text query (optional)
-    :type q: string
+    :param q: full text query. If it's a string, it'll search on all fields on
+              each row. If it's a dictionary as {"key1": "a", "key2": "b"},
+              it'll search on each specific field (optional)
+    :type q: string or dictionary
+    :param distinct: return only distinct rows (optional, default: false)
+    :type distinct: bool
     :param plain: treat as plain text query (optional, default: true)
     :type plain: bool
     :param language: language of the full text query (optional, default: english)
@@ -300,9 +327,7 @@ def datastore_search(context, data_dict):
         raise p.toolkit.ValidationError(errors)
 
     res_id = data_dict['resource_id']
-    data_dict['connection_url'] = pylons.config.get(
-        'ckan.datastore.read_url',
-        pylons.config['ckan.datastore.write_url'])
+    data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     resources_sql = sqlalchemy.text(u'''SELECT alias_of FROM "_table_metadata"
                                         WHERE name = :id''')
@@ -359,14 +384,12 @@ def datastore_search_sql(context, data_dict):
     '''
     sql = _get_or_bust(data_dict, 'sql')
 
-    if not db._is_single_statement(sql):
+    if not datastore_helpers.is_single_statement(sql):
         raise p.toolkit.ValidationError({
-            'query': ['Query is not a single statement or contains semicolons.'],
-            'hint': [('If you want to use semicolons, use character encoding'
-                     '(; equals chr(59)) and string concatenation (||). ')]
+            'query': ['Query is not a single statement.']
         })
 
-    p.toolkit.check_access('datastore_search', context, data_dict)
+    p.toolkit.check_access('datastore_search_sql', context, data_dict)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.read_url']
 
@@ -429,129 +452,8 @@ def datastore_make_public(context, data_dict):
     db.make_public(context, data_dict)
 
 
-def datapusher_submit(context, data_dict):
-    ''' Submit a job to the datapusher. The datapusher is a service that
-    imports tabular data into the datastore.
-
-    :param resource_id: The resource id of the resource that the data
-        should be imported in. The resource's URL will be used to get the data.
-    :type resource_id: string
-    :param set_url_type: If set to true, the ``url_type`` of the resource will
-        be set to ``datastore`` and the resource URL will automatically point
-        to the :ref:`datastore dump <dump>` URL. (optional, default: False)
-    :type set_url_type: boolean
-
-    Returns ``True`` if the job has been submitted and ``False`` if the job
-    has not been submitted, i.e. when the datapusher is not configured.
-
-    :rtype: boolean
-    '''
-
-    if 'id' in data_dict:
-        data_dict['resource_id'] = data_dict['id']
-    res_id = _get_or_bust(data_dict, 'resource_id')
-
-    p.toolkit.check_access('datapusher_submit', context, data_dict)
-
-    datapusher_url = pylons.config.get('datapusher.url')
-
-    # no datapusher url means the datapusher should not be used
-    if not datapusher_url:
-        return False
-
-    callback_url = p.toolkit.url_for(
-        controller='api', action='action', logic_function='datapusher_hook',
-        ver=3, qualified=True)
-
-    user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
-    try:
-        r = requests.post(
-            urlparse.urljoin(datapusher_url, 'job'),
-            headers={
-                'Content-Type': 'application/json'
-            },
-            data=json.dumps({
-                'api_key': user['apikey'],
-                'job_type': 'push_to_datastore',
-                'result_url': callback_url,
-                'metadata': {
-                    'ckan_url': pylons.config['ckan.site_url'],
-                    'resource_id': res_id,
-                    'set_url_type': data_dict.get('set_url_type', False)
-                }
-            }))
-        r.raise_for_status()
-    except requests.exceptions.ConnectionError, e:
-        raise p.toolkit.ValidationError({'datapusher': {
-            'message': 'Could not connect to DataPusher.',
-            'details': str(e)}})
-    except requests.exceptions.HTTPError, e:
-        m = 'An Error occurred while sending the job: {0}'.format(e.message)
-        try:
-            body = e.response.json()
-        except ValueError:
-            body = e.response.text
-        raise p.toolkit.ValidationError({'datapusher': {
-            'message': m,
-            'details': body,
-            'status_code': r.status_code}})
-
-    empty_task = {
-        'entity_id': res_id,
-        'entity_type': 'resource',
-        'task_type': 'datapusher',
-        'last_updated': str(datetime.datetime.now()),
-        'state': 'pending'
-    }
-
-    tasks = []
-    for (k, v) in [('job_id', r.json()['job_id']),
-                   ('job_key', r.json()['job_key'])]:
-        t = empty_task.copy()
-        t['key'] = k
-        t['value'] = v
-        tasks.append(t)
-    p.toolkit.get_action('task_status_update_many')(context, {'data': tasks})
-
-    return True
-
-
-def datapusher_hook(context, data_dict):
-    """ Update datapusher task. This action is typically called by the
-    datapusher whenever the status of a job changes.
-
-    Expects a job with ``status`` and ``metadata`` with a ``resource_id``.
-    """
-
-    # TODO: use a schema to validate
-
-    p.toolkit.check_access('datapusher_submit', context, data_dict)
-
-    res_id = data_dict['metadata']['resource_id']
-
-    task_id = p.toolkit.get_action('task_status_show')(context, {
-        'entity_id': res_id,
-        'task_type': 'datapusher',
-        'key': 'job_id'
-    })
-
-    task_key = p.toolkit.get_action('task_status_show')(context, {
-        'entity_id': res_id,
-        'task_type': 'datapusher',
-        'key': 'job_key'
-    })
-
-    tasks = [task_id, task_key]
-
-    for task in tasks:
-        task['state'] = data_dict['status']
-        task['last_updated'] = str(datetime.datetime.now())
-
-    p.toolkit.get_action('task_status_update_many')(context, {'data': tasks})
-
-
 def _resource_exists(context, data_dict):
-    # Returns true if the resource exists in CKAN and in the datastore
+    ''' Returns true if the resource exists in CKAN and in the datastore '''
     model = _get_or_bust(context, 'model')
     res_id = _get_or_bust(data_dict, 'resource_id')
     if not model.Resource.get(res_id):
@@ -561,3 +463,16 @@ def _resource_exists(context, data_dict):
                                         WHERE name = :id AND alias_of IS NULL''')
     results = db._get_engine(data_dict).execute(resources_sql, id=res_id)
     return results.rowcount > 0
+
+
+def _check_read_only(context, resource_id):
+    ''' Raises exception if the resource is read-only.
+    Make sure the resource id is in resource_id
+    '''
+    res = p.toolkit.get_action('resource_show')(
+        context, {'id': resource_id})
+    if res.get('url_type') != 'datastore':
+        raise p.toolkit.ValidationError({
+            'read-only': ['Cannot edit read-only resource. Either pass'
+                          '"force=True" or change url-type to "datastore"']
+        })

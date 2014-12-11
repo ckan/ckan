@@ -83,7 +83,6 @@ this.ckan.module('custom-fields', function (jQuery, _) {
      */
     disableField: function (field, disable) {
       field.toggleClass('disabled', disable !== false);
-      field.find(':input:not(:checkbox)').prop('disabled', disable !== false);
     },
 
     /* Event handler that fires when the last key in the custom field block
@@ -91,14 +90,14 @@ this.ckan.module('custom-fields', function (jQuery, _) {
      */
     _onChange: function (event) {
       if (event.target.value !== '') {
-        var parent = jQuery(event.target).parents('.control-custom');
+        var parent = jQuery(event.target).parents(this.options.fieldSelector);
         this.newField(parent);
       }
     },
 
     /* Event handler called when the remove checkbox is checked */
     _onRemove: function (event) {
-      var parent = jQuery(event.target).parents('.control-custom');
+      var parent = jQuery(event.target).parents(this.options.fieldSelector);
       this.disableField(parent, event.target.checked);
     }
   };

@@ -1,13 +1,18 @@
 include ckan/config/deployment.ini_tmpl
 recursive-include ckan/public *
 recursive-include ckan/config *.ini
+recursive-include ckan/config *.json
 recursive-include ckan/config *.xml
 recursive-include ckan/i18n *
 recursive-include ckan/templates *
 recursive-include ckan *.ini
-recursive-include ckanext/**/public *
-recursive-include ckanext/**/templates *
-recursive-include ckanext/**/i18n *
+
+recursive-include ckanext/*/i18n *
+recursive-include ckanext/*/public *
+recursive-include ckanext/*/templates *
+recursive-include ckanext/*/theme/public *
+recursive-include ckanext/*/theme/templates *
+
 prune .git
 include CHANGELOG.txt
 include ckan/migration/migrate.cfg

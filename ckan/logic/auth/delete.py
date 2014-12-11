@@ -1,18 +1,21 @@
 import ckan.logic as logic
 import ckan.new_authz as new_authz
-from ckan.logic.auth import get_package_object, get_group_object, get_related_object
+from ckan.logic.auth import get_group_object, get_related_object
 from ckan.logic.auth import get_resource_object
+import ckan.logic.auth.create as _auth_create
+import ckan.logic.auth.update as _auth_update
 from ckan.lib.base import _
 
-def package_delete(context, data_dict):
-    user = context['user']
-    package = get_package_object(context, data_dict)
 
-    authorized = new_authz.has_user_permission_for_group_or_org(package.owner_org, user, 'delete_dataset')
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to delete package %s') % (user, package.id)}
-    else:
-        return {'success': True}
+def user_delete(context, data_dict):
+    # sysadmins only
+    return {'success': False}
+
+
+def package_delete(context, data_dict):
+    # Defer authorization for package_delete to package_update, as deletions
+    # are essentially changing the state field
+    return _auth_update.package_update(context, data_dict)
 
 def resource_delete(context, data_dict):
     model = context['model']
@@ -20,11 +23,7 @@ def resource_delete(context, data_dict):
     resource = get_resource_object(context, data_dict)
 
     # check authentication against package
-    query = model.Session.query(model.Package)\
-        .join(model.ResourceGroup)\
-        .join(model.Resource)\
-        .filter(model.ResourceGroup.id == resource.resource_group_id)
-    pkg = query.first()
+    pkg = model.Package.get(resource.package_id)
     if not pkg:
         raise logic.NotFound(_('No package found for this resource, cannot check auth.'))
 
@@ -35,6 +34,10 @@ def resource_delete(context, data_dict):
         return {'success': False, 'msg': _('User %s not authorized to delete resource %s') % (user, resource.id)}
     else:
         return {'success': True}
+
+
+def resource_view_delete(context, data_dict):
+    return resource_delete(context, data_dict)
 
 
 def related_delete(context, data_dict):
@@ -124,19 +127,13 @@ def tag_delete(context, data_dict):
     # sysadmins only
     return {'success': False}
 
-def _group_or_org_member_delete(context, data_dict):
-    group = get_group_object(context, data_dict)
-    user = context['user']
-    authorized = new_authz.has_user_permission_for_group_or_org(
-        group.id, user, 'delete_member')
-    if not authorized:
-        return {'success': False, 'msg': _('User %s not authorized to delete organization %s members') % (user, group.id)}
-    else:
-        return {'success': True}
+def group_member_delete(context, data_dict):
+    ## just return true as logic runs through member_delete
     return {'success': True}
 
-def group_member_delete(context, data_dict):
-    return _group_or_org_member_delete(context, data_dict)
-
 def organization_member_delete(context, data_dict):
-    return _group_or_org_member_delete(context, data_dict)
+    ## just return true as logic runs through member_delete
+    return {'success': True}
+
+def member_delete(context, data_dict):
+    return _auth_create.member_create(context, data_dict)

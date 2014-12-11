@@ -222,7 +222,6 @@ def make_map():
                   ])))
         m.connect('/dataset/{action}/{id}',
                   requirements=dict(action='|'.join([
-                      'edit',
                       'new_metadata',
                       'new_resource',
                       'history',
@@ -230,25 +229,34 @@ def make_map():
                       'history_ajax',
                       'follow',
                       'activity',
+                      'groups',
                       'unfollow',
                       'delete',
                       'api_data',
                   ])))
+        m.connect('dataset_edit', '/dataset/edit/{id}', action='edit',
+                  ckan_icon='edit')
         m.connect('dataset_followers', '/dataset/followers/{id}',
                   action='followers', ckan_icon='group')
         m.connect('dataset_activity', '/dataset/activity/{id}',
                   action='activity', ckan_icon='time')
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
+        m.connect('dataset_groups', '/dataset/groups/{id}',
+                  action='groups', ckan_icon='group')
         m.connect('/dataset/{id}.{format}', action='read')
+        m.connect('dataset_resources', '/dataset/resources/{id}',
+                  action='resources', ckan_icon='reorder')
         m.connect('dataset_read', '/dataset/{id}', action='read',
                   ckan_icon='sitemap')
         m.connect('/dataset/{id}/resource/{resource_id}',
                   action='resource_read')
         m.connect('/dataset/{id}/resource_delete/{resource_id}',
                   action='resource_delete')
-        m.connect('/dataset/{id}/resource_edit/{resource_id}',
-                  action='resource_edit')
+        m.connect('resource_edit', '/dataset/{id}/resource_edit/{resource_id}',
+                  action='resource_edit', ckan_icon='edit')
         m.connect('/dataset/{id}/resource/{resource_id}/download',
+                  action='resource_download')
+        m.connect('/dataset/{id}/resource/{resource_id}/download/{filename}',
                   action='resource_download')
         m.connect('/dataset/{id}/resource/{resource_id}/embed',
                   action='resource_embedded_dataviewer')
@@ -257,14 +265,22 @@ def make_map():
                   height="800")
         m.connect('/dataset/{id}/resource/{resource_id}/preview',
                   action='resource_datapreview')
+        m.connect('views', '/dataset/{id}/resource/{resource_id}/views',
+                  action='resource_views', ckan_icon='reorder')
+        m.connect('new_view', '/dataset/{id}/resource/{resource_id}/new_view',
+                  action='edit_view', ckan_icon='edit')
+        m.connect('edit_view',
+                  '/dataset/{id}/resource/{resource_id}/edit_view/{view_id}',
+                  action='edit_view', ckan_icon='edit')
+        m.connect('resource_view',
+                  '/dataset/{id}/resource/{resource_id}/view/{view_id}',
+                  action='resource_view')
+        m.connect('/dataset/{id}/resource/{resource_id}/view/',
+                  action='resource_view')
 
     # group
     map.redirect('/groups', '/group')
     map.redirect('/groups/{url:.*}', '/group/{url}')
-
-    ##to get back formalchemy uncomment these lines
-    ##map.connect('/group/new', controller='group_formalchemy', action='new')
-    ##map.connect('/group/edit/{id}', controller='group_formalchemy', action='edit')
 
     # These named routes are used for custom group forms which will use the
     # names below based on the group.type ('group' is the default type)
@@ -341,6 +357,7 @@ def make_map():
         m.connect('/user/edit', action='edit')
         # Note: openid users have slashes in their ids, so need the wildcard
         # in the route.
+        m.connect('user_generate_apikey', '/user/generate_key/{id}', action='generate_apikey')
         m.connect('/user/activity/{id}/{offset}', action='activity')
         m.connect('user_activity_stream', '/user/activity/{id}',
                   action='activity', ckan_icon='time')
@@ -359,6 +376,7 @@ def make_map():
                   action='followers', ckan_icon='group')
         m.connect('user_edit', '/user/edit/{id:.*}', action='edit',
                   ckan_icon='cog')
+        m.connect('user_delete', '/user/delete/{id}', action='delete')
         m.connect('/user/reset/{id:.*}', action='perform_reset')
         m.connect('register', '/user/register', action='register')
         m.connect('login', '/user/login', action='login')
@@ -383,6 +401,7 @@ def make_map():
     # feeds
     with SubMapper(map, controller='feed') as m:
         m.connect('/feeds/group/{id}.atom', action='group')
+        m.connect('/feeds/organization/{id}.atom', action='organization')
         m.connect('/feeds/tag/{id}.atom', action='tag')
         m.connect('/feeds/dataset.atom', action='general')
         m.connect('/feeds/custom.atom', action='custom')
@@ -391,6 +410,8 @@ def make_map():
                 action='index', ckan_icon='legal')
     map.connect('ckanadmin_config', '/ckan-admin/config', controller='admin',
                 action='config', ckan_icon='check')
+    map.connect('ckanadmin_trash', '/ckan-admin/trash', controller='admin',
+                action='trash', ckan_icon='trash')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
 
     # Storage routes

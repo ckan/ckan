@@ -1,5 +1,7 @@
 '''API functions for deleting data from CKAN.'''
 
+from sqlalchemy import or_
+
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
@@ -17,6 +19,29 @@ NotFound = ckan.logic.NotFound
 _check_access = ckan.logic.check_access
 _get_or_bust = ckan.logic.get_or_bust
 _get_action = ckan.logic.get_action
+
+
+def user_delete(context, data_dict):
+    '''Delete a user.
+
+    Only sysadmins can delete users.
+
+    :param id: the id or usernamename of the user to delete
+    :type id: string
+    '''
+
+    _check_access('user_delete', context, data_dict)
+
+    model = context['model']
+    user_id = _get_or_bust(data_dict, 'id')
+    user = model.User.get(user_id)
+
+    if user is None:
+        raise NotFound('User "{id}" was not found.'.format(id=user_id))
+
+    user.delete()
+    model.repo.commit()
+
 
 def package_delete(context, data_dict):
     '''Delete a dataset (package).
@@ -72,15 +97,45 @@ def resource_delete(context, data_dict):
     package_id = entity.get_package_id()
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.before_delete(context, data_dict,
+                             pkg_dict.get('resources', []))
 
-    if 'resources' in pkg_dict and id in pkg_dict['resources']:
-        pkg_dict['resources'].remove(id)
+    if pkg_dict.get('resources'):
+        pkg_dict['resources'] = [r for r in pkg_dict['resources'] if not
+                r['id'] == id]
     try:
         pkg_dict = _get_action('package_update')(context, pkg_dict)
     except ValidationError, e:
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.after_delete(context, pkg_dict.get('resources', []))
+
+    model.repo.commit()
+
+
+def resource_view_delete(context, data_dict):
+    '''Delete a resource_view.
+
+    :param id: the id of the resource_view
+    :type id: string
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    resource_view = model.ResourceView.get(id)
+    if not resource_view:
+        raise NotFound
+
+    context["resource_view"] = resource_view
+    context['resource'] = model.Resource.get(resource_view.resource_id)
+    _check_access('resource_view_delete', context, data_dict)
+
+    resource_view.delete()
     model.repo.commit()
 
 
@@ -202,8 +257,7 @@ def member_delete(context, data_dict=None):
     if not obj:
         raise NotFound('%s was not found.' % obj_type.title())
 
-    # User must be able to update the group to remove a member from it
-    _check_access('group_update', context, data_dict)
+    _check_access('member_delete', context, data_dict)
 
     member = model.Session.query(model.Member).\
             filter(model.Member.table_name == obj_type).\
@@ -252,6 +306,15 @@ def _group_or_org_delete(context, data_dict, is_org=False):
     rev = model.repo.new_revision()
     rev.author = user
     rev.message = _(u'REST API: Delete %s') % revisioned_details
+
+    # The group's Member objects are deleted
+    # (including hierarchy connections to parent and children groups)
+    for member in model.Session.query(model.Member).\
+            filter(or_(model.Member.table_id == id,
+                       model.Member.group_id == id)).\
+            filter(model.Member.state == 'active').all():
+        member.delete()
+
     group.delete()
 
     if is_org:
@@ -538,6 +601,7 @@ def group_member_delete(context, data_dict=None):
     :type username: string
 
     '''
+    _check_access('group_member_delete',context, data_dict)
     return _group_or_org_member_delete(context, data_dict)
 
 def organization_member_delete(context, data_dict=None):
@@ -551,6 +615,7 @@ def organization_member_delete(context, data_dict=None):
     :type username: string
 
     '''
+    _check_access('organization_member_delete',context, data_dict)
     return _group_or_org_member_delete(context, data_dict)
 
 

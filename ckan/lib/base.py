@@ -43,6 +43,14 @@ ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
 
 def abort(status_code=None, detail='', headers=None, comment=None):
+    '''Abort the current request immediately by returning an HTTP exception.
+
+    This is a wrapper for :py:func:`pylons.controllers.util.abort` that adds
+    some CKAN custom behavior, including allowing
+    :py:class:`~ckan.plugins.interfaces.IAuthenticator` plugins to alter the
+    abort response, and showing flash messages in the web interface.
+
+    '''
     if status_code == 401:
         # Allow IAuthenticator plugins to alter the abort
         for item in p.PluginImplementations(p.IAuthenticator):
@@ -75,8 +83,14 @@ def render_snippet(template_name, **kw):
 
 
 def render_text(template_name, extra_vars=None, cache_force=None):
-    ''' Helper function to render a genshi NewTextTemplate without
-    having to pass the loader_class or method. '''
+    '''Render a Genshi :py:class:`NewTextTemplate`.
+
+    This is just a wrapper function that lets you render a Genshi
+    :py:class:`NewTextTemplate` without having to pass ``method='text'`` or
+    ``loader_class=NewTextTemplate`` (it passes them to
+    :py:func:`~ckan.plugins.toolkit.render` for you).
+
+    '''
     return render(template_name,
                   extra_vars=extra_vars,
                   cache_force=cache_force,
@@ -93,8 +107,15 @@ def render_jinja2(template_name, extra_vars):
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
            cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
            cache_force=None, renderer=None):
-    ''' Main template rendering function. '''
+    '''Render a template and return the output.
 
+    This is CKAN's main template rendering function.
+
+    .. todo::
+
+       Document the parameters of :py:func:`ckan.plugins.toolkit.render`.
+
+    '''
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
@@ -107,14 +128,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         try:
             template_path, template_type = render_.template_info(template_name)
         except render_.TemplateNotFound:
-            template_type = 'genshi'
-            template_path = ''
-
-        # snippets should not pass the context
-        # but allow for legacy genshi templates
-        if renderer == 'snippet' and template_type != 'genshi':
-            del globs['c']
-            del globs['tmpl_context']
+            raise
 
         log.debug('rendering %s [%s]' % (template_path, template_type))
         if config.get('debug'):
@@ -206,6 +220,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         raise ckan.exceptions.CkanUrlException(
             '\nAn Exception has been raised for template %s\n%s' %
             (template_name, e.message))
+    except render_.TemplateNotFound:
+        raise
 
 
 class ValidationException(Exception):
@@ -213,6 +229,9 @@ class ValidationException(Exception):
 
 
 class BaseController(WSGIController):
+    '''Base class for CKAN controller classes to inherit from.
+
+    '''
     repo = model.repo
     log = logging.getLogger(__name__)
 
@@ -279,19 +298,19 @@ class BaseController(WSGIController):
         b) For API calls they may set a header with an API key.
         '''
 
-        # environ['REMOTE_USER'] is set by repoze.who if it authenticates
-        # a user's cookie or OpenID. But repoze.who doesn't check the user
-        # (still) exists in our database - we need to do that here. (Another
-        # way would be with an userid_checker, but that would mean another db
-        # access.
+        # environ['REMOTE_USER'] is set by repoze.who if it authenticates a
+        # user's cookie. But repoze.who doesn't check the user (still) exists
+        # in our database - we need to do that here. (Another way would be
+        # with an userid_checker, but that would mean another db access.
         # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
         # .plugins.sql )
         c.user = request.environ.get('REMOTE_USER', '')
         if c.user:
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
-            if c.userobj is None:
-                # This occurs when you are logged in, clean db
+            if c.userobj is None or not c.userobj.is_active():
+                # This occurs when a user that was still logged in is deleted,
+                # or when you are logged in, clean db
                 # and then restart (or when you change your username)
                 # There is no user object, so even though repoze thinks you
                 # are logged in and your cookie has ckan_display_name, we
@@ -321,15 +340,9 @@ class BaseController(WSGIController):
         finally:
             model.Session.remove()
 
-        # Clean out any old cookies as they may contain api keys etc
-        # This also improves the cachability of our pages as cookies
-        # prevent proxy servers from caching content unless they have
-        # been configured to ignore them.
         for cookie in request.cookies:
-            if cookie.startswith('ckan') and cookie not in ['ckan']:
-                response.delete_cookie(cookie)
             # Remove the ckan session cookie if not used e.g. logged out
-            elif cookie == 'ckan' and not c.user:
+            if cookie == 'ckan' and not c.user:
                 # Check session for valid data (including flash messages)
                 # (DGU also uses session for a shopping basket-type behaviour)
                 is_valid_cookie_data = False
@@ -355,17 +368,35 @@ class BaseController(WSGIController):
         return res
 
     def __after__(self, action, **params):
-        self._set_cors()
+        # Do we have CORS settings in config?
+        if config.get('ckan.cors.origin_allow_all') \
+                and request.headers.get('Origin'):
+            self._set_cors()
         r_time = time.time() - c.__timer
         url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
         log.info(' %s render time %.3f seconds' % (url, r_time))
 
     def _set_cors(self):
-        response.headers['Access-Control-Allow-Origin'] = "*"
-        response.headers['Access-Control-Allow-Methods'] = \
-            "POST, PUT, GET, DELETE, OPTIONS"
-        response.headers['Access-Control-Allow-Headers'] = \
-            "X-CKAN-API-KEY, Authorization, Content-Type"
+        '''
+        Set up Access Control Allow headers if either origin_allow_all is
+        True, or the request Origin is in the origin_whitelist.
+        '''
+        cors_origin_allowed = None
+        if asbool(config.get('ckan.cors.origin_allow_all')):
+            cors_origin_allowed = "*"
+        elif config.get('ckan.cors.origin_whitelist') and \
+                request.headers.get('Origin') \
+                in config['ckan.cors.origin_whitelist'].split(" "):
+            # set var to the origin to allow it.
+            cors_origin_allowed = request.headers.get('Origin')
+
+        if cors_origin_allowed is not None:
+            response.headers['Access-Control-Allow-Origin'] = \
+                cors_origin_allowed
+            response.headers['Access-Control-Allow-Methods'] = \
+                "POST, PUT, GET, DELETE, OPTIONS"
+            response.headers['Access-Control-Allow-Headers'] = \
+                "X-CKAN-API-KEY, Authorization, Content-Type"
 
     def _get_user_for_apikey(self):
         apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,
@@ -388,6 +419,24 @@ class BaseController(WSGIController):
         query = model.Session.query(model.User)
         user = query.filter_by(apikey=apikey).first()
         return user
+
+    def _get_page_number(self, params, key='page', default=1):
+        """
+        Returns the page number from the provided params after
+        verifies that it is an integer.
+
+        If it fails it will abort the request with a 400 error
+        """
+        p = params.get(key, default)
+
+        try:
+            p = int(p)
+            if p < 1:
+                raise ValueError("Negative number not allowed")
+        except ValueError, e:
+            abort(400, ('"page" parameter must be a positive integer'))
+
+        return p
 
 
 # Include the '_' function in the public names

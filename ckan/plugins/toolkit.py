@@ -1,16 +1,4 @@
-import inspect
-import os
-import re
-
-import paste.deploy.converters as converters
-import webhelpers.html.tags
-
-__all__ = ['toolkit']
-
-
-class CkanVersionException(Exception):
-    ''' Exception raised if required ckan version is not available. '''
-    pass
+import sys
 
 
 class _Toolkit(object):
@@ -40,15 +28,17 @@ class _Toolkit(object):
         'aslist',               # converts an object to a list
         'literal',              # stop tags in a string being escaped
         'get_action',           # get logic action function
-        'get_converter',        # get validator function
-        'get_validator',        # get convertor action function
+        'get_converter',        # get navl schema converter
+        'get_validator',        # get navl schema validator
         'check_access',         # check logic function authorisation
+        'navl_validate',        # implements validate method with navl schema
+        'missing',              # placeholder for missing values for validation
         'ObjectNotFound',       # action not found exception
                                 # (ckan.logic.NotFound)
         'NotAuthorized',        # action not authorized exception
-        'UnknownConverter',     # convertor not found exception
         'UnknownValidator',     # validator not found exception
         'ValidationError',      # model update validation error
+        'Invalid',              # validation invalid exception
         'CkanCommand',          # class for providing cli interfaces
         'DefaultDatasetForm',   # base class for IDatasetForm plugins
         'response',             # response object for cookies etc
@@ -59,6 +49,9 @@ class _Toolkit(object):
         'get_or_bust',          # helpful for actions
         'side_effect_free',     # actions can be accessed via api
         'auth_sysadmins_check', # allow auth functions to be checked for sysadmins
+        'auth_allow_anonymous_access', # allow anonymous access to an auth function
+        'auth_disallow_anonymous_access', # disallow anonymous access to an auth function
+        'get_new_resources', # gets all new resources in current commit
 
         ## Fully defined in this file ##
         'add_template_directory',
@@ -72,6 +65,13 @@ class _Toolkit(object):
     def __init__(self):
         self._toolkit = {}
 
+        # For some members in the the toolkit (e.g. that are exported from
+        # third-party libraries) we override their docstrings by putting our
+        # own docstrings into this dict. The Sphinx plugin that documents this
+        # plugins toolkit will use these docstring overrides instead of the
+        # object's actual docstring, when present.
+        self.docstring_overrides = {}
+
     def _initialize(self):
         ''' get the required functions/objects, store them for later
         access and check that they match the contents dict. '''
@@ -79,11 +79,19 @@ class _Toolkit(object):
         import ckan
         import ckan.lib.base as base
         import ckan.logic as logic
+        import ckan.logic.validators as logic_validators
+        import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
         import ckan.lib.cli as cli
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
+        import ckan.lib.datapreview as datapreview
+        from ckan.exceptions import CkanVersionException
+
+        from paste.deploy import converters
         import pylons
+        import webhelpers.html.tags
+
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -93,29 +101,84 @@ class _Toolkit(object):
 
         # imported functions
         t['_'] = common._
+        self.docstring_overrides['_'] = '''The Pylons ``_()`` function.
+
+The Pylons ``_()`` function is a reference to the ``ugettext()`` function.
+Everywhere in your code where you want strings to be internationalized
+(made available for translation into different languages), wrap them in the
+``_()`` function, eg.::
+
+    msg = toolkit._("Hello")
+
+'''
         t['c'] = common.c
+        self.docstring_overrides['c'] = '''The Pylons template context object.
+
+This object is used to pass request-specific information to different parts of
+the code in a thread-safe way (so that variables from different requests being
+executed at the same time don't get confused with each other).
+
+Any attributes assigned to :py:attr:`~ckan.plugins.toolkit.c` are
+available throughout the template and application code, and are local to the
+current request.
+
+'''
         t['request'] = common.request
+        self.docstring_overrides['request'] = '''The Pylons request object.
+
+A new request object is created for each HTTP request. It has methods and
+attributes for getting things like the request headers, query-string variables,
+request body variables, cookies, the request URL, etc.
+
+'''
         t['render'] = base.render
         t['render_text'] = base.render_text
         t['asbool'] = converters.asbool
+        self.docstring_overrides['asbool'] = '''Convert a string from the
+config file into a boolean.
+
+For example: ``if toolkit.asbool(config.get('ckan.legacy_templates', False)):``
+
+'''
         t['asint'] = converters.asint
+        self.docstring_overrides['asint'] = '''Convert a string from the config
+file into an int.
+
+For example: ``bar = toolkit.asint(config.get('ckan.foo.bar', 0))``
+
+'''
         t['aslist'] = converters.aslist
+        self.docstring_overrides['aslist'] = '''Convert a string from the
+config file into a list.
+
+For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
+
+'''
         t['literal'] = webhelpers.html.tags.literal
 
         t['get_action'] = logic.get_action
-        t['get_converter'] = logic.get_converter
+        t['get_converter'] = logic.get_validator  # For backwards compatibility
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
+        t['navl_validate'] = dictization_functions.validate
+        t['missing'] = dictization_functions.missing
         t['ObjectNotFound'] = logic.NotFound  # Name change intentional
         t['NotAuthorized'] = logic.NotAuthorized
         t['ValidationError'] = logic.ValidationError
-        t['UnknownConverter'] = logic.UnknownConverter
         t['UnknownValidator'] = logic.UnknownValidator
+        t['Invalid'] = logic_validators.Invalid
 
         t['CkanCommand'] = cli.CkanCommand
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
 
         t['response'] = pylons.response
+        self.docstring_overrides['response'] = '''The Pylons response object.
+
+Pylons uses this object to generate the HTTP response it returns to the web
+browser. It has attributes like the HTTP status code, the response headers,
+content type, cookies, etc.
+
+'''
         t['BaseController'] = base.BaseController
         t['abort'] = base.abort
         t['redirect_to'] = h.redirect_to
@@ -123,6 +186,9 @@ class _Toolkit(object):
         t['get_or_bust'] = logic.get_or_bust
         t['side_effect_free'] = logic.side_effect_free
         t['auth_sysadmins_check'] = logic.auth_sysadmins_check
+        t['auth_allow_anonymous_access'] = logic.auth_allow_anonymous_access
+        t['auth_disallow_anonymous_access'] = logic.auth_disallow_anonymous_access
+        t['get_new_resources'] = datapreview.get_new_resources
 
         # class functions
         t['render_snippet'] = self._render_snippet
@@ -139,30 +205,44 @@ class _Toolkit(object):
             raise Exception('Plugin toolkit error %s not matching' % errors)
 
     # wrappers
+    # Wrapper for the render_snippet function as it uses keywords rather than
+    # dict to pass data.
     @classmethod
     def _render_snippet(cls, template, data=None):
-        ''' helper for the render_snippet function as it uses keywords
-        rather than dict to pass data '''
+        '''Render a template snippet and return the output.
+
+        See :doc:`/theming/index`.
+
+        '''
         data = data or {}
         return cls.base.render_snippet(template, **data)
 
     # new functions
     @classmethod
     def _add_template_directory(cls, config, relative_path):
-        ''' Function to aid adding extra template paths to the config.
-        The path is relative to the file calling this function. '''
+        '''Add a path to the :ref:`extra_template_paths` config setting.
+
+        The path is relative to the file calling this function.
+
+        '''
         cls._add_served_directory(config, relative_path,
                                   'extra_template_paths')
 
     @classmethod
     def _add_public_directory(cls, config, relative_path):
-        ''' Function to aid adding extra public paths to the config.
-        The path is relative to the file calling this function. '''
+        '''Add a path to the :ref:`extra_public_paths` config setting.
+
+        The path is relative to the file calling this function.
+
+        '''
         cls._add_served_directory(config, relative_path, 'extra_public_paths')
 
     @classmethod
     def _add_served_directory(cls, config, relative_path, config_var):
         ''' Add extra public/template directories to config. '''
+        import inspect
+        import os
+
         assert config_var in ('extra_template_paths', 'extra_public_paths')
         # we want the filename that of the function caller but they will
         # have used one of the available helper functions
@@ -179,6 +259,17 @@ class _Toolkit(object):
 
     @classmethod
     def _add_resource(cls, path, name):
+        '''Add a Fanstatic resource library to CKAN.
+
+        Fanstatic libraries are directories containing static resource files
+        (e.g. CSS, JavaScript or image files) that can be accessed from CKAN.
+
+        See :doc:`/theming/index` for more details.
+
+        '''
+        import inspect
+        import os
+
         # we want the filename that of the function caller but they will
         # have used one of the available helper functions
         frame, filename, line_number, function_name, lines, index =\
@@ -193,12 +284,31 @@ class _Toolkit(object):
     def _version_str_2_list(cls, v_str):
         ''' convert a version string into a list of ints
         eg 1.6.1b --> [1, 6, 1] '''
+        import re
         v_str = re.sub(r'[^0-9.]', '', v_str)
         return [int(part) for part in v_str.split('.')]
 
     @classmethod
     def _check_ckan_version(cls, min_version=None, max_version=None):
-        ''' Check that the ckan version is correct for the plugin. '''
+        '''Return ``True`` if the CKAN version is greater than or equal to
+        ``min_version`` and less than or equal to ``max_version``,
+        return ``False`` otherwise.
+
+        If no ``min_version`` is given, just check whether the CKAN version is
+        less than or equal to ``max_version``.
+
+        If no ``max_version`` is given, just check whether the CKAN version is
+        greater than or equal to ``min_version``.
+
+        :param min_version: the minimum acceptable CKAN version,
+            eg. ``'2.1'``
+        :type min_version: string
+
+        :param max_version: the maximum acceptable CKAN version,
+            eg. ``'2.3'``
+        :type max_version: string
+
+        '''
         current = cls._version_str_2_list(cls.ckan.__version__)
 
         if min_version:
@@ -213,7 +323,27 @@ class _Toolkit(object):
 
     @classmethod
     def _requires_ckan_version(cls, min_version, max_version=None):
-        ''' Check that the ckan version is correct for the plugin. '''
+        '''Raise :py:exc:`~ckan.plugins.toolkit.CkanVersionException` if the
+        CKAN version is not greater than or equal to ``min_version`` and
+        less then or equal to ``max_version``.
+
+        If no ``max_version`` is given, just check whether the CKAN version is
+        greater than or equal to ``min_version``.
+
+        Plugins can call this function if they require a certain CKAN version,
+        other versions of CKAN will crash if a user tries to use the plugin
+        with them.
+
+        :param min_version: the minimum acceptable CKAN version,
+            eg. ``'2.1'``
+        :type min_version: string
+
+        :param max_version: the maximum acceptable CKAN version,
+            eg. ``'2.3'``
+        :type max_version: string
+
+        '''
+        from ckan.exceptions import CkanVersionException
         if not cls._check_ckan_version(min_version=min_version,
                                        max_version=max_version):
             if not max_version:
@@ -221,7 +351,7 @@ class _Toolkit(object):
             else:
                 error = 'Requires ckan version between %s and %s' % \
                             (min_version, max_version)
-            raise cls.CkanVersionException(error)
+            raise CkanVersionException(error)
 
     def __getattr__(self, name):
         ''' return the function/object requested '''
@@ -232,7 +362,13 @@ class _Toolkit(object):
         else:
             if name == '__bases__':
                 return self.__class__.__bases__
-            raise Exception('`%s` not found in plugins toolkit' % name)
+            raise AttributeError('`%s` not found in plugins toolkit' % name)
 
-toolkit = _Toolkit()
-del _Toolkit
+    def __dir__(self):
+        if not self._toolkit:
+            self._initialize()
+        return sorted(self._toolkit.keys())
+
+
+# https://mail.python.org/pipermail/python-ideas/2012-May/014969.html
+sys.modules[__name__] = _Toolkit()

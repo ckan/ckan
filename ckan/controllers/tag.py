@@ -16,7 +16,8 @@ class TagController(base.BaseController):
     def __before__(self, action, **env):
         base.BaseController.__before__(self, action, **env)
         try:
-            context = {'model': model, 'user': c.user or c.author}
+            context = {'model': model, 'user': c.user or c.author,
+                       'auth_user_obj': c.userobj}
             logic.check_access('site_read', context)
         except logic.NotAuthorized:
             base.abort(401, _('Not authorized to see this page'))
@@ -25,12 +26,13 @@ class TagController(base.BaseController):
         c.q = request.params.get('q', '')
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'for_view': True}
 
         data_dict = {'all_fields': True}
 
         if c.q:
-            page = int(request.params.get('page', 1))
+            page = self._get_page_number(request.params)
             data_dict['q'] = c.q
             data_dict['limit'] = LIMIT
             data_dict['offset'] = (page - 1) * LIMIT
@@ -58,7 +60,8 @@ class TagController(base.BaseController):
 
     def read(self, id):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'for_view': True}
 
         data_dict = {'id': id}
         try:

@@ -1,15 +1,19 @@
 CKAN: The Open Source Data Portal Software
 ==========================================
 
-.. image:: https://secure.travis-ci.org/okfn/ckan.png?branch=master
-    :target: http://travis-ci.org/okfn/ckan
+.. image:: https://secure.travis-ci.org/ckan/ckan.png?branch=master
+    :target: http://travis-ci.org/ckan/ckan
     :alt: Build Status
+
+.. image:: https://coveralls.io/repos/ckan/ckan/badge.png?branch=master
+    :target: https://coveralls.io/r/ckan/ckan
+    :alt: Coverage Status
 
 **CKAN is the world’s leading open-source data portal platform**.
 CKAN makes it easy to publish, share and work with data. It's a data management
 system that provides a powerful platform for cataloging, storing and accessing
 datasets with a rich front-end, full API (for both data and catalog), visualization
-tools and more. Read more at `ckan.org <http://ckan.org/>`_. 
+tools and more. Read more at `ckan.org <http://ckan.org/>`_.
 
 
 Installation
@@ -32,14 +36,14 @@ searching first to see if there's already an issue for your bug).
 
 .. _CKAN tag on Stack Overflow: http://stackoverflow.com/questions/tagged/ckan
 .. _ckan-discuss: http://lists.okfn.org/mailman/listinfo/ckan-discuss
-.. _GitHub Issues: https://github.com/okfn/ckan/issues
+.. _GitHub Issues: https://github.com/ckan/ckan/issues
 
 
 Contributing to CKAN
 --------------------
 
 For contributing to CKAN or its documentation, see
-`CONTRIBUTING <https://github.com/okfn/ckan/blob/master/CONTRIBUTING.rst>`_.
+`CONTRIBUTING <https://github.com/ckan/ckan/blob/master/CONTRIBUTING.rst>`_.
 
 If you want to talk about CKAN development say hi to the CKAN developers on the
 `ckan-dev`_ mailing list or in the `#ckan`_ IRC channel on irc.freenode.net.
@@ -50,13 +54,13 @@ others, make a new page on the `CKAN wiki`_, and tell us about it on
 
 .. _ckan-dev: http://lists.okfn.org/mailman/listinfo/ckan-dev
 .. _#ckan: http://webchat.freenode.net/?channels=ckan
-.. _CKAN Wiki: https://github.com/okfn/ckan/wiki
+.. _CKAN Wiki: https://github.com/ckan/ckan/wiki
 
 
 Copying and License
 -------------------
 
-This material is copyright (c) 2006-2013 Open Knowledge Foundation.
+This material is copyright (c) 2006-2014 Open Knowledge Foundation.
 
 It is open and licensed under the GNU Affero General Public License (AGPL) v3.0
 whose full text may be found at:

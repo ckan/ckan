@@ -1,0 +1,7 @@
+#!/bin/sh
+exec 2>&1
+
+set -e
+
+. /etc/apache2/envvars
+exec /usr/sbin/apache2 -D FOREGROUND

@@ -44,7 +44,7 @@ class AuthFunctions:
 
         module_root = 'ckan.logic.auth'
 
-        for auth_module_name in ['get', 'create', 'update', 'delete']:
+        for auth_module_name in ['get', 'create', 'update', 'delete', 'patch']:
             module_path = '%s.%s' % (module_root, auth_module_name,)
             try:
                 module = __import__(module_path)
@@ -57,7 +57,16 @@ class AuthFunctions:
 
             for key, v in module.__dict__.items():
                 if not key.startswith('_'):
-                    key = clean_action_name(key)
+                    # Whitelist all auth functions defined in
+                    # logic/auth/get.py as not requiring an authorized user,
+                    # as well as ensuring that the rest do. In both cases, do
+                    # nothing if a decorator has already been used to define
+                    # the behaviour
+                    if not hasattr(v, 'auth_allow_anonymous_access'):
+                        if auth_module_name == 'get':
+                            v.auth_allow_anonymous_access = True
+                        else:
+                            v.auth_allow_anonymous_access = False
                     self._functions[key] = v
 
         # Then overwrite them with any specific ones in the plugins:
@@ -65,7 +74,6 @@ class AuthFunctions:
         fetched_auth_functions = {}
         for plugin in p.PluginImplementations(p.IAuthFunctions):
             for name, auth_function in plugin.get_auth_functions().items():
-                name = clean_action_name(name)
                 if name in resolved_auth_function_plugins:
                     raise Exception(
                         'The auth function %r is already implemented in %r' % (
@@ -73,7 +81,7 @@ class AuthFunctions:
                             resolved_auth_function_plugins[name]
                         )
                     )
-                log.debug('Auth function %r was inserted', plugin.name)
+                log.debug('Auth function {0} from plugin {1} was inserted'.format(name, plugin.name))
                 resolved_auth_function_plugins[name] = plugin.name
                 fetched_auth_functions[name] = auth_function
         # Use the updated ones in preference to the originals.
@@ -95,31 +103,25 @@ def auth_functions_list():
     return _AuthFunctions.keys()
 
 
-def clean_action_name(action_name):
-    ''' Used to convert old style action names into new style ones '''
-    new_action_name = re.sub('package', 'dataset', action_name)
-    # CS: bad_spelling ignore
-    return re.sub('licence', 'license', new_action_name)
-
-
 def is_sysadmin(username):
-    ''' returns True is username is a sysadmin '''
+    ''' Returns True is username is a sysadmin '''
+    user = _get_user(username)
+    return user and user.sysadmin
+
+
+def _get_user(username):
+    ''' Try to get the user from c, if possible, and fallback to using the DB '''
     if not username:
-        return False
-    # see if we can authorise without touching the database
+        return None
+    # See if we can get the user without touching the DB
     try:
         if c.userobj and c.userobj.name == username:
-            if c.userobj.sysadmin:
-                return True
-            return False
+            return c.userobj
     except TypeError:
         # c is not available
         pass
-    # get user from the database
-    user = model.User.get(username)
-    if user and user.sysadmin:
-        return True
-    return False
+    # Get user from the DB
+    return model.User.get(username)
 
 
 def get_group_or_org_admin_ids(group_id):
@@ -145,15 +147,31 @@ def is_authorized(action, context, data_dict=None):
     if context.get('ignore_auth'):
         return {'success': True}
 
-    action = clean_action_name(action)
     auth_function = _AuthFunctions.get(action)
     if auth_function:
-        # sysadmins can do anything unless the auth_sysadmins_check
-        # decorator was used in which case they are treated like all other
-        # users.
-        if is_sysadmin(context.get('user')):
-            if not getattr(auth_function, 'auth_sysadmins_check', False):
-                return {'success': True}
+        username = context.get('user')
+        user = _get_user(username)
+
+        if user:
+            # deleted users are always unauthorized
+            if user.is_deleted():
+                return {'success': False}
+            # sysadmins can do anything unless the auth_sysadmins_check
+            # decorator was used in which case they are treated like all other
+            # users.
+            elif user.sysadmin:
+                if not getattr(auth_function, 'auth_sysadmins_check', False):
+                    return {'success': True}
+
+        # If the auth function is flagged as not allowing anonymous access,
+        # and an existing user object is not provided in the context, deny
+        # access straight away
+        if not getattr(auth_function, 'auth_allow_anonymous_access', False) \
+           and not context.get('auth_user_obj'):
+            return {'success': False,
+                    'msg': '{0} requires an authenticated user'
+                            .format(auth_function)
+                   }
 
         return auth_function(context, data_dict)
     else:
@@ -163,8 +181,8 @@ def is_authorized(action, context, data_dict=None):
 # these are the permissions that roles have
 ROLE_PERMISSIONS = OrderedDict([
     ('admin', ['admin']),
-    ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset']),
-    ('member', ['read']),
+    ('editor', ['read', 'delete_dataset', 'create_dataset', 'update_dataset', 'manage_group']),
+    ('member', ['read', 'manage_group']),
 ])
 
 
@@ -212,10 +230,16 @@ def get_roles_with_permission(permission):
 
 
 def has_user_permission_for_group_or_org(group_id, user_name, permission):
-    ''' Check if the user has the given permission for the group '''
+    ''' Check if the user has the given permissions for the group, allowing for
+    sysadmin rights and permission cascading down a group hierarchy.
+
+    '''
     if not group_id:
         return False
-    group_id = model.Group.get(group_id).id
+    group = model.Group.get(group_id)
+    if not group:
+        return False
+    group_id = group.id
 
     # Sys admins can do anything
     if is_sysadmin(user_name):
@@ -224,12 +248,35 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
     user_id = get_user_id_for_username(user_name, allow_none=True)
     if not user_id:
         return False
+    if _has_user_permission_for_groups(user_id, permission, [group_id]):
+        return True
+    # Handle when permissions cascade. Check the user's roles on groups higher
+    # in the group hierarchy for permission.
+    for capacity in check_config_permission('roles_that_cascade_to_sub_groups'):
+        parent_groups = group.get_parent_group_hierarchy(type=group.type)
+        group_ids = [group_.id for group_ in parent_groups]
+        if _has_user_permission_for_groups(user_id, permission, group_ids,
+                                           capacity=capacity):
+            return True
+    return False
+
+
+def _has_user_permission_for_groups(user_id, permission, group_ids,
+                                    capacity=None):
+    ''' Check if the user has the given permissions for the particular
+    group (ignoring permissions cascading in a group hierarchy).
+    Can also be filtered by a particular capacity.
+    '''
+    if not group_ids:
+        return False
     # get any roles the user has for the group
     q = model.Session.query(model.Member) \
-        .filter(model.Member.group_id == group_id) \
+        .filter(model.Member.group_id.in_(group_ids)) \
         .filter(model.Member.table_name == 'user') \
         .filter(model.Member.state == 'active') \
         .filter(model.Member.table_id == user_id)
+    if capacity:
+        q = q.filter(model.Member.capacity == capacity)
     # see if any role has the required permission
     # admin permission allows anything for the group
     for row in q.all():
@@ -240,7 +287,10 @@ def has_user_permission_for_group_or_org(group_id, user_name, permission):
 
 
 def users_role_for_group_or_org(group_id, user_name):
-    ''' Check if the user role for the group '''
+    ''' Returns the user's role for the group. (Ignores privileges that cascade
+    in a group hierarchy.)
+
+    '''
     if not group_id:
         return None
     group_id = model.Group.get(group_id).id
@@ -261,7 +311,7 @@ def users_role_for_group_or_org(group_id, user_name):
 
 
 def has_user_permission_for_some_org(user_name, permission):
-    ''' Check if the user has the given permission for the group '''
+    ''' Check if the user has the given permission for any organization. '''
     user_id = get_user_id_for_username(user_name, allow_none=True)
     if not user_id:
         return False
@@ -319,22 +369,45 @@ CONFIG_PERMISSIONS_DEFAULTS = {
     'user_delete_groups': True,
     'user_delete_organizations': True,
     'create_user_via_api': False,
+    'create_user_via_web': True,
+    'roles_that_cascade_to_sub_groups': 'admin',
 }
-
-CONFIG_PERMISSIONS = {}
 
 
 def check_config_permission(permission):
-    ''' Returns the permission True/False based on config '''
-    # set up perms if not already done
-    if not CONFIG_PERMISSIONS:
-        for perm in CONFIG_PERMISSIONS_DEFAULTS:
-            key = 'ckan.auth.' + perm
-            default = CONFIG_PERMISSIONS_DEFAULTS[perm]
-            CONFIG_PERMISSIONS[perm] = asbool(config.get(key, default))
-    if permission in CONFIG_PERMISSIONS:
-        return CONFIG_PERMISSIONS[permission]
-    return False
+    '''Returns the configuration value for the provided permission
+
+    Permission is a string indentifying the auth permission (eg
+    `anon_create_dataset`), optionally prefixed with `ckan.auth.`.
+
+    The possible values for `permission` are the keys of
+    CONFIG_PERMISSIONS_DEFAULTS. These can be overriden in the config file
+    by prefixing them with `ckan.auth.`.
+
+    Returns the permission value, generally True or False, except on
+    `roles_that_cascade_to_sub_groups` which is a list of strings.
+
+    '''
+
+    key = permission.replace('ckan.auth.', '')
+
+    if key not in CONFIG_PERMISSIONS_DEFAULTS:
+        return False
+
+    default_value = CONFIG_PERMISSIONS_DEFAULTS.get(key)
+
+    config_key = 'ckan.auth.' + key
+
+    value = config.get(config_key, default_value)
+
+    if key == 'roles_that_cascade_to_sub_groups':
+        # This permission is set as a list of strings (space separated)
+        value = value.split() if value else []
+    else:
+        value = asbool(value)
+
+    return value
+
 
 @maintain.deprecated('Use auth_is_loggedin_user instead')
 def auth_is_registered_user():

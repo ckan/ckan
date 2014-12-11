@@ -3,13 +3,18 @@ import re
 import os
 from hashlib import sha1, md5
 
+import passlib.utils
+from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table
+import vdm.sqlalchemy
 
 import meta
+import core
 import types as _types
 import domain_object
+
 
 user_table = Table('user', meta.metadata,
         Column('id', types.UnicodeText, primary_key=True,
@@ -28,8 +33,11 @@ user_table = Table('user', meta.metadata,
         Column('sysadmin', types.Boolean, default=False),
         )
 
+vdm.sqlalchemy.make_table_stateful(user_table)
 
-class User(domain_object.DomainObject):
+
+class User(vdm.sqlalchemy.StatefulObjectMixin,
+           domain_object.DomainObject):
 
     VALID_NAME = re.compile(r"^[a-zA-Z0-9_\-]{3,255}$")
     DOUBLE_SLASH = re.compile(':\/([^/])')
@@ -38,6 +46,10 @@ class User(domain_object.DomainObject):
     def by_openid(cls, openid):
         obj = meta.Session.query(cls).autoflush(False)
         return obj.filter_by(openid=openid).first()
+
+    @classmethod
+    def by_email(cls, email):
+        return meta.Session.query(cls).filter_by(email=email).all()
 
     @classmethod
     def get(cls, user_reference):
@@ -91,23 +103,47 @@ class User(domain_object.DomainObject):
         return ref
 
     def _set_password(self, password):
-        '''Hash password on the fly.'''
-        if isinstance(password, unicode):
-            password_8bit = password.encode('ascii', 'ignore')
-        else:
-            password_8bit = password
+        '''Hash using pbkdf2
 
-        salt = sha1(os.urandom(60))
-        hash = sha1(password_8bit + salt.hexdigest())
-        hashed_password = salt.hexdigest() + hash.hexdigest()
+        Use passlib to hash the password using pkbdf2, upgrading
+        passlib will also upgrade the number of rounds and salt of the
+        hash as the user logs in automatically. Changing hashing
+        algorithm will require this code to be changed (perhaps using
+        passlib's CryptContext)
+        '''
+        hashed_password = pbkdf2_sha512.encrypt(password)
 
         if not isinstance(hashed_password, unicode):
             hashed_password = hashed_password.decode('utf-8')
         self._password = hashed_password
 
     def _get_password(self):
-        '''Return the password hashed'''
         return self._password
+
+    def _verify_and_upgrade_from_sha1(self, password):
+        if isinstance(password, unicode):
+            password_8bit = password.encode('ascii', 'ignore')
+        else:
+            password_8bit = password
+
+        hashed_pass = sha1(password_8bit + self.password[:40])
+        current_hash = passlib.utils.to_native_str(self.password[40:])
+
+        if passlib.utils.consteq(hashed_pass.hexdigest(), current_hash):
+            #we've passed the old sha1 check, upgrade our password
+            self._set_password(password)
+            self.save()
+            return True
+        else:
+            return False
+
+    def _verify_and_upgrade_pbkdf2(self, password):
+        if pbkdf2_sha512.verify(password, self.password):
+            self._set_password(password)
+            self.save()
+            return True
+        else:
+            return False
 
     def validate_password(self, password):
         '''
@@ -122,12 +158,17 @@ class User(domain_object.DomainObject):
         '''
         if not password or not self.password:
             return False
-        if isinstance(password, unicode):
-            password_8bit = password.encode('ascii', 'ignore')
+
+        if not pbkdf2_sha512.identify(self.password):
+            return self._verify_and_upgrade_from_sha1(password)
         else:
-            password_8bit = password
-        hashed_pass = sha1(password_8bit + self.password[:40])
-        return self.password[40:] == hashed_pass.hexdigest()
+            current_hash = pbkdf2_sha512.from_string(self.password)
+            if (current_hash.rounds < pbkdf2_sha512.default_rounds or
+                len(current_hash.salt) < pbkdf2_sha512.default_salt_size):
+
+                return self._verify_and_upgrade_pbkdf2(password)
+            else:
+                return pbkdf2_sha512.verify(password, self.password)
 
     password = property(_get_password, _set_password)
 
@@ -162,20 +203,35 @@ class User(domain_object.DomainObject):
         q = q.filter_by(user=self, role=model.Role.ADMIN)
         return q.count()
 
-    def is_in_group(self, group):
-        return group in self.get_group_ids()
+    def activate(self):
+        ''' Activate the user '''
+        self.state = core.State.ACTIVE
 
-    def is_in_groups(self, groupids):
+    def set_pending(self):
+        ''' Set the user as pending '''
+        self.state = core.State.PENDING
+
+    def is_deleted(self):
+        return self.state == core.State.DELETED
+
+    def is_pending(self):
+        return self.state == core.State.PENDING
+
+    def is_in_group(self, group_id):
+        return group_id in self.get_group_ids()
+
+    def is_in_groups(self, group_ids):
         ''' Given a list of group ids, returns True if this user is in
         any of those groups '''
         guser = set(self.get_group_ids())
-        gids = set(groupids)
+        gids = set(group_ids)
 
         return len(guser.intersection(gids)) > 0
 
-    def get_group_ids(self, group_type=None):
+    def get_group_ids(self, group_type=None, capacity=None):
         ''' Returns a list of group ids that the current user belongs to '''
-        return [g.id for g in self.get_groups(group_type=group_type)]
+        return [g.id for g in
+                self.get_groups(group_type=group_type, capacity=capacity)]
 
     def get_groups(self, group_type=None, capacity=None):
         import ckan.model as model
@@ -218,6 +274,18 @@ class User(domain_object.DomainObject):
 
         query = query.filter(or_(*filters))
         return query
+
+    @classmethod
+    def user_ids_for_name_or_id(self, user_list=[]):
+        '''
+        This function returns a list of ids from an input that can be a list of
+        names or ids
+        '''
+        query = meta.Session.query(self.id)
+        query = query.filter(or_(self.name.in_(user_list),
+                                 self.id.in_(user_list)))
+        return [user.id for user in query.all()]
+
 
 meta.mapper(User, user_table,
     properties={'password': synonym('_password', map_column=True)},

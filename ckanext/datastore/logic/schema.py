@@ -56,7 +56,13 @@ def list_of_strings_or_string(key, data, errors, context):
 
 
 def json_validator(value, context):
-    if isinstance(value, dict) or isinstance(value, list):
+    '''Validate and parse a JSON value.
+
+    dicts and lists will be returned untouched, while other values
+    will be run through a JSON parser before being returned. If the
+    parsing fails, raise an Invalid exception.
+    '''
+    if isinstance(value, (list, dict)):
         return value
     try:
         value = json.loads(value)
@@ -65,9 +71,30 @@ def json_validator(value, context):
     return value
 
 
+def unicode_or_json_validator(value, context):
+    '''Return a parsed JSON object when applicable, a unicode string when not.
+
+    dicts and None will be returned untouched; otherwise return a JSON object
+    if the value can be parsed as such. Return unicode(value) in all other
+    cases.
+    '''
+    try:
+        if value is None:
+            return value
+        v = json_validator(value, context)
+        # json.loads will parse literals; however we want literals as unicode.
+        if not isinstance(v, dict):
+            return unicode(value)
+        else:
+            return v
+    except df.Invalid:
+        return unicode(value)
+
+
 def datastore_create_schema():
     schema = {
         'resource_id': [ignore_missing, unicode, resource_id_exists],
+        'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         'aliases': [ignore_missing, list_of_strings_or_string],
         'fields': {
@@ -85,6 +112,7 @@ def datastore_create_schema():
 def datastore_upsert_schema():
     schema = {
         'resource_id': [not_missing, not_empty, unicode],
+        'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         'method': [ignore_missing, unicode, OneOf(
             ['upsert', 'insert', 'update'])],
@@ -97,6 +125,7 @@ def datastore_upsert_schema():
 def datastore_delete_schema():
     schema = {
         'resource_id': [not_missing, not_empty, unicode],
+        'force': [ignore_missing, boolean_validator],
         'id': [ignore_missing],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
@@ -108,7 +137,7 @@ def datastore_search_schema():
     schema = {
         'resource_id': [not_missing, not_empty, unicode],
         'id': [ignore_missing],
-        'q': [ignore_missing, unicode],
+        'q': [ignore_missing, unicode_or_json_validator],
         'plain': [ignore_missing, boolean_validator],
         'filters': [ignore_missing, json_validator],
         'language': [ignore_missing, unicode],
@@ -116,6 +145,7 @@ def datastore_search_schema():
         'offset': [ignore_missing, int_validator],
         'fields': [ignore_missing, list_of_strings_or_string],
         'sort': [ignore_missing, list_of_strings_or_string],
+        'distinct': [ignore_missing, boolean_validator],
         '__junk': [empty],
         '__before': [rename('id', 'resource_id')]
     }

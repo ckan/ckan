@@ -5,6 +5,7 @@ import requests
 
 import ckan.logic as logic
 import ckan.lib.base as base
+from ckan.common import _
 
 log = getLogger(__name__)
 
@@ -20,7 +21,11 @@ def proxy_resource(context, data_dict):
     than the maximum file size. '''
     resource_id = data_dict['resource_id']
     log.info('Proxify resource {id}'.format(id=resource_id))
-    resource = logic.get_action('resource_show')(context, {'id': resource_id})
+    try:
+        resource = logic.get_action('resource_show')(context, {'id':
+                                                     resource_id})
+    except logic.NotFound:
+            base.abort(404, _('Resource not found'))
     url = resource['url']
 
     parts = urlparse.urlsplit(url)
@@ -36,7 +41,7 @@ def proxy_resource(context, data_dict):
             did_get = True
         r.raise_for_status()
 
-        cl = r.headers['content-length']
+        cl = r.headers.get('content-length')
         if cl and int(cl) > MAX_FILE_SIZE:
             base.abort(409, '''Content is too large to be proxied. Allowed
                 file size: {allowed}, Content-Length: {actual}.'''.format(

@@ -38,6 +38,10 @@ class DictizationError(Exception):
         return ''
 
 class Invalid(DictizationError):
+    '''Exception raised by some validator, converter and dictization functions
+    when the given value is invalid.
+
+    '''
     def __init__(self, error, key=None):
         self.error = error
 
@@ -226,8 +230,12 @@ def validate(data, schema, context=None):
     # empty fields and missing fields when doing partial updates.
     empty_lists = [key for key, value in data.items() if value == []]
 
+    # create a copy of the context which also includes the schema keys so
+    # they can be used by the validators
+    validators_context = dict(context, schema_keys=schema.keys())
+
     flattened = flatten_dict(data)
-    converted_data, errors = _validate(flattened, schema, context)
+    converted_data, errors = _validate(flattened, schema, validators_context)
     converted_data = unflatten(converted_data)
 
     # check config for partial update fix option

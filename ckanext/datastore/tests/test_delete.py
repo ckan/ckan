@@ -11,7 +11,7 @@ import ckan.model as model
 import ckan.tests as tests
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import rebuild_all_dbs
+from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 
 class TestDatastoreDelete(tests.WsgiAppCase):
@@ -43,6 +43,8 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
+        set_url_type(
+            model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
     @classmethod
     def teardown_class(cls):
@@ -152,5 +154,43 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         results = [r for r in result]
         assert len(results) == 0
         self.Session.remove()
+
+        self._delete()
+
+    def test_delete_is_unsuccessful_when_called_with_invalid_filters(self):
+        self._create()
+
+        data = {
+            'resource_id': self.data['resource_id'],
+            'filters': {
+                'invalid-column-name': 'value'
+            }
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_delete', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error'].get('filters') is not None, res_dict['error']
+
+        self._delete()
+
+    def test_delete_is_unsuccessful_when_called_with_filters_not_as_dict(self):
+        self._create()
+
+        data = {
+            'resource_id': self.data['resource_id'],
+            'filters': {
+                'invalid-column-name': 'value'
+            }
+        }
+        postparams = '%s=1' % json.dumps(data)
+        auth = {'Authorization': str(self.normal_user.apikey)}
+        res = self.app.post('/api/action/datastore_delete', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+        assert res_dict['success'] is False
+        assert res_dict['error'].get('filters') is not None, res_dict['error']
 
         self._delete()

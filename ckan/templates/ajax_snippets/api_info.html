@@ -23,7 +23,7 @@ Example
     <p><strong>{{ _('Access resource data via a web API with powerful query support') }}</strong>.
     {% trans %}
     Further information in the <a
-      href="http://docs.ckan.org/en/latest/datastore.html" target="_blank">main
+      href="http://docs.ckan.org/en/latest/maintaining/datastore.html" target="_blank">main
       CKAN Data API and DataStore documentation</a>.</p>
     {% endtrans %}
     <div class="accordion" id="accordion2">
@@ -121,7 +121,7 @@ Example
         <div class="accordion-inner">
           <pre>
 import urllib
-url = '{{ datastore_root_url }}/datastore_search?limit=5&amp;q=title:jones'
+url = '{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&amp;limit=5&amp;q=title:jones'
 fileobj = urllib.urlopen(url)
 print fileobj.read()
 </pre>

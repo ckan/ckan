@@ -159,7 +159,7 @@ def load_environment(global_conf, app_conf):
     '''
     This code is based on Genshi code
 
-    Copyright © 2006-2012 Edgewall Software
+    Copyright Â© 2006-2012 Edgewall Software
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or
@@ -290,6 +290,10 @@ def update_config():
     if asbool(config.get('ckan.legacy_templates', 'no')):
         # We want the new template path for extra snippets like the
         # dataviewer and also for some testing stuff
+        msg = 'Support for Genshi templates is deprecated and will be removed'\
+            ' in a future release'
+        log.warn(msg)
+
         template_paths = [legacy_templates_path, jinja2_templates_path]
     else:
         template_paths = [jinja2_templates_path, legacy_templates_path]
@@ -362,13 +366,16 @@ def update_config():
 
     # clear other caches
     logic.clear_actions_cache()
+    logic.clear_validators_cache()
     new_authz.clear_auth_functions_cache()
 
     # Here we create the site user if they are not already in the database
     try:
         logic.get_action('get_site_user')({'ignore_auth': True}, None)
-    except sqlalchemy.exc.ProgrammingError:
-        # The database is not initialised.  This is a bit dirty.
+    except (sqlalchemy.exc.ProgrammingError, sqlalchemy.exc.OperationalError):
+        # (ProgrammingError for Postgres, OperationalError for SQLite)
+        # The database is not initialised.  This is a bit dirty.  This occurs
+        # when running tests.
         pass
     except sqlalchemy.exc.InternalError:
         # The database is not initialised.  Travis hits this

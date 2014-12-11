@@ -1,0 +1,8 @@
+{% set action = 'edit_view' if is_edit else 'resource_read' %}
+
+<li{% if is_selected %} class="active"{% endif %} data-id="{{ view.id }}">
+  <a href="{{ h.url_for(controller='package', action=action, id=pkg.name, resource_id=view.resource_id, view_id=view.id) }}" data-id="{{ view.id }}">
+    <i class="icon icon-{{ h.resource_view_icon(view) }}"></i>
+    {{ view.title }}
+  </a>
+</li>

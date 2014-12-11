@@ -1,17 +1,42 @@
 import sys
 import logging
+import shlex
+
+import pylons
+import sqlalchemy.engine.url as sa_url
 
 import ckan.plugins as p
+import ckan.logic as logic
+import ckan.model as model
 import ckanext.datastore.logic.action as action
 import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.db as db
-import ckan.logic as logic
-import ckan.model as model
+import ckanext.datastore.interfaces as interfaces
+import ckanext.datastore.helpers as datastore_helpers
+
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
 
 DEFAULT_FORMATS = []
+
+ValidationError = p.toolkit.ValidationError
+
+
+def _is_legacy_mode(config):
+    '''
+        Decides if the DataStore should run on legacy mode
+
+        Returns True if `ckan.datastore.read_url` is not set in the provided
+        config object or CKAN is running on Postgres < 9.x
+    '''
+    write_url = config.get('ckan.datastore.write_url')
+
+    engine = db._get_engine({'connection_url': write_url})
+    connection = engine.connect()
+
+    return (not config.get('ckan.datastore.read_url') or
+            not db._pg_version_is_at_least(connection, '9.0'))
 
 
 class DatastoreException(Exception):
@@ -26,9 +51,22 @@ class DatastorePlugin(p.SingletonPlugin):
     p.implements(p.IDomainObjectModification, inherit=True)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IResourceController, inherit=True)
+    p.implements(interfaces.IDatastore, inherit=True)
 
     legacy_mode = False
     resource_show_action = None
+
+    def __new__(cls, *args, **kwargs):
+        idatastore_extensions = p.PluginImplementations(interfaces.IDatastore)
+        idatastore_extensions = idatastore_extensions.extensions()
+
+        if idatastore_extensions and idatastore_extensions[0].__class__ != cls:
+            msg = ('The "datastore" plugin must be the first IDatastore '
+                   'plugin loaded. Change the order it is loaded in '
+                   '"ckan.plugins" in your CKAN .ini file and try again.')
+            raise DatastoreException(msg)
+
+        return super(cls, cls).__new__(cls, *args, **kwargs)
 
     def configure(self, config):
         self.config = config
@@ -40,7 +78,7 @@ class DatastorePlugin(p.SingletonPlugin):
         # Legacy mode means that we have no read url. Consequently sql search is not
         # available and permissions do not have to be changed. In legacy mode, the
         # datastore runs on PG prior to 9.0 (for example 8.4).
-        self.legacy_mode = 'ckan.datastore.read_url' not in self.config
+        self.legacy_mode = _is_legacy_mode(self.config)
 
         datapusher_formats = config.get('datapusher.formats', '').split()
         self.datapusher_formats = datapusher_formats or DEFAULT_FORMATS
@@ -61,9 +99,9 @@ class DatastorePlugin(p.SingletonPlugin):
         else:
             self.read_url = self.config['ckan.datastore.read_url']
 
-        read_engine = db._get_engine(
+        self.read_engine = db._get_engine(
             {'connection_url': self.read_url})
-        if not model.engine_is_pg(read_engine):
+        if not model.engine_is_pg(self.read_engine):
             log.warn('We detected that you do not use a PostgreSQL '
                      'database. The DataStore will NOT work and DataStore '
                      'tests will be skipped.')
@@ -75,63 +113,14 @@ class DatastorePlugin(p.SingletonPlugin):
                      'of _table_metadata are skipped.')
         else:
             self._check_urls_and_permissions()
-
             self._create_alias_table()
 
-        # update the resource_show action to have datastore_active property
-        if self.resource_show_action is None:
-            resource_show = p.toolkit.get_action('resource_show')
-
-            @logic.side_effect_free
-            def new_resource_show(context, data_dict):
-                new_data_dict = resource_show(context, data_dict)
-                try:
-                    connection = read_engine.connect()
-                    result = connection.execute(
-                        'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
-                        new_data_dict['id']
-                    ).fetchone()
-                    if result:
-                        new_data_dict['datastore_active'] = True
-                    else:
-                        new_data_dict['datastore_active'] = False
-                finally:
-                    connection.close()
-                return new_data_dict
-
-            self.resource_show_action = new_resource_show
-
     def notify(self, entity, operation=None):
-        '''
-        if not isinstance(entity, model.Resource):
-            return
-        if operation:
-            if operation == model.domain_object.DomainObjectOperation.new:
-                self._create_datastorer_task(entity)
-        else:
-            # if operation is None, resource URL has been changed, as the
-            # notify function in IResourceUrlChange only takes 1 parameter
-            self._create_datastorer_task(entity)
-        '''
-        context = {'model': model, 'ignore_auth': True}
-        if isinstance(entity, model.Resource):
-            if (operation == model.domain_object.DomainObjectOperation.new
-                    or not operation):
-                # if operation is None, resource URL has been changed, as
-                # the notify function in IResourceUrlChange only takes
-                # 1 parameter
-                package = p.toolkit.get_action('package_show')(context, {
-                    'id': entity.get_package_id()
-                })
-                if (not package['private'] and
-                        entity.format in self.datapusher_formats):
-                    p.toolkit.get_action('datapusher_submit')(context, {
-                        'resource_id': entity.id
-                    })
         if not isinstance(entity, model.Package) or self.legacy_mode:
             return
         # if a resource is new, it cannot have a datastore resource, yet
         if operation == model.domain_object.DomainObjectOperation.changed:
+            context = {'model': model, 'ignore_auth': True}
             if entity.private:
                 func = p.toolkit.get_action('datastore_make_private')
             else:
@@ -158,7 +147,7 @@ class DatastorePlugin(p.SingletonPlugin):
             self._log_or_raise('CKAN and DataStore database '
                                'cannot be the same.')
 
-        # in legacy mode, the read and write url are ths same (both write url)
+        # in legacy mode, the read and write url are the same (both write url)
         # consequently the same url check and and write privilege check
         # don't make sense
         if not self.legacy_mode:
@@ -188,7 +177,8 @@ class DatastorePlugin(p.SingletonPlugin):
         return self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url)
 
     def _get_db_from_url(self, url):
-        return url[url.rindex("@"):]
+        db_url = sa_url.make_url(url)
+        return db_url.host, db_url.port, db_url.database
 
     def _same_read_and_write_url(self):
         return self.write_url == self.read_url
@@ -200,27 +190,23 @@ class DatastorePlugin(p.SingletonPlugin):
         '''
         write_connection = db._get_engine(
             {'connection_url': self.write_url}).connect()
-        read_connection = db._get_engine(
-            {'connection_url': self.read_url}).connect()
+        read_connection_user = sa_url.make_url(self.read_url).username
 
         drop_foo_sql = u'DROP TABLE IF EXISTS _foo'
 
         write_connection.execute(drop_foo_sql)
 
         try:
-            try:
-                write_connection.execute(u'CREATE TABLE _foo ()')
-                for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                    test_privilege_sql = u"SELECT has_table_privilege('_foo', '{privilege}')"
-                    sql = test_privilege_sql.format(privilege=privilege)
-                    have_privilege = read_connection.execute(sql).first()[0]
-                    if have_privilege:
-                        return False
-            finally:
-                write_connection.execute(drop_foo_sql)
+            write_connection.execute(u'CREATE TEMP TABLE _foo ()')
+            for privilege in ['INSERT', 'UPDATE', 'DELETE']:
+                test_privilege_sql = u"SELECT has_table_privilege(%s, '_foo', %s)"
+                have_privilege = write_connection.execute(
+                    test_privilege_sql, (read_connection_user, privilege)).first()[0]
+                if have_privilege:
+                    return False
         finally:
+            write_connection.execute(drop_foo_sql)
             write_connection.close()
-            read_connection.close()
         return True
 
     def _create_alias_table(self):
@@ -256,9 +242,6 @@ class DatastorePlugin(p.SingletonPlugin):
                    'datastore_upsert': action.datastore_upsert,
                    'datastore_delete': action.datastore_delete,
                    'datastore_search': action.datastore_search,
-                   'datapusher_submit': action.datapusher_submit,
-                   'datapusher_hook': action.datapusher_hook,
-                   'resource_show': self.resource_show_action,
                   }
         if not self.legacy_mode:
             actions.update({
@@ -272,8 +255,8 @@ class DatastorePlugin(p.SingletonPlugin):
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
                 'datastore_search': auth.datastore_search,
-                'datastore_change_permissions': auth.datastore_change_permissions,
-                'datapusher_submit': auth.datapusher_submit}
+                'datastore_search_sql': auth.datastore_search_sql,
+                'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
         m.connect('/datastore/dump/{resource_id}',
@@ -282,11 +265,265 @@ class DatastorePlugin(p.SingletonPlugin):
         return m
 
     def before_show(self, resource_dict):
-        ''' Modify the resource url of datastore resources so that
-        they link to the datastore dumps.
-        '''
-        if resource_dict['url_type'] == 'datastore':
+        # Modify the resource url of datastore resources so that
+        # they link to the datastore dumps.
+        if resource_dict.get('url_type') == 'datastore':
             resource_dict['url'] = p.toolkit.url_for(
                 controller='ckanext.datastore.controller:DatastoreController',
                 action='dump', resource_id=resource_dict['id'])
+
+        connection = None
+
+        resource_dict['datastore_active'] = False
+
+        try:
+            connection = self.read_engine.connect()
+            result = connection.execute(
+                'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
+                resource_dict['id']
+            ).fetchone()
+            if result:
+                resource_dict['datastore_active'] = True
+        finally:
+            if connection:
+                connection.close()
         return resource_dict
+
+    def datastore_validate(self, context, data_dict, fields_types):
+        column_names = fields_types.keys()
+        fields = data_dict.get('fields')
+        if fields:
+            data_dict['fields'] = list(set(fields) - set(column_names))
+
+        filters = data_dict.get('filters', {})
+        for key in filters.keys():
+            if key in fields_types:
+                del filters[key]
+
+        q = data_dict.get('q')
+        if q:
+            if isinstance(q, basestring):
+                del data_dict['q']
+            elif isinstance(q, dict):
+                for key in q.keys():
+                    if key in fields_types and isinstance(q[key], basestring):
+                        del q[key]
+
+        language = data_dict.get('language')
+        if language:
+            if isinstance(language, basestring):
+                del data_dict['language']
+
+        plain = data_dict.get('plain')
+        if plain:
+            if isinstance(plain, bool):
+                del data_dict['plain']
+
+        distinct = data_dict.get('distinct')
+        if distinct:
+            if isinstance(distinct, bool):
+                del data_dict['distinct']
+
+        sort_clauses = data_dict.get('sort')
+        if sort_clauses:
+            invalid_clauses = [c for c in sort_clauses
+                               if not self._is_valid_sort(c, fields_types)]
+            data_dict['sort'] = invalid_clauses
+
+        limit = data_dict.get('limit')
+        if limit:
+            is_positive_int = datastore_helpers.validate_int(limit,
+                                                             non_negative=True)
+            is_all = isinstance(limit, basestring) and limit.lower() == 'all'
+            if is_positive_int or is_all:
+                del data_dict['limit']
+
+        offset = data_dict.get('offset')
+        if offset:
+            is_positive_int = datastore_helpers.validate_int(offset,
+                                                             non_negative=True)
+            if is_positive_int:
+                del data_dict['offset']
+
+        return data_dict
+
+    def _is_valid_sort(self, clause, fields_types):
+        clause = clause.encode('utf-8')
+        clause_parts = shlex.split(clause)
+
+        if len(clause_parts) == 1:
+            field, sort = clause_parts[0], 'asc'
+        elif len(clause_parts) == 2:
+            field, sort = clause_parts
+        else:
+            return False
+
+        field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
+
+        if field not in fields_types:
+            return False
+        if sort.lower() not in ('asc', 'desc'):
+            return False
+
+        return True
+
+    def datastore_delete(self, context, data_dict, fields_types, query_dict):
+        query_dict['where'] += self._where(data_dict, fields_types)
+        return query_dict
+
+    def datastore_search(self, context, data_dict, fields_types, query_dict):
+        fields = data_dict.get('fields')
+
+        if fields:
+            field_ids = datastore_helpers.get_list(fields)
+        else:
+            field_ids = fields_types.keys()
+
+        ts_query, rank_column = self._textsearch_query(data_dict)
+        limit = data_dict.get('limit', 100)
+        offset = data_dict.get('offset', 0)
+
+        sort = self._sort(data_dict, fields_types)
+        where = self._where(data_dict, fields_types)
+
+        select_cols = [u'"{0}"'.format(field_id) for field_id in field_ids] +\
+                      [u'count(*) over() as "_full_count" %s' % rank_column]
+
+        query_dict['distinct'] = data_dict.get('distinct', False)
+        query_dict['select'] += select_cols
+        query_dict['ts_query'] = ts_query
+        query_dict['sort'] += sort
+        query_dict['where'] += where
+        query_dict['limit'] = limit
+        query_dict['offset'] = offset
+
+        return query_dict
+
+    def _where(self, data_dict, fields_types):
+        filters = data_dict.get('filters', {})
+        clauses = []
+
+        for field, value in filters.iteritems():
+            if field not in fields_types:
+                continue
+            field_array_type = self._is_array_type(fields_types[field])
+            if isinstance(value, list) and not field_array_type:
+                clause_str = (u'"{0}" in ({1})'.format(field,
+                              ','.join(['%s'] * len(value))))
+                clause = (clause_str,) + tuple(value)
+            else:
+                clause = (u'"{0}" = %s'.format(field), value)
+            clauses.append(clause)
+
+        # add full-text search where clause
+        q = data_dict.get('q')
+        if q:
+            if isinstance(q, basestring):
+                clause = (u'_full_text @@ {0}'.format(self._ts_query_alias()),)
+                clauses.append(clause)
+            elif isinstance(q, dict):
+                for field, value in q.iteritems():
+                    if field not in fields_types:
+                        continue
+                    query_field = self._ts_query_alias(field)
+                    clause_str = u'"{0}" @@ {1}'.format(field, query_field)
+                    clause = (clause_str, value)
+                    clauses.append(clause)
+
+        return clauses
+
+    def _is_array_type(self, field_type):
+                return field_type.startswith('_')
+
+    def _sort(self, data_dict, fields_types):
+        sort = data_dict.get('sort')
+        if not sort:
+            q = data_dict.get('q')
+            if q:
+                if isinstance(q, basestring):
+                    return [self._ts_rank_alias()]
+                elif isinstance(q, dict):
+                    return [self._ts_rank_alias(field) for field in q
+                            if field not in fields_types]
+            else:
+                return []
+
+        clauses = datastore_helpers.get_list(sort, False)
+
+        clause_parsed = []
+
+        for clause in clauses:
+            clause = clause.encode('utf-8')
+            clause_parts = shlex.split(clause)
+            if len(clause_parts) == 1:
+                field, sort = clause_parts[0], 'asc'
+            elif len(clause_parts) == 2:
+                field, sort = clause_parts
+
+            field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
+
+            clause_parsed.append(u'"{0}" {1}'.format(field, sort))
+
+        return clause_parsed
+
+    def _textsearch_query(self, data_dict):
+        q = data_dict.get('q')
+        default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
+        if default_fts_lang is None:
+            default_fts_lang = u'english'
+        lang = data_dict.get(u'lang', default_fts_lang)
+
+        if not q:
+            return '', ''
+
+        statements = []
+        rank_columns = []
+        plain = data_dict.get('plain', True)
+        if isinstance(q, basestring):
+            query, rank = self._build_query_and_rank_statements(lang,
+                                                                q,
+                                                                plain)
+            statements.append(query)
+            rank_columns.append(rank)
+        elif isinstance(q, dict):
+            for field, value in q.iteritems():
+                query, rank = self._build_query_and_rank_statements(lang,
+                                                                    value,
+                                                                    plain,
+                                                                    field)
+                statements.append(query)
+                rank_columns.append(rank)
+
+        statements_str = ', ' + ', '.join(statements)
+        rank_columns_str = ', ' + ', '.join(rank_columns)
+        return statements_str, rank_columns_str
+
+    def _build_query_and_rank_statements(self, lang, query, plain, field=None):
+        query_alias = self._ts_query_alias(field)
+        rank_alias = self._ts_rank_alias(field)
+        if plain:
+            statement = u"plainto_tsquery('{lang}', '{query}') {alias}"
+        else:
+            statement = u"to_tsquery('{lang}', '{query}') {alias}"
+        if field is None:
+            rank_field = '_full_text'
+        else:
+            rank_field = 'to_tsvector("%s")' % field
+        rank_statement = u'ts_rank({rank_field}, {query_alias}, 32) AS {alias}'
+        statement = statement.format(lang=lang, query=query, alias=query_alias)
+        rank_statement = rank_statement.format(rank_field=rank_field,
+                                               query_alias=query_alias,
+                                               alias=rank_alias)
+        return statement, rank_statement
+
+    def _ts_query_alias(self, field=None):
+        query_alias = u'query'
+        if field:
+            query_alias += u' ' + field
+        return u'"{0}"'.format(query_alias)
+
+    def _ts_rank_alias(self, field=None):
+        rank_alias = u'rank'
+        if field:
+            rank_alias += u' ' + field
+        return u'"{0}"'.format(rank_alias)

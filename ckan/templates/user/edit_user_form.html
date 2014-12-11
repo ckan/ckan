@@ -4,7 +4,7 @@
   {{ form.errors(error_summary) }}
 
   <fieldset>
-    <legend>{{ _('Change your details') }}</legend>
+    <legend>{{ _('Change details') }}</legend>
 
     {{ form.input('name', label=_('Username'), id='field-username', value=data.name, error=errors.name, classes=['control-medium'], is_required=true) }}
 
@@ -16,16 +16,15 @@
 
     {% if c.show_email_notifications %}
       {% call form.checkbox('activity_streams_email_notifications', label=_('Subscribe to notification emails'), id='field-activity-streams-email-notifications', value=True, checked=c.userobj.activity_streams_email_notifications) %}
-      {{ form.info(_("You will receive notification emails from {site_title}, e.g. when you have new activities on your dashboard.".format(site_title=g.site_title)), classes=['info-help-tight']) }}
+      {% set helper_text = _("You will receive notification emails from {site_title}, e.g. when you have new activities on your dashboard."|string) %}
+      {{ form.info(helper_text.format(site_title=g.site_title), classes=['info-help-tight']) }}
       {% endcall %}
     {% endif %}
-
-    {{ form.required_message() }}
 
   </fieldset>
 
   <fieldset>
-    <legend>{{ _('Change your password') }}</legend>
+    <legend>{{ _('Change password') }}</legend>
 
     {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off'} ) }}
 
@@ -33,6 +32,19 @@
   </fieldset>
 
   <div class="form-actions">
+    {% block delete_button %}
+      {% if h.check_access('user_delete', {'id': data.id})  %}
+        {% set locale = h.dump_json({'content': _('Are you sure you want to delete this User?')}) %}
+        <a class="btn btn-danger pull-left" href="{% url_for controller='user', action='delete', id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
+      {% endif %}
+    {% endblock %}
+    {% block generate_button %}
+      {% if h.check_access('user_generate_apikey', {'id': data.id})  %}
+        {% set locale = h.dump_json({'content': _('Are you sure you want to regenerate the API key?')}) %}
+        <a class="btn btn-warning" href="{% url_for controller='user', action='generate_apikey', id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block generate_button_text %}{{ _('Regenerate API Key') }}{% endblock %}</a>
+      {% endif %}
+    {% endblock %}
+    {{ form.required_message() }}
     <button class="btn btn-primary" type="submit" name="save">{{ _('Update Profile') }}</button>
   </div>
 </form>

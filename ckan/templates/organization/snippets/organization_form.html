@@ -1,6 +1,6 @@
 {% import 'macros/form.html' as form %}
 
-<form class="dataset-form form-horizontal" method="post" data-module="basic-form">
+<form class="dataset-form form-horizontal" method="post" data-module="basic-form" enctype="multipart/form-data">
   {% block error_summary %}
     {{ form.errors(error_summary) }}
   {% endblock %}
@@ -19,7 +19,10 @@
 
     {{ form.markdown('description', label=_('Description'), id='field-description', placeholder=_('A little information about my organization...'), value=data.description, error=errors.description) }}
 
-    {{ form.input('image_url', label=_('Image URL'), id='field-image-url', type='url', placeholder=_('http://example.com/my-image.jpg'), value=data.image_url, error=errors.image_url, classes=['control-full']) }}
+    {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
+    {% set is_url = data.image_url and data.image_url.startswith('http') %}
+
+    {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload) }}
 
   {% endblock %}
 
@@ -49,36 +52,15 @@
     {% endfor %}
   {% endblock %}
 
-  {#
-  {% block dataset_fields %}
-    {% if data.packages %}
-      <div class="control-group">
-        <label class="control-label">{{ _('Datasets') }}</label>
-        <div class="controls">
-          {% for dataset in data.packages %}
-            <label class="checkbox" for="field-dataset-{{ loop.index0 }}">
-              <input id="field-dataset-{{ loop.index0 }}" type="checkbox" name="packages__{{ loop.index0 }}__name" value="{{ dataset.name }}" checked="checked" />
-              {{ dataset.title }}
-            </label>
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-
-    {% set dataset_name = 'packages__%s__name' % data.packages|length %}
-    {% set dataset_attrs = {'data-module': 'autocomplete', 'data-module-source': '/dataset/autocomplete?q=?'} %}
-    {{ form.input(dataset_name, label=_('Add Dataset'), id="field-dataset", value=data[dataset_name], classes=['control-medium'], attrs=dataset_attrs) }}
-  {% endblock %}
-  #}
+  {{ form.required_message() }}
 
   <div class="form-actions">
-    {{ form.required_message() }}
-      {% block delete_button %}
-        {% if h.check_access('organization_delete', {'id': data.id})  %}
-          {% set locale = h.dump_json({'content': _('Are you sure you want to delete this Organization? This will delete all the public and private datasets belonging to this organization.')}) %}
-          <a class="btn btn-danger pull-left" href="{% url_for controller='organization', action='delete', id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
-        {% endif %}
-      {% endblock %}
+    {% block delete_button %}
+      {% if h.check_access('organization_delete', {'id': data.id})  %}
+        {% set locale = h.dump_json({'content': _('Are you sure you want to delete this Organization? This will delete all the public and private datasets belonging to this organization.')}) %}
+        <a class="btn btn-danger pull-left" href="{% url_for controller='organization', action='delete', id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
+      {% endif %}
+    {% endblock %}
     <button class="btn btn-primary" name="save" type="submit">{% block save_text %}{{ _('Save Organization') }}{% endblock %}</button>
   </div>
 </form>

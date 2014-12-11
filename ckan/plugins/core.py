@@ -18,7 +18,7 @@ __all__ = [
     'PluginNotFoundException', 'Plugin', 'SingletonPlugin',
     'load', 'load_all', 'unload', 'unload_all',
     'get_plugin', 'plugins_update',
-    'use_plugin',
+    'use_plugin', 'plugin_loaded',
 ]
 
 log = logging.getLogger(__name__)
@@ -138,7 +138,6 @@ def load(*plugins):
     '''
     Load named plugin(s).
     '''
-
     output = []
 
     observers = PluginImplementations(interfaces.IPluginObserver)
@@ -208,6 +207,15 @@ def unload(*plugins):
         for observer_plugin in observers:
             observer_plugin.after_unload(service)
     plugins_update()
+
+
+def plugin_loaded(name):
+    '''
+    See if a particular plugin is loaded.
+    '''
+    if name in _PLUGINS:
+        return True
+    return False
 
 
 def find_system_plugins():

@@ -120,7 +120,7 @@ class TestSearch(object):
         assert isinstance(res_dict, dict)
         res_keys = set(res_dict.keys())
         expected_res_keys = set(model.Resource.get_columns())
-        expected_res_keys.update(['id', 'resource_group_id', 'package_id', 'position', 'size_extra', 'tracking_summary'])
+        expected_res_keys.update(['id', 'package_id', 'position', 'size_extra'])
         assert_equal(res_keys, expected_res_keys)
         pkg1 = model.Package.by_name(u'pkg1')
         ab = pkg1.resources[0]
@@ -128,9 +128,7 @@ class TestSearch(object):
         assert res_dict['package_id'] == pkg1.id
         assert res_dict['url'] == ab.url
         assert res_dict['description'] == ab.description
-        # FIXME: This needs to be fixed before this branch is merged to master
-        from ckan.lib.dictization.model_dictize import _unified_resource_format
-        assert res_dict['format'] == _unified_resource_format(ab.format)
+        assert res_dict['format'] == ab.format
         assert res_dict['hash'] == ab.hash
         assert res_dict['position'] == 0
 
