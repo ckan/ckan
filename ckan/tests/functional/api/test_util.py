@@ -122,14 +122,14 @@ class TestUtil(ControllerTestCase):
         response = self.app.get(
             url=url,
             params={
-                'q': u'test_or'
+                'q': u'Simple dummy org'
             },
             status=200,
         )
         results = json.loads(response.body)
         assert_equal(len(results), 1)
-        assert_equal(results[0]['name'], 'test_org')
-        assert_equal(results[0]['title'], 'Test org')
+        assert_equal(results[0]['name'], 'simple_dummy_org')
+        assert_equal(results[0]['title'], 'Simple dummy organization')
         assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
 
     def test_markdown(self):

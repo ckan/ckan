@@ -53,6 +53,14 @@ class TestGroup(object):
         assert grp in anna.get_groups()
 
     def test_3_search(self):
+        model.repo.new_revision()
+        model.Session.add(model.Group(name=u'test_org',
+                                      title=u'Test org',
+                                      type=u'organization'
+                        ))
+        model.repo.commit_and_remove()
+
+
         assert_equal(self._search_results('random'), set([]))
         assert_equal(self._search_results('david'), set(['david']))
         assert_equal(self._search_results('roger'), set(['roger']))

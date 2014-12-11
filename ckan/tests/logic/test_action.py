@@ -397,7 +397,7 @@ class TestAction(WsgiAppCase):
         assert 'timestamp' in edit
         assert_equal(edit['state'], 'active')
         assert_equal(edit['approved_timestamp'], None)
-        assert_equal(set(edit['groups']), set(( 'roger', 'david', 'test_org')))
+        assert_equal(set(edit['groups']), set(( 'roger', 'david', 'simple_dummy_org')))
         assert_equal(edit['state'], 'active')
         assert edit['message'].startswith('Creating test data.')
         assert_equal(set(edit['packages']), set(('warandpeace', 'annakarenina')))

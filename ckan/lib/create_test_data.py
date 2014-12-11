@@ -493,9 +493,9 @@ left arrow <
                              type=auth_profile or 'group')
 
         # organization
-        test_org = model.Group(name=u'test_org',
-                               title=u'Test org',
-                               description=u'This is a simple test organization',
+        test_org = model.Group(name=u'simple_dummy_org',
+                               title=u'Simple dummy organization',
+                               description=u'This is a simple dummy organization',
                                type='organization')
 
         for obj in [david, roger, test_org]:
