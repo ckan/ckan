@@ -57,6 +57,8 @@
           {% block resource_read_url %}
             {% if res.url and h.is_url(res.url) %}
               <p class="muted ellipsis">{{ _('URL:') }} <a href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+            {% elif res.url %}
+              <p class="muted ellipsis">{{ _('URL:') }} {{ res.url }}</p>
             {% endif %}
           {% endblock %}
           <div class="prose notes" property="rdfs:label">
