@@ -16,7 +16,6 @@ import ckan.lib.search as search
 import ckan.lib.navl.dictization_functions
 import ckan.lib.jsonp as jsonp
 import ckan.lib.munge as munge
-import ckan.lib.lazyjson as lazyjson
 
 from ckan.common import _, c, request, response
 
@@ -84,11 +83,9 @@ class ApiController(base.BaseController):
         if response_data is not None:
             response.headers['Content-Type'] = CONTENT_TYPES[content_type]
             if content_type == 'json':
-                try:
-                    response_msg = h.json.dumps(response_data)
-                except TypeError:
-                    response_msg = lazyjson.LazyJSONEncoder().encode(
-                        response_data)
+                response_msg = h.json.dumps(
+                    response_data,
+                    for_json=True) # handle objects with for_json methods
             else:
                 response_msg = response_data
             # Support "JSONP" callback.
