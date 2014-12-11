@@ -59,9 +59,30 @@ Template changes
   https://github.com/ckan/ckan/pull/1935
 
 Troubleshooting:
+
+ * Login does not work, for existing and new users.
+
+   You need to update your existing ``who.ini`` file.
+
+   - In the ``[plugin:auth_tkt]`` section, replace::
+
+       use = ckan.config.middleware:ckan_auth_tkt_make_app
+
+     with::
+
+       use = ckan.lib.auth_tkt:make_plugin
+
+   - In ``[authenticators]``, add the ``auth_tkt`` plugin
+
+   Also see the next point for OpenID related changes.
+
  * Exception on first load after upgrading from a previous CKAN version::
 
      ImportError: <module 'ckan.lib.authenticator' from '/usr/lib/ckan/default/src/ckan/ckan/lib/authenticator.py'> has no 'OpenIDAuthenticator' attribute
+
+   or::
+
+     ImportError: No module named openid
 
    There are OpenID related configuration options on your ``who.ini`` file which
    are no longer supported.
@@ -88,6 +109,7 @@ Troubleshooting:
 
     https://github.com/ckan/ckan/pull/2058/files#diff-2
 
+   Also see the previous point for other ``who.ini`` changes.
 
 v2.2.1 2014-10-15
 =================
