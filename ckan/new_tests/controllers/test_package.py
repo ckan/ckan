@@ -190,6 +190,32 @@ class TestPackageResourceRead(helpers.FunctionalTestBase):
         app = self._get_test_app()
         app.get(url, status=404)
 
+    def test_existing_resource_with_associated_dataset(self):
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=dataset['id'],
+                      resource_id=resource['id'])
+
+        app = self._get_test_app()
+        app.get(url, status=200)
+
+    def test_existing_resource_with_not_associated_dataset(self):
+
+        dataset = factories.Dataset()
+        resource = factories.Resource()
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=dataset['id'],
+                      resource_id=resource['id'])
+
+        app = self._get_test_app()
+        app.get(url, status=404)
+
 
 class TestPackageRead(helpers.FunctionalTestBase):
     @classmethod
