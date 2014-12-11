@@ -127,8 +127,19 @@ def package_create(context, data_dict):
     model = context['model']
     user = context['user']
 
-    package_type = data_dict.get('type')
-    package_plugin = lib_plugins.lookup_package_plugin(package_type)
+    if 'type' not in data_dict:
+        package_plugin = lib_plugins.lookup_package_plugin()
+        try:
+            # use first type as default if user didn't provide type
+            package_type = package_plugin.package_types()[0]
+        except (AttributeError, IndexError):
+            package_type = 'dataset'
+            # in case a 'dataset' plugin was registered w/o fallback
+            package_plugin = lib_plugins.lookup_package_plugin(package_type)
+        data_dict['type'] = package_type
+    else:
+        package_plugin = lib_plugins.lookup_package_plugin(data_dict['type'])
+
     if 'schema' in context:
         schema = context['schema']
     else:
