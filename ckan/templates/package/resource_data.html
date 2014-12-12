@@ -21,6 +21,13 @@
   {% elif status.task_info and status.task_info.error %}
     <div class="alert alert-error">
       <strong>{{ _('Error:') }}</strong> {{ status.task_info.error.message }}
+      {% for error_key, error_value in status.task_info.error.iteritems() %}
+        {% if error_key != "message" and error_value %}
+          <br>
+          <strong>{{ error_key }}</strong>:
+          {{ error_value }}
+        {% endif %}
+      {% endfor %}
     </div>
   {% endif %}
 
