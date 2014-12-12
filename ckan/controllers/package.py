@@ -744,7 +744,8 @@ class PackageController(base.BaseController):
         except NotFound:
             abort(404, _('The dataset {id} could not be found.').format(id=id))
         try:
-            check_access('resource_create', context, pkg_dict)
+            check_access(
+                'resource_create', context, {"package_id": pkg_dict["id"]})
         except NotAuthorized:
             abort(401, _('Unauthorized to create a resource for this package'))
 
