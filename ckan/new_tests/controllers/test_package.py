@@ -11,7 +11,7 @@ submit_and_follow = helpers.submit_and_follow
 
 
 def _get_package_new_page_as_sysadmin(app):
-    user = factories.Sysadmin()
+    user = factories.User()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
     response = app.get(
         url=url_for(controller='package', action='new'),
