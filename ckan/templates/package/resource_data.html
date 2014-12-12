@@ -19,7 +19,6 @@
       <strong>{{ _('Upload error:') }}</strong> {{ status.error.message }}
     </div>
   {% elif status.task_info and status.task_info.error %}
-    {% set show_table = false %}
     <div class="alert alert-error">
       <strong>{{ _('Error:') }}</strong> {{ status.task_info.error }}
     </div>
