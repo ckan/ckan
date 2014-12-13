@@ -19,13 +19,17 @@
       <strong>{{ _('Upload error:') }}</strong> {{ status.error.message }}
     </div>
   {% elif status.task_info and status.task_info.error %}
-    {% set show_table = false %}
     <div class="alert alert-error">
-      <strong>{{ _('Error:') }}</strong> {{ status.task_info.error }}
+      {% if status.task_info.error.message %}
+        <strong>{{ _('Error:') }}</strong> {{ status.task_info.error.message }}
+      {% else %}
+        <strong>{{ _('Error:') }}</strong> {{ status.task_info.error }}
+      {% endif %}
+
     </div>
   {% endif %}
 
-  <table class="table table-bordered">
+  <table class="table table-bordered" data-module="table-toggle-more">
     <colgroup>
       <col width="150">
       <col>
@@ -42,6 +46,18 @@
         <td>{{ _('Never') }}</td>
       {% endif %}
     </tr>
+    {% if status.task_info and status.task_info.error and status.task_info.error.response %}
+      {% for error_key, error_value in status.task_info.error.response.error.iteritems() %}
+        <tr>
+          <th>Error {{ error_key }}</th>
+          <td>{{ error_value }}</td>
+        </tr>
+      {% endfor %}
+    <tr class="toggle-more">
+      <th>{{ _('Error Raw Response') }}</th>
+      <td>{{ status.task_info.error.response }}</td>
+    </tr>
+    {% endif %}
   </table>
 
   {% if status.status and status.task_info and show_table %}
