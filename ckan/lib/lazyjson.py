@@ -2,7 +2,7 @@ import simplejson as json
 import simplejson.encoder as json_encoder
 
 
-class LazyJSONObject(object):
+class LazyJSONObject(dict):
     '''An object that behaves like a dict returned from json.loads'''
     def __init__(self, json_string):
         self._json_string = json_string
