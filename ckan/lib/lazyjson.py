@@ -42,6 +42,10 @@ class JSONString(int):
 
     Fake-out simplejson by subclassing int so that simplejson calls
     our __str__ method to produce JSON.
+
+    This trick is unpleasant, but significantly less fragile than
+    subclassing JSONEncoder and modifying its internal workings, or
+    monkeypatching the simplejson library.
     '''
     def __init__(self, s):
         self.s = s
