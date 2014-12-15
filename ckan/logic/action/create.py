@@ -274,7 +274,8 @@ def resource_create(context, data_dict):
     package_id = _get_or_bust(data_dict, 'package_id')
     _get_or_bust(data_dict, 'url')
 
-    pkg_dict = _get_action('package_show')(dict(context, return_type='dict'),
+    pkg_dict = _get_action('package_show')(
+        dict(context, return_type='dict'),
         {'id': package_id})
 
     _check_access('resource_create', context, data_dict)
