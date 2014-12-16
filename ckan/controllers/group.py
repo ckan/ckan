@@ -145,10 +145,6 @@ class GroupController(base.BaseController):
         sort_by = c.sort_by_selected = request.params.get('sort')
         if sort_by:
             data_dict['sort'] = sort_by
-        try:
-            self._check_access('site_read', context)
-        except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
 
         # pass user info to context as needed to view private datasets of
         # orgs correctly

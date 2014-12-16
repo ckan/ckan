@@ -137,13 +137,6 @@ class PackageController(base.BaseController):
 
         package_type = self._guess_package_type()
 
-        try:
-            context = {'model': model, 'user': c.user or c.author,
-                       'auth_user_obj': c.userobj}
-            check_access('site_read', context)
-        except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
-
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', u'')
         c.query_error = False
