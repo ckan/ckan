@@ -234,7 +234,6 @@ class Repository(vdm.sqlalchemy.Repository):
         if self.tables_created_and_initialised:
             # just delete data, leaving tables - this is faster
             self.delete_all()
-            self.session.commit()
         else:
             # delete tables and data
             self.clean_db()
