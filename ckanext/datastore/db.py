@@ -636,7 +636,7 @@ def upsert_data(context, data_dict):
         except sqlalchemy.exc.DataError as err:
             raise InvalidDataError(
                 toolkit._("The data was invalid (for example: a numeric value "
-                    "is out of range)."))
+                          "is out of range)."))
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
