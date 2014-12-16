@@ -30,7 +30,7 @@
             {% if h.check_access('package_update', {'id':pkg.id }) %}
               <li>{% link_for _('Manage'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
             {% endif %}
-            {% if res.url %}
+            {% if res.url and h.is_url(res.url) %}
               <li>
                 <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
                   {% if res.resource_type in ('listing', 'service') %}
@@ -55,8 +55,10 @@
         {% block resource_content %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
-            {% if res.url %}
+            {% if res.url and h.is_url(res.url) %}
               <p class="muted ellipsis">{{ _('URL:') }} <a href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+            {% elif res.url %}
+              <p class="muted ellipsis">{{ _('URL:') }} {{ res.url }}</p>
             {% endif %}
           {% endblock %}
           <div class="prose notes" property="rdfs:label">
