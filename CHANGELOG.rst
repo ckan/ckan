@@ -84,7 +84,7 @@ Troubleshooting:
 
      ImportError: No module named openid
 
-   There are OpenID related configuration options on your ``who.ini`` file which
+   There are OpenID related configuration options in your ``who.ini`` file which
    are no longer supported.
 
    This file is generally located in ``/etc/ckan/default/who.ini`` but its location
