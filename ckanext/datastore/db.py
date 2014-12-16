@@ -64,6 +64,16 @@ _UPSERT = 'upsert'
 _UPDATE = 'update'
 
 
+class InvalidDataError(Exception):
+    """Exception that's raised if you try to add invalid data to the datastore.
+
+    For example if you have a column with type "numeric" and then you try to
+    add a non-numeric value like "foo" to it, this exception should be raised.
+
+    """
+    pass
+
+
 def _pluck(field, arr):
     return [x[field] for x in arr]
 
@@ -576,8 +586,14 @@ def alter_table(context, data_dict):
 
 
 def insert_data(context, data_dict):
+    """
+
+    :raises InvalidDataError: if there is an invalid value in the given data
+
+    """
     data_dict['method'] = _INSERT
-    return upsert_data(context, data_dict)
+    result = upsert_data(context, data_dict)
+    return result
 
 
 def upsert_data(context, data_dict):
@@ -615,7 +631,10 @@ def upsert_data(context, data_dict):
             values=', '.join(['%s' for field in field_names])
         )
 
-        context['connection'].execute(sql_string, rows)
+        try:
+            context['connection'].execute(sql_string, rows)
+        except sqlalchemy.exc.DataError as err:
+            raise InvalidDataError(str(err))
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
@@ -997,6 +1016,9 @@ def create(context, data_dict):
 
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
+
+    :raises InvalidDataError: if there is an invalid value in the given data
+
     '''
     engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
