@@ -1290,10 +1290,10 @@ def user_show(context, data_dict):
     :type id: string
     :param user_obj: the user dictionary of the user (optional)
     :type user_obj: user dictionary
-    :param include_datasets: Include user datasets
-         (optional, default:```False```)
+    :param include_datasets: Include datasets user has created
+         (optional, default:``False``, limit:50)
     :type include_datasets: boolean
-    :param include_num_followers: Include follower count
+    :param include_num_followers: Include the number of followers the user has
          (optional, default:``False``)
     :type include_num_followers: boolean
 
@@ -1326,7 +1326,9 @@ def user_show(context, data_dict):
     if data_dict.get('include_datasets', False):
         user_dict['datasets'] = []
         dataset_q = (model.Session.query(model.Package)
-                     .filter(model.Package.creator_user_id == user_dict['id'])
+                     .filter_by(creator_user_id=user_dict['id'])
+                     .filter_by(state='active')
+                     .filter_by(private=False)
                      .limit(50))
 
         for dataset in dataset_q:

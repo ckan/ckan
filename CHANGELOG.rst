@@ -13,27 +13,16 @@ v2.3
 API changes and deprecations
 ----------------------------
 
-* The ``user_show`` API call has introduced breaking changes.
+* The ``user_show`` API call does not return the ``datasets``,
+  ``num_followers`` or ``activity`` keys by default any more.
 
-  Previously ``user_show`` would return up to 50 full datasets for the user
-  being queried, and now by default it does not return any.  If you require
-  the list of datasets created by that user, you should pass
-  'include_datasets': True in the call to ``user_show``. The user controller
-  has been changed to maintain this behaviour in the Web UI.
+  Any custom templates or users of this API call that use these values will
+  need to specify parameters: ``include_datasets`` or
+  ``include_num_followers``.
 
-  The number_of_followers previously returned by this call is not only
-  included if `include_num_followers' : True is passed in to the call to
-  ``user_show``. The user controller has been changed to maintain this
-  behaviour in the Web UI.
-
-  The revisions previously returned by ``user_show`` were returned as if
-  they were activity, and they were not, and as a result they have been
-  removed.  If you want the actual activity stream for a user, call
-  ``user_activity_list`` instead.
-
-  The internal use of 'return_minimal' in the context passed to ``user_show``
-  has been deprecated and will be removed in 2.4 as this is now the default
-  behaviour.
+  ``activity`` has been removed completely as it was actually a list of
+  revisions, rather than the activity stream. If you want the actual activity
+  stream for a user, call ``user_activity_list`` instead.
 
 * ``helpers.get_action()`` (or ``h.get_action()`` in templates) is deprecated.
 
