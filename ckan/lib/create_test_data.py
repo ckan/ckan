@@ -492,7 +492,14 @@ left arrow <
                              title=u'Roger\'s books',
                              description=u'Roger likes these books.',
                              type=auth_profile or 'group')
-        for obj in [david, roger]:
+
+        # organization
+        test_org = model.Group(name=u'simple_dummy_org',
+                               title=u'Simple dummy organization',
+                               description=u'This is a simple dummy organization',
+                               type='organization')
+
+        for obj in [david, roger, test_org]:
             model.Session.add(obj)
 
         cls.group_names.add(u'david')

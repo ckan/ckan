@@ -172,6 +172,9 @@ def package_autocomplete(context, data_dict):
 def group_autocomplete(context, data_dict):
     return group_list(context, data_dict)
 
+def organization_autocomplete(context, data_dict):
+    return organization_list(context, data_dict)
+
 def tag_autocomplete(context, data_dict):
     return tag_list(context, data_dict)
 

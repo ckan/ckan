@@ -85,7 +85,7 @@ class TestDumper(object):
         assert len(dumpeddata['Package']) == 2, len(dumpeddata['Package'])
         assert len(dumpeddata['Tag']) == 3, len(dumpeddata['Tag'])
         assert len(dumpeddata['PackageRevision']) == 2, len(dumpeddata['PackageRevision'])
-        assert len(dumpeddata['Group']) == 2, len(dumpeddata['Group'])
+        assert len(dumpeddata['Group']) == 3, len(dumpeddata['Group'])
 
     # Disabled 22/9/09 because not used anymore
     def _test_load(self):
