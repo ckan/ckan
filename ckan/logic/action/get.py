@@ -1320,7 +1320,7 @@ def user_show(context, data_dict):
 
     if context.get('return_minimal'):
         log.warning('Use of the "return_minimal" in user_show is '
-            'deprecated.')
+                    'deprecated.')
         return user_dict
 
     if data_dict.get('include_datasets', False):
