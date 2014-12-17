@@ -13,6 +13,17 @@ v2.3
 API changes and deprecations
 ----------------------------
 
+* The ``user_show`` API call does not return the ``datasets``,
+  ``num_followers`` or ``activity`` keys by default any more.
+
+  Any custom templates or users of this API call that use these values will
+  need to specify parameters: ``include_datasets`` or
+  ``include_num_followers``.
+
+  ``activity`` has been removed completely as it was actually a list of
+  revisions, rather than the activity stream. If you want the actual activity
+  stream for a user, call ``user_activity_list`` instead.
+
 * ``helpers.get_action()`` (or ``h.get_action()`` in templates) is deprecated.
 
   Since action functions raise exceptions and templates cannot catch
