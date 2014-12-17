@@ -172,7 +172,11 @@ class ResourceUpload(object):
             self.filename = upload_field_storage.filename
             self.filename = munge.munge_filename(self.filename)
             resource['url'] = self.filename
-            resource['url_type'] = 'upload'
+            # The url_type will be changed to 'upload' when we save the resource
+            # but we need to change the models data to trigger the upload
+            # by changing the url_type we can trigger this and then fix the
+            # value once the trigger has occurred
+            resource['url_type'] = '__upload__'
             self.upload_file = upload_field_storage.file
         elif self.clear:
             resource['url_type'] = ''

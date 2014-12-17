@@ -50,6 +50,11 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 self.notify(obj, domain_object.DomainObjectOperation.deleted)
         for obj in set(changed):
             if isinstance(obj, resource.Resource):
+                # __upload__ is used to trigger the reuploading of files into the
+                # datastore where the file name has not changed.  We can now
+                # correct the value to what it should be.
+                if obj.url_type == '__upload__':
+                    obj.url_type = 'upload'
                 self.notify(obj, domain_object.DomainObjectOperation.changed)
             if getattr(obj, 'url_changed', False):
                 for item in plugins.PluginImplementations(plugins.IResourceUrlChange):

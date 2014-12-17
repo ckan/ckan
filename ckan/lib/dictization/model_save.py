@@ -27,6 +27,12 @@ def resource_dict_save(res_dict, context):
     table = class_mapper(model.Resource).mapped_table
     fields = [field.name for field in table.c]
 
+    # url_type __upload__ is a special condition to trigger uploading of a file
+    # to the datastore when the filename has not changed but the file has been
+    # newly updated and so needs to be loaded
+    if res_dict.get('url_type') == '__upload__':
+        obj.url_changed = True
+
     for key, value in res_dict.iteritems():
         if isinstance(value, list):
             continue
