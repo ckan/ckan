@@ -1297,6 +1297,10 @@ def user_show(context, data_dict):
          (optional, default:``False``)
     :type include_num_followers: boolean
 
+    :returns: the details of the user. Includes email_hash, number_of_edits and
+        number_created_packages. Excludes the password (hash) and reset_key.
+        The email and apikey are included if it is the user or a sysadmin
+        requesting.
     :rtype: dictionary
 
     '''
