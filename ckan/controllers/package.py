@@ -1132,16 +1132,17 @@ class PackageController(base.BaseController):
 
         c.related_count = c.pkg.related_count
 
-        c.resource['can_be_previewed'] = self._resource_preview(
-            {'resource': c.resource, 'package': c.package})
+        c.resource['can_be_previewed'] = (len(datapreview.get_allowed_view_plugins(
+            {'resource': c.resource, 'package': c.package})) > 0)
 
         resource_views = get_action('resource_view_list')(
             context, {'id': resource_id})
-        c.resource['has_views'] = len(resource_views) > 0
+        c.resource['has_views'] = (len(resource_views) > 0)
 
         current_resource_view = None
         view_id = request.GET.get('view_id')
-        if c.resource['can_be_previewed'] and not view_id:
+        # This logic seemed wrong
+        if not c.resource['has_views'] and c.resource['can_be_previewed'] and not view_id:
             current_resource_view = None
         elif c.resource['has_views']:
             if view_id:
@@ -1525,10 +1526,17 @@ class PackageController(base.BaseController):
                 if not to_preview:
                     redirect(h.url_for(controller='package',
                                        action='resource_views',
-                                       id=id, resource_id=resource_id))
+                                   id=id, resource_id=resource_id))
+        # woo
+        try:
+            int(view_id)
+            is_default_view = True
+        except ValueError:
+            is_default_view = False
+            pass
 
         ## view_id exists only when updating
-        if view_id:
+        if view_id and not is_default_view:
             try:
                 old_data = get_action('resource_view_show')(context,
                                                             {'id': view_id})
@@ -1542,8 +1550,12 @@ class PackageController(base.BaseController):
             except NotAuthorized:
                 abort(401, _('Unauthorized to view View %s') % view_id)
 
+        # The idea was to force rendering of the "new" form when editing a 
+        # deafult view (one that is not on the db), but at this point we don't
+        # know the view_type, as we only have the fake view id
         view_type = view_type or request.GET.get('view_type')
         data['view_type'] = view_type
+
         view_plugin = datapreview.get_view_plugin(view_type)
         if not view_plugin:
             abort(404, _('View Type Not found'))
@@ -1567,7 +1579,7 @@ class PackageController(base.BaseController):
             view_plugin.setup_template_variables(context, data_dict) or {})
         vars.update(data_dict)
 
-        if view_id:
+        if view_id and not is_default_view:
             return render('package/edit_view.html', extra_vars=vars)
 
         return render('package/new_view.html', extra_vars=vars)
