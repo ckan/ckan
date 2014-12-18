@@ -34,7 +34,7 @@
     {% endif %}
   {% endblock %}
   {% block page_pagination %}
-    {{ c.page.pager(q=c.q, sort=c.sort_by_selected) }}
+    {{ c.page.pager(q=c.q or '', sort=c.sort_by_selected or '') }}
   {% endblock %}
 {% endblock %}
 
