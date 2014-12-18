@@ -362,8 +362,9 @@ def package_update(context, data_dict):
         item.after_update(context, data)
 
     # Create default views for resources if necessary
-    if data.get('resources'):
-        datapreview.add_default_views_to_dataset_resources(context, data)
+    # Don't create db objects for now
+    # if data.get('resources'):
+    #     datapreview.add_default_views_to_dataset_resources(context, data)
 
     if not context.get('defer_commit'):
         model.repo.commit()

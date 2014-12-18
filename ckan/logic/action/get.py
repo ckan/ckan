@@ -1072,13 +1072,52 @@ def resource_view_list(context, data_dict):
     context['resource'] = resource
     _check_access('resource_view_list', context, data_dict)
     q = model.Session.query(model.ResourceView).filter_by(resource_id=id)
+    q = q.order_by(model.ResourceView.order)
     ## only show views when there is the correct plugin enabled
     resource_views = [
         resource_view for resource_view
-        in q.order_by(model.ResourceView.order).all()
+        in q.all()
         if datapreview.get_view_plugin(resource_view.view_type)
     ]
-    return model_dictize.resource_view_list_dictize(resource_views, context)
+
+    if resource_views:
+        return model_dictize.resource_view_list_dictize(resource_views, context)
+    else:
+
+        # We need to get these two so view plugins can decide if they can render
+        # this particular resource ;)
+        resource_dict = logic.get_action('resource_show')(context, {'id': id})
+        dataset_dict = logic.get_action('package_show')(context, {'id': resource_dict['package_id']})
+
+        # Both views that depend and don't depend on data being in the datastore
+        default_view_plugins = datapreview.get_default_view_plugins()
+        default_view_plugins.extend(datapreview.get_default_view_plugins(get_datastore_views=True))
+
+        if not default_view_plugins:
+            return []
+
+        default_views = []
+        for view_plugin in default_view_plugins:
+
+            view_info = view_plugin.info()
+
+            # Check if a view of this type can preview this resource
+            if view_plugin.can_view({
+                'resource': resource_dict,
+                'package': dataset_dict
+                    }):
+                view_dict = {'resource_id': resource_dict['id'],
+                             'view_type': view_info['name'],
+                             'title': view_info.get('default_title', _('View')),
+                             'description': view_info.get('default_description', '')
+                        }
+                default_views.append(view_dict)
+
+                # Fake stuff, needed by the frontend
+                view_dict['id'] = len(default_views)
+                view_dict['order'] = len(default_views)
+        return default_views
+
 
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
