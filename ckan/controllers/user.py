@@ -70,6 +70,7 @@ class UserController(base.BaseController):
             abort(404, _('User not found'))
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
+
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
         c.about_formatted = h.render_markdown(user_dict['about'])
@@ -115,7 +116,9 @@ class UserController(base.BaseController):
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id,
-                     'user_obj': c.userobj}
+                     'user_obj': c.userobj,
+                     'include_datasets': True,
+                     'include_num_followers': True}
 
         context['with_related'] = True
 
@@ -539,7 +542,8 @@ class UserController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'for_view': True}
-        data_dict = {'id': id, 'user_obj': c.userobj}
+        data_dict = {'id': id, 'user_obj': c.userobj,
+                     'include_num_followers': True}
         try:
             check_access('user_show', context, data_dict)
         except NotAuthorized:
@@ -569,7 +573,7 @@ class UserController(base.BaseController):
                 'user': c.user or c.author, 'auth_user_obj': c.userobj,
                 'for_view': True
             }
-            data_dict = {'id': filter_id}
+            data_dict = {'id': filter_id, 'include_num_followers': True}
             followee = None
 
             action_functions = {
@@ -660,7 +664,7 @@ class UserController(base.BaseController):
                    'session': model.Session,
                    'user': c.user or c.author,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             get_action('follow_user')(context, data_dict)
             user_dict = get_action('user_show')(context, data_dict)
@@ -680,7 +684,7 @@ class UserController(base.BaseController):
                    'session': model.Session,
                    'user': c.user or c.author,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             get_action('unfollow_user')(context, data_dict)
             user_dict = get_action('user_show')(context, data_dict)

@@ -55,6 +55,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    clean_format,
                                    no_loops_in_hierarchy,
                                    extra_key_not_in_root_schema,
+                                   empty_if_not_sysadmin,
+                                   package_id_does_not_exist,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
@@ -132,7 +134,7 @@ def default_create_tag_schema():
 def default_create_package_schema():
     schema = {
         '__before': [duplicate_extras_key, ignore],
-        'id': [empty],
+        'id': [empty_if_not_sysadmin, ignore_missing, unicode, package_id_does_not_exist],
         'revision_id': [ignore],
         'name': [not_empty, unicode, name_validator, package_name_validator],
         'title': [if_empty_same_as("name"), unicode],

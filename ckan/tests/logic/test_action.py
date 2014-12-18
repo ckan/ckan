@@ -352,10 +352,9 @@ class TestAction(WsgiAppCase):
         result = res_obj['result']
         assert result['name'] == 'annafan'
         assert result['about'] == 'I love reading Annakarenina. My site: http://anna.com'
-        assert 'activity' in result
         assert 'created' in result
         assert 'display_name' in result
-        assert 'number_administered_packages' in result
+        assert 'number_created_packages' in result
         assert 'number_of_edits' in result
         assert not 'apikey' in result
         assert not 'reset_key' in result
@@ -378,36 +377,13 @@ class TestAction(WsgiAppCase):
         assert result['name'] == 'annafan'
         assert 'apikey' in result
 
-    def test_05_user_show_edits(self):
-        postparams = '%s=1' % json.dumps({'id':'tester'})
-        res = self.app.post('/api/action/user_show', params=postparams)
-        res_obj = json.loads(res.body)
-        assert "/api/3/action/help_show?name=user_show" in res_obj['help']
-        assert res_obj['success'] == True
-        result = res_obj['result']
-        assert result['name'] == 'tester'
-        assert_equal(result['about'], None)
-        assert result['number_of_edits'] >= 1
-        edit = result['activity'][-1] # first edit chronologically
-        assert_equal(edit['author'], 'tester')
-        assert 'timestamp' in edit
-        assert_equal(edit['state'], 'active')
-        assert_equal(edit['approved_timestamp'], None)
-        assert_equal(set(edit['groups']), set(( 'roger', 'david')))
-        assert_equal(edit['state'], 'active')
-        assert edit['message'].startswith('Creating test data.')
-        assert_equal(set(edit['packages']), set(('warandpeace', 'annakarenina')))
-        assert 'id' in edit
-
     def test_05b_user_show_datasets(self):
-        postparams = '%s=1' % json.dumps({'id':'annafan'})
+        postparams = '%s=1' % json.dumps({'id':'annafan', 'include_datasets': True})
         res = self.app.post('/api/action/user_show', params=postparams)
         res_obj = json.loads(res.body)
         result = res_obj['result']
         datasets = result['datasets']
-        assert_equal(len(datasets), 1)
-        dataset = result['datasets'][0]
-        assert_equal(dataset['name'], u'annakarenina')
+        assert_equal(len(datasets), 0)  # No datasets created
 
 
     def test_10_user_create_parameters_missing(self):
@@ -471,7 +447,7 @@ class TestAction(WsgiAppCase):
         assert 'apikey' in result
         assert 'created' in result
         assert 'display_name' in result
-        assert 'number_administered_packages' in result
+        assert 'number_created_packages' in result
         assert 'number_of_edits' in result
         assert not 'password' in result
 

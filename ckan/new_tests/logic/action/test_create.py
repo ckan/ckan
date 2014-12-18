@@ -257,3 +257,46 @@ class TestMemberCreate(object):
         assert_equals(new_membership['table_name'], 'user')
         assert_equals(new_membership['table_id'], user['id'])
         assert_equals(new_membership['capacity'], 'member')
+
+
+class TestDatasetCreate(helpers.FunctionalTestBase):
+
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'package_create',
+            context=context,
+            id='1234',
+            name='test-dataset',
+        )
+
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        dataset = helpers.call_action(
+            'package_create',
+            context=context,
+            id='1234',
+            name='test-dataset',
+        )
+        assert_equals(dataset['id'], '1234')
+
+    def test_id_cant_already_exist(self):
+        dataset = factories.Dataset()
+        user = factories.Sysadmin()
+        assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'package_create',
+            id=dataset['id'],
+            name='test-dataset',
+        )
