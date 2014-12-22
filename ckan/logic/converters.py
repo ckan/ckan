@@ -8,6 +8,8 @@ from ckan.common import _
 
 
 def convert_to_extras(key, data, errors, context):
+    if ('extras', ) in data:
+        del data[('extras', )]
     # There is no tally for the number of fields converted to extras.
     extras = [k for k in data.keys() if k[0] == 'extras' and len(k) > 1]
     new_pos = 0
