@@ -541,3 +541,41 @@ class TestResourceViewUpdate(object):
         nose.tools.assert_raises(logic.NotFound,
                                  helpers.call_action,
                                  'resource_view_update', **params)
+
+
+class TestResourceUpdate(object):
+
+    def setup(self):
+        import ckan.model as model
+        model.repo.rebuild_db()
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def test_url(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset, url='http://first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://second')
+
+        assert_equals(res_returned['url'], 'http://second')
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(resource['url'], 'http://second')
+
+    def test_extra(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset, newfield='first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url=resource['url'],
+                                           newfield='http://second')
+
+        assert_equals(res_returned['newfield'], 'second')
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(resource['newfield'], 'second')
