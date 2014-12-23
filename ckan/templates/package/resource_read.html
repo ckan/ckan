@@ -92,9 +92,7 @@
             <div class="resource-view">
               {% set resource_preview = h.resource_preview(c.resource, c.package) %}
               {% set views_created = res.has_views or resource_preview %}
-              {% if not views_created %}
-                {{ _("There're no views created for this resource yet.") }}
-              {% else %}
+              {% if views_created %}
                 {% if resource_preview and not current_resource_view %}
                   {{ h.resource_preview(c.resource, c.package) }}
                 {% else %}
@@ -111,6 +109,26 @@
               {% endif %}
             </div>
           {% endblock %}
+        </div>
+        <div class="module-content data-viewer-info">
+          <p class="muted">
+            <i class="icon-info-sign"></i>
+            {{ _("Not seeing the views you were expecting?")}}
+            <a href="javascript:void(0);" data-toggle="collapse" data-target="#data-view-info">
+              {{ _('Click here for more information.') }}</a>
+          </p>
+          <div id="data-view-info" class="collapse">
+            <p>Here are some reasons you may not be seeing expected views:</p>
+            <ul>
+  <!--             There are no views suitable for this format
+  The admins haven't enabled the relevant view plugin on the config file
+  The admins haven't defined the relevant view plugin on the config file as one of the ones to be created by default
+  If the view plugin requires data to be in the DataStore, data is not yet on on the DataStore -->
+              <li>No view has been created that is suitable for this resource</li>
+              <li>The site administrators may not have enabled the relevant view plugins</li>
+              <li>If this view requires the DataStore, the DataStore plugin may not be enabled, or the data may not have been pushed to the DataStore, or the DataStore hasn't finished processing the data yet</li>
+            </ul>
+          </div>
         </div>
       {% endblock %}
       {% endblock %}
