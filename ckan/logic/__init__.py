@@ -38,9 +38,18 @@ class ActionError(Exception):
         self.extra_msg = extra_msg
 
     def __str__(self):
+        try:
+            return str(self.__unicode__())
+        except UnicodeEncodeError:
+            # Encode unicode characters using backslashreplace, just as
+            # Exception.__str__ does
+            return self.__unicode__().encode('ascii', 'backslashreplace')
+
+    def __unicode__(self):
         err_msgs = (super(ActionError, self).__str__(),
                     self.extra_msg)
-        return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
+        return ' - '.join([unicode(err_msg) for err_msg in err_msgs
+                           if err_msg])
 
 
 class NotFound(ActionError):
@@ -300,8 +309,8 @@ def check_access(action, context, data_dict=None):
             msg = logic_authorization.get('msg', '')
             raise NotAuthorized(msg)
     except NotAuthorized, e:
-        log.debug('check access NotAuthorized - %s user=%s "%s"',
-                  action, user, str(e))
+        log.debug(u'check access NotAuthorized - %s user=%s "%s"',
+                  action, user, unicode(e))
         raise
 
     log.debug('check access OK - %s user=%s', action, user)
