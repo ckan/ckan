@@ -76,7 +76,6 @@ class ReclineView(ReclineViewBase):
     def info(self):
         return {'name': 'recline_view',
                 'title': 'Data Explorer',
-                'requires_datastore': False,
                 'icon': 'table'}
 
     def can_view(self, data_dict):
