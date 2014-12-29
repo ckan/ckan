@@ -671,11 +671,11 @@ class UserController(base.BaseController):
             h.flash_success(_("You are now following {0}").format(
                 user_dict['display_name']))
         except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
+            error_message = (e.message or e.error_summary
                              or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
-            h.flash_error(e.extra_msg)
+            h.flash_error(e.message)
         h.redirect_to(controller='user', action='read', id=id)
 
     def unfollow(self, id):
@@ -691,10 +691,10 @@ class UserController(base.BaseController):
             h.flash_success(_("You are no longer following {0}").format(
                 user_dict['display_name']))
         except (NotFound, NotAuthorized) as e:
-            error_message = e.extra_msg or e.message
+            error_message = e.message
             h.flash_error(error_message)
         except ValidationError as e:
-            error_message = (e.error_summary or e.message or e.extra_msg
+            error_message = (e.error_summary or e.message
                              or e.error_dict)
             h.flash_error(error_message)
         h.redirect_to(controller='user', action='read', id=id)

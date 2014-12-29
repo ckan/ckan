@@ -34,23 +34,7 @@ class AttributeDict(dict):
 
 
 class ActionError(Exception):
-    def __init__(self, extra_msg=None):
-        self.extra_msg = extra_msg
-
-    def __str__(self):
-        try:
-            return str(self.__unicode__())
-        except UnicodeEncodeError:
-            # Encode unicode characters using backslashreplace, just as
-            # Exception.__str__ does
-            return self.__unicode__().encode('ascii', 'backslashreplace')
-
-    def __unicode__(self):
-        err_msgs = (super(ActionError, self).__str__(),
-                    self.extra_msg)
-        return ' - '.join([unicode(err_msg) for err_msg in err_msgs
-                           if err_msg])
-
+    pass
 
 class NotFound(ActionError):
     '''Exception raised by logic functions when a given object is not found.
@@ -93,7 +77,7 @@ class ValidationError(ActionError):
             error_dict['tags'] = tag_errors
         self.error_dict = error_dict
         self._error_summary = error_summary
-        self.extra_msg = extra_msg
+        super(ValidationError, self).__init__(extra_msg)
 
     @property
     def error_summary(self):

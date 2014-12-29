@@ -209,15 +209,15 @@ class ApiController(base.BaseController):
                                     'message': _('Access denied')}
             return_dict['success'] = False
             
-            if e.extra_msg:
-                return_dict['error']['message'] += ': %s' % e.extra_msg
+            if e.message:
+                return_dict['error']['message'] += ': %s' % e.message
 
             return self._finish(403, return_dict, content_type='json')
         except NotFound, e:
             return_dict['error'] = {'__type': 'Not Found Error',
                                     'message': _('Not found')}
-            if e.extra_msg:
-                return_dict['error']['message'] += ': %s' % e.extra_msg
+            if e.message:
+                return_dict['error']['message'] += ': %s' % e.message
             return_dict['success'] = False
             return self._finish(404, return_dict, content_type='json')
         except ValidationError, e:
@@ -289,11 +289,9 @@ class ApiController(base.BaseController):
         try:
             return self._finish_ok(action(context, {'id': id}))
         except NotFound, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_found(extra_msg)
+            return self._finish_not_found(e.message)
         except NotAuthorized, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_authz(extra_msg)
+            return self._finish_not_authz(e.message)
 
     def show(self, ver=None, register=None, subregister=None,
              id=None, id2=None):
@@ -321,11 +319,9 @@ class ApiController(base.BaseController):
         try:
             return self._finish_ok(action(context, data_dict))
         except NotFound, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_found(extra_msg)
+            return self._finish_not_found(e.message)
         except NotAuthorized, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_authz(extra_msg)
+            return self._finish_not_authz(e.message)
 
     def _represent_package(self, package):
         return package.as_dict(ref_package_by=self.ref_package_by,
@@ -371,11 +367,9 @@ class ApiController(base.BaseController):
             return self._finish_ok(response_data,
                                    resource_location=location)
         except NotAuthorized, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_authz(extra_msg)
+            return self._finish_not_authz(e.message)
         except NotFound, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_found(extra_msg)
+            return self._finish_not_found(e.message)
         except ValidationError, e:
             # CS: nasty_string ignore
             log.error('Validation error: %r' % str(e.error_dict))
@@ -428,11 +422,9 @@ class ApiController(base.BaseController):
             response_data = action(context, data_dict)
             return self._finish_ok(response_data)
         except NotAuthorized, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_authz(extra_msg)
+            return self._finish_not_authz(e.message)
         except NotFound, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_found(extra_msg)
+            return self._finish_not_found(e.message)
         except ValidationError, e:
             # CS: nasty_string ignore
             log.error('Validation error: %r' % str(e.error_dict))
@@ -477,11 +469,9 @@ class ApiController(base.BaseController):
             response_data = action(context, data_dict)
             return self._finish_ok(response_data)
         except NotAuthorized, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_authz(extra_msg)
+            return self._finish_not_authz(e.message)
         except NotFound, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_found(extra_msg)
+            return self._finish_not_found(e.message)
         except ValidationError, e:
             # CS: nasty_string ignore
             log.error('Validation error: %r' % str(e.error_dict))
