@@ -40,4 +40,3 @@ class TestDelete:
             assert u'Delta symbol: \u0394' in unicode(e)
         else:
             assert 0, 'Should have raised NotFound'
-
