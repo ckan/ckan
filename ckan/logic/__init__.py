@@ -280,25 +280,31 @@ def check_access(action, context, data_dict=None):
         context['__auth_audit'].pop()
 
     user = context.get('user')
-    log.debug('check access - user %r, action %s' % (user, action))
 
-    if not 'auth_user_obj' in context:
-        context['auth_user_obj'] = None
+    try:
+        if not 'auth_user_obj' in context:
+            context['auth_user_obj'] = None
 
-    if not context.get('ignore_auth'):
-        if not context.get('__auth_user_obj_checked'):
-            if context.get('user') and not context.get('auth_user_obj'):
-                context['auth_user_obj'] = model.User.by_name(context['user'])
-            context['__auth_user_obj_checked'] = True
+        if not context.get('ignore_auth'):
+            if not context.get('__auth_user_obj_checked'):
+                if context.get('user') and not context.get('auth_user_obj'):
+                    context['auth_user_obj'] = \
+                        model.User.by_name(context['user'])
+                context['__auth_user_obj_checked'] = True
 
-    context = _prepopulate_context(context)
+        context = _prepopulate_context(context)
 
-    logic_authorization = new_authz.is_authorized(action, context, data_dict)
-    if not logic_authorization['success']:
-        msg = logic_authorization.get('msg', '')
-        raise NotAuthorized(msg)
+        logic_authorization = new_authz.is_authorized(action, context,
+                                                      data_dict)
+        if not logic_authorization['success']:
+            msg = logic_authorization.get('msg', '')
+            raise NotAuthorized(msg)
+    except NotAuthorized, e:
+        log.debug('check access NotAuthorized - %s user=%s "%s"',
+                  action, user, str(e))
+        raise
 
-    log.debug('Access OK.')
+    log.debug('check access OK - %s user=%s', action, user)
     return True
 
 
