@@ -412,11 +412,13 @@ def get_action(action):
 
                 context = _prepopulate_context(context)
 
-                # Auth Auditing
-                # store this action name in the auth audit so we can see if
-                # check access was called on the function we store the id of
-                # the action incase the action is wrapped inside an action
-                # of the same name.  this happens in the datastore
+                # Auth Auditing - checks that the action function did call
+                # check_access (unless there is no accompanying auth function).
+                # We push the action name and id onto the __auth_audit stack
+                # before calling the action, and check_access removes it.
+                # (We need the id of the action in case the action is wrapped
+                # inside an action of the same name, which happens in the
+                # datastore)
                 context.setdefault('__auth_audit', [])
                 context['__auth_audit'].append((action_name, id(_action)))
 
