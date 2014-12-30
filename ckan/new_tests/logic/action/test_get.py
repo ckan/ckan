@@ -17,6 +17,29 @@ class TestGet(object):
         # Clear the search index
         search.clear()
 
+    def test_package_show(self):
+        dataset1 = factories.Dataset()
+
+        dataset2 = helpers.call_action('package_show', id=dataset1['id'])
+
+        eq(dataset2['name'], dataset1['name'])
+        missing_keys = set(('title', 'groups')) - set(dataset2.keys())
+        assert not missing_keys, missing_keys
+
+    def test_package_show_with_custom_schema(self):
+        dataset1 = factories.Dataset()
+        from ckan.logic.schema import default_show_package_schema
+        custom_schema = default_show_package_schema()
+
+        def foo(key, data, errors, context):
+            data[key] = 'foo'
+        custom_schema['new_field'] = [foo]
+
+        dataset2 = helpers.call_action('package_show', id=dataset1['id'],
+                                       context={'schema': custom_schema})
+
+        eq(dataset2['new_field'], 'foo')
+
     def test_group_list(self):
 
         group1 = factories.Group()

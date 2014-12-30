@@ -114,18 +114,6 @@ class TestAction(WsgiAppCase):
         assert 'public_dataset' in res
         assert not 'private_dataset' in res
 
-    def test_01_package_show(self):
-        anna_id = model.Package.by_name(u'annakarenina').id
-        postparams = '%s=1' % json.dumps({'id': anna_id})
-        res = self.app.post('/api/action/package_show', params=postparams)
-        res_dict = json.loads(res.body)
-        assert_equal(res_dict['success'], True)
-        assert "/api/3/action/help_show?name=package_show" in res_dict['help']
-        pkg = res_dict['result']
-        assert_equal(pkg['name'], 'annakarenina')
-        missing_keys = set(('title', 'groups')) - set(pkg.keys())
-        assert not missing_keys, missing_keys
-
     def test_01_package_show_with_jsonp(self):
         anna_id = model.Package.by_name(u'annakarenina').id
         postparams = '%s=1' % json.dumps({'id': anna_id})

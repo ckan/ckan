@@ -977,10 +977,10 @@ def package_show(context, data_dict):
             schema = context['schema']
         else:
             schema = package_plugin.show_package_schema()
-            if schema and context.get('validate', True):
-                package_dict, errors = lib_plugins.plugin_validate(
-                    package_plugin, context, package_dict, schema,
-                    'package_show')
+        if schema and context.get('validate', True):
+            package_dict, errors = lib_plugins.plugin_validate(
+                package_plugin, context, package_dict, schema,
+                'package_show')
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
