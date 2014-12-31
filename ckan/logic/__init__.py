@@ -393,7 +393,6 @@ def get_action(action):
                         resolved_action_plugins[name]
                     )
                 )
-            log.debug('Action function {0} from plugin {1} was inserted'.format(name, plugin.name))
             resolved_action_plugins[name] = plugin.name
             # Extensions are exempted from the auth audit for now
             # This needs to be resolved later
