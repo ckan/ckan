@@ -1213,11 +1213,11 @@ class PackageController(base.BaseController):
             h.flash_success(_("You are now following {0}").format(
                 package_dict['title']))
         except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
+            error_message = (e.message or e.error_summary
                     or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
-            h.flash_error(e.extra_msg)
+            h.flash_error(e.message)
         h.redirect_to(controller='package', action='read', id=id)
 
     def unfollow(self, id):
@@ -1232,11 +1232,11 @@ class PackageController(base.BaseController):
             h.flash_success(_("You are no longer following {0}").format(
                 package_dict['title']))
         except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
+            error_message = (e.message or e.error_summary
                     or e.error_dict)
             h.flash_error(error_message)
         except (NotFound, NotAuthorized) as e:
-            error_message = e.extra_msg or e.message
+            error_message = e.message
             h.flash_error(error_message)
         h.redirect_to(controller='package', action='read', id=id)
 
