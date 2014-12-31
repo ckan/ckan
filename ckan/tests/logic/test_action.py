@@ -1380,8 +1380,12 @@ class TestActionTermTranslation(WsgiAppCase):
                             status=200)
 
         assert json.loads(res.body)['success']
-        assert json.loads(res.body)['result'] == [{u'lang_code': u'fr', u'term': u'moo', u'term_translation': u'moomoo'},
-                                                  {u'lang_code': u'en', u'term': u'moo', u'term_translation': u'moomoo'}], json.loads(res.body)
+        # sort the result since the order is not important and is implementation
+        # dependent
+        assert sorted(json.loads(res.body)['result']) == sorted(
+            [{u'lang_code': u'fr', u'term': u'moo', u'term_translation': u'moomoo'},
+             {u'lang_code': u'en', u'term': u'moo', u'term_translation': u'moomoo'}]),\
+            json.loads(res.body)
 
     def test_2_update_many(self):
 
@@ -1412,8 +1416,12 @@ class TestActionTermTranslation(WsgiAppCase):
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
                             status=200)
 
-        assert json.loads(res.body)['result'] == [{u'lang_code': u'fr', u'term': u'many', u'term_translation': u'manymoo'},
-                                                  {u'lang_code': u'en', u'term': u'many', u'term_translation': u'manymoomoo'}], json.loads(res.body)
+        # sort the result since the order is not important and is implementation
+        # dependent
+        assert sorted(json.loads(res.body)['result']) == sorted(
+            [{u'lang_code': u'fr', u'term': u'many', u'term_translation': u'manymoo'},
+             {u'lang_code': u'en', u'term': u'many', u'term_translation': u'manymoomoo'}]),\
+            json.loads(res.body)
 
 
 
