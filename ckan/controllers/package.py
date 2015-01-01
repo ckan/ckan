@@ -1562,7 +1562,8 @@ class PackageController(base.BaseController):
                 'data': data,
                 'errors': errors,
                 'error_summary': error_summary,
-                'to_preview': to_preview}
+                'to_preview': to_preview,
+                'datastore_available': p.plugin_loaded('datastore')}
         vars.update(
             view_plugin.setup_template_variables(context, data_dict) or {})
         vars.update(data_dict)
