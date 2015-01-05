@@ -1,6 +1,5 @@
 Babel==0.9.6
 Beaker==1.6.4
-FormAlchemy==1.4.3
 FormEncode==1.2.6
 Genshi==0.6
 Jinja2==2.6
@@ -19,7 +18,6 @@ WebError==0.10.3
 WebHelpers==1.3
 WebOb==1.0.8
 WebTest==1.4.3
-apachemiddleware==0.1.1
 argparse==1.2.1
 decorator==3.4.0
 fanstatic==0.12
@@ -29,12 +27,10 @@ passlib==1.6.2
 pbr==0.8.2
 psycopg2==2.4.5
 python-dateutil==1.5
-python-openid==2.2.5
 pyutilib.component.core==4.5.3
 repoze.lru==0.6
-repoze.who==1.0.19
+repoze.who==2.0
 repoze.who-friendlyform==1.0.8
-repoze.who.plugins.openid==0.5.3
 requests==2.3.0
 simplejson==3.3.1
 six==1.7.3
@@ -44,4 +40,4 @@ sqlparse==0.1.11
 unicodecsv==0.9.4
 vdm==0.13
 wsgiref==0.1.2
-zope.interface==4.0.1
+zope.interface==4.1.1

@@ -242,6 +242,32 @@ class TestResourceCreate(object):
     def setup(self):
         model.repo.rebuild_db()
 
+    def test_resource_create(self):
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        id = result.pop('id')
+
+        assert id
+
+        params.pop('package_id')
+        for key in params.keys():
+            assert_equals(params[key], result[key])
+
+    def test_it_requires_package_id(self):
+
+        data_dict = {
+            'url': 'http://data',
+        }
+
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'resource_create', **data_dict)
+
     def test_it_requires_url(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
@@ -292,3 +318,46 @@ class TestMemberCreate(object):
         assert_equals(new_membership['table_name'], 'user')
         assert_equals(new_membership['table_id'], user['id'])
         assert_equals(new_membership['capacity'], 'member')
+
+
+class TestDatasetCreate(helpers.FunctionalTestBase):
+
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'package_create',
+            context=context,
+            id='1234',
+            name='test-dataset',
+        )
+
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        dataset = helpers.call_action(
+            'package_create',
+            context=context,
+            id='1234',
+            name='test-dataset',
+        )
+        assert_equals(dataset['id'], '1234')
+
+    def test_id_cant_already_exist(self):
+        dataset = factories.Dataset()
+        user = factories.Sysadmin()
+        assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'package_create',
+            id=dataset['id'],
+            name='test-dataset',
+        )

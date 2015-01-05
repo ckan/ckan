@@ -57,6 +57,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    filter_fields_and_values_should_have_same_length,
                                    filter_fields_and_values_exist_and_are_valid,
                                    extra_key_not_in_root_schema,
+                                   empty_if_not_sysadmin,
+                                   package_id_does_not_exist,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
@@ -82,7 +84,6 @@ def default_resource_schema():
         'hash': [ignore_missing, unicode],
         'state': [ignore],
         'position': [ignore],
-        'revision_timestamp': [ignore],
         'name': [ignore_missing, unicode],
         'resource_type': [ignore_missing, unicode],
         'url_type': [ignore_missing, unicode],
@@ -136,7 +137,7 @@ def default_create_tag_schema():
 def default_create_package_schema():
     schema = {
         '__before': [duplicate_extras_key, ignore],
-        'id': [empty],
+        'id': [empty_if_not_sysadmin, ignore_missing, unicode, package_id_does_not_exist],
         'revision_id': [ignore],
         'name': [not_empty, unicode, name_validator, package_name_validator],
         'title': [if_empty_same_as("name"), unicode],
@@ -213,8 +214,8 @@ def default_show_package_schema():
         'last_modified': [ckan.lib.navl.validators.ignore_missing],
         'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
-        'revision_timestamp': [],
         'revision_id': [],
+        'package_id': [],
         'cache_last_updated': [],
         'webstore_last_updated': [],
         'size': [],
@@ -265,7 +266,6 @@ def default_show_package_schema():
     schema['owner_org'] = []
     schema['private'] = []
     schema['revision_id'] = []
-    schema['revision_timestamp'] = []
     schema['tracking_summary'] = []
     schema['license_title'] = []
 

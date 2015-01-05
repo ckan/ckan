@@ -10,7 +10,6 @@ from sqlalchemy import func
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
-import ckan.rating as ratings
 import ckan.plugins as plugins
 import ckan.lib.dictization
 import ckan.logic.action
@@ -109,9 +108,9 @@ def package_create(context, data_dict):
     :param groups: the groups to which the dataset belongs (optional), each
         group dictionary should have one or more of the following keys which
         identify an existing group:
-        ``'id'`` (the id of the group, string), ``'name'`` (the name of the
-        group, string), ``'title'`` (the title of the group, string), to see
-        which groups exist call :py:func:`~ckan.logic.action.get.group_list`
+        ``'id'`` (the id of the group, string), or ``'name'`` (the name of the
+        group, string),  to see which groups exist
+        call :py:func:`~ckan.logic.action.get.group_list`
     :type groups: list of dictionaries
     :param owner_org: the id of the dataset's owning organization, see
         :py:func:`~ckan.logic.action.get.organization_list` or
@@ -128,8 +127,19 @@ def package_create(context, data_dict):
     model = context['model']
     user = context['user']
 
-    package_type = data_dict.get('type')
-    package_plugin = lib_plugins.lookup_package_plugin(package_type)
+    if 'type' not in data_dict:
+        package_plugin = lib_plugins.lookup_package_plugin()
+        try:
+            # use first type as default if user didn't provide type
+            package_type = package_plugin.package_types()[0]
+        except (AttributeError, IndexError):
+            package_type = 'dataset'
+            # in case a 'dataset' plugin was registered w/o fallback
+            package_plugin = lib_plugins.lookup_package_plugin(package_type)
+        data_dict['type'] = package_type
+    else:
+        package_plugin = lib_plugins.lookup_package_plugin(data_dict['type'])
+
     if 'schema' in context:
         schema = context['schema']
     else:
@@ -262,7 +272,6 @@ def resource_create(context, data_dict):
     user = context['user']
 
     package_id = _get_or_bust(data_dict, 'package_id')
-    data_dict.pop('package_id')
     _get_or_bust(data_dict, 'url')
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
@@ -849,16 +858,17 @@ def rating_create(context, data_dict):
             opts_err = _('Rating must be an integer value.')
         else:
             package = model.Package.get(package_ref)
-            if rating < ratings.MIN_RATING or rating > ratings.MAX_RATING:
+            if rating < model.MIN_RATING or rating > model.MAX_RATING:
                 opts_err = _('Rating must be between %i and %i.') \
-                    % (ratings.MIN_RATING, ratings.MAX_RATING)
+                    % (model.MIN_RATING, model.MAX_RATING)
             elif not package:
                 opts_err = _('Not found') + ': %r' % package_ref
     if opts_err:
         raise ValidationError(opts_err)
 
     user = model.User.by_name(user)
-    ratings.set_rating(user, package, rating_int)
+    package.set_rating(user, rating_int)
+    model.repo.commit()
 
     package = model.Package.get(package_ref)
     ret_dict = {'rating average': package.get_average_rating(),

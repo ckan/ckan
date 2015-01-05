@@ -13,6 +13,17 @@ v2.3
 API changes and deprecations
 ----------------------------
 
+* The ``user_show`` API call does not return the ``datasets``,
+  ``num_followers`` or ``activity`` keys by default any more.
+
+  Any custom templates or users of this API call that use these values will
+  need to specify parameters: ``include_datasets`` or
+  ``include_num_followers``.
+
+  ``activity`` has been removed completely as it was actually a list of
+  revisions, rather than the activity stream. If you want the actual activity
+  stream for a user, call ``user_activity_list`` instead.
+
 * ``helpers.get_action()`` (or ``h.get_action()`` in templates) is deprecated.
 
   Since action functions raise exceptions and templates cannot catch
@@ -32,8 +43,17 @@ API changes and deprecations
 * Cross-Origin Resource Sharing (CORS) support is no longer enabled by
   default. Previously, Access-Control-Allow-* response headers were added for
   all requests, with Access-Control-Allow-Origin set to the wildcard value
-  ``*``. To re-enable CORS, use the new ``ckan.cors`` settings detailed in the
-  Config File Options documentation (:doc:`/maintaining/configuration`)
+  ``*``. To re-enable CORS, use the new ``ckan.cors`` configuration settings
+  (:ref:`ckan.cors.origin_allow_all` and :ref:`ckan.cors.origin_whitelist`).
+
+* The HttpOnly flag will be set on the authorization cookie by default. For
+  enhanced security, we recommend using the HttpOnly flag, but this behaviour
+  can be changed in the ``Repoze.who`` settings detailed in the Config File
+  Options documentation (:ref:`who.httponly`).
+
+* The OpenID login option has been removed and is no longer supported. See
+  "Troubleshooting" if you are upgrading an existing CKAN instance as you may
+  need to update your ``who.ini`` file.
 
 Template changes
 ----------------
@@ -48,6 +68,59 @@ Template changes
   changes might effect your content blocks:
 
   https://github.com/ckan/ckan/pull/1935
+
+Troubleshooting:
+
+ * Login does not work, for existing and new users.
+
+   You need to update your existing ``who.ini`` file.
+
+   - In the ``[plugin:auth_tkt]`` section, replace::
+
+       use = ckan.config.middleware:ckan_auth_tkt_make_app
+
+     with::
+
+       use = ckan.lib.auth_tkt:make_plugin
+
+   - In ``[authenticators]``, add the ``auth_tkt`` plugin
+
+   Also see the next point for OpenID related changes.
+
+ * Exception on first load after upgrading from a previous CKAN version::
+
+     ImportError: <module 'ckan.lib.authenticator' from '/usr/lib/ckan/default/src/ckan/ckan/lib/authenticator.py'> has no 'OpenIDAuthenticator' attribute
+
+   or::
+
+     ImportError: No module named openid
+
+   There are OpenID related configuration options in your ``who.ini`` file which
+   are no longer supported.
+
+   This file is generally located in ``/etc/ckan/default/who.ini`` but its location
+   may vary if you used a custom deployment.
+
+   The options that you need to remove are:
+
+   - The whole ``[plugin:openid]`` section
+   - In ``[general]``, replace::
+
+        challenge_decider = repoze.who.plugins.openid.classifiers:openid_challenge_decider
+
+     with::
+
+        challenge_decider = repoze.who.classifiers:default_challenge_decider
+
+   - In ``[identifiers]``, remove ``openid``
+   - In ``[authenticators]``, remove ``ckan.lib.authenticator:OpenIDAuthenticator``
+   - In ``[challengers]``, remove ``openid``
+
+   This is a diff with the whole changes:
+
+    https://github.com/ckan/ckan/pull/2058/files#diff-2
+
+   Also see the previous point for other ``who.ini`` changes.
 
 v2.2.1 2014-10-15
 =================

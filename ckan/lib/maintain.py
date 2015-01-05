@@ -28,14 +28,11 @@ def deprecated(message=''):
                             'Please update the docstring for the function. '
                             'It must include the word `deprecated`.'
                             % (fn.__name__, fn.__module__))
-        # Log deprecated functions
-        log.debug('Function %s() in module %s has been deprecated. %s'
-                            % (fn.__name__, fn.__module__, message))
 
         def wrapped(*args, **kw):
             log.warning('Function %s() in module %s has been deprecated '
-                         'and will be removed in a later release of ckan. %s'
-                         % (fn.__name__, fn.__module__, message))
+                        'and will be removed in a later release of ckan. %s'
+                        % (fn.__name__, fn.__module__, message))
             return fn(*args, **kw)
         return wrapped
     return decorator

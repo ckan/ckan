@@ -37,11 +37,11 @@ minor release they belong to, so for example CKAN ``2.0``, ``2.0.1``,
 
    .. note::
 
-      If you have changed the |apache| or |nginx| configuration files, you will
-      get a prompt like the following, asking whether to keep your local changes
-      or replace the files. You generally would like to keep your local changes
-      (option ``N``, which is the default), but you can look at the differences
-      between versions selecting option ``D``::
+      If you have changed the |apache|, |nginx| or ``who.ini`` configuration
+      files, you will get a prompt like the following, asking whether to keep
+      your local changes or replace the files. You generally would like to keep
+      your local changes (option ``N``, which is the default), but you can look
+      at the differences between versions by selecting option ``D``::
 
        Configuration file `/etc/apache2/sites-available/ckan_default'
         ==> File on system created by you or by a script.

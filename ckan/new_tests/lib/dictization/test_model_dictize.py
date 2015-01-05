@@ -1,3 +1,6 @@
+import datetime
+import copy
+
 from nose.tools import assert_equal
 
 from ckan.lib.dictization import model_dictize
@@ -136,13 +139,13 @@ class TestGroupDictize:
         search.clear()
 
     def test_group_dictize(self):
-        group = factories.Group()
+        group = factories.Group(name='test_dictize')
         group_obj = model.Session.query(model.Group).filter_by().first()
         context = {'model': model, 'session': model.Session}
 
         group = model_dictize.group_dictize(group_obj, context)
 
-        assert_equal(group['name'], 'test_group_0')
+        assert_equal(group['name'], 'test_dictize')
         assert_equal(group['packages'], [])
         assert_equal(group['extras'], [])
         assert_equal(group['tags'], [])
@@ -291,3 +294,218 @@ class TestGroupDictize:
                                           packages_field='dataset_count')
 
         assert_equal(org['packages'], 1)
+
+
+class TestPackageDictize:
+
+    def setup(self):
+        helpers.reset_db()
+
+    def remove_changable_values(self, dict_):
+        dict_ = copy.deepcopy(dict_)
+        for key, value in dict_.items():
+            if key.endswith('id') and key != 'license_id':
+                dict_.pop(key)
+            if key == 'created':
+                dict_.pop(key)
+            if 'timestamp' in key:
+                dict_.pop(key)
+            if key in ['metadata_created', 'metadata_modified']:
+                dict_.pop(key)
+            if isinstance(value, list):
+                for i, sub_dict in enumerate(value):
+                    value[i] = self.remove_changable_values(sub_dict)
+        return dict_
+
+    def assert_equals_expected(self, expected_dict, result_dict):
+        result_dict = self.remove_changable_values(result_dict)
+        superfluous_keys = set(result_dict) - set(expected_dict)
+        assert not superfluous_keys, 'Did not expect key: %s' % \
+            ' '.join(('%s=%s' % (k, result_dict[k]) for k in superfluous_keys))
+        for key in expected_dict:
+            assert expected_dict[key] == result_dict[key], \
+                '%s=%s should be %s' % \
+                (key, result_dict[key], expected_dict[key])
+
+    def test_package_dictize_basic(self):
+        dataset = factories.Dataset(name='test_dataset_dictize',
+                                    notes='Some *description*',
+                                    url='http://example.com')
+        dataset_obj = model.Package.get(dataset['id'])
+        context = {'model': model, 'session': model.Session}
+
+        result = model_dictize.package_dictize(dataset_obj, context)
+
+        assert_equal(result['name'], dataset['name'])
+        assert_equal(result['isopen'], False)
+        assert_equal(result['type'], dataset['type'])
+        today = datetime.date.today().strftime('%Y-%m-%d')
+        assert result['metadata_modified'].startswith(today)
+        assert result['metadata_created'].startswith(today)
+        assert_equal(result['creator_user_id'], dataset_obj.creator_user_id)
+        expected_dict = {
+            'author': None,
+            'author_email': None,
+            'extras': [],
+            'groups': [],
+            'isopen': False,
+            'license_id': None,
+            'license_title': None,
+            'maintainer': None,
+            'maintainer_email': None,
+            'name': u'test_dataset_dictize',
+            'notes': 'Some *description*',
+            'num_resources': 0,
+            'num_tags': 0,
+            'organization': None,
+            'owner_org': None,
+            'private': False,
+            'relationships_as_object': [],
+            'relationships_as_subject': [],
+            'resources': [],
+            'state': u'active',
+            'tags': [],
+            'title': u'Test Dataset',
+            'type': u'dataset',
+            'url': 'http://example.com',
+            'version': None}
+        self.assert_equals_expected(expected_dict, result)
+
+    def test_package_dictize_license(self):
+        dataset = factories.Dataset(license_id='cc-by')
+        dataset_obj = model.Package.get(dataset['id'])
+        context = {'model': model, 'session': model.Session}
+
+        result = model_dictize.package_dictize(dataset_obj, context)
+
+        assert_equal(result['isopen'], True)
+        assert_equal(result['license_id'], 'cc-by')
+        assert_equal(result['license_url'],
+                     'http://www.opendefinition.org/licenses/cc-by')
+        assert_equal(result['license_title'], 'Creative Commons Attribution')
+
+    def test_package_dictize_title_stripped_of_whitespace(self):
+        dataset = factories.Dataset(title=' has whitespace \t')
+        dataset_obj = model.Package.get(dataset['id'])
+        context = {'model': model, 'session': model.Session}
+
+        result = model_dictize.package_dictize(dataset_obj, context)
+
+        assert_equal(result['title'], 'has whitespace')
+        assert_equal(dataset_obj.title, ' has whitespace \t')
+
+    def test_package_dictize_resource(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'],
+                                      name='test_pkg_dictize')
+        dataset_obj = model.Package.get(dataset['id'])
+        context = {'model': model, 'session': model.Session}
+
+        result = model_dictize.package_dictize(dataset_obj, context)
+
+        assert_equal_for_keys(result['resources'][0], resource,
+                              'name', 'url')
+        expected_dict = {
+            u'cache_last_updated': None,
+            u'cache_url': None,
+            u'description': u'Just another test resource.',
+            u'format': u'res_format',
+            u'hash': u'',
+            u'last_modified': None,
+            u'mimetype': None,
+            u'mimetype_inner': None,
+            u'name': u'test_pkg_dictize',
+            u'position': 0,
+            u'resource_type': None,
+            u'size': None,
+            u'state': u'active',
+            u'url': u'http://link.to.some.data',
+            u'url_type': None,
+            u'webstore_last_updated': None,
+            u'webstore_url': None
+        }
+        self.assert_equals_expected(expected_dict, result['resources'][0])
+
+    def test_package_dictize_tags(self):
+        dataset = factories.Dataset(tags=[{'name': 'fish'}])
+        dataset_obj = model.Package.get(dataset['id'])
+        context = {'model': model, 'session': model.Session}
+
+        result = model_dictize.package_dictize(dataset_obj, context)
+
+        assert_equal(result['tags'][0]['name'], 'fish')
+        expected_dict = {'display_name': u'fish',
+                         u'name': u'fish',
+                         u'state': u'active'}
+        self.assert_equals_expected(expected_dict, result['tags'][0])
+
+    def test_package_dictize_extras(self):
+        extras_dict = {'key': 'latitude', 'value': '54.6'}
+        dataset = factories.Dataset(extras=[extras_dict])
+        dataset_obj = model.Package.get(dataset['id'])
+        context = {'model': model, 'session': model.Session}
+
+        result = model_dictize.package_dictize(dataset_obj, context)
+
+        assert_equal_for_keys(result['extras'][0], extras_dict,
+                              'key', 'value')
+        expected_dict = {u'key': u'latitude',
+                         u'state': u'active',
+                         u'value': u'54.6'}
+        self.assert_equals_expected(expected_dict, result['extras'][0])
+
+    def test_package_dictize_group(self):
+        group = factories.Group(name='test_group_dictize',
+                                title='Test Group Dictize')
+        dataset = factories.Dataset(groups=[{'name': group['name']}])
+        dataset_obj = model.Package.get(dataset['id'])
+        context = {'model': model, 'session': model.Session}
+
+        result = model_dictize.package_dictize(dataset_obj, context)
+
+        assert_equal_for_keys(result['groups'][0], group,
+                              'name')
+        expected_dict = {
+            u'approval_status': u'approved',
+            u'capacity': u'public',
+            u'description': u'A test description for this test group.',
+            'display_name': u'Test Group Dictize',
+            'image_display_url': u'',
+            u'image_url': u'',
+            u'is_organization': False,
+            u'name': u'test_group_dictize',
+            u'state': u'active',
+            u'title': u'Test Group Dictize',
+            u'type': u'group'}
+        self.assert_equals_expected(expected_dict, result['groups'][0])
+
+    def test_package_dictize_owner_org(self):
+        org = factories.Organization(name='test_package_dictize')
+        dataset = factories.Dataset(owner_org=org['id'])
+        dataset_obj = model.Package.get(dataset['id'])
+        context = {'model': model, 'session': model.Session}
+
+        result = model_dictize.package_dictize(dataset_obj, context)
+
+        assert_equal(result['owner_org'], org['id'])
+        assert_equal_for_keys(result['organization'], org,
+                              'name')
+        expected_dict = {
+            u'approval_status': u'approved',
+            u'description': u'Just another test organization.',
+            u'image_url': u'http://placekitten.com/g/200/100',
+            u'is_organization': True,
+            u'name': u'test_package_dictize',
+            u'state': u'active',
+            u'title': u'Test Organization',
+            u'type': u'organization'
+        }
+        self.assert_equals_expected(expected_dict, result['organization'])
+
+
+def assert_equal_for_keys(dict1, dict2, *keys):
+    for key in keys:
+        assert key in dict1, 'Dict 1 misses key "%s"' % key
+        assert key in dict2, 'Dict 2 misses key "%s"' % key
+        assert dict1[key] == dict2[key], '%s != %s (key=%s)' % \
+            (dict1[key], dict2[key], key)

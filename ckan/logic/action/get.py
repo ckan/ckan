@@ -120,14 +120,13 @@ def package_list(context, data_dict):
 
     _check_access('package_list', context, data_dict)
 
-    package_revision_table = model.package_revision_table
-    col = (package_revision_table.c.id
-           if api == 2 else package_revision_table.c.name)
+    package_table = model.package_table
+    col = (package_table.c.id
+           if api == 2 else package_table.c.name)
     query = _select([col])
     query = query.where(_and_(
-        package_revision_table.c.state == 'active',
-        package_revision_table.c.current == True,
-        package_revision_table.c.private == False,
+        package_table.c.state == 'active',
+        package_table.c.private == False,
     ))
     query = query.order_by(col)
 
@@ -386,33 +385,32 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     sort_info = _unpick_search(sort,
                                allowed_fields=['name', 'packages',
-                                               'package_count'],
+                                               'package_count', 'title'],
                                total=1)
 
     all_fields = data_dict.get('all_fields', None)
     include_extras = all_fields and \
                      asbool(data_dict.get('include_extras', False))
 
-    query = model.Session.query(model.Group).join(model.GroupRevision)
+    query = model.Session.query(model.Group)
     if include_extras:
         # this does an eager load of the extras, avoiding an sql query every
         # time group_list_dictize accesses a group's extra.
         query = query.options(sqlalchemy.orm.joinedload(model.Group._extras))
-    query = query.filter(model.GroupRevision.state == 'active')
-    query = query.filter(model.GroupRevision.current == True)
+    query = query.filter(model.Group.state == 'active')
     if groups:
-        query = query.filter(model.GroupRevision.name.in_(groups))
+        query = query.filter(model.Group.name.in_(groups))
     if q:
         q = u'%{0}%'.format(q)
         query = query.filter(_or_(
-            model.GroupRevision.name.ilike(q),
-            model.GroupRevision.title.ilike(q),
-            model.GroupRevision.description.ilike(q),
+            model.Group.name.ilike(q),
+            model.Group.title.ilike(q),
+            model.Group.description.ilike(q),
         ))
 
-    query = query.filter(model.GroupRevision.is_organization == is_org)
+    query = query.filter(model.Group.is_organization == is_org)
     if not is_org:
-        query = query.filter(model.GroupRevision.type == group_type)
+        query = query.filter(model.Group.type == group_type)
 
     groups = query.all()
     if all_fields:
@@ -446,7 +444,7 @@ def group_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'package_count'
+        'name', 'package_count' and 'title'
     :type sort: string
     :param groups: a list of names of the groups to return, if given only
         groups whose names are in this list will be returned (optional)
@@ -483,7 +481,7 @@ def organization_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'package_count'
+        'name', 'package_count' and 'title'
     :type sort: string
     :param organizations: a list of names of the groups to return,
         if given only groups whose names are in this list will be
@@ -551,7 +549,8 @@ def group_list_authz(context, data_dict):
         q = model.Session.query(model.Member) \
             .filter(model.Member.table_name == 'user') \
             .filter(model.Member.capacity.in_(roles)) \
-            .filter(model.Member.table_id == user_id)
+            .filter(model.Member.table_id == user_id) \
+            .filter(model.Member.state == 'active')
         group_ids = []
         for row in q.all():
             group_ids.append(row.group_id)
@@ -798,12 +797,11 @@ def user_list(context, data_dict):
                     model.Revision.author == model.User.name,
                     model.Revision.author == model.User.openid
                 )).label('number_of_edits'),
-        _select([_func.count(model.UserObjectRole.id)],
+        _select([_func.count(model.Package.id)],
                 _and_(
-                    model.UserObjectRole.user_id == model.User.id,
-                    model.UserObjectRole.context == 'Package',
-                    model.UserObjectRole.role == 'admin'
-                )).label('number_administered_packages')
+                    model.Package.creator_user_id == model.User.id,
+                    model.Package.state == 'active',
+                )).label('number_created_packages')
     )
 
     if q:
@@ -1027,13 +1025,9 @@ def resource_show(context, data_dict):
         if resource_dict['id'] == id:
             break
     else:
-        logging.error('Could not find resource ' + id)
+        log.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
-    resource_dict['package_id'] = pkg_dict['id']
-
-    # original dictized version didn't include this field:
-    resource_dict.pop('revision_timestamp')
     return resource_dict
 
 
@@ -1241,11 +1235,18 @@ def group_package_show(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
 
-    # FIXME: What if limit is not an int? Schema and validation needed.
     limit = data_dict.get('limit')
+    if limit:
+        try:
+            limit = int(data_dict.get('limit'))
+            if limit < 0:
+                raise logic.ValidationError('Limit must be a positive integer')
+        except ValueError:
+            raise logic.ValidationError('Limit must be a positive integer')
 
     group = model.Group.get(group_id)
     context['group'] = group
@@ -1254,13 +1255,12 @@ def group_package_show(context, data_dict):
 
     _check_access('group_show', context, data_dict)
 
-    result = []
-    for pkg_rev in group.packages(
-            limit=limit,
-            return_query=context.get('return_query')):
-        result.append(model_dictize.package_dictize(pkg_rev, context))
+    result = logic.get_action('package_search')(context, {
+        'fq': 'groups:{0}'.format(group.name),
+        'rows': limit,
+    })
 
-    return result
+    return result['results']
 
 
 def tag_show(context, data_dict):
@@ -1296,7 +1296,17 @@ def user_show(context, data_dict):
     :type id: string
     :param user_obj: the user dictionary of the user (optional)
     :type user_obj: user dictionary
+    :param include_datasets: Include datasets user has created
+         (optional, default:``False``, limit:50)
+    :type include_datasets: boolean
+    :param include_num_followers: Include the number of followers the user has
+         (optional, default:``False``)
+    :type include_num_followers: boolean
 
+    :returns: the details of the user. Includes email_hash, number_of_edits and
+        number_created_packages. Excludes the password (hash) and reset_key.
+        The email and apikey are included if it is the user or a sysadmin
+        requesting.
     :rtype: dictionary
 
     '''
@@ -1319,36 +1329,31 @@ def user_show(context, data_dict):
     user_dict = model_dictize.user_dictize(user_obj, context)
 
     if context.get('return_minimal'):
+        log.warning('Use of the "return_minimal" in user_show is '
+                    'deprecated.')
         return user_dict
 
-    revisions_q = model.Session.query(model.Revision).filter_by(
-        author=user_obj.name)
+    if data_dict.get('include_datasets', False):
+        user_dict['datasets'] = []
+        dataset_q = (model.Session.query(model.Package)
+                     .filter_by(creator_user_id=user_dict['id'])
+                     .filter_by(state='active')
+                     .filter_by(private=False)
+                     .limit(50))
 
-    revisions_list = []
-    for revision in revisions_q.limit(20).all():
-        revision_dict = logic.get_action('revision_show')(
-            context, {'id': revision.id})
-        revision_dict['state'] = revision.state
-        revisions_list.append(revision_dict)
-    user_dict['activity'] = revisions_list
+        for dataset in dataset_q:
+            try:
+                dataset_dict = logic.get_action('package_show')(
+                    context, {'id': dataset.id})
+                del context['package']
+            except logic.NotAuthorized:
+                continue
+            user_dict['datasets'].append(dataset_dict)
 
-    user_dict['datasets'] = []
-    dataset_q = (model.Session.query(model.Package)
-                 .join(model.PackageRole)
-                 .filter_by(user=user_obj, role=model.Role.ADMIN)
-                 .limit(50))
-
-    for dataset in dataset_q:
-        try:
-            dataset_dict = logic.get_action('package_show')(
-                context, {'id': dataset.id})
-        except logic.NotAuthorized:
-            continue
-        user_dict['datasets'].append(dataset_dict)
-
-    user_dict['num_followers'] = logic.get_action('user_follower_count')(
-        {'model': model, 'session': model.Session},
-        {'id': user_dict['id']})
+    if data_dict.get('include_num_followers', False):
+        user_dict['num_followers'] = logic.get_action('user_follower_count')(
+            {'model': model, 'session': model.Session},
+            {'id': user_dict['id']})
 
     return user_dict
 
@@ -1412,12 +1417,11 @@ def package_autocomplete(context, data_dict):
 
     like_q = u"%s%%" % q
 
-    query = model.Session.query(model.PackageRevision)
-    query = query.filter(model.PackageRevision.state == 'active')
-    query = query.filter(model.PackageRevision.private == False)
-    query = query.filter(model.PackageRevision.current == True)
-    query = query.filter(_or_(model.PackageRevision.name.ilike(like_q),
-                              model.PackageRevision.title.ilike(like_q)))
+    query = model.Session.query(model.Package)
+    query = query.filter(model.Package.state == 'active')
+    query = query.filter(model.Package.private == False)
+    query = query.filter(_or_(model.Package.name.ilike(like_q),
+                              model.Package.title.ilike(like_q)))
     query = query.limit(limit)
 
     q_lower = q.lower()
@@ -1463,14 +1467,13 @@ def format_autocomplete(context, data_dict):
     like_q = u'%' + q + u'%'
 
     query = (session.query(
-        model.ResourceRevision.format,
-        _func.count(model.ResourceRevision.format).label('total'))
+        model.Resource.format,
+        _func.count(model.Resource.format).label('total'))
         .filter(_and_(
-            model.ResourceRevision.state == 'active',
-            model.ResourceRevision.current == True
+            model.Resource.state == 'active',
         ))
-        .filter(model.ResourceRevision.format.ilike(like_q))
-        .group_by(model.ResourceRevision.format)
+        .filter(model.Resource.format.ilike(like_q))
+        .group_by(model.Resource.format)
         .order_by('total DESC')
         .limit(limit))
 
@@ -1679,12 +1682,9 @@ def package_search(context, data_dict):
         for package in query.results:
             # get the package object
             package, package_dict = package['id'], package.get(data_source)
-            pkg_query = session.query(model.PackageRevision)\
-                .filter(model.PackageRevision.id == package)\
-                .filter(_and_(
-                    model.PackageRevision.state == u'active',
-                    model.PackageRevision.current == True
-                ))
+            pkg_query = session.query(model.Package)\
+                .filter(model.Package.id == package)\
+                .filter(model.Package.state == u'active')
             pkg = pkg_query.first()
 
             ## if the index has got a package that is not in ckan then
@@ -3279,3 +3279,28 @@ def member_roles_list(context, data_dict):
 
     _check_access('member_roles_list', context, data_dict)
     return roles_list
+
+
+def help_show(context, data_dict):
+    '''Return the help string for a particular API action.
+
+    :param name: Action function name (eg `user_create`, `package_search`)
+    :type name: string
+    :returns: The help string for the action function, or None if the function
+              does not have a docstring.
+    :rtype: string
+
+    :raises: :class:`ckan.logic.NotFound`: if the action function doesn't exist
+
+    '''
+
+    function_name = logic.get_or_bust(data_dict, 'name')
+
+    _check_access('help_show', context, data_dict)
+
+    try:
+        function = logic.get_action(function_name)
+    except KeyError:
+        raise NotFound('Action function not found')
+
+    return function.__doc__

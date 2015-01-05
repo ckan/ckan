@@ -106,7 +106,7 @@ class CkanCommand(paste.script.command.Command):
     '''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
-            default='development.ini', help='Config file to use.')
+        help='Config file to use.')
     parser.add_option('-f', '--file',
         action='store',
         dest='file_path',
@@ -116,16 +116,26 @@ class CkanCommand(paste.script.command.Command):
 
     def _get_config(self):
         from paste.deploy import appconfig
-        if not self.options.config:
-            msg = 'No config file supplied'
-            raise self.BadCommand(msg)
-        self.filename = os.path.abspath(self.options.config)
+
+        if self.options.config:
+            self.filename = os.path.abspath(self.options.config)
+            config_source = '-c parameter'
+        elif os.environ.get('CKAN_INI'):
+            self.filename = os.environ.get('CKAN_INI')
+            config_source = '$CKAN_INI'
+        else:
+            self.filename = os.path.join(os.getcwd(), 'development.ini')
+            config_source = 'default value'
+
         if not os.path.exists(self.filename):
-            raise AssertionError('Config filename %r does not exist.' % self.filename)
+            msg = 'Config file not found: %s' % self.filename
+            msg += '\n(Given by: %s)' % config_source
+            raise self.BadCommand(msg)
+
         fileConfig(self.filename)
         return appconfig('config:' + self.filename)
 
-    def _load_config(self):
+    def _load_config(self, load_site_user=True):
         conf = self._get_config()
         assert 'ckan' not in dir() # otherwise loggers would be disabled
         # We have now loaded the config. Now we can import ckan for the
@@ -139,7 +149,7 @@ class CkanCommand(paste.script.command.Command):
         self.translator_obj = MockTranslator()
         self.registry.register(pylons.translator, self.translator_obj)
 
-        if model.user_table.exists():
+        if model.user_table.exists() and load_site_user:
             # If the DB has already been initialized, create and register
             # a pylons context object, and add the site user to it, so the
             # auth works as in a normal web request
@@ -189,11 +199,12 @@ class ManageDb(CkanCommand):
     min_args = 1
 
     def command(self):
-        self._load_config()
+        cmd = self.args[0]
+
+        self._load_config(cmd!='upgrade')
         import ckan.model as model
         import ckan.lib.search as search
 
-        cmd = self.args[0]
         if cmd == 'init':
 
             model.repo.init_db()

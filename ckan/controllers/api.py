@@ -166,7 +166,15 @@ class ApiController(base.BaseController):
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver, 'auth_user_obj': c.userobj}
         model.Session()._context = context
-        return_dict = {'help': function.__doc__}
+
+        return_dict = {'help': h.url_for(controller='api',
+                                         action='action',
+                                         logic_function='help_show',
+                                         ver=ver,
+                                         name=logic_function,
+                                         qualified=True,
+                                         )
+                       }
         try:
             side_effect_free = getattr(function, 'side_effect_free', False)
             request_data = self._get_request_data(try_url_params=
@@ -201,15 +209,15 @@ class ApiController(base.BaseController):
                                     'message': _('Access denied')}
             return_dict['success'] = False
             
-            if e.extra_msg:
-                return_dict['error']['message'] += ': %s' % e.extra_msg
+            if unicode(e):
+                return_dict['error']['message'] += u': %s' % e
 
             return self._finish(403, return_dict, content_type='json')
         except NotFound, e:
             return_dict['error'] = {'__type': 'Not Found Error',
                                     'message': _('Not found')}
-            if e.extra_msg:
-                return_dict['error']['message'] += ': %s' % e.extra_msg
+            if unicode(e):
+                return_dict['error']['message'] += u': %s' % e
             return_dict['success'] = False
             return self._finish(404, return_dict, content_type='json')
         except ValidationError, e:
@@ -281,11 +289,9 @@ class ApiController(base.BaseController):
         try:
             return self._finish_ok(action(context, {'id': id}))
         except NotFound, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_found(extra_msg)
+            return self._finish_not_found(unicode(e))
         except NotAuthorized, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_authz(extra_msg)
+            return self._finish_not_authz(unicode(e))
 
     def show(self, ver=None, register=None, subregister=None,
              id=None, id2=None):
@@ -313,11 +319,9 @@ class ApiController(base.BaseController):
         try:
             return self._finish_ok(action(context, data_dict))
         except NotFound, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_found(extra_msg)
+            return self._finish_not_found(unicode(e))
         except NotAuthorized, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_authz(extra_msg)
+            return self._finish_not_authz(unicode(e))
 
     def _represent_package(self, package):
         return package.as_dict(ref_package_by=self.ref_package_by,
@@ -363,11 +367,9 @@ class ApiController(base.BaseController):
             return self._finish_ok(response_data,
                                    resource_location=location)
         except NotAuthorized, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_authz(extra_msg)
+            return self._finish_not_authz(unicode(e))
         except NotFound, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_found(extra_msg)
+            return self._finish_not_found(unicode(e))
         except ValidationError, e:
             # CS: nasty_string ignore
             log.error('Validation error: %r' % str(e.error_dict))
@@ -420,11 +422,9 @@ class ApiController(base.BaseController):
             response_data = action(context, data_dict)
             return self._finish_ok(response_data)
         except NotAuthorized, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_authz(extra_msg)
+            return self._finish_not_authz(unicode(e))
         except NotFound, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_found(extra_msg)
+            return self._finish_not_found(unicode(e))
         except ValidationError, e:
             # CS: nasty_string ignore
             log.error('Validation error: %r' % str(e.error_dict))
@@ -469,11 +469,9 @@ class ApiController(base.BaseController):
             response_data = action(context, data_dict)
             return self._finish_ok(response_data)
         except NotAuthorized, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_authz(extra_msg)
+            return self._finish_not_authz(unicode(e))
         except NotFound, e:
-            extra_msg = e.extra_msg
-            return self._finish_not_found(extra_msg)
+            return self._finish_not_found(unicode(e))
         except ValidationError, e:
             # CS: nasty_string ignore
             log.error('Validation error: %r' % str(e.error_dict))

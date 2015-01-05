@@ -3,7 +3,7 @@ import re
 import os
 from hashlib import sha1, md5
 
-import passlib.utils 
+import passlib.utils
 from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
@@ -104,7 +104,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
 
     def _set_password(self, password):
         '''Hash using pbkdf2
-        
+
         Use passlib to hash the password using pkbdf2, upgrading
         passlib will also upgrade the number of rounds and salt of the
         hash as the user logs in automatically. Changing hashing
@@ -196,11 +196,13 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         revisions_q = revisions_q.filter_by(author=self.name)
         return revisions_q.count()
 
-    def number_administered_packages(self):
+    def number_created_packages(self):
         # have to import here to avoid circular imports
         import ckan.model as model
-        q = meta.Session.query(model.PackageRole)
-        q = q.filter_by(user=self, role=model.Role.ADMIN)
+        q = meta.Session.query(model.Package)\
+            .filter_by(creator_user_id=self.id)\
+            .filter_by(state='active')\
+            .filter_by(private=False)
         return q.count()
 
     def activate(self):

@@ -22,7 +22,9 @@ import ckan.lib.dictization as dictization
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTagRevision', 'PackageRevision']
+           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTag', 'PackageTagRevision',
+           'PackageRevision']
+
 
 PACKAGE_NAME_MAX_LENGTH = 100
 PACKAGE_NAME_MIN_LENGTH = 2
@@ -85,7 +87,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def resources(self):
         return [resource for resource in
                 self.resources_all
-                if resource.state <> 'deleted']
+                if resource.state != 'deleted']
 
     def related_packages(self):
         return [self]
@@ -150,12 +152,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         """
         import ckan.model as model
         query = meta.Session.query(model.Tag)
-        query = query.join(PackageTagRevision)
-        query = query.filter(PackageTagRevision.tag_id == model.Tag.id)
-        query = query.filter(PackageTagRevision.package_id == self.id)
-        query = query.filter(and_(
-            PackageTagRevision.state == 'active',
-            PackageTagRevision.current == True))
+        query = query.join(model.PackageTag)
+        query = query.filter(model.PackageTag.tag_id == model.Tag.id)
+        query = query.filter(model.PackageTag.package_id == self.id)
+        query = query.filter(model.PackageTag.state == 'active')
         if vocab:
             query = query.filter(model.Tag.vocabulary_id == vocab.id)
         else:
@@ -557,6 +557,55 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 context={'model':ckan.model})
         return activity.ActivityDetail(activity_id, self.id, u"Package", activity_type,
             {'package': package_dict })
+
+    def set_rating(self, user_or_ip, rating):
+        '''Record a user's rating of this package.
+
+        The caller function is responsible for doing the commit.
+
+        If a rating is outside the range MAX_RATING - MIN_RATING then a
+        RatingValueException is raised.
+
+        @param user_or_ip - user object or an IP address string
+        '''
+        user = None
+        from user import User
+        from rating import Rating, MAX_RATING, MIN_RATING
+        if isinstance(user_or_ip, User):
+            user = user_or_ip
+            rating_query = meta.Session.query(Rating)\
+                               .filter_by(package=self, user=user)
+        else:
+            ip = user_or_ip
+            rating_query = meta.Session.query(Rating)\
+                               .filter_by(package=self, user_ip_address=ip)
+
+        try:
+            rating = float(rating)
+        except TypeError:
+            raise RatingValueException
+        except ValueError:
+            raise RatingValueException
+        if rating > MAX_RATING or rating < MIN_RATING:
+            raise RatingValueException
+
+        if rating_query.count():
+            rating_obj = rating_query.first()
+            rating_obj.rating = rating
+        elif user:
+            rating = Rating(package=self,
+                            user=user,
+                            rating=rating)
+            meta.Session.add(rating)
+        else:
+            rating = Rating(package=self,
+                            user_ip_address=ip,
+                            rating=rating)
+            meta.Session.add(rating)
+
+
+class RatingValueException(Exception):
+    pass
 
 # import here to prevent circular import
 import tag
