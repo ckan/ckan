@@ -496,13 +496,13 @@ class TestAction(WsgiAppCase):
                 {'user_dict': {'id': self.normal_user.id,
                           'name':'',
                           'email':'test@test.com'},
-                 'messages': [('name','Name must be at least 2 characters long')]},
+                 'messages': [('name','Must be at least 2 characters long')]},
 
             # Invalid characters in name
                 {'user_dict': {'id': self.normal_user.id,
                           'name':'i++%',
                           'email':'test@test.com'},
-                 'messages': [('name','Url must be purely lowercase alphanumeric')]},
+                 'messages': [('name','Must be purely lowercase alphanumeric')]},
             # Existing name
                 {'user_dict': {'id': self.normal_user.id,
                           'name':self.sysadmin_user.name,
