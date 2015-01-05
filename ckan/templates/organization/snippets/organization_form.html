@@ -24,6 +24,8 @@
 
     {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload) }}
 
+    {{ form.checkbox('closed', id='field-closed', checked=data.get('closed', False), label=_('Closed'), value="true") }}
+
   {% endblock %}
 
   {% block custom_fields %}

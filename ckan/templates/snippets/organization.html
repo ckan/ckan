@@ -32,7 +32,7 @@ Example:
         </div>
       {% endblock %}
       {% block heading %}
-      <h1 class="heading">{{ organization.title or organization.name }}</h1>
+      <h1 class="heading">{{ organization.display_name }}</h1>
       {% endblock %}
       {% block description %}
       {% if organization.description %}

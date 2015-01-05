@@ -614,7 +614,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
         'organization_create' if is_org else 'group_create')
     log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'), data_dict.get('name'), data_dict)
-
     if errors:
         session.rollback()
         raise ValidationError(errors)
