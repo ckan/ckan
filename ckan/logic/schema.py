@@ -5,7 +5,8 @@ from ckan.lib.navl.validators import (ignore_missing,
                                       ignore,
                                       if_empty_same_as,
                                       not_missing,
-                                      ignore_empty
+                                      ignore_empty,
+                                      default
                                      )
 from ckan.logic.validators import (package_id_not_changed,
                                    package_id_exists,
@@ -285,6 +286,7 @@ def default_group_schema():
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],
         'is_organization': [ignore_missing],
+        'closed': [default(False), boolean_validator],
         'approval_status': [ignore_missing, unicode],
         'extras': default_extras_schema(),
         '__extras': [ignore],

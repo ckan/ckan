@@ -28,7 +28,7 @@ class TestGroup(object):
 
     def test_2_add_packages(self):
         model.repo.new_revision()
-        
+
         self.russian_group = model.Group(name=u'russian',
                                          title=u'Russian Group',
                              description=u'This is the russian group')
@@ -44,7 +44,7 @@ class TestGroup(object):
                                        table_name='package')
                          )
         model.repo.commit_and_remove()
-        
+
         grp = model.Group.by_name(u'russian')
         assert grp.title == u'Russian Group'
         anna = model.Package.by_name(u'annakarenina')
@@ -72,6 +72,17 @@ class TestGroup(object):
         assert_equal(self._search_results('Books'), set(['david', 'roger']))
         assert_equal(self._search_results('Books', is_org=True), set([]))
         assert_equal(self._search_results('Test', is_org=True), set(['test_org']))
+
+    def test_4_close(self):
+        model.repo.new_revision()
+        group1 = model.Group(name=u'group-closed', title=u'Test Group',
+                             description=u'This is a test group',
+                             closed=True)
+        model.Session.add(group1)
+        model.repo.commit_and_remove()
+
+        grp = model.Group.by_name(u'group-closed')
+        assert grp.closed == True, grp.closed
 
     def test_search_by_name_or_title_only_returns_active_groups(self):
         model.repo.new_revision()
@@ -212,7 +223,7 @@ class TestGroupRevisions:
             grp.extras['mykey'] = self.descriptions[i]
             model.repo.commit_and_remove()
 
-        self.grp = model.Group.by_name(self.name)        
+        self.grp = model.Group.by_name(self.name)
 
     @classmethod
     def teardown_class(self):
@@ -229,7 +240,7 @@ class TestGroupRevisions:
         for i, rev in enumerate(all_rev):
             assert rev.description == self.descriptions[num_descs - i - 1], \
                 '%s != %s' % (rev.description, self.descriptions[i])
-                
+
     def test_2_extras(self):
         all_rev = self.grp.all_revisions
         num_descs = len(self.descriptions)

@@ -169,7 +169,8 @@ class TestBasicDictize:
                                  'title':group_pack[1].title}],
                                key=lambda x: x["id"]),
             'title': u"Dave's books",
-            'approval_status': u'approved'
+            'approval_status': u'approved',
+            'closed': False
         }
 
         assert not errors

@@ -10,6 +10,8 @@ import types as _types
 import domain_object
 import user as _user
 
+from ckan.common import _
+
 __all__ = ['group_table', 'Group',
            'Member', 'GroupRevision', 'MemberRevision',
            'member_revision_table', 'member_table']
@@ -45,7 +47,8 @@ group_table = Table('group', meta.metadata,
                            default=datetime.datetime.now),
                     Column('is_organization', types.Boolean, default=False),
                     Column('approval_status', types.UnicodeText,
-                           default=u"approved"))
+                           default=u"approved"),
+                    Column('closed', types.Boolean, default=False))
 
 vdm.sqlalchemy.make_table_stateful(group_table)
 group_revision_table = core.make_revisioned_table(group_table)
@@ -122,17 +125,20 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             domain_object.DomainObject):
 
     def __init__(self, name=u'', title=u'', description=u'', image_url=u'',
-                 type=u'group', approval_status=u'approved'):
+                 type=u'group', approval_status=u'approved', closed=False):
         self.name = name
         self.title = title
         self.description = description
         self.image_url = image_url
         self.type = type
         self.approval_status = approval_status
+        self.closed = closed
 
     @property
     def display_name(self):
-        if self.title is not None and len(self.title):
+        if self.title:
+            if self.closed:
+                return "%s (%s)" % (self.title, _("Closed"),)
             return self.title
         else:
             return self.name
@@ -203,7 +209,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
          (u'b468...', u'nhs-wirral-ccg', u'NHS Wirral CCG', u'8ac0...')]
         '''
         results = meta.Session.query(Group.id, Group.name, Group.title,
-                                     'parent_id').\
+                                     'parent_id', Group.closed).\
             from_statement(HIERARCHY_DOWNWARDS_CTE).\
             params(id=self.id, type=type).all()
         return results
@@ -256,7 +262,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         '''
         all_groups = self.all(group_type=type)
         excluded_groups = set(group_name
-                              for group_id, group_name, group_title, parent in
+                              for _, group_name, _, _, _ in
                               self.get_children_group_hierarchy(type=type))
         excluded_groups.add(self.name)
         return [group for group in all_groups
@@ -414,7 +420,7 @@ HIERARCHY_DOWNWARDS_CTE = """WITH RECURSIVE child(depth) AS
     WHERE m.table_id = c.group_id AND m.table_name = 'group'
           AND m.state = 'active' AND c.depth < {max_recurses}
 )
-SELECT G.id, G.name, G.title, child.depth, child.table_id as parent_id FROM child
+SELECT G.id, G.name, G.title, child.depth, child.table_id as parent_id, G.closed FROM child
     INNER JOIN public.group G ON G.id = child.group_id
     WHERE G.type = :type AND G.state='active'
     ORDER BY child.depth ASC;""".format(max_recurses=MAX_RECURSES)

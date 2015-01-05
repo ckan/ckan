@@ -375,7 +375,15 @@ def group_dictize(group, context,
     result_dict = d.table_dictize(group, context)
     result_dict.update(kw)
 
-    result_dict['display_name'] = group.title or group.name
+    # HACK: When running this code using the new_tests and factoryboy it
+    # refuses to call group.display_name, and I believe that this is because
+    # FactoryBoy removed elements from the model it is proxying, one of those
+    # things being properties as suggested by the post at
+    # http://stackoverflow.com/questions/12970932/rewrite-model-property-in-factory-boys-object-factory
+    if hasattr(group, 'display_name'):
+        result_dict['display_name'] = group.display_name
+    else:
+        result_dict['display_name'] = group.title or group.name
 
     if include_extras:
         result_dict['extras'] = extras_dict_dictize(
