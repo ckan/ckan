@@ -150,6 +150,71 @@ class TestResourceViewCreate(object):
         assert_raises(logic.ValidationError, helpers.call_action,
                       'resource_view_create', context, **params)
 
+    @mock.patch('ckan.lib.datapreview')
+    def test_filterable_views_dont_require_any_extra_fields(self, datapreview_mock):
+        self._configure_datapreview_to_return_filterable_view(datapreview_mock)
+        context = {}
+        params = self._default_resource_view_attributes()
+
+        result = helpers.call_action('resource_view_create', context, **params)
+
+        result.pop('id')
+        result.pop('package_id')
+
+        assert_equals(params, result)
+
+    @mock.patch('ckan.lib.datapreview')
+    def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(self, datapreview_mock):
+        self._configure_datapreview_to_return_filterable_view(datapreview_mock)
+        context = {}
+        filters = {
+            'filter_fields': ['country', 'weather', 'country'],
+            'filter_values': ['Brazil', 'warm', 'Argentina']
+        }
+        params = self._default_resource_view_attributes(**filters)
+        result = helpers.call_action('resource_view_create', context, **params)
+        expected_filters = {
+            'country': ['Brazil', 'Argentina'],
+            'weather': ['warm']
+        }
+        assert_equals(result['filters'], expected_filters)
+
+    @mock.patch('ckan.lib.datapreview')
+    def test_filterable_views_converts_filter_fields_and_values_to_list(self, datapreview_mock):
+        self._configure_datapreview_to_return_filterable_view(datapreview_mock)
+        context = {}
+        filters = {
+            'filter_fields': 'country',
+            'filter_values': 'Brazil'
+        }
+        params = self._default_resource_view_attributes(**filters)
+        result = helpers.call_action('resource_view_create', context, **params)
+        assert_equals(result['filter_fields'], ['country'])
+        assert_equals(result['filter_values'], ['Brazil'])
+        assert_equals(result['filters'], {'country': ['Brazil']})
+
+    @mock.patch('ckan.lib.datapreview')
+    def test_filterable_views_require_filter_fields_and_values_to_have_same_length(self, datapreview_mock):
+        self._configure_datapreview_to_return_filterable_view(datapreview_mock)
+        context = {}
+        filters = {
+            'filter_fields': ['country', 'country'],
+            'filter_values': 'Brazil'
+        }
+        params = self._default_resource_view_attributes(**filters)
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'resource_view_create', context, **params)
+
+    def test_non_filterable_views_dont_accept_filter_fields_and_values(self):
+        context = {}
+        filters = {
+            'filter_fields': 'country',
+            'filter_values': 'Brazil'
+        }
+        params = self._default_resource_view_attributes(**filters)
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'resource_view_create', context, **params)
+
     def _default_resource_view_attributes(self, **kwargs):
         default_attributes = {
             'resource_id': factories.Resource()['id'],
@@ -161,6 +226,11 @@ class TestResourceViewCreate(object):
         default_attributes.update(kwargs)
 
         return default_attributes
+
+    def _configure_datapreview_to_return_filterable_view(self, datapreview_mock):
+        filterable_view = mock.MagicMock()
+        filterable_view.info.return_value = {'filterable': True}
+        datapreview_mock.get_view_plugin.return_value = filterable_view
 
 
 class TestResourceCreate(object):

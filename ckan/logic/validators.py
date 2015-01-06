@@ -1,3 +1,4 @@
+import collections
 import datetime
 from itertools import count
 import re
@@ -793,6 +794,36 @@ def no_loops_in_hierarchy(key, data, errors, context):
                 not in allowable_parents:
             raise Invalid(_('This parent would create a loop in the '
                             'hierarchy'))
+
+
+def filter_fields_and_values_should_have_same_length(key, data, errors, context):
+    convert_to_list_if_string = logic.converters.convert_to_list_if_string
+    fields = convert_to_list_if_string(data.get(('filter_fields',), []))
+    values = convert_to_list_if_string(data.get(('filter_values',), []))
+
+    if len(fields) != len(values):
+        msg = _('"filter_fields" and "filter_values" should have the same length')
+        errors[('filter_fields',)].append(msg)
+        errors[('filter_values',)].append(msg)
+
+
+def filter_fields_and_values_exist_and_are_valid(key, data, errors, context):
+    convert_to_list_if_string = logic.converters.convert_to_list_if_string
+    fields = convert_to_list_if_string(data.get(('filter_fields',)))
+    values = convert_to_list_if_string(data.get(('filter_values',)))
+
+    if not fields:
+        errors[('filter_fields',)].append(_('"filter_fields" is required when '
+                                            '"filter_values" is filled'))
+    if not values:
+        errors[('filter_values',)].append(_('"filter_values" is required when '
+                                            '"filter_fields" is filled'))
+
+    filters = collections.defaultdict(list)
+    for field, value in zip(fields, values):
+        filters[field].append(value)
+
+    data[('filters',)] = dict(filters)
 
 
 def extra_key_not_in_root_schema(key, data, errors, context):

@@ -27,6 +27,9 @@ def datapusher_submit(context, data_dict):
         be set to ``datastore`` and the resource URL will automatically point
         to the :ref:`datastore dump <dump>` URL. (optional, default: False)
     :type set_url_type: bool
+    :param ignore_hash: If set to True, the datapusher will reload the file
+        even if it haven't changed. (optional, default: False)
+    :type ignore_hash: bool
 
     Returns ``True`` if the job has been submitted and ``False`` if the job
     has not been submitted, i.e. when the datapusher is not configured.
@@ -85,6 +88,7 @@ def datapusher_submit(context, data_dict):
                 'job_type': 'push_to_datastore',
                 'result_url': callback_url,
                 'metadata': {
+                    'ignore_hash': data_dict.get('ignore_hash', False),
                     'ckan_url': site_url,
                     'resource_id': res_id,
                     'set_url_type': data_dict.get('set_url_type', False)

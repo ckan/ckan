@@ -42,6 +42,23 @@ class TestTypeGetters(object):
         for multiple in multiples:
             assert datastore_helpers.is_single_statement(multiple) is False
 
+    def test_should_fts_index_field_type(self):
+        indexable_field_types = ['tsvector',
+                                 'text',
+                                 'number']
+
+        non_indexable_field_types = ['nested',
+                                     'timestamp',
+                                     'date',
+                                     '_text',
+                                     'text[]']
+
+        for indexable in indexable_field_types:
+            assert datastore_helpers.should_fts_index_field_type(indexable) is True
+
+        for non_indexable in non_indexable_field_types:
+            assert datastore_helpers.should_fts_index_field_type(non_indexable) is False
+
 
 class TestGetTables(object):
 

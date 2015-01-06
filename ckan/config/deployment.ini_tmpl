@@ -50,8 +50,9 @@ sqlalchemy.url = postgresql://ckan_default:pass@localhost/ckan_default
 #ckan.datastore.write_url = postgresql://ckan_default:pass@localhost/datastore_default
 #ckan.datastore.read_url = postgresql://datastore_default:pass@localhost/datastore_default
 
-# Default Postgres' full-text search index language
+# PostgreSQL' full-text search parameters
 ckan.datastore.default_fts_lang = english
+ckan.datastore.default_fts_index_method = gist
 
 ## Site Settings
 
