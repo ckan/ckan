@@ -55,9 +55,8 @@ class GroupController(base.BaseController):
         return lookup_group_plugin(group_type).db_to_form_schema()
 
     def _setup_template_variables(self, context, data_dict, group_type=None):
-        return lookup_group_plugin(group_type
-            ).setup_template_variables(dict(context, group_type=group_type),
-                data_dict)
+        return lookup_group_plugin(group_type).\
+            setup_template_variables(context, data_dict)
 
     def _new_template(self, group_type):
         return lookup_group_plugin(group_type).new_template()
