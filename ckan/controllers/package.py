@@ -58,7 +58,7 @@ def url_with_params(url, params):
 
 def search_url(params, package_type=None):
     if not package_type or package_type == 'dataset':
-        url = h.url_for(controller='package', action='search')
+        url = h.url_for(controller=c.controller, action='search')
     else:
         url = h.url_for('{0}_search'.format(package_type))
     return url_with_params(url, params)
@@ -203,24 +203,28 @@ class PackageController(base.BaseController):
         c.search_url_params = urlencode(_encode_params(params_nopage))
 
         try:
-            c.fields = []
+            fields = []
             # c.fields_grouped will contain a dict of params containing
             # a list of values eg {'tags':['tag1', 'tag2']}
-            c.fields_grouped = {}
+            fields_grouped = {}
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
                 if param not in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
-                        c.fields.append((param, value))
-                        fq += ' %s:"%s"' % (param, value)
-                        if param not in c.fields_grouped:
-                            c.fields_grouped[param] = [value]
+                        fields.append((param, value))
+                        
+                        #if value starts with [, assume range facet filter query
+                        if value.startswith("["):
+                            fq += ' %s:%s' % (param, value)
                         else:
-                            c.fields_grouped[param].append(value)
+                            fq += ' %s:"%s"' % (param, value)
+                        fields_grouped.setdefault(param, []).append(value)
                     else:
                         search_extras[param] = value
+            c.fields_grouped = fields_grouped
+            c.fields = fields
 
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True,
@@ -279,6 +283,7 @@ class PackageController(base.BaseController):
             )
             c.facets = query['facets']
             c.search_facets = query['search_facets']
+            c.facet_ranges = query['facet_ranges']
             c.page.items = query['results']
         except SearchError, se:
             log.error('Dataset search error: %r', se.args)
@@ -706,6 +711,7 @@ class PackageController(base.BaseController):
                     get_action('resource_update')(context, data)
                 else:
                     get_action('resource_create')(context, data)
+                    h.flash_success(_('A resource has been added'))
             except ValidationError, e:
                 errors = e.error_dict
                 error_summary = e.error_summary
@@ -731,6 +737,9 @@ class PackageController(base.BaseController):
                 # go to first stage of add dataset
                 redirect(h.url_for(controller='package',
                                    action='read', id=id))
+            elif save_action == 'go-dataset-search':
+                redirect(h.url_for(controller='package',
+                                   action='search'))
             else:
                 # add more resources
                 redirect(h.url_for(controller='package',
