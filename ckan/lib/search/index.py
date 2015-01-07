@@ -24,8 +24,6 @@ import ckan.lib.navl.dictization_functions
 
 log = logging.getLogger(__name__)
 
-_validate = ckan.lib.navl.dictization_functions.validate
-
 TYPE_FIELD = "entity_type"
 PACKAGE_TYPE = "package"
 KEY_CHARS = string.digits + string.letters + "_-"
