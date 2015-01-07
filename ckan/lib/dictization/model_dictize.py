@@ -380,6 +380,7 @@ def group_dictize(group, context,
     if include_extras:
         result_dict['extras'] = extras_dict_dictize(
             group._extras, context)
+
     context['with_capacity'] = True
 
     if packages_field:
