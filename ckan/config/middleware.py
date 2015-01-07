@@ -59,7 +59,6 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     # The Pylons WSGI app
     app = PylonsApp()
-
     # set pylons globals
     app_globals.reset()
 
