@@ -4,6 +4,7 @@
 # improved.
 
 import re
+import os.path
 
 from ckan import model
 
@@ -111,6 +112,37 @@ def munge_filename(filename):
     filename = re.sub(r'[^a-zA-Z0-9. ]', '', filename).replace(' ', '-')
     filename = _munge_to_length(filename, 3, 100)
     return filename
+
+
+def munge_filename_ext_safe(filename):
+    ''' Munge the filename but keep the extension
+    this allows data that has not had it's format set
+    but relies on the extention for its type eg .csv
+    We also remove the path if one is given by a browser etc'''
+
+    # just get the filename ignore the path
+    path, filename = os.path.split(filename)
+    # clean up
+    filename = substitute_ascii_equivalents(filename)
+    filename = filename.lower().strip()
+    filename = re.sub(r'[^a-zA-Z0-9. ]', '', filename).replace(' ', '-')
+    # resize if needed but keep extension
+    name, ext = os.path.splitext(filename)
+    # limit overly long extensions
+    if len(ext) > 21:
+        ext = ext[:21]
+    # reduce filename as needed
+    maxsize = 100 - len(ext)
+    if len(name) > maxsize:
+        name = name[:maxsize]
+
+    filename = name + ext
+    # enlarge name to at least 3 chars
+    if len(filename) < 3:
+        filename += '_' * (3 - len(filename))
+
+    return filename
+
 
 def _munge_to_length(string, min_length, max_length):
     '''Pad/truncates a string'''
