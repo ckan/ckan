@@ -1711,6 +1711,7 @@ def package_search(context, data_dict):
     else:
         count = 0
         facets = {}
+        facet_ranges = None
         results = []
 
     search_results = {
