@@ -203,28 +203,26 @@ class PackageController(base.BaseController):
         c.search_url_params = urlencode(_encode_params(params_nopage))
 
         try:
-            fields = []
+            c.fields = []
             # c.fields_grouped will contain a dict of params containing
             # a list of values eg {'tags':['tag1', 'tag2']}
-            fields_grouped = {}
+            c.fields_grouped = {}
             search_extras = {}
             fq = ''
             for (param, value) in request.params.items():
                 if param not in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
-                        fields.append((param, value))
-                        
+                        c.fields.append((param, value))
+
                         #if value starts with [, assume range facet filter query
                         if value.startswith("["):
                             fq += ' %s:%s' % (param, value)
                         else:
                             fq += ' %s:"%s"' % (param, value)
-                        fields_grouped.setdefault(param, []).append(value)
+                        c.fields_grouped.setdefault(param, []).append(value)
                     else:
                         search_extras[param] = value
-            c.fields_grouped = fields_grouped
-            c.fields = fields
 
             context = {'model': model, 'session': model.Session,
                        'user': c.user or c.author, 'for_view': True,
