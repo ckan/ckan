@@ -231,7 +231,6 @@ class Repository(vdm.sqlalchemy.Repository):
         log.info('Database initialised')
 
     def clean_db(self):
-        self.commit_and_remove()
         meta.metadata = MetaData(self.metadata.bind)
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*(reflection|tsvector).*')
