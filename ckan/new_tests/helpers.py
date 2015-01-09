@@ -152,7 +152,7 @@ def _get_test_app():
     return app
 
 
-class FunctionalTestBase(object):
+class FunctionalTestBase():
     '''A base class for functional test classes to inherit from.
 
     Allows configuration changes by overriding _apply_config_changes and
