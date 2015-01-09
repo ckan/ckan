@@ -710,6 +710,41 @@ class TestOrganizationListForUser(object):
         for organization in (organization_1, organization_2, organization_3):
             assert organization['id'] in ids
 
+    def test_when_permissions_extend_to_sub_organizations(self):
+        """
+
+        When the user is an admin of one organization
+        organization_list_for_user() should return a list of just that one
+        organization.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        user['capacity'] = 'admin'
+        top_organization = factories.Organization(users=[user])
+        middle_organization = factories.Organization(users=[user])
+        bottom_organization = factories.Organization()
+
+        # Create another organization just so we can test that it does not get
+        # returned.
+        factories.Organization()
+
+        helpers.call_action('member_create',
+                            id=bottom_organization['id'],
+                            object=middle_organization['id'],
+                            object_type='group', capacity='parent')
+        helpers.call_action('member_create',
+                            id=middle_organization['id'],
+                            object=top_organization['id'],
+                            object_type='group', capacity='parent')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert len(organizations) == 3
+        org_ids = set(org['id'] for org in organizations)
+        assert bottom_organization['id'] in org_ids
+
     def test_does_not_return_members(self):
         """
 
