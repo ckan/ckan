@@ -130,11 +130,12 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         except render_.TemplateNotFound:
             raise
 
-        # snippets should not pass the context
-        # but allow for legacy genshi templates
-        if renderer == 'snippet' and template_type != 'genshi':
-            del globs['c']
-            del globs['tmpl_context']
+        # DGU hack - remove this to be in line with master
+        ## snippets should not pass the context
+        ## but allow for legacy genshi templates
+        #if renderer == 'snippet' and template_type != 'genshi':
+        #    del globs['c']
+        #    del globs['tmpl_context']
 
         log.debug('rendering %s [%s]' % (template_path, template_type))
         if config.get('debug'):

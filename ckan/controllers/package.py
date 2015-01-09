@@ -544,13 +544,19 @@ class PackageController(base.BaseController):
 
         # TODO: This check is to maintain backwards compatibility with the
         # old way of creating custom forms. This behaviour is now deprecated.
-        if hasattr(self, 'package_form'):
-            c.form = render(self.package_form, extra_vars=vars)
-        else:
-            c.form = render(self._package_form(package_type=package_type),
-                            extra_vars=vars)
-        return render(self._new_template(package_type),
-                      extra_vars={'stage': stage})
+        #if hasattr(self, 'package_form'):
+        #    c.form = render(self.package_form, extra_vars=vars)
+        #else:
+        #    c.form = render(self._package_form(package_type=package_type),
+        #                    extra_vars=vars)
+        # DGU - copied from master
+        form_vars = vars
+        new_template = self._new_template(package_type)
+        form_snippet = self._package_form(package_type=package_type)
+        return render(new_template,
+                      extra_vars={'form_vars': form_vars,
+                                  'form_snippet': form_snippet,
+                                  'dataset_type': package_type})
 
     def resource_edit(self, id, resource_id, data=None, errors=None,
                       error_summary=None):
@@ -837,14 +843,25 @@ class PackageController(base.BaseController):
 
         # TODO: This check is to maintain backwards compatibility with the
         # old way of creating custom forms. This behaviour is now deprecated.
-        if hasattr(self, 'package_form'):
-            c.form = render(self.package_form, extra_vars=vars)
-        else:
-            c.form = render(self._package_form(package_type=package_type),
-                            extra_vars=vars)
+        #if hasattr(self, 'package_form'):
+        #    c.form = render(self.package_form, extra_vars=vars)
+        #else:
+        #    c.form = render(self._package_form(package_type=package_type),
+        #                    extra_vars=vars)
 
-        return render(self._edit_template(package_type),
-                      extra_vars={'stage': vars['stage']})
+        #return render(self._edit_template(package_type),
+        #              extra_vars={'stage': vars['stage']})
+        # DGU - copied from master
+        form_vars = {'data': data, 'errors': errors,
+                     'error_summary': error_summary, 'action': 'edit',
+                     'dataset_type': package_type,
+                    }
+        edit_template = self._edit_template(package_type)
+        form_snippet = self._package_form(package_type=package_type)
+        return render(edit_template,
+                      extra_vars={'form_vars': form_vars,
+                                  'form_snippet': form_snippet,
+                                  'dataset_type': package_type})
 
     def read_ajax(self, id, revision=None):
         package_type = self._get_package_type(id)
