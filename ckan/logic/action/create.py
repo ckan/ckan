@@ -208,7 +208,7 @@ def package_create(context, data_dict):
 
     # Create default views for resources if necessary
     if data.get('resources'):
-        datapreview.add_default_views_to_dataset_resources(context, data)
+        ckan.lib.datapreview.add_default_views_to_dataset_resources(context, data)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -343,6 +343,7 @@ def resource_view_create(context, data_dict):
     resource_id = _get_or_bust(data_dict, 'resource_id')
     view_type = _get_or_bust(data_dict, 'view_type')
     view_plugin = ckan.lib.datapreview.get_view_plugin(view_type)
+
     if not view_plugin:
         raise ValidationError(
             {"view_type": "No plugin found for view_type {view_type}".format(

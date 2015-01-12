@@ -362,7 +362,7 @@ def package_update(context, data_dict):
 
     # Create default views for resources if necessary
     if data.get('resources'):
-        datapreview.add_default_views_to_dataset_resources(context, data)
+        ckan.lib.datapreview.add_default_views_to_dataset_resources(context, data)
 
     if not context.get('defer_commit'):
         model.repo.commit()
