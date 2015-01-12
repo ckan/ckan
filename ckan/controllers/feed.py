@@ -33,7 +33,7 @@ import ckan.lib.helpers as h
 from ckan.logic import get_action, NotFound
 
 # TODO make the item list configurable
-ITEMS_LIMIT = 20
+ITEMS_LIMIT = 1000
 
 log = logging.getLogger(__name__)
 
