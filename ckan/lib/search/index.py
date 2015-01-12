@@ -107,7 +107,7 @@ class PackageSearchIndex(SearchIndex):
             return
 
         # tracking summary values will be stale, never store them
-        pkg_dict.pop('tracking_summary', None)
+        tracking_summary = pkg_dict.pop('tracking_summary', None)
         for r in pkg_dict.get('resources', []):
             r.pop('tracking_summary', None)
 
@@ -185,7 +185,6 @@ class PackageSearchIndex(SearchIndex):
            pkg_dict['organization'] = None
 
         # tracking
-        tracking_summary = pkg_dict.pop('tracking_summary', None)
         if tracking_summary:
             pkg_dict['views_total'] = tracking_summary['total']
             pkg_dict['views_recent'] = tracking_summary['recent']
