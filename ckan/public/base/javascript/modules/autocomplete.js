@@ -9,7 +9,9 @@
  *            from the ajax returned results
  * label    - A string of the label you want to appear within the dropdown for
  *            returned results
- *
+ * defaultlabel - A value to be used as the default when first shown
+ * defaultvalue - The default value to be used when first shown
+
  * Examples
  *
  *   // <input name="tags" data-module="autocomplete" data-module-source="http://" />
@@ -27,6 +29,8 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       interval: 1000,
       dropdownClass: '',
       containerClass: '',
+      defaultlabel: '',
+      defaultvalue: '',
       i18n: {
         noMatches: _('No matches found'),
         emptySearch: _('Start typing…'),
@@ -240,7 +244,11 @@ this.ckan.module('autocomplete', function (jQuery, _) {
       if (this.options.tags) {
         formatted = jQuery.map(value.split(","), this.formatTerm);
       } else {
-        formatted = this.formatTerm(value);
+        if (this.options.defaultlabel.length > 0 && this.options.defaultvalue.length > 0 ) {
+          formatted = {id: this.options.defaultvalue, text: this.options.defaultlabel };
+        } else {
+          formatted = this.formatTerm(value);
+        }
       }
 
       // Select2 v3.0 supports a callback for async calls.
