@@ -24,6 +24,12 @@ API changes and deprecations
   revisions, rather than the activity stream. If you want the actual activity
   stream for a user, call ``user_activity_list`` instead.
 
+* The ``group_show`` and ``organization_show`` API calls do not return
+  ``datasets`` by default any more.
+
+  Custom templates or users of this API call will need to pass
+  ``include_datasets=True`` to include datasets in the response.
+
 * ``helpers.get_action()`` (or ``h.get_action()`` in templates) is deprecated.
 
   Since action functions raise exceptions and templates cannot catch
