@@ -1141,9 +1141,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context['group'] = group
 
-    include_datasets = data_dict.get('include_datasets', False)
-    if isinstance(include_datasets, basestring):
-        include_datasets = (include_datasets.lower() in ('false', '0'))
+    include_datasets = asbool(data_dict.get('include_datasets', False))
     packages_field = 'datasets' if include_datasets \
                      else 'none_but_include_package_count'
 
