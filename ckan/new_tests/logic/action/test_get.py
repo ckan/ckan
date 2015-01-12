@@ -148,11 +148,12 @@ class TestGet(object):
 
         group = factories.Group(user=factories.User())
 
-        group_dict = helpers.call_action('group_show', id=group['id'])
+        group_dict = helpers.call_action('group_show', id=group['id'],
+                                         include_datasets=True)
 
         # FIXME: Should this be returned by group_create?
         group_dict.pop('num_followers', None)
-        assert group_dict == group
+        eq(group_dict, group)
 
     def test_group_show_error_not_found(self):
 
@@ -184,7 +185,8 @@ class TestGet(object):
                                 context={'user': user_name},
                                 **dataset)
 
-        group_dict = helpers.call_action('group_show', id=group['id'])
+        group_dict = helpers.call_action('group_show', id=group['id'],
+                                         include_datasets=True)
 
         assert len(group_dict['packages']) == 2
         assert group_dict['package_count'] == 2
@@ -206,6 +208,7 @@ class TestGet(object):
                                 **dataset)
 
         group_dict = helpers.call_action('group_show', id=group['id'],
+                                         include_datasets=True,
                                          context={'for_view': True})
 
         assert len(group_dict['packages']) == 2
@@ -277,11 +280,12 @@ class TestGet(object):
 
         org = factories.Organization()
 
-        org_dict = helpers.call_action('organization_show', id=org['id'])
+        org_dict = helpers.call_action('organization_show', id=org['id'],
+                                       include_datasets=True)
 
         # FIXME: Should this be returned by organization_create?
         org_dict.pop('num_followers', None)
-        assert org_dict == org
+        eq(org_dict, org)
 
     def test_organization_show_error_not_found(self):
 
@@ -313,7 +317,8 @@ class TestGet(object):
                                 context={'user': user_name},
                                 **dataset)
 
-        org_dict = helpers.call_action('organization_show', id=org['id'])
+        org_dict = helpers.call_action('organization_show', id=org['id'],
+                                       include_datasets=True)
 
         assert len(org_dict['packages']) == 2
         assert org_dict['package_count'] == 2
@@ -334,7 +339,8 @@ class TestGet(object):
                                 context={'user': user_name},
                                 **dataset)
 
-        org_dict = helpers.call_action('organization_show', id=org['id'])
+        org_dict = helpers.call_action('organization_show', id=org['id'],
+                                       include_datasets=True)
 
         assert len(org_dict['packages']) == 1
         assert org_dict['packages'][0]['name'] == 'dataset_1'
@@ -574,7 +580,7 @@ class TestGet(object):
                 context = {'user': user['name']}
 
             group = helpers.call_action('group_show', id=group['id'],
-                                        context=context)
+                                        include_datasets=True, context=context)
 
             assert private_dataset['id'] not in [dataset['id'] for dataset
                                                  in group['packages']], (
