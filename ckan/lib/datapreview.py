@@ -11,25 +11,14 @@ import logging
 import pylons.config as config
 
 import ckan.plugins as p
+from ckan import logic
+from ckan.common import _
 
-DEFAULT_DIRECT_EMBED = ['png', 'jpg', 'jpeg', 'gif']
-DEFAULT_LOADABLE_IFRAME = ['html', 'htm', 'rdf+xml', 'owl+xml', 'xml',
-                           'n3', 'n-triples', 'turtle', 'plain',
-                           'atom', 'rss', 'txt']
 
 log = logging.getLogger(__name__)
 
 
-def direct():
-    ''' Directly embeddable formats.'''
-    direct_embed = config.get('ckan.preview.direct', '').split()
-    return direct_embed or DEFAULT_DIRECT_EMBED
-
-
-def loadable():
-    ''' Iframe loadable formats. '''
-    loadable_in_iframe = config.get('ckan.preview.loadable', '').split()
-    return loadable_in_iframe or DEFAULT_LOADABLE_IFRAME
+DEFAULT_RESOURCE_VIEW_TYPES = ['image_view']
 
 
 def res_format(resource):
@@ -135,16 +124,35 @@ def get_view_plugin(view_type):
 
 
 def get_allowed_view_plugins(data_dict):
+    '''
+    Returns a list of view plugins that work against the resource provided
+
+    The ``data_dict`` contains: ``resource`` and ``package``.
+    '''
     can_view = []
     for plugin in p.PluginImplementations(p.IResourceView):
-        if plugin.can_view(data_dict):
+
+        plugin_info = plugin.info()
+
+        if (plugin_info.get('always_available', False) or
+                plugin.can_view(data_dict)):
             can_view.append(plugin)
     return can_view
 
 
+# TODO: remove
 def get_new_resources(context, data_dict):
-    ''' Get out all new resources in this commit,
-    needs to be run in extension point after_create and after_update '''
+    '''
+    Returns a list of all new resources in this transaction
+
+    This is to be used only before commiting eg on `package_create` or
+    `package_update` as it uses a cache object stored in the Session and
+    filled on flushig it.
+
+    The `context` dict must contain a `model` key
+
+    Returns a list of new dictized resources.
+    '''
     model = context['model']
     session = model.Session()
     session.flush()
@@ -155,4 +163,139 @@ def get_new_resources(context, data_dict):
                          if isinstance(obj, model.Resource)]
         return model_dictize.resource_list_dictize(new_resources, context)
     else:
-        return ()
+        return []
+
+
+def get_default_view_plugins(get_datastore_views=False):
+    '''
+    Returns the list of view plugins to be created by default on new resources
+
+    The default view types are defined via the `ckan.views.default_views`
+    configuration option. If this is not set (as opposed to empty, which means
+    no default views), the value of DEFAULT_RESOURCE_VIEW_TYPES is used to
+    look up the plugins.
+
+    If get_datastore_views is False, only the ones not requiring data to be in
+    the DataStore are returned, and if True, only the ones requiring it are.
+
+    To flag a view plugin as requiring the DataStore, it must have the
+    `requires_datastore` key set to True in the dict returned by its `info()`
+    method.
+
+    Returns a list of IResourceView plugins
+    '''
+
+    if config.get('ckan.views.default_views') is None:
+        default_view_types = DEFAULT_RESOURCE_VIEW_TYPES
+    else:
+        default_view_types = config.get('ckan.views.default_views').split(' ')
+
+    default_view_plugins = []
+    for view_type in default_view_types:
+
+        view_plugin = get_view_plugin(view_type)
+
+        if not view_plugin:
+            log.warn('Plugin for view {0} could not be found'
+                     .format(view_type))
+            # We should probably check on startup if the default
+            # view types exist
+            continue
+
+        info = view_plugin.info()
+
+        plugin_requires_datastore = info.get('requires_datastore', False)
+
+        if plugin_requires_datastore == get_datastore_views:
+            default_view_plugins.append(view_plugin)
+
+    return default_view_plugins
+
+
+def add_default_views_to_resource(context,
+                                  resource_dict,
+                                  dataset_dict=None,
+                                  create_datastore_views=False):
+    '''
+    Creates the default views (if necessary) on the provided resource
+
+    The function will get the plugins for the default views defined in
+    the configuration, and if some were found the `can_view` method of
+    each one of them will be called to determine if a resource view should
+    be created.
+
+    Resource views extensions get the resource dict and the parent dataset
+    dict. If the latter is not provided, `package_show` is called to get it.
+
+    By default only views that don't require the resource data to be in the
+    DataStore are called. See ``add_default_views_to_dataset_resources``
+    for details on the ``create_datastore_views`` parameter.
+
+    Returns a list of resource views created (empty if none were created)
+    '''
+    if not dataset_dict:
+        dataset_dict = logic.get_action('package_show')(
+            context, {'id': resource_dict['package_id']})
+
+    default_view_plugins = get_default_view_plugins(create_datastore_views)
+
+    if not default_view_plugins:
+        return []
+
+    existing_views = p.toolkit.get_action('resource_view_list')(
+        context, {'id': resource_dict['id']})
+
+    existing_view_types = ([v['view_type'] for v in existing_views]
+                           if existing_views
+                           else [])
+
+    created_views = []
+    for view_plugin in default_view_plugins:
+
+        view_info = view_plugin.info()
+
+        # Check if a view of this type already exists
+        if view_info['name'] in existing_view_types:
+            continue
+
+        # Check if a view of this type can preview this resource
+        if view_plugin.can_view({
+            'resource': resource_dict,
+            'package': dataset_dict
+                }):
+            view = {'resource_id': resource_dict['id'],
+                    'view_type': view_info['name'],
+                    'title': view_info.get('default_title', _('View')),
+                    'description': view_info.get('default_description', '')}
+
+            view_dict = p.toolkit.get_action('resource_view_create')(context,
+                                                                     view)
+            created_views.append(view_dict)
+
+    return created_views
+
+
+def add_default_views_to_dataset_resources(context,
+                                           dataset_dict,
+                                           create_datastore_views=False):
+    '''
+    Creates the default views on all resources of the provided dataset
+
+    By default only views that don't require the resource data to be in the
+    DataStore are called. Passing `create_datastore_views` as True will only
+    create views that require data to be in the DataStore. The first case
+    happens when the function is called from `package_create` or
+    `package_update`, the second when it's called from the DataPusher when
+    data was uploaded to the DataStore.
+
+    Returns a list of resource views created (empty if none were created)
+    '''
+    created_views = []
+    for resource_dict in dataset_dict.get('resources', []):
+        new_views = add_default_views_to_resource(context,
+                                                  resource_dict,
+                                                  dataset_dict,
+                                                  create_datastore_views)
+        created_views.extend(new_views)
+
+    return created_views

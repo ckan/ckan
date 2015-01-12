@@ -863,34 +863,6 @@ When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on t
 
 .. note::  This only applies to the legacy Genshi-based templates
 
-.. _ckan.preview.direct:
-
-ckan.preview.direct
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.preview.direct = png jpg jpeg gif
-
-Default value: ``png jpg jpeg gif``
-
-Defines the resource formats which should be embedded directly in an ``img`` tag
-when previewing them.
-
-.. _ckan.preview.loadable:
-
-ckan.preview.loadable
-^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt
-
-Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt``
-
-Defines the resource formats which should be loaded directly in an ``iframe``
-tag when previewing them if no :doc:`data-viewer` can preview it.
-
 .. _ckan.dumps_url:
 
 ckan.dumps_url
@@ -1000,6 +972,40 @@ receiving the request being is shown in the header.
 .. note:: This info only shows if debug is set to True.
 
 .. end_config-front-end
+
+Resource Views Settings
+-----------------------
+
+.. start_resource-views
+
+.. _ckan.views.default_views:
+
+ckan.views.default_views
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+
+ ckan.views.default_views = image_view webpage_view recline_grid_view
+
+Default value: ``image_view``
+
+Defines the resource views that should be created by default when creating or
+updating a dataset. From this list only the views that are relevant to a particular
+resource format will be created. This is determined by each individual view.
+
+If not present (or commented), the default value is used. If left empty, no
+default views are created.
+
+.. note:: You must have the relevant view plugins loaded on the ``ckan.plugins``
+    setting to be able to create the default views, eg::
+
+        ckan.plugins = image_view webpage_view recline_grid_view ...
+
+        ckan.views.default_views = image_view webpage_view recline_grid_view
+
+
+.. end_resource-views
 
 Theming Settings
 ----------------
