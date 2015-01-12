@@ -106,6 +106,11 @@ class PackageSearchIndex(SearchIndex):
         if pkg_dict is None:
             return
 
+        # tracking summary values will be stale, never store them
+        pkg_dict.pop('tracking_summary', None)
+        for r in pkg_dict.get('resources', []):
+            r.pop('tracking_summary', None)
+
         if config.get('ckan.cache_validated_datasets', True):
             package_plugin = lib_plugins.lookup_package_plugin(
                 pkg_dict.get('type'))

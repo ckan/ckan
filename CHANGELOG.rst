@@ -24,6 +24,12 @@ API changes and deprecations
   revisions, rather than the activity stream. If you want the actual activity
   stream for a user, call ``user_activity_list`` instead.
 
+* The ``package_show`` API call does not return the ``tracking_summary``,
+  keys in the dataset or resources by default any more.
+
+  Any custom templates or users of this API call that use these values will
+  need to pass: ``include_tracking=True``.
+
 * ``helpers.get_action()`` (or ``h.get_action()`` in templates) is deprecated.
 
   Since action functions raise exceptions and templates cannot catch
