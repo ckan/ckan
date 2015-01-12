@@ -157,7 +157,7 @@ Front-end Testing
 All new CKAN features should be coded so that they work in the
 following browsers:
 
-* Internet Explorer: 9, 8 and 7
+* Internet Explorer: 11, 10, 9 & 8
 * Firefox: Latest + previous version
 * Chrome: Latest + previous version
 

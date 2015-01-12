@@ -78,6 +78,7 @@ class ReclineView(ReclineViewBase):
     def info(self):
         return {'name': 'recline_view',
                 'title': 'Data Explorer',
+                'filterable': True,
                 'icon': 'table',
                 'requires_datastore': True,
                 'default_title': p.toolkit._('Data Explorer'),
@@ -92,6 +93,7 @@ class ReclineGridView(ReclineViewBase):
     def info(self):
         return {'name': 'recline_grid_view',
                 'title': 'Grid',
+                'filterable': True,
                 'icon': 'table',
                 'requires_datastore': True,
                 'default_title': p.toolkit._('Table'),
@@ -133,6 +135,7 @@ class ReclineGraphView(ReclineViewBase):
         }
         return {'name': 'recline_graph_view',
                 'title': 'Graph',
+                'filterable': True,
                 'icon': 'bar-chart',
                 'requires_datastore': True,
                 'schema': schema,
@@ -192,6 +195,7 @@ class ReclineMapView(ReclineViewBase):
         return {'name': 'recline_map_view',
                 'title': 'Map',
                 'schema': schema,
+                'filterable': True,
                 'icon': 'map-marker',
                 'default_title': p.toolkit._('Map'),
                 }

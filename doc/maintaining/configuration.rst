@@ -162,12 +162,30 @@ Example::
 
  ckan.datastore.default_fts_lang = english
 
+Default value: ``english``
+
 This can be ignored if you're not using the :doc:`datastore`.
 
 The default language used when creating full-text search indexes and querying
-them. If this value isn't set, it'll default to "english". It can be
-overwritten by the user by passing the "lang" parameter to "datastore_search"
-and "datastore_create".
+them. It can be overwritten by the user by passing the "lang" parameter to
+"datastore_search" and "datastore_create".
+
+.. _ckan.datastore.default_fts_index_method:
+
+ckan.datastore.default_fts_index_method
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.default_fts_index_method = gist
+
+Default value:  ``gist``
+
+This can be ignored if you're not using the :doc:`datastore`.
+
+The default method used when creating full-text search indexes. Currently it
+can be "gin" or "gist". Refer to PostgreSQL's documentation to understand the
+characteristics of each one and pick the best for your instance.
 
 Site Settings
 -------------

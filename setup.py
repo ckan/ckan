@@ -38,6 +38,7 @@ entry_points = {
         'minify = ckan.lib.cli:MinifyCommand',
         'less = ckan.lib.cli:LessCommand',
         'datastore = ckanext.datastore.commands:SetupDatastoreCommand',
+        'datapusher = ckanext.datapusher.cli:DatapusherCommand',
         'front-end-build = ckan.lib.cli:FrontEndBuildCommand',
         'views = ckan.lib.cli:ViewsCommand',
         'config-tool = ckan.lib.cli:ConfigToolCommand',
