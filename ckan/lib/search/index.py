@@ -185,9 +185,11 @@ class PackageSearchIndex(SearchIndex):
            pkg_dict['organization'] = None
 
         # tracking
-        if tracking_summary:
-            pkg_dict['views_total'] = tracking_summary['total']
-            pkg_dict['views_recent'] = tracking_summary['recent']
+        if not tracking_summary:
+            tracking_summary = model.TrackingSummary.get_for_package(
+                pkg_dict['id'])
+        pkg_dict['views_total'] = tracking_summary['total']
+        pkg_dict['views_recent'] = tracking_summary['recent']
 
         resource_fields = [('name', 'res_name'),
                            ('description', 'res_description'),
