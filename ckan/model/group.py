@@ -44,11 +44,18 @@ group_table = Table('group', meta.metadata,
                     Column('description', types.UnicodeText),
                     Column('image_url', types.UnicodeText),
                     Column('created', types.DateTime,
-                           default=datetime.datetime.now),
+                        default=datetime.datetime.now),
                     Column('is_organization', types.Boolean, default=False),
                     Column('approval_status', types.UnicodeText,
                            default=u"approved"),
-                    Column('closed', types.Boolean, default=False))
+                    Column('closed', types.Boolean, default=False),
+                    Column('closed_date', types.DateTime, nullable=True,
+                           default=None),
+                    Column('related_group_id', types.UnicodeText,
+                           nullable=True, default=None),
+                    Column('related_group_relationship', types.UnicodeText,
+                           nullable=True, default=None),
+                    )
 
 vdm.sqlalchemy.make_table_stateful(group_table)
 group_revision_table = core.make_revisioned_table(group_table)
@@ -136,12 +143,10 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
 
     @property
     def display_name(self):
-        if self.title:
-            if self.closed:
-                return "%s (%s)" % (self.title, _("Closed"),)
-            return self.title
-        else:
-            return self.name
+        name = self.title or self.name
+        if self.closed:
+            return "%s (%s)" % (name, _("Closed"),)
+        return name
 
     @classmethod
     def get(cls, reference):

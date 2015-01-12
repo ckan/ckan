@@ -1273,10 +1273,10 @@ CKAN.Utils = function($, my) {
       source: function(request, callback) {
         var url = CKAN.SITE_URL + '/api/2/util/group/autocomplete?q=' + request.term;
         $.getJSON(url, function(data) {
-          $.each(data, function(idx, userobj) {
-            var label = userobj.name;
-            userobj.label = label;
-            userobj.value = userobj.name;
+          $.each(data, function(idx, groupobj) {
+            var label = groupobj.title;
+            groupobj.label = label;
+            groupobj.value = userobj.id;
           });
           callback(data);
         });

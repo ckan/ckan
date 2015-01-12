@@ -26,6 +26,26 @@
 
     {{ form.checkbox('closed', id='field-closed', checked=data.get('closed', False), label=_('Closed'), value="true") }}
 
+    <span id="closed-properties">
+       {% set relationship_options = [{'value': ''},
+                                      {'value': _('replaced by') },
+                                      {'value': _('partially replaced') },
+                                      {'value': _('split up') },
+                                      {'value': _('merged into new organization')} ] %}
+       {{ form.select('related_group_relationship', label=_('Organization relationship'), options=relationship_options, selected=data.related_group_relationship, error=error) }}
+
+      <div class="control-group control-full">
+        {% set related_label = _("Related Organization") %}
+        <label class="control-label" for="related_group_id">{{ related_label }}</label>
+        <div class="controls">
+
+          <input id="related_group_id" type="text" name="related_group_id" placeholder='{{related_label}}'
+           value="{{data.related_group_id}}" class="control-medium" data-module="autocomplete" data-module-label='title' data-module-key='id' data-module-defaultlabel='{{data.related_group_id}}' data-module-defaultvalue='{{data.related_group_id}}'
+           data-module-source="/api/2/util/group/autocomplete?type=organization&q=?">
+        </div>
+      </div>
+    </span>
+
   {% endblock %}
 
   {% block custom_fields %}
