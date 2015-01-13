@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Alex Corbi <a.corbi@gmail.com>, 2015
 # Anh Phan <vietnamesel10n@gmail.com>, 2014
 # ODM Vietnam <vietnam@opendevmekong.net>, 2014-2015
 msgid ""
@@ -10,7 +11,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2015-01-12 07:47+0000\n"
+"PO-Revision-Date: 2015-01-13 02:56+0000\n"
 "Last-Translator: ODM Vietnam <vietnam@opendevmekong.net>\n"
 "Language-Team: Vietnamese (http://www.transifex.com/projects/p/ckan/language/vi/)\n"
 "MIME-Version: 1.0\n"
@@ -205,7 +206,7 @@ msgstr "Không có sửa đổi với id: %s"
 
 #: ckan/controllers/api.py:505
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
-msgstr "Mất thuật ngữ tìm kiếm"
+msgstr "Mất giới hạn tìm kiếm ('since_id=UUID' or 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:515
 #, python-format
@@ -245,7 +246,7 @@ msgstr "Không tìm thấy nhóm"
 #: ckan/controllers/feed.py:285 ckan/controllers/feed.py:287
 #: ckan/controllers/feed.py:437 ckan/controllers/feed.py:439
 msgid "\"page\" parameter must be a positive integer"
-msgstr "Thông số \"trang\" phải là một số nguyên dương"
+msgstr "\"page\" số trang phải là một số nguyên dương"
 
 #: ckan/controllers/group.py:172
 msgid "Incorrect group type"
@@ -368,7 +369,7 @@ msgstr "Không được phép thêm thành viên nhóm %s"
 #: ckan/controllers/group.py:675
 #, python-format
 msgid "Unauthorized to delete group %s members"
-msgstr "Không được xóa thành viên nhóm %s"
+msgstr "Không được xóa thành viên %s nhóm"
 
 #: ckan/controllers/group.py:681
 msgid "Group member has been deleted."
@@ -397,7 +398,7 @@ msgstr "Nhật kí tin nhắn"
 
 #: ckan/controllers/group.py:779
 msgid "Unauthorized to read group {group_id}"
-msgstr "Không được phép tìm hiểu nhóm {Địa chỉ_Nhóm}"
+msgstr "Không được phép tìm hiểu nhóm {group_id}"
 
 #: ckan/controllers/group.py:798 ckan/controllers/package.py:1255
 #: ckan/controllers/user.py:654
@@ -423,7 +424,7 @@ msgid ""
 "Please <a href=\"{link}\">update your profile</a> and add your email address"
 " and your full name. {site} uses your email address if you need to reset "
 "your password."
-msgstr "Cần <a href=\"{link}\">cập nhật hồ sơ cá nhân</a> và thêm email, tên đầy đủ. {trang} dùng email của bạn trong trường hợp bạn thiết lập lại mật mã."
+msgstr "Vui lòng <a href=\"{link}\">cập nhật hồ sơ cá nhân</a> và thêm email, tên đầy đủ. {site} dùng email của bạn trong trường hợp bạn thiết lập lại mật mã."
 
 #: ckan/controllers/home.py:103
 #, python-format
@@ -446,7 +447,7 @@ msgstr "Giấy phép"
 
 #: ckan/controllers/package.py:279
 msgid "Parameter \"{parameter_name}\" is not an integer"
-msgstr "Thông số {Tên_Thông số} không phải là số nguyên"
+msgstr "Thông số \"{parameter_name}\" không phải là số nguyên"
 
 #: ckan/controllers/package.py:326 ckan/controllers/package.py:379
 #: ckan/controllers/package.py:442 ckan/controllers/package.py:797
@@ -477,7 +478,7 @@ msgstr "Định dạng hiệu chỉnh không hợp lệ: %r "
 msgid ""
 "Viewing {package_type} datasets in {format} format is not supported "
 "(template file {file} not found)."
-msgstr "Rà soát  {loại gói} các bộ dữ liệu trong {định dạng} định dạng không được hỗ trợ (tệp mẫu {tệp} không tìm thấy)."
+msgstr "Rà soát  {package_type} các bộ dữ liệu trong {format} định dạng không được hỗ trợ (tệp mẫu {file} không tìm thấy)."
 
 #: ckan/controllers/package.py:449
 msgid "CKAN Dataset Revision History"
@@ -509,7 +510,7 @@ msgstr "Không cấp phép cập nhật dữ liệu"
 #: ckan/controllers/package.py:646 ckan/controllers/package.py:678
 #: ckan/controllers/package.py:706
 msgid "The dataset {id} could not be found."
-msgstr "Dữ liệu không tìm thấy"
+msgstr "Dữ liệu {id} không tìm thấy"
 
 #: ckan/controllers/package.py:649
 msgid "You must add at least one data resource"
@@ -541,7 +542,7 @@ msgstr "Không được phép xóa dữ liệu %s"
 
 #: ckan/controllers/package.py:1079
 msgid "Dataset has been deleted."
-msgstr "Dữ liệu đã được xóa"
+msgstr "Dữ liệu đã được xóa."
 
 #: ckan/controllers/package.py:1104
 msgid "Resource has been deleted."
@@ -719,7 +720,7 @@ msgstr "Không cấp phép tạo người sử dụng"
 
 #: ckan/controllers/user.py:195
 msgid "Unauthorized to delete user with id \"{user_id}\"."
-msgstr "Không cấp phép xóa địa chỉ người sử dụng"
+msgstr "Không cấp phép xóa địa chỉ người sử dụng với id \"{user_id}\"."
 
 #: ckan/controllers/user.py:206
 #, python-format
@@ -826,11 +827,11 @@ msgstr "Không tìm thấy mục tin tiếp theo"
 
 #: ckan/controllers/user.py:576
 msgid "{0} not found"
-msgstr "Không tìm thấy"
+msgstr "{0} Không tìm thấy"
 
 #: ckan/controllers/user.py:578
 msgid "Unauthorized to read {0} {1}"
-msgstr "Không được phép đọc"
+msgstr "Không được phép đọc {0} {1}"
 
 #: ckan/controllers/user.py:593
 msgid "Everything"
@@ -842,76 +843,76 @@ msgstr "{actor} đã thêm thẻ {tag} đến tập dữ liệu{dataset}"
 
 #: ckan/lib/activity_streams.py:67
 msgid "{actor} updated the group {group}"
-msgstr "Nhóm đã cập nhật"
+msgstr "{actor} Nhóm đã cập nhật {group}"
 
 #: ckan/lib/activity_streams.py:70
 msgid "{actor} updated the organization {organization}"
-msgstr "Tổ chức đã được cập nhật"
+msgstr "{actor} Tổ chức đã được cập nhật {organization}"
 
 #: ckan/lib/activity_streams.py:73
 msgid "{actor} updated the dataset {dataset}"
-msgstr "Dữ liệu đã được cập nhật"
+msgstr "{actor} Dữ liệu đã được cập nhật {dataset}"
 
 #: ckan/lib/activity_streams.py:76
 msgid "{actor} changed the extra {extra} of the dataset {dataset}"
-msgstr "Thay đổi phần bổ sung dữ liệu"
+msgstr "{actor} Thay đổi phần bổ sung  {extra}  dữ liệu  {dataset}"
 
 #: ckan/lib/activity_streams.py:79
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
-msgstr "{actor} cập nhật tài nguyên {tài nguyên} trong bộ dữ liệu {dữ liệu}"
+msgstr "{actor} cập nhật tài nguyên {resource} trong bộ dữ liệu {dataset}"
 
 #: ckan/lib/activity_streams.py:82
 msgid "{actor} updated their profile"
-msgstr "Lí lịch đã được cập nhật"
+msgstr "{actor} Lí lịch đã được cập nhật"
 
 #: ckan/lib/activity_streams.py:86
 msgid ""
 "{actor} updated the {related_type} {related_item} of the dataset {dataset}"
-msgstr "{actor} cập nhật {loại có liên quan} {mục có liên quan} của bộ dữ liệu {bộ dữ liệu}"
+msgstr "{actor} cập nhật {related_type} {related_item} của bộ dữ liệu {dataset}"
 
 #: ckan/lib/activity_streams.py:89
 msgid "{actor} updated the {related_type} {related_item}"
-msgstr "Mục tin liên quan đã được cập nhật"
+msgstr "{actor}  cập nhật  {related_type} {related_item}"
 
 #: ckan/lib/activity_streams.py:92
 msgid "{actor} deleted the group {group}"
-msgstr "{actor} đã xóa nhóm  {nhóm}"
+msgstr "{actor} đã xóa nhóm  {group}"
 
 #: ckan/lib/activity_streams.py:95
 msgid "{actor} deleted the organization {organization}"
-msgstr "{actor} đã xóa tổ chức {tổ chức}"
+msgstr "{actor} đã xóa tổ chức {organization}"
 
 #: ckan/lib/activity_streams.py:98
 msgid "{actor} deleted the dataset {dataset}"
-msgstr "{actor} đã xóa bộ dữ liệu {bộ dữ liệu}"
+msgstr "{actor} đã xóa bộ dữ liệu {dataset}"
 
 #: ckan/lib/activity_streams.py:101
 msgid "{actor} deleted the extra {extra} from the dataset {dataset}"
-msgstr "{actor} đã xóa dữ liệu {dữ liệu} bổ sung {bổ sung} "
+msgstr "{actor} đã xóa dữ liệu {extra} bổ sung {dataset} "
 
 #: ckan/lib/activity_streams.py:104
 msgid "{actor} deleted the resource {resource} from the dataset {dataset}"
-msgstr "{actor} đã xóa tài nguyên {tài nguyên} từ bộ dữ liệu {bộ dữ liệu}"
+msgstr "{actor} đã xóa tài nguyên {resource} từ bộ dữ liệu {resource}"
 
 #: ckan/lib/activity_streams.py:108
 msgid "{actor} created the group {group}"
-msgstr "{actor} đã tạo nhóm  {nhóm}"
+msgstr "{actor} đã tạo nhóm  {group}"
 
 #: ckan/lib/activity_streams.py:111
 msgid "{actor} created the organization {organization}"
-msgstr "{actor} đã tạo tổ chức {tổ chức}"
+msgstr "{actor} đã tạo tổ chức {organization}"
 
 #: ckan/lib/activity_streams.py:114
 msgid "{actor} created the dataset {dataset}"
-msgstr "{actor} đã tạo bộ dữ liệu {bộ dữ liệu}"
+msgstr "{actor} đã tạo bộ dữ liệu {dataset}"
 
 #: ckan/lib/activity_streams.py:117
 msgid "{actor} added the extra {extra} to the dataset {dataset}"
-msgstr "{actor} đã bổ sung {bổ sung}  vào bộ dữ liệu {bộ dữ liệu} "
+msgstr "{actor} đã bổ sung {extra}  vào bộ dữ liệu {dataset} "
 
 #: ckan/lib/activity_streams.py:120
 msgid "{actor} added the resource {resource} to the dataset {dataset}"
-msgstr "{actor} đã thêm tài nguyên {tài nguyên}  vào bộ dữ liệu {bộ dữ liệu} "
+msgstr "{actor} đã thêm tài nguyên {resource}  vào bộ dữ liệu {dataset} "
 
 #: ckan/lib/activity_streams.py:123
 msgid "{actor} signed up"
@@ -919,37 +920,37 @@ msgstr "{actor} Đăng nhập"
 
 #: ckan/lib/activity_streams.py:126
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
-msgstr "{actor} đã loại thẻ {thẻ}  khỏi bộ dữ liệu {bộ dữ liệu} "
+msgstr "{actor} đã loại thẻ {tag}  khỏi bộ dữ liệu {dataset} "
 
 #: ckan/lib/activity_streams.py:129
 msgid "{actor} deleted the related item {related_item}"
-msgstr "{actor} đã xóa mục liên quan {mục liên quan}"
+msgstr "{actor} đã xóa mục liên quan {related_item}"
 
 #: ckan/lib/activity_streams.py:132
 msgid "{actor} started following {dataset}"
-msgstr "{actor} khởi động giám sát {bộ dữ liệu} "
+msgstr "{actor} khởi động giám sát {dataset} "
 
 #: ckan/lib/activity_streams.py:135
 msgid "{actor} started following {user}"
-msgstr "{actor} khởi động giám sát {người dùng}"
+msgstr "{actor} khởi động giám sát {user}"
 
 #: ckan/lib/activity_streams.py:138
 msgid "{actor} started following {group}"
-msgstr "{actor} khởi động giám sát {nhóm} "
+msgstr "{actor} khởi động giám sát {group} "
 
 #: ckan/lib/activity_streams.py:142
 msgid ""
 "{actor} added the {related_type} {related_item} to the dataset {dataset}"
-msgstr "{actor} thêm {loại liên quan}{mục liên quan} vào bộ dữ liệu {bộ dữ liệu}"
+msgstr "{actor} thêm {related_type}{related_item} vào bộ dữ liệu {dataset}"
 
 #: ckan/lib/activity_streams.py:145
 msgid "{actor} added the {related_type} {related_item}"
-msgstr "Thêm mục tin liên quan"
+msgstr "{actor} Thêm mục tin liên quan {related_type} {related_item}"
 
 #: ckan/lib/email_notifications.py:103
 msgid "1 new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] "{n} các hoạt động mới từ {tiêu đề trang}"
+msgstr[0] "{n} các hoạt động mới từ {site_title}"
 
 #: ckan/lib/formatters.py:17
 msgid "January"
@@ -1006,35 +1007,35 @@ msgstr "Ngay bây giờ"
 #: ckan/lib/formatters.py:111
 msgid "{mins} minute ago"
 msgid_plural "{mins} minutes ago"
-msgstr[0] "Vài phút trước"
+msgstr[0] "{mins} Vài phút trước"
 
 #: ckan/lib/formatters.py:114
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
-msgstr[0] "Vài giờ trước"
+msgstr[0] "{hours} Vài giờ trước"
 
 #: ckan/lib/formatters.py:120
 msgid "{days} day ago"
 msgid_plural "{days} days ago"
-msgstr[0] "Vài ngày trước"
+msgstr[0] "{days} Vài ngày trước"
 
 #: ckan/lib/formatters.py:123
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
-msgstr[0] "Vài tháng trước"
+msgstr[0] "{months} Vài tháng trước"
 
 #: ckan/lib/formatters.py:125
 msgid "over {years} year ago"
 msgid_plural "over {years} years ago"
-msgstr[0] "Vài năm trước"
+msgstr[0] "Hơn {years} vài năm trước"
 
 #: ckan/lib/formatters.py:138
 msgid "{month} {day}, {year}, {hour:02}:{min:02}"
-msgstr "Tháng, ngày, năm, giờ"
+msgstr "{month} {day}, {year}, {hour:02}:{min:02}"
 
 #: ckan/lib/formatters.py:142
 msgid "{month} {day}, {year}"
-msgstr "Tháng, ngày, năm"
+msgstr "{month} {day}, {year}"
 
 #: ckan/lib/formatters.py:158
 msgid "{bytes} bytes"
@@ -1120,12 +1121,12 @@ msgstr "Cài đặt hiệu chỉnh"
 #: ckan/lib/helpers.py:1346
 msgid "{number} view"
 msgid_plural "{number} views"
-msgstr[0] "Số lượng người xem"
+msgstr[0] "{number} xem"
 
 #: ckan/lib/helpers.py:1348
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
-msgstr[0] "Số lượng lượt xem gần đây"
+msgstr[0] "{number} Số lượng xem gần đây"
 
 #: ckan/lib/helpers.py:1589
 msgid "The resource url is not specified."
@@ -1183,7 +1184,7 @@ msgstr "Cài đặt lại mật khẩu của bạn"
 
 #: ckan/lib/mailer.py:151
 msgid "Invite for {site_title}"
-msgstr "Mời thăm {Trang_Nhan đề}"
+msgstr "Mời thăm {site_title}"
 
 #: ckan/lib/package_saver.py:29
 msgid "No web page given"
@@ -1535,7 +1536,7 @@ msgstr "Bạn không thể tự theo dõi chính mình"
 #: ckan/logic/action/create.py:1133 ckan/logic/action/create.py:1190
 #: ckan/logic/action/create.py:1318
 msgid "You are already following {0}"
-msgstr "Bạn đang theo dõi"
+msgstr "Bạn đang theo dõi {0}"
 
 #: ckan/logic/action/create.py:1164 ckan/logic/action/create.py:1172
 msgid "You must be logged in to follow a dataset."
@@ -1586,7 +1587,7 @@ msgstr "Bạn phải được đăng nhập để tránh theo dõi một số th
 
 #: ckan/logic/action/delete.py:513
 msgid "You are not following {0}."
-msgstr "Bạn đang không theo dõi"
+msgstr "Bạn đang không theo dõi {0}"
 
 #: ckan/logic/action/get.py:1649
 msgid "Do not specify if using \"query\" parameter"
@@ -1594,11 +1595,11 @@ msgstr "Không xác định nếu sử dụng tham số \"truy vấn\""
 
 #: ckan/logic/action/get.py:1658
 msgid "Must be <field>:<value> pair(s)"
-msgstr "Phải là cặp <Miền>:<Giá trị>"
+msgstr "Phải là <field>:<value> cặp(s)"
 
 #: ckan/logic/action/get.py:1689
 msgid "Field \"{field}\" not recognised in resource_search."
-msgstr "Miền \"{Miền}\" không được công nhận trong Nguồn_Tìm kiếm"
+msgstr "Miền \"{field}\" không được công nhận trong Nguồn_Tìm kiếm"
 
 #: ckan/logic/action/get.py:2012
 msgid "unknown user:"
@@ -1674,7 +1675,7 @@ msgstr "Người dùng  %s không được quyền tạo tổ chức"
 
 #: ckan/logic/auth/create.py:117
 msgid "User {user} not authorized to create users via the API"
-msgstr "Người dùng  %s không được quyền tạo người dùng thông qua API"
+msgstr "Người dùng {user} %s không được quyền tạo người dùng thông qua API"
 
 #: ckan/logic/auth/create.py:120
 msgid "Not authorized to create users"
@@ -2547,12 +2548,12 @@ msgstr "Xác nhận xóa"
 
 #: ckan/templates/group/confirm_delete.html:11
 msgid "Are you sure you want to delete group - {name}?"
-msgstr "Bạn có muốn xóa tên nhóm không?"
+msgstr "Bạn có muốn xóa nhóm không - {name}?"
 
 #: ckan/templates/group/confirm_delete_member.html:11
 #: ckan/templates/organization/confirm_delete_member.html:11
 msgid "Are you sure you want to delete member - {name}?"
-msgstr "Bạn có muốn xóa tên thành viên nhóm không?"
+msgstr "Bạn có muốn xóa tên thành viên nhóm không - {name}?"
 
 #: ckan/templates/group/edit.html:7 ckan/templates/group/edit_base.html:3
 #: ckan/templates/group/edit_base.html:11
@@ -2816,17 +2817,17 @@ msgstr "Không có mô tả nào về nhóm này"
 #: ckan/templates/organization/snippets/organization_item.html:31
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
-msgstr[0] "Bộ dữ liệu"
+msgstr[0] "{num}  Bộ dữ liệu"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
 msgid "0 Datasets"
-msgstr "Bộ dữ liệu"
+msgstr "0 Bộ dữ liệu"
 
 #: ckan/templates/group/snippets/group_item.html:37
 #: ckan/templates/group/snippets/group_item.html:38
 msgid "View {name}"
-msgstr "Xem tên"
+msgstr "Xem tên {name}"
 
 #: ckan/templates/group/snippets/group_item.html:41
 msgid "Remove dataset from this group"
@@ -2968,7 +2969,7 @@ msgstr "Các thẻ thông dụng"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
-msgstr "Thống kê"
+msgstr "{0} Thống kê"
 
 #: ckan/templates/home/snippets/stats.html:10
 #: ckan/templates_legacy/importer/preview.html:16
@@ -3067,11 +3068,11 @@ msgstr "Thêm bộ dữ liệu"
 
 #: ckan/templates/organization/bulk_process.html:16
 msgid " found for \"{query}\""
-msgstr "tìm thấy đáp ứng \"{yêu cầu}\""
+msgstr "tìm thấy đáp ứng \"{query}\""
 
 #: ckan/templates/organization/bulk_process.html:18
 msgid "Sorry no datasets found for \"{query}\""
-msgstr "Xin lỗi không tìm thấy bộ dữ liệu đáp ứng \"{yêu cầu}\""
+msgstr "Xin lỗi không tìm thấy bộ dữ liệu đáp ứng \"{query}\""
 
 #: ckan/templates/organization/bulk_process.html:37
 msgid "Make public"
@@ -3137,7 +3138,7 @@ msgstr "Sửa gần đây"
 
 #: ckan/templates/organization/confirm_delete.html:11
 msgid "Are you sure you want to delete organization - {name}?"
-msgstr "Bạn có chắc bạn muốn xóa tổ chức - {tên}?"
+msgstr "Bạn có chắc bạn muốn xóa tổ chức - {name}?"
 
 #: ckan/templates/organization/edit.html:6
 #: ckan/templates/organization/snippets/info.html:13
@@ -3245,7 +3246,7 @@ msgstr "Không có mô tả nào về tổ chức này"
 #: ckan/templates/organization/snippets/organization_item.html:36
 #: ckan/templates/organization/snippets/organization_item.html:37
 msgid "View {organization_name}"
-msgstr "Xem {tên_tổ chức}"
+msgstr "Xem {organization_name}"
 
 #: ckan/templates/package/base.html:22 ckan/templates/package/new.html:3
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
@@ -3265,11 +3266,11 @@ msgstr "Bộ dữ liệu CKAN là một tập hợp các dữ liệu nguồn (nh
 
 #: ckan/templates/package/confirm_delete.html:11
 msgid "Are you sure you want to delete dataset - {name}?"
-msgstr "Bạn có chắc muốn xóa bộ dữ liệu - {tên}?"
+msgstr "Bạn có chắc muốn xóa bộ dữ liệu - {name}?"
 
 #: ckan/templates/package/confirm_delete_resource.html:11
 msgid "Are you sure you want to delete resource - {name}?"
-msgstr "Bạn có chắc muốn xóa nguồn - {tên}?"
+msgstr "Bạn có chắc muốn xóa nguồn - {name}?"
 
 #: ckan/templates/package/edit_base.html:14
 msgid "View dataset"
@@ -3512,7 +3513,7 @@ msgstr "Văn bản API"
 
 #: ckan/templates/package/search.html:54
 msgid "full {format} dump"
-msgstr "kết xuất đầy đủ {định dạng}"
+msgstr "đầy đủ {format} kết xuất"
 
 #: ckan/templates/package/search.html:55
 #, python-format
@@ -3932,7 +3933,7 @@ msgstr "Bạn có chắc muốn xóa mục liên quan này?"
 
 #: ckan/templates/related/snippets/related_item.html:16
 msgid "Go to {related_item_type}"
-msgstr "Đến {loại_mục_liên quan}"
+msgstr "Đến {related_item_type}"
 
 #: ckan/templates/related/snippets/related_item.html:23
 msgid "This item has no description"
@@ -4029,15 +4030,15 @@ msgstr "Tra ngược URL"
 
 #: ckan/templates/snippets/facet_list.html:72
 msgid "Show More {facet_type}"
-msgstr "Hiển thị thêm {loại_mặt}"
+msgstr "Hiển thị thêm {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:74
 msgid "Show Only Popular {facet_type}"
-msgstr "Chỉ hiển thị ưu chuộng {loại_mặt}"
+msgstr "Chỉ hiển thị ưu chuộng {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:78
 msgid "There are no {facet_type} that match this search"
-msgstr "Không có {loại_mặt} khớp với tìm kiếm này"
+msgstr "Không có {facet_type} khớp với tìm kiếm này"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 #: ckan/templates_legacy/admin/layout.html:10
@@ -4101,16 +4102,16 @@ msgstr "<p><strong> Lỗi tìm kiếm </strong> Thử lại </p>"
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] "{Số} bộ dữ liệu tìm thấy cho \"{Truy vấn}\""
+msgstr[0] "{number} bộ dữ liệu tìm thấy cho \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
-msgstr "Không tìm thấy bộ dữ liệu cho \"{Truy vấn}\""
+msgstr "Không tìm thấy bộ dữ liệu cho \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] "{Số} bộ dữ liệu tìm thấy"
+msgstr[0] "{number} số bộ dữ liệu tìm thấy"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -4119,16 +4120,16 @@ msgstr "Không tìm thấy bộ dữ liệu"
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
-msgstr[0] "{Số} nhóm tìm thấy cho \"{Truy vấn}\""
+msgstr[0] "{number} số nhóm tìm thấy cho \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
-msgstr "Không tìm thấy nhóm cho \"{Truy vấn}\""
+msgstr "Không tìm thấy nhóm cho \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:23
 msgid "{number} group found"
 msgid_plural "{number} groups found"
-msgstr[0] "{Số} nhóm tìm thấy"
+msgstr[0] "{number} số nhóm tìm thấy"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -4137,16 +4138,16 @@ msgstr "Không tìm thấy nhóm"
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] "{Số}tổ chức tìm thấy cho \"{Truy vấn}\""
+msgstr[0] "{number} số tổ chức tìm thấy cho \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
-msgstr "Không tìm thấy tổ chức cho  \"{truy vấn}\""
+msgstr "Không tìm thấy tổ chức cho  \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
-msgstr[0] "{Số} tổ chức tìm thấy"
+msgstr[0] "{number} số tổ chức tìm thấy"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
@@ -4348,7 +4349,7 @@ msgstr "Bạn đang thoát"
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
-msgstr "Bạn đã đăng nhập như người sử dụng"
+msgstr "Bạn đã đăng nhập như người sử dụng  {user}."
 
 #: ckan/templates/user/logout_first.html:9
 #: ckan/templates_legacy/layout_base.html:56
@@ -4383,7 +4384,7 @@ msgstr "Đăng kí một tài khoản"
 
 #: ckan/templates/user/new.html:22
 msgid "Why Sign Up?"
-msgstr "Lý do đăng ký"
+msgstr "Lý do đăng ký?"
 
 #: ckan/templates/user/new.html:24
 msgid "Create datasets, groups and other exciting things"
@@ -4563,7 +4564,7 @@ msgstr "Bạn không lưu thay đổi. Bấm vào ' Lưu thay đổi' trước k
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "(no name)"
-msgstr "Không tên"
+msgstr "(Không tên)"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Delete the resource '%name%'?"
@@ -4621,7 +4622,7 @@ msgstr "Kho dữ liệu được cấp phép"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Size (Bytes)"
-msgstr "Kích cỡ"
+msgstr "Kích cỡ (Bytes)"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Mimetype"
@@ -4629,7 +4630,7 @@ msgstr "Email Mimetype"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Mimetype (Inner)"
-msgstr "Email Mimetype (Nội bộ)"
+msgstr "Email Mimetype  (Inner)"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Hash"
@@ -4669,13 +4670,13 @@ msgstr "Xóa nguồn"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "You can use %aMarkdown formatting%b here."
-msgstr "Bạn có thể sử dụng %a định dạng ngôn ngữ đánh dấu %b tại đây"
+msgstr "Bạn có thể sử dụng %aMarkdown formatting%b tại đây"
 
 #: ckan/templates_legacy/js_strings.html:16
 #, python-format
 msgid ""
 "Dates are in %aISO Format%b — eg. %c2012-12-25%d or %c2010-05-31T14:30%d."
-msgstr "Trong thời gian%aISO Format%b — eg. %c2012-12-25%d hoặc %c2010-05-31T14:30%d."
+msgstr "Trong thời gian %aISO Format%b — eg. %c2012-12-25%d hoặc %c2010-05-31T14:30%d."
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Data File (Uploaded)"
@@ -4866,7 +4867,7 @@ msgstr "Lịch sử"
 #: ckan/templates_legacy/group/history.html:49
 #: ckan/templates_legacy/package/history.html:43
 msgid "Compare »"
-msgstr "So sánh"
+msgstr "So sánh »"
 
 #: ckan/templates_legacy/group/history.html:54
 msgid "Group History"
@@ -4887,7 +4888,7 @@ msgid ""
 "when you want to restrict users from editing a collection. A [1:group] can "
 "be set-up to specify which users have permission to add or remove datasets "
 "from it."
-msgstr "Trong khi các thẻ là rất lớn ở các tập dữ liệu thu thập với nhau, có nhiều trường hợp bạn muốn giới hạn người chỉnh sửa một bộ sưu tập. Một [1: nhóm] có thể được thiết lập để xác định người sử dụng có quyền thêm hoặc loại bỏ các tập dữ liệu từ nó."
+msgstr "Trong khi các thẻ là rất lớn ở các tập dữ liệu thu thập với nhau, có nhiều trường hợp bạn muốn giới hạn người chỉnh sửa một bộ sưu tập. Một [1: group] có thể được thiết lập để xác định người sử dụng có quyền thêm hoặc loại bỏ các tập dữ liệu từ nó."
 
 #: ckan/templates_legacy/group/layout.html:18
 msgid "New Dataset..."
@@ -4991,7 +4992,7 @@ msgid ""
 "[3:publicly-funded art] in Seattle? Data to answer many, many questions like"
 " these is out there on the Internet somewhere - but it is not always easy to"
 " find."
-msgstr "[1:giá trung bình] của một ngôi nhà ở Anh vào năm 1935 là gì? Khi nào dân số dự báo của Ấn Độ [2: vượt qua] Trung Quốc? Bạn có thể nhìn thấy ở đâu [3: quỹ tài trợ nghệ thuật] ở Seattle? Dữ liệu để trả lời nhiều, rất nhiều câu hỏi như thế này là có sẵn trên Internet một nơi nào đó - nhưng nó không phải là luôn luôn dễ dàng để tìm thấy."
+msgstr "[1:average price] của một ngôi nhà ở Anh vào năm 1935 là gì? Khi nào dân số dự báo của Ấn Độ [2: overtake] Trung Quốc? Bạn có thể nhìn thấy ở đâu [3: publicly-funded art] ở Seattle? Dữ liệu để trả lời nhiều, rất nhiều câu hỏi như thế này là có sẵn trên Internet một nơi nào đó - nhưng nó không phải là luôn luôn dễ dàng để tìm thấy."
 
 #: ckan/templates_legacy/home/about.html:16
 #, python-format
@@ -5071,7 +5072,7 @@ msgstr "Gồm"
 msgid ""
 "that you can \n"
 "            browse, learn about and download."
-msgstr "Bạn có thể đọc lướt, tìm hiểu thông tin và tải về"
+msgstr "Bạn có thể \nlướt qua, tìm hiểu thông tin và tải về."
 
 #: ckan/templates_legacy/home/index.html:32
 msgid "Share data"
@@ -5188,11 +5189,11 @@ msgstr "Kết quả nhập"
 #: ckan/templates_legacy/package/comments.html:5
 #: ckan/templates_legacy/package/history.html:6
 msgid "- Datasets - History"
-msgstr "Bộ dữ liệu - Lịch sử"
+msgstr "- Bộ dữ liệu - Lịch sử"
 
 #: ckan/templates_legacy/package/edit.html:6
 msgid "- Edit - Datasets"
-msgstr "Hiệu chỉnh - Bộ dữ liệu"
+msgstr "- Hiệu chỉnh - Bộ dữ liệu"
 
 #: ckan/templates_legacy/package/edit.html:21
 msgid "Basic Information"
@@ -5219,11 +5220,11 @@ msgid ""
 "[1:Important:] By submitting content, you agree to release your "
 "contributions under the [2:Open Database License]. Please [3:refrain] from "
 "editing this page if you are [4:not] happy to do this."
-msgstr "[1:Quan trọng:] Bằng việc gửi nội dung, bạn đã đồng ý phát hành những đóng góp của mình theo [2:Giấy phép cơ sở dữ liệu mở]. Vui lòng [3:kiềm chế] kiềm chế việc sửa trang này nếu bạn [4:không] hài lòng về điều này."
+msgstr "[1:Important:] Bằng việc gửi nội dung, bạn đã đồng ý phát hành những đóng góp của mình theo [2:Open Database License]. Vui lòng [3:refrain] kiềm chế việc sửa trang này nếu bạn [4:not] hài lòng về điều này."
 
 #: ckan/templates_legacy/package/editresources.html:6
 msgid "- Edit Resources - Datasets"
-msgstr "Hiệu chỉnh nguồn - Bộ dữ liệu"
+msgstr "- Hiệu chỉnh nguồn - Bộ dữ liệu"
 
 #: ckan/templates_legacy/package/editresources.html:7
 msgid "Edit Resources:"
@@ -5231,7 +5232,7 @@ msgstr "Hiệu chỉnh nguồn"
 
 #: ckan/templates_legacy/package/followers.html:6
 msgid "- Datasets - Followers"
-msgstr "Bộ dữ liệu - Người theo dõi"
+msgstr "- Bộ dữ liệu - Người theo dõi"
 
 #: ckan/templates_legacy/package/followers.html:7
 msgid "Followers:"
@@ -5275,7 +5276,7 @@ msgstr "Ứng dụng, ý tưởng"
 #: ckan/templates_legacy/package/layout.html:40
 #: ckan/templates_legacy/user/layout.html:27
 msgid "Followers ({num_followers})"
-msgstr "Người theo dõi ({Số người theo dõi})"
+msgstr "Người theo dõi ({num_followers})"
 
 #: ckan/templates_legacy/package/layout.html:53
 msgid "Settings"
@@ -5327,7 +5328,7 @@ msgstr "Không thể thêm nhóm"
 msgid ""
 "Comma-separated terms that may link this dataset to similar ones. For more "
 "information on conventions, see [1:this wiki page]."
-msgstr "Dấu \",\" được dùng để liên kết các tập dữ liệu đến những cái giống nhau. Để biết thêm thông tin, tìm trong  [1: trang wiki này]"
+msgstr "Dấu \",\" được dùng để liên kết các tập dữ liệu đến những cái giống nhau. Để biết thêm thông tin, tìm trong  [1:this wiki page]"
 
 #: ckan/templates_legacy/package/new_package_form.html:123
 msgid "e.g. pollution, rivers, water quality"
@@ -5428,7 +5429,7 @@ msgstr "Mô tả ngắn gọn những thay đổi bạn vừa thực hiện"
 msgid ""
 "Since you have not signed in this will just be your IP address.\n"
 "    [1:Click here to sign in] before saving (opens in new window)."
-msgstr "Vì bạn không đăng nhập nên đây sẽ là địa chỉ IP của bạn.\n[1:Nhấn vào đây để đăng nhập] trước khi lưu (mở ra ở cửa số mới)."
+msgstr "Vì bạn không đăng nhập nên đây sẽ là địa chỉ IP của bạn.\n[1:Click here to sign in] trước khi lưu (mở ra ở cửa số mới)."
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid "Important:"
@@ -5461,7 +5462,7 @@ msgstr "hài lòng với việc này."
 
 #: ckan/templates_legacy/package/read.html:14
 msgid "- Datasets"
-msgstr "Bộ dữ liệu"
+msgstr "- Bộ dữ liệu"
 
 #: ckan/templates_legacy/package/read.html:24
 msgid "License:"
@@ -5471,7 +5472,7 @@ msgstr "Giấy phép"
 #: ckan/templates_legacy/package/resource_read.html:117
 #: ckan/templates_legacy/snippets/package_list.html:32
 msgid "[Open Data]"
-msgstr "[Mở dữ liệu]"
+msgstr "[Open Data]"
 
 #: ckan/templates_legacy/package/read.html:58
 msgid "Related Datasets"
@@ -5528,12 +5529,12 @@ msgstr "Nguồn thu hoạch"
 msgid ""
 "[1:Dataset page] on \n"
 "            [2:%(harvest_catalogue_name)s]"
-msgstr "[1:Trang bộ dữ liệu] trên\n[2:%(harvest_catalogue_name)s]"
+msgstr "[1:Dataset page] trên\n[2:%(harvest_catalogue_name)s]"
 
 #: ckan/templates_legacy/package/resource_embedded_dataviewer.html:87
 #: ckan/templates_legacy/package/resource_read.html:58
 msgid "- Dataset - Resource"
-msgstr "Bộ dữ liệu - Nguồn"
+msgstr "- Bộ dữ liệu - Nguồn"
 
 #: ckan/templates_legacy/package/resource_read.html:87
 msgid "Data API is unavailable for this resource as DataStore is disabled"
@@ -5545,7 +5546,7 @@ msgstr " Không giấy phép"
 
 #: ckan/templates_legacy/package/resource_read.html:137
 msgid "From the [1:Dataset]:"
-msgstr "Từ [1:Bộ dữ liệu]:"
+msgstr "Từ [1:Dataset]:"
 
 #: ckan/templates_legacy/package/resource_read.html:150
 msgid "Cannot embed as resource is private."
@@ -5579,7 +5580,7 @@ msgstr "Bạn cũng có thể truy cập đăng ký này bằng"
 
 #: ckan/templates_legacy/package/search.html:37
 msgid "(see"
-msgstr "Xem"
+msgstr "(Xem"
 
 #: ckan/templates_legacy/package/search.html:38
 msgid "or download a"
@@ -5881,7 +5882,7 @@ msgstr "- Người theo dõi - Người dùng"
 
 #: ckan/templates_legacy/user/followers.html:8
 msgid "'s Followers"
-msgstr "Người theo dõi của"
+msgstr "'s Người theo dõi của"
 
 #: ckan/templates_legacy/user/layout.html:12
 msgid "My Profile"
@@ -6100,7 +6101,7 @@ msgstr "Không tìm thấy nguồn kho dữ liệu"
 #: ckanext/datastore/logic/action.py:328 ckanext/datastore/logic/action.py:412
 #: ckanext/datastore/logic/action.py:438
 msgid "Resource \"{0}\" was not found."
-msgstr "Không tìm thấy nguồn \"{0}\"."
+msgstr "Tài nguyên \"{0}\" không tìm thấy."
 
 #: ckanext/datastore/logic/auth.py:15
 msgid "User {0} not authorized to update resource {1}"
