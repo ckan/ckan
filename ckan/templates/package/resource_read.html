@@ -92,9 +92,7 @@
             <div class="resource-view">
               {% set resource_preview = h.resource_preview(c.resource, c.package) %}
               {% set views_created = res.has_views or resource_preview %}
-              {% if not views_created %}
-                {{ _("There're no views created for this resource yet.") }}
-              {% else %}
+              {% if views_created %}
                 {% if resource_preview and not current_resource_view %}
                   {{ h.resource_preview(c.resource, c.package) }}
                 {% else %}
@@ -108,6 +106,27 @@
                     {% endif %}
                   {% endfor %}
                 {% endif %}
+              {% else %}
+                {# Views not created #}
+                <div class="module-content data-viewer-info">
+                  <p>{{ _("There are no views created for this resource yet.") }}</p>
+                  {% if h.check_access('resource_view_create') %}
+                    <p class="muted">
+                      <i class="icon-info-sign"></i>
+                      {{ _("Not seeing the views you were expecting?")}}
+                      <a href="javascript:void(0);" data-toggle="collapse" data-target="#data-view-info">
+                        {{ _('Click here for more information.') }}</a>
+                    </p>
+                    <div id="data-view-info" class="collapse">
+                      <p>{{ _('Here are some reasons you may not be seeing expected views:') }}</p>
+                      <ul>
+                        <li>{{ _("No view has been created that is suitable for this resource")}}</li>
+                        <li>{{ _("The site administrators may not have enabled the relevant view plugins")}}</li>
+                        <li>{{ _("If a view requires the DataStore, the DataStore plugin may not be enabled, or the data may not have been pushed to the DataStore, or the DataStore hasn't finished processing the data yet")}}</li>
+                      </ul>
+                    </div>
+                  {% endif %}
+                </div>
               {% endif %}
             </div>
           {% endblock %}
