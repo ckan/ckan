@@ -45,7 +45,7 @@ rst_epilog = '''
 .. |datastore_user| replace:: datastore_default
 .. |test_database| replace:: ckan_test
 .. |test_datastore| replace:: datastore_test
-.. |apache_config_file| replace:: /etc/apache2/sites-available/ckan_default
+.. |apache_config_file| replace:: /etc/apache2/sites-available/ckan_default.conf
 .. |apache.wsgi| replace:: |config_dir|/apache.wsgi
 .. |data_dir| replace:: |config_dir|/data
 .. |sstore| replace:: |config_dir|/sstore

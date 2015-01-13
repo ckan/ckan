@@ -119,6 +119,11 @@ Replace ``pass`` with the passwords you created for your |database_user| and
 Set permissions
 ---------------
 
+.. versionchanged:: 2.3
+
+   If you're using CKAN 2.2 or earlier the commands to set the datastore
+   permissions are different, see the docs for your version of CKAN.
+
 .. tip:: See :ref:`legacy-mode` if these steps continue to fail or seem too complicated for your set-up. However, keep in mind that the legacy mode is limited in its capabilities.
 
 Once the DataStore database and the users are created, the permissions on the DataStore and CKAN database have to be set. CKAN provides a paster command to help you correctly set these permissions.
@@ -134,25 +139,20 @@ superuser using::
 
 Then you can use this connection to set the permissions::
 
-    sudo ckan datastore set-permissions |
-    sudo -u postgres psql --set ON_ERROR_STOP=1
-
-.. note::
-   If you performed a source install, you will need to replace all references to
-   ``sudo ckan ...`` with ``paster --plugin=ckan ...``
+    paster --plugin=ckan datastore -c /etc/ckan/default/development.ini set-permissions | sudo -u postgres psql --set ON_ERROR_STOP=1
 
 If your database server is not local, but you can access it over SSH, you can
 pipe the permissions script over SSH::
 
-    sudo ckan datastore set-permissions |
-    ssh dbserver sudo -u postgres psql --set ON_ERROR_STOP=1
+    paster --plugin=ckan datastore -c /etc/ckan/default/development.ini set-permissions | ssh dbserver sudo -u postgres psql --set ON_ERROR_STOP=1
 
 If you can't use the ``psql`` command in this way, you can simply copy and paste
 the output of::
 
-    sudo ckan datastore set-permissions
+    paster --plugin=ckan datastore -c /etc/ckan/default/development.ini set-permissions
 
 into a |postgres| superuser console.
+
 
 3. Test the set-up
 ==================

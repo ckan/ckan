@@ -116,13 +116,15 @@ b. Install the CKAN source code into your virtualenv.
 
 c. Install the Python modules that CKAN requires into your virtualenv:
 
-   .. versionchanged:: 2.1
-      In CKAN 2.0 and earlier the requirement file was called
-      ``pip-requirements.txt`` not ``requirements.txt`` as below.
-
    .. parsed-literal::
 
        pip install -r |virtualenv|/src/ckan/requirements.txt
+
+   .. versionchanged:: 2.1
+
+      If you're installing CKAN version 2.0 or earlier then the requirements
+      file is called ``pip-requirements.txt``, not ``requirements.txt`` as
+      above.
 
 d. Deactivate and reactivate your virtualenv, to make sure you're using the
    virtualenv's copies of commands like ``paster`` rather than any system-wide
@@ -257,7 +259,7 @@ installed, we need to install and configure Solr.
    following variables::
 
     NO_START=0            # (line 4)
-    JETTY_HOST=127.0.0.1  # (line 15)
+    JETTY_HOST=0.0.0.0    # (line 15)
     JETTY_PORT=8983       # (line 18)
 
    Start the Jetty server::
@@ -267,6 +269,20 @@ installed, we need to install and configure Solr.
    You should now see a welcome page from Solr if you open
    http://localhost:8983/solr/ in your web browser (replace localhost with
    your server address if needed).
+
+   .. note::
+
+      If you get the following error message when opening the Solr page in your
+      browser::
+
+        java.lang.NoClassDefFoundError: org/apache/tomcat/util/descriptor/LocalResolver
+
+      Then run these commands::
+
+        sudo sh -c 'echo /usr/share/java/tomcat-coyote.jar >> /etc/jetty/start.config'
+        sudo service jetty restart
+
+      Then reload the page and you should see the Solr admin interface.
 
    .. note::
 
