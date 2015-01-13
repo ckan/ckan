@@ -485,6 +485,7 @@ def group_dictize(group, context,
             'uploads/group/%s' % result_dict.get('image_url'),
             qualified=True
         )
+
     return result_dict
 
 def tag_list_dictize(tag_list, context):

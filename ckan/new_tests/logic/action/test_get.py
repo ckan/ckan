@@ -100,8 +100,13 @@ class TestGet(object):
 
         expected_group = dict(group.items()[:])
         for field in ('users', 'tags', 'extras', 'groups'):
+            if field in group_list[0]:
+                del group_list[0][field]
             del expected_group[field]
+
         expected_group['packages'] = 0
+        print group_list[0], expected_group
+        print 'expected', expected_group, 'here'
         assert group_list[0] == expected_group
         assert 'extras' not in group_list[0]
         assert 'tags' not in group_list[0]
@@ -152,6 +157,9 @@ class TestGet(object):
 
         # FIXME: Should this be returned by group_create?
         group_dict.pop('num_followers', None)
+
+        print sorted(group_dict.keys())
+        print sorted(group.keys())
         assert group_dict == group
 
     def test_group_show_error_not_found(self):

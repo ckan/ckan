@@ -691,7 +691,10 @@ def _group_or_org_create(context, data_dict, is_org=False):
     logic.get_action('member_create')(member_create_context, member_dict)
 
     log.debug('Created object %s' % group.name)
-    return model_dictize.group_dictize(group, context)
+
+    #return model_dictize.group_dictize(group, context)
+    action = 'organization_show' if is_org else 'group_show'
+    return _get_action(action)(context, {'id': group.id})
 
 
 def group_create(context, data_dict):
