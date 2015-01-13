@@ -431,7 +431,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
         )
 
     if not all_fields:
-        group_list = [group[ref_group_by] for group in group_list]
+        group_list = [ group[ref_group_by] for group in group_list]
 
     return group_list
 

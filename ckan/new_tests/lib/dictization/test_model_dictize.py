@@ -322,7 +322,7 @@ class TestPackageDictize:
     def assert_equals_expected(self, expected_dict, result_dict):
         result_dict = self.remove_changable_values(result_dict)
         superfluous_keys = set(result_dict) - set(expected_dict)
-        print superfluous_keys
+
         assert not superfluous_keys, 'Did not expect key: %s' % \
             ' '.join(('%s=%s' % (k, result_dict[k]) for k in superfluous_keys))
         for key in expected_dict:

@@ -99,12 +99,14 @@ class TestGet(object):
         group_list = helpers.call_action('group_list', all_fields=True)
 
         expected_group = dict(group.items()[:])
-        for field in ('users', 'tags', 'extras', 'groups'):
+        for field in ('users', 'tags', 'extras', 'groups', 'num_followers'):
             if field in group_list[0]:
                 del group_list[0][field]
             del expected_group[field]
 
         expected_group['packages'] = 0
+        print sorted(group_list[0].keys())
+        print sorted(expected_group.keys())
         print group_list[0], expected_group
         print 'expected', expected_group, 'here'
         assert group_list[0] == expected_group

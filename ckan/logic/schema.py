@@ -347,6 +347,10 @@ def default_show_group_schema():
     schema['state'] = []
     schema['users'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
 
+    schema['closed_date'] = []
+    schema['related_group_id'] = []
+    schema['related_group_relationship'] = []
+
     return schema
 
 
