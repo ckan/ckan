@@ -58,9 +58,7 @@ class ReclineViewBase(p.SingletonPlugin):
         toolkit.add_resource('theme/public', 'ckanext-reclineview')
 
     def can_view(self, data_dict):
-        if data_dict['resource'].get('datastore_active'):
-            return True
-        return False
+        return data_dict['resource'].get('datastore_active')
 
     def setup_template_variables(self, context, data_dict):
         return {'resource_json': json.dumps(data_dict['resource']),
@@ -83,6 +81,15 @@ class ReclineView(ReclineViewBase):
                 'requires_datastore': True,
                 'default_title': p.toolkit._('Data Explorer'),
                 }
+
+    def can_view(self, data_dict):
+        if data_dict['resource'].get('datastore_active'):
+            return True
+        resource_format = data_dict['resource'].get('format', None)
+        if resource_format:
+            return resource_format.lower() in ['csv', 'xls', 'tsv']
+        else:
+            return False
 
 
 class ReclineGridView(ReclineViewBase):
