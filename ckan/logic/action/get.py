@@ -1337,8 +1337,6 @@ def user_show(context, data_dict):
         user_dict['datasets'] = []
         dataset_q = (model.Session.query(model.Package)
                      .filter_by(creator_user_id=user_dict['id'])
-                     .filter_by(state='active')
-                     .filter_by(private=False)
                      .limit(50))
 
         for dataset in dataset_q:

@@ -200,9 +200,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         # have to import here to avoid circular imports
         import ckan.model as model
         q = meta.Session.query(model.Package)\
-            .filter_by(creator_user_id=self.id)\
-            .filter_by(state='active')\
-            .filter_by(private=False)
+            .filter_by(creator_user_id=self.id)
         return q.count()
 
     def activate(self):
