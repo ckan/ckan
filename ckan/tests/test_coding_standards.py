@@ -775,8 +775,6 @@ class TestActionAuth(object):
         'get: user_activity_list_html',
         'get: user_followee_count',
         'get: user_follower_count',
-        'get: vocabulary_list',
-        'get: vocabulary_show',
         'update: package_relationship_update_rest',
         'update: task_status_update_many',
         'update: term_translation_update_many',
