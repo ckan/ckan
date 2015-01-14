@@ -110,7 +110,7 @@
                 {# Views not created #}
                 <div class="module-content data-viewer-info">
                   <p>{{ _("There are no views created for this resource yet.") }}</p>
-                  {% if h.check_access('resource_view_create') %}
+                  {% if h.check_access('resource_view_create', {'resource_id': c.resource.id}) %}
                     <p class="muted">
                       <i class="icon-info-sign"></i>
                       {{ _("Not seeing the views you were expecting?")}}
