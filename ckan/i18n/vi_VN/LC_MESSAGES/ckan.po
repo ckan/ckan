@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2015-01-13 02:56+0000\n"
+"PO-Revision-Date: 2015-01-14 09:10+0000\n"
 "Last-Translator: ODM Vietnam <vietnam@opendevmekong.net>\n"
 "Language-Team: Vietnamese (http://www.transifex.com/projects/p/ckan/language/vi/)\n"
 "MIME-Version: 1.0\n"
@@ -3333,7 +3333,7 @@ msgstr "Đây là bản hiệu đính hiện tại của bộ dữ liệu, đư�
 
 #: ckan/templates/package/related_list.html:8
 msgid "Related Media for {dataset}"
-msgstr "Phương tiện truyền thông liên quan cho {bộ dữ liệu}"
+msgstr "Phương tiện truyền thông liên quan cho  {dataset}"
 
 #: ckan/templates/package/related_list.html:13
 msgid "No related items"
