@@ -81,7 +81,8 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/tag_list', params=params, status=404)
 
     def test_07_tag_show(self):
-        postparams = '%s=1' % json.dumps({'id':'russian'})
+        postparams = '%s=1' % json.dumps({'id':'russian',
+                                          'include_datasets': True})
         res = self.app.post('/api/action/tag_show', params=postparams)
         res_obj = json.loads(res.body)
         assert '/api/3/action/help_show?name=tag_show' in res_obj['help']
@@ -108,7 +109,8 @@ class TestAction(WsgiAppCase):
         The flexible tag is the tag with spaces, punctuation and foreign
         characters in its name, that's created in `ckan/lib/create_test_data.py`.
         """
-        postparams = '%s=1' % json.dumps({'id':u'Flexible \u30a1'})
+        postparams = '%s=1' % json.dumps({'id':u'Flexible \u30a1',
+                                          'include_datasets': True})
         res = self.app.post('/api/action/tag_show', params=postparams)
         res_obj = json.loads(res.body)
         assert '/api/3/action/help_show?name=tag_show' in res_obj['help']
@@ -128,7 +130,8 @@ class TestAction(WsgiAppCase):
             'tags': u'tolstoy',
             'license': 'never_heard_of_it',
             }])
-        postparams = '%s=1' % json.dumps({'id':'tolstoy'})
+        postparams = '%s=1' % json.dumps({'id':'tolstoy',
+                                          'include_datasets': True})
         res = self.app.post('/api/action/tag_show', params=postparams)
         res_obj = json.loads(res.body)
         assert res_obj['success'] == True
