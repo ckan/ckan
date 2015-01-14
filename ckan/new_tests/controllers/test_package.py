@@ -216,6 +216,55 @@ class TestPackageResourceRead(helpers.FunctionalTestBase):
         app = self._get_test_app()
         app.get(url, status=404)
 
+    def test_resource_read_logged_in_user(self):
+        '''
+        A logged-in user can view resource page.
+        '''
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=dataset['id'],
+                      resource_id=resource['id'])
+
+        app = self._get_test_app()
+        app.get(url, status=200, extra_environ=env)
+
+    def test_resource_read_anon_user(self):
+        '''
+        An anon user can view resource page.
+        '''
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=dataset['id'],
+                      resource_id=resource['id'])
+
+        app = self._get_test_app()
+        app.get(url, status=200)
+
+    def test_resource_read_sysadmin(self):
+        '''
+        A sysadmin can view resource page.
+        '''
+        sysadmin = factories.Sysadmin()
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=dataset['id'],
+                      resource_id=resource['id'])
+
+        app = self._get_test_app()
+        app.get(url, status=200, extra_environ=env)
+
 
 class TestPackageRead(helpers.FunctionalTestBase):
     @classmethod
