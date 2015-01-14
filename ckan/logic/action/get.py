@@ -2277,12 +2277,17 @@ def status_show(context, data_dict):
 def vocabulary_list(context, data_dict):
     '''Return a list of all the site's tag vocabularies.
 
+    :param include_datasets: include a list of datasets in each tag
+         (optional, default: ``False``)
+    :type include_datasets: boolean
     :rtype: list of dictionaries
 
     '''
     model = context['model']
+    include_datasets = asbool(data_dict.get('include_datasets', False))
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
-    return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
+    return model_dictize.vocabulary_list_dictize(vocabulary_objects, context,
+                                                 include_datasets)
 
 
 def vocabulary_show(context, data_dict):
