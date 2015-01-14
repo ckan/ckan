@@ -631,7 +631,7 @@ def group_to_api(group, context):
 def tag_to_api(tag, context):
     api_version = context.get('api_version')
     assert api_version, 'No api_version supplied in context'
-    dictized = tag_dictize(tag, context)
+    dictized = tag_dictize(tag, context, include_datasets=True)
     if api_version == 1:
         return sorted([package["name"] for package in dictized["packages"]])
     else:
@@ -710,8 +710,8 @@ def vocabulary_dictize(vocabulary, context, include_datasets=False):
             for tag in vocabulary.tags]
     return vocabulary_dict
 
-def vocabulary_list_dictize(vocabulary_list, context):
-    return [vocabulary_dictize(vocabulary, context)
+def vocabulary_list_dictize(vocabulary_list, context, include_datasets=False):
+    return [vocabulary_dictize(vocabulary, context, include_datasets)
             for vocabulary in vocabulary_list]
 
 def activity_dictize(activity, context):
