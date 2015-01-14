@@ -289,12 +289,12 @@ class TestDashboard(object):
     def test_05_new_activities_count(self):
         '''Test that new activities from objects that a user follows increase
         her new activities count.'''
-        assert self.dashboard_new_activities_count(self.new_user) == 4
+        assert self.dashboard_new_activities_count(self.new_user) == 3
 
     def test_06_activities_marked_as_new(self):
         '''Test that new activities from objects that a user follows are
         marked as new in her dashboard activity stream.'''
-        assert len(self.dashboard_new_activities(self.new_user)) == 4
+        assert len(self.dashboard_new_activities(self.new_user)) == 3
 
     def test_07_mark_new_activities_as_read(self):
         '''Test that a user's new activities are marked as old when she views

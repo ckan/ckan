@@ -378,6 +378,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
         log.warn('`order_by` deprecated please use `sort`')
         if not data_dict.get('sort'):
             sort = order_by
+
     # if the sort is packages and no sort direction is supplied we want to do a
     # reverse sort to maintain compatibility.
     if sort.strip() in ('packages', 'package_count'):
@@ -413,22 +414,16 @@ def _group_or_org_list(context, data_dict, is_org=False):
         query = query.filter(model.Group.type == group_type)
 
     groups = query.all()
-    if all_fields:
-        include_tags = asbool(data_dict.get('include_tags', False))
-    else:
-        include_tags = False
-    # even if we are not going to return all_fields, we need to dictize all the
-    # groups so that we can sort by any field.
-    group_list = model_dictize.group_list_dictize(
-        groups, context,
-        sort_key=lambda x: x[sort_info[0][0]],
-        reverse=sort_info[0][1] == 'desc',
-        with_package_counts=all_fields or
-        sort_info[0][0] in ('packages', 'package_count'),
-        include_groups=asbool(data_dict.get('include_groups', False)),
-        include_tags=include_tags,
-        include_extras=include_extras,
-        )
+
+    action = 'organization_show' if is_org else 'group_show'
+
+    group_list = []
+    for group in groups:
+        data_dict['id'] = group.id
+        group_list.append(logic.get_action(action)(context, data_dict))
+
+    group_list = sorted(group_list, key=lambda x: x[sort_info[0][0]],
+        reverse=sort_info[0][1] == 'desc')
 
     if not all_fields:
         group_list = [group[ref_group_by] for group in group_list]
@@ -463,7 +458,7 @@ def group_list(context, data_dict):
         (optional, default: ``False``)
     :type include_tags: boolean
     :param include_groups: if all_fields, include the groups the groups are in
-        (optional, default: ``False``)
+        (optional, default: ``False``).
     :type include_groups: boolean
 
     :rtype: list of strings
@@ -1141,11 +1136,10 @@ def _group_or_org_show(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context['group'] = group
 
-    include_datasets = data_dict.get('include_datasets', True)
+    include_datasets = data_dict.get('include_datasets', False)
     if isinstance(include_datasets, basestring):
         include_datasets = (include_datasets.lower() in ('true', '1'))
-    packages_field = 'datasets' if include_datasets \
-                     else 'none_but_include_package_count'
+    packages_field = 'datasets' if include_datasets else 'dataset_count'
 
     if group is None:
         raise NotFound

@@ -702,7 +702,14 @@ def _group_or_org_create(context, data_dict, is_org=False):
     logic.get_action('member_create')(member_create_context, member_dict)
 
     log.debug('Created object %s' % group.name)
-    return model_dictize.group_dictize(group, context)
+
+    return_id_only = context.get('return_id_only', False)
+    action = 'organization_show' if is_org else 'group_show'
+
+    output = context['id'] if return_id_only \
+        else _get_action(action)(context, {'id': group.id})
+
+    return output
 
 
 def group_create(context, data_dict):
@@ -762,7 +769,9 @@ def group_create(context, data_dict):
         a member of the group)
     :type users: list of dictionaries
 
-    :returns: the newly created group
+    :returns: the newly created group (unless 'return_id_only' is set to True
+              in the context, in which case just the group id will
+              be returned)
     :rtype: dictionary
 
     '''
@@ -821,7 +830,9 @@ def organization_create(context, data_dict):
         in which the user is a member of the organization)
     :type users: list of dictionaries
 
-    :returns: the newly created organization
+    :returns: the newly created organization (unless 'return_id_only' is set
+              to True in the context, in which case just the organization id
+              will be returned)
     :rtype: dictionary
 
     '''

@@ -362,14 +362,10 @@ def group_dictize(group, context,
     like tags are included unless you specify it in the params.
 
     :param packages_field: determines the format of the `packages` field - can
-    be `datasets`, `dataset_count`, `none_but_include_package_count` or None.
-    If set to `dataset_count` or `none_but_include_package_count` then you
-    can precalculate dataset counts in advance by supplying:
-    context['dataset_counts'] = get_group_dataset_counts()
+    be `datasets` or None.
     '''
-    assert packages_field in ('datasets', 'dataset_count',
-                              'none_but_include_package_count', None)
-    if packages_field in ('dataset_count', 'none_but_include_package_count'):
+    assert packages_field in ('datasets', 'dataset_count', None)
+    if packages_field == 'dataset_count':
         dataset_counts = context.get('dataset_counts', None)
 
     result_dict = d.table_dictize(group, context)
@@ -418,12 +414,11 @@ def group_dictize(group, context,
             search_results = logic.get_action('package_search')(search_context,
                                                                 q)
             return search_results['count'], search_results['results']
+
         if packages_field == 'datasets':
             package_count, packages = get_packages_for_this_group(group)
             result_dict['packages'] = packages
         else:
-            # i.e. packages_field is 'dataset_count' or
-            # 'none_but_include_package_count'
             if dataset_counts is None:
                 package_count, packages = get_packages_for_this_group(
                     group, just_the_count=True)
@@ -434,8 +429,6 @@ def group_dictize(group, context,
                     package_count = facets['owner_org'].get(group.id, 0)
                 else:
                     package_count = facets['groups'].get(group.name, 0)
-            if packages_field != 'none_but_include_package_count':
-                result_dict['packages'] = package_count
 
         result_dict['package_count'] = package_count
 

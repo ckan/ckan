@@ -25,7 +25,7 @@ class TestGroupListDictize:
 
         assert_equal(len(group_dicts), 1)
         assert_equal(group_dicts[0]['name'], group['name'])
-        assert_equal(group_dicts[0]['packages'], 0)
+        assert_equal(group_dicts[0]['package_count'], 0)
         assert 'extras' not in group_dicts[0]
         assert 'tags' not in group_dicts[0]
         assert 'groups' not in group_dicts[0]
@@ -181,7 +181,6 @@ class TestGroupDictize:
 
         assert_equal(len(group['groups']), 1)
         assert_equal(group['groups'][0]['name'], 'parent')
-        assert_equal(group['groups'][0]['packages'], 0)  # deprecated
         assert_equal(group['groups'][0]['package_count'], 0)
 
     def test_group_dictize_without_packages(self):
@@ -250,8 +249,6 @@ class TestGroupDictize:
 
         group = model_dictize.group_dictize(group_obj, context,
                                             packages_field='dataset_count')
-
-        assert_equal(group['packages'], 1)
         assert_equal(group['package_count'], 1)
 
     def test_group_dictize_with_no_packages_field_but_still_package_count(self):
@@ -263,8 +260,7 @@ class TestGroupDictize:
         # not supplying dataset_counts in this case either
 
         group = model_dictize.group_dictize(group_obj, context,
-                                            packages_field=
-                                            'none_but_include_package_count')
+                                            packages_field='dataset_count')
 
         assert 'packages' not in group
         assert_equal(group['package_count'], 1)
@@ -293,7 +289,7 @@ class TestGroupDictize:
         org = model_dictize.group_dictize(org_obj, context,
                                           packages_field='dataset_count')
 
-        assert_equal(org['packages'], 1)
+        assert_equal(org['package_count'], 1)
 
 
 class TestPackageDictize:

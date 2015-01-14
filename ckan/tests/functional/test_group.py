@@ -84,19 +84,19 @@ class TestGroup(FunctionalTestCase):
         assert results[-1]['name'] == u'alpha', results[-1]['name']
 
         # Test packages reversed
-        data_dict = {'all_fields': True, 'sort': 'packages desc'}
+        data_dict = {'all_fields': True, 'sort': 'package_count desc'}
         results = get_action('group_list')(context, data_dict)
         assert results[0]['name'] == u'beta', results[0]['name']
         assert results[1]['name'] == u'delta', results[1]['name']
 
         # Test packages forward
-        data_dict = {'all_fields': True, 'sort': 'packages asc'}
+        data_dict = {'all_fields': True, 'sort': 'package_count asc'}
         results = get_action('group_list')(context, data_dict)
         assert results[-2]['name'] == u'delta', results[-2]['name']
         assert results[-1]['name'] == u'beta', results[-1]['name']
 
         # Default ordering for packages
-        data_dict = {'all_fields': True, 'sort': 'packages'}
+        data_dict = {'all_fields': True, 'sort': 'package_count'}
         results = get_action('group_list')(context, data_dict)
         assert results[0]['name'] == u'beta', results[0]['name']
         assert results[1]['name'] == u'delta', results[1]['name']
