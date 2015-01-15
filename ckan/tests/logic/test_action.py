@@ -114,18 +114,6 @@ class TestAction(WsgiAppCase):
         assert 'public_dataset' in res
         assert not 'private_dataset' in res
 
-    def test_01_package_show(self):
-        anna_id = model.Package.by_name(u'annakarenina').id
-        postparams = '%s=1' % json.dumps({'id': anna_id})
-        res = self.app.post('/api/action/package_show', params=postparams)
-        res_dict = json.loads(res.body)
-        assert_equal(res_dict['success'], True)
-        assert "/api/3/action/help_show?name=package_show" in res_dict['help']
-        pkg = res_dict['result']
-        assert_equal(pkg['name'], 'annakarenina')
-        missing_keys = set(('title', 'groups')) - set(pkg.keys())
-        assert not missing_keys, missing_keys
-
     def test_01_package_show_with_jsonp(self):
         anna_id = model.Package.by_name(u'annakarenina').id
         postparams = '%s=1' % json.dumps({'id': anna_id})
@@ -352,10 +340,9 @@ class TestAction(WsgiAppCase):
         result = res_obj['result']
         assert result['name'] == 'annafan'
         assert result['about'] == 'I love reading Annakarenina. My site: http://anna.com'
-        assert 'activity' in result
         assert 'created' in result
         assert 'display_name' in result
-        assert 'number_administered_packages' in result
+        assert 'number_created_packages' in result
         assert 'number_of_edits' in result
         assert not 'apikey' in result
         assert not 'reset_key' in result
@@ -378,36 +365,13 @@ class TestAction(WsgiAppCase):
         assert result['name'] == 'annafan'
         assert 'apikey' in result
 
-    def test_05_user_show_edits(self):
-        postparams = '%s=1' % json.dumps({'id':'tester'})
-        res = self.app.post('/api/action/user_show', params=postparams)
-        res_obj = json.loads(res.body)
-        assert "/api/3/action/help_show?name=user_show" in res_obj['help']
-        assert res_obj['success'] == True
-        result = res_obj['result']
-        assert result['name'] == 'tester'
-        assert_equal(result['about'], None)
-        assert result['number_of_edits'] >= 1
-        edit = result['activity'][-1] # first edit chronologically
-        assert_equal(edit['author'], 'tester')
-        assert 'timestamp' in edit
-        assert_equal(edit['state'], 'active')
-        assert_equal(edit['approved_timestamp'], None)
-        assert_equal(set(edit['groups']), set(( 'roger', 'david')))
-        assert_equal(edit['state'], 'active')
-        assert edit['message'].startswith('Creating test data.')
-        assert_equal(set(edit['packages']), set(('warandpeace', 'annakarenina')))
-        assert 'id' in edit
-
     def test_05b_user_show_datasets(self):
-        postparams = '%s=1' % json.dumps({'id':'annafan'})
+        postparams = '%s=1' % json.dumps({'id':'annafan', 'include_datasets': True})
         res = self.app.post('/api/action/user_show', params=postparams)
         res_obj = json.loads(res.body)
         result = res_obj['result']
         datasets = result['datasets']
-        assert_equal(len(datasets), 1)
-        dataset = result['datasets'][0]
-        assert_equal(dataset['name'], u'annakarenina')
+        assert_equal(len(datasets), 0)  # No datasets created
 
 
     def test_10_user_create_parameters_missing(self):
@@ -471,7 +435,7 @@ class TestAction(WsgiAppCase):
         assert 'apikey' in result
         assert 'created' in result
         assert 'display_name' in result
-        assert 'number_administered_packages' in result
+        assert 'number_created_packages' in result
         assert 'number_of_edits' in result
         assert not 'password' in result
 
@@ -520,13 +484,13 @@ class TestAction(WsgiAppCase):
                 {'user_dict': {'id': self.normal_user.id,
                           'name':'',
                           'email':'test@test.com'},
-                 'messages': [('name','Name must be at least 2 characters long')]},
+                 'messages': [('name','Must be at least 2 characters long')]},
 
             # Invalid characters in name
                 {'user_dict': {'id': self.normal_user.id,
                           'name':'i++%',
                           'email':'test@test.com'},
-                 'messages': [('name','Url must be purely lowercase alphanumeric')]},
+                 'messages': [('name','Must be purely lowercase alphanumeric')]},
             # Existing name
                 {'user_dict': {'id': self.normal_user.id,
                           'name':self.sysadmin_user.name,
@@ -1014,9 +978,9 @@ class TestAction(WsgiAppCase):
                             params=json.dumps({'id': '749cdcf2-3fc8-44ae-aed0-5eff8cc5032c'}),
                             status=200).body)
 
-        assert resource_status_show in res['help']
+        assert "/api/3/action/help_show?name=resource_status_show" in res['help']
         assert res['success'] is True
-        assert res['result'] == [{"status": "FAILURE", "entity_id": "749cdcf2-3fc8-44ae-aed0-5eff8cc5032c", "task_type": "qa", "last_updated": "2012-04-20T21:32:45.553986", "date_done": "2012-04-20T21:33:01.622557", "entity_type": "resource", "traceback": "Traceback", "value": "51f2105d-85b1-4393-b821-ac11475919d9", "state": None, "key": "celery_task_id", "error": "", "id": "5753adae-cd0d-4327-915d-edd832d1c9a3"}]
+        assert res['result'] == [{"status": None, "entity_id": "749cdcf2-3fc8-44ae-aed0-5eff8cc5032c", "task_type": "qa", "last_updated": "2012-04-20T21:32:45.553986", "date_done": None, "entity_type": "resource", "traceback": None, "value": "51f2105d-85b1-4393-b821-ac11475919d9", "state": None, "key": "celery_task_id", "error": "", "id": "5753adae-cd0d-4327-915d-edd832d1c9a3"}], res['result']
 
     def test_41_missing_action(self):
         try:
@@ -1162,188 +1126,6 @@ class TestAction(WsgiAppCase):
         assert error['__type'] == 'Validation Error'
         assert error['extras_validation'] == ['Duplicate key "foo"']
 
-    def test_resource_view_create_not_authorized_if_not_logged_in(self):
-        resource_id = model.Package.by_name(u'annakarenina').resources[0].id
-        resource_view = {'resource_id': resource_id,
-                         'title': u'Resource View',
-                         'view_type': u'image',
-                         'image_url': 'url'}
-        postparams = '%s=1' % json.dumps(resource_view)
-        self.app.post('/api/action/resource_view_create', params=postparams,
-                      status=403)
-
-    def test_resource_view_show(self):
-        resource_id = model.Package.by_name(u'annakarenina').resources[0].id
-        resource_view = {'resource_id': resource_id,
-                         'view_type': u'image',
-                         'title': u'View',
-                         'description': u'A nice view',
-                         'image_url': 'url'}
-        postparams = '%s=1' % json.dumps(resource_view)
-        res = self.app.post(
-            '/api/action/resource_view_create', params=postparams,
-            extra_environ={'Authorization': str(self.normal_user.apikey)})
-        resource_view_created = json.loads(res.body)['result']
-
-        postparams = '%s=1' % json.dumps({'id': resource_view_created['id']})
-        res = self.app.post('/api/action/resource_view_show',
-                            params=postparams)
-        result = json.loads(res.body)['result']
-
-        result.pop('id')
-        result.pop('package_id')
-        assert result == resource_view
-
-    def test_resource_view_list_reorder(self):
-
-        extra_environ = {'Authorization': str(self.normal_user.apikey)}
-
-        resource_id = model.Package.by_name(u'annakarenina').resources[1].id
-        resource_view = {'resource_id': resource_id,
-                         'view_type': u'image',
-                         'title': u'View',
-                         'description': u'A nice view',
-                         'image_url': 'url'}
-
-        #### Make first view ####
-        postparams = '%s=1' % json.dumps(resource_view)
-        res = self.app.post(
-            '/api/action/resource_view_create', params=postparams,
-            extra_environ=extra_environ)
-        resource_id_1 = json.loads(res.body)['result']['id']
-
-        #### Make second view ####
-        resource_view['title'] = 'View2'
-        postparams = '%s=1' % json.dumps(resource_view)
-        res = self.app.post(
-            '/api/action/resource_view_create', params=postparams,
-            extra_environ=extra_environ)
-        resource_id_2 = json.loads(res.body)['result']['id']
-
-        ### Check order is the same
-        postparams = '%s=1' % json.dumps({'id': resource_id})
-        res = self.app.post('/api/action/resource_view_list',
-                            params=postparams)
-        result = json.loads(res.body)['result']
-
-        assert result[0]['title'] == 'View', result[0]['title']
-        assert result[1]['title'] == 'View2', result[1]['title']
-
-        ### Reorder Views
-        postparams = '%s=1' % json.dumps({
-            'id': resource_id,
-            'order': [resource_id_2, resource_id_1]})
-        res = self.app.post('/api/action/resource_view_reorder',
-                            params=postparams, extra_environ=extra_environ)
-        result = json.loads(res.body)['result']
-        assert result['order'] == [resource_id_2, resource_id_1]
-
-        ### Check order is now changed
-        postparams = '%s=1' % json.dumps({'id': resource_id})
-        res = self.app.post('/api/action/resource_view_list',
-                            params=postparams, extra_environ=extra_environ)
-        result = json.loads(res.body)['result']
-
-        assert result[0]['title'] == 'View2', result[0]['title']
-        assert result[1]['title'] == 'View', result[1]['title']
-
-        ### Reorder Views back just by specifiying a single view togo first
-        postparams = '%s=1' % json.dumps({'id': resource_id,
-                                          'order': [resource_id_1]})
-        res = self.app.post('/api/action/resource_view_reorder',
-                            params=postparams, extra_environ=extra_environ)
-        result = json.loads(res.body)['result']
-        assert result['order'] == [resource_id_1, resource_id_2]
-
-        ### Check order is back ot original
-        postparams = '%s=1' % json.dumps({'id': resource_id})
-        res = self.app.post('/api/action/resource_view_list',
-                            params=postparams, extra_environ=extra_environ)
-        result = json.loads(res.body)['result']
-
-        assert result[0]['title'] == 'View', result[0]['title']
-        assert result[1]['title'] == 'View2', result[1]['title']
-
-    def test_resource_view_show_missing_resource_view_id(self):
-        postparams = '%s=1' % json.dumps({})
-        self.app.post('/api/action/resource_view_show',
-                      params=postparams, status=409)
-
-    def test_resource_view_show_invalid_resource_view_id(self):
-        postparams = '%s=1' % json.dumps({'id': u'bad-resource-view-id'})
-        self.app.post('/api/action/resource_view_show',
-                      params=postparams, status=404)
-
-    def test_resource_view_update_invalid_auth(self):
-        resource_id = model.Package.by_name(u'annakarenina').resources[0].id
-        resource_view = {'resource_id': resource_id,
-                         'title': u'Resource View',
-                         'view_type': u'image',
-                         'image_url': 'url'}
-        postparams = '%s=1' % json.dumps(resource_view)
-        res = self.app.post(
-            '/api/action/resource_view_create', params=postparams,
-            extra_environ={'Authorization': str(self.normal_user.apikey)})
-        resource_view_created = json.loads(res.body)['result']
-
-        resource_view.update({'id': resource_view_created['id'],
-                              'image_url': 'new_url'})
-        postparams = '%s=1' % json.dumps(resource_view)
-        self.app.post('/api/action/resource_view_update', params=postparams,
-                      status=403)
-
-    def test_resource_view_delete(self):
-        resource_id = model.Package.by_name(u'annakarenina').resources[0].id
-        resource_view = {'resource_id': resource_id,
-                         'title': u'Resource View',
-                         'view_type': u'image',
-                         'image_url': 'url'}
-        postparams = '%s=1' % json.dumps(resource_view)
-        res = self.app.post(
-            '/api/action/resource_view_create', params=postparams,
-            extra_environ={'Authorization': str(self.normal_user.apikey)})
-        resource_view_created = json.loads(res.body)['result']
-
-        postparams = '%s=1' % json.dumps({'id': resource_view_created['id']})
-        res = self.app.post(
-            '/api/action/resource_view_delete', params=postparams,
-            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-        assert json.loads(res.body)['success']
-
-        postparams = '%s=1' % json.dumps({'id': resource_view_created['id']})
-        self.app.post('/api/action/resource_view_show',
-                      params=postparams, status=404)
-
-    def test_resource_view_delete_invalid_auth(self):
-        resource_id = model.Package.by_name(u'annakarenina').resources[0].id
-        resource_view = {'resource_id': resource_id,
-                         'title': u'Resource View',
-                         'view_type': u'image',
-                         'image_url': 'url'}
-        postparams = '%s=1' % json.dumps(resource_view)
-        res = self.app.post(
-            '/api/action/resource_view_create', params=postparams,
-            extra_environ={'Authorization': str(self.normal_user.apikey)})
-        resource_view_created = json.loads(res.body)['result']
-
-        postparams = '%s=1' % json.dumps({'id': resource_view_created['id']})
-        self.app.post('/api/action/resource_view_delete', params=postparams,
-                      status=403)
-
-    def test_resource_view_delete_missing_resource_view_id(self):
-        postparams = '%s=1' % json.dumps({})
-        self.app.post(
-            '/api/action/resource_view_delete', params=postparams,
-            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
-            status=409)
-
-    def test_resource_view_delete_invalid_resource_view_id(self):
-        postparams = '%s=1' % json.dumps({'id': u'bad-resource-view-id'})
-        self.app.post(
-            '/api/action/resource_view_delete', params=postparams,
-            extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
-            status=404)
-
 
 class TestActionTermTranslation(WsgiAppCase):
 
@@ -1404,8 +1186,12 @@ class TestActionTermTranslation(WsgiAppCase):
                             status=200)
 
         assert json.loads(res.body)['success']
-        assert json.loads(res.body)['result'] == [{u'lang_code': u'fr', u'term': u'moo', u'term_translation': u'moomoo'},
-                                                  {u'lang_code': u'en', u'term': u'moo', u'term_translation': u'moomoo'}], json.loads(res.body)
+        # sort the result since the order is not important and is implementation
+        # dependent
+        assert sorted(json.loads(res.body)['result']) == sorted(
+            [{u'lang_code': u'fr', u'term': u'moo', u'term_translation': u'moomoo'},
+             {u'lang_code': u'en', u'term': u'moo', u'term_translation': u'moomoo'}]),\
+            json.loads(res.body)
 
     def test_2_update_many(self):
 
@@ -1436,8 +1222,12 @@ class TestActionTermTranslation(WsgiAppCase):
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)},
                             status=200)
 
-        assert json.loads(res.body)['result'] == [{u'lang_code': u'fr', u'term': u'many', u'term_translation': u'manymoo'},
-                                                  {u'lang_code': u'en', u'term': u'many', u'term_translation': u'manymoomoo'}], json.loads(res.body)
+        # sort the result since the order is not important and is implementation
+        # dependent
+        assert sorted(json.loads(res.body)['result']) == sorted(
+            [{u'lang_code': u'fr', u'term': u'many', u'term_translation': u'manymoo'},
+             {u'lang_code': u'en', u'term': u'many', u'term_translation': u'manymoomoo'}]),\
+            json.loads(res.body)
 
 
 

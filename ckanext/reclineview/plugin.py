@@ -58,9 +58,7 @@ class ReclineViewBase(p.SingletonPlugin):
         toolkit.add_resource('theme/public', 'ckanext-reclineview')
 
     def can_view(self, data_dict):
-        if data_dict['resource'].get('datastore_active'):
-            return True
-        return False
+        return data_dict['resource'].get('datastore_active')
 
     def setup_template_variables(self, context, data_dict):
         return {'resource_json': json.dumps(data_dict['resource']),
@@ -78,7 +76,20 @@ class ReclineView(ReclineViewBase):
     def info(self):
         return {'name': 'recline_view',
                 'title': 'Data Explorer',
-                'icon': 'table'}
+                'filterable': True,
+                'icon': 'table',
+                'requires_datastore': True,
+                'default_title': p.toolkit._('Data Explorer'),
+                }
+
+    def can_view(self, data_dict):
+        if data_dict['resource'].get('datastore_active'):
+            return True
+        resource_format = data_dict['resource'].get('format', None)
+        if resource_format:
+            return resource_format.lower() in ['csv', 'xls', 'tsv']
+        else:
+            return False
 
 
 class ReclineGridView(ReclineViewBase):
@@ -89,7 +100,11 @@ class ReclineGridView(ReclineViewBase):
     def info(self):
         return {'name': 'recline_grid_view',
                 'title': 'Grid',
-                'icon': 'table'}
+                'filterable': True,
+                'icon': 'table',
+                'requires_datastore': True,
+                'default_title': p.toolkit._('Table'),
+                }
 
 
 class ReclineGraphView(ReclineViewBase):
@@ -127,8 +142,12 @@ class ReclineGraphView(ReclineViewBase):
         }
         return {'name': 'recline_graph_view',
                 'title': 'Graph',
+                'filterable': True,
                 'icon': 'bar-chart',
-                'schema': schema}
+                'requires_datastore': True,
+                'schema': schema,
+                'default_title': p.toolkit._('Graph'),
+                }
 
     def setup_template_variables(self, context, data_dict):
         self.datastore_fields = datastore_fields(data_dict['resource'],
@@ -183,7 +202,10 @@ class ReclineMapView(ReclineViewBase):
         return {'name': 'recline_map_view',
                 'title': 'Map',
                 'schema': schema,
-                'icon': 'map-marker'}
+                'filterable': True,
+                'icon': 'map-marker',
+                'default_title': p.toolkit._('Map'),
+                }
 
     def setup_template_variables(self, context, data_dict):
         self.datastore_fields = datastore_fields(data_dict['resource'],

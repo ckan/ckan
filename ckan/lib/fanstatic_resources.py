@@ -97,7 +97,6 @@ def create_library(name, path, depend_base=True):
 
         # add the resource to this module
         fanstatic_name = '%s/%s' % (lib_name, path)
-        log.debug('create resource %s' % fanstatic_name)
         setattr(module, fanstatic_name, resource)
         return resource
 

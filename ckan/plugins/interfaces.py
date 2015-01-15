@@ -231,7 +231,7 @@ class IResourceView(Interface):
             of the page. Default false (Optional)
 
         eg:
-            {'name': 'image',
+            {'name': 'image_view',
              'title': 'Image',
              'schema': {'image_url': [ignore_empty, unicode]},
              'icon': 'compass',

@@ -1,8 +1,6 @@
 import json
-import httpretty
 import nose
 import sys
-import datetime
 from nose.tools import assert_equal
 
 import pylons
@@ -82,7 +80,7 @@ class TestDatastoreCreateNewTests(object):
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        assert self._has_index_on_field(resource_id, '_full_text')
+        assert self._has_index_on_field(resource_id, '"_full_text"')
 
     def test_create_adds_index_on_full_text_search_when_not_creating_other_indexes(self):
         package = factories.Dataset()
@@ -97,7 +95,7 @@ class TestDatastoreCreateNewTests(object):
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        assert self._has_index_on_field(resource_id, '_full_text')
+        assert self._has_index_on_field(resource_id, '"_full_text"')
 
     def test_create_add_full_text_search_indexes_on_every_text_field(self):
         package = factories.Dataset()
@@ -114,9 +112,9 @@ class TestDatastoreCreateNewTests(object):
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
         assert self._has_index_on_field(resource_id,
-                                        "to_tsvector('english', 'boo%k')")
+                                        "to_tsvector('english', \"boo%k\")")
         assert self._has_index_on_field(resource_id,
-                                        "to_tsvector('english', 'author')")
+                                        "to_tsvector('english', \"author\")")
 
     def test_create_doesnt_add_more_indexes_when_updating_data(self):
         resource = factories.Resource()

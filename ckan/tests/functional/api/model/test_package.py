@@ -250,18 +250,6 @@ class PackagesTestCase(BaseModelApiTestCase):
         postparams = '%s=1' % self.dumps(self.package_fixture_data)
         res = self.app.post(offset, params=postparams, status=self.STATUS_403_ACCESS_DENIED)
 
-    def test_register_post_readonly_fields(self):
-        # (ticket 662) Post a package with readonly field such as 'id'
-        offset = self.offset('/rest/dataset')
-        data = {'name': u'test_readonly',
-                'id': u'not allowed to be set',
-                }
-        postparams = '%s=1' % self.dumps(data)
-        res = self.app.post(offset, params=postparams,
-                            status=self.STATUS_409_CONFLICT,
-                            extra_environ=self.admin_extra_environ)
-        assert_equal(res.body, '{"id": ["The input field id was not expected."]}')
-
     def test_register_post_indexerror(self):
         """
         Test that we can't add a package if Solr is down.

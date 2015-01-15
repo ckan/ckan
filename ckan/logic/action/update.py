@@ -18,8 +18,8 @@ import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.email_notifications as email_notifications
 import ckan.lib.search as search
-import ckan.lib.datapreview as datapreview
 import ckan.lib.uploader as uploader
+import ckan.lib.datapreview
 
 from ckan.common import _, request
 
@@ -152,7 +152,7 @@ def resource_update(context, data_dict):
     try:
         context['defer_commit'] = True
         context['use_cache'] = False
-        pkg_dict = _get_action('package_update')(context, pkg_dict)
+        updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError, e:
         errors = e.error_dict['resources'][n]
@@ -186,15 +186,14 @@ def resource_view_update(context, data_dict):
     '''
     model = context['model']
     id = _get_or_bust(data_dict, "id")
-    schema = (context.get('schema') or
-              ckan.logic.schema.default_update_resource_view_schema())
-
 
     resource_view = model.ResourceView.get(id)
     if not resource_view:
         raise NotFound
 
-    view_plugin = datapreview.get_view_plugin(resource_view.view_type)
+    view_plugin = ckan.lib.datapreview.get_view_plugin(resource_view.view_type)
+    schema = (context.get('schema') or
+              schema_.default_update_resource_view_schema(view_plugin))
     plugin_schema = view_plugin.info().get('schema', {})
     schema.update(plugin_schema)
 
@@ -203,7 +202,7 @@ def resource_view_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    context["resource_view"] = resource_view
+    context['resource_view'] = resource_view
     context['resource'] = model.Resource.get(resource_view.resource_id)
 
     _check_access('resource_view_update', context, data_dict)
@@ -350,10 +349,21 @@ def package_update(context, data_dict):
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})
 
+    # Needed to let extensions know the new resources ids
+    model.Session.flush()
+    if data.get('resources'):
+        for index, resource in enumerate(data['resources']):
+            resource['id'] = pkg.resources[index].id
+
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
 
         item.after_update(context, data)
+
+    # Create default views for resources if necessary
+    if data.get('resources'):
+        ckan.lib.datapreview.add_default_views_to_dataset_resources(context,
+                                                                    data)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -619,6 +629,9 @@ def group_update(context, data_dict):
     :rtype: dictionary
 
     '''
+    # Callers that set context['allow_partial_update'] = True can choose to not
+    # specify particular keys and they will be left at their existing
+    # values. This includes: packages, users, groups, tags, extras
     return _group_or_org_update(context, data_dict)
 
 def organization_update(context, data_dict):
@@ -639,6 +652,9 @@ def organization_update(context, data_dict):
     :rtype: dictionary
 
     '''
+    # Callers that set context['allow_partial_update'] = True can choose to not
+    # specify particular keys and they will be left at their existing
+    # values. This includes: users, groups, tags, extras
     return _group_or_org_update(context, data_dict, is_org=True)
 
 def user_update(context, data_dict):

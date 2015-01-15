@@ -245,14 +245,13 @@ def _get_fields_types(context, data_dict):
 def json_get_values(obj, current_list=None):
     if current_list is None:
         current_list = []
-    if isinstance(obj, basestring):
-        current_list.append(obj)
-    if isinstance(obj, list):
+    if isinstance(obj, list) or isinstance(obj, tuple):
         for item in obj:
             json_get_values(item, current_list)
-    if isinstance(obj, dict):
-        for item in obj.values():
-            json_get_values(item, current_list)
+    elif isinstance(obj, dict):
+        json_get_values(obj.items(), current_list)
+    elif obj:
+        current_list.append(str(obj))
     return current_list
 
 
@@ -458,22 +457,32 @@ def create_indexes(context, data_dict):
 def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     fts_indexes = []
     resource_id = data_dict['resource_id']
+    # FIXME: This is repeated on the plugin.py, we should keep it DRY
     default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
     if default_fts_lang is None:
         default_fts_lang = u'english'
     fts_lang = data_dict.get('lang', default_fts_lang)
 
     # create full-text search indexes
-    to_tsvector = lambda x: u"to_tsvector('{0}', '{1}')".format(fts_lang, x)
-    text_fields = [x['id'] for x in fields if x['type'] == 'text']
-    for text_field in ['_full_text'] + text_fields:
-        if text_field != '_full_text':
-            text_field = to_tsvector(text_field)
+    to_tsvector = lambda x: u"to_tsvector('{0}', {1})".format(fts_lang, x)
+    cast_as_text = lambda x: u'cast("{0}" AS text)'.format(x)
+    full_text_field = {'type': 'tsvector', 'id': '_full_text'}
+    for field in [full_text_field] + fields:
+        if not datastore_helpers.should_fts_index_field_type(field['type']):
+            continue
+
+        field_str = field['id']
+        if field['type'] not in ['text', 'tsvector']:
+            field_str = cast_as_text(field_str)
+        else:
+            field_str = u'"{0}"'.format(field_str)
+        if field['type'] != 'tsvector':
+            field_str = to_tsvector(field_str)
         fts_indexes.append(sql_index_str_method.format(
             res_id=resource_id,
             unique='',
-            name=_generate_index_name(resource_id, text_field),
-            method='gist', fields=text_field))
+            name=_generate_index_name(resource_id, field_str),
+            method=_get_fts_index_method(), fields=field_str))
 
     return fts_indexes
 
@@ -481,6 +490,11 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
 def _generate_index_name(resource_id, field):
     value = (resource_id + field).encode('utf-8')
     return hashlib.sha1(value).hexdigest()
+
+
+def _get_fts_index_method():
+    method = pylons.config.get('ckan.datastore.default_fts_index_method')
+    return method or 'gist'
 
 
 def _get_index_names(connection, resource_id):
@@ -778,11 +792,14 @@ def _to_full_text(fields, record):
                 'timetz', 'timestamp', 'numeric', 'text']
     for field in fields:
         value = record.get(field['id'])
-        if field['type'].lower() == 'nested' and value:
-            full_text.extend(json_get_values(value))
-        elif field['type'].lower() in ft_types and str(value):
+        if not value:
+            continue
+
+        if field['type'].lower() in ft_types and str(value):
             full_text.append(str(value))
-    return ' '.join(full_text)
+        else:
+            full_text.extend(json_get_values(value))
+    return ' '.join(set(full_text))
 
 
 def _where(where_clauses_and_values):
@@ -1292,3 +1309,15 @@ def make_public(context, data_dict):
         trans.commit()
     finally:
         context['connection'].close()
+
+
+def get_all_resources_ids_in_datastore():
+    read_url = pylons.config.get('ckan.datastore.read_url')
+    write_url = pylons.config.get('ckan.datastore.write_url')
+    data_dict = {
+        'connection_url': read_url or write_url
+    }
+    resources_sql = sqlalchemy.text(u'''SELECT name FROM "_table_metadata"
+                                        WHERE alias_of IS NULL''')
+    query = _get_engine(data_dict).execute(resources_sql)
+    return [q[0] for q in query.fetchall()]

@@ -56,6 +56,27 @@ class TestReclineView(BaseTestReclineViewBase):
         schema = self.p.info().get('schema')
         assert schema is None, schema
 
+    def test_can_view_format_no_datastore(self):
+        '''
+        Test can_view with acceptable formats when datastore_active is False
+        (DataProxy in use).
+        '''
+        formats = ['CSV', 'XLS', 'TSV', 'csv', 'xls', 'tsv']
+        for resource_format in formats:
+            data_dict = {'resource': {'datastore_active': False,
+                                      'format': resource_format}}
+            assert self.p.can_view(data_dict)
+
+    def test_can_view_bad_format_no_datastore(self):
+        '''
+        Test can_view with incorrect formats when datastore_active is False.
+        '''
+        formats = ['TXT', 'txt', 'doc', 'JSON']
+        for resource_format in formats:
+            data_dict = {'resource': {'datastore_active': False,
+                                      'format': resource_format}}
+            assert not self.p.can_view(data_dict)
+
 
 class TestReclineGridView(BaseTestReclineViewBase):
     view_type = 'recline_grid_view'

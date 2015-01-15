@@ -59,6 +59,24 @@ class TestHelpers(object):
         output = '<p>moo\n</p>'
         eq_(h.render_markdown(data), output)
 
+    def test_remove_linebreaks_removes_linebreaks(self):
+        test_string = 'foo\nbar\nbaz'
+        result = h.remove_linebreaks(test_string)
+
+        assert result.find('\n') == -1,\
+            '"remove_linebreaks" should remove line breaks'
+
+    def test_remove_linebreaks_casts_into_str(self):
+        class StringLike(str):
+            pass
+
+        test_string = StringLike('foo')
+        result = h.remove_linebreaks(test_string)
+
+        strType = ''.__class__
+        assert result.__class__ == strType,\
+            '"remove_linebreaks" casts into str()'
+
     def test_render_markdown_auto_link_without_path(self):
         data = 'http://example.com'
         output = '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a>\n</p>'

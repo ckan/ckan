@@ -2,9 +2,12 @@ from nose.tools import assert_equal, assert_true
 
 from routes import url_for
 
+import ckan.model as model
+import ckan.plugins as p
+
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
-import ckan.model as model
+
 
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
@@ -150,7 +153,15 @@ class TestPackageResourceRead(helpers.FunctionalTestBase):
     @classmethod
     def setup_class(cls):
         super(cls, cls).setup_class()
+
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
         helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
 
     def setup(self):
         model.repo.rebuild_db()
@@ -204,6 +215,55 @@ class TestPackageResourceRead(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         app.get(url, status=404)
+
+    def test_resource_read_logged_in_user(self):
+        '''
+        A logged-in user can view resource page.
+        '''
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=dataset['id'],
+                      resource_id=resource['id'])
+
+        app = self._get_test_app()
+        app.get(url, status=200, extra_environ=env)
+
+    def test_resource_read_anon_user(self):
+        '''
+        An anon user can view resource page.
+        '''
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=dataset['id'],
+                      resource_id=resource['id'])
+
+        app = self._get_test_app()
+        app.get(url, status=200)
+
+    def test_resource_read_sysadmin(self):
+        '''
+        A sysadmin can view resource page.
+        '''
+        sysadmin = factories.Sysadmin()
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        dataset = factories.Dataset()
+        resource = factories.Resource(package_id=dataset['id'])
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=dataset['id'],
+                      resource_id=resource['id'])
+
+        app = self._get_test_app()
+        app.get(url, status=200, extra_environ=env)
 
 
 class TestPackageRead(helpers.FunctionalTestBase):

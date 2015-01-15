@@ -70,6 +70,7 @@ class UserController(base.BaseController):
             abort(404, _('User not found'))
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
+
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
         c.about_formatted = h.render_markdown(user_dict['about'])
@@ -115,7 +116,9 @@ class UserController(base.BaseController):
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id,
-                     'user_obj': c.userobj}
+                     'user_obj': c.userobj,
+                     'include_datasets': True,
+                     'include_num_followers': True}
 
         context['with_related'] = True
 
@@ -539,7 +542,8 @@ class UserController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'for_view': True}
-        data_dict = {'id': id, 'user_obj': c.userobj}
+        data_dict = {'id': id, 'user_obj': c.userobj,
+                     'include_num_followers': True}
         try:
             check_access('user_show', context, data_dict)
         except NotAuthorized:
@@ -569,7 +573,7 @@ class UserController(base.BaseController):
                 'user': c.user or c.author, 'auth_user_obj': c.userobj,
                 'for_view': True
             }
-            data_dict = {'id': filter_id}
+            data_dict = {'id': filter_id, 'include_num_followers': True}
             followee = None
 
             action_functions = {
@@ -660,18 +664,18 @@ class UserController(base.BaseController):
                    'session': model.Session,
                    'user': c.user or c.author,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             get_action('follow_user')(context, data_dict)
             user_dict = get_action('user_show')(context, data_dict)
             h.flash_success(_("You are now following {0}").format(
                 user_dict['display_name']))
         except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
+            error_message = (e.message or e.error_summary
                              or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
-            h.flash_error(e.extra_msg)
+            h.flash_error(e.message)
         h.redirect_to(controller='user', action='read', id=id)
 
     def unfollow(self, id):
@@ -680,17 +684,17 @@ class UserController(base.BaseController):
                    'session': model.Session,
                    'user': c.user or c.author,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             get_action('unfollow_user')(context, data_dict)
             user_dict = get_action('user_show')(context, data_dict)
             h.flash_success(_("You are no longer following {0}").format(
                 user_dict['display_name']))
         except (NotFound, NotAuthorized) as e:
-            error_message = e.extra_msg or e.message
+            error_message = e.message
             h.flash_error(error_message)
         except ValidationError as e:
-            error_message = (e.error_summary or e.message or e.extra_msg
+            error_message = (e.error_summary or e.message
                              or e.error_dict)
             h.flash_error(error_message)
         h.redirect_to(controller='user', action='read', id=id)
