@@ -46,6 +46,10 @@ __all__ = ['url_for',
            'TestCase',
            'SkipTest',
            'CkanServerCase',
+           'call_action_api',
+           'BaseCase',
+           'here_dir',
+           'conf_dir',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
