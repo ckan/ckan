@@ -8,7 +8,7 @@ import sqlalchemy.orm as orm
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
-import ckan.tests as tests
+import ckan.tests_legacy as tests
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type

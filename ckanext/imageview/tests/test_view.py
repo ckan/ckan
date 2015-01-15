@@ -6,7 +6,7 @@ import ckan.model as model
 import ckan.lib.helpers as h
 import ckan.lib.create_test_data as create_test_data
 import ckan.plugins as p
-import ckan.tests as tests
+import ckan.tests_legacy as tests
 
 
 class TestImageView(tests.WsgiAppCase):

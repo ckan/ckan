@@ -11,7 +11,7 @@ import paste.fixture
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
-import ckan.tests as tests
+import ckan.tests_legacy as tests
 import ckan.config.middleware as middleware
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories

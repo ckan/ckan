@@ -5,7 +5,7 @@ import mock
 
 from pylons import config
 
-import ckan.tests as tests
+import ckan.tests_legacy as tests
 import ckanext.datastore.db as db
 import ckanext.datastore.plugin as plugin
 

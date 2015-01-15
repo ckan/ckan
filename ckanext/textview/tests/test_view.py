@@ -3,7 +3,7 @@ import pylons.config as config
 import urlparse
 
 import ckan.model as model
-import ckan.tests as tests
+import ckan.tests_legacy as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckanext.textview.plugin as plugin

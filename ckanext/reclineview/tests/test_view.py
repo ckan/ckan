@@ -2,7 +2,7 @@ import paste.fixture
 import pylons.config as config
 
 import ckan.model as model
-import ckan.tests as tests
+import ckan.tests_legacy as tests
 import ckan.plugins as p
 import ckan.lib.helpers as h
 import ckanext.reclineview.plugin as plugin

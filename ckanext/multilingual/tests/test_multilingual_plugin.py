@@ -4,8 +4,8 @@ import ckan.lib.helpers
 import ckan.lib.create_test_data
 import ckan.logic.action.update
 import ckan.model as model
-import ckan.tests
-import ckan.tests.html_check
+import ckan.tests_legacy
+import ckan.tests_legacy.html_check
 import routes
 import paste.fixture
 import pylons.test
@@ -13,7 +13,7 @@ import pylons.test
 _create_test_data = ckan.lib.create_test_data
 
 
-class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
+class TestDatasetTermTranslation(ckan.tests_legacy.html_check.HtmlCheckMethods):
     'Test the translation of datasets by the multilingual_dataset plugin.'
     @classmethod
     def setup(cls):
@@ -21,22 +21,22 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
         ckan.plugins.load('multilingual_dataset')
         ckan.plugins.load('multilingual_group')
         ckan.plugins.load('multilingual_tag')
-        ckan.tests.setup_test_search_index()
+        ckan.tests_legacy.setup_test_search_index()
         _create_test_data.CreateTestData.create_translations_test_data()
 
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.org = {'name': 'test_org',
                    'title': 'russian',
                    'description': 'Roger likes these books.'}
-        ckan.tests.call_action_api(cls.app, 'organization_create',
-                                   apikey=cls.sysadmin_user.apikey,
-                                   **cls.org)
+        ckan.tests_legacy.call_action_api(cls.app, 'organization_create',
+                                          apikey=cls.sysadmin_user.apikey,
+                                          **cls.org)
         dataset = {'name': 'test_org_dataset',
                    'title': 'A Novel By Tolstoy',
                    'owner_org': cls.org['name']}
-        ckan.tests.call_action_api(cls.app, 'package_create',
-                                   apikey=cls.sysadmin_user.apikey,
-                                   **dataset)
+        ckan.tests_legacy.call_action_api(cls.app, 'package_create',
+                                          apikey=cls.sysadmin_user.apikey,
+                                          **dataset)
 
         # Add translation terms that match a couple of group names and package
         # names. Group names and package names should _not_ get translated even
