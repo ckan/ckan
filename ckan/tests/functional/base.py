@@ -6,4 +6,4 @@ warnings.warn(
     "rename ckan.new_tests to ckan.tests.",
     FutureWarning)
 
-#from ckan.tests.legacy.functional.base import *
+from ckan.tests.legacy.functional.base import *
