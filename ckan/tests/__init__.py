@@ -1,9 +1,6 @@
-import warnings
+# Import provides (temporarily) backward compatibility for extensions that
+# pre-date the move of tests from ckan.tests to ckan.test.legacy.
+#from ckan.tests.legacy import *
 
-warnings.warn(
-    "ckan.tests has been renamed to ckan.tests_legacy. "
-    "In the next release it is planned to remove ckan.tests, and possibly "
-    "rename ckan.new_tests to ckan.tests.",
-    FutureWarning)
-
-from ckan.tests_legacy import *
+# (Not showing a deprecation warning as it would show whenever you import
+# anything in ckan.tests.)

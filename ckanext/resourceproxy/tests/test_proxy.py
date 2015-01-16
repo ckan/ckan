@@ -7,7 +7,7 @@ import paste.fixture
 from pylons import config
 
 import ckan.model as model
-import ckan.tests_legacy as tests
+import ckan.tests.legacy as tests
 import ckan.plugins as p
 import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware

@@ -4,8 +4,8 @@ import ckan.lib.helpers
 import ckan.lib.create_test_data
 import ckan.logic.action.update
 import ckan.model as model
-import ckan.tests_legacy
-import ckan.tests_legacy.html_check
+import ckan.tests.legacy
+import ckan.tests.legacy.html_check
 import routes
 import paste.fixture
 import pylons.test
@@ -13,7 +13,7 @@ import pylons.test
 _create_test_data = ckan.lib.create_test_data
 
 
-class TestDatasetTermTranslation(ckan.tests_legacy.html_check.HtmlCheckMethods):
+class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
     'Test the translation of datasets by the multilingual_dataset plugin.'
     @classmethod
     def setup(cls):
@@ -21,20 +21,20 @@ class TestDatasetTermTranslation(ckan.tests_legacy.html_check.HtmlCheckMethods):
         ckan.plugins.load('multilingual_dataset')
         ckan.plugins.load('multilingual_group')
         ckan.plugins.load('multilingual_tag')
-        ckan.tests_legacy.setup_test_search_index()
+        ckan.tests.legacy.setup_test_search_index()
         _create_test_data.CreateTestData.create_translations_test_data()
 
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.org = {'name': 'test_org',
                    'title': 'russian',
                    'description': 'Roger likes these books.'}
-        ckan.tests_legacy.call_action_api(cls.app, 'organization_create',
+        ckan.tests.legacy.call_action_api(cls.app, 'organization_create',
                                           apikey=cls.sysadmin_user.apikey,
                                           **cls.org)
         dataset = {'name': 'test_org_dataset',
                    'title': 'A Novel By Tolstoy',
                    'owner_org': cls.org['name']}
-        ckan.tests_legacy.call_action_api(cls.app, 'package_create',
+        ckan.tests.legacy.call_action_api(cls.app, 'package_create',
                                           apikey=cls.sysadmin_user.apikey,
                                           **dataset)
 
