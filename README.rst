@@ -1,10 +1,14 @@
 CKAN: The Open Source Data Portal Software
 ==========================================
 
-.. image:: https://secure.travis-ci.org/okfn/ckan.png?branch=master
-    :target: http://travis-ci.org/okfn/ckan
+.. image:: https://secure.travis-ci.org/ckan/ckan.png?branch=master
+    :target: http://travis-ci.org/ckan/ckan
     :alt: Build Status
 
+.. image:: https://coveralls.io/repos/ckan/ckan/badge.png?branch=master
+    :target: https://coveralls.io/r/ckan/ckan
+    :alt: Coverage Status
+    
 **CKAN is the world’s leading open-source data portal platform**.
 CKAN makes it easy to publish, share and work with data. It's a data management
 system that provides a powerful platform for cataloging, storing and accessing
