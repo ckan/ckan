@@ -42,7 +42,7 @@ class MarkdownFormat(TextFormat):
     any_link = re.compile(r'<a[^>]*?>', re.IGNORECASE)
     close_link = re.compile(r'<(\/a[^>]*)>', re.IGNORECASE)
     link_escp = re.compile(r'\\xfc\\xfd(\/?(%s)[^>]*?)\\xfd\\xfc' % "|".join(['a']), re.IGNORECASE)
-    web_address = re.compile(r'(\s|<p>)((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)', re.IGNORECASE)
+    web_address = re.compile(r'(\s|<p>)((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&;:/~\+#]*[\w\-\@?^=%&:/~\+#])?)', re.IGNORECASE)
     
     def to_html(self, text):
         if text is None:
@@ -77,6 +77,9 @@ class MarkdownFormat(TextFormat):
         # Decode whitelist elements.
         text = self.whitelist_escp.sub(r'<\1>', text)
         text = self.link_escp.sub(r'<\1>', text)
+
+        # Not sure how <pre><code> is added
+        text = text.replace("<pre><code>", "<p>").replace("</code></pre>", "</p>");
 
         return text
 

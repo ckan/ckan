@@ -6,9 +6,12 @@ import datetime
 import sys
 from pprint import pprint
 import re
+import ckan
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.lib.fanstatic_resources as fanstatic_resources
+import ckan.lib.search as search
+import ckan.logic as logic
 import sqlalchemy as sa
 
 import paste.script
@@ -1036,14 +1039,18 @@ class Tracking(CkanCommand):
                 combine = datetime.datetime.combine
                 start_date = combine(start_date, datetime.time(0))
             else:
-                start_date = datetime.datetime(2011, 1, 1)
+                start_date = datetime.datetime(2013, 9, 1)
+        start_date_for_solr = start_date
         end_date = datetime.datetime.now()
 
         while start_date < end_date:
             stop_date = start_date + datetime.timedelta(1)
             self.update_tracking(engine, start_date)
-            print 'tracking updated for %s' % start_date
+            print str(datetime.datetime.now()) + ' tracking updated for %s' % start_date
             start_date = stop_date
+
+        # update solr for changed datesets.
+        self.update_tracking_solr(engine, start_date_for_solr)
 
     def _total_views(self, engine):
         sql = '''
@@ -1118,15 +1125,43 @@ class Tracking(CkanCommand):
                  COMMIT;''' % summary_date
         engine.execute(sql)
 
+        # insert a 0 count for all records with recent view,
+        # so that it will gets updated.
+        sql = '''WITH t2 AS  (
+                    SELECT package_id, max(tracking_date) AS max_date
+                    FROM tracking_summary
+                    GROUP BY package_id
+                    HAVING max(tracking_date) < '%s'
+                  ), t3 AS (
+                    SELECT t1.url, t1.package_id,t1.tracking_type
+                    FROM tracking_summary t1
+                    JOIN t2
+                    ON
+                      t1.package_id = t2.package_id
+                    AND
+                      t1.tracking_date = t2.max_date
+                    WHERE t1.recent_views > 0
+                  ), t4 AS (
+                    SELECT * from t3 GROUP BY url, package_id, tracking_type
+                  )
+                INSERT INTO tracking_summary
+                  (url, package_id, count, tracking_date, tracking_type)
+                SELECT url, package_id, 0, '%s', tracking_type
+                FROM t4
+                WHERE url NOT IN (SELECT url FROM tracking_summary WHERE tracking_date = '%s');
+                COMMIT;''' % (summary_date, summary_date, summary_date)
+        engine.execute(sql)
+
         # get ids for dataset urls
         sql = '''UPDATE tracking_summary t
                  SET package_id = COALESCE(
                         (SELECT id FROM package p
-                        WHERE t.url =  %s || p.name)
+                        WHERE p.name = regexp_replace(' ' || t.url, '^[ ]{1}(/\w{2}){0,1}' || %s, ''))
                      ,'~~not~found~~')
                  WHERE t.package_id IS NULL
-                 AND tracking_type = 'page';'''
-        engine.execute(sql, PACKAGE_URL)
+                 AND tracking_type = 'page'
+                 AND tracking_date = %s;'''
+        engine.execute(sql, PACKAGE_URL, summary_date)
 
         # update summary totals for resources
         sql = '''UPDATE tracking_summary t1
@@ -1142,7 +1177,10 @@ class Tracking(CkanCommand):
                     WHERE t1.url = t2.url
                     AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
                  )
-                 WHERE t1.running_total = 0 AND tracking_type = 'resource';'''
+                 WHERE t1.running_total = 0
+                 AND tracking_type = 'resource'
+                 AND tracking_date = '%s'
+                 ;'''% (summary_date)
         engine.execute(sql)
 
         # update summary totals for pages
@@ -1161,8 +1199,38 @@ class Tracking(CkanCommand):
                  )
                  WHERE t1.running_total = 0 AND tracking_type = 'page'
                  AND t1.package_id IS NOT NULL
-                 AND t1.package_id != '~~not~found~~';'''
+                 AND t1.package_id != '~~not~found~~'
+                 AND t1.tracking_date = '%s';'''% (summary_date)
         engine.execute(sql)
+
+    def update_tracking_solr(self, engine, start_date):
+        sql = '''SELECT package_id FROM tracking_summary
+                where package_id!='~~not~found~~'
+                and tracking_date >= '%s';''' % start_date
+        q = engine.execute(sql)
+
+        package_ids = set()
+        for row in q:
+            package_ids.add(row['package_id'])
+
+        total = len(package_ids)
+        not_found = 0
+        print 'updating %i records on solr starting from %s' % (total, start_date)
+        for index, package_id in enumerate(package_ids):
+            print "updating %i/%i %s ..." % (index+1, total, package_id),
+            try:
+                search.rebuild(package_id)
+            except ckan.logic.NotFound:
+                print "Error: Not Found."
+                not_found += 1
+            except KeyboardInterrupt:
+                print "Stopped."
+                return
+            except:
+                raise
+            else:
+                print "Done."
+        print 'All Done!' + " %i Not Found." % (not_found) if not_found else ""
 
 class PluginInfo(CkanCommand):
     ''' Provide info on installed plugins.

@@ -14,7 +14,7 @@
           {{ _('Private') }}
         </span>
       {% endif %}
-      <h1>
+      <h1 itemprop="name">
         {% block page_heading %}
         {{ pkg.title or pkg.name }}
         {% if pkg.state.startswith('draft') %}
@@ -24,7 +24,7 @@
       </h1>
       {% block package_notes %}
       {% if c.pkg_notes_formatted %}
-        <div class="notes embedded-content">
+        <div itemprop="description" class="notes embedded-content">
           {{ c.pkg_notes_formatted }}
         </div>
       {% endif %}

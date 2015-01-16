@@ -42,7 +42,14 @@
     {% endblock %}
 
     {% block basic_fields_name %}
-    {{ form.input('name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, classes=['control-full']) }}
+
+    {% if data.no_real_name %}
+      {% set name = '' %}
+    {% else %}
+      {% set name = data.name %}
+    {% endif %}
+
+    {{ form.input('name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=name, error=errors.name, classes=['control-full']) }}
     {% endblock %}
 
     {% block basic_fields_description %}

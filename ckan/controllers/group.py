@@ -265,13 +265,20 @@ class GroupController(base.BaseController):
 
         try:
             c.fields = []
+            c.fields_grouped = {}
             search_extras = {}
+           
             for (param, value) in request.params.items():
+                             
                 if not param in ['q', 'page', 'sort'] \
                         and len(value) and not param.startswith('_'):
                     if not param.startswith('ext_'):
                         c.fields.append((param, value))
                         q += ' %s: "%s"' % (param, value)
+                        if param not in c.fields_grouped:
+                            c.fields_grouped[param] = [value]
+                        else:
+                            c.fields_grouped[param].append(value)
                     else:
                         search_extras[param] = value
 
@@ -376,6 +383,11 @@ class GroupController(base.BaseController):
             abort(404, _('Group not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
+
+        try:
+            self._check_access('group_update', context)
+        except NotAuthorized, e:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         # Search within group
         action = request.params.get('bulk_action')
@@ -607,6 +619,12 @@ class GroupController(base.BaseController):
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
+
+        try:
+            self._check_access('group_update', context)
+        except NotAuthorized, e:
+            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+
         return self._render_template('group/members.html')
 
     def member_new(self, id):

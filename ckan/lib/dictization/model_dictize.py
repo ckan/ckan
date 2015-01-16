@@ -24,6 +24,7 @@ def group_list_dictize(obj_list, context,
 
     q = {'q': '+capacity:public' if not with_private else '*:*',
          'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
+         'fq': '-collection_package_id:["" TO *]',
          'facet.limit': -1, 'rows': 1}
 
     query.run(q)
@@ -343,6 +344,7 @@ def group_dictize(group, context):
         q = {'q': 'owner_org:"%s" +capacity:public' % group.id, 'rows': 1}
     else:
         q = {'q': 'groups:"%s" +capacity:public' % group.name, 'rows': 1}
+    q['fq'] = '-collection_package_id:["" TO *]'
     result_dict['package_count'] = query.run(q)['count']
 
     result_dict['tags'] = tag_list_dictize(
