@@ -79,11 +79,11 @@ class TestTracking(object):
         # FIXME: Can this be done as more of a functional test where we
         # actually test calling the command and passing the args? By calling
         # the method directly, we're not testing the command-line parsing.
-        import ckan.lib.cli
+        from ckan.lib.commands.tracking import Tracking
         import ckan.model
         date = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime(
             '%Y-%m-%d')
-        ckan.lib.cli.Tracking('Tracking').update_all(
+        Tracking('Tracking').update_all(
             engine=ckan.model.meta.engine, start_date=date)
 
     def _rebuild_search_index(self):
@@ -93,8 +93,8 @@ class TestTracking(object):
         line.
 
         '''
-        import ckan.lib.cli
-        ckan.lib.cli.SearchIndexCommand('SearchIndexCommand').rebuild()
+        from ckan.lib.commands.search import SearchIndexCommand
+        SearchIndexCommand('SearchIndexCommand').rebuild()
 
     def test_package_with_0_views(self):
         app = self._get_app()
@@ -573,10 +573,10 @@ class TestTracking(object):
         # FIXME: Can this be done as more of a functional test where we
         # actually test calling the command and passing the args? By calling
         # the method directly, we're not testing the command-line parsing.
-        import ckan.lib.cli
+        from ckan.lib.commands.tracking import Tracking
         import ckan.model
         f = tempfile.NamedTemporaryFile()
-        ckan.lib.cli.Tracking('Tracking').export_tracking(
+        Tracking('Tracking').export_tracking(
             engine=ckan.model.meta.engine, output_filename=f.name)
         lines = [line for line in csv.DictReader(open(f.name, 'r'))]
         return lines

@@ -263,8 +263,7 @@ class TestGroupDictize:
         # not supplying dataset_counts in this case either
 
         group = model_dictize.group_dictize(group_obj, context,
-                                            packages_field=
-                                            'none_but_include_package_count')
+                                            packages_field='none_but_include_package_count')
 
         assert 'packages' not in group
         assert_equal(group['package_count'], 1)

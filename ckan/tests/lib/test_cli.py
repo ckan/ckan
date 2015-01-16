@@ -4,7 +4,8 @@ import csv
 from nose.tools import assert_equal
 
 from ckan import model
-from ckan.lib.cli import ManageDb,SearchIndexCommand
+from ckan.lib.commands.search import SearchIndexCommand
+from ckan.lib.commands.db import ManageDb
 from ckan.lib.create_test_data import CreateTestData
 from ckan.common import json
 

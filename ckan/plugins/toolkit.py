@@ -82,7 +82,7 @@ class _Toolkit(object):
         import ckan.logic.validators as logic_validators
         import ckan.lib.navl.dictization_functions as dictization_functions
         import ckan.lib.helpers as h
-        import ckan.lib.cli as cli
+        import ckan.lib.commands as commands
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
         import ckan.lib.datapreview as datapreview
@@ -168,7 +168,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['UnknownValidator'] = logic.UnknownValidator
         t['Invalid'] = logic_validators.Invalid
 
-        t['CkanCommand'] = cli.CkanCommand
+        t['CkanCommand'] = commands.CkanCommand
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
 
         t['response'] = pylons.response
