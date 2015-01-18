@@ -6,6 +6,7 @@ import datetime
 import sys
 from pprint import pprint
 import re
+import logging
 import ckan.logic as logic
 import ckan.model as model
 import ckan.include.rjsmin as rjsmin
@@ -15,6 +16,7 @@ import ckan.plugins as p
 import sqlalchemy as sa
 import urlparse
 import routes
+from pylons import config
 
 import paste.script
 from paste.registry import Registry
@@ -2173,16 +2175,100 @@ class ViewsCommand(CkanCommand):
     usage = __doc__
     min_args = 1
 
+    def __init__(self, name):
+
+        super(ViewsCommand, self).__init__(name)
+
+        self.parser.add_option('-y', '--yes', dest='assume_yes',
+                               action='store_true',
+                               default=False,
+                               help='Automatic yes to prompts.' +
+                                    'Assume "yes" as answer to all prompts ' +
+                                    'and run non-interactively')
+
     def command(self):
         self._load_config()
         if not self.args:
             print self.usage
         elif self.args[0] == 'create':
-            self.create_views(self.args[1:])
+            self.create_views_search()
+            # self.create_views(self.args[1:])
         elif self.args[0] == 'clean':
             self.clean_views()
         else:
             print self.usage
+
+    def create_views_search(self):
+
+        from ckan.lib.datapreview import add_default_views_to_dataset_resources
+
+
+        log = logging.getLogger(__name__)
+
+        context = {'user': self.site_user['name']}
+        create_datastore_views = 'datastore' in config['ckan.plugins'].split()
+
+        def _search_datasets(page=1):
+
+            n = 100
+
+            search_data_dict = {
+                'q': '*:*',
+                'fq': 'dataset_type:dataset',
+                'rows': n,
+                'start': n * (page - 1),
+            }
+
+            query = p.toolkit.get_action('package_search')({},
+                                                           search_data_dict)
+
+            return query
+
+        def _add_views_to_dataset(dataset_dict):
+            if not dataset.get('resources'):
+                return []
+
+            views = add_default_views_to_dataset_resources(context,
+                                                           dataset_dict)
+
+            if create_datastore_views:
+                views.extend(
+                    add_default_views_to_dataset_resources(context,
+                                                           dataset_dict,
+                                                           create_datastore_views=True))
+
+            return views
+
+        page = 1
+        while True:
+            query = _search_datasets(page)
+
+            if page == 1 and query['count'] == 0:
+                log.info('No datasets to create resource views on')
+                sys.exit(1)
+            elif page == 1 and not self.options.assume_yes:
+
+                msg = 'You are about to check {0} datasets for the following view plugins: {1}\n'.format(
+                        query['count'], config.get('ckan.views.default_views')) + \
+                      ' Do you want to continue?'
+
+                confirm = query_yes_no(msg)
+
+                if confirm == 'no':
+                    log.info('Command aborted by user')
+                    sys.exit(1)
+
+            if query['results']:
+                for dataset in query['results']:
+                    views = _add_views_to_dataset(dataset)
+                    if views:
+                        log.debug('Added {0} views to resources from dataset {1}'.format(
+                            len(views), dataset['name']))
+                page += 1
+            else:
+                break
+
+
 
     def create_views(self, view_types):
         supported_types = ['grid', 'text', 'webpage', 'pdf', 'image']
