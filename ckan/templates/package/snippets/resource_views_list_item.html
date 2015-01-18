@@ -1,4 +1,5 @@
 {% set action = 'edit_view' if is_edit else 'resource_read' %}
+
 {% if current_filters %}
   {% set url = h.url_for(controller='package', action=action, id=pkg.name,
                          resource_id=view.resource_id, view_id=view.id,
@@ -7,18 +8,11 @@
   {% set url = h.url_for(controller='package', action=action, id=pkg.name,
                          resource_id=view.resource_id, view_id=view.id) %}
 {% endif %}
-<li class="resource-view-item{% if is_selected %} active{% endif %}" data-id="{{ view.id }}">
+
+<li{% if is_selected %} class="active"{% endif %} data-id="{{ view.id }}">
+
   <a href="{{ url }}" data-id="{{ view.id }}">
-    <span class="icon">
-      <i class="icon icon-{{ h.resource_view_icon(view) }}"></i>
-    </span>
-    <h3>{{ view.title }}</h3>
-    <p class="description">
-      {% if view.description %}
-        {{ view.description }}
-      {% else %}
-        <span class="empty">No description</span>
-      {% endif %}
-    </p>
+    <i class="icon icon-{{ h.resource_view_icon(view) }}"></i>
+    {{ view.title }}
   </a>
 </li>
