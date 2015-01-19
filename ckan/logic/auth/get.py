@@ -66,6 +66,10 @@ def license_list(context, data_dict):
     # Licenses list is visible by default
     return {'success': True}
 
+def vocabulary_list(context, data_dict):
+    # List of all vocabularies are visible by default
+    return {'success': True}
+
 def tag_list(context, data_dict):
     # Tags list is visible by default
     return {'success': True}
@@ -150,11 +154,22 @@ def revision_show(context, data_dict):
     return {'success': True}
 
 def group_show(context, data_dict):
-    # anyone can see a group
-    return {'success': True}
+    user = context.get('user')
+    group = get_group_object(context, data_dict)
+    if group.state == 'active':
+        return {'success': True}
+    authorized = new_authz.has_user_permission_for_group_or_org(
+        group.id, user, 'read')
+    if authorized:
+        return {'success': True}
+    else:
+        return {'success': False, 'msg': _('User %s not authorized to read group %s') % (user, group.id)}
 
 def organization_show(context, data_dict):
-    # anyone can see a organization
+    return group_show(context, data_dict)
+
+def vocabulary_show(context, data_dict):
+    # Allow viewing of vocabs by default
     return {'success': True}
 
 def tag_show(context, data_dict):
@@ -278,13 +293,19 @@ def dataset_followee_list(context, data_dict):
 def group_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
 
+
 @logic.auth_audit_exempt
 def organization_followee_list(context, data_dict):
     return _followee_list(context, data_dict)
+
 
 def user_reset(context, data_dict):
     return {'success': True}
 
 
 def request_reset(context, data_dict):
+    return {'success': True}
+
+
+def help_show(context, data_dict):
     return {'success': True}

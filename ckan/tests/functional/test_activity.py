@@ -49,7 +49,7 @@ class TestActivity(HtmlCheckMethods):
             'allow_partial_update': True,
             }
         user = user_create(context, user_dict)
-        offset = url_for(controller='user', action='read', id=user['id'])
+        offset = url_for(controller='user', action='activity', id=user['id'])
         result = self.app.get(offset, status=200)
         stripped = self.strip_tags(result)
         assert '%s signed up' % user['fullname'] in stripped, stripped
@@ -231,8 +231,8 @@ class TestActivity(HtmlCheckMethods):
         # By now we've created >15 activities, but only the latest 15 should
         # appear on the page.
         result = self.app.get(offset, status=200)
-        assert result.body.count('<div class="activity">') \
-                == 15
+        assert result.body.count('<span class="actor">') \
+                == 15, result.body.count('<span class="actor">')
 
         # The user's dashboard page should load successfully and have the
         # latest 15 activities on it.
@@ -241,4 +241,5 @@ class TestActivity(HtmlCheckMethods):
                 str(ckan.model.User.get('billybeane').apikey)}
         result = self.app.post(offset, extra_environ=extra_environ,
                 status=200)
-        assert result.body.count('<div class="activity">') == 15
+        assert result.body.count('<span class="actor">') == 15, \
+            result.body.count('<span class="actor">')

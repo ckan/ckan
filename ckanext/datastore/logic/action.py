@@ -135,7 +135,11 @@ def datastore_create(context, data_dict):
     if not legacy_mode and resource.package.private:
         data_dict['private'] = True
 
-    result = db.create(context, data_dict)
+    try:
+        result = db.create(context, data_dict)
+    except db.InvalidDataError as err:
+        raise p.toolkit.ValidationError(str(err))
+
     result.pop('id', None)
     result.pop('private', None)
     result.pop('connection_url')

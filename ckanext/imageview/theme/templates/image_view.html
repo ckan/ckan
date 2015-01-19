@@ -1,1 +1,1 @@
-<img style="margin:auto; max-height:100%; display:block" src="{{ resource_view.get('image_url') or h.view_resource_url(resource_view, resource, package, proxy_schemes=['http']) }}" />
+<img style="margin:auto; max-height:100%; display:block" src="{{ resource_view.get('image_url') or resource.get('url') }}" />

@@ -5,7 +5,6 @@ import datetime
 import json
 
 from pylons import config
-from vdm.sqlalchemy.base import SQLAlchemySession
 import paste.deploy.converters as converters
 
 import ckan.plugins as plugins
@@ -19,8 +18,8 @@ import ckan.lib.navl.validators as validators
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.email_notifications as email_notifications
 import ckan.lib.search as search
-import ckan.lib.datapreview as datapreview
 import ckan.lib.uploader as uploader
+import ckan.lib.datapreview
 
 from ckan.common import _, request
 
@@ -35,87 +34,6 @@ _check_access = logic.check_access
 NotFound = logic.NotFound
 ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
-
-def _make_latest_rev_active(context, q):
-
-    session = context['model'].Session
-
-    old_current = q.filter_by(current=True).first()
-    if old_current:
-        old_current.current = False
-        session.add(old_current)
-
-    latest_rev = q.filter_by(expired_timestamp=datetime.datetime(9999, 12, 31)).one()
-    latest_rev.current = True
-    if latest_rev.state in ('pending-deleted', 'deleted'):
-        latest_rev.state = 'deleted'
-        latest_rev.continuity.state = 'deleted'
-    else:
-        latest_rev.continuity.state = 'active'
-        latest_rev.state = 'active'
-
-    session.add(latest_rev)
-
-    ##this is just a way to get the latest revision that changed
-    ##in order to timestamp
-    old_latest = context.get('latest_revision_date')
-    if old_latest:
-        if latest_rev.revision_timestamp > old_latest:
-            context['latest_revision_date'] = latest_rev.revision_timestamp
-            context['latest_revision'] = latest_rev.revision_id
-    else:
-        context['latest_revision_date'] = latest_rev.revision_timestamp
-        context['latest_revision'] = latest_rev.revision_id
-
-def make_latest_pending_package_active(context, data_dict):
-    '''
-
-    .. todo:: What does this function do?
-
-    You must be authorized to update the dataset.
-
-    :param id: the name or id of the dataset, e.g. ``'warandpeace'``
-    :type id: string
-
-    '''
-    model = context['model']
-    session = model.Session
-    SQLAlchemySession.setattr(session, 'revisioning_disabled', True)
-    id = _get_or_bust(data_dict, "id")
-    pkg = model.Package.get(id)
-
-    _check_access('make_latest_pending_package_active', context, data_dict)
-
-    #packages
-    q = session.query(model.PackageRevision).filter_by(id=pkg.id)
-    _make_latest_rev_active(context, q)
-
-    #resources
-    for resource in pkg.resources_all:
-        q = session.query(model.ResourceRevision).filter_by(id=resource.id)
-        _make_latest_rev_active(context, q)
-
-    #tags
-    for tag in pkg.package_tag_all:
-        q = session.query(model.PackageTagRevision).filter_by(id=tag.id)
-        _make_latest_rev_active(context, q)
-
-    #extras
-    for extra in pkg.extras_list:
-        q = session.query(model.PackageExtraRevision).filter_by(id=extra.id)
-        _make_latest_rev_active(context, q)
-
-    latest_revision = context.get('latest_revision')
-    if not latest_revision:
-        return
-
-    q = session.query(model.Revision).filter_by(id=latest_revision)
-    revision = q.first()
-    revision.approved_timestamp = datetime.datetime.now()
-    session.add(revision)
-
-    if not context.get('defer_commit'):
-        session.commit()
 
 
 def related_update(context, data_dict):
@@ -143,7 +61,7 @@ def related_update(context, data_dict):
     context["related"] = related
 
     if not related:
-        logging.error('Could not find related ' + id)
+        log.error('Could not find related ' + id)
         raise NotFound(_('Item was not found.'))
 
     _check_access('related_update', context, data_dict)
@@ -184,7 +102,6 @@ def related_update(context, data_dict):
     return model_dictize.related_dictize(related, context)
 
 
-
 def resource_update(context, data_dict):
     '''Update a resource.
 
@@ -209,7 +126,7 @@ def resource_update(context, data_dict):
     context["resource"] = resource
 
     if not resource:
-        logging.error('Could not find resource ' + id)
+        log.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
@@ -222,7 +139,7 @@ def resource_update(context, data_dict):
         if p['id'] == id:
             break
     else:
-        logging.error('Could not find resource ' + id)
+        log.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
@@ -235,7 +152,7 @@ def resource_update(context, data_dict):
     try:
         context['defer_commit'] = True
         context['use_cache'] = False
-        pkg_dict = _get_action('package_update')(context, pkg_dict)
+        updated_pkg_dict = _get_action('package_update')(context, pkg_dict)
         context.pop('defer_commit')
     except ValidationError, e:
         errors = e.error_dict['resources'][n]
@@ -269,15 +186,14 @@ def resource_view_update(context, data_dict):
     '''
     model = context['model']
     id = _get_or_bust(data_dict, "id")
-    schema = (context.get('schema') or
-              ckan.logic.schema.default_update_resource_view_schema())
-
 
     resource_view = model.ResourceView.get(id)
     if not resource_view:
         raise NotFound
 
-    view_plugin = datapreview.get_view_plugin(resource_view.view_type)
+    view_plugin = ckan.lib.datapreview.get_view_plugin(resource_view.view_type)
+    schema = (context.get('schema') or
+              schema_.default_update_resource_view_schema(view_plugin))
     plugin_schema = view_plugin.info().get('schema', {})
     schema.update(plugin_schema)
 
@@ -286,7 +202,7 @@ def resource_view_update(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    context["resource_view"] = resource_view
+    context['resource_view'] = resource_view
     context['resource'] = model.Resource.get(resource_view.resource_id)
 
     _check_access('resource_view_update', context, data_dict)
@@ -433,10 +349,21 @@ def package_update(context, data_dict):
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})
 
+    # Needed to let extensions know the new resources ids
+    model.Session.flush()
+    if data.get('resources'):
+        for index, resource in enumerate(data['resources']):
+            resource['id'] = pkg.resources[index].id
+
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.edit(pkg)
 
         item.after_update(context, data)
+
+    # Create default views for resources if necessary
+    if data.get('resources'):
+        ckan.lib.datapreview.add_default_views_to_dataset_resources(context,
+                                                                    data)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -702,6 +629,9 @@ def group_update(context, data_dict):
     :rtype: dictionary
 
     '''
+    # Callers that set context['allow_partial_update'] = True can choose to not
+    # specify particular keys and they will be left at their existing
+    # values. This includes: packages, users, groups, tags, extras
     return _group_or_org_update(context, data_dict)
 
 def organization_update(context, data_dict):
@@ -722,6 +652,9 @@ def organization_update(context, data_dict):
     :rtype: dictionary
 
     '''
+    # Callers that set context['allow_partial_update'] = True can choose to not
+    # specify particular keys and they will be left at their existing
+    # values. This includes: users, groups, tags, extras
     return _group_or_org_update(context, data_dict, is_org=True)
 
 def user_update(context, data_dict):
@@ -1293,10 +1226,9 @@ def _bulk_update_dataset(context, data_dict, update_dict):
         .update(update_dict, synchronize_session=False)
 
     # revisions
-    model.Session.query(model.package_revision_table) \
-        .filter(model.PackageRevision.id.in_(datasets)) \
-        .filter(model.PackageRevision.owner_org == org_id) \
-        .filter(model.PackageRevision.current == True) \
+    model.Session.query(model.package_table) \
+        .filter(model.Package.id.in_(datasets)) \
+        .filter(model.Package.owner_org == org_id) \
         .update(update_dict, synchronize_session=False)
 
     model.Session.commit()

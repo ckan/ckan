@@ -1,4 +1,3 @@
-import sets
 import ckan
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan.plugins import IGroupController, IOrganizationController, ITagController
@@ -22,7 +21,7 @@ def translate_data_dict(data_dict):
 
     # Get a simple flat list of all the terms to be translated, from the
     # flattened data dict.
-    terms = sets.Set()
+    terms = set()
     for (key, value) in flattened.items():
         if value in (None, True, False):
             continue
@@ -192,7 +191,7 @@ class MultilingualDataset(SingletonPlugin):
         fallback_lang_code = pylons.config.get('ckan.locale_default', 'en')
 
         # Look up translations for all of the facets in one db query.
-        terms = sets.Set()
+        terms = set()
         for facet in facets.values():
             for item in facet['items']:
                 terms.add(item['display_name'])

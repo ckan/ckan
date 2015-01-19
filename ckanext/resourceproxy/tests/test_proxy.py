@@ -139,11 +139,12 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         assert 'Invalid URL' in result.body, result.body
 
     def test_non_existent_url(self):
-        self.data_dict = set_resource_url('http://foo.bar')
+        self.data_dict = set_resource_url('http://nonexistent.example.com')
 
         def f1():
             url = self.data_dict['resource']['url']
             requests.get(url)
+
         self.assertRaises(requests.ConnectionError, f1)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)

@@ -1,6 +1,7 @@
 import nose.tools
 
 import ckan.logic as logic
+import ckan.plugins as p
 import ckan.lib.search as search
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
@@ -16,6 +17,29 @@ class TestGet(object):
 
         # Clear the search index
         search.clear()
+
+    def test_package_show(self):
+        dataset1 = factories.Dataset()
+
+        dataset2 = helpers.call_action('package_show', id=dataset1['id'])
+
+        eq(dataset2['name'], dataset1['name'])
+        missing_keys = set(('title', 'groups')) - set(dataset2.keys())
+        assert not missing_keys, missing_keys
+
+    def test_package_show_with_custom_schema(self):
+        dataset1 = factories.Dataset()
+        from ckan.logic.schema import default_show_package_schema
+        custom_schema = default_show_package_schema()
+
+        def foo(key, data, errors, context):
+            data[key] = 'foo'
+        custom_schema['new_field'] = [foo]
+
+        dataset2 = helpers.call_action('package_show', id=dataset1['id'],
+                                       context={'schema': custom_schema})
+
+        eq(dataset2['new_field'], 'foo')
 
     def test_group_list(self):
 
@@ -340,17 +364,20 @@ class TestGet(object):
         assert org_dict['packages'][0]['name'] == 'dataset_1'
         assert org_dict['package_count'] == 1
 
-    def test_user_get(self):
+    def test_user_show_default_values(self):
 
         user = factories.User()
 
-        ## auth_ignored
         got_user = helpers.call_action('user_show', id=user['id'])
 
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
         assert 'apikey' not in got_user
         assert 'email' not in got_user
+
+    def test_user_show_keep_email(self):
+
+        user = factories.User()
 
         got_user = helpers.call_action('user_show',
                                        context={'keep_email': True},
@@ -361,6 +388,10 @@ class TestGet(object):
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
+    def test_user_show_keep_apikey(self):
+
+        user = factories.User()
+
         got_user = helpers.call_action('user_show',
                                        context={'keep_apikey': True},
                                        id=user['id'])
@@ -369,6 +400,10 @@ class TestGet(object):
         assert got_user['apikey'] == user['apikey']
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
+
+    def test_user_show_sysadmin_values(self):
+
+        user = factories.User()
 
         sysadmin = factories.User(sysadmin=True)
 
@@ -568,6 +603,16 @@ class TestGet(object):
             assert private_dataset['id'] not in [dataset['id'] for dataset
                                                  in group['packages']], (
                 "group_show() should never show private datasets")
+
+    def test_package_search_on_resource_name(self):
+        '''
+        package_search() should allow searching on resource name field.
+        '''
+        resource_name = 'resource_abc'
+        package = factories.Resource(name=resource_name)
+
+        search_result = helpers.call_action('package_search', q='resource_abc')
+        eq(search_result['results'][0]['resources'][0]['name'], resource_name)
 
 
 class TestBadLimitQueryParameters(object):
@@ -903,3 +948,84 @@ class TestOrganizationListForUser(object):
         organizations = helpers.call_action('organization_list_for_user')
 
         assert organizations == []
+
+
+class TestShowResourceView(object):
+
+    @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+        helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+
+    def test_resource_view_show(self):
+
+        resource = factories.Resource()
+        resource_view = {'resource_id': resource['id'],
+                         'view_type': u'image_view',
+                         'title': u'View',
+                         'description': u'A nice view',
+                         'image_url': 'url'}
+
+        new_view = helpers.call_action('resource_view_create', **resource_view)
+
+        result = helpers.call_action('resource_view_show', id=new_view['id'])
+
+        result.pop('id')
+        result.pop('package_id')
+
+        assert result == resource_view
+
+    def test_resource_view_show_id_missing(self):
+
+        nose.tools.assert_raises(
+            logic.ValidationError,
+            helpers.call_action, 'resource_view_show')
+
+    def test_resource_view_show_id_not_found(self):
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'resource_view_show', id='does_not_exist')
+
+
+class TestGetHelpShow(object):
+
+    def test_help_show_basic(self):
+
+        function_name = 'package_search'
+
+        result = helpers.call_action('help_show', name=function_name)
+
+        function = logic.get_action(function_name)
+
+        eq(result, function.__doc__)
+
+    def test_help_show_no_docstring(self):
+
+        function_name = 'package_search'
+
+        function = logic.get_action(function_name)
+
+        actual_docstring = function.__doc__
+
+        function.__doc__ = None
+
+        result = helpers.call_action('help_show', name=function_name)
+
+        function.__doc__ = actual_docstring
+
+        eq(result, None)
+
+    def test_help_show_not_found(self):
+
+        function_name = 'unknown_action'
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'help_show', name=function_name)

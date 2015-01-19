@@ -2,6 +2,10 @@
 Data Viewer
 ===========
 
+
+.. todo:: This whole page is outdated and needs to be updated for the new Resource Views
+
+
 The CKAN resource page can contain a preview of the resource's data.
 This works by either:
 
@@ -54,7 +58,7 @@ the resource read page:
 * ``gif``
 
 The types of resources that are embedded directly can be specified in the
-CKAN config file. See :ref:`ckan.preview.direct` for more information.
+CKAN config file. See `ckan.preview.direct` for more information.
 
 The following types of resources will be loaded in an iframe if there is no
 extension that can preview these types:
@@ -73,7 +77,7 @@ extension that can preview these types:
 * ``rss``
 
 The types of resources that are loaded in an iframe can be specified in the
-CKAN config file. See :ref:`ckan.preview.loadable` for more information.
+CKAN config file. See `ckan.preview.loadable` for more information.
 
 Note that these documents will be directly linked by the browser, so the
 way in which they are shown may vary. If you want to ensure for instance that

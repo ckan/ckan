@@ -231,7 +231,7 @@ class IResourceView(Interface):
             of the page. Default false (Optional)
 
         eg:
-            {'name': 'image',
+            {'name': 'image_view',
              'title': 'Image',
              'schema': {'image_url': [ignore_empty, unicode]},
              'icon': 'compass',
@@ -963,8 +963,8 @@ class IDatasetForm(Interface):
         ``'package/read.html'``.
 
         If the user requests the dataset in a format other than HTML
-        (CKAN supports returning datasets in RDF or N3 format by appending .rdf
-        or .n3 to the dataset read URL, see
+        (CKAN supports returning datasets in RDF/XML or N3 format by appending
+        .rdf or .n3 to the dataset read URL, see
         :doc:`/maintaining/linked-data-and-rdf`) then CKAN will try to render a
         template file with the same path as returned by this function, but a
         different filename extension, e.g. ``'package/read.rdf'``.  If your

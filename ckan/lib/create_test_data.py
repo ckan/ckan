@@ -19,6 +19,7 @@ class CreateTestData(object):
     pkg_core_fields = ['name', 'title', 'version', 'url', 'notes',
                        'author', 'author_email',
                        'maintainer', 'maintainer_email',
+                       'private',
                        ]
     @classmethod
     def create_basic_test_data(cls):
