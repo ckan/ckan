@@ -115,7 +115,7 @@ this.ckan.module('autocomplete', function (jQuery, _) {
     getCompletions: function (string, fn) {
       var parts  = this.options.source.split('?');
       var end    = parts.pop();
-      var source = parts.join('?') + string + end;
+      var source = parts.join('?') + encodeURIComponent(string) + end;
       var client = this.sandbox.client;
       var options = {
         format: function(data) {
