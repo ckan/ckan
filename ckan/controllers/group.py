@@ -880,7 +880,7 @@ class GroupController(base.BaseController):
                    'user': c.user or c.author,
                    'for_view': True}
         try:
-            return self._action('group_show')(context, {'id': id})
+            return self._action('group_show')(context, {'id': id, 'include_datasets': False})
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
