@@ -327,7 +327,6 @@ class UserController(base.BaseController):
             data_dict['id'] = id
 
             if data_dict['password1'] and data_dict['password2']:
-                print 'got values in p1 and p2'
                 identity = {'login': c.user,
                             'password': data_dict['old-password']}
                 auth = authenticator.UsernamePasswordAuthenticator()
