@@ -12,6 +12,7 @@ import ckan.logic.schema as schema
 import ckan.lib.captcha as captcha
 import ckan.lib.mailer as mailer
 import ckan.lib.navl.dictization_functions as dictization_functions
+import ckan.lib.authenticator as authenticator
 import ckan.plugins as p
 
 from ckan.common import _, c, g, request, response
@@ -28,6 +29,7 @@ get_action = logic.get_action
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
+UsernamePasswordError = logic.UsernamePasswordError
 
 DataError = dictization_functions.DataError
 unflatten = dictization_functions.unflatten
@@ -324,6 +326,15 @@ class UserController(base.BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
 
+            if data_dict['password1'] and data_dict['password2']:
+                print 'got values in p1 and p2'
+                identity = {'login': c.user,
+                            'password': data_dict['old-password']}
+                auth = authenticator.UsernamePasswordAuthenticator()
+
+                if auth.authenticate(request.environ, identity) != c.user:
+                    raise UsernamePasswordError
+
             # MOAN: Do I really have to do this here?
             if 'activity_streams_email_notifications' not in data_dict:
                 data_dict['activity_streams_email_notifications'] = False
@@ -340,6 +351,10 @@ class UserController(base.BaseController):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
+            return self.edit(id, data_dict, errors, error_summary)
+        except UsernamePasswordError:
+            errors = {'oldpassword': [u'Password entered was incorrect']}
+            error_summary = {u'Old Password': u'incorrect password'}
             return self.edit(id, data_dict, errors, error_summary)
 
     def login(self, error=None):

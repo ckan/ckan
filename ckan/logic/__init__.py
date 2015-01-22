@@ -20,6 +20,10 @@ class NameConflict(Exception):
     pass
 
 
+class UsernamePasswordError(Exception):
+    pass
+
+
 class AttributeDict(dict):
     def __getattr__(self, name):
         try:
