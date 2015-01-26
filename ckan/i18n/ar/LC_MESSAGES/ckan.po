@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2014-10-06 11:56+0000\n"
+"PO-Revision-Date: 2014-11-21 12:21+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/projects/p/ckan/language/ar/)\n"
 "MIME-Version: 1.0\n"
@@ -428,7 +428,7 @@ msgstr "يرجى  <\"{a href=\"{link> تحديث ملفك الشخصي <a/> و �
 #: ckan/controllers/home.py:103
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
-msgstr ""
+msgstr "إضافة <a href=\"%s\"> تحديث ملفك الشخصي </a> و إضافة "
 
 #: ckan/controllers/home.py:105
 #, python-format

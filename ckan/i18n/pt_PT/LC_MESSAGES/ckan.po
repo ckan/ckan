@@ -3,14 +3,14 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# Manuela Silva <manuela.silva@sky.com>, 2014
+# alfalb_mansil, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
 "PO-Revision-Date: 2014-04-14 15:35+0000\n"
-"Last-Translator: Manuela Silva <manuela.silva@sky.com>\n"
+"Last-Translator: alfalb_mansil\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/projects/p/ckan/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
