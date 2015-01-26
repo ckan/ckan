@@ -248,6 +248,16 @@ class TestPackageSearchIndex:
         validated_data_dict = json.loads(indexed_pkg['validated_data_dict'])
         assert_not_in('data_dict', validated_data_dict)
 
+    def test_index_package_stores_unvalidated_data_dict_without_validated_data_dict(self):
+        # This is a regression test for #2208
+        index = search.index.PackageSearchIndex()
+        pkg_dict = self._get_pkg_dict()
+
+        index.index_package(pkg_dict)
+        data_dict = json.loads(search.show(pkg_dict['name'])['data_dict'])
+
+        assert_not_in('validated_data_dict', data_dict)
+
     def test_index_package_stores_resource_extras_in_config_file(self):
         index = search.index.PackageSearchIndex()
         pkg_dict = self._get_pkg_dict_with_resources()

@@ -106,6 +106,8 @@ class PackageSearchIndex(SearchIndex):
         if pkg_dict is None:
             return
 
+        data_dict_json = json.dumps(pkg_dict)
+
         if config.get('ckan.cache_validated_datasets', True):
             package_plugin = lib_plugins.lookup_package_plugin(
                 pkg_dict.get('type'))
@@ -117,7 +119,7 @@ class PackageSearchIndex(SearchIndex):
             pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
                 cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
 
-        pkg_dict['data_dict'] = json.dumps(pkg_dict)
+        pkg_dict['data_dict'] = data_dict_json
 
         # add to string field for sorting
         title = pkg_dict.get('title')

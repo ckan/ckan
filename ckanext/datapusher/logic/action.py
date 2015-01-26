@@ -9,6 +9,7 @@ import requests
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
+import ckan.lib.datapreview as datapreview
 import ckanext.datapusher.logic.schema as dpschema
 
 log = logging.getLogger(__name__)
@@ -157,18 +158,19 @@ def datapusher_hook(context, data_dict):
 
     task['state'] = status
     task['last_updated'] = str(datetime.datetime.now())
+    if status == 'complete':
+        # Create default views for resource if necessary (only the ones that
+        # require data to be in the DataStore)
+        resource_dict = p.toolkit.get_action('resource_show')(
+            context, {'id': res_id})
 
-    if status == 'complete' and p.plugin_loaded('recline_grid_view'):
-        view_list = p.toolkit.get_action(
-            'resource_view_list')(context, {'id': res_id})
+        dataset_dict = p.toolkit.get_action('package_show')(
+            context, {'id': resource_dict['package_id']})
 
-        if not view_list:
-            view = {'resource_id': res_id,
-                    'view_type': 'recline_grid_view',
-                    'title': 'Grid view',
-                    'description': 'View of data within the DataStore'}
-            view_list = p.toolkit.get_action('resource_view_create')(context,
-                                                                     view)
+        datapreview.add_default_views_to_resource(context,
+                                                  resource_dict,
+                                                  dataset_dict,
+                                                  create_datastore_views=True)
 
     context['ignore_auth'] = True
     p.toolkit.get_action('task_status_update')(context, task)

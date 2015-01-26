@@ -144,6 +144,10 @@ ckan.feeds.author_link =
 #ckan.datapusher.formats = csv xls xlsx tsv application/csv application/vnd.ms-excel application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 #ckan.datapusher.url = http://127.0.0.1:8800/
 
+# Resource Proxy settings
+# Preview size limit, default: 1MB
+#ckan.resource_proxy.max_file_size = 1 * 1024 * 1024
+
 ## Activity Streams Settings
 
 #ckan.activity_streams_enabled = true

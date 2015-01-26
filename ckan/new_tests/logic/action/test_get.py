@@ -1,6 +1,7 @@
 import nose.tools
 
 import ckan.logic as logic
+import ckan.plugins as p
 import ckan.lib.search as search
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
@@ -16,6 +17,29 @@ class TestGet(object):
 
         # Clear the search index
         search.clear()
+
+    def test_package_show(self):
+        dataset1 = factories.Dataset()
+
+        dataset2 = helpers.call_action('package_show', id=dataset1['id'])
+
+        eq(dataset2['name'], dataset1['name'])
+        missing_keys = set(('title', 'groups')) - set(dataset2.keys())
+        assert not missing_keys, missing_keys
+
+    def test_package_show_with_custom_schema(self):
+        dataset1 = factories.Dataset()
+        from ckan.logic.schema import default_show_package_schema
+        custom_schema = default_show_package_schema()
+
+        def foo(key, data, errors, context):
+            data[key] = 'foo'
+        custom_schema['new_field'] = [foo]
+
+        dataset2 = helpers.call_action('package_show', id=dataset1['id'],
+                                       context={'schema': custom_schema})
+
+        eq(dataset2['new_field'], 'foo')
 
     def test_group_list(self):
 
@@ -924,6 +948,50 @@ class TestOrganizationListForUser(object):
         organizations = helpers.call_action('organization_list_for_user')
 
         assert organizations == []
+
+
+class TestShowResourceView(object):
+
+    @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+        helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+
+    def test_resource_view_show(self):
+
+        resource = factories.Resource()
+        resource_view = {'resource_id': resource['id'],
+                         'view_type': u'image_view',
+                         'title': u'View',
+                         'description': u'A nice view',
+                         'image_url': 'url'}
+
+        new_view = helpers.call_action('resource_view_create', **resource_view)
+
+        result = helpers.call_action('resource_view_show', id=new_view['id'])
+
+        result.pop('id')
+        result.pop('package_id')
+
+        assert result == resource_view
+
+    def test_resource_view_show_id_missing(self):
+
+        nose.tools.assert_raises(
+            logic.ValidationError,
+            helpers.call_action, 'resource_view_show')
+
+    def test_resource_view_show_id_not_found(self):
+
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'resource_view_show', id='does_not_exist')
 
 
 class TestGetHelpShow(object):

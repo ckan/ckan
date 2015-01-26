@@ -9,6 +9,7 @@ import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 import ckan.model as model
 import ckan.logic as logic
+import ckan.plugins as p
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
@@ -93,8 +94,16 @@ class TestUserInvite(object):
 
 
 class TestResourceViewCreate(object):
+
     @classmethod
-    def teardown_class(self):
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+
         helpers.reset_db()
 
     def setup(self):
@@ -218,7 +227,7 @@ class TestResourceViewCreate(object):
     def _default_resource_view_attributes(self, **kwargs):
         default_attributes = {
             'resource_id': factories.Resource()['id'],
-            'view_type': 'image',
+            'view_type': 'image_view',
             'title': 'View',
             'description': 'A nice view'
         }

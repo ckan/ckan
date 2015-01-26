@@ -187,9 +187,12 @@ def package_create(context, data_dict):
     pkg = model_save.package_dict_save(data, context)
 
     model.setup_default_user_roles(pkg, admins)
-    # Needed to let extensions know the package id
+    # Needed to let extensions know the package and resources ids
     model.Session.flush()
     data['id'] = pkg.id
+    if data.get('resources'):
+        for index, resource in enumerate(data['resources']):
+            resource['id'] = pkg.resources[index].id
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
@@ -202,6 +205,11 @@ def package_create(context, data_dict):
         item.create(pkg)
 
         item.after_create(context, data)
+
+    # Create default views for resources if necessary
+    if data.get('resources'):
+        ckan.lib.datapreview.add_default_views_to_dataset_resources(context,
+                                                                    data)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -304,8 +312,8 @@ def resource_create(context, data_dict):
     model.repo.commit()
 
     ##  Run package show again to get out actual last_resource
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
-    resource = pkg_dict['resources'][-1]
+    updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    resource = updated_pkg_dict['resources'][-1]
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_create(context, resource)
@@ -336,6 +344,7 @@ def resource_view_create(context, data_dict):
     resource_id = _get_or_bust(data_dict, 'resource_id')
     view_type = _get_or_bust(data_dict, 'view_type')
     view_plugin = ckan.lib.datapreview.get_view_plugin(view_type)
+
     if not view_plugin:
         raise ValidationError(
             {"view_type": "No plugin found for view_type {view_type}".format(

@@ -49,8 +49,13 @@ this.ckan.module('recline_view', function (jQuery, _) {
 
       var errorMsg, dataset;
 
-      resourceData.backend =  'ckan';
-      resourceData.endpoint = jQuery('body').data('site-root') + 'api';
+      if (!resourceData.datastore_active) {
+          recline.Backend.DataProxy.timeout = 10000;
+          resourceData.backend =  'dataproxy';
+      } else {
+          resourceData.backend =  'ckan';
+          resourceData.endpoint = jQuery('body').data('site-root') + 'api';
+      }
 
       dataset = new recline.Model.Dataset(resourceData);
 
