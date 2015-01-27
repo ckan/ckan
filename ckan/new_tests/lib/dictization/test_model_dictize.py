@@ -481,7 +481,7 @@ class TestPackageDictize:
             u'title': u'Test Group Dictize',
             u'type': u'group',
             u'closed': False,
-            }
+        }
         self.assert_equals_expected(expected_dict, result['groups'][0]), result['groups'][0]
 
     def test_package_dictize_owner_org(self):
