@@ -15,7 +15,7 @@ from routes.util import URLGenerator
 
 from ckan.config.routing import make_map
 from ckan.tests import *
-from ckan.lib.cli import MockTranslator
+from ckan.lib.commands import MockTranslator
 
 class TestPylonsSession(dict):
     last_accessed = None

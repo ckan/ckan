@@ -1,5 +1,5 @@
 import ckan.model as model
-import ckan.lib.cli as cli
+import ckan.lib.commands as cli
 
 import ckan.plugins as p
 
