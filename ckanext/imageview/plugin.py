@@ -18,7 +18,7 @@ class ImageView(p.SingletonPlugin):
 
     def info(self):
         return {'name': 'image_view',
-                'title': 'Image',
+                'title': p.toolkit._('Image'),
                 'icon': 'picture',
                 'schema': {'image_url': [ignore_empty, unicode]},
                 'iframed': False,
