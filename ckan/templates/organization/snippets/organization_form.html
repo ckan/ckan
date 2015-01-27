@@ -48,11 +48,11 @@
         <div class="controls">
 
           {% set current_related_group_id = data.related_group_id %}
-          {% set current_related_group_title = current_related_group_id + '!' %}
+          {% set current_related_group_title = h.group_name_to_title(current_related_group_id) %}
 
           <input id="related_group_id" type="text" name="related_group_id" placeholder='{{related_label}}'
-           value="current_related_group" class="control-medium" data-module="autocomplete" data-module-label='title' data-module-key='id' data-module-defaultlabel='{{data.related_group_id}}' data-module-defaultvalue='{{data.related_group_id}}' data-label="{{current_related_group_title}}"
-           data-module-source="/api/2/util/group/autocomplete?type=organization&q=?">
+           value="{{current_related_group_id}}" class="control-medium" data-module="autocomplete" data-module-label='title' data-module-key='id' data-module-defaultlabel='{{current_related_group_title}}' data-module-defaultvalue='{{data.related_group_id}}'
+                      data-module-source="/api/2/util/group/autocomplete?type=organization&q=?">
         </div>
       </div>
     </div>
