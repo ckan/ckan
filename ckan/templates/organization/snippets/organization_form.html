@@ -24,15 +24,23 @@
 
     {{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload) }}
 
-    {{ form.checkbox('closed', id='field-closed', checked=data.get('closed', False), label=_('Closed'), value="true") }}
+    <div class="control-group ">
+      <div class="controls">
+        <label class="checkbox" for="field-closed">
+          <input id="field-closed" type="checkbox" name="closed" value="true" {% if data.get('closed', False) %}checked{% endif %} class="collapse" data-toggle="collapse" data-target="#closed-properties">
+          Closed
+        </label>
+      </div>
+    </div>
 
-    <span id="closed-properties">
+    <div id="closed-properties" {% if data.get('closed', False) %}class="collapse in"{% else %}class="collapse"{% endif %}>
        {% set relationship_options = [{'value': ''},
                                       {'value': _('replaced by') },
                                       {'value': _('partially replaced') },
                                       {'value': _('split up') },
                                       {'value': _('merged into new organization')} ] %}
        {{ form.select('related_group_relationship', label=_('Organization relationship'), options=relationship_options, selected=data.related_group_relationship, error=error) }}
+
 
       <div class="control-group control-full">
         {% set related_label = _("Related Organization") %}
@@ -44,7 +52,8 @@
            data-module-source="/api/2/util/group/autocomplete?type=organization&q=?">
         </div>
       </div>
-    </span>
+    </div>
+
 
   {% endblock %}
 
