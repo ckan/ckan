@@ -49,7 +49,7 @@ class TextView(p.SingletonPlugin):
         p.toolkit.add_resource('theme/public', 'ckanext-textview')
 
     def info(self):
-        return {'name': 'text',
+        return {'name': 'text_view',
                 'title': p.toolkit._('Text'),
                 'icon': 'file-text-alt',
                 'default_title': p.toolkit._('Text'),

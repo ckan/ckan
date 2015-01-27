@@ -16,7 +16,7 @@ class PdfView(p.SingletonPlugin):
     proxy_is_enabled = False
 
     def info(self):
-        return {'name': 'pdf',
+        return {'name': 'pdf_view',
                 'title': 'PDF',
                 'icon': 'file-text',
                 'default_title': 'PDF',
