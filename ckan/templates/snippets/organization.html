@@ -32,7 +32,7 @@ Example:
         </div>
       {% endblock %}
       {% block heading %}
-      <h1 class="heading">{{ display_name }}
+      <h1 class="heading">{{ organization.display_name }}
         {% if organization.state == 'deleted' %}
           [{{ _('Deleted') }}]
         {% endif %}
