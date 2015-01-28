@@ -245,9 +245,11 @@ def add_views_to_resource(context,
     Resource views extensions get the resource dict and the parent dataset
     dict. If the latter is not provided, `package_show` is called to get it.
 
-    By default only views that don't require the resource data to be in the
-    DataStore are called. See ``add_default_views_to_dataset_resources``
-    for details on the ``create_datastore_views`` parameter.
+    By default only view plugins that don't require the resource data to be in
+    the DataStore are called. This is only relevant when the default view
+    plugins are used, not when explicitly passing view types. See
+    ``add_default_views_to_dataset_resources`` for details on the
+    ``create_datastore_views`` parameter.
 
     Returns a list of resource views created (empty if none were created)
     '''
@@ -309,9 +311,11 @@ def add_views_to_dataset_resources(context,
     the resource will be created (ie its view plugin ``can_view`` method
     returns True.
 
-    By default only views that don't require the resource data to be in the
-    DataStore are called. See ``add_default_views_to_dataset_resources``
-    for details on the ``create_datastore_views`` parameter.
+    By default only view plugins that don't require the resource data to be in
+    the DataStore are called. This is only relevant when the default view
+    plugins are used, not when explicitly passing view types. See
+    ``add_default_views_to_dataset_resources`` for details on the
+    ``create_datastore_views`` parameter.
 
     Returns a list of resource views created (empty if none were created)
     '''
@@ -347,8 +351,8 @@ def add_default_views_to_resource(context,
     Resource views extensions get the resource dict and the parent dataset
     dict. If the latter is not provided, `package_show` is called to get it.
 
-    By default only views that don't require the resource data to be in the
-    DataStore are called. See ``add_default_views_to_dataset_resources``
+    By default only view plugins that don't require the resource data to be in
+    the DataStore are called. See ``add_default_views_to_dataset_resources``
     for details on the ``create_datastore_views`` parameter.
 
     Returns a list of resource views created (empty if none were created)
@@ -366,9 +370,9 @@ def add_default_views_to_dataset_resources(context,
     '''
     Creates the default views on all resources of the provided dataset
 
-    By default only views that don't require the resource data to be in the
-    DataStore are called. Passing `create_datastore_views` as True will only
-    create views that require data to be in the DataStore. The first case
+    By default only view plugins that don't require the resource data to be in
+    the DataStore are called. Passing `create_datastore_views` as True will
+    only create views that require data to be in the DataStore. The first case
     happens when the function is called from `package_create` or
     `package_update`, the second when it's called from the DataPusher when
     data was uploaded to the DataStore.
