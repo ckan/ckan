@@ -215,7 +215,7 @@ class TestViewsCreation(object):
         resource_dict = factories.Resource(
             url='http://some.image.png',
             format='png',
-            )
+        )
 
         context = {
             'user': helpers.call_action('get_site_user')['name']
@@ -234,7 +234,7 @@ class TestViewsCreation(object):
         resource_dict = factories.Resource(
             url='http://some.image.png',
             format='png',
-            )
+        )
 
         # Change default views config setting
         config['ckan.views.default_views'] = 'image_view'
