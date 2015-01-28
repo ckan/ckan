@@ -104,7 +104,9 @@ def _get_engine(data_dict):
     if not engine:
         import pylons
         extras = {'url': connection_url}
-        engine = sqlalchemy.engine_from_config(pylons.config, 'ckan.datastore.sqlalchemy.', **extras)
+        engine = sqlalchemy.engine_from_config(pylons.config,
+                                               'ckan.datastore.sqlalchemy.', 
+                                               **extras)
         _engines[connection_url] = engine
     return engine
 
