@@ -1,6 +1,8 @@
 import mock
 import nose
 
+import sqlalchemy.exc
+
 import ckan.plugins as p
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
@@ -125,6 +127,46 @@ class TestCreateIndexes(object):
 
         assert was_called, ("Expected 'connection.execute' to have been "
                             "called with a string containing '%s'" % sql_str)
+
+
+@mock.patch("ckanext.datastore.db._get_fields")
+def test_upsert_with_insert_method_and_invalid_data(
+        mock_get_fields_function):
+    """upsert_data() should raise InvalidDataError if given invalid data.
+
+    If the type of a field is numeric and upsert_data() is given a whitespace
+    value like "   ", it should raise DataError.
+
+    In this case we're testing with "method": "insert" in the data_dict.
+
+    """
+    mock_connection = mock.Mock()
+    mock_connection.execute.side_effect = sqlalchemy.exc.DataError(
+        "statement", "params", "orig", connection_invalidated=False)
+
+    context = {
+        "connection": mock_connection,
+    }
+    data_dict = {
+        "fields": [{"id": "value", "type": "numeric"}],
+        "records": [
+            {"value": 0},
+            {"value": 1},
+            {"value": 2},
+            {"value": 3},
+            {"value": "   "},  # Invalid numeric value.
+            {"value": 5},
+            {"value": 6},
+            {"value": 7},
+        ],
+        "method": "insert",
+        "resource_id": "fake-resource-id",
+    }
+
+    mock_get_fields_function.return_value = data_dict["fields"]
+
+    nose.tools.assert_raises(
+        db.InvalidDataError, db.upsert_data, context, data_dict)
 
 
 class TestJsonGetValues(object):
