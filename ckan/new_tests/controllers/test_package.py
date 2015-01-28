@@ -1,4 +1,4 @@
-from nose.tools import assert_equal, assert_true
+from nose.tools import assert_equal, assert_true, assert_not_equal
 
 from routes import url_for
 
@@ -191,6 +191,52 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         assert 'id="field-organizations"' in pkg_edit_response
         # The organization id is in the response in a value attribute
         assert 'value="{0}"'.format(org['id']) in pkg_edit_response
+
+    def test_dataset_edit_org_dropdown_normal_user_can_remove_org(self):
+        '''
+        A normal user (non-sysadmin) can remove an organization from a dataset
+        have permissions on.
+        '''
+        user = factories.User()
+        # user is admin of org.
+        org = factories.Organization(name="my-org",
+                                     users=[{'name': user['id'], 'capacity': 'admin'}])
+
+        app = self._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url=url_for(controller='package', action='new'),
+            extra_environ=env,
+        )
+
+        # create dataset with owner_org
+        form = response.forms['dataset-edit']
+        form['name'] = u'my-dataset'
+        form['owner_org'] = org['id']
+        response = submit_and_follow(app, form, env, 'save')
+
+        # add a resource to make the pkg active
+        resource_form = response.forms['resource-edit']
+        resource_form['url'] = u'http://example.com/resource'
+        submit_and_follow(app, resource_form, env, 'save', 'go-metadata')
+        pkg = model.Package.by_name(u'my-dataset')
+        assert_equal(pkg.state, 'active')
+        assert_equal(pkg.owner_org, org['id'])
+        assert_not_equal(pkg.owner_org, None)
+
+        # edit package page response
+        url = url_for(controller='package',
+                      action='edit',
+                      id=pkg.id)
+        pkg_edit_response = app.get(url=url, extra_environ=env)
+
+        # edit dataset
+        edit_form = pkg_edit_response.forms['dataset-edit']
+        edit_form['owner_org'] = ''
+        submit_and_follow(app, edit_form, env, 'save')
+        post_edit_pkg = model.Package.by_name(u'my-dataset')
+        assert_equal(post_edit_pkg.owner_org, None)
+        assert_not_equal(post_edit_pkg.owner_org, org['id'])
 
     def test_dataset_edit_org_dropdown_not_visible_to_normal_user_with_no_orgs_available(self):
         '''
