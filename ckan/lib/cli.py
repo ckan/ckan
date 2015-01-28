@@ -2154,21 +2154,26 @@ class FrontEndBuildCommand(CkanCommand):
         cmd.args = (root, ckanext)
         cmd.command()
 
+
 class ViewsCommand(CkanCommand):
     '''Manage resource views.
 
     Usage:
 
-        paster views create all                 - Create views for all types.
-        paster views create [type1] [type2] ... - Create views for specified types.
-        paster views clean                      - Permanently delete views for all types no longer in the configuration file.
+        paster views create [options] [type1] [type2] ...
 
-    Supported types are "pdf", "text", "webpage", "image" and "grid".  Make
-    sure the relevant plugins are loaded for the following types, otherwise
-    an error will be raised:
-        * "grid"-> "recline_grid_view"
-        * "pdf" -> "pdf_view"
-        * "text -> "text_view"
+            Create views on relevant resources. You can optionally provide
+            specific view types (eg `recline_view`, `image_view`). If no types
+            are provided, the default ones will be used. These are generally
+            the ones defined in the `ckan.views.default_views` config option.
+            Note that on either case, plugins must be loaded (ie added to
+            `ckan.plugins`), otherwise the command will stop.
+
+        paster views clean
+
+            Permanently delete views for all types no longer present in the
+            `ckan.plugins` configuration option.
+
     '''
 
     summary = __doc__.split('\n')[0]
@@ -2191,22 +2196,72 @@ class ViewsCommand(CkanCommand):
         if not self.args:
             print self.usage
         elif self.args[0] == 'create':
-            self.create_views_search()
+            view_plugin_types = self.args[1:]
+            self.create_views_search(view_plugin_types)
             # self.create_views(self.args[1:])
         elif self.args[0] == 'clean':
             self.clean_views()
         else:
             print self.usage
 
-    def create_views_search(self):
+    def _get_view_plugins(self, view_plugin_types,
+                          get_datastore_views=False):
+        '''
+        Returns the view plugins that were succesfully loaded
 
-        from ckan.lib.datapreview import add_default_views_to_dataset_resources
+        Views are provided as a list of ``view_plugin_types``. If no types are
+        provided, the default views defined in the ``ckan.views.default_views``
+        will be created. Only in this case (when the default view plugins are
+        used) the `get_datastore_views` parameter can be used to get also view
+        plugins that require data to be in the DataStore.
 
+        If any of the provided plugins could not be loaded (eg it was not added
+        to `ckan.plugins`) the command will stop.
+
+        Returns a list of loaded plugin names.
+        '''
+        from ckan.lib.datapreview import (get_view_plugins,
+                                          get_default_view_plugins
+                                          )
 
         log = logging.getLogger(__name__)
 
-        context = {'user': self.site_user['name']}
-        create_datastore_views = 'datastore' in config['ckan.plugins'].split()
+        view_plugins = []
+
+        if not view_plugin_types:
+            log.info('No view types provided, using default types')
+            view_plugins = get_default_view_plugins()
+            if get_datastore_views:
+                view_plugins.extend(
+                    get_default_view_plugins(get_datastore_views=True))
+        else:
+            view_plugins = get_view_plugins(view_plugin_types)
+
+        loaded_view_plugins = [view_plugin.info()['name']
+                               for view_plugin in view_plugins]
+
+        plugins_not_found = list(set(view_plugin_types) -
+                                 set(loaded_view_plugins))
+
+        if plugins_not_found:
+            msg = ('View plugin(s) not found : {0}. '.format(plugins_not_found)
+                   + 'Have they been added to the `ckan.plugins` configuration'
+                   + ' option?')
+            log.error(msg)
+            sys.exit(1)
+
+        return loaded_view_plugins
+
+    def create_views_search(self, view_plugin_types=[]):
+
+        from ckan.lib.datapreview import add_views_to_dataset_resources
+
+        log = logging.getLogger(__name__)
+
+        datastore_enabled = 'datastore' in config['ckan.plugins'].split()
+
+        loaded_view_plugins = self._get_view_plugins(view_plugin_types,
+                                                     datastore_enabled)
 
         def _search_datasets(page=1):
 
@@ -2224,19 +2279,16 @@ class ViewsCommand(CkanCommand):
 
             return query
 
-        def _add_views_to_dataset(dataset_dict):
+        context = {'user': self.site_user['name']}
+
+        def _add_views_to_dataset(dataset_dict, view_types):
+
             if not dataset.get('resources'):
                 return []
 
-            views = add_default_views_to_dataset_resources(context,
-                                                           dataset_dict)
-
-            if create_datastore_views:
-                views.extend(
-                    add_default_views_to_dataset_resources(context,
-                                                           dataset_dict,
-                                                           create_datastore_views=True))
-
+            views = add_views_to_dataset_resources(context,
+                                                   dataset_dict,
+                                                   view_types=view_types)
             return views
 
         page = 1
@@ -2244,15 +2296,17 @@ class ViewsCommand(CkanCommand):
             query = _search_datasets(page)
 
             if page == 1 and query['count'] == 0:
-                log.info('No datasets to create resource views on')
+                log.info('No datasets to create resource views on, exiting...')
                 sys.exit(1)
+
             elif page == 1 and not self.options.assume_yes:
 
-                msg = 'You are about to check {0} datasets for the following view plugins: {1}\n'.format(
-                        query['count'], config.get('ckan.views.default_views')) + \
-                      ' Do you want to continue?'
+                msg = ('\nYou are about to check {0} datasets for the ' +
+                       'following view plugins: {1}\n' +
+                       ' Do you want to continue?')
 
-                confirm = query_yes_no(msg)
+                confirm = query_yes_no(msg.format(query['count'],
+                                                  loaded_view_plugins))
 
                 if confirm == 'no':
                     log.info('Command aborted by user')
@@ -2260,15 +2314,18 @@ class ViewsCommand(CkanCommand):
 
             if query['results']:
                 for dataset in query['results']:
-                    views = _add_views_to_dataset(dataset)
+                    views = _add_views_to_dataset(dataset, loaded_view_plugins)
                     if views:
-                        log.debug('Added {0} views to resources from dataset {1}'.format(
-                            len(views), dataset['name']))
+                        view_types = list(set([view['view_type']
+                                               for view in views]))
+                        msg = ('Added {0} view(s) of type(s) {1} to ' +
+                               'resources from dataset {2}')
+                        log.debug(msg.format(len(views),
+                                             ', '.join(view_types),
+                                             dataset['name']))
                 page += 1
             else:
                 break
-
-
 
     def create_views(self, view_types):
         supported_types = ['grid', 'text', 'webpage', 'pdf', 'image']
