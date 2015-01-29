@@ -170,7 +170,7 @@ class ResourceUpload(object):
 
         if isinstance(upload_field_storage, cgi.FieldStorage):
             self.filename = upload_field_storage.filename
-            self.filename = munge.munge_filename(self.filename)
+            self.filename = munge.munge_filename_ext_safe(self.filename)
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
             self.upload_file = upload_field_storage.file
