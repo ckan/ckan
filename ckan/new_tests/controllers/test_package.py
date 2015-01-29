@@ -167,10 +167,10 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         )
 
         # organization dropdown available in create page.
-        assert 'id="field-organizations"' in response
+        form = response.forms['dataset-edit']
+        assert 'owner_org' in form.fields
 
         # create dataset
-        form = response.forms['dataset-edit']
         form['name'] = u'my-dataset'
         form['owner_org'] = org['id']
         response = submit_and_follow(app, form, env, 'save')
@@ -188,9 +188,11 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
                       id=pkg.id)
         pkg_edit_response = app.get(url=url, extra_environ=env)
         # A field with the correct id is in the response
-        assert 'id="field-organizations"' in pkg_edit_response
+        form = pkg_edit_response.forms['dataset-edit']
+        assert 'owner_org' in form.fields
         # The organization id is in the response in a value attribute
-        assert 'value="{0}"'.format(org['id']) in pkg_edit_response
+        owner_org_options = [value for (value, _) in form['owner_org'].options]
+        assert org['id'] in owner_org_options
 
     def test_dataset_edit_org_dropdown_normal_user_can_remove_org(self):
         '''
@@ -255,11 +257,11 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
             extra_environ=env,
         )
 
-        # organization dropdown available in create page.
-        assert 'id="field-organizations"' not in response
+        # organization dropdown not in create page.
+        form = response.forms['dataset-edit']
+        assert 'owner_org' not in form.fields
 
         # create dataset
-        form = response.forms['dataset-edit']
         form['name'] = u'my-dataset'
         response = submit_and_follow(app, form, env, 'save')
 
@@ -276,7 +278,8 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
                       id=model.Package.by_name(u'my-dataset').id)
         pkg_edit_response = app.get(url=url, extra_environ=env)
         # A field with the correct id is in the response
-        assert 'id="field-organizations"' not in pkg_edit_response
+        form = pkg_edit_response.forms['dataset-edit']
+        assert 'owner_org' not in form.fields
         # The organization id is in the response in a value attribute
         assert 'value="{0}"'.format(org['id']) not in pkg_edit_response
 
