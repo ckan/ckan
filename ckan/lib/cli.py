@@ -6,6 +6,7 @@ import datetime
 import sys
 from pprint import pprint
 import re
+import itertools
 import logging
 import ckan.logic as logic
 import ckan.model as model
@@ -2252,6 +2253,89 @@ class ViewsCommand(CkanCommand):
 
         return loaded_view_plugins
 
+    def _add_default_filters(self, search_data_dict, view_types):
+        '''
+        Adds extra filters to the `package_search` dict for common view types
+
+        It basically adds `fq` parameters that filter relevant resource formats
+        for the view types provided. For instance, if one ov the view types is
+        `pdf_view` the following will be added to the final query:
+
+            fq=res_format:"pdf" OR res_format:"PDF"
+
+        This obviously should only be used if all view types are known and can
+        be filtered, otherwise we want all datasets to be returned. If a
+        non-filterable view type is provided, the search params are not
+        modified.
+
+        Returns the provided data_dict for `package_search`, optionally
+        modified with extra filters.
+        '''
+
+        from ckanext.imageview.plugin import DEFAULT_IMAGE_FORMATS
+        from ckanext.textview.plugin import get_formats as get_text_formats
+        from ckanext.datapusher.plugin import DEFAULT_FORMATS as \
+            datapusher_formats
+
+        filter_formats = []
+
+        for view_type in view_types:
+            if view_type == 'image_view':
+
+                for _format in DEFAULT_IMAGE_FORMATS:
+                    filter_formats.extend([_format, _format.upper()])
+
+            elif view_type == 'text_view':
+                formats = get_text_formats(config)
+                for _format in itertools.chain.from_iterable(formats.values()):
+                    filter_formats.extend([_format, _format.upper()])
+
+            elif view_type == 'pdf_view':
+                filter_formats.extend(['pdf', 'PDF'])
+
+            elif view_type in ['recline_view', 'recline_grid_view',
+                               'recline_graph_view', 'recline_map_view']:
+
+                if datapusher_formats[0] in filter_formats:
+                    continue
+
+                for _format in datapusher_formats:
+                    if '/' not in _format:
+                        filter_formats.extend([_format, _format.upper()])
+            else:
+                # There is another view type provided so we can't add any
+                # filter
+                return search_data_dict
+
+        filter_formats_query = ['+res_format:"{0}"'.format(_format)
+                                for _format in filter_formats]
+        search_data_dict['fq_list'].append(' OR '.join(filter_formats_query))
+
+        return search_data_dict
+
+    def _search_datasets(self, page=1, view_types=[]):
+        '''
+        Perform a query with `package_search` and return the result
+
+        Results can be paginated using the `page` parameter
+        '''
+
+        n = 100
+
+        search_data_dict = {
+            'q': '*:*',
+            'fq': 'dataset_type:dataset',
+            'fq_list': [],
+            'rows': n,
+            'start': n * (page - 1),
+        }
+
+        self._add_default_filters(search_data_dict, view_types)
+
+        query = p.toolkit.get_action('package_search')({},
+                                                       search_data_dict)
+        return query
+
     def create_views_search(self, view_plugin_types=[]):
 
         from ckan.lib.datapreview import add_views_to_dataset_resources
@@ -2263,37 +2347,11 @@ class ViewsCommand(CkanCommand):
         loaded_view_plugins = self._get_view_plugins(view_plugin_types,
                                                      datastore_enabled)
 
-        def _search_datasets(page=1):
-
-            n = 100
-
-            search_data_dict = {
-                'q': '*:*',
-                'fq': 'dataset_type:dataset',
-                'rows': n,
-                'start': n * (page - 1),
-            }
-
-            query = p.toolkit.get_action('package_search')({},
-                                                           search_data_dict)
-
-            return query
-
         context = {'user': self.site_user['name']}
-
-        def _add_views_to_dataset(dataset_dict, view_types):
-
-            if not dataset.get('resources'):
-                return []
-
-            views = add_views_to_dataset_resources(context,
-                                                   dataset_dict,
-                                                   view_types=view_types)
-            return views
 
         page = 1
         while True:
-            query = _search_datasets(page)
+            query = self._search_datasets(page, loaded_view_plugins)
 
             if page == 1 and query['count'] == 0:
                 log.info('No datasets to create resource views on, exiting...')
@@ -2313,8 +2371,16 @@ class ViewsCommand(CkanCommand):
                     sys.exit(1)
 
             if query['results']:
-                for dataset in query['results']:
-                    views = _add_views_to_dataset(dataset, loaded_view_plugins)
+                for dataset_dict in query['results']:
+
+                    if not dataset_dict.get('resources'):
+                        continue
+
+                    views = add_views_to_dataset_resources(
+                        context,
+                        dataset_dict,
+                        view_types=loaded_view_plugins)
+
                     if views:
                         view_types = list(set([view['view_type']
                                                for view in views]))
@@ -2322,7 +2388,7 @@ class ViewsCommand(CkanCommand):
                                'resources from dataset {2}')
                         log.debug(msg.format(len(views),
                                              ', '.join(view_types),
-                                             dataset['name']))
+                                             dataset_dict['name']))
                 page += 1
             else:
                 break

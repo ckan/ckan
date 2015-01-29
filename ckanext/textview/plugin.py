@@ -13,6 +13,25 @@ DEFAULT_JSON_FORMATS = ['json']
 DEFAULT_JSONP_FORMATS = ['jsonp']
 
 
+def get_formats(config):
+
+    out = {}
+
+    text_formats = config.get('ckan.preview.text_formats', '').split()
+    out['text_formats'] = text_formats or DEFAULT_TEXT_FORMATS
+
+    xml_formats = config.get('ckan.preview.xml_formats', '').split()
+    out['xml_formats'] = xml_formats or DEFAULT_XML_FORMATS
+
+    json_formats = config.get('ckan.preview.json_formats', '').split()
+    out['json_formats'] = json_formats or DEFAULT_JSON_FORMATS
+
+    jsonp_formats = config.get('ckan.preview.jsonp_formats', '').split()
+    out['jsonp_formats'] = jsonp_formats or DEFAULT_JSONP_FORMATS
+
+    return out
+
+
 class TextView(p.SingletonPlugin):
     '''This extension previews JSON(P).'''
 
@@ -29,17 +48,10 @@ class TextView(p.SingletonPlugin):
     no_jsonp_formats = []
 
     def update_config(self, config):
-        text_formats = config.get('ckan.preview.text_formats', '').split()
-        self.text_formats = text_formats or DEFAULT_TEXT_FORMATS
 
-        xml_formats = config.get('ckan.preview.xml_formats', '').split()
-        self.xml_formats = xml_formats or DEFAULT_XML_FORMATS
-
-        json_formats = config.get('ckan.preview.json_formats', '').split()
-        self.json_formats = json_formats or DEFAULT_JSON_FORMATS
-
-        jsonp_formats = config.get('ckan.preview.jsonp_formats', '').split()
-        self.jsonp_formats = jsonp_formats or DEFAULT_JSONP_FORMATS
+        formats = get_formats(config)
+        for key, value in formats.iteritems():
+            setattr(self, key, value)
 
         self.no_jsonp_formats = (self.text_formats +
                                  self.xml_formats +
