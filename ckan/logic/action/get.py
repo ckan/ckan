@@ -1303,7 +1303,7 @@ def user_show(context, data_dict):
     :param include_datasets: Include a list of datasets the user has created.
         If it is the same user or a sysadmin requesting, it includes datasets
         that are draft or private.
-         (optional, default:``False``, limit:50)
+        (optional, default:``False``, limit:50)
     :type include_datasets: boolean
     :param include_num_followers: Include the number of followers the user has
          (optional, default:``False``)
@@ -1340,6 +1340,8 @@ def user_show(context, data_dict):
         include_private_and_draft_datasets = \
             new_authz.is_sysadmin(requester) or \
             requester_looking_at_own_account
+    else:
+        include_private_and_draft_datasets = False
     context['count_private_and_draft_datasets'] = \
         include_private_and_draft_datasets
 
