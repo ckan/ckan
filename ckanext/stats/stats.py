@@ -75,7 +75,6 @@ class Stats(object):
         assert returned_tag_info in ('name', 'id', 'object')
         tag = table('tag')
         package_tag = table('package_tag')
-        #TODO filter out tags with state=deleted
         if returned_tag_info == 'name':
             from_obj = [package_tag.join(tag)]
             tag_column = tag.c.name
@@ -83,7 +82,8 @@ class Stats(object):
             from_obj = None
             tag_column = package_tag.c.tag_id
         s = select([tag_column, func.count(package_tag.c.package_id)],
-                    from_obj=from_obj)
+                    from_obj=from_obj).\
+            where(package_tag.c.state=='active')
         s = s.group_by(tag_column).\
             order_by(func.count(package_tag.c.package_id).desc()).\
             limit(limit)
