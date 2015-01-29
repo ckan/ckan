@@ -7,9 +7,9 @@ import ckan.lib.datapreview as datapreview
 
 log = logging.getLogger(__name__)
 
-DEFAULT_TEXT_FORMATS = ['text/plain', 'txt', 'plain', 'csv', 'tsv']
-DEFAULT_XML_FORMATS = ['xml', 'rdf', 'rdf+xm', 'owl+xml', 'atom', 'rss']
-DEFAULT_JSON_FORMATS = ['json', 'gjson', 'geojson']
+DEFAULT_TEXT_FORMATS = ['text/plain', 'txt', 'plain']
+DEFAULT_XML_FORMATS = ['xml', 'rdf', 'rdf+xml', 'owl+xml', 'atom', 'rss']
+DEFAULT_JSON_FORMATS = ['json']
 DEFAULT_JSONP_FORMATS = ['jsonp']
 
 
