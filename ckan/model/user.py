@@ -196,13 +196,16 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         revisions_q = revisions_q.filter_by(author=self.name)
         return revisions_q.count()
 
-    def number_created_packages(self):
+    def number_created_packages(self, include_private_and_draft=False):
         # have to import here to avoid circular imports
         import ckan.model as model
         q = meta.Session.query(model.Package)\
-            .filter_by(creator_user_id=self.id)\
-            .filter_by(state='active')\
-            .filter_by(private=False)
+            .filter_by(creator_user_id=self.id)
+        if include_private_and_draft:
+            q = q.filter(model.Package.state.in_(('active', 'draft')))
+        else:
+            q = q.filter_by(state='active')\
+                 .filter_by(private=False)
         return q.count()
 
     def activate(self):

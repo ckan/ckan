@@ -518,8 +518,10 @@ class TestGet(object):
 
         assert len(got_user['datasets']) == 1
         assert got_user['datasets'][0]['name'] == dataset['name']
+        assert got_user['number_created_packages'] == 1
 
-    def test_user_show_include_datasets_includes_draft_and_private_for_myself(self):
+    def test_user_show_include_datasets_includes_draft_myself(self):
+        # a user viewing his own user should see the draft and private datasets
 
         user = factories.User()
         org = factories.Organization(user=user)
@@ -536,6 +538,28 @@ class TestGet(object):
         assert len(got_user['datasets']) == 3
         datasets_got = set([user_['name'] for user_ in got_user['datasets']])
         assert dataset_deleted['name'] not in datasets_got
+        assert got_user['number_created_packages'] == 3
+
+    def test_user_show_include_datasets_includes_draft_sysadmin(self):
+        # sysadmin should see the draft and private datasets
+
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user)
+        dataset_deleted = factories.Dataset(user=user, state='deleted')
+        factories.Dataset(user=user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': sysadmin['name']},
+                                       include_datasets=True,
+                                       id=user['id'])
+
+        assert len(got_user['datasets']) == 3
+        datasets_got = set([user_['name'] for user_ in got_user['datasets']])
+        assert dataset_deleted['name'] not in datasets_got
+        assert got_user['number_created_packages'] == 3
 
     def test_related_list_with_no_params(self):
         '''
