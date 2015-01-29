@@ -1310,9 +1310,10 @@ def user_show(context, data_dict):
     :type include_num_followers: boolean
 
     :returns: the details of the user. Includes email_hash, number_of_edits and
-        number_created_packages (which always excludes draft or private
-        datasets). Excludes the password (hash) and reset_key.  If it is the
-        same user or a sysadmin requesting, the email and apikey are included.
+        number_created_packages (which excludes draft or private datasets
+        unless it is the same user or sysadmin making the request). Excludes
+        the password (hash) and reset_key. If it is the same user or a
+        sysadmin requesting, the email and apikey are included.
     :rtype: dictionary
 
     '''
@@ -1332,6 +1333,16 @@ def user_show(context, data_dict):
 
     _check_access('user_show', context, data_dict)
 
+    # include private and draft datasets?
+    requester = context.get('user')
+    if requester:
+        requester_looking_at_own_account = requester == user_obj.name
+        include_private_and_draft_datasets = \
+            new_authz.is_sysadmin(requester) or \
+            requester_looking_at_own_account
+    context['count_private_and_draft_datasets'] = \
+        include_private_and_draft_datasets
+
     user_dict = model_dictize.user_dictize(user_obj, context)
 
     if context.get('return_minimal'):
@@ -1340,18 +1351,10 @@ def user_show(context, data_dict):
         return user_dict
 
     if data_dict.get('include_datasets', False):
-        # show private and draft datasets?
-        requester = context.get('user')
-        if requester:
-            requester_looking_at_own_account = requester == user_obj.name
-            show_private_and_draft_datasets = \
-                new_authz.is_sysadmin(requester) or \
-                requester_looking_at_own_account
-
         user_dict['datasets'] = []
         dataset_q = model.Session.query(model.Package) \
-                     .filter_by(creator_user_id=user_dict['id'])
-        if not show_private_and_draft_datasets:
+                         .filter_by(creator_user_id=user_dict['id'])
+        if not include_private_and_draft_datasets:
             dataset_q = dataset_q \
                 .filter_by(state='active') \
                 .filter_by(private=False)
