@@ -772,10 +772,13 @@ def user_list(context, data_dict):
       (optional)
     :type q: string
     :param order_by: which field to sort the list by (optional, default:
-      ``'name'``)
+      ``'name'``). Can be any user field or ``edits`` (i.e. number_of_edits).
     :type order_by: string
 
-    :rtype: list of dictionaries
+    :rtype: list of user dictionaries. User properties include:
+      ``number_of_edits`` which counts the revisions by the user and
+      ``number_created_packages`` which excludes datasets which are private
+      or draft state.
 
     '''
     model = context['model']
@@ -801,6 +804,7 @@ def user_list(context, data_dict):
                 _and_(
                     model.Package.creator_user_id == model.User.id,
                     model.Package.state == 'active',
+                    model.Package.private == False,
                 )).label('number_created_packages')
     )
 
@@ -1296,7 +1300,9 @@ def user_show(context, data_dict):
     :type id: string
     :param user_obj: the user dictionary of the user (optional)
     :type user_obj: user dictionary
-    :param include_datasets: Include datasets user has created
+    :param include_datasets: Include a list of datasets the user has created.
+        If it is the same user or a sysadmin requesting, it includes datasets
+        that are draft or private.
          (optional, default:``False``, limit:50)
     :type include_datasets: boolean
     :param include_num_followers: Include the number of followers the user has
@@ -1304,9 +1310,9 @@ def user_show(context, data_dict):
     :type include_num_followers: boolean
 
     :returns: the details of the user. Includes email_hash, number_of_edits and
-        number_created_packages. Excludes the password (hash) and reset_key.
-        The email and apikey are included if it is the user or a sysadmin
-        requesting.
+        number_created_packages (which always excludes draft or private
+        datasets). Excludes the password (hash) and reset_key.  If it is the
+        same user or a sysadmin requesting, the email and apikey are included.
     :rtype: dictionary
 
     '''
@@ -1334,12 +1340,27 @@ def user_show(context, data_dict):
         return user_dict
 
     if data_dict.get('include_datasets', False):
+        # show private and draft datasets?
+        requester = context.get('user')
+        if requester:
+            requester_looking_at_own_account = requester == user_obj.name
+            show_private_and_draft_datasets = \
+                new_authz.is_sysadmin(requester) or \
+                requester_looking_at_own_account
+
         user_dict['datasets'] = []
-        dataset_q = (model.Session.query(model.Package)
+        dataset_q = model.Session.query(model.Package) \
                      .filter_by(creator_user_id=user_dict['id'])
-                     .filter_by(state='active')
-                     .filter_by(private=False)
-                     .limit(50))
+        if not show_private_and_draft_datasets:
+            dataset_q = dataset_q \
+                .filter_by(state='active') \
+                .filter_by(private=False)
+        else:
+            dataset_q = dataset_q \
+                .filter(_or_(model.Package.state=='active',
+                             model.Package.state=='draft'))
+        dataset_q = dataset_q.limit(50)
+
 
         for dataset in dataset_q:
             try:
