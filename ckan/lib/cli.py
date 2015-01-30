@@ -2188,9 +2188,23 @@ class ViewsCommand(CkanCommand):
         self.parser.add_option('-y', '--yes', dest='assume_yes',
                                action='store_true',
                                default=False,
-                               help='Automatic yes to prompts.' +
-                                    'Assume "yes" as answer to all prompts ' +
-                                    'and run non-interactively')
+                               help='''Automatic yes to prompts. Assume "yes"
+as answer to all prompts and run non-interactively''')
+
+        self.parser.add_option('-d', '--no-default-filters',
+                               dest='no_default_filters',
+                               action='store_true',
+                               default=False,
+                               help='''Do not add default filters for relevant
+resource formats for the view types provided. Note that filters are not added
+by default anyway if an unsupported view type is provided or when using the
+`-s` or `--search` options.'''
+                               )
+
+        self.parser.add_option('-s', '--search', dest='search_params',
+                               action='store',
+                               default=False,
+                               help='TODO')
 
     def command(self):
         self._load_config()
@@ -2258,7 +2272,7 @@ class ViewsCommand(CkanCommand):
         Adds extra filters to the `package_search` dict for common view types
 
         It basically adds `fq` parameters that filter relevant resource formats
-        for the view types provided. For instance, if one ov the view types is
+        for the view types provided. For instance, if one of the view types is
         `pdf_view` the following will be added to the final query:
 
             fq=res_format:"pdf" OR res_format:"PDF"
@@ -2330,7 +2344,9 @@ class ViewsCommand(CkanCommand):
             'start': n * (page - 1),
         }
 
-        self._add_default_filters(search_data_dict, view_types)
+        if (not self.options.no_default_filters and
+                not self.options.search_params):
+            self._add_default_filters(search_data_dict, view_types)
 
         query = p.toolkit.get_action('package_search')({},
                                                        search_data_dict)
