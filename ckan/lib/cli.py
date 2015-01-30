@@ -7,6 +7,7 @@ import sys
 from pprint import pprint
 import re
 import itertools
+import json
 import logging
 import ckan.logic as logic
 import ckan.model as model
@@ -2198,13 +2199,15 @@ as answer to all prompts and run non-interactively''')
                                help='''Do not add default filters for relevant
 resource formats for the view types provided. Note that filters are not added
 by default anyway if an unsupported view type is provided or when using the
-`-s` or `--search` options.'''
-                               )
+`-s` or `--search` options.''')
 
         self.parser.add_option('-s', '--search', dest='search_params',
                                action='store',
                                default=False,
-                               help='TODO')
+                               help='''Extra search parameters that will be
+used for getting the datasets to create the resource views on. It must be a
+JSON object like the one used by the `package_search` API call. Supported
+fields are `q`, `fq` and `fq_list`. Check the documentation for examples.''')
 
     def command(self):
         self._load_config()
@@ -2327,6 +2330,42 @@ by default anyway if an unsupported view type is provided or when using the
 
         return search_data_dict
 
+    def _update_search_params(self, search_data_dict):
+        '''
+        Update the `package_search` data dict with the user provided parameters
+
+        Supported fields are `q`, `fq` and `fq_list`.
+
+        If the provided JSON object can not be parsed the process stops with
+        an error.
+
+        Returns the updated data dict
+        '''
+
+        log = logging.getLogger(__name__)
+
+        if not self.options.search_params:
+            return search_data_dict
+
+        try:
+            user_search_params = json.loads(self.options.search_params)
+        except ValueError, e:
+            log.error('Unable to parse JSON search parameters: {0}'.format(e))
+            sys.exit(1)
+
+        if user_search_params.get('q'):
+            search_data_dict['q'] = user_search_params['q']
+
+        if user_search_params.get('fq'):
+            if search_data_dict['fq']:
+                search_data_dict['fq'] += ' ' + user_search_params['fq']
+            else:
+                search_data_dict['fq'] = user_search_params['fq']
+
+        if (user_search_params.get('fq_list') and
+                isinstance(user_search_params['fq_list'], list)):
+            search_data_dict['fq_list'].extend(user_search_params['fq_list'])
+
     def _search_datasets(self, page=1, view_types=[]):
         '''
         Perform a query with `package_search` and return the result
@@ -2337,8 +2376,8 @@ by default anyway if an unsupported view type is provided or when using the
         n = 100
 
         search_data_dict = {
-            'q': '*:*',
-            'fq': 'dataset_type:dataset',
+            'q': '',
+            'fq': '',
             'fq_list': [],
             'rows': n,
             'start': n * (page - 1),
@@ -2348,8 +2387,20 @@ by default anyway if an unsupported view type is provided or when using the
                 not self.options.search_params):
             self._add_default_filters(search_data_dict, view_types)
 
-        query = p.toolkit.get_action('package_search')({},
-                                                       search_data_dict)
+        if self.options.search_params:
+            self._update_search_params(search_data_dict)
+
+        if not search_data_dict.get('q'):
+            search_data_dict['q'] = '*:*'
+
+        if ('dataset_type:dataset' not in search_data_dict['fq'] and
+                'dataset_type:dataset' not in search_data_dict['fq_list']):
+            search_data_dict['fq_list'].append('dataset_type:dataset')
+
+        query = p.toolkit.get_action('package_search')(
+            {'ignore_capacity_check': True},
+            search_data_dict)
+
         return query
 
     def create_views_search(self, view_plugin_types=[]):
