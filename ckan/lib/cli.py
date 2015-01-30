@@ -2192,14 +2192,19 @@ class ViewsCommand(CkanCommand):
                                help='''Automatic yes to prompts. Assume "yes"
 as answer to all prompts and run non-interactively''')
 
-        self.parser.add_option('-d', '--no-default-filters',
+        self.parser.add_option('-d', '--dataset', dest='dataset_id',
+                               action='append',
+                               help='''Create views on a particular dataset.
+You can use the dataset id or name, and it can be defined multiple times.''')
+
+        self.parser.add_option('--no-default-filters',
                                dest='no_default_filters',
                                action='store_true',
                                default=False,
                                help='''Do not add default filters for relevant
 resource formats for the view types provided. Note that filters are not added
 by default anyway if an unsupported view type is provided or when using the
-`-s` or `--search` options.''')
+`-s` or `-d` options.''')
 
         self.parser.add_option('-s', '--search', dest='search_params',
                                action='store',
@@ -2207,7 +2212,8 @@ by default anyway if an unsupported view type is provided or when using the
                                help='''Extra search parameters that will be
 used for getting the datasets to create the resource views on. It must be a
 JSON object like the one used by the `package_search` API call. Supported
-fields are `q`, `fq` and `fq_list`. Check the documentation for examples.''')
+fields are `q`, `fq` and `fq_list`. Check the documentation for examples.
+Not used when using the `-d` option.''')
 
     def command(self):
         self._load_config()
@@ -2384,11 +2390,19 @@ fields are `q`, `fq` and `fq_list`. Check the documentation for examples.''')
         }
 
         if (not self.options.no_default_filters and
-                not self.options.search_params):
+                not self.options.search_params and
+                not self.options.dataset_id):
             self._add_default_filters(search_data_dict, view_types)
 
-        if self.options.search_params:
+        if (self.options.search_params and
+                not self.options.dataset_id):
             self._update_search_params(search_data_dict)
+
+        if self.options.dataset_id:
+            search_data_dict['q'] = ' OR '.join(
+                ['id:{0} OR name:"{0}"'.format(dataset_id)
+                 for dataset_id in self.options.dataset_id]
+            )
 
         if not search_data_dict.get('q'):
             search_data_dict['q'] = '*:*'
