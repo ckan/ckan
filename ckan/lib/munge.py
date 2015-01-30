@@ -149,7 +149,7 @@ def munge_filename(filename):
         ext = ext[:21]
     # max/min size
     ext_length = len(ext)
-    name = _munge_to_length(name, 3 - ext_length, 100 - ext_length)
+    name = _munge_to_length(name, max(3 - ext_length, 1), 100 - ext_length)
     filename = name + ext
 
     return filename

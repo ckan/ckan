@@ -16,8 +16,11 @@ class TestMungeFilenameLegacy(object):
         ('2014-11-10 12:24:05.340603my_image.jpeg',
          '2014-11-10-122405.340603myimage.jpeg'),
         ('file.csv', 'file.csv'),
-        ('f'*100 + '.csv', 'f'*100),
+        ('f' * 100 + '.csv', 'f' * 100),
         ('path/to/file.csv', 'pathtofile.csv'),
+        ('.longextension', '.longextension'),
+        ('a.longextension', 'a.longextension'),
+        ('.1', '.1_'),
     ]
 
     def test_munge_filename(self):
@@ -34,8 +37,6 @@ class TestMungeFilenameLegacy(object):
             second_munge = munge_filename_legacy(first_munge)
             nose_tools.assert_equal(second_munge, exp)
 
-def test_dave():
-    nose_tools.assert_equal(munge_filename('bad-spaces'), 'bad-spaces')
 
 class TestMungeFilename(object):
 
@@ -49,8 +50,11 @@ class TestMungeFilename(object):
         ('2014-11-10 12:24:05.340603my_image.jpeg',
          '2014-11-10-122405.340603myimage.jpeg'),
         ('file.csv', 'file.csv'),
-        ('f'*100 + '.csv', 'f'*96 + '.csv'),
+        ('f' * 100 + '.csv', 'f' * 96 + '.csv'),
         ('path/to/file.csv', 'file.csv'),
+        ('.longextension', '.longextension'),
+        ('a.longextension', 'a.longextension'),
+        ('.1', '.1_'),
     ]
 
     def test_munge_filename(self):
