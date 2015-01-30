@@ -2228,6 +2228,8 @@ Not used when using the `-d` option.''')
         else:
             print self.usage
 
+    _page_size = 100
+
     def _get_view_plugins(self, view_plugin_types,
                           get_datastore_views=False):
         '''
@@ -2379,7 +2381,7 @@ Not used when using the `-d` option.''')
         Results can be paginated using the `page` parameter
         '''
 
-        n = 100
+        n = self._page_size
 
         search_data_dict = {
             'q': '',
@@ -2470,9 +2472,15 @@ Not used when using the `-d` option.''')
                         log.debug(msg.format(len(views),
                                              ', '.join(view_types),
                                              dataset_dict['name']))
+
+                if len(query['results']) < self._page_size:
+                    break
+
                 page += 1
             else:
                 break
+
+        log.info('Done')
 
     def create_views(self, view_types):
         supported_types = ['grid', 'text', 'webpage', 'pdf', 'image']
