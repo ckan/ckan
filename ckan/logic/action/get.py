@@ -1362,10 +1362,8 @@ def user_show(context, data_dict):
                 .filter_by(private=False)
         else:
             dataset_q = dataset_q \
-                .filter(_or_(model.Package.state=='active',
-                             model.Package.state=='draft'))
+                .filter(model.Package.state != 'deleted')
         dataset_q = dataset_q.limit(50)
-
 
         for dataset in dataset_q:
             try:

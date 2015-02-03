@@ -202,7 +202,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         q = meta.Session.query(model.Package)\
             .filter_by(creator_user_id=self.id)
         if include_private_and_draft:
-            q = q.filter(model.Package.state.in_(('active', 'draft')))
+            q = q.filter(model.Package.state != 'deleted')
         else:
             q = q.filter_by(state='active')\
                  .filter_by(private=False)
