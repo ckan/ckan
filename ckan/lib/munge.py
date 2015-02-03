@@ -116,9 +116,9 @@ def munge_filename_legacy(filename):
     ''' Tidies a filename. NB: deprecated
 
     Unfortunately it mangles any path or filename extension, so is deprecated.
-    It needs to remain for use by model_dictize() because if this routine
-    changes then group images uploaded previous to the change may not be
-    viewable.
+    It needs to remain unchanged for use by group_dictize() and
+    Upload.update_data_dict() because if this routine changes then group images
+    uploaded previous to the change may not be viewable.
     '''
     filename = substitute_ascii_equivalents(filename)
     filename = filename.strip()
@@ -130,10 +130,8 @@ def munge_filename_legacy(filename):
 def munge_filename(filename):
     ''' Tidies a filename
 
-    Keeps the filename extension.
+    Keeps the filename extension (e.g. .csv).
     Strips off any path on the front.
-    It can be useful to keep the extension (e.g. .csv) in a resource when the
-    format field set.
     '''
 
     # just get the filename ignore the path

@@ -116,8 +116,7 @@ def resource_dictize(res, context):
     ## for_edit is only called at the times when the dataset is to be edited
     ## in the frontend. Without for_edit the whole qualified url is returned.
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
-        last_part = url.split('/')[-1]
-        cleaned_name = munge.munge_filename(last_part)
+        cleaned_name = munge.munge_filename(url)
         resource['url'] = h.url_for(controller='package',
                                     action='resource_download',
                                     id=resource['package_id'],
@@ -472,7 +471,7 @@ def group_dictize(group, context,
     if image_url and not image_url.startswith('http'):
         #munge here should not have an effect only doing it incase
         #of potential vulnerability of dodgy api input
-        image_url = munge.munge_filename(image_url)
+        image_url = munge.munge_filename_legacy(image_url)
         result_dict['image_display_url'] = h.url_for_static(
             'uploads/group/%s' % result_dict.get('image_url'),
             qualified=True

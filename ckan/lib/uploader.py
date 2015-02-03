@@ -60,7 +60,7 @@ def get_max_resource_size():
 
 class Upload(object):
     def __init__(self, object_type, old_filename=None):
-        ''' Setup upload by creating  a subdirectory of the storage directory
+        ''' Setup upload by creating a subdirectory of the storage directory
         of name object_type. old_filename is the name of the file in the url
         field last time'''
 
@@ -127,7 +127,7 @@ class Upload(object):
             current_size = 0
             while True:
                 current_size = current_size + 1
-                # MB chuncks
+                # MB chunks
                 data = self.upload_file.read(2 ** 20)
                 if not data:
                     break
