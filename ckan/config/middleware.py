@@ -75,6 +75,8 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     #app = QueueLogMiddleware(app)
+    if asbool(config.get('ckan.use_pylons_response_cleanup_middleware', False)):
+        app = ExecuteOnCompletion(app, config, cleanup_pylons_response_string)
 
     # Fanstatic
     if asbool(config.get('debug', False)):
@@ -360,3 +362,43 @@ class TrackingMiddleware(object):
             self.engine.execute(sql, key, data.get('url'), data.get('type'))
             return []
         return self.app(environ, start_response)
+
+
+class Generator(object):
+    def __init__(self, iterable, callback, environ):
+        self.__iterable = iterable
+        self.__callback = callback
+        self.__environ = environ
+
+    def __iter__(self):
+        for item in self.__iterable:
+            yield item
+
+    def close(self):
+        try:
+            if hasattr(self.__iterable, 'close'):
+                self.__iterable.close()
+        finally:
+            self.__callback(self.__environ)
+
+
+class ExecuteOnCompletion(object):
+    def __init__(self, application, config, callback):
+        self.__application = application
+        self.__callback = callback
+
+    def __call__(self, environ, start_response):
+        try:
+            result = self.__application(environ, start_response)
+        except:
+            self.__callback(environ)
+            raise
+        return Generator(result, self.__callback, environ)
+
+
+def cleanup_pylons_response_string(environ):
+    try:
+        msg = 'response cleared by pylons response cleanup middleware'
+        environ['pylons.controller']._py_object.response._body = msg
+    except (KeyError, AttributeError):
+        pass
