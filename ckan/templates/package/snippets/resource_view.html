@@ -9,7 +9,6 @@
     <i class="icon-code"></i>
     {{ _("Embed") }}
   </a>
-  <h1>{{ resource_view['title'] }}</h1>
   <p class="desc">{{ resource_view['description'] }}</p>
   <div class="m-top ckanext-datapreview">
     {% if not to_preview and h.resource_view_is_filterable(resource_view) %}
