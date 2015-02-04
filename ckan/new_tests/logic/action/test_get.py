@@ -364,16 +364,78 @@ class TestGet(object):
         assert org_dict['packages'][0]['name'] == 'dataset_1'
         assert org_dict['package_count'] == 1
 
+    def test_user_list_default_values(self):
+
+        user = factories.User()
+
+        got_users = helpers.call_action('user_list')
+        remove_pseudo_users(got_users)
+
+        assert len(got_users) == 1
+        got_user = got_users[0]
+        assert got_user['id'] == user['id']
+        assert got_user['name'] == user['name']
+        assert got_user['fullname'] == user['fullname']
+        assert got_user['display_name'] == user['display_name']
+        assert got_user['created'] == user['created']
+        assert got_user['about'] == user['about']
+        assert got_user['sysadmin'] == user['sysadmin']
+        assert got_user['number_of_edits'] == 0
+        assert got_user['number_created_packages'] == 0
+        assert 'password' not in got_user
+        assert 'reset_key' not in got_user
+        assert 'apikey' not in got_user
+        assert 'email' not in got_user
+        assert 'datasets' not in got_user
+
+    def test_user_list_edits(self):
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+        dataset['title'] = 'Edited title'
+        helpers.call_action('package_update',
+                            context={'user': user['name']},
+                            **dataset)
+
+        got_users = helpers.call_action('user_list')
+        remove_pseudo_users(got_users)
+
+        assert len(got_users) == 1
+        got_user = got_users[0]
+        assert got_user['number_created_packages'] == 1
+        assert got_user['number_of_edits'] == 2
+
+    def test_user_list_excludes_deleted_users(self):
+
+        user = factories.User()
+        factories.User(state='deleted')
+
+        got_users = helpers.call_action('user_list')
+        remove_pseudo_users(got_users)
+
+        assert len(got_users) == 1
+        assert got_users[0]['name'] == user['name']
+
     def test_user_show_default_values(self):
 
         user = factories.User()
 
         got_user = helpers.call_action('user_show', id=user['id'])
 
+        assert got_user['id'] == user['id']
+        assert got_user['name'] == user['name']
+        assert got_user['fullname'] == user['fullname']
+        assert got_user['display_name'] == user['display_name']
+        assert got_user['created'] == user['created']
+        assert got_user['about'] == user['about']
+        assert got_user['sysadmin'] == user['sysadmin']
+        assert got_user['number_of_edits'] == 0
+        assert got_user['number_created_packages'] == 0
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
         assert 'apikey' not in got_user
         assert 'email' not in got_user
+        assert 'datasets' not in got_user
 
     def test_user_show_keep_email(self):
 
@@ -401,6 +463,19 @@ class TestGet(object):
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
+    def test_user_show_for_myself(self):
+
+        user = factories.User()
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': user['name']},
+                                       id=user['id'])
+
+        assert got_user['email'] == user['email']
+        assert got_user['apikey'] == user['apikey']
+        assert 'password' not in got_user
+        assert 'reset_key' not in got_user
+
     def test_user_show_sysadmin_values(self):
 
         user = factories.User()
@@ -415,6 +490,76 @@ class TestGet(object):
         assert got_user['apikey'] == user['apikey']
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
+
+    def test_user_show_include_datasets(self):
+
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        got_user = helpers.call_action('user_show',
+                                       include_datasets=True,
+                                       id=user['id'])
+
+        assert len(got_user['datasets']) == 1
+        assert got_user['datasets'][0]['name'] == dataset['name']
+
+    def test_user_show_include_datasets_excludes_draft_and_private(self):
+
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        factories.Dataset(user=user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        got_user = helpers.call_action('user_show',
+                                       include_datasets=True,
+                                       id=user['id'])
+
+        assert len(got_user['datasets']) == 1
+        assert got_user['datasets'][0]['name'] == dataset['name']
+        assert got_user['number_created_packages'] == 1
+
+    def test_user_show_include_datasets_includes_draft_myself(self):
+        # a user viewing his own user should see the draft and private datasets
+
+        user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user)
+        dataset_deleted = factories.Dataset(user=user, state='deleted')
+        factories.Dataset(user=user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': user['name']},
+                                       include_datasets=True,
+                                       id=user['id'])
+
+        assert len(got_user['datasets']) == 3
+        datasets_got = set([user_['name'] for user_ in got_user['datasets']])
+        assert dataset_deleted['name'] not in datasets_got
+        assert got_user['number_created_packages'] == 3
+
+    def test_user_show_include_datasets_includes_draft_sysadmin(self):
+        # sysadmin should see the draft and private datasets
+
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user)
+        dataset_deleted = factories.Dataset(user=user, state='deleted')
+        factories.Dataset(user=user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': sysadmin['name']},
+                                       include_datasets=True,
+                                       id=user['id'])
+
+        assert len(got_user['datasets']) == 3
+        datasets_got = set([user_['name'] for user_ in got_user['datasets']])
+        assert dataset_deleted['name'] not in datasets_got
+        assert got_user['number_created_packages'] == 3
 
     def test_related_list_with_no_params(self):
         '''
@@ -1029,3 +1174,9 @@ class TestGetHelpShow(object):
         nose.tools.assert_raises(
             logic.NotFound,
             helpers.call_action, 'help_show', name=function_name)
+
+
+def remove_pseudo_users(user_list):
+    pseudo_users = set(('logged_in', 'visitor'))
+    user_list[:] = [user for user in user_list
+                    if user['name'] not in pseudo_users]

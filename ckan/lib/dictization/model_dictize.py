@@ -574,7 +574,9 @@ def user_dictize(user, context):
     result_dict['display_name'] = user.display_name
     result_dict['email_hash'] = user.email_hash
     result_dict['number_of_edits'] = user.number_of_edits()
-    result_dict['number_created_packages'] = user.number_created_packages()
+    result_dict['number_created_packages'] = user.number_created_packages(
+        include_private_and_draft=context.get(
+            'count_private_and_draft_datasets', False))
 
     requester = context.get('user')
 
