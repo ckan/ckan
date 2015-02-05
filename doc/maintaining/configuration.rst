@@ -1002,7 +1002,7 @@ Example::
 
  ckan.views.default_views = image_view webpage_view recline_grid_view
 
-Default value: ``image_view``
+Default value: ``image_view recline_view``
 
 Defines the resource views that should be created by default when creating or
 updating a dataset. From this list only the views that are relevant to a particular
