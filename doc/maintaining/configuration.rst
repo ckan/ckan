@@ -264,6 +264,19 @@ Default value: ``None``
 
 Controls if we're caching CKAN's static files, if it's serving them.
 
+.. _ckan.use_pylons_response_cleanup_middleware:
+
+ckan.use_pylons_response_cleanup_middleware
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.use_pylons_response_cleanup_middleware = true
+
+Default value: false
+
+This enables middleware that clears the response string after it has been sent. This helps CKAN's memory management if CKAN repeatedly serves very large requests.
+
 .. _ckan.static_max_age:
 
 ckan.static_max_age
