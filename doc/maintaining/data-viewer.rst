@@ -26,7 +26,6 @@ the following sections:
 * :ref:`image-preview`
 * :ref:`data-explorer`
 * :ref:`text-preview`
-* :ref:`pdf-preview`
 * :ref:`resource-proxy`
 * :ref:`embed-previews`
 
@@ -151,30 +150,6 @@ set to one of the resource formats from above (case insensitive).
    :ref:`The resourceproxy extension <resource-proxy>`
 
      If you want to preview linked-to text files (and not only files that have
-     been uploaded to CKAN) you need to enable the ``resource_proxy`` extension
-     as well.
-
-
-.. _pdf-preview:
-
-Viewing PDF documents
----------------------
-
-**Configuration required:** The ``pdf_view`` extension must be added to
-``ckan.plugins`` in your CKAN configuration file.  This extension is part of
-CKAN and does not need to be installed separately.
-
-**Resource formats:** ``pdf``, ``x-pdf``, ``acrobat``, ``vnd.pdf``.
-
-The ``pdf_view`` extension provides previews of any ``pdf`` documents that
-have been added to a CKAN instance.  This extension uses Mozilla's `pdf.js
-<http://mozilla.github.io/pdf.js>`_ library.
-
-.. seealso::
-
-   :ref:`The resourceproxy extension <resource-proxy>`
-
-     If you want to preview linked-to PDF files (and not only files that have
      been uploaded to CKAN) you need to enable the ``resource_proxy`` extension
      as well.
 
