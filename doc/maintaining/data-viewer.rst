@@ -91,6 +91,8 @@ Some view plugins for common formats are included in the main CKAN repository.
 These don't require further setup and can be directly added to the
 :ref:`ckan.plugins` setting.
 
+.. _data-explorer:
+
 Data Explorer
 +++++++++++++
 
@@ -212,33 +214,30 @@ a pull request on GitHub.
 .. _GeoJSON map: https://github.com/ckan/ckanext-spatial
 
 
-.. todo:: Sort the resource proxy section
+.. _resource-proxy:
 
 Resource Proxy
 --------------
 
-**Configuration required:** The ``resource_proxy`` extension must be added to
-``ckan.plugins`` in your CKAN configuration file.
-This extension is part of CKAN and so does not need to be installed separately.
+As resource views are rendered on the browser, if the file they are accessing
+is located in a different domain than the one CKAN is hosted, the browser will
+block access to it because of the `same-origin policy`_. For instance, files
+hosted on `www.example.com` won't be able to be accessed from the browser if
+CKAN is hosted on `data.catalog.com`.
 
-This extension must be enabled if you wish to preview resources that are on a
-different domain. That means if this extension is not enabled, e.g.
-PDF, or JSON files that are on ``www.example.com`` while CKAN is on
-``www.ckan.org`` cannot be previewed by any extension.
+To allow view plugins access to external files you need to activate the
+``resource_proxy`` plugin on your configuration file::
 
-Previewing is prevented by the
-`same origin policy <http://en.wikipedia.org/wiki/Same_origin_policy>`_ which
-prevents files from different domains (different *origins*) from being loaded
-into browsers. This extension gets around the same origin policy by pretending
-that all files are served from the same domain (same *origin*) that
-CKAN is on (e.g. ``www.ckan.org``).
+    ckan.plugins = resource_proxy ...
 
-If you are writing a custom preview extension that requires resources to be
-proxied, you need to replace the URL that is used to load the file. This can
-be done using the function :func:`ckanext.resourceproxy.plugin.get_proxified_resource_url`.
-To find out whether the resource proxy is enabled, check ``ckan.resource_proxy_enabled``
-from the config. You can find a complete example in the
-`CKAN source <https://github.com/ckan/ckan/blob/793c2607199f2204307c12f83925257cd8eadc5e/ckanext/jsonpreview/plugin.py>`_.
+This will request the file on the server side and serve it from the same domain
+as CKAN.
+
+You can modify the maximum allowed size for proxied files using the
+:ref:`ckan.resource_proxy.max_file_size` configuration setting.
+
+
+.. _same-origin policy: http://en.wikipedia.org/wiki/Same_origin_policy
 
 
 .. todo:: Writing custom view types (tutorial?)
