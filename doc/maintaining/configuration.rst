@@ -681,6 +681,9 @@ Default value:  ``True``
 
 This controls if we'll use the 1 day cache for stats.
 
+
+.. _ckan.resource_proxy.max_file_size:
+
 ckan.resource_proxy.max_file_size
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
