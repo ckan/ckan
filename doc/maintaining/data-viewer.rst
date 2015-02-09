@@ -240,6 +240,91 @@ You can modify the maximum allowed size for proxied files using the
 .. _same-origin policy: http://en.wikipedia.org/wiki/Same_origin_policy
 
 
-.. todo:: Writing custom view types (tutorial?)
+Migrating from previous CKAN versions
+-------------------------------------
 
-.. todo:: CLI & migration for CKAN < 2.3
+If you are upgrading an existing instance running CKAN version 2.2.x or lower
+to CKAN 2.3 or higher, you need to perform a migration process in order for the
+resource views to appear. If the migration does not take place, resource views
+will only appear when creating or updating datasets or resources, but not on
+existing ones.
+
+The migration process involves creating the necessary view objects in the
+database, which can be done using the ``paster views create`` command.
+
+.. note:: The ``paster views create`` command uses the search API to get all
+    necessary datasets and resources, so make sure your search
+    index :ref:`is up to date  <rebuild search index>` before starting the
+    migration process.
+
+The way the ``paster views create`` commands works is getting all or a subset
+of the instance datasets from the search index, and for each of them checking
+against a list of view plugins if it is necessary to create a view object. This
+gets determined by each of the individual view plugins depending on the dataset's
+resources fields.
+
+Before each run, you will be prompted with the number of datasets affected and
+asked if you want to continue (unless you pass the ``-y`` option)::
+
+    You are about to check 3336 datasets for the following view plugins: ['image_view', 'recline_view', 'text_view']
+     Do you want to continue? [Y/n]
+
+.. note:: On large CKAN instances the migration process can take a significant
+    time if using the default options. It is worth planning in advance and split
+    the process using the search parameters to only check relevant datasets.
+    The following documentation provides guidance on how to do this.
+
+
+If no view types are provided, the default ones are used
+(check `Defining views to appear by default`_ to see how these are defined)::
+
+    paster views create
+
+Specific view types can be also provided::
+
+    paster views create image_view recline_view pdf_view
+
+For certain view types (the ones with plugins included in the main CKAN core),
+default filters are applied to the search to only get relevant resources. For
+instance if ``image_view`` is defined, filters are added to the search to only
+get datasets with resources that have image formats (png, jpg, etc).
+
+You can also provide arbitrary search parameters like the ones supported by
+:py:func:`~ckan.logic.action.get.package_search`. This can be useful for
+instance to only include datasets with resources of a certain format::
+
+    paster views create geojson_view -s '{"fq": "res_format:GEOJSON"}'
+
+To instead avoid certain formats you can do::
+
+    paster views create -s '{"fq": "-res_format:HTML"}'
+
+Of course this is not limited to resource formats, you can filter out or in
+using any field, as in a normal dataset search::
+
+    paster views create -s '{"q": "groups:visualization-examples"}'
+
+.. tip:: If you set the ``ckan_logger`` level to ``DEBUG`` on your
+    configuration file you can see the full search parameters being sent
+    to Solr.
+
+For convenience, there is also an option to create views on a particular
+dataset or datasets::
+
+    paster views create -d dataset_id
+
+    paster views create -d dataset_name -d dataset_name
+
+
+Command line interface
+----------------------
+
+The ``paster views`` command allows to create and remove resource views objects
+from the database in bulk.
+
+Check the command help for the full options::
+
+    paster views create -h
+
+
+.. todo:: Writing custom view types (tutorial?)
