@@ -55,6 +55,8 @@ class TestDefaultViewsConfig(object):
     def setup_class(cls):
         if not p.plugin_loaded('image_view'):
             p.load('image_view')
+        if not p.plugin_loaded('recline_view'):
+            p.load('recline_view')
         if not p.plugin_loaded('webpage_view'):
             p.load('webpage_view')
         if not p.plugin_loaded('test_datastore_view'):
@@ -63,6 +65,7 @@ class TestDefaultViewsConfig(object):
     @classmethod
     def teardown_class(cls):
         p.unload('image_view')
+        p.unload('recline_view')
         p.unload('webpage_view')
         p.unload('test_datastore_view')
 
