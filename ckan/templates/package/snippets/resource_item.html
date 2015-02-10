@@ -28,12 +28,14 @@
           {{ _('Preview') }}
         </a>
       </li>
+      {% if res.url and h.is_url(res.url) %}
       <li>
         <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
           <i class="icon-download"></i>
           {{ _('Download') }}
         </a>
       </li>
+      {% endif %}
       {% endblock %}
     </ul>
   </div>
