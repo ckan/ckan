@@ -200,8 +200,10 @@ are hosted on separate repositories. Some examples include:
 If you want to add another view type to this list, edit this file by sending
 a pull request on GitHub.
 
+New plugins to render custom view types can be implemented using
+the :py:class:`~ckan.plugins.interfaces.IResourceView` interface.
 
-.. todo:: Link to the documentation for writing view plugins
+.. todo:: Link to a proper tutorial for writing custom views
 
 
 .. _Recline: https://github.com/okfn/recline/
@@ -327,4 +329,4 @@ Check the command help for the full options::
     paster views create -h
 
 
-.. todo:: Writing custom view types (tutorial?)
+.. todo:: Tutorial for writing custom view types.
