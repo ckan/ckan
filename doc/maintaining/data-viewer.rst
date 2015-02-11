@@ -15,8 +15,9 @@ Data preview and visualization
 Overview
 --------
 
-The CKAN resource page can contain one or more views of the resource data
-or file contents. These are commonly referred to as *resource views*.
+The CKAN resource page can contain one or more visualizations of the resource
+data or file contents (a table, a bar chart, a map, etc). These are commonly
+referred to as *resource views*.
 
 .. image:: /images/views_overview.png
 
@@ -27,9 +28,6 @@ The main features of resource views are:
 
 * Dataset editors can choose which views to show, reorder them and configure
   them individually.
-
-* Views configuration persits on the database, so it's not lost on each page
-  refresh.
 
 * Individual views can be embedded on external sites.
 
@@ -58,7 +56,7 @@ create new views, update or delete existing ones and reorder them.
 
 
 The *New view* dropdown will show the available view types for this particular
-resource. If the list if empty, you may need to add the relevant view plugins
+resource. If the list is empty, you may need to add the relevant view plugins
 to the :ref:`ckan.plugins` setting on your configuration file, eg::
 
     ckan.plugins = ... image_view recline_view pdf_view

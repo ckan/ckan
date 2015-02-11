@@ -211,7 +211,7 @@ class IResourceView(Interface):
     '''
     def info(self):
         '''
-        Returns a dictionarty with configuration options for the view.
+        Returns a dictionary with configuration options for the view.
 
         The available keys are:
 
