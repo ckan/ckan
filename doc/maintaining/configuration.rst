@@ -155,6 +155,18 @@ with read permissions only. The format is the same as in :ref:`sqlalchemy.url`.
 
 .. _ckan.datastore.default_fts_lang:
 
+ckan.datastore.sqlalchemy.*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.sqlalchemy.pool_size=10
+ ckan.datastore.sqlalchemy.max_overflow=20
+
+Custom sqlalchemy config parameters used to establish datastore database connection.
+
+To get the list of all the available properties: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+
 ckan.datastore.default_fts_lang
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
