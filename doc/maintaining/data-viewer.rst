@@ -94,6 +94,8 @@ These don't require further setup and can be directly added to the
 Data Explorer
 +++++++++++++
 
+.. image:: /images/recline_view.png
+
 View plugin: ``recline_view``
 
 Adds a rich widget, based on the Recline_ Javascript library. It  allows
@@ -117,6 +119,9 @@ The three main panes of the Data Explorer are also available as separate views.
 DataStore Grid
 ++++++++++++++
 
+
+.. image:: /images/recline_grid_view.png
+
 View plugin: ``recline_grid_view``
 
 Displays a filterable, sortable, table view of structured data.
@@ -125,6 +130,8 @@ This plugin requires data to be in the DataStore.
 
 DataStore Graph
 +++++++++++++++
+
+.. image:: /images/recline_graph_view.png
 
 View plugin: ``recline_graph_view``
 
@@ -138,6 +145,8 @@ This plugin requires data to be in the DataStore.
 DataStore Map
 +++++++++++++
 
+.. image:: /images/recline_map_view.png
+
 View plugin: ``recline_map_view``
 
 Shows data stored on the DataStore in an interactive map. It supports plotting
@@ -150,6 +159,8 @@ This plugin requires data to be in the DataStore.
 
 Text view
 +++++++++
+
+.. image:: /images/text_view.png
 
 View plugin: ``text_view``
 
@@ -165,6 +176,8 @@ the `Resource Proxy`_ plugin.
 Image view
 ++++++++++
 
+.. image:: /images/image_view.png
+
 View plugin: ``image_view``
 
 If the resource format is a common image format like PNG, JPEG or GIF, it adds
@@ -173,6 +186,8 @@ URL on the edit view form.
 
 Web page view
 +++++++++++++
+
+.. image:: /images/webpage_view.png
 
 View plugin: ``webpage_view``
 
