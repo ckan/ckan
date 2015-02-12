@@ -2391,20 +2391,20 @@ Not used when using the `-d` option.''')
             'start': n * (page - 1),
         }
 
-        if (not self.options.no_default_filters and
-                not self.options.search_params and
-                not self.options.dataset_id):
-            self._add_default_filters(search_data_dict, view_types)
-
-        if (self.options.search_params and
-                not self.options.dataset_id):
-            self._update_search_params(search_data_dict)
-
         if self.options.dataset_id:
+
             search_data_dict['q'] = ' OR '.join(
                 ['id:{0} OR name:"{0}"'.format(dataset_id)
                  for dataset_id in self.options.dataset_id]
             )
+
+        elif self.options.search_params:
+
+            self._update_search_params(search_data_dict)
+
+        elif not self.options.no_default_filters:
+
+            self._add_default_filters(search_data_dict, view_types)
 
         if not search_data_dict.get('q'):
             search_data_dict['q'] = '*:*'
