@@ -681,6 +681,9 @@ Default value:  ``True``
 
 This controls if we'll use the 1 day cache for stats.
 
+
+.. _ckan.resource_proxy.max_file_size:
+
 ckan.resource_proxy.max_file_size
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1018,6 +1021,44 @@ default views are created.
 
         ckan.views.default_views = image_view webpage_view recline_grid_view
 
+.. _ckan.preview.json_formats:
+
+ckan.preview.json_formats
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.preview.json_formats = json
+
+Default value: ``json``
+
+JSON based resource formats that will be rendered by the Text view plugin (``text_view``)
+
+.. _ckan.preview.xml_formats:
+
+ckan.preview.xml_formats
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.preview.xml_formats = xml rdf rss
+
+Default value: ``xml rdf rdf+xml owl+xml atom rss``
+
+XML based resource formats that will be rendered by the Text view plugin (``text_view``)
+
+.. _ckan.preview.text_formats:
+
+ckan.preview.text_formats
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.preview.text_formats = text plain
+
+Default value: ``text plain text/plain``
+
+Plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
 
 .. end_resource-views
 
