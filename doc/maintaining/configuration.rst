@@ -153,6 +153,23 @@ with read permissions only. The format is the same as in :ref:`sqlalchemy.url`.
 
 .. end_config-datastore-urls
 
+.. _ckan.datastore.sqlalchemy:
+
+ckan.datastore.sqlalchemy.*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.sqlalchemy.pool_size=10
+ ckan.datastore.sqlalchemy.max_overflow=20
+
+Custom sqlalchemy config parameters used to establish the DataStore
+database connection.
+
+To get the list of all the available properties check the `SQLAlchemy documentation`_ 
+
+.. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+
 .. _ckan.datastore.default_fts_lang:
 
 ckan.datastore.default_fts_lang
