@@ -2171,6 +2171,10 @@ class ViewsCommand(CkanCommand):
             Note that on either case, plugins must be loaded (ie added to
             `ckan.plugins`), otherwise the command will stop.
 
+        paster views clear [options] [type1] [type2] ...
+
+            Permanently delete all views or the ones with the provided types.
+
         paster views clean
 
             Permanently delete views for all types no longer present in the
@@ -2222,6 +2226,9 @@ Not used when using the `-d` option.''')
         elif self.args[0] == 'create':
             view_plugin_types = self.args[1:]
             self.create_views(view_plugin_types)
+        elif self.args[0] == 'clear':
+            view_plugin_types = self.args[1:]
+            self.clear_views(view_plugin_types)
         elif self.args[0] == 'clean':
             self.clean_views()
         else:
@@ -2478,6 +2485,29 @@ Not used when using the `-d` option.''')
                 page += 1
             else:
                 break
+
+        log.info('Done')
+
+    def clear_views(self, view_plugin_types=[]):
+
+        log = logging.getLogger(__name__)
+
+        if not self.options.assume_yes:
+            if view_plugin_types:
+                msg = 'Are you sure you want to delete all resource views ' + \
+                      'of type {0}?'.format(', '.join(view_plugin_types))
+            else:
+                msg = 'Are you sure you want to delete all resource views?'
+
+            result = query_yes_no(msg, default='no')
+
+            if result == 'no':
+                log.info('Command aborted by user')
+                sys.exit(1)
+
+        context = {'user': self.site_user['name']}
+        logic.get_action('resource_view_clear')(
+            context, {'view_types': view_plugin_types})
 
         log.info('Done')
 
