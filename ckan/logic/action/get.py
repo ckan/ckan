@@ -1061,7 +1061,7 @@ def resource_view_show(context, data_dict):
 
 def resource_view_list(context, data_dict):
     '''
-    Return the metadata of a resource_view.
+    Return the list of resource views for a particular resource.
 
     :param id: the id of the resource
     :type id: string
