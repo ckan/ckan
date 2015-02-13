@@ -3,13 +3,17 @@ import urlparse
 
 import requests
 
+import pylons.config as config
+
 import ckan.logic as logic
 import ckan.lib.base as base
 from ckan.common import _
+import ckan.plugins.toolkit as toolkit
 
 log = getLogger(__name__)
 
-MAX_FILE_SIZE = 1024 * 1024  # 1MB
+MAX_FILE_SIZE = toolkit.asint(
+    config.get('ckan.resource_proxy.max_file_size', 1024 * 1024))
 CHUNK_SIZE = 512
 
 

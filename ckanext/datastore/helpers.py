@@ -42,6 +42,10 @@ def _strip(input):
     return input
 
 
+def should_fts_index_field_type(field_type):
+    return field_type.lower() in ['tsvector', 'text', 'number']
+
+
 def get_table_names_from_sql(context, sql):
     '''Parses the output of EXPLAIN (FORMAT JSON) looking for table names
 

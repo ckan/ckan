@@ -10,7 +10,6 @@ from sqlalchemy import func
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
-import ckan.rating as ratings
 import ckan.plugins as plugins
 import ckan.lib.dictization
 import ckan.logic.action
@@ -21,7 +20,7 @@ import ckan.lib.navl.dictization_functions
 import ckan.lib.uploader as uploader
 import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
-import ckan.lib.datapreview as datapreview
+import ckan.lib.datapreview
 
 from ckan.common import _
 
@@ -109,9 +108,9 @@ def package_create(context, data_dict):
     :param groups: the groups to which the dataset belongs (optional), each
         group dictionary should have one or more of the following keys which
         identify an existing group:
-        ``'id'`` (the id of the group, string), ``'name'`` (the name of the
-        group, string), ``'title'`` (the title of the group, string), to see
-        which groups exist call :py:func:`~ckan.logic.action.get.group_list`
+        ``'id'`` (the id of the group, string), or ``'name'`` (the name of the
+        group, string),  to see which groups exist
+        call :py:func:`~ckan.logic.action.get.group_list`
     :type groups: list of dictionaries
     :param owner_org: the id of the dataset's owning organization, see
         :py:func:`~ckan.logic.action.get.organization_list` or
@@ -128,8 +127,19 @@ def package_create(context, data_dict):
     model = context['model']
     user = context['user']
 
-    package_type = data_dict.get('type')
-    package_plugin = lib_plugins.lookup_package_plugin(package_type)
+    if 'type' not in data_dict:
+        package_plugin = lib_plugins.lookup_package_plugin()
+        try:
+            # use first type as default if user didn't provide type
+            package_type = package_plugin.package_types()[0]
+        except (AttributeError, IndexError):
+            package_type = 'dataset'
+            # in case a 'dataset' plugin was registered w/o fallback
+            package_plugin = lib_plugins.lookup_package_plugin(package_type)
+        data_dict['type'] = package_type
+    else:
+        package_plugin = lib_plugins.lookup_package_plugin(data_dict['type'])
+
     if 'schema' in context:
         schema = context['schema']
     else:
@@ -177,9 +187,12 @@ def package_create(context, data_dict):
     pkg = model_save.package_dict_save(data, context)
 
     model.setup_default_user_roles(pkg, admins)
-    # Needed to let extensions know the package id
+    # Needed to let extensions know the package and resources ids
     model.Session.flush()
     data['id'] = pkg.id
+    if data.get('resources'):
+        for index, resource in enumerate(data['resources']):
+            resource['id'] = pkg.resources[index].id
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
@@ -192,6 +205,11 @@ def package_create(context, data_dict):
         item.create(pkg)
 
         item.after_create(context, data)
+
+    # Create default views for resources if necessary
+    if data.get('resources'):
+        ckan.lib.datapreview.add_default_views_to_dataset_resources(context,
+                                                                    data)
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -217,6 +235,7 @@ def resource_create(context, data_dict):
     '''Appends a new resource to a datasets list of resources.
 
     :param package_id: id of package that the resource should be added to.
+
     :type package_id: string
     :param url: url of resource
     :type url: string
@@ -261,7 +280,6 @@ def resource_create(context, data_dict):
     user = context['user']
 
     package_id = _get_or_bust(data_dict, 'package_id')
-    data_dict.pop('package_id')
     _get_or_bust(data_dict, 'url')
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
@@ -294,8 +312,8 @@ def resource_create(context, data_dict):
     model.repo.commit()
 
     ##  Run package show again to get out actual last_resource
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
-    resource = pkg_dict['resources'][-1]
+    updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    resource = updated_pkg_dict['resources'][-1]
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_create(context, resource)
@@ -322,18 +340,20 @@ def resource_view_create(context, data_dict):
 
     '''
     model = context['model']
-    schema = (context.get('schema') or
-              ckan.logic.schema.default_create_resource_view_schema())
 
     resource_id = _get_or_bust(data_dict, 'resource_id')
     view_type = _get_or_bust(data_dict, 'view_type')
-    view_plugin = datapreview.get_view_plugin(view_type)
+    view_plugin = ckan.lib.datapreview.get_view_plugin(view_type)
+
     if not view_plugin:
         raise ValidationError(
             {"view_type": "No plugin found for view_type {view_type}".format(
                 view_type=view_type
             )}
         )
+
+    default = logic.schema.default_create_resource_view_schema(view_plugin)
+    schema = context.get('schema', default)
     plugin_schema = view_plugin.info().get('schema', {})
     schema.update(plugin_schema)
 
@@ -582,8 +602,8 @@ def _group_or_org_create(context, data_dict, is_org=False):
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
     # get the schema
-    group_plugin = lib_plugins.lookup_group_plugin(
-        group_type=data_dict.get('type'))
+    group_type = data_dict.get('type')
+    group_plugin = lib_plugins.lookup_group_plugin(group_type)
     try:
         schema = group_plugin.form_to_db_schema_options({
             'type': 'create', 'api': 'api_version' in context,
@@ -847,16 +867,17 @@ def rating_create(context, data_dict):
             opts_err = _('Rating must be an integer value.')
         else:
             package = model.Package.get(package_ref)
-            if rating < ratings.MIN_RATING or rating > ratings.MAX_RATING:
+            if rating < model.MIN_RATING or rating > model.MAX_RATING:
                 opts_err = _('Rating must be between %i and %i.') \
-                    % (ratings.MIN_RATING, ratings.MAX_RATING)
+                    % (model.MIN_RATING, model.MAX_RATING)
             elif not package:
                 opts_err = _('Not found') + ': %r' % package_ref
     if opts_err:
         raise ValidationError(opts_err)
 
     user = model.User.by_name(user)
-    ratings.set_rating(user, package, rating_int)
+    package.set_rating(user, rating_int)
+    model.repo.commit()
 
     package = model.Package.get(package_ref)
     ret_dict = {'rating average': package.get_average_rating(),

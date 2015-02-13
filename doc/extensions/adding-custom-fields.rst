@@ -15,8 +15,9 @@ plugin interface, a CKAN plugin can add custom, first-class metadata fields to
 CKAN datasets, and can do custom validation of these fields.
 
 .. seealso::
-    In this tutorial we are assuming that you have read the
-    :doc:`/extensions/tutorial`
+
+   In this tutorial we are assuming that you have read the
+   :doc:`/extensions/tutorial`
 
 CKAN schemas and validation
 ---------------------------
@@ -157,9 +158,9 @@ This overrides the custom_fields block with an empty block so the default CKAN
 custom fields form does not render.
 
 
-.. versionadded:: 2.2.1
+.. versionadded:: 2.3
 
-    Starting from CKAN 2.2.1 you can combine free extras with custom fields
+    Starting from CKAN 2.3 you can combine free extras with custom fields
     handled with ``convert_to_extras`` and ``convert_from_extras``. On prior
     versions you'll always need to remove the free extras handling.
 

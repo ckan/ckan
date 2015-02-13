@@ -180,12 +180,14 @@ class TestPackageSearchIndex:
         pkg_dict['resources'] = [
             {'description': 'A river quality report',
              'format': 'pdf',
+             'resource_type': 'doc',
              'url': 'http://www.foo.com/riverquality.pdf',
              'alt_url': 'http://www.bar.com/riverquality.pdf',
              'city': 'Asuncion'
              },
             {'description': 'A river quality table',
              'format': 'csv',
+             'resource_type': 'file',
              'url': 'http://www.foo.com/riverquality.csv',
              'alt_url': 'http://www.bar.com/riverquality.csv',
              'institution': 'Global River Foundation'
@@ -246,6 +248,16 @@ class TestPackageSearchIndex:
         validated_data_dict = json.loads(indexed_pkg['validated_data_dict'])
         assert_not_in('data_dict', validated_data_dict)
 
+    def test_index_package_stores_unvalidated_data_dict_without_validated_data_dict(self):
+        # This is a regression test for #2208
+        index = search.index.PackageSearchIndex()
+        pkg_dict = self._get_pkg_dict()
+
+        index.index_package(pkg_dict)
+        data_dict = json.loads(search.show(pkg_dict['name'])['data_dict'])
+
+        assert_not_in('validated_data_dict', data_dict)
+
     def test_index_package_stores_resource_extras_in_config_file(self):
         index = search.index.PackageSearchIndex()
         pkg_dict = self._get_pkg_dict_with_resources()
@@ -261,3 +273,13 @@ class TestPackageSearchIndex:
         # Other resource fields are ignored
         assert_equal(indexed_pkg.get('res_extras_institution', None), None)
         assert_equal(indexed_pkg.get('res_extras_city', None), None)
+
+    def test_indexed_package_stores_resource_type(self):
+        index = search.index.PackageSearchIndex()
+        pkg_dict = self._get_pkg_dict_with_resources()
+
+        index.index_package(pkg_dict)
+        indexed_pkg = search.show(pkg_dict['name'])
+
+        # Resource types are indexed
+        assert_equal(indexed_pkg['res_type'], ['doc', 'file'])

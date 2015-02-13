@@ -28,7 +28,7 @@ def _create_test_view(view_type):
 
 
 class TestPdfView(tests.WsgiAppCase):
-    view_type = 'pdf'
+    view_type = 'pdf_view'
 
     @classmethod
     def setup_class(cls):

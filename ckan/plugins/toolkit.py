@@ -51,7 +51,6 @@ class _Toolkit(object):
         'auth_sysadmins_check', # allow auth functions to be checked for sysadmins
         'auth_allow_anonymous_access', # allow anonymous access to an auth function
         'auth_disallow_anonymous_access', # disallow anonymous access to an auth function
-        'get_new_resources', # gets all new resources in current commit
 
         ## Fully defined in this file ##
         'add_template_directory',
@@ -188,7 +187,6 @@ content type, cookies, etc.
         t['auth_sysadmins_check'] = logic.auth_sysadmins_check
         t['auth_allow_anonymous_access'] = logic.auth_allow_anonymous_access
         t['auth_disallow_anonymous_access'] = logic.auth_disallow_anonymous_access
-        t['get_new_resources'] = datapreview.get_new_resources
 
         # class functions
         t['render_snippet'] = self._render_snippet
@@ -362,7 +360,7 @@ content type, cookies, etc.
         else:
             if name == '__bases__':
                 return self.__class__.__bases__
-            raise Exception('`%s` not found in plugins toolkit' % name)
+            raise AttributeError('`%s` not found in plugins toolkit' % name)
 
     def __dir__(self):
         if not self._toolkit:

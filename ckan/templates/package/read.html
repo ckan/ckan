@@ -17,6 +17,9 @@
         {% if pkg.state.startswith('draft') %}
           [{{ _('Draft') }}]
         {% endif %}
+        {% if pkg.state == 'deleted' %}
+          [{{ _('Deleted') }}]
+        {% endif %}
       {% endblock %}
     </h1>
     {% block package_notes %}

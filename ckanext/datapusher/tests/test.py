@@ -90,8 +90,30 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         resource = package.resources[3]
         data = json.loads(httpretty.last_request().body)
         assert data['metadata']['resource_id'] == resource.id, data
+        assert not data['metadata'].get('ignore_hash'), data
         assert data['result_url'].endswith('/action/datapusher_hook'), data
         assert data['result_url'].startswith('http://'), data
+
+    @httpretty.activate
+    def test_pass_the_received_ignore_hash_param_to_the_datapusher(self):
+        pylons.config['datapusher.url'] = 'http://datapusher.ckan.org'
+        httpretty.HTTPretty.register_uri(
+            httpretty.HTTPretty.POST,
+            'http://datapusher.ckan.org/job',
+            content_type='application/json',
+            body=json.dumps({'job_id': 'foo', 'job_key': 'bar'}))
+
+        package = model.Package.get('annakarenina')
+        resource = package.resources[0]
+
+        tests.call_action_api(
+            self.app, 'datapusher_submit', apikey=self.sysadmin_user.apikey,
+            resource_id=resource.id,
+            ignore_hash=True
+        )
+
+        data = json.loads(httpretty.last_request().body)
+        assert data['metadata']['ignore_hash'], data
 
     def test_cant_provide_resource_and_resource_id(self):
         package = model.Package.get('annakarenina')

@@ -60,6 +60,51 @@ files, and enables CKAN templates' debugging features.
    commands.
 
 
+Repoze.who Settings
+-------------------
+
+.. _who.timeout:
+
+who.timeout
+^^^^^^^^^^^
+
+Example::
+
+ who.timeout = 3600
+
+Default value: None
+
+This defines how long (in seconds) until a user is logged out after a period
+of inactivity. If the setting isn't defined, the session doesn't expire. Not
+active by default.
+
+.. _who.httponly:
+
+who.httponly
+^^^^^^^^^^^^
+
+Default value: True
+
+This determines whether the HttpOnly flag will be set on the repoze.who
+authorization cookie. The default in the absence of the setting is ``True``.
+For enhanced security it is recommended to use the HttpOnly flag and not set
+this to ``False``, unless you have a good reason for doing so.
+
+.. _who.secure:
+
+who.secure
+^^^^^^^^^^
+
+Example::
+ who.secure = True
+
+Default value: False
+
+This determines whether the secure flag will be set for the repoze.who
+authorization cookie. If ``True``, the cookie will be sent over HTTPS. The
+default in the absence of the setting is ``False``.
+
+
 Database Settings
 -----------------
 
@@ -108,6 +153,23 @@ with read permissions only. The format is the same as in :ref:`sqlalchemy.url`.
 
 .. end_config-datastore-urls
 
+.. _ckan.datastore.sqlalchemy:
+
+ckan.datastore.sqlalchemy.*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.sqlalchemy.pool_size=10
+ ckan.datastore.sqlalchemy.max_overflow=20
+
+Custom sqlalchemy config parameters used to establish the DataStore
+database connection.
+
+To get the list of all the available properties check the `SQLAlchemy documentation`_ 
+
+.. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+
 .. _ckan.datastore.default_fts_lang:
 
 ckan.datastore.default_fts_lang
@@ -117,12 +179,30 @@ Example::
 
  ckan.datastore.default_fts_lang = english
 
+Default value: ``english``
+
 This can be ignored if you're not using the :doc:`datastore`.
 
 The default language used when creating full-text search indexes and querying
-them. If this value isn't set, it'll default to "english". It can be
-overwritten by the user by passing the "lang" parameter to "datastore_search"
-and "datastore_create".
+them. It can be overwritten by the user by passing the "lang" parameter to
+"datastore_search" and "datastore_create".
+
+.. _ckan.datastore.default_fts_index_method:
+
+ckan.datastore.default_fts_index_method
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.default_fts_index_method = gist
+
+Default value:  ``gist``
+
+This can be ignored if you're not using the :doc:`datastore`.
+
+The default method used when creating full-text search indexes. Currently it
+can be "gin" or "gist". Refer to PostgreSQL's documentation to understand the
+characteristics of each one and pick the best for your instance.
 
 Site Settings
 -------------
@@ -515,6 +595,34 @@ Default value: ``None``
 List of the extra resource fields that would be used when searching.
 
 
+CORS Settings
+-------------
+
+Cross-Origin Resource Sharing (CORS) can be enabled and controlled with the following settings:
+
+.. _ckan.cors.origin_allow_all:
+
+ckan.cors.origin_allow_all
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.cors.origin_allow_all = True
+
+This setting must be present to enable CORS. If True, all origins will be allowed (the response header Access-Control-Allow-Origin is set to '*'). If False, only origins from the ``ckan.cors.origin_whitelist`` setting will be allowed.
+
+.. _ckan.cors.origin_whitelist:
+
+ckan.cors.origin_whitelist
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.cors.origin_whitelist = http://www.myremotedomain1.com http://myremotedomain1.com
+
+A space separated list of allowable origins. This setting is used when ``ckan.cors.origin_allow_all = False``.
+
+
 Plugins Settings
 ----------------
 
@@ -589,6 +697,23 @@ Example::
 Default value:  ``True``
 
 This controls if we'll use the 1 day cache for stats.
+
+
+.. _ckan.resource_proxy.max_file_size:
+
+ckan.resource_proxy.max_file_size
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.resource_proxy.max_file_size = 1 * 1024 * 1024
+
+Default value:  ``1 * 1024 * 1024`` (1 MB)
+
+This sets the upper file size limit for in-line previews. 
+Increasing the value allows CKAN to preview larger files (e.g. PDFs) in-line; 
+however, a higher value might cause time-outs, or unresponsive browsers for CKAN users 
+with lower bandwidth. If left commented out, CKAN will default to 1 MB.
 
 
 Front-End Settings
@@ -772,34 +897,6 @@ When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on t
 
 .. note::  This only applies to the legacy Genshi-based templates
 
-.. _ckan.preview.direct:
-
-ckan.preview.direct
-^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.preview.direct = png jpg jpeg gif
-
-Default value: ``png jpg jpeg gif``
-
-Defines the resource formats which should be embedded directly in an ``img`` tag
-when previewing them.
-
-.. _ckan.preview.loadable:
-
-ckan.preview.loadable
-^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
- ckan.preview.loadable = html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt
-
-Default value: ``html htm rdf+xml owl+xml xml n3 n-triples turtle plain atom rss txt``
-
-Defines the resource formats which should be loaded directly in an ``iframe``
-tag when previewing them if no :doc:`data-viewer` can preview it.
-
 .. _ckan.dumps_url:
 
 ckan.dumps_url
@@ -856,13 +953,13 @@ ckan.featured_groups
 
 Example::
 
- ckan.featured_groups = group_one group_two
+ ckan.featured_groups = group_one
 
 Default Value: (empty)
 
-Defines a list of group names or group ids. This setting is used to display
-groups and datasets from each group on the home page in the default templates
-(2 groups and 2 datasets for each group are displayed).
+Defines a list of group names or group ids. This setting is used to display a
+group and datasets on the home page in the default templates (1 group and 2
+datasets are displayed).
 
 .. _ckan.featured_organizations:
 
@@ -871,13 +968,13 @@ ckan.featured_orgs
 
 Example::
 
- ckan.featured_orgs = org_one org_two
+ ckan.featured_orgs = org_one
 
 Default Value: (empty)
 
 Defines a list of organization names or ids. This setting is used to display
-organization and datasets from each group on the home page in the default
-templates (2 groups and 2 datasets for each group are displayed).
+an organization and datasets on the home page in the default templates (1
+group and 2 datasets are displayed).
 
 .. _ckan.gravatar_default:
 
@@ -909,6 +1006,78 @@ receiving the request being is shown in the header.
 .. note:: This info only shows if debug is set to True.
 
 .. end_config-front-end
+
+Resource Views Settings
+-----------------------
+
+.. start_resource-views
+
+.. _ckan.views.default_views:
+
+ckan.views.default_views
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+
+ ckan.views.default_views = image_view webpage_view recline_grid_view
+
+Default value: ``image_view recline_view``
+
+Defines the resource views that should be created by default when creating or
+updating a dataset. From this list only the views that are relevant to a particular
+resource format will be created. This is determined by each individual view.
+
+If not present (or commented), the default value is used. If left empty, no
+default views are created.
+
+.. note:: You must have the relevant view plugins loaded on the ``ckan.plugins``
+    setting to be able to create the default views, eg::
+
+        ckan.plugins = image_view webpage_view recline_grid_view ...
+
+        ckan.views.default_views = image_view webpage_view recline_grid_view
+
+.. _ckan.preview.json_formats:
+
+ckan.preview.json_formats
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.preview.json_formats = json
+
+Default value: ``json``
+
+JSON based resource formats that will be rendered by the Text view plugin (``text_view``)
+
+.. _ckan.preview.xml_formats:
+
+ckan.preview.xml_formats
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.preview.xml_formats = xml rdf rss
+
+Default value: ``xml rdf rdf+xml owl+xml atom rss``
+
+XML based resource formats that will be rendered by the Text view plugin (``text_view``)
+
+.. _ckan.preview.text_formats:
+
+ckan.preview.text_formats
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.preview.text_formats = text plain
+
+Default value: ``text plain text/plain``
+
+Plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
+
+.. end_resource-views
 
 Theming Settings
 ----------------

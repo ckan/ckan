@@ -25,11 +25,6 @@ this.ckan.module('resource-view-reorder', function($, _) {
         '<a href="javascript:;" class="save btn btn-primary"></a>',
         '</div>'
       ].join('\n'),
-      handle: [
-        '<a href="javascript:;" class="handle">',
-        '<i class="icon-move"></i>',
-        '</a>'
-      ].join('\n'),
       saving: [
         '<span class="saving muted m-right">',
         '<i class="icon-spinner icon-spin"></i>',
@@ -62,10 +57,6 @@ this.ckan.module('resource-view-reorder', function($, _) {
         .text(this.i18n('cancel'))
         .on('click', this._onHandleCancel);
 
-      this.html_handles = $(this.template.handle)
-        .hide()
-        .appendTo($('.resource-view-item', this.el));
-
       this.html_saving = $(this.template.saving)
         .hide()
         .insertBefore($('.save', this.html_form_actions));
@@ -82,7 +73,6 @@ this.ckan.module('resource-view-reorder', function($, _) {
     _onHandleStartReorder: function() {
       if (!this.is_reordering) {
         this.html_form_actions
-          .add(this.html_handles)
           .add(this.html_title)
           .show();
         this.el
@@ -103,7 +93,6 @@ this.ckan.module('resource-view-reorder', function($, _) {
         this.el.html(this.cache)
           .sortable()
           .sortable('disable');
-        this.html_handles = $('.handle', this.el);
       }
     },
 
@@ -113,7 +102,7 @@ this.ckan.module('resource-view-reorder', function($, _) {
         module.html_saving.show();
         $('.save, .cancel', module.html_form_actions).addClass('disabled');
         var order = [];
-        $('.resource-view-item', module.el).each(function() {
+        $('li', module.el).each(function() {
           order.push($(this).data('id'));
         });
         module.sandbox.client.call('POST', 'resource_view_reorder', {
@@ -131,7 +120,6 @@ this.ckan.module('resource-view-reorder', function($, _) {
 
     reset: function() {
       this.html_form_actions
-        .add(this.html_handles)
         .add(this.html_title)
         .hide();
       this.el

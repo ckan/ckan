@@ -13,6 +13,23 @@ v2.3
 API changes and deprecations
 ----------------------------
 
+* The ``user_show`` API call does not return the ``datasets``,
+  ``num_followers`` or ``activity`` keys by default any more.
+
+  Any custom templates or users of this API call that use these values will
+  need to specify parameters: ``include_datasets`` or
+  ``include_num_followers``.
+
+  ``activity`` has been removed completely as it was actually a list of
+  revisions, rather than the activity stream. If you want the actual activity
+  stream for a user, call ``user_activity_list`` instead.
+
+* The ``package_show`` API call does not return the ``tracking_summary``,
+  keys in the dataset or resources by default any more.
+
+  Any custom templates or users of this API call that use these values will
+  need to pass: ``include_tracking=True``.
+
 * ``helpers.get_action()`` (or ``h.get_action()`` in templates) is deprecated.
 
   Since action functions raise exceptions and templates cannot catch
@@ -29,6 +46,21 @@ API changes and deprecations
   Note that logic.get_action() and toolkit.get_action() are *not* deprecated,
   core code and plugin code should still use ``get_action()``.
 
+* Cross-Origin Resource Sharing (CORS) support is no longer enabled by
+  default. Previously, Access-Control-Allow-* response headers were added for
+  all requests, with Access-Control-Allow-Origin set to the wildcard value
+  ``*``. To re-enable CORS, use the new ``ckan.cors`` configuration settings
+  (:ref:`ckan.cors.origin_allow_all` and :ref:`ckan.cors.origin_whitelist`).
+
+* The HttpOnly flag will be set on the authorization cookie by default. For
+  enhanced security, we recommend using the HttpOnly flag, but this behaviour
+  can be changed in the ``Repoze.who`` settings detailed in the Config File
+  Options documentation (:ref:`who.httponly`).
+
+* The OpenID login option has been removed and is no longer supported. See
+  "Troubleshooting" if you are upgrading an existing CKAN instance as you may
+  need to update your ``who.ini`` file.
+
 Template changes
 ----------------
 
@@ -42,6 +74,104 @@ Template changes
   changes might effect your content blocks:
 
   https://github.com/ckan/ckan/pull/1935
+
+Troubleshooting:
+
+ * Login does not work, for existing and new users.
+
+   You need to update your existing ``who.ini`` file.
+
+   - In the ``[plugin:auth_tkt]`` section, replace::
+
+       use = ckan.config.middleware:ckan_auth_tkt_make_app
+
+     with::
+
+       use = ckan.lib.auth_tkt:make_plugin
+
+   - In ``[authenticators]``, add the ``auth_tkt`` plugin
+
+   Also see the next point for OpenID related changes.
+
+ * Exception on first load after upgrading from a previous CKAN version::
+
+     ImportError: <module 'ckan.lib.authenticator' from '/usr/lib/ckan/default/src/ckan/ckan/lib/authenticator.py'> has no 'OpenIDAuthenticator' attribute
+
+   or::
+
+     ImportError: No module named openid
+
+   There are OpenID related configuration options in your ``who.ini`` file which
+   are no longer supported.
+
+   This file is generally located in ``/etc/ckan/default/who.ini`` but its location
+   may vary if you used a custom deployment.
+
+   The options that you need to remove are:
+
+   - The whole ``[plugin:openid]`` section
+   - In ``[general]``, replace::
+
+        challenge_decider = repoze.who.plugins.openid.classifiers:openid_challenge_decider
+
+     with::
+
+        challenge_decider = repoze.who.classifiers:default_challenge_decider
+
+   - In ``[identifiers]``, remove ``openid``
+   - In ``[authenticators]``, remove ``ckan.lib.authenticator:OpenIDAuthenticator``
+   - In ``[challengers]``, remove ``openid``
+
+   This is a diff with the whole changes:
+
+    https://github.com/ckan/ckan/pull/2058/files#diff-2
+
+   Also see the previous point for other ``who.ini`` changes.
+
+v2.2.1 2014-10-15
+=================
+
+Bug fixes:
+ * Organization image_url is not displayed in the dataset view. (#1934)
+ * list of member roles disappears on add member page if you enter a user that doesn't exist  (#1873)
+ * group/organization_member_create do not return a value. (#1878)
+ * i18n: Close a tag in French translation in Markdown syntax link (#1919)
+ * organization_list_for_user() fixes (#1918)
+ * Don't show private datasets to group members (#1902)
+ * Incorrect link in Organization snippet on dataset page (#1882)
+ * Prevent reading system tables on DataStore SQL search (#1871)
+ * Ensure that the DataStore is running on legacy mode when using PostgreSQL < 9.x (#1879)
+ * Select2 in the Tags field is broken(#1864)
+ * Edit user encoding error (#1436)
+ * Able to list private datasets via the API (#1580)
+ * Insecure content warning when running Recline under SSL (#1729)
+ * Add quotes to package ID in Solr query in _bulk_update_dataset to prevent Solr errors with custom dataset IDs. (#1853)
+ * Ordering a dataset listing loses the existing filters (#1791)
+ * Inserting empty arrays in JSON type fields in datastore fails (#1776)
+ * email notifications via paster plugin post erroneously demands authentication (#1767)
+ * "Add some resources" link shown to unauthorized users (#1766)
+ * Current date indexed on empty "\*_date" fields (#1701)
+ * Edit member page shows wrong fields (#1723)
+ * programatically log user in after registration (#1721)
+ * Dataset tags autocomplete doesn't work (#1512)
+ * Deleted Users bug (#1668)
+ * UX problem with previous and next during dataset creation (#1598)
+ * Catch NotFound error in resources page (#1685)
+ * _tracking page should only respond to POST (#1683)
+ * bulk_process page for non-existent organization throws Exception (#1682)
+ * Fix package permission checks for create+update (#1664)
+ * Creating a DataStore resource with the package_id fails for a normal user (#1652)
+ * Trailing whitespace in resource URLs not stripped (#1634)
+ * Move the closing div inside the block (#1620)
+ * Fix open redirect (#1419)
+ * Show more facets only if there are more facts to show (#1612)
+ * Fix breakage in package groups page (#1594)
+ * Fix broken links in RSS feed (#1589)
+ * Activity Stream from: Organization Error group not found (#1519)
+ * DataPusher and harvester collision (#1500)
+ * Can't download resources with geojson extension (#1534)
+ * Oversized Forgot Password button and field (#1508)
+ * Invite to organization causes Internal Server error (#1505)
 
 
 v2.2 2014-02-04
@@ -200,6 +330,31 @@ Troubleshooting:
    leaving the fields empty. Also make sure to restart running processes like
    harvesters after the update to make sure they use the new code base.
 
+v2.1.3 2014-10-15
+=================
+
+Bug fixes:
+ * Organization image_url is not displayed in the dataset view. (#1934)
+ * i18n: Close a tag in French translation in Markdown syntax link (#1919)
+ * organization_list_for_user() fixes (#1918)
+ * Incorrect link in Organization snippet on dataset page (#1882)
+ * Prevent reading system tables on DataStore SQL search (#1871)
+ * Ensure that the DataStore is running on legacy mode when using PostgreSQL < 9.x (#1879)
+ * Edit user encoding error (#1436)
+ * Able to list private datasets via the API (#1580)
+ * Insecure content warning when running Recline under SSL (#1729)
+ * Add quotes to package ID in Solr query in _bulk_update_dataset to prevent Solr errors with custom dataset IDs. (#1853)
+ * Ordering a dataset listing loses the existing filters (#1791)
+ * Inserting empty arrays in JSON type fields in datastore fails (#1776)
+ * programatically log user in after registration (#1721)
+ * Deleted Users bug (#1668)
+ * Catch NotFound error in resources page (#1685)
+ * bulk_process page for non-existent organization throws Exception (#1682)
+ * Default search ordering on organization home page is broken (#1368)
+ * Term translations of organizations (#1274)
+ * Preview fails on private datastore resources (#1221)
+ * Strip whitespace from title in model dictize (#1228)
+
 v2.1.2 2014-02-04
 =================
 
@@ -317,6 +472,20 @@ Deprecated and removed:
 Known issues:
  * Under certain authorization setups the frontend for the groups functionality
    may not work as expected (See #1176 #1175).
+
+v2.0.5 2014-10-15
+=================
+
+Bug fixes:
+ * organization_list_for_user() fixes (#1918)
+ * Incorrect link in Organization snippet on dataset page (#1882)
+ * Prevent reading system tables on DataStore SQL search (#1871)
+ * Ensure that the DataStore is running on legacy mode when using PostgreSQL < 9.x (#1879)
+ * Current date indexed on empty "\*_date" fields (#1701)
+ * Able to list private datasets via the API (#1580)
+ * Insecure content warning when running Recline under SSL (#1729)
+ * Inserting empty arrays in JSON type fields in datastore fails (#1776)
+ * Deleted Users bug (#1668)
 
 v2.0.4 2014-02-04
 =================

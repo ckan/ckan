@@ -10,12 +10,15 @@ from ckanext.stats.tests import StatsFixture
 class TestStatsPlugin(StatsFixture):
     @classmethod
     def setup_class(cls):
+
         super(TestStatsPlugin, cls).setup_class()
+
+        model.repo.rebuild_db()
 
         CreateTestData.create_arbitrary([
             {'name':'test1', 'groups':['grp1'], 'tags':['tag1']},
             {'name':'test2', 'groups':['grp1', 'grp2'], 'tags':['tag1']},
-            {'name':'test3', 'groups':['grp1', 'grp2'], 'tags':['tag1', 'tag2']},
+            {'name':'test3', 'groups':['grp1', 'grp2'], 'tags':['tag1', 'tag2'], 'private': True},
             {'name':'test4'},
             ],
             extra_user_names=['bob'],
@@ -54,8 +57,11 @@ class TestStatsPlugin(StatsFixture):
 
     @classmethod
     def teardown_class(cls):
-        CreateTestData.delete()
-        
+
+        model.repo.rebuild_db()
+
+        model.Session.remove()
+
     def test_top_rated_packages(self):
         pkgs = Stats.top_rated_packages()
         assert pkgs == []
@@ -63,27 +69,28 @@ class TestStatsPlugin(StatsFixture):
     def test_most_edited_packages(self):
         pkgs = Stats.most_edited_packages()
         pkgs = [(pkg.name, count) for pkg, count in pkgs]
-        assert_equal(pkgs[0], ('test3', 3))
-        assert_equal(pkgs[1][1], 2) 
-        assert_equal(pkgs[2][1], 2) 
-        assert_equal(pkgs[3], ('test1', 1)) 
+        # test2 does not come up because it was deleted
+        # test3 does not come up because it is private
+        assert_equal(pkgs[0], ('test4', 2))
+        assert_equal(pkgs[1], ('test1', 1))
 
     def test_largest_groups(self):
         grps = Stats.largest_groups()
         grps = [(grp.name, count) for grp, count in grps]
-        assert_equal(grps, [('grp1', 3),
-                            ('grp2', 2)])
+        # test2 does not come up because it was deleted
+        # test3 does not come up because it is private
+        assert_equal(grps, [('grp1', 1), ])
 
     def test_top_tags(self):
         tags = Stats.top_tags()
         tags = [(tag.name, count) for tag, count in tags]
-        assert_equal(tags, [('tag1', 3),
-                            ('tag2', 1)])
+        assert_equal(tags, [('tag1', 1L)])
 
     def test_top_package_owners(self):
         owners = Stats.top_package_owners()
         owners = [(owner.name, count) for owner, count in owners]
-        assert_equal(owners, [('bob', 4)])
+        # Only 2 shown because one of them was deleted and the other one is private
+        assert_equal(owners, [('bob', 2)])
 
     def test_new_packages_by_week(self):
         new_packages_by_week = RevisionStats.get_by_week('new_packages')

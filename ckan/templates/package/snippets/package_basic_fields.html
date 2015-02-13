@@ -56,7 +56,7 @@
   {% set dataset_has_organization = data.owner_org or data.group_id %}
   {% set organizations_available = h.organizations_available('create_dataset') %}
   {% set user_is_sysadmin = h.check_access('sysadmin') %}
-  {% set show_organizations_selector = organizations_available and (user_is_sysadmin or dataset_is_draft) %}
+  {% set show_organizations_selector = organizations_available %}
   {% set show_visibility_selector = dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
 
   {% if show_organizations_selector and show_visibility_selector %}
@@ -75,7 +75,7 @@
           {% for organization in organizations_available %}
             {# get out first org from users list only if there is not an existing org #}
             {% set selected_org = (existing_org and existing_org == organization.id) or (not existing_org and not data.id and organization.id == organizations_available[0].id) %}
-            <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ organization.name }}</option>
+            <option value="{{ organization.id }}" {% if selected_org %} selected="selected" {% endif %}>{{ organization.display_name }}</option>
           {% endfor %}
         </select>
       </div>

@@ -64,6 +64,16 @@ _UPSERT = 'upsert'
 _UPDATE = 'update'
 
 
+class InvalidDataError(Exception):
+    """Exception that's raised if you try to add invalid data to the datastore.
+
+    For example if you have a column with type "numeric" and then you try to
+    add a non-numeric value like "foo" to it, this exception should be raised.
+
+    """
+    pass
+
+
 def _pluck(field, arr):
     return [x[field] for x in arr]
 
@@ -71,11 +81,13 @@ def _pluck(field, arr):
 def _is_valid_field_name(name):
     '''
     Check that field name is valid:
+    * can't start or end with whitespace characters
     * can't start with underscore
     * can't contain double quote (")
     * can't be empty
     '''
-    return name.strip() and not name.startswith('_') and not '"' in name
+    return (name and name == name.strip() and not name.startswith('_')
+            and not '"' in name)
 
 
 def _is_valid_table_name(name):
@@ -90,7 +102,11 @@ def _get_engine(data_dict):
     engine = _engines.get(connection_url)
 
     if not engine:
-        engine = sqlalchemy.create_engine(connection_url)
+        import pylons
+        extras = {'url': connection_url}
+        engine = sqlalchemy.engine_from_config(pylons.config,
+                                               'ckan.datastore.sqlalchemy.',
+                                               **extras)
         _engines[connection_url] = engine
     return engine
 
@@ -233,14 +249,13 @@ def _get_fields_types(context, data_dict):
 def json_get_values(obj, current_list=None):
     if current_list is None:
         current_list = []
-    if isinstance(obj, basestring):
-        current_list.append(obj)
-    if isinstance(obj, list):
+    if isinstance(obj, list) or isinstance(obj, tuple):
         for item in obj:
             json_get_values(item, current_list)
-    if isinstance(obj, dict):
-        for item in obj.values():
-            json_get_values(item, current_list)
+    elif isinstance(obj, dict):
+        json_get_values(obj.items(), current_list)
+    elif obj:
+        current_list.append(str(obj))
     return current_list
 
 
@@ -446,22 +461,32 @@ def create_indexes(context, data_dict):
 def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     fts_indexes = []
     resource_id = data_dict['resource_id']
+    # FIXME: This is repeated on the plugin.py, we should keep it DRY
     default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
     if default_fts_lang is None:
         default_fts_lang = u'english'
     fts_lang = data_dict.get('lang', default_fts_lang)
 
     # create full-text search indexes
-    to_tsvector = lambda x: u"to_tsvector('{0}', '{1}')".format(fts_lang, x)
-    text_fields = [x['id'] for x in fields if x['type'] == 'text']
-    for text_field in ['_full_text'] + text_fields:
-        if text_field != '_full_text':
-            text_field = to_tsvector(text_field)
+    to_tsvector = lambda x: u"to_tsvector('{0}', {1})".format(fts_lang, x)
+    cast_as_text = lambda x: u'cast("{0}" AS text)'.format(x)
+    full_text_field = {'type': 'tsvector', 'id': '_full_text'}
+    for field in [full_text_field] + fields:
+        if not datastore_helpers.should_fts_index_field_type(field['type']):
+            continue
+
+        field_str = field['id']
+        if field['type'] not in ['text', 'tsvector']:
+            field_str = cast_as_text(field_str)
+        else:
+            field_str = u'"{0}"'.format(field_str)
+        if field['type'] != 'tsvector':
+            field_str = to_tsvector(field_str)
         fts_indexes.append(sql_index_str_method.format(
             res_id=resource_id,
             unique='',
-            name=_generate_index_name(resource_id, text_field),
-            method='gist', fields=text_field))
+            name=_generate_index_name(resource_id, field_str),
+            method=_get_fts_index_method(), fields=field_str))
 
     return fts_indexes
 
@@ -469,6 +494,11 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
 def _generate_index_name(resource_id, field):
     value = (resource_id + field).encode('utf-8')
     return hashlib.sha1(value).hexdigest()
+
+
+def _get_fts_index_method():
+    method = pylons.config.get('ckan.datastore.default_fts_index_method')
+    return method or 'gist'
 
 
 def _get_index_names(connection, resource_id):
@@ -574,8 +604,14 @@ def alter_table(context, data_dict):
 
 
 def insert_data(context, data_dict):
+    """
+
+    :raises InvalidDataError: if there is an invalid value in the given data
+
+    """
     data_dict['method'] = _INSERT
-    return upsert_data(context, data_dict)
+    result = upsert_data(context, data_dict)
+    return result
 
 
 def upsert_data(context, data_dict):
@@ -613,7 +649,13 @@ def upsert_data(context, data_dict):
             values=', '.join(['%s' for field in field_names])
         )
 
-        context['connection'].execute(sql_string, rows)
+        try:
+            context['connection'].execute(sql_string, rows)
+        except sqlalchemy.exc.DataError as err:
+            raise InvalidDataError(
+                toolkit._("The data was invalid (for example: a numeric value "
+                          "is out of range or was inserted into a text field)."
+                          ))
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
@@ -750,13 +792,18 @@ def _validate_record(record, num, field_names):
 
 def _to_full_text(fields, record):
     full_text = []
+    ft_types = ['int8', 'int4', 'int2', 'float4', 'float8', 'date', 'time',
+                'timetz', 'timestamp', 'numeric', 'text']
     for field in fields:
         value = record.get(field['id'])
-        if field['type'].lower() == 'nested' and value:
+        if not value:
+            continue
+
+        if field['type'].lower() in ft_types and str(value):
+            full_text.append(str(value))
+        else:
             full_text.extend(json_get_values(value))
-        elif field['type'].lower() == 'text' and value:
-            full_text.append(value)
-    return ' '.join(full_text)
+    return ' '.join(set(full_text))
 
 
 def _where(where_clauses_and_values):
@@ -993,6 +1040,9 @@ def create(context, data_dict):
 
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
+
+    :raises InvalidDataError: if there is an invalid value in the given data
+
     '''
     engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
@@ -1263,3 +1313,15 @@ def make_public(context, data_dict):
         trans.commit()
     finally:
         context['connection'].close()
+
+
+def get_all_resources_ids_in_datastore():
+    read_url = pylons.config.get('ckan.datastore.read_url')
+    write_url = pylons.config.get('ckan.datastore.write_url')
+    data_dict = {
+        'connection_url': read_url or write_url
+    }
+    resources_sql = sqlalchemy.text(u'''SELECT name FROM "_table_metadata"
+                                        WHERE alias_of IS NULL''')
+    query = _get_engine(data_dict).execute(resources_sql)
+    return [q[0] for q in query.fetchall()]

@@ -13,7 +13,7 @@ def user_delete(context, data_dict):
 
 
 def package_delete(context, data_dict):
-    # Defer auhtorization for package_delete to package_update, as deletions
+    # Defer authorization for package_delete to package_update, as deletions
     # are essentially changing the state field
     return _auth_update.package_update(context, data_dict)
 
@@ -23,11 +23,7 @@ def resource_delete(context, data_dict):
     resource = get_resource_object(context, data_dict)
 
     # check authentication against package
-    query = model.Session.query(model.Package)\
-        .join(model.ResourceGroup)\
-        .join(model.Resource)\
-        .filter(model.ResourceGroup.id == resource.resource_group_id)
-    pkg = query.first()
+    pkg = model.Package.get(resource.package_id)
     if not pkg:
         raise logic.NotFound(_('No package found for this resource, cannot check auth.'))
 
@@ -41,7 +37,20 @@ def resource_delete(context, data_dict):
 
 
 def resource_view_delete(context, data_dict):
-    return resource_delete(context, data_dict)
+
+    if context.get('resource'):
+        return resource_delete(context, {})
+    if context.get('resource_view'):
+        return resource_delete(context, {'id': context['resource_view'].resource_id})
+
+    resource_id = data_dict.get('resource_id')
+    if not resource_id:
+        resource_view = context['model'].ResourceView.get(data_dict['id'])
+        if not resource_view:
+            raise logic.NotFound(_('Resource view not found, cannot check auth.'))
+        resource_id = resource_view.resource_id
+
+    return resource_delete(context, {'id': resource_id})
 
 
 def related_delete(context, data_dict):

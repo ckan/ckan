@@ -22,7 +22,9 @@ import ckan.lib.dictization as dictization
 
 __all__ = ['Package', 'package_table', 'package_revision_table',
            'PACKAGE_NAME_MAX_LENGTH', 'PACKAGE_NAME_MIN_LENGTH',
-           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTagRevision', 'PackageRevision']
+           'PACKAGE_VERSION_MAX_LENGTH', 'PackageTag', 'PackageTagRevision',
+           'PackageRevision']
+
 
 PACKAGE_NAME_MAX_LENGTH = 100
 PACKAGE_NAME_MIN_LENGTH = 2
@@ -65,8 +67,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     def __init__(self, **kw):
         from ckan import model
         super(Package, self).__init__(**kw)
-        resource_group = model.ResourceGroup(label="default")
-        self.resource_groups_all.append(resource_group)
 
     @classmethod
     def search_by_name(cls, text_query):
@@ -85,21 +85,17 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
 
     @property
     def resources(self):
-        if len(self.resource_groups_all) == 0:
-            return []
-
-        assert len(self.resource_groups_all) == 1, "can only use resources on packages if there is only one resource_group"
-        return [resource for resource in 
-                self.resource_groups_all[0].resources_all
-                if resource.state <> 'deleted']
+        return [resource for resource in
+                self.resources_all
+                if resource.state != 'deleted']
 
     def related_packages(self):
         return [self]
 
     def add_resource(self, url, format=u'', description=u'', hash=u'', **kw):
         import resource
-        self.resource_groups_all[0].resources_all.append(resource.Resource(
-            resource_group_id=self.resource_groups_all[0].id,
+        self.resources_all.append(resource.Resource(
+            package_id=self.id,
             url=url,
             format=format,
             description=description,
@@ -156,12 +152,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         """
         import ckan.model as model
         query = meta.Session.query(model.Tag)
-        query = query.join(PackageTagRevision)
-        query = query.filter(PackageTagRevision.tag_id == model.Tag.id)
-        query = query.filter(PackageTagRevision.package_id == self.id)
-        query = query.filter(and_(
-            PackageTagRevision.state == 'active',
-            PackageTagRevision.current == True))
+        query = query.join(model.PackageTag)
+        query = query.filter(model.PackageTag.tag_id == model.Tag.id)
+        query = query.filter(model.PackageTag.package_id == self.id)
+        query = query.filter(model.PackageTag.state == 'active')
         if vocab:
             query = query.filter(model.Tag.vocabulary_id == vocab.id)
         else:
@@ -377,7 +371,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 Ordered by most recent first.
         '''
         from tag import PackageTag
-        from resource import ResourceGroup, Resource
+        from resource import Resource
         from package_extra import PackageExtra
 
         results = {} # revision:[PackageRevision1, PackageTagRevision1, etc.]
@@ -385,14 +379,9 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             if not results.has_key(pkg_rev.revision):
                 results[pkg_rev.revision] = []
             results[pkg_rev.revision].append(pkg_rev)
-        for class_ in [ResourceGroup, Resource, PackageExtra, PackageTag]:
+        for class_ in [Resource, PackageExtra, PackageTag]:
             rev_class = class_.__revision_class__
-            if class_ == Resource:
-                q = meta.Session.query(rev_class).join('continuity',
-                                                  'resource_group')
-                obj_revisions = q.filter(ResourceGroup.package_id == self.id).all()
-            else:
-                obj_revisions = meta.Session.query(rev_class).filter_by(package_id=self.id).all()
+            obj_revisions = meta.Session.query(rev_class).filter_by(package_id=self.id).all()
             for obj_rev in obj_revisions:
                 if not results.has_key(obj_rev.revision):
                     results[obj_rev.revision] = []
@@ -413,32 +402,23 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         '''Overrides the diff in vdm, so that related obj revisions are
         diffed as well as PackageRevisions'''
         from tag import PackageTag
-        from resource import ResourceGroup, Resource
+        from resource import Resource
         from package_extra import PackageExtra
 
         results = {} # field_name:diffs
         results.update(super(Package, self).diff(to_revision, from_revision))
         # Iterate over PackageTag, PackageExtra, Resources etc.
-        for obj_class in [ResourceGroup, Resource, PackageExtra, PackageTag]:
+        for obj_class in [Resource, PackageExtra, PackageTag]:
             obj_rev_class = obj_class.__revision_class__
             # Query for object revisions related to this package
-            if obj_class == Resource:
-                obj_rev_query = meta.Session.query(obj_rev_class).\
-                                join('continuity', 'resource_group').\
-                                join('revision').\
-                                filter(ResourceGroup.package_id == self.id).\
-                                order_by(core.Revision.timestamp.desc())
-            else:
-                obj_rev_query = meta.Session.query(obj_rev_class).\
-                                filter_by(package_id=self.id).\
-                                join('revision').\
-                                order_by(core.Revision.timestamp.desc())
+            obj_rev_query = meta.Session.query(obj_rev_class).\
+                            filter_by(package_id=self.id).\
+                            join('revision').\
+                            order_by(core.Revision.timestamp.desc())
             # Columns to include in the diff
             cols_to_diff = obj_class.revisioned_fields()
             cols_to_diff.remove('id')
             if obj_class is Resource:
-                cols_to_diff.remove('resource_group_id')
-            else:
                 cols_to_diff.remove('package_id')
             # Particular object types are better known by an invariant field
             if obj_class is PackageTag:
@@ -577,6 +557,55 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
                 context={'model':ckan.model})
         return activity.ActivityDetail(activity_id, self.id, u"Package", activity_type,
             {'package': package_dict })
+
+    def set_rating(self, user_or_ip, rating):
+        '''Record a user's rating of this package.
+
+        The caller function is responsible for doing the commit.
+
+        If a rating is outside the range MAX_RATING - MIN_RATING then a
+        RatingValueException is raised.
+
+        @param user_or_ip - user object or an IP address string
+        '''
+        user = None
+        from user import User
+        from rating import Rating, MAX_RATING, MIN_RATING
+        if isinstance(user_or_ip, User):
+            user = user_or_ip
+            rating_query = meta.Session.query(Rating)\
+                               .filter_by(package=self, user=user)
+        else:
+            ip = user_or_ip
+            rating_query = meta.Session.query(Rating)\
+                               .filter_by(package=self, user_ip_address=ip)
+
+        try:
+            rating = float(rating)
+        except TypeError:
+            raise RatingValueException
+        except ValueError:
+            raise RatingValueException
+        if rating > MAX_RATING or rating < MIN_RATING:
+            raise RatingValueException
+
+        if rating_query.count():
+            rating_obj = rating_query.first()
+            rating_obj.rating = rating
+        elif user:
+            rating = Rating(package=self,
+                            user=user,
+                            rating=rating)
+            meta.Session.add(rating)
+        else:
+            rating = Rating(package=self,
+                            user_ip_address=ip,
+                            rating=rating)
+            meta.Session.add(rating)
+
+
+class RatingValueException(Exception):
+    pass
 
 # import here to prevent circular import
 import tag
