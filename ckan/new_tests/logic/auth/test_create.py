@@ -248,7 +248,7 @@ class TestCreateDefaultResourceViewsOnDataset(object):
         dataset = factories.Dataset(user=user)
 
         context = {'user': user['name'], 'model': core_model}
-        response = helpers.call_auth('dataset_create_default_resource_views',
+        response = helpers.call_auth('package_create_default_resource_views',
                                      context=context, package=dataset)
         assert_equals(response, True)
 
@@ -269,7 +269,7 @@ class TestCreateDefaultResourceViewsOnDataset(object):
 
         context = {'user': user_2['name'], 'model': core_model}
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'dataset_create_default_resource_views',
+                                 'package_create_default_resource_views',
                                  context=context,
                                  package=dataset)
 
@@ -278,7 +278,7 @@ class TestCreateDefaultResourceViewsOnDataset(object):
 
         context = {'user': None, 'model': core_model}
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'dataset_create_default_dataset_views',
+                                 'package_create_default_dataset_views',
                                  context=context,
                                  package=dataset)
 
