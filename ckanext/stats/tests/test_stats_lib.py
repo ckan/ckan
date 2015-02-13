@@ -84,8 +84,7 @@ class TestStatsPlugin(StatsFixture):
     def test_top_tags(self):
         tags = Stats.top_tags()
         tags = [(tag.name, count) for tag, count in tags]
-        assert_equal(tags, [('tag1', 3),
-                            ('tag2', 1)])
+        assert_equal(tags, [('tag1', 1L)])
 
     def test_top_package_owners(self):
         owners = Stats.top_package_owners()

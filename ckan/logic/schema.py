@@ -266,7 +266,7 @@ def default_show_package_schema():
     schema['owner_org'] = []
     schema['private'] = []
     schema['revision_id'] = []
-    schema['tracking_summary'] = []
+    schema['tracking_summary'] = [ignore_missing]
     schema['license_title'] = []
 
     return schema
