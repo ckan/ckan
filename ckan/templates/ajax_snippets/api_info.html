@@ -121,7 +121,7 @@ Example
         <div class="accordion-inner">
           <pre>
 import urllib
-url = '{{ datastore_root_url }}/datastore_search?limit=5&amp;q=title:jones'
+url = '{{ datastore_root_url }}/datastore_search?resource_id={{resource_id}}&amp;limit=5&amp;q=title:jones'
 fileobj = urllib.urlopen(url)
 print fileobj.read()
 </pre>

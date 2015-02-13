@@ -119,7 +119,7 @@ if (isNodeModule) {
 
   var _browserRequest = function(options, cb) {
     var self = this;
-    options.data = JSON.stringify(options.data);
+    options.data = encodeURIComponent(JSON.stringify(options.data));
     options.success = function(data) {
       cb(null, data);
     }

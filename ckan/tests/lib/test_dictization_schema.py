@@ -130,7 +130,7 @@ class TestBasicDictize:
                                           default_update_package_schema(),
                                           self.context)
         assert errors == {
-            'name': [u'Url must be purely lowercase alphanumeric (ascii) '
+            'name': [u'Must be purely lowercase alphanumeric (ascii) '
                      'characters and these symbols: -_'],
             'resources': [{}, {'url': [u'Missing value']}]
         }, pformat(errors)

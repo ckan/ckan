@@ -29,8 +29,7 @@ class TestAction(WsgiAppCase):
         assert sorted(resbody['result']) == sorted(['russian', 'tolstoy',
                 u'Flexible \u30a1', 'tollbooth', 'tolkien', 'toledo',
                 'tolerance'])
-        assert resbody['help'].startswith(
-                "Return a list of the site's tags.")
+        assert '/api/3/action/help_show?name=tag_list' in resbody['help']
         #Get all fields
         postparams = '%s=1' % json.dumps({'all_fields':True})
         res = self.app.post('/api/action/tag_list', params=postparams)
@@ -75,7 +74,7 @@ class TestAction(WsgiAppCase):
         body = json.loads(res.body)
         assert body['success'] is True
         assert body['result'] == [tag_name]
-        assert body['help'].startswith("Return a list of the site's tags.")
+        assert '/api/3/action/help_show?name=tag_list' in body['help']
 
         # check that invalid vocab name results in a 404
         params = '%s=1' % json.dumps({'vocabulary_id': 'invalid-vocab-name'})
@@ -85,8 +84,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'id':'russian'})
         res = self.app.post('/api/action/tag_show', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['help'].startswith(
-                "Return the details of a tag and all its datasets.")
+        assert '/api/3/action/help_show?name=tag_show' in res_obj['help']
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == 'russian'
@@ -113,8 +111,7 @@ class TestAction(WsgiAppCase):
         postparams = '%s=1' % json.dumps({'id':u'Flexible \u30a1'})
         res = self.app.post('/api/action/tag_show', params=postparams)
         res_obj = json.loads(res.body)
-        assert res_obj['help'].startswith(
-                "Return the details of a tag and all its datasets.")
+        assert '/api/3/action/help_show?name=tag_show' in res_obj['help']
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == u'Flexible \u30a1'
@@ -149,7 +146,7 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/user_create', params=postparams,
                             status=StatusCodes.STATUS_403_ACCESS_DENIED)
         res_obj = json.loads(res.body)
-        assert res_obj['help'].startswith("Create a new user.")
+        assert '/api/3/action/help_show?name=user_create' in res_obj['help']
         assert res_obj['success'] is False
         assert res_obj['error']['__type'] == 'Authorization Error'
 
@@ -163,7 +160,7 @@ class TestAction(WsgiAppCase):
         res = self.app.post('/api/action/user_create', params=postparams,
                             extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
         res_obj = json.loads(res.body)
-        assert res_obj['help'].startswith("Create a new user.")
+        assert '/api/3/action/help_show?name=user_create' in res_obj['help']
         assert res_obj['success'] == True
         result = res_obj['result']
         assert result['name'] == user_dict['name']
@@ -171,7 +168,7 @@ class TestAction(WsgiAppCase):
         assert 'apikey' in result
         assert 'created' in result
         assert 'display_name' in result
-        assert 'number_administered_packages' in result
+        assert 'number_created_packages' in result
         assert 'number_of_edits' in result
         assert not 'password' in result
 
@@ -292,8 +289,7 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert res_obj['success'] == True
         assert res_obj['result'] == []
-        assert res_obj['help'].startswith(
-                "Return a list of tag names that contain a given string.")
+        assert '/api/3/action/help_show?name=tag_autocomplete' in res_obj['help']
 
         #Normal query
         postparams = '%s=1' % json.dumps({'q':'r'})
@@ -301,8 +297,7 @@ class TestAction(WsgiAppCase):
         res_obj = json.loads(res.body)
         assert res_obj['success'] == True
         assert res_obj['result'] == ['russian', 'tolerance']
-        assert res_obj['help'].startswith(
-                'Return a list of tag names that contain a given string.')
+        assert '/api/3/action/help_show?name=tag_autocomplete' in res_obj['help']
 
     def test_15_tag_autocomplete_tag_with_spaces(self):
         """Asserts autocomplete finds tags that contain spaces"""

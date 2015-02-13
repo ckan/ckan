@@ -12,6 +12,7 @@ recursive-include ckanext/*/public *
 recursive-include ckanext/*/templates *
 recursive-include ckanext/*/theme/public *
 recursive-include ckanext/*/theme/templates *
+include ckanext/datastore/set_permissions.sql
 
 prune .git
 include CHANGELOG.txt

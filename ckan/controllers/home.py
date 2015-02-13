@@ -74,7 +74,7 @@ class HomeController(base.BaseController):
                 'license': _('Licenses'),
             }
 
-            data_dict = {'sort': 'packages', 'all_fields': 1}
+            data_dict = {'sort': 'package_count desc', 'all_fields': 1}
             # only give the terms to group dictize that are returned in the
             # facets as full results take a lot longer
             if 'groups' in c.search_facets:
@@ -111,7 +111,7 @@ class HomeController(base.BaseController):
             if msg:
                 h.flash_notice(msg, allow_html=True)
 
-        # START OF DIRTYNESS
+        # START OF DIRTINESS
         def get_group(id):
             def _get_group_type(id):
                 """
@@ -135,7 +135,7 @@ class HomeController(base.BaseController):
                        'schema': db_to_form_schema(group_type=group_type),
                        'limits': {'packages': 2},
                        'for_view': True}
-            data_dict = {'id': id}
+            data_dict = {'id': id, 'include_datasets': True}
 
             try:
                 group_dict = logic.get_action('group_show')(context, data_dict)
@@ -178,7 +178,7 @@ class HomeController(base.BaseController):
 
         c.group_package_stuff = dirty_cached_group_stuff
 
-        # END OF DIRTYNESS
+        # END OF DIRTINESS
         return base.render('home/index.html', cache_force=True)
 
     def license(self):

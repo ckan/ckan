@@ -707,7 +707,6 @@ CKAN.View.Resource = Backbone.View.extend({
           word=='name'                  ||
           word=='package_id'            ||
           word=='position'              ||
-          word=='resource_group_id'     ||
           word=='resource_type'         ||
           word=='revision_id'           ||
           word=='revision_timestamp'    ||

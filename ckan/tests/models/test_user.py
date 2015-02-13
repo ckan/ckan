@@ -18,7 +18,7 @@ class TestUser:
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
-        
+
     def test_0_basic(self):
         out = model.User.by_name(u'brian')
         assert_equal(out.name, u'brian')
@@ -116,11 +116,11 @@ class TestUserGroups:
                                        capacity='admin')
                          )
         model.repo.commit_and_remove()
-        
+
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()
-    
+
     def test_get_groups(self):
         brian = model.User.by_name(u'brian')
         groups = brian.get_groups()
@@ -170,10 +170,10 @@ class TestUser2(object):
 
 
     def test_number_of_administered_packages(self):
-        model.User.by_name(u'annafan').number_administered_packages() == 1, \
-            "annafan should own one package"
-        model.User.by_name(u'joeadmin').number_administered_packages() == 0, \
-            "joeadmin shouldn't own any packages"
+        model.User.by_name(u'annafan').number_created_packages() == 1, \
+            "annafan should have created one package"
+        model.User.by_name(u'joeadmin').number_created_packages() == 0, \
+            "joeadmin shouldn't have created any packages"
 
 
     def test_search(self):

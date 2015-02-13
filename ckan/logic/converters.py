@@ -2,7 +2,6 @@ import json
 
 import ckan.model as model
 import ckan.lib.navl.dictization_functions as df
-import ckan.lib.field_types as field_types
 import ckan.logic.validators as validators
 
 from ckan.common import _
@@ -45,20 +44,6 @@ def extras_unicode_convert(extras, context):
     for extra in extras:
         extras[extra] = unicode(extras[extra])
     return extras
-
-def date_to_db(value, context):
-    try:
-        value = field_types.DateType.form_to_db(value)
-    except field_types.DateConvertError, e:
-        raise df.Invalid(str(e))
-    return value
-
-def date_to_form(value, context):
-    try:
-        value = field_types.DateType.db_to_form(value)
-    except field_types.DateConvertError, e:
-        raise df.Invalid(str(e))
-    return value
 
 def free_tags_only(key, data, errors, context):
     tag_number = key[1]
@@ -191,6 +176,13 @@ def convert_to_json_if_string(value, context):
             return json.loads(value)
         except ValueError:
             raise df.Invalid(_('Could not parse as valid JSON'))
+    else:
+        return value
+
+
+def convert_to_list_if_string(value, context=None):
+    if isinstance(value, basestring):
+        return [value]
     else:
         return value
 

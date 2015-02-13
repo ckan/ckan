@@ -58,7 +58,7 @@ style script.
 
 ::
 
-    $ npm install less nodewatch
+    $ npm install less@1.7.5 nodewatch
 
 --------------
 File structure

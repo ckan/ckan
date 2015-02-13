@@ -1,4 +1,3 @@
-import sets
 import ckan
 from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan.plugins import IGroupController, IOrganizationController, ITagController, IResourceController
@@ -22,7 +21,7 @@ def translate_data_dict(data_dict):
 
     # Get a simple flat list of all the terms to be translated, from the
     # flattened data dict.
-    terms = sets.Set()
+    terms = set()
     for (key, value) in flattened.items():
         if value in (None, True, False):
             continue
@@ -245,7 +244,18 @@ class MultilingualDataset(SingletonPlugin):
 
     def before_search(self, search_params):
         lang_set = set(LANGS)
-        current_lang = pylons.request.environ['CKAN_LANG']
+
+        try:
+            current_lang = pylons.request.environ['CKAN_LANG']
+        except TypeError as err:
+            if err.message == ('No object (name: request) has been registered '
+                               'for this thread'):
+                # This happens when this code gets called as part of a paster
+                # command rather then as part of an HTTP request.
+                current_lang = config.get('ckan.locale_default')
+            else:
+                raise
+
         # fallback to default locale if locale not in suported langs
         if not current_lang in lang_set:
             current_lang = config.get('ckan.locale_default')
@@ -276,7 +286,7 @@ class MultilingualDataset(SingletonPlugin):
         fallback_lang_code = pylons.config.get('ckan.locale_default', 'en')
 
         # Look up translations for all of the facets in one db query.
-        terms = sets.Set()
+        terms = set()
         for facet in facets.values():
             for item in facet['items']:
                 terms.add(item['display_name'])

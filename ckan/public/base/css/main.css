@@ -5773,6 +5773,9 @@ a.tag:hover {
 }
 .ckanext-datapreview {
   position: relative;
+  clear: both;
+  padding-top: 15px;
+  margin-top: 0;
 }
 .ckanext-datapreview > iframe {
   min-height: 400px;
@@ -7087,48 +7090,6 @@ textarea {
 .resource-item .handle {
   display: none;
 }
-.view-list.reordering .resource-view-item {
-  border: 1px solid #dddddd;
-  margin-bottom: 10px;
-  cursor: move;
-}
-.view-list.reordering .resource-view-item .handle {
-  display: block;
-  position: absolute;
-  color: #888888;
-  left: -40px;
-  top: 32px;
-  margin-top: -15px;
-  width: 20px;
-  height: 15px;
-  min-height: 15px;
-  line-height: 0px;
-  text-align: center;
-  border: 1px solid #dddddd;
-  border-width: 1px 0 1px 1px;
-  background-color: #ffffff;
-  -webkit-border-radius: 20px 0 0 20px;
-  -moz-border-radius: 20px 0 0 20px;
-  border-radius: 20px 0 0 20px;
-}
-.view-list.reordering .resource-view-item .handle:hover {
-  text-decoration: none;
-}
-.view-list.reordering .resource-view-item:hover .handle {
-  background-color: #eeeeee;
-}
-.view-list.reordering .resource-view-item.ui-sortable-helper {
-  background-color: #eeeeee;
-  border: 1px solid #187794;
-}
-.view-list.reordering .resource-view-item.ui-sortable-helper .handle {
-  background-color: #eeeeee;
-  border-color: #187794;
-  color: #333333;
-}
-.resource-item .handle {
-  display: none;
-}
 .tag-list {
   margin: 0;
   list-style: none;
@@ -7410,6 +7371,10 @@ textarea {
     float: right;
     margin-left: 15px;
   }
+  .tertiary .search-form .control-order-by {
+    float: none;
+    margin: 0;
+  }
 }
 .group .media-vertical .image {
   margin: 0 -5px 5px;
@@ -7568,6 +7533,13 @@ textarea {
   -webkit-border-radius: 3px 3px 0 0;
   -moz-border-radius: 3px 3px 0 0;
   border-radius: 3px 3px 0 0;
+}
+.nav-tabs-plain {
+  padding: 0 25px;
+}
+.nav-tabs-plain > .active > a,
+.nav-tabs-plain > .active > a:hover {
+  background-color: #ffffff;
 }
 @media (min-width: 768px) {
   .span9 .page-header {
@@ -8135,7 +8107,7 @@ h4 small {
 .primary .tertiary {
   float: left;
   width: 180px;
-  margin-left: 20px;
+  margin-left: 18px;
   margin-bottom: 20px;
 }
 @media (min-width: 768px) {
@@ -9187,15 +9159,23 @@ h4 small {
   font-size: 16px;
   margin: 3px 0;
 }
-.resource-view-embed textarea {
-  width: 100%;
+.resource-view-filters {
+  margin-bottom: 1em;
 }
-.resource-view-embed label {
-  float: left;
+.resource-view-filters .resource-view-filter {
+  margin-bottom: 1.0em;
 }
-.resource-view-embed input {
-  width: 11em;
-  float: right;
+.resource-view-filters .resource-view-remove-filter {
+  cursor: pointer;
+  color: #b55457;
+}
+.resource-view-filters .resource-view-filter-values .select2-container {
+  margin-right: 0.3em;
+  margin-bottom: 0.2em;
+  width: 24% !important;
+}
+.resource-view-filters .resource-view-filter-values .select2-container .select2-search-choice-close {
+  left: auto;
 }
 .datapusher-status-link:hover {
   text-decoration: none;

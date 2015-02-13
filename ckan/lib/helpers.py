@@ -180,6 +180,21 @@ def url_for_static_or_external(*args, **kw):
     return my_url
 
 
+def is_url(*args, **kw):
+    '''
+    Returns True if argument parses as a http, https or ftp URL
+    '''
+    if not args:
+        return False
+    try:
+        url = urlparse.urlparse(args[0])
+    except ValueError:
+        return False
+
+    valid_schemes = ('http', 'https', 'ftp')
+    return url.scheme in valid_schemes
+
+
 def _add_i18n_to_url(url_to_amend, **kw):
     # If the locale keyword param is provided then the url is rewritten
     # using that locale .If return_to is provided this is used as the url
@@ -1555,8 +1570,11 @@ RE_MD_INTERNAL_LINK = re.compile(
 )
 
 # find external links eg http://foo.com, https://bar.org/foobar.html
+# but ignore trailing punctuation since it is probably not part of the link
 RE_MD_EXTERNAL_LINK = re.compile(
-    r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*)',
+    r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*'
+     '[\w\-@?^=%&:\/~\\+#]' # but last character can't be punctuation [.,;]
+     ')',
     flags=re.UNICODE
 )
 
@@ -1715,7 +1733,7 @@ def rendered_resource_view(resource_view, resource, package, embed=False):
     template = view_plugin.view_template(context, data_dict)
     data_dict.update(vars)
 
-    if not view_plugin.info().get('iframed', True) and embed:
+    if not resource_view_is_iframed(resource_view) and embed:
         template = "package/snippets/resource_view_embed.html"
 
     import ckan.lib.base as base
@@ -1728,6 +1746,31 @@ def view_resource_url(resource_view, resource, package, **kw):
     by resource proxy.
     '''
     return resource['url']
+
+
+def resource_view_is_filterable(resource_view):
+    '''
+    Returns True if the given resource view support filters.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    return view_plugin.info().get('filterable', False)
+
+
+def resource_view_get_fields(resource):
+    '''Returns sorted list of text and time fields of a datastore resource.'''
+
+    if not resource.get('datastore_active'):
+        return []
+
+    data = {
+        'resource_id': resource['id'],
+        'limit': 0
+    }
+    result = logic.get_action('datastore_search')({}, data)
+
+    fields = [field['id'] for field in result.get('fields', [])]
+
+    return sorted(fields)
 
 
 def resource_view_is_iframed(resource_view):
@@ -1757,6 +1800,10 @@ def resource_view_full_page(resource_view):
     '''
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('full_page_edit', False)
+
+def remove_linebreaks(string):
+    '''Remove linebreaks from string to make it usable in JavaScript'''
+    return str(string).replace('\n', '')
 
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
@@ -1956,6 +2003,7 @@ __allowed_functions__ = [
     'url_for',
     'url_for_static',
     'url_for_static_or_external',
+    'is_url',
     'lang',
     'flash',
     'flash_error',
@@ -2028,10 +2076,13 @@ __allowed_functions__ = [
     'format_resource_items',
     'resource_preview',
     'rendered_resource_view',
+    'resource_view_get_fields',
+    'resource_view_is_filterable',
     'resource_view_is_iframed',
     'resource_view_icon',
     'resource_view_display_preview',
     'resource_view_full_page',
+    'remove_linebreaks',
     'SI_number_span',
     'localised_number',
     'localised_SI_number',
