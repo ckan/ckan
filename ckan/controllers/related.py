@@ -34,10 +34,8 @@ class RelatedController(base.BaseController):
 
         params_nopage = [(k, v) for k, v in base.request.params.items()
                          if k != 'page']
-        try:
-            page = int(base.request.params.get('page', 1))
-        except ValueError:
-            base.abort(400, ('"page" parameter must be an integer'))
+
+        page = self._get_page_number(base.request.params)
 
         # Update ordering in the context
         related_list = logic.get_action('related_list')(context, data_dict)
@@ -116,6 +114,8 @@ class RelatedController(base.BaseController):
 
         try:
             c.pkg_dict = logic.get_action('package_show')(context, data_dict)
+            c.related_list = logic.get_action('related_list')(context,
+                                                              data_dict)
             c.pkg = context['package']
             c.resources_json = h.json.dumps(c.pkg_dict.get('resources', []))
         except logic.NotFound:
@@ -175,7 +175,7 @@ class RelatedController(base.BaseController):
                     data['id'] = related_id
                 else:
                     data['dataset_id'] = id
-                data['owner_id'] = c.userobj.id
+                    data['owner_id'] = c.userobj.id
 
                 related = logic.get_action(action_name)(context, data)
 

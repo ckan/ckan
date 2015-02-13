@@ -4,7 +4,7 @@
 {% set errors = errors or {} %}
 {% set action = form_action or h.url_for(controller='package', action='new_resource', id=pkg_name) %}
 
-<form class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
+<form id="resource-edit" class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
   {% block stages %}
     {# An empty stages variable will not show the stages #}
     {% if stage %}
@@ -16,7 +16,7 @@
 
   <input name="id" value="{{ data.id }}" type="hidden"/>
 
-
+  {% block basic_fields %}
     {% block basic_fields_url %}
       {% set is_upload = (data.url_type == 'upload') %}
       {{ form.image_upload(data, errors, field_url='url', field_upload='upload', field_clear='clear_upload',
@@ -35,9 +35,13 @@
     {% block basic_fields_format %}
       {% set format_attrs = {'data-module': 'autocomplete', 'data-module-source': '/api/2/util/resource/format_autocomplete?incomplete=?'} %}
       {% call form.input('format', id='field-format', label=_('Format'), placeholder=_('eg. CSV, XML or JSON'), value=data.format, error=errors.format, classes=['control-medium'], attrs=format_attrs) %}
+        <span class="info-block info-block-small">
+          <i class="icon-info-sign"></i>
+          {{ _('This will be guessed automatically. Leave blank if you wish') }}
+        </span>
       {% endcall %}
     {% endblock %}
-
+  {% endblock basic_fields %}
 
   {% block metadata_fields %}
     {% if include_metadata %}
@@ -70,9 +74,13 @@
       {% block again_button %}
         <button class="btn" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
         {% endblock %}
-      <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Next: Additional Info') }}{% endblock %}</button>
+      {% block save_button %}
+      <button class="btn btn-primary" name="save" value="go-metadata" type="submit">{% block save_button_text %}{{ _('Finish') }}{% endblock %}</button>
+      {% endblock %}
     {% else %}
+      {% block add_button %}
       <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>
+      {% endblock %}
     {% endif %}
   </div>
 </form>

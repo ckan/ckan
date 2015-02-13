@@ -3,11 +3,13 @@ import logging
 import pylons
 import sqlalchemy
 
+import ckan.lib.base as base
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
 import ckanext.datastore.db as db
 import ckanext.datastore.logic.schema as dsschema
+import ckanext.datastore.helpers as datastore_helpers
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -113,12 +115,14 @@ def datastore_create(context, data_dict):
             res['url_type'] = 'datastore'
             p.toolkit.get_action('resource_update')(context, res)
     else:
-        _check_read_only(context, data_dict)
+        if not data_dict.pop('force', False):
+            resource_id = data_dict['resource_id']
+            _check_read_only(context, resource_id)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
     # validate aliases
-    aliases = db._get_list(data_dict.get('aliases', []))
+    aliases = datastore_helpers.get_list(data_dict.get('aliases', []))
     for alias in aliases:
         if not db._is_valid_table_name(alias):
             raise p.toolkit.ValidationError({
@@ -129,10 +133,14 @@ def datastore_create(context, data_dict):
     model = _get_or_bust(context, 'model')
     resource = model.Resource.get(data_dict['resource_id'])
     legacy_mode = 'ckan.datastore.read_url' not in pylons.config
-    if not legacy_mode and resource.resource_group.package.private:
+    if not legacy_mode and resource.package.private:
         data_dict['private'] = True
 
-    result = db.create(context, data_dict)
+    try:
+        result = db.create(context, data_dict)
+    except db.InvalidDataError as err:
+        raise p.toolkit.ValidationError(str(err))
+
     result.pop('id', None)
     result.pop('private', None)
     result.pop('connection_url')
@@ -185,7 +193,9 @@ def datastore_upsert(context, data_dict):
 
     p.toolkit.check_access('datastore_upsert', context, data_dict)
 
-    _check_read_only(context, data_dict)
+    if not data_dict.pop('force', False):
+        resource_id = data_dict['resource_id']
+        _check_read_only(context, resource_id)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
@@ -204,6 +214,73 @@ def datastore_upsert(context, data_dict):
     result.pop('id', None)
     result.pop('connection_url')
     return result
+
+
+def datastore_info(context, data_dict):
+    '''
+    Returns information about the data imported, such as column names
+    and types.
+
+    :rtype: A dictionary describing the columns and their types.
+    :param id: Id of the resource we want info about
+    :type id: A UUID
+    '''
+    def _type_lookup(t):
+        if t in ['numeric', 'integer']:
+            return 'number'
+
+        if t.startswith('timestamp'):
+            return "date"
+
+        return "text"
+
+    p.toolkit.check_access('datastore_info', context, data_dict)
+
+    resource_id = _get_or_bust(data_dict, 'id')
+    resource = p.toolkit.get_action('resource_show')(context, {'id':resource_id})
+
+    data_dict['connection_url'] = pylons.config['ckan.datastore.read_url']
+
+    resources_sql = sqlalchemy.text(u'''SELECT 1 FROM "_table_metadata"
+                                        WHERE name = :id AND alias_of IS NULL''')
+    results = db._get_engine(data_dict).execute(resources_sql, id=resource_id)
+    res_exists = results.rowcount > 0
+    if not res_exists:
+        raise p.toolkit.ObjectNotFound(p.toolkit._(
+            u'Resource "{0}" was not found.'.format(resource_id)
+        ))
+
+    info = {'schema': {}, 'meta': {}}
+
+    schema_results = None
+    meta_results = None
+    try:
+        schema_sql = sqlalchemy.text(u'''
+            SELECT column_name, data_type
+            FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = :resource_id;
+        ''')
+        schema_results = db._get_engine(data_dict).execute(schema_sql, resource_id=resource_id)
+        for row in schema_results.fetchall():
+            k = row[0]
+            v = row[1]
+            if k.startswith('_'):  # Skip internal rows
+                continue
+            info['schema'][k] = _type_lookup(v)
+
+        # We need to make sure the resource_id is a valid resource_id before we use it like
+        # this, we have done that above.
+        meta_sql = sqlalchemy.text(u'''
+            SELECT count(_id) FROM "{}";
+        '''.format(resource_id))
+        meta_results = db._get_engine(data_dict).execute(meta_sql, resource_id=resource_id)
+        info['meta']['count'] = meta_results.fetchone()[0]
+    finally:
+        if schema_results:
+            schema_results.close()
+        if meta_results:
+            meta_results.close()
+
+    return info
 
 
 def datastore_delete(context, data_dict):
@@ -233,7 +310,9 @@ def datastore_delete(context, data_dict):
 
     p.toolkit.check_access('datastore_delete', context, data_dict)
 
-    _check_read_only(context, data_dict)
+    if not data_dict.pop('force', False):
+        resource_id = data_dict['resource_id']
+        _check_read_only(context, resource_id)
 
     data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
 
@@ -267,8 +346,12 @@ def datastore_search(context, data_dict):
     :type resource_id: string
     :param filters: matching conditions to select, e.g {"key1": "a", "key2": "b"} (optional)
     :type filters: dictionary
-    :param q: full text query (optional)
-    :type q: string
+    :param q: full text query. If it's a string, it'll search on all fields on
+              each row. If it's a dictionary as {"key1": "a", "key2": "b"},
+              it'll search on each specific field (optional)
+    :type q: string or dictionary
+    :param distinct: return only distinct rows (optional, default: false)
+    :type distinct: bool
     :param plain: treat as plain text query (optional, default: true)
     :type plain: bool
     :param language: language of the full text query (optional, default: english)
@@ -373,11 +456,9 @@ def datastore_search_sql(context, data_dict):
     '''
     sql = _get_or_bust(data_dict, 'sql')
 
-    if not db._is_single_statement(sql):
+    if not datastore_helpers.is_single_statement(sql):
         raise p.toolkit.ValidationError({
-            'query': ['Query is not a single statement or contains semicolons.'],
-            'hint': [('If you want to use semicolons, use character encoding'
-                     '(; equals chr(59)) and string concatenation (||). ')]
+            'query': ['Query is not a single statement.']
         })
 
     p.toolkit.check_access('datastore_search_sql', context, data_dict)
@@ -456,14 +537,12 @@ def _resource_exists(context, data_dict):
     return results.rowcount > 0
 
 
-def _check_read_only(context, data_dict):
+def _check_read_only(context, resource_id):
     ''' Raises exception if the resource is read-only.
     Make sure the resource id is in resource_id
     '''
-    if data_dict.get('force'):
-        return
     res = p.toolkit.get_action('resource_show')(
-        context, {'id': data_dict['resource_id']})
+        context, {'id': resource_id})
     if res.get('url_type') != 'datastore':
         raise p.toolkit.ValidationError({
             'read-only': ['Cannot edit read-only resource. Either pass'

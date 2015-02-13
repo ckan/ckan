@@ -19,6 +19,7 @@ class CreateTestData(object):
     pkg_core_fields = ['name', 'title', 'version', 'url', 'notes',
                        'author', 'author_email',
                        'maintainer', 'maintainer_email',
+                       'private',
                        ]
     @classmethod
     def create_basic_test_data(cls):
@@ -432,7 +433,7 @@ class CreateTestData(object):
             )
         pr2 = model.Resource(
             url=u'http://www.annakarenina.com/index.json',
-            format=u'json',
+            format=u'JSON',
             description=u'Index of the novel',
             hash=u'def456',
             extras={'size_extra': u'345'},
@@ -440,8 +441,8 @@ class CreateTestData(object):
             )
         model.Session.add(pr1)
         model.Session.add(pr2)
-        pkg1.resource_groups_all[0].resources_all.append(pr1)
-        pkg1.resource_groups_all[0].resources_all.append(pr2)
+        pkg1.resources_all.append(pr1)
+        pkg1.resources_all.append(pr2)
         pkg1.notes = u'''Some test notes
 
 ### A 3rd level heading

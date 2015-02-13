@@ -1,6 +1,7 @@
 include ckan/config/deployment.ini_tmpl
 recursive-include ckan/public *
 recursive-include ckan/config *.ini
+recursive-include ckan/config *.json
 recursive-include ckan/config *.xml
 recursive-include ckan/i18n *
 recursive-include ckan/templates *
@@ -11,6 +12,7 @@ recursive-include ckanext/*/public *
 recursive-include ckanext/*/templates *
 recursive-include ckanext/*/theme/public *
 recursive-include ckanext/*/theme/templates *
+include ckanext/datastore/set_permissions.sql
 
 prune .git
 include CHANGELOG.txt

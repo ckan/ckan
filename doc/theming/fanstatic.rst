@@ -28,10 +28,12 @@ to serve the CSS file with Fanstatic.
    file from ``public`` into ``fanstatic``::
 
     ckanext-example_theme/
-      public/
-        promoted-image.jpg
-      fanstatic/
-        example_theme.css
+      ckanext/
+        example_theme/
+          public/
+            promoted-image.jpg
+          fanstatic/
+            example_theme.css
 
 2. Use CKAN's :py:func:`~ckan.plugins.toolkit.add_resource()` function to
    register your fanstatic directory with CKAN. Edit the ``update_config()``
@@ -63,4 +65,4 @@ to serve the CSS file with Fanstatic.
   A config file can be used to configure how Fanstatic should serve each resource
   file (whether or not to bundle files, what order to include files in, whether
   to include files at the top or bottom of the page, dependencies between files,
-  etc.) See :doc:`/resources` for details.
+  etc.) See :doc:`/contributing/frontend/resources` for details.

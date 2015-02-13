@@ -19,24 +19,36 @@
 
 {% block secondary_content %}
   {% if h.check_access('user_create') %}
-    <section class="module module-narrow module-shallow">
+  {% block help_register %}
+  <section class="module module-narrow module-shallow">
+    {% block help_register_inner %}
       <h2 class="module-heading">{{ _('Need an Account?') }}</h2>
       <div class="module-content">
         <p>{% trans %}Then sign right up, it only takes a minute.{% endtrans %}</p>
         <p class="action">
+        {% block help_register_button %}
           <a class="btn" href="{{ h.url_for(controller='user', action='register') }}">{{ _('Create an Account') }}</a>
+        {% endblock %}
         </p>
       </div>
-    </section>
+    {% endblock %}
+  </section>
+  {% endblock %}
   {% endif %}
 
+  {% block help_forgotten %}
   <section class="module module-narrow module-shallow">
+    {% block help_forgotten_inner %}
     <h2 class="module-heading">{{ _('Forgotten your password?') }}</h2>
     <div class="module-content">
       <p>{% trans %}No problem, use our password recovery form to reset it.{% endtrans %}</p>
       <p class="action">
+        {% block help_forgotten_button %}
         <a class="btn" href="{{ h.url_for(controller='user', action='request_reset') }}">{{ _('Forgot your password?') }}</a>
+        {% endblock %}
       </p>
     </div>
+    {% endblock %}
   </section>
+  {% endblock %}
 {% endblock %}

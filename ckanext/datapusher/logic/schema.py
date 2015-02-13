@@ -19,6 +19,7 @@ def datapusher_submit_schema():
         'resource_id': [not_missing, not_empty, unicode],
         'id': [ignore_missing],
         'set_url_type': [ignore_missing, boolean_validator],
+        'ignore_hash': [ignore_missing, boolean_validator],
         '__junk': [empty],
         '__before': [dsschema.rename('id', 'resource_id')]
     }

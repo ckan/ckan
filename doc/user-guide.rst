@@ -5,7 +5,7 @@ User guide
 This user guide covers using CKAN's web interface to organize, publish and find
 data. CKAN also has a powerful API (machine interface), which makes it easy to
 develop extensions and links with other information systems. The API is
-documented in :doc:`api`.
+documented in :doc:`/api/index`.
 
 Some web UI features relating to site administration are available only to
 users with sysadmin status, and are documented in :doc:`sysadmin-guide`.
@@ -63,7 +63,7 @@ government departments, each of which publishes data. Each organization can
 have its own workflow and authorizations, allowing it to manage its own
 publishing process.
 
-An organization's administrators can add add individual users to it, with
+An organization's administrators can add individual users to it, with
 different roles depending on the level of authorization needed. A user in an
 organization can create a dataset owned by that organization. In the default
 setup, this dataset is initially private, and visible only to other users in
@@ -110,7 +110,7 @@ ask for the following:
 
 * *Password* -- enter the same password in both boxes
 
-.. image:: images/register_account.jpg
+.. image:: /images/register_account.jpg
 
 If there are problems with any of the fields, CKAN will tell you the problem
 and enable you to correct it. When the fields are filled in correctly, CKAN
@@ -173,7 +173,7 @@ actual data will be added in step 4.)
   only one organization. If this is you, CKAN will have chosen your organization
   by default and you need not do anything.)
 
-.. image:: images/add_dataset_1.jpg
+.. image:: /images/add_dataset_1.jpg
 
 .. note::
 
@@ -189,7 +189,7 @@ in.)
 
 **Step 4**. CKAN will display the "Add data" screen.
 
-.. image:: images/add_dataset_2.jpg
+.. image:: /images/add_dataset_2.jpg
 
 This is where you will add one or more "resources" which contain the data for
 this dataset. Choose a file or link for your data resource and select the
@@ -239,16 +239,18 @@ select "Next: Additional Info".
   talk to your site administrator about changing the default schema and dataset
   forms.
 
-* *Group* -- Moderated collection of datasets. You can add the dataset to
-  an existing group here.
-
-.. image:: images/add_dataset_3.jpg
+.. image:: /images/add_dataset_3.jpg
 
 .. note::
 
     Everything on this screen is optional, but you should ensure the
     "Visibility" is set correctly. It is also good practice to ensure an Author is
     named.
+
+.. versionchanged:: 2.2
+   Previous versions of CKAN used to allow adding the dataset to existing
+   groups in this step. This was changed. To add a dataset to an existing group
+   now, go to the "Group" tab in the Dataset's page.
 
 **Step 8**. Select the 'Finish' button. CKAN creates the dataset and shows you
 the result. You have finished!
@@ -277,7 +279,7 @@ organization, then any registered user can edit it.)
 
 #. When you have finished, select the "Update dataset" button to save your changes.
 
-.. image:: images/edit_dataset.jpg
+.. image:: /images/edit_dataset.jpg
 
 
 Adding, deleting and editing resources
@@ -343,7 +345,7 @@ To create an organization:
 #. Select the "Create Organization" button. CKAN creates your organization and
    displays its home page. Initially, of course, the organization has no datasets.
 
-.. image:: images/create_organization.jpg
+.. image:: /images/create_organization.jpg
 
 You can now change the access privileges to the organization for other users -
 see :ref:`managing_an_organization` below. You can also create datasets owned by the
@@ -372,7 +374,7 @@ has two tabs:
 * *Members* -- Here you can add, remove and change access roles for different
   users in the organization. Note: you will need to know their username on CKAN.
 
-.. image:: images/manage_organization.jpg
+.. image:: /images/manage_organization.jpg
 
 By default CKAN allows members of organizations with three roles:
 
@@ -409,7 +411,7 @@ If datasets are tagged by geographical area, it is also possible to run CKAN
 with an extension which allows searching and filtering of datasets by selecting
 an area on a map.
 
-.. image:: images/search_the_site.jpg
+.. image:: /images/search_the_site.jpg
 
 
 Searching within an organization
@@ -444,7 +446,7 @@ display the dataset page. This includes
 
 * Links to and brief descriptions of each of the resources
 
-.. image:: images/exploring_datasets.jpg
+.. image:: /images/exploring_datasets.jpg
 
 The resource descriptions link to a dedicated page for each resource. This
 resource page includes information about the resource, and enables it to be
@@ -483,7 +485,7 @@ dashboard symbol shows the number of new notifications in your News feed since
 you last looked at it. As well as datasets and organizations, it is possible to
 follow individual users (to be notified of changes that they make to datasets).
 
-.. image:: images/manage_news_feed.jpg
+.. image:: /images/manage_news_feed.jpg
 
 If you want to stop following a dataset (or organization or user), go to the
 dataset's page (e.g. by selecting a link to it in your News feed) and select
@@ -498,7 +500,7 @@ your profile when you edit a dataset or upload data to an organization that
 they are following.) To do this, select the gearwheel symbol at the top of any
 page.
 
-.. image:: images/manage_user_profile.jpg
+.. image:: /images/manage_user_profile.jpg
 
 CKAN displays the user settings page. Here you can change:
 

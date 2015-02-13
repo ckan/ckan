@@ -9,6 +9,7 @@ import requests
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
+import ckan.lib.datapreview as datapreview
 import ckanext.datapusher.logic.schema as dpschema
 
 log = logging.getLogger(__name__)
@@ -27,6 +28,9 @@ def datapusher_submit(context, data_dict):
         be set to ``datastore`` and the resource URL will automatically point
         to the :ref:`datastore dump <dump>` URL. (optional, default: False)
     :type set_url_type: bool
+    :param ignore_hash: If set to True, the datapusher will reload the file
+        even if it haven't changed. (optional, default: False)
+    :type ignore_hash: bool
 
     Returns ``True`` if the job has been submitted and ``False`` if the job
     has not been submitted, i.e. when the datapusher is not configured.
@@ -45,9 +49,8 @@ def datapusher_submit(context, data_dict):
 
     datapusher_url = pylons.config.get('ckan.datapusher.url')
 
-    callback_url = p.toolkit.url_for(
-        controller='api', action='action', logic_function='datapusher_hook',
-        ver=3, qualified=True)
+    site_url = pylons.config['ckan.site_url']
+    callback_url = site_url.rstrip('/') + '/api/3/action/datapusher_hook'
 
     user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
 
@@ -86,7 +89,8 @@ def datapusher_submit(context, data_dict):
                 'job_type': 'push_to_datastore',
                 'result_url': callback_url,
                 'metadata': {
-                    'ckan_url': pylons.config['ckan.site_url'],
+                    'ignore_hash': data_dict.get('ignore_hash', False),
+                    'ckan_url': site_url,
                     'resource_id': res_id,
                     'set_url_type': data_dict.get('set_url_type', False)
                 }
@@ -140,9 +144,11 @@ def datapusher_hook(context, data_dict):
 
     metadata, status = _get_or_bust(data_dict, ['metadata', 'status'])
 
-    p.toolkit.check_access('datapusher_submit', context, data_dict)
+    res_id = _get_or_bust(metadata, 'resource_id')
 
-    res_id = metadata.get('resource_id')
+    # Pass metadata, not data_dict, as it contains the resource id needed
+    # on the auth checks
+    p.toolkit.check_access('datapusher_submit', context, metadata)
 
     task = p.toolkit.get_action('task_status_show')(context, {
         'entity_id': res_id,
@@ -152,6 +158,19 @@ def datapusher_hook(context, data_dict):
 
     task['state'] = status
     task['last_updated'] = str(datetime.datetime.now())
+    if status == 'complete':
+        # Create default views for resource if necessary (only the ones that
+        # require data to be in the DataStore)
+        resource_dict = p.toolkit.get_action('resource_show')(
+            context, {'id': res_id})
+
+        dataset_dict = p.toolkit.get_action('package_show')(
+            context, {'id': resource_dict['package_id']})
+
+        datapreview.add_default_views_to_resource(context,
+                                                  resource_dict,
+                                                  dataset_dict,
+                                                  create_datastore_views=True)
 
     context['ignore_auth'] = True
     p.toolkit.get_action('task_status_update')(context, task)
@@ -196,7 +215,7 @@ def datapusher_status(context, data_dict):
             r.raise_for_status()
             job_detail = r.json()
         except (requests.exceptions.ConnectionError,
-                requests.exceptions.HTTPError), e:
+                requests.exceptions.HTTPError):
             job_detail = {'error': 'cannot connect to datapusher'}
 
     return {

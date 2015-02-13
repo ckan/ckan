@@ -11,7 +11,7 @@
   {{ super() }}
   {% set description = h.markdown_extract(pkg.notes, extract_length=200)|forceescape %}
   <meta property="og:title" content="{{ h.dataset_display_name(pkg) }} - {{ g.site_title }}">
-  <meta property="og:description" content="{{ description|forceescape }}">
+  <meta property="og:description" content="{{ description|forceescape|trim }}">
 {% endblock -%}
 
 {% block content_action %}
@@ -29,17 +29,13 @@
 
 {% block primary_content_inner %}
     {% block package_revision_info %}
-      {% if c.pkg_revision_id %}
+      {% if c.revision_date %}
         <div class="module info alert alert-info">
           <p class="module-content">
-            {% set timestamp = h.render_datetime(c.pkg_revision_timestamp, with_hours=True) %}
+            {% set timestamp = h.render_datetime(c.revision_date, with_hours=True) %}
             {% set url = h.url(controller='package', action='read', id=pkg.name) %}
 
-            {% if c.pkg_revision_not_latest %}
-              {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
-            {% else %}
-              {% trans timestamp=timestamp %}This is the current revision of this dataset, as edited at {{ timestamp }}.{% endtrans %}
-            {% endif %}
+            {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
           </p>
         </div>
       {% endif %}
@@ -56,7 +52,8 @@
 
   {% block package_organization %}
     {% if pkg.organization %}
-      {% snippet "snippets/organization.html", organization=pkg.organization, has_context_title=true %}
+      {% set org = h.get_organization(pkg.organization.name) %}
+      {% snippet "snippets/organization.html", organization=org, has_context_title=true %}
     {% endif %}
   {% endblock %}
 

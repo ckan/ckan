@@ -138,7 +138,6 @@ def load(*plugins):
     '''
     Load named plugin(s).
     '''
-
     output = []
 
     observers = PluginImplementations(interfaces.IPluginObserver)

@@ -13,14 +13,3 @@ class TestStatsPlugin(StatsFixture):
             'public')
         assert paths.startswith(publicdir), (publicdir, paths)
 
-    def test_02_index(self):
-        url = url_for('stats')
-        out = self.app.get(url)
-        assert 'Total number of Datasets' in out, out
-        assert 'Most Edited Datasets' in out, out
-
-    def test_03_leaderboard(self):
-        url = url_for('stats_action', action='leaderboard')
-        out = self.app.get(url)
-        assert 'Leaderboard' in out, out
-

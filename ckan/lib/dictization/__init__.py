@@ -3,6 +3,12 @@ from sqlalchemy.orm import class_mapper
 import sqlalchemy
 from pylons import config
 
+try:
+    RowProxy = sqlalchemy.engine.result.RowProxy
+except AttributeError:
+    RowProxy = sqlalchemy.engine.base.RowProxy
+
+
 # NOTE
 # The functions in this file contain very generic methods for dictizing objects
 # and saving dictized objects. If a specialised use is needed please do NOT extend
@@ -17,7 +23,7 @@ def table_dictize(obj, context, **kw):
     model = context["model"]
     session = model.Session
 
-    if isinstance(obj, sqlalchemy.engine.base.RowProxy):
+    if isinstance(obj, RowProxy):
         fields = obj.keys()
     else:
         ModelClass = obj.__class__
@@ -47,7 +53,7 @@ def table_dictize(obj, context, **kw):
     result_dict.update(kw)
 
     ##HACK For optimisation to get metadata_modified created faster.
-    
+
     context['metadata_modified'] = max(result_dict.get('revision_timestamp', ''),
                                        context.get('metadata_modified', ''))
 
@@ -66,7 +72,7 @@ def obj_list_dictize(obj_list, context, sort_key=lambda x:x):
             dictized = table_dictize(obj, context, capacity=capacity)
         else:
             dictized = table_dictize(obj, context)
-        if active and obj.state not in ('active', 'pending'):
+        if active and obj.state != 'active':
             continue
         result_list.append(dictized)
 
@@ -131,13 +137,6 @@ def table_dict_save(table_dict, ModelClass, context):
         if isinstance(value, list):
             continue
         setattr(obj, key, value)
-
-    if context.get('pending'):
-        if session.is_modified(obj, include_collections=False, passive=True):
-            if table_dict.get('state', '') == 'deleted':
-                obj.state = 'pending-deleted'
-            else:
-                obj.state = 'pending'
 
     session.add(obj)
 

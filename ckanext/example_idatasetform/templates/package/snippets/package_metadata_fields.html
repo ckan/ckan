@@ -1,11 +1,9 @@
 {% ckan_extends %}
 
-{# Remove 'free extras' from the package form. If you're using
-convert_to/from_extras() as we are with our 'custom_text' field below then
-you need to remove free extras from the form, or editing your custom field
-won't work. #}
-{% block custom_fields %}
-{% endblock %}
+{# You could remove 'free extras' from the package form like this, but we keep them for this example's tests.
+  {% block custom_fields %}
+  {% endblock %}
+#}
 
 {% block package_metadata_fields %}
 

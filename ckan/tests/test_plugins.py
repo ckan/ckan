@@ -118,22 +118,23 @@ class TestPlugins(object):
 
         expected_order = _make_calls(plugins.get_plugin('mapper_plugin'),
                                      plugins.get_plugin('mapper_plugin2'))
-        assert observerplugin.before_load.calls[:-2] == expected_order
+
+        assert observerplugin.before_load.calls[:2] == expected_order
         expected_order = _make_calls(plugins.get_plugin('test_observer_plugin'),
                                      plugins.get_plugin('mapper_plugin'),
                                      plugins.get_plugin('mapper_plugin2'))
-        assert observerplugin.after_load.calls[:-2] == expected_order
+        assert observerplugin.after_load.calls[:3] == expected_order
 
         config['ckan.plugins'] = 'test_observer_plugin mapper_plugin2 mapper_plugin'
         plugins.load_all(config)
 
         expected_order = _make_calls(plugins.get_plugin('mapper_plugin2'),
                                      plugins.get_plugin('mapper_plugin'))
-        assert observerplugin.before_load.calls[:-2] == expected_order
+        assert observerplugin.before_load.calls[:2] == expected_order
         expected_order = _make_calls(plugins.get_plugin('test_observer_plugin'),
                                      plugins.get_plugin('mapper_plugin2'),
                                      plugins.get_plugin('mapper_plugin'))
-        assert observerplugin.after_load.calls[:-2] == expected_order
+        assert observerplugin.after_load.calls[:3] == expected_order
         # cleanup
         config['ckan.plugins'] = config_plugins
         plugins.load_all(config)
@@ -143,7 +144,7 @@ class TestPlugins(object):
             CreateTestData.create_arbitrary([{'name':u'testpkg'}])
             # remove this data
             CreateTestData.delete()
-            assert len(mapper_plugin.added) == 2 # resource group table added automatically
+            assert len(mapper_plugin.added) == 1
             assert mapper_plugin.added[0].name == 'testpkg'
 
     def test_routes_plugin_fired(self):

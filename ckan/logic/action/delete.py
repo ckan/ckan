@@ -1,7 +1,5 @@
 '''API functions for deleting data from CKAN.'''
 
-from sqlalchemy import or_
-
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
@@ -98,6 +96,10 @@ def resource_delete(context, data_dict):
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
 
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.before_delete(context, data_dict,
+                             pkg_dict.get('resources', []))
+
     if pkg_dict.get('resources'):
         pkg_dict['resources'] = [r for r in pkg_dict['resources'] if not
                 r['id'] == id]
@@ -107,6 +109,31 @@ def resource_delete(context, data_dict):
         errors = e.error_dict['resources'][-1]
         raise ValidationError(errors)
 
+    for plugin in plugins.PluginImplementations(plugins.IResourceController):
+        plugin.after_delete(context, pkg_dict.get('resources', []))
+
+    model.repo.commit()
+
+
+def resource_view_delete(context, data_dict):
+    '''Delete a resource_view.
+
+    :param id: the id of the resource_view
+    :type id: string
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    resource_view = model.ResourceView.get(id)
+    if not resource_view:
+        raise NotFound
+
+    context["resource_view"] = resource_view
+    context['resource'] = model.Resource.get(resource_view.resource_id)
+    _check_access('resource_view_delete', context, data_dict)
+
+    resource_view.delete()
     model.repo.commit()
 
 
@@ -228,7 +255,7 @@ def member_delete(context, data_dict=None):
     if not obj:
         raise NotFound('%s was not found.' % obj_type.title())
 
-    _check_access('member_create', context, data_dict)
+    _check_access('member_delete', context, data_dict)
 
     member = model.Session.query(model.Member).\
             filter(model.Member.table_name == obj_type).\
@@ -251,6 +278,8 @@ def _group_or_org_delete(context, data_dict, is_org=False):
     :type id: string
 
     '''
+    from sqlalchemy import or_
+
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, 'id')
@@ -572,6 +601,7 @@ def group_member_delete(context, data_dict=None):
     :type username: string
 
     '''
+    _check_access('group_member_delete',context, data_dict)
     return _group_or_org_member_delete(context, data_dict)
 
 def organization_member_delete(context, data_dict=None):
@@ -585,6 +615,7 @@ def organization_member_delete(context, data_dict=None):
     :type username: string
 
     '''
+    _check_access('organization_member_delete',context, data_dict)
     return _group_or_org_member_delete(context, data_dict)
 
 

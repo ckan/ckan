@@ -13,7 +13,9 @@ __all__ = [
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
+    'IValidators',
     'IResourcePreview',
+    'IResourceView',
     'IResourceController',
     'IGroupForm',
     'ITagController',
@@ -47,6 +49,11 @@ class IMiddleware(Interface):
     '''
     def make_middleware(self, app, config):
         '''Return an app configured with this middleware
+        '''
+        return app
+
+    def make_error_log_middleware(self, app, config):
+        '''Return an app configured with this error log middleware
         '''
         return app
 
@@ -179,10 +186,13 @@ class ISession(Interface):
 
 class IDomainObjectModification(Interface):
     """
-    Receives notification of new, changed and deleted datesets.
+    Receives notification of new, changed and deleted datasets.
     """
 
     def notify(self, entity, operation):
+        pass
+
+    def notify_after_commit(self, entity, operation):
         pass
 
 
@@ -195,10 +205,147 @@ class IResourceUrlChange(Interface):
         pass
 
 
-class IResourcePreview(Interface):
-    '''Add custom data previews for resource file-types.
+class IResourceView(Interface):
+    '''Add custom view renderings for different resource types.
 
     '''
+    def info(self):
+        '''
+        Returns a dictionary with configuration options for the view.
+
+        The available keys are:
+
+        :param name: name of the view type. This should match the name of the
+            actual plugin (eg ``image_view`` or ``recline_view``).
+        :param title: title of the view type, will be displayed on the
+            frontend. This should be translatable (ie wrapped on
+            ``toolkit._('Title')``).
+        :param default_title: default title that will be used if the view is
+            created automatically (optional, defaults to 'View').
+        :param default_description: default description that will be used if
+            the view is created automatically (optional, defaults to '').
+        :param icon: icon for the view type. Should be one of the
+            `Font Awesome`_ types without the `icon-` prefix eg. `compass`
+            (optional, defaults to 'picture').
+        :param always_available: the view type should be always available when
+            creating new views regardless of the format of the resource
+            (optional, defaults to False).
+        :param iframed: the view template should be iframed before rendering.
+            You generally want this option to be True unless the view styles
+            and JavaScript don't clash with the main site theme (optional,
+            defaults to True).
+        :param preview_enabled: the preview button should appear on the edit
+            view form. Some view types have their previews integrated with the
+            form (optional, defaults to False).
+        :param full_page_edit: the edit form should take the full page width
+            of the page (optional, defaults to False).
+        :param schema: schema to validate extra configuration fields for the
+            view (optional). Schemas are defined as a dictionary, with the
+            keys being the field name and the values a list of validator
+            functions that will get applied to the field. For instance::
+
+                {
+                    'offset': [ignore_empty, natural_number_validator],
+                    'limit': [ignore_empty, natural_number_validator],
+                }
+
+        Example configuration object::
+
+            {'name': 'image_view',
+             'title': toolkit._('Image'),
+             'schema': {
+                'image_url': [ignore_empty, unicode]
+             },
+             'icon': 'picture',
+             'always_available': True,
+             'iframed': False,
+             }
+
+        :returns: a dictionary with the view type configuration
+        :rtype: dict
+
+        .. _Font Awesome: http://fortawesome.github.io/Font-Awesome/3.2.1/icons
+        '''
+        return {'name': self.__class__.__name__}
+
+    def can_view(self, data_dict):
+        '''
+        Returns whether the plugin can render a particular resource.
+
+        The ``data_dict`` contains the following keys:
+
+        :param resource: dict of the resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: True if the plugin can render a particular resource, False
+            otherwise
+        :rtype: bool
+        '''
+
+    def setup_template_variables(self, context, data_dict):
+        '''
+        Adds variables to be passed to the template being rendered.
+
+        This should return a new dict instead of updating the input
+        ``data_dict``.
+
+        The ``data_dict`` contains the following keys:
+
+        :param resource_view: dict of the resource view being rendered
+        :param resource: dict of the parent resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: a dictionary with the extra variables to pass
+        :rtype: dict
+        '''
+
+    def view_template(self, context, data_dict):
+        '''
+        Returns a string representing the location of the template to be
+        rendered when the view is displayed
+
+        The path will be relative to the template directory you registered
+        using the :py:func:`~ckan.plugins.toolkit.add_template_directory`
+        on the :py:class:`~ckan.plugins.interfaces.IConfigurer.update_config`
+        method, for instance ``views/my_view.html``.
+
+        :param resource_view: dict of the resource view being rendered
+        :param resource: dict of the parent resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: the location of the view template.
+        :rtype: string
+        '''
+
+    def form_template(self, context, data_dict):
+        '''
+        Returns a string representing the location of the template to be
+        rendered when the edit view form is displayed
+
+        The path will be relative to the template directory you registered
+        using the :py:func:`~ckan.plugins.toolkit.add_template_directory`
+        on the :py:class:`~ckan.plugins.interfaces.IConfigurer.update_config`
+        method, for instance ``views/my_view_form.html``.
+
+        :param resource_view: dict of the resource view being rendered
+        :param resource: dict of the parent resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: the location of the edit view form template.
+        :rtype: string
+        '''
+
+
+class IResourcePreview(Interface):
+    '''
+
+    .. warning:: This interface is deprecated, and is only kept for backwards
+        compatibility with the old resource preview code. Please
+        use :py:class:`~ckan.plugins.interfaces.IResourceView` for writing
+        custom view plugins.
+
+    '''
+
     def can_preview(self, data_dict):
         '''Return info on whether the plugin can preview the resource.
 
@@ -208,14 +355,14 @@ class IResourcePreview(Interface):
 
         2. The new way is to return a dict with  three keys:
 
-           ``'can_preview'`` (``boolean``)
+           * ``can_preview`` (``boolean``)
              ``True`` if the extension can preview the resource.
 
-           ``'fixable'`` (``string``)
+           * ``fixable`` (``string``)
              A string explaining how preview for the resource could be enabled,
              for example if the ``resource_proxy`` plugin was enabled.
 
-           ``'quality'`` (``int``)
+           * ``quality`` (``int``)
              How good the preview is: ``1`` (poor), ``2`` (average) or
              ``3`` (good). When multiple preview extensions can preview the
              same resource, this is used to determine which extension will
@@ -246,7 +393,6 @@ class IResourcePreview(Interface):
         rendered for the read page.
         The ``data_dict`` contains the resource and the package.
         '''
-
 
 class ITagController(Interface):
     '''
@@ -445,10 +591,107 @@ class IResourceController(Interface):
     Hook into the resource controller.
     """
 
+    def before_create(self, context, resource):
+        """
+        Extensions will receive this before a resource is created.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the resource to be added
+            to the dataset (the one that is about to be created).
+        :type resource: dictionary
+        """
+        pass
+
+    def after_create(self, context, resource):
+        """
+        Extensions will receive this after a resource is created.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the latest resource added
+            to the dataset (the one that was just created). A key in the
+            resource dictionary worth mentioning is ``url_type`` which is
+            set to ``upload`` when the resource file is uploaded instead
+            of linked.
+        :type resource: dictionary
+        """
+        pass
+
+    def before_update(self, context, current, resource):
+        """
+        Extensions will receive this before a resource is updated.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param current: The current resource which is about to be updated
+        :type current: dictionary
+        :param resource: An object representing the updated resource which
+            will replace the ``current`` one.
+        :type resource: dictionary
+        """
+        pass
+
+    def after_update(self, context, resource):
+        """
+        Extensions will receive this after a resource is updated.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the updated resource in
+            the dataset (the one that was just updated). As with
+            ``after_create``, a noteworthy key in the resource dictionary
+            ``url_type`` which is set to ``upload`` when the resource file
+            is uploaded instead of linked.
+        :type resource: dictionary
+        """
+        pass
+
+    def before_delete(self, context, resource, resources):
+        """
+        Extensions will receive this before a previously created resource is
+        deleted.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the resource that is about
+            to be deleted. This is a dictionary with one key: ``id`` which
+            holds the id ``string`` of the resource that should be deleted.
+        :type resource: dictionary
+        :param resources: The list of resources from which the resource will
+            be deleted (including the resource to be deleted if it existed
+            in the package).
+        :type resources: list
+        """
+        pass
+
+    def after_delete(self, context, resources):
+        """
+        Extensions will receive this after a previously created resource is
+        deleted.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resources: A list of objects representing the remaining
+            resources after a resource has been removed.
+        :type resource: list
+        """
+        pass
+
     def before_show(self, resource_dict):
         '''
-            Extensions will receive the validated data dict before the resource
-            is ready for display.
+        Extensions will receive the validated data dict before the resource
+        is ready for display.
+
+        Be aware that this method is not only called for UI display, but also
+        in other methods like when a resource is deleted because showing a
+        package is used to get access to the resources in a package.
         '''
         return resource_dict
 
@@ -520,6 +763,25 @@ class IActions(Interface):
         By decorating a function with the `ckan.logic.side_effect_free`
         decorator, the associated action will be made available by a GET
         request (as well as the usual POST request) through the action API.
+        """
+
+
+class IValidators(Interface):
+    """
+    Add extra validators to be returned by
+    :py:func:`ckan.plugins.toolkit.get_validator`.
+    """
+    def get_validators(self):
+        """Return the validator functions provided by this plugin.
+
+        Return a dictionary mapping validator names (strings) to
+        validator functions. For example::
+
+            {'valid_shoe_size': shoe_size_validator,
+             'valid_hair_color': hair_color_validator}
+
+        These validator functions would then be available when a
+        plugin calls :py:func:`ckan.plugins.toolkit.get_validator`.
         """
 
 
@@ -769,13 +1031,13 @@ class IDatasetForm(Interface):
         ``'package/read.html'``.
 
         If the user requests the dataset in a format other than HTML
-        (CKAN supports returning datasets in RDF or N3 format by appending .rdf
-        or .n3 to the dataset read URL, see :doc:`/linked-data-and-rdf`) then
-        CKAN will try to render
-        a template file with the same path as returned by this function,
-        but a different filename extension, e.g. ``'package/read.rdf'``.
-        If your extension doesn't have this RDF version of the template
-        file, the user will get a 404 error.
+        (CKAN supports returning datasets in RDF/XML or N3 format by appending
+        .rdf or .n3 to the dataset read URL, see
+        :doc:`/maintaining/linked-data-and-rdf`) then CKAN will try to render a
+        template file with the same path as returned by this function, but a
+        different filename extension, e.g. ``'package/read.rdf'``.  If your
+        extension doesn't have this RDF version of the template file, the user
+        will get a 404 error.
 
         :rtype: string
 
@@ -814,6 +1076,16 @@ class IDatasetForm(Interface):
 
         '''
 
+    def resource_template(self):
+        '''Return the path to the template for the resource read page.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/resource_read.html'``.
+
+        :rtype: string
+
+        '''
+
     def package_form(self):
         '''Return the path to the template for the dataset form.
 
@@ -823,6 +1095,46 @@ class IDatasetForm(Interface):
         :rtype: string
 
         '''
+
+    def resource_form(self):
+        '''Return the path to the template for the resource form.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/snippets/resource_form.html'``
+
+        :rtype: string
+        '''
+
+    def validate(self, context, data_dict, schema, action):
+        """Customize validation of datasets.
+
+        When this method is implemented it is used to perform all validation
+        for these datasets. The default implementation calls and returns the
+        result from ``ckan.plugins.toolkit.navl_validate``.
+
+        This is an adavanced interface. Most changes to validation should be
+        accomplished by customizing the schemas returned from
+        ``show_package_schema()``, ``create_package_schema()``
+        and ``update_package_schama()``. If you need to have a different
+        schema depending on the user or value of any field stored in the
+        dataset, or if you wish to use a different method for validation, then
+        this method may be used.
+
+        :param context: extra information about the request
+        :type context: dictionary
+        :param data_dict: the dataset to be validated
+        :type data_dict: dictionary
+        :param schema: a schema, typically from ``show_package_schema()``,
+          ``create_package_schema()`` or ``update_package_schama()``
+        :type schema: dictionary
+        :param action: ``'package_show'``, ``'package_create'`` or
+          ``'package_update'``
+        :type action: string
+        :returns: (data_dict, errors) where data_dict is the possibly-modified
+          dataset and errors is a dictionary with keys matching data_dict
+          and lists-of-string-error-messages as values
+        :rtype: (dictionary, dictionary)
+        """
 
 
 class IGroupForm(Interface):
@@ -838,14 +1150,14 @@ class IGroupForm(Interface):
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
-    at once.  With each instance associating itself with 0 or more package
-    type strings.  When a package controller action is invoked, the package
+    at once.  With each instance associating itself with 0 or more group
+    type strings.  When a group controller action is invoked, the group
     type determines which of the registered plugins to delegate to.  Each
     implementation must implement two methods which are used to determine the
-    package-type -> plugin mapping:
+    group-type -> plugin mapping:
 
      - is_fallback(self)
-     - package_types(self)
+     - group_types(self)
 
     Implementations might want to consider mixing in
     ckan.lib.plugins.DefaultGroupForm which provides
@@ -857,8 +1169,8 @@ class IGroupForm(Interface):
 
     def is_fallback(self):
         """
-        Returns true iff this provides the fallback behaviour, when no other
-        plugin instance matches a package's type.
+        Returns true if this provides the fallback behaviour, when no other
+        plugin instance matches a group's type.
 
         There must be exactly one fallback controller defined, any attempt to
         register more than one will throw an exception at startup.  If there's
@@ -870,7 +1182,7 @@ class IGroupForm(Interface):
         """
         Returns an iterable of group type strings.
 
-        If a request involving a package of one of those types is made, then
+        If a request involving a group of one of those types is made, then
         this plugin instance will be delegated to.
 
         There must only be one plugin registered to each group type.  Any
@@ -944,29 +1256,152 @@ class IGroupForm(Interface):
         Add variables to c just prior to the template being rendered.
         """
 
+    def validate(self, context, data_dict, schema, action):
+        """Customize validation of groups.
+
+        When this method is implemented it is used to perform all validation
+        for these groups. The default implementation calls and returns the
+        result from ``ckan.plugins.toolkit.navl_validate``.
+
+        This is an adavanced interface. Most changes to validation should be
+        accomplished by customizing the schemas returned from
+        ``form_to_db_schema()`` and ``db_to_form_schema()``
+        If you need to have a different
+        schema depending on the user or value of any field stored in the
+        group, or if you wish to use a different method for validation, then
+        this method may be used.
+
+        :param context: extra information about the request
+        :type context: dictionary
+        :param data_dict: the group to be validated
+        :type data_dict: dictionary
+        :param schema: a schema, typically from ``form_to_db_schema()``,
+          or ``db_to_form_schama()``
+        :type schema: dictionary
+        :param action: ``'group_show'``, ``'group_create'``,
+          ``'group_update'``, ``'organization_show'``,
+          ``'organization_create'`` or ``'organization_update'``
+        :type action: string
+        :returns: (data_dict, errors) where data_dict is the possibly-modified
+          group and errors is a dictionary with keys matching data_dict
+          and lists-of-string-error-messages as values
+        :rtype: (dictionary, dictionary)
+        """
+
     ##### End of hooks                                                   #####
 
 class IFacets(Interface):
-    ''' Allows specify which facets are displayed and also the names used.
+    '''Customize the search facets shown on search pages.
 
-    facet_dicts are in the form {'facet_name': 'display name', ...}
-    to allow translatable display names use _(...)
-    eg {'facet_name': _('display name'), ...} and ensure that this is
-    created each time the function is called.
+    By implementing this interface plugins can customize the search facets that
+    are displayed for filtering search results on the dataset search page,
+    organization pages and group pages.
 
-    The dict supplied is actually an ordered dict.
+    The ``facets_dict`` passed to each of the functions below is an
+    ``OrderedDict`` in which the keys are CKAN's internal names for the facets
+    and the values are the titles that will be shown for the facets in the web
+    interface. The order of the keys in the dict determine the order that
+    facets appear in on the page.  For example::
+
+        {'groups': _('Groups'),
+         'tags': _('Tags'),
+         'res_format': _('Formats'),
+         'license': _('License')}
+
+    To preserve ordering, make sure to add new facets to the existing dict
+    rather than updating it, ie do this::
+
+        facets_dict['groups'] = p.toolkit._('Publisher')
+        facets_dict['secondary_publisher'] = p.toolkit._('Secondary Publisher')
+
+    rather than this::
+
+        facets_dict.update({
+           'groups': p.toolkit._('Publisher'),
+           'secondary_publisher': p.toolkit._('Secondary Publisher'),
+        })
+
+    Dataset searches can be faceted on any field in the dataset schema that it
+    makes sense to facet on. This means any dataset field that is in CKAN's
+    Solr search index, basically any field that you see returned by
+    :py:func:`~ckan.logic.action.get.package_show`.
+
+    If there are multiple ``IFacets`` plugins active at once, each plugin will
+    be called (in the order that they're listed in the CKAN config file) and
+    they will each be able to modify the facets dict in turn.
+
     '''
-
     def dataset_facets(self, facets_dict, package_type):
-        ''' Update the facets_dict and return it. '''
+        '''Modify and return the ``facets_dict`` for the dataset search page.
+
+        The ``package_type`` is the type of package that these facets apply to.
+        Plugins can provide different search facets for different types of
+        package. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
+
+        :param facets_dict: the search facets as currently specified
+        :type facets_dict: OrderedDict
+
+        :param package_type: the package type that these facets apply to
+        :type package_type: string
+
+        :returns: the updated ``facets_dict``
+        :rtype: OrderedDict
+
+        '''
         return facets_dict
 
     def group_facets(self, facets_dict, group_type, package_type):
-        ''' Update the facets_dict and return it. '''
+        '''Modify and return the ``facets_dict`` for a group's page.
+
+        The ``package_type`` is the type of package that these facets apply to.
+        Plugins can provide different search facets for different types of
+        package. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
+
+        The ``group_type`` is the type of group that these facets apply to.
+        Plugins can provide different search facets for different types of
+        group. See :py:class:`~ckan.plugins.interfaces.IGroupForm`.
+
+        :param facets_dict: the search facets as currently specified
+        :type facets_dict: OrderedDict
+
+        :param group_type: the group type that these facets apply to
+        :type group_type: string
+
+        :param package_type: the package type that these facets apply to
+        :type package_type: string
+
+        :returns: the updated ``facets_dict``
+        :rtype: OrderedDict
+
+        '''
         return facets_dict
 
     def organization_facets(self, facets_dict, organization_type, package_type):
-        ''' Update the facets_dict and return it. '''
+        '''Modify and return the ``facets_dict`` for an organization's page.
+
+        The ``package_type`` is the type of package that these facets apply to.
+        Plugins can provide different search facets for different types of
+        package. See :py:class:`~ckan.plugins.interfaces.IDatasetForm`.
+
+        The ``organization_type`` is the type of organization that these facets
+        apply to.  Plugins can provide different search facets for different
+        types of organization. See
+        :py:class:`~ckan.plugins.interfaces.IGroupForm`.
+
+        :param facets_dict: the search facets as currently specified
+        :type facets_dict: OrderedDict
+
+        :param organization_type: the organization type that these facets apply
+                                  to
+        :type organization_type: string
+
+        :param package_type: the package type that these facets apply to
+        :type package_type: string
+
+        :returns: the updated ``facets_dict``
+        :rtype: OrderedDict
+
+        '''
         return facets_dict
 
 

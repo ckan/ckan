@@ -79,7 +79,7 @@ is_required - Boolean of whether this input is requred for the form to validate
 Examples:
 
   {% import 'macros/form.html' as form %}
-  {{ form.select('year', label=_('Year'), options={2010: 2010, 2011: 2011}, selected=2011, error=errors.year) }}
+  {{ form.select('year', label=_('Year'), options=[{'name':2010, 'value': 2010},{'name': 2011, 'value': 2011}], selected=2011, error=errors.year) }}
 
 #}
 {% macro select(name, id='', label='', options='', selected='', error='', classes=[], attrs={}, is_required=false) %}
@@ -118,11 +118,12 @@ Examples:
 {% macro markdown(name, id='', label='', value='', placeholder='', error="", classes=[], attrs={}, is_required=false) %}
   {% set classes = (classes|list) %}
   {% do classes.append('control-full') %}
+  {% set markdown_tooltip = "<pre><p>__Bold text__ or _italic text_</p><p># title<br>## secondary title<br>### etc</p><p>* list<br>* of<br>* items</p><p>http://auto.link.ed/</p></pre><p><b><a href='http://daringfireball.net/projects/markdown/syntax' target='_blank'>Full markdown syntax</a></b></p><p class='muted'><b>Please note:</b> HTML tags are stripped out for security reasons</p>" %} 
 
   {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error, classes, control_classes=["editor"], extra_html=extra_html, is_required=is_required) %}
     <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
-    <span class="editor-info-block">{% trans %}You can use <a href="http://daringfireball.net/projects/markdown/syntax" target="_blank">Markdown formatting</a> here{% endtrans %}</span>
+    <span class="editor-info-block">{% trans %}You can use <a href="#markdown" title="Markdown quick reference" data-target="popover" data-content="{{ markdown_tooltip }}" data-html="true">Markdown formatting</a> here{% endtrans %}</span>
   {% endcall %}
 {% endmacro %}
 
@@ -145,13 +146,13 @@ Examples:
   {{ form.textarea('desc', id='field-description', label=_('Description'), value=data.desc, error=errors.desc) }}
 
 #}
-{% macro textarea(name, id='', label='', value='', placeholder='', error="", classes=[], attrs={}, is_required=false) %}
+{% macro textarea(name, id='', label='', value='', placeholder='', error="", classes=[], attrs={}, is_required=false, rows=5, cols=20) %}
   {% set classes = (classes|list) %}
   {% do classes.append('control-full') %}
 
   {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required) %}
-    <textarea id="{{ id or name }}" name="{{ name }}" cols="20" rows="5" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
+    <textarea id="{{ id or name }}" name="{{ name }}" cols="{{ cols }}" rows="{{ rows }}" placeholder="{{ placeholder }}" {{ attributes(attrs) }}>{{ value | empty_and_escape }}</textarea>
   {% endcall %}
 {% endmacro %}
 
@@ -219,7 +220,7 @@ Examples:
     error=''
   ) }}
 #}
-{% macro custom(names=(), id="", label="", values=(), placeholders=(), error="", classes=[], attrs={}, is_required=false) %}
+{% macro custom(names=(), id="", label="", values=(), placeholders=(), error="", classes=[], attrs={}, is_required=false, key_values=()) %}
   {%- set classes = (classes|list) -%}
   {%- set label_id = (id or names[0]) ~ "-key" -%}
   {%- set extra_html = caller() if caller -%}

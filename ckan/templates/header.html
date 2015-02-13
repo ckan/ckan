@@ -61,19 +61,24 @@
     </div>
   </header>
 {% endblock %}
-<header class="masthead">
+<header class="navbar navbar-static-top masthead">
   {% block header_debug %}
     {% if g.debug and not g.debug_supress_header %}
       <div class="debug">Controller : {{ c.controller }}<br/>Action : {{ c.action }}</div>
     {% endif %}
   {% endblock %}
   <div class="container">
+    <button data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar" type="button">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
     {# The .header-image class hides the main text and uses image replacement for the title #}
-    <hgroup class="{{ g.header_class }}">
+    <hgroup class="{{ g.header_class }} pull-left">
 
       {% block header_logo %}
         {% if g.site_logo %}
-          <a class="logo" href="{{ h.url('home') }}"><img src="{{ h.url_for_static(g.site_logo) }}" alt="{{ g.site_title }} Logo" title="{{ g.site_title }} Logo" /></a>
+          <a class="logo" href="{{ h.url('home') }}"><img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}" title="{{ g.site_title }}" /></a>
         {% else %}
           <h1>
             <a href="{{ h.url('home') }}">{{ g.site_title }}</a>
@@ -84,7 +89,7 @@
 
     </hgroup>
 
-    <div class="content">
+    <div class="nav-collapse collapse">
 
       {% block header_site_navigation %}
         <nav class="section navigation">
@@ -104,8 +109,8 @@
       {% block header_site_search %}
         <form class="section site-search simple-input" action="{% url_for controller='package', action='search' %}" method="get">
           <div class="field">
-            <label for="field-sitewide-search">{{ _('Search Datasets') }}</label>
-            <input id="field-sitewide-search" type="text" name="q" placeholder="{{ _('Search datasets...') }}" />
+            <label for="field-sitewide-search">{% block header_site_search_label %}{{ _('Search Datasets') }}{% endblock %}</label>
+            <input id="field-sitewide-search" type="text" name="q" placeholder="{{ _('Search') }}" />
             <button class="btn-search" type="submit"><i class="icon-search"></i></button>
           </div>
         </form>

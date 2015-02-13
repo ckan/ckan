@@ -14,12 +14,16 @@ Example:
 
 #}
 
-{% with truncate=truncate or 0, url=h.url_for(controller='organization', action='read', id=organization.name) %}
+{% set truncate = truncate or 0 %}
+{% set url = h.url_for(controller='organization', action='read', id=organization.name) %}
+
+  {% block info %}
   <div class="module module-narrow module-shallow context-info">
     {% if has_context_title %}
       <h2 class="module-heading"><i class="icon-building"></i> {{ _('Organization') }}</h2>
     {% endif %}
     <section class="module-content">
+      {% block inner %}
       {% block image %}
         <div class="image">
           <a href="{{ url }}">
@@ -27,7 +31,14 @@ Example:
           </a>
         </div>
       {% endblock %}
-      <h1 class="heading">{{ organization.title or organization.name }}</h1>
+      {% block heading %}
+      <h1 class="heading">{{ organization.title or organization.name }}
+        {% if organization.state == 'deleted' %}
+          [{{ _('Deleted') }}]
+        {% endif %}
+      </h1>
+      {% endblock %}
+      {% block description %}
       {% if organization.description %}
         <p>
           {{ h.markdown_extract(organization.description, 180) }}
@@ -36,7 +47,9 @@ Example:
       {% else %}
         <p class="empty">{{ _('There is no description for this organization') }}</p>
       {% endif %}
+      {% endblock %}
       {% if show_nums %}
+        {% block nums %}
         <div class="nums">
           <dl>
             <dt>{{ _('Followers') }}</dt>
@@ -47,10 +60,14 @@ Example:
             <dd>{{ h.SI_number_span(organization.package_count) }}</dd>
           </dl>
         </div>
+        {% endblock %}
+        {% block follow %}
         <div class="follow_button">
           {{ h.follow_button('group', organization.id) }}
         </div>
+        {% endblock %}
       {% endif %}
+      {% endblock %}
     </section>
   </div>
-{% endwith %}
+  {% endblock %}

@@ -1,6 +1,5 @@
 import logging
 from urllib import quote
-from urlparse import urlparse
 
 from pylons import config
 
@@ -15,7 +14,7 @@ import ckan.lib.mailer as mailer
 import ckan.lib.navl.dictization_functions as dictization_functions
 import ckan.plugins as p
 
-from ckan.common import _, c, g, request
+from ckan.common import _, c, g, request, response
 
 log = logging.getLogger(__name__)
 
@@ -71,6 +70,7 @@ class UserController(base.BaseController):
             abort(404, _('User not found'))
         except NotAuthorized:
             abort(401, _('Not authorized to see this page'))
+
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
         c.about_formatted = h.render_markdown(user_dict['about'])
@@ -86,7 +86,7 @@ class UserController(base.BaseController):
     def index(self):
         LIMIT = 20
 
-        page = int(request.params.get('page', 1))
+        page = self._get_page_number(request.params)
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
@@ -116,7 +116,9 @@ class UserController(base.BaseController):
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id,
-                     'user_obj': c.userobj}
+                     'user_obj': c.userobj,
+                     'include_datasets': True,
+                     'include_num_followers': True}
 
         context['with_related'] = True
 
@@ -195,6 +197,30 @@ class UserController(base.BaseController):
             msg = _('Unauthorized to delete user with id "{user_id}".')
             abort(401, msg.format(user_id=id))
 
+    def generate_apikey(self, id):
+        '''Cycle the API key of a user'''
+        context = {'model': model,
+                   'session': model.Session,
+                   'user': c.user,
+                   'auth_user_obj': c.userobj,
+                   }
+        if id is None:
+            if c.userobj:
+                id = c.userobj.id
+            else:
+                abort(400, _('No user specified'))
+        data_dict = {'id': id}
+
+        try:
+            result = get_action('user_generate_apikey')(context, data_dict)
+        except NotAuthorized:
+            abort(401, _('Unauthorized to edit user %s') % '')
+        except NotFound:
+            abort(404, _('User not found'))
+
+        h.flash_success(_('Profile updated'))
+        h.redirect_to(controller='user', action='read', id=result['name'])
+
     def _save_new(self, context):
         try:
             data_dict = logic.clean_dict(unflatten(
@@ -217,13 +243,12 @@ class UserController(base.BaseController):
             error_summary = e.error_summary
             return self.new(data_dict, errors, error_summary)
         if not c.user:
-            # Redirect to a URL picked up by repoze.who which performs the
-            # login
-            login_url = self._get_repoze_handler('login_handler_path')
-            h.redirect_to('%s?login=%s&password=%s' % (
-                login_url,
-                str(data_dict['name']),
-                quote(data_dict['password1'].encode('utf-8'))))
+            # log the user in programatically
+            rememberer = request.environ['repoze.who.plugins']['friendlyform']
+            identity = {'repoze.who.userid': data_dict['name']}
+            response.headerlist += rememberer.remember(request.environ,
+                                                       identity)
+            h.redirect_to(controller='user', action='me', __ckan_no_root=True)
         else:
             # #1799 User has managed to register whilst logged in - warn user
             # they are not re-logged in as new user.
@@ -325,11 +350,6 @@ class UserController(base.BaseController):
         if 'error' in request.params:
             h.flash_error(request.params['error'])
 
-        if request.environ['SCRIPT_NAME'] and g.openid_enabled:
-            # #1662 restriction
-            log.warn('Cannot mount CKAN at a URL and login with OpenID.')
-            g.openid_enabled = False
-
         if not c.user:
             came_from = request.params.get('came_from')
             if not came_from:
@@ -349,7 +369,7 @@ class UserController(base.BaseController):
     def logged_in(self):
         # redirect if needed
         came_from = request.params.get('came_from', '')
-        if self._sane_came_from(came_from):
+        if h.url_is_local(came_from):
             return h.redirect_to(str(came_from))
 
         if c.user:
@@ -358,14 +378,9 @@ class UserController(base.BaseController):
 
             user_dict = get_action('user_show')(context, data_dict)
 
-            h.flash_success(_("%s is now logged in") %
-                            user_dict['display_name'])
             return self.me()
         else:
             err = _('Login failed. Bad username or password.')
-            if g.openid_enabled:
-                err += _(' (Or if using OpenID, it hasn\'t been associated '
-                         'with a user account.)')
             if h.asbool(config.get('ckan.legacy_templates', 'false')):
                 h.flash_error(err)
                 h.redirect_to(controller='user',
@@ -385,7 +400,7 @@ class UserController(base.BaseController):
     def logged_out(self):
         # redirect if needed
         came_from = request.params.get('came_from', '')
-        if self._sane_came_from(came_from):
+        if h.url_is_local(came_from):
             return h.redirect_to(str(came_from))
         h.redirect_to(controller='user', action='logged_out_page')
 
@@ -527,7 +542,8 @@ class UserController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj,
                    'for_view': True}
-        data_dict = {'id': id, 'user_obj': c.userobj}
+        data_dict = {'id': id, 'user_obj': c.userobj,
+                     'include_num_followers': True}
         try:
             check_access('user_show', context, data_dict)
         except NotAuthorized:
@@ -557,13 +573,14 @@ class UserController(base.BaseController):
                 'user': c.user or c.author, 'auth_user_obj': c.userobj,
                 'for_view': True
             }
-            data_dict = {'id': filter_id}
+            data_dict = {'id': filter_id, 'include_num_followers': True}
             followee = None
 
             action_functions = {
                 'dataset': 'package_show',
                 'user': 'user_show',
-                'group': 'group_show'
+                'group': 'group_show',
+                'organization': 'organization_show',
             }
             action_function = logic.get_action(
                 action_functions.get(filter_type))
@@ -647,18 +664,18 @@ class UserController(base.BaseController):
                    'session': model.Session,
                    'user': c.user or c.author,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             get_action('follow_user')(context, data_dict)
             user_dict = get_action('user_show')(context, data_dict)
             h.flash_success(_("You are now following {0}").format(
                 user_dict['display_name']))
         except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
+            error_message = (e.message or e.error_summary
                              or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
-            h.flash_error(e.extra_msg)
+            h.flash_error(e.message)
         h.redirect_to(controller='user', action='read', id=id)
 
     def unfollow(self, id):
@@ -667,28 +684,17 @@ class UserController(base.BaseController):
                    'session': model.Session,
                    'user': c.user or c.author,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             get_action('unfollow_user')(context, data_dict)
             user_dict = get_action('user_show')(context, data_dict)
             h.flash_success(_("You are no longer following {0}").format(
                 user_dict['display_name']))
         except (NotFound, NotAuthorized) as e:
-            error_message = e.extra_msg or e.message
+            error_message = e.message
             h.flash_error(error_message)
         except ValidationError as e:
-            error_message = (e.error_summary or e.message or e.extra_msg
+            error_message = (e.error_summary or e.message
                              or e.error_dict)
             h.flash_error(error_message)
         h.redirect_to(controller='user', action='read', id=id)
-
-    def _sane_came_from(self, url):
-        '''Returns True if came_from is local'''
-        if not url or (len(url) >= 2 and url.startswith('//')):
-            return False
-        parsed = urlparse(url)
-        if parsed.scheme:
-            domain = urlparse(h.url_for('/', qualified=True)).netloc
-            if domain != parsed.netloc:
-                return False
-        return True

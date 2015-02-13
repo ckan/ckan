@@ -1,10 +1,18 @@
-'''Unit tests for ckan/logic/auth.update.py.
+'''Unit tests for ckan/logic/auth/update.py.
 
 '''
 import mock
+import nose
+
+import ckan.logic as logic
+import ckan.model as model
+import ckan.plugins as p
 
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
+
+
+assert_equals = nose.tools.assert_equals
 
 
 class TestUpdate(object):
@@ -32,13 +40,9 @@ class TestUpdate(object):
             'id': fred.id,
             'name': 'updated_user_name',
         }
-        result = helpers.call_auth('user_update', context=context, **params)
 
-        assert result['success'] is False
-        # FIXME: This is a terrible error message, containing both 127.0.0.1
-        # and Fred's user id (not his name).
-        assert result['msg'] == ('User 127.0.0.1 not authorized to edit user '
-                                 'fred_user_id')
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'user_update', context=context, **params)
 
     ## START-AFTER
 
@@ -69,14 +73,11 @@ class TestUpdate(object):
             'id': fred.id,
             'name': 'updated_user_name',
         }
-        result = helpers.call_auth('user_update', context=context, **params)
 
         # 3. Make assertions about the return value and/or side-effects.
 
-        assert result['success'] is False
-        # FIXME: This error message should contain Fred's user name not his id.
-        assert result['msg'] == ('User bob not authorized to edit user '
-                                 'fred_user_id')
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'user_update', context=context, **params)
 
         # 4. Do nothing else!
 
@@ -107,9 +108,9 @@ class TestUpdate(object):
             'id': fred.id,
             'name': 'updated_user_name',
         }
-        result = helpers.call_auth('user_update', context=context, **params)
 
-        assert result['success'] is True
+        result = helpers.call_auth('user_update', context=context, **params)
+        assert result is True
 
     def test_user_update_with_no_user_in_context(self):
 
@@ -132,10 +133,133 @@ class TestUpdate(object):
             'id': mock_user.id,
             'name': 'updated_user_name',
         }
-        result = helpers.call_auth('user_update', context=context, **params)
 
-        assert result['success'] is False
-        # FIXME: Be nice if this error message was a complete sentence.
-        assert result['msg'] == 'Have to be logged in to edit user'
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'user_update', context=context, **params)
 
-    # TODO: Tests for user_update's reset_key behavior.
+    def test_user_generate_own_apikey(self):
+        fred = factories.MockUser(name='fred')
+        mock_model = mock.MagicMock()
+        mock_model.User.get.return_value = fred
+        # auth_user_obj shows user as logged in for non-anonymous auth
+        # functions
+        context = {'model': mock_model, 'auth_user_obj': fred}
+        context['user'] = fred.name
+        params = {
+            'id': fred.id,
+        }
+
+        result = helpers.call_auth('user_generate_apikey', context=context,
+                                   **params)
+        assert result is True
+
+    def test_user_generate_apikey_without_logged_in_user(self):
+        fred = factories.MockUser(name='fred')
+        mock_model = mock.MagicMock()
+        mock_model.User.get.return_value = fred
+        context = {'model': mock_model}
+        context['user'] = None
+        params = {
+            'id': fred.id,
+        }
+
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'user_generate_apikey', context=context,
+                                 **params)
+
+    def test_user_generate_apikey_for_another_user(self):
+        fred = factories.MockUser(name='fred')
+        bob = factories.MockUser(name='bob')
+        mock_model = mock.MagicMock()
+        mock_model.User.get.return_value = fred
+        # auth_user_obj shows user as logged in for non-anonymous auth
+        # functions
+        context = {'model': mock_model, 'auth_user_obj': bob}
+        context['user'] = bob.name
+        params = {
+            'id': fred.id,
+        }
+
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'user_generate_apikey', context=context,
+                                 **params)
+
+
+class TestUpdateResourceViews(object):
+
+    @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+        helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+
+    def test_anon_can_not_update(self):
+
+        resource_view = factories.ResourceView()
+
+        params = {'id': resource_view['id'],
+                  'title': 'Resource View Updated',
+                  'view_type': 'image_view',
+                  'image_url': 'url'}
+
+        context = {'user': None, 'model': model}
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'resource_view_update', context=context,
+                                 **params)
+
+    def test_authorized_if_user_has_permissions_on_dataset(self):
+
+        user = factories.User()
+
+        dataset = factories.Dataset(user=user)
+
+        resource = factories.Resource(user=user, package_id=dataset['id'])
+
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        params = {'id': resource_view['id'],
+                  'resource_id': resource['id'],
+                  'title': 'Resource View Updated',
+                  'view_type': 'image_view',
+                  'image_url': 'url'}
+
+        context = {'user': user['name'], 'model': model}
+        response = helpers.call_auth('resource_view_update', context=context,
+                                     **params)
+
+        assert_equals(response, True)
+
+    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
+
+        org = factories.Organization()
+
+        user = factories.User()
+
+        member = {'username': user['name'],
+                  'role': 'admin',
+                  'id': org['id']}
+        helpers.call_action('organization_member_create', **member)
+
+        user_2 = factories.User()
+
+        dataset = factories.Dataset(owner_org=org['id'])
+
+        resource = factories.Resource(package_id=dataset['id'])
+
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        params = {'id': resource_view['id'],
+                  'resource_id': resource['id'],
+                  'title': 'Resource View Updated',
+                  'view_type': 'image_view',
+                  'image_url': 'url'}
+
+        context = {'user': user_2['name'], 'model': model}
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'resource_view_update', context=context,
+                                 **params)

@@ -1,19 +1,18 @@
-__version__ = '2.2a'
+__version__ = '2.4a'
 
-__description__ = 'Comprehensive Knowledge Archive Network (CKAN) Software'
+__description__ = 'CKAN Software'
 __long_description__ = \
-'''CKAN software provides a hub for datasets. The flagship site running CKAN 
+'''CKAN software provides a hub for datasets. The flagship site running CKAN
 is theDataHub.org but it is also used for dozens of other open data websites
 run by governments, agencies and citizens.
 
-CKAN provides a place to search for open knowledge resources as well as 
-register your own - be that a set of Shakespeare's works, a global 
-population density database, the voting records of MPs, or 30 years of 
+CKAN provides a place to search for open knowledge resources as well as
+register your own - be that a set of Shakespeare's works, a global
+population density database, the voting records of MPs, or 30 years of
 US patents.
 
-CKAN is an abbreviation for 'Comprehensive Knowledge Archive Network'. 
 Those familiar with Freshmeat or CPAN can think of CKAN as providing an
-analogous service for open data and knowledge. 
+analogous service for open data and knowledge.
 '''
 __license__ = 'AGPL'
 
