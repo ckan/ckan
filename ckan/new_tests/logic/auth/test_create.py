@@ -278,7 +278,7 @@ class TestCreateDefaultResourceViewsOnDataset(object):
 
         context = {'user': None, 'model': core_model}
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
-                                 'package_create_default_dataset_views',
+                                 'package_create_default_resource_views',
                                  context=context,
                                  package=dataset)
 
