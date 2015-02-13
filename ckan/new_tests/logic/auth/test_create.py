@@ -179,6 +179,110 @@ class TestCreateResourceViews(object):
                                  **resource_view)
 
 
+class TestCreateDefaultResourceViewsOnResource(object):
+
+    @classmethod
+    def setup_class(cls):
+
+        helpers.reset_db()
+
+    def test_authorized_if_user_has_permissions_on_dataset(self):
+
+        user = factories.User()
+
+        dataset = factories.Dataset(user=user)
+
+        resource = factories.Resource(user=user, package_id=dataset['id'])
+
+        context = {'user': user['name'], 'model': core_model}
+        response = helpers.call_auth('resource_create_default_resource_views',
+                                     context=context, resource=resource)
+        assert_equals(response, True)
+
+    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
+
+        org = factories.Organization()
+
+        user = factories.User()
+
+        member = {'username': user['name'],
+                  'role': 'admin',
+                  'id': org['id']}
+        helpers.call_action('organization_member_create', **member)
+
+        user_2 = factories.User()
+
+        dataset = factories.Dataset(owner_org=org['id'])
+
+        resource = factories.Resource(package_id=dataset['id'])
+
+        context = {'user': user_2['name'], 'model': core_model}
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'resource_create_default_resource_views',
+                                 context=context,
+                                 resource=resource)
+
+    def test_not_authorized_if_not_logged_in(self):
+        dataset = factories.Dataset()
+
+        resource = factories.Resource(package_id=dataset['id'])
+
+        context = {'user': None, 'model': core_model}
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'resource_create_default_resource_views',
+                                 context=context,
+                                 resource=resource)
+
+
+class TestCreateDefaultResourceViewsOnDataset(object):
+
+    @classmethod
+    def setup_class(cls):
+
+        helpers.reset_db()
+
+    def test_authorized_if_user_has_permissions_on_dataset(self):
+
+        user = factories.User()
+
+        dataset = factories.Dataset(user=user)
+
+        context = {'user': user['name'], 'model': core_model}
+        response = helpers.call_auth('dataset_create_default_resource_views',
+                                     context=context, package=dataset)
+        assert_equals(response, True)
+
+    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
+
+        org = factories.Organization()
+
+        user = factories.User()
+
+        member = {'username': user['name'],
+                  'role': 'admin',
+                  'id': org['id']}
+        helpers.call_action('organization_member_create', **member)
+
+        user_2 = factories.User()
+
+        dataset = factories.Dataset(owner_org=org['id'])
+
+        context = {'user': user_2['name'], 'model': core_model}
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'dataset_create_default_resource_views',
+                                 context=context,
+                                 package=dataset)
+
+    def test_not_authorized_if_not_logged_in(self):
+        dataset = factories.Dataset()
+
+        context = {'user': None, 'model': core_model}
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'dataset_create_default_dataset_views',
+                                 context=context,
+                                 package=dataset)
+
+
 class TestCreateResources(object):
 
     @classmethod
