@@ -259,8 +259,9 @@ class TestGet(object):
 
     def test_organization_list(self):
 
-        org1 = factories.Organization()
-        org2 = factories.Organization()
+        user = factories.User()
+        org1 = factories.Organization(user=user)
+        org2 = factories.Organization(user=user)
 
         org_list = helpers.call_action('organization_list')
 
@@ -299,7 +300,7 @@ class TestGet(object):
 
     def test_organization_show(self):
 
-        org = factories.Organization()
+        org = factories.Organization(user=factories.User())
 
         org_dict = helpers.call_action('organization_show', id=org['id'])
 
@@ -323,9 +324,8 @@ class TestGet(object):
 
     def test_organization_show_packages_returned(self):
 
-        user_name = helpers.call_action('get_site_user')['name']
-
-        org = factories.Organization()
+        user = factories.User()
+        org = factories.Organization(user=user)
 
         datasets = [
             {'name': 'dataset_1', 'owner_org': org['name']},
@@ -334,7 +334,7 @@ class TestGet(object):
 
         for dataset in datasets:
             helpers.call_action('package_create',
-                                context={'user': user_name},
+                                context={'user': user['name']},
                                 **dataset)
 
         org_dict = helpers.call_action('organization_show', id=org['id'])
@@ -344,9 +344,8 @@ class TestGet(object):
 
     def test_organization_show_private_packages_not_returned(self):
 
-        user_name = helpers.call_action('get_site_user')['name']
-
-        org = factories.Organization()
+        user = factories.User()
+        org = factories.Organization(user=user)
 
         datasets = [
             {'name': 'dataset_1', 'owner_org': org['name']},
@@ -355,7 +354,7 @@ class TestGet(object):
 
         for dataset in datasets:
             helpers.call_action('package_create',
-                                context={'user': user_name},
+                                context={'user': user['name']},
                                 **dataset)
 
         org_dict = helpers.call_action('organization_show', id=org['id'])

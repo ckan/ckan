@@ -43,18 +43,21 @@ class TestFactories(object):
         assert_not_equals(sysadmin1['id'], sysadmin2['id'])
 
     def test_group_factory(self):
-        group1 = factories.Group()
-        group2 = factories.Group()
+        user = factories.User()
+        group1 = factories.Group(user=user)
+        group2 = factories.Group(user=user)
         assert_not_equals(group1['id'], group2['id'])
 
     def test_organization_factory(self):
-        organization1 = factories.Organization()
-        organization2 = factories.Organization()
+        user = factories.User()
+        organization1 = factories.Organization(user=user)
+        organization2 = factories.Organization(user=user)
         assert_not_equals(organization1['id'], organization2['id'])
 
     def test_related_factory(self):
-        related1 = factories.Related()
-        related2 = factories.Related()
+        user = factories.User()
+        related1 = factories.Related(user=user)
+        related2 = factories.Related(user=user)
         assert_not_equals(related1['id'], related2['id'])
 
     def test_dataset_factory(self):
