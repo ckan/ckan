@@ -1,6 +1,7 @@
 import sys
 import logging
 import shlex
+import re
 
 import pylons
 import sqlalchemy.engine.url as sa_url
@@ -21,6 +22,22 @@ _get_or_bust = logic.get_or_bust
 DEFAULT_FORMATS = []
 
 ValidationError = p.toolkit.ValidationError
+
+
+def _is_legacy_mode(config):
+    '''
+        Decides if the DataStore should run on legacy mode
+
+        Returns True if `ckan.datastore.read_url` is not set in the provided
+        config object or CKAN is running on Postgres < 9.x
+    '''
+    write_url = config.get('ckan.datastore.write_url')
+
+    engine = db._get_engine({'connection_url': write_url})
+    connection = engine.connect()
+
+    return (not config.get('ckan.datastore.read_url') or
+            not db._pg_version_is_at_least(connection, '9.0'))
 
 
 class DatastoreException(Exception):
@@ -62,7 +79,7 @@ class DatastorePlugin(p.SingletonPlugin):
         # Legacy mode means that we have no read url. Consequently sql search is not
         # available and permissions do not have to be changed. In legacy mode, the
         # datastore runs on PG prior to 9.0 (for example 8.4).
-        self.legacy_mode = 'ckan.datastore.read_url' not in self.config
+        self.legacy_mode = _is_legacy_mode(self.config)
 
         datapusher_formats = config.get('datapusher.formats', '').split()
         self.datapusher_formats = datapusher_formats or DEFAULT_FORMATS
@@ -226,6 +243,7 @@ class DatastorePlugin(p.SingletonPlugin):
                    'datastore_upsert': action.datastore_upsert,
                    'datastore_delete': action.datastore_delete,
                    'datastore_search': action.datastore_search,
+                   'datastore_info': action.datastore_info,
                   }
         if not self.legacy_mode:
             actions.update({
@@ -238,6 +256,7 @@ class DatastorePlugin(p.SingletonPlugin):
         return {'datastore_create': auth.datastore_create,
                 'datastore_upsert': auth.datastore_upsert,
                 'datastore_delete': auth.datastore_delete,
+                'datastore_info': auth.datastore_info,
                 'datastore_search': auth.datastore_search,
                 'datastore_search_sql': auth.datastore_search_sql,
                 'datastore_change_permissions': auth.datastore_change_permissions}
@@ -257,6 +276,9 @@ class DatastorePlugin(p.SingletonPlugin):
                 action='dump', resource_id=resource_dict['id'])
 
         connection = None
+
+        resource_dict['datastore_active'] = False
+
         try:
             connection = self.read_engine.connect()
             result = connection.execute(
@@ -265,8 +287,6 @@ class DatastorePlugin(p.SingletonPlugin):
             ).fetchone()
             if result:
                 resource_dict['datastore_active'] = True
-            else:
-                resource_dict['datastore_active'] = False
         finally:
             if connection:
                 connection.close()
@@ -310,7 +330,7 @@ class DatastorePlugin(p.SingletonPlugin):
         sort_clauses = data_dict.get('sort')
         if sort_clauses:
             invalid_clauses = [c for c in sort_clauses
-                               if not self._is_valid_sort(c, fields_types)]
+                               if not self._parse_sort_clause(c, fields_types)]
             data_dict['sort'] = invalid_clauses
 
         limit = data_dict.get('limit')
@@ -330,25 +350,21 @@ class DatastorePlugin(p.SingletonPlugin):
 
         return data_dict
 
-    def _is_valid_sort(self, clause, fields_types):
-        clause = clause.encode('utf-8')
-        clause_parts = shlex.split(clause)
+    def _parse_sort_clause(self, clause, fields_types):
+        clause = ' '.join(shlex.split(clause.encode('utf-8')))
+        clause_match = re.match('^(.+?)( +(asc|desc) *)?$', clause, re.I)
 
-        if len(clause_parts) == 1:
-            field, sort = clause_parts[0], 'asc'
-        elif len(clause_parts) == 2:
-            field, sort = clause_parts
-        else:
+        if not clause_match:
             return False
+
+        field = clause_match.group(1)
+        sort = (clause_match.group(3) or 'asc').lower()
 
         field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
-
         if field not in fields_types:
             return False
-        if sort.lower() not in ('asc', 'desc'):
-            return False
 
-        return True
+        return field, sort
 
     def datastore_delete(self, context, data_dict, fields_types, query_dict):
         query_dict['where'] += self._where(data_dict, fields_types)
@@ -402,21 +418,29 @@ class DatastorePlugin(p.SingletonPlugin):
         q = data_dict.get('q')
         if q:
             if isinstance(q, basestring):
-                clause = (u'_full_text @@ {0}'.format(self._ts_query_alias()),)
-                clauses.append(clause)
+                ts_query_alias = self._ts_query_alias()
+                clause_str = u'_full_text @@ {0}'.format(ts_query_alias)
+                clauses.append((clause_str,))
             elif isinstance(q, dict):
+                lang = self._fts_lang(data_dict.get('lang'))
                 for field, value in q.iteritems():
                     if field not in fields_types:
                         continue
                     query_field = self._ts_query_alias(field)
-                    clause_str = u'"{0}" @@ {1}'.format(field, query_field)
-                    clause = (clause_str, value)
-                    clauses.append(clause)
+
+                    ftyp = fields_types[field]
+                    if not datastore_helpers.should_fts_index_field_type(ftyp):
+                        clause_str = u'_full_text @@ {0}'.format(query_field)
+                        clauses.append((clause_str,))
+
+                    clause_str = (u'to_tsvector(\'{0}\', cast("{1}" as text)) '
+                                  u'@@ {2}').format(lang, field, query_field)
+                    clauses.append((clause_str,))
 
         return clauses
 
     def _is_array_type(self, field_type):
-                return field_type.startswith('_')
+        return field_type.startswith('_')
 
     def _sort(self, data_dict, fields_types):
         sort = data_dict.get('sort')
@@ -436,25 +460,14 @@ class DatastorePlugin(p.SingletonPlugin):
         clause_parsed = []
 
         for clause in clauses:
-            clause = clause.encode('utf-8')
-            clause_parts = shlex.split(clause)
-            if len(clause_parts) == 1:
-                field, sort = clause_parts[0], 'asc'
-            elif len(clause_parts) == 2:
-                field, sort = clause_parts
-
-            field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
-
+            field, sort = self._parse_sort_clause(clause, fields_types)
             clause_parsed.append(u'"{0}" {1}'.format(field, sort))
 
         return clause_parsed
 
     def _textsearch_query(self, data_dict):
         q = data_dict.get('q')
-        default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
-        if default_fts_lang is None:
-            default_fts_lang = u'english'
-        lang = data_dict.get(u'lang', default_fts_lang)
+        lang = self._fts_lang(data_dict.get('lang'))
 
         if not q:
             return '', ''
@@ -481,6 +494,12 @@ class DatastorePlugin(p.SingletonPlugin):
         rank_columns_str = ', ' + ', '.join(rank_columns)
         return statements_str, rank_columns_str
 
+    def _fts_lang(self, lang=None):
+        default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
+        if default_fts_lang is None:
+            default_fts_lang = u'english'
+        return lang or default_fts_lang
+
     def _build_query_and_rank_statements(self, lang, query, plain, field=None):
         query_alias = self._ts_query_alias(field)
         rank_alias = self._ts_rank_alias(field)
@@ -491,7 +510,8 @@ class DatastorePlugin(p.SingletonPlugin):
         if field is None:
             rank_field = '_full_text'
         else:
-            rank_field = 'to_tsvector("%s")' % field
+            rank_field = u'to_tsvector(\'{lang}\', cast("{field}" as text))'
+            rank_field = rank_field.format(lang=lang, field=field)
         rank_statement = u'ts_rank({rank_field}, {query_alias}, 32) AS {alias}'
         statement = statement.format(lang=lang, query=query, alias=query_alias)
         rank_statement = rank_statement.format(rank_field=rank_field,

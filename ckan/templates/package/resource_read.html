@@ -30,7 +30,7 @@
             {% if h.check_access('package_update', {'id':pkg.id }) %}
               <li>{% link_for _('Manage'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
             {% endif %}
-            {% if res.url %}
+            {% if res.url and h.is_url(res.url) %}
               <li>
                 <a class="btn btn-primary resource-url-analytics resource-type-{{ res.resource_type }}" href="{{ res.url }}">
                   {% if res.resource_type in ('listing', 'service') %}
@@ -55,8 +55,10 @@
         {% block resource_content %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
           {% block resource_read_url %}
-            {% if res.url %}
+            {% if res.url and h.is_url(res.url) %}
               <p class="muted ellipsis">{{ _('URL:') }} <a href="{{ res.url }}" title="{{ res.url }}">{{ res.url }}</a></p>
+            {% elif res.url %}
+              <p class="muted ellipsis">{{ _('URL:') }} {{ res.url }}</p>
             {% endif %}
           {% endblock %}
           <div class="prose notes" property="rdfs:label">
@@ -73,26 +75,24 @@
       </div>
       {% block data_preview %}
       {% block resource_view %}
+        {% block resource_view_nav %}
+          {% set resource_preview = h.resource_preview(c.resource, c.package) %}
+          {% snippet "package/snippets/resource_views_list.html",
+             views=resource_views,
+             pkg=pkg,
+             is_edit=false,
+             view_id=current_resource_view['id'],
+             resource_preview=resource_preview,
+             resource=c.resource,
+             extra_class="nav-tabs-plain"
+           %}
+        {% endblock %}
         <div class="module-content">
-          {% block resource_view_nav %}
-            {% set resource_preview = h.resource_preview(c.resource, c.package) %}
-            {% snippet "package/snippets/resource_views_list.html",
-               views=resource_views,
-               pkg=pkg,
-               is_edit=false,
-               extra_class='stacked',
-               view_id=current_resource_view['id'],
-               resource_preview=resource_preview,
-               resource=c.resource
-             %}
-          {% endblock %}
           {% block resource_view_content %}
             <div class="resource-view">
               {% set resource_preview = h.resource_preview(c.resource, c.package) %}
               {% set views_created = res.has_views or resource_preview %}
-              {% if not views_created %}
-                {{ _("There're no views created for this resource yet.") }}
-              {% else %}
+              {% if views_created %}
                 {% if resource_preview and not current_resource_view %}
                   {{ h.resource_preview(c.resource, c.package) }}
                 {% else %}
@@ -106,6 +106,27 @@
                     {% endif %}
                   {% endfor %}
                 {% endif %}
+              {% else %}
+                {# Views not created #}
+                <div class="module-content data-viewer-info">
+                  <p>{{ _("There are no views created for this resource yet.") }}</p>
+                  {% if h.check_access('resource_view_create', {'resource_id': c.resource.id}) %}
+                    <p class="muted">
+                      <i class="icon-info-sign"></i>
+                      {{ _("Not seeing the views you were expecting?")}}
+                      <a href="javascript:void(0);" data-toggle="collapse" data-target="#data-view-info">
+                        {{ _('Click here for more information.') }}</a>
+                    </p>
+                    <div id="data-view-info" class="collapse">
+                      <p>{{ _('Here are some reasons you may not be seeing expected views:') }}</p>
+                      <ul>
+                        <li>{{ _("No view has been created that is suitable for this resource")}}</li>
+                        <li>{{ _("The site administrators may not have enabled the relevant view plugins")}}</li>
+                        <li>{{ _("If a view requires the DataStore, the DataStore plugin may not be enabled, or the data may not have been pushed to the DataStore, or the DataStore hasn't finished processing the data yet")}}</li>
+                      </ul>
+                    </div>
+                  {% endif %}
+                </div>
               {% endif %}
             </div>
           {% endblock %}

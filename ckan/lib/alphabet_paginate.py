@@ -47,7 +47,7 @@ class AlphaPage(object):
         self.controller_name = controller_name
 
         self.letters = [char for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'] + [self.other_text]
-        
+
         # Work out which alphabet letters are 'available' i.e. have some results
         # because we grey-out those which aren't.
         self.available = dict( (c,0,) for c in self.letters )

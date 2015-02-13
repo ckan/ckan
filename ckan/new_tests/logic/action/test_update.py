@@ -6,6 +6,7 @@ import mock
 import pylons.config as config
 
 import ckan.logic as logic
+import ckan.plugins as p
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
@@ -424,6 +425,61 @@ class TestUpdate(object):
                                            "http://c.html",
                                            "http://a.html"]
 
+    def test_update_dataset_cant_change_type(self):
+        user = factories.User()
+        dataset = factories.Dataset(
+            type='dataset',
+            name='unchanging',
+            user=user)
+
+        dataset = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            name='unchanging',
+            type='cabinet')
+
+        assert_equals(dataset['type'], 'dataset')
+        assert_equals(
+            helpers.call_action('package_show', id='unchanging')['type'],
+            'dataset')
+
+    def test_update_organization_cant_change_type(self):
+        user = factories.User()
+        context = {'user': user['name']}
+        org = factories.Organization(
+            type='organization',
+            name='unchanging',
+            user=user)
+
+        org = helpers.call_action(
+            'organization_update',
+            context=context,
+            id=org['id'],
+            name='unchanging',
+            type='ragtagband')
+
+        assert_equals(org['type'], 'organization')
+        assert_equals(helpers.call_action(
+            'organization_show', id='unchanging')['type'],
+            'organization')
+
+    def test_update_group_cant_change_type(self):
+        user = factories.User()
+        context = {'user': user['name']}
+        group = factories.Group(type='group', name='unchanging', user=user)
+
+        group = helpers.call_action(
+            'group_update',
+            context=context,
+            id=group['id'],
+            name='unchanging',
+            type='favouritecolour')
+
+        assert_equals(group['type'], 'group')
+        assert_equals(
+            helpers.call_action('group_show', id='unchanging')['type'],
+            'group')
+
 
 class TestUpdateSendEmailNotifications(object):
     @classmethod
@@ -452,7 +508,14 @@ class TestUpdateSendEmailNotifications(object):
 class TestResourceViewUpdate(object):
 
     @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+    @classmethod
     def teardown_class(cls):
+        p.unload('image_view')
+
         helpers.reset_db()
 
     def setup(cls):
@@ -471,6 +534,25 @@ class TestResourceViewUpdate(object):
         assert_equals(result['title'], params['title'])
         assert_equals(result['description'], params['description'])
 
+    @mock.patch('ckan.lib.datapreview')
+    def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(self, datapreview_mock):
+        filterable_view = mock.MagicMock()
+        filterable_view.info.return_value = {'filterable': True}
+        datapreview_mock.get_view_plugin.return_value = filterable_view
+        resource_view = factories.ResourceView()
+        context = {}
+        params = {
+            'id': resource_view['id'],
+            'filter_fields': ['country', 'weather', 'country'],
+            'filter_values': ['Brazil', 'warm', 'Argentina']
+        }
+        result = helpers.call_action('resource_view_update', context, **params)
+        expected_filters = {
+            'country': ['Brazil', 'Argentina'],
+            'weather': ['warm']
+        }
+        assert_equals(result['filters'], expected_filters)
+
     def test_resource_view_update_requires_id(self):
         params = {}
 
@@ -486,3 +568,59 @@ class TestResourceViewUpdate(object):
         nose.tools.assert_raises(logic.NotFound,
                                  helpers.call_action,
                                  'resource_view_update', **params)
+
+    def test_resource_view_list_reorder(self):
+
+        resource_view_1 = factories.ResourceView(title='View 1')
+
+        resource_id = resource_view_1['resource_id']
+
+        resource_view_2 = factories.ResourceView(resource_id=resource_id,
+                                                 title='View 2')
+
+        resource_view_list = helpers.call_action('resource_view_list', id=resource_id)
+
+        assert_equals(resource_view_list[0]['title'], 'View 1')
+        assert_equals(resource_view_list[1]['title'], 'View 2')
+
+        # Reorder views
+
+        result = helpers.call_action('resource_view_reorder',
+                                     id=resource_id,
+                                     order=[resource_view_2['id'], resource_view_1['id']])
+        assert_equals(result['order'], [resource_view_2['id'], resource_view_1['id']])
+
+        resource_view_list = helpers.call_action('resource_view_list', id=resource_id)
+
+        assert_equals(resource_view_list[0]['title'], 'View 2')
+        assert_equals(resource_view_list[1]['title'], 'View 1')
+
+    def test_resource_view_list_reorder_just_one_id(self):
+
+        resource_view_1 = factories.ResourceView(title='View 1')
+
+        resource_id = resource_view_1['resource_id']
+
+        resource_view_2 = factories.ResourceView(resource_id=resource_id,
+                                                 title='View 2')
+
+        # Reorder Views back just by specifiying a single view to go first
+
+        result = helpers.call_action('resource_view_reorder',
+                                     id=resource_id,
+                                     order=[resource_view_2['id']])
+        assert_equals(result['order'], [resource_view_2['id'], resource_view_1['id']])
+
+        resource_view_list = helpers.call_action('resource_view_list', id=resource_id)
+
+        assert_equals(resource_view_list[0]['title'], 'View 2')
+        assert_equals(resource_view_list[1]['title'], 'View 1')
+
+    def test_calling_with_only_id_doesnt_update_anything(self):
+        resource_view = factories.ResourceView()
+        params = {
+            'id': resource_view['id']
+        }
+
+        result = helpers.call_action('resource_view_update', **params)
+        assert_equals(result, resource_view)

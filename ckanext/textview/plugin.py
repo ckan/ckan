@@ -7,7 +7,7 @@ import ckan.lib.datapreview as datapreview
 
 log = logging.getLogger(__name__)
 
-DEFAULT_TEXT_FORMATS = ['text/plain', 'txt', 'plain', 'csv', 'tsv']
+DEFAULT_TEXT_FORMATS = ['text/plain', 'txt', 'plain']
 DEFAULT_XML_FORMATS = ['xml', 'rdf', 'rdf+xm', 'owl+xml', 'atom', 'rss']
 DEFAULT_JSON_FORMATS = ['json', 'gjson', 'geojson']
 DEFAULT_JSONP_FORMATS = ['jsonp']
@@ -19,7 +19,6 @@ class TextView(p.SingletonPlugin):
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IConfigurable, inherit=True)
     p.implements(p.IResourceView, inherit=True)
-    p.implements(p.IPackageController, inherit=True)
 
     proxy_is_enabled = False
     text_formats = []
@@ -50,7 +49,11 @@ class TextView(p.SingletonPlugin):
         p.toolkit.add_resource('theme/public', 'ckanext-textview')
 
     def info(self):
-        return {'name': 'text', 'title': 'Text', 'icon': 'file-text-alt'}
+        return {'name': 'text_view',
+                'title': p.toolkit._('Text'),
+                'icon': 'file-text-alt',
+                'default_title': p.toolkit._('Text'),
+                }
 
     def can_view(self, data_dict):
         resource = data_dict['resource']
@@ -60,8 +63,7 @@ class TextView(p.SingletonPlugin):
         if format_lower in self.jsonp_formats:
             return True
         if format_lower in self.no_jsonp_formats:
-            if proxy_enabled or same_domain:
-                return True
+            return proxy_enabled or same_domain
         return False
 
     def setup_template_variables(self, context, data_dict):
@@ -84,28 +86,3 @@ class TextView(p.SingletonPlugin):
 
     def form_template(self, context, data_dict):
         return 'text_form.html'
-
-    def add_default_views(self, context, data_dict):
-        resources = datapreview.get_new_resources(context, data_dict)
-        for resource in resources:
-            if self.can_view({'package': data_dict, 'resource': resource}):
-                format = resource.get('format', '')
-                if format.lower() in ['csv', 'tsv']:
-                    continue
-                view = {
-                    'title': 'Text View',
-                    'description': 'View of the {format} file'.format(
-                        format=format.upper()
-                    ),
-                    'resource_id': resource['id'],
-                    'view_type': 'text'
-                }
-                p.toolkit.get_action('resource_view_create')(
-                    {'defer_commit': True}, view
-                )
-
-    def after_update(self, context, data_dict):
-        self.add_default_views(context, data_dict)
-
-    def after_create(self, context, data_dict):
-        self.add_default_views(context, data_dict)

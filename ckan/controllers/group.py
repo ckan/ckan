@@ -160,7 +160,7 @@ class GroupController(base.BaseController):
 
         c.page = h.Page(
             collection=results,
-            page=request.params.get('page', 1),
+            page = self._get_page_number(request.params),
             url=h.pager_url,
             items_per_page=21
         )
@@ -217,15 +217,11 @@ class GroupController(base.BaseController):
         # if we drop support for those then we can delete this line.
         c.group_admins = new_authz.get_group_or_org_admin_ids(c.group.id)
 
-        try:
-            page = int(request.params.get('page', 1))
-        except ValueError, e:
-            abort(400, ('"page" parameter must be an integer'))
+        page = self._get_page_number(request.params)
 
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
                          if k != 'page']
-        #sort_by = request.params.get('sort', 'name asc')
         sort_by = request.params.get('sort', None)
 
         def search_url(params):
@@ -364,6 +360,9 @@ class GroupController(base.BaseController):
 
         group_type = self._get_group_type(id.split('@')[0])
 
+        if group_type is None:
+            abort(404, _('Organization not found'))
+
         if group_type != 'organization':
             # FIXME: better error
             raise Exception('Must be an organization')
@@ -379,7 +378,7 @@ class GroupController(base.BaseController):
         try:
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
-            context['include_datasets'] = False
+            data_dict['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
@@ -471,12 +470,13 @@ class GroupController(base.BaseController):
                    'for_edit': True,
                    'parent': request.params.get('parent', None)
                    }
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_datasets': False}
 
         if context['save'] and not data:
             return self._save_edit(id, context)
 
         try:
+            data_dict['include_datasets'] = False
             old_data = self._action('group_show')(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
@@ -626,7 +626,9 @@ class GroupController(base.BaseController):
             c.members = self._action('member_list')(
                 context, {'id': id, 'object_type': 'user'}
             )
-            c.group_dict = self._action('group_show')(context, {'id': id})
+            data_dict = {'id': id}
+            data_dict['include_datasets'] = False
+            c.group_dict = self._action('group_show')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
@@ -639,12 +641,21 @@ class GroupController(base.BaseController):
 
         #self._check_access('group_delete', context, {'id': id})
         try:
+            data_dict = {'id': id}
+            data_dict['include_datasets'] = False
+            c.group_dict = self._action('group_show')(context, data_dict)
+            group_type = 'organization' if c.group_dict['is_organization'] else 'group'
+            c.roles = self._action('member_roles_list')(
+                context, {'group_type': group_type}
+            )
+
             if request.method == 'POST':
                 data_dict = clean_dict(dict_fns.unflatten(
                     tuplize_dict(parse_params(request.params))))
                 data_dict['id'] = id
 
                 email = data_dict.get('email')
+
                 if email:
                     user_data_dict = {
                         'email': email,
@@ -657,6 +668,8 @@ class GroupController(base.BaseController):
                     data_dict['username'] = user_dict['name']
 
                 c.group_dict = self._action('group_member_create')(context, data_dict)
+
+
                 self._redirect_to(controller='group', action='members', id=id)
             else:
                 user = request.params.get('user')
@@ -665,11 +678,6 @@ class GroupController(base.BaseController):
                     c.user_role = new_authz.users_role_for_group_or_org(id, user) or 'member'
                 else:
                     c.user_role = 'member'
-                c.group_dict = self._action('group_show')(context, {'id': id})
-                group_type = 'organization' if c.group_dict['is_organization'] else 'group'
-                c.roles = self._action('member_roles_list')(
-                    context, {'group_type': group_type}
-                )
         except NotAuthorized:
             abort(401, _('Unauthorized to add member to group %s') % '')
         except NotFound:
@@ -814,11 +822,11 @@ class GroupController(base.BaseController):
             h.flash_success(_("You are now following {0}").format(
                 group_dict['title']))
         except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
+            error_message = (e.message or e.error_summary
                              or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
-            h.flash_error(e.extra_msg)
+            h.flash_error(e.message)
         h.redirect_to(controller='group', action='read', id=id)
 
     def unfollow(self, id):
@@ -833,11 +841,11 @@ class GroupController(base.BaseController):
             h.flash_success(_("You are no longer following {0}").format(
                 group_dict['title']))
         except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
+            error_message = (e.message or e.error_summary
                              or e.error_dict)
             h.flash_error(error_message)
         except (NotFound, NotAuthorized) as e:
-            error_message = e.extra_msg or e.message
+            error_message = e.message
             h.flash_error(error_message)
         h.redirect_to(controller='group', action='read', id=id)
 
@@ -872,44 +880,8 @@ class GroupController(base.BaseController):
                    'user': c.user or c.author,
                    'for_view': True}
         try:
-            return self._action('group_show')(context, {'id': id})
+            return self._action('group_show')(context, {'id': id, 'include_datasets': False})
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
-
-    def _render_edit_form(self, fs):
-        # errors arrive in c.error and fs.errors
-        c.fieldset = fs
-        return render('group/edit_form.html')
-
-    def _update(self, fs, group_name, group_id):
-        '''
-        Writes the POST data (associated with a group edit) to the database
-        @input c.error
-        '''
-        validation = fs.validate()
-        if not validation:
-            c.form = self._render_edit_form(fs)
-            raise base.ValidationException(fs)
-
-        try:
-            fs.sync()
-        except Exception, inst:
-            model.Session.rollback()
-            raise
-        else:
-            model.Session.commit()
-
-    def _update_authz(self, fs):
-        validation = fs.validate()
-        if not validation:
-            c.form = self._render_edit_form(fs)
-            raise base.ValidationException(fs)
-        try:
-            fs.sync()
-        except Exception, inst:
-            model.Session.rollback()
-            raise
-        else:
-            model.Session.commit()

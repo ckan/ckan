@@ -13,7 +13,7 @@ __all__ = [
     'IPackageController', 'IPluginObserver',
     'IConfigurable', 'IConfigurer',
     'IActions', 'IResourceUrlChange', 'IDatasetForm',
-    'IValidators', 'IConverters',
+    'IValidators',
     'IResourcePreview',
     'IResourceView',
     'IResourceController',
@@ -192,6 +192,9 @@ class IDomainObjectModification(Interface):
     def notify(self, entity, operation):
         pass
 
+    def notify_after_commit(self, entity, operation):
+        pass
+
 
 class IResourceUrlChange(Interface):
     """
@@ -203,78 +206,146 @@ class IResourceUrlChange(Interface):
 
 
 class IResourceView(Interface):
-    '''Add custom data view for resource file-types.
+    '''Add custom view renderings for different resource types.
 
     '''
     def info(self):
         '''
-        Return configuration for the view. Info can return the following.
+        Returns a dictionary with configuration options for the view.
 
-        :param name: name of view type
-        :param title: title of view type (Optional)
-        :param schema: schema to validate extra view config (Optional)
-        :param icon: icon from
-            http://fortawesome.github.io/Font-Awesome/3.2.1/icons/
-            without the icon- prefix eg. compass (Optional).
-        :param iframed: should we iframe the view template before rendering.
-            If the styles or JavaScript clash with the main site theme this
-            should be set to true. Default is true. (Optional)
-        :param preview_enabled:
-            Says if the preview button appears for this resource. Some preview
-            types have their  previews integrated with the form.
-            Some preview types have their previews integrated with the form.
-            Default false (Optional)
-        :param full_page_edit:  Says if the edit form is the full page width
-            of the page. Default false (Optional)
+        The available keys are:
 
-        eg:
-            {'name': 'image',
-             'title': 'Image',
-             'schema': {'image_url': [ignore_empty, unicode]},
-             'icon': 'compass',
-             'iframed': false,
+        :param name: name of the view type. This should match the name of the
+            actual plugin (eg ``image_view`` or ``recline_view``).
+        :param title: title of the view type, will be displayed on the
+            frontend. This should be translatable (ie wrapped on
+            ``toolkit._('Title')``).
+        :param default_title: default title that will be used if the view is
+            created automatically (optional, defaults to 'View').
+        :param default_description: default description that will be used if
+            the view is created automatically (optional, defaults to '').
+        :param icon: icon for the view type. Should be one of the
+            `Font Awesome`_ types without the `icon-` prefix eg. `compass`
+            (optional, defaults to 'picture').
+        :param always_available: the view type should be always available when
+            creating new views regardless of the format of the resource
+            (optional, defaults to False).
+        :param iframed: the view template should be iframed before rendering.
+            You generally want this option to be True unless the view styles
+            and JavaScript don't clash with the main site theme (optional,
+            defaults to True).
+        :param preview_enabled: the preview button should appear on the edit
+            view form. Some view types have their previews integrated with the
+            form (optional, defaults to False).
+        :param full_page_edit: the edit form should take the full page width
+            of the page (optional, defaults to False).
+        :param schema: schema to validate extra configuration fields for the
+            view (optional). Schemas are defined as a dictionary, with the
+            keys being the field name and the values a list of validator
+            functions that will get applied to the field. For instance::
+
+                {
+                    'offset': [ignore_empty, natural_number_validator],
+                    'limit': [ignore_empty, natural_number_validator],
+                }
+
+        Example configuration object::
+
+            {'name': 'image_view',
+             'title': toolkit._('Image'),
+             'schema': {
+                'image_url': [ignore_empty, unicode]
+             },
+             'icon': 'picture',
+             'always_available': True,
+             'iframed': False,
              }
 
+        :returns: a dictionary with the view type configuration
+        :rtype: dict
+
+        .. _Font Awesome: http://fortawesome.github.io/Font-Awesome/3.2.1/icons
         '''
         return {'name': self.__class__.__name__}
 
     def can_view(self, data_dict):
-        '''Return info on whether the plugin can preview the resource.
-        The ``data_dict`` contains: ``resource`` and ``package``.
+        '''
+        Returns whether the plugin can render a particular resource.
 
-        return ``True`` or ``False``.
+        The ``data_dict`` contains the following keys:
+
+        :param resource: dict of the resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: True if the plugin can render a particular resource, False
+            otherwise
+        :rtype: bool
         '''
 
     def setup_template_variables(self, context, data_dict):
         '''
-        Add variables to the ``data_dict`` that is passed to the
-        template being rendered.
-        Should return a new dict instead of updating the input ``data_dict``.
+        Adds variables to be passed to the template being rendered.
 
-        The ``data_dict`` contains: ``resource_view``, ``resource`` and
-        ``package``.
+        This should return a new dict instead of updating the input
+        ``data_dict``.
+
+        The ``data_dict`` contains the following keys:
+
+        :param resource_view: dict of the resource view being rendered
+        :param resource: dict of the parent resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: a dictionary with the extra variables to pass
+        :rtype: dict
         '''
 
     def view_template(self, context, data_dict):
         '''
         Returns a string representing the location of the template to be
-        rendered when the view is rendered.
+        rendered when the view is displayed
 
-        The ``data_dict`` contains: ``resource_view``, ``resource`` and
-        ``package``.
+        The path will be relative to the template directory you registered
+        using the :py:func:`~ckan.plugins.toolkit.add_template_directory`
+        on the :py:class:`~ckan.plugins.interfaces.IConfigurer.update_config`
+        method, for instance ``views/my_view.html``.
+
+        :param resource_view: dict of the resource view being rendered
+        :param resource: dict of the parent resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: the location of the view template.
+        :rtype: string
         '''
 
     def form_template(self, context, data_dict):
         '''
         Returns a string representing the location of the template to be
-        rendered for the read page.
+        rendered when the edit view form is displayed
 
-        The ``data_dict`` contains: ``resource_view``, ``resource`` and
-        ``package``.
+        The path will be relative to the template directory you registered
+        using the :py:func:`~ckan.plugins.toolkit.add_template_directory`
+        on the :py:class:`~ckan.plugins.interfaces.IConfigurer.update_config`
+        method, for instance ``views/my_view_form.html``.
+
+        :param resource_view: dict of the resource view being rendered
+        :param resource: dict of the parent resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: the location of the edit view form template.
+        :rtype: string
         '''
 
+
 class IResourcePreview(Interface):
-    ''' For backwards compatibility with the old resource preview code. '''
+    '''
+
+    .. warning:: This interface is deprecated, and is only kept for backwards
+        compatibility with the old resource preview code. Please
+        use :py:class:`~ckan.plugins.interfaces.IResourceView` for writing
+        custom view plugins.
+
+    '''
+
     def can_preview(self, data_dict):
         '''Return info on whether the plugin can preview the resource.
 
@@ -284,14 +355,14 @@ class IResourcePreview(Interface):
 
         2. The new way is to return a dict with  three keys:
 
-           ``'can_preview'`` (``boolean``)
+           * ``can_preview`` (``boolean``)
              ``True`` if the extension can preview the resource.
 
-           ``'fixable'`` (``string``)
+           * ``fixable`` (``string``)
              A string explaining how preview for the resource could be enabled,
              for example if the ``resource_proxy`` plugin was enabled.
 
-           ``'quality'`` (``int``)
+           * ``quality`` (``int``)
              How good the preview is: ``1`` (poor), ``2`` (average) or
              ``3`` (good). When multiple preview extensions can preview the
              same resource, this is used to determine which extension will
@@ -520,10 +591,107 @@ class IResourceController(Interface):
     Hook into the resource controller.
     """
 
+    def before_create(self, context, resource):
+        """
+        Extensions will receive this before a resource is created.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the resource to be added
+            to the dataset (the one that is about to be created).
+        :type resource: dictionary
+        """
+        pass
+
+    def after_create(self, context, resource):
+        """
+        Extensions will receive this after a resource is created.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the latest resource added
+            to the dataset (the one that was just created). A key in the
+            resource dictionary worth mentioning is ``url_type`` which is
+            set to ``upload`` when the resource file is uploaded instead
+            of linked.
+        :type resource: dictionary
+        """
+        pass
+
+    def before_update(self, context, current, resource):
+        """
+        Extensions will receive this before a resource is updated.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param current: The current resource which is about to be updated
+        :type current: dictionary
+        :param resource: An object representing the updated resource which
+            will replace the ``current`` one.
+        :type resource: dictionary
+        """
+        pass
+
+    def after_update(self, context, resource):
+        """
+        Extensions will receive this after a resource is updated.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the updated resource in
+            the dataset (the one that was just updated). As with
+            ``after_create``, a noteworthy key in the resource dictionary
+            ``url_type`` which is set to ``upload`` when the resource file
+            is uploaded instead of linked.
+        :type resource: dictionary
+        """
+        pass
+
+    def before_delete(self, context, resource, resources):
+        """
+        Extensions will receive this before a previously created resource is
+        deleted.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resource: An object representing the resource that is about
+            to be deleted. This is a dictionary with one key: ``id`` which
+            holds the id ``string`` of the resource that should be deleted.
+        :type resource: dictionary
+        :param resources: The list of resources from which the resource will
+            be deleted (including the resource to be deleted if it existed
+            in the package).
+        :type resources: list
+        """
+        pass
+
+    def after_delete(self, context, resources):
+        """
+        Extensions will receive this after a previously created resource is
+        deleted.
+
+        :param context: The context object of the current request, this
+            includes for example access to the ``model`` and the ``user``.
+        :type context: dictionary
+        :param resources: A list of objects representing the remaining
+            resources after a resource has been removed.
+        :type resource: list
+        """
+        pass
+
     def before_show(self, resource_dict):
         '''
-            Extensions will receive the validated data dict before the resource
-            is ready for display.
+        Extensions will receive the validated data dict before the resource
+        is ready for display.
+
+        Be aware that this method is not only called for UI display, but also
+        in other methods like when a resource is deleted because showing a
+        package is used to get access to the resources in a package.
         '''
         return resource_dict
 
@@ -614,26 +782,6 @@ class IValidators(Interface):
 
         These validator functions would then be available when a
         plugin calls :py:func:`ckan.plugins.toolkit.get_validator`.
-        """
-
-
-class IConverters(Interface):
-    """
-    Add extra converters to be returned by
-    :py:func:`ckan.plugins.toolkit.get_converter`.
-
-    """
-    def get_converters(self):
-        """Return the converter functions provided by this plugin.
-
-        Return a dictionary mapping converter names (strings) to
-        converter functions. For example::
-
-            {'truncate_words': word_truncator,
-             'insert_links': link_inserter}
-
-        These converter functions would then be available when a
-        plugin calls :py:func:`ckan.plugins.toolkit.get_converter`.
         """
 
 
@@ -883,8 +1031,8 @@ class IDatasetForm(Interface):
         ``'package/read.html'``.
 
         If the user requests the dataset in a format other than HTML
-        (CKAN supports returning datasets in RDF or N3 format by appending .rdf
-        or .n3 to the dataset read URL, see
+        (CKAN supports returning datasets in RDF/XML or N3 format by appending
+        .rdf or .n3 to the dataset read URL, see
         :doc:`/maintaining/linked-data-and-rdf`) then CKAN will try to render a
         template file with the same path as returned by this function, but a
         different filename extension, e.g. ``'package/read.rdf'``.  If your
@@ -928,6 +1076,16 @@ class IDatasetForm(Interface):
 
         '''
 
+    def resource_template(self):
+        '''Return the path to the template for the resource read page.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/resource_read.html'``.
+
+        :rtype: string
+
+        '''
+
     def package_form(self):
         '''Return the path to the template for the dataset form.
 
@@ -936,6 +1094,15 @@ class IDatasetForm(Interface):
 
         :rtype: string
 
+        '''
+
+    def resource_form(self):
+        '''Return the path to the template for the resource form.
+
+        The path should be relative to the plugin's templates dir, e.g.
+        ``'package/snippets/resource_form.html'``
+
+        :rtype: string
         '''
 
     def validate(self, context, data_dict, schema, action):
@@ -983,14 +1150,14 @@ class IGroupForm(Interface):
      - setup_template_variables(self, context, data_dict)
 
     Furthermore, there can be many implementations of this plugin registered
-    at once.  With each instance associating itself with 0 or more package
-    type strings.  When a package controller action is invoked, the package
+    at once.  With each instance associating itself with 0 or more group
+    type strings.  When a group controller action is invoked, the group
     type determines which of the registered plugins to delegate to.  Each
     implementation must implement two methods which are used to determine the
-    package-type -> plugin mapping:
+    group-type -> plugin mapping:
 
      - is_fallback(self)
-     - package_types(self)
+     - group_types(self)
 
     Implementations might want to consider mixing in
     ckan.lib.plugins.DefaultGroupForm which provides
@@ -1002,8 +1169,8 @@ class IGroupForm(Interface):
 
     def is_fallback(self):
         """
-        Returns true iff this provides the fallback behaviour, when no other
-        plugin instance matches a package's type.
+        Returns true if this provides the fallback behaviour, when no other
+        plugin instance matches a group's type.
 
         There must be exactly one fallback controller defined, any attempt to
         register more than one will throw an exception at startup.  If there's
@@ -1015,7 +1182,7 @@ class IGroupForm(Interface):
         """
         Returns an iterable of group type strings.
 
-        If a request involving a package of one of those types is made, then
+        If a request involving a group of one of those types is made, then
         this plugin instance will be delegated to.
 
         There must only be one plugin registered to each group type.  Any

@@ -36,7 +36,6 @@ class _Toolkit(object):
         'ObjectNotFound',       # action not found exception
                                 # (ckan.logic.NotFound)
         'NotAuthorized',        # action not authorized exception
-        'UnknownConverter',     # convertor not found exception
         'UnknownValidator',     # validator not found exception
         'ValidationError',      # model update validation error
         'Invalid',              # validation invalid exception
@@ -52,7 +51,6 @@ class _Toolkit(object):
         'auth_sysadmins_check', # allow auth functions to be checked for sysadmins
         'auth_allow_anonymous_access', # allow anonymous access to an auth function
         'auth_disallow_anonymous_access', # disallow anonymous access to an auth function
-        'get_new_resources', # gets all new resources in current commit
 
         ## Fully defined in this file ##
         'add_template_directory',
@@ -158,7 +156,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['literal'] = webhelpers.html.tags.literal
 
         t['get_action'] = logic.get_action
-        t['get_converter'] = logic.get_converter
+        t['get_converter'] = logic.get_validator  # For backwards compatibility
         t['get_validator'] = logic.get_validator
         t['check_access'] = logic.check_access
         t['navl_validate'] = dictization_functions.validate
@@ -166,7 +164,6 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['ObjectNotFound'] = logic.NotFound  # Name change intentional
         t['NotAuthorized'] = logic.NotAuthorized
         t['ValidationError'] = logic.ValidationError
-        t['UnknownConverter'] = logic.UnknownConverter
         t['UnknownValidator'] = logic.UnknownValidator
         t['Invalid'] = logic_validators.Invalid
 
@@ -190,7 +187,6 @@ content type, cookies, etc.
         t['auth_sysadmins_check'] = logic.auth_sysadmins_check
         t['auth_allow_anonymous_access'] = logic.auth_allow_anonymous_access
         t['auth_disallow_anonymous_access'] = logic.auth_disallow_anonymous_access
-        t['get_new_resources'] = datapreview.get_new_resources
 
         # class functions
         t['render_snippet'] = self._render_snippet
@@ -364,7 +360,7 @@ content type, cookies, etc.
         else:
             if name == '__bases__':
                 return self.__class__.__bases__
-            raise Exception('`%s` not found in plugins toolkit' % name)
+            raise AttributeError('`%s` not found in plugins toolkit' % name)
 
     def __dir__(self):
         if not self._toolkit:

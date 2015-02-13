@@ -168,7 +168,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             approved or not. It may be that we want to tie the object
             status to the approval status
         """
-        assert status in ["approved", "pending", "denied"]
+        assert status in ["approved", "denied"]
         self.approval_status = status
         if status == "denied":
             pass
@@ -197,9 +197,9 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
         :rtype: a list of tuples, each one a Group ID, name and title and then
         the ID of its parent group.
 
-        e.g. 
+        e.g.
         >>> dept-health.get_children_group_hierarchy()
-        [(u'8ac0...', u'national-health-service', u'National Health Service', u'e041...'), 
+        [(u'8ac0...', u'national-health-service', u'National Health Service', u'e041...'),
          (u'b468...', u'nhs-wirral-ccg', u'NHS Wirral CCG', u'8ac0...')]
         '''
         results = meta.Session.query(Group.id, Group.name, Group.title,
@@ -264,10 +264,9 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
 
     def packages(self, with_private=False, limit=None,
             return_query=False, context=None):
-        '''Return this group's active and pending packages.
+        '''Return this group's active packages.
 
-        Returns all packages in this group with VDM revision state ACTIVE or
-        PENDING.
+        Returns all packages in this group with VDM revision state ACTIVE
 
         :param with_private: if True, include the group's private packages
         :type with_private: boolean
@@ -299,9 +298,7 @@ class Group(vdm.sqlalchemy.RevisionedObjectMixin,
             user_is_org_member = len(query.all()) != 0
 
         query = meta.Session.query(_package.Package).\
-            filter(
-                or_(_package.Package.state == core.State.ACTIVE,
-                    _package.Package.state == core.State.PENDING)). \
+            filter(_package.Package.state == core.State.ACTIVE).\
             filter(group_table.c.id == self.id).\
             filter(member_table.c.state == 'active')
 

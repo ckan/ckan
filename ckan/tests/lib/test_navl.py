@@ -180,7 +180,7 @@ def test_basic_errors():
 
     converted_data, errors = validate_flattened(data, schema)
 
-    assert errors == {('__junk',): [u'The input field __junk was not expected.'], ('1',): [u'Missing value'], ('__extras',): [u'The input field __extras was not expected.']}, errors
+    assert errors == {('__junk',): [u"The input field [('4', 1, '30')] was not expected."], ('1',): [u'Missing value'], ('__extras',): [u'The input field __extras was not expected.']}, errors
 
 def test_default():
     schema = {

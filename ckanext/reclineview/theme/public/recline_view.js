@@ -17,7 +17,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
       this.options.resourceView = JSON.parse(this.options.resourceView);
       this.el.ready(this._onReady);
       // hack to make leaflet use a particular location to look for images
-      L.Icon.Default.imagePath = this.options.site_url + 'vendor/leaflet/0.4.4/images';
+      L.Icon.Default.imagePath = this.options.site_url + 'vendor/leaflet/0.7.3/images';
     },
 
     _onReady: function() {
@@ -49,23 +49,36 @@ this.ckan.module('recline_view', function (jQuery, _) {
 
       var errorMsg, dataset;
 
-      resourceData.backend =  'ckan';
-      resourceData.endpoint = jQuery('body').data('site-root') + 'api';
+      if (!resourceData.datastore_active) {
+          recline.Backend.DataProxy.timeout = 10000;
+          resourceData.backend =  'dataproxy';
+      } else {
+          resourceData.backend =  'ckan';
+          resourceData.endpoint = jQuery('body').data('site-root') + 'api';
+      }
 
       dataset = new recline.Model.Dataset(resourceData);
 
       var query = new recline.Model.Query();
       query.set({ size: reclineView.limit || 100 });
       query.set({ from: reclineView.offset || 0 });
-      if (window.parent.ckan.views && window.parent.ckan.views.viewhelpers) {
-        $.each(window.parent.ckan.views.viewhelpers.filters.get(), function (field,values) {
+      if (window.parent.ckan.views && window.parent.ckan.views.filters) {
+        var defaultFilters = reclineView.filters || {},
+            urlFilters = window.parent.ckan.views.filters.get(),
+            filters = $.extend({}, defaultFilters, urlFilters);
+        $.each(filters, function (field,values) {
           query.addFilter({type: 'term', field: field, term: values});
         });
       }
 
-      dataset.query(query);
+      dataset.queryState.set(query.toJSON(), {silent: true});
 
-      errorMsg = this.options.i18n.errorLoadingPreview + ': ' + this.options.i18n.errorDataStore;
+      errorMsg = this.options.i18n.errorLoadingPreview + ': '
+      if (resourceData.backend == 'ckan') {
+        errorMsg += this.options.i18n.errorDataStore;
+      } else if (resourceData.backend == 'dataproxy'){
+        errorMsg += this.options.i18n.errorDataProxy;
+      }
       dataset.fetch()
         .done(function(dataset){
             self.initializeView(dataset, reclineView);

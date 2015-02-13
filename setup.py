@@ -38,8 +38,10 @@ entry_points = {
         'minify = ckan.lib.cli:MinifyCommand',
         'less = ckan.lib.cli:LessCommand',
         'datastore = ckanext.datastore.commands:SetupDatastoreCommand',
+        'datapusher = ckanext.datapusher.cli:DatapusherCommand',
         'front-end-build = ckan.lib.cli:FrontEndBuildCommand',
         'views = ckan.lib.cli:ViewsCommand',
+        'config-tool = ckan.lib.cli:ConfigToolCommand',
     ],
     'console_scripts': [
         'ckan-admin = bin.ckan_admin:Command',
@@ -65,6 +67,7 @@ entry_points = {
         'multilingual_dataset = ckanext.multilingual.plugin:MultilingualDataset',
         'multilingual_group = ckanext.multilingual.plugin:MultilingualGroup',
         'multilingual_tag = ckanext.multilingual.plugin:MultilingualTag',
+        'multilingual_resource = ckanext.multilingual.plugin:MultilingualResource',    
         'organizations = ckanext.organizations.forms:OrganizationForm',
         'organizations_dataset = ckanext.organizations.forms:OrganizationDatasetForm',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
@@ -77,6 +80,8 @@ entry_points = {
         'recline_grid_view = ckanext.reclineview.plugin:ReclineGridView',
         'recline_graph_view = ckanext.reclineview.plugin:ReclineGraphView',
         'recline_map_view = ckanext.reclineview.plugin:ReclineMapView',
+        'image_view = ckanext.imageview.plugin:ImageView',
+        'webpage_view = ckanext.webpageview.plugin:WebPageView',
         # FIXME: Remove deprecated resource previews below. You should use the
         # versions as *_view instead.
         'text_preview = ckanext.textview.plugin:TextView',
@@ -120,13 +125,11 @@ entry_points = {
         'example_theme_v20_pubsub = ckanext.example_theme.v20_pubsub.plugin:ExampleThemePlugin',
         'example_theme_v21_custom_jquery_plugin = ckanext.example_theme.v21_custom_jquery_plugin.plugin:ExampleThemePlugin',
         'example_theme_custom_config_setting = ckanext.example_theme.custom_config_setting.plugin:ExampleThemePlugin',
-        'example_ivalidators = ckanext.example_ivalidators_iconverters.plugin:ExampleIValidatorsPlugin',
-        'example_iconverters = ckanext.example_ivalidators_iconverters.plugin:ExampleIConvertersPlugin',
+        'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',
+        'example_ivalidators = ckanext.example_ivalidators.plugin:ExampleIValidatorsPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
-        'image_view = ckanext.imageview.plugin:ImageView',
-        'webpage_view = ckanext.webpageview.plugin:WebPageView',
     ],
     'ckan.test_plugins': [
         'routes_plugin = tests.ckantestplugins:RoutesPlugin',
@@ -141,7 +144,9 @@ entry_points = {
         'test_package_controller_plugin = tests.ckantestplugins:MockPackageControllerPlugin',
         'test_resource_preview = tests.ckantestplugins:MockResourcePreviewExtension',
         'test_json_resource_preview = tests.ckantestplugins:JsonMockResourcePreviewExtension',
-        'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin'
+        'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
+        'test_datastore_view = ckan.new_tests.lib.test_datapreview:MockDatastoreBasedResourceView',
+
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',
