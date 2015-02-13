@@ -153,6 +153,23 @@ with read permissions only. The format is the same as in :ref:`sqlalchemy.url`.
 
 .. end_config-datastore-urls
 
+.. _ckan.datastore.sqlalchemy:
+
+ckan.datastore.sqlalchemy.*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.sqlalchemy.pool_size=10
+ ckan.datastore.sqlalchemy.max_overflow=20
+
+Custom sqlalchemy config parameters used to establish the DataStore
+database connection.
+
+To get the list of all the available properties check the `SQLAlchemy documentation`_ 
+
+.. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
+
 .. _ckan.datastore.default_fts_lang:
 
 ckan.datastore.default_fts_lang
@@ -681,6 +698,9 @@ Default value:  ``True``
 
 This controls if we'll use the 1 day cache for stats.
 
+
+.. _ckan.resource_proxy.max_file_size:
+
 ckan.resource_proxy.max_file_size
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1002,7 +1022,7 @@ Example::
 
  ckan.views.default_views = image_view webpage_view recline_grid_view
 
-Default value: ``image_view``
+Default value: ``image_view recline_view``
 
 Defines the resource views that should be created by default when creating or
 updating a dataset. From this list only the views that are relevant to a particular
@@ -1018,6 +1038,44 @@ default views are created.
 
         ckan.views.default_views = image_view webpage_view recline_grid_view
 
+.. _ckan.preview.json_formats:
+
+ckan.preview.json_formats
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.preview.json_formats = json
+
+Default value: ``json``
+
+JSON based resource formats that will be rendered by the Text view plugin (``text_view``)
+
+.. _ckan.preview.xml_formats:
+
+ckan.preview.xml_formats
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.preview.xml_formats = xml rdf rss
+
+Default value: ``xml rdf rdf+xml owl+xml atom rss``
+
+XML based resource formats that will be rendered by the Text view plugin (``text_view``)
+
+.. _ckan.preview.text_formats:
+
+ckan.preview.text_formats
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.preview.text_formats = text plain
+
+Default value: ``text plain text/plain``
+
+Plain text based resource formats that will be rendered by the Text view plugin (``text_view``)
 
 .. end_resource-views
 

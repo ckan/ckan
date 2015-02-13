@@ -18,7 +18,7 @@ from ckan.common import _
 log = logging.getLogger(__name__)
 
 
-DEFAULT_RESOURCE_VIEW_TYPES = ['image_view']
+DEFAULT_RESOURCE_VIEW_TYPES = ['image_view', 'recline_view']
 
 
 def res_format(resource):
@@ -138,32 +138,6 @@ def get_allowed_view_plugins(data_dict):
                 plugin.can_view(data_dict)):
             can_view.append(plugin)
     return can_view
-
-
-# TODO: remove
-def get_new_resources(context, data_dict):
-    '''
-    Returns a list of all new resources in this transaction
-
-    This is to be used only before commiting eg on `package_create` or
-    `package_update` as it uses a cache object stored in the Session and
-    filled on flushig it.
-
-    The `context` dict must contain a `model` key
-
-    Returns a list of new dictized resources.
-    '''
-    model = context['model']
-    session = model.Session()
-    session.flush()
-    if hasattr(session, '_object_cache'):
-        import ckan.lib.dictization.model_dictize as model_dictize
-        new_objs = session._object_cache['new']
-        new_resources = [obj for obj in new_objs
-                         if isinstance(obj, model.Resource)]
-        return model_dictize.resource_list_dictize(new_resources, context)
-    else:
-        return []
 
 
 def get_default_view_plugins(get_datastore_views=False):
