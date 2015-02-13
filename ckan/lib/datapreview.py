@@ -222,8 +222,8 @@ def add_views_to_resource(context,
     By default only view plugins that don't require the resource data to be in
     the DataStore are called. This is only relevant when the default view
     plugins are used, not when explicitly passing view types. See
-    ``add_default_views_to_dataset_resources`` for details on the
-    ``create_datastore_views`` parameter.
+    :py:func:`ckan.logic.action.create.package_create_default_resource_views.``
+    for details on the ``create_datastore_views`` parameter.
 
     Returns a list of resource views created (empty if none were created)
     '''
@@ -288,15 +288,11 @@ def add_views_to_dataset_resources(context,
     By default only view plugins that don't require the resource data to be in
     the DataStore are called. This is only relevant when the default view
     plugins are used, not when explicitly passing view types. See
-    ``add_default_views_to_dataset_resources`` for details on the
-    ``create_datastore_views`` parameter.
+    :py:func:`ckan.logic.action.create.package_create_default_resource_views.``
+    for details on the ``create_datastore_views`` parameter.
 
     Returns a list of resource views created (empty if none were created)
     '''
-    if not view_types:
-        return add_default_views_to_dataset_resources(context,
-                                                      dataset_dict,
-                                                      create_datastore_views)
 
     created_views = []
     for resource_dict in dataset_dict.get('resources', []):
@@ -305,60 +301,6 @@ def add_views_to_dataset_resources(context,
                                           dataset_dict,
                                           view_types,
                                           create_datastore_views)
-        created_views.extend(new_views)
-
-    return created_views
-
-
-def add_default_views_to_resource(context,
-                                  resource_dict,
-                                  dataset_dict=None,
-                                  create_datastore_views=False):
-    '''
-    Creates the default views (if necessary) on the provided resource
-
-    The function will get the plugins for the default views defined in
-    the configuration, and if some were found the `can_view` method of
-    each one of them will be called to determine if a resource view should
-    be created.
-
-    Resource views extensions get the resource dict and the parent dataset
-    dict. If the latter is not provided, `package_show` is called to get it.
-
-    By default only view plugins that don't require the resource data to be in
-    the DataStore are called. See ``add_default_views_to_dataset_resources``
-    for details on the ``create_datastore_views`` parameter.
-
-    Returns a list of resource views created (empty if none were created)
-    '''
-    return add_views_to_resource(context,
-                                 resource_dict,
-                                 dataset_dict,
-                                 view_types=[],
-                                 create_datastore_views=create_datastore_views)
-
-
-def add_default_views_to_dataset_resources(context,
-                                           dataset_dict,
-                                           create_datastore_views=False):
-    '''
-    Creates the default views on all resources of the provided dataset
-
-    By default only view plugins that don't require the resource data to be in
-    the DataStore are called. Passing `create_datastore_views` as True will
-    only create views that require data to be in the DataStore. The first case
-    happens when the function is called from `package_create` or
-    `package_update`, the second when it's called from the DataPusher when
-    data was uploaded to the DataStore.
-
-    Returns a list of resource views created (empty if none were created)
-    '''
-    created_views = []
-    for resource_dict in dataset_dict.get('resources', []):
-        new_views = add_default_views_to_resource(context,
-                                                  resource_dict,
-                                                  dataset_dict,
-                                                  create_datastore_views)
         created_views.extend(new_views)
 
     return created_views
