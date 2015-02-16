@@ -1,5 +1,6 @@
 import ckan.controllers.group as group
 
+
 class ExampleigroupformController(group.GroupController):
     group_type = 'example_group'
 

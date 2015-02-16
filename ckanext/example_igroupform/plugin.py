@@ -1,6 +1,7 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
+
 class ExampleigroupformPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IGroupForm, inherit=True)
@@ -10,9 +11,18 @@ class ExampleigroupformPlugin(plugins.SingletonPlugin):
         toolkit.add_template_directory(config_, 'templates')
 
     def before_map(self, map):
-        map.connect('example_group_index', '/example_group', controller='ckanext.example_igroupform.controller:ExampleigroupformController', action='index')
-        map.connect('example_group_new', '/example_group/new',  controller='ckanext.example_igroupform.controller:ExampleigroupformController', action='new')
-        map.connect('example_group_edit', '/example_group/edit', controller='ckanext.example_igroupform.controller:ExampleigroupformController', action='edit')
+        map.connect('example_group_index',
+                    '/example_group',
+                    controller='ckanext.example_igroupform.controller:ExampleigroupformController',
+                    action='index')
+        map.connect('example_group_new',
+                    '/example_group/new',
+                    controller='ckanext.example_igroupform.controller:ExampleigroupformController',
+                    action='new')
+        map.connect('example_group_edit',
+                    '/example_group/edit',
+                    controller='ckanext.example_igroupform.controller:ExampleigroupformController',
+                    action='edit')
         return map
 
     def after_map(self, map):
@@ -80,8 +90,8 @@ class ExampleigroupformPlugin(plugins.SingletonPlugin):
 
         default_validators = [_ignore_missing, _convert_to_extras]
         schema.update({
-                       'new_field':default_validators
-                       })
+                    'new_field': default_validators
+                    })
         return schema
 
     def db_to_form_schema(self):
@@ -92,6 +102,6 @@ class ExampleigroupformPlugin(plugins.SingletonPlugin):
 
         default_validators = [_convert_from_extras, _ignore_missing]
         schema.update({
-                        'new_field':default_validators
-                       })
+                    'new_field': default_validators
+                    })
         return schema
