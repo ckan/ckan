@@ -10,18 +10,20 @@ class ExampleigroupformPlugin(plugins.SingletonPlugin):
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates')
 
+    controller_name = 'ckanext.example_igroupform.controller' + \
+                      ':ExampleigroupformController'
     def before_map(self, map):
         map.connect('example_group_index',
                     '/example_group',
-                    controller='ckanext.example_igroupform.controller:ExampleigroupformController',
+                    controller=controller_name,
                     action='index')
         map.connect('example_group_new',
                     '/example_group/new',
-                    controller='ckanext.example_igroupform.controller:ExampleigroupformController',
+                    controller=controller_name,
                     action='new')
         map.connect('example_group_edit',
                     '/example_group/edit',
-                    controller='ckanext.example_igroupform.controller:ExampleigroupformController',
+                    controller=controller_name,
                     action='edit')
         return map
 
@@ -89,9 +91,7 @@ class ExampleigroupformPlugin(plugins.SingletonPlugin):
         _ignore_missing = toolkit.get_validator('ignore_missing')
 
         default_validators = [_ignore_missing, _convert_to_extras]
-        schema.update({
-                    'new_field': default_validators
-                    })
+        schema.update({ 'new_field': default_validators })
         return schema
 
     def db_to_form_schema(self):
@@ -101,7 +101,5 @@ class ExampleigroupformPlugin(plugins.SingletonPlugin):
         schema = super(NodePlugin, self).form_to_db_schema()
 
         default_validators = [_convert_from_extras, _ignore_missing]
-        schema.update({
-                    'new_field': default_validators
-                    })
+        schema.update({ 'new_field': default_validators })
         return schema
