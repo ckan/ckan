@@ -1098,7 +1098,7 @@ class PackageController(base.BaseController):
 
     def resource_read(self, id, resource_id):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj, "for_view":True}
 
         try:
             c.package = get_action('package_show')(context, {'id': id})
