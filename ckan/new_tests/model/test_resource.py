@@ -29,7 +29,8 @@ class TestResource(object):
     def test_edit_extra(self):
         res_dict = factories.Resource(newfield='first')
         res = Resource.get(res_dict['id'])
-        res.extras['newfield'] = 'second'
+        res.extras = {'newfield': 'second'}
+        res.url
         model.repo.new_revision()
         model.repo.commit_and_remove()
         res = Resource.get(res_dict['id'])
