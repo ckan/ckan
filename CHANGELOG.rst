@@ -15,7 +15,7 @@ API changes and deprecations
 
 * The PDF Viewer extension has been moved to a separate extension:
   https://github.com/ckan/ckanext-pdfview. Please install it separately if
-  you are using the ``pdf_view`` plugin.
+  you are using the ``pdf_view`` plugin (or the old ``pdf_preview`` one).
 
 * The ``user_show`` API call does not return the ``datasets``,
   ``num_followers`` or ``activity`` keys by default any more.
