@@ -96,6 +96,7 @@ who.secure
 ^^^^^^^^^^
 
 Example::
+
  who.secure = True
 
 Default value: False
@@ -166,7 +167,7 @@ Example::
 Custom sqlalchemy config parameters used to establish the DataStore
 database connection.
 
-To get the list of all the available properties check the `SQLAlchemy documentation`_ 
+To get the list of all the available properties check the `SQLAlchemy documentation`_
 
 .. _SQLAlchemy documentation: http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html#engine-creation-api
 
@@ -710,9 +711,9 @@ Example::
 
 Default value:  ``1 * 1024 * 1024`` (1 MB)
 
-This sets the upper file size limit for in-line previews. 
-Increasing the value allows CKAN to preview larger files (e.g. PDFs) in-line; 
-however, a higher value might cause time-outs, or unresponsive browsers for CKAN users 
+This sets the upper file size limit for in-line previews.
+Increasing the value allows CKAN to preview larger files (e.g. PDFs) in-line;
+however, a higher value might cause time-outs, or unresponsive browsers for CKAN users
 with lower bandwidth. If left commented out, CKAN will default to 1 MB.
 
 
