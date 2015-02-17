@@ -634,6 +634,7 @@ def default_create_resource_view_schema(resource_view):
         'title': [not_empty, unicode],
         'description': [ignore_missing, unicode],
         'view_type': [not_empty, unicode],
+        'featured': [boolean_validator],
         '__extras': [empty],
     }
     if resource_view.info().get('filterable'):
@@ -655,6 +656,7 @@ def default_update_resource_view_schema(resource_view):
         'resource_id': [ignore_missing, resource_id_exists],
         'title': [ignore_missing, unicode],
         'view_type': [ignore],# can not change after create
+        'featured': [boolean_validator],
         'package_id': [ignore]
     })
     return schema
