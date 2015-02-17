@@ -1733,7 +1733,7 @@ def rendered_resource_view(resource_view, resource, package, embed=False):
     template = view_plugin.view_template(context, data_dict)
     data_dict.update(vars)
 
-    if not view_plugin.info().get('iframed', True) and embed:
+    if not resource_view_is_iframed(resource_view) and embed:
         template = "package/snippets/resource_view_embed.html"
 
     import ckan.lib.base as base
@@ -1746,6 +1746,31 @@ def view_resource_url(resource_view, resource, package, **kw):
     by resource proxy.
     '''
     return resource['url']
+
+
+def resource_view_is_filterable(resource_view):
+    '''
+    Returns True if the given resource view support filters.
+    '''
+    view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
+    return view_plugin.info().get('filterable', False)
+
+
+def resource_view_get_fields(resource):
+    '''Returns sorted list of text and time fields of a datastore resource.'''
+
+    if not resource.get('datastore_active'):
+        return []
+
+    data = {
+        'resource_id': resource['id'],
+        'limit': 0
+    }
+    result = logic.get_action('datastore_search')({}, data)
+
+    fields = [field['id'] for field in result.get('fields', [])]
+
+    return sorted(fields)
 
 
 def resource_view_is_iframed(resource_view):
@@ -1775,6 +1800,10 @@ def resource_view_full_page(resource_view):
     '''
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('full_page_edit', False)
+
+def remove_linebreaks(string):
+    '''Remove linebreaks from string to make it usable in JavaScript'''
+    return str(string).replace('\n', '')
 
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
@@ -2047,10 +2076,13 @@ __allowed_functions__ = [
     'format_resource_items',
     'resource_preview',
     'rendered_resource_view',
+    'resource_view_get_fields',
+    'resource_view_is_filterable',
     'resource_view_is_iframed',
     'resource_view_icon',
     'resource_view_display_preview',
     'resource_view_full_page',
+    'remove_linebreaks',
     'SI_number_span',
     'localised_number',
     'localised_SI_number',

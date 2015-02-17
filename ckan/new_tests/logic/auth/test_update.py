@@ -4,9 +4,15 @@
 import mock
 import nose
 
+import ckan.logic as logic
+import ckan.model as model
+import ckan.plugins as p
+
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
-import ckan.logic as logic
+
+
+assert_equals = nose.tools.assert_equals
 
 
 class TestUpdate(object):
@@ -176,4 +182,84 @@ class TestUpdate(object):
 
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
                                  'user_generate_apikey', context=context,
+                                 **params)
+
+
+class TestUpdateResourceViews(object):
+
+    @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+        helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+
+    def test_anon_can_not_update(self):
+
+        resource_view = factories.ResourceView()
+
+        params = {'id': resource_view['id'],
+                  'title': 'Resource View Updated',
+                  'view_type': 'image_view',
+                  'image_url': 'url'}
+
+        context = {'user': None, 'model': model}
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'resource_view_update', context=context,
+                                 **params)
+
+    def test_authorized_if_user_has_permissions_on_dataset(self):
+
+        user = factories.User()
+
+        dataset = factories.Dataset(user=user)
+
+        resource = factories.Resource(user=user, package_id=dataset['id'])
+
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        params = {'id': resource_view['id'],
+                  'resource_id': resource['id'],
+                  'title': 'Resource View Updated',
+                  'view_type': 'image_view',
+                  'image_url': 'url'}
+
+        context = {'user': user['name'], 'model': model}
+        response = helpers.call_auth('resource_view_update', context=context,
+                                     **params)
+
+        assert_equals(response, True)
+
+    def test_not_authorized_if_user_has_no_permissions_on_dataset(self):
+
+        org = factories.Organization()
+
+        user = factories.User()
+
+        member = {'username': user['name'],
+                  'role': 'admin',
+                  'id': org['id']}
+        helpers.call_action('organization_member_create', **member)
+
+        user_2 = factories.User()
+
+        dataset = factories.Dataset(owner_org=org['id'])
+
+        resource = factories.Resource(package_id=dataset['id'])
+
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        params = {'id': resource_view['id'],
+                  'resource_id': resource['id'],
+                  'title': 'Resource View Updated',
+                  'view_type': 'image_view',
+                  'image_url': 'url'}
+
+        context = {'user': user_2['name'], 'model': model}
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'resource_view_update', context=context,
                                  **params)

@@ -16,11 +16,11 @@ class TestPackage:
 
         good_names = ('blah', 'ab', 'ab1', 'some-random-made-up-name', 'has_underscore', 'annakarenina')
         bad_names = (('', [u'Missing value']),
-                     ('blAh', [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_']),
-                     ('a', [u'Name must be at least 2 characters long', u'Name NAME length is less than minimum 2']),
-                     ('dot.in.name', [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_']),
-                     (u'unicode-\xe0', [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_']),
-                     ('percent%', [u'Url must be purely lowercase alphanumeric (ascii) characters and these symbols: -_']),
+                     ('blAh', [u'Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_']),
+                     ('a', [u'Must be at least 2 characters long', u'Name NAME length is less than minimum 2']),
+                     ('dot.in.name', [u'Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_']),
+                     (u'unicode-\xe0', [u'Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_']),
+                     ('percent%', [u'Must be purely lowercase alphanumeric (ascii) characters and these symbols: -_']),
                      ('p'*101, [u'Name must be a maximum of 100 characters long', u'Name NAME length is more than maximum 100']),
                      )
 

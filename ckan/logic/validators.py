@@ -1,3 +1,4 @@
+import collections
 import datetime
 from itertools import count
 import re
@@ -33,13 +34,9 @@ def owner_org_validator(key, data, errors, context):
     model = context['model']
     user = context['user']
     user = model.User.get(user)
-    if value == '' :
+    if value == '':
         if not new_authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('A organization must be supplied'))
-        package = context.get('package')
-        # only sysadmins can remove datasets from org
-        if package and package.owner_org and not user.sysadmin:
-            raise Invalid(_('You cannot remove a dataset from an existing organization'))
         return
 
     group = model.Group.get(value)
@@ -352,12 +349,12 @@ def name_validator(value, context):
         raise Invalid(_('That name cannot be used'))
 
     if len(value) < 2:
-        raise Invalid(_('Name must be at least %s characters long') % 2)
+        raise Invalid(_('Must be at least %s characters long') % 2)
     if len(value) > PACKAGE_NAME_MAX_LENGTH:
         raise Invalid(_('Name must be a maximum of %i characters long') % \
                       PACKAGE_NAME_MAX_LENGTH)
     if not name_match.match(value):
-        raise Invalid(_('Url must be purely lowercase alphanumeric '
+        raise Invalid(_('Must be purely lowercase alphanumeric '
                         '(ascii) characters and these symbols: -_'))
     return value
 
@@ -793,6 +790,36 @@ def no_loops_in_hierarchy(key, data, errors, context):
                 not in allowable_parents:
             raise Invalid(_('This parent would create a loop in the '
                             'hierarchy'))
+
+
+def filter_fields_and_values_should_have_same_length(key, data, errors, context):
+    convert_to_list_if_string = logic.converters.convert_to_list_if_string
+    fields = convert_to_list_if_string(data.get(('filter_fields',), []))
+    values = convert_to_list_if_string(data.get(('filter_values',), []))
+
+    if len(fields) != len(values):
+        msg = _('"filter_fields" and "filter_values" should have the same length')
+        errors[('filter_fields',)].append(msg)
+        errors[('filter_values',)].append(msg)
+
+
+def filter_fields_and_values_exist_and_are_valid(key, data, errors, context):
+    convert_to_list_if_string = logic.converters.convert_to_list_if_string
+    fields = convert_to_list_if_string(data.get(('filter_fields',)))
+    values = convert_to_list_if_string(data.get(('filter_values',)))
+
+    if not fields:
+        errors[('filter_fields',)].append(_('"filter_fields" is required when '
+                                            '"filter_values" is filled'))
+    if not values:
+        errors[('filter_values',)].append(_('"filter_values" is required when '
+                                            '"filter_fields" is filled'))
+
+    filters = collections.defaultdict(list)
+    for field, value in zip(fields, values):
+        filters[field].append(value)
+
+    data[('filters',)] = dict(filters)
 
 
 def extra_key_not_in_root_schema(key, data, errors, context):

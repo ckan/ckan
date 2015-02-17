@@ -772,10 +772,13 @@ def user_list(context, data_dict):
       (optional)
     :type q: string
     :param order_by: which field to sort the list by (optional, default:
-      ``'name'``)
+      ``'name'``). Can be any user field or ``edits`` (i.e. number_of_edits).
     :type order_by: string
 
-    :rtype: list of dictionaries
+    :rtype: list of user dictionaries. User properties include:
+      ``number_of_edits`` which counts the revisions by the user and
+      ``number_created_packages`` which excludes datasets which are private
+      or draft state.
 
     '''
     model = context['model']
@@ -801,6 +804,7 @@ def user_list(context, data_dict):
                 _and_(
                     model.Package.creator_user_id == model.User.id,
                     model.Package.state == 'active',
+                    model.Package.private == False,
                 )).label('number_created_packages')
     )
 
@@ -897,7 +901,9 @@ def package_show(context, data_dict):
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: False)
     :type use_default_schema: bool
-
+    :param include_tracking: add tracking information to dataset and
+        resources (default: False)
+    :type include_tracking: bool
     :rtype: dictionary
 
     '''
@@ -916,6 +922,7 @@ def package_show(context, data_dict):
 
     if data_dict.get('use_default_schema', False):
         context['schema'] = ckan.logic.schema.default_show_package_schema()
+    include_tracking = asbool(data_dict.get('include_tracking', False))
 
     package_dict = None
     use_cache = (context.get('use_cache', True)
@@ -945,19 +952,13 @@ def package_show(context, data_dict):
         package_dict = model_dictize.package_dictize(pkg, context)
         package_dict_validated = False
 
-    # Add page-view tracking summary data to the package dict.
-    # If the package_dict came from the Solr cache then it will already have a
-    # potentially outdated tracking_summary, this will overwrite it with a
-    # current one.
-    package_dict['tracking_summary'] = model.TrackingSummary.get_for_package(
-        package_dict['id'])
+    if include_tracking:
+        # page-view tracking summary data
+        package_dict['tracking_summary'] = (
+            model.TrackingSummary.get_for_package(package_dict['id']))
 
-    # Add page-view tracking summary data to the package's resource dicts.
-    # If the package_dict came from the Solr cache then each resource dict will
-    # already have a potentially outdated tracking_summary, this will overwrite
-    # it with a current one.
-    for resource_dict in package_dict['resources']:
-        _add_tracking_summary_to_resource_dict(resource_dict, model)
+        for resource_dict in package_dict['resources']:
+            _add_tracking_summary_to_resource_dict(resource_dict, model)
 
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -977,10 +978,10 @@ def package_show(context, data_dict):
             schema = context['schema']
         else:
             schema = package_plugin.show_package_schema()
-            if schema and context.get('validate', True):
-                package_dict, errors = lib_plugins.plugin_validate(
-                    package_plugin, context, package_dict, schema,
-                    'package_show')
+        if schema and context.get('validate', True):
+            package_dict, errors = lib_plugins.plugin_validate(
+                package_plugin, context, package_dict, schema,
+                'package_show')
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
@@ -1002,6 +1003,9 @@ def resource_show(context, data_dict):
 
     :param id: the id of the resource
     :type id: string
+    :param include_tracking: add tracking information to dataset and
+        resources (default: False)
+    :type include_tracking: bool
 
     :rtype: dictionary
 
@@ -1019,7 +1023,8 @@ def resource_show(context, data_dict):
 
     pkg_dict = logic.get_action('package_show')(
         dict(context),
-        {'id': resource.package.id})
+        {'id': resource.package.id,
+        'include_tracking': asbool(data_dict.get('include_tracking', False))})
 
     for resource_dict in pkg_dict['resources']:
         if resource_dict['id'] == id:
@@ -1057,7 +1062,7 @@ def resource_view_show(context, data_dict):
 
 def resource_view_list(context, data_dict):
     '''
-    Return the metadata of a resource_view.
+    Return the list of resource views for a particular resource.
 
     :param id: the id of the resource
     :type id: string
@@ -1296,17 +1301,20 @@ def user_show(context, data_dict):
     :type id: string
     :param user_obj: the user dictionary of the user (optional)
     :type user_obj: user dictionary
-    :param include_datasets: Include datasets user has created
-         (optional, default:``False``, limit:50)
+    :param include_datasets: Include a list of datasets the user has created.
+        If it is the same user or a sysadmin requesting, it includes datasets
+        that are draft or private.
+        (optional, default:``False``, limit:50)
     :type include_datasets: boolean
     :param include_num_followers: Include the number of followers the user has
          (optional, default:``False``)
     :type include_num_followers: boolean
 
     :returns: the details of the user. Includes email_hash, number_of_edits and
-        number_created_packages. Excludes the password (hash) and reset_key.
-        The email and apikey are included if it is the user or a sysadmin
-        requesting.
+        number_created_packages (which excludes draft or private datasets
+        unless it is the same user or sysadmin making the request). Excludes
+        the password (hash) and reset_key. If it is the same user or a
+        sysadmin requesting, the email and apikey are included.
     :rtype: dictionary
 
     '''
@@ -1326,6 +1334,18 @@ def user_show(context, data_dict):
 
     _check_access('user_show', context, data_dict)
 
+    # include private and draft datasets?
+    requester = context.get('user')
+    if requester:
+        requester_looking_at_own_account = requester == user_obj.name
+        include_private_and_draft_datasets = \
+            new_authz.is_sysadmin(requester) or \
+            requester_looking_at_own_account
+    else:
+        include_private_and_draft_datasets = False
+    context['count_private_and_draft_datasets'] = \
+        include_private_and_draft_datasets
+
     user_dict = model_dictize.user_dictize(user_obj, context)
 
     if context.get('return_minimal'):
@@ -1335,11 +1355,16 @@ def user_show(context, data_dict):
 
     if data_dict.get('include_datasets', False):
         user_dict['datasets'] = []
-        dataset_q = (model.Session.query(model.Package)
-                     .filter_by(creator_user_id=user_dict['id'])
-                     .filter_by(state='active')
-                     .filter_by(private=False)
-                     .limit(50))
+        dataset_q = model.Session.query(model.Package) \
+                         .filter_by(creator_user_id=user_dict['id'])
+        if not include_private_and_draft_datasets:
+            dataset_q = dataset_q \
+                .filter_by(state='active') \
+                .filter_by(private=False)
+        else:
+            dataset_q = dataset_q \
+                .filter(model.Package.state != 'deleted')
+        dataset_q = dataset_q.limit(50)
 
         for dataset in dataset_q:
             try:
@@ -2276,6 +2301,8 @@ def vocabulary_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('vocabulary_list', context, data_dict)
+
     model = context['model']
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
     return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
@@ -2290,6 +2317,8 @@ def vocabulary_show(context, data_dict):
     :rtype: dictionary
 
     '''
+    _check_access('vocabulary_show', context, data_dict)
+
     model = context['model']
     vocab_id = data_dict.get('id')
     if not vocab_id:
