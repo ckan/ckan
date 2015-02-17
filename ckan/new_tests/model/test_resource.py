@@ -31,7 +31,6 @@ class TestResource(object):
         res = Resource.get(res_dict['id'])
         res.extras['newfield'] = 'second'
         model.repo.new_revision()
-        print 'KEY FLUSH'
         model.repo.commit_and_remove()
         res = Resource.get(res_dict['id'])
         assert_equals(res.extras['newfield'], 'second')
