@@ -2,6 +2,7 @@
 
 '''
 
+from pylons import config
 import mock
 import nose.tools
 
@@ -240,6 +241,109 @@ class TestResourceViewCreate(object):
         filterable_view = mock.MagicMock()
         filterable_view.info.return_value = {'filterable': True}
         datapreview_mock.get_view_plugin.return_value = filterable_view
+
+
+class TestCreateDefaultResourceViews(object):
+
+    @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+
+        helpers.reset_db()
+
+    def setup(self):
+        helpers.reset_db()
+
+    @helpers.change_config('ckan.views.default_views', '')
+    def test_add_default_views_to_dataset_resources(self):
+
+        # New resources have no views
+        dataset_dict = factories.Dataset(resources=[
+            {
+                'url': 'http://some.image.png',
+                'format': 'png',
+                'name': 'Image 1',
+            },
+            {
+                'url': 'http://some.image.png',
+                'format': 'png',
+                'name': 'Image 2',
+            },
+        ])
+
+        # Change default views config setting
+        config['ckan.views.default_views'] = 'image_view'
+
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+        created_views = helpers.call_action(
+            'package_create_default_resource_views',
+            context,
+            package=dataset_dict)
+
+        assert_equals(len(created_views), 2)
+
+        assert_equals(created_views[0]['view_type'], 'image_view')
+        assert_equals(created_views[1]['view_type'], 'image_view')
+
+    @helpers.change_config('ckan.views.default_views', '')
+    def test_add_default_views_to_resource(self):
+
+        # New resources have no views
+        dataset_dict = factories.Dataset()
+        resource_dict = factories.Resource(
+            package_id=dataset_dict['id'],
+            url='http://some.image.png',
+            format='png',
+        )
+
+        # Change default views config setting
+        config['ckan.views.default_views'] = 'image_view'
+
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+        created_views = helpers.call_action(
+            'resource_create_default_resource_views',
+            context,
+            resource=resource_dict,
+            package=dataset_dict)
+
+        assert_equals(len(created_views), 1)
+
+        assert_equals(created_views[0]['view_type'], 'image_view')
+
+    @helpers.change_config('ckan.views.default_views', '')
+    def test_add_default_views_to_resource_no_dataset_passed(self):
+
+        # New resources have no views
+        dataset_dict = factories.Dataset()
+        resource_dict = factories.Resource(
+            package_id=dataset_dict['id'],
+            url='http://some.image.png',
+            format='png',
+        )
+
+        # Change default views config setting
+        config['ckan.views.default_views'] = 'image_view'
+
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+        created_views = helpers.call_action(
+            'resource_create_default_resource_views',
+            context,
+            resource=resource_dict)
+
+        assert_equals(len(created_views), 1)
+
+        assert_equals(created_views[0]['view_type'], 'image_view')
 
 
 class TestResourceCreate(object):

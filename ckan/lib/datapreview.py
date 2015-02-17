@@ -123,6 +123,19 @@ def get_view_plugin(view_type):
             return plugin
 
 
+def get_view_plugins(view_types):
+    '''
+    Returns a list of the view plugins associated with the given view_types.
+    '''
+    view_plugins = []
+    for view_type in view_types:
+        view_plugin = get_view_plugin(view_type)
+
+        if view_plugin:
+            view_plugins.append(view_plugin)
+    return view_plugins
+
+
 def get_allowed_view_plugins(data_dict):
     '''
     Returns a list of view plugins that work against the resource provided
@@ -186,12 +199,17 @@ def get_default_view_plugins(get_datastore_views=False):
     return default_view_plugins
 
 
-def add_default_views_to_resource(context,
-                                  resource_dict,
-                                  dataset_dict=None,
-                                  create_datastore_views=False):
+def add_views_to_resource(context,
+                          resource_dict,
+                          dataset_dict=None,
+                          view_types=[],
+                          create_datastore_views=False):
     '''
-    Creates the default views (if necessary) on the provided resource
+    Creates the provided views (if necessary) on the provided resource
+
+    Views to create are provided as a list of ``view_types``. If no types are
+    provided, the default views defined in the ``ckan.views.default_views``
+    will be created.
 
     The function will get the plugins for the default views defined in
     the configuration, and if some were found the `can_view` method of
@@ -201,8 +219,10 @@ def add_default_views_to_resource(context,
     Resource views extensions get the resource dict and the parent dataset
     dict. If the latter is not provided, `package_show` is called to get it.
 
-    By default only views that don't require the resource data to be in the
-    DataStore are called. See ``add_default_views_to_dataset_resources``
+    By default only view plugins that don't require the resource data to be in
+    the DataStore are called. This is only relevant when the default view
+    plugins are used, not when explicitly passing view types. See
+    :py:func:`ckan.logic.action.create.package_create_default_resource_views.``
     for details on the ``create_datastore_views`` parameter.
 
     Returns a list of resource views created (empty if none were created)
@@ -211,9 +231,12 @@ def add_default_views_to_resource(context,
         dataset_dict = logic.get_action('package_show')(
             context, {'id': resource_dict['package_id']})
 
-    default_view_plugins = get_default_view_plugins(create_datastore_views)
+    if not view_types:
+        view_plugins = get_default_view_plugins(create_datastore_views)
+    else:
+        view_plugins = get_view_plugins(view_types)
 
-    if not default_view_plugins:
+    if not view_plugins:
         return []
 
     existing_views = p.toolkit.get_action('resource_view_list')(
@@ -224,7 +247,7 @@ def add_default_views_to_resource(context,
                            else [])
 
     created_views = []
-    for view_plugin in default_view_plugins:
+    for view_plugin in view_plugins:
 
         view_info = view_plugin.info()
 
@@ -249,27 +272,35 @@ def add_default_views_to_resource(context,
     return created_views
 
 
-def add_default_views_to_dataset_resources(context,
-                                           dataset_dict,
-                                           create_datastore_views=False):
+def add_views_to_dataset_resources(context,
+                                   dataset_dict,
+                                   view_types=[],
+                                   create_datastore_views=False):
     '''
-    Creates the default views on all resources of the provided dataset
+    Creates the provided views on all resources of the provided dataset
 
-    By default only views that don't require the resource data to be in the
-    DataStore are called. Passing `create_datastore_views` as True will only
-    create views that require data to be in the DataStore. The first case
-    happens when the function is called from `package_create` or
-    `package_update`, the second when it's called from the DataPusher when
-    data was uploaded to the DataStore.
+    Views to create are provided as a list of ``view_types``. If no types are
+    provided, the default views defined in the ``ckan.views.default_views``
+    will be created. Note that in both cases only these views that can render
+    the resource will be created (ie its view plugin ``can_view`` method
+    returns True.
+
+    By default only view plugins that don't require the resource data to be in
+    the DataStore are called. This is only relevant when the default view
+    plugins are used, not when explicitly passing view types. See
+    :py:func:`ckan.logic.action.create.package_create_default_resource_views.``
+    for details on the ``create_datastore_views`` parameter.
 
     Returns a list of resource views created (empty if none were created)
     '''
+
     created_views = []
     for resource_dict in dataset_dict.get('resources', []):
-        new_views = add_default_views_to_resource(context,
-                                                  resource_dict,
-                                                  dataset_dict,
-                                                  create_datastore_views)
+        new_views = add_views_to_resource(context,
+                                          resource_dict,
+                                          dataset_dict,
+                                          view_types,
+                                          create_datastore_views)
         created_views.extend(new_views)
 
     return created_views

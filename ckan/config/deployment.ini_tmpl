@@ -96,7 +96,11 @@ ckan.site_id = default
 #       Add ``datapusher`` to enable DataPusher
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view recline_view
+ckan.plugins = stats text_view image_view recline_view
+
+# Define which views should be created by default
+# (plugins must be loaded in ckan.plugins)
+ckan.views.default_views = image_view text_view recline_view
 
 
 ## Front-End Settings
@@ -158,10 +162,10 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 
 ## Email settings
 
-email_to = you@yourdomain.com
-error_email_from = paste@localhost
-smtp.server = localhost
-smtp.starttls = False
+#email_to = you@yourdomain.com
+#error_email_from = paste@localhost
+#smtp.server = localhost
+#smtp.starttls = False
 #smtp.user = your_username@gmail.com
 #smtp.password = your_password
 #smtp.mail_from =
