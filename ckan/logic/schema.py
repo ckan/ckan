@@ -97,7 +97,7 @@ def default_resource_schema():
         'cache_last_updated': [ignore_missing, isodate],
         'webstore_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
-        'datastore_active': [ignore],
+        'datastore_active': [ignore_missing],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
