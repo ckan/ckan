@@ -1,0 +1,20 @@
+<div role="main" class="hero">
+    <div class="container">
+        {% block search %}
+        {% snippet 'home/snippets/search.html' %}
+        {% endblock %}
+    </div>
+</div>
+<div role="main">
+    <div class="container">
+        <div class="row row2">
+            {% for feature in c.featured_views %}
+                {% snippet 'package/snippets/resource_view.html',
+                    resource_view = feature['view'],
+                    resource = feature['resource'],
+                    package = feature['package']
+                %}
+            {% endfor %}
+        </div>
+    </div>
+</div>

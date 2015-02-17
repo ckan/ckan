@@ -7,6 +7,7 @@ import ckan.lib.search as search
 import ckan.lib.base as base
 import ckan.model as model
 import ckan.lib.helpers as h
+import ckan.lib.dictization.model_dictize as md
 
 from ckan.common import _, g, c
 
@@ -179,6 +180,20 @@ class HomeController(base.BaseController):
         c.group_package_stuff = dirty_cached_group_stuff
 
         # END OF DIRTINESS
+
+        featured = model.Session.query(
+                model.ResourceView).filter(model.ResourceView.featured == True
+        ).all()
+
+        c.featured_views = []
+        for f in featured:
+            dictized = md.resource_view_dictize(f, context)
+            c.featured_views.append({
+                'view': dictized,
+                'resource': md.resource_dictize(model.Resource.get(dictized['resource_id']), context),
+                'package': md.package_dictize(model.Package.get(dictized['package_id']), context)
+            })
+
         return base.render('home/index.html', cache_force=True)
 
     def license(self):
