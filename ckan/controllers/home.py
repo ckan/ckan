@@ -190,8 +190,10 @@ class HomeController(base.BaseController):
             dictized = md.resource_view_dictize(f, context)
             c.featured_views.append({
                 'view': dictized,
-                'resource': md.resource_dictize(model.Resource.get(dictized['resource_id']), context),
-                'package': md.package_dictize(model.Package.get(dictized['package_id']), context)
+                'resource': md.resource_dictize(
+                    model.Resource.get(dictized['resource_id']), context),
+                'package': md.package_dictize(
+                    model.Package.get(dictized['package_id']), context)
             })
 
         return base.render('home/index.html', cache_force=True)

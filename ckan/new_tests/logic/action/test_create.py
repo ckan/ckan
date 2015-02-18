@@ -230,7 +230,8 @@ class TestResourceViewCreate(object):
             'resource_id': factories.Resource()['id'],
             'view_type': 'image_view',
             'title': 'View',
-            'description': 'A nice view'
+            'description': 'A nice view',
+            'featured': False
         }
 
         default_attributes.update(kwargs)
