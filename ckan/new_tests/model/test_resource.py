@@ -26,6 +26,25 @@ class TestResource(object):
     def setup(self):
         model.repo.rebuild_db()
 
+    def test_edit_url(self):
+        res_dict = factories.Resource(url='http://first')
+        res = Resource.get(res_dict['id'])
+        res.url = 'http://second'
+        model.repo.new_revision()
+        model.repo.commit_and_remove()
+        res = Resource.get(res_dict['id'])
+        assert_equals(res.url, 'http://second')
+
+    def test_edit_extra(self):
+        res_dict = factories.Resource(newfield='first')
+        res = Resource.get(res_dict['id'])
+        res.extras = {'newfield': 'second'}
+        res.url
+        model.repo.new_revision()
+        model.repo.commit_and_remove()
+        res = Resource.get(res_dict['id'])
+        assert_equals(res.extras['newfield'], 'second')
+
     def test_get_all_without_views_returns_all_resources_without_views(self):
         # Create resource with resource_view
         factories.ResourceView()
