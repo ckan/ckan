@@ -1586,7 +1586,7 @@ class PackageController(base.BaseController):
 
         Depending on the type, different views are loaded. This could be an
         img tag where the image is loaded directly or an iframe that embeds a
-        webpage, recline or a pdf preview.
+        webpage or a recline preview.
         '''
         context = {'model': model,
                    'session': model.Session,
@@ -1635,7 +1635,7 @@ class PackageController(base.BaseController):
 
         Depending on the type, different previews are loaded.  This could be an
         img tag where the image is loaded directly or an iframe that embeds a
-        webpage, recline or a pdf preview.
+        webpage, or a recline preview.
         '''
         context = {
             'model': model,

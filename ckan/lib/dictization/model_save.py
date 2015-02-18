@@ -27,6 +27,10 @@ def resource_dict_save(res_dict, context):
     table = class_mapper(model.Resource).mapped_table
     fields = [field.name for field in table.c]
 
+
+    # Resource extras not submitted will be removed from the existing extras
+    # dict
+    new_extras = {}
     for key, value in res_dict.iteritems():
         if isinstance(value, list):
             continue
@@ -42,14 +46,10 @@ def resource_dict_save(res_dict, context):
         else:
             # resources save extras directly onto the object, instead
             # of in a separate extras field like packages and groups
-            obj.extras[key] = value
-
-    # Resource extras not submitted should be removed from the extras dict
-    extras_to_delete = set(obj.extras.keys()) - set(res_dict.keys())
-    for delete_me in extras_to_delete:
-        del obj.extras[delete_me]
+            new_extras[key] = value
 
     obj.state = u'active'
+    obj.extras = new_extras
 
     session.add(obj)
     return obj

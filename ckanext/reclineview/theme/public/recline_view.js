@@ -73,7 +73,12 @@ this.ckan.module('recline_view', function (jQuery, _) {
 
       dataset.queryState.set(query.toJSON(), {silent: true});
 
-      errorMsg = this.options.i18n.errorLoadingPreview + ': ' + this.options.i18n.errorDataStore;
+      errorMsg = this.options.i18n.errorLoadingPreview + ': '
+      if (resourceData.backend == 'ckan') {
+        errorMsg += this.options.i18n.errorDataStore;
+      } else if (resourceData.backend == 'dataproxy'){
+        errorMsg += this.options.i18n.errorDataProxy;
+      }
       dataset.fetch()
         .done(function(dataset){
             self.initializeView(dataset, reclineView);
