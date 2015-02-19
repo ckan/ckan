@@ -87,7 +87,7 @@ class ReclineView(ReclineViewBase):
             return True
         resource_format = data_dict['resource'].get('format', None)
         if resource_format:
-            return resource_format.lower() in ['csv', 'xls', 'tsv']
+            return resource_format.lower() in ['csv', 'xls', 'xlsx', 'tsv']
         else:
             return False
 
