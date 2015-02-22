@@ -236,6 +236,11 @@ def update_config():
     ''' This code needs to be run when the config is changed to take those
     changes into account. '''
 
+    # Clear the extra_template_paths config setting. This clears out template
+    # paths from unloaded plugins. Extra template paths from the config file
+    # or from still-loaded plugins will be re-added later.
+    config['extra_template_paths'] = []
+
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)

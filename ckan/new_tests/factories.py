@@ -91,7 +91,7 @@ def _generate_group_title(group):
 class User(factory.Factory):
     '''A factory class for creating CKAN users.'''
 
-    # This is the class that UserFactory will create and return instances
+    # This is the class that User factory will create and return instances
     # of.
     FACTORY_FOR = ckan.model.User
 
