@@ -686,7 +686,7 @@ class IResourceController(Interface):
 
     def before_show(self, resource_dict):
         '''
-        Extensions will receive the validated data dict before the resource
+        Extensions will receive the unvalidated data dict before the resource
         is ready for display.
 
         Be aware that this method is not only called for UI display, but also
@@ -695,6 +695,12 @@ class IResourceController(Interface):
         '''
         return resource_dict
 
+    def after_show(self, resource_dict):
+        '''
+        Extensions will receive the validated data dict after the resource
+        is ready for display.
+        '''
+        return resource_dict
 
 class IPluginObserver(Interface):
     """
