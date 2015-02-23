@@ -148,7 +148,7 @@ def send_reset_link(user):
 def send_invite(user):
     create_reset_key(user)
     body = get_invite_body(user)
-    subject = _('Invite for {site_title}'.format(site_title=g.site_title))
+    subject = _('Invite for {site_title}').format(site_title=g.site_title)
     mail_user(user, subject, body)
 
 def create_reset_key(user):
