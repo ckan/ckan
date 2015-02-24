@@ -111,3 +111,29 @@ class TestResourceViewDelete(object):
                                      id=resource_view['id'])
 
         assert_equals(response, True)
+
+
+class TestResourceViewClear(object):
+
+    def test_anon_cant_clear(self):
+        context = {'user': None, 'model': model}
+        params = {}
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'resource_view_clear', context=context,
+                                 **params)
+
+    def test_normal_user_cant_clear(self):
+        user = factories.User()
+
+        context = {'user': user['name'], 'model': model}
+
+        nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
+                                 'resource_view_clear', context=context)
+
+    def test_sysadmin_user_can_clear(self):
+        user = factories.User(sysadmin=True)
+
+        context = {'user': user['name'], 'model': model}
+        response = helpers.call_auth('resource_view_clear', context=context)
+
+        assert_equals(response, True)

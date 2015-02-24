@@ -73,6 +73,63 @@ class TestDeleteResourceViews(object):
         assert_raises(logic.NotFound, helpers.call_action, 'resource_view_delete',
                       context={}, **params)
 
+
+class TestClearResourceViews(object):
+
+    @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+        if not p.plugin_loaded('recline_view'):
+            p.load('recline_view')
+
+        helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+        p.unload('recline_view')
+
+    def test_resource_view_clear(self):
+        factories.ResourceView(view_type='image_view')
+        factories.ResourceView(view_type='image_view')
+
+        factories.ResourceView(view_type='recline_view')
+        factories.ResourceView(view_type='recline_view')
+
+        count = model.Session.query(model.ResourceView).count()
+
+        assert_equals(count, 4)
+
+        helpers.call_action('resource_view_clear', context={})
+
+        count = model.Session.query(model.ResourceView).count()
+
+        assert_equals(count, 0)
+
+    def test_resource_view_clear_with_types(self):
+        factories.ResourceView(view_type='image_view')
+        factories.ResourceView(view_type='image_view')
+
+        factories.ResourceView(view_type='recline_view')
+        factories.ResourceView(view_type='recline_view')
+
+        count = model.Session.query(model.ResourceView).count()
+
+        assert_equals(count, 4)
+
+        helpers.call_action('resource_view_clear', context={},
+                            view_types=['image_view'])
+
+        view_types = model.Session.query(model.ResourceView.view_type).all()
+
+        assert_equals(len(view_types), 2)
+        for view_type in view_types:
+            assert_equals(view_type[0], 'recline_view')
+
+
+class TestDeleteTags(object):
+
     def test_tag_delete_with_unicode_returns_unicode_error(self):
         # There is not a lot of call for it, but in theory there could be
         # unicode in the ActionError error message, so ensure that comes

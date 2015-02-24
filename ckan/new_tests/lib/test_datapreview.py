@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import nose
+from pylons import config
 
 import ckan.plugins as p
 import ckan.lib.datapreview as datapreview
@@ -122,19 +123,131 @@ class TestDefaultViewsConfig(object):
             ['test_datastore_view'])
 
 
-class TestDefaultViewsCreation(object):
+class TestViewsCreation(object):
 
     @classmethod
     def setup_class(cls):
         if not p.plugin_loaded('image_view'):
             p.load('image_view')
+        if not p.plugin_loaded('test_datastore_view'):
+            p.load('test_datastore_view')
 
     @classmethod
     def teardown_class(cls):
         p.unload('image_view')
+        p.unload('test_datastore_view')
 
     def setup(self):
         helpers.reset_db()
+
+    def test_get_view_plugins(self):
+
+        view_types = ['image_view', 'not_there', 'test_datastore_view']
+
+        view_plugins = datapreview.get_view_plugins(view_types)
+
+        eq_(len(view_plugins), 2)
+
+        eq_(view_plugins[0].info()['name'], 'image_view')
+        eq_(view_plugins[1].info()['name'], 'test_datastore_view')
+
+    @helpers.change_config('ckan.views.default_views', '')
+    def test_add_views_to_dataset_resources(self):
+
+        # New resources have no views
+        dataset_dict = factories.Dataset(resources=[
+            {
+                'url': 'http://some.image.png',
+                'format': 'png',
+                'name': 'Image 1',
+            },
+            {
+                'url': 'http://some.image.png',
+                'format': 'png',
+                'name': 'Image 2',
+            },
+        ])
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+        created_views = datapreview.add_views_to_dataset_resources(
+            context, dataset_dict, view_types=['image_view'])
+
+        eq_(len(created_views), 2)
+
+        eq_(created_views[0]['view_type'], 'image_view')
+        eq_(created_views[1]['view_type'], 'image_view')
+
+    @helpers.change_config('ckan.views.default_views', '')
+    def test_add_views_to_dataset_resources_no_type_provided(self):
+
+        # New resources have no views
+        dataset_dict = factories.Dataset(resources=[
+            {
+                'url': 'http://some.image.png',
+                'format': 'png',
+                'name': 'Image 1',
+            },
+            {
+                'url': 'http://some.image.png',
+                'format': 'png',
+                'name': 'Image 2',
+            },
+        ])
+
+        # Change default views config setting
+        config['ckan.views.default_views'] = 'image_view'
+
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+        created_views = datapreview.add_views_to_dataset_resources(
+            context, dataset_dict, view_types=[])
+
+        eq_(len(created_views), 2)
+
+        eq_(created_views[0]['view_type'], 'image_view')
+        eq_(created_views[1]['view_type'], 'image_view')
+
+    @helpers.change_config('ckan.views.default_views', '')
+    def test_add_views_to_resource(self):
+
+        resource_dict = factories.Resource(
+            url='http://some.image.png',
+            format='png',
+        )
+
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+
+        created_views = datapreview.add_views_to_resource(
+            context, resource_dict, view_types=['image_view'])
+
+        eq_(len(created_views), 1)
+
+        eq_(created_views[0]['view_type'], 'image_view')
+
+    @helpers.change_config('ckan.views.default_views', '')
+    def test_add_views_to_resource_no_type_provided(self):
+
+        resource_dict = factories.Resource(
+            url='http://some.image.png',
+            format='png',
+        )
+
+        # Change default views config setting
+        config['ckan.views.default_views'] = 'image_view'
+
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+        created_views = datapreview.add_views_to_resource(
+            context, resource_dict)
+
+        eq_(len(created_views), 1)
+
+        eq_(created_views[0]['view_type'], 'image_view')
 
     def test_default_views_created_on_package_create(self):
 

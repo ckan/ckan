@@ -67,6 +67,7 @@ entry_points = {
         'multilingual_dataset = ckanext.multilingual.plugin:MultilingualDataset',
         'multilingual_group = ckanext.multilingual.plugin:MultilingualGroup',
         'multilingual_tag = ckanext.multilingual.plugin:MultilingualTag',
+        'multilingual_resource = ckanext.multilingual.plugin:MultilingualResource',    
         'organizations = ckanext.organizations.forms:OrganizationForm',
         'organizations_dataset = ckanext.organizations.forms:OrganizationDatasetForm',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
@@ -74,7 +75,6 @@ entry_points = {
         'test_tag_vocab_plugin = ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin',
         'resource_proxy = ckanext.resourceproxy.plugin:ResourceProxy',
         'text_view = ckanext.textview.plugin:TextView',
-        'pdf_view = ckanext.pdfview.plugin:PdfView',
         'recline_view = ckanext.reclineview.plugin:ReclineView',
         'recline_grid_view = ckanext.reclineview.plugin:ReclineGridView',
         'recline_graph_view = ckanext.reclineview.plugin:ReclineGraphView',
@@ -84,7 +84,6 @@ entry_points = {
         # FIXME: Remove deprecated resource previews below. You should use the
         # versions as *_view instead.
         'text_preview = ckanext.textview.plugin:TextView',
-        'pdf_preview = ckanext.pdfview.plugin:PdfView',
         'recline_preview = ckanext.reclineview.plugin:ReclineView',
         'recline_grid = ckanext.reclineview.plugin:ReclineGridView',
         'recline_graph = ckanext.reclineview.plugin:ReclineGraphView',

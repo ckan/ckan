@@ -137,6 +137,22 @@ def resource_view_delete(context, data_dict):
     model.repo.commit()
 
 
+def resource_view_clear(context, data_dict):
+    '''Delete all resource views, or all of a particular type.
+
+    :param view_types: specific types to delete (optional)
+    :type view_types: list
+
+    '''
+    model = context['model']
+
+    _check_access('resource_view_clear', context, data_dict)
+
+    view_types = data_dict.get('view_types')
+    model.ResourceView.delete_all(view_types)
+    model.repo.commit()
+
+
 def package_relationship_delete(context, data_dict):
     '''Delete a dataset (package) relationship.
 

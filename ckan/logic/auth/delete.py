@@ -53,6 +53,11 @@ def resource_view_delete(context, data_dict):
     return resource_delete(context, {'id': resource_id})
 
 
+def resource_view_clear(context, data_dict):
+    # sysadmins only
+    return {'success': False}
+
+
 def related_delete(context, data_dict):
     model = context['model']
     user = context['user']
