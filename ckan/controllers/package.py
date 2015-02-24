@@ -1557,11 +1557,14 @@ class PackageController(base.BaseController):
         view_template = view_plugin.view_template(context, data_dict)
         form_template = view_plugin.form_template(context, data_dict)
 
+        default_view_title = view_plugin.info().get('default_title', '')
+
         vars = {'form_template': form_template,
                 'view_template': view_template,
                 'data': data,
                 'errors': errors,
                 'error_summary': error_summary,
+                'default_title': default_view_title,
                 'to_preview': to_preview,
                 'datastore_available': p.plugin_loaded('datastore')}
         vars.update(

@@ -220,8 +220,9 @@ class IResourceView(Interface):
         :param title: title of the view type, will be displayed on the
             frontend. This should be translatable (ie wrapped on
             ``toolkit._('Title')``).
-        :param default_title: default title that will be used if the view is
-            created automatically (optional, defaults to 'View').
+        :param default_title: title that will be used on the form by default or
+            if the view is created automatically (optional, defaults to
+            'View').
         :param default_description: default description that will be used if
             the view is created automatically (optional, defaults to '').
         :param icon: icon for the view type. Should be one of the

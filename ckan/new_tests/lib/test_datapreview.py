@@ -39,7 +39,7 @@ class TestDataPreview(object):
 
 class MockDatastoreBasedResourceView(p.SingletonPlugin):
 
-    p.implements(p.IResourceView)
+    p.implements(p.IResourceView, inherit=True)
 
     def info(self):
         return {

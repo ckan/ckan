@@ -4,6 +4,7 @@ from routes import url_for
 
 import ckan.model as model
 import ckan.plugins as p
+from ckan.lib.datapreview import get_view_plugin
 
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
@@ -444,6 +445,83 @@ class TestPackageResourceRead(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         app.get(url, status=200, extra_environ=env)
+
+
+class TestPackageResourceViewForm(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(cls, cls).setup_class()
+
+        if not p.plugin_loaded('recline_view'):
+            p.load('recline_view')
+        if not p.plugin_loaded('test_datastore_view'):
+            p.load('test_datastore_view')
+
+        helpers.reset_db()
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('recline_view')
+        p.unload('test_datastore_view')
+
+    def setup(self):
+        model.repo.rebuild_db()
+
+    def test_form_shows_default_title_on_new_views(self):
+        sysadmin = factories.Sysadmin()
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+
+        resource_view = factories.ResourceView(view_type='recline_view')
+
+        url = url_for(controller='package',
+                      action='edit_view',
+                      id=resource_view['package_id'],
+                      resource_id=resource_view['resource_id'],
+                      view_type='recline_view')
+
+        app = self._get_test_app()
+        response = app.get(url, status=200, extra_environ=env)
+
+        view_plugin = get_view_plugin('recline_view')
+
+        default_title = view_plugin.info().get('default_title')
+
+        assert default_title
+
+        form_found = False
+        for i, form in response.forms.iteritems():
+            if 'title' in form.fields:
+                form_found = True
+                assert_equal(response.forms[1]['title'].value, default_title)
+        assert form_found
+
+    def test_form_does_not_show_default_title_if_view_does_not_have_it(self):
+        sysadmin = factories.Sysadmin()
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+
+        resource_view = factories.ResourceView(view_type='test_datastore_view')
+
+        url = url_for(controller='package',
+                      action='edit_view',
+                      id=resource_view['package_id'],
+                      resource_id=resource_view['resource_id'],
+                      view_type='test_datastore_view')
+
+        app = self._get_test_app()
+        response = app.get(url, status=200, extra_environ=env)
+
+        view_plugin = get_view_plugin('test_datastore_view')
+
+        default_title = view_plugin.info().get('default_title')
+
+        assert not default_title
+
+        form_found = False
+        for i, form in response.forms.iteritems():
+            if 'title' in form.fields:
+                form_found = True
+                assert_equal(response.forms[1]['title'].value, '')
+        assert form_found
 
 
 class TestPackageRead(helpers.FunctionalTestBase):

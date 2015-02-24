@@ -5,7 +5,7 @@
 
 {{ form.errors(error_summary) }}
 
-{{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. My View'), value=data.title, error=errors.title, classes=['control-full', 'control-large'], is_required=true) }}
+{{ form.input('title', id='field-title', label=_('Title'), placeholder=_('eg. My View'), value=data.title or default_title or '', error=errors.title, classes=['control-full', 'control-large'], is_required=true) }}
 {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('eg. Information about my view'), value=data.description, error=errors.description) }}
 
 {% block view_form_filters %}
