@@ -29,7 +29,7 @@
             <input id="username" name="username" type="text" value="{{ user.name }}"
             disabled="True" class="control-medium">
           {% else %}
-            <input id="username" type="text" name="username" placeholder="Username"
+             <input id="username" type="text" name="username" placeholder="{{ _('Username') }}"
             value="" class="control-medium" data-module="autocomplete"
             data-module-source="/api/2/util/user/autocomplete?q=?">
           {% endif %}
@@ -47,7 +47,7 @@
             {{ _('If you wish to invite a new user, enter their email address.') }}
           </span>
           <div class="controls">
-            <input id="email" type="text" name="email" placeholder="Email address">
+            <input id="email" type="email" name="email" placeholder="{{ _('Email address') }}" >
           </div>
         </div>
       {% endif %}
