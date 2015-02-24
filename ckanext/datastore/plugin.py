@@ -275,8 +275,8 @@ class DatastorePlugin(p.SingletonPlugin):
                 controller='ckanext.datastore.controller:DatastoreController',
                 action='dump', resource_id=resource_dict['id'])
 
-#        if 'datastore_active' not in resource_dict:
-#            resource_dict[u'datastore_active'] = False
+        if 'datastore_active' not in resource_dict:
+            resource_dict[u'datastore_active'] = False
 
         return resource_dict
 
