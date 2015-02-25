@@ -3221,10 +3221,15 @@ my.SlickGrid = Backbone.View.extend({
       })
     }
 
+    function sanitizeFieldName(name) {
+      var sanitized = $(name).text();
+      return (name !== sanitized && sanitized !== '') ? sanitized : name;
+    }
+
     _.each(this.model.fields.toJSON(),function(field){
       var column = {
         id: field.id,
-        name: field.label,
+        name: sanitizeFieldName(field.label),
         field: field.id,
         sortable: true,
         minWidth: 80,
