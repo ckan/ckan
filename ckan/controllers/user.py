@@ -640,7 +640,7 @@ class UserController(base.BaseController):
     def dashboard_datasets(self):
         context = {'for_view': True, 'user': c.user or c.author,
                    'auth_user_obj': c.userobj}
-        data_dict = {'user_obj': c.userobj}
+        data_dict = {'user_obj': c.userobj, 'include_datasets': True}
         self._setup_template_variables(context, data_dict)
         return render('user/dashboard_datasets.html')
 
