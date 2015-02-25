@@ -6,7 +6,7 @@
 # Adrià Mercader <adria.mercader@okfn.org>, 2014
 # Alessandro <alessandro.sarretta@gmail.com>, 2013
 # <dex@lucadex.it>, 2012
-# groundrace <groundrace@me.com>, 2013
+# groundrace <groundrace@me.com>, 2013,2015
 # <internet@davidread.org>, 2011
 # lafuga2 <lafuga2@gmail.com>, 2012
 # Lorenzo Ruzzene <lorenzo.ruzzene@gmail.com>, 2014
@@ -18,8 +18,8 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2014-01-20 17:58+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
+"PO-Revision-Date: 2015-02-12 16:40+0000\n"
+"Last-Translator: groundrace <groundrace@me.com>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/ckan/language/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -4159,7 +4159,7 @@ msgstr "Nessun gruppo trovato"
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] "nessuna organizzazione trovata per \"{query}\""
+msgstr[0] "{number} organizzazione trovata per \"{query}\""
 msgstr[1] "{number} organizzazioni trovate per \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
@@ -4169,7 +4169,7 @@ msgstr "Nessuna organizzazione trovata per \"{query}\""
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
-msgstr[0] "nessuna organizzazione trovata"
+msgstr[0] "{number} organizzazione trovata"
 msgstr[1] "{number} organizzazioni trovate"
 
 #: ckan/templates/snippets/search_result_text.html:30
