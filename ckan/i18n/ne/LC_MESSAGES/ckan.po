@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# firoj <firojghimire@gmail.com>, 2014
+# Firoj Ghimire <firojghimire@gmail.com>, 2014
+# Ngima Sherpa <mangimayulkongma@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2014-08-24 10:14+0000\n"
-"Last-Translator: firoj <firojghimire@gmail.com>\n"
+"PO-Revision-Date: 2015-02-21 08:59+0000\n"
+"Last-Translator: Ngima Sherpa <mangimayulkongma@gmail.com>\n"
 "Language-Team: Nepali (http://www.transifex.com/projects/p/ckan/language/ne/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -33,31 +34,31 @@ msgstr "व्यवस्थापक"
 #: ckan/new_authz.py:86
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:27
 msgid "Editor"
-msgstr ""
+msgstr "सम्पादक"
 
 #: ckan/new_authz.py:89
 msgid "Member"
-msgstr ""
+msgstr "सदस्य"
 
 #: ckan/controllers/admin.py:24
 msgid "Need to be system administrator to administer"
-msgstr ""
+msgstr "प्रशासन प्रणाली प्रशासकलाई हुन आवश्यकता"
 
 #: ckan/controllers/admin.py:35
 msgid "Site Title"
-msgstr ""
+msgstr "साइट शीर्षक"
 
 #: ckan/controllers/admin.py:36
 msgid "Style"
-msgstr ""
+msgstr "शैली"
 
 #: ckan/controllers/admin.py:37
 msgid "Site Tag Line"
-msgstr ""
+msgstr "साइट ट्याग रेखा"
 
 #: ckan/controllers/admin.py:38
 msgid "Site Tag Logo"
-msgstr ""
+msgstr "साइट ट्याग लोगो"
 
 #: ckan/controllers/admin.py:39 ckan/templates/header.html:81
 #: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:26
@@ -73,23 +74,23 @@ msgstr ""
 #: ckan/templates_legacy/user/edit_user_form.html:39
 #: ckan/templates_legacy/user/read.html:28
 msgid "About"
-msgstr ""
+msgstr "बारेमा"
 
 #: ckan/controllers/admin.py:39
 msgid "About page text"
-msgstr ""
+msgstr "पृष्ठ पाठ बारे"
 
 #: ckan/controllers/admin.py:40
 msgid "Intro Text"
-msgstr ""
+msgstr "पहिचान पाठ"
 
 #: ckan/controllers/admin.py:40
 msgid "Text on home page"
-msgstr ""
+msgstr "घर पेज पाठ"
 
 #: ckan/controllers/admin.py:41
 msgid "Custom CSS"
-msgstr ""
+msgstr "कस्टम CSS"
 
 #: ckan/controllers/admin.py:41
 msgid "Customisable css inserted into the page header"

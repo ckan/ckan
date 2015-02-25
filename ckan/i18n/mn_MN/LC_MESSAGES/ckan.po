@@ -3,13 +3,15 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Uuganbayar Amarsanaa <a.uuganbayar@gmail.com>, 2014
+# Билгүүн <6ojoshdee@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-03-11 13:56+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2015-01-07 04:18+0000\n"
+"Last-Translator: Билгүүн <6ojoshdee@gmail.com>\n"
 "Language-Team: Mongolian (Mongolia) (http://www.transifex.com/projects/p/ckan/language/mn_MN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -21,34 +23,34 @@ msgstr ""
 #: ckan/new_authz.py:73
 #, python-format
 msgid "Authorization function not found: %s"
-msgstr ""
+msgstr "Нэвтрэх функц олдохгүй байна: %s"
 
 #: ckan/new_authz.py:83 ckan/templates/organization/edit_base.html:13
 #: ckan/templates/organization/read_base.html:13
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:26
 msgid "Admin"
-msgstr ""
+msgstr "Админ"
 
 #: ckan/new_authz.py:86
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:27
 msgid "Editor"
-msgstr ""
+msgstr "Нийтлэгч"
 
 #: ckan/new_authz.py:89
 msgid "Member"
-msgstr ""
+msgstr "Гишүүн"
 
 #: ckan/controllers/admin.py:24
 msgid "Need to be system administrator to administer"
-msgstr ""
+msgstr "Системийг удирдахын тулд тулд админ болох хэрэгтэй"
 
 #: ckan/controllers/admin.py:35
 msgid "Site Title"
-msgstr ""
+msgstr "Сайтын гарчиг"
 
 #: ckan/controllers/admin.py:36
 msgid "Style"
-msgstr ""
+msgstr "Загвар"
 
 #: ckan/controllers/admin.py:37
 msgid "Site Tag Line"
@@ -72,11 +74,11 @@ msgstr ""
 #: ckan/templates_legacy/user/edit_user_form.html:39
 #: ckan/templates_legacy/user/read.html:28
 msgid "About"
-msgstr ""
+msgstr "Тухай"
 
 #: ckan/controllers/admin.py:39
 msgid "About page text"
-msgstr ""
+msgstr "Хуудасны танилцуулга текст"
 
 #: ckan/controllers/admin.py:40
 msgid "Intro Text"
