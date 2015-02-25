@@ -3,14 +3,14 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# firoj <firojghimire@gmail.com>, 2014
+# Firoj Ghimire <firojghimire@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-07-01 17:35+0100\n"
 "PO-Revision-Date: 2014-08-24 10:19+0000\n"
-"Last-Translator: firoj <firojghimire@gmail.com>\n"
+"Last-Translator: Firoj Ghimire <firojghimire@gmail.com>\n"
 "Language-Team: Nepali (http://www.transifex.com/projects/p/ckan/language/ne/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
