@@ -48,7 +48,6 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       // b) csv or xls (but not datastore)
       resourceData.formatNormalized = this.normalizeFormat(resourceData.format);
 
-      resourceData.url  = this.normalizeUrl(resourceData.url);
       if (resourceData.formatNormalized === '') {
         var tmp = resourceData.url.split('/');
         tmp = tmp[tmp.length - 1];
@@ -151,13 +150,6 @@ this.ckan.module('reclinepreview', function (jQuery, _) {
       out = out.split('/');
       out = out[out.length-1];
       return out;
-    },
-    normalizeUrl: function (url) {
-      if (url.indexOf('https') === 0) {
-        return 'http' + url.slice(5);
-      } else {
-        return url;
-      }
     }
   };
 });
