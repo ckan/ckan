@@ -1008,7 +1008,11 @@ class Celery(CkanCommand):
                 sys.exit(1)
 
     def run_(self):
-        os.environ['CKAN_CONFIG'] = os.path.abspath(self.options.config)
+        if self.options.config:
+            os.environ['CKAN_CONFIG'] = os.path.abspath(self.options.config)
+        else:
+            os.environ['CKAN_CONFIG'] = os.path.join(os.getcwd(), 'development.ini')
+        
         from ckan.lib.celery_app import celery
         celery_args = []
         if len(self.args) == 2 and self.args[1] == 'concurrency':
