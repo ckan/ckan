@@ -58,7 +58,9 @@ class ReclineViewBase(p.SingletonPlugin):
         toolkit.add_resource('theme/public', 'ckanext-reclineview')
 
     def can_view(self, data_dict):
-        return data_dict['resource'].get('datastore_active')
+        resource = data_dict['resource']
+        return (resource.get('datastore_active') or
+                resource.get('url') == '_datastore_only_resource')
 
     def setup_template_variables(self, context, data_dict):
         return {'resource_json': json.dumps(data_dict['resource']),
@@ -83,9 +85,12 @@ class ReclineView(ReclineViewBase):
                 }
 
     def can_view(self, data_dict):
-        if data_dict['resource'].get('datastore_active'):
+        resource = data_dict['resource']
+
+        if (resource.get('datastore_active') or
+                resource.get('url') == '_datastore_only_resource'):
             return True
-        resource_format = data_dict['resource'].get('format', None)
+        resource_format = resource.get('format', None)
         if resource_format:
             return resource_format.lower() in ['csv', 'xls', 'xlsx', 'tsv']
         else:
