@@ -88,11 +88,11 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
             p.load('recline_view')
         if not p.plugin_loaded('datastore'):
             p.load('datastore')
-
-        config['ckan.legacy_templates'] = 'false'
-        config['ckan.plugins'] = 'recline_view datastore'
-        config['ckan.views.default_views'] = 'recline_view'
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
+        app_config = config.copy()
+        app_config['ckan.legacy_templates'] = 'false'
+        app_config['ckan.plugins'] = 'recline_view datastore'
+        app_config['ckan.views.default_views'] = 'recline_view'
+        wsgiapp = middleware.make_app(config['global_conf'], **app_config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod
@@ -108,7 +108,7 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
             'resource': {'package_id': dataset['id']},
             'fields': [{'id': 'a'}, {'id': 'b'}],
             'records': [{'a': 1, 'b': 'xyz'}, {'a': 2, 'b': 'zzz'}]
-            }
+        }
         result = helpers.call_action('datastore_create', **data)
 
         resource_id = result['resource_id']
