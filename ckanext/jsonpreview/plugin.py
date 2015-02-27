@@ -41,7 +41,7 @@ class JsonPreview(p.SingletonPlugin):
 
     def can_preview(self, data_dict):
         resource = data_dict['resource']
-        format_lower = resource['format'].lower()
+        format_lower = resource.get('format', '').lower()
         if format_lower in self.JSONP_FORMATS:
             return True
         elif format_lower in self.JSON_FORMATS and (self.proxy_is_enabled or resource['on_same_domain']):
