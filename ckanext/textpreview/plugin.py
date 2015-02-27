@@ -63,7 +63,7 @@ class TextPreview(p.SingletonPlugin):
 
     def can_preview(self, data_dict):
         resource = data_dict['resource']
-        format_lower = resource['format'].lower()
+        format_lower = resource.get('format', '').lower()
 
         quality = QUALITY.get(format_lower, 1)
 
