@@ -7,6 +7,21 @@
 Changelog
 ---------
 
+v2.1.4 2015-03-04
+=================
+
+Bug fixes:
+ * Only link to http, https and ftp resource urls (#2085)
+ * Avoid private and deleted datasets on stats plugin (#1936)
+ * Fix tags count and group links in stats extension (#1649)
+ * Make resource_create auth work against package_update (#2037)
+ * Fix DataStore permissions check on startup (#1374)
+ * Fix datastore docs link (#2044)
+ * Fix resource extras getting lost on resource update (#2158)
+ * Clean up field names before rendering the Recline table (#2319)
+ * Don't "normalize" resource URL in recline view (#2324)
+ * Don't assume resource format is there on text preview (#2320)
+
 v2.1.3 2014-10-15
 =================
 
@@ -149,6 +164,20 @@ Deprecated and removed:
 Known issues:
  * Under certain authorization setups the forntend for the groups functionality
    may not work as expected (See #1176 #1175).
+
+v2.0.6 2015-03-04
+=================
+
+Bug fixes:
+ * Only link to http, https and ftp resource urls (#2085)
+ * Avoid private and deleted datasets on stats plugin (#1936)
+ * Fix tags count and group links in stats extension (#1649)
+ * Make resource_create auth work against package_update (#2037)
+ * Fix datastore docs link (#2044)
+ * Fix resource extras getting lost on resource update (#2158)
+ * Clean up field names before rendering the Recline table (#2319)
+ * Don't "normalize" resource URL in recline view (#2324)
+ * Don't assume resource format is there on text preview (#2320)
 
 v2.0.5 2014-10-15
 =================
