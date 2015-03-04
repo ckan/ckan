@@ -1,151 +1,151 @@
 {
   "": {
     "domain": "ckan",
-    "lang": "is",
-    "plural-forms": "nplurals=2; plural=(n != 1);"
+    "lang": "hr",
+    "plural-forms": "nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;"
   },
   "An Error Occurred": [
     null,
-    "Villa kom upp"
+    "Došlo je do pogreške"
   ],
   "Are you sure you want to perform this action?": [
     null,
-    "Ertu viss um að þú viljir framkvæma þessa aðgerð?"
+    "Jeste li sigurni da želite izvršiti ovu akciju?"
   ],
   "Cancel": [
     null,
-    "Hætta við"
+    "Otkаži"
   ],
   "Confirm": [
     null,
-    "Staðfesta"
+    "Potvrdi"
   ],
   "Edit": [
     null,
-    "Breyta"
+    "Uređivаnje"
   ],
   "Failed to load data API information": [
     null,
-    "Villa kom upp við að sækja upplýsingar um API gögn"
+    "Pogreška pri dohvatu informacija o API-ju podataka"
   ],
   "Follow": [
     null,
-    "Fylgjast með"
+    "Slijedi"
   ],
   "Hide": [
     null,
-    "Fela"
+    "Sakrij"
   ],
   "Image": [
     null,
-    "Mynd"
+    "Slikа"
   ],
   "Input is too short, must be at least one character": [
     null,
-    "Of stutt, verður að vera í það minnsta einn stafur"
+    "Unos je prekratak, mora biti minimalno jedan znak"
   ],
   "Link": [
     null,
-    "Tengill"
+    "Veza"
   ],
   "Link to a URL on the internet (you can also link to an API)": [
     null,
-    "Farðu inn á vefslóð á netinu (þú getur líka tengst API)"
+    "Kreirajte link na URL na internetu (također možete kreirati link na API)"
   ],
   "Loading...": [
     null,
-    "Hleð..."
+    "Učitаvаnje ..."
   ],
   "No matches found": [
     null,
-    "Ekkert fannst"
+    "Nije pronađeno"
   ],
   "Please Confirm Action": [
     null,
-    "Vinsamlegast staðfestu aðgerðina"
+    "Molimo potvrdite akciju"
   ],
   "Remove": [
     null,
-    "Fjarlægja"
+    "Ukloni"
   ],
   "Reorder resources": [
     null,
-    "Endurpantaðu tilföng"
+    "Presloži resurse"
   ],
   "Reset this": [
     null,
-    "Endurstilltu þetta"
+    "Resetiraj ovo"
   ],
   "Resource uploaded": [
     null,
-    "Skránni hefur verið hlaðið inn"
+    "Resurs učitan"
   ],
   "Save order": [
     null,
-    "Vistaðu pöntun"
+    "Spremi redoslijed"
   ],
   "Saving...": [
     null,
-    "Vistun í gangi..."
+    "Spremanje..."
   ],
   "Show more": [
     null,
-    "Sýna fleiri"
+    "Prikaži više"
   ],
   "Start typing…": [
     null,
-    "Sláðu inn fyrstu stafina..."
+    "Počnite upisivati..."
   ],
   "There are unsaved modifications to this form": [
     null,
-    "Það eru óvistaðar breytingar í þessu formi"
+    "Postoje izmjene ovog obrasca koje nisu spremljene"
   ],
   "There is no API data to load for this resource": [
     null,
-    "Það eru engin API gögn sem er hægt að hlaða inn fyrir þessa skrá"
+    "Ne postoji API sa podacima za punjenje ovog resursa"
   ],
   "URL": [
     null,
-    "Vefslóð"
+    "URL"
   ],
   "Unable to authenticate upload": [
     null,
-    "Ekki fékkst heimild til að hlaða inn skrá"
+    "Nije moguće potvrditi učitavanje"
   ],
   "Unable to get data for uploaded file": [
     null,
-    "Ekki tókst að sækja gögn úr skránni sem þú hlóðst inn"
+    "Nije moguće dohvatiti podatke za učitanu datoteku"
   ],
   "Unable to upload file": [
     null,
-    "Ekki tókst að hlaða inn skrá"
+    "Nije moguće učitati datoteku"
   ],
   "Unfollow": [
     null,
-    "Hætta að fylgjast með"
+    "Prestani slijediti"
   ],
   "Upload": [
     null,
-    "Hlaða inn"
+    "Učitaj"
   ],
   "Upload a file": [
     null,
-    "Hlaða inn skrá"
+    "Učitaj datoteku"
   ],
   "Upload a file on your computer": [
     null,
-    "Sæktu skrá á tölvuna þína"
+    "Učitajte datoteku sa vašeg računala"
   ],
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
-    "Þú ert að sækja skrá. Ertu viss um að viljir fara af síðunni og stöðva niðurhalið? "
+    "U tijeku je učitavanje datoteke. Jeste li sigurni da želite otići sa ove stranice i prekinuti učitavanje?"
   ],
   "show less": [
     null,
-    "sýna færri"
+    "prikaži manje"
   ],
   "show more": [
     null,
-    "sýna fleiri"
+    "prikaži više"
   ]
 }

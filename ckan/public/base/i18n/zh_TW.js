@@ -44,6 +44,10 @@
     null,
     "輸入的內容太短，必須至少輸入一個字元"
   ],
+  "Link": [
+    null,
+    "連結"
+  ],
   "Loading...": [
     null,
     "讀取中..."
@@ -63,6 +67,10 @@
   "Resource uploaded": [
     null,
     "資源已上傳"
+  ],
+  "Saving...": [
+    null,
+    "儲存中..."
   ],
   "Show more": [
     null,
@@ -107,6 +115,10 @@
   "Upload a file": [
     null,
     "上傳檔案"
+  ],
+  "Upload a file on your computer": [
+    null,
+    "從你的電腦上傳檔案"
   ],
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
