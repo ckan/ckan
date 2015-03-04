@@ -96,6 +96,10 @@
     null,
     "Φορτώστε ένα αρχείο"
   ],
+  "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
+    null,
+    "Μεταφορτώνετε ένα αρχείο. Είστε βέβαιοι ότι επιθυμείτε να απομακρυνθείτε και να διακόψετε τη μεταφόρτωση?"
+  ],
   "show less": [
     null,
     "λιγότερα"

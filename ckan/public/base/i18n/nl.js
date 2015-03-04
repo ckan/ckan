@@ -96,6 +96,10 @@
     null,
     "Upload een bestand"
   ],
+  "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
+    null,
+    "Bestand wordt geupload. Als u deze pagina verlaat stopt de upload. Weet u zeker dat u de pagina wilt verlaten?"
+  ],
   "show less": [
     null,
     "laat minder zien"
