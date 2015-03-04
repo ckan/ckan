@@ -1,76 +1,76 @@
 {
   "": {
     "domain": "ckan",
-    "lang": "de",
+    "lang": "da_DK",
     "plural-forms": "nplurals=2; plural=(n != 1);"
   },
   "An Error Occurred": [
     null,
-    "Es trat ein Fehler auf"
+    "En fejl opstod"
   ],
   "Are you sure you want to perform this action?": [
     null,
-    "Bist du sicher, dass du diese Aktion ausführen willst?"
+    "Er du sikker på, at du vil udføre denne handling?"
   ],
   "Cancel": [
     null,
-    "Abbrechen"
+    "Annuller"
   ],
   "Confirm": [
     null,
-    "Bestätigen"
+    "Bekræft"
   ],
   "Edit": [
     null,
-    "Bearbeiten"
+    "Rediger"
   ],
   "Failed to load data API information": [
     null,
-    "Informationen zur Daten-API konnten nicht geladen werden"
+    "Kunne ikke indlæse data-API-information"
   ],
   "Follow": [
     null,
-    "Folgen"
+    "Følg"
   ],
   "Hide": [
     null,
-    "Verstecken"
+    "Skjul"
   ],
   "Input is too short, must be at least one character": [
     null,
-    "Eingabe ist zu kurz, muss mindestens ein Zeichen sein"
+    "Input er for kort, skal være mindst en karakter"
   ],
   "Loading...": [
     null,
-    "Lädt..."
+    "Loading..."
   ],
   "No matches found": [
     null,
-    "Keine Treffer"
+    "Ingen resultater fundet"
   ],
   "Please Confirm Action": [
     null,
-    "Bestätige bitte die Aktion"
+    "Bekræft venligst handling"
   ],
   "Resource uploaded": [
     null,
-    "Ressource hochgeladen"
+    "Ressource uploadet"
   ],
   "Show more": [
     null,
-    "Mehr anzeigen"
+    "Vis mere"
   ],
   "Start typing…": [
     null,
-    "Gib etwas ein..."
+    "Begynd indtastning..."
   ],
   "There are unsaved modifications to this form": [
     null,
-    "Dieses Formular hat ungespeicherte Änderungen"
+    "Ændringer til denne formular er ikke gemt"
   ],
   "There is no API data to load for this resource": [
     null,
-    "Diese Ressource hat keine API-Daten zum Laden"
+    "Der er ingen API-data at indlæse for denne ressource"
   ],
   "URL": [
     null,
@@ -78,30 +78,30 @@
   ],
   "Unable to authenticate upload": [
     null,
-    "Upload konnte nicht autentifiziert werden"
+    "Ude af stand til at autentificere upload"
   ],
   "Unable to get data for uploaded file": [
     null,
-    "Daten für hochgeladen Datei konnten nicht abgerufen werden"
+    "Ude af stand til at hente data for uploadet fil"
   ],
   "Unable to upload file": [
     null,
-    "Datei konnte nicht hochgeladen werden"
+    "Ude af stand til at uploade fil"
   ],
   "Unfollow": [
     null,
-    "Entfolgen"
+    "Følg ikke"
   ],
   "Upload a file": [
     null,
-    "Datei hochladen"
+    "Upload en fil"
   ],
   "show less": [
     null,
-    "weniger anzeigen"
+    "Vis færre"
   ],
   "show more": [
     null,
-    "mehr anzeigen"
+    "Vis flere"
   ]
 }
