@@ -10,6 +10,7 @@ import datetime
 import logging
 import re
 import urllib
+import urlparse
 import pprint
 import copy
 from urllib import urlencode
