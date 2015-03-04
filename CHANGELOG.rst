@@ -30,6 +30,9 @@ Note: This version requires a database upgrade
 
 Note: This version requires a Solr schema upgrade
 
+Note: This version requires a DataPusher upgrade on source installations. You
+    should target DataPusher=>0.0.6 and upgrade its dependencies.
+
 
 Major:
  * Completely refactored resource data visualizations, allowing multiple
