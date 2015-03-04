@@ -287,4 +287,3 @@ def change_config(key, value):
             return return_value
         return nose.tools.make_decorator(func)(wrapper)
     return decorator
-
