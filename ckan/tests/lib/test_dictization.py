@@ -54,7 +54,10 @@ class TestBasicDictize:
                         u'state': u'active',
                         u'is_organization': False,
                         u'title': u"Dave's books",
-                        u"approval_status": u"approved"},
+                        u"approval_status": u"approved",
+                        u"closed": False,
+                        u'closed_date': None,
+                        u'related_group_relationship': None,},
                        {
                         u'name': u'roger',
                         u'capacity': u'public',
@@ -66,7 +69,10 @@ class TestBasicDictize:
                         u'state': u'active',
                         u'is_organization': False,
                         u'title': u"Roger's books",
-                        u"approval_status": u"approved"}],
+                        u"approval_status": u"approved",
+                        u"closed": False,
+                        u'closed_date': None,
+                        u'related_group_relationship': None,}],
             'isopen': True,
             u'license_id': u'other-open',
             'license_title': u'Other (Open)',
@@ -394,6 +400,8 @@ class TestBasicDictize:
         context['revision_id'] = sorted_packages[0].revision_id #original state
 
         first_dictized = self.remove_changable_columns(package_dictize(anna1, context))
+        print self.package_expected['groups']
+        print first_dictized['groups']
         assert self.package_expected == first_dictized
 
         context['revision_id'] = sorted_packages[1].revision_id

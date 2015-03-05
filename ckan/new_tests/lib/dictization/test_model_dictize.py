@@ -310,6 +310,8 @@ class TestPackageDictize:
                 dict_.pop(key)
             if 'timestamp' in key:
                 dict_.pop(key)
+            if key in ['related_group_relationship', 'closed_date']:
+                dict_.pop(key)
             if key in ['metadata_created', 'metadata_modified']:
                 dict_.pop(key)
             if isinstance(value, list):
@@ -320,6 +322,7 @@ class TestPackageDictize:
     def assert_equals_expected(self, expected_dict, result_dict):
         result_dict = self.remove_changable_values(result_dict)
         superfluous_keys = set(result_dict) - set(expected_dict)
+
         assert not superfluous_keys, 'Did not expect key: %s' % \
             ' '.join(('%s=%s' % (k, result_dict[k]) for k in superfluous_keys))
         for key in expected_dict:
@@ -476,8 +479,10 @@ class TestPackageDictize:
             u'name': u'test_group_dictize',
             u'state': u'active',
             u'title': u'Test Group Dictize',
-            u'type': u'group'}
-        self.assert_equals_expected(expected_dict, result['groups'][0])
+            u'type': u'group',
+            u'closed': False,
+        }
+        self.assert_equals_expected(expected_dict, result['groups'][0]), result['groups'][0]
 
     def test_package_dictize_owner_org(self):
         org = factories.Organization(name='test_package_dictize')
@@ -498,7 +503,8 @@ class TestPackageDictize:
             u'name': u'test_package_dictize',
             u'state': u'active',
             u'title': u'Test Organization',
-            u'type': u'organization'
+            u'type': u'organization',
+            u'closed': False,
         }
         self.assert_equals_expected(expected_dict, result['organization'])
 

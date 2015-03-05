@@ -707,7 +707,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
         'organization_create' if is_org else 'group_create')
     log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'), data_dict.get('name'), data_dict)
-
     if errors:
         session.rollback()
         raise ValidationError(errors)
@@ -785,7 +784,10 @@ def _group_or_org_create(context, data_dict, is_org=False):
     logic.get_action('member_create')(member_create_context, member_dict)
 
     log.debug('Created object %s' % group.name)
-    return model_dictize.group_dictize(group, context)
+
+    #return model_dictize.group_dictize(group, context)
+    action = 'organization_show' if is_org else 'group_show'
+    return _get_action(action)(context, {'id': group.id})
 
 
 def group_create(context, data_dict):

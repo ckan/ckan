@@ -123,9 +123,13 @@ class TestGet(object):
         group_list = helpers.call_action('group_list', all_fields=True)
 
         expected_group = dict(group.items()[:])
-        for field in ('users', 'tags', 'extras', 'groups'):
+        for field in ('users', 'tags', 'extras', 'groups', 'num_followers'):
+            if field in group_list[0]:
+                del group_list[0][field]
             del expected_group[field]
+
         expected_group['packages'] = 0
+
         assert group_list[0] == expected_group
         assert 'extras' not in group_list[0]
         assert 'tags' not in group_list[0]
@@ -163,9 +167,12 @@ class TestGet(object):
         expected_parent_group = dict(parent_group.items()[:])
         for field in ('users', 'tags', 'extras'):
             del expected_parent_group[field]
+
         expected_parent_group['capacity'] = u'public'
         expected_parent_group['packages'] = 0
         expected_parent_group['package_count'] = 0
+        del expected_parent_group['num_followers']
+
         eq(child_group_returned['groups'], [expected_parent_group])
 
     def test_group_show(self):
@@ -174,8 +181,6 @@ class TestGet(object):
 
         group_dict = helpers.call_action('group_show', id=group['id'])
 
-        # FIXME: Should this be returned by group_create?
-        group_dict.pop('num_followers', None)
         assert group_dict == group
 
     def test_group_show_error_not_found(self):
@@ -303,8 +308,6 @@ class TestGet(object):
 
         org_dict = helpers.call_action('organization_show', id=org['id'])
 
-        # FIXME: Should this be returned by organization_create?
-        org_dict.pop('num_followers', None)
         assert org_dict == org
 
     def test_organization_show_error_not_found(self):

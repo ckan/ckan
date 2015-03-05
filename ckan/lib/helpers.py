@@ -783,7 +783,7 @@ def linked_user(user, maxlength=0, avatar=20):
 
 
 def group_name_to_title(name):
-    group = model.Group.by_name(name)
+    group = model.Group.get(name)
     if group is not None:
         return group.display_name
     return name

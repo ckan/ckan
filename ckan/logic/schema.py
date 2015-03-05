@@ -5,7 +5,8 @@ from ckan.lib.navl.validators import (ignore_missing,
                                       ignore,
                                       if_empty_same_as,
                                       not_missing,
-                                      ignore_empty
+                                      ignore_empty,
+                                      default
                                      )
 from ckan.logic.validators import (package_id_not_changed,
                                    package_id_exists,
@@ -285,6 +286,10 @@ def default_group_schema():
         'state': [ignore_not_group_admin, ignore_missing],
         'created': [ignore],
         'is_organization': [ignore_missing],
+        'closed': [default(False), boolean_validator],
+        'closed_date': [ignore_missing, unicode],
+        'related_group_id': [ignore_missing, group_id_exists, unicode],
+        'related_group_relationship': [ignore_missing, unicode],
         'approval_status': [ignore_missing, unicode],
         'extras': default_extras_schema(),
         '__extras': [ignore],
@@ -328,6 +333,7 @@ def group_form_schema():
 def default_update_group_schema():
     schema = default_group_schema()
     schema["name"] = [ignore_missing, group_name_validator, unicode]
+
     return schema
 
 def default_show_group_schema():
@@ -343,6 +349,10 @@ def default_show_group_schema():
     schema['revision_id'] = []
     schema['state'] = []
     schema['users'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+
+    schema['closed_date'] = []
+    schema['related_group_id'] = []
+    schema['related_group_relationship'] = []
 
     return schema
 

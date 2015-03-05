@@ -208,7 +208,7 @@ class ApiController(base.BaseController):
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
             return_dict['success'] = False
-            
+
             if unicode(e):
                 return_dict['error']['message'] += u': %s' % e
 
@@ -661,7 +661,7 @@ class ApiController(base.BaseController):
             limit = 20
         limit = min(50, limit)
 
-        query = model.Group.search_by_name_or_title(q, t)
+        query = model.Group.search_by_name_or_title(q, t, t=='organization')
 
         def convert_to_dict(user):
             out = {}
