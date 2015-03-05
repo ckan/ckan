@@ -827,7 +827,8 @@ class TestVocabulary(object):
         assert len(tags_in_pkg) == 1
 
         # Test that the package appears vocabulary_list.
-        vocabs = self._post('/api/action/vocabulary_list')['result']
+        vocabs = self._post('/api/action/vocabulary_list',
+                            params={'include_datasets': True})['result']
         genre_vocab = [vocab for vocab in vocabs if vocab['name'] == 'Genre']
         assert len(genre_vocab) == 1
         genre_vocab = genre_vocab[0]
@@ -840,7 +841,8 @@ class TestVocabulary(object):
 
         # Test that the tagged package appears in vocabulary_show.
         genre_vocab = self._post('/api/action/vocabulary_show',
-                params={'id': genre_vocab['id']})['result']
+                params={'id': genre_vocab['id'], 'include_datasets':True}
+                )['result']
         noise_tag = [tag_ for tag_ in genre_vocab['tags']
                 if tag_['name'] == 'noise']
         assert len(noise_tag) == 1

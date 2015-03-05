@@ -1273,6 +1273,9 @@ def tag_show(context, data_dict):
 
     :param id: the name or id of the tag
     :type id: string
+    :param include_datasets: include a list of datasets with this tag
+         (optional, default: ``False``)
+    :type include_datasets: boolean
 
     :returns: the details of the tag, including a list of all of the tag's
         datasets and their details
@@ -1281,6 +1284,7 @@ def tag_show(context, data_dict):
 
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
+    include_datasets = asbool(data_dict.get('include_datasets', False))
 
     tag = model.Tag.get(id)
     context['tag'] = tag
@@ -1289,7 +1293,7 @@ def tag_show(context, data_dict):
         raise NotFound
 
     _check_access('tag_show', context, data_dict)
-    return model_dictize.tag_dictize(tag, context)
+    return model_dictize.tag_dictize(tag, context, include_datasets)
 
 
 def user_show(context, data_dict):
@@ -2298,14 +2302,19 @@ def status_show(context, data_dict):
 def vocabulary_list(context, data_dict):
     '''Return a list of all the site's tag vocabularies.
 
+    :param include_datasets: include a list of datasets in each tag
+         (optional, default: ``False``)
+    :type include_datasets: boolean
     :rtype: list of dictionaries
 
     '''
     _check_access('vocabulary_list', context, data_dict)
 
     model = context['model']
+    include_datasets = asbool(data_dict.get('include_datasets', False))
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
-    return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
+    return model_dictize.vocabulary_list_dictize(vocabulary_objects, context,
+                                                 include_datasets)
 
 
 def vocabulary_show(context, data_dict):
@@ -2313,6 +2322,9 @@ def vocabulary_show(context, data_dict):
 
     :param id: the id or name of the vocabulary
     :type id: string
+    :param include_datasets: include a list of datasets in each tag
+         (optional, default: ``False``)
+    :type include_datasets: boolean
     :return: the vocabulary.
     :rtype: dictionary
 
@@ -2321,12 +2333,14 @@ def vocabulary_show(context, data_dict):
 
     model = context['model']
     vocab_id = data_dict.get('id')
+    include_datasets = asbool(data_dict.get('include_datasets', False))
     if not vocab_id:
         raise ValidationError({'id': _('id not in data')})
     vocabulary = model.vocabulary.Vocabulary.get(vocab_id)
     if vocabulary is None:
         raise NotFound(_('Could not find vocabulary "%s"') % vocab_id)
-    vocabulary_dict = model_dictize.vocabulary_dictize(vocabulary, context)
+    vocabulary_dict = model_dictize.vocabulary_dictize(vocabulary, context,
+                                                       include_datasets)
     return vocabulary_dict
 
 

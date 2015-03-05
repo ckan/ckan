@@ -504,24 +504,27 @@ def tag_list_dictize(tag_list, context):
 
     return result_list
 
-def tag_dictize(tag, context):
+def tag_dictize(tag, context, include_datasets=False):
     tag_dict = d.table_dictize(tag, context)
-    query = search.PackageSearchQuery()
 
-    tag_query = u'+capacity:public '
-    vocab_id = tag_dict.get('vocabulary_id')
+    package_dicts = []
+    if include_datasets:
+        query = search.PackageSearchQuery()
 
-    if vocab_id:
-        model = context['model']
-        vocab = model.Vocabulary.get(vocab_id)
-        tag_query += u'+vocab_{0}:"{1}"'.format(vocab.name, tag.name)
-    else:
-        tag_query += u'+tags:"{0}"'.format(tag.name)
+        tag_query = u'+capacity:public '
+        vocab_id = tag_dict.get('vocabulary_id')
 
-    q = {'q': tag_query, 'fl': 'data_dict', 'wt': 'json', 'rows': 1000}
+        if vocab_id:
+            model = context['model']
+            vocab = model.Vocabulary.get(vocab_id)
+            tag_query += u'+vocab_{0}:"{1}"'.format(vocab.name, tag.name)
+        else:
+            tag_query += u'+tags:"{0}"'.format(tag.name)
 
-    package_dicts = [h.json.loads(result['data_dict'])
-                     for result in query.run(q)['results']]
+        q = {'q': tag_query, 'fl': 'data_dict', 'wt': 'json', 'rows': 1000}
+
+        package_dicts = [h.json.loads(result['data_dict'])
+                         for result in query.run(q)['results']]
 
     # Add display_names to tags. At first a tag's display_name is just the
     # same as its name, but the display_name might get changed later (e.g.
@@ -629,7 +632,7 @@ def group_to_api(group, context):
 def tag_to_api(tag, context):
     api_version = context.get('api_version')
     assert api_version, 'No api_version supplied in context'
-    dictized = tag_dictize(tag, context)
+    dictized = tag_dictize(tag, context, include_datasets=True)
     if api_version == 1:
         return sorted([package["name"] for package in dictized["packages"]])
     else:
@@ -701,15 +704,15 @@ def package_to_api(pkg, context):
 
     return dictized
 
-def vocabulary_dictize(vocabulary, context):
+def vocabulary_dictize(vocabulary, context, include_datasets=False):
     vocabulary_dict = d.table_dictize(vocabulary, context)
     assert not vocabulary_dict.has_key('tags')
-    vocabulary_dict['tags'] = [tag_dictize(tag, context) for tag
-            in vocabulary.tags]
+    vocabulary_dict['tags'] = [tag_dictize(tag, context, include_datasets)
+            for tag in vocabulary.tags]
     return vocabulary_dict
 
-def vocabulary_list_dictize(vocabulary_list, context):
-    return [vocabulary_dictize(vocabulary, context)
+def vocabulary_list_dictize(vocabulary_list, context, include_datasets=False):
+    return [vocabulary_dictize(vocabulary, context, include_datasets)
             for vocabulary in vocabulary_list]
 
 def activity_dictize(activity, context):
