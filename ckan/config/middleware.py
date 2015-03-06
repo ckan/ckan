@@ -218,7 +218,7 @@ class I18nMiddleware(object):
 
             if qs:
                 # sort out weird encodings
-                #qs = urllib.quote(qs, '')
+                qs = urllib.quote(qs, '')
                 environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
             else:
                 environ['CKAN_CURRENT_URL'] = path_info
