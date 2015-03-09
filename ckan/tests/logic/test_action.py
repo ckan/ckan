@@ -313,67 +313,6 @@ class TestAction(WsgiAppCase):
         assert json.loads(res.body)['error'] ==  {"__type": "Validation Error", "created": ["Date format incorrect"]}
 
 
-
-    def test_04_user_list(self):
-        # Create deleted user to make sure he won't appear in the user_list
-        deleted_user = CreateTestData.create_user('deleted_user')
-        deleted_user.delete()
-        model.repo.commit()
-
-        postparams = '%s=1' % json.dumps({})
-        res = self.app.post('/api/action/user_list', params=postparams)
-        res_obj = json.loads(res.body)
-        assert "/api/3/action/help_show?name=user_list" in res_obj['help']
-        assert res_obj['success'] == True
-        assert len(res_obj['result']) == 7
-        assert res_obj['result'][0]['name'] == 'annafan'
-        assert res_obj['result'][0]['about'] == 'I love reading Annakarenina. My site: http://anna.com'
-        assert not 'apikey' in res_obj['result'][0]
-
-    def test_05_user_show(self):
-        # Anonymous request
-        postparams = '%s=1' % json.dumps({'id':'annafan'})
-        res = self.app.post('/api/action/user_show', params=postparams)
-        res_obj = json.loads(res.body)
-        assert "/api/3/action/help_show?name=user_show" in res_obj['help']
-        assert res_obj['success'] == True
-        result = res_obj['result']
-        assert result['name'] == 'annafan'
-        assert result['about'] == 'I love reading Annakarenina. My site: http://anna.com'
-        assert 'created' in result
-        assert 'display_name' in result
-        assert 'number_created_packages' in result
-        assert 'number_of_edits' in result
-        assert not 'apikey' in result
-        assert not 'reset_key' in result
-
-        # Same user can see his api key
-        res = self.app.post('/api/action/user_show', params=postparams,
-                            extra_environ={'Authorization': str(self.normal_user.apikey)})
-
-        res_obj = json.loads(res.body)
-        result = res_obj['result']
-        assert result['name'] == 'annafan'
-        assert 'apikey' in result
-
-        # Sysadmin user can see everyone's api key
-        res = self.app.post('/api/action/user_show', params=postparams,
-                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
-
-        res_obj = json.loads(res.body)
-        result = res_obj['result']
-        assert result['name'] == 'annafan'
-        assert 'apikey' in result
-
-    def test_05b_user_show_datasets(self):
-        postparams = '%s=1' % json.dumps({'id':'annafan', 'include_datasets': True})
-        res = self.app.post('/api/action/user_show', params=postparams)
-        res_obj = json.loads(res.body)
-        result = res_obj['result']
-        datasets = result['datasets']
-        assert_equal(len(datasets), 0)  # No datasets created
-
-
     def test_10_user_create_parameters_missing(self):
         user_dict = {}
 

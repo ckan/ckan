@@ -9,7 +9,6 @@ import requests
 import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
-import ckan.lib.datapreview as datapreview
 import ckanext.datapusher.logic.schema as dpschema
 
 log = logging.getLogger(__name__)
@@ -167,10 +166,13 @@ def datapusher_hook(context, data_dict):
         dataset_dict = p.toolkit.get_action('package_show')(
             context, {'id': resource_dict['package_id']})
 
-        datapreview.add_default_views_to_resource(context,
-                                                  resource_dict,
-                                                  dataset_dict,
-                                                  create_datastore_views=True)
+        logic.get_action('resource_create_default_resource_views')(
+            context,
+            {
+                'resource': resource_dict,
+                'package': dataset_dict,
+                'create_datastore_views': True,
+            })
 
     context['ignore_auth'] = True
     p.toolkit.get_action('task_status_update')(context, task)

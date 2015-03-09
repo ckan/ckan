@@ -78,7 +78,7 @@ class ReclineView(ReclineViewBase):
                 'title': 'Data Explorer',
                 'filterable': True,
                 'icon': 'table',
-                'requires_datastore': True,
+                'requires_datastore': False,
                 'default_title': p.toolkit._('Data Explorer'),
                 }
 

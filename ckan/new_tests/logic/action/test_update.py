@@ -624,3 +624,102 @@ class TestResourceViewUpdate(object):
 
         result = helpers.call_action('resource_view_update', **params)
         assert_equals(result, resource_view)
+
+
+class TestResourceUpdate(object):
+
+    def setup(self):
+        import ckan.model as model
+        model.repo.rebuild_db()
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def test_url_only(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset, url='http://first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://second')
+
+        assert_equals(res_returned['url'], 'http://second')
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(resource['url'], 'http://second')
+
+    def test_extra_only(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset, newfield='first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url=resource['url'],
+                                           newfield='second')
+
+        assert_equals(res_returned['newfield'], 'second')
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(resource['newfield'], 'second')
+
+    def test_both_extra_and_url(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://first',
+                                      newfield='first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://second',
+                                           newfield='second')
+
+        assert_equals(res_returned['url'], 'http://second')
+        assert_equals(res_returned['newfield'], 'second')
+
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(res_returned['url'], 'http://second')
+        assert_equals(resource['newfield'], 'second')
+
+    def test_extra_gets_deleted_on_both_core_and_extra_update(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://first',
+                                      newfield='first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://second',
+                                           anotherfield='second')
+
+        assert_equals(res_returned['url'], 'http://second')
+        assert_equals(res_returned['anotherfield'], 'second')
+        assert 'newfield' not in res_returned
+
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(res_returned['url'], 'http://second')
+        assert_equals(res_returned['anotherfield'], 'second')
+        assert 'newfield' not in res_returned
+
+    def test_extra_gets_deleted_on_extra_only_update(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://first',
+                                      newfield='first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://first',
+                                           anotherfield='second')
+
+        assert_equals(res_returned['url'], 'http://first')
+        assert_equals(res_returned['anotherfield'], 'second')
+        assert 'newfield' not in res_returned
+
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(res_returned['url'], 'http://first')
+        assert_equals(res_returned['anotherfield'], 'second')
+        assert 'newfield' not in res_returned

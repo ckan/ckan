@@ -1694,7 +1694,7 @@ def resource_preview(resource, package):
 
     Depending on the type, different previews are loaded.
     This could be an img tag where the image is loaded directly or an iframe
-    that embeds a web page, recline or a pdf preview.
+    that embeds a web page or a recline preview.
     '''
 
     if not resource['url']:
