@@ -105,6 +105,7 @@ def default_resource_schema():
 
 def default_update_resource_schema():
     schema = default_resource_schema()
+    schema['revision_id'] = [ignore]
     return schema
 
 def default_tags_schema():
