@@ -32,11 +32,11 @@ class TestSimpleDump(TestController):
         assert 'russian' in res, res
         assert 'genre' in res, res
         assert 'romantic novel' in res, res
-        assert 'annakarenina.com/download' in res, res
+        assert 'datahub.io/download' in res, res
         assert 'Index of the novel' in res, res
         assert 'joeadmin' not in res, res
         self.assert_correct_field_order(res)
-        
+
     def test_simple_dump_json(self):
         dump_file = tempfile.TemporaryFile()
         simple_dumper.dump(dump_file, 'json')
@@ -74,7 +74,7 @@ class TestDumper(object):
         model.repo.rebuild_db()
 
     def test_dump(self):
-        assert os.path.exists(self.outpath) 
+        assert os.path.exists(self.outpath)
         dumpeddata = json.load(open(self.outpath))
         assert dumpeddata['version'] == ckan.__version__
         tables = dumpeddata.keys()
