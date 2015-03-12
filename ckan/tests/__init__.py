@@ -15,6 +15,7 @@ from unittest import TestCase
 from nose.tools import assert_equal, assert_not_equal, make_decorator
 from nose.plugins.skip import SkipTest
 import time
+import urllib
 
 from pylons import config
 from pylons.test import pylonsapp
@@ -457,7 +458,7 @@ def call_action_api(app, action, apikey=None, status=200, **kwargs):
     :rtype: dictionary
 
     '''
-    params = json.dumps(kwargs)
+    params = urllib.quote(json.dumps(kwargs))
     response = app.post('/api/action/{0}'.format(action), params=params,
             extra_environ={'Authorization': str(apikey)}, status=status)
     assert '/api/3/action/help_show?name={0}'.format(action) \
