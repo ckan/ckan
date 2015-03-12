@@ -50,6 +50,7 @@ __all__ = ['url_for',
            'BaseCase',
            'here_dir',
            'conf_dir',
+           'is_datastore_supported',
         ]
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
