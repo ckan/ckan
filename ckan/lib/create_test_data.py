@@ -416,7 +416,7 @@ class CreateTestData(object):
         model.Session.add(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
         pkg1.version = u'0.7a'
-        pkg1.url = u'http://www.annakarenina.com'
+        pkg1.url = u'http://datahub.io'
         # put an & in the url string to test escaping
         if 'alt_url' in model.Resource.get_extra_columns():
             configured_extras = ({'alt_url': u'alt123'},
@@ -424,7 +424,7 @@ class CreateTestData(object):
         else:
             configured_extras = ({}, {})
         pr1 = model.Resource(
-            url=u'http://www.annakarenina.com/download/x=1&y=2',
+            url=u'http://datahub.io/download/x=1&y=2',
             format=u'plain text',
             description=u'Full text. Needs escaping: " Umlaut: \xfc',
             hash=u'abc123',
@@ -432,7 +432,7 @@ class CreateTestData(object):
             **configured_extras[0]
             )
         pr2 = model.Resource(
-            url=u'http://www.annakarenina.com/index.json',
+            url=u'http://datahub.io/index.json',
             format=u'JSON',
             description=u'Index of the novel',
             hash=u'def456',
@@ -509,7 +509,7 @@ left arrow <
         model.Session.add_all([
             model.User(name=u'tester', apikey=u'tester', password=u'tester'),
             model.User(name=u'joeadmin', password=u'joeadmin'),
-            model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: http://anna.com', password=u'annafan'),
+            model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: http://datahub.io', password=u'annafan'),
             model.User(name=u'russianfan', password=u'russianfan'),
             sysadmin,
             ])

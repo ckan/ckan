@@ -109,7 +109,7 @@ class TestRevisionController(TestController):
         self.create_updating_revision(u'annakarenina',
             title=u"My Updated 'Annakarenina' Title",
             resources=[{
-                'url': u'http://www.annakarenina.com/download3',
+                'url': u'http://datahub.io/download3',
                 'format': u'zip file',
                 'description': u'Full text. Needs escaping: " Umlaut: \xfc',
                 'hash': u'def456',

@@ -52,7 +52,7 @@ class TestAction(WsgiAppCase):
             'resources': [{
                 'description': u'Full text.',
                 'format': u'plain text',
-                'url': u'http://www.annakarenina.com/download/'
+                'url': u'http://datahub.io/download/'
             }]
         }
         package.update(kwargs)
@@ -169,17 +169,17 @@ class TestAction(WsgiAppCase):
                            'format': u'plain text',
                            'hash': u'abc123',
                            'position': 0,
-                           'url': u'http://www.annakarenina.com/download/'},
+                           'url': u'http://datahub.io/download/'},
                           {'alt_url': u'alt345',
                            'description': u'Index of the novel',
                            'extras': {u'alt_url': u'alt345', u'size': u'345'},
                            'format': u'JSON',
                            'hash': u'def456',
                            'position': 1,
-                           'url': u'http://www.annakarenina.com/index.json'}],
+                           'url': u'http://datahub.io/index.json'}],
             'tags': [{'name': u'russian'}, {'name': u'tolstoy'}],
             'title': u'A Novel By Tolstoy',
-            'url': u'http://www.annakarenina.com',
+            'url': u'http://datahub.io',
             'version': u'0.7a'
         }
 
@@ -224,17 +224,17 @@ class TestAction(WsgiAppCase):
                            'format': u'plain text',
                            'hash': u'abc123',
                            'position': 0,
-                           'url': u'http://www.annakarenina.com/download/'},
+                           'url': u'http://datahub.io/download/'},
                           {'alt_url': u'alt345',
                            'description': u'Index of the novel',
                            'extras': {u'alt_url': u'alt345', u'size': u'345'},
                            'format': u'JSON',
                            'hash': u'def456',
                            'position': 1,
-                           'url': u'http://www.annakarenina.com/index.json'}],
+                           'url': u'http://datahub.io/index.json'}],
             'tags': [{'name': u'russian'}, {'name': u'tolstoy'}],
             'title': u'A Novel By Tolstoy',
-            'url': u'http://www.annakarenina.com',
+            'url': u'http://datahub.io',
             'owner_org': organization['id'],
             'version': u'0.7a',
         }
@@ -278,7 +278,7 @@ class TestAction(WsgiAppCase):
             'notes': u'Some test now',
             'tags': [{'name': u'russian'}, {'name': u'tolstoy'}],
             'title': u'A Novel By Tolstoy',
-            'url': u'http://www.annakarenina.com',
+            'url': u'http://datahub.io',
         }
 
         wee = json.dumps(package)
@@ -518,10 +518,10 @@ class TestAction(WsgiAppCase):
                 'format': u'plain text',
                 'hash': u'abc123',
                 'position': 0,
-                'url': u'http://www.annakarenina.com/download/'
+                'url': u'http://datahub.io/download/'
             }],
             'title': u'A Novel By Tolstoy',
-            'url': u'http://www.annakarenina.com',
+            'url': u'http://datahub.io',
         }
 
         postparams = '%s=1' % json.dumps(package)
@@ -1562,7 +1562,7 @@ class TestResourceAction(WsgiAppCase):
             'resources': [{
                 'description': u'Full text.',
                 'format': u'plain text',
-                'url': u'http://www.annakarenina.com/download/'
+                'url': u'http://datahub.io/download/'
             }]
         }
         package.update(kwargs)
@@ -1665,7 +1665,7 @@ class TestRelatedAction(WsgiAppCase):
             'resources': [{
                 'description': u'Full text.',
                 'format': u'plain text',
-                'url': u'http://www.annakarenina.com/download/'
+                'url': u'http://datahub.io/download/'
             }]
         }
         package.update(kwargs)

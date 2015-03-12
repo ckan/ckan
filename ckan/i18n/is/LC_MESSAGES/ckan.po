@@ -1,33 +1,33 @@
-# Icelandic translations for ckan.
-# Copyright (C) 2013 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
+# 
 # Translators:
 # Baldur Már Helgason <baldur.helgason@gmail.com>, 2013
 # Bjarki Sigursveinsson <bjarki@gmail.com>, 2013
 # Dagsson <dagsson@gmail.com>, 2014
-# Sigurður Fjalar Sigurðarson <fjalars@gmail.com>, 2013
 # Finnur Magnusson <gommit@gmail.com>, 2013
 # Hjörtur Einarsson <hjortur@gmail.com>, 2014
 # Jakob <jakobjs@gmail.com>, 2013
 # Páll Hilmarsson <pallih@kaninka.net>, 2012
 # Sean Hammond <sean.hammond@okfn.org>, 2013
+# Sigurður Fjalar Sigurðarson <fjalars@gmail.com>, 2013
 # Stefan Thor <stefan.thor.finnsson@reykjavik.is>, 2013
 # Tryggvi Björgvinsson <tryggvib@fsfi.is>, 2014
 msgid ""
 msgstr ""
-"Project-Id-Version:  CKAN\n"
+"Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-01-26 11:29+0000\n"
-"PO-Revision-Date: 2014-06-10 12:31+0000\n"
-"Last-Translator: Hjörtur Einarsson <hjortur@gmail.com>\n"
-"Language-Team: Icelandic "
-"(http://www.transifex.com/projects/p/ckan/language/is/)\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"POT-Creation-Date: 2015-01-26 11:55+0000\n"
+"PO-Revision-Date: 2015-01-26 12:19+0000\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
+"Language-Team: Icelandic (http://www.transifex.com/projects/p/ckan/language/is/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: is\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ckan/new_authz.py:178
 #, python-format
@@ -104,9 +104,7 @@ msgstr "Heimasíða"
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
-msgstr ""
-"Get ekki varanlega eytt %s þar sem tengd útgáfa %s inniheldur pakka %s "
-"sem á eftir að eyða út"
+msgstr "Get ekki varanlega eytt %s þar sem tengd útgáfa %s inniheldur pakka %s sem á eftir að eyða út"
 
 #: ckan/controllers/admin.py:153
 #, python-format
@@ -411,13 +409,10 @@ msgstr "Vefurinn er ekki virkur. Það á eftir að setja upp gagnagrunninn."
 
 #: ckan/controllers/home.py:100
 msgid ""
-"Please <a href=\"{link}\">update your profile</a> and add your email "
-"address and your full name. {site} uses your email address if you need to"
-" reset your password."
-msgstr ""
-"<a href=\"{link}\">Uppfærðu prófílinn</a> og bættu við netfangi og fullu "
-"nafni. {site} notar netfangið þitt til að senda tölvupóst til þín ef þú "
-"þarft að breyta aðgangsorðinu."
+"Please <a href=\"{link}\">update your profile</a> and add your email address"
+" and your full name. {site} uses your email address if you need to reset "
+"your password."
+msgstr "<a href=\"{link}\">Uppfærðu prófílinn</a> og bættu við netfangi og fullu nafni. {site} notar netfangið þitt til að senda tölvupóst til þín ef þú þarft að breyta aðgangsorðinu."
 
 #: ckan/controllers/home.py:103
 #, python-format
@@ -470,9 +465,7 @@ msgstr "Ógilt snið á útgáfu: %r"
 msgid ""
 "Viewing {package_type} datasets in {format} format is not supported "
 "(template file {file} not found)."
-msgstr ""
-"Skoðun á {package_type} gagnasöfnun á {format} sniði er ekki studd "
-"(sniðmátsskráin {file} fannst ekki)."
+msgstr "Skoðun á {package_type} gagnasöfnun á {format} sniði er ekki studd (sniðmátsskráin {file} fannst ekki)."
 
 #: ckan/controllers/package.py:472
 msgid "CKAN Dataset Revision History"
@@ -880,7 +873,8 @@ msgid "{actor} updated their profile"
 msgstr "{actor} uppfærði prófílinn sinn"
 
 #: ckan/lib/activity_streams.py:86
-msgid "{actor} updated the {related_type} {related_item} of the dataset {dataset}"
+msgid ""
+"{actor} updated the {related_type} {related_item} of the dataset {dataset}"
 msgstr "{actor} uppfærði {related_type} {related_item} í gagnapakkanum {dataset}"
 
 #: ckan/lib/activity_streams.py:89
@@ -952,7 +946,8 @@ msgid "{actor} started following {group}"
 msgstr "{actor} fylgist nú með safninu {group}"
 
 #: ckan/lib/activity_streams.py:142
-msgid "{actor} added the {related_type} {related_item} to the dataset {dataset}"
+msgid ""
+"{actor} added the {related_type} {related_item} to the dataset {dataset}"
 msgstr "{actor} bætti {related_type} {related_item} við gagnapakkann {dataset}"
 
 #: ckan/lib/activity_streams.py:145
@@ -1179,8 +1174,7 @@ msgstr ""
 
 #: ckan/lib/mailer.py:119
 msgid ""
-"You have been invited to {site_title}. A user has already been createdto "
-"you with the username {user_name}. You can change it later.\n"
+"You have been invited to {site_title}. A user has already been createdto you with the username {user_name}. You can change it later.\n"
 "\n"
 "To accept this invite, please reset your password at:\n"
 "\n"
@@ -1346,8 +1340,8 @@ msgstr "Heiti má ekki vera lengra en %i bókstafir"
 
 #: ckan/logic/validators.py:361
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
 msgstr ""
 
 #: ckan/logic/validators.py:379
@@ -1391,9 +1385,7 @@ msgstr "Efnisorðið „%s“ fer yfir %i stafa hámarkslengd"
 #: ckan/logic/validators.py:446
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr ""
-"Efnisorðið „%s“ verður að vera gert úr bókstöfum, tölustöfum eða "
-"táknunum: -_."
+msgstr "Efnisorðið „%s“ verður að vera gert úr bókstöfum, tölustöfum eða táknunum: -_."
 
 #: ckan/logic/validators.py:454
 #, python-format
@@ -1428,9 +1420,7 @@ msgstr "Aðgangsorðin sem þú slóst inn stemma ekki"
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
-msgstr ""
-"Breytingin er ekki leyfð þar sem hún lítur út fyrir að vera ruslefni. "
-"Forðastu að nota tengla í lýsingunni."
+msgstr "Breytingin er ekki leyfð þar sem hún lítur út fyrir að vera ruslefni. Forðastu að nota tengla í lýsingunni."
 
 #: ckan/logic/validators.py:633
 #, python-format
@@ -1444,9 +1434,7 @@ msgstr "Þetta heiti er þegar í notkun."
 #: ckan/logic/validators.py:647
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr ""
-"Ekki er hægt að breyta gildinu á lyklinum úr %s í %s. Þessi lykill er "
-"aðeins með lesaðgang."
+msgstr "Ekki er hægt að breyta gildinu á lyklinum úr %s í %s. Þessi lykill er aðeins með lesaðgang."
 
 #: ckan/logic/validators.py:656
 msgid "Tag vocabulary was not found."
@@ -1670,9 +1658,7 @@ msgstr "Notandinn %s hefur ekki leyfi til að bæta gagnapakka við þessa stofn
 
 #: ckan/logic/auth/create.py:58
 msgid "You must be a sysadmin to create a featured related item"
-msgstr ""
-"Þú verður að hafa réttindi kerfisstjóra til að búa til ítarefni sem sett "
-"verður í kastljósið"
+msgstr "Þú verður að hafa réttindi kerfisstjóra til að búa til ítarefni sem sett verður í kastljósið"
 
 #: ckan/logic/auth/create.py:62
 msgid "You must be logged in to add a related item"
@@ -1830,9 +1816,7 @@ msgstr "Eigandinn er sá eini sem getur uppfært ítarefni"
 
 #: ckan/logic/auth/update.py:148
 msgid "You must be a sysadmin to change a related item's featured field."
-msgstr ""
-"Þú verður að hafa réttindi kerfisstjóra til að breyta kastljóssreit "
-"ítarefnis."
+msgstr "Þú verður að hafa réttindi kerfisstjóra til að breyta kastljóssreit ítarefnis."
 
 #: ckan/logic/auth/update.py:165
 #, python-format
@@ -2134,11 +2118,9 @@ msgstr "Ekki tókst að sækja gögn úr skránni sem þú hlóðst inn"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop"
-" this upload?"
-msgstr ""
-"Þú ert að sækja skrá. Ertu viss um að viljir fara af síðunni og stöðva "
-"niðurhalið? "
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
+msgstr "Þú ert að sækja skrá. Ertu viss um að viljir fara af síðunni og stöðva niðurhalið? "
 
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:8
 msgid "Reorder resource view"
@@ -2196,9 +2178,7 @@ msgstr "Open Knowledge Foundation"
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
-msgstr ""
-"<strong>Keyrir á</strong> <a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a>"
+msgstr "<strong>Keyrir á</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
@@ -2244,8 +2224,9 @@ msgstr "Skráning"
 #: ckan/templates/revision/diff.html:11 ckan/templates/revision/read.html:65
 #: ckan/templates/snippets/organization.html:59
 #: ckan/templates/snippets/context/group.html:17
-#: ckan/templates/snippets/context/user.html:19 ckan/templates/user/read.html:5
-#: ckan/templates/user/read_base.html:19 ckan/templates/user/read_base.html:53
+#: ckan/templates/snippets/context/user.html:19
+#: ckan/templates/user/read.html:5 ckan/templates/user/read_base.html:19
+#: ckan/templates/user/read_base.html:53
 msgid "Datasets"
 msgstr "Gagnapakkar"
 
@@ -2313,38 +2294,22 @@ msgstr "CKAN stillingar"
 #: ckan/templates/admin/config.html:29
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> "
-"<p><strong>Style:</strong> Choose from a list of simple variations of the"
-" main colour scheme to get a very quick custom theme working.</p> "
-"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
-"<p><strong>Homepage:</strong> This is for choosing a predefined layout "
-"for the modules that appear on your homepage.</p> "
-msgstr ""
-" <p><strong>Titill svæðis:</strong> Þetta er heiti vefsvæðisins og er "
-"notað víða innan CKAN uppsetningarinnar.</p> <p><strong>Útlit:</strong> "
-"Veldu úr lista yfir fölbreytt litaþemu til að breyta útliti svæðisins með"
-" fljótlegum hætti. </p> <p><strong>Merki svæðisins:</strong> Þetta er "
-"myndin sem birtist í haus vefsvæðisins á öllum síðum.</p> "
-"<p><strong>Um:</strong> Þessi texti er notaður á síðunni <a "
-"href=\"%(about_url)s\">um vefinn</a>.</p> "
-"<p><strong>Kynningartexti:</strong> Þessi texti birtist á <a "
-"href=\"%(home_url)s\">forsíðunni</a> til að bjóða gesti velkomna. </p> "
-"<p><strong>Sérsniðið CSS:</strong> Þessi kóði birtist í "
-"<code>&lt;head&gt;</code> taginu á öllum síðum. Ef þú hefur áhuga á að "
-"krukka meira í sniðmátinu mælum við með að þú <a href=\"%(docs_url)s\" "
-"target=\"_blank\">lesir leiðbeiningarnar</a>.</p> "
-"<p><strong>Forsíða:</strong> Þetta er notað til að velja tilbúið sniðmát "
-"fyrir mismunandi þætti á forsíðunni þinni.</p>"
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
+"the modules that appear on your homepage.</p> "
+msgstr " <p><strong>Titill svæðis:</strong> Þetta er heiti vefsvæðisins og er notað víða innan CKAN uppsetningarinnar.</p> <p><strong>Útlit:</strong> Veldu úr lista yfir fölbreytt litaþemu til að breyta útliti svæðisins með fljótlegum hætti. </p> <p><strong>Merki svæðisins:</strong> Þetta er myndin sem birtist í haus vefsvæðisins á öllum síðum.</p> <p><strong>Um:</strong> Þessi texti er notaður á síðunni <a href=\"%(about_url)s\">um vefinn</a>.</p> <p><strong>Kynningartexti:</strong> Þessi texti birtist á <a href=\"%(home_url)s\">forsíðunni</a> til að bjóða gesti velkomna. </p> <p><strong>Sérsniðið CSS:</strong> Þessi kóði birtist í <code>&lt;head&gt;</code> taginu á öllum síðum. Ef þú hefur áhuga á að krukka meira í sniðmátinu mælum við með að þú <a href=\"%(docs_url)s\" target=\"_blank\">lesir leiðbeiningarnar</a>.</p> <p><strong>Forsíða:</strong> Þetta er notað til að velja tilbúið sniðmát fyrir mismunandi þætti á forsíðunni þinni.</p>"
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2359,9 +2324,8 @@ msgstr ""
 #, python-format
 msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
-"the CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin "
-"guide</a></p> "
+"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
+"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
 msgstr ""
 
 #: ckan/templates/admin/trash.html:20
@@ -2384,8 +2348,7 @@ msgstr "Opnaðu tilfangsgögn í gegnum nettengt API með öflugum leitarstuðni
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
-" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:33
@@ -2394,8 +2357,8 @@ msgstr "Viðmið"
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
 msgstr "Hægt er opna Data API með eftirfarandi aðgerðum CKAN action API."
 
 #: ckan/templates/ajax_snippets/api_info.html:42
@@ -2604,8 +2567,9 @@ msgstr "Ertu viss um að þú viljir eyða meðlimi - {name}?"
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
 #: ckan/templates/package/read_base.html:19
-#: ckan/templates/package/resource_read.html:31 ckan/templates/user/edit.html:8
-#: ckan/templates/user/edit_base.html:3 ckan/templates/user/read_base.html:14
+#: ckan/templates/package/resource_read.html:31
+#: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
+#: ckan/templates/user/read_base.html:14
 msgid "Manage"
 msgstr "Stjórna"
 
@@ -2673,7 +2637,8 @@ msgstr "Öfug stafrófsröð"
 msgid "There are currently no groups for this site"
 msgstr "Það eru engin söfn skráð"
 
-#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "Væri ekki ráð að gera eitthvað í því?"
 
@@ -2705,9 +2670,7 @@ msgstr "Núverandi notandi"
 #: ckan/templates/group/member_new.html:21
 #: ckan/templates/organization/member_new.html:23
 msgid "If you wish to add an existing user, search for their username below."
-msgstr ""
-"Ef þú vilt bæta við nýjum núverandi notanda skaltu leita að notandanafni "
-"þeirra hér að neðan."
+msgstr "Ef þú vilt bæta við nýjum núverandi notanda skaltu leita að notandanafni þeirra hér að neðan."
 
 #: ckan/templates/group/member_new.html:38
 #: ckan/templates/organization/member_new.html:40
@@ -2724,19 +2687,22 @@ msgstr "Nýr notandi"
 msgid "If you wish to invite a new user, enter their email address."
 msgstr "Ef þú vilt bjóða nýjum notanda skaltu slá inn netfang hans."
 
-#: ckan/templates/group/member_new.html:55 ckan/templates/group/members.html:18
+#: ckan/templates/group/member_new.html:55
+#: ckan/templates/group/members.html:18
 #: ckan/templates/organization/member_new.html:56
 #: ckan/templates/organization/members.html:18
 msgid "Role"
 msgstr "Hlutverk"
 
-#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:30
+#: ckan/templates/group/member_new.html:58
+#: ckan/templates/group/members.html:30
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:30
 msgid "Are you sure you want to delete this member?"
 msgstr "Ertu viss um að þú viljir eyða þessum meðlim?"
 
-#: ckan/templates/group/member_new.html:59 ckan/templates/group/members.html:35
+#: ckan/templates/group/member_new.html:59
+#: ckan/templates/group/members.html:35
 #: ckan/templates/group/snippets/group_form.html:61
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:60
@@ -2763,13 +2729,10 @@ msgstr "Hvað eru hlutverk?"
 
 #: ckan/templates/group/member_new.html:81
 msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage"
-" organization members.</p> <p><strong>Member:</strong> Can add/remove "
+" <p><strong>Admin:</strong> Can edit group information, as well as manage "
+"organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
-msgstr ""
-" <p><strong>Sjórnandi:</strong> Getur breytt upplýsingum safns og stýrt "
-"aðgangi meðlima í stofnun.</p> <p><strong>Member:</strong> Getur bætt "
-"við/fjarlægt gagnapakka úr söfnum</p>"
+msgstr " <p><strong>Sjórnandi:</strong> Getur breytt upplýsingum safns og stýrt aðgangi meðlima í stofnun.</p> <p><strong>Member:</strong> Getur bætt við/fjarlægt gagnapakka úr söfnum</p>"
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -2890,15 +2853,11 @@ msgstr "Hvað eru söfn?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. "
-"This could be to catalogue datasets for a particular project or team, or "
-"on a particular theme, or as a very simple way to help people find and "
-"search your own published datasets. "
-msgstr ""
-"Þú getur notað CKAN söfn til að búa til og stjórna gagnapakkasöfnum. "
-"Þannig er hægt að skrá gagnapakka fyrir tiltekið verkefni eða lið, eða í "
-"tilteknu þema, og þannig geturðu einnig hjálpað fólki við að finna og "
-"leita að þínum útgefnu gagnapökkum."
+" You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets. "
+msgstr "Þú getur notað CKAN söfn til að búa til og stjórna gagnapakkasöfnum. Þannig er hægt að skrá gagnapakka fyrir tiltekið verkefni eða lið, eða í tilteknu þema, og þannig geturðu einnig hjálpað fólki við að finna og leita að þínum útgefnu gagnapökkum."
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
@@ -2961,14 +2920,13 @@ msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision of "
+"robust data APIs). CKAN is aimed at data publishers (national and regional "
+"governments, companies and organizations) wanting to make their data open "
+"and available.</p> <p>CKAN is used by governments and user groups worldwide "
+"and powers a variety of official and community data portals including "
+"portals for local, national and international government, such as the UK’s "
+"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -2977,25 +2935,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
-" <p>CKAN er leiðandi opinn hugbúnaður fyrir hýsingu á gögnum.</p> <p>CKAN"
-" er heildarlausn tilbúin til uppsetningar og gerir gögn bæði aðgengileg "
-"og gagnleg - með því að bjóða upp á lausn sem einfaldar útgáfu, deilingu,"
-" leit og notkun á gögnum (þ.m.t. geymslu gagna). CKAN er hannað fyrir "
-"útgefendur gagna (ríki og sveitarfélög, fyrirtæki og stofnanir) sem vilja"
-" gera eigin gögn opinber og aðgengileg.</p> <p>CKAN er notað af "
-"ríkisstjórnum og öðrum aðilum víðs vegar um heiminn og keyrir alls konar "
-"opinberar og samfélagslegar gagnaveitur, þ.m.t. gagnagáttir fyrir "
-"staðbundna og alþjóðlega stjórnsýslu, t.d. <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> í Bretlandi og <a "
-"href=\"http://publicdata.eu/\">publicdata.eu</a> fyrir ESB, <a "
-"href=\"http://dados.gov.br/\">dados.gov.br</a> í Brasilíu og hollenskar "
-"stjórnsýslugáttir, og auk þess vefsíður fyrir borgir og sveitarfélög í "
-"BNA, Bretlandi, Argentínu, Finnlandi og annars staðar. </p> <p>CKAN: <a "
-"href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a "
-"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Yfirlit "
-"yfir það helsta: <a "
-"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+msgstr " <p>CKAN er leiðandi opinn hugbúnaður fyrir hýsingu á gögnum.</p> <p>CKAN er heildarlausn tilbúin til uppsetningar og gerir gögn bæði aðgengileg og gagnleg - með því að bjóða upp á lausn sem einfaldar útgáfu, deilingu, leit og notkun á gögnum (þ.m.t. geymslu gagna). CKAN er hannað fyrir útgefendur gagna (ríki og sveitarfélög, fyrirtæki og stofnanir) sem vilja gera eigin gögn opinber og aðgengileg.</p> <p>CKAN er notað af ríkisstjórnum og öðrum aðilum víðs vegar um heiminn og keyrir alls konar opinberar og samfélagslegar gagnaveitur, þ.m.t. gagnagáttir fyrir staðbundna og alþjóðlega stjórnsýslu, t.d. <a href=\"http://data.gov.uk\">data.gov.uk</a> í Bretlandi og <a href=\"http://publicdata.eu/\">publicdata.eu</a> fyrir ESB, <a href=\"http://dados.gov.br/\">dados.gov.br</a> í Brasilíu og hollenskar stjórnsýslugáttir, og auk þess vefsíður fyrir borgir og sveitarfélög í BNA, Bretlandi, Argentínu, Finnlandi og annars staðar. </p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Yfirlit yfir það helsta: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -3003,11 +2943,9 @@ msgstr "Velkomin(n) í CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will "
-msgstr ""
-"Þetta er fínn inngangstexti um CKAN. Við höfum ekkert til að setja hér "
-"ennþá en það kemur"
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will "
+msgstr "Þetta er fínn inngangstexti um CKAN. Við höfum ekkert til að setja hér ennþá en það kemur"
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -3064,8 +3002,8 @@ msgstr "ítarefni"
 #: ckan/templates/macros/form.html:126
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 
@@ -3138,8 +3076,8 @@ msgstr "Drög"
 #: ckan/templates/package/read.html:11
 #: ckan/templates/package/snippets/package_basic_fields.html:91
 #: ckan/templates/snippets/package_item.html:31
-#: ckan/templates/snippets/private.html:2 ckan/templates/user/read_base.html:82
-#: ckan/templates/user/read_base.html:96
+#: ckan/templates/snippets/private.html:2
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "Private"
 msgstr "Einkamál"
 
@@ -3179,15 +3117,9 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p> "
-msgstr ""
-" <p><strong>Stjórnandi:</strong> Getur bætt við, breytt og eytt "
-"gagnapökkum, auk þess að stýra aðgangi meðlima í stofnun.</p> "
-"<p><strong>Útgefandi:</strong> Getur bætt við og breytt gagnapökkum en "
-"ekki stýrt aðgangi notenda.</p> <p><strong>Meðlimur:</strong> Getur "
-"skoðað óútgefna gagnapakka stofnunar en ekki bætt við nýjum "
-"gagnapökkum.</p> "
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p> "
+msgstr " <p><strong>Stjórnandi:</strong> Getur bætt við, breytt og eytt gagnapökkum, auk þess að stýra aðgangi meðlima í stofnun.</p> <p><strong>Útgefandi:</strong> Getur bætt við og breytt gagnapökkum en ekki stýrt aðgangi notenda.</p> <p><strong>Meðlimur:</strong> Getur skoðað óútgefna gagnapakka stofnunar en ekki bætt við nýjum gagnapökkum.</p> "
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3221,24 +3153,20 @@ msgstr "Hvað eru stofnanir?"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for "
-"example, the Department of Health). This means that datasets can be "
-"published by and belong to a department instead of an individual "
-"user.</p> <p>Within organizations, admins can assign roles and authorise "
-"its members, giving individual users the right to publish datasets from "
-"that particular organisation (e.g. Office of National Statistics).</p> "
+" <p>Organizations act like publishing departments for datasets (for example,"
+" the Department of Health). This means that datasets can be published by and"
+" belong to a department instead of an individual user.</p> <p>Within "
+"organizations, admins can assign roles and authorise its members, giving "
+"individual users the right to publish datasets from that particular "
+"organisation (e.g. Office of National Statistics).</p> "
 msgstr ""
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of"
-" datasets. Users can have different roles within an Organization, "
-"depending on their level of authorisation to create, edit and publish. "
-msgstr ""
-"CKAN stofnanir eru notaðar til að búa til, stýra og gefa út "
-"gagnapakkasöfn. Notendur geta gegnt mismunandi hlutverkum innan "
-"stofnanna, í samræmi við heimildir sem þeir hafa til að búa til, breyta "
-"og gefa út."
+" CKAN Organizations are used to create, manage and publish collections of "
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish. "
+msgstr "CKAN stofnanir eru notaðar til að búa til, stýra og gefa út gagnapakkasöfn. Notendur geta gegnt mismunandi hlutverkum innan stofnanna, í samræmi við heimildir sem þeir hafa til að búa til, breyta og gefa út."
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3254,11 +3182,9 @@ msgstr "Stutt lýsing á stofnuninni..."
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all "
-"the public and private datasets belonging to this organization."
-msgstr ""
-"Ertu viss um að þú viljir eyða þessari stofnun? Þetta mun eyða öllum "
-"opinberum og lokuðum gagnapökkum sem tilheyra þessari stofnun."
+"Are you sure you want to delete this Organization? This will delete all the "
+"public and private datasets belonging to this organization."
+msgstr "Ertu viss um að þú viljir eyða þessari stofnun? Þetta mun eyða öllum opinberum og lokuðum gagnapökkum sem tilheyra þessari stofnun."
 
 #: ckan/templates/organization/snippets/organization_form.html:64
 msgid "Save Organization"
@@ -3280,13 +3206,10 @@ msgstr "Hvað eru gagnapakkar?"
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
-" A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data. "
-msgstr ""
-"CKAN gagnapakki er safn tilfanga gagna (t.d. skrár), ásamt lýsingu og "
-"öðrum upplýsingum, á ákveðinni vefslóð. Gagnapakkar eru það sem notendur "
-"sjá þegar þeir leita að gögnum."
+" A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data. "
+msgstr "CKAN gagnapakki er safn tilfanga gagna (t.d. skrár), ásamt lýsingu og öðrum upplýsingum, á ákveðinni vefslóð. Gagnapakkar eru það sem notendur sjá þegar þeir leita að gögnum."
 
 #: ckan/templates/package/confirm_delete.html:11
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -3368,9 +3291,9 @@ msgstr ""
 msgid ""
 " Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer"
-" documentation</a>. "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>Data Explorer "
+"documentation</a>. "
 msgstr ""
 
 #: ckan/templates/package/new_view.html:29
@@ -3381,12 +3304,9 @@ msgstr "Bæta við"
 #: ckan/templates/package/read_base.html:38
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
-msgstr ""
-"Þetta er gömul útgáfa af gagnapakkanum, breytt %(timestamp)s. Hún getur "
-"verið töluvert frábrugðin <a href=\"%(url)s\">núgildandi útgáfu</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
+"differ significantly from the <a href=\"%(url)s\">current revision</a>."
+msgstr "Þetta er gömul útgáfa af gagnapakkanum, breytt %(timestamp)s. Hún getur verið töluvert frábrugðin <a href=\"%(url)s\">núgildandi útgáfu</a>."
 
 #: ckan/templates/package/related_list.html:7
 msgid "Related Media for {dataset}"
@@ -3509,9 +3429,9 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:125
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr ""
 
 #: ckan/templates/package/resource_read.html:147
@@ -3570,11 +3490,9 @@ msgstr "Bæta við nýju tilfangi"
 #: ckan/templates/package/snippets/resources_list.html:25
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
-" add some?</a></p> "
-msgstr ""
-" <p class=\"empty\">Þessi gagnapakki er ekki með nein gögn. <a "
-"href=\"%(url)s\">Viltu ekki bæta nokkrum við?</a></p> "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+"add some?</a></p> "
+msgstr " <p class=\"empty\">Þessi gagnapakki er ekki með nein gögn. <a href=\"%(url)s\">Viltu ekki bæta nokkrum við?</a></p> "
 
 #: ckan/templates/package/search.html:53
 msgid "API Docs"
@@ -3589,18 +3507,14 @@ msgstr "fullt {format} úrtak"
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
-msgstr ""
-"Þú getur líka fengið aðgang að skránni með %(api_link)s (sjá "
-"%(api_doc_link)s) eða hlaðið niður %(dump_link)s."
+msgstr "Þú getur líka fengið aðgang að skránni með %(api_link)s (sjá %(api_doc_link)s) eða hlaðið niður %(dump_link)s."
 
 #: ckan/templates/package/search.html:60
 #, python-format
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
-msgstr ""
-"Þú getur líka fengið aðgang að skránni með %(api_link)s (sjá "
-"%(api_doc_link)s). "
+msgstr "Þú getur líka fengið aðgang að skránni með %(api_link)s (sjá %(api_doc_link)s). "
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
@@ -3675,9 +3589,7 @@ msgstr "t.d. efnahagur, geðheilsa, stjórnvöld"
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
-msgstr ""
-"Skilgreiningar á leyfisskilmálum má finna á <a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
+msgstr "Skilgreiningar á leyfisskilmálum má finna á <a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:69
 #: ckan/templates/snippets/organization.html:23
@@ -3702,12 +3614,11 @@ msgstr "Virkt"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
 msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:39
@@ -3814,9 +3725,7 @@ msgstr "Hvað er tilfang?"
 
 #: ckan/templates/package/snippets/resource_help.html:4
 msgid "A resource can be any file or link to a file containing useful data."
-msgstr ""
-"Tilfang getur verið skjal, hlekkur á skjal eða tilvísun í gagnaveitu með "
-"nýtanlegum gögnum."
+msgstr "Tilfang getur verið skjal, hlekkur á skjal eða tilvísun í gagnaveitu með nýtanlegum gögnum."
 
 #: ckan/templates/package/snippets/resource_item.html:24
 msgid "Explore"
@@ -3922,15 +3831,11 @@ msgstr "Hvað er ítarefni?"
 
 #: ckan/templates/related/base_form_page.html:22
 msgid ""
-" <p>Related Media is any app, article, visualisation or idea related to "
-"this dataset.</p> <p>For example, it could be a custom visualisation, "
-"pictograph or bar chart, an app using all or part of the data or even a "
-"news story that references this dataset.</p> "
-msgstr ""
-" <p>Ítarefni getur verið forrit, grein, myndræn framsetning eða hugmynd "
-"tengd gagnapakkanum.</p> <p> Það gæti til dæmis verið sérsniðin "
-"framsetning, skýringarmynd eða línurit, eða forrit sem notar öll gögnin "
-"eða hluta af þeim eða jafnvel fréttagrein sem vísar í gagnapakkann.</p> "
+" <p>Related Media is any app, article, visualisation or idea related to this"
+" dataset.</p> <p>For example, it could be a custom visualisation, pictograph"
+" or bar chart, an app using all or part of the data or even a news story "
+"that references this dataset.</p> "
+msgstr " <p>Ítarefni getur verið forrit, grein, myndræn framsetning eða hugmynd tengd gagnapakkanum.</p> <p> Það gæti til dæmis verið sérsniðin framsetning, skýringarmynd eða línurit, eða forrit sem notar öll gögnin eða hluta af þeim eða jafnvel fréttagrein sem vísar í gagnapakkann.</p> "
 
 #: ckan/templates/related/confirm_delete.html:11
 msgid "Are you sure you want to delete related item - {name}?"
@@ -3947,9 +3852,7 @@ msgstr "Forrit og hugmyndir"
 msgid ""
 " <p>Showing items <strong>%(first)s - %(last)s</strong> of "
 "<strong>%(item_count)s</strong> related items found</p> "
-msgstr ""
-" <p>Sýni atriði <strong>%(first)s - %(last)s</strong> úr "
-"<strong>%(item_count)s</strong> ítarefni sem fannst</p> "
+msgstr " <p>Sýni atriði <strong>%(first)s - %(last)s</strong> úr <strong>%(item_count)s</strong> ítarefni sem fannst</p> "
 
 #: ckan/templates/related/dashboard.html:25
 #, python-format
@@ -3966,11 +3869,9 @@ msgstr "Hvað eru forrit?"
 
 #: ckan/templates/related/dashboard.html:50
 msgid ""
-" These are applications built with the datasets as well as ideas for "
-"things that could be done with them. "
-msgstr ""
-"Þetta eru kerfi sem byggja á gagnapakkanum og hugmyndir um hvernig má "
-"nota þau."
+" These are applications built with the datasets as well as ideas for things "
+"that could be done with them. "
+msgstr "Þetta eru kerfi sem byggja á gagnapakkanum og hugmyndir um hvernig má nota þau."
 
 #: ckan/templates/related/dashboard.html:58
 #: ckan/templates/snippets/search_form.html:70
@@ -4175,9 +4076,7 @@ msgstr "Engin lýsing er til á þessum gagnapakka"
 msgid ""
 "No apps, ideas, news stories or images have been related to this dataset "
 "yet."
-msgstr ""
-"Engin forrit, hugmyndir, fréttir eða myndir eru tengdar þessum gagnapakka"
-" enn."
+msgstr "Engin forrit, hugmyndir, fréttir eða myndir eru tengdar þessum gagnapakka enn."
 
 #: ckan/templates/snippets/related.html:18
 msgid "Add Item"
@@ -4201,9 +4100,7 @@ msgstr " <p class=\"extra\">Reyndu aðra leit.</p> "
 msgid ""
 " <p><strong>There was an error while searching.</strong> Please try "
 "again.</p> "
-msgstr ""
-" <p><strong>Það kom upp villa við leitina.</strong> Vinsamlegast reyndu "
-"aftur.</p> "
+msgstr " <p><strong>Það kom upp villa við leitina.</strong> Vinsamlegast reyndu aftur.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -4353,8 +4250,7 @@ msgstr "Notandaupplýsingar"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you "
-"do. "
+" Your profile lets other CKAN users know about who you are and what you do. "
 msgstr "Prófíllinn þinn gefur öðrum notendum kost á að kynnast þér betur."
 
 #: ckan/templates/user/edit_user_form.html:7
@@ -4484,9 +4380,7 @@ msgstr "Þú ert þegar innskráð(ur)"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
-msgstr ""
-"Þú verður að skrá þig út áður en þú getur skráð þig aftur inn sem annar "
-"notandi."
+msgstr "Þú verður að skrá þig út áður en þú getur skráð þig aftur inn sem annar notandi."
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
@@ -4580,11 +4474,9 @@ msgstr ""
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
-"Enter your username into the box and we will send you an email with a "
-"link to enter a new password."
-msgstr ""
-"Sláðu notandanafnið þitt inn í svæðið. Við munum senda þér tölvupóst með "
-"tengil á síðu þar sem þú getur valið nýtt aðgangsorð."
+"Enter your username into the box and we will send you an email with a link "
+"to enter a new password."
+msgstr "Sláðu notandanafnið þitt inn í svæðið. Við munum senda þér tölvupóst með tengil á síðu þar sem þú getur valið nýtt aðgangsorð."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
 #: ckan/templates/user/snippets/followee_dropdown.html:15
@@ -4629,8 +4521,8 @@ msgstr "Tilfang DataStore fannst ekki"
 
 #: ckanext/datastore/db.py:652
 msgid ""
-"The data was invalid (for example: a numeric value is out of range or was"
-" inserted into a text field)."
+"The data was invalid (for example: a numeric value is out of range or was "
+"inserted into a text field)."
 msgstr ""
 
 #: ckanext/datastore/logic/action.py:209 ckanext/datastore/logic/action.py:259
@@ -4724,71 +4616,27 @@ msgid ""
 "LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
 "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
 "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
-msgstr ""
-"Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid\n"
-"\n"
-"Permission is hereby granted, free of charge, to any person obtaining\n"
-"a copy of this software and associated documentation files (the\n"
-"\"Software\"), to deal in the Software without restriction, including\n"
-"without limitation the rights to use, copy, modify, merge, publish,\n"
-"distribute, sublicense, and/or sell copies of the Software, and to\n"
-"permit persons to whom the Software is furnished to do so, subject to\n"
-"the following conditions:\n"
-"\n"
-"The above copyright notice and this permission notice shall be\n"
-"included in all copies or substantial portions of the Software.\n"
-"\n"
-"THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\n"
-"EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\n"
-"MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n"
-"NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\n"
-"LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
-"OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
-"WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
+msgstr "Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\nLIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\nWITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
 
 #: ckanext/reclineview/theme/public/vendor/slickgrid/2.0.1/README.txt:1
 msgid ""
-"This compiled version of SlickGrid has been obtained with the Google "
-"Closure\n"
+"This compiled version of SlickGrid has been obtained with the Google Closure\n"
 "Compiler, using the following command:\n"
 "\n"
-"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js "
-"--js=slick.editors.js --js_output_file=slick.grid.min.js\n"
+"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n"
 "\n"
-"There are two other files required for the SlickGrid view to work "
-"properly:\n"
+"There are two other files required for the SlickGrid view to work properly:\n"
 "\n"
 " * jquery-ui-1.8.16.custom.min.js \n"
 " * jquery.event.drag-2.0.min.js\n"
 "\n"
-"These are included in the Recline source, but have not been included in "
-"the\n"
+"These are included in the Recline source, but have not been included in the\n"
 "built file to make easier to handle compatibility problems.\n"
 "\n"
 "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
 "\n"
 "[1] https://developers.google.com/closure/compiler/"
-msgstr ""
-"This compiled version of SlickGrid has been obtained with the Google "
-"Closure\n"
-"Compiler, using the following command:\n"
-"\n"
-"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js "
-"--js=slick.editors.js --js_output_file=slick.grid.min.js\n"
-"\n"
-"There are two other files required for the SlickGrid view to work "
-"properly:\n"
-"\n"
-" * jquery-ui-1.8.16.custom.min.js \n"
-" * jquery.event.drag-2.0.min.js\n"
-"\n"
-"These are included in the Recline source, but have not been included in "
-"the\n"
-"built file to make easier to handle compatibility problems.\n"
-"\n"
-"Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
-"\n"
-"[1] https://developers.google.com/closure/compiler/"
+msgstr "This compiled version of SlickGrid has been obtained with the Google Closure\nCompiler, using the following command:\n\njava -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n\nThere are two other files required for the SlickGrid view to work properly:\n\n * jquery-ui-1.8.16.custom.min.js \n * jquery.event.drag-2.0.min.js\n\nThese are included in the Recline source, but have not been included in the\nbuilt file to make easier to handle compatibility problems.\n\nPlease check SlickGrid license in the included MIT-LICENSE.txt file.\n\n[1] https://developers.google.com/closure/compiler/"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -4979,12 +4827,9 @@ msgstr "Efstu gagnapakkar"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:18
 msgid ""
-"Choose a dataset attribute and find out which categories in that area "
-"have the most datasets. E.g. tags, groups, license, res_format, country."
-msgstr ""
-"Veldu eigind fyrir gagnapakka til að sjá hvaða flokkar á því sviði "
-"innihalda flesta pakka. T.d. efnisorð, söfn, leyfisskilmála, upplausn, "
-"land."
+"Choose a dataset attribute and find out which categories in that area have "
+"the most datasets. E.g. tags, groups, license, res_format, country."
+msgstr "Veldu eigind fyrir gagnapakka til að sjá hvaða flokkar á því sviði innihalda flesta pakka. T.d. efnisorð, söfn, leyfisskilmála, upplausn, land."
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:20
 msgid "Choose area"
@@ -5001,1583 +4846,3 @@ msgstr ""
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
 msgstr ""
-
-#~ msgid "\"page\" parameter must be a positive integer"
-#~ msgstr "Breytan ,,síða\" verður að vera jákvæð heiltala"
-
-#~ msgid "%s is now logged in"
-#~ msgstr "%s er skráð(ur) inn"
-
-#~ msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
-#~ msgstr "(Eða ef þú notar OpenID, hefur það ekki verið tengt við notandaaðgang.)"
-
-#~ msgid "The resource url is not specified."
-#~ msgstr "Slóð tilfangs er ekki tilgreind."
-
-#~ msgid "No preview handler for resource of type {0}"
-#~ msgstr "Engin meðhöndlun forskoðunar fyrir tilfang af gerðinni {0}"
-
-#~ msgid "The resource format is not specified."
-#~ msgstr "Snið tilfangs er ekki tilgreint."
-
-#~ msgid ""
-#~ "You have requested your password on %(site_title)s to be reset.\n"
-#~ "\n"
-#~ "    Please click the following link to confirm this request:\n"
-#~ "\n"
-#~ "       %(reset_link)s\n"
-#~ "    "
-#~ msgstr ""
-#~ "Þú baðst um að aðgangsorð á %(site_title)s yrði endurstillt.\n"
-#~ "\n"
-#~ "    Smelltu á eftirfarandi tengil til að staðfesta þessa beiðni:\n"
-#~ "\n"
-#~ "       %(reset_link)s\n"
-#~ "    "
-
-#~ msgid ""
-#~ "You have been invited to %(site_title)s."
-#~ " A user has already been created "
-#~ "to\n"
-#~ "    you with the username %(user_name)s. You can change it later.\n"
-#~ "\n"
-#~ "    To accept this invite, please reset your password at:\n"
-#~ "\n"
-#~ "       %(reset_link)s\n"
-#~ "    "
-#~ msgstr ""
-#~ "Þér hefur verið boðið á %(site_title)s."
-#~ " Það er þegar búið að stofna "
-#~ "notanda fyrir þig með notandanafninu "
-#~ "%(user_name)s. Þú getur breytt því "
-#~ "síðar.\n"
-#~ "\n"
-#~ "    Til að samþykkja boðið skaltu endurstilla aðgangsorðið þitt á:\n"
-#~ "\n"
-#~ "       %(reset_link)s\n"
-#~ "    "
-
-#~ msgid "No web page given"
-#~ msgstr "Engin vefsíða gefin upp"
-
-#~ msgid "Author not given"
-#~ msgstr "Höfundur ekki tilgreindur"
-
-#~ msgid "Maintainer not given"
-#~ msgstr "Enginn umsjónarmaður tilgreindur"
-
-#~ msgid ""
-#~ "Url must be purely lowercase "
-#~ "alphanumeric (ascii) characters and these "
-#~ "symbols: -_"
-#~ msgstr "Vefslóð verður að vera skrifuð með lágstöfum og eftirfarandi táknum: -_"
-
-#~ msgid "User %s not authorized to delete package %s"
-#~ msgstr "Notandinn %s hefur ekki heimild til að eyða pakkanum %s"
-
-#~ msgid "User %s not authorized to delete organization %s members"
-#~ msgstr "Notandinn %s hefur ekki heimild til að eyða meðlimum stofnunarinnar %s"
-
-#~ msgid "License Not Specified"
-#~ msgstr "Leyfi ekki tilgreint"
-
-#~ msgid "Reset this"
-#~ msgstr "Endurstilltu þetta"
-
-#~ msgid "What are sysadmins?"
-#~ msgstr "Hvað gera kerfisstjórar?"
-
-#~ msgid ""
-#~ " <p>A sysadmin is someone that has"
-#~ " full control over a CKAN instance."
-#~ " You can only add CKAN sysadmins "
-#~ "via the <code>sysadmin</code> paster "
-#~ "command.</p> "
-#~ msgstr ""
-#~ " <p>Kerfisstjóri er einhver sem hefur"
-#~ " fulla stjórn á CKAN kerfinu. Þú "
-#~ "getur aðeins bætt CKAN kerfisstjórum við"
-#~ " með því að nota <code>sysadmin</code> "
-#~ "paster skipunina.</p> "
-
-#~ msgid "Read the documentation"
-#~ msgstr "Lesa upplýsingar"
-
-#~ msgid ""
-#~ " Further information in the <a       "
-#~ "href=\"http://docs.ckan.org/en/latest/datastore.html\" "
-#~ "target=\"_blank\">main CKAN Data API and "
-#~ "DataStore documentation</a>.</p> "
-#~ msgstr ""
-#~ "Frekari upplýsingar má finna í <a"
-#~ "       href=\"http://docs.ckan.org/en/latest/datastore.html\" "
-#~ "target=\"_blank\">aðalleiðbeiningum CKAN Data API"
-#~ " og DataStore</a>.</p> "
-
-#~ msgid "There is no description for this group"
-#~ msgstr "Engin lýsing fyrir þetta safn"
-
-#~ msgid "eg. Gold Prices"
-#~ msgstr "t.d. gjöld ríkissjóðs"
-
-#~ msgid "Search Your Data"
-#~ msgstr "Finndu gögn"
-
-#~ msgid "Popular Tags"
-#~ msgstr "Vinsæl efnisorð"
-
-#~ msgid ""
-#~ "You can use <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\" "
-#~ "target=\"_blank\">Markdown formatting</a> here"
-#~ msgstr ""
-#~ "Þú getur notað <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\" "
-#~ "target=\"_blank\">Markdown snið</a> hér"
-
-#~ msgid ""
-#~ " <p>Organizations act like publishing "
-#~ "departments for datasets (for example, "
-#~ "the Department of Health). This means"
-#~ " that datasets can be published by"
-#~ " and belong to a department instead"
-#~ " of an individual user.</p> <p>Within "
-#~ "organizations, admins can assign roles "
-#~ "and authorisation its members, giving "
-#~ "individual users the right to publish"
-#~ " datasets from that particular organisation"
-#~ " (e.g. Office of National Statistics).</p>"
-#~ " "
-#~ msgstr ""
-#~ " <p>Stofnanir eru útgefendur gagnapakka "
-#~ "(til dæmis Fjármálaráðuneytið).  Gagnapakkar "
-#~ "eru gefnir út undir stofnun frekar "
-#~ "en í nafni einstaklinga.</p> <p>Stjórnendur"
-#~ " geta úthlutað hlutverkum og "
-#~ "aðgangsheimildum innan stofnana og þannig "
-#~ "gefið notendum réttindi til að gefa "
-#~ "út gagnapakka fyrir viðkomandi stofnun.</p>"
-#~ " "
-
-#~ msgid "This organization has no description"
-#~ msgstr "Þessi stofnun hefur enga lýsingu"
-
-#~ msgid "Add metadata to the dataset"
-#~ msgstr "Bæta lýsigögnum við gagnapakka"
-
-#~ msgid ""
-#~ "This is the current revision of "
-#~ "this dataset, as edited at "
-#~ "%(timestamp)s."
-#~ msgstr ""
-#~ "Þetta er nýjasta útgáfan af þessum "
-#~ "gagnapakka og var uppfærð %(timestamp)s."
-
-#~ msgid "There is no description for this resource"
-#~ msgstr "Það er engin lýsing á þessari skrá"
-
-#~ msgid "There is no description for this dataset"
-#~ msgstr "Engin lýsing er til fyrir þennan gagnapakka"
-
-#~ msgid ""
-#~ "Important: By submitting content, you "
-#~ "agree to release your contributions "
-#~ "under the Open Database License."
-#~ msgstr ""
-#~ "Athugið: Með því að senda inn efni"
-#~ " samþykkir þú að gefa það út "
-#~ "undir leyfisskilmálum fyrir opna gagnagrunna"
-#~ " (Open Database License)."
-
-#~ msgid "Next: Additional Info"
-#~ msgstr "Næst: Viðbótarupplýsingar"
-
-#~ msgid "No description for this resource"
-#~ msgstr "Engin lýsing fyrir þessa skrá"
-
-#~ msgid ""
-#~ " <p class=\"empty\">This dataset has no"
-#~ " data, <a href=\"%(url)s\">why not add "
-#~ "some?</a> "
-#~ msgstr ""
-#~ " <p class=\"empty\">Þessi gagnapakki "
-#~ "inniheldur engin gögn. <a "
-#~ "href=\"%(url)s\">Viltu ekki bæta þeim við?</a>"
-#~ " "
-
-#~ msgid "Additional info"
-#~ msgstr "Viðbótarupplýsingar"
-
-#~ msgid "This item has no description"
-#~ msgstr "Engin lýsing á þessu efni"
-
-#~ msgid "Request Reset"
-#~ msgstr "Breyta aðgangsorði"
-
-#~ msgid "You can use"
-#~ msgstr "Þú getur notað"
-
-#~ msgid "Markdown formatting"
-#~ msgstr "Markdown snið"
-
-#~ msgid "here."
-#~ msgstr "hér."
-
-#~ msgid "View dataset resources"
-#~ msgstr "Skoða tilföng gagnapakka"
-
-#~ msgid "DOWNLOAD"
-#~ msgstr "SÆKJA"
-
-#~ msgid "No downloadable resources."
-#~ msgstr "Ekki hægt að sækja nein tilföng."
-
-#~ msgid "No description for this item"
-#~ msgstr "Engin lýsing á þessu efni"
-
-#~ msgid "View this"
-#~ msgstr "Skoða þetta"
-
-#~ msgid "no ratings yet"
-#~ msgstr "engin einkunn enn"
-
-#~ msgid ""
-#~ "–\n"
-#~ "    rate it now"
-#~ msgstr ""
-#~ "–\n"
-#~ "    gefa einkunn"
-
-#~ msgid "Checking..."
-#~ msgstr "Athuga..."
-
-#~ msgid "Type at least two characters..."
-#~ msgstr "Sláðu inn að minnsta kosti tvo stafi..."
-
-#~ msgid "This is the current URL."
-#~ msgstr "Þetta er núverandi slóð."
-
-#~ msgid "This URL is available!"
-#~ msgstr "Þessi slóð er laus!"
-
-#~ msgid "This URL is already used, please use a different one."
-#~ msgstr "Þessi slóð er þegar í notkun, veldu aðra."
-
-#~ msgid "Failed to save, possibly due to invalid data "
-#~ msgstr "Gat ekki vistað, mögulega vegna villu í gögnum"
-
-#~ msgid ""
-#~ "You have unsaved changes. Make sure "
-#~ "to click 'Save Changes' below before "
-#~ "leaving this page."
-#~ msgstr ""
-#~ "Breytingarnar hafa ekki verið vistaðar. "
-#~ "Smelltu á „Vista Breytingar“ hér fyrir"
-#~ " neðan áður en þú ferð af "
-#~ "síðunni."
-
-#~ msgid "(no name)"
-#~ msgstr "(ekkert nafn)"
-
-#~ msgid "Delete the resource '%name%'?"
-#~ msgstr "Eyða skránni „%name%“?"
-
-#~ msgid "Preview not available for data type: "
-#~ msgstr "Ekki er boðið upp á forskoðun á þessari tegund gagna:"
-
-#~ msgid "Failed to get credentials for storage upload. Upload cannot proceed"
-#~ msgstr ""
-#~ "Ekki tókst að fá heimild til að"
-#~ " hlaða inn gögnum. Ekki er hægt "
-#~ "að klára aðgerðina."
-
-#~ msgid "Checking upload permissions ..."
-#~ msgstr "Athuga heimildir til að hlaða inn gögnum ..."
-
-#~ msgid "Uploading file ..."
-#~ msgstr "Hleð inn skrá ..."
-
-#~ msgid "Data File"
-#~ msgstr "Gagnaskrá"
-
-#~ msgid "Metadata"
-#~ msgstr "Lýsigögn"
-
-#~ msgid "Documentation"
-#~ msgstr "Fylgigögn"
-
-#~ msgid "Example"
-#~ msgstr "Dæmi"
-
-#~ msgid "Url"
-#~ msgstr "Vefslóð"
-
-#~ msgid "Resource Type"
-#~ msgstr "Gerð tilfangs"
-
-#~ msgid "DataStore enabled"
-#~ msgstr "DataStore virkt"
-
-#~ msgid "Size (Bytes)"
-#~ msgstr "Stærð (bæti)"
-
-#~ msgid "Mimetype"
-#~ msgstr "Mime tegund"
-
-#~ msgid "Mimetype (Inner)"
-#~ msgstr "Mime tegund (innri)"
-
-#~ msgid "Hash"
-#~ msgstr "Hash"
-
-#~ msgid "ID"
-#~ msgstr "ID"
-
-#~ msgid "Done"
-#~ msgstr "Lokið"
-
-#~ msgid "This resource has unsaved changes."
-#~ msgstr "Þessi skrá er með óvistaðar breytingar."
-
-#~ msgid "e.g. csv, html, xls, rdf, ..."
-#~ msgstr "t.d.  csv, html, xls, rdf, ..."
-
-#~ msgid "Extra Fields"
-#~ msgstr "Viðbótar innsláttarsvæði"
-
-#~ msgid "Add Extra Field"
-#~ msgstr "Bæta við innsláttarsvæði"
-
-#~ msgid "Key"
-#~ msgstr "Lykill"
-
-#~ msgid "Delete Resource"
-#~ msgstr "Eyða tilfangi"
-
-#~ msgid "You can use %aMarkdown formatting%b here."
-#~ msgstr "Þú getur notað %aMarkdown snið%b hér."
-
-#~ msgid ""
-#~ "Dates are in %aISO Format%b — eg."
-#~ " %c2012-12-25%d or %c2010-05-31T14:30%d."
-#~ msgstr ""
-#~ "Dagsetningar eru á %aISO sniði%b — "
-#~ "t.d. %c2012-12-25%d eða %c2010-05-31T14:30%d."
-
-#~ msgid "Data File (Uploaded)"
-#~ msgstr "Gagnaskrá (sótt)"
-
-#~ msgid "Could not load preview"
-#~ msgstr "Gat ekki opnað forskoðun"
-
-#~ msgid "DataProxy returned an error"
-#~ msgstr "DataProxy skilaði villu"
-
-#~ msgid "DataStore returned an error"
-#~ msgstr "DataStore skilaði villu"
-
-#~ msgid "Find datasets"
-#~ msgstr "Finna gagnapakka"
-
-#~ msgid "Add a dataset"
-#~ msgstr "Bæta við gagnapakka"
-
-#~ msgid "Page Logo"
-#~ msgstr "Merki síðu"
-
-#~ msgid "Master content template placeholder … please replace me."
-#~ msgstr "Sjálfgefinn texti í aðaltextasvæði ... vinsamlegast skiptið mér út."
-
-#~ msgid "Twitter @ckanproject"
-#~ msgstr "Twitter @ckanproject"
-
-#~ msgid "Contact Us"
-#~ msgstr "Hafðu samband"
-
-#~ msgid "Privacy Policy"
-#~ msgstr "Persónuverndarstefna"
-
-#~ msgid "Sections"
-#~ msgstr "Kaflar"
-
-#~ msgid "Site Admin"
-#~ msgstr "Kerfisstjóri"
-
-#~ msgid "Languages"
-#~ msgstr "Tungumál"
-
-#~ msgid "Meta"
-#~ msgstr "Meta"
-
-#~ msgid "Licensed under the"
-#~ msgstr "Gefið út samkvæmt"
-
-#~ msgid "Open Database License"
-#~ msgstr "Opna gagnagrunnsleyfinu"
-
-#~ msgid "This Content and Data is Open"
-#~ msgstr "Þetta efni og þessi gögn eru opin"
-
-#~ msgid "Powered by"
-#~ msgstr "Keyrir á"
-
-#~ msgid "CKAN"
-#~ msgstr "CKAN"
-
-#~ msgid "v"
-#~ msgstr "v"
-
-#~ msgid "Administration - Authorization"
-#~ msgstr "Kerfisstjórn - Aðgangsheimild"
-
-#~ msgid "Update Existing Roles"
-#~ msgstr "Uppfæra hlutverk sem eru þegar skilgreind"
-
-#~ msgid "Save Changes"
-#~ msgstr "Vista breytingar"
-
-#~ msgid "Add Roles for Any User"
-#~ msgstr "Bæta við hlutverkum fyrir alla notendur"
-
-#~ msgid "Add Role"
-#~ msgstr "Bæta við hlutverki"
-
-#~ msgid "Administration Dashboard"
-#~ msgstr "Stjórnborð stjórnanda"
-
-#~ msgid "Current Sysadmins"
-#~ msgstr "Núverandi kerfisstjórar"
-
-#~ msgid "Administration - Trash"
-#~ msgstr "Stjórnun - Rusl"
-
-#~ msgid "Deleted Revisions"
-#~ msgstr "Útgáfur sem hefur verið eytt"
-
-#~ msgid "Purge them all (forever and irreversibly)"
-#~ msgstr "Hreinsa allt (varanlegt og óafturkræft)"
-
-#~ msgid "Deleted Datasets"
-#~ msgstr "Eyddir gagnapakkar"
-
-#~ msgid "(None)"
-#~ msgstr "(Ekkert)"
-
-#~ msgid "Authorization:"
-#~ msgstr "Aðgangsheimild:"
-
-#~ msgid "Edit:"
-#~ msgstr "Breyta:"
-
-#~ msgid "There are no datasets currently in this group."
-#~ msgstr "Það eru engir gagnapakkar í þessu safni."
-
-#~ msgid "History:"
-#~ msgstr "Saga:"
-
-#~ msgid "Compare »"
-#~ msgstr "Bera saman »"
-
-#~ msgid "Group History"
-#~ msgstr "Saga safns"
-
-#~ msgid "Groups of Datasets"
-#~ msgstr "Söfn gagnapakka"
-
-#~ msgid "What Are Groups?"
-#~ msgstr "Hvað eru söfn?"
-
-#~ msgid ""
-#~ "Whilst tags are great at collecting "
-#~ "datasets together, there are occasions "
-#~ "when you want to restrict users "
-#~ "from editing a collection. A [1:group]"
-#~ " can be set-up to specify which"
-#~ " users have permission to add or "
-#~ "remove datasets from it."
-#~ msgstr ""
-#~ "Efnisorð virka vel til að flokka "
-#~ "gagnapakka, en stundum viltu takmarka "
-#~ "heimildir notenda til að uppfæra gögnin."
-#~ " Í söfnum er hægt að tilgreina "
-#~ "hvaða notendur hafa heimild til að "
-#~ "bæta við og eyða gagnapökkum í "
-#~ "safninu."
-
-#~ msgid "New Dataset..."
-#~ msgstr "Nýr gagnapakki..."
-
-#~ msgid "Existing Dataset..."
-#~ msgstr "Fyrirliggjandi gagnapakki..."
-
-#~ msgid "List Groups"
-#~ msgstr "Birta söfn"
-
-#~ msgid "Login to Add a Group"
-#~ msgstr "Skráðu þig inn til að bæta við safni"
-
-#~ msgid "Add A Group"
-#~ msgstr "Bæta við safni"
-
-#~ msgid "Errors in form"
-#~ msgstr "Villur í forminu"
-
-#~ msgid "Warning: URL is very long. Consider changing it to something shorter."
-#~ msgstr ""
-#~ "Aðvörun: Vefslóðin er mjög löng. Það "
-#~ "gæti verið góð hugmynd að stytta "
-#~ "hana."
-
-#~ msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
-#~ msgstr "2+ stafir, engir hástafir, notið aðeins 'a-z0-9' og '-_'"
-
-#~ msgid "Start with a summary sentence ..."
-#~ msgstr "Byrjaðu á stuttri samantekt ..."
-
-#~ msgid "Image URL:"
-#~ msgstr "Slóð á mynd:"
-
-#~ msgid "The URL for the image that is associated with this group."
-#~ msgstr "Slóð á mynd sem tengist safninu."
-
-#~ msgid "active"
-#~ msgstr "virkt"
-
-#~ msgid "deleted"
-#~ msgstr "eytt"
-
-#~ msgid "Add..."
-#~ msgstr "Bæta við..."
-
-#~ msgid "Key ="
-#~ msgstr "Lykill ="
-
-#~ msgid "Value ="
-#~ msgstr "Gildi ="
-
-#~ msgid "Add datasets"
-#~ msgstr "Bæta við gagnapökkum"
-
-#~ msgid "Resource Formats"
-#~ msgstr "Skráarsnið"
-
-#~ msgid "State:"
-#~ msgstr "Staða:"
-
-#~ msgid ""
-#~ "[1:You searched for \"%(query)s\". "
-#~ "]%(number_of_results)s datasets found."
-#~ msgstr ""
-#~ "[1:Þú leitaðir að „%(query)s“. "
-#~ "]%(number_of_results)s gagnapakkar fundust."
-
-#~ msgid ""
-#~ "What was the [1:average price] of "
-#~ "a house in the UK in 1935? "
-#~ "When will India's projected population "
-#~ "[2:overtake] that of China? Where can"
-#~ " you see [3:publicly-funded art] in"
-#~ " Seattle? Data to answer many, many"
-#~ " questions like these is out there"
-#~ " on the Internet somewhere - but "
-#~ "it is not always easy to find."
-#~ msgstr ""
-#~ "Hvert var [1:húsnæðisverð] í Reykjavík "
-#~ "árið 1935? Hvenær munu Indverjar [2:taka"
-#~ " framúr] Kínverjum miðað við spá um"
-#~ " fólksfjölgun? Hvar getur þú skoðað "
-#~ "[3:list fjármagnaða af almenningi] í "
-#~ "Seattle? Gögn veita svör við mörgum "
-#~ "spurningum á borð við þessar á "
-#~ "vefnum - það er bara ekki alltaf"
-#~ " auðvelt að finna þau."
-
-#~ msgid ""
-#~ "%(site_title)s is a community-run "
-#~ "catalogue of useful sets of data "
-#~ "on the Internet. You can collect "
-#~ "links here to data from around the"
-#~ " web for yourself and others to "
-#~ "use, or search for data that "
-#~ "others have collected. Depending on the"
-#~ " type of data (and its conditions "
-#~ "of use), %(site_title)s may also be "
-#~ "able to store a copy of the "
-#~ "data or host it in a database, "
-#~ "and provide some basic visualisation "
-#~ "tools."
-#~ msgstr ""
-#~ "%(site_title)s er samansafn af opnum "
-#~ "gögnum á vegum ríkis og sveitarfélaga."
-#~ " Hér hefur þú aðgang að gögnum "
-#~ "frá mörgum vefsíðum til afnota fyrir "
-#~ "þig og aðra, og þú getur einnig"
-#~ " leitað að gögnum sem aðrir hafa "
-#~ "safnað saman. %(site_title)s getur einnig "
-#~ "boðið upp á hýsingu á afritum af"
-#~ " gögnum eða gagnagrunnum og í sumum"
-#~ " tilfellum sett þau fram á "
-#~ "aðgengilegan máta."
-
-#~ msgid "How it works"
-#~ msgstr "Svona virkar þetta"
-
-#~ msgid ""
-#~ "This site is running a powerful "
-#~ "piece of open-source data cataloguing"
-#~ " software called [1:CKAN], written and "
-#~ "maintained by the [2:Open Knowledge "
-#~ "Foundation]. Each 'dataset' record on "
-#~ "CKAN contains a description of the "
-#~ "data and other useful information, such"
-#~ " as what formats it is available "
-#~ "in, who owns it and whether it "
-#~ "is freely available, and what subject"
-#~ " areas the data is about. Other "
-#~ "users can improve or add to this"
-#~ " information (CKAN keeps a fully "
-#~ "versioned history)."
-#~ msgstr ""
-#~ "Þessi vefur keyrir á öflugum opnum "
-#~ "hugbúnaði sem heitir [1:CKAN] og er "
-#~ "þróaður og viðhaldið af [2:Open "
-#~ "Knowledge Foundation]. Hver gagnapakki er "
-#~ "skráður ásamt lýsingu og lýsigögnum. Auk"
-#~ " þess fylgja gagnlegar upplýsingar á "
-#~ "borð við hvaða skráarsnið eru í "
-#~ "boði, hver á eða gefur út gögnin"
-#~ " og undir hvaða leyfisskilmála þau "
-#~ "falla. Aðrir notendur geta síðan bætt"
-#~ " þessar upplýsingar (CKAN viðheldur "
-#~ "nákvæmri breytingaskrá)."
-
-#~ msgid ""
-#~ "CKAN powers a number of data "
-#~ "catalogues on the Internet. [1:The Data"
-#~ " Hub] is an openly editable open "
-#~ "data catalogue, in the style of "
-#~ "Wikipedia. The UK Government uses CKAN"
-#~ " to run [2:data.gov.uk], which currently"
-#~ " lists 8,000 government datasets. Official"
-#~ " public data from most European "
-#~ "countries is listed in a CKAN "
-#~ "catalogue at [3:publicdata.eu]. There is "
-#~ "a comprehensive list of catalogues like"
-#~ " these around the world at "
-#~ "[4:datacatalogs.org], which is itself powered"
-#~ " by CKAN."
-#~ msgstr ""
-#~ "CKAN er notað af mörgum stofnunum "
-#~ "á netinu. [1:The Data Hub] er opin"
-#~ " gagnageymsla sambærileg við Wikipedia. "
-#~ "Breska stjórnsýslan notar CKAN til að"
-#~ " hýsa [2:data.gov.uk], sem í dag "
-#~ "inniheldur rúmlega 8000 opinbera gagnapakka."
-#~ " Opin gögn flestra ríkja Evrópusambandsins"
-#~ " eru vistuð í CKAN undir slóðinni "
-#~ "[3:publicdata.eu]. Einnig má finna ítarlegan"
-#~ " lista yfir gagnavefi eins og þennan"
-#~ " á slóðinni [4:datacatalogs.org], sem er"
-#~ " einnig keyrður á CKAN."
-
-#~ msgid "Open data and the Open Knowledge Foundation"
-#~ msgstr "Opin gögn og Open Knowledge Foundation"
-
-#~ msgid ""
-#~ "Most of the data indexed at "
-#~ "%(site_title)s is openly licensed, meaning "
-#~ "anyone is free to use or re-"
-#~ "use it however they like. Perhaps "
-#~ "someone will take that nice dataset "
-#~ "of a city's public art that you"
-#~ " found, and add it to a tourist"
-#~ " map - or even make a neat "
-#~ "app for your phone that'll help "
-#~ "you find artworks when you visit "
-#~ "the city. Open data means more "
-#~ "enterprise, collaborative science and "
-#~ "transparent government. You can read "
-#~ "more about open data in the "
-#~ "[1:Open Data Handbook]."
-#~ msgstr ""
-#~ "Gögnin á vefnum %(site_title)s eru flest"
-#~ " gefin út undir opnu leyfi sem "
-#~ "þýðir að hver sem er hefur "
-#~ "réttindi til að nota þau og gefa"
-#~ " út aftur að vild. Ef til vill"
-#~ " hefur einhver áhuga á að nýta "
-#~ "gagnapakka með myndum af útilistaverkum "
-#~ "og tengja það við kort eða útbúa"
-#~ " forrit í síma sem hjálpar öðrum "
-#~ "að finna listaverkin. Opin gögn eru "
-#~ "ekki bara tengd vísindalegu samstarfi, "
-#~ "fyrirtækjum eða gegnsæi í stjórnsýslu. "
-#~ "Þú getur lesið meira um opin gögn"
-#~ " í [1:Open Data Handbook]."
-
-#~ msgid ""
-#~ "The [1:Open Knowledge Foundation] is a"
-#~ " non-profit organisation [2:promoting] open"
-#~ " knowledge: writing and improving CKAN "
-#~ "is one of the ways we do "
-#~ "that. If you want to get involved"
-#~ " with its design or code, join "
-#~ "the discussion or development [3:mailing "
-#~ "lists], or take a look at the "
-#~ "[4:OKFN] site to find out about "
-#~ "our other projects."
-#~ msgstr ""
-#~ "[1:Open Knowledge Foundation] eru samtök "
-#~ "sem [2:ýta undir] gegnsæi: þróun og "
-#~ "betrumbætur á CKAN er ein leið til"
-#~ " að vinna að því markmiði. Ef "
-#~ "þú hefur áhuga á að taka þátt "
-#~ "í hönnun eða þróun, vinsamlegast skráðu"
-#~ " þig á [3:póstlista] eða kíktu á "
-#~ "[4:OKFN] vefinn til að fræðast um "
-#~ "önnur verkefni á okkar vegum."
-
-#~ msgid "Welcome to"
-#~ msgstr "Velkomin(n) í"
-
-#~ msgid "Find data"
-#~ msgstr "Leita að gögnum"
-
-#~ msgid "contains"
-#~ msgstr "innihalda"
-
-#~ msgid ""
-#~ "that you can \n"
-#~ "            browse, learn about and download."
-#~ msgstr ""
-#~ "sem þú getur \n"
-#~ "            skoðað, kynnt þér og hlaðið niður"
-
-#~ msgid "Share data"
-#~ msgstr "Deila gögnum"
-
-#~ msgid ""
-#~ "Add your own datasets to share them with others and\n"
-#~ "          to find other people interested in your data."
-#~ msgstr ""
-#~ "Bætt við þínum eigin gagnapökkum og deilt þeim með öðrum\n"
-#~ "          auk þess gætir þú fundið fólk sem hefur áhuga á þínum gögnum."
-
-#~ msgid "Create a dataset »"
-#~ msgstr "Búa til gagnapakka »"
-
-#~ msgid "Sign up »"
-#~ msgstr "Skráning »"
-
-#~ msgid "Collaborate"
-#~ msgstr "Samvinna"
-
-#~ msgid ""
-#~ "Find out more about working with open data by exploring \n"
-#~ "          these resources:"
-#~ msgstr ""
-#~ "Kynntu þér hvernig unnið er með opin gögn með því að skoða \n"
-#~ "          þessar síður:"
-
-#~ msgid "GetTheData.org"
-#~ msgstr "GetTheData.org"
-
-#~ msgid "DataPatterns.org"
-#~ msgstr "DataPatterns.org"
-
-#~ msgid "Open Data Handbook"
-#~ msgstr "Handbók um opin gögn"
-
-#~ msgid "Who else is here?"
-#~ msgstr "Hverjir eru hér?"
-
-#~ msgid "has"
-#~ msgstr "hefur"
-
-#~ msgid "datasets."
-#~ msgstr "gagnapakka."
-
-#~ msgid "Importer"
-#~ msgstr "Innflutningur"
-
-#~ msgid "Import Datasets"
-#~ msgstr "Flytja inn gagnapakka"
-
-#~ msgid ""
-#~ "Here you can supply an Excel file"
-#~ " with details of multiple datasets "
-#~ "and import these into"
-#~ msgstr ""
-#~ "Hér getur þú hlaðið inn Excel-skrá"
-#~ " með upplýsingum um gagnapakka og "
-#~ "flutt þá inn"
-
-#~ msgid "Log in to use this tool"
-#~ msgstr "Skráðu þig inn til að nota þetta tól"
-
-#~ msgid "Preview - Importer"
-#~ msgstr "Forskoða - Innflutningur"
-
-#~ msgid "Import Preview"
-#~ msgstr "Forskoðun á innflutningi"
-
-#~ msgid "read from"
-#~ msgstr "lesa frá"
-
-#~ msgid "Further dataset previews not shown."
-#~ msgstr "Sýni ekki fleiri gagnapakka í forskoðun."
-
-#~ msgid "Edit summary (briefly describe the changes you have made)"
-#~ msgstr "Lýsing á breytingum (stutt samantekt á þeim breytingum sem þú gerðir)"
-
-#~ msgid "Author:"
-#~ msgstr "Höfundur:"
-
-#~ msgid "Import"
-#~ msgstr "Flytja inn"
-
-#~ msgid "Results - Importer"
-#~ msgstr "Niðurstöður - Innflutningur"
-
-#~ msgid "Import Results"
-#~ msgstr "Niðurstöður innflutnings"
-
-#~ msgid "- Datasets - History"
-#~ msgstr "- Gagnapakkar - Saga"
-
-#~ msgid "- Edit - Datasets"
-#~ msgstr "- Breyta - Gagnapakkar"
-
-#~ msgid "Basic Information"
-#~ msgstr "Grunnupplýsingar"
-
-#~ msgid "Further Information"
-#~ msgstr "Frekari upplýsingar"
-
-#~ msgid "Since you have not signed in this will just be your IP address."
-#~ msgstr "Þar sem þú ert ekki skráð(ur) inn þá verður þetta IP talan þín."
-
-#~ msgid "Click here to sign in"
-#~ msgstr "Smelltu hér til að skrá þig inn"
-
-#~ msgid "before saving (opens in new window)."
-#~ msgstr "áður en þú vistar (opnast í nýjum glugga)"
-
-#~ msgid ""
-#~ "[1:Important:] By submitting content, you "
-#~ "agree to release your contributions "
-#~ "under the [2:Open Database License]. "
-#~ "Please [3:refrain] from editing this "
-#~ "page if you are [4:not] happy to"
-#~ " do this."
-#~ msgstr ""
-#~ "[1:Athugið:] Með því að senda inn "
-#~ "efni samþykkir þú að gefa það út"
-#~ " undir leyfisskilmálum fyrir opna "
-#~ "gagnagrunna [2:Open Database License]. [3:Ekki"
-#~ " breyta] þessari síðu ef þú vilt "
-#~ "[4:ekki] gera það."
-
-#~ msgid "- Edit Resources - Datasets"
-#~ msgstr "- Breyta tilföngum - Gagnapakkar"
-
-#~ msgid "Edit Resources:"
-#~ msgstr "Breyta tilföngum:"
-
-#~ msgid "- Datasets - Followers"
-#~ msgstr "- Gagnapakkar - Fylgjendur"
-
-#~ msgid "Followers:"
-#~ msgstr "Fylgjendur:"
-
-#~ msgid "no-sidebar"
-#~ msgstr "engin-hliðarstika"
-
-#~ msgid "New key"
-#~ msgstr "Nýr lykill"
-
-#~ msgid "with value"
-#~ msgstr "með gildi"
-
-#~ msgid "Dataset History"
-#~ msgstr "Saga gagnapakka"
-
-#~ msgid "Resources (0)"
-#~ msgstr "Tilföng (0)"
-
-#~ msgid "Add / Edit resources"
-#~ msgstr "Bæta við / breyta skrám"
-
-#~ msgid "Apps, Ideas etc"
-#~ msgstr "Forrit, hugmyndir o.s.frv."
-
-#~ msgid "Followers ({num_followers})"
-#~ msgstr "Fylgjendur ({num_followers})"
-
-#~ msgid "Settings"
-#~ msgstr "Stillingar"
-
-#~ msgid "Add - Datasets"
-#~ msgstr "Bæta við - Gagnapakkar"
-
-#~ msgid "Add a Dataset"
-#~ msgstr "Bæta við gagnapakka"
-
-#~ msgid "A short descriptive title for the dataset"
-#~ msgstr "Stuttur og lýsandi titill á gagnapakkann"
-
-#~ msgid "Home Page"
-#~ msgstr "Heimasíða"
-
-#~ msgid "The URL for the web page describing the data (not the data itself)."
-#~ msgstr "Vefslóð á síðu sem lýsir gögnunum (ekki gögnin sjálf)"
-
-#~ msgid "e.g. http://www.example.com/growth-figures.html"
-#~ msgstr "t.d. http://www.example.com/hagtolur.html"
-
-#~ msgid ""
-#~ "(Don't worry if you don't know "
-#~ "which license the data has been "
-#~ "released under)."
-#~ msgstr ""
-#~ "(Ekki hafa áhyggjur þó þú vitir "
-#~ "ekki undir hvaða leyfisskilmálum gögnin "
-#~ "voru gefin út)."
-
-#~ msgid "Member of:"
-#~ msgstr "Meðlimur í:"
-
-#~ msgid "Add to:"
-#~ msgstr "Bæta við:"
-
-#~ msgid "Cannot add any groups."
-#~ msgstr "Þú getur ekki bætt við safni."
-
-#~ msgid ""
-#~ "Comma-separated terms that may link "
-#~ "this dataset to similar ones. For "
-#~ "more information on conventions, see "
-#~ "[1:this wiki page]."
-#~ msgstr ""
-#~ "Hugtök sem tengjast þessum gagnapakka "
-#~ "aðskilin með kommum. Nánari upplýsingar "
-#~ "um notkun á [1:þessari wiki síðu]."
-
-#~ msgid "e.g. pollution, rivers, water quality"
-#~ msgstr "t.d. mengun, vötn, vatnsgæði"
-
-#~ msgid "Add Resources"
-#~ msgstr "Bæta við tilföngum"
-
-#~ msgid ""
-#~ "Upload or link data files, APIs "
-#~ "and other materials related to your "
-#~ "dataset."
-#~ msgstr ""
-#~ "Hlaða upp eða vísa í skrá af "
-#~ "netinu, API og öðru efni sem "
-#~ "tengist gagnapakkanum þínum."
-
-#~ msgid "New resource..."
-#~ msgstr "Nýtt tilfang..."
-
-#~ msgid "x"
-#~ msgstr "x"
-
-#~ msgid "Link to a file"
-#~ msgstr "Slóð á skrá"
-
-#~ msgid "Link to an API"
-#~ msgstr "Slóð á API"
-
-#~ msgid "File URL"
-#~ msgstr "Slóð á skrá"
-
-#~ msgid "API URL"
-#~ msgstr "API slóð"
-
-#~ msgid ""
-#~ "The name of the main contact, for"
-#~ " enquiries about this particular dataset,"
-#~ " using the e-mail address in the "
-#~ "following field."
-#~ msgstr ""
-#~ "Nafn aðaltengiliðs, til að senda "
-#~ "fyrirspurnir varðandi þennan gagnapakka, sem"
-#~ " notar netfangið í næsta reit."
-
-#~ msgid "Author email"
-#~ msgstr "Netfang höfundar"
-
-#~ msgid ""
-#~ "If there is another important contact"
-#~ " person (in addition to the person"
-#~ " in the Author field) then provide"
-#~ " details here."
-#~ msgstr ""
-#~ "Ef það eru fleiri en einn "
-#~ "tengiliður (til viðbótar við þann sem"
-#~ " er skráður höfundur) þá skaltu fylla"
-#~ " inn upplýsingar hér."
-
-#~ msgid "Maintainer email"
-#~ msgstr "Netfang umsjónarmanns"
-
-#~ msgid "A number representing the version (if applicable)"
-#~ msgstr "Útgáfunúmer (ef við á)"
-
-#~ msgid "e.g. 1.2.0"
-#~ msgstr "t.d. 1.2.0"
-
-#~ msgid ""
-#~ "Adding custom fields to the dataset "
-#~ "such as \"location:uk\" can help users"
-#~ " find it in the search engine. "
-#~ "This data will also appear under"
-#~ msgstr ""
-#~ "Með því að bæta lýsigögnum við "
-#~ "gagnapakka eins og \"postnumer:200\" geturðu"
-#~ " hjálpað notendum að finna gögnin með"
-#~ " leitarvélinni. Þessi gagnapakki mun einnig"
-#~ " birtast undir"
-
-#~ msgid "when viewing the dataset."
-#~ msgstr "þegar gagnapakkinn er skoðaður."
-
-#~ msgid "Do you really want to change the state of this dataset?"
-#~ msgstr "Ertu viss um að vilja breyta stöðunni á þessum gagnapakka?"
-
-#~ msgid "Yes!"
-#~ msgstr "Já!"
-
-#~ msgid "This dataset is"
-#~ msgstr "Þessi gagnapakki er"
-
-#~ msgid "Summary"
-#~ msgstr "Samantekt"
-
-#~ msgid "Briefly describe the changes you have made..."
-#~ msgstr "Stutt lýsing á breytingunum sem þú gerðir..."
-
-#~ msgid ""
-#~ "Since you have not signed in this will just be your IP address.\n"
-#~ "    [1:Click here to sign in] before saving (opens in new window)."
-#~ msgstr ""
-#~ "Þar sem þú hefur ekki skráð þig"
-#~ " inn verður þetta bara IP tala.⏎ "
-#~ "[1:Smelltu hér til að skrá þig "
-#~ "inn] áður en þú vistar (opnast í"
-#~ " nýjum glugga)."
-
-#~ msgid "Important:"
-#~ msgstr "Athugaðu:"
-
-#~ msgid ""
-#~ "By submitting content, you agree to "
-#~ "release your contributions under the"
-#~ msgstr ""
-#~ "Með því að senda inn gögn "
-#~ "samþykkir þú að birta þau undir "
-#~ "leyfisskilmálanum"
-
-#~ msgid ". Please"
-#~ msgstr ". Vinsamlegast"
-
-#~ msgid "refrain"
-#~ msgstr "ekki"
-
-#~ msgid "from editing this page if you are"
-#~ msgstr "breyta þessari síðu ef þú ert"
-
-#~ msgid "not"
-#~ msgstr "ekki"
-
-#~ msgid "happy to do this."
-#~ msgstr "fylgjandi þessum skilmálum."
-
-#~ msgid "- Datasets"
-#~ msgstr "- Gagnapakkar"
-
-#~ msgid "License:"
-#~ msgstr "Leyfisskilmálar:"
-
-#~ msgid "[Open Data]"
-#~ msgstr "[Opin Gögn]"
-
-#~ msgid "Related Datasets"
-#~ msgstr "Tengdir gagnapakkar"
-
-#~ msgid "This is an old revision of this dataset, as edited"
-#~ msgstr "Þetta er gömul útgáfa af þessum gagnapakka, breytt"
-
-#~ msgid "at"
-#~ msgstr "þann"
-
-#~ msgid ". It may differ significantly from the"
-#~ msgstr ". Hann gæti hafa breyst töluvert frá "
-
-#~ msgid "current revision"
-#~ msgstr "nýjustu útgáfu"
-
-#~ msgid "This is the current revision of this dataset, as edited"
-#~ msgstr "Þetta er nýjasta útgáfan af gagnapakkanum frá"
-
-#~ msgid "RDF/XML"
-#~ msgstr "RDF/XML"
-
-#~ msgid "(edit)"
-#~ msgstr "(breytt)"
-
-#~ msgid "(none)"
-#~ msgstr "(ekkert)"
-
-#~ msgid "(settings)"
-#~ msgstr "(stillingar)"
-
-#~ msgid "Country"
-#~ msgstr "Land"
-
-#~ msgid "Harvest Source"
-#~ msgstr "Heimild gagna"
-
-#~ msgid ""
-#~ "[1:Dataset page] on \n"
-#~ "            [2:%(harvest_catalogue_name)s]"
-#~ msgstr ""
-#~ "[1:Gagnapakki] frá \n"
-#~ "            [2:%(harvest_catalogue_name)s]"
-
-#~ msgid "- Dataset - Resource"
-#~ msgstr "- Gagnapakki - Tilfang"
-
-#~ msgid "Data API is unavailable for this resource as DataStore is disabled"
-#~ msgstr ""
-#~ "API gagnaveita fyrir þessa skrá fæst "
-#~ "ekki þar sem DataStore er ekki "
-#~ "virkt"
-
-#~ msgid "License unknown"
-#~ msgstr "Leyfisskilmáli óþekktur"
-
-#~ msgid "From the [1:Dataset]:"
-#~ msgstr "Frá [1:Dataset]:"
-
-#~ msgid "Cannot embed as resource is private."
-#~ msgstr "Ekki er möguleiki á að fella inn þar sem skráin er ekki opin."
-
-#~ msgid "Search -"
-#~ msgstr "Leita -"
-
-#~ msgid "Do you know of a dataset that should be added to"
-#~ msgstr "Veistu um gagnapakka sem bæta ætti við"
-
-#~ msgid "Register it now"
-#~ msgstr "Skráðu hann núna"
-
-#~ msgid "Other access"
-#~ msgstr "Annar aðgangur"
-
-#~ msgid "You can also access this registry using the"
-#~ msgstr "Þú getur einnig fengið aðgang að þessu lista með því að nota"
-
-#~ msgid "(see"
-#~ msgstr "(sjá"
-
-#~ msgid "or download a"
-#~ msgstr "eða hlaða niður sem"
-
-#~ msgid "full"
-#~ msgstr "heild"
-
-#~ msgid "dump"
-#~ msgstr "úrtak"
-
-#~ msgid ""
-#~ "[1:There was an error while searching.] \n"
-#~ "            Please try again."
-#~ msgstr ""
-#~ "[1:Villa kom upp við leitina.] \n"
-#~ "            Reyndu aftur."
-
-#~ msgid "[1:%(item_count)s] datasets found"
-#~ msgstr "[1:%(item_count)s] gagnapakkar fundust"
-
-#~ msgid "Would you like to [1:create a new dataset?]"
-#~ msgstr "Vilt þú  [1:skrá nýjan gagnapakka?]"
-
-#~ msgid "Search..."
-#~ msgstr "Leita..."
-
-#~ msgid "Add item"
-#~ msgstr "Bæta við efni"
-
-#~ msgid "(required)"
-#~ msgstr "(áskilið)"
-
-#~ msgid "Please add the title for the item"
-#~ msgstr "Vinsamlegast bættu við titli fyrir efnið"
-
-#~ msgid "Type of item"
-#~ msgstr "Tegund efnis"
-
-#~ msgid "Please describe the item"
-#~ msgstr "Settu inn lýsingu á efninu"
-
-#~ msgid "Please add a url"
-#~ msgstr "Settu inn vefslóð"
-
-#~ msgid "Please add a link to the image"
-#~ msgstr "Settu inn tengil á myndina"
-
-#~ msgid "Showing items"
-#~ msgstr "Birti atriði"
-
-#~ msgid "of"
-#~ msgstr "af"
-
-#~ msgid "related items found"
-#~ msgstr "ítarefni fannst"
-
-#~ msgid "Least viewed"
-#~ msgstr "Minnst skoðað"
-
-#~ msgid "Featured items only?"
-#~ msgstr "Aðeins hlutir í kastljósi?"
-
-#~ msgid "- Apps, Ideas etc"
-#~ msgstr "- Forrit, hugmyndir o.s.frv."
-
-#~ msgid "There are no items here yet"
-#~ msgstr "Ekkert efni er hér enn sem komið er"
-
-#~ msgid ", why not"
-#~ msgstr ". Viltu ekki"
-
-#~ msgid "add one"
-#~ msgstr "bæta einhverju við"
-
-#~ msgid "Differences - Revisions"
-#~ msgstr "Mismunur - Útgáfur"
-
-#~ msgid "Revision Differences -"
-#~ msgstr "Munur á útgáfum -"
-
-#~ msgid "From:"
-#~ msgstr "Frá:"
-
-#~ msgid "To:"
-#~ msgstr "Til:"
-
-#~ msgid "No differences"
-#~ msgstr "Enginn munur"
-
-#~ msgid "List"
-#~ msgstr "Listi"
-
-#~ msgid ""
-#~ "Track the most recent changes to the system, with most recent\n"
-#~ "    changes first."
-#~ msgstr "Fylgjast með uppfærslum á kerfinu með nýjustu ⏎ breytingum fyrst."
-
-#~ msgid "Revision:"
-#~ msgstr "Útgáfa:"
-
-#~ msgid "Revision Actions"
-#~ msgstr "Aðgerðir fyrir útgáfu"
-
-#~ msgid "Timestamp:"
-#~ msgstr "Tímastimpill:"
-
-#~ msgid "Log Message:"
-#~ msgstr "Kerfisskilaboð:"
-
-#~ msgid "Dataset -"
-#~ msgstr "Gagnapakki -"
-
-#~ msgid ""
-#~ ",\n"
-#~ "      Tag -"
-#~ msgstr ""
-#~ ",\n"
-#~ "      Efnisorð -"
-
-#~ msgid "Embed this view"
-#~ msgstr "Fella þetta inn í vefsíðu"
-
-#~ msgid "by copying this into your webpage:"
-#~ msgstr "með því að afrita þetta á þína síðu:"
-
-#~ msgid "Not Openly Licensed"
-#~ msgstr "Ekki gefið út undir opnum leyfisskilmála"
-
-#~ msgid ""
-#~ "This upload form is valid for a"
-#~ " limited time (usually 1h or so). "
-#~ "If the\n"
-#~ "    form expires please reload the page."
-#~ msgstr ""
-#~ "Þetta form er virkt í takmarkaðan tíma (oftast eina klukkustund). Ef\n"
-#~ "    tíminn rennur út skaltu endurhlaða síðuna."
-
-#~ msgid "File:"
-#~ msgstr "Skrá:"
-
-#~ msgid "Upload - Successful"
-#~ msgstr "Innsending - Tókst"
-
-#~ msgid "Filed uploaded to:"
-#~ msgstr "Skrá hlaðið inn í:"
-
-#~ msgid "Upload another »"
-#~ msgstr "Hlaða annarri inn »"
-
-#~ msgid "There are"
-#~ msgstr "Það eru"
-
-#~ msgid "results for ‘"
-#~ msgstr "niðurstöður fyrir ‘"
-
-#~ msgid "results for tags."
-#~ msgstr "niðurstöður fyrir efnisorð."
-
-#~ msgid "Clear search"
-#~ msgstr "Hreinsa leit"
-
-#~ msgid "and see all tags."
-#~ msgstr "og sjá öll efnisorð."
-
-#~ msgid "- Tags"
-#~ msgstr "- Efnisorð"
-
-#~ msgid "Tag:"
-#~ msgstr "Efnisorð:"
-
-#~ msgid "There are %(count)s datasets tagged with [1:%(tagname)s]:"
-#~ msgstr "Það eru %(count)s gagnapakkar merktir [1:%(tagname)s]:"
-
-#~ msgid "- Dashboard - User"
-#~ msgstr "- Stjórnborð - Notandi"
-
-#~ msgid "What's going on?"
-#~ msgstr "Hvað er nýtt?"
-
-#~ msgid "Nothing new on CKAN?"
-#~ msgstr "Ekkert nýtt hér í CKAN?"
-
-#~ msgid "So, why don't you ..."
-#~ msgstr "Við leggjum til að þú ..."
-
-#~ msgid "Add a new dataset"
-#~ msgstr "Bætir við gagnapakka"
-
-#~ msgid "Follow another user"
-#~ msgstr "Fylgist með fleiri notendum"
-
-#~ msgid "Create a group or a tag"
-#~ msgstr "Búir til safn eða efnisorð"
-
-#~ msgid "Or simply browse the repository"
-#~ msgstr "Eða einfaldlega skoðir gagnageymsluna"
-
-#~ msgid "- Edit - User"
-#~ msgstr "- Breyta - Notandi"
-
-#~ msgid "Edit User:"
-#~ msgstr "Breyta notanda:"
-
-#~ msgid "E-mail"
-#~ msgstr "Netfang"
-
-#~ msgid "OpenId"
-#~ msgstr "OpenId"
-
-#~ msgid "A little about you..."
-#~ msgstr "Smávegis um þig..."
-
-#~ msgid "Change your password"
-#~ msgstr "Breyta aðgangsorði"
-
-#~ msgid "Password (repeat)"
-#~ msgstr "Aðgangsorð (aftur)"
-
-#~ msgid "Change your username"
-#~ msgstr "Breyta notandanafninu þínu"
-
-#~ msgid ""
-#~ "Changing your username will log you "
-#~ "out, and require you to log back"
-#~ " in with the new username"
-#~ msgstr ""
-#~ "Ef þú breytir notandanafninu þínu þarftu"
-#~ " að skrá þig aftur inn með nýja"
-#~ " notandanafninu"
-
-#~ msgid "- Followers - User"
-#~ msgstr "- Fylgjendur - Notandi"
-
-#~ msgid "'s Followers"
-#~ msgstr "Fylgjendur"
-
-#~ msgid "My Profile"
-#~ msgstr "Prófíllinn minn"
-
-#~ msgid "Edit Profile"
-#~ msgstr "Breyta prófíl"
-
-#~ msgid "My Followers ({num_followers})"
-#~ msgstr "Mínir fylgjendur ({num_followers})"
-
-#~ msgid "View Profile"
-#~ msgstr "Skoða prófíl"
-
-#~ msgid "Register Account"
-#~ msgstr "Stofna aðgang"
-
-#~ msgid "[1:%(item_count)s] users found."
-#~ msgstr "[1:%(item_count)s] notendur fundust."
-
-#~ msgid "Sort by name"
-#~ msgstr "Raða eftir nafni"
-
-#~ msgid "Sort by edits"
-#~ msgstr "Raða eftir uppfærslum"
-
-#~ msgid "Member for"
-#~ msgstr "Meðlimur í"
-
-#~ msgid "Login - User"
-#~ msgstr "Innskráning - Notandi"
-
-#~ msgid "Login to"
-#~ msgstr "Innskráning í"
-
-#~ msgid "Login:"
-#~ msgstr "Innskráning:"
-
-#~ msgid "Password:"
-#~ msgstr "Aðgangsorð:"
-
-#~ msgid "Remember me:"
-#~ msgstr "Muna eftir mér: "
-
-#~ msgid "Sign In"
-#~ msgstr "Skrá inn"
-
-#~ msgid "Login using Open ID"
-#~ msgstr "Innskráning með Open ID"
-
-#~ msgid ""
-#~ "NB: To set-up your OpenID for "
-#~ "this site, you first need to "
-#~ "[1:Register] and then edit your Profile"
-#~ " to provide your OpenID."
-#~ msgstr ""
-#~ "Athugaðu: Til að setja upp OpenID "
-#~ "fyrir þennan vef verður þú fyrst "
-#~ "að [1:skrá þig] og svo bæta við"
-#~ " OpenID á prófílinn þinn."
-
-#~ msgid "Please click your account provider:"
-#~ msgstr "Smelltu til að velja þjónustuaðila:"
-
-#~ msgid "OpenID Identifier:"
-#~ msgstr "OpenID auðkenni:"
-
-#~ msgid "Don't have an OpenID?"
-#~ msgstr "Áttu ekki OpenID auðkenni?"
-
-#~ msgid ""
-#~ "OpenID is service that allows you "
-#~ "to log-on to many different "
-#~ "websites\n"
-#~ "          using a single identity. Find out [1:more\n"
-#~ "          about OpenID] and [2:how to get an\n"
-#~ "          OpenID enabled account]. Probably"
-#~ " the simplest way is sign up "
-#~ "with a\n"
-#~ "          free OpenID provider such as [3:https://www.myopenid.com/]."
-#~ msgstr ""
-#~ "OpenID er þjónusta sem gerir þér "
-#~ "kleift að skrá þig inn á mörg "
-#~ "vefsvæði með sömu notandaupplýsingunum. Nánari"
-#~ " upplýsingar um [1:OpenID] og  [2:hvernig"
-#~ " á að virkja OpenID aðgang]. Það "
-#~ "er líklega einfaldast að skrá sig "
-#~ "hjá hýsingaraðila fyrir OpenID , s.s."
-#~ " [3:https://www.myopenid.com/]."
-
-#~ msgid "Sign in with OpenID"
-#~ msgstr "Innskráning með OpenID"
-
-#~ msgid "Logout - User"
-#~ msgstr "Útskráning - Notandi"
-
-#~ msgid "Logout from"
-#~ msgstr "Skrá út úr"
-
-#~ msgid "You have logged out successfully."
-#~ msgstr "Þú hefur verið skráð(ur) út."
-
-#~ msgid "Logged in - User"
-#~ msgstr "Innskráð(ur) - Notandi"
-
-#~ msgid "Logged into"
-#~ msgstr "Skráð(ur) inn í"
-
-#~ msgid "is currently logged in"
-#~ msgstr "er skráð(ur) inn núna"
-
-#~ msgid "To register or log in as another user, you need to"
-#~ msgstr "Til að nýskrá eða skrá sig inn sem annar notandi, verður þú að"
-
-#~ msgid "logout"
-#~ msgstr "skrá þig út"
-
-#~ msgid "first."
-#~ msgstr "fyrst."
-
-#~ msgid "Register - User"
-#~ msgstr "Skráning - Notandi"
-
-#~ msgid "Register for a new Account"
-#~ msgstr "Stofnaðu nýjan aðgang"
-
-#~ msgid "3+ chars, using only 'a-z0-9' and '-_'"
-#~ msgstr "3+ stafir, með einungis 'a-z0-9' og '-_' táknum"
-
-#~ msgid "Full name (optional)"
-#~ msgstr "Fullt nafn (valfrjálst)"
-
-#~ msgid "E-Mail"
-#~ msgstr "Netfang"
-
-#~ msgid "Register now"
-#~ msgstr "Skráðu þig núna"
-
-#~ msgid "Password (repeat):"
-#~ msgstr "Aðgagnsorð (aftur)"
-
-#~ msgid "- User"
-#~ msgstr "- Notandi"
-
-#~ msgid "Member since"
-#~ msgstr "Notandi síðan"
-
-#~ msgid "No email"
-#~ msgstr "Ekkert netfang"
-
-#~ msgid "– Note: your API key is visible only to you!"
-#~ msgstr "– Athugaðu: Aðeins þú sérð API lykilinn þinn!"
-
-#~ msgid "Public Activity"
-#~ msgstr "Almennar uppfærslur"
-
-#~ msgid "Reset password"
-#~ msgstr "Endurstilla aðgangsorð"
-
-#~ msgid "Request a password reset"
-#~ msgstr "Endurstilla aðgangsorð"
-
-#~ msgid "User name:"
-#~ msgstr "Notandanafn:"
-

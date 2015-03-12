@@ -1,24 +1,24 @@
-# English (Australia) translations for ckan.
-# Copyright (C) 2013 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
+# 
 # Translators:
 # darwinp <darwinpeltan@gmail.com>, 2013
 # Sean Hammond <sean.hammond@okfn.org>, 2013
 msgid ""
 msgstr ""
-"Project-Id-Version:  CKAN\n"
+"Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-01-26 11:29+0000\n"
-"PO-Revision-Date: 2013-12-13 11:52+0000\n"
+"POT-Creation-Date: 2015-01-26 11:55+0000\n"
+"PO-Revision-Date: 2015-01-26 12:20+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
-"Language-Team: English (Australia) "
-"(http://www.transifex.com/projects/p/ckan/language/en_AU/)\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Language-Team: English (Australia) (http://www.transifex.com/projects/p/ckan/language/en_AU/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: en_AU\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ckan/new_authz.py:178
 #, python-format
@@ -95,9 +95,7 @@ msgstr ""
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
-msgstr ""
-"Cannot purge package %s as associated revision %s includes non-deleted "
-"packages %s"
+msgstr "Cannot purge package %s as associated revision %s includes non-deleted packages %s"
 
 #: ckan/controllers/admin.py:153
 #, python-format
@@ -402,13 +400,10 @@ msgstr "This site is currently off-line. Database is not initialised."
 
 #: ckan/controllers/home.py:100
 msgid ""
-"Please <a href=\"{link}\">update your profile</a> and add your email "
-"address and your full name. {site} uses your email address if you need to"
-" reset your password."
-msgstr ""
-"Please <a href=\"{link}\">update your profile</a> and add your email "
-"address and your full name. {site} uses your email address if you need to"
-" reset your password."
+"Please <a href=\"{link}\">update your profile</a> and add your email address"
+" and your full name. {site} uses your email address if you need to reset "
+"your password."
+msgstr "Please <a href=\"{link}\">update your profile</a> and add your email address and your full name. {site} uses your email address if you need to reset your password."
 
 #: ckan/controllers/home.py:103
 #, python-format
@@ -754,9 +749,7 @@ msgstr "Bad Captcha. Please try again."
 msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
-msgstr ""
-"User \"%s\" is now registered but you are still logged in as \"%s\" from "
-"before"
+msgstr "User \"%s\" is now registered but you are still logged in as \"%s\" from before"
 
 #: ckan/controllers/user.py:276
 msgid "Unauthorized to edit a user."
@@ -871,7 +864,8 @@ msgid "{actor} updated their profile"
 msgstr "{actor} updated their profile"
 
 #: ckan/lib/activity_streams.py:86
-msgid "{actor} updated the {related_type} {related_item} of the dataset {dataset}"
+msgid ""
+"{actor} updated the {related_type} {related_item} of the dataset {dataset}"
 msgstr ""
 
 #: ckan/lib/activity_streams.py:89
@@ -943,7 +937,8 @@ msgid "{actor} started following {group}"
 msgstr "{actor} started following {group}"
 
 #: ckan/lib/activity_streams.py:142
-msgid "{actor} added the {related_type} {related_item} to the dataset {dataset}"
+msgid ""
+"{actor} added the {related_type} {related_item} to the dataset {dataset}"
 msgstr ""
 
 #: ckan/lib/activity_streams.py:145
@@ -1170,8 +1165,7 @@ msgstr ""
 
 #: ckan/lib/mailer.py:119
 msgid ""
-"You have been invited to {site_title}. A user has already been createdto "
-"you with the username {user_name}. You can change it later.\n"
+"You have been invited to {site_title}. A user has already been createdto you with the username {user_name}. You can change it later.\n"
 "\n"
 "To accept this invite, please reset your password at:\n"
 "\n"
@@ -1337,8 +1331,8 @@ msgstr "Name must be a maximum of %i characters long"
 
 #: ckan/logic/validators.py:361
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
 msgstr ""
 
 #: ckan/logic/validators.py:379
@@ -1417,9 +1411,7 @@ msgstr "The passwords you entered do not match"
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
-msgstr ""
-"Edit not allowed as it looks like spam. Please avoid links in your "
-"description."
+msgstr "Edit not allowed as it looks like spam. Please avoid links in your description."
 
 #: ckan/logic/validators.py:633
 #, python-format
@@ -2117,8 +2109,8 @@ msgstr "Unable to get data for uploaded file"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop"
-" this upload?"
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
 msgstr ""
 
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:8
@@ -2177,9 +2169,7 @@ msgstr "Open Knowledge Foundation"
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
-msgstr ""
-"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a>"
+msgstr "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
@@ -2225,8 +2215,9 @@ msgstr "Register"
 #: ckan/templates/revision/diff.html:11 ckan/templates/revision/read.html:65
 #: ckan/templates/snippets/organization.html:59
 #: ckan/templates/snippets/context/group.html:17
-#: ckan/templates/snippets/context/user.html:19 ckan/templates/user/read.html:5
-#: ckan/templates/user/read_base.html:19 ckan/templates/user/read_base.html:53
+#: ckan/templates/snippets/context/user.html:19
+#: ckan/templates/user/read.html:5 ckan/templates/user/read_base.html:19
+#: ckan/templates/user/read_base.html:53
 msgid "Datasets"
 msgstr "Datasets"
 
@@ -2294,22 +2285,21 @@ msgstr "CKAN config options"
 #: ckan/templates/admin/config.html:29
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> "
-"<p><strong>Style:</strong> Choose from a list of simple variations of the"
-" main colour scheme to get a very quick custom theme working.</p> "
-"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
-"<p><strong>Homepage:</strong> This is for choosing a predefined layout "
-"for the modules that appear on your homepage.</p> "
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
+"the modules that appear on your homepage.</p> "
 msgstr ""
 
 #: ckan/templates/admin/confirm_reset.html:3
@@ -2325,9 +2315,8 @@ msgstr ""
 #, python-format
 msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
-"the CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin "
-"guide</a></p> "
+"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
+"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
 msgstr ""
 
 #: ckan/templates/admin/trash.html:20
@@ -2350,8 +2339,7 @@ msgstr ""
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
-" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:33
@@ -2360,8 +2348,8 @@ msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
 msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:42
@@ -2570,8 +2558,9 @@ msgstr "Are you sure you want to delete member - {name}?"
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
 #: ckan/templates/package/read_base.html:19
-#: ckan/templates/package/resource_read.html:31 ckan/templates/user/edit.html:8
-#: ckan/templates/user/edit_base.html:3 ckan/templates/user/read_base.html:14
+#: ckan/templates/package/resource_read.html:31
+#: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
+#: ckan/templates/user/read_base.html:14
 msgid "Manage"
 msgstr ""
 
@@ -2639,7 +2628,8 @@ msgstr "Name Descending"
 msgid "There are currently no groups for this site"
 msgstr "There are currently no groups for this site"
 
-#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "How about creating one?"
 
@@ -2688,19 +2678,22 @@ msgstr ""
 msgid "If you wish to invite a new user, enter their email address."
 msgstr ""
 
-#: ckan/templates/group/member_new.html:55 ckan/templates/group/members.html:18
+#: ckan/templates/group/member_new.html:55
+#: ckan/templates/group/members.html:18
 #: ckan/templates/organization/member_new.html:56
 #: ckan/templates/organization/members.html:18
 msgid "Role"
 msgstr "Role"
 
-#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:30
+#: ckan/templates/group/member_new.html:58
+#: ckan/templates/group/members.html:30
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:30
 msgid "Are you sure you want to delete this member?"
 msgstr "Are you sure you want to delete this member?"
 
-#: ckan/templates/group/member_new.html:59 ckan/templates/group/members.html:35
+#: ckan/templates/group/member_new.html:59
+#: ckan/templates/group/members.html:35
 #: ckan/templates/group/snippets/group_form.html:61
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:60
@@ -2727,8 +2720,8 @@ msgstr "What are roles?"
 
 #: ckan/templates/group/member_new.html:81
 msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage"
-" organization members.</p> <p><strong>Member:</strong> Can add/remove "
+" <p><strong>Admin:</strong> Can edit group information, as well as manage "
+"organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
 msgstr ""
 
@@ -2851,10 +2844,10 @@ msgstr "What are Groups?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. "
-"This could be to catalogue datasets for a particular project or team, or "
-"on a particular theme, or as a very simple way to help people find and "
-"search your own published datasets. "
+" You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets. "
 msgstr ""
 
 #: ckan/templates/group/snippets/history_revisions.html:10
@@ -2918,14 +2911,13 @@ msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision of "
+"robust data APIs). CKAN is aimed at data publishers (national and regional "
+"governments, companies and organizations) wanting to make their data open "
+"and available.</p> <p>CKAN is used by governments and user groups worldwide "
+"and powers a variety of official and community data portals including "
+"portals for local, national and international government, such as the UK’s "
+"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -2934,26 +2926,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
-" <p>CKAN is the world’s leading open-source data portal platform.</p> "
-"<p>CKAN is a complete out-of-the-box software solution that makes data "
-"accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organisations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
-"href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
-"href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
-"government portals, as well as city and municipal sites in the US, UK, "
-"Argentina, Finland and elsewhere.</p> <p>CKAN: <a "
-"href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a "
-"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
-"overview: <a "
-"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+msgstr " <p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN is a complete out-of-the-box software solution that makes data accessible and usable – by providing tools to streamline publishing, sharing, finding and using data (including storage of data and provision of robust data APIs). CKAN is aimed at data publishers (national and regional governments, companies and organisations) wanting to make their data open and available.</p> <p>CKAN is used by governments and user groups worldwide and powers a variety of official and community data portals including portals for local, national and international government, such as the UK’s <a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland government portals, as well as city and municipal sites in the US, UK, Argentina, Finland and elsewhere.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features overview: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -2961,11 +2934,9 @@ msgstr "Welcome to CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will "
-msgstr ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will "
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will "
+msgstr "This is a nice introductory paragraph about CKAN or the site in general. We don't have any copy to go here yet but soon we will "
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -3022,8 +2993,8 @@ msgstr ""
 #: ckan/templates/macros/form.html:126
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 
@@ -3096,8 +3067,8 @@ msgstr "Draft"
 #: ckan/templates/package/read.html:11
 #: ckan/templates/package/snippets/package_basic_fields.html:91
 #: ckan/templates/snippets/package_item.html:31
-#: ckan/templates/snippets/private.html:2 ckan/templates/user/read_base.html:82
-#: ckan/templates/user/read_base.html:96
+#: ckan/templates/snippets/private.html:2
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "Private"
 msgstr "Private"
 
@@ -3137,14 +3108,9 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p> "
-msgstr ""
-" <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
-"manage organisation members.</p> <p><strong>Editor:</strong> Can add and "
-"edit datasets, but not manage organisation members.</p> "
-"<p><strong>Member:</strong> Can view the organisation's private datasets,"
-" but not add new datasets.</p> "
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p> "
+msgstr " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as manage organisation members.</p> <p><strong>Editor:</strong> Can add and edit datasets, but not manage organisation members.</p> <p><strong>Member:</strong> Can view the organisation's private datasets, but not add new datasets.</p> "
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3178,19 +3144,19 @@ msgstr "What are Organisations?"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for "
-"example, the Department of Health). This means that datasets can be "
-"published by and belong to a department instead of an individual "
-"user.</p> <p>Within organizations, admins can assign roles and authorise "
-"its members, giving individual users the right to publish datasets from "
-"that particular organisation (e.g. Office of National Statistics).</p> "
+" <p>Organizations act like publishing departments for datasets (for example,"
+" the Department of Health). This means that datasets can be published by and"
+" belong to a department instead of an individual user.</p> <p>Within "
+"organizations, admins can assign roles and authorise its members, giving "
+"individual users the right to publish datasets from that particular "
+"organisation (e.g. Office of National Statistics).</p> "
 msgstr ""
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of"
-" datasets. Users can have different roles within an Organization, "
-"depending on their level of authorisation to create, edit and publish. "
+" CKAN Organizations are used to create, manage and publish collections of "
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish. "
 msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:10
@@ -3207,8 +3173,8 @@ msgstr "A little information about my organisation..."
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all "
-"the public and private datasets belonging to this organization."
+"Are you sure you want to delete this Organization? This will delete all the "
+"public and private datasets belonging to this organization."
 msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:64
@@ -3231,9 +3197,9 @@ msgstr "What are datasets?"
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
-" A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data. "
+" A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data. "
 msgstr ""
 
 #: ckan/templates/package/confirm_delete.html:11
@@ -3316,9 +3282,9 @@ msgstr ""
 msgid ""
 " Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer"
-" documentation</a>. "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>Data Explorer "
+"documentation</a>. "
 msgstr ""
 
 #: ckan/templates/package/new_view.html:29
@@ -3329,13 +3295,9 @@ msgstr "Add"
 #: ckan/templates/package/read_base.html:38
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
-msgstr ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
+"differ significantly from the <a href=\"%(url)s\">current revision</a>."
+msgstr "This is an old revision of this dataset, as edited at %(timestamp)s. It may differ significantly from the <a href=\"%(url)s\">current revision</a>."
 
 #: ckan/templates/package/related_list.html:7
 msgid "Related Media for {dataset}"
@@ -3458,9 +3420,9 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:125
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr ""
 
 #: ckan/templates/package/resource_read.html:147
@@ -3519,8 +3481,8 @@ msgstr ""
 #: ckan/templates/package/snippets/resources_list.html:25
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
-" add some?</a></p> "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+"add some?</a></p> "
 msgstr ""
 
 #: ckan/templates/package/search.html:53
@@ -3536,18 +3498,14 @@ msgstr "full {format} dump"
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
-msgstr ""
-" You can also access this registry using the %(api_link)s (see "
-"%(api_doc_link)s) or download a %(dump_link)s. "
+msgstr " You can also access this registry using the %(api_link)s (see %(api_doc_link)s) or download a %(dump_link)s. "
 
 #: ckan/templates/package/search.html:60
 #, python-format
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
-msgstr ""
-" You can also access this registry using the %(api_link)s (see "
-"%(api_doc_link)s). "
+msgstr " You can also access this registry using the %(api_link)s (see %(api_doc_link)s). "
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
@@ -3622,9 +3580,7 @@ msgstr "eg. economy, mental health, government"
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
-msgstr ""
-" License definitions and additional information can be found at <a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
+msgstr " License definitions and additional information can be found at <a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
 
 #: ckan/templates/package/snippets/package_basic_fields.html:69
 #: ckan/templates/snippets/organization.html:23
@@ -3649,12 +3605,11 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
 msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:39
@@ -3867,15 +3822,11 @@ msgstr "What are related items?"
 
 #: ckan/templates/related/base_form_page.html:22
 msgid ""
-" <p>Related Media is any app, article, visualisation or idea related to "
-"this dataset.</p> <p>For example, it could be a custom visualisation, "
-"pictograph or bar chart, an app using all or part of the data or even a "
-"news story that references this dataset.</p> "
-msgstr ""
-" <p>Related Media is any app, article, visualisation or idea related to "
-"this dataset.</p> <p>For example, it could be a custom visualisation, "
-"pictograph or bar chart, an app using all or part of the data or even a "
-"news story that references this dataset.</p> "
+" <p>Related Media is any app, article, visualisation or idea related to this"
+" dataset.</p> <p>For example, it could be a custom visualisation, pictograph"
+" or bar chart, an app using all or part of the data or even a news story "
+"that references this dataset.</p> "
+msgstr " <p>Related Media is any app, article, visualisation or idea related to this dataset.</p> <p>For example, it could be a custom visualisation, pictograph or bar chart, an app using all or part of the data or even a news story that references this dataset.</p> "
 
 #: ckan/templates/related/confirm_delete.html:11
 msgid "Are you sure you want to delete related item - {name}?"
@@ -3892,9 +3843,7 @@ msgstr "Apps & Ideas"
 msgid ""
 " <p>Showing items <strong>%(first)s - %(last)s</strong> of "
 "<strong>%(item_count)s</strong> related items found</p> "
-msgstr ""
-" <p>Showing items <strong>%(first)s - %(last)s</strong> of "
-"<strong>%(item_count)s</strong> related items found</p> "
+msgstr " <p>Showing items <strong>%(first)s - %(last)s</strong> of <strong>%(item_count)s</strong> related items found</p> "
 
 #: ckan/templates/related/dashboard.html:25
 #, python-format
@@ -3911,11 +3860,9 @@ msgstr "What are applications?"
 
 #: ckan/templates/related/dashboard.html:50
 msgid ""
-" These are applications built with the datasets as well as ideas for "
-"things that could be done with them. "
-msgstr ""
-" These are applications built with the datasets as well as ideas for "
-"things that could be done with them. "
+" These are applications built with the datasets as well as ideas for things "
+"that could be done with them. "
+msgstr " These are applications built with the datasets as well as ideas for things that could be done with them. "
 
 #: ckan/templates/related/dashboard.html:58
 #: ckan/templates/snippets/search_form.html:70
@@ -4120,9 +4067,7 @@ msgstr "This dataset has no description"
 msgid ""
 "No apps, ideas, news stories or images have been related to this dataset "
 "yet."
-msgstr ""
-"No apps, ideas, news stories or images have been related to this dataset "
-"yet."
+msgstr "No apps, ideas, news stories or images have been related to this dataset yet."
 
 #: ckan/templates/snippets/related.html:18
 msgid "Add Item"
@@ -4146,9 +4091,7 @@ msgstr " <p class=\"extra\">Please try another search.</p> "
 msgid ""
 " <p><strong>There was an error while searching.</strong> Please try "
 "again.</p> "
-msgstr ""
-" <p><strong>There was an error while searching.</strong> Please try "
-"again.</p> "
+msgstr " <p><strong>There was an error while searching.</strong> Please try again.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -4298,11 +4241,8 @@ msgstr "Account Info"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you "
-"do. "
-msgstr ""
-" Your profile lets other CKAN users know about who you are and what you "
-"do. "
+" Your profile lets other CKAN users know about who you are and what you do. "
+msgstr " Your profile lets other CKAN users know about who you are and what you do. "
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change details"
@@ -4525,11 +4465,9 @@ msgstr ""
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
-"Enter your username into the box and we will send you an email with a "
-"link to enter a new password."
-msgstr ""
-"Enter your username into the box and we will send you an email with a "
-"link to enter a new password."
+"Enter your username into the box and we will send you an email with a link "
+"to enter a new password."
+msgstr "Enter your username into the box and we will send you an email with a link to enter a new password."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
 #: ckan/templates/user/snippets/followee_dropdown.html:15
@@ -4574,8 +4512,8 @@ msgstr ""
 
 #: ckanext/datastore/db.py:652
 msgid ""
-"The data was invalid (for example: a numeric value is out of range or was"
-" inserted into a text field)."
+"The data was invalid (for example: a numeric value is out of range or was "
+"inserted into a text field)."
 msgstr ""
 
 #: ckanext/datastore/logic/action.py:209 ckanext/datastore/logic/action.py:259
@@ -4669,71 +4607,27 @@ msgid ""
 "LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
 "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
 "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
-msgstr ""
-"Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid\n"
-"\n"
-"Permission is hereby granted, free of charge, to any person obtaining\n"
-"a copy of this software and associated documentation files (the\n"
-"\"Software\"), to deal in the Software without restriction, including\n"
-"without limitation the rights to use, copy, modify, merge, publish,\n"
-"distribute, sublicense, and/or sell copies of the Software, and to\n"
-"permit persons to whom the Software is furnished to do so, subject to\n"
-"the following conditions:\n"
-"\n"
-"The above copyright notice and this permission notice shall be\n"
-"included in all copies or substantial portions of the Software.\n"
-"\n"
-"THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\n"
-"EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\n"
-"MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n"
-"NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\n"
-"LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
-"OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
-"WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
+msgstr "Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\nLIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\nWITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
 
 #: ckanext/reclineview/theme/public/vendor/slickgrid/2.0.1/README.txt:1
 msgid ""
-"This compiled version of SlickGrid has been obtained with the Google "
-"Closure\n"
+"This compiled version of SlickGrid has been obtained with the Google Closure\n"
 "Compiler, using the following command:\n"
 "\n"
-"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js "
-"--js=slick.editors.js --js_output_file=slick.grid.min.js\n"
+"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n"
 "\n"
-"There are two other files required for the SlickGrid view to work "
-"properly:\n"
+"There are two other files required for the SlickGrid view to work properly:\n"
 "\n"
 " * jquery-ui-1.8.16.custom.min.js \n"
 " * jquery.event.drag-2.0.min.js\n"
 "\n"
-"These are included in the Recline source, but have not been included in "
-"the\n"
+"These are included in the Recline source, but have not been included in the\n"
 "built file to make easier to handle compatibility problems.\n"
 "\n"
 "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
 "\n"
 "[1] https://developers.google.com/closure/compiler/"
-msgstr ""
-"This compiled version of SlickGrid has been obtained with the Google "
-"Closure\n"
-"Compiler, using the following command:\n"
-"\n"
-"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js "
-"--js=slick.editors.js --js_output_file=slick.grid.min.js\n"
-"\n"
-"There are two other files required for the SlickGrid view to work "
-"properly:\n"
-"\n"
-" * jquery-ui-1.8.16.custom.min.js \n"
-" * jquery.event.drag-2.0.min.js\n"
-"\n"
-"These are included in the Recline source, but have not been included in "
-"the\n"
-"built file to make easier to handle compatibility problems.\n"
-"\n"
-"Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
-"\n"
-"[1] https://developers.google.com/closure/compiler/"
+msgstr "This compiled version of SlickGrid has been obtained with the Google Closure\nCompiler, using the following command:\n\njava -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n\nThere are two other files required for the SlickGrid view to work properly:\n\n * jquery-ui-1.8.16.custom.min.js \n * jquery.event.drag-2.0.min.js\n\nThese are included in the Recline source, but have not been included in the\nbuilt file to make easier to handle compatibility problems.\n\nPlease check SlickGrid license in the included MIT-LICENSE.txt file.\n\n[1] https://developers.google.com/closure/compiler/"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -4924,11 +4818,9 @@ msgstr "Dataset Leaderboard"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:18
 msgid ""
-"Choose a dataset attribute and find out which categories in that area "
-"have the most datasets. E.g. tags, groups, license, res_format, country."
-msgstr ""
-"Choose a dataset attribute and find out which categories in that area "
-"have the most datasets. E.g. tags, groups, license, res_format, country."
+"Choose a dataset attribute and find out which categories in that area have "
+"the most datasets. E.g. tags, groups, license, res_format, country."
+msgstr "Choose a dataset attribute and find out which categories in that area have the most datasets. E.g. tags, groups, license, res_format, country."
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:20
 msgid "Choose area"
@@ -4945,1568 +4837,3 @@ msgstr ""
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
 msgstr ""
-
-#~ msgid "\"page\" parameter must be a positive integer"
-#~ msgstr "\"page\" parameter must be a positive integer"
-
-#~ msgid "%s is now logged in"
-#~ msgstr "%s is now logged in"
-
-#~ msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
-#~ msgstr " (Or if using OpenID, it hasn't been associated with a user account.)"
-
-#~ msgid "The resource url is not specified."
-#~ msgstr ""
-
-#~ msgid "No preview handler for resource of type {0}"
-#~ msgstr ""
-
-#~ msgid "The resource format is not specified."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "You have requested your password on %(site_title)s to be reset.\n"
-#~ "\n"
-#~ "    Please click the following link to confirm this request:\n"
-#~ "\n"
-#~ "       %(reset_link)s\n"
-#~ "    "
-#~ msgstr ""
-
-#~ msgid ""
-#~ "You have been invited to %(site_title)s."
-#~ " A user has already been created "
-#~ "to\n"
-#~ "    you with the username %(user_name)s. You can change it later.\n"
-#~ "\n"
-#~ "    To accept this invite, please reset your password at:\n"
-#~ "\n"
-#~ "       %(reset_link)s\n"
-#~ "    "
-#~ msgstr ""
-
-#~ msgid "No web page given"
-#~ msgstr "No web page given"
-
-#~ msgid "Author not given"
-#~ msgstr "Author not given"
-
-#~ msgid "Maintainer not given"
-#~ msgstr "Maintainer not given"
-
-#~ msgid ""
-#~ "Url must be purely lowercase "
-#~ "alphanumeric (ascii) characters and these "
-#~ "symbols: -_"
-#~ msgstr ""
-#~ "Url must be purely lowercase "
-#~ "alphanumeric (ascii) characters and these "
-#~ "symbols: -_"
-
-#~ msgid "User %s not authorized to delete package %s"
-#~ msgstr "User %s not authorized to delete package %s"
-
-#~ msgid "User %s not authorized to delete organization %s members"
-#~ msgstr "User %s not authorized to delete organisation %s members"
-
-#~ msgid "License Not Specified"
-#~ msgstr "License Not Specified"
-
-#~ msgid "Reset this"
-#~ msgstr ""
-
-#~ msgid "What are sysadmins?"
-#~ msgstr "What are sysadmins?"
-
-#~ msgid ""
-#~ " <p>A sysadmin is someone that has"
-#~ " full control over a CKAN instance."
-#~ " You can only add CKAN sysadmins "
-#~ "via the <code>sysadmin</code> paster "
-#~ "command.</p> "
-#~ msgstr ""
-#~ " <p>A sysadmin is someone that has"
-#~ " full control over a CKAN instance."
-#~ " You can only add CKAN sysadmins "
-#~ "via the <code>sysadmin</code> paster "
-#~ "command.</p> "
-
-#~ msgid "Read the documentation"
-#~ msgstr "Read the documentation"
-
-#~ msgid ""
-#~ " Further information in the <a       "
-#~ "href=\"http://docs.ckan.org/en/latest/datastore.html\" "
-#~ "target=\"_blank\">main CKAN Data API and "
-#~ "DataStore documentation</a>.</p> "
-#~ msgstr ""
-
-#~ msgid "There is no description for this group"
-#~ msgstr "There is no description for this group"
-
-#~ msgid "eg. Gold Prices"
-#~ msgstr "eg. Gold Prices"
-
-#~ msgid "Search Your Data"
-#~ msgstr "Search Your Data"
-
-#~ msgid "Popular Tags"
-#~ msgstr "Popular Tags"
-
-#~ msgid ""
-#~ "You can use <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\" "
-#~ "target=\"_blank\">Markdown formatting</a> here"
-#~ msgstr ""
-#~ "You can use <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\" "
-#~ "target=\"_blank\">Markdown formatting</a> here"
-
-#~ msgid ""
-#~ " <p>Organizations act like publishing "
-#~ "departments for datasets (for example, "
-#~ "the Department of Health). This means"
-#~ " that datasets can be published by"
-#~ " and belong to a department instead"
-#~ " of an individual user.</p> <p>Within "
-#~ "organizations, admins can assign roles "
-#~ "and authorisation its members, giving "
-#~ "individual users the right to publish"
-#~ " datasets from that particular organisation"
-#~ " (e.g. Office of National Statistics).</p>"
-#~ " "
-#~ msgstr ""
-#~ " <p>Organisations act like publishing "
-#~ "departments for datasets (for example, "
-#~ "the Department of Health). This means"
-#~ " that datasets can be published by"
-#~ " and belong to a department instead"
-#~ " of an individual user.</p> <p>Within "
-#~ "organisations, admins can assign roles "
-#~ "and authorisation its members, giving "
-#~ "individual users the right to publish"
-#~ " datasets from that particular organisation"
-#~ " (e.g. Office of National Statistics).</p>"
-#~ " "
-
-#~ msgid "This organization has no description"
-#~ msgstr "This organisation has no description"
-
-#~ msgid "Add metadata to the dataset"
-#~ msgstr "Add metadata to the dataset"
-
-#~ msgid ""
-#~ "This is the current revision of "
-#~ "this dataset, as edited at "
-#~ "%(timestamp)s."
-#~ msgstr ""
-#~ "This is the current revision of "
-#~ "this dataset, as edited at "
-#~ "%(timestamp)s."
-
-#~ msgid "There is no description for this resource"
-#~ msgstr "There is no description for this resource"
-
-#~ msgid "There is no description for this dataset"
-#~ msgstr "There is no description for this dataset"
-
-#~ msgid ""
-#~ "Important: By submitting content, you "
-#~ "agree to release your contributions "
-#~ "under the Open Database License."
-#~ msgstr ""
-#~ "Important: By submitting content, you "
-#~ "agree to release your contributions "
-#~ "under the Open Database License."
-
-#~ msgid "Next: Additional Info"
-#~ msgstr "Next: Additional Info"
-
-#~ msgid "No description for this resource"
-#~ msgstr "No description for this resource"
-
-#~ msgid ""
-#~ " <p class=\"empty\">This dataset has no"
-#~ " data, <a href=\"%(url)s\">why not add "
-#~ "some?</a> "
-#~ msgstr ""
-#~ " <p class=\"empty\">This dataset has no"
-#~ " data, <a href=\"%(url)s\">why not add "
-#~ "some?</a> "
-
-#~ msgid "Additional info"
-#~ msgstr ""
-
-#~ msgid "This item has no description"
-#~ msgstr "This item has no description"
-
-#~ msgid "Request Reset"
-#~ msgstr "Request Reset"
-
-#~ msgid "You can use"
-#~ msgstr "You can use"
-
-#~ msgid "Markdown formatting"
-#~ msgstr "Markdown formatting"
-
-#~ msgid "here."
-#~ msgstr "here."
-
-#~ msgid "View dataset resources"
-#~ msgstr "View dataset resources"
-
-#~ msgid "DOWNLOAD"
-#~ msgstr "DOWNLOAD"
-
-#~ msgid "No downloadable resources."
-#~ msgstr "No downloadable resources."
-
-#~ msgid "No description for this item"
-#~ msgstr "No description for this item"
-
-#~ msgid "View this"
-#~ msgstr "View this"
-
-#~ msgid "no ratings yet"
-#~ msgstr "no ratings yet"
-
-#~ msgid ""
-#~ "–\n"
-#~ "    rate it now"
-#~ msgstr ""
-#~ "–\n"
-#~ "    rate it now"
-
-#~ msgid "Checking..."
-#~ msgstr "Checking..."
-
-#~ msgid "Type at least two characters..."
-#~ msgstr "Type at least two characters..."
-
-#~ msgid "This is the current URL."
-#~ msgstr "This is the current URL."
-
-#~ msgid "This URL is available!"
-#~ msgstr "This URL is available!"
-
-#~ msgid "This URL is already used, please use a different one."
-#~ msgstr "This URL is already used, please use a different one."
-
-#~ msgid "Failed to save, possibly due to invalid data "
-#~ msgstr "Failed to save, possibly due to invalid data "
-
-#~ msgid ""
-#~ "You have unsaved changes. Make sure "
-#~ "to click 'Save Changes' below before "
-#~ "leaving this page."
-#~ msgstr ""
-#~ "You have unsaved changes. Make sure "
-#~ "to click 'Save Changes' below before "
-#~ "leaving this page."
-
-#~ msgid "(no name)"
-#~ msgstr "(no name)"
-
-#~ msgid "Delete the resource '%name%'?"
-#~ msgstr "Delete the resource '%name%'?"
-
-#~ msgid "Preview not available for data type: "
-#~ msgstr "Preview not available for data type: "
-
-#~ msgid "Failed to get credentials for storage upload. Upload cannot proceed"
-#~ msgstr "Failed to get credentials for storage upload. Upload cannot proceed"
-
-#~ msgid "Checking upload permissions ..."
-#~ msgstr "Checking upload permissions ..."
-
-#~ msgid "Uploading file ..."
-#~ msgstr "Uploading file ..."
-
-#~ msgid "Data File"
-#~ msgstr "Data File"
-
-#~ msgid "Metadata"
-#~ msgstr "Metadata"
-
-#~ msgid "Documentation"
-#~ msgstr "Documentation"
-
-#~ msgid "Example"
-#~ msgstr "Example"
-
-#~ msgid "Url"
-#~ msgstr "Url"
-
-#~ msgid "Resource Type"
-#~ msgstr "Resource Type"
-
-#~ msgid "DataStore enabled"
-#~ msgstr "DataStore enabled"
-
-#~ msgid "Size (Bytes)"
-#~ msgstr "Size (Bytes)"
-
-#~ msgid "Mimetype"
-#~ msgstr "Mimetype"
-
-#~ msgid "Mimetype (Inner)"
-#~ msgstr "Mimetype (Inner)"
-
-#~ msgid "Hash"
-#~ msgstr "Hash"
-
-#~ msgid "ID"
-#~ msgstr "ID"
-
-#~ msgid "Done"
-#~ msgstr "Done"
-
-#~ msgid "This resource has unsaved changes."
-#~ msgstr "This resource has unsaved changes."
-
-#~ msgid "e.g. csv, html, xls, rdf, ..."
-#~ msgstr "e.g. csv, html, xls, rdf, ..."
-
-#~ msgid "Extra Fields"
-#~ msgstr "Extra Fields"
-
-#~ msgid "Add Extra Field"
-#~ msgstr "Add Extra Field"
-
-#~ msgid "Key"
-#~ msgstr "Key"
-
-#~ msgid "Delete Resource"
-#~ msgstr "Delete Resource"
-
-#~ msgid "You can use %aMarkdown formatting%b here."
-#~ msgstr "You can use %aMarkdown formatting%b here."
-
-#~ msgid ""
-#~ "Dates are in %aISO Format%b — eg."
-#~ " %c2012-12-25%d or %c2010-05-31T14:30%d."
-#~ msgstr ""
-#~ "Dates are in %aISO Format%b — eg."
-#~ " %c2012-12-25%d or %c2010-05-31T14:30%d."
-
-#~ msgid "Data File (Uploaded)"
-#~ msgstr "Data File (Uploaded)"
-
-#~ msgid "Could not load preview"
-#~ msgstr "Could not load preview"
-
-#~ msgid "DataProxy returned an error"
-#~ msgstr "DataProxy returned an error"
-
-#~ msgid "DataStore returned an error"
-#~ msgstr "DataStore returned an error"
-
-#~ msgid "Find datasets"
-#~ msgstr "Find datasets"
-
-#~ msgid "Add a dataset"
-#~ msgstr "Add a dataset"
-
-#~ msgid "Page Logo"
-#~ msgstr "Page Logo"
-
-#~ msgid "Master content template placeholder … please replace me."
-#~ msgstr "Master content template placeholder … please replace me."
-
-#~ msgid "Twitter @ckanproject"
-#~ msgstr "Twitter @ckanproject"
-
-#~ msgid "Contact Us"
-#~ msgstr "Contact Us"
-
-#~ msgid "Privacy Policy"
-#~ msgstr "Privacy Policy"
-
-#~ msgid "Sections"
-#~ msgstr "Sections"
-
-#~ msgid "Site Admin"
-#~ msgstr "Site Admin"
-
-#~ msgid "Languages"
-#~ msgstr "Languages"
-
-#~ msgid "Meta"
-#~ msgstr "Meta"
-
-#~ msgid "Licensed under the"
-#~ msgstr "Licensed under the"
-
-#~ msgid "Open Database License"
-#~ msgstr "Open Database License"
-
-#~ msgid "This Content and Data is Open"
-#~ msgstr "This Content and Data is Open"
-
-#~ msgid "Powered by"
-#~ msgstr "Powered by"
-
-#~ msgid "CKAN"
-#~ msgstr "CKAN"
-
-#~ msgid "v"
-#~ msgstr "v"
-
-#~ msgid "Administration - Authorization"
-#~ msgstr "Administration - Authorization"
-
-#~ msgid "Update Existing Roles"
-#~ msgstr "Update Existing Roles"
-
-#~ msgid "Save Changes"
-#~ msgstr "Save Changes"
-
-#~ msgid "Add Roles for Any User"
-#~ msgstr "Add Roles for Any User"
-
-#~ msgid "Add Role"
-#~ msgstr "Add Role"
-
-#~ msgid "Administration Dashboard"
-#~ msgstr "Administration Dashboard"
-
-#~ msgid "Current Sysadmins"
-#~ msgstr "Current Sysadmins"
-
-#~ msgid "Administration - Trash"
-#~ msgstr "Administration - Trash"
-
-#~ msgid "Deleted Revisions"
-#~ msgstr "Deleted Revisions"
-
-#~ msgid "Purge them all (forever and irreversibly)"
-#~ msgstr "Purge them all (forever and irreversibly)"
-
-#~ msgid "Deleted Datasets"
-#~ msgstr "Deleted Datasets"
-
-#~ msgid "(None)"
-#~ msgstr "(None)"
-
-#~ msgid "Authorization:"
-#~ msgstr "Authorization:"
-
-#~ msgid "Edit:"
-#~ msgstr "Edit:"
-
-#~ msgid "There are no datasets currently in this group."
-#~ msgstr "There are no datasets currently in this group."
-
-#~ msgid "History:"
-#~ msgstr "History:"
-
-#~ msgid "Compare »"
-#~ msgstr "Compare »"
-
-#~ msgid "Group History"
-#~ msgstr "Group History"
-
-#~ msgid "Groups of Datasets"
-#~ msgstr "Groups of Datasets"
-
-#~ msgid "What Are Groups?"
-#~ msgstr "What Are Groups?"
-
-#~ msgid ""
-#~ "Whilst tags are great at collecting "
-#~ "datasets together, there are occasions "
-#~ "when you want to restrict users "
-#~ "from editing a collection. A [1:group]"
-#~ " can be set-up to specify which"
-#~ " users have permission to add or "
-#~ "remove datasets from it."
-#~ msgstr ""
-#~ "Whilst tags are great at collecting "
-#~ "datasets together, there are occasions "
-#~ "when you want to restrict users "
-#~ "from editing a collection. A [1:group]"
-#~ " can be set-up to specify which"
-#~ " users have permission to add or "
-#~ "remove datasets from it."
-
-#~ msgid "New Dataset..."
-#~ msgstr "New Dataset..."
-
-#~ msgid "Existing Dataset..."
-#~ msgstr "Existing Dataset..."
-
-#~ msgid "List Groups"
-#~ msgstr "List Groups"
-
-#~ msgid "Login to Add a Group"
-#~ msgstr "Login to Add a Group"
-
-#~ msgid "Add A Group"
-#~ msgstr "Add A Group"
-
-#~ msgid "Errors in form"
-#~ msgstr "Errors in form"
-
-#~ msgid "Warning: URL is very long. Consider changing it to something shorter."
-#~ msgstr "Warning: URL is very long. Consider changing it to something shorter."
-
-#~ msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
-#~ msgstr "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
-
-#~ msgid "Start with a summary sentence ..."
-#~ msgstr "Start with a summary sentence ..."
-
-#~ msgid "Image URL:"
-#~ msgstr "Image URL:"
-
-#~ msgid "The URL for the image that is associated with this group."
-#~ msgstr "The URL for the image that is associated with this group."
-
-#~ msgid "active"
-#~ msgstr "active"
-
-#~ msgid "deleted"
-#~ msgstr "deleted"
-
-#~ msgid "Add..."
-#~ msgstr "Add..."
-
-#~ msgid "Key ="
-#~ msgstr "Key ="
-
-#~ msgid "Value ="
-#~ msgstr "Value ="
-
-#~ msgid "Add datasets"
-#~ msgstr "Add datasets"
-
-#~ msgid "Resource Formats"
-#~ msgstr "Resource Formats"
-
-#~ msgid "State:"
-#~ msgstr "State:"
-
-#~ msgid ""
-#~ "[1:You searched for \"%(query)s\". "
-#~ "]%(number_of_results)s datasets found."
-#~ msgstr ""
-#~ "[1:You searched for \"%(query)s\". "
-#~ "]%(number_of_results)s datasets found."
-
-#~ msgid ""
-#~ "What was the [1:average price] of "
-#~ "a house in the UK in 1935? "
-#~ "When will India's projected population "
-#~ "[2:overtake] that of China? Where can"
-#~ " you see [3:publicly-funded art] in"
-#~ " Seattle? Data to answer many, many"
-#~ " questions like these is out there"
-#~ " on the Internet somewhere - but "
-#~ "it is not always easy to find."
-#~ msgstr ""
-#~ "What was the [1:average price] of "
-#~ "a house in the UK in 1935? "
-#~ "When will India's projected population "
-#~ "[2:overtake] that of China? Where can"
-#~ " you see [3:publicly-funded art] in"
-#~ " Seattle? Data to answer many, many"
-#~ " questions like these is out there"
-#~ " on the Internet somewhere - but "
-#~ "it is not always easy to find."
-
-#~ msgid ""
-#~ "%(site_title)s is a community-run "
-#~ "catalogue of useful sets of data "
-#~ "on the Internet. You can collect "
-#~ "links here to data from around the"
-#~ " web for yourself and others to "
-#~ "use, or search for data that "
-#~ "others have collected. Depending on the"
-#~ " type of data (and its conditions "
-#~ "of use), %(site_title)s may also be "
-#~ "able to store a copy of the "
-#~ "data or host it in a database, "
-#~ "and provide some basic visualisation "
-#~ "tools."
-#~ msgstr ""
-#~ "%(site_title)s is a community-run "
-#~ "catalogue of useful sets of data "
-#~ "on the Internet. You can collect "
-#~ "links here to data from around the"
-#~ " web for yourself and others to "
-#~ "use, or search for data that "
-#~ "others have collected. Depending on the"
-#~ " type of data (and its conditions "
-#~ "of use), %(site_title)s may also be "
-#~ "able to store a copy of the "
-#~ "data or host it in a database, "
-#~ "and provide some basic visualisation "
-#~ "tools."
-
-#~ msgid "How it works"
-#~ msgstr "How it works"
-
-#~ msgid ""
-#~ "This site is running a powerful "
-#~ "piece of open-source data cataloguing"
-#~ " software called [1:CKAN], written and "
-#~ "maintained by the [2:Open Knowledge "
-#~ "Foundation]. Each 'dataset' record on "
-#~ "CKAN contains a description of the "
-#~ "data and other useful information, such"
-#~ " as what formats it is available "
-#~ "in, who owns it and whether it "
-#~ "is freely available, and what subject"
-#~ " areas the data is about. Other "
-#~ "users can improve or add to this"
-#~ " information (CKAN keeps a fully "
-#~ "versioned history)."
-#~ msgstr ""
-#~ "This site is running a powerful "
-#~ "piece of open-source data cataloguing"
-#~ " software called [1:CKAN], written and "
-#~ "maintained by the [2:Open Knowledge "
-#~ "Foundation]. Each 'dataset' record on "
-#~ "CKAN contains a description of the "
-#~ "data and other useful information, such"
-#~ " as what formats it is available "
-#~ "in, who owns it and whether it "
-#~ "is freely available, and what subject"
-#~ " areas the data is about. Other "
-#~ "users can improve or add to this"
-#~ " information (CKAN keeps a fully "
-#~ "versioned history)."
-
-#~ msgid ""
-#~ "CKAN powers a number of data "
-#~ "catalogues on the Internet. [1:The Data"
-#~ " Hub] is an openly editable open "
-#~ "data catalogue, in the style of "
-#~ "Wikipedia. The UK Government uses CKAN"
-#~ " to run [2:data.gov.uk], which currently"
-#~ " lists 8,000 government datasets. Official"
-#~ " public data from most European "
-#~ "countries is listed in a CKAN "
-#~ "catalogue at [3:publicdata.eu]. There is "
-#~ "a comprehensive list of catalogues like"
-#~ " these around the world at "
-#~ "[4:datacatalogs.org], which is itself powered"
-#~ " by CKAN."
-#~ msgstr ""
-#~ "CKAN powers a number of data "
-#~ "catalogues on the Internet. [1:The Data"
-#~ " Hub] is an openly editable open "
-#~ "data catalogue, in the style of "
-#~ "Wikipedia. The UK Government uses CKAN"
-#~ " to run [2:data.gov.uk], which currently"
-#~ " lists 8,000 government datasets. Official"
-#~ " public data from most European "
-#~ "countries is listed in a CKAN "
-#~ "catalogue at [3:publicdata.eu]. There is "
-#~ "a comprehensive list of catalogues like"
-#~ " these around the world at "
-#~ "[4:datacatalogs.org], which is itself powered"
-#~ " by CKAN."
-
-#~ msgid "Open data and the Open Knowledge Foundation"
-#~ msgstr "Open data and the Open Knowledge Foundation"
-
-#~ msgid ""
-#~ "Most of the data indexed at "
-#~ "%(site_title)s is openly licensed, meaning "
-#~ "anyone is free to use or re-"
-#~ "use it however they like. Perhaps "
-#~ "someone will take that nice dataset "
-#~ "of a city's public art that you"
-#~ " found, and add it to a tourist"
-#~ " map - or even make a neat "
-#~ "app for your phone that'll help "
-#~ "you find artworks when you visit "
-#~ "the city. Open data means more "
-#~ "enterprise, collaborative science and "
-#~ "transparent government. You can read "
-#~ "more about open data in the "
-#~ "[1:Open Data Handbook]."
-#~ msgstr ""
-#~ "Most of the data indexed at "
-#~ "%(site_title)s is openly licensed, meaning "
-#~ "anyone is free to use or re-"
-#~ "use it however they like. Perhaps "
-#~ "someone will take that nice dataset "
-#~ "of a city's public art that you"
-#~ " found, and add it to a tourist"
-#~ " map - or even make a neat "
-#~ "app for your phone that'll help "
-#~ "you find artworks when you visit "
-#~ "the city. Open data means more "
-#~ "enterprise, collaborative science and "
-#~ "transparent government. You can read "
-#~ "more about open data in the "
-#~ "[1:Open Data Handbook]."
-
-#~ msgid ""
-#~ "The [1:Open Knowledge Foundation] is a"
-#~ " non-profit organisation [2:promoting] open"
-#~ " knowledge: writing and improving CKAN "
-#~ "is one of the ways we do "
-#~ "that. If you want to get involved"
-#~ " with its design or code, join "
-#~ "the discussion or development [3:mailing "
-#~ "lists], or take a look at the "
-#~ "[4:OKFN] site to find out about "
-#~ "our other projects."
-#~ msgstr ""
-#~ "The [1:Open Knowledge Foundation] is a"
-#~ " non-profit organisation [2:promoting] open"
-#~ " knowledge: writing and improving CKAN "
-#~ "is one of the ways we do "
-#~ "that. If you want to get involved"
-#~ " with its design or code, join "
-#~ "the discussion or development [3:mailing "
-#~ "lists], or take a look at the "
-#~ "[4:OKFN] site to find out about "
-#~ "our other projects."
-
-#~ msgid "Welcome to"
-#~ msgstr "Welcome to"
-
-#~ msgid "Find data"
-#~ msgstr "Find data"
-
-#~ msgid "contains"
-#~ msgstr "contains"
-
-#~ msgid ""
-#~ "that you can \n"
-#~ "            browse, learn about and download."
-#~ msgstr ""
-#~ "that you can \n"
-#~ "            browse, learn about and download."
-
-#~ msgid "Share data"
-#~ msgstr "Share data"
-
-#~ msgid ""
-#~ "Add your own datasets to share them with others and\n"
-#~ "          to find other people interested in your data."
-#~ msgstr ""
-#~ "Add your own datasets to share them with others and\n"
-#~ "          to find other people interested in your data."
-
-#~ msgid "Create a dataset »"
-#~ msgstr "Create a dataset »"
-
-#~ msgid "Sign up »"
-#~ msgstr "Sign up »"
-
-#~ msgid "Collaborate"
-#~ msgstr "Collaborate"
-
-#~ msgid ""
-#~ "Find out more about working with open data by exploring \n"
-#~ "          these resources:"
-#~ msgstr ""
-#~ "Find out more about working with open data by exploring \n"
-#~ "          these resources:"
-
-#~ msgid "GetTheData.org"
-#~ msgstr "GetTheData.org"
-
-#~ msgid "DataPatterns.org"
-#~ msgstr "DataPatterns.org"
-
-#~ msgid "Open Data Handbook"
-#~ msgstr "Open Data Handbook"
-
-#~ msgid "Who else is here?"
-#~ msgstr "Who else is here?"
-
-#~ msgid "has"
-#~ msgstr "has"
-
-#~ msgid "datasets."
-#~ msgstr "datasets."
-
-#~ msgid "Importer"
-#~ msgstr "Importer"
-
-#~ msgid "Import Datasets"
-#~ msgstr "Import Datasets"
-
-#~ msgid ""
-#~ "Here you can supply an Excel file"
-#~ " with details of multiple datasets "
-#~ "and import these into"
-#~ msgstr ""
-#~ "Here you can supply an Excel file"
-#~ " with details of multiple datasets "
-#~ "and import these into"
-
-#~ msgid "Log in to use this tool"
-#~ msgstr "Log in to use this tool"
-
-#~ msgid "Preview - Importer"
-#~ msgstr "Preview - Importer"
-
-#~ msgid "Import Preview"
-#~ msgstr "Import Preview"
-
-#~ msgid "read from"
-#~ msgstr "read from"
-
-#~ msgid "Further dataset previews not shown."
-#~ msgstr "Further dataset previews not shown."
-
-#~ msgid "Edit summary (briefly describe the changes you have made)"
-#~ msgstr "Edit summary (briefly describe the changes you have made)"
-
-#~ msgid "Author:"
-#~ msgstr "Author:"
-
-#~ msgid "Import"
-#~ msgstr "Import"
-
-#~ msgid "Results - Importer"
-#~ msgstr "Results - Importer"
-
-#~ msgid "Import Results"
-#~ msgstr "Import Results"
-
-#~ msgid "- Datasets - History"
-#~ msgstr "- Datasets - History"
-
-#~ msgid "- Edit - Datasets"
-#~ msgstr "- Edit - Datasets"
-
-#~ msgid "Basic Information"
-#~ msgstr "Basic Information"
-
-#~ msgid "Further Information"
-#~ msgstr "Further Information"
-
-#~ msgid "Since you have not signed in this will just be your IP address."
-#~ msgstr "Since you have not signed in this will just be your IP address."
-
-#~ msgid "Click here to sign in"
-#~ msgstr "Click here to sign in"
-
-#~ msgid "before saving (opens in new window)."
-#~ msgstr "before saving (opens in new window)."
-
-#~ msgid ""
-#~ "[1:Important:] By submitting content, you "
-#~ "agree to release your contributions "
-#~ "under the [2:Open Database License]. "
-#~ "Please [3:refrain] from editing this "
-#~ "page if you are [4:not] happy to"
-#~ " do this."
-#~ msgstr ""
-#~ "[1:Important:] By submitting content, you "
-#~ "agree to release your contributions "
-#~ "under the [2:Open Database License]. "
-#~ "Please [3:refrain] from editing this "
-#~ "page if you are [4:not] happy to"
-#~ " do this."
-
-#~ msgid "- Edit Resources - Datasets"
-#~ msgstr "- Edit Resources - Datasets"
-
-#~ msgid "Edit Resources:"
-#~ msgstr "Edit Resources:"
-
-#~ msgid "- Datasets - Followers"
-#~ msgstr "- Datasets - Followers"
-
-#~ msgid "Followers:"
-#~ msgstr "Followers:"
-
-#~ msgid "no-sidebar"
-#~ msgstr "no-sidebar"
-
-#~ msgid "New key"
-#~ msgstr "New key"
-
-#~ msgid "with value"
-#~ msgstr "with value"
-
-#~ msgid "Dataset History"
-#~ msgstr "Dataset History"
-
-#~ msgid "Resources (0)"
-#~ msgstr "Resources (0)"
-
-#~ msgid "Add / Edit resources"
-#~ msgstr "Add / Edit resources"
-
-#~ msgid "Apps, Ideas etc"
-#~ msgstr "Apps, Ideas etc"
-
-#~ msgid "Followers ({num_followers})"
-#~ msgstr "Followers ({num_followers})"
-
-#~ msgid "Settings"
-#~ msgstr "Settings"
-
-#~ msgid "Add - Datasets"
-#~ msgstr "Add - Datasets"
-
-#~ msgid "Add a Dataset"
-#~ msgstr "Add a Dataset"
-
-#~ msgid "A short descriptive title for the dataset"
-#~ msgstr "A short descriptive title for the dataset"
-
-#~ msgid "Home Page"
-#~ msgstr "Home Page"
-
-#~ msgid "The URL for the web page describing the data (not the data itself)."
-#~ msgstr "The URL for the web page describing the data (not the data itself)."
-
-#~ msgid "e.g. http://www.example.com/growth-figures.html"
-#~ msgstr "e.g. http://www.example.com/growth-figures.html"
-
-#~ msgid ""
-#~ "(Don't worry if you don't know "
-#~ "which license the data has been "
-#~ "released under)."
-#~ msgstr ""
-#~ "(Don't worry if you don't know "
-#~ "which license the data has been "
-#~ "released under)."
-
-#~ msgid "Member of:"
-#~ msgstr "Member of:"
-
-#~ msgid "Add to:"
-#~ msgstr "Add to:"
-
-#~ msgid "Cannot add any groups."
-#~ msgstr "Cannot add any groups."
-
-#~ msgid ""
-#~ "Comma-separated terms that may link "
-#~ "this dataset to similar ones. For "
-#~ "more information on conventions, see "
-#~ "[1:this wiki page]."
-#~ msgstr ""
-#~ "Comma-separated terms that may link "
-#~ "this dataset to similar ones. For "
-#~ "more information on conventions, see "
-#~ "[1:this wiki page]."
-
-#~ msgid "e.g. pollution, rivers, water quality"
-#~ msgstr "e.g. pollution, rivers, water quality"
-
-#~ msgid "Add Resources"
-#~ msgstr "Add Resources"
-
-#~ msgid ""
-#~ "Upload or link data files, APIs "
-#~ "and other materials related to your "
-#~ "dataset."
-#~ msgstr ""
-#~ "Upload or link data files, APIs "
-#~ "and other materials related to your "
-#~ "dataset."
-
-#~ msgid "New resource..."
-#~ msgstr "New resource..."
-
-#~ msgid "x"
-#~ msgstr "x"
-
-#~ msgid "Link to a file"
-#~ msgstr "Link to a file"
-
-#~ msgid "Link to an API"
-#~ msgstr "Link to an API"
-
-#~ msgid "File URL"
-#~ msgstr "File URL"
-
-#~ msgid "API URL"
-#~ msgstr "API URL"
-
-#~ msgid ""
-#~ "The name of the main contact, for"
-#~ " enquiries about this particular dataset,"
-#~ " using the e-mail address in the "
-#~ "following field."
-#~ msgstr ""
-#~ "The name of the main contact, for"
-#~ " enquiries about this particular dataset,"
-#~ " using the e-mail address in the "
-#~ "following field."
-
-#~ msgid "Author email"
-#~ msgstr "Author email"
-
-#~ msgid ""
-#~ "If there is another important contact"
-#~ " person (in addition to the person"
-#~ " in the Author field) then provide"
-#~ " details here."
-#~ msgstr ""
-#~ "If there is another important contact"
-#~ " person (in addition to the person"
-#~ " in the Author field) then provide"
-#~ " details here."
-
-#~ msgid "Maintainer email"
-#~ msgstr "Maintainer email"
-
-#~ msgid "A number representing the version (if applicable)"
-#~ msgstr "A number representing the version (if applicable)"
-
-#~ msgid "e.g. 1.2.0"
-#~ msgstr "e.g. 1.2.0"
-
-#~ msgid ""
-#~ "Adding custom fields to the dataset "
-#~ "such as \"location:uk\" can help users"
-#~ " find it in the search engine. "
-#~ "This data will also appear under"
-#~ msgstr ""
-#~ "Adding custom fields to the dataset "
-#~ "such as \"location:uk\" can help users"
-#~ " find it in the search engine. "
-#~ "This data will also appear under"
-
-#~ msgid "when viewing the dataset."
-#~ msgstr "when viewing the dataset."
-
-#~ msgid "Do you really want to change the state of this dataset?"
-#~ msgstr "Do you really want to change the state of this dataset?"
-
-#~ msgid "Yes!"
-#~ msgstr "Yes!"
-
-#~ msgid "This dataset is"
-#~ msgstr "This dataset is"
-
-#~ msgid "Summary"
-#~ msgstr "Summary"
-
-#~ msgid "Briefly describe the changes you have made..."
-#~ msgstr "Briefly describe the changes you have made..."
-
-#~ msgid ""
-#~ "Since you have not signed in this will just be your IP address.\n"
-#~ "    [1:Click here to sign in] before saving (opens in new window)."
-#~ msgstr ""
-#~ "Since you have not signed in this will just be your IP address.\n"
-#~ "    [1:Click here to sign in] before saving (opens in new window)."
-
-#~ msgid "Important:"
-#~ msgstr "Important:"
-
-#~ msgid ""
-#~ "By submitting content, you agree to "
-#~ "release your contributions under the"
-#~ msgstr ""
-#~ "By submitting content, you agree to "
-#~ "release your contributions under the"
-
-#~ msgid ". Please"
-#~ msgstr ". Please"
-
-#~ msgid "refrain"
-#~ msgstr "refrain"
-
-#~ msgid "from editing this page if you are"
-#~ msgstr "from editing this page if you are"
-
-#~ msgid "not"
-#~ msgstr "not"
-
-#~ msgid "happy to do this."
-#~ msgstr "happy to do this."
-
-#~ msgid "- Datasets"
-#~ msgstr "- Datasets"
-
-#~ msgid "License:"
-#~ msgstr "License:"
-
-#~ msgid "[Open Data]"
-#~ msgstr "[Open Data]"
-
-#~ msgid "Related Datasets"
-#~ msgstr "Related Datasets"
-
-#~ msgid "This is an old revision of this dataset, as edited"
-#~ msgstr "This is an old revision of this dataset, as edited"
-
-#~ msgid "at"
-#~ msgstr "at"
-
-#~ msgid ". It may differ significantly from the"
-#~ msgstr ". It may differ significantly from the"
-
-#~ msgid "current revision"
-#~ msgstr "current revision"
-
-#~ msgid "This is the current revision of this dataset, as edited"
-#~ msgstr "This is the current revision of this dataset, as edited"
-
-#~ msgid "RDF/XML"
-#~ msgstr "RDF/XML"
-
-#~ msgid "(edit)"
-#~ msgstr "(edit)"
-
-#~ msgid "(none)"
-#~ msgstr "(none)"
-
-#~ msgid "(settings)"
-#~ msgstr "(settings)"
-
-#~ msgid "Country"
-#~ msgstr "Country"
-
-#~ msgid "Harvest Source"
-#~ msgstr "Harvest Source"
-
-#~ msgid ""
-#~ "[1:Dataset page] on \n"
-#~ "            [2:%(harvest_catalogue_name)s]"
-#~ msgstr ""
-#~ "[1:Dataset page] on \n"
-#~ "            [2:%(harvest_catalogue_name)s]"
-
-#~ msgid "- Dataset - Resource"
-#~ msgstr "- Dataset - Resource"
-
-#~ msgid "Data API is unavailable for this resource as DataStore is disabled"
-#~ msgstr "Data API is unavailable for this resource as DataStore is disabled"
-
-#~ msgid "License unknown"
-#~ msgstr "License unknown"
-
-#~ msgid "From the [1:Dataset]:"
-#~ msgstr "From the [1:Dataset]:"
-
-#~ msgid "Cannot embed as resource is private."
-#~ msgstr "Cannot embed as resource is private."
-
-#~ msgid "Search -"
-#~ msgstr "Search -"
-
-#~ msgid "Do you know of a dataset that should be added to"
-#~ msgstr "Do you know of a dataset that should be added to"
-
-#~ msgid "Register it now"
-#~ msgstr "Register it now"
-
-#~ msgid "Other access"
-#~ msgstr "Other access"
-
-#~ msgid "You can also access this registry using the"
-#~ msgstr "You can also access this registry using the"
-
-#~ msgid "(see"
-#~ msgstr "(see"
-
-#~ msgid "or download a"
-#~ msgstr "or download a"
-
-#~ msgid "full"
-#~ msgstr "full"
-
-#~ msgid "dump"
-#~ msgstr "dump"
-
-#~ msgid ""
-#~ "[1:There was an error while searching.] \n"
-#~ "            Please try again."
-#~ msgstr ""
-#~ "[1:There was an error while searching.] \n"
-#~ "            Please try again."
-
-#~ msgid "[1:%(item_count)s] datasets found"
-#~ msgstr "[1:%(item_count)s] datasets found"
-
-#~ msgid "Would you like to [1:create a new dataset?]"
-#~ msgstr "Would you like to [1:create a new dataset?]"
-
-#~ msgid "Search..."
-#~ msgstr "Search..."
-
-#~ msgid "Add item"
-#~ msgstr "Add item"
-
-#~ msgid "(required)"
-#~ msgstr "(required)"
-
-#~ msgid "Please add the title for the item"
-#~ msgstr "Please add the title for the item"
-
-#~ msgid "Type of item"
-#~ msgstr "Type of item"
-
-#~ msgid "Please describe the item"
-#~ msgstr "Please describe the item"
-
-#~ msgid "Please add a url"
-#~ msgstr "Please add a url"
-
-#~ msgid "Please add a link to the image"
-#~ msgstr "Please add a link to the image"
-
-#~ msgid "Showing items"
-#~ msgstr "Showing items"
-
-#~ msgid "of"
-#~ msgstr "of"
-
-#~ msgid "related items found"
-#~ msgstr "related items found"
-
-#~ msgid "Least viewed"
-#~ msgstr "Least viewed"
-
-#~ msgid "Featured items only?"
-#~ msgstr "Featured items only?"
-
-#~ msgid "- Apps, Ideas etc"
-#~ msgstr "- Apps, Ideas etc"
-
-#~ msgid "There are no items here yet"
-#~ msgstr "There are no items here yet"
-
-#~ msgid ", why not"
-#~ msgstr ", why not"
-
-#~ msgid "add one"
-#~ msgstr "add one"
-
-#~ msgid "Differences - Revisions"
-#~ msgstr "Differences - Revisions"
-
-#~ msgid "Revision Differences -"
-#~ msgstr "Revision Differences -"
-
-#~ msgid "From:"
-#~ msgstr "From:"
-
-#~ msgid "To:"
-#~ msgstr "To:"
-
-#~ msgid "No differences"
-#~ msgstr "No differences"
-
-#~ msgid "List"
-#~ msgstr "List"
-
-#~ msgid ""
-#~ "Track the most recent changes to the system, with most recent\n"
-#~ "    changes first."
-#~ msgstr ""
-#~ "Track the most recent changes to the system, with most recent\n"
-#~ "    changes first."
-
-#~ msgid "Revision:"
-#~ msgstr "Revision:"
-
-#~ msgid "Revision Actions"
-#~ msgstr "Revision Actions"
-
-#~ msgid "Timestamp:"
-#~ msgstr "Timestamp:"
-
-#~ msgid "Log Message:"
-#~ msgstr "Log Message:"
-
-#~ msgid "Dataset -"
-#~ msgstr "Dataset -"
-
-#~ msgid ""
-#~ ",\n"
-#~ "      Tag -"
-#~ msgstr ""
-#~ ",\n"
-#~ "      Tag -"
-
-#~ msgid "Embed this view"
-#~ msgstr "Embed this view"
-
-#~ msgid "by copying this into your webpage:"
-#~ msgstr "by copying this into your webpage:"
-
-#~ msgid "Not Openly Licensed"
-#~ msgstr "Not Openly Licensed"
-
-#~ msgid ""
-#~ "This upload form is valid for a"
-#~ " limited time (usually 1h or so). "
-#~ "If the\n"
-#~ "    form expires please reload the page."
-#~ msgstr ""
-#~ "This upload form is valid for a"
-#~ " limited time (usually 1h or so). "
-#~ "If the\n"
-#~ "    form expires please reload the page."
-
-#~ msgid "File:"
-#~ msgstr "File:"
-
-#~ msgid "Upload - Successful"
-#~ msgstr "Upload - Successful"
-
-#~ msgid "Filed uploaded to:"
-#~ msgstr "Filed uploaded to:"
-
-#~ msgid "Upload another »"
-#~ msgstr "Upload another »"
-
-#~ msgid "There are"
-#~ msgstr "There are"
-
-#~ msgid "results for ‘"
-#~ msgstr "results for ‘"
-
-#~ msgid "results for tags."
-#~ msgstr "results for tags."
-
-#~ msgid "Clear search"
-#~ msgstr "Clear search"
-
-#~ msgid "and see all tags."
-#~ msgstr "and see all tags."
-
-#~ msgid "- Tags"
-#~ msgstr "- Tags"
-
-#~ msgid "Tag:"
-#~ msgstr "Tag:"
-
-#~ msgid "There are %(count)s datasets tagged with [1:%(tagname)s]:"
-#~ msgstr "There are %(count)s datasets tagged with [1:%(tagname)s]:"
-
-#~ msgid "- Dashboard - User"
-#~ msgstr "- Dashboard - User"
-
-#~ msgid "What's going on?"
-#~ msgstr "What's going on?"
-
-#~ msgid "Nothing new on CKAN?"
-#~ msgstr "Nothing new on CKAN?"
-
-#~ msgid "So, why don't you ..."
-#~ msgstr "So, why don't you ..."
-
-#~ msgid "Add a new dataset"
-#~ msgstr "Add a new dataset"
-
-#~ msgid "Follow another user"
-#~ msgstr "Follow another user"
-
-#~ msgid "Create a group or a tag"
-#~ msgstr "Create a group or a tag"
-
-#~ msgid "Or simply browse the repository"
-#~ msgstr "Or simply browse the repository"
-
-#~ msgid "- Edit - User"
-#~ msgstr "- Edit - User"
-
-#~ msgid "Edit User:"
-#~ msgstr "Edit User:"
-
-#~ msgid "E-mail"
-#~ msgstr "E-mail"
-
-#~ msgid "OpenId"
-#~ msgstr "OpenId"
-
-#~ msgid "A little about you..."
-#~ msgstr "A little about you..."
-
-#~ msgid "Change your password"
-#~ msgstr "Change your password"
-
-#~ msgid "Password (repeat)"
-#~ msgstr "Password (repeat)"
-
-#~ msgid "Change your username"
-#~ msgstr "Change your username"
-
-#~ msgid ""
-#~ "Changing your username will log you "
-#~ "out, and require you to log back"
-#~ " in with the new username"
-#~ msgstr ""
-#~ "Changing your username will log you "
-#~ "out, and require you to log back"
-#~ " in with the new username"
-
-#~ msgid "- Followers - User"
-#~ msgstr "- Followers - User"
-
-#~ msgid "'s Followers"
-#~ msgstr "'s Followers"
-
-#~ msgid "My Profile"
-#~ msgstr "My Profile"
-
-#~ msgid "Edit Profile"
-#~ msgstr "Edit Profile"
-
-#~ msgid "My Followers ({num_followers})"
-#~ msgstr "My Followers ({num_followers})"
-
-#~ msgid "View Profile"
-#~ msgstr "View Profile"
-
-#~ msgid "Register Account"
-#~ msgstr "Register Account"
-
-#~ msgid "[1:%(item_count)s] users found."
-#~ msgstr "[1:%(item_count)s] users found."
-
-#~ msgid "Sort by name"
-#~ msgstr "Sort by name"
-
-#~ msgid "Sort by edits"
-#~ msgstr "Sort by edits"
-
-#~ msgid "Member for"
-#~ msgstr "Member for"
-
-#~ msgid "Login - User"
-#~ msgstr "Login - User"
-
-#~ msgid "Login to"
-#~ msgstr "Login to"
-
-#~ msgid "Login:"
-#~ msgstr "Login:"
-
-#~ msgid "Password:"
-#~ msgstr "Password:"
-
-#~ msgid "Remember me:"
-#~ msgstr "Remember me:"
-
-#~ msgid "Sign In"
-#~ msgstr "Sign In"
-
-#~ msgid "Login using Open ID"
-#~ msgstr "Login using Open ID"
-
-#~ msgid ""
-#~ "NB: To set-up your OpenID for "
-#~ "this site, you first need to "
-#~ "[1:Register] and then edit your Profile"
-#~ " to provide your OpenID."
-#~ msgstr ""
-#~ "NB: To set-up your OpenID for "
-#~ "this site, you first need to "
-#~ "[1:Register] and then edit your Profile"
-#~ " to provide your OpenID."
-
-#~ msgid "Please click your account provider:"
-#~ msgstr "Please click your account provider:"
-
-#~ msgid "OpenID Identifier:"
-#~ msgstr "OpenID Identifier:"
-
-#~ msgid "Don't have an OpenID?"
-#~ msgstr "Don't have an OpenID?"
-
-#~ msgid ""
-#~ "OpenID is service that allows you "
-#~ "to log-on to many different "
-#~ "websites\n"
-#~ "          using a single identity. Find out [1:more\n"
-#~ "          about OpenID] and [2:how to get an\n"
-#~ "          OpenID enabled account]. Probably"
-#~ " the simplest way is sign up "
-#~ "with a\n"
-#~ "          free OpenID provider such as [3:https://www.myopenid.com/]."
-#~ msgstr ""
-#~ "OpenID is service that allows you "
-#~ "to log-on to many different "
-#~ "websites\n"
-#~ "          using a single identity. Find out [1:more\n"
-#~ "          about OpenID] and [2:how to get an\n"
-#~ "          OpenID enabled account]. Probably"
-#~ " the simplest way is sign up "
-#~ "with a\n"
-#~ "          free OpenID provider such as [3:https://www.myopenid.com/]."
-
-#~ msgid "Sign in with OpenID"
-#~ msgstr "Sign in with OpenID"
-
-#~ msgid "Logout - User"
-#~ msgstr "Logout - User"
-
-#~ msgid "Logout from"
-#~ msgstr "Logout from"
-
-#~ msgid "You have logged out successfully."
-#~ msgstr "You have logged out successfully."
-
-#~ msgid "Logged in - User"
-#~ msgstr "Logged in - User"
-
-#~ msgid "Logged into"
-#~ msgstr "Logged into"
-
-#~ msgid "is currently logged in"
-#~ msgstr "is currently logged in"
-
-#~ msgid "To register or log in as another user, you need to"
-#~ msgstr "To register or log in as another user, you need to"
-
-#~ msgid "logout"
-#~ msgstr "logout"
-
-#~ msgid "first."
-#~ msgstr "first."
-
-#~ msgid "Register - User"
-#~ msgstr "Register - User"
-
-#~ msgid "Register for a new Account"
-#~ msgstr "Register for a new Account"
-
-#~ msgid "3+ chars, using only 'a-z0-9' and '-_'"
-#~ msgstr "3+ chars, using only 'a-z0-9' and '-_'"
-
-#~ msgid "Full name (optional)"
-#~ msgstr "Full name (optional)"
-
-#~ msgid "E-Mail"
-#~ msgstr "E-Mail"
-
-#~ msgid "Register now"
-#~ msgstr "Register now"
-
-#~ msgid "Password (repeat):"
-#~ msgstr "Password (repeat):"
-
-#~ msgid "- User"
-#~ msgstr "- User"
-
-#~ msgid "Member since"
-#~ msgstr "Member since"
-
-#~ msgid "No email"
-#~ msgstr "No email"
-
-#~ msgid "– Note: your API key is visible only to you!"
-#~ msgstr "– Note: your API key is visible only to you!"
-
-#~ msgid "Public Activity"
-#~ msgstr "Public Activity"
-
-#~ msgid "Reset password"
-#~ msgstr "Reset password"
-
-#~ msgid "Request a password reset"
-#~ msgstr "Request a password reset"
-
-#~ msgid "User name:"
-#~ msgstr "User name:"
-

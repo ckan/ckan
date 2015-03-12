@@ -1,7 +1,41 @@
 from nose import tools as nose_tools
 
-from ckan.lib.munge import (munge_filename, munge_name,
+from ckan.lib.munge import (munge_filename_legacy, munge_filename, munge_name,
                             munge_title_to_name, munge_tag)
+
+
+class TestMungeFilenameLegacy(object):
+
+    # (original, expected)
+    munge_list = [
+        ('unchanged', 'unchanged'),
+        ('bad spaces', 'bad-spaces'),
+        ('s', 's__'),  # too short
+        ('random:other%character&', 'randomothercharacter'),
+        (u'u with umlaut \xfc', 'u-with-umlaut-u'),
+        ('2014-11-10 12:24:05.340603my_image.jpeg',
+         '2014-11-10-122405.340603myimage.jpeg'),
+        ('file.csv', 'file.csv'),
+        ('f' * 100 + '.csv', 'f' * 100),
+        ('path/to/file.csv', 'pathtofile.csv'),
+        ('.longextension', '.longextension'),
+        ('a.longextension', 'a.longextension'),
+        ('.1', '.1_'),
+    ]
+
+    def test_munge_filename(self):
+        '''Munge a list of filenames gives expected results.'''
+        for org, exp in self.munge_list:
+            munge = munge_filename_legacy(org)
+            nose_tools.assert_equal(munge, exp)
+
+    def test_munge_filename_multiple_pass(self):
+        '''Munging filename multiple times produces same result.'''
+        for org, exp in self.munge_list:
+            first_munge = munge_filename_legacy(org)
+            nose_tools.assert_equal(first_munge, exp)
+            second_munge = munge_filename_legacy(first_munge)
+            nose_tools.assert_equal(second_munge, exp)
 
 
 class TestMungeFilename(object):
@@ -14,7 +48,13 @@ class TestMungeFilename(object):
         ('random:other%character&', 'randomothercharacter'),
         (u'u with umlaut \xfc', 'u-with-umlaut-u'),
         ('2014-11-10 12:24:05.340603my_image.jpeg',
-         '2014-11-10-122405.340603myimage.jpeg')
+         '2014-11-10-122405.340603myimage.jpeg'),
+        ('file.csv', 'file.csv'),
+        ('f' * 100 + '.csv', 'f' * 96 + '.csv'),
+        ('path/to/file.csv', 'file.csv'),
+        ('.longextension', '.longextension'),
+        ('a.longextension', 'a.longextension'),
+        ('.1', '.1_'),
     ]
 
     def test_munge_filename(self):
