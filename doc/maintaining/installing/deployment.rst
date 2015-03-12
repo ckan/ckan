@@ -198,11 +198,13 @@ following contents:
 9. Enable your CKAN site
 ------------------------
 
-Finally, enable your CKAN site in Apache:
+To prevent conflicts, disable your default nginx and apache sites.  Finally, enable your CKAN site in Apache:
 
 .. parsed-literal::
 
     sudo a2ensite ckan_default
+    sudo a2dissite default
+    sudo rm -vi /etc/nginx/sites-enabled/default
     sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan_default
     |reload_apache|
     |reload_nginx|

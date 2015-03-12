@@ -35,7 +35,7 @@ class RelatedController(base.BaseController):
         params_nopage = [(k, v) for k, v in base.request.params.items()
                          if k != 'page']
 
-        page = self._get_page_number(request.params)
+        page = self._get_page_number(base.request.params)
 
         # Update ordering in the context
         related_list = logic.get_action('related_list')(context, data_dict)

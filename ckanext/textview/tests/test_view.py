@@ -28,7 +28,7 @@ def _create_test_view(view_type):
 
 
 class TestTextView(tests.WsgiAppCase):
-    view_type = 'text'
+    view_type = 'text_view'
 
     @classmethod
     def setup_class(cls):

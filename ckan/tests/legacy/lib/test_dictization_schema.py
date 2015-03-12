@@ -81,18 +81,18 @@ class TestBasicDictize:
                            'format': u'plain text',
                            'hash': u'abc123',
                            'size_extra': u'123',
-                           'url': u'http://www.annakarenina.com/download/x=1&y=2'},
+                           'url': u'http://datahub.io/download/x=1&y=2'},
                           {'alt_url': u'alt345',
                            'description': u'Index of the novel',
                            'format': u'JSON',
                            'hash': u'def456',
                            'size_extra': u'345',
-                           'url': u'http://www.annakarenina.com/index.json'}],
+                           'url': u'http://datahub.io/index.json'}],
             'tags': [{'name': u'Flexible \u30a1'},
                      {'name': u'russian'},
                      {'name': u'tolstoy'}],
             'title': u'A Novel By Tolstoy',
-            'url': u'http://www.annakarenina.com',
+            'url': u'http://datahub.io',
             'version': u'0.7a'
         }
 

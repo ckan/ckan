@@ -99,7 +99,7 @@ class ApiTestCase(object):
         assert '"extras": {' in msg, msg
         assert '"genre": "romantic novel"' in msg, msg
         assert '"original media": "book"' in msg, msg
-        assert 'annakarenina.com/download' in msg, msg
+        assert 'datahub.io/download' in msg, msg
         assert '"plain text"' in msg, msg
         assert '"Index of the novel"' in msg, msg
         assert '"id": "%s"' % self.anna.id in msg, msg
@@ -290,7 +290,8 @@ class Api1TestCase(Api1and2TestCase):
 
     def assert_msg_represents_anna(self, msg):
         super(Api1TestCase, self).assert_msg_represents_anna(msg)
-        assert '"download_url": "http://www.annakarenina.com/download/x=1&y=2"' in msg, msg
+        assert '"download_url": "http://datahub.io/download/x=1&y=2"' in msg, msg
+
 
 
 class Api2TestCase(Api1and2TestCase):

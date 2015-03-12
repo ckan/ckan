@@ -97,7 +97,7 @@ class TestBasicDictize:
                             u'size_extra': u'123',
                             u'url_type': None,
                             u'state': u'active',
-                            u'url': u'http://www.annakarenina.com/download/x=1&y=2',
+                            u'url': u'http://datahub.io/download/x=1&y=2',
                             u'webstore_last_updated': None,
                             u'webstore_url': None},
                            {u'alt_url': u'alt345',
@@ -116,7 +116,7 @@ class TestBasicDictize:
                             u'size': None,
                             u'size_extra': u'345',
                             u'state': u'active',
-                            u'url': u'http://www.annakarenina.com/index.json',
+                            u'url': u'http://datahub.io/index.json',
                             u'webstore_last_updated': None,
                             u'webstore_url': None}],
             u'state': u'active',
@@ -131,7 +131,7 @@ class TestBasicDictize:
                          u'state': u'active'}],
             u'title': u'A Novel By Tolstoy',
             u'type': u'dataset',
-            u'url': u'http://www.annakarenina.com',
+            u'url': u'http://datahub.io',
             u'version': u'0.7a',
             }
 

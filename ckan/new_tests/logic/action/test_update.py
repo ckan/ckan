@@ -6,6 +6,7 @@ import mock
 import pylons.config as config
 
 import ckan.logic as logic
+import ckan.plugins as p
 import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 
@@ -507,7 +508,14 @@ class TestUpdateSendEmailNotifications(object):
 class TestResourceViewUpdate(object):
 
     @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+    @classmethod
     def teardown_class(cls):
+        p.unload('image_view')
+
         helpers.reset_db()
 
     def setup(cls):
@@ -561,6 +569,53 @@ class TestResourceViewUpdate(object):
                                  helpers.call_action,
                                  'resource_view_update', **params)
 
+    def test_resource_view_list_reorder(self):
+
+        resource_view_1 = factories.ResourceView(title='View 1')
+
+        resource_id = resource_view_1['resource_id']
+
+        resource_view_2 = factories.ResourceView(resource_id=resource_id,
+                                                 title='View 2')
+
+        resource_view_list = helpers.call_action('resource_view_list', id=resource_id)
+
+        assert_equals(resource_view_list[0]['title'], 'View 1')
+        assert_equals(resource_view_list[1]['title'], 'View 2')
+
+        # Reorder views
+
+        result = helpers.call_action('resource_view_reorder',
+                                     id=resource_id,
+                                     order=[resource_view_2['id'], resource_view_1['id']])
+        assert_equals(result['order'], [resource_view_2['id'], resource_view_1['id']])
+
+        resource_view_list = helpers.call_action('resource_view_list', id=resource_id)
+
+        assert_equals(resource_view_list[0]['title'], 'View 2')
+        assert_equals(resource_view_list[1]['title'], 'View 1')
+
+    def test_resource_view_list_reorder_just_one_id(self):
+
+        resource_view_1 = factories.ResourceView(title='View 1')
+
+        resource_id = resource_view_1['resource_id']
+
+        resource_view_2 = factories.ResourceView(resource_id=resource_id,
+                                                 title='View 2')
+
+        # Reorder Views back just by specifiying a single view to go first
+
+        result = helpers.call_action('resource_view_reorder',
+                                     id=resource_id,
+                                     order=[resource_view_2['id']])
+        assert_equals(result['order'], [resource_view_2['id'], resource_view_1['id']])
+
+        resource_view_list = helpers.call_action('resource_view_list', id=resource_id)
+
+        assert_equals(resource_view_list[0]['title'], 'View 2')
+        assert_equals(resource_view_list[1]['title'], 'View 1')
+
     def test_calling_with_only_id_doesnt_update_anything(self):
         resource_view = factories.ResourceView()
         params = {
@@ -569,3 +624,102 @@ class TestResourceViewUpdate(object):
 
         result = helpers.call_action('resource_view_update', **params)
         assert_equals(result, resource_view)
+
+
+class TestResourceUpdate(object):
+
+    def setup(self):
+        import ckan.model as model
+        model.repo.rebuild_db()
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def test_url_only(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset, url='http://first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://second')
+
+        assert_equals(res_returned['url'], 'http://second')
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(resource['url'], 'http://second')
+
+    def test_extra_only(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset, newfield='first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url=resource['url'],
+                                           newfield='second')
+
+        assert_equals(res_returned['newfield'], 'second')
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(resource['newfield'], 'second')
+
+    def test_both_extra_and_url(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://first',
+                                      newfield='first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://second',
+                                           newfield='second')
+
+        assert_equals(res_returned['url'], 'http://second')
+        assert_equals(res_returned['newfield'], 'second')
+
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(res_returned['url'], 'http://second')
+        assert_equals(resource['newfield'], 'second')
+
+    def test_extra_gets_deleted_on_both_core_and_extra_update(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://first',
+                                      newfield='first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://second',
+                                           anotherfield='second')
+
+        assert_equals(res_returned['url'], 'http://second')
+        assert_equals(res_returned['anotherfield'], 'second')
+        assert 'newfield' not in res_returned
+
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(res_returned['url'], 'http://second')
+        assert_equals(res_returned['anotherfield'], 'second')
+        assert 'newfield' not in res_returned
+
+    def test_extra_gets_deleted_on_extra_only_update(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://first',
+                                      newfield='first')
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://first',
+                                           anotherfield='second')
+
+        assert_equals(res_returned['url'], 'http://first')
+        assert_equals(res_returned['anotherfield'], 'second')
+        assert 'newfield' not in res_returned
+
+        resource = helpers.call_action('resource_show',
+                                       id=resource['id'])
+        assert_equals(res_returned['url'], 'http://first')
+        assert_equals(res_returned['anotherfield'], 'second')
+        assert 'newfield' not in res_returned

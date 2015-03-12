@@ -328,7 +328,7 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_tracking': True}
 
         try:
             check_access('package_update', context, data_dict)
@@ -369,7 +369,7 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_tracking': True}
 
         # interpret @<revision_id> or @<date> suffix
         split = id.split('@')
@@ -1098,7 +1098,7 @@ class PackageController(base.BaseController):
 
     def resource_read(self, id, resource_id):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj, "for_view":True}
 
         try:
             c.package = get_action('package_show')(context, {'id': id})
@@ -1562,7 +1562,8 @@ class PackageController(base.BaseController):
                 'data': data,
                 'errors': errors,
                 'error_summary': error_summary,
-                'to_preview': to_preview}
+                'to_preview': to_preview,
+                'datastore_available': p.plugin_loaded('datastore')}
         vars.update(
             view_plugin.setup_template_variables(context, data_dict) or {})
         vars.update(data_dict)
@@ -1578,7 +1579,7 @@ class PackageController(base.BaseController):
 
         Depending on the type, different views are loaded. This could be an
         img tag where the image is loaded directly or an iframe that embeds a
-        webpage, recline or a pdf preview.
+        webpage or a recline preview.
         '''
         context = {'model': model,
                    'session': model.Session,
@@ -1627,7 +1628,7 @@ class PackageController(base.BaseController):
 
         Depending on the type, different previews are loaded.  This could be an
         img tag where the image is loaded directly or an iframe that embeds a
-        webpage, recline or a pdf preview.
+        webpage, or a recline preview.
         '''
         context = {
             'model': model,

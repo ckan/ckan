@@ -7,11 +7,202 @@
 Changelog
 ---------
 
-v2.3
+v2.4
 ====
 
-API changes and deprecations
-----------------------------
+Changes and deprecations
+------------------------
+
+* The ``package_show`` API call does not return the ``tracking_summary``,
+  keys in the dataset or resources by default any more.
+
+  Any custom templates or users of this API call that use these values will
+  need to pass: ``include_tracking=True``.
+
+
+
+v2.3 2015-03-04
+===============
+
+Note: This version requires a requirements upgrade on source installations
+
+Note: This version requires a database upgrade
+
+Note: This version requires a Solr schema upgrade
+
+Note: This version requires a DataPusher upgrade on source installations. You
+    should target DataPusher=>0.0.6 and upgrade its dependencies.
+
+
+Major:
+ * Completely refactored resource data visualizations, allowing multiple
+   persistent views of the same data an interface to manage and configure
+   them. (#1251, #1851, #1852, #2204, #2205) Check the updated documentation
+   to know more, and the "Changes and deprecations" section for migration
+   details:
+
+     http://docs.ckan.org/en/latest/maintaining/data-viewer.html
+
+ * Responsive design for the default theme, that allows nicer rendering across
+   different devices (#1935)
+ * Improved DataStore filtering and full text search capabilities (#1792, #1830, #1838, #1815)
+ * Added new extension points to modify the DataStore behaviour (#1725)
+ * Simplified two-step dataset creation process (#1659)
+ * Ability for users to regenerate their own API keys (#1412)
+ * New ``package_patch`` action to allow individual fields dataset updates
+   (#1416, #1679)
+ * Changes on the authentication mechanism to allow more secure setups (``httponly``
+   and ``secure`` cookies, disable CORS, etc). (#2004. #2050, #2052
+   ...) See "Changes and deprecations" section for more details and
+   "Troubleshooting" for migration instructions.
+ * Better support for custom dataset types (#1795, #2083)
+ * Extensions can combine free-form extras and ``convert_to_extras`` fields (#1894)
+ * Updated documentation theme, now clearer and responsive (#1845)
+
+
+Minor:
+ * Adding custom fields tutorial (#790)
+ * Add metadata created and modified fields to the dataset page (#655)
+ * Improve IFacets plugin interface docstrings (#781)
+ * Remove help string from API calls (#1318)
+ * Add "datapusher submit" command to upload existing resources data (#1792)
+ * More template blocks to allow for easier extension maintenance (#1301)
+ * CKAN API - remove help string from standard calls (#1318)
+ * Hide activity by selected users on activity stream (#1330)
+ * Documentation and clarification about "CKAN Flavored Markdown" (#1332)
+ * Resource formats are now guessed automatically (#1350)
+ * New JavaScript modules tutorial (#1377)
+ * Allow overriding dataset, group, org validation (#1400)
+ * Remove ResourceGroups, show package_id on resources (#1407)
+ * Better errors for NAVL junk (#1418)
+ * DataPusher integration improvements (#1446)
+ * Allow people to create unowned datasets when they belong to an org (#1473)
+ * Add res_type to Solr schema (#1495)
+ * Separate data and metadata licenses on create dataset page (#1503)
+ * Allow CKAN (and paster) to find config from envvar (#1597)
+ * Added xlsx and tsv to the defaults for ckan.datapusher.formats. (#1644)
+ * Add resource extras to Solr search index (#1709)
+ * Prevent packages update in organization_update (#1711)
+ * Programatically log user in after registration (#1721)
+ * New plugin interfaces: IValidators.get_validators and IConverters.get_converters (#1841)
+ * Index resource name in Solr (#1905)
+ * Update search index after membership changes (#1917)
+ * resource_show: use package_show to get validated data (#1921)
+ * Serve placeholder images locally (#1951)
+ * Don't get all datasets when loading the org in the dataset page (#1978)
+ * Text file preview - lack of vertical scroll bar for long files (#1982)
+ * Changes to allow better use of custom group types in IGroupForm extensions (#1987)
+ * Remove moderated edits (#2006)
+ * package_create: allow sysadmins to set package ids (#2102)
+ * Enable a logged in user to move dataset to another organization (#2218)
+ * Move PDF views into a separate extension (#2270)
+ * Do not provide email configuration in default config file (#2273)
+ * Add custom DataStore SQLAlchemy properties (#2279)
+
+
+Bug fixes:
+ * Set up stats extension as namespace plugin (#291)
+ * Fix visibility validator for datasets (#1188)
+ * Select boxes with autocomplete are clearing their placeholders (#1278)
+ * Default search ordering on organization home page is broken (#1368)
+ * related_list logic function throws a 503 without any parameters (#1384)
+ * Exception on group dictize due to 'with_capacity' on context (#1390)
+ * Wrong template on Add member page (#1392)
+ * Overflowing email address on user page (#1398)
+ * The reset password e-mail is using an incorrect translation string (#1409)
+ * You can't view a group when there is an IGroupForm (#1420)
+ * Disabling activity_streams borks editing groups and user (#1421)
+ * Use a more secure default for the repoze secret key (#1422)
+ * Duplicated Required Fields notice on Group form (#1426)
+ * UI language reset after account creation (#1429)
+ * num_followers and package_count not in default_group_schema (#1434)
+ * Fix extras deletion (#1449)
+ * Fix resource reordering (#1450)
+ * Datastore callback fails when browser url is different from site_url (#1451)
+ * sysadmins should not create datasets wihout org when config is set (#1453)
+ * Member Editing Fixes (#1454)
+ * Bulk editing broken on IE7 (#1455)
+ * Fix group deletion on IE7 (#1460)
+ * Organization ATOM feed is broken (#1463)
+ * Users can not delete a dataset that not belongs to an organization (#1471)
+ * Error during authorization in datapusher_hook (#1487)
+ * Wrong datapusher hook callback URL on non-root deployments (#1490)
+ * Wrong breadcrumbs on new dataset form and resource pages (#1491)
+ * Atom feed Content-Type returned as 'text/html' (#1504)
+ * Invite to organization causes Internal Server error (#1505)
+ * Dataset tags autocomplete doesn't work (#1512)
+ * Activity Stream from: Organization Error group not found (#1519)
+ * Improve password hashing algorithm (#1530)
+ * Can't download resources with geojson extension (#1534)
+ * All datasets for featured group/organization shown on home page  (#1569)
+ * Able to list private datasets via the API (#1580)
+ * Don't lowercase the names of uploaded files (#1584)
+ * Show more facets only if there are more facts to show (#1612)
+ * resource_create should break when called without URL (#1641)
+ * Creating a DataStore resource with the package_id fails for a normal user (#1652)
+ * Fix package permission checks for create+update (#1664)
+ * bulk_process page for non-existent organization throws Exception (#1682)
+ * Catch NotFound error in resource_proxy (#1684)
+ * Fix int_validator (#1692)
+ * Current date indexed on empty "_date" fields (#1701)
+ * Possible to show a resource inside an arbitary dataset (#1707)
+ * Edit member page shows wrong fields (#1723)
+ * Insecure content warning when running Recline under SSL (#1729)
+ * Flash messages not displayed as part of page.html (#1743)
+ * package_show response includes solr rubbish when using ckan.cache_validated_datasets (#1764)
+ * "Add some resources" link shown to unauthorized users (#1766)
+ * email notifications via paster plugin post erroneously demands authentication (#1767)
+ * Inserting empty arrays in JSON type fields in datastore fails (#1776)
+ * Ordering a dataset listing loses the existing filters (#1791)
+ * Don't delete all cookies whose names start with "ckan" (#1793)
+ * Upgrade some major requirements (eg SQLAlchemy, Requests) (#1817, #1819)
+ * list of member roles disappears on add member page (#1873)
+ * Stats plugin should only show active datasets (#1936)
+ * Featured group on homepage not linking to group (#1996)
+ * --reload doesn't work on the 'paster serve' command (#2013)
+ * Can not override auth config options from tests (#2035)
+ * Fix ``resource_create`` authorization (#2037)
+ * package_search gives internal server error if page < 1 (#2042)
+ * Fix organization pagination (#2141)
+ * Resource extras can not be updated (#2158)
+ * package_show doesn't validate when a custom schema is used (#2175)
+ * Update jQuery minified version to match the unminified one (#1750)
+ * Fix exception during database upgrade (#2029)
+ * Fix resources disappearing on dataset upate (#1779)
+ * Fix activity stream queries performance on large instances (#2008)
+ * Only link to http, https and ftp resource urls (#2085)
+ * Avoid private and deleted datasets on stats plugin (#1936)
+ * Fix tags count and group links in stats extension (#1649)
+ * Make resource_create auth work against package_update (#2037)
+ * Fix DataStore permissions check on startup (#1374)
+ * Fix datastore docs link (#2044)
+ * Fix resource extras getting lost on resource update (#2158)
+ * Clean up field names before rendering the Recline table (#2319)
+ * Don't "normalize" resource URL in recline view (#2324)
+ * Don't assume resource format is there on text preview (#2320)
+ * And many, many more!
+
+Changes and deprecations
+------------------------
+
+* By convention, view plugin names now end with ``_view`` rather than
+  ``_preview`` (eg ``recline_view`` rather than ``recline_preview``). You will
+  need to update them on the :ref:`ckan.plugins` setting.
+
+* The way resource visualizations are created by default has changed. You might
+  need to set the :ref:`ckan.views.default_views` configuration option and run
+  a migration command on existing instances. Please refer to the migration
+  guide for more details:
+
+    http://docs.ckan.org/en/latest/maintaining/data-viewer.html#migrating-from-previous-ckan-versions
+
+* The PDF Viewer extension has been moved to a separate extension:
+  https://github.com/ckan/ckanext-pdfview. Please install it separately if
+  you are using the ``pdf_view`` plugin (or the old ``pdf_preview`` one).
+
+* The action API (v3) no longer returns the full help for the action on each
+  request. It rather includes a link to a separate call to get the action
+  help string.
 
 * The ``user_show`` API call does not return the ``datasets``,
   ``num_followers`` or ``activity`` keys by default any more.
@@ -23,6 +214,9 @@ API changes and deprecations
   ``activity`` has been removed completely as it was actually a list of
   revisions, rather than the activity stream. If you want the actual activity
   stream for a user, call ``user_activity_list`` instead.
+
+* The output of ``resource_show`` now contains a ``package_id`` key that links
+  to the parent dataset.
 
 * ``helpers.get_action()`` (or ``h.get_action()`` in templates) is deprecated.
 
@@ -70,57 +264,77 @@ Template changes
   https://github.com/ckan/ckan/pull/1935
 
 Troubleshooting:
+----------------
 
- * Login does not work, for existing and new users.
+* Login does not work, for existing and new users.
 
-   You need to update your existing ``who.ini`` file.
+  You need to update your existing ``who.ini`` file.
 
-   - In the ``[plugin:auth_tkt]`` section, replace::
+  - In the ``[plugin:auth_tkt]`` section, replace::
 
-       use = ckan.config.middleware:ckan_auth_tkt_make_app
+      use = ckan.config.middleware:ckan_auth_tkt_make_app
 
-     with::
+    with::
 
-       use = ckan.lib.auth_tkt:make_plugin
+      use = ckan.lib.auth_tkt:make_plugin
 
-   - In ``[authenticators]``, add the ``auth_tkt`` plugin
+  - In ``[authenticators]``, add the ``auth_tkt`` plugin
 
-   Also see the next point for OpenID related changes.
+  Also see the next point for OpenID related changes.
 
- * Exception on first load after upgrading from a previous CKAN version::
+* Exception on first load after upgrading from a previous CKAN version::
 
-     ImportError: <module 'ckan.lib.authenticator' from '/usr/lib/ckan/default/src/ckan/ckan/lib/authenticator.py'> has no 'OpenIDAuthenticator' attribute
+    ImportError: <module 'ckan.lib.authenticator' from '/usr/lib/ckan/default/src/ckan/ckan/lib/authenticator.py'> has no 'OpenIDAuthenticator' attribute
 
-   or::
+  or::
 
-     ImportError: No module named openid
+    ImportError: No module named openid
 
-   There are OpenID related configuration options in your ``who.ini`` file which
-   are no longer supported.
+  There are OpenID related configuration options in your ``who.ini`` file which
+  are no longer supported.
 
-   This file is generally located in ``/etc/ckan/default/who.ini`` but its location
-   may vary if you used a custom deployment.
+  This file is generally located in ``/etc/ckan/default/who.ini`` but its location
+  may vary if you used a custom deployment.
 
-   The options that you need to remove are:
+  The options that you need to remove are:
 
-   - The whole ``[plugin:openid]`` section
-   - In ``[general]``, replace::
+  - The whole ``[plugin:openid]`` section
+  - In ``[general]``, replace::
 
-        challenge_decider = repoze.who.plugins.openid.classifiers:openid_challenge_decider
+       challenge_decider = repoze.who.plugins.openid.classifiers:openid_challenge_decider
 
-     with::
+    with::
 
-        challenge_decider = repoze.who.classifiers:default_challenge_decider
+       challenge_decider = repoze.who.classifiers:default_challenge_decider
 
-   - In ``[identifiers]``, remove ``openid``
-   - In ``[authenticators]``, remove ``ckan.lib.authenticator:OpenIDAuthenticator``
-   - In ``[challengers]``, remove ``openid``
+  - In ``[identifiers]``, remove ``openid``
+  - In ``[authenticators]``, remove ``ckan.lib.authenticator:OpenIDAuthenticator``
+  - In ``[challengers]``, remove ``openid``
 
-   This is a diff with the whole changes:
+  This is a diff with the whole changes:
 
-    https://github.com/ckan/ckan/pull/2058/files#diff-2
+   https://github.com/ckan/ckan/pull/2058/files#diff-2
 
-   Also see the previous point for other ``who.ini`` changes.
+  Also see the previous point for other ``who.ini`` changes.
+
+v2.2.2 2015-03-04
+=================
+
+Bug fixes:
+ * Update jQuery minified version to match the unminified one (#1750)
+ * Fix exception during database upgrade (#2029)
+ * Fix resources disappearing on dataset upate (#1779)
+ * Fix activity stream queries performance on large instances (#2008)
+ * Only link to http, https and ftp resource urls (#2085)
+ * Avoid private and deleted datasets on stats plugin (#1936)
+ * Fix tags count and group links in stats extension (#1649)
+ * Make resource_create auth work against package_update (#2037)
+ * Fix DataStore permissions check on startup (#1374)
+ * Fix datastore docs link (#2044)
+ * Fix resource extras getting lost on resource update (#2158)
+ * Clean up field names before rendering the Recline table (#2319)
+ * Don't "normalize" resource URL in recline view (#2324)
+ * Don't assume resource format is there on text preview (#2320)
 
 v2.2.1 2014-10-15
 =================
@@ -324,6 +538,21 @@ Troubleshooting:
    leaving the fields empty. Also make sure to restart running processes like
    harvesters after the update to make sure they use the new code base.
 
+v2.1.4 2015-03-04
+=================
+
+Bug fixes:
+ * Only link to http, https and ftp resource urls (#2085)
+ * Avoid private and deleted datasets on stats plugin (#1936)
+ * Fix tags count and group links in stats extension (#1649)
+ * Make resource_create auth work against package_update (#2037)
+ * Fix DataStore permissions check on startup (#1374)
+ * Fix datastore docs link (#2044)
+ * Fix resource extras getting lost on resource update (#2158)
+ * Clean up field names before rendering the Recline table (#2319)
+ * Don't "normalize" resource URL in recline view (#2324)
+ * Don't assume resource format is there on text preview (#2320)
+
 v2.1.3 2014-10-15
 =================
 
@@ -466,6 +695,20 @@ Deprecated and removed:
 Known issues:
  * Under certain authorization setups the frontend for the groups functionality
    may not work as expected (See #1176 #1175).
+
+v2.0.6 2015-03-04
+=================
+
+Bug fixes:
+ * Only link to http, https and ftp resource urls (#2085)
+ * Avoid private and deleted datasets on stats plugin (#1936)
+ * Fix tags count and group links in stats extension (#1649)
+ * Make resource_create auth work against package_update (#2037)
+ * Fix datastore docs link (#2044)
+ * Fix resource extras getting lost on resource update (#2158)
+ * Clean up field names before rendering the Recline table (#2319)
+ * Don't "normalize" resource URL in recline view (#2324)
+ * Don't assume resource format is there on text preview (#2320)
 
 v2.0.5 2014-10-15
 =================

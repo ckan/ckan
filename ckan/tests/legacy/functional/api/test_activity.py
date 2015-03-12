@@ -223,7 +223,6 @@ class TestActivity:
             extra_environ = {'Authorization': str(apikey)}
         else:
             extra_environ = None
-        print '@@@@@@@@', extra_environ
         response = self.app.get("/api/2/rest/dataset/%s/activity" % package_id,
                 extra_environ=extra_environ)
         return json.loads(response.body)
@@ -831,6 +830,10 @@ class TestActivity:
         timestamp = datetime_from_string(activity['timestamp'])
         assert timestamp >= before['time'] and timestamp <= after['time'], \
             str(activity['timestamp'])
+
+        # Tidy up - undelete the group for following tests
+        group_dict = {'id': group['id'], 'state': 'active'}
+        group_update(self.app, group_dict, user['apikey'])
 
     def _update_group(self, group, user):
         """

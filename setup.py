@@ -67,6 +67,7 @@ entry_points = {
         'multilingual_dataset = ckanext.multilingual.plugin:MultilingualDataset',
         'multilingual_group = ckanext.multilingual.plugin:MultilingualGroup',
         'multilingual_tag = ckanext.multilingual.plugin:MultilingualTag',
+        'multilingual_resource = ckanext.multilingual.plugin:MultilingualResource',    
         'organizations = ckanext.organizations.forms:OrganizationForm',
         'organizations_dataset = ckanext.organizations.forms:OrganizationDatasetForm',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
@@ -74,15 +75,15 @@ entry_points = {
         'test_tag_vocab_plugin = ckanext.test_tag_vocab_plugin:MockVocabTagsPlugin',
         'resource_proxy = ckanext.resourceproxy.plugin:ResourceProxy',
         'text_view = ckanext.textview.plugin:TextView',
-        'pdf_view = ckanext.pdfview.plugin:PdfView',
         'recline_view = ckanext.reclineview.plugin:ReclineView',
         'recline_grid_view = ckanext.reclineview.plugin:ReclineGridView',
         'recline_graph_view = ckanext.reclineview.plugin:ReclineGraphView',
         'recline_map_view = ckanext.reclineview.plugin:ReclineMapView',
+        'image_view = ckanext.imageview.plugin:ImageView',
+        'webpage_view = ckanext.webpageview.plugin:WebPageView',
         # FIXME: Remove deprecated resource previews below. You should use the
         # versions as *_view instead.
         'text_preview = ckanext.textview.plugin:TextView',
-        'pdf_preview = ckanext.pdfview.plugin:PdfView',
         'recline_preview = ckanext.reclineview.plugin:ReclineView',
         'recline_grid = ckanext.reclineview.plugin:ReclineGridView',
         'recline_graph = ckanext.reclineview.plugin:ReclineGraphView',
@@ -127,8 +128,6 @@ entry_points = {
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
-        'image_view = ckanext.imageview.plugin:ImageView',
-        'webpage_view = ckanext.webpageview.plugin:WebPageView',
     ],
     'ckan.test_plugins': [
         'routes_plugin = tests.legacy.ckantestplugins:RoutesPlugin',
@@ -143,7 +142,8 @@ entry_points = {
         'test_package_controller_plugin = tests.legacy.ckantestplugins:MockPackageControllerPlugin',
         'test_resource_preview = tests.legacy.ckantestplugins:MockResourcePreviewExtension',
         'test_json_resource_preview = tests.legacy.ckantestplugins:JsonMockResourcePreviewExtension',
-        'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin'
+        'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
+        'test_datastore_view = ckan.new_tests.lib.test_datapreview:MockDatastoreBasedResourceView',
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',
