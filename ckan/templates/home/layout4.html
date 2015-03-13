@@ -1,0 +1,27 @@
+<div role="main" class="hero">
+    <div class="container">
+        {% block search %}
+        {% snippet 'home/snippets/search.html' %}
+        {% endblock %}
+    </div>
+</div>
+<div role="main">
+    <div class="container-fluid">
+        <h3 style="text-align: center;">Featured Datasets</h3>
+        {% for feature_row in c.featured_views | batch(2) %}
+        <div class="row-fluid">
+            {% for feature in feature_row %}
+            <div class="span6 well">
+                {% set p = feature['package'] %}
+                <h4>{{ h.link_to(h.truncate(p['title'], 80), h.url_for(controller='package', action='read', id=p.name)) }}</h4>
+                {% snippet 'package/snippets/resource_view.html',
+                    resource_view = feature['view'],
+                    resource = feature['resource'],
+                    package = p
+                %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</div>

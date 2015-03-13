@@ -332,6 +332,8 @@ def resource_view_create(context, data_dict):
     :type description: string
     :param view_type: type of view
     :type view_type: string
+    :param featured: is the view featured
+    :type featured: boolean
     :param config: options necessary to recreate a view state (optional)
     :type config: JSON string
 
