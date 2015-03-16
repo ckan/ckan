@@ -8,7 +8,7 @@ import sqlalchemy.orm as orm
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
-import ckan.tests as tests
+from ckan.tests.legacy import is_datastore_supported
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
@@ -23,7 +23,7 @@ assert_raises = nose.tools.assert_raises
 class TestDatastoreInfo(object):
     @classmethod
     def setup_class(cls):
-        if not tests.is_datastore_supported():
+        if not is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         plugin = p.load('datastore')
         if plugin.legacy_mode:
