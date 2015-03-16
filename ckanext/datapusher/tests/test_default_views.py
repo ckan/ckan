@@ -4,7 +4,7 @@ import nose
 import ckan.plugins as p
 from ckan.tests.legacy import is_datastore_supported
 
-from ckan.new_tests import helpers, factories
+from ckan.tests import helpers, factories
 
 assert_equals = nose.tools.assert_equals
 
