@@ -16,12 +16,10 @@ class _LegacyTestsBackwardsCompat(object):
         import ckan.tests.legacy
         import warnings
         value = getattr(ckan.tests.legacy, name)
-
-        warnings.warn(
-            "ckan.tests has been renamed to ckan.tests.legacy."
+        message = ("ckan.tests has been renamed to ckan.tests.legacy."
             "In the next release legacy tests will only be available "
-            "from ckan.tests.legacy.",
-            FutureWarning)
+            "from ckan.tests.legacy.")
+        warnings.warn(message, FutureWarning)
         return value
 
 # https://mail.python.org/pipermail/python-ideas/2012-May/014969.html
