@@ -291,7 +291,6 @@ class TestImportStar(object):
         'ckan/migration/versions/064_add_email_last_sent_column.py',
         'ckan/migration/versions/065_add_email_notifications_preference.py',
         'ckan/plugins/__init__.py',
-        'ckan/tests/__init__.py',
         'ckan/tests/functional/__init__.py',
         'ckan/tests/functional/api/base.py',
         'ckan/tests/functional/base.py',

@@ -1,6 +1,7 @@
 # FIXME: remove everything in this file for ckan 2.5
 import sys
 
+
 class _LegacyTestsBackwardsCompat(object):
     """
     Import provides (temporarily) backward compatibility for extensions that
@@ -21,6 +22,7 @@ class _LegacyTestsBackwardsCompat(object):
             "In the next release legacy tests will only be available "
             "from ckan.tests.legacy.",
             FutureWarning)
+        return value
 
 # https://mail.python.org/pipermail/python-ideas/2012-May/014969.html
 sys.modules[__name__] = _LegacyTestsBackwardsCompat()
