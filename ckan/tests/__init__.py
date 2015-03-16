@@ -1,7 +1,6 @@
 # FIXME: remove everything in this file for ckan 2.5
 import sys
 
-
 class _LegacyTestsBackwardsCompat(object):
     """
     Import provides (temporarily) backward compatibility for extensions that
@@ -14,12 +13,13 @@ class _LegacyTestsBackwardsCompat(object):
 
     def __getattr__(self, name):
         import ckan.tests.legacy
-        import warnings
+        import logging
         value = getattr(ckan.tests.legacy, name)
-        message = ("ckan.tests has been renamed to ckan.tests.legacy."
-                   "In the next release legacy tests will only be available "
-                   "from ckan.tests.legacy.")
-        warnings.warn(message, FutureWarning)
+        log = logging.getLogger('ckan.tests')
+        log.warn(
+            "ckan.tests has been renamed to ckan.tests.legacy."
+            "In the next release legacy tests will only be available "
+            "from ckan.tests.legacy.")
         return value
 
 # https://mail.python.org/pipermail/python-ideas/2012-May/014969.html
