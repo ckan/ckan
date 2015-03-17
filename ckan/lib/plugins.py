@@ -47,7 +47,7 @@ def lookup_package_plugin(package_type=None):
 
 def lookup_group_plugin(group_type=None):
     """
-    Returns the plugin controller associoated with the given group type.
+    Returns the plugin controller associated with the given group type.
 
     If the group type is None or cannot be found in the mapping, then the
     fallback behaviour is used.
@@ -158,10 +158,13 @@ def register_group_plugins(map):
                         controller=group_controller, action='index')
             map.connect('%s_new' % group_type, '/%s/new' % group_type,
                         controller=group_controller, action='new')
+            map.connect('%s_edit' % group_type, '/%s/edit/:id' % group_type,
+                        controller=group_controller, action='edit')
             map.connect('%s_read' % group_type, '/%s/{id}' % group_type,
                         controller=group_controller, action='read')
             map.connect('%s_action' % group_type,
-                        '/%s/{action}/{id}' % group_type, controller=group_controller,
+                        '/%s/{action}/{id}' % group_type,
+                        controller=group_controller,
                         requirements=dict(action='|'.join(['edit', 'authz', 'history'])))
 
             if group_type in _group_plugins:
@@ -169,6 +172,13 @@ def register_group_plugins(map):
                                  "already associated with the group type "
                                  "'%s'" % group_type)
             _group_plugins[group_type] = plugin
+
+            if group_controller == 'group':
+                # Tell the default group controller that it is allowed to
+                # handle other group_types.
+                # Import it here to avoid circular imports.
+                from ckan.controllers.group import GroupController
+                GroupController.add_group_type(group_type)
 
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:

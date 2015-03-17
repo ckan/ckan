@@ -41,6 +41,7 @@ class _Toolkit(object):
         'Invalid',              # validation invalid exception
         'CkanCommand',          # class for providing cli interfaces
         'DefaultDatasetForm',   # base class for IDatasetForm plugins
+        'DefaultGroupForm',     # base class for IGroupForm plugins
         'response',             # response object for cookies etc
         'BaseController',       # Allow controllers to be created
         'abort',                # abort actions
@@ -169,6 +170,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
         t['CkanCommand'] = cli.CkanCommand
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
+        t['DefaultGroupForm'] = lib_plugins.DefaultGroupForm
 
         t['response'] = pylons.response
         self.docstring_overrides['response'] = '''The Pylons response object.

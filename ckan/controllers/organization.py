@@ -1,3 +1,5 @@
+import re
+
 import ckan.controllers.group as group
 
 
@@ -12,8 +14,12 @@ class OrganizationController(group.GroupController):
     a few wrapper functions that swap organization for group when rendering
     templates, redirecting or calling logic actions '''
 
-    # this makes us use organization actions
-    group_type = 'organization'
+    group_types = ['organization']
+    is_organization_controller = True
 
     def _guess_group_type(self, expecting_name=False):
         return 'organization'
+
+    def _replace_group_org(self, string):
+        ''' substitute organization for group if this is an org'''
+        return re.sub('^group', 'organization', string)

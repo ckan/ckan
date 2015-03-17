@@ -1,8 +1,4 @@
-import re
-import os
 import logging
-import genshi
-import cgi
 import datetime
 from urllib import urlencode
 
@@ -39,7 +35,8 @@ lookup_group_plugin = ckan.lib.plugins.lookup_group_plugin
 
 class GroupController(base.BaseController):
 
-    group_type = 'group'
+    group_types = ['group']
+    is_organization_controller = False
 
     ## hooks for subclasses
 
@@ -88,8 +85,6 @@ class GroupController(base.BaseController):
     ## end hooks
     def _replace_group_org(self, string):
         ''' substitute organization for group if this is an org'''
-        if self.group_type == 'organization':
-            string = re.sub('^group', 'organization', string)
         return string
 
     def _action(self, action_name):
@@ -104,22 +99,25 @@ class GroupController(base.BaseController):
         ''' render the correct group/org template '''
         return render(self._replace_group_org(template_name))
 
-    def _redirect_to(self, *args, **kw):
-        ''' wrapper to ensue the correct controller is used '''
-        if self.group_type == 'organization' and 'controller' in kw:
-            kw['controller'] = 'organization'
+    def _redirect_to__this_controller(self, *args, **kw):
+        ''' wrapper around redirect_to but it adds in this request's controller
+        (so that it works for Organization or other derived controllers)'''
+        kw['controller'] = request.environ['pylons.routes_dict']['controller']
         return h.redirect_to(*args, **kw)
 
-    def _url_for(self, *args, **kw):
-        ''' wrapper to ensue the correct controller is used '''
-        if self.group_type == 'organization' and 'controller' in kw:
-            kw['controller'] = 'organization'
+    def _url_for__this_controller(self, *args, **kw):
+        ''' wrapper around url_for but it adds in this request's controller
+        (so that it works for Organization or other derived controllers)'''
+        kw['controller'] = request.environ['pylons.routes_dict']['controller']
         return h.url_for(*args, **kw)
 
     def _guess_group_type(self, expecting_name=False):
         """
-            Guess the type of group from the URL handling the case
-            where there is a prefix on the URL (such as /data/organization)
+            Guess the type of group from the URL.
+            * The default url '/group/xyz' returns None
+            * group_type is unicode
+            * this handles the case where there is a prefix on the URL
+              (such as /data/organization)
         """
         parts = [x for x in request.path.split('/') if x]
 
@@ -132,6 +130,21 @@ class GroupController(base.BaseController):
             gt = None
 
         return gt
+
+    def _ensure_controller_matches_group_type(self, id):
+        group = model.Group.get(id)
+        if group is None:
+            abort(404, _('Group not found'))
+        if group.type not in self.group_types:
+            abort(404, _('Incorrect group type'))
+        return group.type
+
+    @classmethod
+    def add_group_type(cls, group_type):
+        ''' Notify this controller that it is to be used for a particular
+        group_type. (Called on plugin registration.)
+        '''
+        cls.group_types.append(group_type)
 
     def index(self):
         group_type = self._guess_group_type()
@@ -167,9 +180,8 @@ class GroupController(base.BaseController):
         return render(self._index_template(group_type))
 
     def read(self, id, limit=20):
-        group_type = self._get_group_type(id.split('@')[0])
-        if group_type != self.group_type:
-            abort(404, _('Incorrect group type'))
+        group_type = self._ensure_controller_matches_group_type(
+            id.split('@')[0])
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
@@ -191,12 +203,11 @@ class GroupController(base.BaseController):
         except NotAuthorized:
             abort(401, _('Unauthorized to read group %s') % id)
 
-        self._read(id, limit)
+        self._read(id, limit, group_type)
         return render(self._read_template(c.group_dict['type']))
 
-    def _read(self, id, limit):
+    def _read(self, id, limit, group_type):
         ''' This is common code used by both read and bulk_process'''
-        group_type = self._get_group_type(id.split('@')[0])
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'schema': self._db_to_form_schema(group_type=group_type),
@@ -227,15 +238,15 @@ class GroupController(base.BaseController):
         def search_url(params):
             if group_type == 'organization':
                 if c.action == 'bulk_process':
-                    url = self._url_for(controller='organization',
-                                        action='bulk_process',
-                                        id=id)
+                    url = h.url_for(controller='organization',
+                                    action='bulk_process',
+                                    id=id)
                 else:
-                    url = self._url_for(controller='organization',
-                                        action='read',
-                                        id=id)
+                    url = h.url_for(controller='organization',
+                                    action='read',
+                                    id=id)
             else:
-                url = self._url_for(controller='group', action='read', id=id)
+                url = h.url_for(controller='group', action='read', id=id)
             params = [(k, v.encode('utf-8') if isinstance(v, basestring)
                        else str(v)) for k, v in params]
             return url + u'?' + urlencode(params)
@@ -295,15 +306,16 @@ class GroupController(base.BaseController):
                     facets[facet] = facet
 
             # Facet titles
-            for plugin in plugins.PluginImplementations(plugins.IFacets):
-                if self.group_type == 'organization':
+            if self.is_organization_controller:
+                for plugin in plugins.PluginImplementations(plugins.IFacets):
                     facets = plugin.organization_facets(
-                        facets, self.group_type, None)
-                else:
+                        facets, group_type, None)
+            else:
+                for plugin in plugins.PluginImplementations(plugins.IFacets):
                     facets = plugin.group_facets(
-                        facets, self.group_type, None)
+                        facets, group_type, None)
 
-            if 'capacity' in facets and (self.group_type != 'organization' or
+            if 'capacity' in facets and (group_type != 'organization' or
                                          not user_member_of_orgs):
                 del facets['capacity']
 
@@ -358,10 +370,8 @@ class GroupController(base.BaseController):
         ''' Allow bulk processing of datasets for an organization.  Make
         private/public or delete. For organization admins.'''
 
-        group_type = self._get_group_type(id.split('@')[0])
-
-        if group_type is None:
-            abort(404, _('Organization not found'))
+        group_type = self._ensure_controller_matches_group_type(
+            id.split('@')[0])
 
         if group_type != 'organization':
             # FIXME: better error
@@ -395,7 +405,7 @@ class GroupController(base.BaseController):
         if not actions:
             # unicode format (decoded from utf8)
             limit = 500
-            self._read(id, limit)
+            self._read(id, limit, group_type)
             c.packages = c.page.items
             return render(self._bulk_process_template(group_type))
 
@@ -463,7 +473,9 @@ class GroupController(base.BaseController):
         return render(self._new_template(group_type))
 
     def edit(self, id, data=None, errors=None, error_summary=None):
-        group_type = self._get_group_type(id.split('@')[0])
+        group_type = self._ensure_controller_matches_group_type(
+            id.split('@')[0])
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,
                    'save': 'save' in request.params,
@@ -571,6 +583,8 @@ class GroupController(base.BaseController):
         group = model.Group.get(id)
         if group is None:
             abort(404, _('Group not found'))
+        if group.type not in self.group_types:
+            abort(404, _('Incorrect group type'))
         c.groupname = group.name
         c.grouptitle = group.display_name
 
@@ -592,8 +606,10 @@ class GroupController(base.BaseController):
         return render('group/authz.html')
 
     def delete(self, id):
+        group_type = self._ensure_controller_matches_group_type(id)
+
         if 'cancel' in request.params:
-            self._redirect_to(controller='group', action='edit', id=id)
+            self._redirect_to__this_controller(action='edit', id=id)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -606,11 +622,8 @@ class GroupController(base.BaseController):
         try:
             if request.method == 'POST':
                 self._action('group_delete')(context, {'id': id})
-                if self.group_type == 'organization':
-                    h.flash_notice(_('Organization has been deleted.'))
-                else:
-                    h.flash_notice(_('Group has been deleted.'))
-                self._redirect_to(controller='group', action='index')
+                h.flash_notice(_('%s has been deleted.') % group_type)
+                self._redirect_to__this_controller(action='index')
             c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
@@ -619,6 +632,8 @@ class GroupController(base.BaseController):
         return self._render_template('group/confirm_delete.html')
 
     def members(self, id):
+        self._ensure_controller_matches_group_type(id)
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
@@ -636,6 +651,8 @@ class GroupController(base.BaseController):
         return self._render_template('group/members.html')
 
     def member_new(self, id):
+        group_type = self._ensure_controller_matches_group_type(id)
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
 
@@ -670,7 +687,7 @@ class GroupController(base.BaseController):
                 c.group_dict = self._action('group_member_create')(context, data_dict)
 
 
-                self._redirect_to(controller='group', action='members', id=id)
+                self._redirect_to__this_controller(action='members', id=id)
             else:
                 user = request.params.get('user')
                 if user:
@@ -687,8 +704,10 @@ class GroupController(base.BaseController):
         return self._render_template('group/member_new.html')
 
     def member_delete(self, id):
+        self._ensure_controller_matches_group_type(id)
+
         if 'cancel' in request.params:
-            self._redirect_to(controller='group', action='members', id=id)
+            self._redirect_to__this_controller(action='members', id=id)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -703,7 +722,7 @@ class GroupController(base.BaseController):
             if request.method == 'POST':
                 self._action('group_member_delete')(context, {'id': id, 'user_id': user_id})
                 h.flash_notice(_('Group member has been deleted.'))
-                self._redirect_to(controller='group', action='members', id=id)
+                self._redirect_to__this_controller(action='members', id=id)
             c.user_dict = self._action('user_show')(context, {'id': user_id})
             c.user_id = user_id
             c.group_id = id
@@ -714,6 +733,7 @@ class GroupController(base.BaseController):
         return self._render_template('group/confirm_delete_member.html')
 
     def history(self, id):
+        self._ensure_controller_matches_group_type(id)
         if 'diff' in request.params or 'selected1' in request.params:
             try:
                 params = {'id': request.params.getone('group_name'),
@@ -751,8 +771,9 @@ class GroupController(base.BaseController):
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
                 title=_(u'CKAN Group Revision History'),
-                link=self._url_for(controller='group', action='read',
-                                   id=c.group_dict['name']),
+                link=self._url_for__this_controller(
+                    action='read',
+                    id=c.group_dict['name']),
                 description=_(u'Recent changes to CKAN Group: ') +
                 c.group_dict['display_name'],
                 language=unicode(get_lang()),
@@ -792,6 +813,7 @@ class GroupController(base.BaseController):
     def activity(self, id, offset=0):
         '''Render this group's public activity stream page.'''
 
+        self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
         try:
@@ -812,6 +834,7 @@ class GroupController(base.BaseController):
 
     def follow(self, id):
         '''Start following this group.'''
+        self._ensure_controller_matches_group_type(id)
         context = {'model': model,
                    'session': model.Session,
                    'user': c.user or c.author}
@@ -831,6 +854,7 @@ class GroupController(base.BaseController):
 
     def unfollow(self, id):
         '''Stop following this group.'''
+        self._ensure_controller_matches_group_type(id)
         context = {'model': model,
                    'session': model.Session,
                    'user': c.user or c.author}
@@ -850,6 +874,7 @@ class GroupController(base.BaseController):
         h.redirect_to(controller='group', action='read', id=id)
 
     def followers(self, id):
+        self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
         c.group_dict = self._get_group_dict(id)
@@ -860,11 +885,13 @@ class GroupController(base.BaseController):
         return render('group/followers.html')
 
     def admins(self, id):
+        self._ensure_controller_matches_group_type(id)
         c.group_dict = self._get_group_dict(id)
         c.admins = new_authz.get_group_or_org_admin_ids(id)
         return render(self._admins_template(c.group_dict['type']))
 
     def about(self, id):
+        self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
         c.group_dict = self._get_group_dict(id)
