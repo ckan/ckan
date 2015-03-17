@@ -73,7 +73,8 @@ class ValidationError(ActionError):
                 try:
                     tag_errors.append(', '.join(error['name']))
                 except KeyError:
-                    pass
+                    # e.g. if it is a vocabulary_id error
+                    tag_errors.append(error)
             error_dict['tags'] = tag_errors
         self.error_dict = error_dict
         self._error_summary = error_summary

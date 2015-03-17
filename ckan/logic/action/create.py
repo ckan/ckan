@@ -1172,8 +1172,8 @@ def tag_create(context, data_dict):
         characters long containing only alphanumeric characters and ``-``,
         ``_`` and ``.``, e.g. ``'Jazz'``
     :type name: string
-    :param vocabulary_id: the name or id of the vocabulary that the new tag
-        should be added to, e.g. ``'Genre'``
+    :param vocabulary_id: the id of the vocabulary that the new tag
+        should be added to, e.g. the id of vocabulary ``'Genre'``
     :type vocabulary_id: string
 
     :returns: the newly-created tag
