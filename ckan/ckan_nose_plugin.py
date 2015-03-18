@@ -17,9 +17,41 @@ class CkanNose(Plugin):
         # import needs to be here or setup happens too early
         import ckan.model as model
 
-        if not CkanNose.settings.reset_database:
-            model.repo.tables_created_and_initialised = True
-        return
+        if 'legacy' not in repr(ctx):
+            # We don't want to do the stuff below for new-style tests.
+            if not CkanNose.settings.reset_database:
+                model.repo.tables_created_and_initialised = True
+            return
+
+        if isclass(ctx):
+            if hasattr(ctx, "no_db") and ctx.no_db:
+                return
+            if (not CkanNose.settings.reset_database
+                    and not CkanNose.settings.ckan_migration):
+                model.Session.close_all()
+                model.repo.tables_created_and_initialised = True
+                model.repo.rebuild_db()
+                self.is_first_test = False
+            elif self.is_first_test or CkanNose.settings.ckan_migration:
+                model.Session.close_all()
+                model.repo.clean_db()
+                self.is_first_test = False
+                if CkanNose.settings.ckan_migration:
+                    model.Session.close_all()
+                    model.repo.upgrade_db()
+
+            ## This is to make sure the configuration is run again.
+            ## Plugins use configure to make their own tables and they
+            ## may need to be recreated to make tests work.
+            from ckan.plugins import PluginImplementations
+            from ckan.plugins.interfaces import IConfigurable
+            for plugin in PluginImplementations(IConfigurable):
+                plugin.configure(config)
+
+            # init_db is run at the start of every class because
+            # when you use an in-memory sqlite db, it appears that
+            # the db is destroyed after every test when you Session.Remove().
+            model.repo.init_db()
 
     def options(self, parser, env):
         parser.add_option(
