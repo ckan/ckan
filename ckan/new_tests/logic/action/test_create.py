@@ -2,6 +2,7 @@
 
 '''
 
+from pylons import config
 import mock
 import nose.tools
 
@@ -9,6 +10,7 @@ import ckan.new_tests.helpers as helpers
 import ckan.new_tests.factories as factories
 import ckan.model as model
 import ckan.logic as logic
+import ckan.plugins as p
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
@@ -93,8 +95,16 @@ class TestUserInvite(object):
 
 
 class TestResourceViewCreate(object):
+
     @classmethod
-    def teardown_class(self):
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+
         helpers.reset_db()
 
     def setup(self):
@@ -150,10 +160,75 @@ class TestResourceViewCreate(object):
         assert_raises(logic.ValidationError, helpers.call_action,
                       'resource_view_create', context, **params)
 
+    @mock.patch('ckan.lib.datapreview')
+    def test_filterable_views_dont_require_any_extra_fields(self, datapreview_mock):
+        self._configure_datapreview_to_return_filterable_view(datapreview_mock)
+        context = {}
+        params = self._default_resource_view_attributes()
+
+        result = helpers.call_action('resource_view_create', context, **params)
+
+        result.pop('id')
+        result.pop('package_id')
+
+        assert_equals(params, result)
+
+    @mock.patch('ckan.lib.datapreview')
+    def test_filterable_views_converts_filter_fields_and_values_into_filters_dict(self, datapreview_mock):
+        self._configure_datapreview_to_return_filterable_view(datapreview_mock)
+        context = {}
+        filters = {
+            'filter_fields': ['country', 'weather', 'country'],
+            'filter_values': ['Brazil', 'warm', 'Argentina']
+        }
+        params = self._default_resource_view_attributes(**filters)
+        result = helpers.call_action('resource_view_create', context, **params)
+        expected_filters = {
+            'country': ['Brazil', 'Argentina'],
+            'weather': ['warm']
+        }
+        assert_equals(result['filters'], expected_filters)
+
+    @mock.patch('ckan.lib.datapreview')
+    def test_filterable_views_converts_filter_fields_and_values_to_list(self, datapreview_mock):
+        self._configure_datapreview_to_return_filterable_view(datapreview_mock)
+        context = {}
+        filters = {
+            'filter_fields': 'country',
+            'filter_values': 'Brazil'
+        }
+        params = self._default_resource_view_attributes(**filters)
+        result = helpers.call_action('resource_view_create', context, **params)
+        assert_equals(result['filter_fields'], ['country'])
+        assert_equals(result['filter_values'], ['Brazil'])
+        assert_equals(result['filters'], {'country': ['Brazil']})
+
+    @mock.patch('ckan.lib.datapreview')
+    def test_filterable_views_require_filter_fields_and_values_to_have_same_length(self, datapreview_mock):
+        self._configure_datapreview_to_return_filterable_view(datapreview_mock)
+        context = {}
+        filters = {
+            'filter_fields': ['country', 'country'],
+            'filter_values': 'Brazil'
+        }
+        params = self._default_resource_view_attributes(**filters)
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'resource_view_create', context, **params)
+
+    def test_non_filterable_views_dont_accept_filter_fields_and_values(self):
+        context = {}
+        filters = {
+            'filter_fields': 'country',
+            'filter_values': 'Brazil'
+        }
+        params = self._default_resource_view_attributes(**filters)
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'resource_view_create', context, **params)
+
     def _default_resource_view_attributes(self, **kwargs):
         default_attributes = {
             'resource_id': factories.Resource()['id'],
-            'view_type': 'image',
+            'view_type': 'image_view',
             'title': 'View',
             'description': 'A nice view'
         }
@@ -161,6 +236,114 @@ class TestResourceViewCreate(object):
         default_attributes.update(kwargs)
 
         return default_attributes
+
+    def _configure_datapreview_to_return_filterable_view(self, datapreview_mock):
+        filterable_view = mock.MagicMock()
+        filterable_view.info.return_value = {'filterable': True}
+        datapreview_mock.get_view_plugin.return_value = filterable_view
+
+
+class TestCreateDefaultResourceViews(object):
+
+    @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+
+        helpers.reset_db()
+
+    def setup(self):
+        helpers.reset_db()
+
+    @helpers.change_config('ckan.views.default_views', '')
+    def test_add_default_views_to_dataset_resources(self):
+
+        # New resources have no views
+        dataset_dict = factories.Dataset(resources=[
+            {
+                'url': 'http://some.image.png',
+                'format': 'png',
+                'name': 'Image 1',
+            },
+            {
+                'url': 'http://some.image.png',
+                'format': 'png',
+                'name': 'Image 2',
+            },
+        ])
+
+        # Change default views config setting
+        config['ckan.views.default_views'] = 'image_view'
+
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+        created_views = helpers.call_action(
+            'package_create_default_resource_views',
+            context,
+            package=dataset_dict)
+
+        assert_equals(len(created_views), 2)
+
+        assert_equals(created_views[0]['view_type'], 'image_view')
+        assert_equals(created_views[1]['view_type'], 'image_view')
+
+    @helpers.change_config('ckan.views.default_views', '')
+    def test_add_default_views_to_resource(self):
+
+        # New resources have no views
+        dataset_dict = factories.Dataset()
+        resource_dict = factories.Resource(
+            package_id=dataset_dict['id'],
+            url='http://some.image.png',
+            format='png',
+        )
+
+        # Change default views config setting
+        config['ckan.views.default_views'] = 'image_view'
+
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+        created_views = helpers.call_action(
+            'resource_create_default_resource_views',
+            context,
+            resource=resource_dict,
+            package=dataset_dict)
+
+        assert_equals(len(created_views), 1)
+
+        assert_equals(created_views[0]['view_type'], 'image_view')
+
+    @helpers.change_config('ckan.views.default_views', '')
+    def test_add_default_views_to_resource_no_dataset_passed(self):
+
+        # New resources have no views
+        dataset_dict = factories.Dataset()
+        resource_dict = factories.Resource(
+            package_id=dataset_dict['id'],
+            url='http://some.image.png',
+            format='png',
+        )
+
+        # Change default views config setting
+        config['ckan.views.default_views'] = 'image_view'
+
+        context = {
+            'user': helpers.call_action('get_site_user')['name']
+        }
+        created_views = helpers.call_action(
+            'resource_create_default_resource_views',
+            context,
+            resource=resource_dict)
+
+        assert_equals(len(created_views), 1)
+
+        assert_equals(created_views[0]['view_type'], 'image_view')
 
 
 class TestResourceCreate(object):
@@ -171,6 +354,32 @@ class TestResourceCreate(object):
 
     def setup(self):
         model.repo.rebuild_db()
+
+    def test_resource_create(self):
+        context = {}
+        params = {
+            'package_id': factories.Dataset()['id'],
+            'url': 'http://data',
+            'name': 'A nice resource',
+        }
+        result = helpers.call_action('resource_create', context, **params)
+
+        id = result.pop('id')
+
+        assert id
+
+        params.pop('package_id')
+        for key in params.keys():
+            assert_equals(params[key], result[key])
+
+    def test_it_requires_package_id(self):
+
+        data_dict = {
+            'url': 'http://data',
+        }
+
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'resource_create', **data_dict)
 
     def test_it_requires_url(self):
         user = factories.User()
@@ -222,3 +431,46 @@ class TestMemberCreate(object):
         assert_equals(new_membership['table_name'], 'user')
         assert_equals(new_membership['table_id'], user['id'])
         assert_equals(new_membership['capacity'], 'member')
+
+
+class TestDatasetCreate(helpers.FunctionalTestBase):
+
+    def test_normal_user_cant_set_id(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'package_create',
+            context=context,
+            id='1234',
+            name='test-dataset',
+        )
+
+    def test_sysadmin_can_set_id(self):
+        user = factories.Sysadmin()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        dataset = helpers.call_action(
+            'package_create',
+            context=context,
+            id='1234',
+            name='test-dataset',
+        )
+        assert_equals(dataset['id'], '1234')
+
+    def test_id_cant_already_exist(self):
+        dataset = factories.Dataset()
+        user = factories.Sysadmin()
+        assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'package_create',
+            id=dataset['id'],
+            name='test-dataset',
+        )

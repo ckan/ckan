@@ -24,13 +24,11 @@ import ckan.lib.navl.dictization_functions
 
 log = logging.getLogger(__name__)
 
-_validate = ckan.lib.navl.dictization_functions.validate
-
 TYPE_FIELD = "entity_type"
 PACKAGE_TYPE = "package"
 KEY_CHARS = string.digits + string.letters + "_-"
 SOLR_FIELDS = [TYPE_FIELD, "res_url", "text", "urls", "indexed_ts", "site_id"]
-RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_description",
+RESERVED_FIELDS = SOLR_FIELDS + ["tags", "groups", "res_name", "res_description",
                                  "res_format", "res_url", "res_type"]
 RELATIONSHIP_TYPES = PackageRelationship.types
 
@@ -108,17 +106,25 @@ class PackageSearchIndex(SearchIndex):
         if pkg_dict is None:
             return
 
+        # tracking summary values will be stale, never store them
+        tracking_summary = pkg_dict.pop('tracking_summary', None)
+        for r in pkg_dict.get('resources', []):
+            r.pop('tracking_summary', None)
+
+        data_dict_json = json.dumps(pkg_dict)
+
         if config.get('ckan.cache_validated_datasets', True):
             package_plugin = lib_plugins.lookup_package_plugin(
                 pkg_dict.get('type'))
 
             schema = package_plugin.show_package_schema()
-            validated_pkg_dict, errors = _validate(pkg_dict, schema, {
-                'model': model, 'session': model.Session})
+            validated_pkg_dict, errors = lib_plugins.plugin_validate(
+                package_plugin, {'model': model, 'session': model.Session},
+                pkg_dict, schema, 'package_show')
             pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
                 cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
 
-        pkg_dict['data_dict'] = json.dumps(pkg_dict)
+        pkg_dict['data_dict'] = data_dict_json
 
         # add to string field for sorting
         title = pkg_dict.get('title')
@@ -181,12 +187,14 @@ class PackageSearchIndex(SearchIndex):
            pkg_dict['organization'] = None
 
         # tracking
-        tracking_summary = pkg_dict.pop('tracking_summary', None)
-        if tracking_summary:
-            pkg_dict['views_total'] = tracking_summary['total']
-            pkg_dict['views_recent'] = tracking_summary['recent']
+        if not tracking_summary:
+            tracking_summary = model.TrackingSummary.get_for_package(
+                pkg_dict['id'])
+        pkg_dict['views_total'] = tracking_summary['total']
+        pkg_dict['views_recent'] = tracking_summary['recent']
 
-        resource_fields = [('description', 'res_description'),
+        resource_fields = [('name', 'res_name'),
+                           ('description', 'res_description'),
                            ('format', 'res_format'),
                            ('url', 'res_url'),
                            ('resource_type', 'res_type')]

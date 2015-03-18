@@ -21,6 +21,7 @@ import webtest
 from pylons import config
 import nose.tools
 
+import ckan.lib.search as search
 import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
@@ -185,7 +186,9 @@ class FunctionalTestBase(object):
         pass
 
     def setup(self):
+        '''Reset the database and clear the search indexes.'''
         reset_db()
+        search.clear()
 
     @classmethod
     def teardown_class(cls):
@@ -292,13 +295,11 @@ def change_config(key, value):
         def wrapper(*args, **kwargs):
             _original_config = config.copy()
             config[key] = value
-            authz.clear_auth_functions_cache()
 
             return_value = func(*args, **kwargs)
 
             config.clear()
             config.update(_original_config)
-            authz.clear_auth_functions_cache()
 
             return return_value
         return nose.tools.make_decorator(func)(wrapper)

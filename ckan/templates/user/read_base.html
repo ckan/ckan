@@ -51,7 +51,7 @@
         </dl>
         <dl>
           <dt>{{ _('Datasets') }}</dt>
-          <dd>{{ h.SI_number_span(user.number_administered_packages) }}</dd>
+          <dd>{{ h.SI_number_span(user.number_created_packages) }}</dd>
         </dl>
         <dl>
           <dt>{{ _('Edits') }}</dt>
@@ -89,7 +89,7 @@
         </dl>
         <dl>
           <dt>{{ _('State') }}</dt>
-          <dd>{{ user.state }}</dd>
+          <dd>{{ _(user.state) }}</dd>
         </dl>
         {% if c.is_myself %}
           <dl>

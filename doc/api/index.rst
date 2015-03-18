@@ -381,6 +381,14 @@ ckan.logic.action.update
 .. automodule:: ckan.logic.action.update
    :members:
 
+ckan.logic.action.patch
+=======================
+
+.. versionadded:: 2.3
+
+.. automodule:: ckan.logic.action.patch
+   :members:
+
 ckan.logic.action.delete
 ========================
 

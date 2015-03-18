@@ -37,6 +37,7 @@
           {% endif %}
         </a>
       </li>
+      {% if res.url and h.is_url(res.url) %}
       <li>
         <a href="{{ res.url }}" class="resource-url-analytics" target="_blank">
           {% if res.has_views %}
@@ -48,6 +49,7 @@
           {% endif %}
         </a>
       </li>
+      {% endif %}
       {% if can_edit %}
       <li>
         <a href="{{ h.url_for(controller='package', action='resource_edit', id=pkg.name, resource_id=res.id) }}">

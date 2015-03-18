@@ -1,5 +1,7 @@
 body {
   width: 500px;
+  max-height: 600px;
+  overflow-y: scroll;
 }
 
 pre {

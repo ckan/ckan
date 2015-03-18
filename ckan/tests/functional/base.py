@@ -1,5 +1,9 @@
-from ckan.tests.html_check import HtmlCheckMethods
-from ckan.tests import TestController as ControllerTestCase
+import warnings
 
-class FunctionalTestCase(ControllerTestCase, HtmlCheckMethods):
-    pass
+warnings.warn(
+    "ckan.tests has been renamed to ckan.tests.legacy. "
+    "In the next release it is planned to remove ckan.tests, and possibly "
+    "rename ckan.new_tests to ckan.tests.",
+    FutureWarning)
+
+from ckan.tests.legacy.functional.base import *
