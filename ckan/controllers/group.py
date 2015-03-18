@@ -94,9 +94,10 @@ class GroupController(base.BaseController):
         ''' select the correct group/org check_access '''
         return check_access(self._replace_group_org(action_name), *args, **kw)
 
-    def _render_template(self, template_name):
+    def _render_template(self, template_name, group_type):
         ''' render the correct group/org template '''
-        return render(self._replace_group_org(template_name))
+        return render(self._replace_group_org(template_name),
+                      extra_vars={'group_type': group_type})
 
     def _redirect_to__this_controller(self, *args, **kw):
         ''' wrapper around redirect_to but it adds in this request's controller
@@ -176,7 +177,8 @@ class GroupController(base.BaseController):
             url=h.pager_url,
             items_per_page=21
         )
-        return render(self._index_template(group_type))
+        return render(self._index_template(group_type),
+                      extra_vars={'group_type': group_type})
 
     def read(self, id, limit=20):
         group_type = self._ensure_controller_matches_group_type(
@@ -203,7 +205,8 @@ class GroupController(base.BaseController):
             abort(401, _('Unauthorized to read group %s') % id)
 
         self._read(id, limit, group_type)
-        return render(self._read_template(c.group_dict['type']))
+        return render(self._read_template(c.group_dict['type']),
+                      extra_vars={'group_type': group_type})
 
     def _read(self, id, limit, group_type):
         ''' This is common code used by both read and bulk_process'''
@@ -407,7 +410,8 @@ class GroupController(base.BaseController):
             limit = 500
             self._read(id, limit, group_type)
             c.packages = c.page.items
-            return render(self._bulk_process_template(group_type))
+            return render(self._bulk_process_template(group_type),
+                          extra_vars={'group_type': group_type})
 
         #ie7 puts all buttons in form params but puts submitted one twice
         for key, value in dict(request.params.dict_of_lists()).items():
@@ -442,7 +446,10 @@ class GroupController(base.BaseController):
                                 id=id))
 
     def new(self, data=None, errors=None, error_summary=None):
-        group_type = self._guess_group_type(True)
+        if data and 'type' in data:
+            group_type = data['type']
+        else:
+            group_type = self._guess_group_type(True)
         if data:
             data['type'] = group_type
 
@@ -465,12 +472,14 @@ class GroupController(base.BaseController):
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary, 'action': 'new'}
+                'error_summary': error_summary, 'action': 'new',
+                'group_type': group_type}
 
         self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type=group_type),
                         extra_vars=vars)
-        return render(self._new_template(group_type))
+        return render(self._new_template(group_type),
+                      extra_vars={'group_type': group_type})
 
     def edit(self, id, data=None, errors=None, error_summary=None):
         group_type = self._ensure_controller_matches_group_type(
@@ -509,11 +518,13 @@ class GroupController(base.BaseController):
 
         errors = errors or {}
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary, 'action': 'edit'}
+                'error_summary': error_summary, 'action': 'edit',
+                'group_type': group_type}
 
         self._setup_template_variables(context, data, group_type=group_type)
         c.form = render(self._group_form(group_type), extra_vars=vars)
-        return render(self._edit_template(c.group.type))
+        return render(self._edit_template(c.group.type),
+                      extra_vars={'group_type': group_type})
 
     def _get_group_type(self, id):
         """
@@ -583,7 +594,8 @@ class GroupController(base.BaseController):
         group = model.Group.get(id)
         if group is None:
             abort(404, _('Group not found'))
-        if group.type not in self.group_types:
+        group_type = group.type
+        if group_type not in self.group_types:
             abort(404, _('Incorrect group type'))
         c.groupname = group.name
         c.grouptitle = group.display_name
@@ -603,7 +615,8 @@ class GroupController(base.BaseController):
 
         roles = self._handle_update_of_authz(group)
         self._prepare_authz_info_for_render(roles)
-        return render('group/authz.html')
+        return render('group/authz.html',
+                      extra_vars={'group_type': group_type})
 
     def delete(self, id):
         group_type = self._ensure_controller_matches_group_type(id)
@@ -630,10 +643,10 @@ class GroupController(base.BaseController):
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
-        return self._render_template('group/confirm_delete.html')
+        return self._render_template('group/confirm_delete.html', group_type)
 
     def members(self, id):
-        self._ensure_controller_matches_group_type(id)
+        group_type = self._ensure_controller_matches_group_type(id)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -649,7 +662,7 @@ class GroupController(base.BaseController):
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
-        return self._render_template('group/members.html')
+        return self._render_template('group/members.html', group_type)
 
     def member_new(self, id):
         group_type = self._ensure_controller_matches_group_type(id)
@@ -701,10 +714,10 @@ class GroupController(base.BaseController):
             abort(404, _('Group not found'))
         except ValidationError, e:
             h.flash_error(e.error_summary)
-        return self._render_template('group/member_new.html')
+        return self._render_template('group/member_new.html', group_type)
 
     def member_delete(self, id):
-        self._ensure_controller_matches_group_type(id)
+        group_type = self._ensure_controller_matches_group_type(id)
 
         if 'cancel' in request.params:
             self._redirect_to__this_controller(action='members', id=id)
@@ -730,10 +743,10 @@ class GroupController(base.BaseController):
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
-        return self._render_template('group/confirm_delete_member.html')
+        return self._render_template('group/confirm_delete_member.html', group_type)
 
     def history(self, id):
-        self._ensure_controller_matches_group_type(id)
+        group_type = self._ensure_controller_matches_group_type(id)
         if 'diff' in request.params or 'selected1' in request.params:
             try:
                 params = {'id': request.params.getone('group_name'),
@@ -808,12 +821,13 @@ class GroupController(base.BaseController):
                 )
             feed.content_type = 'application/atom+xml'
             return feed.writeString('utf-8')
-        return render(self._history_template(c.group_dict['type']))
+        return render(self._history_template(group_type),
+                      extra_vars={'group_type': group_type})
 
     def activity(self, id, offset=0):
         '''Render this group's public activity stream page.'''
 
-        self._ensure_controller_matches_group_type(id)
+        group_type = self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True}
         try:
@@ -830,7 +844,8 @@ class GroupController(base.BaseController):
         c.group_activity_stream = self._action('group_activity_list_html')(
             context, {'id': c.group_dict['id'], 'offset': offset})
 
-        return render(self._activity_template(c.group_dict['type']))
+        return render(self._activity_template(group_type),
+                      extra_vars={'group_type': group_type})
 
     def follow(self, id):
         '''Start following this group.'''
@@ -874,7 +889,7 @@ class GroupController(base.BaseController):
         h.redirect_to(controller='group', action='read', id=id)
 
     def followers(self, id):
-        self._ensure_controller_matches_group_type(id)
+        group_type = self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
         c.group_dict = self._get_group_dict(id)
@@ -882,23 +897,26 @@ class GroupController(base.BaseController):
             c.followers = get_action('group_follower_list')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to view followers %s') % '')
-        return render('group/followers.html')
+        return render('group/followers.html',
+                      extra_vars={'group_type': group_type})
 
     def admins(self, id):
-        self._ensure_controller_matches_group_type(id)
+        group_type = self._ensure_controller_matches_group_type(id)
         c.group_dict = self._get_group_dict(id)
         c.admins = new_authz.get_group_or_org_admin_ids(id)
-        return render(self._admins_template(c.group_dict['type']))
+        return render(self._admins_template(c.group_dict['type']),
+                      extra_vars={'group_type': group_type})
 
     def about(self, id):
-        self._ensure_controller_matches_group_type(id)
+        group_type = self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
         c.group_dict = self._get_group_dict(id)
         group_type = c.group_dict['type']
         self._setup_template_variables(context, {'id': id},
                                        group_type=group_type)
-        return render(self._about_template(group_type))
+        return render(self._about_template(group_type),
+                      extra_vars={'group_type': group_type})
 
     def _get_group_dict(self, id):
         ''' returns the result of group_show action or aborts if there is a
