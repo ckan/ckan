@@ -158,14 +158,27 @@ def register_group_plugins(map):
                         controller=group_controller, action='index')
             map.connect('%s_new' % group_type, '/%s/new' % group_type,
                         controller=group_controller, action='new')
-            map.connect('%s_edit' % group_type, '/%s/edit/:id' % group_type,
-                        controller=group_controller, action='edit')
             map.connect('%s_read' % group_type, '/%s/{id}' % group_type,
                         controller=group_controller, action='read')
             map.connect('%s_action' % group_type,
                         '/%s/{action}/{id}' % group_type,
                         controller=group_controller,
-                        requirements=dict(action='|'.join(['edit', 'authz', 'history'])))
+                        requirements=dict(action='|'.join(
+                            ['edit', 'authz', 'history', 'member_new',
+                             'member_delete', 'followers', 'follow',
+                             'unfollow', 'admins', 'activity'])))
+            map.connect('%s_edit' % group_type, '/%s/edit/{id}' % group_type,
+                        controller=group_controller, action='edit',
+                        ckan_icon='edit')
+            map.connect('%s_members' % group_type,
+                        '/%s/members/{id}' % group_type,
+                        controller=group_controller,
+                        action='members',
+                        ckan_icon='group')
+            map.connect('%s_activity' % group_type,
+                        '/%s/activity/{id}/{offset}' % group_type,
+                        controller=group_controller,
+                        action='activity', ckan_icon='time'),
 
             if group_type in _group_plugins:
                 raise ValueError("An existing IGroupForm is "

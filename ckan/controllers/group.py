@@ -153,7 +153,7 @@ class GroupController(base.BaseController):
                    'with_private': False}
 
         q = c.q = request.params.get('q', '')
-        data_dict = {'all_fields': True, 'q': q}
+        data_dict = {'all_fields': True, 'q': q, 'type': group_type or 'group'}
         sort_by = c.sort_by_selected = request.params.get('sort')
         if sort_by:
             data_dict['sort'] = sort_by
@@ -662,7 +662,6 @@ class GroupController(base.BaseController):
             data_dict = {'id': id}
             data_dict['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
-            group_type = 'organization' if c.group_dict['is_organization'] else 'group'
             c.roles = self._action('member_roles_list')(
                 context, {'group_type': group_type}
             )

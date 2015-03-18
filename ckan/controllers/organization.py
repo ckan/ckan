@@ -9,7 +9,6 @@ class OrganizationController(group.GroupController):
     * templates and logic action/auth functions are sometimes customized
       (switched using _replace_group_org)
     * 'bulk_process' action only works for organizations
-    * 'follow' functionality only works for groups
 
     Nearly all the code for both is in the GroupController (for simplicity?).
     '''
