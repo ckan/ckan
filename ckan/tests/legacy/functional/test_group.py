@@ -101,7 +101,6 @@ class TestGroup(FunctionalTestCase):
         res = self.app.get(offset, status=404)
 
 
-
 class TestRevisions(FunctionalTestCase):
     @classmethod
     def setup_class(self):
