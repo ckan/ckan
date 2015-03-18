@@ -1,5 +1,3 @@
-import urllib
-
 from nose.tools import assert_equal
 from routes import url_for
 
@@ -56,7 +54,7 @@ class TestGroupControllerNew(helpers.FunctionalTestBase):
 def _get_group_edit_page(app, group_name=None):
     user = factories.User()
     if group_name is None:
-        group = factories.Group(user=user)
+        group = factories.Group(user=user, type=group_type)
         group_name = group['name']
     env = {'REMOTE_USER': user['name'].encode('ascii')}
     url = url_for('%s_edit' % group_type,
@@ -93,3 +91,4 @@ class TestGroupControllerEdit(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, 'save')
         group = model.Group.by_name(group_name)
         assert_equal(group.state, 'active')
+        assert_equal(group.type, group_type)
