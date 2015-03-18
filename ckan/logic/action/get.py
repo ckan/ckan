@@ -1339,7 +1339,7 @@ def user_show(context, data_dict):
     if requester:
         requester_looking_at_own_account = requester == user_obj.name
         include_private_and_draft_datasets = \
-            new_authz.is_sysadmin(requester) or \
+            authz.is_sysadmin(requester) or \
             requester_looking_at_own_account
     else:
         include_private_and_draft_datasets = False

@@ -836,7 +836,7 @@ def empty_if_not_sysadmin(key, data, errors, context):
     user = context.get('user')
 
     ignore_auth = context.get('ignore_auth')
-    if ignore_auth or (user and new_authz.is_sysadmin(user)):
+    if ignore_auth or (user and authz.is_sysadmin(user)):
         return
 
     empty(key, data, errors, context)

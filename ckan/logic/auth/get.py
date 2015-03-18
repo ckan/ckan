@@ -158,7 +158,7 @@ def group_show(context, data_dict):
     group = get_group_object(context, data_dict)
     if group.state == 'active':
         return {'success': True}
-    authorized = new_authz.has_user_permission_for_group_or_org(
+    authorized = authz.has_user_permission_for_group_or_org(
         group.id, user, 'read')
     if authorized:
         return {'success': True}
