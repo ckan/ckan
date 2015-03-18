@@ -44,7 +44,8 @@ class TestGroupControllerNew(helpers.FunctionalTestBase):
 
         response = submit_and_follow(app, form, env, 'save')
         # check correct redirect
-        assert_in(response.req.url, '/%s/saved' % group_type)
+        assert_equal(response.req.url,
+                     'http://localhost/%s/saved' % group_type)
         # check saved ok
         group = model.Group.by_name(u'saved')
         assert_equal(group.title, u'')
