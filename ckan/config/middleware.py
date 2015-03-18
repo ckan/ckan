@@ -75,9 +75,10 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     #app = QueueLogMiddleware(app)
+    is_debug = asbool(config.get('debug', False))
 
     # Fanstatic
-    if asbool(config.get('debug', False)):
+    if is_debug:
         fanstatic_config = {
             'versioning': True,
             'recompute_hashes': True,
@@ -114,21 +115,25 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             app = StatusCodeRedirect(app, [400, 404, 500])
 
     # Initialize repoze.who
-    who_parser = WhoConfig(conf['here'])
-    who_parser.parse(open(app_conf['who.config_file']))
+    repoze_disabled = asbool(config.get('ckan.disable_repoze_for_testing',
+                                        False))
 
-    app = PluggableAuthenticationMiddleware(
-        app,
-        who_parser.identifiers,
-        who_parser.authenticators,
-        who_parser.challengers,
-        who_parser.mdproviders,
-        who_parser.request_classifier,
-        who_parser.challenge_decider,
-        logging.getLogger('repoze.who'),
-        logging.WARN,  # ignored
-        who_parser.remote_user_key
-    )
+    if not(is_debug and repoze_disabled):
+        who_parser = WhoConfig(conf['here'])
+        who_parser.parse(open(app_conf['who.config_file']))
+
+        app = PluggableAuthenticationMiddleware(
+            app,
+            who_parser.identifiers,
+            who_parser.authenticators,
+            who_parser.challengers,
+            who_parser.mdproviders,
+            who_parser.request_classifier,
+            who_parser.challenge_decider,
+            logging.getLogger('repoze.who'),
+            logging.WARN,  # ignored
+            who_parser.remote_user_key
+        )
 
     # Establish the Registry for this application
     app = RegistryManager(app)
