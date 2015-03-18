@@ -4,15 +4,15 @@ import ckan.controllers.group as group
 
 
 class OrganizationController(group.GroupController):
-    ''' The organization controller is pretty much just the group
-    controller. It has a few templates defined that are different and sets
-    the group_type to organization so that the group controller knows that
-    it is in fact the organization controller.  All the main logical
-    differences are therefore in the group controller.
+    ''' The organization controller is for Groups of type 'organization'. It
+    works the same as the group controller apart from:
+    * templates and logic action/auth functions are sometimes customized
+      (switched using _replace_group_org)
+    * 'bulk_process' action only works for organizations
+    * 'follow' functionality only works for groups
 
-    The main differences the group controller provides for organizations are
-    a few wrapper functions that swap organization for group when rendering
-    templates, redirecting or calling logic actions '''
+    Nearly all the code for both is in the GroupController (for simplicity?).
+    '''
 
     group_types = ['organization']
 

@@ -622,7 +622,8 @@ class GroupController(base.BaseController):
         try:
             if request.method == 'POST':
                 self._action('group_delete')(context, {'id': id})
-                h.flash_notice(_('%s has been deleted.') % group_type)
+                h.flash_notice(_('%s has been deleted.')
+                               % group_type.capitalize())
                 self._redirect_to__this_controller(action='index')
             c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
