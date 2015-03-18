@@ -1,6 +1,7 @@
 # FIXME: remove everything in this file for ckan 2.5
 import sys
 
+
 class _LegacyTestsBackwardsCompat(object):
     """
     Import provides (temporarily) backward compatibility for extensions that
