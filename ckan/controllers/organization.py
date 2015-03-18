@@ -15,7 +15,6 @@ class OrganizationController(group.GroupController):
     templates, redirecting or calling logic actions '''
 
     group_types = ['organization']
-    is_organization_controller = True
 
     def _guess_group_type(self, expecting_name=False):
         return 'organization'

@@ -36,7 +36,6 @@ lookup_group_plugin = ckan.lib.plugins.lookup_group_plugin
 class GroupController(base.BaseController):
 
     group_types = ['group']
-    is_organization_controller = False
 
     ## hooks for subclasses
 
@@ -306,7 +305,8 @@ class GroupController(base.BaseController):
                     facets[facet] = facet
 
             # Facet titles
-            if self.is_organization_controller:
+            from ckan.controllers.organization import OrganizationController
+            if isinstance(self, OrganizationController):
                 for plugin in plugins.PluginImplementations(plugins.IFacets):
                     facets = plugin.organization_facets(
                         facets, group_type, None)
