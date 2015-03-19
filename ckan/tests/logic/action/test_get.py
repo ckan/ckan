@@ -570,7 +570,9 @@ class TestGet(object):
         related2 = factories.Related(user=user, type='application')
 
         related_list = helpers.call_action('related_list')
-        assert ([related1, related2] == related_list)
+        assert len(related_list) == 2
+        assert related1 in related_list
+        assert related2 in related_list
 
     def test_related_list_type_filter(self):
         '''
