@@ -431,12 +431,7 @@ def auth_is_anon_user(context):
 
         See ckan/lib/base.py:232 for pylons context object logic
     '''
-    try:
-        is_anon_user = (not bool(c.user) and bool(c.author))
-    except TypeError:
-        # No c object set, this is not a call done via the web interface,
-        # but directly, eg from an extension
-        context_user = context.get('user')
-        is_anon_user = not bool(context_user)
+    context_user = context.get('user')
+    is_anon_user = not bool(context_user)
 
     return is_anon_user
