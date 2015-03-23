@@ -299,7 +299,7 @@ class PackageSearchIndex(SearchIndex):
         finally:
             conn.close()
 
-        commit_debug_msg = 'Not commited yet' if defer_commit else 'Commited'
+        commit_debug_msg = 'Not committed yet' if defer_commit else 'Committed'
         log.debug('Updated index for %s [%s]' % (pkg_dict.get('name'), commit_debug_msg))
 
     def commit(self):
