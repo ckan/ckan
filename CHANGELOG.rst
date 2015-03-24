@@ -19,6 +19,11 @@ Changes and deprecations
   Any custom templates or users of this API call that use these values will
   need to pass: ``include_tracking=True``.
 
+* The legacy `tests` directory has moved to `tests/legacy`, the
+  `new_tests` directory has moved to `tests` and the `new_authz.py`
+  module has been renamed `authz.py`. Code that imports names from the
+  old locations will continue to work in this release but will issue
+  a deprecation warning.
 
 
 v2.3 2015-03-04
