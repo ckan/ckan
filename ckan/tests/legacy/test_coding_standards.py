@@ -290,6 +290,7 @@ class TestImportStar(object):
         'ckan/migration/versions/063_org_changes.py',
         'ckan/migration/versions/064_add_email_last_sent_column.py',
         'ckan/migration/versions/065_add_email_notifications_preference.py',
+        'ckan/new_authz.py',
         'ckan/plugins/__init__.py',
         'ckan/tests/__init__.py',
         'ckan/tests/functional/__init__.py',
@@ -547,7 +548,7 @@ class TestPep8(object):
         'ckan/model/types.py',
         'ckan/model/user.py',
         'ckan/model/vocabulary.py',
-        'ckan/new_authz.py',
+        'ckan/authz.py',
         'ckan/pastertemplates/__init__.py',
         'ckan/plugins/interfaces.py',
         'ckan/plugins/toolkit.py',
@@ -915,7 +916,7 @@ class TestBadExceptions(object):
         'ckan/logic/auth/create.py',
         'ckan/logic/auth/delete.py',
         'ckan/logic/auth/get.py',
-        'ckan/new_authz.py',
+        'ckan/authz.py',
         'ckanext/datastore/logic/action.py',
     ]
     fails = {}

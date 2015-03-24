@@ -25,7 +25,7 @@ import ckan.lib.search as search
 import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 
 
 try:
