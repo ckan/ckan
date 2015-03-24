@@ -1,6 +1,6 @@
 import nose
 
-from ckan import new_authz as auth
+from ckan import authz as auth
 
 from ckan.new_tests import helpers
 
