@@ -8,15 +8,16 @@ from ckan.common import _
 
 
 def convert_to_extras(key, data, errors, context):
-
-    # Get the current extras index
-    current_indexes = [k[1] for k in data.keys()
-                       if len(k) > 1 and k[0] == 'extras']
-
-    new_index = max(current_indexes) + 1 if current_indexes else 0
-
-    data[('extras', new_index, 'key')] = key[-1]
-    data[('extras', new_index, 'value')] = data[key]
+    if ('extras', ) in data:
+        del data[('extras', )]
+    # There is no tally for the number of fields converted to extras.
+    extras = [k for k in data.keys() if k[0] == 'extras' and len(k) > 1]
+    new_pos = 0
+    if extras:
+        extras.sort()
+        new_pos = extras[-1][-2] + 1  # e.g. ('extras', 5, 'value')
+    data[('extras', new_pos, 'key')] = key[-1]
+    data[('extras', new_pos, 'value')] = data[key]
 
 
 def convert_from_extras(key, data, errors, context):
