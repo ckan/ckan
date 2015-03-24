@@ -23,7 +23,7 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.lib.datapreview as datapreview
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 
 from ckan.common import _
 
@@ -178,7 +178,7 @@ def current_package_list_with_resources(context, data_dict):
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
-    is_sysadmin = new_authz.is_sysadmin(user)
+    is_sysadmin = authz.is_sysadmin(user)
     q = '+capacity:public' if not is_sysadmin else '*:*'
     context['ignore_capacity_check'] = True
     search = package_search(context, {'q': q, 'rows': limit, 'start': offset})
@@ -349,7 +349,7 @@ def member_list(context, data_dict=None):
     if capacity:
         q = q.filter(model.Member.capacity == capacity)
 
-    trans = new_authz.roles_trans()
+    trans = authz.roles_trans()
 
     def translated_capacity(capacity):
         try:
@@ -537,11 +537,11 @@ def group_list_authz(context, data_dict):
 
     _check_access('group_list_authz', context, data_dict)
 
-    sysadmin = new_authz.is_sysadmin(user)
-    roles = ckan.new_authz.get_roles_with_permission('manage_group')
+    sysadmin = authz.is_sysadmin(user)
+    roles = authz.get_roles_with_permission('manage_group')
     if not roles:
         return []
-    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+    user_id = authz.get_user_id_for_username(user, allow_none=True)
     if not user_id:
         return []
 
@@ -614,7 +614,7 @@ def organization_list_for_user(context, data_dict):
     user = context['user']
 
     _check_access('organization_list_for_user', context, data_dict)
-    sysadmin = new_authz.is_sysadmin(user)
+    sysadmin = authz.is_sysadmin(user)
 
     orgs_q = model.Session.query(model.Group) \
         .filter(model.Group.is_organization == True) \
@@ -625,11 +625,11 @@ def organization_list_for_user(context, data_dict):
 
         permission = data_dict.get('permission', 'edit_group')
 
-        roles = ckan.new_authz.get_roles_with_permission(permission)
+        roles = authz.get_roles_with_permission(permission)
 
         if not roles:
             return []
-        user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+        user_id = authz.get_user_id_for_username(user, allow_none=True)
         if not user_id:
             return []
 
@@ -1339,7 +1339,7 @@ def user_show(context, data_dict):
     if requester:
         requester_looking_at_own_account = requester == user_obj.name
         include_private_and_draft_datasets = \
-            new_authz.is_sysadmin(requester) or \
+            authz.is_sysadmin(requester) or \
             requester_looking_at_own_account
     else:
         include_private_and_draft_datasets = False
@@ -3301,7 +3301,7 @@ def member_roles_list(context, data_dict):
 
     '''
     group_type = data_dict.get('group_type', 'organization')
-    roles_list = new_authz.roles_list()
+    roles_list = authz.roles_list()
     if group_type == 'group':
         roles_list = [role for role in roles_list
                       if role['value'] != 'editor']
