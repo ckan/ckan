@@ -935,6 +935,14 @@ class PackageController(base.BaseController):
                         url = h.url_for(controller='package',
                                         action='new_metadata',
                                         id=pkg_dict['name'])
+                    elif request.params['save'] == 'finish':
+                        # don't add resources
+                        data_dict['state'] = 'active'
+                        # this is actually an edit not a save
+                        pkg_dict = get_action('package_update')(context, data_dict)
+                        url = h.url_for(controller='package',
+                                        action='read',
+                                        id=pkg_dict['name'])
                     else:
                         # redirect to add dataset resources
                         url = h.url_for(controller='package',
@@ -951,10 +959,19 @@ class PackageController(base.BaseController):
             context['message'] = data_dict.get('log_message', '')
             pkg_dict = get_action('package_create')(context, data_dict)
 
-            if ckan_phase:
+            if ckan_phase and request.params['save'] != 'finish':
                 # redirect to add dataset resources
                 url = h.url_for(controller='package',
                                 action='new_resource',
+                                id=pkg_dict['name'])
+                redirect(url)
+            else:
+                # don't add resources
+                data_dict['state'] = 'active'
+                # this is actually an edit not a save
+                pkg_dict = get_action('package_update')(context, data_dict)
+                url = h.url_for(controller='package',
+                                action='read',
                                 id=pkg_dict['name'])
                 redirect(url)
 
