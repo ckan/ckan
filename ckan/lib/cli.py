@@ -1008,11 +1008,16 @@ class Celery(CkanCommand):
                 sys.exit(1)
 
     def run_(self):
+        default_ini = os.path.join(os.getcwd(), 'development.ini')
+
         if self.options.config:
             os.environ['CKAN_CONFIG'] = os.path.abspath(self.options.config)
+        elif os.path.isfile(default_ini):
+            os.environ['CKAN_CONFIG'] = default_ini
         else:
-            os.environ['CKAN_CONFIG'] = os.path.join(os.getcwd(), 'development.ini')
-        
+            print 'No .ini specified and none was found in current directory'
+            sys.exit(1)
+
         from ckan.lib.celery_app import celery
         celery_args = []
         if len(self.args) == 2 and self.args[1] == 'concurrency':
