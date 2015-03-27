@@ -542,6 +542,22 @@ def build_nav(menu_item, title, **kw):
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
 
+def build_extra_admin_nav():
+    '''Build extra navigation items used in ``admin/base.html`` for values
+    defined in the config option ``ckan.admin_tabs``. Typically this is
+    populated by extensions.
+
+    :rtype: HTML literal
+
+    '''
+    admin_tabs_dict = config.get('ckan.admin_tabs')
+    output = ''
+    if admin_tabs_dict:
+        for key in admin_tabs_dict:
+            output += build_nav_icon(key, admin_tabs_dict[key])
+    return output
+
+
 def _make_menu_item(menu_item, title, **kw):
     ''' build a navigation item used for example breadcrumbs
 
@@ -2071,6 +2087,7 @@ __allowed_functions__ = [
     'build_nav_main',
     'build_nav_icon',
     'build_nav',
+    'build_extra_admin_nav',
     'debug_inspect',
     'dict_list_reduce',
     'full_current_url',

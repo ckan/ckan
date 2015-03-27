@@ -22,8 +22,6 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
                                    'My First Custom Config Tab')
         toolkit.add_ckan_admin_tab(config, 'ckanext_myext_config_two',
                                    'My Second Custom Config Tab')
-        toolkit.add_ckan_admin_tab(config, 'ckanext_myext_config_two',
-                                   'My Second Custom Config Tab')
 
     def before_map(self, map):
         controller = 'ckanext.example_iconfigurer.controller:MyExtController'
@@ -34,4 +32,8 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
             m.connect('ckanext_myext_config_two',
                       '/ckan-admin/myext_config_two', action='config_two',
                       ckan_icon='picture'),
+
+            # route used for testing helper method
+            m.connect('build_extra_admin_nav', '/build_extra_admin_nav',
+                      action='build_extra_admin_nav'),
         return map
