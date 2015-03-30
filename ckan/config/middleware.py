@@ -76,7 +76,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     #app = QueueLogMiddleware(app)
     if asbool(config.get('ckan.use_pylons_response_cleanup_middleware', False)):
-        app = ExecuteOnCompletion(app, config, cleanup_pylons_response_string)
+        app = execute_on_completion(app, config, cleanup_pylons_response_string)
 
     # Fanstatic
     if asbool(config.get('debug', False)):
@@ -364,36 +364,34 @@ class TrackingMiddleware(object):
         return self.app(environ, start_response)
 
 
-class Generator(object):
-    def __init__(self, iterable, callback, environ):
-        self.__iterable = iterable
-        self.__callback = callback
-        self.__environ = environ
-
-    def __iter__(self):
-        for item in self.__iterable:
+def generate_close_and_callback(iterable, callback, environ):
+    """
+    return a generator that passes through items from iterable
+    then always closes the iterable and calls callback(environ).
+    """
+    try:
+        for item in iterable:
             yield item
-
-    def close(self):
+    finally:
         try:
-            if hasattr(self.__iterable, 'close'):
-                self.__iterable.close()
+            if hasattr(iterable, 'close'):
+                iterable.close()
         finally:
-            self.__callback(self.__environ)
+            callback(environ)
 
 
-class ExecuteOnCompletion(object):
-    def __init__(self, application, config, callback):
-        self.__application = application
-        self.__callback = callback
-
-    def __call__(self, environ, start_response):
+def execute_on_completion(application, config, callback):
+    """
+    Call callback(environ) once complete response is sent
+    """
+    def inner(environ, start_response):
         try:
-            result = self.__application(environ, start_response)
+            result = application(environ, start_response)
         except:
-            self.__callback(environ)
+            callback(environ)
             raise
-        return Generator(result, self.__callback, environ)
+        return generate_close_and_callback(result, callback, environ)
+    return inner
 
 
 def cleanup_pylons_response_string(environ):
