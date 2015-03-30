@@ -561,6 +561,60 @@ class TestGet(object):
         assert dataset_deleted['name'] not in datasets_got
         assert got_user['number_created_packages'] == 3
 
+    def test_user_show_include_all_dataset_types_true(self):
+        '''
+        Included datasets will include custom dataset types.
+        '''
+        user = factories.User()
+        factories.Dataset(user=user)
+        factories.Dataset(user=user, type='custom-type')
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': user['name']},
+                                       include_datasets=True,
+                                       include_all_dataset_types=True,
+                                       id=user['id'])
+
+        assert len(got_user['datasets']) == 2
+        types = [ds['type'] for ds in got_user['datasets']]
+        assert 'custom-type' in types
+
+    def test_user_show_include_all_dataset_types_false(self):
+        '''
+        Included datasets won't include custom dataset types.
+        '''
+        user = factories.User()
+        factories.Dataset(user=user)
+        factories.Dataset(user=user, type='custom-type')
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': user['name']},
+                                       include_datasets=True,
+                                       include_all_dataset_types=False,
+                                       id=user['id'])
+
+        assert len(got_user['datasets']) == 1
+        types = [ds['type'] for ds in got_user['datasets']]
+        assert 'custom-type' not in types
+
+    def test_user_show_include_all_dataset_types_default(self):
+        '''
+        Included datasets won't include custom dataset types. Default is
+        False.
+        '''
+        user = factories.User()
+        factories.Dataset(user=user)
+        factories.Dataset(user=user, type='custom-type')
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': user['name']},
+                                       include_datasets=True,
+                                       id=user['id'])
+
+        assert len(got_user['datasets']) == 1
+        types = [ds['type'] for ds in got_user['datasets']]
+        assert 'custom-type' not in types
+
     def test_related_list_with_no_params(self):
         '''
         Test related_list with no parameters and default sort
