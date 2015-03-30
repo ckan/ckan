@@ -367,17 +367,17 @@ class TrackingMiddleware(object):
 def generate_close_and_callback(iterable, callback, environ):
     """
     return a generator that passes through items from iterable
-    then always closes the iterable and calls callback(environ).
+    then calls callback(environ).
     """
     try:
         for item in iterable:
             yield item
+    except GeneratorExit:
+        if hasattr(iterable, 'close'):
+            iterable.close()
+        raise
     finally:
-        try:
-            if hasattr(iterable, 'close'):
-                iterable.close()
-        finally:
-            callback(environ)
+        callback(environ)
 
 
 def execute_on_completion(application, config, callback):
