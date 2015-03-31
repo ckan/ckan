@@ -1306,6 +1306,11 @@ def user_show(context, data_dict):
         that are draft or private.
         (optional, default:``False``, limit:50)
     :type include_datasets: boolean
+    :param include_all_dataset_types: If include_datasets is True, this will
+        include all custom dataset types, as well as the default type
+        ``dataset``. If False, this will only include datasets of type
+        ``dataset``. (optional, default:``False``)
+    :type include_all_dataset_types: boolean
     :param include_num_followers: Include the number of followers the user has
          (optional, default:``False``)
     :type include_num_followers: boolean
@@ -1357,6 +1362,10 @@ def user_show(context, data_dict):
         user_dict['datasets'] = []
         dataset_q = model.Session.query(model.Package) \
                          .filter_by(creator_user_id=user_dict['id'])
+
+        if not data_dict.get('include_all_dataset_types', False):
+            dataset_q = dataset_q.filter_by(type='dataset')
+
         if not include_private_and_draft_datasets:
             dataset_q = dataset_q \
                 .filter_by(state='active') \
@@ -1364,6 +1373,7 @@ def user_show(context, data_dict):
         else:
             dataset_q = dataset_q \
                 .filter(model.Package.state != 'deleted')
+
         dataset_q = dataset_q.limit(50)
 
         for dataset in dataset_q:
