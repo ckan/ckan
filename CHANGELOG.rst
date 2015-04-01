@@ -27,6 +27,9 @@ Changes and deprecations
 
 * Add text to account links in header, fixes text based browser support #2258
 
+* Add middleware that cleans up the response string after it has been
+  served, stabilizes memory usage for large requests #1847
+
 
 v2.3 2015-03-04
 ===============
