@@ -273,7 +273,7 @@ Example::
 
   ckan.use_pylons_response_cleanup_middleware = true
 
-Default value: false
+Default value: true
 
 This enables middleware that clears the response string after it has been sent. This helps CKAN's memory management if CKAN repeatedly serves very large requests.
 

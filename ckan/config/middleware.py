@@ -75,7 +75,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     #app = QueueLogMiddleware(app)
-    if asbool(config.get('ckan.use_pylons_response_cleanup_middleware', False)):
+    if asbool(config.get('ckan.use_pylons_response_cleanup_middleware', True)):
         app = execute_on_completion(app, config, cleanup_pylons_response_string)
 
     # Fanstatic
