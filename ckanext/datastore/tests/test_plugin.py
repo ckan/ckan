@@ -1,7 +1,7 @@
 import nose
 import mock
 
-import ckan.new_tests.helpers as helpers
+import ckan.tests.helpers as helpers
 import ckan.plugins as p
 import ckanext.datastore.interfaces as interfaces
 import ckanext.datastore.plugin as plugin
