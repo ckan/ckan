@@ -25,6 +25,8 @@ Changes and deprecations
   old locations will continue to work in this release but will issue
   a deprecation warning.
 
+* Add text to account links in header, fixes text based browser support #2258
+
 
 v2.3 2015-03-04
 ===============
