@@ -1,4 +1,4 @@
-import ckan.new_tests.helpers as helpers
+import ckan.tests.helpers as helpers
 
 from nose.tools import assert_equals, assert_not_equals
 from routes import url_for
