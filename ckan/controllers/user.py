@@ -6,7 +6,7 @@ from pylons import config
 import ckan.lib.base as base
 import ckan.model as model
 import ckan.lib.helpers as h
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 import ckan.logic as logic
 import ckan.logic.schema as schema
 import ckan.lib.captcha as captcha
@@ -63,7 +63,7 @@ class UserController(base.BaseController):
         into a format suitable for the form (optional)'''
 
     def _setup_template_variables(self, context, data_dict):
-        c.is_sysadmin = new_authz.is_sysadmin(c.user)
+        c.is_sysadmin = authz.is_sysadmin(c.user)
         try:
             user_dict = get_action('user_show')(context, data_dict)
         except NotFound:
@@ -177,7 +177,7 @@ class UserController(base.BaseController):
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors, 'error_summary': error_summary}
 
-        c.is_sysadmin = new_authz.is_sysadmin(c.user)
+        c.is_sysadmin = authz.is_sysadmin(c.user)
         c.form = render(self.new_user_form, extra_vars=vars)
         return render('user/new.html')
 
@@ -297,7 +297,7 @@ class UserController(base.BaseController):
 
         user_obj = context.get('user_obj')
 
-        if not (new_authz.is_sysadmin(c.user)
+        if not (authz.is_sysadmin(c.user)
                 or c.user == user_obj.name):
             abort(401, _('User %s not authorized to edit %s') %
                   (str(c.user), id))
@@ -640,7 +640,7 @@ class UserController(base.BaseController):
     def dashboard_datasets(self):
         context = {'for_view': True, 'user': c.user or c.author,
                    'auth_user_obj': c.userobj}
-        data_dict = {'user_obj': c.userobj}
+        data_dict = {'user_obj': c.userobj, 'include_datasets': True}
         self._setup_template_variables(context, data_dict)
         return render('user/dashboard_datasets.html')
 

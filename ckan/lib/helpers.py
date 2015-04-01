@@ -41,7 +41,7 @@ import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -1684,7 +1684,7 @@ def resource_preview(resource, package):
 
     Depending on the type, different previews are loaded.
     This could be an img tag where the image is loaded directly or an iframe
-    that embeds a web page, recline or a pdf preview.
+    that embeds a web page or a recline preview.
     '''
 
     if not resource['url']:
@@ -1984,7 +1984,7 @@ def unified_resource_format(format):
     return format_new
 
 def check_config_permission(permission):
-    return new_authz.check_config_permission(permission)
+    return authz.check_config_permission(permission)
 
 
 def get_organization(org=None, include_datasets=False):

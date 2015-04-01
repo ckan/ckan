@@ -5,7 +5,6 @@ import ckan.lib.helpers as h
 import ckan.lib.app_globals as app_globals
 import ckan.model as model
 import ckan.logic as logic
-import ckan.new_authz
 
 c = base.c
 request = base.request

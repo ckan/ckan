@@ -102,7 +102,11 @@ def _get_engine(data_dict):
     engine = _engines.get(connection_url)
 
     if not engine:
-        engine = sqlalchemy.create_engine(connection_url)
+        import pylons
+        extras = {'url': connection_url}
+        engine = sqlalchemy.engine_from_config(pylons.config,
+                                               'ckan.datastore.sqlalchemy.',
+                                               **extras)
         _engines[connection_url] = engine
     return engine
 
@@ -795,8 +799,8 @@ def _to_full_text(fields, record):
         if not value:
             continue
 
-        if field['type'].lower() in ft_types and str(value):
-            full_text.append(str(value))
+        if field['type'].lower() in ft_types and unicode(value):
+            full_text.append(unicode(value))
         else:
             full_text.extend(json_get_values(value))
     return ' '.join(set(full_text))
