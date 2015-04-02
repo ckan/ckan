@@ -10,7 +10,7 @@ import ckan.tests.factories as factories
 eq = nose.tools.eq_
 
 
-class TestGet(object):
+class TestPackageShow(object):
 
     def setup(self):
         helpers.reset_db()
@@ -40,6 +40,15 @@ class TestGet(object):
                                        context={'schema': custom_schema})
 
         eq(dataset2['new_field'], 'foo')
+
+
+class TestGroupList(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+        # Clear the search index
+        search.clear()
 
     def test_group_list(self):
 
@@ -168,6 +177,15 @@ class TestGet(object):
         expected_parent_group['package_count'] = 0
         eq(child_group_returned['groups'], [expected_parent_group])
 
+
+class TestGroupShow(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+        # Clear the search index
+        search.clear()
+
     def test_group_show(self):
 
         group = factories.Group(user=factories.User())
@@ -254,8 +272,69 @@ class TestGet(object):
         group_dict = helpers.call_action('group_show', id=group['id'],
                                          include_datasets=False)
 
-        assert not 'packages' in group_dict
+        assert 'packages' not in group_dict
         assert group_dict['package_count'] == 2
+
+    def test_group_show_does_not_show_private_datasets(self):
+        '''group_show() should never show private datasets.
+
+        If a dataset is a private member of an organization and also happens to
+        be a member of a group, group_show() should not return the dataset as
+        part of the group dict, even if the user calling group_show() is a
+        member or admin of the group or the organization or is a sysadmin.
+
+        '''
+        org_member = factories.User()
+        org = factories.Organization(user=org_member)
+        private_dataset = factories.Dataset(user=org_member,
+                                            owner_org=org['name'], private=True)
+
+        group = factories.Group()
+
+        # Add the private dataset to the group.
+        helpers.call_action('member_create', id=group['id'],
+                            object=private_dataset['id'], object_type='package',
+                            capacity='public')
+
+        # Create a member user and an admin user of the group.
+        group_member = factories.User()
+        helpers.call_action('member_create', id=group['id'],
+                            object=group_member['id'], object_type='user',
+                            capacity='member')
+        group_admin = factories.User()
+        helpers.call_action('member_create', id=group['id'],
+                            object=group_admin['id'], object_type='user',
+                            capacity='admin')
+
+        # Create a user who isn't a member of any group or organization.
+        non_member = factories.User()
+
+        sysadmin = factories.Sysadmin()
+
+        # None of the users should see the dataset when they call group_show().
+        for user in (org_member, group_member, group_admin, non_member,
+                     sysadmin, None):
+
+            if user is None:
+                context = None  # No user logged-in.
+            else:
+                context = {'user': user['name']}
+
+            group = helpers.call_action('group_show', id=group['id'],
+                                        context=context)
+
+            assert private_dataset['id'] not in [dataset['id'] for dataset
+                                                 in group['packages']], (
+                "group_show() should never show private datasets")
+
+
+class TestOrganizationList(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+        # Clear the search index
+        search.clear()
 
     def test_organization_list(self):
 
@@ -296,6 +375,15 @@ class TestGet(object):
 
         assert (sorted(org_list) ==
                 sorted([g['name'] for g in [org1, org2]]))
+
+
+class TestOrganizationShow(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+        # Clear the search index
+        search.clear()
 
     def test_organization_show(self):
 
@@ -364,6 +452,15 @@ class TestGet(object):
         assert org_dict['packages'][0]['name'] == 'dataset_1'
         assert org_dict['package_count'] == 1
 
+
+class TestUserList(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+        # Clear the search index
+        search.clear()
+
     def test_user_list_default_values(self):
 
         user = factories.User()
@@ -415,6 +512,15 @@ class TestGet(object):
 
         assert len(got_users) == 1
         assert got_users[0]['name'] == user['name']
+
+
+class TestUserShow(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+        # Clear the search index
+        search.clear()
 
     def test_user_show_default_values(self):
 
@@ -535,10 +641,10 @@ class TestGet(object):
                                        include_datasets=True,
                                        id=user['id'])
 
-        assert len(got_user['datasets']) == 3
+        eq(len(got_user['datasets']), 3)
         datasets_got = set([user_['name'] for user_ in got_user['datasets']])
         assert dataset_deleted['name'] not in datasets_got
-        assert got_user['number_created_packages'] == 3
+        eq(got_user['number_created_packages'], 3)
 
     def test_user_show_include_datasets_includes_draft_sysadmin(self):
         # sysadmin should see the draft and private datasets
@@ -556,10 +662,19 @@ class TestGet(object):
                                        include_datasets=True,
                                        id=user['id'])
 
-        assert len(got_user['datasets']) == 3
+        eq(len(got_user['datasets']), 3)
         datasets_got = set([user_['name'] for user_ in got_user['datasets']])
         assert dataset_deleted['name'] not in datasets_got
-        assert got_user['number_created_packages'] == 3
+        eq(got_user['number_created_packages'], 3)
+
+
+class TestRelatedList(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+        # Clear the search index
+        search.clear()
 
     def test_related_list_with_no_params(self):
         '''
@@ -620,6 +735,15 @@ class TestGet(object):
         assert ([related1] == related_list)
         # TODO: Create related items associated with a dataset and test
         # related_list with them
+
+
+class TestCurrentPackageList(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+        # Clear the search index
+        search.clear()
 
     def test_current_package_list(self):
         '''
@@ -686,6 +810,15 @@ class TestGet(object):
                         sysadmin['name']})
         eq(len(current_package_list), 2)
 
+
+class TestPackageAutocomplete(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+        # Clear the search index
+        search.clear()
+
     def test_package_autocomplete_does_not_return_private_datasets(self):
 
         user = factories.User()
@@ -699,57 +832,14 @@ class TestGet(object):
                                            q='some')
         eq(len(package_list), 1)
 
-    def test_group_show_does_not_show_private_datasets(self):
-        '''group_show() should never show private datasets.
 
-        If a dataset is a private member of an organization and also happens to
-        be a member of a group, group_show() should not return the dataset as
-        part of the group dict, even if the user calling group_show() is a
-        member or admin of the group or the organization or is a sysadmin.
+class TestPackageSearch(object):
 
-        '''
-        org_member = factories.User()
-        org = factories.Organization(user=org_member)
-        private_dataset = factories.Dataset(user=org_member,
-                                            owner_org=org['name'], private=True)
+    def setup(self):
+        helpers.reset_db()
 
-        group = factories.Group()
-
-        # Add the private dataset to the group.
-        helpers.call_action('member_create', id=group['id'],
-                            object=private_dataset['id'], object_type='package',
-                            capacity='public')
-
-        # Create a member user and an admin user of the group.
-        group_member = factories.User()
-        helpers.call_action('member_create', id=group['id'],
-                            object=group_member['id'], object_type='user',
-                            capacity='member')
-        group_admin = factories.User()
-        helpers.call_action('member_create', id=group['id'],
-                            object=group_admin['id'], object_type='user',
-                            capacity='admin')
-
-        # Create a user who isn't a member of any group or organization.
-        non_member = factories.User()
-
-        sysadmin = factories.Sysadmin()
-
-        # None of the users should see the dataset when they call group_show().
-        for user in (org_member, group_member, group_admin, non_member,
-                     sysadmin, None):
-
-            if user is None:
-                context = None  # No user logged-in.
-            else:
-                context = {'user': user['name']}
-
-            group = helpers.call_action('group_show', id=group['id'],
-                                        context=context)
-
-            assert private_dataset['id'] not in [dataset['id'] for dataset
-                                                 in group['packages']], (
-                "group_show() should never show private datasets")
+        # Clear the search index
+        search.clear()
 
     def test_package_search_on_resource_name(self):
         '''
