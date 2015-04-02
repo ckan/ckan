@@ -103,7 +103,7 @@ class RelatedController(base.BaseController):
                    'user': c.user or c.author,
                    'auth_user_obj': c.userobj,
                    'for_view': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
 
         try:
             logic.check_access('package_show', context, data_dict)

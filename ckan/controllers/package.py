@@ -328,7 +328,8 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id, 'include_tracking': True}
+        data_dict = {'id': id, 'include_tracking': True,
+                'include_num_followers': True}
 
         try:
             check_access('package_update', context, data_dict)
@@ -369,7 +370,8 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id, 'include_tracking': True}
+        data_dict = {'id': id, 'include_tracking': True,
+                     'include_num_followers': True}
 
         # interpret @<revision_id> or @<date> suffix
         split = id.split('@')
@@ -450,7 +452,7 @@ class PackageController(base.BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg_revisions = get_action('package_revision_list')(context,
@@ -775,9 +777,11 @@ class PackageController(base.BaseController):
         if context['save'] and not data:
             return self._save_edit(id, context, package_type=package_type)
         try:
-            c.pkg_dict = get_action('package_show')(context, {'id': id})
+            c.pkg_dict = get_action('package_show')(context, {'id': id,
+                'include_num_followers': True})
             context['for_edit'] = True
-            old_data = get_action('package_show')(context, {'id': id})
+            old_data = get_action('package_show')(context, {'id': id,
+                'include_num_followers': True})
             # old data is from the database and data is passed from the
             # user if there is a validation error. Use users data if there.
             if data:
@@ -1206,7 +1210,7 @@ class PackageController(base.BaseController):
         context = {'model': model,
                    'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             get_action('follow_dataset')(context, data_dict)
             package_dict = get_action('package_show')(context, data_dict)
@@ -1225,7 +1229,7 @@ class PackageController(base.BaseController):
         context = {'model': model,
                    'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             get_action('unfollow_dataset')(context, data_dict)
             package_dict = get_action('package_show')(context, data_dict)
@@ -1245,7 +1249,7 @@ class PackageController(base.BaseController):
                    'user': c.user or c.author, 'for_view': True,
                    'auth_user_obj': c.userobj}
 
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
@@ -1266,7 +1270,7 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'auth_user_obj': c.userobj, 'use_cache': False}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             dataset_type = c.pkg_dict['type'] or 'dataset'
@@ -1330,7 +1334,7 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_num_followers': True}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
