@@ -462,8 +462,6 @@ class UserController(base.BaseController):
 
     def perform_reset(self, id):
         # FIXME 403 error for invalid key is a non helpful page
-        # FIXME We should reset the reset key when it is used to prevent
-        # reuse of the url
         context = {'model': model, 'session': model.Session,
                    'user': id,
                    'keep_email': True}
@@ -494,6 +492,7 @@ class UserController(base.BaseController):
                 user_dict['reset_key'] = c.reset_key
                 user_dict['state'] = model.State.ACTIVE
                 user = get_action('user_update')(context, user_dict)
+                mailer.create_reset_key(user_obj)
 
                 h.flash_success(_("Your password has been reset."))
                 h.redirect_to('/')
