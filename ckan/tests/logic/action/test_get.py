@@ -851,6 +851,95 @@ class TestPackageSearch(object):
         search_result = helpers.call_action('package_search', q='resource_abc')
         eq(search_result['results'][0]['resources'][0]['name'], resource_name)
 
+    def test_package_search_excludes_private_and_drafts(self):
+        '''
+        package_search() should not return private and draft datasets.
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        factories.Dataset(user=user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action('package_search')['results']
+
+        eq(len(results), 1)
+        eq(results[0]['name'], dataset['name'])
+
+    def test_package_search_excludes_drafts_even_with_fq(self):
+        '''
+        package_search() should not return draft datasets for non authorized
+        users, even with fq
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        draft_dataset = factories.Dataset(user=user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action('package_search', fq="+state:draft")['results']
+
+        eq(len(results), 1)
+        nose.tools.assert_not_equals(results[0]['name'], draft_dataset['name'])
+        nose.tools.assert_equal(results[0]['name'], dataset['name'])
+
+    def test_package_search_includes_drafts_with_allow_drafts_in_context(self):
+        '''
+        package_search() can include draft datasets when `allow_drafts` is
+        in context.
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        draft_dataset = factories.Dataset(user=user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action('package_search', fq="+state:draft",
+                                      context={'allow_drafts': True})['results']
+
+        eq(len(results), 1)
+        eq(results[0]['name'], draft_dataset['name'])
+
+    def test_package_search_private_with_ignore_capacity_check(self):
+        '''
+        package_search() can return private datasets when
+        `ignore_capacity_check` present in context.
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        factories.Dataset(user=user, state='draft')
+        private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action('package_search', fq='+capacity:"private"',
+                                      context={'ignore_capacity_check': True})['results']
+
+        eq(len(results), 1)
+        eq(results[0]['name'], private_dataset['name'])
+
+    def test_package_search_excludes_private_even_with_fq(self):
+        '''
+        package_search() not return private datasets when
+        `ignore_capacity_check` is absent, even if fq specifies it. The normal
+        active dataset result is returned.
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        factories.Dataset(user=user, state='draft')
+        private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action('package_search', fq='+capacity:"private"')['results']
+
+        eq(len(results), 1)
+        nose.tools.assert_not_equals(results[0]['name'], private_dataset['name'])
+        nose.tools.assert_equal(results[0]['name'], dataset['name'])
+
 
 class TestBadLimitQueryParameters(object):
     '''test class for #1258 non-int query parameters cause 500 errors

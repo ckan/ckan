@@ -1355,25 +1355,25 @@ def user_show(context, data_dict):
 
     if data_dict.get('include_datasets', False):
         user_dict['datasets'] = []
-        dataset_q = model.Session.query(model.Package) \
-                         .filter_by(creator_user_id=user_dict['id'])
-        if not include_private_and_draft_datasets:
-            dataset_q = dataset_q \
-                .filter_by(state='active') \
-                .filter_by(private=False)
-        else:
-            dataset_q = dataset_q \
-                .filter(model.Package.state != 'deleted')
-        dataset_q = dataset_q.limit(50)
 
-        for dataset in dataset_q:
-            try:
-                dataset_dict = logic.get_action('package_show')(
-                    context, {'id': dataset.id})
-                del context['package']
-            except logic.NotAuthorized:
-                continue
-            user_dict['datasets'].append(dataset_dict)
+        fq = "+creator_user_id:{0}".format(user_dict['id'])
+
+        if include_private_and_draft_datasets:
+            context['ignore_capacity_check'] = True
+            context['allow_drafts'] = True
+            fq += " +state:(active OR draft)"
+        else:
+            fq += " +state:active +capacity:public"
+
+        search_dict = {
+            'fq': fq,
+            'rows': 50
+        }
+
+        user_dict['datasets'] = \
+            logic.get_action('package_search')(context=context,
+                                               data_dict=search_dict) \
+            .get('results')
 
     if data_dict.get('include_num_followers', False):
         user_dict['num_followers'] = logic.get_action('user_follower_count')(
@@ -1692,8 +1692,16 @@ def package_search(context, data_dict):
         fq = data_dict.get('fq', '')
         if not context.get('ignore_capacity_check', False):
             fq = ' '.join(p for p in fq.split(' ')
-                          if not 'capacity:' in p)
+                          if 'capacity:' not in p)
             data_dict['fq'] = fq + ' capacity:"public"'
+
+        # If `allow_drafts` isn't True in the context, remove any state key
+        # present in the fq., then +state:active will be added by query.run
+        fq = data_dict.get('fq', '')
+        if not context.get('allow_drafts', False):
+            fq = ' '.join(p for p in fq.split(' ')
+                          if 'state:' not in p)
+            data_dict['fq'] = fq
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
@@ -1709,18 +1717,18 @@ def package_search(context, data_dict):
             package, package_dict = package['id'], package.get(data_source)
             pkg_query = session.query(model.Package)\
                 .filter(model.Package.id == package)\
-                .filter(model.Package.state == u'active')
+                .filter(model.Package.state.in_((u'active', u'draft')))
             pkg = pkg_query.first()
 
-            ## if the index has got a package that is not in ckan then
-            ## ignore it.
+            # if the index has got a package that is not in ckan then
+            # ignore it.
             if not pkg:
                 log.warning('package %s in index but not in database'
                             % package)
                 continue
-            ## use data in search index if there
+            # use data in search index if there
             if package_dict:
-                ## the package_dict still needs translating when being viewed
+                # the package_dict still needs translating when being viewed
                 package_dict = json.loads(package_dict)
                 if context.get('for_view'):
                     for item in plugins.PluginImplementations(
