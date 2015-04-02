@@ -904,6 +904,9 @@ def package_show(context, data_dict):
     :param include_tracking: add tracking information to dataset and
         resources (default: False)
     :type include_tracking: bool
+    :param include_num_followers: Include the number of followers the dataset has
+        (optional, default:``False``)
+    :type include_num_followers: boolean
     :rtype: dictionary
 
     '''
@@ -985,6 +988,11 @@ def package_show(context, data_dict):
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
+
+    if data_dict.get('include_num_followers', False):
+        package_dict['num_followers'] = logic.get_action('dataset_follower_count')(
+            {'model': model, 'session': model.Session},
+            {'id': package_dict['id']})
 
     return package_dict
 
