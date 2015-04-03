@@ -17,7 +17,7 @@ class CkanNose(Plugin):
         # import needs to be here or setup happens too early
         import ckan.model as model
 
-        if 'new_tests' in repr(ctx):
+        if 'legacy' not in repr(ctx):
             # We don't want to do the stuff below for new-style tests.
             if not CkanNose.settings.reset_database:
                 model.repo.tables_created_and_initialised = True

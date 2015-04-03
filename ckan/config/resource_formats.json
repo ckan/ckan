@@ -48,6 +48,7 @@
   ["WMS", "Web Mapping Service", "WMS", ["wms"]],
   ["SVG", "SVG vector image", "image/svg+xml", ["svg"]],
   ["PPT", "Powerpoint Presentation", "application/vnd.ms-powerpoint", []],
+  ["ODP", "OpenDocument Presentation", "application/vnd.oasis.opendocument.presentation", []], 
   ["JPEG", "JPG Image File", "image/jpeg", ["jpeg", "jpg"]],
   ["SPARQL", "SPARQL end-point", "application/sparql-results+xml", []],
   ["GIF", "GIF Image File", "image/gif", []],

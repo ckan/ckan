@@ -144,7 +144,7 @@ entry_points = {
         'test_resource_preview = tests.legacy.ckantestplugins:MockResourcePreviewExtension',
         'test_json_resource_preview = tests.legacy.ckantestplugins:JsonMockResourcePreviewExtension',
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
-        'test_datastore_view = ckan.new_tests.lib.test_datapreview:MockDatastoreBasedResourceView',
+        'test_datastore_view = ckan.tests.lib.test_datapreview:MockDatastoreBasedResourceView',
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',
