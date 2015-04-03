@@ -10,13 +10,7 @@ import ckan.tests.factories as factories
 eq = nose.tools.eq_
 
 
-class TestPackageShow(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestPackageShow(helpers.FunctionalTestBase):
 
     def test_package_show(self):
         dataset1 = factories.Dataset()
@@ -42,13 +36,7 @@ class TestPackageShow(object):
         eq(dataset2['new_field'], 'foo')
 
 
-class TestGroupList(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestGroupList(helpers.FunctionalTestBase):
 
     def test_group_list(self):
 
@@ -178,13 +166,7 @@ class TestGroupList(object):
         eq(child_group_returned['groups'], [expected_parent_group])
 
 
-class TestGroupShow(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestGroupShow(helpers.FunctionalTestBase):
 
     def test_group_show(self):
 
@@ -328,13 +310,7 @@ class TestGroupShow(object):
                 "group_show() should never show private datasets")
 
 
-class TestOrganizationList(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestOrganizationList(helpers.FunctionalTestBase):
 
     def test_organization_list(self):
 
@@ -377,13 +353,7 @@ class TestOrganizationList(object):
                 sorted([g['name'] for g in [org1, org2]]))
 
 
-class TestOrganizationShow(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestOrganizationShow(helpers.FunctionalTestBase):
 
     def test_organization_show(self):
 
@@ -453,13 +423,7 @@ class TestOrganizationShow(object):
         assert org_dict['package_count'] == 1
 
 
-class TestUserList(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestUserList(helpers.FunctionalTestBase):
 
     def test_user_list_default_values(self):
 
@@ -514,13 +478,7 @@ class TestUserList(object):
         assert got_users[0]['name'] == user['name']
 
 
-class TestUserShow(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestUserShow(helpers.FunctionalTestBase):
 
     def test_user_show_default_values(self):
 
@@ -668,13 +626,7 @@ class TestUserShow(object):
         eq(got_user['number_created_packages'], 3)
 
 
-class TestRelatedList(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestRelatedList(helpers.FunctionalTestBase):
 
     def test_related_list_with_no_params(self):
         '''
@@ -737,13 +689,7 @@ class TestRelatedList(object):
         # related_list with them
 
 
-class TestCurrentPackageList(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestCurrentPackageList(helpers.FunctionalTestBase):
 
     def test_current_package_list(self):
         '''
@@ -811,13 +757,7 @@ class TestCurrentPackageList(object):
         eq(len(current_package_list), 2)
 
 
-class TestPackageAutocomplete(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestPackageAutocomplete(helpers.FunctionalTestBase):
 
     def test_package_autocomplete_does_not_return_private_datasets(self):
 
@@ -833,13 +773,7 @@ class TestPackageAutocomplete(object):
         eq(len(package_list), 1)
 
 
-class TestPackageSearch(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestPackageSearch(helpers.FunctionalTestBase):
 
     def test_package_search_on_resource_name(self):
         '''
@@ -941,7 +875,7 @@ class TestPackageSearch(object):
         nose.tools.assert_equal(results[0]['name'], dataset['name'])
 
 
-class TestBadLimitQueryParameters(object):
+class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
     '''test class for #1258 non-int query parameters cause 500 errors
 
     Test that validation errors are raised when calling actions with
@@ -977,19 +911,13 @@ class TestBadLimitQueryParameters(object):
             **kwargs)
 
 
-class TestOrganizationListForUser(object):
+class TestOrganizationListForUser(helpers.FunctionalTestBase):
     '''Functional tests for the organization_list_for_user() action function.'''
-
-    def setup(self):
-        helpers.reset_db()
-        search.clear()
 
     def test_when_user_is_not_a_member_of_any_organizations(self):
         """
-
         When the user isn't a member of any organizations (in any capacity)
         organization_list_for_user() should return an empty list.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1004,11 +932,9 @@ class TestOrganizationListForUser(object):
 
     def test_when_user_is_an_admin_of_one_organization(self):
         """
-
         When the user is an admin of one organization
         organization_list_for_user() should return a list of just that one
         organization.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1030,11 +956,9 @@ class TestOrganizationListForUser(object):
 
     def test_when_user_is_an_admin_of_three_organizations(self):
         """
-
         When the user is an admin of three organizations
         organization_list_for_user() should return a list of all three
         organizations.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1062,10 +986,8 @@ class TestOrganizationListForUser(object):
 
     def test_does_not_return_members(self):
         """
-
         By default organization_list_for_user() should not return organizations
         that the user is just a member (not an admin) of.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1082,10 +1004,8 @@ class TestOrganizationListForUser(object):
 
     def test_does_not_return_editors(self):
         """
-
         By default organization_list_for_user() should not return organizations
         that the user is just an editor (not an admin) of.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1102,10 +1022,8 @@ class TestOrganizationListForUser(object):
 
     def test_editor_permission(self):
         """
-
         organization_list_for_user() should return organizations that the user
         is an editor of if passed a permission that belongs to the editor role.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1123,10 +1041,8 @@ class TestOrganizationListForUser(object):
 
     def test_member_permission(self):
         """
-
         organization_list_for_user() should return organizations that the user
         is a member of if passed a permission that belongs to the member role.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1144,7 +1060,6 @@ class TestOrganizationListForUser(object):
 
     def test_invalid_permission(self):
         '''
-
         organization_list_for_user() should return an empty list if passed a
         non-existent or invalid permission.
 
@@ -1152,7 +1067,6 @@ class TestOrganizationListForUser(object):
         If the user was an admin of the organization then it would return that
         organization - admins have all permissions, including permissions that
         don't exist.
-
         '''
         user = factories.User()
         context = {'user': user['name']}
@@ -1171,10 +1085,8 @@ class TestOrganizationListForUser(object):
 
     def test_that_it_does_not_return_groups(self):
         """
-
         organization_list_for_user() should not return groups that the user is
         a member, editor or admin of.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1198,10 +1110,8 @@ class TestOrganizationListForUser(object):
 
     def test_that_it_does_not_return_previous_memberships(self):
         """
-
         organization_list_for_user() should return organizations that the user
         was previously an admin of.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1223,10 +1133,8 @@ class TestOrganizationListForUser(object):
 
     def test_when_user_is_sysadmin(self):
         """
-
         When the user is a sysadmin organization_list_for_user() should just
         return all organizations, even if the user is not a member of them.
-
         """
         user = factories.Sysadmin()
         context = {'user': user['name']}
@@ -1239,10 +1147,8 @@ class TestOrganizationListForUser(object):
 
     def test_that_it_does_not_return_deleted_organizations(self):
         """
-
         organization_list_for_user() should not return deleted organizations
         that the user was an admin of.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1263,10 +1169,8 @@ class TestOrganizationListForUser(object):
 
     def test_with_no_authorized_user(self):
         """
-
         organization_list_for_user() should return an empty list if there's no
         authorized user. Users who aren't logged-in don't have any permissions.
-
         """
         # Create an organization so we can test that it doesn't get returned.
         organization = factories.Organization()
