@@ -142,6 +142,8 @@ class GroupController(base.BaseController):
 
         q = c.q = request.params.get('q', '')
         data_dict = {'all_fields': True, 'q': q}
+        if group_type:
+            data_dict['type'] = group_type
         sort_by = c.sort_by_selected = request.params.get('sort')
         if sort_by:
             data_dict['sort'] = sort_by
@@ -168,8 +170,6 @@ class GroupController(base.BaseController):
 
     def read(self, id, limit=20):
         group_type = self._get_group_type(id.split('@')[0])
-        if group_type != self.group_type:
-            abort(404, _('Incorrect group type'))
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author,

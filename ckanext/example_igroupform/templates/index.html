@@ -1,0 +1,8 @@
+<h1> Index </h1>
+{% if c.page.items %}
+   {{ c.page.items }}
+   {#% snippet "node/snippets/node_list.html", nodes=c.page.items %#}
+{% else %}
+   None added
+{% endif %}
+
