@@ -2,6 +2,7 @@ import copy
 
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
+from ckan.lib import search
 
 from nose.tools import assert_equal
 
@@ -14,6 +15,7 @@ class GroupsTestCase(BaseModelApiTestCase):
 
     @classmethod
     def setup_class(cls):
+        search.clear()
         CreateTestData.create()
         cls.user_name = u'russianfan' # created in CreateTestData
         cls.init_extra_environ(cls.user_name)
