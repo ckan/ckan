@@ -1707,17 +1707,6 @@ def package_search(context, data_dict):
         for package in query.results:
             # get the package object
             package, package_dict = package['id'], package.get(data_source)
-            pkg_query = session.query(model.Package)\
-                .filter(model.Package.id == package)\
-                .filter(model.Package.state == u'active')
-            pkg = pkg_query.first()
-
-            ## if the index has got a package that is not in ckan then
-            ## ignore it.
-            if not pkg:
-                log.warning('package %s in index but not in database'
-                            % package)
-                continue
             ## use data in search index if there
             if package_dict:
                 ## the package_dict still needs translating when being viewed
