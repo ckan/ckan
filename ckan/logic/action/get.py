@@ -1358,17 +1358,13 @@ def user_show(context, data_dict):
 
         fq = "+creator_user_id:{0}".format(user_dict['id'])
 
+        search_dict = {'rows': 50}
+
         if include_private_and_draft_datasets:
             context['ignore_capacity_check'] = True
-            context['allow_drafts'] = True
-            fq += " +state:(active OR draft)"
-        else:
-            fq += " +state:active +capacity:public"
+            search_dict.update({'include_drafts': True})
 
-        search_dict = {
-            'fq': fq,
-            'rows': 50
-        }
+        search_dict.update({'fq': fq})
 
         user_dict['datasets'] = \
             logic.get_action('package_search')(context=context,
@@ -1585,7 +1581,11 @@ def package_search(context, data_dict):
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.
     :type facet.field: list of strings
-
+    :param include_drafts: if ``True``, draft datasets will be included in the
+        results. A user will only be returned their own draft datasets, and a
+        sysadmin will be returned all draft datasets. Optional, the default is
+        ``False``.
+    :type include_drafts: boolean
 
     The following advanced Solr parameters are supported as well. Note that
     some of these are only available on particular Solr versions. See Solr's
@@ -1660,6 +1660,7 @@ def package_search(context, data_dict):
 
     model = context['model']
     session = context['session']
+    user = context['user']
 
     _check_access('package_search', context, data_dict)
 
@@ -1695,13 +1696,21 @@ def package_search(context, data_dict):
                           if 'capacity:' not in p)
             data_dict['fq'] = fq + ' capacity:"public"'
 
-        # If `allow_drafts` isn't True in the context, remove any state key
-        # present in the fq., then +state:active will be added by query.run
+        # If present, Solr doesn't need 'include_drafts', so pop it.
+        include_drafts = data_dict.pop('include_drafts', False)
         fq = data_dict.get('fq', '')
-        if not context.get('allow_drafts', False):
-            fq = ' '.join(p for p in fq.split(' ')
-                          if 'state:' not in p)
-            data_dict['fq'] = fq
+        if include_drafts:
+            user_id = authz.get_user_id_for_username(user, allow_none=True)
+            if authz.is_sysadmin(user):
+                data_dict['fq'] = fq + ' +state:(active OR draft)'
+            elif user_id:
+                # Query to return all active datasets, and all draft datasets
+                # for this user.
+                data_dict['fq'] = fq + \
+                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
+                    ' OR state:active)'.format(user_id)
+        elif not authz.is_sysadmin(user):
+            data_dict['fq'] = fq + ' +state:active'
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)

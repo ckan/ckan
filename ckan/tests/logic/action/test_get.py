@@ -787,7 +787,8 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
     def test_package_search_excludes_private_and_drafts(self):
         '''
-        package_search() should not return private and draft datasets.
+        package_search() with no options should not return private and draft
+        datasets.
         '''
         user = factories.User()
         org = factories.Organization(user=user)
@@ -801,10 +802,47 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         eq(len(results), 1)
         eq(results[0]['name'], dataset['name'])
 
-    def test_package_search_excludes_drafts_even_with_fq(self):
+    def test_package_search_with_fq_excludes_private(self):
         '''
-        package_search() should not return draft datasets for non authorized
-        users, even with fq
+        package_search() with fq capacity:private should not return private
+        and draft datasets.
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        factories.Dataset(user=user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        fq = "capacity:private"
+        results = helpers.call_action('package_search', fq=fq)['results']
+
+        eq(len(results), 1)
+        eq(results[0]['name'], dataset['name'])
+
+    def test_package_search_with_fq_excludes_drafts(self):
+        '''
+        An anon user can't use fq drafts to get draft datasets. Nothing is
+        returned.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user, name="dataset")
+        factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        factories.Dataset(user=user, state='draft', name="draft-dataset")
+        factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "state:draft"
+        results = helpers.call_action('package_search', fq=fq)['results']
+
+        eq(len(results), 0)
+
+    def test_package_search_with_include_drafts_option_excludes_drafts_for_anon_user(self):
+        '''
+        An anon user can't user include_drafts to get draft datasets.
         '''
         user = factories.User()
         org = factories.Organization(user=user)
@@ -813,29 +851,176 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         draft_dataset = factories.Dataset(user=user, state='draft')
         factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        results = helpers.call_action('package_search', fq="+state:draft")['results']
+        results = helpers.call_action('package_search', include_drafts=True)['results']
 
         eq(len(results), 1)
         nose.tools.assert_not_equals(results[0]['name'], draft_dataset['name'])
         nose.tools.assert_equal(results[0]['name'], dataset['name'])
 
-    def test_package_search_includes_drafts_with_allow_drafts_in_context(self):
+    def test_package_search_with_include_drafts_option_includes_drafts_for_sysadmin(self):
         '''
-        package_search() can include draft datasets when `allow_drafts` is
-        in context.
+        A sysadmin can use the include_drafts option to get draft datasets for
+        all users.
         '''
         user = factories.User()
+        other_user = factories.User()
+        sysadmin = factories.Sysadmin()
         org = factories.Organization(user=user)
-        factories.Dataset(user=user)
+        dataset = factories.Dataset(user=user)
         factories.Dataset(user=user, state='deleted')
         draft_dataset = factories.Dataset(user=user, state='draft')
+        other_draft_dataset = factories.Dataset(user=other_user, state='draft')
         factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        results = helpers.call_action('package_search', fq="+state:draft",
-                                      context={'allow_drafts': True})['results']
+        results = helpers.call_action('package_search', include_drafts=True,
+                                      context={'user': sysadmin['name']})['results']
+
+        eq(len(results), 3)
+        names = [r['name'] for r in results]
+        nose.tools.assert_true(draft_dataset['name'] in names)
+        nose.tools.assert_true(other_draft_dataset['name'] in names)
+        nose.tools.assert_true(dataset['name'] in names)
+
+    def test_package_search_with_include_drafts_option_includes_drafts_for_user(self):
+        '''
+        The include_drafts option will include draft datasets for the
+        authorized user, but not drafts for other users.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user, name="dataset")
+        other_dataset = factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        draft_dataset = factories.Dataset(user=user, state='draft', name="draft-dataset")
+        other_draft_dataset = factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        results = helpers.call_action('package_search', include_drafts=True,
+                                      context={'user': user['name']})['results']
+
+        eq(len(results), 3)
+        names = [r['name'] for r in results]
+        nose.tools.assert_true(draft_dataset['name'] in names)
+        nose.tools.assert_true(other_draft_dataset['name'] not in names)
+        nose.tools.assert_true(dataset['name'] in names)
+        nose.tools.assert_true(other_dataset['name'] in names)
+
+    def test_package_search_with_fq_for_create_user_id_will_include_datasets_for_other_users(self):
+        '''
+        A normal user can use the fq creator_user_id to get active datasets
+        (but not draft) for another user.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user, name="dataset")
+        other_dataset = factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        draft_dataset = factories.Dataset(user=user, state='draft', name="draft-dataset")
+        other_draft_dataset = factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "creator_user_id:{0}".format(other_user['id'])
+        results = helpers.call_action('package_search', fq=fq,
+                                      context={'user': user['name']})['results']
 
         eq(len(results), 1)
-        eq(results[0]['name'], draft_dataset['name'])
+        names = [r['name'] for r in results]
+        nose.tools.assert_true(draft_dataset['name'] not in names)
+        nose.tools.assert_true(other_draft_dataset['name'] not in names)
+        nose.tools.assert_true(dataset['name'] not in names)
+        nose.tools.assert_true(other_dataset['name'] in names)
+
+    def test_package_search_with_fq_for_create_user_id_will_not_include_drafts_for_other_users(self):
+        '''
+        A normal user can't use fq creator_user_id and drafts to get draft
+        datasets for another user.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user, name="dataset")
+        factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        factories.Dataset(user=user, state='draft', name="draft-dataset")
+        factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "(creator_user_id:{0} AND +state:draft)".format(other_user['id'])
+        results = helpers.call_action('package_search', fq=fq,
+                                      context={'user': user['name']})['results']
+
+        eq(len(results), 0)
+
+    def test_package_search_with_fq_for_creator_user_id_and_drafts_and_include_drafts_option_will_not_include_drafts_for_other_user(self):
+        '''
+        A normal user can't use fq creator_user_id and drafts and the
+        include_drafts option to get draft datasets for another user.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user, name="dataset")
+        factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        factories.Dataset(user=user, state='draft', name="draft-dataset")
+        factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "(creator_user_id:{0} AND +state:draft)".format(other_user['id'])
+        results = helpers.call_action('package_search', fq=fq, include_drafts=True,
+                                      context={'user': user['name']})['results']
+
+        eq(len(results), 0)
+
+    def test_package_search_with_fq_for_creator_user_id_and_include_drafts_option_will_not_include_drafts_for_other_user(self):
+        '''
+        A normal user can't use fq creator_user_id and the include_drafts
+        option to get draft datasets for another user.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user, name="dataset")
+        other_dataset = factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        factories.Dataset(user=user, state='draft', name="draft-dataset")
+        other_draft_dataset = factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "creator_user_id:{0}".format(other_user['id'])
+        results = helpers.call_action('package_search', fq=fq, include_drafts=True,
+                                      context={'user': user['name']})['results']
+
+        names = [r['name'] for r in results]
+        eq(len(results), 1)
+        nose.tools.assert_true(other_dataset['name'] in names)
+        nose.tools.assert_true(other_draft_dataset['name'] not in names)
+
+    def test_package_search_with_fq_for_create_user_id_will_include_drafts_for_other_users_for_sysadmin(self):
+        '''
+        Sysadmins can use fq to get draft datasets for another user.
+        '''
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user, name="dataset")
+        factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        draft_dataset = factories.Dataset(user=user, state='draft', name="draft-dataset")
+        factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "(creator_user_id:{0} AND +state:draft)".format(user['id'])
+        results = helpers.call_action('package_search', fq=fq,
+                                      context={'user': sysadmin['name']})['results']
+
+        names = [r['name'] for r in results]
+        eq(len(results), 1)
+        nose.tools.assert_true(dataset['name'] not in names)
+        nose.tools.assert_true(draft_dataset['name'] in names)
 
     def test_package_search_private_with_ignore_capacity_check(self):
         '''
@@ -849,30 +1034,12 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, state='draft')
         private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        results = helpers.call_action('package_search', fq='+capacity:"private"',
+        fq = '+capacity:"private"'
+        results = helpers.call_action('package_search', fq=fq,
                                       context={'ignore_capacity_check': True})['results']
 
         eq(len(results), 1)
         eq(results[0]['name'], private_dataset['name'])
-
-    def test_package_search_excludes_private_even_with_fq(self):
-        '''
-        package_search() not return private datasets when
-        `ignore_capacity_check` is absent, even if fq specifies it. The normal
-        active dataset result is returned.
-        '''
-        user = factories.User()
-        org = factories.Organization(user=user)
-        dataset = factories.Dataset(user=user)
-        factories.Dataset(user=user, state='deleted')
-        factories.Dataset(user=user, state='draft')
-        private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
-
-        results = helpers.call_action('package_search', fq='+capacity:"private"')['results']
-
-        eq(len(results), 1)
-        nose.tools.assert_not_equals(results[0]['name'], private_dataset['name'])
-        nose.tools.assert_equal(results[0]['name'], dataset['name'])
 
 
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
