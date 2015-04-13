@@ -3,6 +3,7 @@ import urllib2
 import re
 
 from pylons import config
+from paste.deploy.converters import asbool
 
 from ckan.common import _, json
 
@@ -11,6 +12,16 @@ class License(object):
     """Domain object for a license."""
 
     def __init__(self, data):
+        # convert old keys if necessary
+        if 'is_okd_compliant' in data:
+            data['od_conformance'] = 'approved' \
+                if asbool(data['is_okd_compliant']) else ''
+            del data['is_okd_compliant']
+        if 'is_osi_compliant' in data:
+            data['osd_conformance'] = 'approved' \
+                if asbool(data['is_osi_compliant']) else ''
+            del data['is_osi_compliant']
+
         self._data = data
         for (key, value) in self._data.items():
             if key == 'date_created':
@@ -29,7 +40,10 @@ class License(object):
         return self._data[key]
 
     def isopen(self):
-        return self.is_okd_compliant or self.is_osi_compliant
+        if not hasattr(self, '_isopen'):
+            self._isopen = self.od_conformance == 'approved' or \
+                self.osd_conformance == 'approved'
+        return self._isopen
 
     def as_dict(self):
         data = self._data.copy()
@@ -73,12 +87,12 @@ class LicenseRegister(object):
             response_body = response.read()
         except Exception, inst:
             msg = "Couldn't connect to licenses service %r: %s" % (license_url, inst)
-            raise Exception, msg
+            raise Exception(msg)
         try:
             license_data = json.loads(response_body)
         except Exception, inst:
             msg = "Couldn't read response from licenses service %r: %s" % (response_body, inst)
-            raise Exception, inst
+            raise Exception(inst)
         self._create_license_list(license_data, license_url)
 
     def _create_license_list(self, license_data, license_url=''):
@@ -97,7 +111,7 @@ class LicenseRegister(object):
         if default != Exception:
             return default
         else:
-            raise KeyError, "License not found: %s" % key
+            raise KeyError("License not found: %s" % key)
 
     def get(self, key, default=None):
         return self.__getitem__(key, default=default)
@@ -118,7 +132,6 @@ class LicenseRegister(object):
         return len(self.licenses)
 
 
-
 class DefaultLicense(dict):
     ''' The license was a dict but this did not allow translation of the
     title.  This is a slightly changed dict that allows us to have the title
@@ -127,13 +140,13 @@ class DefaultLicense(dict):
     domain_content = False
     domain_data = False
     domain_software = False
-    family = ""
+    family = ''
     is_generic = False
-    is_okd_compliant = False
-    is_osi_compliant = False
-    maintainer = ""
-    status = "active"
-    url = ""
+    od_conformance = 'not reviewed'
+    osd_conformance = 'not reviewed'
+    maintainer = ''
+    status = 'active'
+    url = ''
     title = ''
     id = ''
 
@@ -143,8 +156,8 @@ class DefaultLicense(dict):
             'domain_software',
             'family',
             'is_generic',
-            'is_okd_compliant',
-            'is_osi_compliant',
+            'od_conformance',
+            'osd_conformance',
             'maintainer',
             'status',
             'url',
@@ -179,7 +192,7 @@ class LicenseNotSpecified(DefaultLicense):
 class LicenseOpenDataCommonsPDDL(DefaultLicense):
     domain_data = True
     id = "odc-pddl"
-    is_okd_compliant = True
+    od_conformance = 'approved'
     url = "http://www.opendefinition.org/licenses/odc-pddl"
 
     @property
@@ -189,7 +202,7 @@ class LicenseOpenDataCommonsPDDL(DefaultLicense):
 class LicenseOpenDataCommonsOpenDatabase(DefaultLicense):
     domain_data = True
     id = "odc-odbl"
-    is_okd_compliant = True
+    od_conformance = 'approved'
     url = "http://www.opendefinition.org/licenses/odc-odbl"
 
     @property
@@ -199,7 +212,7 @@ class LicenseOpenDataCommonsOpenDatabase(DefaultLicense):
 class LicenseOpenDataAttribution(DefaultLicense):
     domain_data = True
     id = "odc-by"
-    is_okd_compliant = True
+    od_conformance = 'approved'
     url = "http://www.opendefinition.org/licenses/odc-by"
 
     @property
@@ -210,7 +223,7 @@ class LicenseCreativeCommonsZero(DefaultLicense):
     domain_content = True
     domain_data = True
     id = "cc-zero"
-    is_okd_compliant = True
+    od_conformance = 'approved'
     url = "http://www.opendefinition.org/licenses/cc-zero"
 
     @property
@@ -219,7 +232,7 @@ class LicenseCreativeCommonsZero(DefaultLicense):
 
 class LicenseCreativeCommonsAttribution(DefaultLicense):
     id = "cc-by"
-    is_okd_compliant = True
+    od_conformance = 'approved'
     url = "http://www.opendefinition.org/licenses/cc-by"
 
     @property
@@ -229,7 +242,7 @@ class LicenseCreativeCommonsAttribution(DefaultLicense):
 class LicenseCreativeCommonsAttributionShareAlike(DefaultLicense):
     domain_content = True
     id = "cc-by-sa"
-    is_okd_compliant = True
+    od_conformance = 'approved'
     url = "http://www.opendefinition.org/licenses/cc-by-sa"
 
     @property
@@ -239,7 +252,7 @@ class LicenseCreativeCommonsAttributionShareAlike(DefaultLicense):
 class LicenseGNUFreeDocument(DefaultLicense):
     domain_content = True
     id = "gfdl"
-    is_okd_compliant = True
+    od_conformance = 'approved'
     url = "http://www.opendefinition.org/licenses/gfdl"
     @property
     def title(self):
@@ -249,7 +262,7 @@ class LicenseOtherOpen(DefaultLicense):
     domain_content = True
     id = "other-open"
     is_generic = True
-    is_okd_compliant = True
+    od_conformance = 'approved'
 
     @property
     def title(self):
@@ -259,7 +272,7 @@ class LicenseOtherPublicDomain(DefaultLicense):
     domain_content = True
     id = "other-pd"
     is_generic = True
-    is_okd_compliant = True
+    od_conformance = 'approved'
 
     @property
     def title(self):
@@ -269,7 +282,7 @@ class LicenseOtherAttribution(DefaultLicense):
     domain_content = True
     id = "other-at"
     is_generic = True
-    is_okd_compliant = True
+    od_conformance = 'approved'
 
     @property
     def title(self):
@@ -278,7 +291,7 @@ class LicenseOtherAttribution(DefaultLicense):
 class LicenseOpenGovernment(DefaultLicense):
     domain_content = True
     id = "uk-ogl"
-    is_okd_compliant = True
+    od_conformance = 'approved'
     # CS: bad_spelling ignore
     url = "http://reference.data.gov.uk/id/open-government-licence"
 
