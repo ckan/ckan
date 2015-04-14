@@ -222,7 +222,6 @@ def make_map():
                   ])))
         m.connect('/dataset/{action}/{id}',
                   requirements=dict(action='|'.join([
-                      'new_metadata',
                       'new_resource',
                       'history',
                       'read_ajax',
