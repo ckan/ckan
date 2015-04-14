@@ -20,7 +20,7 @@ from ckan.tests.legacy import setup_test_search_index, search_related
 from ckan.tests.legacy import StatusCodes
 from ckan.logic import get_action, NotAuthorized
 from ckan.logic.action import get_domain_object
-from ckan.tests.legacy import TestRoles, call_action_api
+from ckan.tests.legacy import call_action_api
 import ckan.lib.search as search
 
 from ckan import plugins

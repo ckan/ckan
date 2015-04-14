@@ -779,8 +779,6 @@ class TestActionAuth(object):
         'update: package_relationship_update_rest',
         'update: task_status_update_many',
         'update: term_translation_update_many',
-        'update: user_role_bulk_update',
-        'update: user_role_update',
     ]
 
     AUTH_NO_ACTION_BLACKLIST = [

@@ -368,42 +368,6 @@ except ImportError:
     def assert_not_in(a, b, msg=None):
         assert a not in b, msg or '%r was in %r' % (a, b)
 
-class TestRoles:
-    @classmethod
-    def get_roles(cls, domain_object_ref, user_ref=None,
-                  prettify=True):
-        data_dict = {'domain_object': domain_object_ref}
-        if user_ref:
-            data_dict['user'] = user_ref
-        role_dicts = get_action('roles_show') \
-                     ({'model': model, 'session': model.Session}, \
-                      data_dict)['roles']
-        if prettify:
-            role_dicts = cls.prettify_role_dicts(role_dicts)
-        return role_dicts
-
-    @classmethod
-    def prettify_role_dicts(cls, role_dicts, one_per_line=True):
-        '''Replace ids with names'''
-        pretty_roles = []
-        for role_dict in role_dicts:
-            pretty_role = {}
-            for key, value in role_dict.items():
-                if key.endswith('_id') and value:
-                    pretty_key = key[:key.find('_id')]
-                    domain_object = get_domain_object(model, value)
-                    pretty_value = domain_object.name
-                    pretty_role[pretty_key] = pretty_value
-                else:
-                    pretty_role[key] = value
-            if one_per_line:
-                pretty_role = '"%s" is "%s" on "%s"' % (
-                    pretty_role.get('user'),
-                    pretty_role['role'],
-                    pretty_role.get('package') or pretty_role.get('group') or pretty_role.get('context'))
-            pretty_roles.append(pretty_role)
-        return pretty_roles
-
 
 class StatusCodes:
     STATUS_200_OK = 200
