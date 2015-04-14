@@ -282,7 +282,8 @@ class UserController(base.BaseController):
 
             schema = self._db_to_edit_form_schema()
             if schema:
-                old_data, errors = dictization_functions.validate(old_data, schema, context)
+                old_data, errors = \
+                    dictization_functions.validate(old_data, schema, context)
 
             c.display_name = old_data.get('display_name')
             c.user_name = old_data.get('name')
