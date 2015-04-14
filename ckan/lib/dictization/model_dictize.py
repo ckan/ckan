@@ -19,7 +19,7 @@ import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckan.lib.dictization as d
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 import ckan.lib.search as search
 import ckan.lib.munge as munge
 
@@ -116,8 +116,7 @@ def resource_dictize(res, context):
     ## for_edit is only called at the times when the dataset is to be edited
     ## in the frontend. Without for_edit the whole qualified url is returned.
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
-        last_part = url.split('/')[-1]
-        cleaned_name = munge.munge_filename(last_part)
+        cleaned_name = munge.munge_filename(url)
         resource['url'] = h.url_for(controller='package',
                                     action='resource_download',
                                     id=resource['package_id'],
@@ -399,7 +398,7 @@ def group_dictize(group, context,
             # Allow members of organizations to see private datasets.
             if group_.is_organization:
                 is_group_member = (context.get('user') and
-                    new_authz.has_user_permission_for_group_or_org(
+                    authz.has_user_permission_for_group_or_org(
                         group_.id, context.get('user'), 'read'))
                 if is_group_member:
                     context['ignore_capacity_check'] = True
@@ -472,7 +471,7 @@ def group_dictize(group, context,
     if image_url and not image_url.startswith('http'):
         #munge here should not have an effect only doing it incase
         #of potential vulnerability of dodgy api input
-        image_url = munge.munge_filename(image_url)
+        image_url = munge.munge_filename_legacy(image_url)
         result_dict['image_display_url'] = h.url_for_static(
             'uploads/group/%s' % result_dict.get('image_url'),
             qualified=True
@@ -574,7 +573,9 @@ def user_dictize(user, context):
     result_dict['display_name'] = user.display_name
     result_dict['email_hash'] = user.email_hash
     result_dict['number_of_edits'] = user.number_of_edits()
-    result_dict['number_administered_packages'] = user.number_administered_packages()
+    result_dict['number_created_packages'] = user.number_created_packages(
+        include_private_and_draft=context.get(
+            'count_private_and_draft_datasets', False))
 
     requester = context.get('user')
 
@@ -593,7 +594,7 @@ def user_dictize(user, context):
         result_dict['email'] = email
 
     ## this should not really really be needed but tests need it
-    if new_authz.is_sysadmin(requester):
+    if authz.is_sysadmin(requester):
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 

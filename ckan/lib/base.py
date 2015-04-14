@@ -209,7 +209,6 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         response.headers["Cache-Control"] = "private"
         # Prevent any further rendering from being cached.
         request.environ['__no_cache__'] = True
-    log.debug('Template cache-control: %s' % response.headers["Cache-Control"])
 
     # Render Time :)
     try:

@@ -1,7 +1,5 @@
 '''API functions for deleting data from CKAN.'''
 
-from sqlalchemy import or_
-
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
@@ -97,7 +95,7 @@ def resource_delete(context, data_dict):
     package_id = entity.get_package_id()
 
     pkg_dict = _get_action('package_show')(context, {'id': package_id})
-    
+
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_delete(context, data_dict,
                              pkg_dict.get('resources', []))
@@ -136,6 +134,22 @@ def resource_view_delete(context, data_dict):
     _check_access('resource_view_delete', context, data_dict)
 
     resource_view.delete()
+    model.repo.commit()
+
+
+def resource_view_clear(context, data_dict):
+    '''Delete all resource views, or all of a particular type.
+
+    :param view_types: specific types to delete (optional)
+    :type view_types: list
+
+    '''
+    model = context['model']
+
+    _check_access('resource_view_clear', context, data_dict)
+
+    view_types = data_dict.get('view_types')
+    model.ResourceView.delete_all(view_types)
     model.repo.commit()
 
 
@@ -280,6 +294,8 @@ def _group_or_org_delete(context, data_dict, is_org=False):
     :type id: string
 
     '''
+    from sqlalchemy import or_
+
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, 'id')

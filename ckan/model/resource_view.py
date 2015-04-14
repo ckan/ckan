@@ -49,5 +49,15 @@ class ResourceView(domain_object.DomainObject):
 
         return query.delete(synchronize_session='fetch')
 
+    @classmethod
+    def delete_all(cls, view_types=[]):
+        '''Delete all Resource Views, or all of a particular type'''
+        query = meta.Session.query(ResourceView)
+
+        if view_types:
+            query = query.filter(ResourceView.view_type.in_(view_types))
+
+        return query.delete(synchronize_session='fetch')
+
 
 meta.mapper(ResourceView, resource_view_table)

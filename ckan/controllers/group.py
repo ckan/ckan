@@ -15,7 +15,7 @@ import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.lib.search as search
 import ckan.model as model
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 import ckan.lib.plugins
 import ckan.plugins as plugins
 from ckan.common import OrderedDict, c, g, request, _
@@ -215,7 +215,7 @@ class GroupController(base.BaseController):
 
         # c.group_admins is used by CKAN's legacy (Genshi) templates only,
         # if we drop support for those then we can delete this line.
-        c.group_admins = new_authz.get_group_or_org_admin_ids(c.group.id)
+        c.group_admins = authz.get_group_or_org_admin_ids(c.group.id)
 
         page = self._get_page_number(request.params)
 
@@ -378,7 +378,7 @@ class GroupController(base.BaseController):
         try:
             # Do not query for the group datasets when dictizing, as they will
             # be ignored and get requested on the controller anyway
-            context['include_datasets'] = False
+            data_dict['include_datasets'] = False
             c.group_dict = self._action('group_show')(context, data_dict)
             c.group = context['group']
         except NotFound:
@@ -476,6 +476,7 @@ class GroupController(base.BaseController):
             return self._save_edit(id, context)
 
         try:
+            data_dict['include_datasets'] = False
             old_data = self._action('group_show')(context, data_dict)
             c.grouptitle = old_data.get('title')
             c.groupname = old_data.get('name')
@@ -625,7 +626,9 @@ class GroupController(base.BaseController):
             c.members = self._action('member_list')(
                 context, {'id': id, 'object_type': 'user'}
             )
-            c.group_dict = self._action('group_show')(context, {'id': id})
+            data_dict = {'id': id}
+            data_dict['include_datasets'] = False
+            c.group_dict = self._action('group_show')(context, data_dict)
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
@@ -638,7 +641,9 @@ class GroupController(base.BaseController):
 
         #self._check_access('group_delete', context, {'id': id})
         try:
-            c.group_dict = self._action('group_show')(context, {'id': id})
+            data_dict = {'id': id}
+            data_dict['include_datasets'] = False
+            c.group_dict = self._action('group_show')(context, data_dict)
             group_type = 'organization' if c.group_dict['is_organization'] else 'group'
             c.roles = self._action('member_roles_list')(
                 context, {'group_type': group_type}
@@ -670,7 +675,7 @@ class GroupController(base.BaseController):
                 user = request.params.get('user')
                 if user:
                     c.user_dict = get_action('user_show')(context, {'id': user})
-                    c.user_role = new_authz.users_role_for_group_or_org(id, user) or 'member'
+                    c.user_role = authz.users_role_for_group_or_org(id, user) or 'member'
                 else:
                     c.user_role = 'member'
         except NotAuthorized:
@@ -817,11 +822,11 @@ class GroupController(base.BaseController):
             h.flash_success(_("You are now following {0}").format(
                 group_dict['title']))
         except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
+            error_message = (e.message or e.error_summary
                              or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
-            h.flash_error(e.extra_msg)
+            h.flash_error(e.message)
         h.redirect_to(controller='group', action='read', id=id)
 
     def unfollow(self, id):
@@ -836,11 +841,11 @@ class GroupController(base.BaseController):
             h.flash_success(_("You are no longer following {0}").format(
                 group_dict['title']))
         except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
+            error_message = (e.message or e.error_summary
                              or e.error_dict)
             h.flash_error(error_message)
         except (NotFound, NotAuthorized) as e:
-            error_message = e.extra_msg or e.message
+            error_message = e.message
             h.flash_error(error_message)
         h.redirect_to(controller='group', action='read', id=id)
 
@@ -856,7 +861,7 @@ class GroupController(base.BaseController):
 
     def admins(self, id):
         c.group_dict = self._get_group_dict(id)
-        c.admins = new_authz.get_group_or_org_admin_ids(id)
+        c.admins = authz.get_group_or_org_admin_ids(id)
         return render(self._admins_template(c.group_dict['type']))
 
     def about(self, id):
@@ -875,7 +880,7 @@ class GroupController(base.BaseController):
                    'user': c.user or c.author,
                    'for_view': True}
         try:
-            return self._action('group_show')(context, {'id': id})
+            return self._action('group_show')(context, {'id': id, 'include_datasets': False})
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:

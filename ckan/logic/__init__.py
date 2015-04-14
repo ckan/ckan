@@ -6,7 +6,7 @@ import sys
 import formencode.validators
 
 import ckan.model as model
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
 
@@ -34,14 +34,7 @@ class AttributeDict(dict):
 
 
 class ActionError(Exception):
-    def __init__(self, extra_msg=None):
-        self.extra_msg = extra_msg
-
-    def __str__(self):
-        err_msgs = (super(ActionError, self).__str__(),
-                    self.extra_msg)
-        return ' - '.join([str(err_msg) for err_msg in err_msgs if err_msg])
-
+    pass
 
 class NotFound(ActionError):
     '''Exception raised by logic functions when a given object is not found.
@@ -84,7 +77,7 @@ class ValidationError(ActionError):
             error_dict['tags'] = tag_errors
         self.error_dict = error_dict
         self._error_summary = error_summary
-        self.extra_msg = extra_msg
+        super(ValidationError, self).__init__(extra_msg)
 
     @property
     def error_summary(self):
@@ -280,25 +273,31 @@ def check_access(action, context, data_dict=None):
         context['__auth_audit'].pop()
 
     user = context.get('user')
-    log.debug('check access - user %r, action %s' % (user, action))
 
-    if not 'auth_user_obj' in context:
-        context['auth_user_obj'] = None
+    try:
+        if not 'auth_user_obj' in context:
+            context['auth_user_obj'] = None
 
-    if not context.get('ignore_auth'):
-        if not context.get('__auth_user_obj_checked'):
-            if context.get('user') and not context.get('auth_user_obj'):
-                context['auth_user_obj'] = model.User.by_name(context['user'])
-            context['__auth_user_obj_checked'] = True
+        if not context.get('ignore_auth'):
+            if not context.get('__auth_user_obj_checked'):
+                if context.get('user') and not context.get('auth_user_obj'):
+                    context['auth_user_obj'] = \
+                        model.User.by_name(context['user'])
+                context['__auth_user_obj_checked'] = True
 
-    context = _prepopulate_context(context)
+        context = _prepopulate_context(context)
 
-    logic_authorization = new_authz.is_authorized(action, context, data_dict)
-    if not logic_authorization['success']:
-        msg = logic_authorization.get('msg', '')
-        raise NotAuthorized(msg)
+        logic_authorization = authz.is_authorized(action, context,
+                                                  data_dict)
+        if not logic_authorization['success']:
+            msg = logic_authorization.get('msg', '')
+            raise NotAuthorized(msg)
+    except NotAuthorized, e:
+        log.debug(u'check access NotAuthorized - %s user=%s "%s"',
+                  action, user, unicode(e))
+        raise
 
-    log.debug('Access OK.')
+    log.debug('check access OK - %s user=%s', action, user)
     return True
 
 
@@ -393,7 +392,6 @@ def get_action(action):
                         resolved_action_plugins[name]
                     )
                 )
-            log.debug('Action function {0} from plugin {1} was inserted'.format(name, plugin.name))
             resolved_action_plugins[name] = plugin.name
             # Extensions are exempted from the auth audit for now
             # This needs to be resolved later
@@ -412,11 +410,13 @@ def get_action(action):
 
                 context = _prepopulate_context(context)
 
-                # Auth Auditing
-                # store this action name in the auth audit so we can see if
-                # check access was called on the function we store the id of
-                # the action incase the action is wrapped inside an action
-                # of the same name.  this happens in the datastore
+                # Auth Auditing - checks that the action function did call
+                # check_access (unless there is no accompanying auth function).
+                # We push the action name and id onto the __auth_audit stack
+                # before calling the action, and check_access removes it.
+                # (We need the id of the action in case the action is wrapped
+                # inside an action of the same name, which happens in the
+                # datastore)
                 context.setdefault('__auth_audit', [])
                 context['__auth_audit'].append((action_name, id(_action)))
 
@@ -425,7 +425,7 @@ def get_action(action):
                 try:
                     audit = context['__auth_audit'][-1]
                     if audit[0] == action_name and audit[1] == id(_action):
-                        if action_name not in new_authz.auth_functions_list():
+                        if action_name not in authz.auth_functions_list():
                             log.debug('No auth function for %s' % action_name)
                         elif not getattr(_action, 'auth_audit_exempt', False):
                             raise Exception(

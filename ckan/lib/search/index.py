@@ -106,6 +106,13 @@ class PackageSearchIndex(SearchIndex):
         if pkg_dict is None:
             return
 
+        # tracking summary values will be stale, never store them
+        tracking_summary = pkg_dict.pop('tracking_summary', None)
+        for r in pkg_dict.get('resources', []):
+            r.pop('tracking_summary', None)
+
+        data_dict_json = json.dumps(pkg_dict)
+
         if config.get('ckan.cache_validated_datasets', True):
             package_plugin = lib_plugins.lookup_package_plugin(
                 pkg_dict.get('type'))
@@ -117,7 +124,7 @@ class PackageSearchIndex(SearchIndex):
             pkg_dict['validated_data_dict'] = json.dumps(validated_pkg_dict,
                 cls=ckan.lib.navl.dictization_functions.MissingNullEncoder)
 
-        pkg_dict['data_dict'] = json.dumps(pkg_dict)
+        pkg_dict['data_dict'] = data_dict_json
 
         # add to string field for sorting
         title = pkg_dict.get('title')
@@ -180,10 +187,11 @@ class PackageSearchIndex(SearchIndex):
            pkg_dict['organization'] = None
 
         # tracking
-        tracking_summary = pkg_dict.pop('tracking_summary', None)
-        if tracking_summary:
-            pkg_dict['views_total'] = tracking_summary['total']
-            pkg_dict['views_recent'] = tracking_summary['recent']
+        if not tracking_summary:
+            tracking_summary = model.TrackingSummary.get_for_package(
+                pkg_dict['id'])
+        pkg_dict['views_total'] = tracking_summary['total']
+        pkg_dict['views_recent'] = tracking_summary['recent']
 
         resource_fields = [('name', 'res_name'),
                            ('description', 'res_description'),
@@ -291,7 +299,7 @@ class PackageSearchIndex(SearchIndex):
         finally:
             conn.close()
 
-        commit_debug_msg = 'Not commited yet' if defer_commit else 'Commited'
+        commit_debug_msg = 'Not committed yet' if defer_commit else 'Committed'
         log.debug('Updated index for %s [%s]' % (pkg_dict.get('name'), commit_debug_msg))
 
     def commit(self):

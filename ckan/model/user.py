@@ -196,13 +196,17 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         revisions_q = revisions_q.filter_by(author=self.name)
         return revisions_q.count()
 
-    def number_administered_packages(self):
+    def number_created_packages(self, include_private_and_draft=False):
         # have to import here to avoid circular imports
         import ckan.model as model
-        #q = meta.Session.query(model.PackageRole)
-        #q = q.filter_by(user=self, role=model.Role.ADMIN)
-        #return q.count()
-        return 0
+        q = meta.Session.query(model.Package)\
+            .filter_by(creator_user_id=self.id)
+        if include_private_and_draft:
+            q = q.filter(model.Package.state != 'deleted')
+        else:
+            q = q.filter_by(state='active')\
+                 .filter_by(private=False)
+        return q.count()
 
     def activate(self):
         ''' Activate the user '''
@@ -269,8 +273,8 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
             cls.openid.ilike(qstr),
         ]
         # sysadmins can search on user emails
-        import ckan.new_authz as new_authz
-        if user_name and new_authz.is_sysadmin(user_name):
+        import ckan.authz as authz
+        if user_name and authz.is_sysadmin(user_name):
             filters.append(cls.email.ilike(qstr))
 
         query = query.filter(or_(*filters))

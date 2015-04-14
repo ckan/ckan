@@ -328,7 +328,7 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_tracking': True}
 
         try:
             check_access('package_update', context, data_dict)
@@ -369,7 +369,7 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'include_tracking': True}
 
         # interpret @<revision_id> or @<date> suffix
         split = id.split('@')
@@ -1098,7 +1098,7 @@ class PackageController(base.BaseController):
 
     def resource_read(self, id, resource_id):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj, "for_view":True}
 
         try:
             c.package = get_action('package_show')(context, {'id': id})
@@ -1213,11 +1213,11 @@ class PackageController(base.BaseController):
             h.flash_success(_("You are now following {0}").format(
                 package_dict['title']))
         except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
+            error_message = (e.message or e.error_summary
                     or e.error_dict)
             h.flash_error(error_message)
         except NotAuthorized as e:
-            h.flash_error(e.extra_msg)
+            h.flash_error(e.message)
         h.redirect_to(controller='package', action='read', id=id)
 
     def unfollow(self, id):
@@ -1232,11 +1232,11 @@ class PackageController(base.BaseController):
             h.flash_success(_("You are no longer following {0}").format(
                 package_dict['title']))
         except ValidationError as e:
-            error_message = (e.extra_msg or e.message or e.error_summary
+            error_message = (e.message or e.error_summary
                     or e.error_dict)
             h.flash_error(error_message)
         except (NotFound, NotAuthorized) as e:
-            error_message = e.extra_msg or e.message
+            error_message = e.message
             h.flash_error(error_message)
         h.redirect_to(controller='package', action='read', id=id)
 
@@ -1509,9 +1509,9 @@ class PackageController(base.BaseController):
                     get_action('resource_view_delete')(context, data)
                 elif view_id:
                     data['id'] = view_id
-                    get_action('resource_view_update')(context, data)
+                    data = get_action('resource_view_update')(context, data)
                 else:
-                    get_action('resource_view_create')(context, data)
+                    data = get_action('resource_view_create')(context, data)
             except ValidationError, e:
                 ## Could break preview if validation error
                 to_preview = False
@@ -1562,7 +1562,8 @@ class PackageController(base.BaseController):
                 'data': data,
                 'errors': errors,
                 'error_summary': error_summary,
-                'to_preview': to_preview}
+                'to_preview': to_preview,
+                'datastore_available': p.plugin_loaded('datastore')}
         vars.update(
             view_plugin.setup_template_variables(context, data_dict) or {})
         vars.update(data_dict)
@@ -1578,7 +1579,7 @@ class PackageController(base.BaseController):
 
         Depending on the type, different views are loaded. This could be an
         img tag where the image is loaded directly or an iframe that embeds a
-        webpage, recline or a pdf preview.
+        webpage or a recline preview.
         '''
         context = {'model': model,
                    'session': model.Session,
@@ -1627,7 +1628,7 @@ class PackageController(base.BaseController):
 
         Depending on the type, different previews are loaded.  This could be an
         img tag where the image is loaded directly or an iframe that embeds a
-        webpage, recline or a pdf preview.
+        webpage, or a recline preview.
         '''
         context = {
             'model': model,

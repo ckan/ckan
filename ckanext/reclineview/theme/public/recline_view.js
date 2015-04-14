@@ -35,7 +35,6 @@ this.ckan.module('recline_view', function (jQuery, _) {
         window.parent.ckan.pubsub.publish('data-viewer-error', msg);
       }
 
-      resourceData.url  = this.normalizeUrl(resourceData.url);
       if (resourceData.formatNormalized === '') {
         var tmp = resourceData.url.split('/');
         tmp = tmp[tmp.length - 1];
@@ -49,23 +48,36 @@ this.ckan.module('recline_view', function (jQuery, _) {
 
       var errorMsg, dataset;
 
-      resourceData.backend =  'ckan';
-      resourceData.endpoint = jQuery('body').data('site-root') + 'api';
+      if (!resourceData.datastore_active) {
+          recline.Backend.DataProxy.timeout = 10000;
+          resourceData.backend =  'dataproxy';
+      } else {
+          resourceData.backend =  'ckan';
+          resourceData.endpoint = jQuery('body').data('site-root') + 'api';
+      }
 
       dataset = new recline.Model.Dataset(resourceData);
 
       var query = new recline.Model.Query();
       query.set({ size: reclineView.limit || 100 });
       query.set({ from: reclineView.offset || 0 });
-      if (window.parent.ckan.views && window.parent.ckan.views.viewhelpers) {
-        $.each(window.parent.ckan.views.viewhelpers.filters.get(), function (field,values) {
+      if (window.parent.ckan.views && window.parent.ckan.views.filters) {
+        var defaultFilters = reclineView.filters || {},
+            urlFilters = window.parent.ckan.views.filters.get(),
+            filters = $.extend({}, defaultFilters, urlFilters);
+        $.each(filters, function (field,values) {
           query.addFilter({type: 'term', field: field, term: values});
         });
       }
 
       dataset.queryState.set(query.toJSON(), {silent: true});
 
-      errorMsg = this.options.i18n.errorLoadingPreview + ': ' + this.options.i18n.errorDataStore;
+      errorMsg = this.options.i18n.errorLoadingPreview + ': '
+      if (resourceData.backend == 'ckan') {
+        errorMsg += this.options.i18n.errorDataStore;
+      } else if (resourceData.backend == 'dataproxy'){
+        errorMsg += this.options.i18n.errorDataProxy;
+      }
       dataset.fetch()
         .done(function(dataset){
             self.initializeView(dataset, reclineView);
@@ -179,14 +191,6 @@ this.ckan.module('recline_view', function (jQuery, _) {
       });
 
       return dataExplorer;
-    },
-
-    normalizeUrl: function (url) {
-      if (url.indexOf('https') === 0) {
-        return 'http' + url.slice(5);
-      } else {
-        return url;
-      }
     },
 
     _renderControls: function (el, controls, className) {

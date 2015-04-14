@@ -20,9 +20,17 @@
           font-weight: bold;
           padding: 0 10px;
           line-height: 31px;
-          span.username {
+          span.username,
+          span.text {
             margin: 0 2px 0 4px;
           }
+          
+          span.text {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+          }
+          
           &:hover {
             color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 15%);
             background-color: darken(@mastheadBackgroundColor, 15%);
@@ -40,12 +48,14 @@
     }
     .notifications {
       a {
-        span {
+        span.badge {
           font-size: 12px;
           margin-left: 3px;
           padding: 1px 6px;
           background-color: darken(@mastheadBackgroundColor, 15%);
           .border-radius(4px);
+          text-shadow:none;
+          color: mix(@mastheadBackgroundColor, @mastheadLinkColor, 25%);
         }
         &:hover span {
           color: @mastheadLinkColor;
@@ -53,7 +63,7 @@
         }
       }
       &.notifications-important a {
-        span {
+        span.badge {
           color: @mastheadLinkColor;
           background-color: @notificationsBg;
         }

@@ -1,8 +1,6 @@
 import json
-import httpretty
 import nose
 import sys
-import datetime
 from nose.tools import assert_equal
 
 import pylons
@@ -13,10 +11,10 @@ import paste.fixture
 import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
-import ckan.tests as tests
+import ckan.tests.legacy as tests
 import ckan.config.middleware as middleware
-import ckan.new_tests.helpers as helpers
-import ckan.new_tests.factories as factories
+import ckan.tests.helpers as helpers
+import ckan.tests.factories as factories
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
@@ -82,7 +80,7 @@ class TestDatastoreCreateNewTests(object):
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        assert self._has_index_on_field(resource_id, '_full_text')
+        assert self._has_index_on_field(resource_id, '"_full_text"')
 
     def test_create_adds_index_on_full_text_search_when_not_creating_other_indexes(self):
         package = factories.Dataset()
@@ -97,7 +95,7 @@ class TestDatastoreCreateNewTests(object):
         }
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
-        assert self._has_index_on_field(resource_id, '_full_text')
+        assert self._has_index_on_field(resource_id, '"_full_text"')
 
     def test_create_add_full_text_search_indexes_on_every_text_field(self):
         package = factories.Dataset()
@@ -114,9 +112,9 @@ class TestDatastoreCreateNewTests(object):
         result = helpers.call_action('datastore_create', **data)
         resource_id = result['resource_id']
         assert self._has_index_on_field(resource_id,
-                                        "to_tsvector('english', 'boo%k')")
+                                        "to_tsvector('english', \"boo%k\")")
         assert self._has_index_on_field(resource_id,
-                                        "to_tsvector('english', 'author')")
+                                        "to_tsvector('english', \"author\")")
 
     def test_create_doesnt_add_more_indexes_when_updating_data(self):
         resource = factories.Resource()
@@ -817,3 +815,30 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
         assert res_dict['success'] is False
 
+    def test_datastore_create_with_invalid_data_value(self):
+        """datastore_create() should return an error for invalid data."""
+        resource = factories.Resource(url_type="datastore")
+        data_dict = {
+            "resource_id": resource["id"],
+            "fields": [{"id": "value", "type": "numeric"}],
+            "records": [
+                {"value": 0},
+                {"value": 1},
+                {"value": 2},
+                {"value": 3},
+                {"value": "   "},  # Invalid numeric value.
+                {"value": 5},
+                {"value": 6},
+                {"value": 7},
+            ],
+            "method": "insert",
+        }
+        postparams = '%s=1' % json.dumps(data_dict)
+        auth = {'Authorization': str(self.sysadmin_user.apikey)}
+        res = self.app.post('/api/action/datastore_create', params=postparams,
+                            extra_environ=auth, status=409)
+        res_dict = json.loads(res.body)
+
+        assert res_dict['success'] is False
+        assert res_dict['error']['__type'] == 'Validation Error'
+        assert res_dict['error']['message'].startswith('The data was invalid')
