@@ -92,9 +92,9 @@
       </tr>
     </table>
   
-    <h3>Users owning most datasets</h3>
+    <h3>Users creating most datasets</h3>
     <table class="table table-bordered table-striped">
-      <tr py:for="user, num_packages in c.top_package_owners">
+      <tr py:for="user, num_packages in c.top_package_creators">
         <td>${h.linked_user(user)}</td><td class="metric">${num_packages}</td>
       </tr>
     </table>
