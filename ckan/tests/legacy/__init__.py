@@ -389,7 +389,7 @@ class TestRoles:
         for role_dict in role_dicts:
             pretty_role = {}
             for key, value in role_dict.items():
-                if key.endswith('_id') and value and key != 'user_object_role_id':
+                if key.endswith('_id') and value:
                     pretty_key = key[:key.find('_id')]
                     domain_object = get_domain_object(model, value)
                     pretty_value = domain_object.name
