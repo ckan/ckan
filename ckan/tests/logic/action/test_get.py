@@ -369,7 +369,6 @@ class TestGet(object):
         user = factories.User()
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         got_user = got_users[0]
@@ -398,7 +397,6 @@ class TestGet(object):
                             **dataset)
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         got_user = got_users[0]
@@ -411,7 +409,6 @@ class TestGet(object):
         factories.User(state='deleted')
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         assert got_users[0]['name'] == user['name']
@@ -1176,9 +1173,3 @@ class TestGetHelpShow(object):
         nose.tools.assert_raises(
             logic.NotFound,
             helpers.call_action, 'help_show', name=function_name)
-
-
-def remove_pseudo_users(user_list):
-    pseudo_users = set(('logged_in', 'visitor'))
-    user_list[:] = [user for user in user_list
-                    if user['name'] not in pseudo_users]
