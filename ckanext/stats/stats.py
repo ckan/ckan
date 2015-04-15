@@ -103,12 +103,15 @@ class Stats(object):
         userid_count = \
             model.Session.query(model.Package.creator_user_id,
                                 func.count(model.Package.creator_user_id))\
+                 .filter(model.Package.state == 'active')\
+                 .filter(model.Package.private == False)\
                  .group_by(model.Package.creator_user_id) \
                  .order_by(func.count(model.Package.creator_user_id).desc())\
                  .limit(limit).all()
         user_count = [
             (model.Session.query(model.User).get(unicode(user_id)), count)
-            for user_id, count in userid_count]
+            for user_id, count in userid_count
+            if user_id]
         return user_count
 
 class RevisionStats(object):

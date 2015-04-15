@@ -133,19 +133,14 @@ class CreateTestData(object):
 
     @classmethod
     def create_arbitrary(cls, package_dicts, relationships=[],
-            extra_user_names=[], extra_group_names=[],
-            admins=[]):
+            extra_user_names=[], extra_group_names=[]):
         '''Creates packages and a few extra objects as well at the
         same time if required.
         @param package_dicts - a list of dictionaries with the package
                                properties.
                                Extra keys allowed:
-                               "admins" - list of user names to make admin
-                                          for this package.
         @param extra_group_names - a list of group names to create. No
                                properties get set though.
-        @param admins - a list of user names to make admins of all the
-                               packages created.
         '''
         assert isinstance(relationships, (list, tuple))
         assert isinstance(extra_user_names, (list, tuple))
@@ -155,8 +150,6 @@ class CreateTestData(object):
         new_group_names = set()
         new_groups = {}
 
-
-        admins_list = defaultdict(list) # package_name: admin_names
         if package_dicts:
             if isinstance(package_dicts, dict):
                 package_dicts = [package_dicts]
@@ -249,16 +242,10 @@ class CreateTestData(object):
                     elif attr == 'extras':
                         pkg.extras = val
                     elif attr == 'admins':
-                        assert isinstance(val, list)
-                        admins_list[item['name']].extend(val)
-                        for user_name in val:
-                            if user_name not in new_user_names:
-                                new_user_names.append(user_name)
+                        assert 0, 'Deprecated param "admins"'
                     else:
                         raise NotImplementedError(attr)
                 cls.pkg_names.append(item['name'])
-                for admin in admins:
-                    admins_list[item['name']].append(admin)
                 model.repo.commit_and_remove()
 
         needs_commit = False
