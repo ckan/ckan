@@ -409,7 +409,6 @@ class TestEdit(TestPackageForm):
              'resources':[{'url':u'url escape: & umlaut: \xfc quote: "',
                           'description':u'description escape: & umlaut: \xfc quote "',
                           }],
-             'admins':[u'testadmin'],
              })
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
