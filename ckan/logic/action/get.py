@@ -1696,7 +1696,7 @@ def package_search(context, data_dict):
                           if 'capacity:' not in p)
             data_dict['fq'] = fq + ' capacity:"public"'
 
-        # If present, Solr doesn't need 'include_drafts', so pop it.
+        # Solr doesn't need 'include_drafts`, so pop it.
         include_drafts = data_dict.pop('include_drafts', False)
         fq = data_dict.get('fq', '')
         if include_drafts:

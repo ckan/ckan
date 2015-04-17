@@ -881,6 +881,30 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         nose.tools.assert_true(other_draft_dataset['name'] in names)
         nose.tools.assert_true(dataset['name'] in names)
 
+    def test_package_search_with_include_drafts_false_option_doesnot_include_drafts_for_sysadmin(self):
+        '''
+        A sysadmin with include_drafts option set to `False` will not get
+        drafts returned in results.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        draft_dataset = factories.Dataset(user=user, state='draft')
+        other_draft_dataset = factories.Dataset(user=other_user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action('package_search', include_drafts=False,
+                                      context={'user': sysadmin['name']})['results']
+
+        eq(len(results), 1)
+        names = [r['name'] for r in results]
+        nose.tools.assert_true(draft_dataset['name'] not in names)
+        nose.tools.assert_true(other_draft_dataset['name'] not in names)
+        nose.tools.assert_true(dataset['name'] in names)
+
     def test_package_search_with_include_drafts_option_includes_drafts_for_user(self):
         '''
         The include_drafts option will include draft datasets for the
