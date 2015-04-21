@@ -99,13 +99,13 @@ class GroupController(base.BaseController):
         return render(self._replace_group_org(template_name),
                       extra_vars={'group_type': group_type})
 
-    def _redirect_to__this_controller(self, *args, **kw):
+    def _redirect_to_this_controller(self, *args, **kw):
         ''' wrapper around redirect_to but it adds in this request's controller
         (so that it works for Organization or other derived controllers)'''
         kw['controller'] = request.environ['pylons.routes_dict']['controller']
         return h.redirect_to(*args, **kw)
 
-    def _url_for__this_controller(self, *args, **kw):
+    def _url_for_this_controller(self, *args, **kw):
         ''' wrapper around url_for but it adds in this request's controller
         (so that it works for Organization or other derived controllers)'''
         kw['controller'] = request.environ['pylons.routes_dict']['controller']
@@ -622,7 +622,7 @@ class GroupController(base.BaseController):
         group_type = self._ensure_controller_matches_group_type(id)
 
         if 'cancel' in request.params:
-            self._redirect_to__this_controller(action='edit', id=id)
+            self._redirect_to_this_controller(action='edit', id=id)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -635,9 +635,14 @@ class GroupController(base.BaseController):
         try:
             if request.method == 'POST':
                 self._action('group_delete')(context, {'id': id})
-                h.flash_notice(_('%s has been deleted.')
-                               % group_type.capitalize())
-                self._redirect_to__this_controller(action='index')
+                if self.group_type == 'organization':
+                    h.flash_notice(_('Organization has been deleted.'))
+                elif self.group_type == 'group':
+                    h.flash_notice(_('Group has been deleted.'))
+                else:
+                    h.flash_notice(_('%s has been deleted.')
+                                   % _(group_type.capitalize()))
+                self._redirect_to_this_controller(action='index')
             c.group_dict = self._action('group_show')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to delete group %s') % '')
@@ -700,7 +705,7 @@ class GroupController(base.BaseController):
                 c.group_dict = self._action('group_member_create')(context, data_dict)
 
 
-                self._redirect_to__this_controller(action='members', id=id)
+                self._redirect_to_this_controller(action='members', id=id)
             else:
                 user = request.params.get('user')
                 if user:
@@ -720,7 +725,7 @@ class GroupController(base.BaseController):
         group_type = self._ensure_controller_matches_group_type(id)
 
         if 'cancel' in request.params:
-            self._redirect_to__this_controller(action='members', id=id)
+            self._redirect_to_this_controller(action='members', id=id)
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author}
@@ -735,7 +740,7 @@ class GroupController(base.BaseController):
             if request.method == 'POST':
                 self._action('group_member_delete')(context, {'id': id, 'user_id': user_id})
                 h.flash_notice(_('Group member has been deleted.'))
-                self._redirect_to__this_controller(action='members', id=id)
+                self._redirect_to_this_controller(action='members', id=id)
             c.user_dict = self._action('user_show')(context, {'id': user_id})
             c.user_id = user_id
             c.group_id = id
@@ -784,7 +789,7 @@ class GroupController(base.BaseController):
             from webhelpers.feedgenerator import Atom1Feed
             feed = Atom1Feed(
                 title=_(u'CKAN Group Revision History'),
-                link=self._url_for__this_controller(
+                link=self._url_for_this_controller(
                     action='read',
                     id=c.group_dict['name']),
                 description=_(u'Recent changes to CKAN Group: ') +
