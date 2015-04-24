@@ -47,3 +47,37 @@ class TestLicenseRegister(object):
                      'https://creativecommons.org/licenses/by/4.0/')
         assert_equal(license.isopen(), True)
         assert_equal(license.title, 'Creative Commons Attribution 4.0')
+
+
+class TestLicense:
+    def test_access_via_attribute(self):
+        license = LicenseRegister()['cc-by']
+        assert_equal(license.od_conformance, 'approved')
+
+    def test_access_via_key(self):
+        license = LicenseRegister()['cc-by']
+        assert_equal(license['od_conformance'], 'approved')
+
+    def test_access_via_dict(self):
+        license = LicenseRegister()['cc-by']
+        license_dict = license.as_dict()
+        assert_equal(license_dict['od_conformance'], 'approved')
+        assert_equal(license_dict['osd_conformance'], 'not reviewed')
+
+
+class TestLicenseLegacyFields:
+    def test_access_via_attribute(self):
+        license = LicenseRegister()['cc-by']
+        assert_equal(license.is_okd_compliant, True)
+        assert_equal(license.is_osi_compliant, False)
+
+    def test_access_via_key(self):
+        license = LicenseRegister()['cc-by']
+        assert_equal(license['is_okd_compliant'], True)
+        assert_equal(license['is_osi_compliant'], False)
+
+    def test_access_via_dict(self):
+        license = LicenseRegister()['cc-by']
+        license_dict = license.as_dict()
+        assert_equal(license_dict['is_okd_compliant'], True)
+        assert_equal(license_dict['is_osi_compliant'], False)
