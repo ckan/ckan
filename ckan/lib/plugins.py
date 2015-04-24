@@ -16,10 +16,12 @@ _package_plugins = {}
 # The fallback behaviour
 _default_package_plugin = None
 
-# Mapping from group-type strings to IDatasetForm instances
+# Mapping from group-type strings to IGroupForm instances
 _group_plugins = {}
 # The fallback behaviour
 _default_group_plugin = None
+# Mapping from group-type strings to controllers
+_group_controllers = {}
 
 
 def reset_package_plugins():
@@ -31,6 +33,8 @@ def reset_package_plugins():
     _default_group_plugin = None
     global _group_plugins
     _group_plugins = {}
+    global _group_controllers
+    _group_controllers = {}
 
 
 def lookup_package_plugin(package_type=None):
@@ -47,7 +51,7 @@ def lookup_package_plugin(package_type=None):
 
 def lookup_group_plugin(group_type=None):
     """
-    Returns the plugin controller associated with the given group type.
+    Returns the form plugin associated with the given group type.
 
     If the group type is None or cannot be found in the mapping, then the
     fallback behaviour is used.
@@ -56,6 +60,14 @@ def lookup_group_plugin(group_type=None):
         return _default_group_plugin
     return _group_plugins.get(group_type, _default_organization_plugin
         if group_type == 'organization' else _default_group_plugin)
+
+
+def lookup_group_controller(group_type=None):
+    """
+    Returns the group controller associated with the given group type. The
+    controller is expressed as a string that you'd pass to url_to(controller=x)
+    """
+    return _group_controllers.get(group_type)
 
 
 def register_package_plugins(map):
@@ -185,6 +197,7 @@ def register_group_plugins(map):
                                  "already associated with the group type "
                                  "'%s'" % group_type)
             _group_plugins[group_type] = plugin
+            _group_controllers[group_type] = group_controller
 
             if group_controller == 'group':
                 # Tell the default group controller that it is allowed to
@@ -196,6 +209,10 @@ def register_group_plugins(map):
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
         _default_group_plugin = DefaultGroupForm()
+    if 'group' not in _group_controllers:
+        _group_controllers['group'] = 'group'
+    if 'organization' not in _group_controllers:
+        _group_controllers['organization'] = 'organization'
 
 
 def plugin_validate(plugin, context, data_dict, schema, action):

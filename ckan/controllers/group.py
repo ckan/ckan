@@ -31,6 +31,7 @@ clean_dict = logic.clean_dict
 parse_params = logic.parse_params
 
 lookup_group_plugin = ckan.lib.plugins.lookup_group_plugin
+lookup_group_controller = ckan.lib.plugins.lookup_group_controller
 
 
 class GroupController(base.BaseController):
@@ -238,17 +239,9 @@ class GroupController(base.BaseController):
         sort_by = request.params.get('sort', None)
 
         def search_url(params):
-            if group_type == 'organization':
-                if c.action == 'bulk_process':
-                    url = h.url_for(controller='organization',
-                                    action='bulk_process',
-                                    id=id)
-                else:
-                    url = h.url_for(controller='organization',
-                                    action='read',
-                                    id=id)
-            else:
-                url = h.url_for(controller='group', action='read', id=id)
+            controller = lookup_group_controller(group_type)
+            action = 'bulk_process' if c.action == 'bulk_process' else 'read'
+            url = h.url_for(controller=controller, action=action, id=id)
             params = [(k, v.encode('utf-8') if isinstance(v, basestring)
                        else str(v)) for k, v in params]
             return url + u'?' + urlencode(params)
