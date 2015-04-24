@@ -1,6 +1,7 @@
 import re
 
 import ckan.controllers.group as group
+import ckan.plugins as plugins
 
 
 class OrganizationController(group.GroupController):
@@ -23,3 +24,8 @@ class OrganizationController(group.GroupController):
     def _replace_group_org(self, string):
         ''' substitute organization for group if this is an org'''
         return re.sub('^group', 'organization', string)
+
+    def _update_facet_titles(self, facets, group_type):
+        for plugin in plugins.PluginImplementations(plugins.IFacets):
+            facets = plugin.organization_facets(
+                facets, group_type, None)
