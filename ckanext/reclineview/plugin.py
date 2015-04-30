@@ -178,7 +178,7 @@ class ReclineMapView(ReclineViewBase):
 
     datastore_fields = []
 
-    datastore_field_types = ['numeric']
+    datastore_field_types = ['numeric', 'text']
 
     def list_map_field_types(self):
         return [t['value'] for t in self.map_field_types]
