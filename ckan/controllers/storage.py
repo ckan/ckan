@@ -18,19 +18,6 @@ key_prefix = config.get('ckan.storage.key_prefix', 'file/')
 _eq_re = re.compile(r"^(.*)(=[0-9]*)$")
 
 
-def fix_stupid_pylons_encoding(data):
-    """
-    Fix an apparent encoding problem when calling request.body
-    TODO: Investigate whether this is fixed in later versions?
-    """
-    if data.startswith("%") or data.startswith("+"):
-        data = urllib.unquote_plus(data)
-    m = _eq_re.match(data)
-    if m:
-        data = m.groups()[0]
-    return data
-
-
 def create_pairtree_marker(folder):
     """ Creates the pairtree marker for tests if it doesn't exist """
     if not folder[:-1] == '/':
