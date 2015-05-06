@@ -41,7 +41,7 @@ import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -542,6 +542,22 @@ def build_nav(menu_item, title, **kw):
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
 
+def build_extra_admin_nav():
+    '''Build extra navigation items used in ``admin/base.html`` for values
+    defined in the config option ``ckan.admin_tabs``. Typically this is
+    populated by extensions.
+
+    :rtype: HTML literal
+
+    '''
+    admin_tabs_dict = config.get('ckan.admin_tabs')
+    output = ''
+    if admin_tabs_dict:
+        for key in admin_tabs_dict:
+            output += build_nav_icon(key, admin_tabs_dict[key])
+    return output
+
+
 def _make_menu_item(menu_item, title, **kw):
     ''' build a navigation item used for example breadcrumbs
 
@@ -830,13 +846,20 @@ def resource_icon(res):
 
 def format_icon(_format):
     _format = _format.lower()
-    if ('json' in _format): return 'page_white_cup'
-    if ('csv' in _format): return 'page_white_gear'
-    if ('xls' in _format): return 'page_white_excel'
-    if ('zip' in _format): return 'page_white_compressed'
-    if ('api' in _format): return 'page_white_database'
-    if ('plain text' in _format): return 'page_white_text'
-    if ('xml' in _format): return 'page_white_code'
+    if ('json' in _format):
+        return 'page_white_cup'
+    if ('csv' in _format):
+        return 'page_white_gear'
+    if ('xls' in _format):
+        return 'page_white_excel'
+    if ('zip' in _format):
+        return 'page_white_compressed'
+    if ('api' in _format):
+        return 'page_white_database'
+    if ('plain text' in _format):
+        return 'page_white_text'
+    if ('xml' in _format):
+        return 'page_white_code'
     return 'page_white'
 
 
@@ -867,7 +890,7 @@ def gravatar(email_hash, size=100, default=None):
     if default is None:
         default = config.get('ckan.gravatar_default', 'identicon')
 
-    if not default in _VALID_GRAVATAR_DEFAULTS:
+    if default not in _VALID_GRAVATAR_DEFAULTS:
         # treat the default as a url
         default = urllib.quote(default, safe='')
 
@@ -1049,6 +1072,7 @@ class _RFC2282TzInfo(datetime.tzinfo):
     def tzname(self, dt):
         return None
 
+
 @maintain.deprecated('h.time_ago_in_words_from_str is deprecated in 2.2 '
                      'and will be removed.  Please use '
                      'h.time_ago_from_timestamp instead')
@@ -1100,6 +1124,7 @@ def dataset_link(package_or_package_dict):
         text,
         url_for(controller='package', action='read', id=name)
     )
+
 
 # TODO: (?) support resource objects as well
 def resource_display_name(resource_dict):
@@ -1154,7 +1179,7 @@ def dump_json(obj, **kw):
 
 
 def _get_template_name():
-    #FIX ME THIS IS BROKEN
+    # FIX ME THIS IS BROKEN
     ''' helper function to get the currently/last rendered template name '''
     return c.__debug_info[-1]['template_name']
 
@@ -1409,7 +1434,7 @@ def debug_full_info_as_list(debug_info):
                             'start_response']
     debug_vars = debug_info['vars']
     for key in debug_vars.keys():
-        if not key in ignored_keys:
+        if key not in ignored_keys:
             data = pprint.pformat(debug_vars.get(key))
             data = data.decode('utf-8')
             out.append((key, data))
@@ -1417,7 +1442,7 @@ def debug_full_info_as_list(debug_info):
     if 'tmpl_context' in debug_vars:
         for key in debug_info['c_vars']:
 
-            if not key in ignored_context_keys:
+            if key not in ignored_context_keys:
                 data = pprint.pformat(getattr(debug_vars['tmpl_context'], key))
                 data = data.decode('utf-8')
                 out.append(('c.%s' % key, data))
@@ -1573,8 +1598,8 @@ RE_MD_INTERNAL_LINK = re.compile(
 # but ignore trailing punctuation since it is probably not part of the link
 RE_MD_EXTERNAL_LINK = re.compile(
     r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*'
-     '[\w\-@?^=%&:\/~\\+#]' # but last character can't be punctuation [.,;]
-     ')',
+    '[\w\-@?^=%&:\/~\\+#]'  # but last character can't be punctuation [.,;]
+    ')',
     flags=re.UNICODE
 )
 
@@ -1684,7 +1709,7 @@ def resource_preview(resource, package):
 
     Depending on the type, different previews are loaded.
     This could be an img tag where the image is loaded directly or an iframe
-    that embeds a web page, recline or a pdf preview.
+    that embeds a web page or a recline preview.
     '''
 
     if not resource['url']:
@@ -1780,12 +1805,14 @@ def resource_view_is_iframed(resource_view):
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('iframed', True)
 
+
 def resource_view_icon(resource_view):
     '''
     Returns the icon for a particular view type.
     '''
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('icon', 'picture')
+
 
 def resource_view_display_preview(resource_view):
     '''
@@ -1794,6 +1821,7 @@ def resource_view_display_preview(resource_view):
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('preview_enabled', True)
 
+
 def resource_view_full_page(resource_view):
     '''
     Returns if the edit view page should be full page.
@@ -1801,9 +1829,11 @@ def resource_view_full_page(resource_view):
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('full_page_edit', False)
 
+
 def remove_linebreaks(string):
     '''Remove linebreaks from string to make it usable in JavaScript'''
     return str(string).replace('\n', '')
+
 
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
@@ -1842,6 +1872,7 @@ localised_SI_number = formatters.localised_SI_number
 localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
 
+
 def new_activities():
     '''Return the number of activities for the current user.
 
@@ -1854,10 +1885,12 @@ def new_activities():
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
 
+
 def uploads_enabled():
     if uploader.get_storage_path():
         return True
     return False
+
 
 def get_featured_organizations(count=1):
     '''Returns a list of favourite organization in the form
@@ -1934,6 +1967,7 @@ def get_site_statistics():
 
 _RESOURCE_FORMATS = None
 
+
 def resource_formats():
     ''' Returns the resource formats as a dict, sourced from the resource format JSON file.
     key:  potential user input value
@@ -1983,8 +2017,9 @@ def unified_resource_format(format):
         format_new = format
     return format_new
 
+
 def check_config_permission(permission):
-    return new_authz.check_config_permission(permission)
+    return authz.check_config_permission(permission)
 
 
 def get_organization(org=None, include_datasets=False):
@@ -2052,6 +2087,7 @@ __allowed_functions__ = [
     'build_nav_main',
     'build_nav_icon',
     'build_nav',
+    'build_extra_admin_nav',
     'debug_inspect',
     'dict_list_reduce',
     'full_current_url',

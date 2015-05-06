@@ -35,7 +35,6 @@ this.ckan.module('recline_view', function (jQuery, _) {
         window.parent.ckan.pubsub.publish('data-viewer-error', msg);
       }
 
-      resourceData.url  = this.normalizeUrl(resourceData.url);
       if (resourceData.formatNormalized === '') {
         var tmp = resourceData.url.split('/');
         tmp = tmp[tmp.length - 1];
@@ -192,14 +191,6 @@ this.ckan.module('recline_view', function (jQuery, _) {
       });
 
       return dataExplorer;
-    },
-
-    normalizeUrl: function (url) {
-      if (url.indexOf('https') === 0) {
-        return 'http' + url.slice(5);
-      } else {
-        return url;
-      }
     },
 
     _renderControls: function (el, controls, className) {

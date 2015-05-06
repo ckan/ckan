@@ -270,7 +270,7 @@ def datastore_info(context, data_dict):
         # We need to make sure the resource_id is a valid resource_id before we use it like
         # this, we have done that above.
         meta_sql = sqlalchemy.text(u'''
-            SELECT count(_id) FROM "{}";
+            SELECT count(_id) FROM "{0}";
         '''.format(resource_id))
         meta_results = db._get_engine(data_dict).execute(meta_sql, resource_id=resource_id)
         info['meta']['count'] = meta_results.fetchone()[0]

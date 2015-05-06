@@ -695,9 +695,13 @@ class PackageController(base.BaseController):
                         errors = {}
                         error_summary = {_('Error'): msg}
                         return self.new_resource(id, data, errors, error_summary)
-                # we have a resource so let them add metadata
+                # XXX race condition if another user edits/deletes
+                data_dict = get_action('package_show')(context, {'id': id})
+                get_action('package_update')(
+                    dict(context, allow_state_change=True),
+                    dict(data_dict, state='active'))
                 redirect(h.url_for(controller='package',
-                                   action='new_metadata', id=id))
+                                   action='read', id=id))
 
             data['package_id'] = id
             try:
@@ -1579,7 +1583,7 @@ class PackageController(base.BaseController):
 
         Depending on the type, different views are loaded. This could be an
         img tag where the image is loaded directly or an iframe that embeds a
-        webpage, recline or a pdf preview.
+        webpage or a recline preview.
         '''
         context = {'model': model,
                    'session': model.Session,
@@ -1628,7 +1632,7 @@ class PackageController(base.BaseController):
 
         Depending on the type, different previews are loaded.  This could be an
         img tag where the image is loaded directly or an iframe that embeds a
-        webpage, recline or a pdf preview.
+        webpage, or a recline preview.
         '''
         context = {
             'model': model,

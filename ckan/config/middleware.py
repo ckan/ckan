@@ -75,6 +75,8 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     #app = QueueLogMiddleware(app)
+    if asbool(config.get('ckan.use_pylons_response_cleanup_middleware', True)):
+        app = execute_on_completion(app, config, cleanup_pylons_response_string)
 
     # Fanstatic
     if asbool(config.get('debug', False)):
@@ -218,7 +220,7 @@ class I18nMiddleware(object):
 
             if qs:
                 # sort out weird encodings
-                #qs = urllib.quote(qs, '')
+                qs = urllib.quote(qs, '')
                 environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
             else:
                 environ['CKAN_CURRENT_URL'] = path_info
@@ -360,3 +362,41 @@ class TrackingMiddleware(object):
             self.engine.execute(sql, key, data.get('url'), data.get('type'))
             return []
         return self.app(environ, start_response)
+
+
+def generate_close_and_callback(iterable, callback, environ):
+    """
+    return a generator that passes through items from iterable
+    then calls callback(environ).
+    """
+    try:
+        for item in iterable:
+            yield item
+    except GeneratorExit:
+        if hasattr(iterable, 'close'):
+            iterable.close()
+        raise
+    finally:
+        callback(environ)
+
+
+def execute_on_completion(application, config, callback):
+    """
+    Call callback(environ) once complete response is sent
+    """
+    def inner(environ, start_response):
+        try:
+            result = application(environ, start_response)
+        except:
+            callback(environ)
+            raise
+        return generate_close_and_callback(result, callback, environ)
+    return inner
+
+
+def cleanup_pylons_response_string(environ):
+    try:
+        msg = 'response cleared by pylons response cleanup middleware'
+        environ['pylons.controller']._py_object.response._body = msg
+    except (KeyError, AttributeError):
+        pass
