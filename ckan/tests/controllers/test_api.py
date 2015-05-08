@@ -49,7 +49,7 @@ class TestApiController(helpers.FunctionalTestBase):
                      'application/json;charset=utf-8')
 
     def test_dataset_autocomplete_title(self):
-        dataset = factories.Dataset(title='Rivers')
+        dataset = factories.Dataset(name='test_ri', title='Rivers')
         url = url_for(controller='api', action='dataset_autocomplete', ver='/2')
         assert_equal(url, '/api/2/util/dataset/autocomplete')
         app = self._get_test_app()
@@ -57,16 +57,16 @@ class TestApiController(helpers.FunctionalTestBase):
         response = app.get(
             url=url,
             params={
-                'incomplete': u'rive',
+                'incomplete': u'riv',
             },
             status=200,
         )
 
         results = json.loads(response.body)
         assert_equal(results, {"ResultSet": {"Result": [{
-            'match_field': 'name',
+            'match_field': 'title',
             "name": dataset['name'],
-            'match_displayed': 'Rivers',
+            'match_displayed': 'Rivers (test_ri)',
             'title': 'Rivers',
         }]}})
         assert_equal(response.headers['Content-Type'],
