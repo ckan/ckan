@@ -206,7 +206,8 @@ def package_create(context, data_dict):
 
         item.after_create(context, data)
 
-    # Make sure that a user provided schema is not used in create_views and on package_show
+    # Make sure that a user provided schema is not used in create_views
+    # and on package_show
     context.pop('schema', None)
 
     # Create default views for resources if necessary
