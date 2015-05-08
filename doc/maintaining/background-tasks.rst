@@ -23,8 +23,7 @@ Enabling background tasks
 
 To manage and run background tasks requires a job queue and CKAN uses celery_
 (plus the CKAN database) for this purpose. Thus, to use background tasks you
-need to install and run celery_. As of CKAN 1.7, celery is a required library
-and will be already installed after a default CKAN install.
+need to install and run celery_.
 
 Installation of celery_ will normally be taken care of by whichever component
 or extension utilizes it so we skip that here.

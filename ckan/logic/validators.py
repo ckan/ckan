@@ -12,7 +12,7 @@ from ckan.model import (MAX_TAG_LENGTH, MIN_TAG_LENGTH,
                         PACKAGE_VERSION_MAX_LENGTH,
                         VOCABULARY_NAME_MAX_LENGTH,
                         VOCABULARY_NAME_MIN_LENGTH)
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 
 from ckan.common import _
 
@@ -26,7 +26,7 @@ def owner_org_validator(key, data, errors, context):
     value = data.get(key)
 
     if value is missing or value is None:
-        if not new_authz.check_config_permission('create_unowned_dataset'):
+        if not authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('A organization must be supplied'))
         data.pop(key, None)
         raise df.StopOnError
@@ -34,13 +34,9 @@ def owner_org_validator(key, data, errors, context):
     model = context['model']
     user = context['user']
     user = model.User.get(user)
-    if value == '' :
-        if not new_authz.check_config_permission('create_unowned_dataset'):
+    if value == '':
+        if not authz.check_config_permission('create_unowned_dataset'):
             raise Invalid(_('A organization must be supplied'))
-        package = context.get('package')
-        # only sysadmins can remove datasets from org
-        if package and package.owner_org and not user.sysadmin:
-            raise Invalid(_('You cannot remove a dataset from an existing organization'))
         return
 
     group = model.Group.get(value)
@@ -48,7 +44,7 @@ def owner_org_validator(key, data, errors, context):
         raise Invalid(_('Organization does not exist'))
     group_id = group.id
     if not(user.sysadmin or
-           new_authz.has_user_permission_for_group_or_org(
+           authz.has_user_permission_for_group_or_org(
                group_id, user.name, 'create_dataset')):
         raise Invalid(_('You cannot add a dataset to this organization'))
     data[key] = group_id
@@ -488,7 +484,7 @@ def ignore_not_package_admin(key, data, errors, context):
     if 'ignore_auth' in context:
         return
 
-    if user and new_authz.is_sysadmin(user):
+    if user and authz.is_sysadmin(user):
         return
 
     authorized = False
@@ -516,7 +512,7 @@ def ignore_not_sysadmin(key, data, errors, context):
     user = context.get('user')
     ignore_auth = context.get('ignore_auth')
 
-    if ignore_auth or (user and new_authz.is_sysadmin(user)):
+    if ignore_auth or (user and authz.is_sysadmin(user)):
         return
 
     data.pop(key)
@@ -528,7 +524,7 @@ def ignore_not_group_admin(key, data, errors, context):
     model = context['model']
     user = context.get('user')
 
-    if user and new_authz.is_sysadmin(user):
+    if user and authz.is_sysadmin(user):
         return
 
     authorized = False
@@ -721,7 +717,7 @@ def user_name_exists(user_name, context):
 
 
 def role_exists(role, context):
-    if role not in new_authz.ROLE_PERMISSIONS:
+    if role not in authz.ROLE_PERMISSIONS:
         raise Invalid(_('role does not exist.'))
     return role
 
@@ -840,7 +836,7 @@ def empty_if_not_sysadmin(key, data, errors, context):
     user = context.get('user')
 
     ignore_auth = context.get('ignore_auth')
-    if ignore_auth or (user and new_authz.is_sysadmin(user)):
+    if ignore_auth or (user and authz.is_sysadmin(user)):
         return
 
     empty(key, data, errors, context)

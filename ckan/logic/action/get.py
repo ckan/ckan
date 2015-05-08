@@ -23,7 +23,7 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.lib.datapreview as datapreview
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 
 from ckan.common import _
 
@@ -178,7 +178,7 @@ def current_package_list_with_resources(context, data_dict):
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
-    is_sysadmin = new_authz.is_sysadmin(user)
+    is_sysadmin = authz.is_sysadmin(user)
     q = '+capacity:public' if not is_sysadmin else '*:*'
     context['ignore_capacity_check'] = True
     search = package_search(context, {'q': q, 'rows': limit, 'start': offset})
@@ -349,7 +349,7 @@ def member_list(context, data_dict=None):
     if capacity:
         q = q.filter(model.Member.capacity == capacity)
 
-    trans = new_authz.roles_trans()
+    trans = authz.roles_trans()
 
     def translated_capacity(capacity):
         try:
@@ -537,11 +537,11 @@ def group_list_authz(context, data_dict):
 
     _check_access('group_list_authz', context, data_dict)
 
-    sysadmin = new_authz.is_sysadmin(user)
-    roles = ckan.new_authz.get_roles_with_permission('manage_group')
+    sysadmin = authz.is_sysadmin(user)
+    roles = authz.get_roles_with_permission('manage_group')
     if not roles:
         return []
-    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+    user_id = authz.get_user_id_for_username(user, allow_none=True)
     if not user_id:
         return []
 
@@ -614,7 +614,7 @@ def organization_list_for_user(context, data_dict):
     user = context['user']
 
     _check_access('organization_list_for_user', context, data_dict)
-    sysadmin = new_authz.is_sysadmin(user)
+    sysadmin = authz.is_sysadmin(user)
 
     orgs_q = model.Session.query(model.Group) \
         .filter(model.Group.is_organization == True) \
@@ -625,11 +625,11 @@ def organization_list_for_user(context, data_dict):
 
         permission = data_dict.get('permission', 'edit_group')
 
-        roles = ckan.new_authz.get_roles_with_permission(permission)
+        roles = authz.get_roles_with_permission(permission)
 
         if not roles:
             return []
-        user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+        user_id = authz.get_user_id_for_username(user, allow_none=True)
         if not user_id:
             return []
 
@@ -772,10 +772,13 @@ def user_list(context, data_dict):
       (optional)
     :type q: string
     :param order_by: which field to sort the list by (optional, default:
-      ``'name'``)
+      ``'name'``). Can be any user field or ``edits`` (i.e. number_of_edits).
     :type order_by: string
 
-    :rtype: list of dictionaries
+    :rtype: list of user dictionaries. User properties include:
+      ``number_of_edits`` which counts the revisions by the user and
+      ``number_created_packages`` which excludes datasets which are private
+      or draft state.
 
     '''
     model = context['model']
@@ -801,6 +804,7 @@ def user_list(context, data_dict):
                 _and_(
                     model.Package.creator_user_id == model.User.id,
                     model.Package.state == 'active',
+                    model.Package.private == False,
                 )).label('number_created_packages')
     )
 
@@ -897,7 +901,9 @@ def package_show(context, data_dict):
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: False)
     :type use_default_schema: bool
-
+    :param include_tracking: add tracking information to dataset and
+        resources (default: False)
+    :type include_tracking: bool
     :rtype: dictionary
 
     '''
@@ -916,6 +922,7 @@ def package_show(context, data_dict):
 
     if data_dict.get('use_default_schema', False):
         context['schema'] = ckan.logic.schema.default_show_package_schema()
+    include_tracking = asbool(data_dict.get('include_tracking', False))
 
     package_dict = None
     use_cache = (context.get('use_cache', True)
@@ -945,19 +952,13 @@ def package_show(context, data_dict):
         package_dict = model_dictize.package_dictize(pkg, context)
         package_dict_validated = False
 
-    # Add page-view tracking summary data to the package dict.
-    # If the package_dict came from the Solr cache then it will already have a
-    # potentially outdated tracking_summary, this will overwrite it with a
-    # current one.
-    package_dict['tracking_summary'] = model.TrackingSummary.get_for_package(
-        package_dict['id'])
+    if include_tracking:
+        # page-view tracking summary data
+        package_dict['tracking_summary'] = (
+            model.TrackingSummary.get_for_package(package_dict['id']))
 
-    # Add page-view tracking summary data to the package's resource dicts.
-    # If the package_dict came from the Solr cache then each resource dict will
-    # already have a potentially outdated tracking_summary, this will overwrite
-    # it with a current one.
-    for resource_dict in package_dict['resources']:
-        _add_tracking_summary_to_resource_dict(resource_dict, model)
+        for resource_dict in package_dict['resources']:
+            _add_tracking_summary_to_resource_dict(resource_dict, model)
 
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -1002,6 +1003,9 @@ def resource_show(context, data_dict):
 
     :param id: the id of the resource
     :type id: string
+    :param include_tracking: add tracking information to dataset and
+        resources (default: False)
+    :type include_tracking: bool
 
     :rtype: dictionary
 
@@ -1019,7 +1023,8 @@ def resource_show(context, data_dict):
 
     pkg_dict = logic.get_action('package_show')(
         dict(context),
-        {'id': resource.package.id})
+        {'id': resource.package.id,
+        'include_tracking': asbool(data_dict.get('include_tracking', False))})
 
     for resource_dict in pkg_dict['resources']:
         if resource_dict['id'] == id:
@@ -1057,7 +1062,7 @@ def resource_view_show(context, data_dict):
 
 def resource_view_list(context, data_dict):
     '''
-    Return the metadata of a resource_view.
+    Return the list of resource views for a particular resource.
 
     :param id: the id of the resource
     :type id: string
@@ -1296,17 +1301,20 @@ def user_show(context, data_dict):
     :type id: string
     :param user_obj: the user dictionary of the user (optional)
     :type user_obj: user dictionary
-    :param include_datasets: Include datasets user has created
-         (optional, default:``False``, limit:50)
+    :param include_datasets: Include a list of datasets the user has created.
+        If it is the same user or a sysadmin requesting, it includes datasets
+        that are draft or private.
+        (optional, default:``False``, limit:50)
     :type include_datasets: boolean
     :param include_num_followers: Include the number of followers the user has
          (optional, default:``False``)
     :type include_num_followers: boolean
 
     :returns: the details of the user. Includes email_hash, number_of_edits and
-        number_created_packages. Excludes the password (hash) and reset_key.
-        The email and apikey are included if it is the user or a sysadmin
-        requesting.
+        number_created_packages (which excludes draft or private datasets
+        unless it is the same user or sysadmin making the request). Excludes
+        the password (hash) and reset_key. If it is the same user or a
+        sysadmin requesting, the email and apikey are included.
     :rtype: dictionary
 
     '''
@@ -1326,6 +1334,18 @@ def user_show(context, data_dict):
 
     _check_access('user_show', context, data_dict)
 
+    # include private and draft datasets?
+    requester = context.get('user')
+    if requester:
+        requester_looking_at_own_account = requester == user_obj.name
+        include_private_and_draft_datasets = \
+            authz.is_sysadmin(requester) or \
+            requester_looking_at_own_account
+    else:
+        include_private_and_draft_datasets = False
+    context['count_private_and_draft_datasets'] = \
+        include_private_and_draft_datasets
+
     user_dict = model_dictize.user_dictize(user_obj, context)
 
     if context.get('return_minimal'):
@@ -1335,20 +1355,21 @@ def user_show(context, data_dict):
 
     if data_dict.get('include_datasets', False):
         user_dict['datasets'] = []
-        dataset_q = (model.Session.query(model.Package)
-                     .filter_by(creator_user_id=user_dict['id'])
-                     .filter_by(state='active')
-                     .filter_by(private=False)
-                     .limit(50))
 
-        for dataset in dataset_q:
-            try:
-                dataset_dict = logic.get_action('package_show')(
-                    context, {'id': dataset.id})
-                del context['package']
-            except logic.NotAuthorized:
-                continue
-            user_dict['datasets'].append(dataset_dict)
+        fq = "+creator_user_id:{0}".format(user_dict['id'])
+
+        search_dict = {'rows': 50}
+
+        if include_private_and_draft_datasets:
+            context['ignore_capacity_check'] = True
+            search_dict.update({'include_drafts': True})
+
+        search_dict.update({'fq': fq})
+
+        user_dict['datasets'] = \
+            logic.get_action('package_search')(context=context,
+                                               data_dict=search_dict) \
+            .get('results')
 
     if data_dict.get('include_num_followers', False):
         user_dict['num_followers'] = logic.get_action('user_follower_count')(
@@ -1592,7 +1613,11 @@ def package_search(context, data_dict):
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.
     :type facet.field: list of strings
-
+    :param include_drafts: if ``True``, draft datasets will be included in the
+        results. A user will only be returned their own draft datasets, and a
+        sysadmin will be returned all draft datasets. Optional, the default is
+        ``False``.
+    :type include_drafts: boolean
 
     The following advanced Solr parameters are supported as well. Note that
     some of these are only available on particular Solr versions. See Solr's
@@ -1667,6 +1692,7 @@ def package_search(context, data_dict):
 
     model = context['model']
     session = context['session']
+    user = context['user']
 
     _check_access('package_search', context, data_dict)
 
@@ -1699,8 +1725,24 @@ def package_search(context, data_dict):
         fq = data_dict.get('fq', '')
         if not context.get('ignore_capacity_check', False):
             fq = ' '.join(p for p in fq.split(' ')
-                          if not 'capacity:' in p)
+                          if 'capacity:' not in p)
             data_dict['fq'] = fq + ' capacity:"public"'
+
+        # Solr doesn't need 'include_drafts`, so pop it.
+        include_drafts = data_dict.pop('include_drafts', False)
+        fq = data_dict.get('fq', '')
+        if include_drafts:
+            user_id = authz.get_user_id_for_username(user, allow_none=True)
+            if authz.is_sysadmin(user):
+                data_dict['fq'] = fq + ' +state:(active OR draft)'
+            elif user_id:
+                # Query to return all active datasets, and all draft datasets
+                # for this user.
+                data_dict['fq'] = fq + \
+                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
+                    ' OR state:active)'.format(user_id)
+        elif not authz.is_sysadmin(user):
+            data_dict['fq'] = fq + ' +state:active'
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
@@ -1716,18 +1758,18 @@ def package_search(context, data_dict):
             package, package_dict = package['id'], package.get(data_source)
             pkg_query = session.query(model.Package)\
                 .filter(model.Package.id == package)\
-                .filter(model.Package.state == u'active')
+                .filter(model.Package.state.in_((u'active', u'draft')))
             pkg = pkg_query.first()
 
-            ## if the index has got a package that is not in ckan then
-            ## ignore it.
+            # if the index has got a package that is not in ckan then
+            # ignore it.
             if not pkg:
                 log.warning('package %s in index but not in database'
                             % package)
                 continue
-            ## use data in search index if there
+            # use data in search index if there
             if package_dict:
-                ## the package_dict still needs translating when being viewed
+                # the package_dict still needs translating when being viewed
                 package_dict = json.loads(package_dict)
                 if context.get('for_view'):
                     for item in plugins.PluginImplementations(
@@ -3308,7 +3350,7 @@ def member_roles_list(context, data_dict):
 
     '''
     group_type = data_dict.get('group_type', 'organization')
-    roles_list = new_authz.roles_list()
+    roles_list = authz.roles_list()
     if group_type == 'group':
         roles_list = [role for role in roles_list
                       if role['value'] != 'editor']

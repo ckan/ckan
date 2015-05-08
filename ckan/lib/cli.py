@@ -6,6 +6,9 @@ import datetime
 import sys
 from pprint import pprint
 import re
+import itertools
+import json
+import logging
 import ckan.logic as logic
 import ckan.model as model
 import ckan.include.rjsmin as rjsmin
@@ -15,6 +18,7 @@ import ckan.plugins as p
 import sqlalchemy as sa
 import urlparse
 import routes
+from pylons import config
 
 import paste.script
 from paste.registry import Registry
@@ -65,9 +69,9 @@ def query_yes_no(question, default="yes"):
 
     The "answer" return value is one of "yes" or "no".
     """
-    valid = {"yes":"yes",   "y":"yes",  "ye":"yes",
-             "no":"no",     "n":"no"}
-    if default == None:
+    valid = {"yes": "yes",   "y": "yes",  "ye": "yes",
+             "no": "no",     "n": "no"}
+    if default is None:
         prompt = " [y/n] "
     elif default == "yes":
         prompt = " [Y/n] "
@@ -100,17 +104,16 @@ class MockTranslator(object):
             return plural
         return singular
 
-class CkanCommand(paste.script.command.Command):
-    '''Base class for classes that implement CKAN paster commands to inherit.
 
-    '''
+class CkanCommand(paste.script.command.Command):
+    '''Base class for classes that implement CKAN paster commands to inherit.'''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
-        help='Config file to use.')
+                      default='development.ini', help='Config file to use.')
     parser.add_option('-f', '--file',
-        action='store',
-        dest='file_path',
-        help="File to dump results to (if needed)")
+                      action='store',
+                      dest='file_path',
+                      help="File to dump results to (if needed)")
     default_verbosity = 1
     group_name = 'ckan'
 
@@ -137,13 +140,13 @@ class CkanCommand(paste.script.command.Command):
 
     def _load_config(self, load_site_user=True):
         conf = self._get_config()
-        assert 'ckan' not in dir() # otherwise loggers would be disabled
+        assert 'ckan' not in dir()  # otherwise loggers would be disabled
         # We have now loaded the config. Now we can import ckan for the
         # first time.
         from ckan.config.environment import load_environment
         load_environment(conf.global_conf, conf.local_conf)
 
-        self.registry=Registry()
+        self.registry = Registry()
         self.registry.prepare()
         import pylons
         self.translator_obj = MockTranslator()
@@ -214,7 +217,7 @@ class ManageDb(CkanCommand):
 
             # remove any *.pyc version files to prevent conflicts
             v_path = os.path.join(os.path.dirname(__file__),
-                               '..', 'migration', 'versions', '*.pyc')
+                                  '..', 'migration', 'versions', '*.pyc')
             import glob
             filelist = glob.glob(v_path)
             for f in filelist:
@@ -393,7 +396,7 @@ class ManageDb(CkanCommand):
                                   "where resource_type = 'file.upload' "
                                   "and (url_type <> 'upload' or url_type is null)"
                                   "and url like '%storage%'")
-        for id, revision_id, url  in results:
+        for id, revision_id, url in results:
             response = requests.get(url, stream=True)
             if response.status_code != 200:
                 print "failed to fetch %s (code %s)" % (url,
@@ -417,7 +420,7 @@ class ManageDb(CkanCommand):
                         out.write(chunk)
 
             Session.execute("update resource set url_type = 'upload'"
-                            "where id = '%s'"  % id)
+                            "where id = '%s'" % id)
             Session.execute("update resource_revision set url_type = 'upload'"
                             "where id = '%s' and "
                             "revision_id = '%s'" % (id, revision_id))
@@ -427,7 +430,6 @@ class ManageDb(CkanCommand):
     def version(self):
         from ckan.model import Session
         print Session.execute('select version from migrate_version;').fetchall()
-
 
 
 class SearchIndexCommand(CkanCommand):
@@ -449,25 +451,26 @@ class SearchIndexCommand(CkanCommand):
     max_args = 2
     min_args = 0
 
-    def __init__(self,name):
-
-        super(SearchIndexCommand,self).__init__(name)
+    def __init__(self, name):
+        super(SearchIndexCommand, self).__init__(name)
 
         self.parser.add_option('-i', '--force', dest='force',
-            action='store_true', default=False, help='Ignore exceptions when rebuilding the index')
+                               action='store_true', default=False,
+                               help='Ignore exceptions when rebuilding the index')
 
         self.parser.add_option('-o', '--only-missing', dest='only_missing',
-            action='store_true', default=False, help='Index non indexed datasets only')
+                               action='store_true', default=False,
+                               help='Index non indexed datasets only')
 
         self.parser.add_option('-r', '--refresh', dest='refresh',
-            action='store_true', default=False, help='Refresh current index (does not clear the existing one)')
+                               action='store_true', default=False,
+                               help='Refresh current index (does not clear the existing one)')
 
         self.parser.add_option('-e', '--commit-each', dest='commit_each',
-            action='store_true', default=False, help=
+                               action='store_true', default=False, help=
 '''Perform a commit after indexing each dataset. This ensures that changes are
 immediately available on the search, but slows significantly the process.
-Default is false.'''
-                    )
+Default is false.''')
 
     def command(self):
         if not self.args:
@@ -512,7 +515,6 @@ Default is false.'''
 
     def check(self):
         from ckan.lib.search import check
-
         check()
 
     def show(self):
@@ -526,8 +528,7 @@ Default is false.'''
 
     def clear(self):
         from ckan.lib.search import clear
-
-        package_id =self.args[1] if len(self.args) > 1 else None
+        package_id = self.args[1] if len(self.args) > 1 else None
         clear(package_id)
 
     def rebuild_fast(self):
@@ -567,6 +568,7 @@ Default is false.'''
 
         for process in processes:
             process.join()
+
 
 class Notification(CkanCommand):
     '''Send out modification notifications.
@@ -619,7 +621,7 @@ class RDFExport(CkanCommand):
             # default to run
             print RDFExport.__doc__
         else:
-            self.export_datasets( self.args[0] )
+            self.export_datasets(self.args[0])
 
     def export_datasets(self, out_folder):
         '''
@@ -633,31 +635,28 @@ class RDFExport(CkanCommand):
         import ckan.lib.helpers as h
 
         # Create output folder if not exists
-        if not os.path.isdir( out_folder ):
-            os.makedirs( out_folder )
+        if not os.path.isdir(out_folder):
+            os.makedirs(out_folder)
 
         fetch_url = config['ckan.site_url']
         user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
         context = {'model': model, 'session': model.Session, 'user': user['name']}
         dataset_names = logic.get_action('package_list')(context, {})
         for dataset_name in dataset_names:
-            dd = logic.get_action('package_show')(context, {'id':dataset_name })
+            dd = logic.get_action('package_show')(context, {'id': dataset_name})
             if not dd['state'] == 'active':
                 continue
 
-            url = h.url_for( controller='package',action='read',
-                                                  id=dd['name'])
+            url = h.url_for(controller='package', action='read', id=dd['name'])
 
             url = urlparse.urljoin(fetch_url, url[1:]) + '.rdf'
             try:
-                fname = os.path.join( out_folder, dd['name'] ) + ".rdf"
+                fname = os.path.join(out_folder, dd['name']) + ".rdf"
                 r = urllib2.urlopen(url).read()
                 with open(fname, 'wb') as f:
                     f.write(r)
             except IOError, ioe:
-                sys.stderr.write( str(ioe) + "\n" )
-
-
+                sys.stderr.write(str(ioe) + "\n")
 
 
 class Sysadmin(CkanCommand):
@@ -680,7 +679,7 @@ class Sysadmin(CkanCommand):
         import ckan.model as model
 
         cmd = self.args[0] if self.args else None
-        if cmd == None or cmd == 'list':
+        if cmd is None or cmd == 'list':
             self.list()
         elif cmd == 'add':
             self.add()
@@ -793,7 +792,7 @@ class UserCmd(CkanCommand):
     def list(self):
         import ckan.model as model
         print 'Users:'
-        users = model.Session.query(model.User).filter_by(state = 'active')
+        users = model.Session.query(model.User).filter_by(state='active')
         print 'count = %i' % users.count()
         for user in users:
             print self.get_user_str(user)
@@ -865,17 +864,20 @@ class UserCmd(CkanCommand):
         if 'password' not in data_dict:
             data_dict['password'] = self.password_prompt()
 
+        if 'fullname' in data_dict:
+            data_dict['fullname'] = data_dict['fullname'].decode(sys.getfilesystemencoding())
+
         print('Creating user: %r' % username)
 
         try:
             import ckan.logic as logic
             site_user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
             context = {
-                    'model': model,
-                    'session': model.Session,
-                    'ignore_auth': True,
-                    'user': site_user['name'],
-                    }
+                'model': model,
+                'session': model.Session,
+                'ignore_auth': True,
+                'user': site_user['name'],
+            }
             user_dict = logic.get_action('user_create')(context, data_dict)
             pprint(user_dict)
         except logic.ValidationError, e:
@@ -939,8 +941,7 @@ class DatasetCmd(CkanCommand):
         datasets = model.Session.query(model.Package)
         print 'count = %i' % datasets.count()
         for dataset in datasets:
-            state = ('(%s)' % dataset.state) if dataset.state != 'active' \
-                    else ''
+            state = ('(%s)' % dataset.state) if dataset.state != 'active' else ''
             print '%s %s %s' % (dataset.id, dataset.name, state)
 
     def _get_dataset(self, dataset_ref):
@@ -1007,7 +1008,16 @@ class Celery(CkanCommand):
                 sys.exit(1)
 
     def run_(self):
-        os.environ['CKAN_CONFIG'] = os.path.abspath(self.options.config)
+        default_ini = os.path.join(os.getcwd(), 'development.ini')
+
+        if self.options.config:
+            os.environ['CKAN_CONFIG'] = os.path.abspath(self.options.config)
+        elif os.path.isfile(default_ini):
+            os.environ['CKAN_CONFIG'] = default_ini
+        else:
+            print 'No .ini specified and none was found in current directory'
+            sys.exit(1)
+
         from ckan.lib.celery_app import celery
         celery_args = []
         if len(self.args) == 2 and self.args[1] == 'concurrency':
@@ -1079,7 +1089,7 @@ class Ratings(CkanCommand):
         import ckan.model as model
         q = model.Session.query(model.Rating)
         print "%i ratings" % q.count()
-        q = q.filter(model.Rating.user_id == None)
+        q = q.filter(model.Rating.user_id is None)
         print "of which %i are anonymous ratings" % q.count()
 
     def clean(self, user_ratings=True):
@@ -1087,7 +1097,7 @@ class Ratings(CkanCommand):
         q = model.Session.query(model.Rating)
         print "%i ratings" % q.count()
         if not user_ratings:
-            q = q.filter(model.Rating.user_id == None)
+            q = q.filter(model.Rating.user_id is None)
             print "of which %i are anonymous ratings" % q.count()
         ratings = q.all()
         for rating in ratings:
@@ -1185,9 +1195,7 @@ class Tracking(CkanCommand):
                GROUP BY p.id, p.name
                ORDER BY total_views DESC
         '''
-        return [_ViewCount(*t) for t in engine.execute(
-                    sql, measure_from=str(measure_from)
-                ).fetchall()]
+        return [_ViewCount(*t) for t in engine.execute(sql, measure_from=str(measure_from)).fetchall()]
 
     def export_tracking(self, engine, output_filename):
         '''Write tracking summary to a csv file.'''
@@ -1309,6 +1317,7 @@ class Tracking(CkanCommand):
                 raise
         print 'search index rebuilding done.' + (' %i not found.' % (not_found) if not_found else "")
 
+
 class PluginInfo(CkanCommand):
     '''Provide info on installed plugins.
     '''
@@ -1331,7 +1340,7 @@ class PluginInfo(CkanCommand):
             item = getattr(p, name)
             try:
                 if issubclass(item, p.Interface):
-                    interfaces[item] = {'class' : item}
+                    interfaces[item] = {'class': item}
             except TypeError:
                 pass
 
@@ -1339,9 +1348,9 @@ class PluginInfo(CkanCommand):
             for plugin in p.PluginImplementations(interface):
                 name = plugin.name
                 if name not in plugins:
-                    plugins[name] = {'doc' : plugin.__doc__,
-                                     'class' : plugin,
-                                     'implements' : []}
+                    plugins[name] = {'doc': plugin.__doc__,
+                                     'class': plugin,
+                                     'implements': []}
                 plugins[name]['implements'].append(interface.__name__)
 
         for plugin in plugins:
@@ -1361,7 +1370,6 @@ class PluginInfo(CkanCommand):
                 if extra:
                     print extra
             print
-
 
     def actions(self, cls):
         ''' Return readable action function info. '''
@@ -1440,7 +1448,7 @@ class CreateTestDataCommand(CkanCommand):
         elif cmd == 'user':
             CreateTestData.create_test_user()
             print 'Created user %r with password %r and apikey %r' % ('tester',
-                    'tester', 'tester')
+                                                                      'tester', 'tester')
         elif cmd == 'search':
             CreateTestData.create_search_test_data()
         elif cmd == 'gov':
@@ -1458,6 +1466,7 @@ class CreateTestDataCommand(CkanCommand):
             raise NotImplementedError
         if self.verbose:
             print 'Creating %s test data: Complete!' % cmd
+
 
 class Profile(CkanCommand):
     '''Code speed profiler
@@ -1711,7 +1720,7 @@ class CreateColorSchemeCommand(CkanCommand):
         print hue, saturation
         import colorsys
         ''' Create n related colours '''
-        colors=[]
+        colors = []
         for i in xrange(num_colors):
             ix = i * (1.0/num_colors)
             _lightness = (lightness + (ix * 40))/100.
@@ -1723,7 +1732,7 @@ class CreateColorSchemeCommand(CkanCommand):
                 hex_color += '%02x' % int(part * 255)
             # check and remove any bad values
             if not re.match('^\#[0-9a-f]{6}$', hex_color):
-                hex_color='#FFFFFF'
+                hex_color = '#FFFFFF'
             colors.append(hex_color)
         return colors
 
@@ -1804,7 +1813,6 @@ class TranslationsCommand(CkanCommand):
             self.build_js_translations()
         else:
             print 'command not recognised'
-
 
     def po2dict(self, po, lang):
         '''Convert po object to dictionary data structure (ready for JSON).
@@ -1961,7 +1969,8 @@ class MinifyCommand(CkanCommand):
         super(MinifyCommand, self).__init__(name)
 
         self.parser.add_option('--clean', dest='clean',
-            action='store_true', default=False, help='remove any minified files in the path')
+                               action='store_true', default=False,
+                               help='remove any minified files in the path')
 
     def command(self):
         clean = getattr(self.options, 'clean', False)
@@ -2080,6 +2089,7 @@ class LessCommand(CkanCommand):
             @btnPrimaryBackgroundHighlight: @layoutLinkColor;
             ''',
     }
+
     def less(self):
         ''' Compile less files '''
         import subprocess
@@ -2102,8 +2112,6 @@ class LessCommand(CkanCommand):
         f.close()
         self.compile_less(root, less_bin, 'main')
 
-
-
     def compile_less(self, root, less_bin, color):
         print 'compile %s.css' % color
         import subprocess
@@ -2114,7 +2122,6 @@ class LessCommand(CkanCommand):
 
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output = process.communicate()
-
 
 
 class FrontEndBuildCommand(CkanCommand):
@@ -2152,55 +2159,360 @@ class FrontEndBuildCommand(CkanCommand):
         cmd.args = (root, ckanext)
         cmd.command()
 
+
 class ViewsCommand(CkanCommand):
     '''Manage resource views.
 
     Usage:
 
-        paster views create all                 - Create views for all types.
-        paster views create [type1] [type2] ... - Create views for specified types.
-        paster views clean                      - Permanently delete views for all types no longer in the configuration file.
+        paster views create [options] [type1] [type2] ...
 
-    Supported types are "pdf", "text", "webpage", "image" and "grid".  Make
-    sure the relevant plugins are loaded for the following types, otherwise
-    an error will be raised:
-        * "grid"-> "recline_grid_view"
-        * "pdf" -> "pdf_view"
-        * "text -> "text_view"
+            Create views on relevant resources. You can optionally provide
+            specific view types (eg `recline_view`, `image_view`). If no types
+            are provided, the default ones will be used. These are generally
+            the ones defined in the `ckan.views.default_views` config option.
+            Note that on either case, plugins must be loaded (ie added to
+            `ckan.plugins`), otherwise the command will stop.
+
+        paster views clear [options] [type1] [type2] ...
+
+            Permanently delete all views or the ones with the provided types.
+
+        paster views clean
+
+            Permanently delete views for all types no longer present in the
+            `ckan.plugins` configuration option.
+
     '''
 
     summary = __doc__.split('\n')[0]
     usage = __doc__
     min_args = 1
 
+    def __init__(self, name):
+
+        super(ViewsCommand, self).__init__(name)
+
+        self.parser.add_option('-y', '--yes', dest='assume_yes',
+                               action='store_true',
+                               default=False,
+                               help='''Automatic yes to prompts. Assume "yes"
+as answer to all prompts and run non-interactively''')
+
+        self.parser.add_option('-d', '--dataset', dest='dataset_id',
+                               action='append',
+                               help='''Create views on a particular dataset.
+You can use the dataset id or name, and it can be defined multiple times.''')
+
+        self.parser.add_option('--no-default-filters',
+                               dest='no_default_filters',
+                               action='store_true',
+                               default=False,
+                               help='''Do not add default filters for relevant
+resource formats for the view types provided. Note that filters are not added
+by default anyway if an unsupported view type is provided or when using the
+`-s` or `-d` options.''')
+
+        self.parser.add_option('-s', '--search', dest='search_params',
+                               action='store',
+                               default=False,
+                               help='''Extra search parameters that will be
+used for getting the datasets to create the resource views on. It must be a
+JSON object like the one used by the `package_search` API call. Supported
+fields are `q`, `fq` and `fq_list`. Check the documentation for examples.
+Not used when using the `-d` option.''')
+
     def command(self):
         self._load_config()
         if not self.args:
             print self.usage
         elif self.args[0] == 'create':
-            self.create_views(self.args[1:])
+            view_plugin_types = self.args[1:]
+            self.create_views(view_plugin_types)
+        elif self.args[0] == 'clear':
+            view_plugin_types = self.args[1:]
+            self.clear_views(view_plugin_types)
         elif self.args[0] == 'clean':
             self.clean_views()
         else:
             print self.usage
 
-    def create_views(self, view_types):
-        supported_types = ['grid', 'text', 'webpage', 'pdf', 'image']
-        if not view_types:
-            print self.usage
-            return
-        if view_types[0] == 'all':
-            view_types = supported_types
+    _page_size = 100
+
+    def _get_view_plugins(self, view_plugin_types,
+                          get_datastore_views=False):
+        '''
+        Returns the view plugins that were succesfully loaded
+
+        Views are provided as a list of ``view_plugin_types``. If no types are
+        provided, the default views defined in the ``ckan.views.default_views``
+        will be created. Only in this case (when the default view plugins are
+        used) the `get_datastore_views` parameter can be used to get also view
+        plugins that require data to be in the DataStore.
+
+        If any of the provided plugins could not be loaded (eg it was not added
+        to `ckan.plugins`) the command will stop.
+
+        Returns a list of loaded plugin names.
+        '''
+        from ckan.lib.datapreview import (get_view_plugins,
+                                          get_default_view_plugins
+                                          )
+
+        log = logging.getLogger(__name__)
+
+        view_plugins = []
+
+        if not view_plugin_types:
+            log.info('No view types provided, using default types')
+            view_plugins = get_default_view_plugins()
+            if get_datastore_views:
+                view_plugins.extend(
+                    get_default_view_plugins(get_datastore_views=True))
         else:
-            for view_type in view_types:
-                if view_type not in supported_types:
-                    print 'View type {view} not supported in this command'.format(view=view_type)
-                    return
+            view_plugins = get_view_plugins(view_plugin_types)
+
+        loaded_view_plugins = [view_plugin.info()['name']
+                               for view_plugin in view_plugins]
+
+        plugins_not_found = list(set(view_plugin_types) -
+                                 set(loaded_view_plugins))
+
+        if plugins_not_found:
+            msg = ('View plugin(s) not found : {0}. '.format(plugins_not_found)
+                   + 'Have they been added to the `ckan.plugins` configuration'
+                   + ' option?')
+            log.error(msg)
+            sys.exit(1)
+
+        return loaded_view_plugins
+
+    def _add_default_filters(self, search_data_dict, view_types):
+        '''
+        Adds extra filters to the `package_search` dict for common view types
+
+        It basically adds `fq` parameters that filter relevant resource formats
+        for the view types provided. For instance, if one of the view types is
+        `pdf_view` the following will be added to the final query:
+
+            fq=res_format:"pdf" OR res_format:"PDF"
+
+        This obviously should only be used if all view types are known and can
+        be filtered, otherwise we want all datasets to be returned. If a
+        non-filterable view type is provided, the search params are not
+        modified.
+
+        Returns the provided data_dict for `package_search`, optionally
+        modified with extra filters.
+        '''
+
+        from ckanext.imageview.plugin import DEFAULT_IMAGE_FORMATS
+        from ckanext.textview.plugin import get_formats as get_text_formats
+        from ckanext.datapusher.plugin import DEFAULT_FORMATS as \
+            datapusher_formats
+
+        filter_formats = []
 
         for view_type in view_types:
-            create_function_name = 'create_%s_views' % view_type
-            create_function = getattr(self, create_function_name)
-            create_function()
+            if view_type == 'image_view':
+
+                for _format in DEFAULT_IMAGE_FORMATS:
+                    filter_formats.extend([_format, _format.upper()])
+
+            elif view_type == 'text_view':
+                formats = get_text_formats(config)
+                for _format in itertools.chain.from_iterable(formats.values()):
+                    filter_formats.extend([_format, _format.upper()])
+
+            elif view_type == 'pdf_view':
+                filter_formats.extend(['pdf', 'PDF'])
+
+            elif view_type in ['recline_view', 'recline_grid_view',
+                               'recline_graph_view', 'recline_map_view']:
+
+                if datapusher_formats[0] in filter_formats:
+                    continue
+
+                for _format in datapusher_formats:
+                    if '/' not in _format:
+                        filter_formats.extend([_format, _format.upper()])
+            else:
+                # There is another view type provided so we can't add any
+                # filter
+                return search_data_dict
+
+        filter_formats_query = ['+res_format:"{0}"'.format(_format)
+                                for _format in filter_formats]
+        search_data_dict['fq_list'].append(' OR '.join(filter_formats_query))
+
+        return search_data_dict
+
+    def _update_search_params(self, search_data_dict):
+        '''
+        Update the `package_search` data dict with the user provided parameters
+
+        Supported fields are `q`, `fq` and `fq_list`.
+
+        If the provided JSON object can not be parsed the process stops with
+        an error.
+
+        Returns the updated data dict
+        '''
+
+        log = logging.getLogger(__name__)
+
+        if not self.options.search_params:
+            return search_data_dict
+
+        try:
+            user_search_params = json.loads(self.options.search_params)
+        except ValueError, e:
+            log.error('Unable to parse JSON search parameters: {0}'.format(e))
+            sys.exit(1)
+
+        if user_search_params.get('q'):
+            search_data_dict['q'] = user_search_params['q']
+
+        if user_search_params.get('fq'):
+            if search_data_dict['fq']:
+                search_data_dict['fq'] += ' ' + user_search_params['fq']
+            else:
+                search_data_dict['fq'] = user_search_params['fq']
+
+        if (user_search_params.get('fq_list') and
+                isinstance(user_search_params['fq_list'], list)):
+            search_data_dict['fq_list'].extend(user_search_params['fq_list'])
+
+    def _search_datasets(self, page=1, view_types=[]):
+        '''
+        Perform a query with `package_search` and return the result
+
+        Results can be paginated using the `page` parameter
+        '''
+
+        n = self._page_size
+
+        search_data_dict = {
+            'q': '',
+            'fq': '',
+            'fq_list': [],
+            'rows': n,
+            'start': n * (page - 1),
+        }
+
+        if self.options.dataset_id:
+
+            search_data_dict['q'] = ' OR '.join(
+                ['id:{0} OR name:"{0}"'.format(dataset_id)
+                 for dataset_id in self.options.dataset_id]
+            )
+
+        elif self.options.search_params:
+
+            self._update_search_params(search_data_dict)
+
+        elif not self.options.no_default_filters:
+
+            self._add_default_filters(search_data_dict, view_types)
+
+        if not search_data_dict.get('q'):
+            search_data_dict['q'] = '*:*'
+
+        if ('dataset_type:dataset' not in search_data_dict['fq'] and
+                'dataset_type:dataset' not in search_data_dict['fq_list']):
+            search_data_dict['fq_list'].append('dataset_type:dataset')
+
+        query = p.toolkit.get_action('package_search')(
+            {'ignore_capacity_check': True},
+            search_data_dict)
+
+        return query
+
+    def create_views(self, view_plugin_types=[]):
+
+        from ckan.lib.datapreview import add_views_to_dataset_resources
+
+        log = logging.getLogger(__name__)
+
+        datastore_enabled = 'datastore' in config['ckan.plugins'].split()
+
+        loaded_view_plugins = self._get_view_plugins(view_plugin_types,
+                                                     datastore_enabled)
+
+        context = {'user': self.site_user['name']}
+
+        page = 1
+        while True:
+            query = self._search_datasets(page, loaded_view_plugins)
+
+            if page == 1 and query['count'] == 0:
+                log.info('No datasets to create resource views on, exiting...')
+                sys.exit(1)
+
+            elif page == 1 and not self.options.assume_yes:
+
+                msg = ('\nYou are about to check {0} datasets for the ' +
+                       'following view plugins: {1}\n' +
+                       ' Do you want to continue?')
+
+                confirm = query_yes_no(msg.format(query['count'],
+                                                  loaded_view_plugins))
+
+                if confirm == 'no':
+                    log.info('Command aborted by user')
+                    sys.exit(1)
+
+            if query['results']:
+                for dataset_dict in query['results']:
+
+                    if not dataset_dict.get('resources'):
+                        continue
+
+                    views = add_views_to_dataset_resources(
+                        context,
+                        dataset_dict,
+                        view_types=loaded_view_plugins)
+
+                    if views:
+                        view_types = list(set([view['view_type']
+                                               for view in views]))
+                        msg = ('Added {0} view(s) of type(s) {1} to ' +
+                               'resources from dataset {2}')
+                        log.debug(msg.format(len(views),
+                                             ', '.join(view_types),
+                                             dataset_dict['name']))
+
+                if len(query['results']) < self._page_size:
+                    break
+
+                page += 1
+            else:
+                break
+
+        log.info('Done')
+
+    def clear_views(self, view_plugin_types=[]):
+
+        log = logging.getLogger(__name__)
+
+        if not self.options.assume_yes:
+            if view_plugin_types:
+                msg = 'Are you sure you want to delete all resource views ' + \
+                      'of type {0}?'.format(', '.join(view_plugin_types))
+            else:
+                msg = 'Are you sure you want to delete all resource views?'
+
+            result = query_yes_no(msg, default='no')
+
+            if result == 'no':
+                log.info('Command aborted by user')
+                sys.exit(1)
+
+        context = {'user': self.site_user['name']}
+        logic.get_action('resource_view_clear')(
+            context, {'view_types': view_plugin_types})
+
+        log.info('Done')
 
     def clean_views(self):
         names = []
@@ -2226,156 +2538,6 @@ class ViewsCommand(CkanCommand):
         model.ResourceView.delete_not_in_view_types(names)
         model.Session.commit()
         print 'Deleted resource views.'
-
-    def create_text_views(self):
-        if not p.plugin_loaded('text_view'):
-            print 'Please enable the text_view plugin to make the text views.'
-            return
-
-        if not p.plugin_loaded('resource_proxy'):
-            print 'Please enable the resource_proxy plugin to make the text views.'
-            return
-
-        print 'Text resource views are being created'
-
-        import ckanext.textview.plugin as textplugin
-
-        formats = tuple(textplugin.DEFAULT_TEXT_FORMATS + textplugin.DEFAULT_XML_FORMATS +
-                        textplugin.DEFAULT_JSON_FORMATS + textplugin.DEFAULT_JSONP_FORMATS)
-
-        resources = model.Resource.get_all_without_views(formats)
-
-        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-        context = {'model': model, 'session': model.Session, 'user': user['name']}
-
-        count = 0
-        for resource in resources:
-            count += 1
-            resource_view = {'title': 'Text View',
-                             'description': 'View of the {format} file'.format(
-                              format=resource.format.upper()),
-                             'resource_id': resource.id,
-                             'view_type': 'text'}
-
-            logic.get_action('resource_view_create')(context, resource_view)
-
-        print '%s text resource views created!' % count
-
-
-    def create_image_views(self):
-        import ckanext.imageview.plugin as imagevewplugin
-        formats = tuple(imagevewplugin.DEFAULT_IMAGE_FORMATS)
-
-        print 'Image resource views are being created'
-
-        resources = model.Resource.get_all_without_views(formats)
-
-        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-        context = {'model': model, 'session': model.Session, 'user': user['name']}
-
-        count = 0
-        for resource in resources:
-            count += 1
-            resource_view = {'title': 'Resource Image',
-                             'description': 'View of the Image',
-                             'resource_id': resource.id,
-                             'view_type': 'image_view'}
-
-            logic.get_action('resource_view_create')(context, resource_view)
-
-        print '%s image resource views created!' % count
-
-    def create_webpage_views(self):
-        formats = tuple(['html', 'htm'])
-
-        print 'Web page resource views are being created'
-
-        resources = model.Resource.get_all_without_views(formats)
-
-        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-        context = {'model': model, 'session': model.Session, 'user': user['name']}
-
-        count = 0
-        for resource in resources:
-            count += 1
-            resource_view = {'title': 'Web Page View',
-                             'description': 'View of the webpage',
-                             'resource_id': resource.id,
-                             'view_type': 'webpage_view'}
-
-            logic.get_action('resource_view_create')(context, resource_view)
-
-        print '%s webpage resource views created!' % count
-
-    def create_pdf_views(self):
-        if not p.plugin_loaded('pdf_view'):
-            print 'Please enable the pdf_view plugin to make the PDF views.'
-            return
-
-        if not p.plugin_loaded('resource_proxy'):
-            print 'Please enable the resource_proxy plugin to make the PDF views.'
-            return
-
-        print 'PDF resource views are being created'
-
-        resources = model.Resource.get_all_without_views(['pdf'])
-
-        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-        context = {'model': model, 'session': model.Session, 'user': user['name']}
-
-        count = 0
-        for resource in resources:
-            count += 1
-            resource_view = {'title': 'PDF View',
-                             'description': 'PDF view of the resource.',
-                             'resource_id': resource.id,
-                             'view_type': 'pdf'}
-
-            logic.get_action('resource_view_create')(context, resource_view)
-
-        print '%s pdf resource views created!' % count
-
-    def create_grid_views(self):
-        import ckan.plugins.toolkit as toolkit
-        import ckanext.datastore.db as db
-        import pylons
-
-        if not p.plugin_loaded('datastore'):
-            print 'The datastore plugin needs to be enabled to generate the grid views.'
-            return
-
-        if not p.plugin_loaded('recline_grid_view'):
-            print 'Please enable the recline_grid_view plugin to make the grid views.'
-            return
-
-        print 'Grid resource views are being created'
-
-        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-        context = {'model': model, 'session': model.Session, 'user': user['name']}
-
-        data_dict = {}
-        data_dict['connection_url'] = pylons.config['ckan.datastore.write_url']
-
-        resources_sql = sa.text(u'''SELECT name FROM "_table_metadata"
-                                    WHERE alias_of is null''')
-        results = db._get_engine(data_dict).execute(resources_sql)
-
-        count = 0
-        for row in results:
-            try:
-                res = logic.get_action('resource_view_list')(context, {'id': row[0]})
-            except toolkit.ObjectNotFound:
-                continue
-            if res:
-                continue
-            count += 1
-            resource_view = {'resource_id': row[0],
-                             'view_type': 'recline_grid_view',
-                             'title': 'Grid view',
-                             'description': 'View of data within the DataStore'}
-            logic.get_action('resource_view_create')(context, resource_view)
-
-        print '%s grid resource views created!' % count
 
 
 class ConfigToolCommand(paste.script.command.Command):

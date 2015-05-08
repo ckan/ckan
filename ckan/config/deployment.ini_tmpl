@@ -57,15 +57,15 @@ ckan.datastore.default_fts_index_method = gist
 ## Site Settings
 
 ckan.site_url =
-
+#ckan.use_pylons_response_cleanup_middleware = true
 
 ## Authorization Settings
 
 ckan.auth.anon_create_dataset = false
-ckan.auth.create_unowned_dataset = true
-ckan.auth.create_dataset_if_not_in_organization = true
-ckan.auth.user_create_groups = true
-ckan.auth.user_create_organizations = true
+ckan.auth.create_unowned_dataset = false
+ckan.auth.create_dataset_if_not_in_organization = false
+ckan.auth.user_create_groups = false
+ckan.auth.user_create_organizations = false
 ckan.auth.user_delete_groups = true
 ckan.auth.user_delete_organizations = true
 ckan.auth.create_user_via_api = false
@@ -94,10 +94,13 @@ ckan.site_id = default
 
 # Note: Add ``datastore`` to enable the CKAN DataStore
 #       Add ``datapusher`` to enable DataPusher
-#       Add ``pdf_view`` to enable the resource views for PDFs
 #		Add ``resource_proxy`` to enable resorce proxying and get around the
 #		same origin policy
-ckan.plugins = stats text_view recline_view
+ckan.plugins = stats text_view image_view recline_view
+
+# Define which views should be created by default
+# (plugins must be loaded in ckan.plugins)
+ckan.views.default_views = image_view text_view recline_view
 
 
 ## Front-End Settings
@@ -159,10 +162,10 @@ ckan.hide_activity_from_users = %(ckan.site_id)s
 
 ## Email settings
 
-email_to = you@yourdomain.com
-error_email_from = paste@localhost
-smtp.server = localhost
-smtp.starttls = False
+#email_to = you@yourdomain.com
+#error_email_from = paste@localhost
+#smtp.server = localhost
+#smtp.starttls = False
 #smtp.user = your_username@gmail.com
 #smtp.password = your_password
 #smtp.mail_from =

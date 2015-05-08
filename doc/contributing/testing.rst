@@ -12,11 +12,11 @@ Transitioning from legacy to new tests
 --------------------------------------
 
 CKAN is an old code base with a large legacy test suite in
-:mod:`ckan.tests`. The legacy tests are difficult to maintain and
+:mod:`ckan.tests.legacy`. The legacy tests are difficult to maintain and
 extend, but are too many to be replaced all at once in a single effort.  So
 we're following this strategy:
 
-#. A new test suite has been started in :mod:`ckan.new_tests`.
+#. A new test suite has been started in :mod:`ckan.tests`.
 #. For now, we'll run both the legacy tests and the new tests before
    merging something into the master branch.
 #. Whenever we add new code, or change existing code, we'll add new-style tests
@@ -38,7 +38,7 @@ directory entirely.
 Guidelines for writing new-style tests
 --------------------------------------
 
-We want the tests in :mod:`ckan.new_tests` to be:
+We want the tests in :mod:`ckan.tests` to be:
 
 Fast
   * Don't share setup code between tests (e.g. in test class ``setup()`` or
@@ -99,7 +99,7 @@ CKAN tests.
 How should tests be organized?
 ==============================
 
-The organization of test modules in :mod:`ckan.new_tests` mirrors the
+The organization of test modules in :mod:`ckan.tests` mirrors the
 organization of the source modules in :mod:`ckan`::
 
   ckan/
@@ -130,7 +130,7 @@ organization of the source modules in :mod:`ckan`::
 
 There are a few exceptional test modules that don't fit into this structure,
 for example PEP8 tests and coding standards tests. These modules can just go in
-the top-level ``ckan/new_tests/`` directory. There shouldn't be too many of these.
+the top-level ``ckan/tests/`` directory. There shouldn't be too many of these.
 
 
 .. _naming:
@@ -152,7 +152,7 @@ test method names.
 Some modules in CKAN contain large numbers of loosely related functions.
 For example, :mod:`ckan.logic.action.update` contains all functions for
 updating things in CKAN. This means that
-:mod:`ckan.new_tests.logic.action.test_update` is going to contain an even larger
+:mod:`ckan.tests.logic.action.test_update` is going to contain an even larger
 number of test functions.
 
 So as well as the name of each test method explaining the intent of the test,
@@ -205,16 +205,16 @@ give the following recipe for all unit test methods to follow:
 Most CKAN tests should follow this form. Here's an example of a simple action
 function test demonstrating the recipe:
 
-.. literalinclude:: /../ckan/new_tests/logic/action/test_update.py
+.. literalinclude:: /../ckan/tests/logic/action/test_update.py
    :start-after: ## START-AFTER
    :end-before: ## END-BEFORE
 
 One common exception is when you want to use a ``for`` loop to call the
 function being tested multiple times, passing it lots of different arguments
 that should all produce the same return value and/or side effects. For example,
-this test from :py:mod:`ckan.new_tests.logic.action.test_update`:
+this test from :py:mod:`ckan.tests.logic.action.test_update`:
 
-.. literalinclude:: /../ckan/new_tests/logic/action/test_update.py
+.. literalinclude:: /../ckan/tests/logic/action/test_update.py
    :start-after: ## START-FOR-LOOP-EXAMPLE
    :end-before: ## END-FOR-LOOP-EXAMPLE
 
@@ -262,17 +262,17 @@ As a general guideline, the tests for a function or method should:
 
 .. _factory-boy:
 
-Creating test objects: :py:mod:`ckan.new_tests.factories`
+Creating test objects: :py:mod:`ckan.tests.factories`
 ---------------------------------------------------------
 
-.. automodule:: ckan.new_tests.factories
+.. automodule:: ckan.tests.factories
    :members:
 
 
-Test helper functions: :mod:`ckan.new_tests.helpers`
+Test helper functions: :mod:`ckan.tests.helpers`
 ----------------------------------------------------
 
-.. automodule:: ckan.new_tests.helpers
+.. automodule:: ckan.tests.helpers
    :members:
 
 
@@ -298,14 +298,14 @@ what methods the function called on the mock object and with which arguments.
    * Don't mock out more than one or two objects in a single test method.
 
    * Don't use mocking in more functional-style tests. For example the action
-     function tests in :py:mod:`ckan.new_tests.logic.action` and the
-     frontend tests in :py:mod:`ckan.new_tests.controllers` are functional
+     function tests in :py:mod:`ckan.tests.logic.action` and the
+     frontend tests in :py:mod:`ckan.tests.controllers` are functional
      tests, and probably shouldn't do any mocking.
 
    * Do use mocking in more unit-style tests. For example the authorization
-     function tests in :py:mod:`ckan.new_tests.logic.auth`, the converter and
-     validator tests in :py:mod:`ckan.new_tests.logic.auth`, and most (all?)
-     lib tests in :py:mod:`ckan.new_tests.lib` are unit tests and should use
+     function tests in :py:mod:`ckan.tests.logic.auth`, the converter and
+     validator tests in :py:mod:`ckan.tests.logic.auth`, and most (all?)
+     lib tests in :py:mod:`ckan.tests.lib` are unit tests and should use
      mocking when necessary (often it's possible to unit test a method in
      isolation from other CKAN code without doing any mocking, which is ideal).
 
@@ -337,11 +337,11 @@ certain method should raise a certain exception, etc.
 
 You should read the mock library's documentation to really understand what's
 going on, but here's an example of a test from
-:py:mod:`ckan.new_tests.logic.auth.test_update` that tests the
+:py:mod:`ckan.tests.logic.auth.test_update` that tests the
 :py:func:`~ckan.logic.auth.update.user_update` authorization function and mocks
 out :py:mod:`ckan.model`:
 
-.. literalinclude:: /../ckan/new_tests/logic/auth/test_update.py
+.. literalinclude:: /../ckan/tests/logic/auth/test_update.py
    :start-after: ## START-AFTER
    :end-before: ## END-BEFORE
 
@@ -362,13 +362,13 @@ tests for each module in CKAN.
 Writing :mod:`ckan.logic.action` tests
 --------------------------------------
 
-.. automodule:: ckan.new_tests.logic.action
+.. automodule:: ckan.tests.logic.action
 
 
 Writing :mod:`ckan.logic.auth` tests
 ------------------------------------
 
-.. automodule:: ckan.new_tests.logic.auth
+.. automodule:: ckan.tests.logic.auth
 
 
 Writing converter and validator tests
@@ -401,7 +401,7 @@ When testing validators, we often want to make the same assertions in many
 tests: assert that the validator didn't modify the ``data`` dict, assert that
 the validator didn't modify the ``errors`` dict, assert that the validator
 raised ``Invalid``, etc. Decorator functions are defined at the top of
-validator test modules like :py:mod:`ckan.new_tests.logic.test_validators` to
+validator test modules like :py:mod:`ckan.tests.logic.test_validators` to
 make these common asserts easy. To use one of these decorators you have to:
 
 1. Define a nested function inside your test method, that simply calls the
@@ -411,7 +411,7 @@ make these common asserts easy. To use one of these decorators you have to:
 
 Here's an example of a simple validator test that uses this technique:
 
-.. literalinclude:: /../ckan/new_tests/logic/test_validators.py
+.. literalinclude:: /../ckan/tests/logic/test_validators.py
    :start-after: ## START-AFTER
    :end-before: ## END-BEFORE
 
@@ -419,37 +419,37 @@ Here's an example of a simple validator test that uses this technique:
 No tests for :mod:`ckan.logic.schema.py`
 ----------------------------------------
 
-.. automodule:: ckan.new_tests.logic.test_schema
+.. automodule:: ckan.tests.logic.test_schema
 
 
 Writing :mod:`ckan.controllers` tests
 -------------------------------------
 
-.. automodule:: ckan.new_tests.controllers
+.. automodule:: ckan.tests.controllers
 
 
 Writing :mod:`ckan.model` tests
 -------------------------------
 
-.. automodule:: ckan.new_tests.model
+.. automodule:: ckan.tests.model
 
 
 Writing :mod:`ckan.lib` tests
 -----------------------------
 
-.. automodule:: ckan.new_tests.lib
+.. automodule:: ckan.tests.lib
 
 
 Writing :mod:`ckan.plugins` tests
 ---------------------------------
 
-.. automodule:: ckan.new_tests.plugins
+.. automodule:: ckan.tests.plugins
 
 
 Writing :mod:`ckan.migration` tests
 -----------------------------------
 
-.. automodule:: ckan.new_tests.migration
+.. automodule:: ckan.tests.migration
 
 
 Writing :mod:`ckan.ckanext` tests

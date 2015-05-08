@@ -16,7 +16,7 @@ class WebPageView(p.SingletonPlugin):
 
     def info(self):
         return {'name': 'webpage_view',
-                'title': 'Web Page',
+                'title': p.toolkit._('Website'),
                 'schema': {'page_url': [ignore_empty, unicode]},
                 'iframed': False,
                 'icon': 'link',
