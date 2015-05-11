@@ -2283,11 +2283,11 @@ msgstr "Εγγραφή"
 #: ckan/templates_legacy/user/read.html:55
 #: ckan/templates_legacy/user/read.html:78
 msgid "Datasets"
-msgstr "Σύνολα Δεδομένων"
+msgstr "Δεδομένα"
 
 #: ckan/templates/header.html:107
 msgid "Search Datasets"
-msgstr "Αναζήτηση Συνόλων Δεδομένων"
+msgstr "Αναζήτηση Δεδομένων"
 
 #: ckan/templates/header.html:108 ckan/templates/group/read.html:14
 #: ckan/templates/organization/read.html:18
@@ -4152,7 +4152,7 @@ msgstr "Εμφάνιση Περισσοτέρων"
 
 #: ckan/templates/snippets/facet_list.html:74
 msgid "Show Only Popular {facet_type}"
-msgstr "Εμφάνιση Μόνο των Δημοφιλέστερων {facet_type}"
+msgstr "Εμφάνιση Μόνο των Δημοφιλέστερων"
 
 #: ckan/templates/snippets/facet_list.html:78
 msgid "There are no {facet_type} that match this search"
