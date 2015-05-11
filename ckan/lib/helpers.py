@@ -1832,7 +1832,7 @@ def resource_view_full_page(resource_view):
 
 def remove_linebreaks(string):
     '''Remove linebreaks from string to make it usable in JavaScript'''
-    return str(string).replace('\n', '')
+    return unicode(string).replace('\n', '')
 
 
 def list_dict_filter(list_, search_field, output_field, value):
