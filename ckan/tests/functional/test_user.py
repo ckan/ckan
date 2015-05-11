@@ -936,3 +936,23 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                          id='randomness',  # i.e. incorrect
                          key='randomness')
         res = self.app.get(offset, status=404)
+
+    def test_perform_reset_for_key_change(self):
+        from ckan.lib.mailer import create_reset_key
+
+        CreateTestData.create_user('jack', email='a@a.com')
+        user = model.User.by_name(u'jack')
+        create_reset_key(user)
+        key = user.reset_key
+        password = 'password'
+        params = {'password1': password, 'password2': password}
+
+        offset = url_for(controller='user',
+                         action='perform_reset',
+                         id=user.id,
+                         key=user.reset_key)
+
+        res = self.app.post(offset, params=params, extra_environ={'REMOTE_USER': str(user.name)})
+
+        user = model.User.by_name(u'jack')
+        assert key != user.reset_key
