@@ -6,7 +6,7 @@ from sqlalchemy.orm import class_mapper
 
 import ckan.lib.dictization as d
 import ckan.lib.helpers as h
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 
 log = logging.getLogger(__name__)
 
@@ -228,7 +228,7 @@ def package_membership_list_save(group_dicts, package, context):
         member_obj = group_member[group]
         if member_obj and member_obj.state == 'deleted':
             continue
-        if new_authz.has_user_permission_for_group_or_org(
+        if authz.has_user_permission_for_group_or_org(
                 member_obj.group_id, user, 'read'):
             member_obj.capacity = capacity
             member_obj.state = 'deleted'
@@ -239,7 +239,7 @@ def package_membership_list_save(group_dicts, package, context):
         member_obj = group_member.get(group)
         if member_obj and member_obj.state == 'active':
             continue
-        if new_authz.has_user_permission_for_group_or_org(
+        if authz.has_user_permission_for_group_or_org(
                 group.id, user, 'read'):
             member_obj = group_member.get(group)
             if member_obj:

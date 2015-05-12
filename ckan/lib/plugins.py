@@ -6,7 +6,7 @@ import ckan.lib.maintain as maintain
 from ckan import logic
 import logic.schema
 from ckan import plugins
-import ckan.new_authz
+import ckan.authz
 import ckan.plugins.toolkit as toolkit
 
 log = logging.getLogger(__name__)
@@ -273,7 +273,7 @@ class DefaultDatasetForm(object):
         # CS: bad_spelling ignore 2 lines
         c.licences = c.licenses
         maintain.deprecate_context_item('licences', 'Use `c.licenses` instead')
-        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
+        c.is_sysadmin = ckan.authz.is_sysadmin(c.user)
 
         if c.pkg:
             c.related_count = c.pkg.related_count
@@ -475,7 +475,7 @@ class DefaultGroupForm(object):
         pass
 
     def setup_template_variables(self, context, data_dict):
-        c.is_sysadmin = ckan.new_authz.is_sysadmin(c.user)
+        c.is_sysadmin = ckan.authz.is_sysadmin(c.user)
 
         ## This is messy as auths take domain object not data_dict
         context_group = context.get('group', None)

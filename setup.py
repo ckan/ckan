@@ -67,7 +67,7 @@ entry_points = {
         'multilingual_dataset = ckanext.multilingual.plugin:MultilingualDataset',
         'multilingual_group = ckanext.multilingual.plugin:MultilingualGroup',
         'multilingual_tag = ckanext.multilingual.plugin:MultilingualTag',
-        'multilingual_resource = ckanext.multilingual.plugin:MultilingualResource',    
+        'multilingual_resource = ckanext.multilingual.plugin:MultilingualResource',
         'organizations = ckanext.organizations.forms:OrganizationForm',
         'organizations_dataset = ckanext.organizations.forms:OrganizationDatasetForm',
         'datastore = ckanext.datastore.plugin:DatastorePlugin',
@@ -126,6 +126,7 @@ entry_points = {
         'example_theme_custom_config_setting = ckanext.example_theme.custom_config_setting.plugin:ExampleThemePlugin',
         'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',
         'example_ivalidators = ckanext.example_ivalidators.plugin:ExampleIValidatorsPlugin',
+        'example_iconfigurer = ckanext.example_iconfigurer.plugin:ExampleIConfigurerPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
@@ -144,7 +145,7 @@ entry_points = {
         'test_resource_preview = tests.legacy.ckantestplugins:MockResourcePreviewExtension',
         'test_json_resource_preview = tests.legacy.ckantestplugins:JsonMockResourcePreviewExtension',
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
-        'test_datastore_view = ckan.new_tests.lib.test_datapreview:MockDatastoreBasedResourceView',
+        'test_datastore_view = ckan.tests.lib.test_datapreview:MockDatastoreBasedResourceView',
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',

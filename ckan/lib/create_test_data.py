@@ -529,7 +529,7 @@ left arrow <
         model.setup_default_user_roles(david, [russianfan])
         model.setup_default_user_roles(roger, [russianfan])
 
-        # in new_authz you can't give a visitor permissions to a
+        # in authz you can't give a visitor permissions to a
         # group it seems, so this is a bit meaningless
         model.add_user_to_role(visitor, model.Role.ADMIN, roger)
         model.repo.commit_and_remove()

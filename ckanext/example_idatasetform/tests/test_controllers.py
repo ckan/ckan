@@ -2,8 +2,8 @@ from nose.tools import assert_equal
 from routes import url_for
 
 import ckan.plugins as plugins
-import ckan.new_tests.helpers as helpers
-import ckan.new_tests.factories as factories
+import ckan.tests.helpers as helpers
+import ckan.tests.factories as factories
 import ckan.model as model
 
 submit_and_follow = helpers.submit_and_follow

@@ -11,7 +11,7 @@ import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.lib.search as search
 import ckan.model as model
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 import ckan.lib.plugins
 import ckan.plugins as plugins
 from ckan.common import OrderedDict, c, g, request, _
@@ -229,7 +229,7 @@ class GroupController(base.BaseController):
 
         # c.group_admins is used by CKAN's legacy (Genshi) templates only,
         # if we drop support for those then we can delete this line.
-        c.group_admins = new_authz.get_group_or_org_admin_ids(c.group.id)
+        c.group_admins = authz.get_group_or_org_admin_ids(c.group.id)
 
         page = self._get_page_number(request.params)
 
@@ -700,7 +700,7 @@ class GroupController(base.BaseController):
                 user = request.params.get('user')
                 if user:
                     c.user_dict = get_action('user_show')(context, {'id': user})
-                    c.user_role = new_authz.users_role_for_group_or_org(id, user) or 'member'
+                    c.user_role = authz.users_role_for_group_or_org(id, user) or 'member'
                 else:
                     c.user_role = 'member'
         except NotAuthorized:
@@ -898,7 +898,7 @@ class GroupController(base.BaseController):
     def admins(self, id):
         group_type = self._ensure_controller_matches_group_type(id)
         c.group_dict = self._get_group_dict(id)
-        c.admins = new_authz.get_group_or_org_admin_ids(id)
+        c.admins = authz.get_group_or_org_admin_ids(id)
         return render(self._admins_template(c.group_dict['type']),
                       extra_vars={'group_type': group_type})
 
