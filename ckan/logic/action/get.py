@@ -645,7 +645,7 @@ def organization_list_for_user(context, data_dict):
 
         group_ids = set()
         roles_that_cascade = \
-            new_authz.check_config_permission('roles_that_cascade_to_sub_groups')
+            authz.check_config_permission('roles_that_cascade_to_sub_groups')
         for member, group in q.all():
             if member.capacity in roles_that_cascade:
                 group_ids |= set([
