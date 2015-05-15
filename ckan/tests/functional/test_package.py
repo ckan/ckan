@@ -643,27 +643,6 @@ class TestNew(TestPackageForm):
         finally:
             self.clear_language_setting()
 
-class TestSearch(TestPackageForm):
-    pkg_names = []
-
-    @classmethod
-    def setup_class(self):
-        model.repo.init_db()
-
-    @classmethod
-    def teardown_class(self):
-        self.purge_packages(self.pkg_names)
-        model.repo.rebuild_db()
-
-    def test_search_plugin_hooks(self):
-        plugins.load('test_package_controller_plugin')
-        plugin = plugins.get_plugin('test_package_controller_plugin')
-        offset = url_for(controller='package', action='search')
-        res = self.app.get(offset)
-        # get redirected ...
-        assert plugin.calls['before_search'] == 1, plugin.calls
-        assert plugin.calls['after_search'] == 1, plugin.calls
-        plugins.unload('test_package_controller_plugin')
 
 class TestNewPreview(TestPackageBase):
     pkgname = u'testpkg'

@@ -476,3 +476,41 @@ class TestPackageRead(helpers.FunctionalTestBase):
 
         assert 'dcat' in res, res
         assert '{{' not in res, res
+
+
+class TestSearch(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(cls, cls).setup_class()
+        helpers.reset_db()
+
+    def setup(self):
+        model.repo.rebuild_db()
+
+    def test_search_basic(self):
+        dataset1 = factories.Dataset()
+
+        offset = url_for(controller='package', action='search')
+        app = self._get_test_app()
+        page = app.get(offset)
+
+        assert dataset1['name'] in page.body.decode('utf8')
+
+    def test_search_sort_by_blank(self):
+        factories.Dataset()
+
+        # ?sort has caused an exception in the past
+        offset = url_for(controller='package', action='search') + '?sort'
+        app = self._get_test_app()
+        app.get(offset)
+
+    def test_search_plugin_hooks(self):
+        with p.use_plugin('test_package_controller_plugin') as plugin:
+
+            offset = url_for(controller='package', action='search')
+            app = self._get_test_app()
+            app.get(offset)
+
+            # get redirected ...
+            assert plugin.calls['before_search'] == 1, plugin.calls
+            assert plugin.calls['after_search'] == 1, plugin.calls
