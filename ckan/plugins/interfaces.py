@@ -129,7 +129,9 @@ class IMapper(Interface):
 
     def before_delete(self, mapper, connection, instance):
         """
-        Receive an object instance before that instance is DELETEed.
+        Receive an object instance before that instance is PURGEd.
+        (whereas usually in ckan 'delete' means to change the state property to
+        deleted, so use before_update for that case.)
         """
 
     def after_insert(self, mapper, connection, instance):
@@ -144,7 +146,9 @@ class IMapper(Interface):
 
     def after_delete(self, mapper, connection, instance):
         """
-        Receive an object instance after that instance is DELETEed.
+        Receive an object instance after that instance is PURGEd.
+        (whereas usually in ckan 'delete' means to change the state property to
+        deleted, so use before_update for that case.)
         """
 
 
