@@ -232,6 +232,16 @@ def load_environment(global_conf, app_conf):
     p.load_all(config)
 
 
+# A list of config settings that can be overridden by environmental variable.
+ENV_VAR_WHITELIST = {
+    'sqlalchemy.url': 'CKAN_SQLALCHEMY_URL',
+    'ckan.datastore.write_url': 'CKAN_DATASTORE_WRITE_URL',
+    'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
+    'solr_url': 'CKAN_SOLR_URL',
+    'ckan.site_id': 'CKAN_SITE_ID'
+}
+
+
 def update_config():
     ''' This code needs to be run when the config is changed to take those
     changes into account. '''
@@ -241,11 +251,14 @@ def update_config():
         # config = plugin.update_config(config)
         plugin.update_config(config)
 
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Set whitelisted env vars on config object
     # This is set up before globals are initialized
-    site_id = os.environ.get('CKAN_SITE_ID')
-    if site_id:
-        config['ckan.site_id'] = site_id
+    for option in ENV_VAR_WHITELIST:
+        from_env = os.environ.get(ENV_VAR_WHITELIST[option], None)
+        if from_env:
+            config[option] = from_env
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     site_url = config.get('ckan.site_url', '')
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
