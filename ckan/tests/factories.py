@@ -36,6 +36,8 @@ Usage::
  user = factories.User(**user_attributes_dict)
 
 '''
+import random
+import string
 import factory
 import mock
 
@@ -86,6 +88,12 @@ def _generate_group_title(group):
     '''Return a title for the given Group factory stub object.'''
 
     return group.name.replace('_', ' ').title()
+
+
+def _generate_random_string(length=6):
+    '''Return a random string of the defined length.'''
+
+    return ''.join(random.sample(string.ascii_lowercase, length))
 
 
 class User(factory.Factory):
@@ -377,6 +385,32 @@ class MockUser(factory.Factory):
         for name, value in kwargs.items():
             setattr(mock_user, name, value)
         return mock_user
+
+
+class SystemInfo(factory.Factory):
+    '''A factory class for creating SystemInfo objects (config objects
+       stored in the DB).'''
+
+    FACTORY_FOR = ckan.model.SystemInfo
+
+    key = factory.Sequence(lambda n: 'test_config_{n}'.format(n=n))
+    value = _generate_random_string()
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        ckan.model.system_info.set_system_info(kwargs['key'],
+                                               kwargs['value'])
+        obj = ckan.model.Session.query(ckan.model.system_info.SystemInfo) \
+                                .filter_by(key=kwargs['key']).first()
+
+        return obj
 
 
 def validator_data_dict():

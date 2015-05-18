@@ -87,6 +87,7 @@ def set_global(key, value):
     ''' helper function for getting value from database or config file '''
     model.set_system_info(key, value)
     setattr(app_globals, get_globals_key(key), value)
+    #TODO: Only set this if it was actually changed
     model.set_system_info('ckan.config_update', str(time.time()))
     # update the config
     config[key] = value
