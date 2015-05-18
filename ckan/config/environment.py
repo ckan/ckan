@@ -253,6 +253,14 @@ def update_config():
 
     # Set whitelisted env vars on config object
     # This is set up before globals are initialized
+
+    ckan_db = os.environ.get('CKAN_DB', None)
+    if ckan_db:
+        msg = 'Setting CKAN_DB as an env var is deprecated and will be' \
+            ' removed in a future release. Use CKAN_SQLALCHEMY_URL instead.'
+        log.warn(msg)
+        config['sqlalchemy.url'] = ckan_db
+
     for option in ENV_VAR_WHITELIST:
         from_env = os.environ.get(ENV_VAR_WHITELIST[option], None)
         if from_env:
@@ -353,10 +361,6 @@ def update_config():
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
-
-    ckan_db = os.environ.get('CKAN_DB')
-    if ckan_db:
-        config['sqlalchemy.url'] = ckan_db
 
     # for postgresql we want to enforce utf-8
     sqlalchemy_url = config.get('sqlalchemy.url', '')

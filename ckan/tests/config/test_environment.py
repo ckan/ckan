@@ -19,7 +19,8 @@ class TestUpdateConfig(h.FunctionalTestBase):
         ('CKAN_DATASTORE_WRITE_URL', 'http://mynewdbwriteurl/'),
         ('CKAN_DATASTORE_READ_URL', 'http://mynewdbreadurl/'),
         ('CKAN_SOLR_URL', 'http://mynewsolrurl/solr'),
-        ('CKAN_SITE_ID', 'my-site')
+        ('CKAN_SITE_ID', 'my-site'),
+        ('CKAN_DB', 'postgresql://mydeprectatesqlurl/')
     ]
 
     def _setup_env_vars(self):
@@ -30,7 +31,8 @@ class TestUpdateConfig(h.FunctionalTestBase):
 
     def teardown(self):
         for env_var, _ in self.ENV_VAR_LIST:
-            del os.environ[env_var]
+            if os.environ.get(env_var, None):
+                del os.environ[env_var]
         # plugin.load() will force the config to update
         p.load()
 
@@ -51,3 +53,13 @@ class TestUpdateConfig(h.FunctionalTestBase):
                                'http://mynewdbreadurl/')
         nosetools.assert_equal(config['ckan.site_id'],
                                'my-site')
+
+    def test_update_config_db_url_precidence(self):
+        '''CKAN_SQLALCHEMY_URL in the env takes precidence over CKAN_DB'''
+        os.environ.setdefault('CKAN_DB', 'postgresql://mydeprectatesqlurl/')
+        os.environ.setdefault('CKAN_SQLALCHEMY_URL',
+                              'postgresql://mynewsqlurl/')
+        p.load()
+
+        nosetools.assert_equal(config['sqlalchemy.url'],
+                               'postgresql://mynewsqlurl/')
