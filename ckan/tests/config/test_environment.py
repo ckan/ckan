@@ -62,8 +62,8 @@ class TestUpdateConfig(h.FunctionalTestBase):
         nosetools.assert_equal(config['smtp.password'], 'password')
         nosetools.assert_equal(config['smtp.mail_from'], 'server@example.com')
 
-    def test_update_config_db_url_precidence(self):
-        '''CKAN_SQLALCHEMY_URL in the env takes precidence over CKAN_DB'''
+    def test_update_config_db_url_precedence(self):
+        '''CKAN_SQLALCHEMY_URL in the env takes precedence over CKAN_DB'''
         os.environ.setdefault('CKAN_DB', 'postgresql://mydeprectatesqlurl/')
         os.environ.setdefault('CKAN_SQLALCHEMY_URL',
                               'postgresql://mynewsqlurl/')
