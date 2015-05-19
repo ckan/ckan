@@ -443,6 +443,41 @@ class TestUpdate(object):
             helpers.call_action('package_show', id='unchanging')['type'],
             'dataset')
 
+    def test_update_dataset_by_id(self):
+        dataset = factories.Dataset(
+            title='Title 1')
+
+        dataset = helpers.call_action(
+            'package_update',
+            id=dataset['id'],
+            title='Title 2')
+
+        assert_equals(dataset['title'], 'Title 2')
+        assert_equals(
+            helpers.call_action('package_show', id=dataset['id'])['title'],
+            'Title 2')
+
+    def test_update_dataset_by_name(self):
+        dataset = factories.Dataset(
+            title='Title 1')
+
+        dataset = helpers.call_action(
+            'package_update',
+            name=dataset['name'],
+            title='Title 2')
+
+        assert_equals(dataset['title'], 'Title 2')
+        assert_equals(
+            helpers.call_action('package_show', id=dataset['id'])['title'],
+            'Title 2')
+
+    def test_update_dataset_no_id_no_name_raises_validation_error(self):
+        dataset = factories.Dataset()
+
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'package_update',
+                      title=dataset['title'])
+
     def test_update_organization_cant_change_type(self):
         user = factories.User()
         context = {'user': user['name']}

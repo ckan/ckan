@@ -286,7 +286,9 @@ def package_update(context, data_dict):
     '''
     model = context['model']
     user = context['user']
-    name_or_id = data_dict.get("id") or data_dict['name']
+    name_or_id = data_dict.get('id') or data_dict.get('name')
+    if not name_or_id:
+        raise ValidationError('You must provide either an id or a name')
 
     pkg = model.Package.get(name_or_id)
     if pkg is None:
