@@ -2,6 +2,7 @@
 
 import logging
 import datetime
+import time
 import json
 
 from pylons import config
@@ -20,6 +21,8 @@ import ckan.lib.email_notifications as email_notifications
 import ckan.lib.search as search
 import ckan.lib.uploader as uploader
 import ckan.lib.datapreview
+import ckan.lib.app_globals as app_globals
+
 
 from ckan.common import _, request
 
@@ -1308,3 +1311,78 @@ def bulk_update_delete(context, data_dict):
 
     _check_access('bulk_update_delete', context, data_dict)
     _bulk_update_dataset(context, data_dict, {'state': 'deleted'})
+
+
+def config_option_update(context, data_dict):
+    '''
+    Allows to modify some CKAN configuration options
+
+    It takes arbitrary key, value pairs and checks the keys against the
+    config options update schema. If some of the provided keys are not present
+    in the schema a :py:class:`~ckan.plugins.logic.ValidationError` is raised.
+    The values are then validated against the schema, and if validation is
+    passed each key, value config option:
+
+    * It is stored on the ``system_info`` database table
+    * The ``app_globals`` (``g``) object is updated (this is used on templates)
+    * The Pylons ``config`` object is updated.
+
+    The following lists a ``key`` parameter, but this should be replaced by
+    whichever config options want to be updated, eg::
+
+        get_action('config_option_update)({}, {
+            'ckan.site_title': 'My Open Data site',
+            'ckan.homepage_layout': 2,
+        })
+
+    :param key: a configuration option key (eg ``ckan.site_title``). It must
+        be present on the ``update_configuration_schema``
+    :type key: string
+
+    :returns: a dictionary with the options set
+    :rtype: dictionary
+
+    .. todo:: link to action to get available options
+    .. todo:: clarify how extensions can update the config schema
+
+    '''
+    model = context['model']
+
+    _check_access('config_option_update', context, data_dict)
+
+    schema = schema_.default_update_configuration_schema()
+    # TODO: allow extensions to add or remove keys here
+
+    available_options = schema.keys()
+
+    provided_options = data_dict.keys()
+
+    unsupported_options = set(provided_options) - set(available_options)
+    if unsupported_options:
+        raise ValidationError(
+            'Configuration option(s) \'{0}\' can not be updated'.format(
+                ' '.join(list(unsupported_options))))
+
+    data, errors = _validate(data_dict, schema, context)
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    for key, value in data.iteritems():
+
+        # Save value in database
+        model.set_system_info(key, value)
+
+        # Set it on the app_globals (`g`) object
+        setattr(app_globals.app_globals, app_globals.get_globals_key(key),
+                value)
+
+        # Update the pylons `config` object
+        config[key] = value
+
+    # Update the config update timestamp
+    model.set_system_info('ckan.config_update', str(time.time()))
+
+    log.info('Updated config options: {0}'.format(data))
+
+    return data

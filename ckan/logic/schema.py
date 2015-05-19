@@ -659,3 +659,23 @@ def default_update_resource_view_schema(resource_view):
         'package_id': [ignore]
     })
     return schema
+
+
+def default_update_configuration_schema():
+
+    schema = {
+        'ckan.site_title': [unicode],
+        'ckan.site_logo': [unicode],
+        'ckan.site_url': [unicode],
+        'ckan.site_description': [unicode],
+        'ckan.site_about': [unicode],
+        'ckan.site_intro_text': [unicode],
+        'ckan.site_custom_css': [unicode],
+        'ckan.homepage_style': [is_positive_integer],
+    }
+
+    # Add ignore_missing to all fields, otherwise you need to provide them all
+    for key, validators in schema.iteritems():
+        validators.insert(0, ignore_missing)
+
+    return schema
