@@ -330,9 +330,8 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     ## Licenses are currently integrated into the domain model here.
 
     @classmethod
-    def get_license_register(cls):
-        if not hasattr(cls, '_license_register'):
-            cls._license_register = _license.LicenseRegister()
+    def get_license_register(cls, statuses=('active',)):
+        cls._license_register = _license.LicenseRegister(statuses)
         return cls._license_register
 
     @classmethod
@@ -341,9 +340,11 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return [(l.title, l.id) for l in register.values()]
 
     def get_license(self):
+        import ckan.model as model
+
         if self.license_id:
             try:
-                license = self.get_license_register()[self.license_id]
+                license = self.get_license_register(model.license_statuses)[self.license_id]
             except KeyError:
                 license = None
         else:

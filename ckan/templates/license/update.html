@@ -1,0 +1,22 @@
+{% extends "license/base.html" %}
+
+{% block page_header %}
+  <h1>{{ _('Edit license') }}</h1>
+{% endblock %}
+
+{% block primary_content_inner %}
+  {% snippet "license/snippets/license_form.html", form_vars=form_vars %}
+{% endblock %}
+
+{% block admin_form_help_title %}
+  {{ _('Edit license') }}
+{% endblock %}
+
+{% block admin_form_help %}
+  {% trans %}
+        <p>You cannot edit the ID of a license. You will need to create a new license.</p>
+        <p><strong>OD URL:</strong>  The URL to the license on the Open Definition website if applicable; if referenced an Open Data badge will be displayed against the license for datasets and assets.</p>
+        <p><strong>Home URL:</strong> The main page for this license such as at <a href="http://creativecommons.org/" target="_blank">creativecommons.org</a></p>
+        <p><strong>Generic:</strong> Legacy flag</p>
+  {% endtrans %}
+{% endblock %}

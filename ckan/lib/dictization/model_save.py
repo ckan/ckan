@@ -621,3 +621,45 @@ def resource_view_dict_save(data_dict, context):
 
 
     return d.table_dict_save(data_dict, model.ResourceView, context)
+
+def license_save(license_dict, context):
+    model = context["model"]
+    session = context["session"]
+
+    id = license_dict.get("id")
+    obj = None
+    if id:
+        obj = session.query(model.License).get(id)
+    if not obj:
+        new = True
+        obj = model.License()
+    else:
+        new = False
+
+    table = class_mapper(model.License).mapped_table
+    fields = [field.name for field in table.c]
+
+    # License extras not submitted will be removed from the existing extras
+    # dict
+    new_extras = {}
+    for key, value in license_dict.iteritems():
+        if isinstance(value, list):
+            continue
+        if key in ('extras', 'is_okd_compliant'):
+            continue
+        if key in fields:
+            if key == 'status' and new:
+                value = 'active'
+            if key == 'url':
+                obj.is_okd_compliant = bool(value)
+            setattr(obj, key, value)
+        else:
+            # resources save extras directly onto the object, instead
+            # of in a separate extras field like packages and groups
+            new_extras[key] = value
+
+    obj.status = u'active'
+    obj.extras = new_extras
+
+    session.add(obj)
+    return obj

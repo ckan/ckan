@@ -66,6 +66,10 @@ def license_list(context, data_dict):
     # Licenses list is visible by default
     return {'success': True}
 
+def license_item(context, data_dict):
+    # Licenses list is visible by default
+    return {'success': True}
+
 def vocabulary_list(context, data_dict):
     # List of all vocabularies are visible by default
     return {'success': True}

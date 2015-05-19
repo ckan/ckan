@@ -6,7 +6,7 @@ import re
 
 from pylons import config
 import paste.deploy.converters
-from sqlalchemy import func
+from sqlalchemy import func, exc
 
 import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
@@ -1529,3 +1529,53 @@ def follow_group(context, data_dict):
         follower=follower.follower_id, object=follower.object_id))
 
     return model_dictize.user_following_group_dictize(follower, context)
+
+
+def license_create(context, data_dict):
+    '''Create a new license type.
+
+    Only sysadmin can add new license type.
+
+    :param id: the name of the new license type, must be between 2 and 100
+        characters long and contain only lowercase alphanumeric characters,
+        ``-`` and ``_``, e.g. ``'cc-by'``
+    :type id: string
+    :param title: the title of the license
+    :type title: string
+    :param is_generic: True if generic
+    :type is_generic: boolean
+    :param url: http://opendefinition.org/ URL (optional)
+    :type url: string
+    :param home_url: License URL. e.g. Creative Commons' URL (optional)
+    :type home_url: string
+
+    :returns: created license type
+    :rtype: dictionary
+    '''
+
+    # Don't let adding licenses to DB if "license_group_url" is set
+    if config.get('licenses_group_url', None):
+        raise ValidationError({'message':
+                              _('Licenses are taken from external JSON. '
+                                'Please check "licenses_group_url" '
+                                'in your config file.')})
+
+    model = context['model']
+
+    _check_access('license_create', context, data_dict)
+
+    # Make the license type active
+    data_dict['status'] = 'active'
+
+    schema = ckan.logic.schema.license_schema()
+    validated_data_dict, errors = _validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    entity = model_save.license_save(data_dict, context)
+
+    model.Session.commit()
+
+    return entity.as_dict()

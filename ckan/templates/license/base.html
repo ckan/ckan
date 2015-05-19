@@ -1,0 +1,35 @@
+    {% import 'macros/autoform.html' as autoform %}
+
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Licenses') }}{% endblock %}
+
+{% block breadcrumb_content_selected %} class="active"{% endblock %}
+
+{% block breadcrumb_content %}
+  <li{{ self.breadcrumb_content_selected() }}>{% link_for _('Licenses'), controller='license', action='list' %}</li>
+{% endblock %}
+
+{% block primary_content_inner %}
+
+{% endblock %}
+
+{% block secondary_content %}
+  <div class="module module-narrow module-shallow">
+    <h2 class="module-heading">
+      <i class="icon-info-sign"></i>
+      {% block admin_form_help_title %}
+        {{ _('Current licenses') }}
+      {% endblock %}
+    </h2>
+    <div class="module-content">
+      {% block admin_form_help %}
+      {% trans %}
+        <p><strong>Add License:</strong> Add a new license that can be applied to assets and records to instruct users and consumers on permitted use, publication and adaptation of assets.</p>
+        <p><strong>Edit:</strong> Modify the title, open definition URL, home URL and other data for a license.</p>
+        <p><strong>Delete:</strong> Remove this license from the list of available licenses in dataset and resource management screens. It will not permanently remove the license; it can be reinstated.</p>
+      {% endtrans %}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}

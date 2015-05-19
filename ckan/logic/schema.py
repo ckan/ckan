@@ -59,6 +59,8 @@ from ckan.logic.validators import (package_id_not_changed,
                                    extra_key_not_in_root_schema,
                                    empty_if_not_sysadmin,
                                    package_id_does_not_exist,
+                                   license_id_unique,
+                                   license_status_valid,
                                    )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
@@ -658,4 +660,16 @@ def default_update_resource_view_schema(resource_view):
         'view_type': [ignore],# can not change after create
         'package_id': [ignore]
     })
+    return schema
+
+def license_schema():
+    schema = {
+        'id': [not_missing, not_empty, unicode, license_id_unique],
+        'title': [not_missing, not_empty, unicode],
+        'is_generic': [ignore_missing, boolean_validator],
+        'is_okd_compliant': [ignore_missing, boolean_validator],
+        'url': [ignore_missing, unicode, url_validator],
+        'home_url': [ignore_missing, unicode, url_validator],
+        'status': [not_missing, not_empty, unicode, license_status_valid],
+    }
     return schema

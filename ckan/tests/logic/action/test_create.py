@@ -474,3 +474,74 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             id=dataset['id'],
             name='test-dataset',
         )
+
+
+class TestLicenseCreate(helpers.FunctionalTestBase):
+
+    def setup(self):
+        import ckan.model as model
+        model.repo.rebuild_db()
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def test_normal_user_cant_add_license(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        assert_raises(
+            logic.NotAuthorized,
+            helpers.call_action,
+            'license_create',
+            context=context,
+            id='cc-by-test',
+            title='test license',
+        )
+
+    def test_sysadmin_can_add_license(self):
+        user = factories.Sysadmin()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        license = helpers.call_action(
+            'license_create',
+            context=context,
+            id='cc-by-test-another',
+            title='test dataset license another',
+        )
+        assert_equals(license['id'], 'cc-by-test-another')
+
+    def test_id_cannot_already_exist(self):
+        license = factories.License()
+        user = factories.Sysadmin()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'license_create',
+            context=context,
+            id=license['id'],
+            name='test-dataset',
+        )
+
+    def test_extra_fields_added(self):
+        user = factories.Sysadmin()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        license = helpers.call_action(
+            'license_create',
+            context=context,
+            id='custom-id',
+            title='test-title',
+            custom_field='custom_value'
+        )
+        assert_equals(license['custom_field'], 'custom_value')

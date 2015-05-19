@@ -706,6 +706,9 @@ def organization_revision_list(context, data_dict):
 def license_list(context, data_dict):
     '''Return the list of licenses available for datasets on the site.
 
+    :param all: if True licenses with all statuses are returned (optional). By default only "active" licenses are returned. Applied only for license types stored in DB
+    :type all: bolean
+
     :rtype: list of dictionaries
 
     '''
@@ -713,10 +716,35 @@ def license_list(context, data_dict):
 
     _check_access('license_list', context, data_dict)
 
-    license_register = model.Package.get_license_register()
+    # Filter licenses by statuses
+    statuses = model.license_statuses if data_dict.get('all', None) and data_dict['all'] else ('active',)
+    license_register = model.Package.get_license_register(statuses=statuses)
+
     licenses = license_register.values()
     licenses = [l.as_dict() for l in licenses]
     return licenses
+
+def license_item(context, data_dict):
+    '''Return license type.
+
+    :param id: license id
+    :type id: string
+
+    :rtype: dictionary
+
+    '''
+    model = context["model"]
+
+    _check_access('license_item', context, data_dict)
+
+    id = _get_or_bust(data_dict, 'id')
+
+    try:
+        license = model.Package.get_license_register(statuses=model.license_statuses)[id]
+    except KeyError:
+        raise NotFound
+
+    return license.as_dict()
 
 
 def tag_list(context, data_dict):

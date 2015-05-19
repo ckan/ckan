@@ -3,69 +3,102 @@ import urllib2
 import re
 
 from pylons import config
-
 from ckan.common import _, json
+from sqlalchemy import types, Column, Table
+
+import logging
+log = logging.getLogger('ckan.logic')
+
+import meta
+import domain_object
+import types as _types
+
+CORE_RESOURCE_COLUMNS = ['id', 'title', 'is_okd_compliant', 'is_generic', 'url',
+                         'home_url', 'status']
+
+license_statuses = set(['active', 'deleted']) # "active" and "deleted" statuses should never be removed
+license_table = Table('license', meta.metadata,
+        Column('id', types.UnicodeText, primary_key=True),
+        Column('title', types.UnicodeText, nullable=False),
+        Column('is_okd_compliant', types.Boolean, default=False),
+        Column('is_generic', types.Boolean, default=False),
+        Column('url', types.UnicodeText),
+        Column('home_url', types.UnicodeText),
+        Column('extras', _types.JsonDictType),
+        Column('status', types.Enum(*license_statuses, name='license_status'), nullable=False),
+        )
 
 
-class License(object):
+class License(domain_object.DomainObject):
     """Domain object for a license."""
+    def __init__(self, data={}, extras=None):
+        self.extras = extras or {}
+        domain_object.DomainObject.__init__(self, **data)
 
-    def __init__(self, data):
-        self._data = data
-        for (key, value) in self._data.items():
+    def isopen(self):
+        return self.is_okd_compliant or (hasattr(self, 'is_osi_compliant') and self.is_osi_compliant)
+
+    def __getitem__(self, item):
+        return self.as_dict().get(item)
+
+    def as_dict(self):
+        data = self.__dict__
+        default_license = DefaultLicense()
+        for k in data.keys():
+            try:
+                getattr(default_license, k)
+            except (KeyError, AttributeError):
+                del data[k]
+        for (key, value) in data.items():
             if key == 'date_created':
                 # Parse ISO formatted datetime.
                 value = datetime.datetime(*map(int, re.split('[^\d]', value)))
-                self._data[key] = value
+                data[key] = value.isoformat()
             elif isinstance(value, str):
                 # Convert str to unicode (keeps Pylons and SQLAlchemy happy).
                 value = value.decode('utf8')
-                self._data[key] = value
-
-    def __getattr__(self, name):
-        return self._data[name]
-
-    def __getitem__(self, key):
-        return self._data[key]
-
-    def isopen(self):
-        return self.is_okd_compliant or self.is_osi_compliant
-
-    def as_dict(self):
-        data = self._data.copy()
-        if 'date_created' in data:
-            value = data['date_created']
-            value = value.isoformat()
-            data['date_created'] = value
+                data[key] = value
+        if isinstance(data.get('extras'), dict):
+            for k, v in data['extras'].items():
+                data[k] = v
+            del data['extras']
         return data
 
 
 class LicenseRegister(object):
     """Dictionary-like interface to a group of licenses."""
 
-    def __init__(self):
+    def __init__(self, statuses=('active',)):
         group_url = config.get('licenses_group_url', None)
         if group_url:
             self.load_licenses(group_url)
         else:
-            default_license_list = [
-                LicenseNotSpecified(),
-                LicenseOpenDataCommonsPDDL(),
-                LicenseOpenDataCommonsOpenDatabase(),
-                LicenseOpenDataAttribution(),
-                LicenseCreativeCommonsZero(),
-                LicenseCreativeCommonsAttribution(),
-                LicenseCreativeCommonsAttributionShareAlike(),
-                LicenseGNUFreeDocument(),
-                LicenseOtherOpen(),
-                LicenseOtherPublicDomain(),
-                LicenseOtherAttribution(),
-                LicenseOpenGovernment(),
-                LicenseCreativeCommonsNonCommercial(),
-                LicenseOtherNonCommercial(),
-                LicenseOtherClosed(),
-                ]
-            self._create_license_list(default_license_list)
+            self.load_licenses_from_db(statuses)
+
+    def load_licenses_from_db(self, statuses):
+        self.licenses = meta.Session.query(License).filter(License.status.in_(statuses)).all()
+
+    # DEPRECATED
+    def get_default_license_list(self):
+        default_license_list = [
+            LicenseNotSpecified().copy(),
+            LicenseOpenDataCommonsPDDL().copy(),
+            LicenseOpenDataCommonsOpenDatabase().copy(),
+            LicenseOpenDataAttribution().copy(),
+            LicenseCreativeCommonsZero().copy(),
+            LicenseCreativeCommonsAttribution().copy(),
+            LicenseCreativeCommonsAttributionShareAlike().copy(),
+            LicenseGNUFreeDocument().copy(),
+            LicenseOtherOpen().copy(),
+            LicenseOtherPublicDomain().copy(),
+            LicenseOtherAttribution().copy(),
+            LicenseOpenGovernment().copy(),
+            LicenseCreativeCommonsNonCommercial().copy(),
+            LicenseOtherNonCommercial().copy(),
+            LicenseOtherClosed().copy(),
+            ]
+        self._create_license_list(default_license_list)
+        return self
 
     def load_licenses(self, license_url):
         try:
@@ -134,7 +167,9 @@ class DefaultLicense(dict):
     maintainer = ""
     status = "active"
     url = ""
+    home_url = ""
     title = ''
+    extras = {}
     id = ''
 
     keys = ['domain_content',
@@ -148,6 +183,8 @@ class DefaultLicense(dict):
             'maintainer',
             'status',
             'url',
+            'home_url',
+            'extras',
             'title']
 
     def __getitem__(self, key):
@@ -310,3 +347,5 @@ class LicenseOtherClosed(DefaultLicense):
     @property
     def title(self):
         return _("Other (Not Open)")
+
+meta.mapper(License, license_table)

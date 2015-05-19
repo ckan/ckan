@@ -326,3 +326,13 @@ def bulk_update_delete(context, data_dict):
     if not authorized:
         return {'success': False}
     return {'success': True}
+
+
+def license_update(context, data_dict):
+    # sysadmins only
+    return {'success': False}
+
+
+def license_reinstate(context, data_dict):
+    # sysadmins only
+    return {'success': False}

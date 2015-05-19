@@ -1,0 +1,50 @@
+{% import 'macros/autoform.html' as autoform %}
+{% import 'macros/form.html' as form %}
+{% set action = c.form_action or '' %}
+{% set data = form_vars.data or {} %}
+{% set errors = form_vars.errors or {} %}
+
+{# This provides a full page that renders a form for adding/editing a license#}
+<form id="license-edit" class="license-form form-horizontal" method="post" data-module="basic-form">
+    {% block error_summary %}
+      {{ form.errors(form_vars.error_summary) }}
+    {% endblock %}
+
+    {% block package_basic_fields_id %}
+        {% set attrs = {'readonly': 'true'} if form_vars.update_action else {} %}
+        {{ form.input('id', id='field-id', label=_('Id'), placeholder=_('e.g. cc-by'), value=data.id, error=errors.id, classes=['control-full'], attrs=attrs, is_required=True) }}
+    {% endblock %}
+
+    {% block package_basic_fields_title %}
+        {{ form.input('title', id='field-title', label=_('Title'), placeholder=_('e.g. Creative Commons'), value=data.title, error=errors.title, classes=['control-full'], attrs={}, is_required=True) }}
+    {% endblock %}
+
+    {% block package_basic_fields_url %}
+        {{ form.input('url', id='field-url', label=_('OD URL'), placeholder=_('e.g. http://opendefinition.org/licenses/cc-by/'), value=data.url, error=errors.url, classes=['control-full'], attrs={}) }}
+    {% endblock %}
+
+    {% block package_basic_fields_home_url %}
+        {{ form.input('home_url', id='field-home_url', label=_('Home URL'), placeholder=_("e.g. Creative Commons' URL"), value=data.home_url, error=errors.home_url, classes=['control-full'], attrs={}) }}
+    {% endblock %}
+
+    <div class="control-group control-full">
+      <label for="field-id" class="control-label">{{ _('Generic') }}</label>
+      <div class="controls">
+        <input type="checkbox" value="{% if data.is_generic %}{{ data.is_generic|int }}{% endif %}" name="is_generic" id="field-is_generic">
+      </div>
+    </div>
+
+    <p class="control-required-message">
+      <span class="control-required">*</span> {{ _('Required field') }}
+    </p>
+    <div class="form-actions">
+      {% if h.check_access('license_delete') and data.status == 'active' %}
+        {% set locale = h.dump_json({'content': _('Are you sure you want to delete this license?')}) %}
+          <a class="btn btn-danger pull-left" href="{% url_for controller='license', action="delete", id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
+      {% elif h.check_access('license_update') and data.status == 'deleted' %}
+          {% set locale = h.dump_json({'content': _('Are you sure you want to reinstate this license?')}) %}
+          <a class="btn btn-success pull-left" href="{% url_for controller='license', action="reinstate", id=data.id %}" data-module="confirm-action" data-module-i18n="{{ locale }}">{% block reinstate_button_text %}{{ _('Reinstate') }}{% endblock %}</a>
+      {% endif %}
+      <button class="btn btn-primary" name="save" type="submit">{{ _('Save') }}</button>
+    </div>
+</form>

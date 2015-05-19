@@ -405,6 +405,18 @@ def make_map():
         m.connect('/feeds/dataset.atom', action='general')
         m.connect('/feeds/custom.atom', action='custom')
 
+    # licenses
+    map.connect('license_list', '/license/list', controller='license',
+                action='list', ckan_icon='share')
+    map.connect('license_create', '/license/new', controller='license',
+                action='new', ckan_icon='plus-sign-alt')
+    map.connect('license_update', '/license/edit/{id}', controller='license',
+                action='update', ckan_icon='pencil')
+    map.connect('license_delete', '/license/delete/{id}', controller='license',
+                action='delete', ckan_icon='pencil')
+    map.connect('license_reinstate', '/license/reinstate/{id}', controller='license',
+                action='reinstate', ckan_icon='repeat')
+
     map.connect('ckanadmin_index', '/ckan-admin', controller='admin',
                 action='index', ckan_icon='legal')
     map.connect('ckanadmin_config', '/ckan-admin/config', controller='admin',

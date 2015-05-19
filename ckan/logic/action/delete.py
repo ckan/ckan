@@ -5,6 +5,7 @@ import ckan.logic.action
 import ckan.plugins as plugins
 import ckan.lib.dictization.model_dictize as model_dictize
 
+from pylons import config
 from ckan.common import _
 
 validate = ckan.lib.navl.dictization_functions.validate
@@ -646,3 +647,38 @@ def unfollow_group(context, data_dict):
             ckan.logic.schema.default_follow_group_schema())
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingGroup)
+
+
+def license_delete(context, data_dict):
+    '''Delete a license type.
+
+    You must be a sysadmin to delete license type.
+
+    :param id: the id of the license type to delete
+    :type id: string
+
+    '''
+
+    # Don't let adding licenses to DB if "license_group_url" is set
+    if config.get('licenses_group_url', None):
+        raise ValidationError({'message': _('Licenses are taken from external JSON. '
+                                            'Please check "licenses_group_url" in your config file.')})
+
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    entity = model.Session.query(model.License).get(id)
+
+    if entity is None:
+        raise NotFound
+
+    _check_access('license_delete', context, data_dict)
+
+    # Completely remove from DB if the license is not used otherwise mark it as "deleted".
+    dataset = model.Session.query(model.Package).filter_by(license_id=entity.id).all()
+    if not dataset:
+      entity.delete()
+    else:
+      entity.status = 'deleted' # be careful status column has ENUM type ('active', 'deleted')
+
+    model.Session.commit()

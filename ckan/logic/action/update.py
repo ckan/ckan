@@ -1308,3 +1308,95 @@ def bulk_update_delete(context, data_dict):
 
     _check_access('bulk_update_delete', context, data_dict)
     _bulk_update_dataset(context, data_dict, {'state': 'deleted'})
+
+
+def license_update(context, data_dict):
+    ''' Update license type information
+
+    Only sysadmin can update license type.
+
+    :param id: the name of the new license type, must be between 2 and 100
+        characters long and contain only lowercase alphanumeric characters,
+        ``-`` and ``_``, e.g. ``'cc-by'``
+    :type id: string
+    :param title: the title of the license
+    :type title: string
+    :param is_okd_compliant: indicates license's compliance with http://opendefinition.org/
+    :type is_okd_compliant: boolean
+    :param is_generic: True if generic
+    :type is_generic: boolean
+    :param url: http://opendefinition.org/ URL (optional)
+    :type url: string
+    :param home_url: License URL. e.g. Creative Commons' URL (optional)
+    :type home_url: string
+
+    :returns: updated license type.
+    :rtype: dictionary
+
+    '''
+
+    # Don't let adding licenses to DB if "license_group_url" is set
+    if config.get('licenses_group_url', None):
+        raise ValidationError({'message': _('Licenses are taken from external JSON. '
+                                            'Please check "licenses_group_url" in your config file.')})
+
+    _check_access('license_update', context, data_dict)
+
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    entity = model.Session.query(model.License).get(id)
+
+    if entity is None:
+        raise NotFound
+
+    # Don't let user delete license type on update
+    data_dict['status'] = entity.status
+
+    schema = ckan.logic.schema.license_schema()
+    for field in data_dict:
+        if not data_dict.get(field) and schema.get(field):
+            del schema[field]
+
+    del schema['id']
+    validated_data_dict, errors = _validate(data_dict, schema, context)
+
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
+
+    entity = model_save.license_save(data_dict, context)
+
+    model.Session.commit()
+
+    return entity.as_dict()
+
+def license_reinstate(context, data_dict):
+    '''Reinstate a license type.
+
+    You must be a sysadmin to reinstate license type.
+
+    :param id: the id of the license type to reinstate
+    :type id: string
+    '''
+
+    # Don't let adding licenses to DB if "license_group_url" is set
+    if config.get('licenses_group_url', None):
+        raise ValidationError({'message': _('Licenses are taken from external JSON. '
+                                            'Please check "licenses_group_url" in your config file.')})
+
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    entity = model.Session.query(model.License).get(id)
+
+    if entity is None:
+        raise NotFound
+
+    _check_access('license_reinstate', context, data_dict)
+
+    entity.status = 'active' # be careful status column has ENUM type ('active', 'deleted')
+
+    model.Session.commit()
+
+    return entity.as_dict()

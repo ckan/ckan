@@ -280,3 +280,7 @@ def member_create(context, data_dict):
                         (str(user), group.id)}
     else:
         return {'success': True}
+
+def license_create(context, data_dict=None):
+    # sysadmins only
+    return {'success': False}

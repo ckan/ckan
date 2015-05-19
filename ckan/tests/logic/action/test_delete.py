@@ -140,3 +140,51 @@ class TestDeleteTags(object):
             assert u'Delta symbol: \u0394' in unicode(e)
         else:
             assert 0, 'Should have raised NotFound'
+
+
+class TestDeleteLicense(object):
+
+    def setup(self):
+        import ckan.model as model
+        model.repo.rebuild_db()
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def test_delete_related_license(self):
+        license = factories.License()
+        user = factories.Sysadmin()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        package = factories.Dataset(license_id=license['id'])
+
+        delete = helpers.call_action('license_delete',
+                                     context=context,
+                                     id=license['id'])
+
+        request_license = helpers.call_action('license_item',
+                                              context=context,
+                                              id=license['id'])
+        # deleted status should be set because the license is still used in dataset.
+        assert_equals('deleted', request_license['status'])
+
+    def test_delete_license(self):
+        license = factories.License()
+        user = factories.Sysadmin()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+
+        delete = helpers.call_action('license_delete',
+                                     context=context,
+                                     id=license['id'])
+
+        assert_raises(logic.NotFound,
+                      helpers.call_action,
+                      'license_item',
+                      context=context,
+                      id=license['id'])

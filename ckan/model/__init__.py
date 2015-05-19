@@ -21,6 +21,11 @@ from core import (
     State,
     revision_table,
 )
+from license import (
+    License,
+    license_table,
+    license_statuses,
+)
 from package import (
     Package,
     PACKAGE_NAME_MIN_LENGTH,
@@ -269,6 +274,7 @@ class Repository(vdm.sqlalchemy.Repository):
         '''
         self.metadata.create_all(bind=self.metadata.bind)
         self.init_const_data()
+        self.init_default_license()
         self.init_configuration_data()
         log.info('Database tables created')
 
@@ -284,6 +290,7 @@ class Repository(vdm.sqlalchemy.Repository):
             self.delete_all()
             # re-add default data
             self.init_const_data()
+            self.init_default_license()
             self.init_configuration_data()
             self.session.commit()
         else:
@@ -407,6 +414,25 @@ class Repository(vdm.sqlalchemy.Repository):
             self.session.delete(revision)
         self.commit_and_remove()
 
+    def init_default_license(self):
+        '''Add default license'''
+        if not meta.Session.query(License).all():
+            meta.Session.add(License({
+                'id': 'cc-by',
+                'title': 'Creative Commons Attribution',
+                'is_okd_compliant': True,
+                'url': 'http://www.opendefinition.org/licenses/cc-by',
+                'is_generic': True,
+                'status': 'active',
+            }))
+            meta.Session.add(License({
+                'id': 'odc-by',
+                'title': 'Open Data Commons Attribution License',
+                'is_okd_compliant': True,
+                'url': 'http://www.opendefinition.org/licenses/odc-by',
+                'is_generic': False,
+                'status': 'active',
+            }))
 
 repo = Repository(meta.metadata, meta.Session,
                   versioned_objects=[Package, PackageTag, Resource,

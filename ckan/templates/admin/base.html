@@ -8,5 +8,9 @@
   {{ h.build_nav_icon('ckanadmin_index', _('Sysadmins')) }}
   {{ h.build_nav_icon('ckanadmin_config', _('Config')) }}
   {{ h.build_nav_icon('ckanadmin_trash', _('Trash')) }}
+  {% if not h.licenses_group_url_set() %}
+    {{ h.build_nav_icon('license_list', _('License Types')) }}
+  {% endif %}
+  {{ g.licenses_group_url }}
   {{ h.build_extra_admin_nav() }}
 {% endblock %}

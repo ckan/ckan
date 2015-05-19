@@ -594,6 +594,9 @@ def _make_menu_item(menu_item, title, **kw):
 def default_group_type():
     return str(config.get('ckan.default.group_type', 'group'))
 
+def licenses_group_url_set():
+    return config.get('licenses_group_url', False)
+
 
 def get_facet_items_dict(facet, limit=None, exclude_active=False):
     '''Return the list of unselected facet items for the given facet, sorted
@@ -2150,4 +2153,5 @@ __allowed_functions__ = [
     'urlencode',
     'check_config_permission',
     'view_resource_url',
+    'licenses_group_url_set',
 ]

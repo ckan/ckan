@@ -723,3 +723,52 @@ class TestResourceUpdate(object):
         assert_equals(res_returned['url'], 'http://first')
         assert_equals(res_returned['anotherfield'], 'second')
         assert 'newfield' not in res_returned
+
+
+class TestLicenseUpdate(object):
+
+    def setup(self):
+        import ckan.model as model
+        model.repo.rebuild_db()
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def test_license_reinstate(self):
+        license = factories.License()
+        user = factories.Sysadmin()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+        package = factories.Dataset(license_id=license['id'])
+
+        delete = helpers.call_action('license_delete',
+                                     context=context,
+                                     id=license['id'])
+
+        request_license = helpers.call_action('license_reinstate',
+                                              context=context,
+                                              id=license['id'])
+        # deleted status should be set because the license is still used in dataset.
+        assert_equals('active', request_license['status'])
+
+    def test_license_update(self):
+        license = factories.License()
+        user = factories.Sysadmin()
+        context = {
+            'user': user['name'],
+            'ignore_auth': False,
+        }
+
+        res_returned = helpers.call_action('license_update',
+                                           context=context,
+                                           id=license['id'],
+                                           custom_field='custom_values',
+                                           title='new_title',
+                                           url='http://url.com')
+
+        assert_equals(res_returned['url'], 'http://url.com')
+        assert_equals(res_returned['title'], 'new_title')
+        assert_equals(res_returned['custom_field'], 'custom_values')

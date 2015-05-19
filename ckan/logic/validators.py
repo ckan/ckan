@@ -840,3 +840,22 @@ def empty_if_not_sysadmin(key, data, errors, context):
         return
 
     empty(key, data, errors, context)
+
+def license_id_unique(value, context):
+    '''Checks if license id is unique'''
+    model = context['model']
+    session = context['session']
+
+    result = session.query(model.License).get(value)
+    if result:
+        raise Invalid('%s: %s' % (value, _('License with this id already exists.')))
+    return value
+
+def license_status_valid(value, context):
+    '''Checks if license status is valid'''
+    model = context['model']
+
+    result = value in model.license_statuses
+    if not result:
+        raise Invalid('"%s" given: %s' % (value, _('Should be either "active" or "deleted"')))
+    return value

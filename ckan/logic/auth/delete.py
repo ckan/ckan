@@ -155,3 +155,7 @@ def organization_member_delete(context, data_dict):
 
 def member_delete(context, data_dict):
     return _auth_create.member_create(context, data_dict)
+
+def license_delete(context, data_dict=None):
+    # sysadmins only
+    return {'success': False}

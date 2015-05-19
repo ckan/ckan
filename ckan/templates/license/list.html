@@ -1,0 +1,51 @@
+{% import 'macros/autoform.html' as autoform %}
+
+{% extends "license/base.html" %}
+
+{% block breadcrumb_content_selected %} class="active"{% endblock %}
+
+{% block primary_content_inner %}
+  <div class="page_primary_action">
+    {% link_for _('Add License'), controller='license', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
+  </div>
+  <table class="table table-bordered" xmlns="http://www.w3.org/1999/html">
+    <thead>
+      <tr>
+        <th>{{ _('ID') }}</th>
+        <th>{{ _('Title') }}</th>
+        <th>{{ _('OD compliant') }}</th>
+        <th>{{ _('Url') }}</th>
+        <th>{{ _('Status') }}</th>
+        <th>{{ _('Actions') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for license in license_list %}
+        <tr class="{% if license.status == 'active' %}success{% elif license.status == 'deleted' %}error{% endif %}">
+          <td>{{ license.id }}</td>
+          <td>{{ license.title }}</td>
+          <td>{% if license.is_okd_compliant %}{{ _('Yes') }}{% else %}{{ _('No') }}{% endif %}</td>
+          <td>{% if license.url %}<a href="{{ license.url }}" target="_blank">{{ _('Visit') }}</a>{% endif %}</td>
+          <td>{{ license.status }}</td>
+          <td>
+            <div class="btn-group">
+              <a class="btn btn-primary" href="{% url_for controller='license', action='update', id=license.id %}"><i class="icon-pencil"></i>{{ _('Edit') }}</a>
+              <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+              <ul class="dropdown-menu">
+                {% if h.check_access('license_delete') and license.status == 'active'%}
+                    {% set locale = h.dump_json({'content': _('Are you sure you want to delete this license?')}) %}
+                    <li><a data-module="confirm-action" href="{% url_for controller='license', action="delete", id=license.id %}" data-module-i18n="{{ locale }}"><i class="icon-remove"></i> {{ _('Delete') }}</a></li>
+                {% elif h.check_access('license_update') and license.status == 'deleted'%}
+                    {% set locale = h.dump_json({'content': _('Are you sure you want to reinstate this license?')}) %}
+                    <li><a data-module="confirm-action" href="{% url_for controller='license', action="reinstate", id=license.id %}" data-module-i18n="{{ locale }}"><i class="icon-repeat"></i> {{ _('Reinstate') }}</a></li>
+                {% endif %}
+              </ul>
+
+            </div>
+          </td>
+          </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+

@@ -1,0 +1,18 @@
+{% extends "license/base.html" %}
+
+{% block subtitle %}{{ _('Create Lisense') }}{% endblock %}
+
+{% block page_header %}
+  <h1>{{ _('Create License') }}</h1>
+{% endblock %}
+
+{% block breadcrumb_content_selected %} class="active"{% endblock %}
+
+{% block breadcrumb_content %}
+  <li>{% link_for _('Licenses'), controller='license', action='list' %}</li>
+  <li {{ self.breadcrumb_content_selected }}>{% link_for _('Create License'), controller='license', action='new' %}</li>
+{% endblock %}
+
+{% block primary_content_inner %}
+  {% snippet "license/snippets/license_form.html", form_vars=form_vars %}
+{% endblock %}
