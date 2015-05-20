@@ -55,7 +55,7 @@ class TestUpdateConfig(h.FunctionalTestBase):
                                'my-site')
 
     def test_update_config_db_url_precidence(self):
-        '''CKAN_SQLALCHEMY_URL in the env takes precidence over CKAN_DB'''
+        '''CKAN_SQLALCHEMY_URL in the env takes precedence over CKAN_DB'''
         os.environ.setdefault('CKAN_DB', 'postgresql://mydeprectatesqlurl/')
         os.environ.setdefault('CKAN_SQLALCHEMY_URL',
                               'postgresql://mynewsqlurl/')

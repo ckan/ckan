@@ -679,3 +679,8 @@ def default_update_configuration_schema():
         validators.insert(0, ignore_missing)
 
     return schema
+
+
+def default_show_configuration_schema():
+    schema = default_update_configuration_schema()
+    return schema
