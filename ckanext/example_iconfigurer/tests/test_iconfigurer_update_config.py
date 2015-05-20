@@ -101,3 +101,15 @@ class TestConfigOptionUpdatePluginEnabled(object):
         # db
         obj = model.Session.query(model.SystemInfo).filter_by(key=key).first()
         assert_equals(obj.value, value)
+
+    def test_app_globals_not_set_if_not_defined(self):
+
+        key = 'ckanext.example_iconfigurer.test_conf'
+        value = 'Test value'
+
+        params = {key: value}
+
+        helpers.call_action('config_option_update', **params)
+
+        globals_key = app_globals.get_globals_key(key)
+        assert not hasattr(app_globals.app_globals, globals_key)

@@ -1378,12 +1378,16 @@ def config_option_update(context, data_dict):
         # Save value in database
         model.set_system_info(key, value)
 
-        # Set it on the app_globals (`g`) object
-        setattr(app_globals.app_globals, app_globals.get_globals_key(key),
-                value)
-
         # Update the pylons `config` object
         config[key] = value
+
+        # Only add it to the app_globals (`g`) object if explicitly defined
+        # there
+        globals_keys = (app_globals.auto_update +
+                        app_globals.config_details.keys())
+        if key in globals_keys:
+            setattr(app_globals.app_globals, app_globals.get_globals_key(key),
+                    value)
 
     # Update the config update timestamp
     model.set_system_info('ckan.config_update', str(time.time()))

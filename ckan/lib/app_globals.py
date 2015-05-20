@@ -106,6 +106,8 @@ def get_globals_key(key):
         return mappings[key]
     elif key.startswith('ckan.'):
         return key[5:]
+    else:
+        return key
 
 def reset():
     ''' set updatable values from config '''
