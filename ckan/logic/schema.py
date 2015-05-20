@@ -672,6 +672,7 @@ def default_update_configuration_schema():
         'ckan.site_about': [unicode],
         'ckan.site_intro_text': [unicode],
         'ckan.site_custom_css': [unicode],
+        'ckan.main_css': [unicode],
         'ckan.homepage_style': [is_positive_integer],
     }
 

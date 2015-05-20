@@ -1361,9 +1361,10 @@ def config_option_update(context, data_dict):
 
     unsupported_options = set(provided_options) - set(available_options)
     if unsupported_options:
-        raise ValidationError(
-            'Configuration option(s) \'{0}\' can not be updated'.format(
-                ' '.join(list(unsupported_options))))
+        msg = 'Configuration option(s) \'{0}\' can not be updated'.format(
+              ' '.join(list(unsupported_options)))
+
+        raise ValidationError(msg, error_summary={'message': msg})
 
     data, errors = _validate(data_dict, schema, context)
     if errors:
