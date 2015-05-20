@@ -2,9 +2,9 @@ import nose.tools
 
 import ckan.logic as logic
 import ckan.plugins as p
-import ckan.lib.search as search
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import ckan.logic.schema as schema
 
 
 eq = nose.tools.eq_
@@ -1485,6 +1485,48 @@ class TestGetHelpShow(object):
         nose.tools.assert_raises(
             logic.NotFound,
             helpers.call_action, 'help_show', name=function_name)
+
+
+class TestConfigOptionShow(helpers.FunctionalTestBase):
+
+    @helpers.change_config('ckan.site_title', 'My Test CKAN')
+    def test_config_option_show_in_config_not_in_db(self):
+        '''config_option_show returns value from config when value on in
+        system_info table.'''
+
+        title = helpers.call_action('config_option_show',
+                                    key='ckan.site_title')
+        nose.tools.assert_equal(title, 'My Test CKAN')
+
+    @helpers.change_config('ckan.site_title', 'My Test CKAN')
+    def test_config_option_show_in_config_and_in_db(self):
+        '''config_option_show returns value from db when value is in both
+        config and system_info table.'''
+
+        factories.SystemInfo(key='ckan.site_title', value='Site Title in DB')
+
+        title = helpers.call_action('config_option_show',
+                                    key='ckan.site_title')
+        nose.tools.assert_equal(title, 'Site Title in DB')
+
+    @helpers.change_config('ckan.not.editable', 'My non editable option')
+    def test_config_option_show_not_whitelisted_key(self):
+        '''config_option_show raises exception if key is not a whitelisted
+        config option.'''
+
+        nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
+                                 'config_option_show', key='ckan.not.editable')
+
+
+class TestConfigOptionList(object):
+
+    def test_config_option_list(self):
+        '''config_option_list returns whitelisted config option keys'''
+
+        keys = helpers.call_action('config_option_list')
+        schema_keys = schema.default_show_configuration_schema().keys()
+
+        nose.tools.assert_equal(keys, schema_keys)
 
 
 def remove_pseudo_users(user_list):

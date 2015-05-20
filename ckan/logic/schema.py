@@ -683,6 +683,11 @@ def default_update_configuration_schema():
     return schema
 
 
+def default_show_configuration_schema():
+    schema = default_update_configuration_schema()
+    return schema
+
+
 def update_configuration_schema():
     '''
     Returns the schema for the config options that can be edited at runtime
@@ -706,4 +711,3 @@ def update_configuration_schema():
     for plugin in plugins.PluginImplementations(plugins.IConfigurer):
         if hasattr(plugin, 'update_config_schema'):
             schema = plugin.update_config_schema(schema)
-    return schema

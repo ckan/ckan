@@ -3361,3 +3361,58 @@ def help_show(context, data_dict):
         raise NotFound('Action function not found')
 
     return function.__doc__
+
+
+def config_option_show(context, data_dict):
+    '''Show the current value of a particular configuration option.
+
+    Only return config options that can be updated with the
+    `config_option_update` action.
+
+    :param id: The configuration option key
+    :type id: string
+
+    :returns: The value of the config option from either the system_info table
+        or ini file.
+    :rtype: string
+
+    :raises: :class:`ckan.logic.ValidationError`: if config option is not in
+        the schema (whitelisted as editable).
+    '''
+
+    model = context['model']
+
+    _check_access('config_option_show', context, data_dict)
+
+    key = _get_or_bust(data_dict, 'key')
+
+    schema = ckan.logic.schema.default_show_configuration_schema()
+
+    # Only return whitelisted keys
+    if key not in schema:
+        raise ValidationError(
+            'Configuration option \'{0}\' can not be shown'.format(key))
+
+    # return the value from system_info or config
+    default_value = config.get(key, None)
+    if key in schema.keys():
+        value = model.get_system_info(key, default=default_value)
+    else:
+        value = default_value
+
+    return value
+
+
+def config_option_list(context, data_dict):
+    '''Return a list of configuration option keys that can be updated with
+    `config_option_update`.
+
+    :returns: A list of config option keys.
+    :rtype: list
+    '''
+
+    _check_access('config_option_list', context, data_dict)
+
+    schema = ckan.logic.schema.default_show_configuration_schema()
+
+    return schema.keys()
