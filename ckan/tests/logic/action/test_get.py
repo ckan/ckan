@@ -1524,7 +1524,7 @@ class TestConfigOptionList(object):
         '''config_option_list returns whitelisted config option keys'''
 
         keys = helpers.call_action('config_option_list')
-        schema_keys = schema.default_show_configuration_schema().keys()
+        schema_keys = schema.update_configuration_schema().keys()
 
         nose.tools.assert_equal(keys, schema_keys)
 

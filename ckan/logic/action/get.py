@@ -3386,7 +3386,7 @@ def config_option_show(context, data_dict):
 
     key = _get_or_bust(data_dict, 'key')
 
-    schema = ckan.logic.schema.default_show_configuration_schema()
+    schema = ckan.logic.schema.update_configuration_schema()
 
     # Only return whitelisted keys
     if key not in schema:
@@ -3413,6 +3413,6 @@ def config_option_list(context, data_dict):
 
     _check_access('config_option_list', context, data_dict)
 
-    schema = ckan.logic.schema.default_show_configuration_schema()
+    schema = ckan.logic.schema.update_configuration_schema()
 
     return schema.keys()
