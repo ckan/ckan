@@ -232,13 +232,18 @@ def load_environment(global_conf, app_conf):
     p.load_all(config)
 
 
-# A list of config settings that can be overridden by environmental variable.
-ENV_VAR_WHITELIST = {
+# A mapping of config settings that can be overridden by env vars.
+CONFIG_FROM_ENV_VARS = {
     'sqlalchemy.url': 'CKAN_SQLALCHEMY_URL',
     'ckan.datastore.write_url': 'CKAN_DATASTORE_WRITE_URL',
     'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
     'solr_url': 'CKAN_SOLR_URL',
-    'ckan.site_id': 'CKAN_SITE_ID'
+    'ckan.site_id': 'CKAN_SITE_ID',
+    'smtp.server': 'CKAN_SMTP_SERVER',
+    'smtp.starttls': 'CKAN_SMTP_STARTTLS',
+    'smtp.user': 'CKAN_SMTP_USER',
+    'smtp.password': 'CKAN_SMTP_PASSWORD',
+    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM'
 }
 
 
@@ -261,8 +266,8 @@ def update_config():
         log.warn(msg)
         config['sqlalchemy.url'] = ckan_db
 
-    for option in ENV_VAR_WHITELIST:
-        from_env = os.environ.get(ENV_VAR_WHITELIST[option], None)
+    for option in CONFIG_FROM_ENV_VARS:
+        from_env = os.environ.get(CONFIG_FROM_ENV_VARS[option], None)
         if from_env:
             config[option] = from_env
 
