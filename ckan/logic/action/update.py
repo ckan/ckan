@@ -1315,6 +1315,9 @@ def bulk_update_delete(context, data_dict):
 
 def config_option_update(context, data_dict):
     '''
+
+    .. versionadded:: 2.4
+
     Allows to modify some CKAN configuration options
 
     It takes arbitrary key, value pairs and checks the keys against the
@@ -1351,7 +1354,9 @@ def config_option_update(context, data_dict):
     _check_access('config_option_update', context, data_dict)
 
     schema = schema_.default_update_configuration_schema()
-    # TODO: allow extensions to add or remove keys here
+    for plugin in plugins.PluginImplementations(plugins.IConfigurer):
+        if hasattr(plugin, 'update_config_schema'):
+            schema = plugin.update_config_schema(schema)
 
     available_options = schema.keys()
 
