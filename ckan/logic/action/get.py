@@ -3401,3 +3401,18 @@ def config_option_show(context, data_dict):
         value = default_value
 
     return value
+
+
+def config_option_list(context, data_dict):
+    '''Return a list of configuration option keys that can be updated with
+    `config_option_update`.
+
+    :returns: A list of config option keys.
+    :rtype: list
+    '''
+
+    _check_access('config_option_list', context, data_dict)
+
+    schema = ckan.logic.schema.default_show_configuration_schema()
+
+    return schema.keys()

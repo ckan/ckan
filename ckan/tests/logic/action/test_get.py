@@ -4,6 +4,7 @@ import ckan.logic as logic
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import ckan.logic.schema as schema
 
 
 eq = nose.tools.eq_
@@ -1515,6 +1516,17 @@ class TestConfigOptionShow(helpers.FunctionalTestBase):
 
         nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
                                  'config_option_show', key='ckan.not.editable')
+
+
+class TestConfigOptionList(object):
+
+    def test_config_option_list(self):
+        '''config_option_list returns whitelisted config option keys'''
+
+        keys = helpers.call_action('config_option_list')
+        schema_keys = schema.default_show_configuration_schema().keys()
+
+        nose.tools.assert_equal(keys, schema_keys)
 
 
 def remove_pseudo_users(user_list):
