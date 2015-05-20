@@ -1353,10 +1353,7 @@ def config_option_update(context, data_dict):
 
     _check_access('config_option_update', context, data_dict)
 
-    schema = schema_.default_update_configuration_schema()
-    for plugin in plugins.PluginImplementations(plugins.IConfigurer):
-        if hasattr(plugin, 'update_config_schema'):
-            schema = plugin.update_config_schema(schema)
+    schema = schema_.update_configuration_schema()
 
     available_options = schema.keys()
 
@@ -1383,8 +1380,7 @@ def config_option_update(context, data_dict):
 
         # Only add it to the app_globals (`g`) object if explicitly defined
         # there
-        globals_keys = (app_globals.auto_update +
-                        app_globals.config_details.keys())
+        globals_keys = app_globals.config_details.keys()
         if key in globals_keys:
             setattr(app_globals.app_globals, app_globals.get_globals_key(key),
                     value)

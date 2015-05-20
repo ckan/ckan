@@ -70,7 +70,8 @@ from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    )
 from formencode.validators import OneOf
 import ckan.model
-import ckan.lib.maintain as maintain
+import ckan.plugins as plugins
+
 
 def default_resource_schema():
 
@@ -678,4 +679,30 @@ def default_update_configuration_schema():
     for key, validators in schema.iteritems():
         validators.insert(0, ignore_missing)
 
+    return schema
+
+
+def update_configuration_schema():
+    '''
+    Returns the schema for the config options that can be edited at runtime
+
+    By default these are the keys of the
+    :py:func:`ckan.logic.schema.default_update_configuration_schema`.
+    Extensions can add or remove keys from this schema using the
+    :py:meth:`ckan.plugins.interfaces.IConfigurer.update_config_schema`
+    method.
+
+    These configuration options can be edited at runtime via the web interface
+    or using the :py:func:`ckan.logic.action.update.config_option_update` API
+    call.
+
+    :returns: a dictionary mapping configuration option keys to lists of
+      validator and converter functions to be applied to those keys
+    :rtype: dictionary
+    '''
+
+    schema = default_update_configuration_schema()
+    for plugin in plugins.PluginImplementations(plugins.IConfigurer):
+        if hasattr(plugin, 'update_config_schema'):
+            schema = plugin.update_config_schema(schema)
     return schema

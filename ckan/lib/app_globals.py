@@ -10,6 +10,8 @@ from pylons import config
 
 import ckan
 import ckan.model as model
+import ckan.logic as logic
+
 
 log = logging.getLogger(__name__)
 
@@ -20,19 +22,17 @@ mappings = {
 #   'config_key': 'globals_key',
 }
 
-# these config settings will get updated from system_info
-auto_update = [
-    'ckan.site_title',
-    'ckan.site_logo',
-    'ckan.site_url',
-    'ckan.site_description',
-    'ckan.site_about',
-    'ckan.site_intro_text',
-    'ckan.site_custom_css',
-    'ckan.homepage_style',
-]
 
-config_details = {
+# This mapping is only used to define the configuratin options (from the
+# `config` object) that should be copied to the `app_globals` (`g`) object.
+app_globals_from_config_details = {
+    'ckan.site_title': {},
+    'ckan.site_logo': {},
+    'ckan.site_url': {},
+    'ckan.site_description': {},
+    'ckan.site_about': {},
+    'ckan.site_intro_text': {},
+    'ckan.site_custom_css': {},
     'ckan.favicon': {}, # default gets set in config.environment.py
     'ckan.template_head_end': {},
     'ckan.template_footer_end': {},
@@ -141,7 +141,8 @@ def reset():
         return value
 
     # update the config settings in auto update
-    for key in auto_update:
+    schema = logic.schema.update_configuration_schema()
+    for key in schema.keys():
         get_config_value(key)
 
     # cusom styling
@@ -158,8 +159,6 @@ def reset():
         app_globals.header_class = 'header-text-logo'
     else:
         app_globals.header_class = 'header-text-logo-tagline'
-
-
 
 
 class _Globals(object):
@@ -195,8 +194,8 @@ class _Globals(object):
         else:
             self.ckan_doc_version = 'latest'
 
-        # process the config_details to set globals
-        for name, options in config_details.items():
+        # process the config details to set globals
+        for name, options in app_globals_from_config_details.items():
             if 'name' in options:
                 key = options['name']
             elif name.startswith('ckan.'):
