@@ -2,6 +2,8 @@
 
 {% extends "admin/base.html" %}
 
+{% import 'macros/form.html' as form %}
+
 {% block primary_content_inner %}
 
   {{ form.errors(error_summary) }}
