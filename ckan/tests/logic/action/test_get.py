@@ -1503,11 +1503,12 @@ class TestConfigOptionShow(helpers.FunctionalTestBase):
         '''config_option_show returns value from db when value is in both
         config and system_info table.'''
 
-        factories.SystemInfo(key='ckan.site_title', value='Site Title in DB')
+        params = {'ckan.site_title': 'Test site title'}
+        helpers.call_action('config_option_update', **params)
 
         title = helpers.call_action('config_option_show',
                                     key='ckan.site_title')
-        nose.tools.assert_equal(title, 'Site Title in DB')
+        nose.tools.assert_equal(title, 'Test site title')
 
     @helpers.change_config('ckan.not.editable', 'My non editable option')
     def test_config_option_show_not_whitelisted_key(self):

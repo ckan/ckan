@@ -3366,7 +3366,7 @@ def help_show(context, data_dict):
 def config_option_show(context, data_dict):
     '''Show the current value of a particular configuration option.
 
-    Only return config options that can be updated with the
+    Only return editable config options, which can be updated with the
     `config_option_update` action.
 
     :param id: The configuration option key
@@ -3380,8 +3380,6 @@ def config_option_show(context, data_dict):
         the schema (whitelisted as editable).
     '''
 
-    model = context['model']
-
     _check_access('config_option_show', context, data_dict)
 
     key = _get_or_bust(data_dict, 'key')
@@ -3393,14 +3391,8 @@ def config_option_show(context, data_dict):
         raise ValidationError(
             'Configuration option \'{0}\' can not be shown'.format(key))
 
-    # return the value from system_info or config
-    default_value = config.get(key, None)
-    if key in schema.keys():
-        value = model.get_system_info(key, default=default_value)
-    else:
-        value = default_value
-
-    return value
+    # return the value from config
+    return config.get(key, None)
 
 
 def config_option_list(context, data_dict):
