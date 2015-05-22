@@ -1327,8 +1327,9 @@ def config_option_update(context, data_dict):
     passed each key, value config option:
 
     * It is stored on the ``system_info`` database table
-    * The ``app_globals`` (``g``) object is updated (this is used on templates)
     * The Pylons ``config`` object is updated.
+    * The ``app_globals`` (``g``) object is updated (this only happens for
+      options explicitly defined in the ``app_globals`` module.
 
     The following lists a ``key`` parameter, but this should be replaced by
     whichever config options want to be updated, eg::
@@ -1345,9 +1346,12 @@ def config_option_update(context, data_dict):
     :returns: a dictionary with the options set
     :rtype: dictionary
 
-    .. todo:: link to action to get available options
-    .. todo:: clarify how extensions can update the config schema
+    .. note:: You can see all available configuration options that can be
+        remotely updated calling the
+        :py:func:`~ckan.logic.action.get.config_option_list` action
 
+    .. note:: Extensions can modify which configuration options are available.
+        For details, check :doc:/extensions/remote-config-update.
     '''
     model = context['model']
 

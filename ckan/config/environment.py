@@ -233,6 +233,8 @@ def load_environment(global_conf, app_conf):
 
 
 # A mapping of config settings that can be overridden by env vars.
+# Note: Do not remove the following lines, they are used in the docs
+# Start CONFIG_FROM_ENV_VARS
 CONFIG_FROM_ENV_VARS = {
     'sqlalchemy.url': 'CKAN_SQLALCHEMY_URL',
     'ckan.datastore.write_url': 'CKAN_DATASTORE_WRITE_URL',
@@ -247,6 +249,7 @@ CONFIG_FROM_ENV_VARS = {
     'smtp.password': 'CKAN_SMTP_PASSWORD',
     'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM'
 }
+# End CONFIG_FROM_ENV_VARS
 
 
 def update_config():
