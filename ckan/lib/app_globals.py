@@ -83,19 +83,40 @@ def set_main_css(css_file):
     app_globals.main_css = str(new_css)
 
 
-def set_global(key, value):
-    ''' helper function for getting value from database or config file '''
-    model.set_system_info(key, value)
-    setattr(app_globals, get_globals_key(key), value)
-    #TODO: Only set this if it was actually changed
-    model.set_system_info('ckan.config_update', str(time.time()))
-    # update the config
-    config[key] = value
-    log.info('config `%s` set to `%s`' % (key, value))
+def set_app_global(key, value):
+    '''
+    Set a new key on the app_globals (g) object
 
-def delete_global(key):
-    model.delete_system_info(key)
-    log.info('config `%s` deleted' % (key))
+    It will process the value according to the options on
+    app_globals_from_config_details (if any)
+    '''
+    key, value = process_app_global(key, value)
+    setattr(app_globals, key, value)
+
+
+def process_app_global(key, value):
+    '''
+    Tweak a key, value pair meant to be set on the app_globals (g) object
+
+    According to the options on app_globals_from_config_details (if any)
+    '''
+    options = app_globals_from_config_details.get(key)
+    key = get_globals_key(key)
+    if options:
+        if 'name' in options:
+            key = options['name']
+        value = value or options.get('default', '')
+
+        data_type = options.get('type')
+        if data_type == 'bool':
+            value = asbool(value)
+        elif data_type == 'int':
+            value = int(value)
+        elif data_type == 'split':
+            value = value.split()
+
+    return key, value
+
 
 def get_globals_key(key):
     # create our globals key
@@ -108,6 +129,7 @@ def get_globals_key(key):
         return key[5:]
     else:
         return key
+
 
 def reset():
     ''' set updatable values from config '''
@@ -135,7 +157,9 @@ def reset():
                 log.debug('config `%s` set to `%s` from config' % (key, value))
             else:
                 value = default
-        setattr(app_globals, get_globals_key(key), value)
+
+        set_app_global(key, value)
+
         # update the config
         config[key] = value
         return value
@@ -195,24 +219,9 @@ class _Globals(object):
             self.ckan_doc_version = 'latest'
 
         # process the config details to set globals
-        for name, options in app_globals_from_config_details.items():
-            if 'name' in options:
-                key = options['name']
-            elif name.startswith('ckan.'):
-                key = name[5:]
-            else:
-                key = name
-            value = config.get(name, options.get('default', ''))
-
-            data_type = options.get('type')
-            if data_type == 'bool':
-                value = asbool(value)
-            elif data_type == 'int':
-                value = int(value)
-            elif data_type == 'split':
-                value = value.split()
-
-            setattr(self, key, value)
+        for key in app_globals_from_config_details.keys():
+            new_key, value = process_app_global(key, config.get(key))
+            setattr(self, new_key, value)
 
 
 app_globals = _Globals()

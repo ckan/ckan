@@ -1383,8 +1383,7 @@ def config_option_update(context, data_dict):
         # there
         globals_keys = app_globals.app_globals_from_config_details.keys()
         if key in globals_keys:
-            setattr(app_globals.app_globals, app_globals.get_globals_key(key),
-                    value)
+            app_globals.set_app_global(key, value)
 
     # Update the config update timestamp
     model.set_system_info('ckan.config_update', str(time.time()))
