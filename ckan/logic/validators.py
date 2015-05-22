@@ -101,6 +101,8 @@ def is_positive_integer(value, context):
     return value
 
 def boolean_validator(value, context):
+    if value is missing:
+        return False
     if isinstance(value, bool):
         return value
     if value.lower() in ['true', 'yes', 't', 'y', '1']:
