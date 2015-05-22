@@ -55,6 +55,8 @@ def int_validator(value, context):
         raise Invalid(_('Invalid integer'))
 
 def boolean_validator(value, context):
+    if value is missing:
+        return False
     if isinstance(value, bool):
         return value
     if value.lower() in ['true', 'yes', 't', 'y', '1']:
