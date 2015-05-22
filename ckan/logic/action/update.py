@@ -1351,7 +1351,7 @@ def config_option_update(context, data_dict):
         :py:func:`~ckan.logic.action.get.config_option_list` action
 
     .. note:: Extensions can modify which configuration options are available.
-        For details, check :doc:/extensions/remote-config-update.
+        For details, check :doc:`/extensions/remote-config-update`.
     '''
     model = context['model']
 
