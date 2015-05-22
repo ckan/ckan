@@ -74,3 +74,55 @@ class TestGroupShowAuth(object):
         ret = helpers.call_auth('group_show', context=context,
                                 id=org['name'])
         assert ret
+
+
+class TestConfigOptionShowAuth(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_config_option_show_anon_user(self):
+        '''An anon user is not authorized to use config_option_show action.'''
+        context = {'user': None, 'model': None}
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'config_option_show', context=context)
+
+    def test_config_option_show_normal_user(self):
+        '''A normal logged in user is not authorized to use config_option_show
+        action.'''
+        factories.User(name='fred')
+        context = {'user': 'fred', 'model': None}
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'config_option_show', context=context)
+
+    def test_config_option_show_sysadmin(self):
+        '''A sysadmin is authorized to use config_option_show action.'''
+        factories.Sysadmin(name='fred')
+        context = {'user': 'fred', 'model': None}
+        assert helpers.call_auth('config_option_show', context=context)
+
+
+class TestConfigOptionListAuth(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_config_option_list_anon_user(self):
+        '''An anon user is not authorized to use config_option_list action.'''
+        context = {'user': None, 'model': None}
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'config_option_list', context=context)
+
+    def test_config_option_list_normal_user(self):
+        '''A normal logged in user is not authorized to use config_option_list
+        action.'''
+        factories.User(name='fred')
+        context = {'user': 'fred', 'model': None}
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'config_option_list', context=context)
+
+    def test_config_option_list_sysadmin(self):
+        '''A sysadmin is authorized to use config_option_list action.'''
+        factories.Sysadmin(name='fred')
+        context = {'user': 'fred', 'model': None}
+        assert helpers.call_auth('config_option_list', context=context)

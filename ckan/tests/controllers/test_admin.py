@@ -7,10 +7,7 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 from ckan.model.system_info import get_system_info
 
-
-assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
-submit_and_follow = helpers.submit_and_follow
 
 
 class TestAdminConfigUpdate(helpers.FunctionalTestBase):
