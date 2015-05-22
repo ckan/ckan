@@ -10,7 +10,7 @@ import ckan.logic as logic
 from ckan import model
 
 
-class TestGet(object):
+class TestPackageShowAuth(object):
 
     def setup(self):
         helpers.reset_db()
@@ -36,6 +36,12 @@ class TestGet(object):
         ret = helpers.call_auth('package_show', context=context,
                                 id=dataset['name'])
         assert ret
+
+
+class TestGroupShowAuth(object):
+
+    def setup(self):
+        helpers.reset_db()
 
     def test_group_show__deleted_group_is_hidden_to_public(self):
         group = factories.Group(state='deleted')
