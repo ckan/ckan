@@ -105,3 +105,66 @@ class TestConfigOptionUpdatePluginEnabled(object):
         # not set in globals
         globals_key = app_globals.get_globals_key(key)
         assert not hasattr(app_globals.app_globals, globals_key)
+
+    def test_update_registered_core_value_in_list(self):
+        '''Registering a core key/value will allow it to be included in the
+        list returned by config_option_list action.'''
+
+        key = 'ckan.datasets_per_page'
+        value = 5
+        params = {key: value}
+
+        # add registered core value
+        helpers.call_action('config_option_update', **params)
+
+        option_list = helpers.call_action('config_option_list')
+
+        assert key in option_list
+
+    def test_update_registered_core_value_in_show(self):
+        '''Registering a core key/value will allow it to be shown by the
+        config_option_show action.'''
+
+        key = 'ckan.datasets_per_page'
+        value = 5
+        params = {key: value}
+
+        # add registered core value
+        helpers.call_action('config_option_update', **params)
+
+        show_value = helpers.call_action('config_option_show',
+                                         key='ckan.datasets_per_page')
+
+        assert show_value == value
+
+    def test_update_registered_external_value_in_list(self):
+        '''Registering an external key/value will allow it to be included in
+        the list returned by config_option_list action.'''
+
+        key = 'ckanext.example_iconfigurer.test_conf'
+        value = 'Test value'
+        params = {key: value}
+
+        # add registered external value
+        helpers.call_action('config_option_update', **params)
+
+        option_list = helpers.call_action('config_option_list')
+
+        assert key in option_list
+
+    def test_update_registered_external_value_in_show(self):
+        '''Registering an external key/value will allow it to be shown by the
+        config_option_show action.'''
+
+        key = 'ckanext.example_iconfigurer.test_conf'
+        value = 'Test value'
+        params = {key: value}
+
+        # add registered external value
+        helpers.call_action('config_option_update', **params)
+
+        show_value = helpers.call_action(
+            'config_option_show',
+            key='ckanext.example_iconfigurer.test_conf')
+
+        assert show_value == value
