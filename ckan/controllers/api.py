@@ -718,7 +718,8 @@ class ApiController(base.BaseController):
         return self._finish_ok(resultSet)
 
     def tag_autocomplete(self):
-        q = request.params.get('incomplete', '')
+        q = request.str_params.get('incomplete', '')
+        q = unicode(urllib.unquote(q), 'utf-8')
         limit = request.params.get('limit', 10)
         tag_names = []
         if q:
