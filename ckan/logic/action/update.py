@@ -1347,8 +1347,8 @@ def config_option_update(context, data_dict):
     :rtype: dictionary
 
     .. note:: You can see all available configuration options that can be
-        remotely updated calling the
-        :py:func:`~ckan.logic.action.get.config_option_list` action
+        remotely updated calling
+        the :py:func:`~ckan.logic.action.get.config_option_list` action
 
     .. note:: Extensions can modify which configuration options are available.
         For details, check :doc:`/extensions/remote-config-update`.
