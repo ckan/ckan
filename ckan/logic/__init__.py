@@ -5,6 +5,9 @@ import sys
 
 import formencode.validators
 
+import pylons.config
+import ckan.lib as lib
+
 import ckan.model as model
 import ckan.new_authz as new_authz
 import ckan.lib.navl.dictization_functions as df
@@ -677,3 +680,34 @@ def _import_module_functions(module_path):
         except AttributeError:
             pass
     return functions_dict
+
+def in_case_of_crash_notify_user_from_context(*pargs, **kargs):
+    '''A decorator that sent email to action caller from given context.
+
+    Example:
+        @in_case_of_crash_notify_user_from_context(exception=EXCEPTION_CLASS)
+        def create_table(context, data_dict):
+            ...
+    where <EXCEPTION_CLASS> type of exception(single value or tuple of values) that should trigger notifying
+
+    Notifying is turned on by setting directive <notify.crash_mail_sent_to_guilty> in config file to true
+    '''
+    exception_type = kargs.get('exception')
+
+    def decorator(action):
+        @functools.wraps(action)
+        def wrapper(context, data_dict):
+            try:
+                return action(context, data_dict)
+            except exception_type, e:
+                notify = p.toolkit.asbool(pylons.config.get('notify.crash_mail_sent_to_guilty'))
+                user = context['auth_user_obj']
+                email = user.email if user else None
+                if notify and email:
+                    lib.mailer.send_crash_mail(user=user, error=e, action=action.__name__, data=data_dict)
+                raise e
+
+        return wrapper
+
+
+    return decorator

@@ -21,7 +21,7 @@ import ckan.plugins.toolkit as toolkit
 import ckanext.datastore.interfaces as interfaces
 import ckanext.datastore.helpers as datastore_helpers
 from ckan.common import OrderedDict
-
+from ckan.logic import in_case_of_crash_notify_user_from_context
 log = logging.getLogger(__name__)
 
 if not os.environ.get('DATASTORE_LOAD'):
@@ -288,7 +288,7 @@ def convert(data, type_name):
         return data
     return unicode(data)
 
-
+@in_case_of_crash_notify_user_from_context(exception=ProgrammingError)
 def create_table(context, data_dict):
     '''Create table from combination of fields and first row of data.'''
 
@@ -524,7 +524,7 @@ def _drop_indexes(context, data_dict, unique=False):
         context['connection'].execute(
             sql_drop_index.format(index[0]).replace('%', '%%'))
 
-
+@in_case_of_crash_notify_user_from_context(exception=ProgrammingError)
 def alter_table(context, data_dict):
     '''alter table from combination of fields and first row of data
     return: all fields of the resource table'''

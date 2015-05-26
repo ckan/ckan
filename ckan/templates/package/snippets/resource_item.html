@@ -1,6 +1,7 @@
 {% set can_edit = h.check_access('package_update', {'id':pkg.id }) %}
 {% set url_action = 'resource_edit' if url_is_edit and can_edit else 'resource_read' %}
 {% set url = h.url_for(controller='package', action=url_action, id=pkg.name, resource_id=res.id) %}
+{% set show_datapusher_label = can_edit and 'datapusher' in g.plugins %}
 
 <li class="resource-item" data-id="{{ res.id }}">
   {% block resource_item_title %}
@@ -8,6 +9,12 @@
     {{ h.resource_display_name(res) | truncate(50) }}<span class="format-label" property="dc:format" data-format="{{ res.format.lower() or 'data' }}">{{ res.format }}</span>
     {{ h.popular('views', res.tracking_summary.total, min=10) }}
   </a>
+  {% if show_datapusher_label %}
+    {% set status = h.get_action('datapusher_status', {'resource_id': res.id}) %}
+    {% if status.error and status.error.message or status.task_info and status.task_info.error %}
+      {% link_for _('Datapusher error'), controller='ckanext.datapusher.plugin:ResourceDataController', action='resource_data', id=pkg.name, resource_id=res.id, class_='label label-warning', icon='warning-sign' %}
+    {% endif %}
+  {% endif %}
   {% endblock %}
   {% block resource_item_description %}
     <p class="description">

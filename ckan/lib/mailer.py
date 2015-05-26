@@ -115,6 +115,29 @@ def get_reset_link_body(user):
         }
     return reset_link_message.format(**d)
 
+def get_crash_body(user, error, action, data):
+    crash_message = _(
+    "Something wrong happened on {site_title} during execution of API call to {action}.\n"
+    "\n"
+    "Error message:\n"
+    "\n"
+    "   {e_message}\n"
+    "\n"
+    "Data contained in request:"
+    "\n"
+    "   {data}"
+    "\n"
+    "Please, contact with site administrator in order to find out more details."
+    )
+
+    d = {
+        'e_message': error.message,
+        'site_title': g.site_title,
+        'action': action,
+        'data': data
+        }
+    return crash_message.format(**d)
+
 def get_invite_body(user):
     invite_message = _(
     "You have been invited to {site_title}. A user has already been created"
@@ -149,6 +172,14 @@ def send_invite(user):
     create_reset_key(user)
     body = get_invite_body(user)
     subject = _('Invite for {site_title}'.format(site_title=g.site_title))
+    mail_user(user, subject, body)
+
+def send_crash_mail(user, **kargs):
+    action = kargs.get('action', 'undefined action')
+    data = kargs['data']
+    error = kargs['error']
+    body = get_crash_body(user, error, action, data)
+    subject = _('Error at {site_title} during {action}'.format(site_title=g.site_title, action=action))
     mail_user(user, subject, body)
 
 def create_reset_key(user):
