@@ -288,6 +288,7 @@ def convert(data, type_name):
         return data
     return unicode(data)
 
+
 @in_case_of_crash_notify_user_from_context(exception=ProgrammingError)
 def create_table(context, data_dict):
     '''Create table from combination of fields and first row of data.'''
@@ -523,6 +524,7 @@ def _drop_indexes(context, data_dict, unique=False):
     for index in indexes_to_drop:
         context['connection'].execute(
             sql_drop_index.format(index[0]).replace('%', '%%'))
+
 
 @in_case_of_crash_notify_user_from_context(exception=ProgrammingError)
 def alter_table(context, data_dict):
