@@ -30,6 +30,11 @@ Changes and deprecations
 * Add middleware that cleans up the response string after it has been
   served, stabilizes memory usage for large requests #1847
 
+* `organization_list_for_user` now returns organizations in heirarchy if they
+  exist for roles set in `ckan.auth.roles_that_cascade_to_sub_groups`.
+
+* Update license keys to match opendefinition.org #2110
+
 
 v2.3 2015-03-04
 ===============

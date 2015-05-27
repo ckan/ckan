@@ -645,13 +645,13 @@ def license_save(license_dict, context):
     for key, value in license_dict.iteritems():
         if isinstance(value, list):
             continue
-        if key in ('extras', 'is_okd_compliant'):
+        if key in ('extras', 'od_conformance'):
             continue
         if key in fields:
             if key == 'status' and new:
                 value = 'active'
             if key == 'url':
-                obj.is_okd_compliant = bool(value)
+                obj.od_conformance = 'approved' if bool(value) else ''
             setattr(obj, key, value)
         else:
             # resources save extras directly onto the object, instead

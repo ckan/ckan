@@ -13,7 +13,7 @@
       <tr>
         <th>{{ _('ID') }}</th>
         <th>{{ _('Title') }}</th>
-        <th>{{ _('OD compliant') }}</th>
+        <th>{{ _('OD conformance') }}</th>
         <th>{{ _('Url') }}</th>
         <th>{{ _('Status') }}</th>
         <th>{{ _('Actions') }}</th>
@@ -24,7 +24,7 @@
         <tr class="{% if license.status == 'active' %}success{% elif license.status == 'deleted' %}error{% endif %}">
           <td>{{ license.id }}</td>
           <td>{{ license.title }}</td>
-          <td>{% if license.is_okd_compliant %}{{ _('Yes') }}{% else %}{{ _('No') }}{% endif %}</td>
+          <td>{{ license.od_conformance }}</td>
           <td>{% if license.url %}<a href="{{ license.url }}" target="_blank">{{ _('Visit') }}</a>{% endif %}</td>
           <td>{{ license.status }}</td>
           <td>

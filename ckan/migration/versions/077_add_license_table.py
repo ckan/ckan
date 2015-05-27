@@ -22,7 +22,7 @@ def upgrade(migrate_engine):
         CREATE TABLE license (
             id text NOT NULL,
             title text NOT NULL,
-            is_okd_compliant boolean,
+            od_conformance text NOT NULL,
             is_generic boolean,
             url text,
             home_url text,
@@ -42,7 +42,7 @@ def upgrade(migrate_engine):
             licenses_dict.setdefault(license.id, {
                 'id': license.id,
                 'title': license.title,
-                'is_okd_compliant': license.is_okd_compliant,
+                'od_conformance': license.od_conformance,
                 'url': license.url,
                 'is_generic': license.is_generic,
                 'extras': {},
@@ -55,7 +55,7 @@ def upgrade(migrate_engine):
                 if licenses_dict.get[package.license_id] else {
                     'id': package.license_id,
                     'title': package.license_id,
-                    'is_okd_compliant': False,
+                    'od_conformance': '',
                     'url': '',
                     'is_generic': False,
                     'extras': {},
@@ -71,7 +71,7 @@ def upgrade(migrate_engine):
             data_dict = {
                 'id': 'cc-by',
                 'title': 'Creative Commons Attribution',
-                'is_okd_compliant': True,
+                'od_conformance': 'approved',
                 'url': 'http://www.opendefinition.org/licenses/cc-by',
                 'is_generic': True,
                 'status': 'active',
@@ -81,7 +81,7 @@ def upgrade(migrate_engine):
             data_dict = {
                 'id': 'odc-by',
                 'title': 'Open Data Commons Attribution License',
-                'is_okd_compliant': True,
+                'od_conformance': 'approved',
                 'url': 'http://www.opendefinition.org/licenses/odc-by',
                 'is_generic': False,
                 'status': 'active',

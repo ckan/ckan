@@ -420,7 +420,7 @@ class Repository(vdm.sqlalchemy.Repository):
             meta.Session.add(License({
                 'id': 'cc-by',
                 'title': 'Creative Commons Attribution',
-                'is_okd_compliant': True,
+                'od_conformance': 'approved',
                 'url': 'http://www.opendefinition.org/licenses/cc-by',
                 'is_generic': True,
                 'status': 'active',
@@ -428,7 +428,7 @@ class Repository(vdm.sqlalchemy.Repository):
             meta.Session.add(License({
                 'id': 'odc-by',
                 'title': 'Open Data Commons Attribution License',
-                'is_okd_compliant': True,
+                'od_conformance': 'approved',
                 'url': 'http://www.opendefinition.org/licenses/odc-by',
                 'is_generic': False,
                 'status': 'active',
