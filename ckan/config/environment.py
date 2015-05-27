@@ -241,6 +241,7 @@ CONFIG_FROM_ENV_VARS = {
     'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
     'solr_url': 'CKAN_SOLR_URL',
     'ckan.site_id': 'CKAN_SITE_ID',
+    'ckan.site_url': 'CKAN_SITE_URL',
     'ckan.storage_path': 'CKAN_STORAGE_PATH',
     'ckan.datapusher.url': 'CKAN_DATAPUSHER_URL',
     'smtp.server': 'CKAN_SMTP_SERVER',
