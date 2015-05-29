@@ -398,6 +398,17 @@ class CreateTestData(object):
     def create(cls, auth_profile="", package_type=None):
         model.Session.remove()
         rev = model.repo.new_revision()
+
+        # add other (open) license for testing
+        if not model.Session.query(model.License).get('other-open'):
+            license = model.License()
+            license.id = 'other-open'
+            license.title = 'Other (Open)'
+            license.od_conformance = 'approved'
+            license.is_generic = True
+            license.status = 'active'
+            model.Session.add(license)
+
         # same name as user we create below
         rev.author = cls.author
         rev.message = u'''Creating test data.
