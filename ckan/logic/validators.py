@@ -101,6 +101,12 @@ def is_positive_integer(value, context):
     return value
 
 def boolean_validator(value, context):
+    '''
+    Return a boolean for value.
+    Return value when value is a python bool type.  
+    Return True for strings 'true', 'yes', 't', 'y', and '1'.
+    Return False in all other cases, including when value is None
+    '''
     if value is missing:
         return False
     if isinstance(value, bool):
