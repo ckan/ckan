@@ -499,6 +499,29 @@ class TestIntValidator(object):
             warnings.filterwarnings('ignore', category=DeprecationWarning)
             raises_Invalid(validators.int_validator)(1 + 0j, {})
 
+class TestBoolValidator(object):
+
+    def test_bool_true(self):
+        assert_equals(validators.boolean_validator(True, None), True)
+
+    def test_bool_false(self):
+        assert_equals(validators.boolean_validator(False, None), False)
+
+    def test_missing(self):
+        assert_equals(validators.boolean_validator('', None), False)
+
+    def test_none(self):
+        assert_equals(validators.boolean_validator(None, None), False)
+
+    def test_string_true(self):
+        assert_equals(validators.boolean_validator('true', None), True)
+        assert_equals(validators.boolean_validator('yes', None), True)
+        assert_equals(validators.boolean_validator('t', None), True)
+        assert_equals(validators.boolean_validator('y', None), True)
+        assert_equals(validators.boolean_validator('1', None), True)
+
+    def test_string_false(self):
+        assert_equals(validators.boolean_validator('f', None), False)
 
 #TODO: Need to test when you are not providing owner_org and the validator
 #      queries for the dataset with package_show
