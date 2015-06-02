@@ -1,7 +1,7 @@
 {% extends "package/base.html" %}
 
 {% set res = c.resource %}
-
+{% set dev_mode_sandbox = g.developer_mode and h.asbool(g.developer_mode) %}
 {% block head_extras -%}
   {{ super() }}
   {% set description = h.markdown_extract(res.description, extract_length=200) if res.description else h.markdown_extract(c.package.notes, extract_length=200) %}
@@ -27,6 +27,9 @@
           {% block resource_actions %}
           <ul>
             {% block resource_actions_inner %}
+            {% if dev_mode_sandbox %}
+              <li>{% link_for _('API Sandbox'), controller='package', action='resource_api_sandbox', id=pkg.name, resource_id=res.id, class_='btn', icon='question-sign' %}</li>
+            {% endif %}
             {% if h.check_access('package_update', {'id':pkg.id }) %}
               <li>{% link_for _('Manage'), controller='package', action='resource_edit', id=pkg.name, resource_id=res.id, class_='btn', icon='wrench' %}</li>
             {% endif %}

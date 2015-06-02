@@ -30,6 +30,7 @@ auto_update = [
     'ckan.site_intro_text',
     'ckan.site_custom_css',
     'ckan.homepage_style',
+    'ckan.developer_mode',
 ]
 
 config_details = {
@@ -59,6 +60,7 @@ config_details = {
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
     'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
     'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
+    'ckan.developer_mode' : {'default': 'false', 'type' : 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},

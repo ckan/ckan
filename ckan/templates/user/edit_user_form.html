@@ -21,6 +21,8 @@
       {% endcall %}
     {% endif %}
 
+    {{ form.checkbox('developer_mode', label=_('DevMode'), id='field-dev-mode', value=data.developer_mode, error=errors.developer_mode) }}
+
   </fieldset>
 
   <fieldset>

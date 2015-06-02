@@ -1,0 +1,15 @@
+{% extends "package/resource_api_sandbox_base.html" %}
+
+
+{% block subtitle %}{{ _('API Sandbox') }} - {{ h.resource_display_name(res) }} - {{ h.dataset_display_name(pkg) }}{% endblock %}
+
+{% block form %}
+  {% snippet 'package/snippets/api_sandbox_form.html',
+    data=data,
+    errors=errors,
+    error_summary=error_summary,
+    pkg_name=pkg.name,
+    form_action=c.form_action,
+    available_actions=available_actions
+  %}
+{% endblock %}

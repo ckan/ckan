@@ -1663,3 +1663,60 @@ class PackageController(base.BaseController):
         else:
             return render(preview_plugin.preview_template(context, data_dict),
                           extra_vars={'dataset_type': dataset_type})
+
+    def resource_api_sandbox(self, id, resource_id):
+        '''
+        Embedded page for a resource data-preview.
+
+        Depending on the type, different previews are loaded.  This could be an
+        img tag where the image is loaded directly or an iframe that embeds a
+        webpage, or a recline preview.
+        '''
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': c.user or c.author,
+            'auth_user_obj': c.userobj
+        }
+        error_summary = ''
+        errors = {}
+
+        api_list = (
+            'resource_show',
+            'resource_update',
+            'resource_view_show',
+            'resource_view_list',
+            'resource_status_show',
+            'format_autocomplete',
+            'resource_search',
+            'resource_create',
+            'resource_view_create',
+            'resource_create_default_resource_views',
+            'resource_update',
+            'resource_view_update',
+            'resource_view_reorder',
+            'resource_patch',
+            'resource_delete',
+            'resource_view_clear',
+        )
+        available_actions = [{'value': name} for name in api_list]
+        try:
+            c.resource = get_action('resource_show')(context,
+                                                     {'id': resource_id})
+            c.package = get_action('package_show')(context, {'id': id})
+
+            data_dict = {
+                'resource': c.resource,
+                'pkg_dict': c.package,
+                'errors': errors,
+                'error_summary': error_summary,
+                'available_actions': available_actions
+            }
+
+        except NotFound:
+            abort(404, _('Resource not found'))
+        except NotAuthorized:
+            abort(401, _('Unauthorized to read resource %s') % id)
+        else:
+            return render('package/resource_api_sandbox.html',
+                          extra_vars=data_dict)
