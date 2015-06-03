@@ -112,7 +112,8 @@ def resource_delete(context, data_dict):
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_delete(context, pkg_dict.get('resources', []))
 
-    model.repo.commit()
+    if not data_dict.get('sandbox'):
+        model.repo.commit()
 
 
 def resource_view_delete(context, data_dict):
@@ -150,7 +151,8 @@ def resource_view_clear(context, data_dict):
 
     view_types = data_dict.get('view_types')
     model.ResourceView.delete_all(view_types)
-    model.repo.commit()
+    if not data_dict.get('sandbox'):
+        model.repo.commit()
 
 
 def package_relationship_delete(context, data_dict):

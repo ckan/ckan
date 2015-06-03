@@ -26,6 +26,12 @@
     // select field with all actions
     selector: null,
 
+    // sandbox switcher
+    sandboxer: null,
+
+    //enable sandbox
+    isSandbox: false,
+
     // form container with API forms
     formContainer: null,
 
@@ -34,6 +40,9 @@
 
     // container for request results
     resultContainer: null,
+
+    // container for request examples
+    examplesContainer: null,
 
     // is placeholder not_chosen shown?
     notChosen: true,
@@ -44,14 +53,14 @@
     // input markdown
     input:
     '<div class="control-group ">' +
-      '<label class="control-label" for="sandbox-generated-{{name}}">{{label}}</label>' +
-      '<div class="controls ">' +
-        '<input id="sandbox-generated-{{name}}" type="text" name="{{name}}" value="" placeholder="{{label}}">' +
-      '</div>' +
+    '<label class="control-label" for="sandbox-generated-{{name}}">{{label}}</label>' +
+    '<div class="controls ">' +
+    '<input id="sandbox-generated-{{name}}" type="text" name="{{name}}" value="" placeholder="{{label}}">' +
+    '</div>' +
     '</div>',
 
     submit:
-      '<div class="form-actions"><button class="btn btn-primary" type="submit" name="save"><i class="icon-play-circle"></i></button></div>',
+    '<div class="form-actions"><button class="btn btn-primary" type="submit" name="save"><i class="icon-play-circle"></i></button></div>',
 
     // regexp to search params
     getParams: function(data){
@@ -61,7 +70,7 @@
       var match = null;
 
       while ((match = regexp.exec(data)) != null) {
-          result.push(match[1]);
+        result.push(match[1]);
       }
 
       return result;
@@ -75,12 +84,16 @@
      *
      * Returns nothing.
      */
-    initialize: function () {
+     initialize: function () {
       jQuery.proxyAll(this, /_on/);
 
       // find select with actions and add EventListener
       this.selector = this.el.find('#field-action-selector');
       this.selector.on('change', this._onSelectAction);
+
+      // find select with actions and add EventListener
+      this.sandboxer = this.el.find('#checkbox-is-sandbox');
+      this.sandboxer.on('change', this._onSwitchSandbox);
 
       // find container for our future forms
       this.formContainer = this.el.find('#action-form');
@@ -88,6 +101,9 @@
 
       // find container for not_chosen and request errors
       this.notChosenContainer = this.el.find('.not-chosen-action');
+
+      // find container for examples
+      this.examplesContainer = this.el.find('#request-code');
 
       // find container for not_chosen and request errors
       this.resultContainer = this.el.find('#request-result');
@@ -100,11 +116,22 @@
 
     },
 
+    /* Turn on/off sandbox mode
+     *
+     * Returns nothing
+     */
+    _onSwitchSandbox: function (event) {
+      if (this.sandboxer.prop('checked'))
+        this.isSandbox = true;
+      else
+        this.isSandbox = false;
+    },
+
     /* After change of select value.
      *
      * Returns nothing.
      */
-    _onSelectAction: function (event) {
+     _onSelectAction: function (event) {
       // only single request at time
       if (this.inProgress)
         return;
@@ -116,6 +143,7 @@
       this.helpArea.text('');
       this.formContainer.text('');
       this.resultContainer.text('');
+      this.examplesContainer.text('');
 
       // hide hot_chosen placeholder
       if (this.notChosen){
@@ -143,7 +171,7 @@
      *
      * Returns nothing.
      */
-    _onReceiveHelp: function(data){
+     _onReceiveHelp: function(data){
       var content = data.result;
       // put description in helpArea
       this.helpArea.text(content.trim());
@@ -168,7 +196,7 @@
      *
      * Returns nothing.
      */
-    _onFailHelp: function (data, status, msg) {
+     _onFailHelp: function (data, status, msg) {
       this.notChosenContainer.text(status + ': ' + msg).show();
       this.notChosen = true;
     },
@@ -178,7 +206,7 @@
      *
      * Returns nothing.
      */
-    _onHelpFinished: function (data, status, msg) {
+     _onHelpFinished: function (data, status, msg) {
       this.selector.attr('disabled', false);
       this.inProgress = false;
     },
@@ -187,7 +215,7 @@
      *
      * Returns nothing.
      */
-    _onSubmitAction: function (event) {
+     _onSubmitAction: function (event) {
       //
       if (this.inProgress)
         return;
@@ -205,15 +233,21 @@
           data[fields[i].name] = val;
       }
 
-
+      if (this.isSandbox)
+        data['sandbox'] = true;
       // request_in_progress flag
       this.selector.attr('disabled', true);
       this.inProgress = true;
 
       // in case of POST
       data = JSON.stringify(data);
+
+      // let's show how this can be done
+      this._onGenerateExamples(url, data);
+
       // make request's body
-      var request = $.post(url, data);
+      console.log(data)
+      var request = $.post(url, data, 'json');
 
       // // Event listeners for success, error and any result
       request.done(this._onActionDone);
@@ -224,22 +258,103 @@
       return false;
     },
 
+    /* Make examples of requests
+     *
+     * Returns nothing.
+     */
+     _onGenerateExamples: function (url, data) {
+      var examples = [];
+      var commands = {};
+
+      commands['CURL:'] = "curl " +
+      url +
+      " -H 'Authorization: API_KEY' -d '" +
+      data +
+      "'";
+
+      commands['JavaScript:'] =
+      "var api_key = API_KEY;\n" +
+      "var data = " +
+      JSON.stringify(JSON.parse(data), null, '\t') +
+      ";\n" +
+      "$.ajax({\n" +
+        "\turl: '" +
+        url +
+        "',\n" +
+        "\tdata: JSON.stringify(data),\n" +
+
+        "\tbeforeSend: function (request){\n" +
+            "\t\trequest.setRequestHeader('Authorization', api_key);\n" +
+        "\t},\n" +
+
+        "\tmethod: 'POST',\n" +
+        "\tdataType: 'jsonp',\n" +
+        "\tsuccess: function(data) {\n" +
+        "\t\talert('Request status: ' + data.success);\n" +
+        "\t}\n" +
+        "});\n" ;
+
+      for (command in commands){
+        examples.push(
+          $('<div>').append(
+            $('<hr>'),
+            $('<h3>').text(command),
+            $('<p>').text(commands[command])
+            )
+          );
+      }
+
+      this.examplesContainer.empty().append(examples)
+      },
+
     // after success API request
     _onActionDone: function (data, status, msg) {
-
-      this.resultContainer.text(JSON.stringify(data.result, null, '\n'));
+      this.resultContainer.text(this.niceOutput(data.result));
     },
 
     // after wrong api request
     _onActionFail: function (data, status, msg) {
-      this.resultContainer.text(JSON.stringify(JSON.parse(data.responseText), null, '\n'));
+      var resp = typeof data.responseJSON === 'string' ?
+      data.responseText :
+      this.niceOutput(JSON.parse(data.responseText));
+      this.resultContainer.text(resp);
     },
 
     // after any api request
     _onActionAfter: function (data, status, msg) {
-      // here we are using small hack to escape html and save newlines
-      this.resultContainer.html(this.resultContainer.html().replace(/\n/g,'<br/>'));
+      // here we are using small hack to escape html and save newlines&indents
+      this.resultContainer.html(this.resultContainer.html()
+        .replace((new RegExp('\\n','gm')), '</br>')
+        .replace(new RegExp('\\t','gm'), '&emsp;&emsp;'));
       this._onHelpFinished(data, status, msg);
+    },
+
+    /* Stringify JSON. We could use JSON.stringify with secont param as well
+     *
+     * Returns object as string.
+     */
+     niceOutput: function (value) {
+      var result = '{\n';
+
+      // recursion to show nested objects
+      (function prettyfier(obj, repeat){
+        var indent = '\t'.repeat(repeat);
+        for (var key in obj){
+          var item = obj[key];
+          if ( item === null){
+            result += indent + key + ': null\n';
+          } else if (typeof item === 'object'){
+            result += indent + key + ': {\n';
+            prettyfier(item, repeat+1);
+            result += indent + '}\n'
+          } else {
+            result += indent + key + ': ' + item + '\n';
+          }
+
+        }
+      }(value, 1));
+      result += '}';
+      return result;
     },
 
   };

@@ -1683,7 +1683,6 @@ class PackageController(base.BaseController):
 
         api_list = (
             'resource_show',
-            'resource_update',
             'resource_view_show',
             'resource_view_list',
             'resource_status_show',
@@ -1692,10 +1691,7 @@ class PackageController(base.BaseController):
             'resource_create',
             'resource_view_create',
             'resource_create_default_resource_views',
-            'resource_update',
-            'resource_view_update',
             'resource_view_reorder',
-            'resource_patch',
             'resource_delete',
             'resource_view_clear',
         )

@@ -17,6 +17,7 @@
     {% block auto_action %}
       <div class="form-horizontal">
         {{ form.select('action', id='field-action-selector', label=_('Action'), options=available_actions,  error=data.error, classes=['action-selector']) }}
+        {{ form.checkbox('is-sandbox', id='checkbox-is-sandbox', label=_('Sandbox mode')) }}
       </div>
     {% endblock %}
   <div class='action-help-container'>
@@ -35,6 +36,13 @@
     <legend>Request result</legend>
     <em class="not-chosen-action">{{ not_chosen }}</em>
     <div id="request-result"></div>
-    </form>
+  </div>
+  <div class="action-form-container">
+    <legend>Request examples</legend>
+    <em class="not-chosen-action">{{ not_chosen }}</em>
+    <div id="request-result"></div>
+    <pre>
+     <div id="request-code"></div>
+    </pre>
   </div>
 </div>

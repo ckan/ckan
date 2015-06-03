@@ -310,11 +310,13 @@ def resource_create(context, data_dict):
     ## package_show until after commit
     upload.upload(context['package'].resources[-1].id,
                   uploader.get_max_resource_size())
-    model.repo.commit()
 
     ##  Run package show again to get out actual last_resource
     updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = updated_pkg_dict['resources'][-1]
+
+    if not data_dict.get('sandbox'):
+        model.repo.commit()
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_create(context, resource)
@@ -378,7 +380,7 @@ def resource_view_create(context, data_dict):
     data['order'] = order
 
     resource_view = model_save.resource_view_dict_save(data, context)
-    if not context.get('defer_commit'):
+    if not context.get('defer_commit') and not data_dict.get('sandbox'):
         model.repo.commit()
     return model_dictize.resource_view_dictize(resource_view, context)
 

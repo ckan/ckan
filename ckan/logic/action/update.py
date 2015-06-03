@@ -254,7 +254,8 @@ def resource_view_reorder(context, data_dict):
     for num, view in enumerate(new_order):
         model.Session.query(model.ResourceView).\
             filter_by(id=view).update({"order": num + 1})
-    model.Session.commit()
+    if not data_dict.get('sandbox'):
+        model.Session.commit()
     return {'id': id, 'order': new_order}
 
 

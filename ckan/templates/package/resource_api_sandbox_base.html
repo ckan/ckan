@@ -28,5 +28,18 @@
 {% endblock %}
 
 {% block secondary_content %}
-  {% snippet 'package/snippets/resource_info.html', res=res %}
+  <div class="module context-info">
+  <div class="module-content">
+    <h1 class="heading">{{ _('About') }} {{ res.name or res.id }}</h1>
+    <div class="nums">
+      {% for key in res %}
+        <p>
+          <strong>{{ key }}</strong><br>
+          <em>{{ res[key] }}</em>
+        </p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
 {% endblock %}
