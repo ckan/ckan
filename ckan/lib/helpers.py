@@ -1476,7 +1476,7 @@ def groups_available(am_member=False):
     return logic.get_action('group_list_authz')(context, data_dict)
 
 
-def organizations_available(permission='edit_group'):
+def organizations_available(permission='admin'):
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''

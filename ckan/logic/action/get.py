@@ -604,7 +604,7 @@ def organization_list_for_user(context, data_dict):
 
     :param permission: the permission the user has against the
         returned organizations, for example ``"read"`` or ``"create_dataset"``
-        (optional, default: ``"edit_group"``)
+        (optional, default: ``"admin"``)
     :type permission: string
 
     :returns: list of organizations that the user has the given permission for
@@ -624,9 +624,7 @@ def organization_list_for_user(context, data_dict):
     if not sysadmin:
         # for non-Sysadmins check they have the required permission
 
-        # NB 'edit_group' doesn't exist so by default this action returns just
-        # orgs with admin role
-        permission = data_dict.get('permission', 'edit_group')
+        permission = data_dict.get('permission', 'admin')
 
         roles = authz.get_roles_with_permission(permission)
 
