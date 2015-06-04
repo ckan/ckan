@@ -47,6 +47,7 @@ config_details = {
     'ckan.dumps_format': {},
     'ofs.impl': {'name': 'ofs_impl'},
     'ckan.homepage_style': {'default': '1'},
+    'ckan.developer_mode' : {},
 
     # split string
     'search.facets': {'default': 'organization groups tags res_format license_id',
@@ -60,7 +61,6 @@ config_details = {
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
     'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},
     'ckan.tracking_enabled' : {'default': 'false', 'type' : 'bool'},
-    'ckan.developer_mode' : {'default': 'false', 'type' : 'bool'},
 
     # int
     'ckan.datasets_per_page': {'default': '20', 'type': 'int'},
