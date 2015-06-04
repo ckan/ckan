@@ -605,7 +605,7 @@ def organization_list_for_user(context, data_dict):
 
     :param id: the name or id of the user to get the organization list for
         (optional, defaults to the currently authrized user (logged in or via
-         API key))
+        API key))
     :type permission: string
 
     :param permission: the permission the user has against the
