@@ -621,7 +621,9 @@ def organization_list_for_user(context, data_dict):
         .filter(model.Group.is_organization == True) \
         .filter(model.Group.state == 'active')
 
-    if not sysadmin:
+    if sysadmin:
+        orgs_and_capacities = [(org, 'admin') for org in orgs_q.all()]
+    else:
         # for non-Sysadmins check they have the required permission
 
         permission = data_dict.get('permission', 'admin')
@@ -644,20 +646,29 @@ def organization_list_for_user(context, data_dict):
         group_ids = set()
         roles_that_cascade = \
             authz.check_config_permission('roles_that_cascade_to_sub_groups')
+        group_ids_to_capacities = {}
         for member, group in q.all():
             if member.capacity in roles_that_cascade:
-                group_ids |= set([
+                children_group_ids = [
                     grp_tuple[0] for grp_tuple
                     in group.get_children_group_hierarchy(type='organization')
-                    ])
+                ]
+                for group_id in children_group_ids:
+                    group_ids_to_capacities[group_id] = member.capacity
+                group_ids |= set(children_group_ids)
+
+            group_ids_to_capacities[group.id] = member.capacity
             group_ids.add(group.id)
 
         if not group_ids:
             return []
 
         orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))
+        orgs_and_capacities = [
+            (org, group_ids_to_capacities[org.id]) for org in orgs_q.all()]
 
-    orgs_list = model_dictize.group_list_dictize(orgs_q.all(), context)
+    context['with_capacity'] = True
+    orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context)
     return orgs_list
 
 
