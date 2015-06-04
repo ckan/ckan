@@ -580,11 +580,12 @@ def organization_list_for_user(context, data_dict):
     '''Return the organizations that the user has a given permission for.
 
     By default this returns the list of organizations that the currently
-    authorized user can edit, i.e. the list of organizations that the user is an
-    admin of.
+    authorized user can edit, i.e. the list of organizations that the user is
+    an admin of.
 
     Specifically it returns the list of organizations that the currently
-    authorized user has a given permission (for example: "manage_group") against.
+    authorized user has a given permission (for example: "manage_group")
+    against.
 
     When a user becomes a member of an organization in CKAN they're given a
     "capacity" (sometimes called a "role"), for example "member", "editor" or
@@ -602,6 +603,11 @@ def organization_list_for_user(context, data_dict):
     datasets in. This takes account of when permissions cascade down an
     organization hierarchy.
 
+    :param id: the name or id of the user to get the organization list for
+        (optional, defaults to the currently authrized user (logged in or via
+         API key))
+    :type permission: string
+
     :param permission: the permission the user has against the
         returned organizations, for example ``"read"`` or ``"create_dataset"``
         (optional, default: ``"admin"``)
@@ -612,7 +618,14 @@ def organization_list_for_user(context, data_dict):
 
     '''
     model = context['model']
-    user = context['user']
+
+    if data_dict.get('id'):
+        user_obj = model.User.get(data_dict['id'])
+        if not user_obj:
+            raise NotFound
+        user = user_obj.name
+    else:
+        user = context['user']
 
     _check_access('organization_list_for_user', context, data_dict)
     sysadmin = authz.is_sysadmin(user)
