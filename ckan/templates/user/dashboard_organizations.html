@@ -13,7 +13,7 @@
   {% set organizations = h.organizations_available(permission='read') %}
   {% if organizations %}
     <div class="wide">
-      {% snippet "organization/snippets/organization_list.html", organizations=organizations %}
+      {% snippet "organization/snippets/organization_list.html", organizations=organizations, show_capacity=True %}
     </div>
   {% else %}
     <p class="empty">

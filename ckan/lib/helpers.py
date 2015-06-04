@@ -1485,6 +1485,11 @@ def organizations_available(permission='admin'):
     return logic.get_action('organization_list_for_user')(context, data_dict)
 
 
+def roles_translated():
+    '''Return a dict of available roles with their translations'''
+    return authz.roles_trans()
+
+
 def user_in_org_or_group(group_id):
     ''' Check if user is in a group or organization '''
     # we need a user
@@ -2131,6 +2136,7 @@ __allowed_functions__ = [
     'time_ago_from_timestamp',
     'get_organization',
     'has_more_facets',
+    'roles_translated',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',

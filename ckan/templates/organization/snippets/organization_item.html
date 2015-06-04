@@ -33,6 +33,11 @@ Example:
       <span class="count">{{ _('0 Datasets') }}</span>
     {% endif %}
   {% endblock %}
+  {% block capacity %}
+    {% if show_capacity and organization.capacity %}
+    <p><span class="label">{{ h.roles_translated().get(organization.capacity, organization.capacity) }}</span></p>
+    {% endif %}
+  {% endblock %}
   {% block link %}
   <a href="{{ url }}" title="{{ _('View {organization_name}').format(organization_name=organization.display_name) }}" class="media-view">
     <span>{{ _('View {organization_name}').format(organization_name=organization.display_name) }}</span>
