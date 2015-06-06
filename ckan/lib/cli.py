@@ -18,6 +18,7 @@ import routes
 import paste.script
 from paste.registry import Registry
 from paste.script.util.logging_config import fileConfig
+from sqlalchemy import or_, and_
 
 #NB No CKAN imports are allowed until after the config file is loaded.
 #   i.e. do the imports in methods, after _load_config is called.
@@ -925,7 +926,16 @@ class DatasetCmd(CkanCommand):
         name = dataset.name
 
         rev = model.repo.new_revision()
+
+        # Purge membership to several groups
+        q_member = model.Session.query(model.Member).filter(and_(
+            model.Member.table_name == 'package',
+            model.Member.table_id == dataset_ref))
+        for memb in q_member.all():
+            memb.purge()
+        # Purge actual dataset
         dataset.purge()
+
         model.repo.commit_and_remove()
         print '%s purged' % name
 
