@@ -584,7 +584,7 @@ def organization_list_for_user(context, data_dict):
     admin of.
 
     Specifically it returns the list of organizations that the currently
-    authorized user has a given permission (for example: "edit_group") against.
+    authorized user has a given permission (for example: "manage_group") against.
 
     When a user becomes a member of an organization in CKAN they're given a
     "capacity" (sometimes called a "role"), for example "member", "editor" or
@@ -596,10 +596,11 @@ def organization_list_for_user(context, data_dict):
     "update_dataset" and "delete_dataset".  The member role has the "read"
     permission.
 
-    This function returns the list of organizations that the authorized user has
-    a given permission for. For example the list of organizations that the user
-    is an admin of, or the list of organizations that the user can create
-    datasets in.
+    This function returns the list of organizations that the authorized user
+    has a given permission for. For example the list of organizations that the
+    user is an admin of, or the list of organizations that the user can create
+    datasets in. This takes account of when permissions cascade down an
+    organization hierarchy.
 
     :param permission: the permission the user has against the
         returned organizations, for example ``"read"`` or ``"create_dataset"``
@@ -623,6 +624,8 @@ def organization_list_for_user(context, data_dict):
     if not sysadmin:
         # for non-Sysadmins check they have the required permission
 
+        # NB 'edit_group' doesn't exist so by default this action returns just
+        # orgs with admin role
         permission = data_dict.get('permission', 'edit_group')
 
         roles = authz.get_roles_with_permission(permission)
@@ -633,15 +636,23 @@ def organization_list_for_user(context, data_dict):
         if not user_id:
             return []
 
-        q = model.Session.query(model.Member) \
+        q = model.Session.query(model.Member, model.Group) \
             .filter(model.Member.table_name == 'user') \
             .filter(model.Member.capacity.in_(roles)) \
             .filter(model.Member.table_id == user_id) \
-            .filter(model.Member.state == 'active')
+            .filter(model.Member.state == 'active') \
+            .join(model.Group)
 
-        group_ids = []
-        for row in q.all():
-            group_ids.append(row.group_id)
+        group_ids = set()
+        roles_that_cascade = \
+            authz.check_config_permission('roles_that_cascade_to_sub_groups')
+        for member, group in q.all():
+            if member.capacity in roles_that_cascade:
+                group_ids |= set([
+                    grp_tuple[0] for grp_tuple
+                    in group.get_children_group_hierarchy(type='organization')
+                    ])
+            group_ids.add(group.id)
 
         if not group_ids:
             return []
@@ -1355,25 +1366,21 @@ def user_show(context, data_dict):
 
     if data_dict.get('include_datasets', False):
         user_dict['datasets'] = []
-        dataset_q = model.Session.query(model.Package) \
-                         .filter_by(creator_user_id=user_dict['id'])
-        if not include_private_and_draft_datasets:
-            dataset_q = dataset_q \
-                .filter_by(state='active') \
-                .filter_by(private=False)
-        else:
-            dataset_q = dataset_q \
-                .filter(model.Package.state != 'deleted')
-        dataset_q = dataset_q.limit(50)
 
-        for dataset in dataset_q:
-            try:
-                dataset_dict = logic.get_action('package_show')(
-                    context, {'id': dataset.id})
-                del context['package']
-            except logic.NotAuthorized:
-                continue
-            user_dict['datasets'].append(dataset_dict)
+        fq = "+creator_user_id:{0}".format(user_dict['id'])
+
+        search_dict = {'rows': 50}
+
+        if include_private_and_draft_datasets:
+            context['ignore_capacity_check'] = True
+            search_dict.update({'include_drafts': True})
+
+        search_dict.update({'fq': fq})
+
+        user_dict['datasets'] = \
+            logic.get_action('package_search')(context=context,
+                                               data_dict=search_dict) \
+            .get('results')
 
     if data_dict.get('include_num_followers', False):
         user_dict['num_followers'] = logic.get_action('user_follower_count')(
@@ -1585,7 +1592,11 @@ def package_search(context, data_dict):
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.
     :type facet.field: list of strings
-
+    :param include_drafts: if ``True``, draft datasets will be included in the
+        results. A user will only be returned their own draft datasets, and a
+        sysadmin will be returned all draft datasets. Optional, the default is
+        ``False``.
+    :type include_drafts: boolean
 
     The following advanced Solr parameters are supported as well. Note that
     some of these are only available on particular Solr versions. See Solr's
@@ -1660,6 +1671,7 @@ def package_search(context, data_dict):
 
     model = context['model']
     session = context['session']
+    user = context['user']
 
     _check_access('package_search', context, data_dict)
 
@@ -1692,8 +1704,24 @@ def package_search(context, data_dict):
         fq = data_dict.get('fq', '')
         if not context.get('ignore_capacity_check', False):
             fq = ' '.join(p for p in fq.split(' ')
-                          if not 'capacity:' in p)
+                          if 'capacity:' not in p)
             data_dict['fq'] = fq + ' capacity:"public"'
+
+        # Solr doesn't need 'include_drafts`, so pop it.
+        include_drafts = data_dict.pop('include_drafts', False)
+        fq = data_dict.get('fq', '')
+        if include_drafts:
+            user_id = authz.get_user_id_for_username(user, allow_none=True)
+            if authz.is_sysadmin(user):
+                data_dict['fq'] = fq + ' +state:(active OR draft)'
+            elif user_id:
+                # Query to return all active datasets, and all draft datasets
+                # for this user.
+                data_dict['fq'] = fq + \
+                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
+                    ' OR state:active)'.format(user_id)
+        elif not authz.is_sysadmin(user):
+            data_dict['fq'] = fq + ' +state:active'
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
@@ -1709,18 +1737,18 @@ def package_search(context, data_dict):
             package, package_dict = package['id'], package.get(data_source)
             pkg_query = session.query(model.Package)\
                 .filter(model.Package.id == package)\
-                .filter(model.Package.state == u'active')
+                .filter(model.Package.state.in_((u'active', u'draft')))
             pkg = pkg_query.first()
 
-            ## if the index has got a package that is not in ckan then
-            ## ignore it.
+            # if the index has got a package that is not in ckan then
+            # ignore it.
             if not pkg:
                 log.warning('package %s in index but not in database'
                             % package)
                 continue
-            ## use data in search index if there
+            # use data in search index if there
             if package_dict:
-                ## the package_dict still needs translating when being viewed
+                # the package_dict still needs translating when being viewed
                 package_dict = json.loads(package_dict)
                 if context.get('for_view'):
                     for item in plugins.PluginImplementations(

@@ -205,6 +205,10 @@ def package_create(context, data_dict):
 
         item.after_create(context, data)
 
+    # Make sure that a user provided schema is not used in create_views
+    # and on package_show
+    context.pop('schema', None)
+
     # Create default views for resources if necessary
     if data.get('resources'):
         logic.get_action('package_create_default_resource_views')(
@@ -218,9 +222,6 @@ def package_create(context, data_dict):
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % pkg.name)
-
-    # Make sure that a user provided schema is not used on package_show
-    context.pop('schema', None)
 
     return_id_only = context.get('return_id_only', False)
 
