@@ -120,3 +120,9 @@ page, which will look something like this:
 
 You can now move on to :doc:`/maintaining/getting-started` to begin using and customizing
 your CKAN site.
+
+.. note:: The default authorization settings on a new install are deliberately
+    restrictive. Regular users won't be able to create datasets or organizations.
+    You should check the :doc:`/maintaining/authorization` documentation, configure CKAN accordingly
+    and grant other users the relevant permissions using the :ref:`sysadmin account <create-admin-user>`.
+
