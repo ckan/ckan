@@ -499,6 +499,7 @@ class TestIntValidator(object):
             warnings.filterwarnings('ignore', category=DeprecationWarning)
             raises_Invalid(validators.int_validator)(1 + 0j, {})
 
+
 class TestBoolValidator(object):
 
     def test_bool_true(self):
