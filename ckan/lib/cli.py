@@ -930,7 +930,7 @@ class DatasetCmd(CkanCommand):
         # Purge membership to several groups
         q_member = model.Session.query(model.Member).filter(and_(
             model.Member.table_name == 'package',
-            model.Member.table_id == dataset_ref))
+            model.Member.table_id == dataset.id))
         for memb in q_member.all():
             memb.purge()
         # Purge actual dataset
