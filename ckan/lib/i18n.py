@@ -2,10 +2,14 @@ import os
 
 from babel import Locale, localedata
 from babel.core import LOCALE_ALIASES
+from babel.support import Translations
 from pylons import config
 from pylons import i18n
+import pylons
 
 import ckan.i18n
+from ckan.plugins import PluginImplementations
+from ckan.plugins.interfaces import ITranslations
 
 LOCALE_ALIASES['pt'] = 'pt_BR' # Default Portuguese language to
                                # Brazilian territory, since
@@ -121,9 +125,17 @@ def _set_lang(lang):
     if config.get('ckan.i18n_directory'):
         fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
                        'pylons.package': config['pylons.package']}
-        i18n.set_lang(lang, pylons_config=fake_config)
+        i18n.set_lang(lang, pylons_config=fake_config, class_=Translations)
     else:
-        i18n.set_lang(lang)
+        i18n.set_lang(lang, class_=Translations)
+
+    for plugin in PluginImplementations(ITranslations):
+        pylons.translator.merge(Translations.load(
+            dirname=plugin.directory(),
+            locales=plugin.locales(),
+            domain=plugin.domain()
+        ))
+
 
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''

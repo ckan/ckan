@@ -524,3 +524,31 @@ class DefaultOrganizationForm(DefaultGroupForm):
         return 'organization/activity_stream.html'
 
 _default_organization_plugin = DefaultOrganizationForm()
+
+
+class DefaultTranslation(object):
+    def directory(self):
+        '''Change the directory of the *.mo translation files
+
+        The default implementation assumes the plugin is
+        ckanext/myplugin/plugin.py and the translations are stored in
+        i18n/
+        '''
+        import os
+        return os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                            '../../', 'i18n'))
+    def locales(self):
+        '''Change the list of locales that this plugin handles
+
+        By default the will assume any directory in subdirectory returned
+        by self.directory() is a locale handled by this plugin
+        '''
+        import os
+        directory = self.directory()
+        return [ d for
+                 d in os.listdir(directory)
+                 if os.path.isdir(os.path.join(directory, d))
+        ]
+
+    def domain(self):
+        return 'ckanext-{name}'.format(name=self.name)
