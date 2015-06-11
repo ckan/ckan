@@ -935,6 +935,19 @@ web interface. ``dumps_format`` is just a string for display. Example::
 
   ckan.dumps_format = CSV/JSON
 
+.. _ckan.recaptcha.version:
+
+ckan.recaptcha.version
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The version of Recaptcha to use, for example::
+
+ ckan.recaptcha.version = 1
+
+Default Value: 1
+
+Valid options: 1, 2
+
 .. _ckan.recaptcha.publickey:
 
 ckan.recaptcha.publickey
