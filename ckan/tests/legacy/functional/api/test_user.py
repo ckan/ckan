@@ -3,7 +3,7 @@ from pylons import config
 from nose.tools import assert_equal
 
 import ckan.logic as logic
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 from ckan.tests.legacy import TestController as ControllerTestCase

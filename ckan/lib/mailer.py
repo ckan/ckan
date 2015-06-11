@@ -117,7 +117,7 @@ def get_reset_link_body(user):
 
 def get_invite_body(user):
     invite_message = _(
-    "You have been invited to {site_title}. A user has already been created"
+    "You have been invited to {site_title}. A user has already been created "
     "to you with the username {user_name}. You can change it later.\n"
     "\n"
     "To accept this invite, please reset your password at:\n"

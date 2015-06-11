@@ -9,7 +9,7 @@ import ckanext.reclineview.plugin as plugin
 import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
 
-from ckan.new_tests import helpers, factories
+from ckan.tests import helpers, factories
 
 
 class BaseTestReclineViewBase(tests.WsgiAppCase):
