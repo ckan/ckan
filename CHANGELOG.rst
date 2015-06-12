@@ -30,6 +30,12 @@ Changes and deprecations
 * Add middleware that cleans up the response string after it has been
   served, stabilizes memory usage for large requests #1847
 
+* The ``vocabulary_show`` API call no longer returns the ``packages`` key -
+  i.e. datasets that use the vocabulary. ``tag_show`` API call now supports
+  vocabularies, so that you can get the datasets using a vocabulary tag. In
+  addition ``tag_show`` has an option not ``include_datasets``, which gives
+  better performance. (#1886)
+
 
 v2.3 2015-03-04
 ===============

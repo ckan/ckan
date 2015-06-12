@@ -1277,8 +1277,10 @@ def tag_show(context, data_dict):
         in - if it is not specified it will assume it is a free tag.
         (optional)
     :type vocabulary_id: string
-    :param include_datasets: include a list of the tag's datasets
-         (optional, default: ``True``)
+    :param include_datasets: include a list of the tag's datasets. (Up to a
+        limit of 1000 - for more flexibility, use package_search - see
+        :py:func:`package_search` for an example.)
+        (optional, default: ``True``)
     :type include_datasets: bool
 
     :returns: the details of the tag, including a list of all of the tag's
@@ -1606,6 +1608,12 @@ def package_search(context, data_dict):
     .. _dismax: http://wiki.apache.org/solr/DisMaxQParserPlugin
     .. _edismax: http://wiki.apache.org/solr/ExtendedDisMax
 
+
+    **Examples:**
+
+    ``q=flood`` datasets containing the word `flood`, `floods` or `flooding`
+    ``fq=tags:economy`` datasets with the tag `economy`
+    ``facet.field=["tags"] facet.limit=10 rows=0`` top 10 tags
 
     **Results:**
 
