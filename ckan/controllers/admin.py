@@ -38,6 +38,9 @@ class AdminController(base.BaseController):
                      {'value': '2', 'text': 'Search, stats, introductory area, featured organization and featured group'},
                      {'value': '3', 'text': 'Search, introductory area and stats'}]
 
+        dev_modes = [{'value': 'false', 'text': 'Disabled'},
+                     {'value': 'true', 'text': 'Enabled'}]
+
         items = [
             {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': ''},
             {'name': 'ckan.main_css', 'control': 'select', 'options': styles, 'label': _('Style'), 'placeholder': ''},
@@ -47,6 +50,7 @@ class AdminController(base.BaseController):
             {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
             {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
             {'name': 'ckan.homepage_style', 'control': 'select', 'options': homepages, 'label': _('Homepage'), 'placeholder': ''},
+            {'name': 'ckan.developer_mode', 'control': 'select', 'options': dev_modes, 'label': _('Developer Mode (API in UI)'), 'placeholder': ''},
         ]
         return items
 

@@ -1,0 +1,48 @@
+{% import 'macros/form.html' as form %}
+
+{% set stage = stage or 1 %}
+{% set include_metadata = include_metadata or false %}
+{% set not_chosen =  _("Action isn't chosen yet") %}
+
+
+
+{% set data = data or {} %}
+{% set errors = errors or {} %}
+{% set action = form_action or h.url_for(controller='package', action='new_resource', id=pkg_name) %}
+
+
+
+
+<div data-module="developer-mode-sandbox" data-module-input="">
+    {% block auto_action %}
+      <div class="form-horizontal">
+        {{ form.select('action', id='field-action-selector', label=_('Action'), options=available_actions,  error=data.error, classes=['action-selector']) }}
+        {{ form.checkbox('is-sandbox', id='checkbox-is-sandbox', label=_('Sandbox mode')) }}
+      </div>
+    {% endblock %}
+  <div class='action-help-container'>
+  <legend>{{ _("Action info") }}</legend>
+    <em class="not-chosen-action">{{ not_chosen }}</em>
+    <pre id="action-help">
+    </pre>
+  </div>
+  <div class="action-form-container">
+    <legend>Action form</legend>
+    <em class="not-chosen-action">{{ not_chosen }}</em>
+    <form id="action-form" class="form-horizontal">
+    </form>
+  </div>
+  <div class="action-form-container">
+    <legend>Request result</legend>
+    <em class="not-chosen-action">{{ not_chosen }}</em>
+    <div id="request-result"></div>
+  </div>
+  <div class="action-form-container">
+    <legend>Request examples</legend>
+    <em class="not-chosen-action">{{ not_chosen }}</em>
+    <div id="request-result"></div>
+    <pre>
+     <div id="request-code"></div>
+    </pre>
+  </div>
+</div>

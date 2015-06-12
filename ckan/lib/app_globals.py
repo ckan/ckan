@@ -30,6 +30,7 @@ auto_update = [
     'ckan.site_intro_text',
     'ckan.site_custom_css',
     'ckan.homepage_style',
+    'ckan.developer_mode',
 ]
 
 config_details = {
@@ -47,6 +48,7 @@ config_details = {
     'ckan.dumps_format': {},
     'ofs.impl': {'name': 'ofs_impl'},
     'ckan.homepage_style': {'default': '1'},
+    'ckan.developer_mode' : {},
 
     # split string
     'search.facets': {'default': 'organization groups tags res_format license_id',
