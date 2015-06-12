@@ -832,6 +832,14 @@ class TestVocabulary(object):
                 tag_in_pkg['vocabulary_id'] == tag['vocabulary_id']]
         assert len(tags_in_pkg) == 1
 
+        # Test that the package appears in tag_show.
+        noise_tag = self._post('/api/action/tag_show',
+                               params={'id': 'noise',
+                                       'vocabulary_id': vocab['id']}
+                               )['result']
+        assert len([p for p in noise_tag['packages'] if
+                    p['id'] == updated_package['id']]) == 1
+
         # Remove the new vocab tag from the package.
         package['tags'].remove(tag)
         updated_package = self._post('/api/action/package_update',
