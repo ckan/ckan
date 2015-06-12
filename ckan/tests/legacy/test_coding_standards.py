@@ -427,7 +427,6 @@ class TestPep8(object):
         'ckan/lib/i18n.py',
         'ckan/lib/jinja_extensions.py',
         'ckan/lib/jsonp.py',
-        'ckan/lib/mailer.py',
         'ckan/lib/maintain.py',
         'ckan/lib/navl/dictization_functions.py',
         'ckan/lib/navl/validators.py',

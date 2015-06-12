@@ -19,15 +19,18 @@ from ckan.common import _
 
 log = logging.getLogger(__name__)
 
+
 class MailerException(Exception):
     pass
 
+
 def _mail_recipient(recipient_name, recipient_email,
-        sender_name, sender_url, subject,
-        body, headers={}):
+                    sender_name, sender_url, subject,
+                    body, headers={}):
     mail_from = config.get('smtp.mail_from')
     msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
-    for k, v in headers.items(): msg[k] = v
+    for k, v in headers.items():
+        msg[k] = v
     subject = Header(subject.encode('utf-8'), 'utf-8')
     msg['Subject'] = subject
     msg['From'] = _("%s <%s>") % (sender_name, mail_from)
@@ -48,13 +51,11 @@ def _mail_recipient(recipient_name, recipient_email,
     else:
         smtp_server = config.get('smtp.server', 'localhost')
         smtp_starttls = paste.deploy.converters.asbool(
-                config.get('smtp.starttls'))
+            config.get('smtp.starttls'))
         smtp_user = config.get('smtp.user')
         smtp_password = config.get('smtp.password')
     smtp_connection.connect(smtp_server)
     try:
-        #smtp_connection.set_debuglevel(True)
-
         # Identify ourselves and prompt the server for supported features.
         smtp_connection.ehlo()
 
@@ -71,7 +72,7 @@ def _mail_recipient(recipient_name, recipient_email,
         # If 'smtp.user' is in CKAN config, try to login to SMTP server.
         if smtp_user:
             assert smtp_password, ("If smtp.user is configured then "
-                    "smtp.password must be configured as well.")
+                                   "smtp.password must be configured as well.")
             smtp_connection.login(smtp_user, smtp_password)
 
         smtp_connection.sendmail(mail_from, [recipient_email], msg.as_string())
@@ -98,7 +99,7 @@ def mail_user(recipient, subject, body, headers={}):
     if (recipient.email is None) or not len(recipient.email):
         raise MailerException(_("No recipient email address available!"))
     mail_recipient(recipient.display_name, recipient.email, subject,
-            body, headers=headers)
+                   body, headers=headers)
 
 
 def get_reset_link_body(user):
@@ -127,9 +128,9 @@ def get_invite_body(user):
 def get_reset_link(user):
     return urljoin(config.get('site_url'),
                    h.url_for(controller='user',
-                           action='perform_reset',
-                           id=user.id,
-                           key=user.reset_key))
+                             action='perform_reset',
+                             id=user.id,
+                             key=user.reset_key))
 
 
 def send_reset_link(user):
@@ -156,8 +157,10 @@ def create_reset_key(user):
     user.reset_key = unicode(make_key())
     model.repo.commit_and_remove()
 
+
 def make_key():
     return uuid.uuid4().hex[:10]
+
 
 def verify_reset_link(user, key):
     if not key:
