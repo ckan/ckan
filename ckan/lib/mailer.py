@@ -13,6 +13,7 @@ import paste.deploy.converters
 import ckan
 import ckan.model as model
 import ckan.lib.helpers as h
+from ckan.lib.base import render_jinja2
 
 from ckan.common import _, g
 
@@ -21,16 +22,10 @@ log = logging.getLogger(__name__)
 class MailerException(Exception):
     pass
 
-def add_msg_niceties(recipient_name, body, sender_name, sender_url):
-    return _(u"Dear %s,") % recipient_name \
-           + u"\r\n\r\n%s\r\n\r\n" % body \
-           + u"--\r\n%s (%s)" % (sender_name, sender_url)
-
 def _mail_recipient(recipient_name, recipient_email,
         sender_name, sender_url, subject,
         body, headers={}):
     mail_from = config.get('smtp.mail_from')
-    body = add_msg_niceties(recipient_name, body, sender_name, sender_url)
     msg = MIMEText(body.encode('utf-8'), 'plain', 'utf-8')
     for k, v in headers.items(): msg[k] = v
     subject = Header(subject.encode('utf-8'), 'utf-8')
@@ -100,37 +95,29 @@ def mail_user(recipient, subject, body, headers={}):
     mail_recipient(recipient.display_name, recipient.email, subject,
             body, headers=headers)
 
+
 def get_reset_link_body(user):
-    reset_link_message = _(
-    "You have requested your password on {site_title} to be reset.\n"
-    "\n"
-    "Please click the following link to confirm this request:\n"
-    "\n"
-    "   {reset_link}\n"
-    )
-
-    d = {
+    extra_vars = {
         'reset_link': get_reset_link(user),
-        'site_title': g.site_title
-        }
-    return reset_link_message.format(**d)
-
-def get_invite_body(user):
-    invite_message = _(
-    "You have been invited to {site_title}. A user has already been created "
-    "to you with the username {user_name}. You can change it later.\n"
-    "\n"
-    "To accept this invite, please reset your password at:\n"
-    "\n"
-    "   {reset_link}\n"
-    )
-
-    d = {
-        'reset_link': get_reset_link(user),
-        'site_title': g.site_title,
+        'site_title': config.get('ckan.site_title'),
+        'site_url': config.get('ckan.site_url'),
         'user_name': user.name,
         }
-    return invite_message.format(**d)
+    # NOTE: This template is translated
+    return render_jinja2('emails/reset_password.txt', extra_vars)
+
+
+def get_invite_body(user):
+
+    extra_vars = {
+        'reset_link': get_reset_link(user),
+        'site_title': config.get('ckan.site_title'),
+        'site_url': config.get('ckan.site_url'),
+        'user_name': user.name,
+        }
+    # NOTE: This template is translated
+    return render_jinja2('emails/invite_user.txt', extra_vars)
+
 
 def get_reset_link(user):
     return urljoin(g.site_url,
@@ -139,17 +126,26 @@ def get_reset_link(user):
                            id=user.id,
                            key=user.reset_key))
 
+
 def send_reset_link(user):
     create_reset_key(user)
     body = get_reset_link_body(user)
-    subject = _('Reset your password')
+    site_title = config.get('ckan.site_title')
+    subject = config.get('ckan.emails.reset_password.subject',
+                         'Reset your password - {site_title}').decode('utf8')
+    subject = _(subject).format(site_title=site_title)
     mail_user(user, subject, body)
+
 
 def send_invite(user):
     create_reset_key(user)
     body = get_invite_body(user)
-    subject = _('Invite for {site_title}').format(site_title=g.site_title)
+    site_title = config.get('ckan.site_title')
+    subject = config.get('ckan.emails.invite_user.subject',
+                         'Invite for {site_title}').decode('utf8')
+    subject = _(subject).format(site_title=site_title)
     mail_user(user, subject, body)
+
 
 def create_reset_key(user):
     user.reset_key = unicode(make_key())

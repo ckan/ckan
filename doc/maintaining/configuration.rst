@@ -1694,3 +1694,39 @@ Example::
 Default value: ``None``
 
 This controls from which email the error messages will come from.
+
+
+.. _ckan.emails.reset_password.subject:
+
+ckan.emails.reset_password.subject
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.emails.reset_password.subject = Password reset 
+
+Default value: ``Reset your password - {site_title}``
+
+Sets the subject of the email sent when resetting a users's password. This string is translated.
+``{site_title}`` will be replaced with the value of :ref:`ckan.site_title`.
+
+.. note:: To customize the email body, override the ``emails/reset_password.txt`` template
+    from your extension
+
+
+.. _ckan.emails.invite_user.subject:
+
+ckan.emails.invite_user.subject
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.emails.invite_user.subject = You have been invited to {site_title}
+
+Default value: ``Invite for {site_title}``
+
+Sets the subject of the email sent when resetting a users's password. This string is translated.
+``{site_title}`` will be replaced with the value of :ref:`ckan.site_title`.
+
+.. note:: To customize the email body, override the ``emails/invite_user.txt`` template
+    from your extension

@@ -1,0 +1,15 @@
+Dear {{ user_name }},
+
+You have been invited to {{ site_title }}. 
+
+A user has already been created for you with the username {{ user_name }}. You can change it later.
+
+To accept this invite, please reset your password at:
+
+   {{ reset_link }}
+
+
+Have a nice day.
+
+--
+Message sent by {{ site_title }} ({{ site_url }})
