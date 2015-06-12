@@ -15,7 +15,7 @@ import ckan.model as model
 import ckan.lib.helpers as h
 from ckan.lib.base import render_jinja2
 
-from ckan.common import _, g
+from ckan.common import _
 
 log = logging.getLogger(__name__)
 
@@ -84,10 +84,15 @@ def _mail_recipient(recipient_name, recipient_email,
     finally:
         smtp_connection.quit()
 
+
 def mail_recipient(recipient_name, recipient_email, subject,
-        body, headers={}):
+                   body, headers={}):
+    site_title = config.get('ckan.site_title'),
+    site_url = config.get('ckan.site_url'),
     return _mail_recipient(recipient_name, recipient_email,
-            g.site_title, g.site_url, subject, body, headers=headers)
+                           site_title, site_url, subject, body,
+                           headers=headers)
+
 
 def mail_user(recipient, subject, body, headers={}):
     if (recipient.email is None) or not len(recipient.email):
@@ -120,7 +125,7 @@ def get_invite_body(user):
 
 
 def get_reset_link(user):
-    return urljoin(g.site_url,
+    return urljoin(config.get('site_url'),
                    h.url_for(controller='user',
                            action='perform_reset',
                            id=user.id,
@@ -160,6 +165,3 @@ def verify_reset_link(user, key):
     if not user.reset_key or len(user.reset_key) < 5:
         return False
     return key.strip() == user.reset_key
-
-
-
