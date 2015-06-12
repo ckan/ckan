@@ -1280,7 +1280,7 @@ def tag_show(context, data_dict):
     :param include_datasets: include a list of the tag's datasets. (Up to a
         limit of 1000 - for more flexibility, use package_search - see
         :py:func:`package_search` for an example.)
-        (optional, default: ``True``)
+        (optional, default: ``False``)
     :type include_datasets: bool
 
     :returns: the details of the tag, including a list of all of the tag's
@@ -1290,7 +1290,7 @@ def tag_show(context, data_dict):
 
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
-    include_datasets = asbool(data_dict.get('include_datasets', True))
+    include_datasets = asbool(data_dict.get('include_datasets', False))
 
     tag = model.Tag.get(id, vocab_id_or_name=data_dict.get('vocabulary_id'))
     context['tag'] = tag

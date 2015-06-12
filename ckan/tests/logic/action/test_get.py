@@ -1470,6 +1470,14 @@ class TestTagShow(helpers.FunctionalTestBase):
         eq(tag_shown['display_name'], 'acid-rain')
         eq(tag_shown['id'], tag_in_dataset['id'])
         eq(tag_shown['vocabulary_id'], None)
+        assert 'packages' not in tag_shown
+
+    def test_tag_show_with_datasets(self):
+        dataset = factories.Dataset(tags=[{'name': 'acid-rain'}])
+
+        tag_shown = helpers.call_action('tag_show', id='acid-rain',
+                                        include_datasets=True)
+
         eq([d['name'] for d in tag_shown['packages']], [dataset['name']])
 
     def test_tag_show_not_found(self):
@@ -1482,7 +1490,8 @@ class TestTagShow(helpers.FunctionalTestBase):
         # and foreign characters in its name
         dataset = factories.Dataset(tags=[{'name': u'Flexible. \u30a1'}])
 
-        tag_shown = helpers.call_action('tag_show', id=u'Flexible. \u30a1')
+        tag_shown = helpers.call_action('tag_show', id=u'Flexible. \u30a1',
+                                        include_datasets=True)
 
         eq(tag_shown['name'], u'Flexible. \u30a1')
         eq(tag_shown['display_name'], u'Flexible. \u30a1')
@@ -1495,21 +1504,14 @@ class TestTagShow(helpers.FunctionalTestBase):
         tag_in_dataset = dataset['tags'][0]
 
         tag_shown = helpers.call_action('tag_show', id='acid-rain',
-                                        vocabulary_id=vocab['id'])
+                                        vocabulary_id=vocab['id'],
+                                        include_datasets=True)
 
         eq(tag_shown['name'], 'acid-rain')
         eq(tag_shown['display_name'], 'acid-rain')
         eq(tag_shown['id'], tag_in_dataset['id'])
         eq(tag_shown['vocabulary_id'], vocab['id'])
         eq([d['name'] for d in tag_shown['packages']], [dataset['name']])
-
-    def test_tag_show_without_datasets(self):
-        factories.Dataset(tags=[{'name': 'acid-rain'}])
-
-        tag_shown = helpers.call_action('tag_show', id='acid-rain',
-                                        include_datasets=False)
-
-        assert 'packages' not in tag_shown
 
 
 class TestTagList(helpers.FunctionalTestBase):
