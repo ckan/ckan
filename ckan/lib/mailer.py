@@ -145,20 +145,28 @@ def get_reset_link(user):
 def send_reset_link(user):
     create_reset_key(user)
     body = get_reset_link_body(user)
-    site_title = config.get('ckan.site_title')
-    subject = config.get('ckan.emails.reset_password.subject',
-                         'Reset your password - {site_title}').decode('utf8')
-    subject = _(subject).format(site_title=site_title)
+    extra_vars = {
+        'site_title': config.get('ckan.site_title')
+    }
+    subject = render_jinja2('emails/reset_password_subject.txt', extra_vars)
+
+    # Make sure we only use the first line
+    subject = subject.split('\n')[0]
+
     mail_user(user, subject, body)
 
 
 def send_invite(user, group_dict=None, role=None):
     create_reset_key(user)
     body = get_invite_body(user, group_dict, role)
-    site_title = config.get('ckan.site_title')
-    subject = config.get('ckan.emails.invite_user.subject',
-                         'Invite for {site_title}').decode('utf8')
-    subject = _(subject).format(site_title=site_title)
+    extra_vars = {
+        'site_title': config.get('ckan.site_title')
+    }
+    subject = render_jinja2('emails/invite_user_subject.txt', extra_vars)
+
+    # Make sure we only use the first line
+    subject = subject.split('\n')[0]
+
     mail_user(user, subject, body)
 
 

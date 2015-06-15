@@ -2,6 +2,7 @@ from nose.tools import assert_equal, assert_raises, assert_in
 from pylons import config
 from email.mime.text import MIMEText
 from email.parser import Parser
+from email.header import decode_header
 import hashlib
 import base64
 
@@ -14,7 +15,7 @@ import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
 
-class TestMailer(SmtpServerHarness):
+class MailerBase(SmtpServerHarness):
 
     @classmethod
     def setup_class(cls):
@@ -50,6 +51,13 @@ class TestMailer(SmtpServerHarness):
     def get_email_body(self, msg):
         payload = Parser().parsestr(msg).get_payload()
         return base64.b64decode(payload)
+
+    def get_email_subject(self, msg):
+        header = Parser().parsestr(msg)['Subject']
+        return decode_header(header)[0][0]
+
+
+class TestMailer(MailerBase):
 
     def test_mail_recipient(self):
         user = factories.User()
@@ -213,31 +221,3 @@ class TestMailer(SmtpServerHarness):
         body = self.get_email_body(msg[3])
         assert_in(org['title'], body)
         assert_in(h.roles_translated()[role], body)
-
-    @helpers.change_config('ckan.emails.reset_password.subject', 'Password!')
-    def test_send_reset_email_custom_subject(self):
-        user = factories.User()
-        user_obj = model.User.by_name(user['name'])
-
-        mailer.send_reset_link(user_obj)
-
-        # check it went to the mock smtp server
-        msgs = self.get_smtp_messages()
-        assert_equal(len(msgs), 1)
-        msg = msgs[0]
-
-        assert_in('Password!', msg[3])
-
-    @helpers.change_config('ckan.emails.invite_user.subject', 'Invite!')
-    def test_send_invite_custom_subject(self):
-        user = factories.User()
-        user_obj = model.User.by_name(user['name'])
-
-        mailer.send_invite(user_obj)
-
-        # check it went to the mock smtp server
-        msgs = self.get_smtp_messages()
-        assert_equal(len(msgs), 1)
-        msg = msgs[0]
-
-        assert_in('Invite!', msg[3])
