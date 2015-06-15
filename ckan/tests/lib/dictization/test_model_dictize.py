@@ -509,3 +509,60 @@ def assert_equal_for_keys(dict1, dict2, *keys):
         assert key in dict2, 'Dict 2 misses key "%s"' % key
         assert dict1[key] == dict2[key], '%s != %s (key=%s)' % \
             (dict1[key], dict2[key], key)
+
+
+class TestTagDictize(object):
+    """Unit tests for the tag_dictize() function."""
+
+    def test_tag_dictize_including_datasets(self):
+        """By default a dictized tag should include the tag's datasets."""
+        # Make a dataset in order to have a tag created.
+        factories.Dataset(tags=[dict(name="test_tag")])
+        tag = model.Tag.get("test_tag")
+
+        tag_dict = model_dictize.tag_dictize(tag, context={"model": model})
+
+        assert len(tag_dict["packages"]) == 1
+
+    def test_tag_dictize_not_including_datasets(self):
+        """include_datasets=False should exclude datasets from tag dicts."""
+        # Make a dataset in order to have a tag created.
+        factories.Dataset(tags=[dict(name="test_tag")])
+        tag = model.Tag.get("test_tag")
+
+        tag_dict = model_dictize.tag_dictize(tag, context={"model": model},
+                                             include_datasets=False)
+
+        assert not tag_dict.get("packages")
+
+
+class TestVocabularyDictize(object):
+    """Unit tests for the vocabulary_dictize() function."""
+
+    def test_vocabulary_dictize_including_datasets(self):
+        """include_datasets=True should include datasets in vocab dicts."""
+        vocab_dict = factories.Vocabulary(
+            tags=[dict(name="test_tag_1"), dict(name="test_tag_2")])
+        factories.Dataset(tags=vocab_dict["tags"])
+        vocab_obj = model.Vocabulary.get(vocab_dict["name"])
+
+        vocab_dict = model_dictize.vocabulary_dictize(
+            vocab_obj, context={"model": model}, include_datasets=True)
+
+        assert len(vocab_dict["tags"]) == 2
+        for tag in vocab_dict["tags"]:
+            assert len(tag["packages"]) == 1
+
+    def test_vocabulary_dictize_not_including_datasets(self):
+        """By default datasets should not be included in vocab dicts."""
+        vocab_dict = factories.Vocabulary(
+            tags=[dict(name="test_tag_1"), dict(name="test_tag_2")])
+        factories.Dataset(tags=vocab_dict["tags"])
+        vocab_obj = model.Vocabulary.get(vocab_dict["name"])
+
+        vocab_dict = model_dictize.vocabulary_dictize(
+            vocab_obj, context={"model": model})
+
+        assert len(vocab_dict["tags"]) == 2
+        for tag in vocab_dict["tags"]:
+            assert len(tag.get("packages", [])) == 0

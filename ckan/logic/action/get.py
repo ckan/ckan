@@ -1284,6 +1284,15 @@ def tag_show(context, data_dict):
 
     :param id: the name or id of the tag
     :type id: string
+    :param vocabulary_id: the id or name of the tag vocabulary that the tag is
+        in - if it is not specified it will assume it is a free tag.
+        (optional)
+    :type vocabulary_id: string
+    :param include_datasets: include a list of the tag's datasets. (Up to a
+        limit of 1000 - for more flexibility, use package_search - see
+        :py:func:`package_search` for an example.)
+        (optional, default: ``False``)
+    :type include_datasets: bool
 
     :returns: the details of the tag, including a list of all of the tag's
         datasets and their details
@@ -1292,15 +1301,17 @@ def tag_show(context, data_dict):
 
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
+    include_datasets = asbool(data_dict.get('include_datasets', False))
 
-    tag = model.Tag.get(id)
+    tag = model.Tag.get(id, vocab_id_or_name=data_dict.get('vocabulary_id'))
     context['tag'] = tag
 
     if tag is None:
         raise NotFound
 
     _check_access('tag_show', context, data_dict)
-    return model_dictize.tag_dictize(tag, context)
+    return model_dictize.tag_dictize(tag, context,
+                                     include_datasets=include_datasets)
 
 
 def user_show(context, data_dict):
@@ -1608,6 +1619,12 @@ def package_search(context, data_dict):
     .. _dismax: http://wiki.apache.org/solr/DisMaxQParserPlugin
     .. _edismax: http://wiki.apache.org/solr/ExtendedDisMax
 
+
+    **Examples:**
+
+    ``q=flood`` datasets containing the word `flood`, `floods` or `flooding`
+    ``fq=tags:economy`` datasets with the tag `economy`
+    ``facet.field=["tags"] facet.limit=10 rows=0`` top 10 tags
 
     **Results:**
 

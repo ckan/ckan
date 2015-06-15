@@ -1491,3 +1491,104 @@ def remove_pseudo_users(user_list):
     pseudo_users = set(('logged_in', 'visitor'))
     user_list[:] = [user for user in user_list
                     if user['name'] not in pseudo_users]
+
+
+class TestTagShow(helpers.FunctionalTestBase):
+
+    def test_tag_show_for_free_tag(self):
+        dataset = factories.Dataset(tags=[{'name': 'acid-rain'}])
+        tag_in_dataset = dataset['tags'][0]
+
+        tag_shown = helpers.call_action('tag_show', id='acid-rain')
+
+        eq(tag_shown['name'], 'acid-rain')
+        eq(tag_shown['display_name'], 'acid-rain')
+        eq(tag_shown['id'], tag_in_dataset['id'])
+        eq(tag_shown['vocabulary_id'], None)
+        assert 'packages' not in tag_shown
+
+    def test_tag_show_with_datasets(self):
+        dataset = factories.Dataset(tags=[{'name': 'acid-rain'}])
+
+        tag_shown = helpers.call_action('tag_show', id='acid-rain',
+                                        include_datasets=True)
+
+        eq([d['name'] for d in tag_shown['packages']], [dataset['name']])
+
+    def test_tag_show_not_found(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'tag_show', id='does-not-exist')
+
+    def test_tag_show_for_flexible_tag(self):
+        # A 'flexible' tag is one with spaces, some punctuation
+        # and foreign characters in its name
+        dataset = factories.Dataset(tags=[{'name': u'Flexible. \u30a1'}])
+
+        tag_shown = helpers.call_action('tag_show', id=u'Flexible. \u30a1',
+                                        include_datasets=True)
+
+        eq(tag_shown['name'], u'Flexible. \u30a1')
+        eq(tag_shown['display_name'], u'Flexible. \u30a1')
+        eq([d['name'] for d in tag_shown['packages']], [dataset['name']])
+
+    def test_tag_show_for_vocab_tag(self):
+        vocab = factories.Vocabulary(
+            tags=[dict(name='acid-rain')])
+        dataset = factories.Dataset(tags=vocab['tags'])
+        tag_in_dataset = dataset['tags'][0]
+
+        tag_shown = helpers.call_action('tag_show', id='acid-rain',
+                                        vocabulary_id=vocab['id'],
+                                        include_datasets=True)
+
+        eq(tag_shown['name'], 'acid-rain')
+        eq(tag_shown['display_name'], 'acid-rain')
+        eq(tag_shown['id'], tag_in_dataset['id'])
+        eq(tag_shown['vocabulary_id'], vocab['id'])
+        eq([d['name'] for d in tag_shown['packages']], [dataset['name']])
+
+
+class TestTagList(helpers.FunctionalTestBase):
+
+    def test_tag_list(self):
+        factories.Dataset(tags=[{'name': 'acid-rain'},
+                                {'name': 'pollution'}])
+        factories.Dataset(tags=[{'name': 'pollution'}])
+
+        tag_list = helpers.call_action('tag_list')
+
+        eq(set(tag_list), set(('acid-rain', 'pollution')))
+
+    def test_tag_list_all_fields(self):
+        factories.Dataset(tags=[{'name': 'acid-rain'}])
+
+        tag_list = helpers.call_action('tag_list', all_fields=True)
+
+        eq(tag_list[0]['name'], 'acid-rain')
+        eq(tag_list[0]['display_name'], 'acid-rain')
+        assert 'packages' not in tag_list
+
+    def test_tag_list_with_flexible_tag(self):
+        # A 'flexible' tag is one with spaces, punctuation (apart from commas)
+        # and foreign characters in its name
+        flexible_tag = u'Flexible. \u30a1'
+        factories.Dataset(tags=[{'name': flexible_tag}])
+
+        tag_list = helpers.call_action('tag_list', all_fields=True)
+
+        eq(tag_list[0]['name'], flexible_tag)
+
+    def test_tag_list_with_vocab(self):
+        vocab = factories.Vocabulary(
+            tags=[dict(name='acid-rain'),
+                  dict(name='pollution')])
+
+        tag_list = helpers.call_action('tag_list', vocabulary_id=vocab['id'])
+
+        eq(set(tag_list), set(('acid-rain', 'pollution')))
+
+    def test_tag_list_vocab_not_found(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'tag_list', vocabulary_id='does-not-exist')
