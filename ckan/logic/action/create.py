@@ -1091,8 +1091,17 @@ def user_invite(context, data_dict):
         'id': data['group_id'],
         'role': data['role']
     }
-    _get_action('group_member_create')(context, member_dict)
-    mailer.send_invite(user)
+
+    if group.is_organization:
+        _get_action('organization_member_create')(context, member_dict)
+        group_dict = _get_action('organization_show')(context,
+                                                      {'id': data['group_id']})
+    else:
+        _get_action('group_member_create')(context, member_dict)
+        group_dict = _get_action('group_show')(context,
+                                               {'id': data['group_id']})
+
+    mailer.send_invite(user, group_dict, data['role'])
     return model_dictize.user_dictize(user, context)
 
 

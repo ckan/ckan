@@ -113,7 +113,10 @@ def get_reset_link_body(user):
     return render_jinja2('emails/reset_password.txt', extra_vars)
 
 
-def get_invite_body(user):
+def get_invite_body(user, group_dict=None, role=None):
+    if group_dict:
+        group_type = (_('organization') if group_dict['is_organization']
+                      else _('group'))
 
     extra_vars = {
         'reset_link': get_reset_link(user),
@@ -121,6 +124,12 @@ def get_invite_body(user):
         'site_url': config.get('ckan.site_url'),
         'user_name': user.name,
         }
+    if role:
+        extra_vars['role_name'] = h.roles_translated().get(role, _(role))
+    if group_dict:
+        extra_vars['group_type'] = group_type
+        extra_vars['group_title'] = group_dict.get('title')
+
     # NOTE: This template is translated
     return render_jinja2('emails/invite_user.txt', extra_vars)
 
@@ -143,9 +152,9 @@ def send_reset_link(user):
     mail_user(user, subject, body)
 
 
-def send_invite(user):
+def send_invite(user, group_dict=None, role=None):
     create_reset_key(user)
-    body = get_invite_body(user)
+    body = get_invite_body(user, group_dict, role)
     site_title = config.get('ckan.site_title')
     subject = config.get('ckan.emails.invite_user.subject',
                          'Invite for {site_title}').decode('utf8')
