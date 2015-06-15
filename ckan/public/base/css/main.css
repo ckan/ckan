@@ -5773,6 +5773,9 @@ a.tag:hover {
 }
 .ckanext-datapreview {
   position: relative;
+  clear: both;
+  padding-top: 15px;
+  margin-top: 0;
 }
 .ckanext-datapreview > iframe {
   min-height: 400px;
@@ -7368,6 +7371,10 @@ textarea {
     float: right;
     margin-left: 15px;
   }
+  .tertiary .search-form .control-order-by {
+    float: none;
+    margin: 0;
+  }
 }
 .group .media-vertical .image {
   margin: 0 -5px 5px;
@@ -8100,7 +8107,7 @@ h4 small {
 .primary .tertiary {
   float: left;
   width: 180px;
-  margin-left: 20px;
+  margin-left: 18px;
   margin-bottom: 20px;
 }
 @media (min-width: 768px) {
@@ -9151,6 +9158,24 @@ h4 small {
   display: block;
   font-size: 16px;
   margin: 3px 0;
+}
+.resource-view-filters {
+  margin-bottom: 1em;
+}
+.resource-view-filters .resource-view-filter {
+  margin-bottom: 1.0em;
+}
+.resource-view-filters .resource-view-remove-filter {
+  cursor: pointer;
+  color: #b55457;
+}
+.resource-view-filters .resource-view-filter-values .select2-container {
+  margin-right: 0.3em;
+  margin-bottom: 0.2em;
+  width: 24% !important;
+}
+.resource-view-filters .resource-view-filter-values .select2-container .select2-search-choice-close {
+  left: auto;
 }
 .datapusher-status-link:hover {
   text-decoration: none;

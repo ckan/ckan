@@ -187,9 +187,12 @@ def package_create(context, data_dict):
     pkg = model_save.package_dict_save(data, context)
 
     model.setup_default_user_roles(pkg, admins)
-    # Needed to let extensions know the package id
+    # Needed to let extensions know the package and resources ids
     model.Session.flush()
     data['id'] = pkg.id
+    if data.get('resources'):
+        for index, resource in enumerate(data['resources']):
+            resource['id'] = pkg.resources[index].id
 
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
@@ -203,6 +206,15 @@ def package_create(context, data_dict):
 
         item.after_create(context, data)
 
+    # Make sure that a user provided schema is not used in create_views
+    # and on package_show
+    context.pop('schema', None)
+
+    # Create default views for resources if necessary
+    if data.get('resources'):
+        logic.get_action('package_create_default_resource_views')(
+            context, {'package': data})
+
     if not context.get('defer_commit'):
         model.repo.commit()
 
@@ -211,9 +223,6 @@ def package_create(context, data_dict):
     ## this is added so that the rest controller can make a new location
     context["id"] = pkg.id
     log.debug('Created object %s' % pkg.name)
-
-    # Make sure that a user provided schema is not used on package_show
-    context.pop('schema', None)
 
     return_id_only = context.get('return_id_only', False)
 
@@ -304,8 +313,8 @@ def resource_create(context, data_dict):
     model.repo.commit()
 
     ##  Run package show again to get out actual last_resource
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
-    resource = pkg_dict['resources'][-1]
+    updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    resource = updated_pkg_dict['resources'][-1]
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_create(context, resource)
@@ -336,6 +345,7 @@ def resource_view_create(context, data_dict):
     resource_id = _get_or_bust(data_dict, 'resource_id')
     view_type = _get_or_bust(data_dict, 'view_type')
     view_plugin = ckan.lib.datapreview.get_view_plugin(view_type)
+
     if not view_plugin:
         raise ValidationError(
             {"view_type": "No plugin found for view_type {view_type}".format(
@@ -371,6 +381,89 @@ def resource_view_create(context, data_dict):
     if not context.get('defer_commit'):
         model.repo.commit()
     return model_dictize.resource_view_dictize(resource_view, context)
+
+
+def resource_create_default_resource_views(context, data_dict):
+    '''
+    Creates the default views (if necessary) on the provided resource
+
+    The function will get the plugins for the default views defined in
+    the configuration, and if some were found the `can_view` method of
+    each one of them will be called to determine if a resource view should
+    be created. Resource views extensions get the resource dict and the
+    parent dataset dict.
+
+    If the latter is not provided, `package_show` is called to get it.
+
+    By default only view plugins that don't require the resource data to be in
+    the DataStore are called. See
+    :py:func:`ckan.logic.action.create.package_create_default_resource_views.``
+    for details on the ``create_datastore_views`` parameter.
+
+    :param resource: full resource dict
+    :type resource: dict
+    :param package: full dataset dict (optional, if not provided
+        :py:func:`~ckan.logic.action.get.package_show` will be called).
+    :type package: dict
+    :param create_datastore_views: whether to create views that rely on data
+        being on the DataStore (optional, defaults to False)
+    :type create_datastore_views: bool
+
+    :returns: a list of resource views created (empty if none were created)
+    :rtype: list of dictionaries
+    '''
+
+    resource_dict = _get_or_bust(data_dict, 'resource')
+
+    _check_access('resource_create_default_resource_views', context, data_dict)
+
+    dataset_dict = data_dict.get('package')
+
+    create_datastore_views = paste.deploy.converters.asbool(
+        data_dict.get('create_datastore_views', False))
+
+    return ckan.lib.datapreview.add_views_to_resource(
+        context,
+        resource_dict,
+        dataset_dict,
+        view_types=[],
+        create_datastore_views=create_datastore_views)
+
+
+def package_create_default_resource_views(context, data_dict):
+    '''
+    Creates the default views on all resources of the provided dataset
+
+    By default only view plugins that don't require the resource data to be in
+    the DataStore are called. Passing `create_datastore_views` as True will
+    only create views that require data to be in the DataStore. The first case
+    happens when the function is called from `package_create` or
+    `package_update`, the second when it's called from the DataPusher when
+    data was uploaded to the DataStore.
+
+    :param package: full dataset dict (ie the one obtained
+        calling :py:func:`~ckan.logic.action.get.package_show`).
+    :type package: dict
+    :param create_datastore_views: whether to create views that rely on data
+        being on the DataStore (optional, defaults to False)
+    :type create_datastore_views: bool
+
+    :returns: a list of resource views created (empty if none were created)
+    :rtype: list of dictionaries
+    '''
+
+    dataset_dict = _get_or_bust(data_dict, 'package')
+
+    _check_access('package_create_default_resource_views', context, data_dict)
+
+    create_datastore_views = paste.deploy.converters.asbool(
+        data_dict.get('create_datastore_views', False))
+
+    return ckan.lib.datapreview.add_views_to_dataset_resources(
+        context,
+        dataset_dict,
+        view_types=[],
+        create_datastore_views=create_datastore_views)
 
 
 def related_create(context, data_dict):

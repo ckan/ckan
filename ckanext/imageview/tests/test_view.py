@@ -1,46 +1,45 @@
-import pylons.config as config
-import paste.fixture
+from routes import url_for
 
-import ckan.config.middleware as middleware
-import ckan.model as model
-import ckan.lib.helpers as h
-import ckan.lib.create_test_data as create_test_data
 import ckan.plugins as p
-import ckan.tests as tests
+
+from nose.tools import assert_true
+from ckan.tests import helpers, factories
 
 
-class TestImageView(tests.WsgiAppCase):
+class TestImageView(helpers.FunctionalTestBase):
 
     @classmethod
     def setup_class(cls):
-        cls.config_templates = config['ckan.legacy_templates']
-        config['ckan.legacy_templates'] = 'false'
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
 
-        create_test_data.CreateTestData.create()
+        super(TestImageView, cls).setup_class()
 
-        context = {'model': model,
-                   'session': model.Session,
-                   'user': model.User.get('testsysadmin').name}
-
-        cls.package = model.Package.get('annakarenina')
-        cls.resource_id = cls.package.resources[1].id
-        cls.resource_view = {'resource_id': cls.resource_id,
-                             'view_type': u'image',
-                             'title': u'Image View',
-                             'description': u'A nice view',
-                             'image_url': 'test-image-view-url'}
-        p.toolkit.get_action('resource_view_create')(
-            context, cls.resource_view)
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
 
     @classmethod
     def teardown_class(cls):
-        config['ckan.legacy_templates'] = cls.config_templates
-        model.repo.rebuild_db()
+        p.unload('image_view')
 
-    def test_img_is_shown(self):
-        url = h.url_for(controller='package', action='resource_read',
-                        id=self.package.name, resource_id=self.resource_id)
-        result = self.app.get(url)
-        assert self.resource_view['image_url'] in result
+        super(TestImageView, cls).teardown_class()
+
+        helpers.reset_db()
+
+    @helpers.change_config('ckan.views.default_views', '')
+    def test_view_shown_on_resource_page_with_image_url(self):
+        app = self._get_test_app()
+
+        dataset = factories.Dataset()
+
+        resource = factories.Resource(package_id=dataset['id'],
+                                      format='png')
+
+        resource_view = factories.ResourceView(
+            resource_id=resource['id'],
+            image_url='http://some.image.png')
+
+        url = url_for(controller='package', action='resource_read',
+                      id=dataset['name'], resource_id=resource['id'])
+
+        response = app.get(url)
+
+        assert_true(resource_view['image_url'] in response)

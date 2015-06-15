@@ -10,7 +10,12 @@
     </div>
     {% endblock %}
     {% block heading %}
-    <h1 class="heading">{{ group.display_name }}</h1>
+    <h1 class="heading">
+      {{ group.display_name }}
+      {% if group.state == 'deleted' %}
+        [{{ _('Deleted') }}]
+      {% endif %}
+    </h1>
     {% endblock %}
     {% block description %}
     {% if group.description %}

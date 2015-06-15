@@ -94,6 +94,7 @@
     <field name="ratings_average" type="float" indexed="true" stored="false" />
     <field name="tags" type="string" indexed="true" stored="true" multiValued="true"/>
     <field name="groups" type="string" indexed="true" stored="true" multiValued="true"/>
+    <field name="organization" type="string" indexed="true" stored="true" multiValued="false"/>
 
     <field name="capacity" type="string" indexed="true" stored="true" multiValued="false"/>
 
@@ -162,6 +163,7 @@
 <copyField source="notes" dest="text"/>
 <copyField source="tags" dest="text"/>
 <copyField source="groups" dest="text"/>
+<copyField source="organization" dest="text"/>
 <copyField source="res_name" dest="text"/>
 <copyField source="res_description" dest="text"/>
 <copyField source="maintainer" dest="text"/>
