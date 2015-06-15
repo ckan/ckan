@@ -620,7 +620,6 @@ class TestPep8(object):
         'ckan/tests/legacy/misc/test_format_text.py',
         'ckan/tests/legacy/misc/test_mock_mail_server.py',
         'ckan/tests/legacy/misc/test_sync.py',
-        'ckan/tests/legacy/mock_mail_server.py',
         'ckan/tests/legacy/mock_plugin.py',
         'ckan/tests/legacy/models/test_extras.py',
         'ckan/tests/legacy/models/test_group.py',

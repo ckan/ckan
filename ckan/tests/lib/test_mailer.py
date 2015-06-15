@@ -8,7 +8,7 @@ import base64
 import ckan.model as model
 import ckan.lib.helpers as h
 import ckan.lib.mailer as mailer
-from ckan.tests.mock_mail_server import SmtpServerHarness
+from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
