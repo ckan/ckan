@@ -816,11 +816,6 @@ class TestVocabulary(object):
         # Add the new vocab tag to the package.
         package['tags'].append(tag)
 
-        # Delete "packages" from tag dicts as it causes validation errors.
-        for tag in package['tags']:
-            if 'packages' in tag:
-                del tag['packages']
-
         updated_package = self._post('/api/action/package_update',
                 params={'id': package['id'], 'tags': package['tags']},
                 extra_environ={'Authorization':
@@ -881,11 +876,6 @@ class TestVocabulary(object):
         # Add the new vocab tags to the package.
         for tag in tags:
             package['tags'].append(tag)
-
-        # Delete "packages" from tag dicts as it causes validation errors.
-        for tag in package['tags']:
-            if 'packages' in tag:
-                del tag['packages']
 
         updated_package = self._post('/api/action/package_update',
                 params={'id': package['id'], 'tags': package['tags']},
