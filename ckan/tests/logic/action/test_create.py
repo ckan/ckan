@@ -71,6 +71,22 @@ class TestUserInvite(object):
         self._invite_user_to_group(role=None)
 
     @mock.patch('ckan.lib.mailer.send_invite')
+    @nose.tools.raises(logic.NotFound)
+    def test_raises_not_found(self, _):
+        user = factories.User()
+
+        context = {
+            'user': user['name']
+        }
+        params = {
+            'email': 'a@example.com',
+            'group_id': 'group_not_found',
+            'role': 'admin'
+        }
+
+        helpers.call_action('user_invite', context, **params)
+
+    @mock.patch('ckan.lib.mailer.send_invite')
     @nose.tools.raises(logic.ValidationError)
     def test_requires_group_id(self, _):
         self._invite_user_to_group(group={'id': None})

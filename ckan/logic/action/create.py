@@ -1074,6 +1074,11 @@ def user_invite(context, data_dict):
     if errors:
         raise ValidationError(errors)
 
+    model = context['model']
+    group = model.Group.get(data['group_id'])
+    if not group:
+        raise NotFound()
+
     name = _get_random_username_from_email(data['email'])
     password = str(random.SystemRandom().random())
     data['name'] = name
@@ -1412,6 +1417,9 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     role = data_dict.get('role')
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
+    if not group:
+        msg = _('Organization not found') if is_org else _('Group not found')
+        raise NotFound(msg)
     result = model.User.get(username)
     if result:
         user_id = result.id
