@@ -127,6 +127,7 @@ entry_points = {
         'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',
         'example_ivalidators = ckanext.example_ivalidators.plugin:ExampleIValidatorsPlugin',
         'example_iconfigurer = ckanext.example_iconfigurer.plugin:ExampleIConfigurerPlugin',
+        'example_itranslation = ckanext.example_itranslation.plugin:ExampleITranslationPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',

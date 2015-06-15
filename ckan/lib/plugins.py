@@ -1,4 +1,6 @@
 import logging
+import os
+import sys
 
 from pylons import c
 from ckan.lib import base
@@ -534,16 +536,18 @@ class DefaultTranslation(object):
         ckanext/myplugin/plugin.py and the translations are stored in
         i18n/
         '''
-        import os
-        return os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                            '../../', 'i18n'))
+        # assume plugin is called ckanext.<myplugin>.<...>.PluginClass
+        extension_module_name = '.'.join(self.__module__.split('.')[0:2])
+        module = sys.modules[extension_module_name]
+        return os.path.join(os.path.dirname(module.__file__), 'i18n')
+
     def locales(self):
         '''Change the list of locales that this plugin handles
 
-        By default the will assume any directory in subdirectory returned
-        by self.directory() is a locale handled by this plugin
+        By default the will assume any directory in subdirectory in the
+        directory defined by self.directory() is a locale handled by this
+        plugin
         '''
-        import os
         directory = self.directory()
         return [ d for
                  d in os.listdir(directory)
@@ -551,4 +555,9 @@ class DefaultTranslation(object):
         ]
 
     def domain(self):
+        '''Change the gettext domain handled by this plugin
+
+        This implementation assumes the gettext domain is
+        ckanext-{extension name}, hence your pot, po and mo files should be
+        named ckanext-{extension name}.mo'''
         return 'ckanext-{name}'.format(name=self.name)

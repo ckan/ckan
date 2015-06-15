@@ -22,7 +22,7 @@ __all__ = [
     'ITemplateHelpers',
     'IFacets',
     'IAuthenticator',
-    'ITranslations',
+    'ITranslation',
 ]
 
 from inspect import isclass
@@ -1435,20 +1435,12 @@ class IAuthenticator(Interface):
         return (status_code, detail, headers, comment)
 
 
-class ITranslations(Interface):
+class ITranslation(Interface):
     def directory(self):
-        '''Change the directory of the *.mo translation files
+        '''Change the directory of the *.mo translation files'''
 
-        The default implementation assumes the plugin is
-        ckanext/myplugin/plugin.py and the translations are stored in
-        i18n/
-        '''
     def locales(self):
-        '''Change the list of locales that this plugin handles
-
-        By default the will assume any directory in subdirectory returned
-        by self.directory() is a locale handled by this plugin
-        '''
+        '''Change the list of locales that this plugin handles '''
 
     def domain(self):
         '''Change the gettext domain handled by this plugin'''

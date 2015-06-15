@@ -9,7 +9,7 @@ import pylons
 
 import ckan.i18n
 from ckan.plugins import PluginImplementations
-from ckan.plugins.interfaces import ITranslations
+from ckan.plugins.interfaces import ITranslation
 
 LOCALE_ALIASES['pt'] = 'pt_BR' # Default Portuguese language to
                                # Brazilian territory, since
@@ -129,7 +129,7 @@ def _set_lang(lang):
     else:
         i18n.set_lang(lang, class_=Translations)
 
-    for plugin in PluginImplementations(ITranslations):
+    for plugin in PluginImplementations(ITranslation):
         pylons.translator.merge(Translations.load(
             dirname=plugin.directory(),
             locales=plugin.locales(),
