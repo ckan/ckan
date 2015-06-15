@@ -88,8 +88,8 @@ def _mail_recipient(recipient_name, recipient_email,
 
 def mail_recipient(recipient_name, recipient_email, subject,
                    body, headers={}):
-    site_title = config.get('ckan.site_title'),
-    site_url = config.get('ckan.site_url'),
+    site_title = config.get('ckan.site_title')
+    site_url = config.get('ckan.site_url')
     return _mail_recipient(recipient_name, recipient_email,
                            site_title, site_url, subject, body,
                            headers=headers)

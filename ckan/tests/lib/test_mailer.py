@@ -108,6 +108,31 @@ class TestMailer(SmtpServerHarness):
                       'headers': {'header1': 'value1'}}
         assert_raises(mailer.MailerException, mailer.mail_user, **test_email)
 
+    @helpers.change_config('ckan.site_title', 'My CKAN instance')
+    def test_from_field_format(self):
+
+        msgs = self.get_smtp_messages()
+        assert_equal(msgs, [])
+
+        # send email
+        test_email = {'recipient_name': 'Bob',
+                      'recipient_email': 'Bob@bob.com',
+                      'subject': 'Meeting',
+                      'body': 'The meeting is cancelled.',
+                      'headers': {'header1': 'value1'}}
+        mailer.mail_recipient(**test_email)
+
+        # check it went to the mock smtp server
+        msgs = self.get_smtp_messages()
+        msg = msgs[0]
+
+        expected_from_header = '{0} <{1}>'.format(
+            config.get('ckan.site_title'),
+            config.get('smtp.mail_from')
+        )
+
+        assert_in(expected_from_header, msg[3])
+
     def test_send_reset_email(self):
         user = factories.User()
         user_obj = model.User.by_name(user['name'])
