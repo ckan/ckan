@@ -22,7 +22,14 @@ class TestExampleITranslationPlugin(helpers.FunctionalTestBase):
                                         locale='fr'),
         )
         assert_true('This is a itranslated string' in response.body)
-        assert_false('This is a untranslated string' in response.body)
+        assert_false('This is an untranslated string' in response.body)
+
+        # double check the untranslated strings
+        response = app.get(
+            url=plugins.toolkit.url_for(controller='home', action='index'),
+        )
+        assert_true('This is an untranslated string' in response.body)
+        assert_false('This is a itranslated string' in response.body)
 
     def test_translated_string_in_core_templates(self):
         app = self._get_test_app()
@@ -32,3 +39,10 @@ class TestExampleITranslationPlugin(helpers.FunctionalTestBase):
         )
         assert_true('Overwritten string in ckan.mo' in response.body)
         assert_false('Connexion' in response.body)
+        
+        # double check the untranslated strings
+        response = app.get(
+            url=plugins.toolkit.url_for(controller='home', action='index'),
+        )
+        assert_true('Log in' in response.body)
+        assert_false('Overwritten string in ckan.mo' in response.body)
