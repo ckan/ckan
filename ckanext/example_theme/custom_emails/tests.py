@@ -7,8 +7,12 @@ from ckan.tests import factories
 from ckan.lib.base import render_jinja2
 
 from ckan.tests.lib.test_mailer import MailerBase
+import ckan.tests.helpers as helpers
 
-from nose.tools import assert_equal, assert_in
+from nose.tools import assert_equal
+
+
+assert_in = helpers.assert_in
 
 
 class TestExampleCustomEmailsPlugin(MailerBase):
