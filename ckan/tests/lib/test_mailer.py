@@ -1,4 +1,4 @@
-from nose.tools import assert_equal, assert_raises, assert_in
+from nose.tools import assert_equal, assert_raises
 from pylons import config
 from email.mime.text import MIMEText
 from email.parser import Parser
@@ -13,6 +13,8 @@ from ckan.tests.legacy.mock_mail_server import SmtpServerHarness
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+
+assert_in = helpers.assert_in
 
 
 class MailerBase(SmtpServerHarness):
