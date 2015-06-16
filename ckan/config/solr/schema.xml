@@ -16,6 +16,13 @@
  limitations under the License.
 -->
 
+<!--
+     NB Please copy changes to this file into the multilingual schema:
+        ckanext/multilingual/solr/schema.xml
+-->
+
+<!-- Version should match the CKAN version
+     (x.y but not x.y.z since it needs to be a float) -->
 <schema name="ckan" version="2.3">
 
 <types>
