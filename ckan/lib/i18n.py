@@ -1,4 +1,5 @@
 import os
+import gettext
 
 from babel import Locale, localedata
 from babel.core import LOCALE_ALIASES
@@ -129,12 +130,6 @@ def _set_lang(lang):
     else:
         i18n.set_lang(lang, class_=Translations)
 
-    for plugin in PluginImplementations(ITranslation):
-        pylons.translator.merge(Translations.load(
-            dirname=plugin.directory(),
-            locales=plugin.locales(),
-            domain=plugin.domain()
-        ))
 
 
 def handle_request(request, tmpl_context):
@@ -143,6 +138,27 @@ def handle_request(request, tmpl_context):
         config.get('ckan.locale_default', 'en')
     if lang != 'en':
         set_lang(lang)
+
+    for plugin in PluginImplementations(ITranslation):
+        if lang in plugin.locales():
+            translator = Translations.load(
+                dirname=plugin.directory(),
+                locales=lang,
+                domain=plugin.domain()
+            )
+            try:
+                pylons.translator.merge(translator)
+            except AttributeError:
+                # this occurs when an extension has 'en' translations that
+                # replace the default strings. As set_lang has not been run,
+                # pylons.translation is the NullTranslation, so we have to
+                # replace the StackedObjectProxy ourselves manually.
+                environ = pylons.request.environ
+                environ['pylons.pylons'].translator = translator
+                if 'paste.registry' in environ:
+                    environ['paste.registry'].replace(pylons.translator,
+                                                      translator)
+
     tmpl_context.language = lang
     return lang
 
