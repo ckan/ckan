@@ -62,3 +62,11 @@ class TestExampleITranslationPlugin(helpers.FunctionalTestBase):
         )
         assert_true('Einloggen' in response.body)
         assert_false('Overwritten string in ckan.mo' in response.body)
+
+    def test_english_translation_replaces_default_english_string(self):
+        app = self._get_test_app()
+        response = app.get(
+            url=plugins.toolkit.url_for(controller='home', action='index'),
+        )
+        assert_true('Replaced' in response.body)
+        assert_false('Register' in response.body)
