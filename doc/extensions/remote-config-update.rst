@@ -13,7 +13,7 @@ Extensions can allow certain configuration options to be modified at
 
 .. note::
 
-    Only sysadmin users are allowed to modify runtime configuratin options.
+    Only sysadmin users are allowed to modify runtime configuration options.
 
 
 In this tutorial we will show how to make changes to our extension to make two

@@ -1318,7 +1318,7 @@ def config_option_update(context, data_dict):
 
     .. versionadded:: 2.4
 
-    Allows to modify some CKAN configuration options
+    Modify the values of one or more CKAN configuration options
 
     It takes arbitrary key, value pairs and checks the keys against the
     config options update schema. If some of the provided keys are not present
