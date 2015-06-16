@@ -4,6 +4,7 @@ import gettext
 from babel import Locale, localedata
 from babel.core import LOCALE_ALIASES
 from babel.support import Translations
+from paste.deploy.converters import aslist
 from pylons import config
 from pylons import i18n
 import pylons
@@ -139,28 +140,36 @@ def handle_request(request, tmpl_context):
     if lang != 'en':
         set_lang(lang)
 
+    extra_directory = config.get('ckan..i18n.extra_directory')
+    extra_domain = config.get('ckan.i18n.extra_gettext_domain')
+    extra_locales = aslist(config.get('ckan.i18n.extra_locales'))
+    if lang in extra_locales:
+        _add_extra_translations(extra_directory, lang, extra_domain)
+
     for plugin in PluginImplementations(ITranslation):
-        if lang in plugin.locales():
-            translator = Translations.load(
-                dirname=plugin.directory(),
-                locales=lang,
-                domain=plugin.domain()
-            )
-            try:
-                pylons.translator.merge(translator)
-            except AttributeError:
-                # this occurs when an extension has 'en' translations that
-                # replace the default strings. As set_lang has not been run,
-                # pylons.translation is the NullTranslation, so we have to
-                # replace the StackedObjectProxy ourselves manually.
-                environ = pylons.request.environ
-                environ['pylons.pylons'].translator = translator
-                if 'paste.registry' in environ:
-                    environ['paste.registry'].replace(pylons.translator,
-                                                      translator)
+        if lang in plugin.i18n_locales():
+            _add_extra_translations(plugin.i18n_directory(), lang,
+                                    plugin.i18n_domain())
 
     tmpl_context.language = lang
     return lang
+
+def _add_extra_translations(dirname, locales, domain):
+    translator = Translations.load(dirname=dirname, locales=locales,
+                                   domain=domain)
+    try:
+        pylons.translator.merge(translator)
+    except AttributeError:
+        # this occurs when an extension has 'en' translations that
+        # replace the default strings. As set_lang has not been run,
+        # pylons.translation is the NullTranslation, so we have to
+        # replace the StackedObjectProxy ourselves manually.
+        environ = pylons.request.environ
+        environ['pylons.pylons'].translator = translator
+        if 'paste.registry' in environ:
+            environ['paste.registry'].replace(pylons.translator,
+                                              translator)
+
 
 def get_lang():
     ''' Returns the current language. Based on babel.i18n.get_lang but

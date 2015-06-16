@@ -529,7 +529,7 @@ _default_organization_plugin = DefaultOrganizationForm()
 
 
 class DefaultTranslation(object):
-    def directory(self):
+    def i18n_directory(self):
         '''Change the directory of the *.mo translation files
 
         The default implementation assumes the plugin is
@@ -541,20 +541,20 @@ class DefaultTranslation(object):
         module = sys.modules[extension_module_name]
         return os.path.join(os.path.dirname(module.__file__), 'i18n')
 
-    def locales(self):
+    def i18n_locales(self):
         '''Change the list of locales that this plugin handles
 
         By default the will assume any directory in subdirectory in the
         directory defined by self.directory() is a locale handled by this
         plugin
         '''
-        directory = self.directory()
+        directory = self.i18n_directory()
         return [ d for
                  d in os.listdir(directory)
                  if os.path.isdir(os.path.join(directory, d))
         ]
 
-    def domain(self):
+    def i18n_domain(self):
         '''Change the gettext domain handled by this plugin
 
         This implementation assumes the gettext domain is
