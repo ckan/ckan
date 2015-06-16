@@ -140,11 +140,12 @@ def handle_request(request, tmpl_context):
     if lang != 'en':
         set_lang(lang)
 
-    extra_directory = config.get('ckan..i18n.extra_directory')
+    extra_directory = config.get('ckan.i18n.extra_directory')
     extra_domain = config.get('ckan.i18n.extra_gettext_domain')
     extra_locales = aslist(config.get('ckan.i18n.extra_locales'))
-    if lang in extra_locales:
-        _add_extra_translations(extra_directory, lang, extra_domain)
+    if extra_directory and extra_domain and extra_locales:
+        if lang in extra_locales:
+            _add_extra_translations(extra_directory, lang, extra_domain)
 
     for plugin in PluginImplementations(ITranslation):
         if lang in plugin.i18n_locales():
