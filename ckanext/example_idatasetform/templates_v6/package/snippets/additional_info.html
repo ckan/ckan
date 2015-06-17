@@ -10,7 +10,7 @@
   {% if pkg_dict.country_code %}
     <tr>
       <th scope="row" class="dataset-label">{{ _("Country Code") }}</th>
-      <td class="dataset-details">{{ pkg_dict.country_code[0] }}
+      <td class="dataset-details">{{ ', '.join(pkg_dict.country_code) }}
       </td>
   {% endif %}
 {% endblock %}
