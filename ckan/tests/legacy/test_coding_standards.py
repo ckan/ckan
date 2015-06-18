@@ -318,7 +318,6 @@ class TestImportStar(object):
         'ckan/tests/legacy/models/test_user.py',
         'ckan/tests/legacy/pylons_controller.py',
         'ckan/tests/legacy/test_dumper.py',
-        'ckan/tests/legacy/test_wsgi_ckanclient.py',
         'fabfile.py',
     ]
     fails = {}
@@ -620,8 +619,6 @@ class TestPep8(object):
         'ckan/tests/legacy/test_dumper.py',
         'ckan/tests/legacy/test_plugins.py',
         'ckan/tests/legacy/test_versions.py',
-        'ckan/tests/legacy/test_wsgi_ckanclient.py',
-        'ckan/tests/legacy/wsgi_ckanclient.py',
         'ckan/websetup.py',
         'ckanext/datastore/bin/datastore_setup.py',
         'ckanext/datastore/logic/action.py',
