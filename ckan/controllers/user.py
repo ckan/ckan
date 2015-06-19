@@ -352,8 +352,8 @@ class UserController(base.BaseController):
             error_summary = e.error_summary
             return self.edit(id, data_dict, errors, error_summary)
         except UsernamePasswordError:
-            errors = {'oldpassword': [u'Password entered was incorrect']}
-            error_summary = {u'Old Password': u'incorrect password'}
+            errors = {'oldpassword': [_('Password entered was incorrect')]}
+            error_summary = {_('Old Password'): _('incorrect password')}
             return self.edit(id, data_dict, errors, error_summary)
 
     def login(self, error=None):
