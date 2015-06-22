@@ -1558,6 +1558,38 @@ def user_autocomplete(context, data_dict):
     return user_list
 
 
+def organization_autocomplete(context, data_dict):
+    '''
+    Return a list of organization names that contain a string.
+
+    :param q: the string to search for
+    :type q: string
+    :param limit: the maximum number of organizations to return (optional,
+        default: 20)
+    :type limit: int
+
+    :rtype: a list of organization dictionaries each with keys ``'name'``,
+        ``'title'``, and ``'id'``
+    '''
+
+    _check_access('organization_autocomplete', context, data_dict)
+
+    q = data_dict['q']
+    limit = data_dict.get('limit', 20)
+    model = context['model']
+
+    query = model.Group.search_by_name_or_title(q, group_type=None, is_org=True)
+
+    organization_list = []
+    for organization in query.all():
+        result_dict = {}
+        for k in ['id', 'name', 'title']:
+            result_dict[k] = getattr(organization, k)
+        organization_list.append(result_dict)
+
+    return organization_list
+
+
 def package_search(context, data_dict):
     '''
     Searches for packages satisfying a given search criteria.
