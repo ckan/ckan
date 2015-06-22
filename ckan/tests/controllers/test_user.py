@@ -22,6 +22,106 @@ def _get_user_edit_page(app):
     return env, response, user
 
 
+class TestRegisterUser(helpers.FunctionalTestBase):
+    def test_register_a_user(self):
+        app = helpers._get_test_app()
+        response = app.get(url=url_for(controller='user', action='register'))
+
+        form = response.forms['user-register-form']
+        form['name'] = 'newuser'
+        form['fullname'] = 'New User'
+        form['email'] = 'test@test.com'
+        form['password1'] = 'testpassword'
+        form['password2'] = 'testpassword'
+        response = submit_and_follow(app, form, name='save')
+        response = response.follow()
+        assert_equal(200, response.status_int)
+
+        user = helpers.call_action('user_show', id='newuser')
+        assert_equal(user['name'], 'newuser')
+        assert_equal(user['fullname'], 'New User')
+        assert_false(user['sysadmin'])
+
+    def test_register_user_bad_password(self):
+        app = helpers._get_test_app()
+        response = app.get(url=url_for(controller='user', action='register'))
+
+        form = response.forms['user-register-form']
+        form['name'] = 'newuser'
+        form['fullname'] = 'New User'
+        form['email'] = 'test@test.com'
+        form['password1'] = 'testpassword'
+        form['password2'] = ''
+
+        response = form.submit('save')
+        assert_true('The passwords you entered do not match')
+
+
+class TestLoginView(helpers.FunctionalTestBase):
+    def test_registered_user_login(self):
+        '''
+        Registered user can submit valid login details at /user/login and
+        be returned to appropriate place.
+        '''
+        app = helpers._get_test_app()
+
+        # make a user
+        user = factories.User()
+
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+
+        # fill it in
+        login_form['login'] = user['name']
+        login_form['password'] = 'pass'
+
+        # submit it
+        submit_response = login_form.submit()
+        # let's go to the last redirect in the chain
+        final_response = helpers.webtest_maybe_follow(submit_response)
+
+        # the response is the user dashboard, right?
+        final_response.mustcontain('<a href="/dashboard">Dashboard</a>',
+                                   '<span class="username">{0}</span>'
+                                   .format(user['fullname']))
+        # and we're definitely not back on the login page.
+        final_response.mustcontain(no='<h1 class="page-heading">Login</h1>')
+
+    def test_registered_user_login_bad_password(self):
+        '''
+        Registered user is redirected to appropriate place if they submit
+        invalid login details at /user/login.
+        '''
+        app = helpers._get_test_app()
+
+        # make a user
+        user = factories.User()
+
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+
+        # fill it in
+        login_form['login'] = user['name']
+        login_form['password'] = 'badpass'
+
+        # submit it
+        submit_response = login_form.submit()
+        # let's go to the last redirect in the chain
+        final_response = helpers.webtest_maybe_follow(submit_response)
+
+        # the response is the login page again
+        final_response.mustcontain('<h1 class="page-heading">Login</h1>',
+                                   'Login failed. Bad username or password.')
+        # and we're definitely not on the dashboard.
+        final_response.mustcontain(no='<a href="/dashboard">Dashboard</a>'),
+        final_response.mustcontain(no='<span class="username">{0}</span>'
+                                   .format(user['fullname']))
+
+
 class TestUser(helpers.FunctionalTestBase):
 
     def test_own_datasets_show_up_on_user_dashboard(self):

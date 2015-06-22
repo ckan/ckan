@@ -1,6 +1,6 @@
 {% import "macros/form.html" as form %}
 
-<form class="form-horizontal" action="" method="post">
+<form id="user-register-form" class="form-horizontal" action="" method="post">
   {{ form.errors(error_summary) }}
   {{ form.input("name", id="field-username", label=_("Username"), placeholder=_("username"), value=data.name, error=errors.name, classes=["control-medium"]) }}
   {{ form.input("fullname", id="field-fullname", label=_("Full Name"), placeholder=_("Joe Bloggs"), value=data.fullname, error=errors.fullname, classes=["control-medium"]) }}
