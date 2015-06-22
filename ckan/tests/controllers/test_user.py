@@ -55,7 +55,7 @@ class TestUser(helpers.FunctionalTestBase):
             extra_environ=env,
         )
         # existing values in the form
-        form = response.forms['user-edit']
+        form = response.forms['user-edit-form']
         assert_equal(form['name'].value, user['name'])
         assert_equal(form['fullname'].value, user['fullname'])
         assert_equal(form['email'].value, user['email'])
