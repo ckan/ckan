@@ -1,4 +1,6 @@
 import re
+import json
+
 from genshi.filters.i18n import extract as extract_genshi
 from jinja2.ext import babel_extract as extract_jinja2
 import lib.jinja_extensions
@@ -49,3 +51,20 @@ def extract_ckan(fileobj, *args, **kw):
     # we've eaten the file so we need to get back to the start
     fileobj.seek(0)
     return output
+
+
+def extract_licenses(fileobj, keywords, comment_tags, options):
+    ''' Extract the translatable strings from a licenses JSON file.
+
+    :return: an iterator over ``(lineno, funcname, message, comments)``
+                 tuples
+    '''
+    licenses_json = fileobj.read()
+    licenses = json.loads(licenses_json)
+    licenses_list = licenses.keys() if isinstance(licenses, dict) \
+        else licenses
+    for i, license in enumerate(licenses_list):
+        if license.keys() == ['comment']:
+            continue
+        yield (i, 'gettext', license['title'],
+               ['License title (%s)' % license['id']])

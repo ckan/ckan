@@ -1576,27 +1576,55 @@ interface, see :doc:`form-integration`.
 
 The ``<NAME>`` string is replaced with the name of the dataset that was edited.
 
+.. _ckan.licenses_file:
+.. _ckan.licenses_url:
 .. _licenses_group_url:
 
-licenses_group_url
-^^^^^^^^^^^^^^^^^^
+ckan.licenses_file & ckan.licenses_url
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A url pointing to a JSON file containing a list of license objects. This list
-determines the licenses offered by the system to users, for example when
-creating or editing a dataset.
+This allows you to specify that licenses that this CKAN has in its license list, from which can be displayed against datasets, or offered when creating or editing datasets. Specify a filepath or URL of a JSON file containing a list of the license objects.
 
-This is entirely optional - by default, the system will use an internal cached
-version of the CKAN list of licenses available from the
-http://licenses.opendefinition.org/licenses/groups/ckan.json.
+The default list of licenses is in: `ckan/model/licenses-default.json`
 
-More details about the license objects - including the license format and some
-example license lists - can be found at the `Open Licenses Service
-<http://licenses.opendefinition.org/>`_.
+When defining licenses JSON, it's best to take the JSON for each license from the `Open Definition Licenses Service <http://licenses.opendefinition.org/>`_. When adding any additional licenses, the important keys to include are: `id`, `title`, `od_conformance` and `url`. The `od_conformance` field determines whether it is 'open' according to the Open Definition, which populates a dataset's `isopen` property, used by CKAN to display the "Open Data" icon and is used by extensions such as ckanext-qa and third-party services.
 
 Examples::
 
- licenses_group_url = file:///path/to/my/local/json-list-of-licenses.json
- licenses_group_url = http://licenses.opendefinition.org/licenses/groups/od.json
+ ckan.licenses_file = /etc/ckan/json-list-of-licenses.json
+ ckan.licenses_url = http://licenses.opendefinition.org/licenses/groups/od.json
+
+Default value: /path/to/ckan/model/licenses-default.json
+
+Note, ckan.licenses_url is a rename of the deprecated 'licenses_group_url'.
+
+.. _ckan.licenses_offered
+
+ckan.licenses_offered
+^^^^^^^^^^^^^^^^^^^^^
+
+A list of licenses that are offered to the user, selected from the licenses list. By specifying a subset of licenses using this option, you are effectively 'deprecating' the other licenses. Deprecating is preferable to deleting the old license, else any datasets with the old license will not show the licence title, URL or openness. In addition, this option allows you to specify a particular ordering of the licenses in the drop-down list (otherwise they are in alphabetical order).
+
+Expressed as the license IDs in a space-separated list.
+
+Examples::
+
+ ckan.licenses_offered = cc0 cc-by
+
+.. _ckan.licenses_offered_exclusions
+
+ckan.licenses_offered_exclusions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A list of licenses that are not offered to the user in the dataset create/edit form. This can be used to 'deprecate' licenses when newer versions are added. Deprecating is preferable to deleting the old license, else any datasets with the old license will not show the licence title, URL or openness.
+
+Expressed as the license IDs in a space-separated list. This option is ignored if you also specify ckan.licenses_offered.
+
+Example::
+
+ ckan.licenses_offered_exclusions = uk-ogl-1
+
+Default value: odc-pddl odc-odbl odc-by cc-zero cc-by cc-by-sa gfdl other-open other-pd other-at uk-ogl cc-nc other-nc other-closed
 
 .. _email-settings:
 

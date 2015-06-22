@@ -29,17 +29,18 @@
   {% set error = errors.license_id %}
   <label class="control-label" for="field-license">{{ _("License") }}</label>
   <div class="controls">
-    <select id="field-license" name="license_id" data-module="autocomplete">
-      {% for license_desc, license_id in licenses|sort if license_desc  %}
-        <option value="{{ license_id }}" {% if data.get('license_id', 'notspecified') == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
+    <select id="field-license" name="license_id" class="input-xlarge" data-module="autocomplete">
+      {% set existing_license_id = data.get('license_id', 'notspecified') %}
+      {% for license_id, license_desc in h.license_options(existing_license_id) %}
+        <option value="{{ license_id }}" {% if existing_license_id == license_id %}selected="selected"{% endif %}>{{ license_desc }}</option>
       {% endfor %}
     </select>
     {% if error %}<span class="error-block">{{ error }}</span>{% endif %}
     <span class="info-block info-inline">
       <i class="icon-info-sign"></i>
       {% trans %}
-        License definitions and additional information can be found
-        at <a href="http://opendefinition.org/licenses/">opendefinition.org</a>
+        License information can be found at
+        <a href="http://opendefinition.org/licenses/" target="_blank">opendefinition.org</a>
       {% endtrans %}
     </span>
   </div>
@@ -68,7 +69,7 @@
     <div class="control-group">
       <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
       <div class="controls">
-        <select id="field-organizations" name="owner_org" data-module="autocomplete">
+        <select id="field-organizations" name="owner_org" class="input-xlarge" data-module="autocomplete">
           {% if h.check_config_permission('create_unowned_dataset') %}
              <option value="" {% if not selected_org and data.id %} selected="selected" {% endif %}>{{ _('No organization') }}</option>
           {% endif %}
@@ -87,7 +88,7 @@
       <div class="control-group">
         <label for="field-private" class="control-label">{{ _('Visibility') }}</label>
         <div class="controls">
-          <select id="field-private" name="private">
+          <select id="field-private" name="private" class="input-small">
             {% for option in [('True', _('Private')), ('False', _('Public'))] %}
             <option value="{{ option[0] }}" {% if option[0] == data.private|trim %}selected="selected"{% endif %}>{{ option[1] }}</option>
             {% endfor %}

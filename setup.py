@@ -149,6 +149,7 @@ entry_points = {
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',
+        'licenses = ckan.lib.extract:extract_licenses',
     ],
 }
 
@@ -186,10 +187,8 @@ setup(
             ('templates/**.txt', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
-            ('templates_legacy/**.txt', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
             ('public/**', 'ignore', None),
+            ('config/licenses_default.json', 'licenses', None),
         ],
         'ckanext': [
             ('**.py', 'python', None),

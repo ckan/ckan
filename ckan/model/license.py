@@ -1,11 +1,12 @@
 import datetime
 import urllib2
 import re
+import os
 
 from pylons import config
 from paste.deploy.converters import asbool
 
-from ckan.common import _, json
+from ckan.common import json
 import ckan.lib.maintain as maintain
 
 log = __import__('logging').getLogger(__name__)
@@ -82,30 +83,35 @@ class LicenseRegister(object):
     """Dictionary-like interface to a group of licenses."""
 
     def __init__(self):
-        group_url = config.get('licenses_group_url', None)
-        if group_url:
-            self.load_licenses(group_url)
+        filepath = config.get('ckan.licenses_file')
+        url = config.get('ckan.licenses_url') or \
+            config.get('licenses_group_url')
+        if filepath:
+            self.load_licenses_from_file(filepath)
+        elif url:
+            self.load_licenses_from_url(url)
         else:
-            default_license_list = [
-                LicenseNotSpecified(),
-                LicenseOpenDataCommonsPDDL(),
-                LicenseOpenDataCommonsOpenDatabase(),
-                LicenseOpenDataAttribution(),
-                LicenseCreativeCommonsZero(),
-                LicenseCreativeCommonsAttribution(),
-                LicenseCreativeCommonsAttributionShareAlike(),
-                LicenseGNUFreeDocument(),
-                LicenseOtherOpen(),
-                LicenseOtherPublicDomain(),
-                LicenseOtherAttribution(),
-                LicenseOpenGovernment(),
-                LicenseCreativeCommonsNonCommercial(),
-                LicenseOtherNonCommercial(),
-                LicenseOtherClosed(),
-                ]
-            self._create_license_list(default_license_list)
+            default_filepath = os.path.abspath(
+                os.path.join(os.path.dirname(__file__),
+                             '..', 'config',
+                             'licenses_default.json'))
+            self.load_licenses_from_file(default_filepath)
 
-    def load_licenses(self, license_url):
+    def load_licenses_from_file(self, filepath):
+        try:
+            with open(filepath, 'rb') as f:
+                content = f.read()
+        except IOError, inst:
+            msg = "Couldn't open license file %r: %s" % (filepath, inst)
+            raise Exception(msg)
+        try:
+            license_data = json.loads(content)
+        except ValueError, inst:
+            msg = "Couldn't read JSON in license file %r: %s" % (filepath, inst)
+            raise Exception(msg)
+        self._create_license_list(license_data, filepath)
+
+    def load_licenses_from_url(self, license_url):
         try:
             response = urllib2.urlopen(license_url)
             response_body = response.read()
@@ -119,13 +125,16 @@ class LicenseRegister(object):
             raise Exception(inst)
         self._create_license_list(license_data, license_url)
 
-    def _create_license_list(self, license_data, license_url=''):
+    def _create_license_list(self, license_data, location=''):
         if isinstance(license_data, dict):
-            self.licenses = [License(entity) for entity in license_data.values()]
+            self.licenses = [License(entity)
+                             for entity in license_data.values()
+                             if entity.keys() != ['comment']]
         elif isinstance(license_data, list):
-            self.licenses = [License(entity) for entity in license_data]
+            self.licenses = [License(entity) for entity in license_data
+                             if entity.keys() != ['comment']]
         else:
-            msg = "Licenses at %s must be dictionary or list" % license_url
+            msg = "Licenses at %s must be a list or dictionary" % location
             raise ValueError(msg)
 
     def __getitem__(self, key, default=Exception):
@@ -155,195 +164,3 @@ class LicenseRegister(object):
     def __len__(self):
         return len(self.licenses)
 
-
-class DefaultLicense(dict):
-    ''' The license was a dict but this did not allow translation of the
-    title.  This is a slightly changed dict that allows us to have the title
-    as a property and so translated. '''
-
-    domain_content = False
-    domain_data = False
-    domain_software = False
-    family = ''
-    is_generic = False
-    od_conformance = 'not reviewed'
-    osd_conformance = 'not reviewed'
-    maintainer = ''
-    status = 'active'
-    url = ''
-    title = ''
-    id = ''
-
-    keys = ['domain_content',
-            'id',
-            'domain_data',
-            'domain_software',
-            'family',
-            'is_generic',
-            'od_conformance',
-            'osd_conformance',
-            'maintainer',
-            'status',
-            'url',
-            'title']
-
-    def __getitem__(self, key):
-        ''' behave like a dict but get from attributes '''
-        if key in self.keys:
-            value = getattr(self, key)
-            if isinstance(value, str):
-                return unicode(value)
-            else:
-                return value
-        else:
-            raise KeyError()
-
-    def copy(self):
-        ''' create a dict of the license used by the licenses api '''
-        out = {}
-        for key in self.keys:
-            out[key] = unicode(getattr(self, key))
-        return out
-
-class LicenseNotSpecified(DefaultLicense):
-    id = "notspecified"
-    is_generic = True
-
-    @property
-    def title(self):
-        return _("License not specified")
-
-class LicenseOpenDataCommonsPDDL(DefaultLicense):
-    domain_data = True
-    id = "odc-pddl"
-    od_conformance = 'approved'
-    url = "http://www.opendefinition.org/licenses/odc-pddl"
-
-    @property
-    def title(self):
-        return _("Open Data Commons Public Domain Dedication and License (PDDL)")
-
-class LicenseOpenDataCommonsOpenDatabase(DefaultLicense):
-    domain_data = True
-    id = "odc-odbl"
-    od_conformance = 'approved'
-    url = "http://www.opendefinition.org/licenses/odc-odbl"
-
-    @property
-    def title(self):
-        return _("Open Data Commons Open Database License (ODbL)")
-
-class LicenseOpenDataAttribution(DefaultLicense):
-    domain_data = True
-    id = "odc-by"
-    od_conformance = 'approved'
-    url = "http://www.opendefinition.org/licenses/odc-by"
-
-    @property
-    def title(self):
-        return _("Open Data Commons Attribution License")
-
-class LicenseCreativeCommonsZero(DefaultLicense):
-    domain_content = True
-    domain_data = True
-    id = "cc-zero"
-    od_conformance = 'approved'
-    url = "http://www.opendefinition.org/licenses/cc-zero"
-
-    @property
-    def title(self):
-        return _("Creative Commons CCZero")
-
-class LicenseCreativeCommonsAttribution(DefaultLicense):
-    id = "cc-by"
-    od_conformance = 'approved'
-    url = "http://www.opendefinition.org/licenses/cc-by"
-
-    @property
-    def title(self):
-        return _("Creative Commons Attribution")
-
-class LicenseCreativeCommonsAttributionShareAlike(DefaultLicense):
-    domain_content = True
-    id = "cc-by-sa"
-    od_conformance = 'approved'
-    url = "http://www.opendefinition.org/licenses/cc-by-sa"
-
-    @property
-    def title(self):
-        return _("Creative Commons Attribution Share-Alike")
-
-class LicenseGNUFreeDocument(DefaultLicense):
-    domain_content = True
-    id = "gfdl"
-    od_conformance = 'approved'
-    url = "http://www.opendefinition.org/licenses/gfdl"
-    @property
-    def title(self):
-        return _("GNU Free Documentation License")
-
-class LicenseOtherOpen(DefaultLicense):
-    domain_content = True
-    id = "other-open"
-    is_generic = True
-    od_conformance = 'approved'
-
-    @property
-    def title(self):
-        return _("Other (Open)")
-
-class LicenseOtherPublicDomain(DefaultLicense):
-    domain_content = True
-    id = "other-pd"
-    is_generic = True
-    od_conformance = 'approved'
-
-    @property
-    def title(self):
-        return _("Other (Public Domain)")
-
-class LicenseOtherAttribution(DefaultLicense):
-    domain_content = True
-    id = "other-at"
-    is_generic = True
-    od_conformance = 'approved'
-
-    @property
-    def title(self):
-        return _("Other (Attribution)")
-
-class LicenseOpenGovernment(DefaultLicense):
-    domain_content = True
-    id = "uk-ogl"
-    od_conformance = 'approved'
-    # CS: bad_spelling ignore
-    url = "http://reference.data.gov.uk/id/open-government-licence"
-
-    @property
-    def title(self):
-        # CS: bad_spelling ignore
-        return _("UK Open Government Licence (OGL)")
-
-class LicenseCreativeCommonsNonCommercial(DefaultLicense):
-    id = "cc-nc"
-    url = "http://creativecommons.org/licenses/by-nc/2.0/"
-
-    @property
-    def title(self):
-        return _("Creative Commons Non-Commercial (Any)")
-
-class LicenseOtherNonCommercial(DefaultLicense):
-    id = "other-nc"
-    is_generic = True
-
-    @property
-    def title(self):
-        return _("Other (Non-Commercial)")
-
-class LicenseOtherClosed(DefaultLicense):
-    id = "other-closed"
-    is_generic = True
-
-    @property
-    def title(self):
-        return _("Other (Not Open)")

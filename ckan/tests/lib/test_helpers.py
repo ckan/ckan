@@ -1,4 +1,5 @@
 import nose
+from pylons import config
 
 import ckan.lib.helpers as h
 import ckan.exceptions
@@ -101,3 +102,51 @@ class TestHelpersRemoveLineBreaks(object):
         strType = ''.__class__
         assert result.__class__ == strType,\
             '"remove_linebreaks" casts into str()'
+
+
+class TestLicenseOptions(object):
+    def setup(self):
+        config['ckan.licenses_offered'] = None
+        config['ckan.licenses_offered_exclusions'] = None
+
+    @classmethod
+    def teardown_class(cls):
+        config['ckan.licenses_offered'] = None
+        config['ckan.licenses_offered_exclusions'] = None
+
+    def test_default_list(self):
+        licenses = h.license_options()
+        eq_(dict(licenses)['CC-BY-4.0'], 'Creative Commons Attribution 4.0')
+
+    def test_sort(self):
+        licenses = h.license_options()
+        titles = [l[1] for l in licenses]
+        eq_(titles[:-1], sorted(titles[:-1]))
+        eq_(titles[-1], 'License not specified')
+
+    def test_configured_list(self):
+        config['ckan.licenses_offered'] = 'CC0-1.0 CC-BY-4.0'
+        licenses = h.license_options()
+        eq_(licenses, [('CC0-1.0', 'Creative Commons Zero 1.0'),
+                       ('CC-BY-4.0', 'Creative Commons Attribution 4.0')])
+
+    def test_default_exclusions(self):
+        licenses = h.license_options()
+        assert 'cc-by' not in dict(licenses)
+
+    def test_configured_exclusions(self):
+        config['ckan.licenses_offered_exclusions'] = 'CC0-1.0 CC-BY-4.0'
+        licenses = h.license_options()
+        assert 'CC0-1.0' not in dict(licenses)
+        assert 'CC-BY-4.0' not in dict(licenses)
+        assert 'CC-BY-SA-4.0' in dict(licenses)
+
+    def test_includes_existing_license(self):
+        licenses = h.license_options('some-old-license')
+        eq_(dict(licenses)['some-old-license'], 'some-old-license')
+        # and it is first on the list
+        eq_(licenses[0][0], 'some-old-license')
+
+    def test_gets_correct_title_for_excluded_license(self):
+        licenses = h.license_options('cc-by')
+        eq_(dict(licenses)['cc-by'], 'Creative Commons Attribution')
