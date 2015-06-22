@@ -280,6 +280,13 @@ def update_config():
         raise RuntimeError(
             'ckan.site_url is not configured and it must have a value.'
             ' Please amend your .ini file.')
+    if not site_url.lower().startswith('http'):
+        raise RuntimeError(
+            'ckan.site_url should be a full URL, including the schema '
+            '(http or https)')
+
+    # Remove backslash from site_url if present
+    config['ckan.site_url'] = config['ckan.site_url'].rstrip('/')
 
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
     if config.get('ckan.site_id') is None:

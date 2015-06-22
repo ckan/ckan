@@ -5,6 +5,9 @@ from pylons import config
 
 import ckan.tests.helpers as h
 import ckan.plugins as p
+from ckan.config import environment
+
+from ckan.tests import helpers
 
 
 class TestUpdateConfig(h.FunctionalTestBase):
@@ -71,3 +74,24 @@ class TestUpdateConfig(h.FunctionalTestBase):
 
         nosetools.assert_equal(config['sqlalchemy.url'],
                                'postgresql://mynewsqlurl/')
+
+
+class TestSiteUrlMandatory(object):
+
+    @helpers.change_config('ckan.site_url', '')
+    def test_missing_siteurl(self):
+        nosetools.assert_raises(RuntimeError, environment.update_config)
+
+    @helpers.change_config('ckan.site_url', 'demo.ckan.org')
+    def test_siteurl_missing_schema(self):
+        nosetools.assert_raises(RuntimeError, environment.update_config)
+
+    @helpers.change_config('ckan.site_url', 'ftp://demo.ckan.org')
+    def test_siteurl_wrong_schema(self):
+        nosetools.assert_raises(RuntimeError, environment.update_config)
+
+    @helpers.change_config('ckan.site_url', 'http://demo.ckan.org/')
+    def test_siteurl_removes_backslash(self):
+        environment.update_config()
+        nosetools.assert_equals(config['ckan.site_url'],
+                                'http://demo.ckan.org')
