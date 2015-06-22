@@ -56,7 +56,7 @@
   {% set dataset_has_organization = data.owner_org or data.group_id %}
   {% set organizations_available = h.organizations_available('create_dataset') %}
   {% set user_is_sysadmin = h.check_access('sysadmin') %}
-  {% set show_organizations_selector = organizations_available and (user_is_sysadmin or dataset_is_draft) %}
+  {% set show_organizations_selector = organizations_available %}
   {% set show_visibility_selector = dataset_has_organization or (organizations_available and (user_is_sysadmin or dataset_is_draft)) %}
 
   {% if show_organizations_selector and show_visibility_selector %}

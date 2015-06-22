@@ -6,7 +6,7 @@ import sys
 import formencode.validators
 
 import ckan.model as model
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 import ckan.lib.navl.dictization_functions as df
 import ckan.plugins as p
 
@@ -17,6 +17,10 @@ _validate = df.validate
 
 
 class NameConflict(Exception):
+    pass
+
+
+class UsernamePasswordError(Exception):
     pass
 
 
@@ -73,7 +77,8 @@ class ValidationError(ActionError):
                 try:
                     tag_errors.append(', '.join(error['name']))
                 except KeyError:
-                    pass
+                    # e.g. if it is a vocabulary_id error
+                    tag_errors.append(error)
             error_dict['tags'] = tag_errors
         self.error_dict = error_dict
         self._error_summary = error_summary
@@ -287,8 +292,8 @@ def check_access(action, context, data_dict=None):
 
         context = _prepopulate_context(context)
 
-        logic_authorization = new_authz.is_authorized(action, context,
-                                                      data_dict)
+        logic_authorization = authz.is_authorized(action, context,
+                                                  data_dict)
         if not logic_authorization['success']:
             msg = logic_authorization.get('msg', '')
             raise NotAuthorized(msg)
@@ -425,7 +430,7 @@ def get_action(action):
                 try:
                     audit = context['__auth_audit'][-1]
                     if audit[0] == action_name and audit[1] == id(_action):
-                        if action_name not in new_authz.auth_functions_list():
+                        if action_name not in authz.auth_functions_list():
                             log.debug('No auth function for %s' % action_name)
                         elif not getattr(_action, 'auth_audit_exempt', False):
                             raise Exception(

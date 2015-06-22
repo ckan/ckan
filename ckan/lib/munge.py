@@ -4,6 +4,7 @@
 # improved.
 
 import re
+import os.path
 
 from ckan import model
 
@@ -111,11 +112,44 @@ def munge_tag(tag):
     return tag
 
 
-def munge_filename(filename):
+def munge_filename_legacy(filename):
+    ''' Tidies a filename. NB: deprecated
+
+    Unfortunately it mangles any path or filename extension, so is deprecated.
+    It needs to remain unchanged for use by group_dictize() and
+    Upload.update_data_dict() because if this routine changes then group images
+    uploaded previous to the change may not be viewable.
+    '''
     filename = substitute_ascii_equivalents(filename)
     filename = filename.strip()
     filename = re.sub(r'[^a-zA-Z0-9.\- ]', '', filename).replace(' ', '-')
     filename = _munge_to_length(filename, 3, 100)
+    return filename
+
+
+def munge_filename(filename):
+    ''' Tidies a filename
+
+    Keeps the filename extension (e.g. .csv).
+    Strips off any path on the front.
+    '''
+
+    # just get the filename ignore the path
+    path, filename = os.path.split(filename)
+    # clean up
+    filename = substitute_ascii_equivalents(filename)
+    filename = filename.lower().strip()
+    filename = re.sub(r'[^a-zA-Z0-9. -]', '', filename).replace(' ', '-')
+    # resize if needed but keep extension
+    name, ext = os.path.splitext(filename)
+    # limit overly long extensions
+    if len(ext) > 21:
+        ext = ext[:21]
+    # max/min size
+    ext_length = len(ext)
+    name = _munge_to_length(name, max(3 - ext_length, 1), 100 - ext_length)
+    filename = name + ext
+
     return filename
 
 

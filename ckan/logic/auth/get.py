@@ -1,5 +1,5 @@
 import ckan.logic as logic
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 from ckan.lib.base import _
 from ckan.logic.auth import (get_package_object, get_group_object,
                             get_resource_object, get_related_object)
@@ -66,6 +66,10 @@ def license_list(context, data_dict):
     # Licenses list is visible by default
     return {'success': True}
 
+def vocabulary_list(context, data_dict):
+    # List of all vocabularies are visible by default
+    return {'success': True}
+
 def tag_list(context, data_dict):
     # Tags list is visible by default
     return {'success': True}
@@ -81,10 +85,10 @@ def package_relationships_list(context, data_dict):
     id2 = data_dict.get('id2')
 
     # If we can see each package we can see the relationships
-    authorized1 = new_authz.is_authorized_boolean(
+    authorized1 = authz.is_authorized_boolean(
         'package_show', context, {'id': id})
     if id2:
-        authorized2 = new_authz.is_authorized_boolean(
+        authorized2 = authz.is_authorized_boolean(
             'package_show', context, {'id': id2})
     else:
         authorized2 = True
@@ -100,7 +104,7 @@ def package_show(context, data_dict):
     # draft state indicates package is still in the creation process
     # so we need to check we have creation rights.
     if package.state.startswith('draft'):
-        auth = new_authz.is_authorized('package_update',
+        auth = authz.is_authorized('package_update',
                                        context, data_dict)
         authorized = auth.get('success')
     elif package.owner_org is None and package.state == 'active':
@@ -109,7 +113,7 @@ def package_show(context, data_dict):
         # anyone can see a public package
         if not package.private and package.state == 'active':
             return {'success': True}
-        authorized = new_authz.has_user_permission_for_group_or_org(
+        authorized = authz.has_user_permission_for_group_or_org(
             package.owner_org, user, 'read')
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read package %s') % (user, package.id)}
@@ -131,7 +135,7 @@ def resource_show(context, data_dict):
         raise logic.NotFound(_('No package found for this resource, cannot check auth.'))
 
     pkg_dict = {'id': pkg.id}
-    authorized = new_authz.is_authorized('package_show', context, pkg_dict).get('success')
+    authorized = authz.is_authorized('package_show', context, pkg_dict).get('success')
 
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to read resource %s') % (user, resource.id)}
@@ -150,11 +154,22 @@ def revision_show(context, data_dict):
     return {'success': True}
 
 def group_show(context, data_dict):
-    # anyone can see a group
-    return {'success': True}
+    user = context.get('user')
+    group = get_group_object(context, data_dict)
+    if group.state == 'active':
+        return {'success': True}
+    authorized = authz.has_user_permission_for_group_or_org(
+        group.id, user, 'read')
+    if authorized:
+        return {'success': True}
+    else:
+        return {'success': False, 'msg': _('User %s not authorized to read group %s') % (user, group.id)}
 
 def organization_show(context, data_dict):
-    # anyone can see a organization
+    return group_show(context, data_dict)
+
+def vocabulary_show(context, data_dict):
+    # Allow viewing of vocabs by default
     return {'success': True}
 
 def tag_show(context, data_dict):
@@ -171,6 +186,9 @@ def package_autocomplete(context, data_dict):
 
 def group_autocomplete(context, data_dict):
     return group_list(context, data_dict)
+
+def organization_autocomplete(context, data_dict):
+    return organization_list(context, data_dict)
 
 def tag_autocomplete(context, data_dict):
     return tag_list(context, data_dict)
@@ -223,7 +241,7 @@ def dashboard_new_activities_count(context, data_dict):
     # FIXME: This should go through check_access() not call is_authorized()
     # directly, but wait until 2939-orgs is merged before fixing this.
     # This is so a better not authourized message can be sent.
-    return new_authz.is_authorized('dashboard_activity_list',
+    return authz.is_authorized('dashboard_activity_list',
             context, data_dict)
 
 

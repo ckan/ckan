@@ -64,6 +64,16 @@ _UPSERT = 'upsert'
 _UPDATE = 'update'
 
 
+class InvalidDataError(Exception):
+    """Exception that's raised if you try to add invalid data to the datastore.
+
+    For example if you have a column with type "numeric" and then you try to
+    add a non-numeric value like "foo" to it, this exception should be raised.
+
+    """
+    pass
+
+
 def _pluck(field, arr):
     return [x[field] for x in arr]
 
@@ -92,7 +102,11 @@ def _get_engine(data_dict):
     engine = _engines.get(connection_url)
 
     if not engine:
-        engine = sqlalchemy.create_engine(connection_url)
+        import pylons
+        extras = {'url': connection_url}
+        engine = sqlalchemy.engine_from_config(pylons.config,
+                                               'ckan.datastore.sqlalchemy.',
+                                               **extras)
         _engines[connection_url] = engine
     return engine
 
@@ -590,8 +604,14 @@ def alter_table(context, data_dict):
 
 
 def insert_data(context, data_dict):
+    """
+
+    :raises InvalidDataError: if there is an invalid value in the given data
+
+    """
     data_dict['method'] = _INSERT
-    return upsert_data(context, data_dict)
+    result = upsert_data(context, data_dict)
+    return result
 
 
 def upsert_data(context, data_dict):
@@ -629,7 +649,13 @@ def upsert_data(context, data_dict):
             values=', '.join(['%s' for field in field_names])
         )
 
-        context['connection'].execute(sql_string, rows)
+        try:
+            context['connection'].execute(sql_string, rows)
+        except sqlalchemy.exc.DataError as err:
+            raise InvalidDataError(
+                toolkit._("The data was invalid (for example: a numeric value "
+                          "is out of range or was inserted into a text field)."
+                          ))
 
     elif method in [_UPDATE, _UPSERT]:
         unique_keys = _get_unique_key(context, data_dict)
@@ -773,8 +799,8 @@ def _to_full_text(fields, record):
         if not value:
             continue
 
-        if field['type'].lower() in ft_types and str(value):
-            full_text.append(str(value))
+        if field['type'].lower() in ft_types and unicode(value):
+            full_text.append(unicode(value))
         else:
             full_text.extend(json_get_values(value))
     return ' '.join(set(full_text))
@@ -1014,6 +1040,9 @@ def create(context, data_dict):
 
     Any error results in total failure! For now pass back the actual error.
     Should be transactional.
+
+    :raises InvalidDataError: if there is an invalid value in the given data
+
     '''
     engine = _get_engine(data_dict)
     context['connection'] = engine.connect()

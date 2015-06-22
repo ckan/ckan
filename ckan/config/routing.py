@@ -174,6 +174,8 @@ def make_map():
         m.connect('/util/resource/format_icon',
                   action='format_icon', conditions=GET)
         m.connect('/util/group/autocomplete', action='group_autocomplete')
+        m.connect('/util/organization/autocomplete', action='organization_autocomplete',
+                  conditions=GET)
         m.connect('/util/markdown', action='markdown')
         m.connect('/util/dataset/munge_name', action='munge_package_name')
         m.connect('/util/dataset/munge_title_to_name',
@@ -222,7 +224,6 @@ def make_map():
                   ])))
         m.connect('/dataset/{action}/{id}',
                   requirements=dict(action='|'.join([
-                      'new_metadata',
                       'new_resource',
                       'history',
                       'read_ajax',

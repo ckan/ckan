@@ -4,6 +4,7 @@
   <div class="inner">
     <h3>{{ _('{0} statistics').format(g.site_title) }}</h3>
     <ul>
+      {% block stats_group %}
       <li>
         <a href="{{ h.url_for(controller='package', action='search') }}">
           <b>{{ h.SI_number_span(stats.dataset_count) }}</b>
@@ -28,6 +29,7 @@
           {{ _('related item') if stats.related_count == 1 else _('related items') }}
         </a>
       </li>
+      {% endblock %}
     </ul>
   </div>
 </div>

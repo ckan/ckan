@@ -159,7 +159,7 @@ class ApiController(base.BaseController):
         try:
             function = get_action(logic_function)
         except KeyError:
-            log.error('Can\'t find logic function: %s' % logic_function)
+            log.info('Can\'t find logic function: %s' % logic_function)
             return self._finish_bad_request(
                 _('Action name not known: %s') % logic_function)
 
@@ -180,12 +180,12 @@ class ApiController(base.BaseController):
             request_data = self._get_request_data(try_url_params=
                                                   side_effect_free)
         except ValueError, inst:
-            log.error('Bad request data: %s' % inst)
+            log.info('Bad Action API request data: %s' % inst)
             return self._finish_bad_request(
                 _('JSON Error: %s') % inst)
         if not isinstance(request_data, dict):
             # this occurs if request_data is blank
-            log.error('Bad request data - not dict: %r' % request_data)
+            log.info('Bad Action API request data - not dict: %r' % request_data)
             return self._finish_bad_request(
                 _('Bad request data: %s') %
                 'Request data JSON decoded to %r but '
@@ -198,7 +198,7 @@ class ApiController(base.BaseController):
             return_dict['success'] = True
             return_dict['result'] = result
         except DataError, e:
-            log.error('Format incorrect: %s - %s' % (e.error, request_data))
+            log.info('Format incorrect (Action API): %s - %s' % (e.error, request_data))
             return_dict['error'] = {'__type': 'Integrity Error',
                                     'message': e.error,
                                     'data': request_data}
@@ -226,7 +226,7 @@ class ApiController(base.BaseController):
             return_dict['error'] = error_dict
             return_dict['success'] = False
             # CS nasty_string ignore
-            log.error('Validation error: %r' % str(e.error_dict))
+            log.info('Validation error (Action API): %r' % str(e.error_dict))
             return self._finish(409, return_dict, content_type='json')
         except search.SearchQueryError, e:
             return_dict['error'] = {'__type': 'Search Query Error',
@@ -372,10 +372,10 @@ class ApiController(base.BaseController):
             return self._finish_not_found(unicode(e))
         except ValidationError, e:
             # CS: nasty_string ignore
-            log.error('Validation error: %r' % str(e.error_dict))
+            log.info('Validation error (REST create): %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
         except DataError, e:
-            log.error('Format incorrect: %s - %s' % (e.error, request_data))
+            log.info('Format incorrect (REST create): %s - %s' % (e.error, request_data))
             error_dict = {
                 'success': False,
                 'error': {'__type': 'Integrity Error',
@@ -427,10 +427,10 @@ class ApiController(base.BaseController):
             return self._finish_not_found(unicode(e))
         except ValidationError, e:
             # CS: nasty_string ignore
-            log.error('Validation error: %r' % str(e.error_dict))
+            log.info('Validation error (REST update): %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
         except DataError, e:
-            log.error('Format incorrect: %s - %s' % (e.error, request_data))
+            log.info('Format incorrect (REST update): %s - %s' % (e.error, request_data))
             error_dict = {
                 'success': False,
                 'error': {'__type': 'Integrity Error',
@@ -474,7 +474,7 @@ class ApiController(base.BaseController):
             return self._finish_not_found(unicode(e))
         except ValidationError, e:
             # CS: nasty_string ignore
-            log.error('Validation error: %r' % str(e.error_dict))
+            log.info('Validation error (REST delete): %r' % str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
 
     def search(self, ver=None, register=None):
@@ -672,6 +672,18 @@ class ApiController(base.BaseController):
         query = query.limit(limit)
         out = map(convert_to_dict, query.all())
         return out
+
+    @jsonp.jsonpify
+    def organization_autocomplete(self):
+        q = request.params.get('q', '')
+        limit = request.params.get('limit', 20)
+        organization_list = []
+
+        if q:
+            context = {'user': c.user, 'model': model}
+            data_dict = {'q': q, 'limit': limit}
+            organization_list = get_action('organization_autocomplete')(context, data_dict)
+        return organization_list
 
     def is_slug_valid(self):
 
