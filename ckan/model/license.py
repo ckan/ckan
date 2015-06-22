@@ -62,13 +62,7 @@ class License(object):
                 self.osd_conformance == 'approved'
         return self._isopen
 
-    @maintain.deprecated("License.as_dict() is deprecated and will be "
-                         "removed in a future version of CKAN. Instead, "
-                         "please use attribute access.")
     def as_dict(self):
-        '''NB This method is deprecated and will be removed in a future version
-        of CKAN. Instead, please use attribute access.
-        '''
         data = self._data.copy()
         if 'date_created' in data:
             value = data['date_created']
