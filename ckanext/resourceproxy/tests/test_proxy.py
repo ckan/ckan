@@ -7,7 +7,7 @@ import paste.fixture
 from pylons import config
 
 import ckan.model as model
-import ckan.tests as tests
+import ckan.tests.legacy as tests
 import ckan.plugins as p
 import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
@@ -139,11 +139,12 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         assert 'Invalid URL' in result.body, result.body
 
     def test_non_existent_url(self):
-        self.data_dict = set_resource_url('http://foo.bar')
+        self.data_dict = set_resource_url('http://nonexistent.example.com')
 
         def f1():
             url = self.data_dict['resource']['url']
             requests.get(url)
+
         self.assertRaises(requests.ConnectionError, f1)
 
         proxied_url = proxy.get_proxified_resource_url(self.data_dict)

@@ -4,7 +4,7 @@ import pylons.config as config
 
 import ckan.model as model
 import ckan.plugins as plugins
-import ckan.new_tests.helpers as helpers
+import ckan.tests.helpers as helpers
 import ckanext.example_idatasetform as idf
 import ckan.lib.search
 

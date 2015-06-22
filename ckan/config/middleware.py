@@ -18,7 +18,6 @@ from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
-from repoze.who.plugins.auth_tkt import make_plugin as auth_tkt_make_plugin
 from fanstatic import Fanstatic
 
 from ckan.plugins import PluginImplementations
@@ -30,6 +29,7 @@ from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
 
 log = logging.getLogger(__name__)
+
 
 def make_app(conf, full_stack=True, static_files=True, **app_conf):
     """Create a Pylons WSGI application and return it
@@ -75,6 +75,8 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     #app = QueueLogMiddleware(app)
+    if asbool(config.get('ckan.use_pylons_response_cleanup_middleware', True)):
+        app = execute_on_completion(app, config, cleanup_pylons_response_string)
 
     # Fanstatic
     if asbool(config.get('debug', False)):
@@ -117,32 +119,18 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     who_parser = WhoConfig(conf['here'])
     who_parser.parse(open(app_conf['who.config_file']))
 
-    if asbool(config.get('openid_enabled', 'true')):
-        from repoze.who.plugins.openid.identification import OpenIdIdentificationPlugin
-        # Monkey patches for repoze.who.openid
-        # Fixes #1659 - enable log-out when CKAN mounted at non-root URL
-        from ckan.lib import repoze_patch
-        OpenIdIdentificationPlugin.identify = repoze_patch.identify
-        OpenIdIdentificationPlugin.redirect_to_logged_in = repoze_patch.redirect_to_logged_in
-        OpenIdIdentificationPlugin._redirect_to_loginform = repoze_patch._redirect_to_loginform
-        OpenIdIdentificationPlugin.challenge = repoze_patch.challenge
-
-        who_parser.identifiers = [i for i in who_parser.identifiers if \
-                not isinstance(i, OpenIdIdentificationPlugin)]
-        who_parser.challengers = [i for i in who_parser.challengers if \
-                not isinstance(i, OpenIdIdentificationPlugin)]
-
-    app = PluggableAuthenticationMiddleware(app,
-                who_parser.identifiers,
-                who_parser.authenticators,
-                who_parser.challengers,
-                who_parser.mdproviders,
-                who_parser.request_classifier,
-                who_parser.challenge_decider,
-                logging.getLogger('repoze.who'),
-                logging.WARN,  # ignored
-                who_parser.remote_user_key,
-           )
+    app = PluggableAuthenticationMiddleware(
+        app,
+        who_parser.identifiers,
+        who_parser.authenticators,
+        who_parser.challengers,
+        who_parser.mdproviders,
+        who_parser.request_classifier,
+        who_parser.challenge_decider,
+        logging.getLogger('repoze.who'),
+        logging.WARN,  # ignored
+        who_parser.remote_user_key
+    )
 
     # Establish the Registry for this application
     app = RegistryManager(app)
@@ -155,7 +143,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             else int(config.get('ckan.static_max_age', 3600))
 
         static_app = StaticURLParser(config['pylons.paths']['static_files'],
-                cache_max_age=static_max_age)
+                                     cache_max_age=static_max_age)
         static_parsers = [static_app, app]
 
         storage_directory = uploader.get_storage_path()
@@ -168,8 +156,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
                 if e.errno != 17:
                     raise
 
-            storage_app = StaticURLParser(path,
-                cache_max_age=static_max_age)
+            storage_app = StaticURLParser(path, cache_max_age=static_max_age)
             static_parsers.insert(0, storage_app)
 
         # Configurable extra static file paths
@@ -178,7 +165,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             if public_path.strip():
                 extra_static_parsers.append(
                     StaticURLParser(public_path.strip(),
-                        cache_max_age=static_max_age)
+                                    cache_max_age=static_max_age)
                 )
         app = Cascade(extra_static_parsers + static_parsers)
 
@@ -191,11 +178,6 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         app = TrackingMiddleware(app, config)
 
     return app
-
-def ckan_auth_tkt_make_app(**kw):
-    if not len(kw.get('secret', '')) or kw.get('secret') == 'somesecret':
-        kw['secret'] = config['beaker.session.secret']
-    return auth_tkt_make_plugin(**kw)
 
 
 class I18nMiddleware(object):
@@ -238,7 +220,7 @@ class I18nMiddleware(object):
 
             if qs:
                 # sort out weird encodings
-                #qs = urllib.quote(qs, '')
+                qs = urllib.quote(qs, '')
                 environ['CKAN_CURRENT_URL'] = '%s?%s' % (path_info, qs)
             else:
                 environ['CKAN_CURRENT_URL'] = path_info
@@ -380,3 +362,41 @@ class TrackingMiddleware(object):
             self.engine.execute(sql, key, data.get('url'), data.get('type'))
             return []
         return self.app(environ, start_response)
+
+
+def generate_close_and_callback(iterable, callback, environ):
+    """
+    return a generator that passes through items from iterable
+    then calls callback(environ).
+    """
+    try:
+        for item in iterable:
+            yield item
+    except GeneratorExit:
+        if hasattr(iterable, 'close'):
+            iterable.close()
+        raise
+    finally:
+        callback(environ)
+
+
+def execute_on_completion(application, config, callback):
+    """
+    Call callback(environ) once complete response is sent
+    """
+    def inner(environ, start_response):
+        try:
+            result = application(environ, start_response)
+        except:
+            callback(environ)
+            raise
+        return generate_close_and_callback(result, callback, environ)
+    return inner
+
+
+def cleanup_pylons_response_string(environ):
+    try:
+        msg = 'response cleared by pylons response cleanup middleware'
+        environ['pylons.controller']._py_object.response._body = msg
+    except (KeyError, AttributeError):
+        pass

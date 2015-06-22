@@ -98,7 +98,7 @@
             (_('Name Descending'), 'title_string desc'),
             (_('Last Modified'), 'data_modified desc') ]
           %}
-          {% snippet 'snippets/search_form.html', type='dataset', query=c.q, sorting=sorting, sorting_selected=c.sort_by_selected, no_title=true, search_class=' ' %}
+          {% snippet 'snippets/search_form.html', form_id='organization-datasets-search-form', type='dataset', query=c.q, sorting=sorting, sorting_selected=c.sort_by_selected, no_title=true, search_class=' ' %}
         {% endblock %}
 
         {#{% snippet 'snippets/simple_search.html', q=c.q, sort=c.sort_by_selected, placeholder=_('Search datasets...'), extra_sort=[(_('Last Modified'), 'data_modified asc')], input_class='search-normal', form_class='search-aside' %}#}

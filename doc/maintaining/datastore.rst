@@ -139,7 +139,8 @@ Then you can use this connection to set the permissions::
 
 .. note::
    If you performed a source install, you will need to replace all references to
-   ``sudo ckan ...`` with ``paster --plugin=ckan ...``
+   ``sudo ckan ...`` with ``paster --plugin=ckan ...`` and provide the path to
+   the config file, e.g. ``paster --plugin=ckan datastore set-permissions postgres -c /etc/ckan/default/development.ini``
 
 If your database server is not local, but you can access it over SSH, you can
 pipe the permissions script over SSH::
@@ -167,16 +168,19 @@ This should return a JSON page without errors.
 To test the whether the set-up allows writing, you can create a new DataStore resource.
 To do so, run the following command::
 
- curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource_id": "{RESOURCE-ID}", "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
+ curl -X POST http://127.0.0.1:5000/api/3/action/datastore_create -H "Authorization: {YOUR-API-KEY}" -d '{"resource": {"package_id": "{PACKAGE-ID}"}, "fields": [ {"id": "a"}, {"id": "b"} ], "records": [ { "a": 1, "b": "xyz"}, {"a": 2, "b": "zzz"} ]}'
 
-Replace ``{YOUR-API-KEY}`` with a valid API key and ``{RESOURCE-ID}`` with the
-id of an existing CKAN resource.
+Replace ``{YOUR-API-KEY}`` with a valid API key and ``{PACKAGE-ID}`` with the
+id of an existing CKAN dataset.
 
 A table named after the resource id should have been created on your DataStore
 database. Visiting this URL should return a response from the DataStore with
 the records inserted above::
 
  http://127.0.0.1:5000/api/3/action/datastore_search?resource_id={RESOURCE_ID}
+
+Replace ``{RESOURCE-ID}`` with the resource id that was returned as part of the
+response of the previous API call.
 
 You can now delete the DataStore table with::
 

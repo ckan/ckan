@@ -4,8 +4,8 @@ import ckan.lib.helpers
 import ckan.lib.create_test_data
 import ckan.logic.action.update
 import ckan.model as model
-import ckan.tests
-import ckan.tests.html_check
+import ckan.tests.legacy
+import ckan.tests.legacy.html_check
 import routes
 import paste.fixture
 import pylons.test
@@ -13,7 +13,7 @@ import pylons.test
 _create_test_data = ckan.lib.create_test_data
 
 
-class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
+class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
     'Test the translation of datasets by the multilingual_dataset plugin.'
     @classmethod
     def setup(cls):
@@ -21,22 +21,22 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
         ckan.plugins.load('multilingual_dataset')
         ckan.plugins.load('multilingual_group')
         ckan.plugins.load('multilingual_tag')
-        ckan.tests.setup_test_search_index()
+        ckan.tests.legacy.setup_test_search_index()
         _create_test_data.CreateTestData.create_translations_test_data()
 
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.org = {'name': 'test_org',
                    'title': 'russian',
                    'description': 'Roger likes these books.'}
-        ckan.tests.call_action_api(cls.app, 'organization_create',
-                                   apikey=cls.sysadmin_user.apikey,
-                                   **cls.org)
+        ckan.tests.legacy.call_action_api(cls.app, 'organization_create',
+                                          apikey=cls.sysadmin_user.apikey,
+                                          **cls.org)
         dataset = {'name': 'test_org_dataset',
                    'title': 'A Novel By Tolstoy',
                    'owner_org': cls.org['name']}
-        ckan.tests.call_action_api(cls.app, 'package_create',
-                                   apikey=cls.sysadmin_user.apikey,
-                                   **dataset)
+        ckan.tests.legacy.call_action_api(cls.app, 'package_create',
+                                          apikey=cls.sysadmin_user.apikey,
+                                          **dataset)
 
         # Add translation terms that match a couple of group names and package
         # names. Group names and package names should _not_ get translated even
@@ -60,84 +60,15 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
         ckan.model.repo.rebuild_db()
         ckan.lib.search.clear()
 
-    def test_dataset_read_translation(self):
-        '''Test the translation of dataset view pages by the
-        multilingual_dataset plugin.
-
-        '''
-        # Fetch the dataset view page for a number of different languages and
-        # test for the presence of translated and not translated terms.
-        offset = routes.url_for(
-            controller='package', action='read', id='annakarenina')
-        for (lang_code, translations) in (
-                ('de', _create_test_data.german_translations),
-                ('fr', _create_test_data.french_translations),
-                ('en', _create_test_data.english_translations),
-                ('pl', {})):
-            response = self.app.get(offset, status=200,
-                                    extra_environ={'CKAN_LANG': lang_code,
-                                                   'CKAN_CURRENT_URL': offset})
-            terms = ('A Novel By Tolstoy',
-                     'Index of the novel',
-                     'russian',
-                     'tolstoy',
-                     "Dave's books",
-                     "Roger's books",
-                     'romantic novel',
-                     'book',
-                     '123',
-                     '456',
-                     '789',
-                     'plain text',)
-            for term in terms:
-                if term in translations:
-                    assert translations[term] in response
-                elif term in _create_test_data.english_translations:
-                    assert (_create_test_data.english_translations[term]
-                            in response)
-                else:
-                    assert term in response
-            for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
-                assert '<a href="/tag/%s">' % tag_name in response
-            for group_name in ('david', 'roger'):
-                assert '<a href="/group/%s">' % group_name in response
-            assert 'this should not be rendered' not in response
-
-    def test_tag_read_translation(self):
-        '''Test the translation of tag view pages by the multilingual_tag
-        plugin.
-
-        '''
-        for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
-            offset = routes.url_for(
-                controller='tag', action='read', id=tag_name)
-            for (lang_code, translations) in (
-                    ('de', _create_test_data.german_translations),
-                    ('fr', _create_test_data.french_translations),
-                    ('en', _create_test_data.english_translations),
-                    ('pl', {})):
-                response = self.app.get(
-                    offset,
-                    status=200,
-                    extra_environ={'CKAN_LANG': lang_code,
-                                   'CKAN_CURRENT_URL': offset})
-                terms = ('A Novel By Tolstoy', tag_name, 'plain text', 'json')
-                for term in terms:
-                    if term in translations:
-                        assert translations[term] in response
-                    elif term in _create_test_data.english_translations:
-                        assert (_create_test_data.english_translations[term]
-                                in response)
-                    else:
-                        assert term in response
-                assert 'this should not be rendered' not in response
-
     def test_user_read_translation(self):
         '''Test the translation of datasets on user view pages by the
         multilingual_dataset plugin.
 
         '''
-        for user_name in ('annafan',):
+
+        # It is testsysadmin who created the dataset, so testsysadmin whom
+        # we'd expect to see the datasets for.
+        for user_name in ('testsysadmin',):
             offset = routes.url_for(
                 controller='user', action='read', id=user_name)
             for (lang_code, translations) in (
@@ -150,46 +81,16 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                     status=200,
                     extra_environ={'CKAN_LANG': lang_code,
                                    'CKAN_CURRENT_URL': offset})
-                terms = ('A Novel By Tolstoy', 'plain text', 'json')
+                terms = ('A Novel By Tolstoy')
                 for term in terms:
                     if term in translations:
-                        assert translations[term] in response
+                        assert translations[term] in response, response
                     elif term in _create_test_data.english_translations:
                         assert (_create_test_data.english_translations[term]
                                 in response)
                     else:
                         assert term in response
                 assert 'this should not be rendered' not in response
-
-    def test_group_read_translation(self):
-        for (lang_code, translations) in (
-                ('de', _create_test_data.german_translations),
-                ('fr', _create_test_data.french_translations),
-                ('en', _create_test_data.english_translations),
-                ('pl', {})):
-            offset = '/%s/group/roger' % lang_code
-            response = self.app.get(offset, status=200)
-            terms = ('A Novel By Tolstoy',
-                     'Index of the novel',
-                     'russian',
-                     'tolstoy',
-                     "Roger's books",
-                     '123',
-                     '456',
-                     '789',
-                     'plain text',
-                     'Roger likes these books.',)
-            for term in terms:
-                if term in translations:
-                    assert translations[term] in response
-                elif term in _create_test_data.english_translations:
-                    assert (_create_test_data.english_translations[term]
-                            in response)
-                else:
-                    assert term in response
-            for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
-                assert '%s?tags=%s' % (offset, tag_name) in response
-            assert 'this should not be rendered' not in response
 
     def test_org_read_translation(self):
         for (lang_code, translations) in (
@@ -213,57 +114,6 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                     assert term in response
             assert 'this should not be rendered' not in response
 
-    def test_dataset_index_translation(self):
-        for (lang_code, translations) in (
-                ('de', _create_test_data.german_translations),
-                ('fr', _create_test_data.french_translations),
-                ('en', _create_test_data.english_translations),
-                ('pl', {})):
-            offset = '/%s/dataset' % lang_code
-            response = self.app.get(offset, status=200)
-            for term in ('Index of the novel', 'russian', 'tolstoy',
-                         "Dave's books", "Roger's books", 'plain text'):
-                if term in translations:
-                    assert translations[term] in response
-                elif term in _create_test_data.english_translations:
-                    assert (_create_test_data.english_translations[term]
-                            in response)
-                else:
-                    assert term in response
-            for tag_name in ('123', '456', '789', 'russian', 'tolstoy'):
-                assert ('/%s/dataset?tags=%s' % (lang_code, tag_name)
-                        in response)
-            for group_name in ('david', 'roger'):
-                assert ('/%s/dataset?groups=%s' % (lang_code, group_name)
-                        in response)
-            assert 'this should not be rendered' not in response
-
-    def test_group_index_translation(self):
-        for (lang_code, translations) in (
-                ('de', _create_test_data.german_translations),
-                ('fr', _create_test_data.french_translations),
-                ('en', _create_test_data.english_translations),
-                ('pl', {})):
-            offset = '/%s/group' % lang_code
-            response = self.app.get(offset, status=200)
-            terms = (
-                "Dave's books",
-                "Roger's books",
-                'Roger likes these books.',
-                "These are books that David likes.",
-            )
-            for term in terms:
-                if term in translations:
-                    assert translations[term] in response
-                elif term in _create_test_data.english_translations:
-                    assert (_create_test_data.english_translations[term]
-                            in response)
-                else:
-                    assert term in response
-            for group_name in ('david', 'roger'):
-                assert '/%s/group/%s' % (lang_code, group_name) in response
-            assert 'this should not be rendered' not in response
-
     def test_org_index_translation(self):
         for (lang_code, translations) in (
                 ('de', _create_test_data.german_translations),
@@ -282,32 +132,6 @@ class TestDatasetTermTranslation(ckan.tests.html_check.HtmlCheckMethods):
                     assert term in response, response
             assert ('/{0}/organization/{1}'.format(lang_code, self.org['name'])
                     in response)
-            assert 'this should not be rendered' not in response
-
-    def test_tag_index_translation(self):
-        for (lang_code, translations) in (
-                ('de', _create_test_data.german_translations),
-                ('fr', _create_test_data.french_translations),
-                ('en', _create_test_data.english_translations),
-                ('pl', {})):
-            offset = '/%s/tag' % lang_code
-            response = self.app.get(offset, status=200)
-            terms = (
-                "123",
-                "456",
-                '789',
-                "russian",
-                "tolstoy",
-            )
-            for term in terms:
-                if term in translations:
-                    assert translations[term] in response
-                elif term in _create_test_data.english_translations:
-                    assert (_create_test_data.english_translations[term]
-                            in response)
-                else:
-                    assert term in response
-                assert '/%s/tag/%s' % (lang_code, term) in response
             assert 'this should not be rendered' not in response
 
 

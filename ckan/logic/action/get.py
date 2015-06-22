@@ -23,7 +23,7 @@ import ckan.lib.search as search
 import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.lib.datapreview as datapreview
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 
 from ckan.common import _
 
@@ -120,14 +120,13 @@ def package_list(context, data_dict):
 
     _check_access('package_list', context, data_dict)
 
-    package_revision_table = model.package_revision_table
-    col = (package_revision_table.c.id
-           if api == 2 else package_revision_table.c.name)
+    package_table = model.package_table
+    col = (package_table.c.id
+           if api == 2 else package_table.c.name)
     query = _select([col])
     query = query.where(_and_(
-        package_revision_table.c.state == 'active',
-        package_revision_table.c.current == True,
-        package_revision_table.c.private == False,
+        package_table.c.state == 'active',
+        package_table.c.private == False,
     ))
     query = query.order_by(col)
 
@@ -179,7 +178,7 @@ def current_package_list_with_resources(context, data_dict):
 
     _check_access('current_package_list_with_resources', context, data_dict)
 
-    is_sysadmin = new_authz.is_sysadmin(user)
+    is_sysadmin = authz.is_sysadmin(user)
     q = '+capacity:public' if not is_sysadmin else '*:*'
     context['ignore_capacity_check'] = True
     search = package_search(context, {'q': q, 'rows': limit, 'start': offset})
@@ -350,7 +349,7 @@ def member_list(context, data_dict=None):
     if capacity:
         q = q.filter(model.Member.capacity == capacity)
 
-    trans = new_authz.roles_trans()
+    trans = authz.roles_trans()
 
     def translated_capacity(capacity):
         try:
@@ -386,33 +385,32 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     sort_info = _unpick_search(sort,
                                allowed_fields=['name', 'packages',
-                                               'package_count'],
+                                               'package_count', 'title'],
                                total=1)
 
     all_fields = data_dict.get('all_fields', None)
     include_extras = all_fields and \
                      asbool(data_dict.get('include_extras', False))
 
-    query = model.Session.query(model.Group).join(model.GroupRevision)
+    query = model.Session.query(model.Group)
     if include_extras:
         # this does an eager load of the extras, avoiding an sql query every
         # time group_list_dictize accesses a group's extra.
         query = query.options(sqlalchemy.orm.joinedload(model.Group._extras))
-    query = query.filter(model.GroupRevision.state == 'active')
-    query = query.filter(model.GroupRevision.current == True)
+    query = query.filter(model.Group.state == 'active')
     if groups:
-        query = query.filter(model.GroupRevision.name.in_(groups))
+        query = query.filter(model.Group.name.in_(groups))
     if q:
         q = u'%{0}%'.format(q)
         query = query.filter(_or_(
-            model.GroupRevision.name.ilike(q),
-            model.GroupRevision.title.ilike(q),
-            model.GroupRevision.description.ilike(q),
+            model.Group.name.ilike(q),
+            model.Group.title.ilike(q),
+            model.Group.description.ilike(q),
         ))
 
-    query = query.filter(model.GroupRevision.is_organization == is_org)
+    query = query.filter(model.Group.is_organization == is_org)
     if not is_org:
-        query = query.filter(model.GroupRevision.type == group_type)
+        query = query.filter(model.Group.type == group_type)
 
     groups = query.all()
     if all_fields:
@@ -446,7 +444,7 @@ def group_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'package_count'
+        'name', 'package_count' and 'title'
     :type sort: string
     :param groups: a list of names of the groups to return, if given only
         groups whose names are in this list will be returned (optional)
@@ -483,7 +481,7 @@ def organization_list(context, data_dict):
     :type order_by: string
     :param sort: sorting of the search results.  Optional.  Default:
         "name asc" string of field name and sort-order. The allowed fields are
-        'name' and 'package_count'
+        'name', 'package_count' and 'title'
     :type sort: string
     :param organizations: a list of names of the groups to return,
         if given only groups whose names are in this list will be
@@ -539,11 +537,11 @@ def group_list_authz(context, data_dict):
 
     _check_access('group_list_authz', context, data_dict)
 
-    sysadmin = new_authz.is_sysadmin(user)
-    roles = ckan.new_authz.get_roles_with_permission('manage_group')
+    sysadmin = authz.is_sysadmin(user)
+    roles = authz.get_roles_with_permission('manage_group')
     if not roles:
         return []
-    user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+    user_id = authz.get_user_id_for_username(user, allow_none=True)
     if not user_id:
         return []
 
@@ -551,7 +549,8 @@ def group_list_authz(context, data_dict):
         q = model.Session.query(model.Member) \
             .filter(model.Member.table_name == 'user') \
             .filter(model.Member.capacity.in_(roles)) \
-            .filter(model.Member.table_id == user_id)
+            .filter(model.Member.table_id == user_id) \
+            .filter(model.Member.state == 'active')
         group_ids = []
         for row in q.all():
             group_ids.append(row.group_id)
@@ -585,7 +584,7 @@ def organization_list_for_user(context, data_dict):
     admin of.
 
     Specifically it returns the list of organizations that the currently
-    authorized user has a given permission (for example: "edit_group") against.
+    authorized user has a given permission (for example: "manage_group") against.
 
     When a user becomes a member of an organization in CKAN they're given a
     "capacity" (sometimes called a "role"), for example "member", "editor" or
@@ -597,10 +596,11 @@ def organization_list_for_user(context, data_dict):
     "update_dataset" and "delete_dataset".  The member role has the "read"
     permission.
 
-    This function returns the list of organizations that the authorized user has
-    a given permission for. For example the list of organizations that the user
-    is an admin of, or the list of organizations that the user can create
-    datasets in.
+    This function returns the list of organizations that the authorized user
+    has a given permission for. For example the list of organizations that the
+    user is an admin of, or the list of organizations that the user can create
+    datasets in. This takes account of when permissions cascade down an
+    organization hierarchy.
 
     :param permission: the permission the user has against the
         returned organizations, for example ``"read"`` or ``"create_dataset"``
@@ -615,7 +615,7 @@ def organization_list_for_user(context, data_dict):
     user = context['user']
 
     _check_access('organization_list_for_user', context, data_dict)
-    sysadmin = new_authz.is_sysadmin(user)
+    sysadmin = authz.is_sysadmin(user)
 
     orgs_q = model.Session.query(model.Group) \
         .filter(model.Group.is_organization == True) \
@@ -624,25 +624,35 @@ def organization_list_for_user(context, data_dict):
     if not sysadmin:
         # for non-Sysadmins check they have the required permission
 
+        # NB 'edit_group' doesn't exist so by default this action returns just
+        # orgs with admin role
         permission = data_dict.get('permission', 'edit_group')
 
-        roles = ckan.new_authz.get_roles_with_permission(permission)
+        roles = authz.get_roles_with_permission(permission)
 
         if not roles:
             return []
-        user_id = new_authz.get_user_id_for_username(user, allow_none=True)
+        user_id = authz.get_user_id_for_username(user, allow_none=True)
         if not user_id:
             return []
 
-        q = model.Session.query(model.Member) \
+        q = model.Session.query(model.Member, model.Group) \
             .filter(model.Member.table_name == 'user') \
             .filter(model.Member.capacity.in_(roles)) \
             .filter(model.Member.table_id == user_id) \
-            .filter(model.Member.state == 'active')
+            .filter(model.Member.state == 'active') \
+            .join(model.Group)
 
-        group_ids = []
-        for row in q.all():
-            group_ids.append(row.group_id)
+        group_ids = set()
+        roles_that_cascade = \
+            authz.check_config_permission('roles_that_cascade_to_sub_groups')
+        for member, group in q.all():
+            if member.capacity in roles_that_cascade:
+                group_ids |= set([
+                    grp_tuple[0] for grp_tuple
+                    in group.get_children_group_hierarchy(type='organization')
+                    ])
+            group_ids.add(group.id)
 
         if not group_ids:
             return []
@@ -773,10 +783,13 @@ def user_list(context, data_dict):
       (optional)
     :type q: string
     :param order_by: which field to sort the list by (optional, default:
-      ``'name'``)
+      ``'name'``). Can be any user field or ``edits`` (i.e. number_of_edits).
     :type order_by: string
 
-    :rtype: list of dictionaries
+    :rtype: list of user dictionaries. User properties include:
+      ``number_of_edits`` which counts the revisions by the user and
+      ``number_created_packages`` which excludes datasets which are private
+      or draft state.
 
     '''
     model = context['model']
@@ -798,12 +811,12 @@ def user_list(context, data_dict):
                     model.Revision.author == model.User.name,
                     model.Revision.author == model.User.openid
                 )).label('number_of_edits'),
-        _select([_func.count(model.UserObjectRole.id)],
+        _select([_func.count(model.Package.id)],
                 _and_(
-                    model.UserObjectRole.user_id == model.User.id,
-                    model.UserObjectRole.context == 'Package',
-                    model.UserObjectRole.role == 'admin'
-                )).label('number_administered_packages')
+                    model.Package.creator_user_id == model.User.id,
+                    model.Package.state == 'active',
+                    model.Package.private == False,
+                )).label('number_created_packages')
     )
 
     if q:
@@ -899,7 +912,9 @@ def package_show(context, data_dict):
     :param use_default_schema: use default package schema instead of
         a custom schema defined with an IDatasetForm plugin (default: False)
     :type use_default_schema: bool
-
+    :param include_tracking: add tracking information to dataset and
+        resources (default: False)
+    :type include_tracking: bool
     :rtype: dictionary
 
     '''
@@ -918,6 +933,7 @@ def package_show(context, data_dict):
 
     if data_dict.get('use_default_schema', False):
         context['schema'] = ckan.logic.schema.default_show_package_schema()
+    include_tracking = asbool(data_dict.get('include_tracking', False))
 
     package_dict = None
     use_cache = (context.get('use_cache', True)
@@ -947,19 +963,13 @@ def package_show(context, data_dict):
         package_dict = model_dictize.package_dictize(pkg, context)
         package_dict_validated = False
 
-    # Add page-view tracking summary data to the package dict.
-    # If the package_dict came from the Solr cache then it will already have a
-    # potentially outdated tracking_summary, this will overwrite it with a
-    # current one.
-    package_dict['tracking_summary'] = model.TrackingSummary.get_for_package(
-        package_dict['id'])
+    if include_tracking:
+        # page-view tracking summary data
+        package_dict['tracking_summary'] = (
+            model.TrackingSummary.get_for_package(package_dict['id']))
 
-    # Add page-view tracking summary data to the package's resource dicts.
-    # If the package_dict came from the Solr cache then each resource dict will
-    # already have a potentially outdated tracking_summary, this will overwrite
-    # it with a current one.
-    for resource_dict in package_dict['resources']:
-        _add_tracking_summary_to_resource_dict(resource_dict, model)
+        for resource_dict in package_dict['resources']:
+            _add_tracking_summary_to_resource_dict(resource_dict, model)
 
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
@@ -979,10 +989,10 @@ def package_show(context, data_dict):
             schema = context['schema']
         else:
             schema = package_plugin.show_package_schema()
-            if schema and context.get('validate', True):
-                package_dict, errors = lib_plugins.plugin_validate(
-                    package_plugin, context, package_dict, schema,
-                    'package_show')
+        if schema and context.get('validate', True):
+            package_dict, errors = lib_plugins.plugin_validate(
+                package_plugin, context, package_dict, schema,
+                'package_show')
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.after_show(context, package_dict)
@@ -1004,6 +1014,9 @@ def resource_show(context, data_dict):
 
     :param id: the id of the resource
     :type id: string
+    :param include_tracking: add tracking information to dataset and
+        resources (default: False)
+    :type include_tracking: bool
 
     :rtype: dictionary
 
@@ -1021,17 +1034,16 @@ def resource_show(context, data_dict):
 
     pkg_dict = logic.get_action('package_show')(
         dict(context),
-        {'id': resource.resource_group.package.id})
+        {'id': resource.package.id,
+        'include_tracking': asbool(data_dict.get('include_tracking', False))})
 
     for resource_dict in pkg_dict['resources']:
         if resource_dict['id'] == id:
             break
     else:
-        logging.error('Could not find resource ' + id)
+        log.error('Could not find resource ' + id)
         raise NotFound(_('Resource was not found.'))
 
-    # original dictized version didn't include this field:
-    resource_dict.pop('revision_timestamp')
     return resource_dict
 
 
@@ -1061,7 +1073,7 @@ def resource_view_show(context, data_dict):
 
 def resource_view_list(context, data_dict):
     '''
-    Return the metadata of a resource_view.
+    Return the list of resource views for a particular resource.
 
     :param id: the id of the resource
     :type id: string
@@ -1145,9 +1157,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context['group'] = group
 
-    include_datasets = data_dict.get('include_datasets', True)
-    if isinstance(include_datasets, basestring):
-        include_datasets = (include_datasets.lower() in ('true', '1'))
+    include_datasets = asbool(data_dict.get('include_datasets', False))
     packages_field = 'datasets' if include_datasets \
                      else 'none_but_include_package_count'
 
@@ -1201,7 +1211,7 @@ def group_show(context, data_dict):
     :param id: the id or name of the group
     :type id: string
     :param include_datasets: include a list of the group's datasets
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type id: boolean
 
     :rtype: dictionary
@@ -1218,7 +1228,7 @@ def organization_show(context, data_dict):
     :param id: the id or name of the organization
     :type id: string
     :param include_datasets: include a list of the organization's datasets
-         (optional, default: ``True``)
+         (optional, default: ``False``)
     :type id: boolean
 
     :rtype: dictionary
@@ -1239,11 +1249,18 @@ def group_package_show(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+
     model = context['model']
     group_id = _get_or_bust(data_dict, 'id')
 
-    # FIXME: What if limit is not an int? Schema and validation needed.
     limit = data_dict.get('limit')
+    if limit:
+        try:
+            limit = int(data_dict.get('limit'))
+            if limit < 0:
+                raise logic.ValidationError('Limit must be a positive integer')
+        except ValueError:
+            raise logic.ValidationError('Limit must be a positive integer')
 
     group = model.Group.get(group_id)
     context['group'] = group
@@ -1252,13 +1269,12 @@ def group_package_show(context, data_dict):
 
     _check_access('group_show', context, data_dict)
 
-    result = []
-    for pkg_rev in group.packages(
-            limit=limit,
-            return_query=context.get('return_query')):
-        result.append(model_dictize.package_dictize(pkg_rev, context))
+    result = logic.get_action('package_search')(context, {
+        'fq': 'groups:{0}'.format(group.name),
+        'rows': limit,
+    })
 
-    return result
+    return result['results']
 
 
 def tag_show(context, data_dict):
@@ -1266,6 +1282,15 @@ def tag_show(context, data_dict):
 
     :param id: the name or id of the tag
     :type id: string
+    :param vocabulary_id: the id or name of the tag vocabulary that the tag is
+        in - if it is not specified it will assume it is a free tag.
+        (optional)
+    :type vocabulary_id: string
+    :param include_datasets: include a list of the tag's datasets. (Up to a
+        limit of 1000 - for more flexibility, use package_search - see
+        :py:func:`package_search` for an example.)
+        (optional, default: ``False``)
+    :type include_datasets: bool
 
     :returns: the details of the tag, including a list of all of the tag's
         datasets and their details
@@ -1274,15 +1299,17 @@ def tag_show(context, data_dict):
 
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
+    include_datasets = asbool(data_dict.get('include_datasets', False))
 
-    tag = model.Tag.get(id)
+    tag = model.Tag.get(id, vocab_id_or_name=data_dict.get('vocabulary_id'))
     context['tag'] = tag
 
     if tag is None:
         raise NotFound
 
     _check_access('tag_show', context, data_dict)
-    return model_dictize.tag_dictize(tag, context)
+    return model_dictize.tag_dictize(tag, context,
+                                     include_datasets=include_datasets)
 
 
 def user_show(context, data_dict):
@@ -1294,7 +1321,20 @@ def user_show(context, data_dict):
     :type id: string
     :param user_obj: the user dictionary of the user (optional)
     :type user_obj: user dictionary
+    :param include_datasets: Include a list of datasets the user has created.
+        If it is the same user or a sysadmin requesting, it includes datasets
+        that are draft or private.
+        (optional, default:``False``, limit:50)
+    :type include_datasets: boolean
+    :param include_num_followers: Include the number of followers the user has
+         (optional, default:``False``)
+    :type include_num_followers: boolean
 
+    :returns: the details of the user. Includes email_hash, number_of_edits and
+        number_created_packages (which excludes draft or private datasets
+        unless it is the same user or sysadmin making the request). Excludes
+        the password (hash) and reset_key. If it is the same user or a
+        sysadmin requesting, the email and apikey are included.
     :rtype: dictionary
 
     '''
@@ -1314,39 +1354,47 @@ def user_show(context, data_dict):
 
     _check_access('user_show', context, data_dict)
 
+    # include private and draft datasets?
+    requester = context.get('user')
+    if requester:
+        requester_looking_at_own_account = requester == user_obj.name
+        include_private_and_draft_datasets = \
+            authz.is_sysadmin(requester) or \
+            requester_looking_at_own_account
+    else:
+        include_private_and_draft_datasets = False
+    context['count_private_and_draft_datasets'] = \
+        include_private_and_draft_datasets
+
     user_dict = model_dictize.user_dictize(user_obj, context)
 
     if context.get('return_minimal'):
+        log.warning('Use of the "return_minimal" in user_show is '
+                    'deprecated.')
         return user_dict
 
-    revisions_q = model.Session.query(model.Revision).filter_by(
-        author=user_obj.name)
+    if data_dict.get('include_datasets', False):
+        user_dict['datasets'] = []
 
-    revisions_list = []
-    for revision in revisions_q.limit(20).all():
-        revision_dict = logic.get_action('revision_show')(
-            context, {'id': revision.id})
-        revision_dict['state'] = revision.state
-        revisions_list.append(revision_dict)
-    user_dict['activity'] = revisions_list
+        fq = "+creator_user_id:{0}".format(user_dict['id'])
 
-    user_dict['datasets'] = []
-    dataset_q = (model.Session.query(model.Package)
-                 .join(model.PackageRole)
-                 .filter_by(user=user_obj, role=model.Role.ADMIN)
-                 .limit(50))
+        search_dict = {'rows': 50}
 
-    for dataset in dataset_q:
-        try:
-            dataset_dict = logic.get_action('package_show')(
-                context, {'id': dataset.id})
-        except logic.NotAuthorized:
-            continue
-        user_dict['datasets'].append(dataset_dict)
+        if include_private_and_draft_datasets:
+            context['ignore_capacity_check'] = True
+            search_dict.update({'include_drafts': True})
 
-    user_dict['num_followers'] = logic.get_action('user_follower_count')(
-        {'model': model, 'session': model.Session},
-        {'id': user_dict['id']})
+        search_dict.update({'fq': fq})
+
+        user_dict['datasets'] = \
+            logic.get_action('package_search')(context=context,
+                                               data_dict=search_dict) \
+            .get('results')
+
+    if data_dict.get('include_num_followers', False):
+        user_dict['num_followers'] = logic.get_action('user_follower_count')(
+            {'model': model, 'session': model.Session},
+            {'id': user_dict['id']})
 
     return user_dict
 
@@ -1410,12 +1458,11 @@ def package_autocomplete(context, data_dict):
 
     like_q = u"%s%%" % q
 
-    query = model.Session.query(model.PackageRevision)
-    query = query.filter(model.PackageRevision.state == 'active')
-    query = query.filter(model.PackageRevision.private == False)
-    query = query.filter(model.PackageRevision.current == True)
-    query = query.filter(_or_(model.PackageRevision.name.ilike(like_q),
-                              model.PackageRevision.title.ilike(like_q)))
+    query = model.Session.query(model.Package)
+    query = query.filter(model.Package.state == 'active')
+    query = query.filter(model.Package.private == False)
+    query = query.filter(_or_(model.Package.name.ilike(like_q),
+                              model.Package.title.ilike(like_q)))
     query = query.limit(limit)
 
     q_lower = q.lower()
@@ -1461,14 +1508,13 @@ def format_autocomplete(context, data_dict):
     like_q = u'%' + q + u'%'
 
     query = (session.query(
-        model.ResourceRevision.format,
-        _func.count(model.ResourceRevision.format).label('total'))
+        model.Resource.format,
+        _func.count(model.Resource.format).label('total'))
         .filter(_and_(
-            model.ResourceRevision.state == 'active',
-            model.ResourceRevision.current == True
+            model.Resource.state == 'active',
         ))
-        .filter(model.ResourceRevision.format.ilike(like_q))
-        .group_by(model.ResourceRevision.format)
+        .filter(model.Resource.format.ilike(like_q))
+        .group_by(model.Resource.format)
         .order_by('total DESC')
         .limit(limit))
 
@@ -1555,7 +1601,11 @@ def package_search(context, data_dict):
     :param facet.field: the fields to facet upon.  Default empty.  If empty,
         then the returned facet information is empty.
     :type facet.field: list of strings
-
+    :param include_drafts: if ``True``, draft datasets will be included in the
+        results. A user will only be returned their own draft datasets, and a
+        sysadmin will be returned all draft datasets. Optional, the default is
+        ``False``.
+    :type include_drafts: boolean
 
     The following advanced Solr parameters are supported as well. Note that
     some of these are only available on particular Solr versions. See Solr's
@@ -1567,6 +1617,12 @@ def package_search(context, data_dict):
     .. _dismax: http://wiki.apache.org/solr/DisMaxQParserPlugin
     .. _edismax: http://wiki.apache.org/solr/ExtendedDisMax
 
+
+    **Examples:**
+
+    ``q=flood`` datasets containing the word `flood`, `floods` or `flooding`
+    ``fq=tags:economy`` datasets with the tag `economy`
+    ``facet.field=["tags"] facet.limit=10 rows=0`` top 10 tags
 
     **Results:**
 
@@ -1630,6 +1686,7 @@ def package_search(context, data_dict):
 
     model = context['model']
     session = context['session']
+    user = context['user']
 
     _check_access('package_search', context, data_dict)
 
@@ -1662,8 +1719,24 @@ def package_search(context, data_dict):
         fq = data_dict.get('fq', '')
         if not context.get('ignore_capacity_check', False):
             fq = ' '.join(p for p in fq.split(' ')
-                          if not 'capacity:' in p)
+                          if 'capacity:' not in p)
             data_dict['fq'] = fq + ' capacity:"public"'
+
+        # Solr doesn't need 'include_drafts`, so pop it.
+        include_drafts = data_dict.pop('include_drafts', False)
+        fq = data_dict.get('fq', '')
+        if include_drafts:
+            user_id = authz.get_user_id_for_username(user, allow_none=True)
+            if authz.is_sysadmin(user):
+                data_dict['fq'] = fq + ' +state:(active OR draft)'
+            elif user_id:
+                # Query to return all active datasets, and all draft datasets
+                # for this user.
+                data_dict['fq'] = fq + \
+                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
+                    ' OR state:active)'.format(user_id)
+        elif not authz.is_sysadmin(user):
+            data_dict['fq'] = fq + ' +state:active'
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
@@ -1677,23 +1750,20 @@ def package_search(context, data_dict):
         for package in query.results:
             # get the package object
             package, package_dict = package['id'], package.get(data_source)
-            pkg_query = session.query(model.PackageRevision)\
-                .filter(model.PackageRevision.id == package)\
-                .filter(_and_(
-                    model.PackageRevision.state == u'active',
-                    model.PackageRevision.current == True
-                ))
+            pkg_query = session.query(model.Package)\
+                .filter(model.Package.id == package)\
+                .filter(model.Package.state.in_((u'active', u'draft')))
             pkg = pkg_query.first()
 
-            ## if the index has got a package that is not in ckan then
-            ## ignore it.
+            # if the index has got a package that is not in ckan then
+            # ignore it.
             if not pkg:
                 log.warning('package %s in index but not in database'
                             % package)
                 continue
-            ## use data in search index if there
+            # use data in search index if there
             if package_dict:
-                ## the package_dict still needs translating when being viewed
+                # the package_dict still needs translating when being viewed
                 package_dict = json.loads(package_dict)
                 if context.get('for_view'):
                     for item in plugins.PluginImplementations(
@@ -1874,12 +1944,11 @@ def resource_search(context, data_dict):
     offset = data_dict.get('offset')
     limit = data_dict.get('limit')
 
-    q = (model.Session.query(model.Resource)
-         .join(model.ResourceGroup)
-         .join(model.Package))
-    q = q.filter(model.Package.state == 'active')
-    q = q.filter(model.Package.private == False)
-    q = q.filter(model.Resource.state == 'active')
+    q = model.Session.query(model.Resource) \
+         .join(model.Package) \
+         .filter(model.Package.state == 'active') \
+         .filter(model.Package.private == False) \
+         .filter(model.Resource.state == 'active') \
 
     resource_fields = model.Resource.get_columns()
     for field, terms in fields.items():
@@ -2275,6 +2344,8 @@ def vocabulary_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
+    _check_access('vocabulary_list', context, data_dict)
+
     model = context['model']
     vocabulary_objects = model.Session.query(model.Vocabulary).all()
     return model_dictize.vocabulary_list_dictize(vocabulary_objects, context)
@@ -2289,6 +2360,8 @@ def vocabulary_show(context, data_dict):
     :rtype: dictionary
 
     '''
+    _check_access('vocabulary_show', context, data_dict)
+
     model = context['model']
     vocab_id = data_dict.get('id')
     if not vocab_id:
@@ -3271,10 +3344,35 @@ def member_roles_list(context, data_dict):
 
     '''
     group_type = data_dict.get('group_type', 'organization')
-    roles_list = new_authz.roles_list()
+    roles_list = authz.roles_list()
     if group_type == 'group':
         roles_list = [role for role in roles_list
                       if role['value'] != 'editor']
 
     _check_access('member_roles_list', context, data_dict)
     return roles_list
+
+
+def help_show(context, data_dict):
+    '''Return the help string for a particular API action.
+
+    :param name: Action function name (eg `user_create`, `package_search`)
+    :type name: string
+    :returns: The help string for the action function, or None if the function
+              does not have a docstring.
+    :rtype: string
+
+    :raises: :class:`ckan.logic.NotFound`: if the action function doesn't exist
+
+    '''
+
+    function_name = logic.get_or_bust(data_dict, 'name')
+
+    _check_access('help_show', context, data_dict)
+
+    try:
+        function = logic.get_action(function_name)
+    except KeyError:
+        raise NotFound('Action function not found')
+
+    return function.__doc__

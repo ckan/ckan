@@ -10,7 +10,7 @@ from pylons import cache, config, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.controllers.util import redirect_to, redirect
-from pylons.decorators import jsonify, validate
+from pylons.decorators import jsonify
 from pylons.i18n import N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
 from genshi.template import MarkupTemplate
@@ -210,7 +210,6 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
         response.headers["Cache-Control"] = "private"
         # Prevent any further rendering from being cached.
         request.environ['__no_cache__'] = True
-    log.debug('Template cache-control: %s' % response.headers["Cache-Control"])
 
     # Render Time :)
     try:
@@ -298,11 +297,10 @@ class BaseController(WSGIController):
         b) For API calls they may set a header with an API key.
         '''
 
-        # environ['REMOTE_USER'] is set by repoze.who if it authenticates
-        # a user's cookie or OpenID. But repoze.who doesn't check the user
-        # (still) exists in our database - we need to do that here. (Another
-        # way would be with an userid_checker, but that would mean another db
-        # access.
+        # environ['REMOTE_USER'] is set by repoze.who if it authenticates a
+        # user's cookie. But repoze.who doesn't check the user (still) exists
+        # in our database - we need to do that here. (Another way would be
+        # with an userid_checker, but that would mean another db access.
         # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
         # .plugins.sql )
         c.user = request.environ.get('REMOTE_USER', '')
@@ -369,17 +367,35 @@ class BaseController(WSGIController):
         return res
 
     def __after__(self, action, **params):
-        self._set_cors()
+        # Do we have CORS settings in config?
+        if config.get('ckan.cors.origin_allow_all') \
+                and request.headers.get('Origin'):
+            self._set_cors()
         r_time = time.time() - c.__timer
         url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
         log.info(' %s render time %.3f seconds' % (url, r_time))
 
     def _set_cors(self):
-        response.headers['Access-Control-Allow-Origin'] = "*"
-        response.headers['Access-Control-Allow-Methods'] = \
-            "POST, PUT, GET, DELETE, OPTIONS"
-        response.headers['Access-Control-Allow-Headers'] = \
-            "X-CKAN-API-KEY, Authorization, Content-Type"
+        '''
+        Set up Access Control Allow headers if either origin_allow_all is
+        True, or the request Origin is in the origin_whitelist.
+        '''
+        cors_origin_allowed = None
+        if asbool(config.get('ckan.cors.origin_allow_all')):
+            cors_origin_allowed = "*"
+        elif config.get('ckan.cors.origin_whitelist') and \
+                request.headers.get('Origin') \
+                in config['ckan.cors.origin_whitelist'].split(" "):
+            # set var to the origin to allow it.
+            cors_origin_allowed = request.headers.get('Origin')
+
+        if cors_origin_allowed is not None:
+            response.headers['Access-Control-Allow-Origin'] = \
+                cors_origin_allowed
+            response.headers['Access-Control-Allow-Methods'] = \
+                "POST, PUT, GET, DELETE, OPTIONS"
+            response.headers['Access-Control-Allow-Headers'] = \
+                "X-CKAN-API-KEY, Authorization, Content-Type"
 
     def _get_user_for_apikey(self):
         apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,
@@ -402,6 +418,24 @@ class BaseController(WSGIController):
         query = model.Session.query(model.User)
         user = query.filter_by(apikey=apikey).first()
         return user
+
+    def _get_page_number(self, params, key='page', default=1):
+        """
+        Returns the page number from the provided params after
+        verifies that it is an integer.
+
+        If it fails it will abort the request with a 400 error
+        """
+        p = params.get(key, default)
+
+        try:
+            p = int(p)
+            if p < 1:
+                raise ValueError("Negative number not allowed")
+        except ValueError, e:
+            abort(400, ('"page" parameter must be a positive integer'))
+
+        return p
 
 
 # Include the '_' function in the public names

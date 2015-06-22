@@ -222,7 +222,6 @@ def make_map():
                   ])))
         m.connect('/dataset/{action}/{id}',
                   requirements=dict(action='|'.join([
-                      'new_metadata',
                       'new_resource',
                       'history',
                       'read_ajax',
@@ -281,10 +280,6 @@ def make_map():
     # group
     map.redirect('/groups', '/group')
     map.redirect('/groups/{url:.*}', '/group/{url}')
-
-    ##to get back formalchemy uncomment these lines
-    ##map.connect('/group/new', controller='group_formalchemy', action='new')
-    ##map.connect('/group/edit/{id}', controller='group_formalchemy', action='edit')
 
     # These named routes are used for custom group forms which will use the
     # names below based on the group.type ('group' is the default type)

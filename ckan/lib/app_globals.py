@@ -39,6 +39,7 @@ config_details = {
         # has been setup in load_environment():
     'ckan.site_id': {},
     'ckan.recaptcha.publickey': {'name': 'recaptcha_publickey'},
+    'ckan.recaptcha.version': {'name': 'recaptcha_version', 'default': '1'},
     'ckan.template_title_deliminater': {'default': '-'},
     'ckan.template_head_end': {},
     'ckan.template_footer_end': {},
@@ -55,7 +56,6 @@ config_details = {
     'ckan.plugins': {'type': 'split'},
 
     # bool
-    'openid_enabled': {'default': 'true', 'type' : 'bool'},
     'debug': {'default': 'false', 'type' : 'bool'},
     'ckan.debug_supress_header' : {'default': 'false', 'type' : 'bool'},
     'ckan.legacy_templates' : {'default': 'false', 'type' : 'bool'},

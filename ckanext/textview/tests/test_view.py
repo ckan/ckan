@@ -3,7 +3,7 @@ import pylons.config as config
 import urlparse
 
 import ckan.model as model
-import ckan.tests as tests
+import ckan.tests.legacy as tests
 import ckan.plugins as plugins
 import ckan.lib.helpers as h
 import ckanext.textview.plugin as plugin
@@ -28,7 +28,7 @@ def _create_test_view(view_type):
 
 
 class TestTextView(tests.WsgiAppCase):
-    view_type = 'text'
+    view_type = 'text_view'
 
     @classmethod
     def setup_class(cls):

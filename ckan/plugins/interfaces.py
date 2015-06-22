@@ -206,78 +206,146 @@ class IResourceUrlChange(Interface):
 
 
 class IResourceView(Interface):
-    '''Add custom data view for resource file-types.
+    '''Add custom view renderings for different resource types.
 
     '''
     def info(self):
         '''
-        Return configuration for the view. Info can return the following.
+        Returns a dictionary with configuration options for the view.
 
-        :param name: name of view type
-        :param title: title of view type (Optional)
-        :param schema: schema to validate extra view config (Optional)
-        :param icon: icon from
-            http://fortawesome.github.io/Font-Awesome/3.2.1/icons/
-            without the icon- prefix eg. compass (Optional).
-        :param iframed: should we iframe the view template before rendering.
-            If the styles or JavaScript clash with the main site theme this
-            should be set to true. Default is true. (Optional)
-        :param preview_enabled:
-            Says if the preview button appears for this resource. Some preview
-            types have their  previews integrated with the form.
-            Some preview types have their previews integrated with the form.
-            Default false (Optional)
-        :param full_page_edit:  Says if the edit form is the full page width
-            of the page. Default false (Optional)
+        The available keys are:
 
-        eg:
-            {'name': 'image',
-             'title': 'Image',
-             'schema': {'image_url': [ignore_empty, unicode]},
-             'icon': 'compass',
-             'iframed': false,
+        :param name: name of the view type. This should match the name of the
+            actual plugin (eg ``image_view`` or ``recline_view``).
+        :param title: title of the view type, will be displayed on the
+            frontend. This should be translatable (ie wrapped on
+            ``toolkit._('Title')``).
+        :param default_title: default title that will be used if the view is
+            created automatically (optional, defaults to 'View').
+        :param default_description: default description that will be used if
+            the view is created automatically (optional, defaults to '').
+        :param icon: icon for the view type. Should be one of the
+            `Font Awesome`_ types without the `icon-` prefix eg. `compass`
+            (optional, defaults to 'picture').
+        :param always_available: the view type should be always available when
+            creating new views regardless of the format of the resource
+            (optional, defaults to False).
+        :param iframed: the view template should be iframed before rendering.
+            You generally want this option to be True unless the view styles
+            and JavaScript don't clash with the main site theme (optional,
+            defaults to True).
+        :param preview_enabled: the preview button should appear on the edit
+            view form. Some view types have their previews integrated with the
+            form (optional, defaults to False).
+        :param full_page_edit: the edit form should take the full page width
+            of the page (optional, defaults to False).
+        :param schema: schema to validate extra configuration fields for the
+            view (optional). Schemas are defined as a dictionary, with the
+            keys being the field name and the values a list of validator
+            functions that will get applied to the field. For instance::
+
+                {
+                    'offset': [ignore_empty, natural_number_validator],
+                    'limit': [ignore_empty, natural_number_validator],
+                }
+
+        Example configuration object::
+
+            {'name': 'image_view',
+             'title': toolkit._('Image'),
+             'schema': {
+                'image_url': [ignore_empty, unicode]
+             },
+             'icon': 'picture',
+             'always_available': True,
+             'iframed': False,
              }
 
+        :returns: a dictionary with the view type configuration
+        :rtype: dict
+
+        .. _Font Awesome: http://fortawesome.github.io/Font-Awesome/3.2.1/icons
         '''
         return {'name': self.__class__.__name__}
 
     def can_view(self, data_dict):
-        '''Return info on whether the plugin can preview the resource.
-        The ``data_dict`` contains: ``resource`` and ``package``.
+        '''
+        Returns whether the plugin can render a particular resource.
 
-        return ``True`` or ``False``.
+        The ``data_dict`` contains the following keys:
+
+        :param resource: dict of the resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: True if the plugin can render a particular resource, False
+            otherwise
+        :rtype: bool
         '''
 
     def setup_template_variables(self, context, data_dict):
         '''
-        Add variables to the ``data_dict`` that is passed to the
-        template being rendered.
-        Should return a new dict instead of updating the input ``data_dict``.
+        Adds variables to be passed to the template being rendered.
 
-        The ``data_dict`` contains: ``resource_view``, ``resource`` and
-        ``package``.
+        This should return a new dict instead of updating the input
+        ``data_dict``.
+
+        The ``data_dict`` contains the following keys:
+
+        :param resource_view: dict of the resource view being rendered
+        :param resource: dict of the parent resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: a dictionary with the extra variables to pass
+        :rtype: dict
         '''
 
     def view_template(self, context, data_dict):
         '''
         Returns a string representing the location of the template to be
-        rendered when the view is rendered.
+        rendered when the view is displayed
 
-        The ``data_dict`` contains: ``resource_view``, ``resource`` and
-        ``package``.
+        The path will be relative to the template directory you registered
+        using the :py:func:`~ckan.plugins.toolkit.add_template_directory`
+        on the :py:class:`~ckan.plugins.interfaces.IConfigurer.update_config`
+        method, for instance ``views/my_view.html``.
+
+        :param resource_view: dict of the resource view being rendered
+        :param resource: dict of the parent resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: the location of the view template.
+        :rtype: string
         '''
 
     def form_template(self, context, data_dict):
         '''
         Returns a string representing the location of the template to be
-        rendered for the read page.
+        rendered when the edit view form is displayed
 
-        The ``data_dict`` contains: ``resource_view``, ``resource`` and
-        ``package``.
+        The path will be relative to the template directory you registered
+        using the :py:func:`~ckan.plugins.toolkit.add_template_directory`
+        on the :py:class:`~ckan.plugins.interfaces.IConfigurer.update_config`
+        method, for instance ``views/my_view_form.html``.
+
+        :param resource_view: dict of the resource view being rendered
+        :param resource: dict of the parent resource fields
+        :param package: dict of the full parent dataset
+
+        :returns: the location of the edit view form template.
+        :rtype: string
         '''
 
+
 class IResourcePreview(Interface):
-    ''' For backwards compatibility with the old resource preview code. '''
+    '''
+
+    .. warning:: This interface is deprecated, and is only kept for backwards
+        compatibility with the old resource preview code. Please
+        use :py:class:`~ckan.plugins.interfaces.IResourceView` for writing
+        custom view plugins.
+
+    '''
+
     def can_preview(self, data_dict):
         '''Return info on whether the plugin can preview the resource.
 
@@ -287,14 +355,14 @@ class IResourcePreview(Interface):
 
         2. The new way is to return a dict with  three keys:
 
-           ``'can_preview'`` (``boolean``)
+           * ``can_preview`` (``boolean``)
              ``True`` if the extension can preview the resource.
 
-           ``'fixable'`` (``string``)
+           * ``fixable`` (``string``)
              A string explaining how preview for the resource could be enabled,
              for example if the ``resource_proxy`` plugin was enabled.
 
-           ``'quality'`` (``int``)
+           * ``quality`` (``int``)
              How good the preview is: ``1`` (poor), ``2`` (average) or
              ``3`` (good). When multiple preview extensions can preview the
              same resource, this is used to determine which extension will
@@ -963,8 +1031,8 @@ class IDatasetForm(Interface):
         ``'package/read.html'``.
 
         If the user requests the dataset in a format other than HTML
-        (CKAN supports returning datasets in RDF or N3 format by appending .rdf
-        or .n3 to the dataset read URL, see
+        (CKAN supports returning datasets in RDF/XML or N3 format by appending
+        .rdf or .n3 to the dataset read URL, see
         :doc:`/maintaining/linked-data-and-rdf`) then CKAN will try to render a
         template file with the same path as returned by this function, but a
         different filename extension, e.g. ``'package/read.rdf'``.  If your

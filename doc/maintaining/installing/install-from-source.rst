@@ -382,6 +382,10 @@ Now that you've installed CKAN, you should:
 
 * Begin using and customizing your site, see :doc:`/maintaining/getting-started`.
 
+.. note:: The default authorization settings on a new install are deliberately
+    restrictive. Regular users won't be able to create datasets or organizations.
+    You should check the :doc:`/maintaining/authorization` documentation, configure CKAN accordingly
+    and grant other users the relevant permissions using the :ref:`sysadmin account <create-admin-user>`.
 
 ------------------------------
 Source install troubleshooting

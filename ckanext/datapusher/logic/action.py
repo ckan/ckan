@@ -27,6 +27,9 @@ def datapusher_submit(context, data_dict):
         be set to ``datastore`` and the resource URL will automatically point
         to the :ref:`datastore dump <dump>` URL. (optional, default: False)
     :type set_url_type: bool
+    :param ignore_hash: If set to True, the datapusher will reload the file
+        even if it haven't changed. (optional, default: False)
+    :type ignore_hash: bool
 
     Returns ``True`` if the job has been submitted and ``False`` if the job
     has not been submitted, i.e. when the datapusher is not configured.
@@ -85,6 +88,7 @@ def datapusher_submit(context, data_dict):
                 'job_type': 'push_to_datastore',
                 'result_url': callback_url,
                 'metadata': {
+                    'ignore_hash': data_dict.get('ignore_hash', False),
                     'ckan_url': site_url,
                     'resource_id': res_id,
                     'set_url_type': data_dict.get('set_url_type', False)
@@ -153,18 +157,22 @@ def datapusher_hook(context, data_dict):
 
     task['state'] = status
     task['last_updated'] = str(datetime.datetime.now())
+    if status == 'complete':
+        # Create default views for resource if necessary (only the ones that
+        # require data to be in the DataStore)
+        resource_dict = p.toolkit.get_action('resource_show')(
+            context, {'id': res_id})
 
-    if status == 'complete' and p.plugin_loaded('recline_grid_view'):
-        view_list = p.toolkit.get_action(
-            'resource_view_list')(context, {'id': res_id})
+        dataset_dict = p.toolkit.get_action('package_show')(
+            context, {'id': resource_dict['package_id']})
 
-        if not view_list:
-            view = {'resource_id': res_id,
-                    'view_type': 'recline_grid_view',
-                    'title': 'Grid view',
-                    'description': 'View of data within the DataStore'}
-            view_list = p.toolkit.get_action('resource_view_create')(context,
-                                                                     view)
+        logic.get_action('resource_create_default_resource_views')(
+            context,
+            {
+                'resource': resource_dict,
+                'package': dataset_dict,
+                'create_datastore_views': True,
+            })
 
     context['ignore_auth'] = True
     p.toolkit.get_action('task_status_update')(context, task)

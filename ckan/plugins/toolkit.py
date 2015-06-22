@@ -41,6 +41,7 @@ class _Toolkit(object):
         'Invalid',              # validation invalid exception
         'CkanCommand',          # class for providing cli interfaces
         'DefaultDatasetForm',   # base class for IDatasetForm plugins
+        'DefaultGroupForm',     # base class for IGroupForm plugins
         'response',             # response object for cookies etc
         'BaseController',       # Allow controllers to be created
         'abort',                # abort actions
@@ -51,12 +52,12 @@ class _Toolkit(object):
         'auth_sysadmins_check', # allow auth functions to be checked for sysadmins
         'auth_allow_anonymous_access', # allow anonymous access to an auth function
         'auth_disallow_anonymous_access', # disallow anonymous access to an auth function
-        'get_new_resources', # gets all new resources in current commit
 
         ## Fully defined in this file ##
         'add_template_directory',
         'add_resource',
         'add_public_directory',
+        'add_ckan_admin_tab',
         'requires_ckan_version',
         'check_ckan_version',
         'CkanVersionException',
@@ -170,6 +171,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 
         t['CkanCommand'] = cli.CkanCommand
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
+        t['DefaultGroupForm'] = lib_plugins.DefaultGroupForm
 
         t['response'] = pylons.response
         self.docstring_overrides['response'] = '''The Pylons response object.
@@ -188,13 +190,13 @@ content type, cookies, etc.
         t['auth_sysadmins_check'] = logic.auth_sysadmins_check
         t['auth_allow_anonymous_access'] = logic.auth_allow_anonymous_access
         t['auth_disallow_anonymous_access'] = logic.auth_disallow_anonymous_access
-        t['get_new_resources'] = datapreview.get_new_resources
 
         # class functions
         t['render_snippet'] = self._render_snippet
         t['add_template_directory'] = self._add_template_directory
         t['add_public_directory'] = self._add_public_directory
         t['add_resource'] = self._add_resource
+        t['add_ckan_admin_tab'] = self._add_ckan_admin_tabs
         t['requires_ckan_version'] = self._requires_ckan_version
         t['check_ckan_version'] = self._check_ckan_version
         t['CkanVersionException'] = CkanVersionException
@@ -281,6 +283,19 @@ content type, cookies, etc.
         ckan.lib.fanstatic_resources.create_library(name, absolute_path)
 
     @classmethod
+    def _add_ckan_admin_tabs(cls, config, route_name, tab_label,
+                             config_var='ckan.admin_tabs'):
+        '''
+        Update 'ckan.admin_tabs' dict the passed config dict.
+        '''
+        # get the admin_tabs dict from the config, or an empty dict.
+        admin_tabs_dict = config.get(config_var, {})
+        # update the admin_tabs dict with the new values
+        admin_tabs_dict.update({route_name: tab_label})
+        # update the config with the updated admin_tabs dict
+        config.update({config_var: admin_tabs_dict})
+
+    @classmethod
     def _version_str_2_list(cls, v_str):
         ''' convert a version string into a list of ints
         eg 1.6.1b --> [1, 6, 1] '''
@@ -362,7 +377,7 @@ content type, cookies, etc.
         else:
             if name == '__bases__':
                 return self.__class__.__bases__
-            raise Exception('`%s` not found in plugins toolkit' % name)
+            raise AttributeError('`%s` not found in plugins toolkit' % name)
 
     def __dir__(self):
         if not self._toolkit:
