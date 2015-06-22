@@ -1,0 +1,266 @@
+[
+{"comment": "These are the default CKAN licenses. To configure your own, create a new file and refer to it using the ckan.licenses_file configuration option.    These particular licenses are agreed by CKAN core team as the best start-point for a government or community data portal. They are both a) well-known - to discourage license proliferation and b) open - to encourage maximizing reuse. Furthermore, these are listed as 'Recommended conformant licenses' at http://opendefinition.org/licenses/. Each license's JSON is copied from: http://licenses.opendefinition.org/licenses/groups/all.json"
+},
+{
+
+    "domain_content": true,
+    "domain_data": true,
+    "domain_software": true,
+    "family": "",
+    "id": "CC0-1.0",
+    "maintainer": "Creative Commons",
+    "od_conformance": "approved",
+    "osd_conformance": "not reviewed",
+    "status": "active",
+    "title": "Creative Commons Zero 1.0",
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+
+},
+{
+
+    "domain_content": true,
+    "domain_data": true,
+    "domain_software": false,
+    "family": "",
+    "id": "CC-BY-4.0",
+    "maintainer": "Creative Commons",
+    "od_conformance": "approved",
+    "osd_conformance": "not reviewed",
+    "status": "active",
+    "title": "Creative Commons Attribution 4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+
+},
+{
+
+    "domain_content": true,
+    "domain_data": true,
+    "domain_software": false,
+    "family": "",
+    "id": "CC-BY-SA-4.0",
+    "maintainer": "Creative Commons",
+    "od_conformance": "approved",
+    "osd_conformance": "not reviewed",
+    "status": "active",
+    "title": "Creative Commons Attribution Share-Alike 4.0",
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+
+},
+
+{"comment": "We allow people to say the license is not specified to stop them selecting another (incorrect one) just to get the dataset accepted."},
+
+{
+
+    "domain_content": false,
+    "domain_data": false,
+    "domain_software": false,
+    "family": "",
+    "id": "notspecified",
+    "is_generic": true,
+    "maintainer": "",
+    "od_conformance": "not reviewed",
+    "osd_conformance": "not reviewed",
+    "status": "active",
+    "title": "License not specified",
+    "url": ""
+
+},
+
+{"comment": "Below are default licenses from earlier CKAN versions. They are included in case an old dataset specifies one of them. They are excluded from the drop-down for editing datasets (using config option 'ckan.licenses_offered_exclusions') because they are considered too generic / underspecified to be helpful (e.g. lack of licence version numbers). However they need listing here, because otherwise any existing dataset which specifies one of them would not be able to display the license title and URL, being left with just the id (e.g. 'odc-pddl')."},
+
+                {
+                    "domain_content": false,
+                    "domain_data": true,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "odc-pddl",
+                    "is_generic": false,
+                    "od_conformance": "approved",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Open Data Commons Public Domain Dedication and Licence (PDDL)",
+                    "url": "http://www.opendefinition.org/licenses/odc-pddl"
+                },
+                {
+                    "domain_content": false,
+                    "domain_data": true,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "odc-odbl",
+                    "is_generic": false,
+                    "od_conformance": "approved",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Open Data Commons Open Database License (ODbL)",
+                    "url": "http://www.opendefinition.org/licenses/odc-odbl"
+                },
+                {
+                    "domain_content": false,
+                    "domain_data": true,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "odc-by",
+                    "is_generic": false,
+                    "od_conformance": "approved",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Open Data Commons Attribution License",
+                    "url": "http://www.opendefinition.org/licenses/odc-by"
+                },
+                {
+                    "domain_content": true,
+                    "domain_data": true,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "cc-zero",
+                    "is_generic": false,
+                    "od_conformance": "approved",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Creative Commons CCZero",
+                    "url": "http://www.opendefinition.org/licenses/cc-zero"
+                },
+                {
+                    "domain_content": true,
+                    "domain_data": false,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "cc-by",
+                    "is_generic": false,
+                    "od_conformance": "approved",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Creative Commons Attribution",
+                    "url": "http://www.opendefinition.org/licenses/cc-by"
+                },
+                {
+                    "domain_content": true,
+                    "domain_data": false,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "cc-by-sa",
+                    "is_generic": false,
+                    "od_conformance": "approved",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Creative Commons Attribution Share-Alike",
+                    "url": "http://www.opendefinition.org/licenses/cc-by-sa"
+                },
+                {
+                    "domain_content": true,
+                    "domain_data": false,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "gfdl",
+                    "is_generic": false,
+                    "od_conformance": "approved",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "GNU Free Documentation License",
+                    "url": "http://www.opendefinition.org/licenses/gfdl"
+                },
+                {
+                    "domain_content": true,
+                    "domain_data": false,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "other-open",
+                    "is_generic": true,
+                    "od_conformance": "approved",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Other (Open)",
+                    "url": ""
+                },
+                {
+                    "domain_content": true,
+                    "domain_data": false,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "other-pd",
+                    "is_generic": true,
+                    "od_conformance": "approved",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Other (Public Domain)",
+                    "url": ""
+                },
+                {
+                    "domain_content": true,
+                    "domain_data": false,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "other-at",
+                    "is_generic": true,
+                    "od_conformance": "approved",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Other (Attribution)",
+                    "url": ""
+                },
+                {
+                    "domain_content": true,
+                    "domain_data": false,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "uk-ogl",
+                    "od_conformance": "approved",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "UK Open Government Licence (OGL)",
+                    "url": "http://reference.data.gov.uk/id/open-government-licence"
+                },
+                {
+                    "domain_content": false,
+                    "domain_data": false,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "cc-nc",
+                    "od_conformance": "not reviewed",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Creative Commons Non-Commercial (Any)",
+                    "url": "http://creativecommons.org/licenses/by-nc/2.0/"
+                },
+                {
+                    "domain_content": false,
+                    "domain_data": false,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "other-nc",
+                    "is_generic": true,
+                    "od_conformance": "not reviewed",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Other (Non-Commercial)",
+                    "url": ""
+                },
+                {
+                    "domain_content": false,
+                    "domain_data": false,
+                    "domain_software": false,
+                    "family": "",
+                    "id": "other-closed",
+                    "is_generic": true,
+                    "od_conformance": "not reviewed",
+                    "osd_conformance": "not reviewed",
+                    "maintainer": "",
+                    "status": "active",
+                    "title": "Other (Not Open)",
+                    "url": ""
+                }
+]
+
