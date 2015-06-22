@@ -328,7 +328,7 @@ class UserController(base.BaseController):
 
             if data_dict['password1'] and data_dict['password2']:
                 identity = {'login': c.user,
-                            'password': data_dict['old-password']}
+                            'password': data_dict['old_password']}
                 auth = authenticator.UsernamePasswordAuthenticator()
 
                 if auth.authenticate(request.environ, identity) != c.user:

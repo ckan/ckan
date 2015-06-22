@@ -81,7 +81,7 @@ class TestUser(helpers.FunctionalTestBase):
         form['email'] = 'new@example.com'
         form['about'] = 'new about'
         form['activity_streams_email_notifications'] = True
-        form['old-password'] = 'pass'
+        form['old_password'] = 'pass'
         form['password1'] = 'newpass'
         form['password2'] = 'newpass'
         response = submit_and_follow(app, form, env, 'save')
@@ -121,7 +121,7 @@ class TestUser(helpers.FunctionalTestBase):
         form = response.forms['user-edit-form']
 
         # factory returns user with password 'pass'
-        form.fields['old-password'][0].value = 'pass'
+        form.fields['old_password'][0].value = 'pass'
         form.fields['password1'][0].value = 'newpass'
         form.fields['password2'][0].value = 'newpass'
 
@@ -139,7 +139,7 @@ class TestUser(helpers.FunctionalTestBase):
         form = response.forms['user-edit-form']
 
         # factory returns user with password 'pass'
-        form.fields['old-password'][0].value = 'wrong-pass'
+        form.fields['old_password'][0].value = 'wrong-pass'
         form.fields['password1'][0].value = 'newpass'
         form.fields['password2'][0].value = 'newpass'
 
