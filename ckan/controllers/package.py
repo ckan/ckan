@@ -189,7 +189,7 @@ class PackageController(base.BaseController):
             return search_url(params, package_type)
 
         c.sort_by = _sort_by
-        if sort_by is None:
+        if not sort_by:
             c.sort_by_fields = []
         else:
             c.sort_by_fields = [field.split()[0]

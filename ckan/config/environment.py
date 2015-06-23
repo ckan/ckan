@@ -255,7 +255,9 @@ CONFIG_FROM_ENV_VARS = {
 
 def update_config():
     ''' This code needs to be run when the config is changed to take those
-    changes into account. '''
+    changes into account. It is called whenever a plugin is loaded as the
+    plugin might have changed the config values (for instance it might
+    change ckan.site_url) '''
 
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
@@ -280,6 +282,18 @@ def update_config():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     site_url = config.get('ckan.site_url', '')
+    if not site_url:
+        raise RuntimeError(
+            'ckan.site_url is not configured and it must have a value.'
+            ' Please amend your .ini file.')
+    if not site_url.lower().startswith('http'):
+        raise RuntimeError(
+            'ckan.site_url should be a full URL, including the schema '
+            '(http or https)')
+
+    # Remove backslash from site_url if present
+    config['ckan.site_url'] = config['ckan.site_url'].rstrip('/')
+
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
     if config.get('ckan.site_id') is None:
         if ':' in ckan_host:

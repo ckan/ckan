@@ -266,10 +266,12 @@ Example::
 
   ckan.site_url = http://scotdata.ckan.net
 
-Default value:  (none)
+Default value:  (an explicit value is mandatory)
 
 The URL of your CKAN site. Many CKAN features that need an absolute URL to your
 site use this setting.
+
+.. important:: It is mandatory to complete this setting
 
 .. warning::
 
@@ -983,6 +985,19 @@ then specify the format here, so that it can be advertised in the
 web interface. ``dumps_format`` is just a string for display. Example::
 
   ckan.dumps_format = CSV/JSON
+
+.. _ckan.recaptcha.version:
+
+ckan.recaptcha.version
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The version of Recaptcha to use, for example::
+
+ ckan.recaptcha.version = 1
+
+Default Value: 1
+
+Valid options: 1, 2
 
 .. _ckan.recaptcha.publickey:
 

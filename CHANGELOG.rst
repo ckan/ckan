@@ -30,11 +30,20 @@ Changes and deprecations
 * Add middleware that cleans up the response string after it has been
   served, stabilizes memory usage for large requests #1847
 
-* `organization_list_for_user` now returns organizations in heirarchy if they
+* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the 
+  ``packages`` key - i.e. datasets that use the vocabulary or tag. 
+  However ``tag_show`` now has an ``include_datasets`` option. (#1886)
+
+* `organization_list_for_user` now returns organizations in hierarchy if they
   exist for roles set in `ckan.auth.roles_that_cascade_to_sub_groups`.
 
 * Update license keys to match opendefinition.org #2110
 
+* The ``group_show`` and ``organization_show`` API calls do not return
+  ``datasets`` by default any more.
+
+  Custom templates or users of this API call will need to pass
+  ``include_datasets=True`` to include datasets in the response.
 
 v2.3 2015-03-04
 ===============

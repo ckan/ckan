@@ -91,13 +91,13 @@ class TestHelpersRemoveLineBreaks(object):
         assert result.find('\n') == -1,\
             '"remove_linebreaks" should remove line breaks'
 
-    def test_remove_linebreaks_casts_into_str(self):
-        class StringLike(str):
+    def test_remove_linebreaks_casts_into_unicode(self):
+        class UnicodeLike(unicode):
             pass
 
-        test_string = StringLike('foo')
+        test_string = UnicodeLike('foo')
         result = h.remove_linebreaks(test_string)
 
-        strType = ''.__class__
+        strType = u''.__class__
         assert result.__class__ == strType,\
-            '"remove_linebreaks" casts into str()'
+            '"remove_linebreaks" casts into unicode()'

@@ -25,7 +25,8 @@ write_config () {
       "solr_url = ${SOLR_URL}" \
       "ckan.storage_path = /var/lib/ckan" \
       "email_to = disabled@example.com" \
-      "error_email_from = ckan@$(hostname -f)"
+      "error_email_from = ckan@$(hostname -f)" \
+      "ckan.site_url = http://192.168.0.6"
 
   if [ -n "$ERROR_EMAIL" ]; then
     sed -i -e "s&^#email_to.*&email_to = ${ERROR_EMAIL}&" "$CONFIG"
@@ -34,7 +35,7 @@ write_config () {
 
 link_postgres_url () {
   local user=$DB_ENV_POSTGRESQL_USER
-  local pass=$DB_ENV_POSTGRESQL_USER
+  local pass=$DB_ENV_POSTGRESQL_PASS
   local db=$DB_ENV_POSTGRESQL_DB
   local host=$DB_PORT_5432_TCP_ADDR
   local port=$DB_PORT_5432_TCP_PORT
