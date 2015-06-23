@@ -1598,12 +1598,12 @@ Default value: /path/to/ckan/model/licenses-default.json
 
 Note, ckan.licenses_url is a rename of the deprecated 'licenses_group_url'.
 
-.. _ckan.licenses_offered
+.. _ckan.licenses_offered:
 
 ckan.licenses_offered
 ^^^^^^^^^^^^^^^^^^^^^
 
-A list of licenses that are offered to the user, selected from the licenses list. By specifying a subset of licenses using this option, you are effectively 'deprecating' the other licenses. Deprecating is preferable to deleting the old license, else any datasets with the old license will not show the licence title, URL or openness. In addition, this option allows you to specify a particular ordering of the licenses in the drop-down list (otherwise they are in alphabetical order).
+A list of licenses that are offered to the user, selected from the licenses list. By specifying a subset of licenses using this option, you are effectively 'deprecating' the other licenses. Deprecating is preferable to deleting the old license, else any datasets with the old license will not show the license title, URL or openness. In addition, this option allows you to specify a particular ordering of the licenses in the drop-down list (otherwise they are in alphabetical order).
 
 Expressed as the license IDs in a space-separated list.
 
@@ -1611,12 +1611,12 @@ Examples::
 
  ckan.licenses_offered = cc0 cc-by
 
-.. _ckan.licenses_offered_exclusions
+.. _ckan.licenses_offered_exclusions:
 
 ckan.licenses_offered_exclusions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-A list of licenses that are not offered to the user in the dataset create/edit form. This can be used to 'deprecate' licenses when newer versions are added. Deprecating is preferable to deleting the old license, else any datasets with the old license will not show the licence title, URL or openness.
+A list of licenses that are not offered to the user in the dataset create/edit form. This can be used to 'deprecate' licenses when newer versions are added. Deprecating is preferable to deleting the old license, else any datasets with the old license will not show the license title, URL or openness.
 
 Expressed as the license IDs in a space-separated list. This option is ignored if you also specify ckan.licenses_offered.
 
