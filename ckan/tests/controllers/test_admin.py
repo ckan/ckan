@@ -21,22 +21,20 @@ def _get_admin_config_page(app):
     return env, response
 
 
+def _reset_config(app):
+    '''Reset config via action'''
+    user = factories.Sysadmin()
+    env = {'REMOTE_USER': user['name'].encode('ascii')}
+    app.post(
+        url=url_for(controller='admin', action='reset_config'),
+        extra_environ=env,
+    )
+
+
 class TestConfig(helpers.FunctionalTestBase):
     '''View tests to go along with 'Customizing look and feel' docs.'''
 
-    def _reset_config(self):
-        '''Reset config via action'''
-        app = self._get_test_app()
-        user = factories.Sysadmin()
-        env = {'REMOTE_USER': user['name'].encode('ascii')}
-        app.get(
-            url=url_for(controller='admin', action='reset_config'),
-            extra_environ=env,
-        )
-
     def teardown(self):
-        '''Make sure the config is reset after tests'''
-        self._reset_config()
         helpers.reset_db()
 
     def test_form_renders(self):
@@ -62,6 +60,11 @@ class TestConfig(helpers.FunctionalTestBase):
         # new site title
         new_index_response = app.get('/')
         assert_true('Welcome - Test Site Title' in new_index_response)
+
+        # reset config value
+        _reset_config(app)
+        reset_index_response = app.get('/')
+        assert_true('Welcome - CKAN' in reset_index_response)
 
     def test_main_css_list(self):
         '''Style list contains pre-configured styles'''
@@ -102,6 +105,11 @@ class TestConfig(helpers.FunctionalTestBase):
         assert_true('red.css' in new_index_response)
         assert_true('main.css' not in new_index_response)
 
+        # reset config value
+        _reset_config(app)
+        reset_index_response = app.get('/')
+        assert_true('main.css' in reset_index_response)
+
     def test_tag_line(self):
         '''Add a tag line (only when no logo)'''
         app = self._get_test_app()
@@ -130,6 +138,11 @@ class TestConfig(helpers.FunctionalTestBase):
         new_index_response = app.get('/')
         assert_true('Special Tagline' in new_index_response)
 
+        # reset config value
+        _reset_config(app)
+        reset_index_response = app.get('/')
+        assert_true('Special Tagline' not in reset_index_response)
+
     def test_about(self):
         '''Add some About tag text'''
         app = self._get_test_app()
@@ -148,6 +161,11 @@ class TestConfig(helpers.FunctionalTestBase):
         new_about_response = app.get('/about')
         assert_true('My special about text' in new_about_response)
 
+        # reset config value
+        _reset_config(app)
+        reset_about_response = app.get('/about')
+        assert_true('My special about text' not in reset_about_response)
+
     def test_intro(self):
         '''Add some Intro tag text'''
         app = self._get_test_app()
@@ -165,6 +183,11 @@ class TestConfig(helpers.FunctionalTestBase):
         # new intro
         new_intro_response = app.get('/')
         assert_true('My special intro text' in new_intro_response)
+
+        # reset config value
+        _reset_config(app)
+        reset_intro_response = app.get('/')
+        assert_true('My special intro text' not in reset_intro_response)
 
     def test_custom_css(self):
         '''Add some custom css to the head element'''
@@ -187,6 +210,12 @@ class TestConfig(helpers.FunctionalTestBase):
         assert_equal(len(style_tag), 1)
         assert_equal(style_tag[0].text.strip(), 'body {background-color:red}')
 
+        # reset config value
+        _reset_config(app)
+        reset_intro_response_html = BeautifulSoup(app.get('/').body)
+        style_tag = reset_intro_response_html.select('head style')
+        assert_equal(len(style_tag), 0)
+
     def test_homepage_style(self):
         '''Select a homepage style'''
         app = self._get_test_app()
@@ -208,3 +237,9 @@ class TestConfig(helpers.FunctionalTestBase):
                     not in new_index_response)
         assert_true('<!-- Snippet home/layout2.html start -->'
                     in new_index_response)
+
+        # reset config value
+        _reset_config(app)
+        reset_index_response = app.get('/')
+        assert_true('<!-- Snippet home/layout1.html start -->'
+                    in reset_index_response)
