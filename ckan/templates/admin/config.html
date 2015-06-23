@@ -3,7 +3,7 @@
 {% extends "admin/base.html" %}
 
 {% block primary_content_inner %}
-  <form method='post' action="" class="form-horizontal">
+  <form method='post' action="" class="form-horizontal" id="admin-config-form">
     {% block admin_form %}
       {{ autoform.generate(form_items, data, errors) }}
     {% endblock %}
