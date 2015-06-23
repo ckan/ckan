@@ -3407,7 +3407,7 @@ def help_show(context, data_dict):
 def config_option_show(context, data_dict):
     '''Show the current value of a particular configuration option.
 
-    Only returns editable config options (the ones returned by
+    Only returns runtime-editable config options (the ones returned by
     :py:func:`~ckan.logic.action.get.config_option_list`), which can be updated with the
     :py:func:`~ckan.logic.action.update.config_option_update` action.
 
@@ -3438,8 +3438,8 @@ def config_option_show(context, data_dict):
 
 
 def config_option_list(context, data_dict):
-    '''Return a list of configuration option keys that can be updated with
-    :py:func:`~ckan.logic.action.update.config_option_update`.
+    '''Return a list of runtime-editable config options keys that can be
+       updated with :py:func:`~ckan.logic.action.update.config_option_update`.
 
     :returns: A list of config option keys.
     :rtype: list

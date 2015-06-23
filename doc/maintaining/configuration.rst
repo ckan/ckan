@@ -21,7 +21,7 @@ automate and orchestrate deployments without having to first modify the `configu
 These options are only read at startup time to update the ``config`` object used by CKAN,
 but they won't we accessed any more during the lifetime of the application.
 
-CKAN environment variables match the options in the configuration file, but they are always uppercase
+CKAN environment variables names match the options in the configuration file, but they are always uppercase
 and prefixed with `CKAN_` (this prefix is added even if
 the corresponding option in the ini file does not have it), and replacing dots with underscores.
 
@@ -38,17 +38,17 @@ This is the list of currently supported environment variables, please refer to t
 
 .. _runtime-config:
 
-Updating configuration options at runtime
-*****************************************
+Updating configuration options during runtime
+*********************************************
 
 CKAN configuration options are generally defined before starting the web application (either in the
 `configuration file <CKAN configuration file>`_ or via `Environment variables`_).
 
-A limited number of configuration options can also be set during runtime. This can be done on the
+A limited number of configuration options can also be edited during runtime. This can be done on the
 :ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.update.config_option_update`
-API action. Only :doc:`sysadmins </sysadmin-guide>` can edit these configuration options. Changes made to these configuation options will be stored on the database and persisted when the server is restarted.
+API action. Only :doc:`sysadmins </sysadmin-guide>` can edit these runtime-editable configuration options. Changes made to these configuration options will be stored on the database and persisted when the server is restarted.
 
-Extensions can add (or remove) configuration options to the ones that can be updated at runtime. For more
+Extensions can add (or remove) configuration options to the ones that can be edited at runtime. For more
 details on how to this check :doc:`/extensions/remote-config-update`.
 
 

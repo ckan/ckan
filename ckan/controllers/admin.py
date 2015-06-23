@@ -59,7 +59,7 @@ class AdminController(base.BaseController):
         '''FIXME: This method is probably not doing what people would expect.
            It will reset the configuration to values cached when CKAN started.
            If these were coming from the database during startup, that's the
-           ones that will get applied on reset, not the ones on the ini file.
+           ones that will get applied on reset, not the ones in the ini file.
            Only after restarting the server and having CKAN reset the values
            from the ini file (as the db ones are not there anymore) will these
            be used.

@@ -752,23 +752,25 @@ class IConfigurer(Interface):
 
     def update_config_schema(self, schema):
         '''
-        Return a schema with the config options that can be modified at runtime
+        Return a schema with the runtime-editable config options
 
         CKAN will use the returned schema to decide which configuration options
-        can be modified at runtime (using
+        can be edited during runtime (using
         :py:func:`ckan.logic.action.update.config_option_update`) and to
         validate them before storing them.
 
         Defaults to
         :py:func:`ckan.logic.schema.default_update_configuration_schema`, which
         will be passed to all extensions implementing this method, which can
-        add or remove options to it.
+        add or remove runtime-editable config options to it.
 
-        :param schema: a dictionary mapping configuration option keys to lists
+        :param schema: a dictionary mapping runtime-editable configuration
+          option keys to lists
           of validator and converter functions to be applied to those keys
         :type schema: dictionary
 
-        :returns: a dictionary mapping configuration option keys to lists of
+        :returns: a dictionary mapping runtime-editable configuration option
+          keys to lists of
           validator and converter functions to be applied to those keys
         :rtype: dictionary
         '''

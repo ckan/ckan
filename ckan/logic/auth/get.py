@@ -315,10 +315,10 @@ def help_show(context, data_dict):
 
 
 def config_option_show(context, data_dict):
-    '''Show configuration option. Only sysadmins.'''
+    '''Show runtime-editable configuration option. Only sysadmins.'''
     return {'success': False}
 
 
 def config_option_list(context, data_dict):
-    '''List configuration options. Only sysadmins.'''
+    '''List runtime-editable configuration options. Only sysadmins.'''
     return {'success': False}

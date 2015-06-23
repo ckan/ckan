@@ -1318,13 +1318,13 @@ def config_option_update(context, data_dict):
 
     .. versionadded:: 2.4
 
-    Allows to modify some CKAN configuration options
+    Allows to modify some CKAN runtime-editable config options
 
     It takes arbitrary key, value pairs and checks the keys against the
     config options update schema. If some of the provided keys are not present
     in the schema a :py:class:`~ckan.plugins.logic.ValidationError` is raised.
     The values are then validated against the schema, and if validation is
-    passed each key, value config option:
+    passed, for each key, value config option:
 
     * It is stored on the ``system_info`` database table
     * The Pylons ``config`` object is updated.
@@ -1346,12 +1346,18 @@ def config_option_update(context, data_dict):
     :returns: a dictionary with the options set
     :rtype: dictionary
 
-    .. note:: You can see all available configuration options that can be
-        remotely updated calling
+    .. note:: You can see all available runtime-editable configuration options
+        calling
         the :py:func:`~ckan.logic.action.get.config_option_list` action
 
-    .. note:: Extensions can modify which configuration options are available.
+    .. note:: Extensions can modify which configuration options are
+        runtime-editable.
         For details, check :doc:`/extensions/remote-config-update`.
+
+    .. warning:: You should only add config options that you are comfortable
+        they can be edited during runtime, such as ones you've added in your
+        own extension, or have reviewed the use of in core CKAN.
+
     '''
     model = context['model']
 

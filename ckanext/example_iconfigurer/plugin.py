@@ -12,7 +12,7 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
     1. How to implement ``toolkit.add_ckan_admin_tab()`` in the
        ``update_config`` method to add a custom config tab in the admin pages.
 
-    2. How to enable CKAN configuration options to be updated remotely from
+    2. How to make CKAN configuration options runtime-editable via
        the web frontend or the API
 
     '''
@@ -38,7 +38,7 @@ class ExampleIConfigurerPlugin(plugins.SingletonPlugin):
 
         schema.update({
             # This is an existing CKAN core configuration option, we are just
-            # making it available to be updated at runtime
+            # making it available to be editable at runtime
             'ckan.datasets_per_page': [ignore_missing, is_positive_integer],
 
             # This is a custom configuration option

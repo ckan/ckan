@@ -685,7 +685,7 @@ def default_update_configuration_schema():
 
 def update_configuration_schema():
     '''
-    Returns the schema for the config options that can be edited at runtime
+    Returns the schema for the config options that can be edited during runtime
 
     By default these are the keys of the
     :py:func:`ckan.logic.schema.default_update_configuration_schema`.
@@ -693,12 +693,13 @@ def update_configuration_schema():
     :py:meth:`ckan.plugins.interfaces.IConfigurer.update_config_schema`
     method.
 
-    These configuration options can be edited at runtime via the web interface
-    or using the :py:func:`ckan.logic.action.update.config_option_update` API
-    call.
+    These configuration options can be edited during runtime via the web
+    interface or using
+    the :py:func:`ckan.logic.action.update.config_option_update` API call.
 
-    :returns: a dictionary mapping configuration option keys to lists of
-      validator and converter functions to be applied to those keys
+    :returns: a dictionary mapping runtime-editable configuration option keys
+      to lists of validator and converter functions to be applied to those
+      keys
     :rtype: dictionary
     '''
 
