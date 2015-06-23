@@ -336,7 +336,12 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         return cls._license_register
 
     @classmethod
+    @maintain.deprecated('get_license_options is deprecated - use '
+                         'h.license_options() instead.')
     def get_license_options(cls):
+        '''DEPRECATED in 2.4 - does not take account of config options to
+        select licenses for the form options. Use h.license_options() instead.
+        '''
         register = cls.get_license_register()
         return [(l.title, l.id) for l in register.values()]
 
