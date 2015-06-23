@@ -23,7 +23,7 @@ mappings = {
 }
 
 
-# This mapping is only used to define the configuratin options (from the
+# This mapping is only used to define the configuration options (from the
 # `config` object) that should be copied to the `app_globals` (`g`) object.
 app_globals_from_config_details = {
     'ckan.site_title': {},
