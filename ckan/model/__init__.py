@@ -144,7 +144,9 @@ from follower import (
 )
 from system_info import (
     system_info_table,
+    system_info_revision_table,
     SystemInfo,
+    SystemInfoRevision,
     get_system_info,
     set_system_info,
     delete_system_info,
@@ -411,7 +413,7 @@ class Repository(vdm.sqlalchemy.Repository):
 repo = Repository(meta.metadata, meta.Session,
                   versioned_objects=[Package, PackageTag, Resource,
                                      PackageExtra, Member,
-                                     Group]
+                                     Group, SystemInfo]
         )
 
 

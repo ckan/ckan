@@ -2,7 +2,12 @@
 
 {% extends "admin/base.html" %}
 
+{% import 'macros/form.html' as form %}
+
 {% block primary_content_inner %}
+
+  {{ form.errors(error_summary) }}
+
   <form method='post' action="" class="form-horizontal">
     {% block admin_form %}
       {{ autoform.generate(form_items, data, errors) }}

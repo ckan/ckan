@@ -312,3 +312,13 @@ def request_reset(context, data_dict):
 
 def help_show(context, data_dict):
     return {'success': True}
+
+
+def config_option_show(context, data_dict):
+    '''Show runtime-editable configuration option. Only sysadmins.'''
+    return {'success': False}
+
+
+def config_option_list(context, data_dict):
+    '''List runtime-editable configuration options. Only sysadmins.'''
+    return {'success': False}
