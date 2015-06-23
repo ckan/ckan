@@ -217,10 +217,12 @@ Example::
 
   ckan.site_url = http://scotdata.ckan.net
 
-Default value:  (none)
+Default value:  (an explicit value is mandatory)
 
 The URL of your CKAN site. Many CKAN features that need an absolute URL to your
 site use this setting.
+
+.. important:: It is mandatory to complete this setting
 
 .. warning::
 

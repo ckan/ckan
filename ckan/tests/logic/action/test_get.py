@@ -97,9 +97,7 @@ class TestGroupList(helpers.FunctionalTestBase):
         factories.Dataset(groups=[{'name': 'bb'}])
 
         group_list = helpers.call_action('group_list', sort='package_count')
-        # default is descending order
-
-        eq(group_list, ['bb', 'aa'])
+        eq(sorted(group_list), sorted(['bb', 'aa']))
 
     def test_group_list_sort_by_package_count_ascending(self):
 
@@ -113,6 +111,15 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         eq(group_list, ['bb', 'aa'])
 
+    def assert_equals_expected(self, expected_dict, result_dict):
+        superfluous_keys = set(result_dict) - set(expected_dict)
+        assert not superfluous_keys, 'Did not expect key: %s' % \
+            ' '.join(('%s=%s' % (k, result_dict[k]) for k in superfluous_keys))
+        for key in expected_dict:
+            assert expected_dict[key] == result_dict[key], \
+                '%s=%s should be %s' % \
+                (key, result_dict[key], expected_dict[key])
+
     def test_group_list_all_fields(self):
 
         group = factories.Group()
@@ -121,8 +128,10 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         expected_group = dict(group.items()[:])
         for field in ('users', 'tags', 'extras', 'groups'):
+            if field in group_list[0]:
+                del group_list[0][field]
             del expected_group[field]
-        expected_group['packages'] = 0
+
         assert group_list[0] == expected_group
         assert 'extras' not in group_list[0]
         assert 'tags' not in group_list[0]
@@ -158,25 +167,19 @@ class TestGroupList(helpers.FunctionalTestBase):
         else:
             child_group_returned, parent_group_returned = group_list[::-1]
         expected_parent_group = dict(parent_group.items()[:])
-        for field in ('users', 'tags', 'extras'):
-            del expected_parent_group[field]
-        expected_parent_group['capacity'] = u'public'
-        expected_parent_group['packages'] = 0
-        expected_parent_group['package_count'] = 0
-        eq(child_group_returned['groups'], [expected_parent_group])
+
+        eq([g['name'] for g in child_group_returned['groups']], [expected_parent_group['name']])
 
 
 class TestGroupShow(helpers.FunctionalTestBase):
 
     def test_group_show(self):
-
         group = factories.Group(user=factories.User())
 
         group_dict = helpers.call_action('group_show', id=group['id'],
                                          include_datasets=True)
 
-        # FIXME: Should this be returned by group_create?
-        group_dict.pop('num_followers', None)
+        group_dict.pop('packages', None)
         eq(group_dict, group)
 
     def test_group_show_error_not_found(self):
@@ -359,14 +362,12 @@ class TestOrganizationList(helpers.FunctionalTestBase):
 class TestOrganizationShow(helpers.FunctionalTestBase):
 
     def test_organization_show(self):
-
         org = factories.Organization()
 
         org_dict = helpers.call_action('organization_show', id=org['id'],
                                        include_datasets=True)
 
-        # FIXME: Should this be returned by organization_create?
-        org_dict.pop('num_followers', None)
+        org_dict.pop('packages', None)
         eq(org_dict, org)
 
     def test_organization_show_error_not_found(self):

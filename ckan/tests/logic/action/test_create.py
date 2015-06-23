@@ -480,3 +480,159 @@ class TestDatasetCreate(helpers.FunctionalTestBase):
             id=dataset['id'],
             name='test-dataset',
         )
+
+
+class TestGroupCreate(helpers.FunctionalTestBase):
+
+    def test_create_group(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        group = helpers.call_action(
+            'group_create',
+            context=context,
+            name='test-group',
+        )
+
+        assert len(group['users']) == 1
+        assert group['display_name'] == u'test-group'
+        assert group['package_count'] == 0
+        assert not group['is_organization']
+        assert group['type'] == 'group'
+
+    @nose.tools.raises(logic.ValidationError)
+    def test_create_group_validation_fail(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        group = helpers.call_action(
+            'group_create',
+            context=context,
+            name='',
+        )
+
+    def test_create_group_return_id(self):
+        import re
+
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+            'return_id_only': True
+        }
+
+        group = helpers.call_action(
+            'group_create',
+            context=context,
+            name='test-group',
+        )
+
+        assert isinstance(group, str)
+        assert re.match('([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)', group)
+
+    def test_create_matches_show(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        created = helpers.call_action(
+            'organization_create',
+            context=context,
+            name='test-organization',
+        )
+
+        shown = helpers.call_action(
+            'organization_show',
+            context=context,
+            id='test-organization',
+        )
+
+        assert sorted(created.keys()) == sorted(shown.keys())
+        for k in created.keys():
+            assert created[k] == shown[k], k
+
+
+class TestOrganizationCreate(helpers.FunctionalTestBase):
+
+    def test_create_organization(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        org = helpers.call_action(
+            'organization_create',
+            context=context,
+            name='test-organization',
+        )
+
+        assert len(org['users']) == 1
+        assert org['display_name'] == u'test-organization'
+        assert org['package_count'] == 0
+        assert org['is_organization']
+        assert org['type'] == 'organization'
+
+    @nose.tools.raises(logic.ValidationError)
+    def test_create_organization_validation_fail(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        org = helpers.call_action(
+            'organization_create',
+            context=context,
+            name='',
+        )
+
+    def test_create_organization_return_id(self):
+        import re
+
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+            'return_id_only': True
+        }
+
+        org = helpers.call_action(
+            'organization_create',
+            context=context,
+            name='test-organization',
+        )
+
+        assert isinstance(org, str)
+        assert re.match('([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)', org)
+
+    def test_create_matches_show(self):
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        created = helpers.call_action(
+            'organization_create',
+            context=context,
+            name='test-organization',
+        )
+
+        shown = helpers.call_action(
+            'organization_show',
+            context=context,
+            id='test-organization',
+        )
+
+        assert sorted(created.keys()) == sorted(shown.keys())
+        for k in created.keys():
+            assert created[k] == shown[k], k

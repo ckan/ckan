@@ -138,8 +138,7 @@ class UserController(base.BaseController):
             h.redirect_to(locale=locale, controller='user', action='login',
                           id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
-        h.redirect_to(locale=locale, controller='user', action='dashboard',
-                      id=user_ref)
+        h.redirect_to(locale=locale, controller='user', action='dashboard')
 
     def register(self, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session, 'user': c.user,
@@ -328,7 +327,7 @@ class UserController(base.BaseController):
 
             if data_dict['password1'] and data_dict['password2']:
                 identity = {'login': c.user,
-                            'password': data_dict['old-password']}
+                            'password': data_dict['old_password']}
                 auth = authenticator.UsernamePasswordAuthenticator()
 
                 if auth.authenticate(request.environ, identity) != c.user:
