@@ -15,7 +15,7 @@ Extensions can allow certain configuration options to be edited during
 
 .. note::
 
-    Only sysadmin users are allowed to modify runtimei-editable configuratin options.
+    Only sysadmin users are allowed to modify runtime-editable configuration options.
 
 
 In this tutorial we will show how to make changes to our extension to make two

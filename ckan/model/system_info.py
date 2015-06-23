@@ -1,3 +1,10 @@
+'''
+The system_info table and SystemInfo mapped class store runtime-editable
+configuration options.
+
+For more details, check :doc:`maintaining/configuration`.
+'''
+
 from sqlalchemy import types, Column, Table
 
 import vdm.sqlalchemy
