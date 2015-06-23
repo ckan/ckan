@@ -101,32 +101,6 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         res = self.app.get(offset, extra_environ={'REMOTE_USER': 'okfntest'})
         assert user.apikey in res, res
 
-
-    def test_user_edit_no_user(self):
-        offset = url_for(controller='user', action='edit', id=None)
-        res = self.app.get(offset, status=400)
-        assert 'No user specified' in res, res
-
-    def test_user_edit_unknown_user(self):
-        offset = url_for(controller='user', action='edit', id='unknown_person')
-        res = self.app.get(offset, status=302) # redirect to login page
-        res = res.follow()
-        assert 'Login' in res, res
-
-    def test_user_edit_not_logged_in(self):
-        # create user
-        username = 'testedit'
-        about = u'Test About'
-        user = model.User.by_name(unicode(username))
-        if not user:
-            model.Session.add(model.User(name=unicode(username), about=about,
-                                         password='letmein'))
-            model.repo.commit_and_remove()
-            user = model.User.by_name(unicode(username))
-
-        offset = url_for(controller='user', action='edit', id=username)
-        res = self.app.get(offset, status=302)
-
     def test_perform_reset_user_password_link_key_incorrect(self):
         CreateTestData.create_user(name='jack', password='test1')
         # Make up a key - i.e. trying to hack this
