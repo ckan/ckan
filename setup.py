@@ -185,21 +185,12 @@ setup(
             ('ckan/templates/home/language.js', 'genshi', {
                 'template_class': 'genshi.template:TextTemplate'
             }),
-            ('templates/**.txt', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
-            ('templates_legacy/**.txt', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
             ('public/**', 'ignore', None),
         ],
         'ckanext': [
             ('**.py', 'python', None),
             ('**.html', 'ckan', None),
             ('multilingual/solr/*.txt', 'ignore', None),
-            ('**.txt', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
         ]
     },
     entry_points=entry_points,
