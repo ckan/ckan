@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
-# cagdas!123 <olgun.cagdas@gmail.com>, 2013
+# cagdas!123 <olgun.cagdas@gmail.com>, 2013,2015
+# sercan erhan <sercanerhan@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-01-26 11:55+0000\n"
-"PO-Revision-Date: 2015-01-26 12:20+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
+"PO-Revision-Date: 2015-04-10 11:37+0000\n"
+"Last-Translator: sercan erhan <sercanerhan@gmail.com>\n"
 "Language-Team: Turkish (http://www.transifex.com/projects/p/ckan/language/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -26,11 +27,11 @@ msgstr ""
 
 #: ckan/new_authz.py:190
 msgid "Admin"
-msgstr ""
+msgstr "Yönetici"
 
 #: ckan/new_authz.py:194
 msgid "Editor"
-msgstr ""
+msgstr "İçerik Düzenleyici"
 
 #: ckan/new_authz.py:198
 msgid "Member"
@@ -38,15 +39,15 @@ msgstr "Üye"
 
 #: ckan/controllers/admin.py:27
 msgid "Need to be system administrator to administer"
-msgstr ""
+msgstr "Yönetmek için sistem yöneticisi olmanıza gerek vardır"
 
 #: ckan/controllers/admin.py:43
 msgid "Site Title"
-msgstr ""
+msgstr "Site başlığı"
 
 #: ckan/controllers/admin.py:44
 msgid "Style"
-msgstr ""
+msgstr "Stil"
 
 #: ckan/controllers/admin.py:45
 msgid "Site Tag Line"
@@ -54,7 +55,7 @@ msgstr ""
 
 #: ckan/controllers/admin.py:46
 msgid "Site Tag Logo"
-msgstr ""
+msgstr "Site logosu"
 
 #: ckan/controllers/admin.py:47 ckan/templates/header.html:102
 #: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:19
@@ -67,11 +68,11 @@ msgstr "Hakkında"
 
 #: ckan/controllers/admin.py:47
 msgid "About page text"
-msgstr ""
+msgstr "Hakkında metni"
 
 #: ckan/controllers/admin.py:48
 msgid "Intro Text"
-msgstr ""
+msgstr "Karşılama metni"
 
 #: ckan/controllers/admin.py:48
 msgid "Text on home page"
@@ -87,7 +88,7 @@ msgstr ""
 
 #: ckan/controllers/admin.py:50
 msgid "Homepage"
-msgstr ""
+msgstr "Anasayfa"
 
 #: ckan/controllers/admin.py:131
 #, python-format
@@ -117,11 +118,11 @@ msgstr ""
 #: ckan/controllers/user.py:101 ckan/controllers/user.py:550
 #: ckanext/datapusher/plugin.py:67
 msgid "Not authorized to see this page"
-msgstr ""
+msgstr "Bu sayfayı görüntüleme izni yoktur"
 
 #: ckan/controllers/api.py:118 ckan/controllers/api.py:209
 msgid "Access denied"
-msgstr ""
+msgstr "Erişim engellendi"
 
 #: ckan/controllers/api.py:124 ckan/controllers/api.py:218
 #: ckan/logic/converters.py:119 ckan/logic/converters.py:144
@@ -148,7 +149,7 @@ msgstr ""
 #: ckan/controllers/api.py:414
 #, python-format
 msgid "JSON Error: %s"
-msgstr ""
+msgstr "JSON Hatası: %s"
 
 #: ckan/controllers/api.py:190
 #, python-format
@@ -181,7 +182,7 @@ msgstr ""
 
 #: ckan/controllers/api.py:442
 msgid "Unable to update search index"
-msgstr ""
+msgstr "Arama index'i güncellenemiyor"
 
 #: ckan/controllers/api.py:466
 #, python-format
@@ -234,15 +235,15 @@ msgstr ""
 #: ckan/controllers/group.py:795 ckan/controllers/group.py:880
 #: ckan/controllers/package.py:1288 ckan/controllers/package.py:1303
 msgid "Group not found"
-msgstr ""
+msgstr "Grup bulunamadı"
 
 #: ckan/controllers/feed.py:234 ckan/controllers/group.py:364
 msgid "Organization not found"
-msgstr ""
+msgstr "Organizasyon bulunamadı"
 
 #: ckan/controllers/group.py:172
 msgid "Incorrect group type"
-msgstr ""
+msgstr "Doğru olmayan grup tipi"
 
 #: ckan/controllers/group.py:192 ckan/controllers/group.py:387
 #: ckan/controllers/group.py:486 ckan/controllers/group.py:527
@@ -262,7 +263,7 @@ msgstr ""
 #: ckan/templates/organization/read_base.html:6
 #: ckan/templates/package/base.html:14
 msgid "Organizations"
-msgstr ""
+msgstr "Organizasyonlar"
 
 #: ckan/controllers/group.py:286 ckan/controllers/home.py:71
 #: ckan/controllers/package.py:242 ckan/lib/helpers.py:682
@@ -276,7 +277,7 @@ msgstr ""
 #: ckan/templates/package/read_base.html:25
 #: ckan/templates/revision/diff.html:16 ckan/templates/revision/read.html:84
 msgid "Groups"
-msgstr ""
+msgstr "Gruplar"
 
 #: ckan/controllers/group.py:287 ckan/controllers/home.py:72
 #: ckan/controllers/package.py:243 ckan/lib/helpers.py:683
@@ -286,17 +287,17 @@ msgstr ""
 #: ckan/templates/tag/index.html:3 ckan/templates/tag/index.html:6
 #: ckan/templates/tag/index.html:12
 msgid "Tags"
-msgstr ""
+msgstr "Etiketler"
 
 #: ckan/controllers/group.py:288 ckan/controllers/home.py:73
 #: ckan/controllers/package.py:244 ckan/lib/helpers.py:684
 msgid "Formats"
-msgstr ""
+msgstr "Formatlar"
 
 #: ckan/controllers/group.py:289 ckan/controllers/home.py:74
 #: ckan/controllers/package.py:245 ckan/lib/helpers.py:685
 msgid "Licenses"
-msgstr ""
+msgstr "Lisanslar"
 
 #: ckan/controllers/group.py:429
 msgid "Not authorized to perform bulk update"
@@ -333,11 +334,11 @@ msgstr ""
 
 #: ckan/controllers/group.py:609
 msgid "Organization has been deleted."
-msgstr ""
+msgstr "Organizasyon silinmiştir."
 
 #: ckan/controllers/group.py:611
 msgid "Group has been deleted."
-msgstr ""
+msgstr "Grup silinmiştir."
 
 #: ckan/controllers/group.py:677
 #, python-format
@@ -351,7 +352,7 @@ msgstr ""
 
 #: ckan/controllers/group.py:700
 msgid "Group member has been deleted."
-msgstr ""
+msgstr "Grup üyesi silinmiştir."
 
 #: ckan/controllers/group.py:722 ckan/controllers/package.py:446
 msgid "Select two revisions before doing the comparison."
@@ -372,7 +373,7 @@ msgstr ""
 
 #: ckan/controllers/group.py:772 ckan/controllers/package.py:496
 msgid "Log message: "
-msgstr ""
+msgstr "Günlük mesajı:"
 
 #: ckan/controllers/group.py:798
 msgid "Unauthorized to read group {group_id}"
@@ -402,22 +403,22 @@ msgid ""
 "Please <a href=\"{link}\">update your profile</a> and add your email address"
 " and your full name. {site} uses your email address if you need to reset "
 "your password."
-msgstr ""
+msgstr "Lütfen isim ve e-posta adresi bilgileriniz ile <a href=\"{link}\">profilinizi güncelleyin</a>. Şifrenizi unutursanız, {site} e-posta bilgilerinizi kullanacaktır."
 
 #: ckan/controllers/home.py:103
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
-msgstr ""
+msgstr "Lütfen  <a href=\"%s\">profilinizi güncelleyin</a>  ve e-posta adresinizi ekleyin."
 
 #: ckan/controllers/home.py:105
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr ""
+msgstr "Şifrenizi unutursanız, %s e-posta bilgilerinizi kullanacaktır."
 
 #: ckan/controllers/home.py:109
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your full name."
-msgstr ""
+msgstr "Lütfen <a href=\"%s\">profilinizi güncelleyin</a> ve ad soyad bilgilerinizi ekleyin."
 
 #: ckan/controllers/package.py:295
 msgid "Parameter \"{parameter_name}\" is not an integer"
@@ -497,7 +498,7 @@ msgstr ""
 
 #: ckan/controllers/package.py:696 ckanext/datapusher/helpers.py:22
 msgid "Error"
-msgstr ""
+msgstr "Hata"
 
 #: ckan/controllers/package.py:714
 msgid "Unauthorized to create a resource"
@@ -629,19 +630,19 @@ msgstr ""
 
 #: ckan/controllers/related.py:163
 msgid "Package not found"
-msgstr ""
+msgstr "Paket bulunamadı"
 
 #: ckan/controllers/related.py:183
 msgid "Related item was successfully created"
-msgstr ""
+msgstr "İlgili öğe, başarıyla oluşturuldu"
 
 #: ckan/controllers/related.py:185
 msgid "Related item was successfully updated"
-msgstr ""
+msgstr "İlgili öğe, başarıyla güncellendi"
 
 #: ckan/controllers/related.py:216
 msgid "Related item has been deleted."
-msgstr ""
+msgstr "İlgili öğe silindi."
 
 #: ckan/controllers/related.py:222
 #, python-format
@@ -654,7 +655,7 @@ msgstr "API"
 
 #: ckan/controllers/related.py:233
 msgid "Application"
-msgstr ""
+msgstr "Uygulama"
 
 #: ckan/controllers/related.py:234
 msgid "Idea"
@@ -674,7 +675,7 @@ msgstr ""
 
 #: ckan/controllers/related.py:238
 msgid "Visualization"
-msgstr ""
+msgstr "Görselleştirme"
 
 #: ckan/controllers/revision.py:42
 msgid "CKAN Repository Revision History"
@@ -699,14 +700,14 @@ msgstr "Diğer"
 
 #: ckan/controllers/tag.py:70
 msgid "Tag not found"
-msgstr ""
+msgstr "Etiket bulunamadı"
 
 #: ckan/controllers/user.py:70 ckan/controllers/user.py:219
 #: ckan/controllers/user.py:234 ckan/controllers/user.py:296
 #: ckan/controllers/user.py:337 ckan/controllers/user.py:482
 #: ckan/controllers/user.py:503 ckan/logic/auth/update.py:198
 msgid "User not found"
-msgstr ""
+msgstr "Kullanıcı bulunamadı"
 
 #: ckan/controllers/user.py:149
 msgid "Unauthorized to register as a user."
@@ -732,7 +733,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:221 ckan/controllers/user.py:332
 msgid "Profile updated"
-msgstr ""
+msgstr "Profil güncellendi"
 
 #: ckan/controllers/user.py:232
 #, python-format
@@ -741,7 +742,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:238
 msgid "Bad Captcha. Please try again."
-msgstr ""
+msgstr "Doğrulama kodu hatalı. Lütfen tekrar deneyin."
 
 #: ckan/controllers/user.py:255
 #, python-format
@@ -761,7 +762,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:383
 msgid "Login failed. Bad username or password."
-msgstr ""
+msgstr "Giriş hatası. Kullanıcı adı ya da şifre hatalı."
 
 #: ckan/controllers/user.py:417
 msgid "Unauthorized to request reset password."
@@ -779,7 +780,7 @@ msgstr "Kullanıcı bulunamadı: %s"
 
 #: ckan/controllers/user.py:455
 msgid "Please check your inbox for a reset code."
-msgstr ""
+msgstr "Şifre sıfırlama konudunuz için lütfen e-posta kurunuzu kontrol edin."
 
 #: ckan/controllers/user.py:459
 #, python-format
@@ -800,15 +801,15 @@ msgstr "Şifreniz yenilendi."
 
 #: ckan/controllers/user.py:519
 msgid "Your password must be 4 characters or longer."
-msgstr ""
+msgstr "Şifreniz en az 4 karakter veya daha uzun olmalı."
 
 #: ckan/controllers/user.py:522
 msgid "The passwords you entered do not match."
-msgstr ""
+msgstr "Girmiş olduğunuz şifreler uyuşmamaktadır."
 
 #: ckan/controllers/user.py:525
 msgid "You must provide a password"
-msgstr ""
+msgstr "Bir şifre belirlemelisiniz."
 
 #: ckan/controllers/user.py:589
 msgid "Follow item not found"
@@ -816,7 +817,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:593
 msgid "{0} not found"
-msgstr ""
+msgstr "{0} bulunamadı"
 
 #: ckan/controllers/user.py:595
 msgid "Unauthorized to read {0} {1}"
@@ -824,31 +825,31 @@ msgstr ""
 
 #: ckan/controllers/user.py:610
 msgid "Everything"
-msgstr ""
+msgstr "Herşey"
 
 #: ckan/controllers/util.py:16 ckan/logic/action/__init__.py:60
 msgid "Missing Value"
-msgstr ""
+msgstr "Eksik Değer"
 
 #: ckan/controllers/util.py:21
 msgid "Redirecting to external site is not allowed."
-msgstr ""
+msgstr "Başka bir siteye yönlendirmeye izin verilmemektedir."
 
 #: ckan/lib/activity_streams.py:64
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor}, {dataset} verisetine {tag} etiketini ekledi. "
 
 #: ckan/lib/activity_streams.py:67
 msgid "{actor} updated the group {group}"
-msgstr ""
+msgstr "{actor},  {group}  grubunu güncelledi."
 
 #: ckan/lib/activity_streams.py:70
 msgid "{actor} updated the organization {organization}"
-msgstr ""
+msgstr "{actor}, {organization} organizasyonunu güncelledi."
 
 #: ckan/lib/activity_streams.py:73
 msgid "{actor} updated the dataset {dataset}"
-msgstr ""
+msgstr "{actor}, {dataset} verisetini güncelledi."
 
 #: ckan/lib/activity_streams.py:76
 msgid "{actor} changed the extra {extra} of the dataset {dataset}"
@@ -860,7 +861,7 @@ msgstr ""
 
 #: ckan/lib/activity_streams.py:82
 msgid "{actor} updated their profile"
-msgstr ""
+msgstr "{actor} profilini güncelledi."
 
 #: ckan/lib/activity_streams.py:86
 msgid ""
@@ -873,7 +874,7 @@ msgstr ""
 
 #: ckan/lib/activity_streams.py:92
 msgid "{actor} deleted the group {group}"
-msgstr ""
+msgstr "{actor} , {group} grubunu sildi"
 
 #: ckan/lib/activity_streams.py:95
 msgid "{actor} deleted the organization {organization}"
@@ -893,7 +894,7 @@ msgstr ""
 
 #: ckan/lib/activity_streams.py:108
 msgid "{actor} created the group {group}"
-msgstr ""
+msgstr "{actor} , {group} grubunu oluşturdu."
 
 #: ckan/lib/activity_streams.py:111
 msgid "{actor} created the organization {organization}"
@@ -959,55 +960,55 @@ msgstr[1] ""
 
 #: ckan/lib/formatters.py:17
 msgid "January"
-msgstr ""
+msgstr "Ocak"
 
 #: ckan/lib/formatters.py:21
 msgid "February"
-msgstr ""
+msgstr "Şubat"
 
 #: ckan/lib/formatters.py:25
 msgid "March"
-msgstr ""
+msgstr "Mart"
 
 #: ckan/lib/formatters.py:29
 msgid "April"
-msgstr ""
+msgstr "Nisan"
 
 #: ckan/lib/formatters.py:33
 msgid "May"
-msgstr ""
+msgstr "Mayıs"
 
 #: ckan/lib/formatters.py:37
 msgid "June"
-msgstr ""
+msgstr "Haziran"
 
 #: ckan/lib/formatters.py:41
 msgid "July"
-msgstr ""
+msgstr "Temmuz"
 
 #: ckan/lib/formatters.py:45
 msgid "August"
-msgstr ""
+msgstr "Ağustos"
 
 #: ckan/lib/formatters.py:49
 msgid "September"
-msgstr ""
+msgstr "Eylül"
 
 #: ckan/lib/formatters.py:53
 msgid "October"
-msgstr ""
+msgstr "Ekim"
 
 #: ckan/lib/formatters.py:57
 msgid "November"
-msgstr ""
+msgstr "Kasım"
 
 #: ckan/lib/formatters.py:61
 msgid "December"
-msgstr ""
+msgstr "Aralık"
 
 #: ckan/lib/formatters.py:109
 msgid "Just now"
-msgstr ""
+msgstr "Az önce"
 
 #: ckan/lib/formatters.py:111
 msgid "{mins} minute ago"
@@ -1041,31 +1042,31 @@ msgstr[1] ""
 
 #: ckan/lib/formatters.py:138
 msgid "{month} {day}, {year}, {hour:02}:{min:02}"
-msgstr ""
+msgstr "{day} {month} , {year}, {hour:02}:{min:02}"
 
 #: ckan/lib/formatters.py:142
 msgid "{month} {day}, {year}"
-msgstr ""
+msgstr " {day} {month}, {year}"
 
 #: ckan/lib/formatters.py:158
 msgid "{bytes} bytes"
-msgstr ""
+msgstr "{bytes} bytes"
 
 #: ckan/lib/formatters.py:160
 msgid "{kibibytes} KiB"
-msgstr ""
+msgstr "{kibibytes} KiB"
 
 #: ckan/lib/formatters.py:162
 msgid "{mebibytes} MiB"
-msgstr ""
+msgstr "{mebibytes} MiB"
 
 #: ckan/lib/formatters.py:164
 msgid "{gibibytes} GiB"
-msgstr ""
+msgstr "{gibibytes} GiB"
 
 #: ckan/lib/formatters.py:166
 msgid "{tebibytes} TiB"
-msgstr ""
+msgstr "{tebibytes} TiB"
 
 #: ckan/lib/formatters.py:178
 msgid "{n}"
@@ -1142,7 +1143,7 @@ msgstr[1] ""
 #: ckan/lib/mailer.py:25
 #, python-format
 msgid "Dear %s,"
-msgstr ""
+msgstr "Sayın %s,"
 
 #: ckan/lib/mailer.py:38
 #, python-format
@@ -1191,7 +1192,7 @@ msgstr ""
 #: ckan/lib/navl/validators.py:30 ckan/lib/navl/validators.py:50
 #: ckan/logic/validators.py:620 ckan/logic/action/get.py:1847
 msgid "Missing value"
-msgstr ""
+msgstr "Eksik değer"
 
 #: ckan/lib/navl/validators.py:64
 #, python-format
@@ -1232,7 +1233,7 @@ msgstr ""
 #: ckan/templates/organization/members.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:156
 msgid "User"
-msgstr ""
+msgstr "Kullanıcı"
 
 #: ckan/logic/converters.py:144 ckan/logic/validators.py:141
 #: ckan/logic/validators.py:183 ckan/templates/package/read_base.html:24
@@ -1240,13 +1241,13 @@ msgstr ""
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:65
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:74
 msgid "Dataset"
-msgstr ""
+msgstr "Veri seti"
 
 #: ckan/logic/converters.py:169 ckan/logic/validators.py:236
 #: ckanext/stats/templates/ckanext/stats/index.html:113
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:82
 msgid "Group"
-msgstr ""
+msgstr "Grup"
 
 #: ckan/logic/converters.py:178
 msgid "Could not parse as valid JSON"
@@ -1336,7 +1337,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:379
 msgid "That URL is already in use."
-msgstr ""
+msgstr "Bu URL zaten kullanımda."
 
 #: ckan/logic/validators.py:384
 #, python-format
@@ -1876,11 +1877,11 @@ msgstr ""
 
 #: ckan/model/license.py:227
 msgid "Creative Commons Attribution"
-msgstr ""
+msgstr "Creative Commons - Alıntı (CC BY)"
 
 #: ckan/model/license.py:237
 msgid "Creative Commons Attribution Share-Alike"
-msgstr ""
+msgstr "Creative Commons Alıntı-Lisans Devam (CC BY-SA)"
 
 #: ckan/model/license.py:246
 msgid "GNU Free Documentation License"
@@ -1904,7 +1905,7 @@ msgstr ""
 
 #: ckan/model/license.py:296
 msgid "Creative Commons Non-Commercial (Any)"
-msgstr ""
+msgstr "Creative Commons Alıntı-Gayriticari (CC BY-NC)"
 
 #: ckan/model/license.py:304
 msgid "Other (Non-Commercial)"
@@ -4329,19 +4330,19 @@ msgstr ""
 
 #: ckan/templates/user/login.html:30
 msgid "Create an Account"
-msgstr ""
+msgstr "Bir hesap oluşturun"
 
 #: ckan/templates/user/login.html:42
 msgid "Forgotten your password?"
-msgstr ""
+msgstr "Şifrenizi mi unuttunuz?"
 
 #: ckan/templates/user/login.html:44
 msgid "No problem, use our password recovery form to reset it."
-msgstr ""
+msgstr "Sorun yok, şifrenizi sıfırlamak için şifre kurtarma formumuzu kullanabilirsiniz."
 
 #: ckan/templates/user/login.html:47
 msgid "Forgot your password?"
-msgstr ""
+msgstr "Şifrenizi mi unuttunuz?"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
 msgid "Logged Out"
@@ -4353,20 +4354,20 @@ msgstr ""
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
-msgstr ""
+msgstr "{user} olarak giriş yapmış bulunuyorsunuz."
 
 #: ckan/templates/user/logout_first.html:9
 msgid "Logout"
-msgstr ""
+msgstr "Oturumu kapat"
 
 #: ckan/templates/user/logout_first.html:13
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr ""
+msgstr "Beni hatırla"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
-msgstr ""
+msgstr "Zaten giriş yapmış bulunuyorsunuz"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
@@ -4374,7 +4375,7 @@ msgstr ""
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
-msgstr ""
+msgstr "Oturumumu şimdi kapat"
 
 #: ckan/templates/user/new.html:6
 msgid "Registration"
@@ -4386,7 +4387,7 @@ msgstr ""
 
 #: ckan/templates/user/new.html:26
 msgid "Why Sign Up?"
-msgstr ""
+msgstr "Neden kayıt olmalıyım?"
 
 #: ckan/templates/user/new.html:28
 msgid "Create datasets, groups and other exciting things"
@@ -4394,33 +4395,33 @@ msgstr ""
 
 #: ckan/templates/user/new_user_form.html:5
 msgid "username"
-msgstr ""
+msgstr "Kullanıcı adı"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
-msgstr ""
+msgstr "Ad & Soyad"
 
 #: ckan/templates/user/new_user_form.html:17
 msgid "Create Account"
-msgstr ""
+msgstr "Hesap oluşturun"
 
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:14
 msgid "Reset Your Password"
-msgstr ""
+msgstr "Şifrenizi sıfırlayın"
 
 #: ckan/templates/user/perform_reset.html:7
 msgid "Password Reset"
-msgstr ""
+msgstr "Şifreyi sıfırla"
 
 #: ckan/templates/user/perform_reset.html:24
 msgid "Update Password"
-msgstr ""
+msgstr "Şifreyi güncelle"
 
 #: ckan/templates/user/perform_reset.html:38
 #: ckan/templates/user/request_reset.html:32
 msgid "How does this work?"
-msgstr ""
+msgstr "Nasıl çalışır?"
 
 #: ckan/templates/user/perform_reset.html:40
 msgid "Simply enter a new password and we'll update your account"
@@ -4436,7 +4437,7 @@ msgstr ""
 
 #: ckan/templates/user/read_base.html:41
 msgid "This user has no biography."
-msgstr ""
+msgstr "Bu kullanıcının bir özgeçmişi bulunmamaktadır."
 
 #: ckan/templates/user/read_base.html:73
 msgid "Open ID"
@@ -4475,7 +4476,7 @@ msgstr ""
 
 #: ckan/templates/user/snippets/followee_dropdown.html:23
 msgid "Search list..."
-msgstr ""
+msgstr "Arama listesi..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:44
 msgid "You are not following anything"
@@ -4487,7 +4488,7 @@ msgstr ""
 
 #: ckan/templates/user/snippets/user_search.html:5
 msgid "Search Users"
-msgstr ""
+msgstr "Kullanıcı arama"
 
 #: ckanext/datapusher/helpers.py:19
 msgid "Complete"
@@ -4545,7 +4546,7 @@ msgstr ""
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:11
 msgid "Country Code"
-msgstr ""
+msgstr "Ülke kodu"
 
 #: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
 msgid "custom resource text"
@@ -4554,7 +4555,7 @@ msgstr ""
 #: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
 msgid "This group has no description"
-msgstr ""
+msgstr "Bu grubun bir açıklaması bulunmamaktadır."
 
 #: ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
@@ -4562,7 +4563,7 @@ msgstr ""
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "Image url"
-msgstr ""
+msgstr "Resim bağlantısı"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
@@ -4692,7 +4693,7 @@ msgstr ""
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
 msgid "Date"
-msgstr ""
+msgstr "Tarih"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
@@ -4709,7 +4710,7 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
-msgstr ""
+msgstr "Yeni veriseti"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 #: ckanext/stats/templates/ckanext/stats/index.html:180
@@ -4756,7 +4757,7 @@ msgstr ""
 #: ckanext/stats/templates/ckanext/stats/index.html:114
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:82
 msgid "Number of datasets"
-msgstr ""
+msgstr "Veriseti sayısı"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:127
 msgid "No groups"
@@ -4770,12 +4771,12 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:136
 msgid "Tag Name"
-msgstr ""
+msgstr "Etiket ismi"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:137
 #: ckanext/stats/templates/ckanext/stats/index.html:157
 msgid "Number of Datasets"
-msgstr ""
+msgstr "Veriseti sayısı"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
@@ -4784,16 +4785,16 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
-msgstr ""
+msgstr "İstatistik menüsü"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:178
 msgid "Total Number of Datasets"
-msgstr ""
+msgstr "Toplam veriseti sayısı"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:6
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:8
 msgid "Statistics"
-msgstr ""
+msgstr "İstatistikler"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:60
 msgid "Revisions to Datasets per week"
@@ -4823,15 +4824,15 @@ msgstr ""
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:20
 msgid "Choose area"
-msgstr ""
+msgstr "Alan seçin"
 
 #: ckanext/webpageview/plugin.py:24
 msgid "Website"
-msgstr ""
+msgstr "Web sitesi"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "Web Page url"
-msgstr ""
+msgstr "Web adresi"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"

@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 "Language: ru\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
 
 #: ckan/new_authz.py:178
 #, python-format
@@ -960,6 +960,7 @@ msgid_plural "{n} new activities from {site_title}"
 msgstr[0] "{n} новая активность от {site_title}"
 msgstr[1] "{n} новая активность от {site_title}"
 msgstr[2] "{n} новая активность от {site_title}"
+msgstr[3] "{n} новая активность от {site_title}"
 
 #: ckan/lib/formatters.py:17
 msgid "January"
@@ -1019,6 +1020,7 @@ msgid_plural "{mins} minutes ago"
 msgstr[0] "{mins} минуту спустя"
 msgstr[1] "{mins} минут спустя"
 msgstr[2] "{mins} минут спустя"
+msgstr[3] "{mins} минут спустя"
 
 #: ckan/lib/formatters.py:114
 msgid "{hours} hour ago"
@@ -1026,6 +1028,7 @@ msgid_plural "{hours} hours ago"
 msgstr[0] "{hours} час назад"
 msgstr[1] "{hours} часа назад"
 msgstr[2] "{hours} часов назад"
+msgstr[3] "{hours} часов назад"
 
 #: ckan/lib/formatters.py:120
 msgid "{days} day ago"
@@ -1033,6 +1036,7 @@ msgid_plural "{days} days ago"
 msgstr[0] "{days} день назад"
 msgstr[1] "{days} дней назад"
 msgstr[2] "{days} дней назад"
+msgstr[3] "{days} дней назад"
 
 #: ckan/lib/formatters.py:123
 msgid "{months} month ago"
@@ -1040,6 +1044,7 @@ msgid_plural "{months} months ago"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/lib/formatters.py:125
 msgid "over {years} year ago"
@@ -1047,6 +1052,7 @@ msgid_plural "over {years} years ago"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+msgstr[3] ""
 
 #: ckan/lib/formatters.py:138
 msgid "{month} {day}, {year}, {hour:02}:{min:02}"
@@ -1142,6 +1148,7 @@ msgid_plural "{number} views"
 msgstr[0] "{number} просмотр"
 msgstr[1] "{number} просмотры"
 msgstr[2] "{number} просмотры"
+msgstr[3] "{number} просмотры"
 
 #: ckan/lib/helpers.py:1433
 msgid "{number} recent view"
@@ -1149,6 +1156,7 @@ msgid_plural "{number} recent views"
 msgstr[0] "{number} последние просмотр"
 msgstr[1] "{number} последние просмотры"
 msgstr[2] "{number} последние просмотры"
+msgstr[3] "{number} последние просмотры"
 
 #: ckan/lib/mailer.py:25
 #, python-format
@@ -2196,6 +2204,7 @@ msgid_plural "Dashboard (%(num)d new items)"
 msgstr[0] "Панель управления (%(num)d новый элемент)"
 msgstr[1] "Панель управления (%(num)d новые элементы)"
 msgstr[2] "Панель управления (%(num)d новые элементы)"
+msgstr[3] "Панель управления (%(num)d новые элементы)"
 
 #: ckan/templates/header.html:33 ckan/templates/user/dashboard.html:16
 msgid "Edit settings"
@@ -2833,6 +2842,7 @@ msgid_plural "{num} Datasets"
 msgstr[0] "{num} Пакет данных"
 msgstr[1] "{num} Пакеты данных"
 msgstr[2] "{num} Пакеты данных"
+msgstr[3] "{num} Пакеты данных"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -4111,6 +4121,7 @@ msgid_plural "{number} datasets found for \"{query}\""
 msgstr[0] "{number} пакет данных найден для \"{query}\""
 msgstr[1] "{number} пакеты данных найдены для \"{query}\""
 msgstr[2] "{number} пакеты данных найдены для \"{query}\""
+msgstr[3] "{number} пакеты данных найдены для \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
@@ -4122,6 +4133,7 @@ msgid_plural "{number} datasets found"
 msgstr[0] "{number} массив найден"
 msgstr[1] "{number} массива найдено"
 msgstr[2] "{number} найдено массивов данных"
+msgstr[3] "{number} найдено массивов данных"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
@@ -4133,6 +4145,7 @@ msgid_plural "{number} groups found for \"{query}\""
 msgstr[0] "{number} группа найдена для \"{query}\""
 msgstr[1] "{number} группы найдены для \"{query}\""
 msgstr[2] "{number} группы найдены для \"{query}\""
+msgstr[3] "{number} группы найдены для \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22
 msgid "No groups found for \"{query}\""
@@ -4144,6 +4157,7 @@ msgid_plural "{number} groups found"
 msgstr[0] "{number} группа найдена"
 msgstr[1] "{number} группы найдены"
 msgstr[2] "{number} группы найдены"
+msgstr[3] "{number} группы найдены"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -4155,6 +4169,7 @@ msgid_plural "{number} organizations found for \"{query}\""
 msgstr[0] "{number} организация найдена для \"{query}\""
 msgstr[1] "{number} организации найдены для \"{query}\""
 msgstr[2] "{number} организации найдены для \"{query}\""
+msgstr[3] "{number} организации найдены для \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
 msgid "No organizations found for \"{query}\""
@@ -4166,6 +4181,7 @@ msgid_plural "{number} organizations found"
 msgstr[0] "{number} организация найдена"
 msgstr[1] "{number} организации найдены"
 msgstr[2] "{number} организации найдены"
+msgstr[3] "{number} организации найдены"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
