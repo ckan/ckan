@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-01-26 11:55+0000\n"
-"PO-Revision-Date: 2015-02-23 22:33+0000\n"
+"PO-Revision-Date: 2015-02-27 14:15+0000\n"
 "Last-Translator: klimek <klimek@ksi.mff.cuni.cz>\n"
 "Language-Team: Czech (Czech Republic) (http://www.transifex.com/projects/p/ckan/language/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
@@ -67,7 +67,7 @@ msgstr "Malé logo portálu"
 #: ckan/templates/organization/read_base.html:19
 #: ckan/templates/user/edit_user_form.html:15
 msgid "About"
-msgstr "Co je CKAN?"
+msgstr "O nás"
 
 #: ckan/controllers/admin.py:47
 msgid "About page text"
@@ -3598,7 +3598,7 @@ msgstr "Znění jednotlivých licencí a další informace lze nalézt na webu <
 #: ckan/templates/package/snippets/package_basic_fields.html:69
 #: ckan/templates/snippets/organization.html:23
 msgid "Organization"
-msgstr "Důvod"
+msgstr "Organizace"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:73
 msgid "No organization"
