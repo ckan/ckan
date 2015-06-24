@@ -232,3 +232,24 @@ class TestUserFollow(helpers.FunctionalTestBase):
         unfollow_response = unfollow_response.follow(status=404)
 
         assert_true('User not found' in unfollow_response)
+
+    def test_user_follower_list(self):
+        '''Following users appear on followers list page.'''
+        app = self._get_test_app()
+
+        user_one = factories.Sysadmin()
+        user_two = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id=user_two['id'])
+        app.post(follow_url, extra_environ=env, status=302)
+
+        followers_url = url_for(controller='user', action='followers',
+                                id=user_two['id'])
+
+        # Only sysadmins can view the followers list pages
+        followers_response = app.get(followers_url, extra_environ=env,
+                                     status=200)
+        assert_true(user_one['display_name'] in followers_response)
