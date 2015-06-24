@@ -145,3 +145,90 @@ class TestUser(helpers.FunctionalTestBase):
 
         response = webtest_submit(form, 'save', status=200, extra_environ=env)
         assert_true('Old Password: incorrect password' in response)
+
+
+class TestUserFollow(helpers.FunctionalTestBase):
+
+    def test_user_follow(self):
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        user_two = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id=user_two['id'])
+        response = app.post(follow_url, extra_environ=env, status=302)
+        response = response.follow()
+        assert_true('You are now following {0}'
+                    .format(user_two['display_name'])
+                    in response)
+
+    def test_user_follow_not_exist(self):
+        '''Pass an id for a user that doesn't exist'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id='not-here')
+        response = app.post(follow_url, extra_environ=env, status=302)
+        response = response.follow(status=404)
+        assert_true('User not found' in response)
+
+    def test_user_unfollow(self):
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        user_two = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id=user_two['id'])
+        app.post(follow_url, extra_environ=env, status=302)
+
+        unfollow_url = url_for(controller='user', action='unfollow',
+                               id=user_two['id'])
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow()
+
+        assert_true('You are no longer following {0}'
+                    .format(user_two['display_name'])
+                    in unfollow_response)
+
+    def test_user_unfollow_not_following(self):
+        '''Unfollow a user not currently following'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        user_two = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        unfollow_url = url_for(controller='user', action='unfollow',
+                               id=user_two['id'])
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow()
+
+        assert_true('You are not following {0}'.format(user_two['id'])
+                    in unfollow_response)
+
+    def test_user_unfollow_not_exist(self):
+        '''Unfollow a user that doesn't exist.'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        unfollow_url = url_for(controller='user', action='unfollow',
+                               id='not-here')
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow(status=404)
+
+        assert_true('User not found' in unfollow_response)
