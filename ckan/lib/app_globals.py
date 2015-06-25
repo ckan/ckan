@@ -221,7 +221,7 @@ class _Globals(object):
 
         # process the config details to set globals
         for key in app_globals_from_config_details.keys():
-            new_key, value = process_app_global(key, config.get(key))
+            new_key, value = process_app_global(key, config.get(key) or '')
             setattr(self, new_key, value)
 
 
