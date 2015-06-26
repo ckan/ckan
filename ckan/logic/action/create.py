@@ -213,7 +213,9 @@ def package_create(context, data_dict):
     # Create default views for resources if necessary
     if data.get('resources'):
         logic.get_action('package_create_default_resource_views')(
-            context, {'package': data})
+            {'model': context['model'], 'user': context['user'],
+             'ignore_auth': True},
+            {'package': data})
 
     if not context.get('defer_commit'):
         model.repo.commit()
