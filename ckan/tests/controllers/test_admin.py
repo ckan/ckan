@@ -3,6 +3,7 @@ from nose.tools import assert_true, assert_equal
 from bs4 import BeautifulSoup
 from routes import url_for
 
+import ckan.model as model
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
@@ -243,3 +244,107 @@ class TestConfig(helpers.FunctionalTestBase):
         reset_index_response = app.get('/')
         assert_true('<!-- Snippet home/layout1.html start -->'
                     in reset_index_response)
+
+
+class TestTrashView(helpers.FunctionalTestBase):
+    '''View tests for permanently deleting datasets with Admin Trash.'''
+
+    def test_trash_view_anon_user(self):
+        '''An anon user shouldn't be able to access trash view.'''
+        app = self._get_test_app()
+
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, status=302)
+        # redirects to login page with flash message
+        trash_response = trash_response.follow()
+        assert_true('Need to be system administrator to administer'
+                    in trash_response)
+        assert_true('<!-- Snippet user/snippets/login_form.html start -->'
+                    in trash_response)
+
+    def test_trash_view_normal_user(self):
+        '''A normal logged in user shouldn't be able to access trash view.'''
+        user = factories.User()
+        app = self._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=401)
+        assert_true('Need to be system administrator to administer'
+                    in trash_response)
+
+    def test_trash_view_sysadmin(self):
+        '''A sysadmin should be able to access trash view.'''
+        user = factories.Sysadmin()
+        app = self._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+        # On the purge page
+        assert_true('form-purge-packages' in trash_response)
+
+    def test_trash_no_datasets(self):
+        '''Getting the trash view with no 'deleted' datasets should list no
+        datasets.'''
+        factories.Dataset()
+        user = factories.Sysadmin()
+        app = self._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        trash_response_html = BeautifulSoup(trash_response.body)
+        # it's called a 'user list' for some reason
+        trash_pkg_list = trash_response_html.select('ul.user-list li')
+        # no packages available to purge
+        assert_equal(len(trash_pkg_list), 0)
+
+    def test_trash_with_deleted_datasets(self):
+        '''Getting the trash view with 'deleted' datasets should list the
+        datasets.'''
+        user = factories.Sysadmin()
+        factories.Dataset(state='deleted')
+        factories.Dataset(state='deleted')
+        factories.Dataset()
+        app = self._get_test_app()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        trash_response_html = BeautifulSoup(trash_response.body)
+        # it's called a 'user list' for some reason
+        trash_pkg_list = trash_response_html.select('ul.user-list li')
+        # Two packages in the list to purge
+        assert_equal(len(trash_pkg_list), 2)
+
+    def test_trash_purge_deleted_datasets(self):
+        '''Posting the trash view with 'deleted' datasets, purges the
+        datasets.'''
+        user = factories.Sysadmin()
+        factories.Dataset(state='deleted')
+        factories.Dataset(state='deleted')
+        factories.Dataset()
+        app = self._get_test_app()
+
+        # how many datasets before purge
+        pkgs_before_purge = model.Session.query(model.Package).count()
+        assert_equal(pkgs_before_purge, 3)
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        trash_url = url_for(controller='admin', action='trash')
+        trash_response = app.get(trash_url, extra_environ=env, status=200)
+
+        # submit the purge form
+        purge_form = trash_response.forms['form-purge-packages']
+        purge_response = webtest_submit(purge_form, 'purge-packages',
+                                        status=302, extra_environ=env)
+        purge_response = purge_response.follow(extra_environ=env)
+        # redirected back to trash page
+        assert_true('Purge complete' in purge_response)
+
+        # how many datasets after purge
+        pkgs_before_purge = model.Session.query(model.Package).count()
+        assert_equal(pkgs_before_purge, 1)
