@@ -1,10 +1,14 @@
 import datetime
-
+import pytz
+import logging
+from pylons import config
 from babel import numbers
 
 import ckan.lib.i18n as i18n
 
 from ckan.common import _, ungettext
+
+log = logging.getLogger(__name__)
 
 
 ##################################################
@@ -124,18 +128,36 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
                              months).format(months=months)
         return ungettext('over {years} year ago', 'over {years} years ago',
                          months / 12).format(years=months / 12)
+
+    # all dates are considered UTC internally,
+    # change output if `ckan.timezone` is available
+    tz_datetime = datetime_.replace(tzinfo=pytz.utc)
+    try:
+        tz_datetime = tz_datetime.astimezone(
+            pytz.timezone(config.get('ckan.timezone', ''))
+        )
+    except pytz.UnknownTimeZoneError:
+        log.warning(
+            'Timezone `%s` not found. '
+            'Please provide a valid timezone setting in `ckan.timezone` '
+            'or leave the field empty. All valid values can be found in '
+            'pytz.all_timezones.' % config.get('ckan.timezone', '')
+        )
+
     # actual date
     details = {
-        'min': datetime_.minute,
-        'hour': datetime_.hour,
-        'day': datetime_.day,
-        'year': datetime_.year,
-        'month': _MONTH_FUNCTIONS[datetime_.month - 1](),
+        'min': tz_datetime.minute,
+        'hour': tz_datetime.hour,
+        'day': tz_datetime.day,
+        'year': tz_datetime.year,
+        'month': _MONTH_FUNCTIONS[tz_datetime.month - 1](),
+        'timezone': tz_datetime.tzinfo.zone,
     }
     if with_hours:
         return (
-            # NOTE: This is for translating dates like `April 24, 2013, 10:45`
-            _('{month} {day}, {year}, {hour:02}:{min:02}').format(**details))
+            # NOTE: This is for translating dates like `April 24, 2013, 10:45 (UTC)`
+            _('{month} {day}, {year}, {hour:02}:{min:02} ({timezone})') \
+            .format(**details))
     else:
         return (
             # NOTE: This is for translating dates like `April 24, 2013`
