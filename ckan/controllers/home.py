@@ -86,30 +86,14 @@ class HomeController(base.BaseController):
             c.package_count = 0
             c.groups = []
 
-        if c.userobj is not None:
-            msg = None
+        if c.userobj and not c.userobj.email:
             url = h.url_for(controller='user', action='edit')
-            is_google_id = \
-                c.userobj.name.startswith(
-                    'https://www.google.com/accounts/o8/id')
-            if not c.userobj.email and (is_google_id and
-                                        not c.userobj.fullname):
-                msg = _(u'Please <a href="{link}">update your profile</a>'
-                        u' and add your email address and your full name. '
-                        u'{site} uses your email address'
-                        u' if you need to reset your password.'.format(
-                            link=url, site=g.site_title))
-            elif not c.userobj.email:
-                msg = _('Please <a href="%s">update your profile</a>'
-                        ' and add your email address. ') % url + \
-                    _('%s uses your email address'
-                        ' if you need to reset your password.') \
-                    % g.site_title
-            elif is_google_id and not c.userobj.fullname:
-                msg = _('Please <a href="%s">update your profile</a>'
-                        ' and add your full name.') % (url)
-            if msg:
-                h.flash_notice(msg, allow_html=True)
+            msg = _('Please <a href="%s">update your profile</a>'
+                    ' and add your email address. ') % url + \
+                _('%s uses your email address'
+                    ' if you need to reset your password.') \
+                % g.site_title
+            h.flash_notice(msg, allow_html=True)
 
         # START OF DIRTINESS
         def get_group(id):
