@@ -172,7 +172,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
         user_response_html = BeautifulSoup(user_response.body)
         user_list = user_response_html.select('ul.user-list li')
         # two pseudo users + the users we've added
-        assert_equal(len(user_list), 2+3)
+        assert_equal(len(user_list), 2 + 3)
 
         user_names = [u.text.strip() for u in user_list]
         assert_true('User One' in user_names)
@@ -192,7 +192,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
         user_response_html = BeautifulSoup(user_response.body)
         user_list = user_response_html.select('ul.user-list li')
         # two pseudo users + the users we've added
-        assert_equal(len(user_list), 2+2)
+        assert_equal(len(user_list), 2 + 2)
 
         user_names = [u.text.strip() for u in user_list]
         assert_true('User One' not in user_names)
