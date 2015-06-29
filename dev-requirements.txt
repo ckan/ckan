@@ -10,3 +10,4 @@ mock==1.0.1
 factory-boy==2.1.1
 coveralls==0.4.1
 sphinx-rtd-theme==0.1.6
+beautifulsoup4==4.3.2
