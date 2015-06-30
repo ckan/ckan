@@ -22,6 +22,7 @@ __all__ = [
     'ITemplateHelpers',
     'IFacets',
     'IAuthenticator',
+    'IUploader'
 ]
 
 from inspect import isclass
@@ -1458,3 +1459,13 @@ class IAuthenticator(Interface):
         '''called on abort.  This allows aborts due to authorization issues
         to be overriden'''
         return (status_code, detail, headers, comment)
+
+
+class IUploader(Interface):
+    '''
+    Extensions can implement this interface can provide a custom uploader to
+    be used by resource_create and resource_update actions.
+    '''
+
+    def get_uploader(self):
+        '''Return an alternative uploader object for resource files.'''
