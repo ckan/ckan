@@ -3,7 +3,7 @@ import re
 import ckan.lib.base as base
 import ckan.lib.i18n as i18n
 import ckan.lib.helpers as h
-from ckan.common import _
+from ckan.common import _, request
 
 
 class UtilController(base.BaseController):
@@ -24,6 +24,12 @@ class UtilController(base.BaseController):
         ''' Render all html components out onto a single page.
         This is useful for development/styling of ckan. '''
         return base.render('development/primer.html')
+
+    def set_timezone_offset(self, offset):
+        session = request.environ['beaker.session']
+        session['utc_offset_mins'] = offset
+        session.save()
+        return session.get('utc_offset_mins', 'No offset set')
 
     def markup(self):
         ''' Render all html elements out onto a single page.
