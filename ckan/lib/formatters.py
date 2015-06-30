@@ -72,7 +72,7 @@ _MONTH_FUNCTIONS = [_month_jan, _month_feb, _month_mar, _month_apr,
                    _month_sept, _month_oct, _month_nov, _month_dec]
 
 
-def localised_nice_date(datetime_, show_date=False, with_hours=False):
+def localised_nice_date(datetime_, show_date=False, with_hours=False, utc_offset_mins=0):
     ''' Returns a friendly localised unicode representation of a datetime.
 
     :param datetime_: The date to format
@@ -132,16 +132,29 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
     # all dates are considered UTC internally,
     # change output if `ckan.timezone` is available
     tz_datetime = datetime_.replace(tzinfo=pytz.utc)
+    timezone_name = config.get('ckan.timezone', '')
     try:
         tz_datetime = tz_datetime.astimezone(
-            pytz.timezone(config.get('ckan.timezone', ''))
+            pytz.timezone(timezone_name)
         )
+        timezone_display_name = tc_dateimt.tzinfo.zone 
     except pytz.UnknownTimeZoneError:
-        log.warning(
-            'Timezone `%s` not found. '
-            'Please provide a valid timezone setting in `ckan.timezone` '
-            'or leave the field empty. All valid values can be found in '
-            'pytz.all_timezones.' % config.get('ckan.timezone', '')
+        if timezone_name != '':
+            log.warning(
+                'Timezone `%s` not found. '
+                'Please provide a valid timezone setting in `ckan.timezone` '
+                'or leave the field empty. All valid values can be found in '
+                'pytz.all_timezones. You can specify the special value '
+                '`browser` to displayed the dates according to the browser '
+                'settings of the visiting user.' % timezone_name
+            )
+        offset = datetime.timedelta(minutes=utc_offset_mins)
+        tz_datetime = tz_datetime + offset
+
+        utc_offset_hours = utc_offset_mins / 60
+        timezone_display_name = "UTC{1:+0.{0}f}".format(
+            int(utc_offset_hours % 1 > 0),
+            utc_offset_hours
         )
 
     # actual date
@@ -151,11 +164,12 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
         'day': tz_datetime.day,
         'year': tz_datetime.year,
         'month': _MONTH_FUNCTIONS[tz_datetime.month - 1](),
-        'timezone': tz_datetime.tzinfo.zone,
+        'timezone': timezone_display_name,
     }
+
     if with_hours:
         return (
-            # NOTE: This is for translating dates like `April 24, 2013, 10:45 (UTC)`
+            # NOTE: This is for translating dates like `April 24, 2013, 10:45 (UTC+2)`
             _('{month} {day}, {year}, {hour:02}:{min:02} ({timezone})') \
             .format(**details))
     else:
