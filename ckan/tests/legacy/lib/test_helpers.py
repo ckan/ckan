@@ -28,7 +28,7 @@ class TestHelpers(TestController):
 
     def test_render_datetime_with_hours(self):
         res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456), with_hours=True)
-        assert_equal(res, 'April 13, 2008, 20:40')
+        assert_equal(res, 'April 13, 2008, 20:40 (UTC+0)')
 
     def test_render_datetime_but_from_string(self):
         res = h.render_datetime('2008-04-13T20:40:20.123456')
@@ -41,7 +41,7 @@ class TestHelpers(TestController):
     def test_render_datetime_with_utc_offset_from_session(self):
         session['utc_timezone_offset'] = 120
         res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456), with_hours=True)
-        assert_equal(res, 'April 13, 2008, 22:40')
+        assert_equal(res, 'April 13, 2008, 22:40 (UTC+2)')
 
     def test_datetime_to_date_str(self):
         res = datetime.datetime(2008, 4, 13, 20, 40, 20, 123456).isoformat()

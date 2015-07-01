@@ -45,7 +45,7 @@ class TestUtil(helpers.FunctionalTestBase):
     def test_set_timezone_valid(self):
         app = self._get_test_app()
         response = app.get(
-            url=url_for(controller='util', action='set_timezone_offset') + '/600',
+            url=url_for(controller='util', action='set_timezone_offset', offset='600'),
             status=200,
         )
         assert_true('utc_timezone_offset: 600' in response)
@@ -53,20 +53,20 @@ class TestUtil(helpers.FunctionalTestBase):
     def test_set_timezone_string(self):
         app = self._get_test_app()
         response = app.get(
-            url=url_for(controller='util', action='set_timezone_offset') + '/test',
+            url=url_for(controller='util', action='set_timezone_offset', offset='test'),
             status=400,
         )
 
     def test_set_timezone_too_big(self):
         app = self._get_test_app()
         response = app.get(
-            url=url_for(controller='util', action='set_timezone_offset') + '/1000',
+            url=url_for(controller='util', action='set_timezone_offset', offset='721'),
             status=400,
         )
 
     def test_set_timezone_too_big(self):
         app = self._get_test_app()
         response = app.get(
-            url=url_for(controller='util', action='set_timezone_offset') + '/-841',
+            url=url_for(controller='util', action='set_timezone_offset', offset='-841'),
             status=400,
         )
