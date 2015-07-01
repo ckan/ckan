@@ -26,10 +26,20 @@ class UtilController(base.BaseController):
         return base.render('development/primer.html')
 
     def set_timezone_offset(self, offset):
+        ''' save the users UTC timezone offset in the beaker session '''
+        # check if the value can be successfully casted to an int
+        try:
+            offset = int(offset)
+            # UTC offsets are between UTC-12 until UTC+14
+            if not (60*12 >= offset >= -(60*14)):
+                raise ValueError
+        except ValueError:
+            base.abort(400, _('Not a valid UTC offset value, must be between 720 (UTC-12) and -840 (UTC+14)'))
+
         session = request.environ['beaker.session']
         session['utc_offset_mins'] = offset
         session.save()
-        return session.get('utc_offset_mins', 'No offset set')
+        return h.json.dumps({'utc_offset_mins': session.get('utc_offset_mins', 'No offset set')})
 
     def markup(self):
         ''' Render all html elements out onto a single page.

@@ -964,7 +964,7 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
     '''
     datetime_ = _datestamp_to_datetime(datetime_)
     try:
-        utc_offset_mins = int(session.get('utc_offset_mins', 0))
+        utc_offset_mins = session.get('utc_offset_mins', 0)
     except TypeError:
         utc_offset_mins = 0
     if not datetime_:
