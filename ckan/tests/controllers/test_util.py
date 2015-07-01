@@ -1,4 +1,4 @@
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_true
 from pylons.test import pylonsapp
 import paste.fixture
 
