@@ -2,7 +2,7 @@
 import datetime
 from nose.tools import assert_equal, assert_raises
 
-from pylons import config
+from pylons import config, session
 
 from ckan.tests.legacy import *
 import ckan.lib.helpers as h
@@ -26,6 +26,10 @@ class TestHelpers(TestController):
         res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456))
         assert_equal(res, 'April 13, 2008')
 
+    def test_render_datetime_with_hours(self):
+        res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456), with_hours=True)
+        assert_equal(res, 'April 13, 2008, 20:40')
+
     def test_render_datetime_but_from_string(self):
         res = h.render_datetime('2008-04-13T20:40:20.123456')
         assert_equal(res, 'April 13, 2008')
@@ -33,6 +37,11 @@ class TestHelpers(TestController):
     def test_render_datetime_blank(self):
         res = h.render_datetime(None)
         assert_equal(res, '')
+
+    def test_render_datetime_with_utc_offset_from_session(self):
+        session['utc_timezone_offset'] = 120
+        res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456), with_hours=True)
+        assert_equal(res, 'April 13, 2008, 22:40')
 
     def test_datetime_to_date_str(self):
         res = datetime.datetime(2008, 4, 13, 20, 40, 20, 123456).isoformat()
