@@ -2,10 +2,11 @@ import os
 import cgi
 import pylons
 import datetime
-import ckan.lib.munge as munge
 import logging
-import ckan.logic as logic
 
+import ckan.lib.munge as munge
+import ckan.logic as logic
+import ckan.plugins as plugins
 
 config = pylons.config
 log = logging.getLogger(__name__)
@@ -13,6 +14,19 @@ log = logging.getLogger(__name__)
 _storage_path = None
 _max_resource_size = None
 _max_image_size = None
+
+
+def get_uploader(data_dict):
+    '''Queries IUploader plugins and returns an uploader instance.'''
+    upload = None
+    for plugin in plugins.PluginImplementations(plugins.IUploader):
+        upload = plugin.get_uploader(data_dict)
+
+    # default uploader
+    if upload is None:
+        upload = ResourceUpload(data_dict)
+
+    return upload
 
 
 def get_storage_path():

@@ -148,13 +148,7 @@ def resource_update(context, data_dict):
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
-    upload = None
-    for plugin in plugins.PluginImplementations(plugins.IUploader):
-        upload = plugin.get_uploader(data_dict)
-
-    # default uploader
-    if upload is None:
-        upload = uploader.ResourceUpload(data_dict)
+    upload = uploader.get_uploader(data_dict)
 
     pkg_dict['resources'][n] = data_dict
 

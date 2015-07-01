@@ -295,13 +295,7 @@ def resource_create(context, data_dict):
     if not 'resources' in pkg_dict:
         pkg_dict['resources'] = []
 
-    upload = None
-    for plugin in plugins.PluginImplementations(plugins.IUploader):
-        upload = plugin.get_uploader(data_dict)
-
-    # default uploader
-    if upload is None:
-        upload = uploader.ResourceUpload(data_dict)
+    upload = uploader.get_uploader(data_dict)
 
     pkg_dict['resources'].append(data_dict)
 
