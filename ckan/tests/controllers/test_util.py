@@ -1,4 +1,4 @@
-from nose.tools import assert_equal, assert_true
+from nose.tools import assert_equal, assert_in
 from pylons.test import pylonsapp
 import paste.fixture
 
@@ -48,7 +48,7 @@ class TestUtil(helpers.FunctionalTestBase):
             url=url_for(controller='util', action='set_timezone_offset', offset='600'),
             status=200,
         )
-        assert_true('utc_timezone_offset: 600' in response)
+        assert_in('"utc_timezone_offset": 600', response)
 
     def test_set_timezone_string(self):
         app = self._get_test_app()
