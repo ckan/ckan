@@ -40,6 +40,7 @@ class TestHelpers(TestController):
 
     def test_render_datetime_with_utc_offset_from_session(self):
         session['utc_timezone_offset'] = 120
+        session.save()
         res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456), with_hours=True)
         assert_equal(res, 'April 13, 2008, 22:40 (UTC+2)')
 
