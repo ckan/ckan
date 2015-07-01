@@ -34,12 +34,18 @@ class UtilController(base.BaseController):
             if not (60*12 >= offset >= -(60*14)):
                 raise ValueError
         except ValueError:
-            base.abort(400, _('Not a valid UTC offset value, must be between 720 (UTC-12) and -840 (UTC+14)'))
+            base.abort(
+                400,
+                _(
+                    'Not a valid UTC offset value, must be '
+                    'between 720 (UTC-12) and -840 (UTC+14)'
+                )
+            )
 
         session = request.environ['beaker.session']
         session['utc_offset_mins'] = offset
         session.save()
-        return h.json.dumps({'utc_offset_mins': session.get('utc_offset_mins', 'No offset set')})
+        return h.json.dumps({'utc_offset_mins': offset})
 
     def markup(self):
         ''' Render all html elements out onto a single page.
