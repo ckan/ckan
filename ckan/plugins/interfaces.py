@@ -1467,6 +1467,8 @@ class IUploader(Interface):
     be used by resource_create and resource_update actions.
     '''
 
+    def get_uploader(self):
+        '''Return an uploader object used to upload general files.'''
+
     def get_resource_uploader(self):
-        '''Return an alternative resource uploader object for resource
-        files.'''
+        '''Return an uploader object used to upload resource files.'''

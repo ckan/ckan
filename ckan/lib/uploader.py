@@ -16,6 +16,20 @@ _max_resource_size = None
 _max_image_size = None
 
 
+def get_uploader(upload_to, old_filename=None):
+    '''Query IUploader plugins and return an uploader instance for general
+    files.'''
+    upload = None
+    for plugin in plugins.PluginImplementations(plugins.IUploader):
+        upload = plugin.get_uploader(upload_to, old_filename)
+
+    # default uploader
+    if upload is None:
+        upload = Upload(upload_to, old_filename)
+
+    return upload
+
+
 def get_resource_uploader(data_dict):
     '''Query IUploader plugins and return a resource uploader instance.'''
     upload = None
