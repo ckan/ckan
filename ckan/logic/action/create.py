@@ -295,7 +295,7 @@ def resource_create(context, data_dict):
     if not 'resources' in pkg_dict:
         pkg_dict['resources'] = []
 
-    upload = uploader.get_uploader(data_dict)
+    upload = uploader.get_resource_uploader(data_dict)
 
     pkg_dict['resources'].append(data_dict)
 
