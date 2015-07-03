@@ -23,7 +23,7 @@
       {% if status.task_info.error is string %}
         {# DataPusher < 0.0.3 #}
         <strong>{{ _('Error:') }}</strong> {{ status.task_info.error }}
-      {% elif status.task_info.error is iterable %}
+      {% elif status.task_info.error is mapping %}
         <strong>{{ _('Error:') }}</strong> {{ status.task_info.error.message }}
         {% for error_key, error_value in status.task_info.error.iteritems() %}
           {% if error_key != "message" and error_value %}
@@ -32,6 +32,9 @@
             {{ error_value }}
           {% endif %}
         {% endfor %}
+      {% elif status.task_info.error is iterable %}
+        <strong>{{ _('Error traceback:') }}</strong>
+        <pre>{{ ''.join(status.task_info.error) }}</pre>
       {% endif %}
     </div>
   {% endif %}
