@@ -41,8 +41,9 @@ with it. Nonetheless, here is an incomplete list of things to look for:
   plugins and themes.
 
   In general, any code that's documented in the reference sections of the
-  :doc:`API </api>`, :doc:`extensions </extensions/index>` or :doc:`theming
-  </theming/index>` needs to be considered. For example this includes changes
+  :doc:`API </api/index>`, :doc:`extensions </extensions/index>` or
+  :doc:`theming </theming/index>`
+  needs to be considered. For example this includes changes
   to the API actions, the plugin interfaces or plugins toolkit, the converter
   and validator functions (which are used by plugins), the custom Jinja2 tags
   and variables available to Jinja templates, the template helper functions,
