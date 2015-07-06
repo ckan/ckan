@@ -1,11 +1,10 @@
 {% import 'macros/form.html' as form %}
 
-<form id="user-edit" class="user-form form-horizontal" method="post" action="{{ action }}">
+<form id="user-edit-form" class="dataset-form form-horizontal" method="post" action="{{ action }}">
   {{ form.errors(error_summary) }}
 
   <fieldset>
     <legend>{{ _('Change details') }}</legend>
-
     {{ form.input('name', label=_('Username'), id='field-username', value=data.name, error=errors.name, classes=['control-medium'], is_required=true) }}
 
     {{ form.input('fullname', label=_('Full name'), id='field-fullname', value=data.fullname, error=errors.fullname, placeholder=_('eg. Joe Bloggs'), classes=['control-medium']) }}
@@ -25,6 +24,7 @@
 
   <fieldset>
     <legend>{{ _('Change password') }}</legend>
+    {{ form.input('old_password', type='password', label=_('Old Password'), id='field-password', value=data.oldpassword, error=errors.oldpassword, classes=['control-medium'], attrs={'autocomplete': 'off'} ) }}
 
     {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off'} ) }}
 

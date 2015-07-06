@@ -187,6 +187,9 @@ def package_autocomplete(context, data_dict):
 def group_autocomplete(context, data_dict):
     return group_list(context, data_dict)
 
+def organization_autocomplete(context, data_dict):
+    return organization_list(context, data_dict)
+
 def tag_autocomplete(context, data_dict):
     return tag_list(context, data_dict)
 
@@ -309,3 +312,13 @@ def request_reset(context, data_dict):
 
 def help_show(context, data_dict):
     return {'success': True}
+
+
+def config_option_show(context, data_dict):
+    '''Show runtime-editable configuration option. Only sysadmins.'''
+    return {'success': False}
+
+
+def config_option_list(context, data_dict):
+    '''List runtime-editable configuration options. Only sysadmins.'''
+    return {'success': False}

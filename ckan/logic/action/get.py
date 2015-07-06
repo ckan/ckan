@@ -378,6 +378,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
         log.warn('`order_by` deprecated please use `sort`')
         if not data_dict.get('sort'):
             sort = order_by
+
     # if the sort is packages and no sort direction is supplied we want to do a
     # reverse sort to maintain compatibility.
     if sort.strip() in ('packages', 'package_count'):
@@ -413,22 +414,16 @@ def _group_or_org_list(context, data_dict, is_org=False):
         query = query.filter(model.Group.type == group_type)
 
     groups = query.all()
-    if all_fields:
-        include_tags = asbool(data_dict.get('include_tags', False))
-    else:
-        include_tags = False
-    # even if we are not going to return all_fields, we need to dictize all the
-    # groups so that we can sort by any field.
-    group_list = model_dictize.group_list_dictize(
-        groups, context,
-        sort_key=lambda x: x[sort_info[0][0]],
-        reverse=sort_info[0][1] == 'desc',
-        with_package_counts=all_fields or
-        sort_info[0][0] in ('packages', 'package_count'),
-        include_groups=asbool(data_dict.get('include_groups', False)),
-        include_tags=include_tags,
-        include_extras=include_extras,
-        )
+
+    action = 'organization_show' if is_org else 'group_show'
+
+    group_list = []
+    for group in groups:
+        data_dict['id'] = group.id
+        group_list.append(logic.get_action(action)(context, data_dict))
+
+    group_list = sorted(group_list, key=lambda x: x[sort_info[0][0]],
+        reverse=sort_info[0][1] == 'desc')
 
     if not all_fields:
         group_list = [group[ref_group_by] for group in group_list]
@@ -463,7 +458,7 @@ def group_list(context, data_dict):
         (optional, default: ``False``)
     :type include_tags: boolean
     :param include_groups: if all_fields, include the groups the groups are in
-        (optional, default: ``False``)
+        (optional, default: ``False``).
     :type include_groups: boolean
 
     :rtype: list of strings
@@ -1158,8 +1153,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
     context['group'] = group
 
     include_datasets = asbool(data_dict.get('include_datasets', False))
-    packages_field = 'datasets' if include_datasets \
-                     else 'none_but_include_package_count'
+    packages_field = 'datasets' if include_datasets else 'dataset_count'
 
     if group is None:
         raise NotFound
@@ -1556,6 +1550,38 @@ def user_autocomplete(context, data_dict):
         user_list.append(result_dict)
 
     return user_list
+
+
+def organization_autocomplete(context, data_dict):
+    '''
+    Return a list of organization names that contain a string.
+
+    :param q: the string to search for
+    :type q: string
+    :param limit: the maximum number of organizations to return (optional,
+        default: 20)
+    :type limit: int
+
+    :rtype: a list of organization dictionaries each with keys ``'name'``,
+        ``'title'``, and ``'id'``
+    '''
+
+    _check_access('organization_autocomplete', context, data_dict)
+
+    q = data_dict['q']
+    limit = data_dict.get('limit', 20)
+    model = context['model']
+
+    query = model.Group.search_by_name_or_title(q, group_type=None, is_org=True)
+
+    organization_list = []
+    for organization in query.all():
+        result_dict = {}
+        for k in ['id', 'name', 'title']:
+            result_dict[k] = getattr(organization, k)
+        organization_list.append(result_dict)
+
+    return organization_list
 
 
 def package_search(context, data_dict):
@@ -3376,3 +3402,51 @@ def help_show(context, data_dict):
         raise NotFound('Action function not found')
 
     return function.__doc__
+
+
+def config_option_show(context, data_dict):
+    '''Show the current value of a particular configuration option.
+
+    Only returns runtime-editable config options (the ones returned by
+    :py:func:`~ckan.logic.action.get.config_option_list`), which can be updated with the
+    :py:func:`~ckan.logic.action.update.config_option_update` action.
+
+    :param id: The configuration option key
+    :type id: string
+
+    :returns: The value of the config option from either the system_info table
+        or ini file.
+    :rtype: string
+
+    :raises: :class:`ckan.logic.ValidationError`: if config option is not in
+        the schema (whitelisted as editable).
+    '''
+
+    _check_access('config_option_show', context, data_dict)
+
+    key = _get_or_bust(data_dict, 'key')
+
+    schema = ckan.logic.schema.update_configuration_schema()
+
+    # Only return whitelisted keys
+    if key not in schema:
+        raise ValidationError(
+            'Configuration option \'{0}\' can not be shown'.format(key))
+
+    # return the value from config
+    return config.get(key, None)
+
+
+def config_option_list(context, data_dict):
+    '''Return a list of runtime-editable config options keys that can be
+       updated with :py:func:`~ckan.logic.action.update.config_option_update`.
+
+    :returns: A list of config option keys.
+    :rtype: list
+    '''
+
+    _check_access('config_option_list', context, data_dict)
+
+    schema = ckan.logic.schema.update_configuration_schema()
+
+    return schema.keys()
