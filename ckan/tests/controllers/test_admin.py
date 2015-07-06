@@ -413,5 +413,4 @@ class TestAdminConfigUpdate(helpers.FunctionalTestBase):
 
         # title tag contains new value
         home_page_after = app.get('/', status=200)
-        assert_true('Welcome - My Updated Site Title'
-                              in home_page_after)
+        assert_true('Welcome - My Updated Site Title' in home_page_after)
