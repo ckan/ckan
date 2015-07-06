@@ -186,9 +186,16 @@ def current_package_list_with_resources(context, data_dict):
 
 
 def revision_list(context, data_dict):
-    '''Return a list of the IDs of the site's revisions.
+    '''Return a list of the IDs of the site's revisions in chronological order.
 
-    :rtype: list of strings
+    Since the results are limited to 50 IDs, you can page through them using
+    parameter ``since_id``.
+
+    :param since_id: the revision ID after which you want the revisions
+    :type id: string
+    :param since_time: the timestamp after which you want the revisions
+    :type id: string
+    :rtype: list of revision IDs, limited to 50
 
     '''
     model = context['model']
