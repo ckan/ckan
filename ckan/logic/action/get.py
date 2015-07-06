@@ -186,7 +186,8 @@ def current_package_list_with_resources(context, data_dict):
 
 
 def revision_list(context, data_dict):
-    '''Return a list of the IDs of the site's revisions in chronological order.
+    '''Return a list of the IDs of the site's revisions. They are sorted with
+    the newest first.
 
     Since the results are limited to 50 IDs, you can page through them using
     parameter ``since_id``.
@@ -195,12 +196,16 @@ def revision_list(context, data_dict):
     :type id: string
     :param since_time: the timestamp after which you want the revisions
     :type id: string
+    :param sort: the order to sort the related items in, possible values are
+      'time_asc', 'time_desc' (default). (optional)
+    :type sort: string
     :rtype: list of revision IDs, limited to 50
 
     '''
     model = context['model']
     since_id = data_dict.get('since_id')
     since_time_str = data_dict.get('since_time')
+    sort_str = data_dict.get('sort')
     PAGE_LIMIT = 50
 
     _check_access('revision_list', context, data_dict)
@@ -220,8 +225,18 @@ def revision_list(context, data_dict):
     revs = model.Session.query(model.Revision)
     if since_time:
         revs = revs.filter(model.Revision.timestamp > since_time)
-    revs = revs.order_by(model.Revision.timestamp) \
-               .limit(PAGE_LIMIT)
+
+    sortables = {
+        'time_asc': model.Revision.timestamp.asc,
+        'time_desc': model.Revision.timestamp.desc,
+    }
+    if sort_str and sort_str not in sortables:
+        raise logic.ValidationError(
+            'Invalid sort value. Allowable values: %r' % sortables.keys())
+    sort_func = sortables.get(sort_str or 'time_desc')
+    revs = revs.order_by(sort_func())
+
+    revs = revs.limit(PAGE_LIMIT)
     return [rev_.id for rev_ in revs]
 
 

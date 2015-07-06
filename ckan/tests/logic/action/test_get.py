@@ -1674,6 +1674,13 @@ class TestRevisionList(helpers.FunctionalTestBase):
             'revision_list',
             since_id='1234')
 
+    def test_sort_param_not_valid(self):
+        nose.tools.assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'revision_list',
+            sort='invalid')
+
     # Normal usage
 
     @classmethod
@@ -1690,23 +1697,33 @@ class TestRevisionList(helpers.FunctionalTestBase):
     def test_all_revisions(self):
         rev_ids = self._create_revisions(2)
         revs = helpers.call_action('revision_list')
-        eq(revs[-len(rev_ids):], rev_ids)
+        # only test the 2 newest revisions, since the system creates one at
+        # start-up.
+        eq(revs[:2], rev_ids[::-1])
 
     def test_revisions_since_id(self):
-        rev_ids = self._create_revisions(4)
-        revs = helpers.call_action('revision_list', since_id=rev_ids[1])
-        eq(revs, rev_ids[2:])
+        self._create_revisions(4)
+        revs = helpers.call_action('revision_list', since_id='1')
+        eq(revs, ['3', '2'])
 
     def test_revisions_since_time(self):
         from ckan import model
-        rev_ids = self._create_revisions(4)
+        self._create_revisions(4)
 
-        rev1 = model.Session.query(model.Revision).get(rev_ids[1])
+        rev1 = model.Session.query(model.Revision).get('1')
         revs = helpers.call_action('revision_list',
                                    since_time=rev1.timestamp.isoformat())
-        eq(revs, rev_ids[2:])
+        eq(revs, ['3', '2'])
 
     def test_revisions_returned_are_limited(self):
-        rev_ids = self._create_revisions(55)
-        revs = helpers.call_action('revision_list', since_id=rev_ids[1])
-        eq(revs, rev_ids[2:52])  # i.e. limited to 50
+        self._create_revisions(55)
+        revs = helpers.call_action('revision_list', since_id='1')
+        eq(len(revs), 50)  # i.e. limited to 50
+        eq(revs[0], '54')
+        eq(revs[-1], '5')
+
+    def test_sort_asc(self):
+        self._create_revisions(4)
+        revs = helpers.call_action('revision_list', since_id='1',
+                                   sort='time_asc')
+        eq(revs, ['2', '3'])
