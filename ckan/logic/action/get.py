@@ -192,11 +192,30 @@ def revision_list(context, data_dict):
 
     '''
     model = context['model']
+    since_id = data_dict.get('since_id')
+    since_time_str = data_dict.get('since_time')
+    PAGE_LIMIT = 50
 
     _check_access('revision_list', context, data_dict)
 
-    revs = model.Session.query(model.Revision).all()
-    return [rev.id for rev in revs]
+    since_time = None
+    if since_id:
+        rev = model.Session.query(model.Revision).get(since_id)
+        if rev is None:
+            raise NotFound
+        since_time = rev.timestamp
+    elif since_time_str:
+        try:
+            from ckan.lib import helpers as h
+            since_time = h.date_str_to_datetime(since_time_str)
+        except ValueError:
+            raise logic.ValidationError('Timestamp did not parse')
+    revs = model.Session.query(model.Revision)
+    if since_time:
+        revs = revs.filter(model.Revision.timestamp > since_time)
+    revs = revs.order_by(model.Revision.timestamp) \
+               .limit(PAGE_LIMIT)
+    return [rev_.id for rev_ in revs]
 
 
 def package_revision_list(context, data_dict):

@@ -1642,3 +1642,71 @@ class TestTagList(helpers.FunctionalTestBase):
         nose.tools.assert_raises(
             logic.NotFound,
             helpers.call_action, 'tag_list', vocabulary_id='does-not-exist')
+
+
+class TestRevisionList(helpers.FunctionalTestBase):
+
+    @classmethod
+    def setup_class(cls):
+        super(TestRevisionList, cls).setup_class()
+        helpers.reset_db()
+
+    # Error cases
+
+    def test_date_instead_of_revision(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action,
+            'revision_list',
+            since_id='2010-01-01T00:00:00')
+
+    def test_date_invalid(self):
+        nose.tools.assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'revision_list',
+            since_time='2010-02-31T00:00:00')
+
+    def test_revision_doesnt_exist(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action,
+            'revision_list',
+            since_id='1234')
+
+    # Normal usage
+
+    @classmethod
+    def _create_revisions(cls, num_revisions):
+        from ckan import model
+        rev_ids = []
+        for i in xrange(num_revisions):
+            rev = model.repo.new_revision()
+            rev.id = unicode(i)
+            model.Session.commit()
+            rev_ids.append(rev.id)
+        return rev_ids
+
+    def test_all_revisions(self):
+        rev_ids = self._create_revisions(2)
+        revs = helpers.call_action('revision_list')
+        eq(revs[-len(rev_ids):], rev_ids)
+
+    def test_revisions_since_id(self):
+        rev_ids = self._create_revisions(4)
+        revs = helpers.call_action('revision_list', since_id=rev_ids[1])
+        eq(revs, rev_ids[2:])
+
+    def test_revisions_since_time(self):
+        from ckan import model
+        rev_ids = self._create_revisions(4)
+
+        rev1 = model.Session.query(model.Revision).get(rev_ids[1])
+        revs = helpers.call_action('revision_list',
+                                   since_time=rev1.timestamp.isoformat())
+        eq(revs, rev_ids[2:])
+
+    def test_revisions_returned_are_limited(self):
+        rev_ids = self._create_revisions(55)
+        revs = helpers.call_action('revision_list', since_id=rev_ids[1])
+        eq(revs, rev_ids[2:52])  # i.e. limited to 50
