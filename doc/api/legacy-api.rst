@@ -315,7 +315,8 @@ Here are the data formats for the Search API.
 | Resource-Search-Response| { count: Count-int, results: [Resource, Resource, ... ] }  |
 +-------------------------+------------------------------------------------------------+
 | Revision-List           | [ Revision-Id, Revision-Id, Revision-Id, ... ]             |
-|                         | NB: Ordered with youngest revision first                   |
+|                         | NB: Ordered with youngest revision first.                  |
+|                         | NB: Limited to 50 results at a time.                       |
 +-------------------------+------------------------------------------------------------+
 | Tag-Count-List          | [ [Name-String, Integer], [Name-String, Integer], ... ]    |
 +-------------------------+------------------------------------------------------------+
