@@ -5,8 +5,8 @@
 .. image:: https://travis-ci.org/{{ github_user_name }}/{{ project }}.svg?branch=master
     :target: https://travis-ci.org/{{ github_user_name }}/{{ project }}
 
-.. image:: https://coveralls.io/repos/{{ github_user_name }}/{{ project }}/badge.png?branch=master
-  :target: https://coveralls.io/r/{{ github_user_name }}/{{ project }}?branch=master
+.. image:: https://coveralls.io/repos/{{ github_user_name }}/{{ project }}/badge.svg
+  :target: https://coveralls.io/r/{{ github_user_name }}/{{ project }}
 
 .. image:: https://pypip.in/download/{{ project }}/badge.svg
     :target: https://pypi.python.org/pypi//{{ project }}/
