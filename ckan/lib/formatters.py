@@ -158,7 +158,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
 
     if with_hours:
         return (
-            # NOTE: This is for translating dates like `April 24, 2013, 10:45 (UTC+2)`
+            # NOTE: This is for translating dates like `April 24, 2013, 10:45 (Europe/Zurich)`
             _('{month} {day}, {year}, {hour:02}:{min:02} ({timezone})') \
             .format(**details))
     else:
