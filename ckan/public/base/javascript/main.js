@@ -34,7 +34,7 @@ this.ckan = this.ckan || {};
     // Convert all datetimes to the users timezone
     jQuery('.datetime').each(function() {
         moment.locale(browserLocale);
-        var date = moment(jQuery(this).data().datetime);
+        var date = moment(jQuery(this).data('datetime'));
         jQuery(this).html(date.format("LL, LT ([UTC]Z)")); 
         jQuery(this).show();
     })

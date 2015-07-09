@@ -28,7 +28,7 @@ class TestHelpers(TestController):
 
     def test_render_datetime_with_hours(self):
         res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456), with_hours=True)
-        assert_equal(res, 'April 13, 2008, 20:40 (UTC+0)')
+        assert_equal(res, 'April 13, 2008, 20:40 (UTC)')
 
     def test_render_datetime_but_from_string(self):
         res = h.render_datetime('2008-04-13T20:40:20.123456')
