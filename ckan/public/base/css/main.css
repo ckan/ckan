@@ -5560,6 +5560,9 @@ a.tag:hover {
 .js .tab-content.active {
   display: block;
 }
+.js .datetime {
+    display: none;
+}
 .box {
   background-color: #FFF;
   border: 1px solid #cccccc;

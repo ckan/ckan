@@ -36,6 +36,7 @@ this.ckan = this.ckan || {};
         moment.locale(browserLocale);
         var date = moment(jQuery(this).data().datetime);
         jQuery(this).html(date.format("LL, LT ([UTC]Z)")); 
+        jQuery(this).show();
     })
 
     // Load the localisations before instantiating the modules.
