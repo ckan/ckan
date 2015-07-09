@@ -20,6 +20,7 @@ this.ckan = this.ckan || {};
   ckan.initialize = function () {
     var body = jQuery('body');
     var locale = jQuery('html').attr('lang');
+    var browserLocale = window.navigator.userLanguage || window.navigator.language;
     var location = window.location;
     var root = location.protocol + '//' + location.host;
 
@@ -29,6 +30,13 @@ this.ckan = this.ckan || {};
 
     ckan.SITE_ROOT   = getRootFromData('siteRoot');
     ckan.LOCALE_ROOT = getRootFromData('localeRoot');
+
+    // Convert all datetimes to the users timezone
+    jQuery('.datetime').each(function() {
+        moment.locale(browserLocale);
+        var date = moment(jQuery(this).data().datetime);
+        jQuery(this).html(date.format("LL, LT ([UTC]Z)")); 
+    })
 
     // Load the localisations before instantiating the modules.
     ckan.sandbox().client.getLocaleData(locale).done(function (data) {

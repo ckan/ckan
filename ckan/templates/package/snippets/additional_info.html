@@ -60,13 +60,22 @@
         {% if pkg_dict.metadata_modified %}
           <tr>
             <th scope="row" class="dataset-label">{{ _("Last Updated") }}</th>
-            <td class="dataset-details">{{ h.render_datetime(pkg_dict.metadata_modified, with_hours=True) }}</td>
+            <td class="dataset-details">
+                <span class="datetime" data-datetime="{{ h.render_datetime(pkg_dict.metadata_modified, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
+                    {{ h.render_datetime(pkg_dict.metadata_modified, with_hours=True) }}
+                </span>
+            </td>
           </tr>
         {% endif %}
         {% if pkg_dict.metadata_created %}
           <tr>
             <th scope="row" class="dataset-label">{{ _("Created") }}</th>
-            <td class="dataset-details">{{ h.render_datetime(pkg_dict.metadata_created, with_hours=True) }}</td>
+
+            <td class="dataset-details">
+                <span class="datetime" data-datetime="{{ h.render_datetime(pkg_dict.metadata_created, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
+                    {{ h.render_datetime(pkg_dict.metadata_created, with_hours=True) }}
+                </span>
+            </td>
           </tr>
         {% endif %}
 
