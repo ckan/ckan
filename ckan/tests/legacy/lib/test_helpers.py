@@ -2,7 +2,7 @@
 import datetime
 from nose.tools import assert_equal, assert_raises
 
-from pylons import config, session
+from pylons import config
 
 from ckan.tests.legacy import *
 import ckan.lib.helpers as h
@@ -180,11 +180,3 @@ class TestHelpers(TestController):
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found'), None)
 
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found', 'default_value'), 'default_value')
-
-
-class TestHelpersWithPylons(pylons_controller.PylonsTestCase):
-    def test_render_datetime_with_utc_offset_from_session(self):
-        session['utc_timezone_offset'] = 120
-        session.save()
-        res = h.render_datetime(datetime.datetime(2008, 4, 13, 20, 40, 20, 123456), with_hours=True)
-        assert_equal(res, 'April 13, 2008, 22:40 (UTC+2)')

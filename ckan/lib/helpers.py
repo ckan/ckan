@@ -963,10 +963,6 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
     :rtype: string
     '''
     datetime_ = _datestamp_to_datetime(datetime_)
-    try:
-        utc_offset_mins = session.get('utc_offset_mins', 0)
-    except TypeError:
-        utc_offset_mins = 0
     if not datetime_:
         return ''
     # if date_format was supplied we use it
@@ -974,8 +970,7 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
         return datetime_.strftime(date_format)
     # the localised date
     return formatters.localised_nice_date(datetime_, show_date=True,
-                                          with_hours=with_hours,
-                                          utc_offset_mins=utc_offset_mins)
+                                          with_hours=with_hours)
 
 
 def date_str_to_datetime(date_str):

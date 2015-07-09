@@ -72,7 +72,7 @@ _MONTH_FUNCTIONS = [_month_jan, _month_feb, _month_mar, _month_apr,
                    _month_sept, _month_oct, _month_nov, _month_dec]
 
 
-def localised_nice_date(datetime_, show_date=False, with_hours=False, utc_offset_mins=0):
+def localised_nice_date(datetime_, show_date=False, with_hours=False):
     ''' Returns a friendly localised unicode representation of a datetime.
 
     :param datetime_: The date to format
@@ -137,25 +137,14 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False, utc_offset
         tz_datetime = tz_datetime.astimezone(
             pytz.timezone(timezone_name)
         )
-        timezone_display_name = tc_dateimt.tzinfo.zone 
     except pytz.UnknownTimeZoneError:
         if timezone_name != '':
             log.warning(
                 'Timezone `%s` not found. '
                 'Please provide a valid timezone setting in `ckan.timezone` '
                 'or leave the field empty. All valid values can be found in '
-                'pytz.all_timezones. You can specify the special value '
-                '`browser` to displayed the dates according to the browser '
-                'settings of the visiting user.' % timezone_name
+                'pytz.all_timezones.' % timezone_name
             )
-        offset = datetime.timedelta(minutes=utc_offset_mins)
-        tz_datetime = tz_datetime + offset
-
-        utc_offset_hours = utc_offset_mins / 60
-        timezone_display_name = "UTC{1:+0.{0}f}".format(
-            int(utc_offset_hours % 1 > 0),
-            utc_offset_hours
-        )
 
     # actual date
     details = {
@@ -164,7 +153,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False, utc_offset
         'day': tz_datetime.day,
         'year': tz_datetime.year,
         'month': _MONTH_FUNCTIONS[tz_datetime.month - 1](),
-        'timezone': timezone_display_name,
+        'timezone': tz_datetime.tzinfo.zone,
     }
 
     if with_hours:

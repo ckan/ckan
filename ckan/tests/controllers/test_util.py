@@ -1,4 +1,4 @@
-from nose.tools import assert_equal, assert_in
+from nose.tools import assert_equal
 from pylons.test import pylonsapp
 import paste.fixture
 
@@ -39,34 +39,5 @@ class TestUtil(helpers.FunctionalTestBase):
         response = app.get(
             url=url_for(controller='util', action='redirect'),
             params={'url': ''},
-            status=400,
-        )
-
-    def test_set_timezone_valid(self):
-        app = self._get_test_app()
-        response = app.get(
-            url=url_for(controller='util', action='set_timezone_offset', offset='600'),
-            status=200,
-        )
-        assert_in('"utc_timezone_offset": 600', response)
-
-    def test_set_timezone_string(self):
-        app = self._get_test_app()
-        response = app.get(
-            url=url_for(controller='util', action='set_timezone_offset', offset='test'),
-            status=400,
-        )
-
-    def test_set_timezone_too_big(self):
-        app = self._get_test_app()
-        response = app.get(
-            url=url_for(controller='util', action='set_timezone_offset', offset='721'),
-            status=400,
-        )
-
-    def test_set_timezone_too_big(self):
-        app = self._get_test_app()
-        response = app.get(
-            url=url_for(controller='util', action='set_timezone_offset', offset='-841'),
             status=400,
         )

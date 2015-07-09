@@ -30,20 +30,6 @@ this.ckan = this.ckan || {};
     ckan.SITE_ROOT   = getRootFromData('siteRoot');
     ckan.LOCALE_ROOT = getRootFromData('localeRoot');
 
-    /* Save UTC offset of user in browser to display dates correctly
-     * getTimezoneOffset returns the offset between the local time and UTC,
-     * but we want to store it the other way round.
-     * see http://mdn.io/getTimezoneOffset for details
-     */
-    now = new Date();
-    utc_timezone_offset = -(now.getTimezoneOffset());
-    $.ajax(
-        ckan.sandbox().client.url('/util/set_timezone_offset/' + utc_timezone_offset),
-        {
-            async:false
-        }
-    );
-
     // Load the localisations before instantiating the modules.
     ckan.sandbox().client.getLocaleData(locale).done(function (data) {
       ckan.i18n.load(data);
