@@ -345,8 +345,7 @@ class TestPackageRead(helpers.FunctionalTestBase):
         model.repo.rebuild_db()
 
     def test_read(self):
-        user = factories.User()
-        dataset = factories.Dataset(user=user['name'])
+        dataset = factories.Dataset()
         app = helpers._get_test_app()
         response = app.get(url_for(controller='package', action='read',
                                    id=dataset['name']))
@@ -723,7 +722,7 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         response.mustcontain(message.format(name=resource['name']))
 
         # cancelling sends us back to the resource edit page
-        form = response.forms['confirm-delete-resource-form']
+        form = response.forms['confirm-resource-delete-form']
         response = form.submit('cancel')
         response = response.follow()
         assert_equal(200, response.status_int)
