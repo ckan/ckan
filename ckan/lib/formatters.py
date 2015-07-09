@@ -133,7 +133,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
         return ungettext('over {years} year ago', 'over {years} years ago',
                          months / 12).format(years=months / 12)
 
-    if datetime_.tzinfo is not None:
+    if datetime_.tzinfo is None:
         datetime_ = datetime_.replace(tzinfo=pytz.utc)
 
     # actual date
