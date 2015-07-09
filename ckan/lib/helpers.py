@@ -11,6 +11,7 @@ import logging
 import re
 import os
 import pytz
+import tzlocal
 import urllib
 import urlparse
 import pprint
@@ -81,6 +82,10 @@ def _datestamp_to_datetime(datetime_):
     # change output if `ckan.timezone` is available
     datetime_ = datetime_.replace(tzinfo=pytz.utc)
     timezone_name = config.get('ckan.timezone', '')
+    if timezone_name == 'server':
+        local_tz = tzlocal.get_localzone()
+        return datetime_.astimezone(local_tz)
+
     try:
         datetime_ = datetime_.astimezone(
             pytz.timezone(timezone_name)
@@ -91,7 +96,8 @@ def _datestamp_to_datetime(datetime_):
                 'Timezone `%s` not found. '
                 'Please provide a valid timezone setting in `ckan.timezone` '
                 'or leave the field empty. All valid values can be found in '
-                'pytz.all_timezones.' % timezone_name
+                'pytz.all_timezones. You can use the special value `server` '
+                'to use the local timezone of the server.' % timezone_name
             )
 
     return datetime_

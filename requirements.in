@@ -30,3 +30,4 @@ WebOb==1.0.8
 zope.interface==4.1.1
 unicodecsv>=0.9
 pytz==2012j
+tzlocal==1.2
