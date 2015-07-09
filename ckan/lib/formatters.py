@@ -106,6 +106,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
             now = now.replace(tzinfo=datetime_.tzinfo)
         else:
             now = now.replace(tzinfo=pytz.utc)
+            datetime_ = datetime_.replace(tzinfo=pytz.utc)
         date_diff = now - datetime_
         days = date_diff.days
         if days < 1 and now > datetime_:
