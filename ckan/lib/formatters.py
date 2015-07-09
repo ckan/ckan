@@ -1,14 +1,10 @@
 import datetime
 import pytz
-import logging
-from pylons import config
 from babel import numbers
 
 import ckan.lib.i18n as i18n
 
 from ckan.common import _, ungettext
-
-log = logging.getLogger(__name__)
 
 
 ##################################################
