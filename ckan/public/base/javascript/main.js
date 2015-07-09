@@ -35,7 +35,9 @@ this.ckan = this.ckan || {};
     jQuery('.datetime').each(function() {
         moment.locale(browserLocale);
         var date = moment(jQuery(this).data('datetime'));
-        jQuery(this).html(date.format("LL, LT ([UTC]Z)")); 
+        if (date.isValid()) {
+            jQuery(this).html(date.format("LL, LT ([UTC]Z)")); 
+        }
         jQuery(this).show();
     })
 
