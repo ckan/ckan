@@ -101,7 +101,11 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
         return months
 
     if not show_date:
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
+        if datetime_.tzinfo is not None:
+            now = now.replace(tzinfo=datetime_.tzinfo)
+        else:
+            now = now.replace(tzinfo=pytz.utc)
         date_diff = now - datetime_
         days = date_diff.days
         if days < 1 and now > datetime_:
@@ -129,31 +133,17 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
         return ungettext('over {years} year ago', 'over {years} years ago',
                          months / 12).format(years=months / 12)
 
-    # all dates are considered UTC internally,
-    # change output if `ckan.timezone` is available
-    tz_datetime = datetime_.replace(tzinfo=pytz.utc)
-    timezone_name = config.get('ckan.timezone', '')
-    try:
-        tz_datetime = tz_datetime.astimezone(
-            pytz.timezone(timezone_name)
-        )
-    except pytz.UnknownTimeZoneError:
-        if timezone_name != '':
-            log.warning(
-                'Timezone `%s` not found. '
-                'Please provide a valid timezone setting in `ckan.timezone` '
-                'or leave the field empty. All valid values can be found in '
-                'pytz.all_timezones.' % timezone_name
-            )
+    if datetime_.tzinfo is not None:
+        datetime_ = datetime_.replace(tzinfo=pytz.utc)
 
     # actual date
     details = {
-        'min': tz_datetime.minute,
-        'hour': tz_datetime.hour,
-        'day': tz_datetime.day,
-        'year': tz_datetime.year,
-        'month': _MONTH_FUNCTIONS[tz_datetime.month - 1](),
-        'timezone': tz_datetime.tzinfo.zone,
+        'min': datetime_.minute,
+        'hour': datetime_.hour,
+        'day': datetime_.day,
+        'year': datetime_.year,
+        'month': _MONTH_FUNCTIONS[datetime_.month - 1](),
+        'timezone': datetime_.tzinfo.zone,
     }
 
     if with_hours:

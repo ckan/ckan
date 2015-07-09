@@ -10,6 +10,7 @@ import datetime
 import logging
 import re
 import os
+import pytz
 import urllib
 import urlparse
 import pprint
@@ -72,6 +73,27 @@ def _datestamp_to_datetime(datetime_):
     # check we are now a datetime
     if not isinstance(datetime_, datetime.datetime):
         return None
+
+    if datetime_.tzinfo is not None:
+        return datetime_
+
+    # all dates are considered UTC internally,
+    # change output if `ckan.timezone` is available
+    datetime_ = datetime_.replace(tzinfo=pytz.utc)
+    timezone_name = config.get('ckan.timezone', '')
+    try:
+        datetime_ = datetime_.astimezone(
+            pytz.timezone(timezone_name)
+        )
+    except pytz.UnknownTimeZoneError:
+        if timezone_name != '':
+            log.warning(
+                'Timezone `%s` not found. '
+                'Please provide a valid timezone setting in `ckan.timezone` '
+                'or leave the field empty. All valid values can be found in '
+                'pytz.all_timezones.' % timezone_name
+            )
+
     return datetime_
 
 
@@ -965,6 +987,7 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
     datetime_ = _datestamp_to_datetime(datetime_)
     if not datetime_:
         return ''
+
     # if date_format was supplied we use it
     if date_format:
         return datetime_.strftime(date_format)
