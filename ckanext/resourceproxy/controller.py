@@ -42,7 +42,8 @@ def proxy_resource(context, data_dict):
         r = requests.head(url)
         # 405 would be the appropriate response here, but 400 with
         # the invalid method mentioned in the text is also possible (#2412)
-        if r.status_code in (400, 405):
+        # 403 is also possible (#2530)
+        if r.status_code in (400, 403, 405):
             r = requests.get(url, stream=True)
             did_get = True
         r.raise_for_status()
