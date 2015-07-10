@@ -5560,7 +5560,7 @@ a.tag:hover {
 .js .tab-content.active {
   display: block;
 }
-.js .datetime {
+.js .automatic-local-datetime {
     display: none;
 }
 .box {

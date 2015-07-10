@@ -61,9 +61,7 @@
           <tr>
             <th scope="row" class="dataset-label">{{ _("Last Updated") }}</th>
             <td class="dataset-details">
-                <span class="datetime" data-datetime="{{ h.render_datetime(pkg_dict.metadata_modified, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
-                    {{ h.render_datetime(pkg_dict.metadata_modified, with_hours=True) }}
-                </span>
+                {% snippet 'snippets/local_friendly_datetime.html', datetime_obj=pkg_dict.metadata_modified %}
             </td>
           </tr>
         {% endif %}
@@ -72,9 +70,7 @@
             <th scope="row" class="dataset-label">{{ _("Created") }}</th>
 
             <td class="dataset-details">
-                <span class="datetime" data-datetime="{{ h.render_datetime(pkg_dict.metadata_created, date_format='%Y-%m-%dT%H:%M:%S%z') }}">
-                    {{ h.render_datetime(pkg_dict.metadata_created, with_hours=True) }}
-                </span>
+                {% snippet 'snippets/local_friendly_datetime.html', datetime_obj=pkg_dict.metadata_created %}
             </td>
           </tr>
         {% endif %}

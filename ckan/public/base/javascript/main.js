@@ -32,7 +32,7 @@ this.ckan = this.ckan || {};
     ckan.LOCALE_ROOT = getRootFromData('localeRoot');
 
     // Convert all datetimes to the users timezone
-    jQuery('.datetime').each(function() {
+    jQuery('.automatic-local-datetime').each(function() {
         moment.locale(browserLocale);
         var date = moment(jQuery(this).data('datetime'));
         if (date.isValid()) {
