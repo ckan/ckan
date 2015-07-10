@@ -40,9 +40,10 @@ def proxy_resource(context, data_dict):
         # first we try a HEAD request which may not be supported
         did_get = False
         r = requests.head(url)
-        # 405 would be the appropriate response here, but 400 with
-        # the invalid method mentioned in the text is also possible (#2412)
-        if r.status_code in (400, 405):
+        # Servers can refuse HEAD requests. 405 is the appropriate response,
+        # but 400 with the invalid method mentioned in the text, or a 403
+        # (forbidden) status is also possible (#2412, #2530)
+        if r.status_code in (400, 403, 405):
             r = requests.get(url, stream=True)
             did_get = True
         r.raise_for_status()
