@@ -79,9 +79,9 @@ def _datestamp_to_datetime(datetime_):
         return datetime_
 
     # all dates are considered UTC internally,
-    # change output if `ckan.timezone` is available
+    # change output if `ckan.display_timezone` is available
     datetime_ = datetime_.replace(tzinfo=pytz.utc)
-    timezone_name = config.get('ckan.timezone', '')
+    timezone_name = config.get('ckan.display_timezone', '')
     if timezone_name == 'server':
         local_tz = tzlocal.get_localzone()
         return datetime_.astimezone(local_tz)
@@ -94,10 +94,11 @@ def _datestamp_to_datetime(datetime_):
         if timezone_name != '':
             log.warning(
                 'Timezone `%s` not found. '
-                'Please provide a valid timezone setting in `ckan.timezone` '
-                'or leave the field empty. All valid values can be found in '
-                'pytz.all_timezones. You can use the special value `server` '
-                'to use the local timezone of the server.' % timezone_name
+                'Please provide a valid timezone setting in '
+                '`ckan.display_timezone` or leave the field empty. All valid '
+                'values can be found in pytz.all_timezones. You can use the '
+                'special value `server` to use the local timezone of the '
+                'server.' % timezone_name
             )
 
     return datetime_
