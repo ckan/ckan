@@ -1,7 +1,7 @@
-# Thai translations for ckan.
+# Translations template for ckan.
 # Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
+# 
 # Translators:
 # Anuchit Chalothorn <anoochit@gmail.com>, 2014
 # Chutika Udomsinn <chutika@goodfactory.co>, 2014
@@ -14,18 +14,18 @@
 # tuwannu <tuwannu@gmail.com>, 2014
 msgid ""
 msgstr ""
-"Project-Id-Version:  CKAN\n"
+"Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-06-23 20:40+0000\n"
-"PO-Revision-Date: 2015-01-26 12:21+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
-"Language-Team: Thai "
-"(http://www.transifex.com/projects/p/ckan/language/th/)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"PO-Revision-Date: 2015-06-25 10:43+0000\n"
+"Last-Translator: dread <david.read@hackneyworkshop.com>\n"
+"Language-Team: Thai (http://www.transifex.com/p/ckan/language/th/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.0-dev\n"
+"Generated-By: Babel 1.3\n"
+"Language: th\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ckan/authz.py:178
 #, python-format
@@ -413,13 +413,10 @@ msgstr "ขณะนี้เว็บไซต์อยู่ในสถาน
 
 #: ckan/controllers/home.py:100
 msgid ""
-"Please <a href=\"{link}\">update your profile</a> and add your email "
-"address and your full name. {site} uses your email address if you need to"
-" reset your password."
-msgstr ""
-"กรุณา <a href=\"{link}\">ปรับปรุงข้อมูล</a> "
-"และเพิ่มที่อยู่อีเมลและชื่อของคุณ เพื่อที่ {site} "
-"ใช้อีเมลสำหรับการตั้งค่ารหัสผ่านใหม่"
+"Please <a href=\"{link}\">update your profile</a> and add your email address"
+" and your full name. {site} uses your email address if you need to reset "
+"your password."
+msgstr "กรุณา <a href=\"{link}\">ปรับปรุงข้อมูล</a> และเพิ่มที่อยู่อีเมลและชื่อของคุณ เพื่อที่ {site} ใช้อีเมลสำหรับการตั้งค่ารหัสผ่านใหม่"
 
 #: ckan/controllers/home.py:103
 #, python-format
@@ -472,9 +469,7 @@ msgstr "รูปแบบรุ่นไม่ถูกต้อง: %r"
 msgid ""
 "Viewing {package_type} datasets in {format} format is not supported "
 "(template file {file} not found)."
-msgstr ""
-"ระบบไม่รองรับการดูชุดข้อมูล {package_type} ในรูปแบบ {format} "
-"(ไม่พบไฟล์แม่แบบ {file})"
+msgstr "ระบบไม่รองรับการดูชุดข้อมูล {package_type} ในรูปแบบ {format} (ไม่พบไฟล์แม่แบบ {file})"
 
 #: ckan/controllers/package.py:472
 msgid "CKAN Dataset Revision History"
@@ -894,7 +889,8 @@ msgid "{actor} updated their profile"
 msgstr "{actor} ปรับปรุงข้อมูลส่วนตัว"
 
 #: ckan/lib/activity_streams.py:86
-msgid "{actor} updated the {related_type} {related_item} of the dataset {dataset}"
+msgid ""
+"{actor} updated the {related_type} {related_item} of the dataset {dataset}"
 msgstr "{actor} ปรับปรุง {related_type} {related_item} ของชุดข้อมูล {dataset}"
 
 #: ckan/lib/activity_streams.py:89
@@ -966,7 +962,8 @@ msgid "{actor} started following {group}"
 msgstr "{actor} ได้ติดตาม {group}"
 
 #: ckan/lib/activity_streams.py:142
-msgid "{actor} added the {related_type} {related_item} to the dataset {dataset}"
+msgid ""
+"{actor} added the {related_type} {related_item} to the dataset {dataset}"
 msgstr "{actor} เพิ่ม {related_type} {related_item} ไปยังชุดข้อมูล {dataset}"
 
 #: ckan/lib/activity_streams.py:145
@@ -1185,8 +1182,7 @@ msgstr ""
 
 #: ckan/lib/mailer.py:119
 msgid ""
-"You have been invited to {site_title}. A user has already been created to"
-" you with the username {user_name}. You can change it later.\n"
+"You have been invited to {site_title}. A user has already been created to you with the username {user_name}. You can change it later.\n"
 "\n"
 "To accept this invite, please reset your password at:\n"
 "\n"
@@ -1348,8 +1344,8 @@ msgstr "ชื่อต้องมีความยาวไม่เกิน
 
 #: ckan/logic/validators.py:366
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
 msgstr ""
 
 #: ckan/logic/validators.py:384
@@ -1442,9 +1438,7 @@ msgstr "ชื่อคำศัพท์นี้ถูกใช้ไปแล
 #: ckan/logic/validators.py:652
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr ""
-"ไม่สามารถเปลี่ยนค่าของกุญแจจาก %s ไปเป็น %s "
-"ได้เนื่องจากกุญแจนี้สามารถอ่านได้เท่านั้น"
+msgstr "ไม่สามารถเปลี่ยนค่าของกุญแจจาก %s ไปเป็น %s ได้เนื่องจากกุญแจนี้สามารถอ่านได้เท่านั้น"
 
 #: ckan/logic/validators.py:661
 msgid "Tag vocabulary was not found."
@@ -2129,11 +2123,9 @@ msgstr "ไม่สามารถที่จะดึงข้อมูลจ
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop"
-" this upload?"
-msgstr ""
-"คุณกำลังอัพโหลดไฟล์อยู่ กรุณายืนยันว่าคุณต้องการเปลี่ยนไปหน้าอื่น "
-"และหยุดการอัพโหลดนี้"
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
+msgstr "คุณกำลังอัพโหลดไฟล์อยู่ กรุณายืนยันว่าคุณต้องการเปลี่ยนไปหน้าอื่น และหยุดการอัพโหลดนี้"
 
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:8
 msgid "Reorder resource view"
@@ -2191,9 +2183,7 @@ msgstr "Open Knowledge Foundation"
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
-msgstr ""
-"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a>"
+msgstr "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
@@ -2246,8 +2236,9 @@ msgstr "ลงทะเบียน"
 #: ckan/templates/revision/diff.html:11 ckan/templates/revision/read.html:65
 #: ckan/templates/snippets/organization.html:59
 #: ckan/templates/snippets/context/group.html:17
-#: ckan/templates/snippets/context/user.html:19 ckan/templates/user/read.html:5
-#: ckan/templates/user/read_base.html:19 ckan/templates/user/read_base.html:53
+#: ckan/templates/snippets/context/user.html:19
+#: ckan/templates/user/read.html:5 ckan/templates/user/read_base.html:19
+#: ckan/templates/user/read_base.html:53
 msgid "Datasets"
 msgstr "ชุดข้อมูล"
 
@@ -2313,37 +2304,22 @@ msgstr "ตัวเลือกการปรับแต่ง CKAN"
 #: ckan/templates/admin/config.html:34
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> "
-"<p><strong>Style:</strong> Choose from a list of simple variations of the"
-" main colour scheme to get a very quick custom theme working.</p> "
-"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
-"<p><strong>Homepage:</strong> This is for choosing a predefined layout "
-"for the modules that appear on your homepage.</p> "
-msgstr ""
-"<p><strong>ชื่อไซต์:</strong> หัวข้อของ CKAN นี้ ซึ่งจะใช้ในส่วนต่างๆ ของ"
-" CKAN.</p> <p><strong>รูปแบบ:</strong> เลือกจากรายการตัวเลือกที่มี "
-"เพื่อให้สามารถตกแต่งหน้าตาได้แบบรวดเร็ว</p> "
-"<p><strong>ป้ายกำกับโลโก้:</strong> โลโก้ที่จะแสดงในส่วนหัวของแม่แบบของ "
-"CKAN ทั้งหมด</p> <p><strong>เกี่ยวกับ:</strong> ข้อความส่วนนี้จะแสดงใน <a"
-" href=\"%(about_url)s\">หน้าเกี่ยวกับ</a> ของ CKAN</p> "
-"<p><strong>ข้อความเกริ่นนำ:</strong> ข้อความส่วนนี้จะแสดงใน <a "
-"href=\"%(home_url)s\">หน้าหลัก</a> ของ CKAN "
-"เพื่อเป็นการต้อนรับผู้ที่เข้ามา</p> <p><strong>CSS ที่กำหนดเอง:</strong> "
-"โค๊ด  CSS ที่จะแสดงใน <code>&lt;head&gt;</code> ของทุกหน้า "
-"หากคุณต้องการปรับแต่งแม่แบบเพิ่มเติม เราขอแนะนำให้<a "
-"href=\"%(docs_url)s\" target=\"_blank\">อ่านเอกสารอ้างอิง</a></p> "
-"<p><strong>หน้าหลัก:</strong> "
-"สำหรับเลือกรูปแบบการจัดเรียงของโมดูลที่มีเตรียมไว้ให้</p>"
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
+"the modules that appear on your homepage.</p> "
+msgstr "<p><strong>ชื่อไซต์:</strong> หัวข้อของ CKAN นี้ ซึ่งจะใช้ในส่วนต่างๆ ของ CKAN.</p> <p><strong>รูปแบบ:</strong> เลือกจากรายการตัวเลือกที่มี เพื่อให้สามารถตกแต่งหน้าตาได้แบบรวดเร็ว</p> <p><strong>ป้ายกำกับโลโก้:</strong> โลโก้ที่จะแสดงในส่วนหัวของแม่แบบของ CKAN ทั้งหมด</p> <p><strong>เกี่ยวกับ:</strong> ข้อความส่วนนี้จะแสดงใน <a href=\"%(about_url)s\">หน้าเกี่ยวกับ</a> ของ CKAN</p> <p><strong>ข้อความเกริ่นนำ:</strong> ข้อความส่วนนี้จะแสดงใน <a href=\"%(home_url)s\">หน้าหลัก</a> ของ CKAN เพื่อเป็นการต้อนรับผู้ที่เข้ามา</p> <p><strong>CSS ที่กำหนดเอง:</strong> โค๊ด  CSS ที่จะแสดงใน <code>&lt;head&gt;</code> ของทุกหน้า หากคุณต้องการปรับแต่งแม่แบบเพิ่มเติม เราขอแนะนำให้<a href=\"%(docs_url)s\" target=\"_blank\">อ่านเอกสารอ้างอิง</a></p> <p><strong>หน้าหลัก:</strong> สำหรับเลือกรูปแบบการจัดเรียงของโมดูลที่มีเตรียมไว้ให้</p>"
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2358,9 +2334,8 @@ msgstr ""
 #, python-format
 msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
-"the CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin "
-"guide</a></p> "
+"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
+"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
 msgstr ""
 
 #: ckan/templates/admin/trash.html:20
@@ -2383,8 +2358,7 @@ msgstr "เข้าถึงทรัพยากรข้อมูลผ่า
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
-" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:33
@@ -2393,8 +2367,8 @@ msgstr "ปลายทาง"
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
 msgstr "Data API สามารถเข้าถึงได้ด้วยการเรียกใช้ CKAN action API"
 
 #: ckan/templates/ajax_snippets/api_info.html:42
@@ -2603,8 +2577,9 @@ msgstr "คุณแน่ใจว่าต้องการลบสมาช
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
 #: ckan/templates/package/read_base.html:19
-#: ckan/templates/package/resource_read.html:31 ckan/templates/user/edit.html:8
-#: ckan/templates/user/edit_base.html:3 ckan/templates/user/read_base.html:14
+#: ckan/templates/package/resource_read.html:31
+#: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
+#: ckan/templates/user/read_base.html:14
 msgid "Manage"
 msgstr "จัดการ"
 
@@ -2672,7 +2647,8 @@ msgstr "เรียงชื่อตามลำดับตัวอักษ
 msgid "There are currently no groups for this site"
 msgstr "ยังไม่มีกลุ่มสำหรับไซต์นี้"
 
-#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "ต้องการสร้างหรือไม่?"
 
@@ -2721,19 +2697,22 @@ msgstr "ผู้ใช้ใหม่"
 msgid "If you wish to invite a new user, enter their email address."
 msgstr "ถ้าคุณต้องการเชิญผู้ใช้ใหม่ กรอกที่อยู่อีเมลของพวกเขา"
 
-#: ckan/templates/group/member_new.html:55 ckan/templates/group/members.html:18
+#: ckan/templates/group/member_new.html:55
+#: ckan/templates/group/members.html:18
 #: ckan/templates/organization/member_new.html:56
 #: ckan/templates/organization/members.html:18
 msgid "Role"
 msgstr "หน้าที่"
 
-#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:30
+#: ckan/templates/group/member_new.html:58
+#: ckan/templates/group/members.html:30
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:30
 msgid "Are you sure you want to delete this member?"
 msgstr "คุณแน่ใจว่าต้องการลบสมาชิกนี้?"
 
-#: ckan/templates/group/member_new.html:59 ckan/templates/group/members.html:35
+#: ckan/templates/group/member_new.html:59
+#: ckan/templates/group/members.html:35
 #: ckan/templates/group/snippets/group_form.html:61
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:60
@@ -2760,13 +2739,10 @@ msgstr "มีหน้าที่อะไร?"
 
 #: ckan/templates/group/member_new.html:81
 msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage"
-" organization members.</p> <p><strong>Member:</strong> Can add/remove "
+" <p><strong>Admin:</strong> Can edit group information, as well as manage "
+"organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
-msgstr ""
-" <p><strong>ผู้ดูแลระบบ:</strong> สามารถเปลี่ยนแปลงข้อมูลของกลุ่ม "
-"และจัดการสมาชิกขององค์กร</p> <p><strong>สมาชิก:</strong> "
-"สามารถเพิ่ม/ลบชุดข้อมูลของกลุ่ม</p> "
+msgstr " <p><strong>ผู้ดูแลระบบ:</strong> สามารถเปลี่ยนแปลงข้อมูลของกลุ่ม และจัดการสมาชิกขององค์กร</p> <p><strong>สมาชิก:</strong> สามารถเพิ่ม/ลบชุดข้อมูลของกลุ่ม</p> "
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -2886,14 +2862,11 @@ msgstr "กลุ่มคืออะไร?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. "
-"This could be to catalogue datasets for a particular project or team, or "
-"on a particular theme, or as a very simple way to help people find and "
-"search your own published datasets. "
-msgstr ""
-"คุณสามารถใช้กลุ่ม CKAN ในการสร้างและจัดการชุดข้อมูล "
-"ไม่ว่าจะเป็นการสร้างแค็ตตาล็อกสำหรับชุดข้อมูลสำหรับโปรเจ็คต์ ทีม หรือธีม "
-"หรือเป็นวิธีง่ายๆ ในการให้ผู้ค้าหาชุดข้อมูลของคุณได้"
+" You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets. "
+msgstr "คุณสามารถใช้กลุ่ม CKAN ในการสร้างและจัดการชุดข้อมูล ไม่ว่าจะเป็นการสร้างแค็ตตาล็อกสำหรับชุดข้อมูลสำหรับโปรเจ็คต์ ทีม หรือธีม หรือเป็นวิธีง่ายๆ ในการให้ผู้ค้าหาชุดข้อมูลของคุณได้"
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
@@ -2956,14 +2929,13 @@ msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision of "
+"robust data APIs). CKAN is aimed at data publishers (national and regional "
+"governments, companies and organizations) wanting to make their data open "
+"and available.</p> <p>CKAN is used by governments and user groups worldwide "
+"and powers a variety of official and community data portals including "
+"portals for local, national and international government, such as the UK’s "
+"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -2972,26 +2944,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
-" <p>CKAN เป็นแพลตฟอร์มด้านข้อมูลเปิดระดับโลก</p> <p>CKAN "
-"เป็นเครื่องมือสำเร็จรูปที่ทำให้ข้อมูลถูกเข้าถึงและใช้งานได้ "
-"โดยมีเครื่องมือที่ใช้ในการทำให้การเผยแพร่ การแบ่งปัน การค้นหา "
-"และการใช้งานข้อมูล (รวมไปถึงการจัดเก็บข้อมูลและการจัดเตรียม API "
-"ข้อมูลที่ทนทาน) CKAN มีจุดมุ่งหมายที่จะทำให้ผู้เผยแพร่ข้อมูล "
-"(ทั้งหน่วยงานราชการระดับประเทศและระดับภาค บริษัทห้างร้าน และองค์กร) "
-"ต้องการที่จะทำให้ข้อมูลของพวกเขาเป็นข้อมูลเปิดและเข้าถึงได้</p> <p>CKAN "
-"ถูกใช้โดยราชการและกลุ่มบุคคลทั่วทั้งโลก "
-"และเป็นตัวขับเคลื่อนพอร์ทัลข้อมูลทั้งที่จัดตั้งโดยชุมชนและที่เป็นของหน่วยงาน"
-" เช่น <a href=\"http://data.gov.uk\">data.gov.uk</a> ของสหราชอาณาจักร <a "
-"href=\"http://publicdata.eu/\">publicdata.eu</a> ของสหภาพยุโรป <a "
-"href=\"http://dados.gov.br/\">dados.gov.br</a> ของบราซิล "
-"รวมไปถึงพอร์ทัลราชการของประเทศเนเธอร์แลนด์ "
-"และไซท์ของเมืองและเทศบาลเมืองในสหรัฐอเมริกา สหราชอาณาจักร อาร์เจนตินา "
-"ฟินแลนด์ และที่อื่นๆ ทั่วโลก</p> <p>CKAN: <a "
-"href=\"http://ckan.org/\">http://ckan.org/</a><br /> ชมรอบๆ CKAN: <a "
-"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> "
-"ภาพรวมฟีเจอร์การใช้งาน: <a "
-"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+msgstr " <p>CKAN เป็นแพลตฟอร์มด้านข้อมูลเปิดระดับโลก</p> <p>CKAN เป็นเครื่องมือสำเร็จรูปที่ทำให้ข้อมูลถูกเข้าถึงและใช้งานได้ โดยมีเครื่องมือที่ใช้ในการทำให้การเผยแพร่ การแบ่งปัน การค้นหา และการใช้งานข้อมูล (รวมไปถึงการจัดเก็บข้อมูลและการจัดเตรียม API ข้อมูลที่ทนทาน) CKAN มีจุดมุ่งหมายที่จะทำให้ผู้เผยแพร่ข้อมูล (ทั้งหน่วยงานราชการระดับประเทศและระดับภาค บริษัทห้างร้าน และองค์กร) ต้องการที่จะทำให้ข้อมูลของพวกเขาเป็นข้อมูลเปิดและเข้าถึงได้</p> <p>CKAN ถูกใช้โดยราชการและกลุ่มบุคคลทั่วทั้งโลก และเป็นตัวขับเคลื่อนพอร์ทัลข้อมูลทั้งที่จัดตั้งโดยชุมชนและที่เป็นของหน่วยงาน เช่น <a href=\"http://data.gov.uk\">data.gov.uk</a> ของสหราชอาณาจักร <a href=\"http://publicdata.eu/\">publicdata.eu</a> ของสหภาพยุโรป <a href=\"http://dados.gov.br/\">dados.gov.br</a> ของบราซิล รวมไปถึงพอร์ทัลราชการของประเทศเนเธอร์แลนด์ และไซท์ของเมืองและเทศบาลเมืองในสหรัฐอเมริกา สหราชอาณาจักร อาร์เจนตินา ฟินแลนด์ และที่อื่นๆ ทั่วโลก</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> ชมรอบๆ CKAN: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> ภาพรวมฟีเจอร์การใช้งาน: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -2999,11 +2952,9 @@ msgstr "ยินดีต้อนรับสู่ CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will "
-msgstr ""
-"พื้นที่สำหรับใส่ข้อความสั้นๆ แนะนำภาพรวมของ CKAN หรือของไซท์ "
-"เรายังไม่มีข้อความแนะนำมาให้ในส่วนนี้ แต่จะมีให้ในอนาคต"
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will "
+msgstr "พื้นที่สำหรับใส่ข้อความสั้นๆ แนะนำภาพรวมของ CKAN หรือของไซท์ เรายังไม่มีข้อความแนะนำมาให้ในส่วนนี้ แต่จะมีให้ในอนาคต"
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -3060,8 +3011,8 @@ msgstr "รายการที่เกี่ยวข้อง"
 #: ckan/templates/macros/form.html:126
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 
@@ -3134,8 +3085,8 @@ msgstr "ร่าง"
 #: ckan/templates/package/read.html:11
 #: ckan/templates/package/snippets/package_basic_fields.html:91
 #: ckan/templates/snippets/package_item.html:31
-#: ckan/templates/snippets/private.html:2 ckan/templates/user/read_base.html:82
-#: ckan/templates/user/read_base.html:96
+#: ckan/templates/snippets/private.html:2
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "Private"
 msgstr "ส่วนตัว"
 
@@ -3189,14 +3140,9 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p> "
-msgstr ""
-"<p><strong>Admin:</strong>เพิ่ม/แก้ไข/ลบ ชุดข้อมูล "
-"และจัดการสมาชิกขององค์กร</p> "
-"<p><strong>บรรณาธิการ:</strong>สามารถเพิ่มหรือแก้ไขชุดข้อมูลแต่ไม่สามารถจัดการสมาชิกองค์กรได้</p>"
-" <p><strong>สมาชิก:</strong> "
-"สามารถดูชุดข้อมูลส่วนบุคคลขององค์กรคุณได้แต่ไม่สามารถเพิ่มชุดข้อมูลใหม่ได้</p>"
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p> "
+msgstr "<p><strong>Admin:</strong>เพิ่ม/แก้ไข/ลบ ชุดข้อมูล และจัดการสมาชิกขององค์กร</p> <p><strong>บรรณาธิการ:</strong>สามารถเพิ่มหรือแก้ไขชุดข้อมูลแต่ไม่สามารถจัดการสมาชิกองค์กรได้</p> <p><strong>สมาชิก:</strong> สามารถดูชุดข้อมูลส่วนบุคคลขององค์กรคุณได้แต่ไม่สามารถเพิ่มชุดข้อมูลใหม่ได้</p>"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3230,23 +3176,20 @@ msgstr "อะไรคือองค์กร?"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for "
-"example, the Department of Health). This means that datasets can be "
-"published by and belong to a department instead of an individual "
-"user.</p> <p>Within organizations, admins can assign roles and authorise "
-"its members, giving individual users the right to publish datasets from "
-"that particular organisation (e.g. Office of National Statistics).</p> "
+" <p>Organizations act like publishing departments for datasets (for example,"
+" the Department of Health). This means that datasets can be published by and"
+" belong to a department instead of an individual user.</p> <p>Within "
+"organizations, admins can assign roles and authorise its members, giving "
+"individual users the right to publish datasets from that particular "
+"organisation (e.g. Office of National Statistics).</p> "
 msgstr ""
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of"
-" datasets. Users can have different roles within an Organization, "
-"depending on their level of authorisation to create, edit and publish. "
-msgstr ""
-"องค์กรสามารถถูกใช้ในการสร้าง จัดการ และเผยแพร่ชุดข้อมูล "
-"ผู้ใช้อาจมีได้มากกว่าหนึ่งหน้าที่ในองค์กร "
-"ขึ้นอยู่กับสิทธิ์ที่ผู้ใช้ดังกล่าวมี"
+" CKAN Organizations are used to create, manage and publish collections of "
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish. "
+msgstr "องค์กรสามารถถูกใช้ในการสร้าง จัดการ และเผยแพร่ชุดข้อมูล ผู้ใช้อาจมีได้มากกว่าหนึ่งหน้าที่ในองค์กร ขึ้นอยู่กับสิทธิ์ที่ผู้ใช้ดังกล่าวมี"
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3262,8 +3205,8 @@ msgstr "ข้อมูลเบื้องต้นเกี่ยวกับ
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all "
-"the public and private datasets belonging to this organization."
+"Are you sure you want to delete this Organization? This will delete all the "
+"public and private datasets belonging to this organization."
 msgstr "คุณแน่ใจว่าคุณต้องการลบองค์กรนี้ ซึ่งจะลบชุดข้อมูลทั้งหมดขององค์กรนี้"
 
 #: ckan/templates/organization/snippets/organization_form.html:64
@@ -3286,12 +3229,10 @@ msgstr "อะไรคือข้อมูล?"
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
-" A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data. "
-msgstr ""
-"ใน CKAN ชุดข้อมูลคือการรวบรวมของชุดข้อมูล (เช่นไฟล์) คำอธิบายและอื่นๆ บน "
-"URL หนึ่ง ชุดข้อมูลคือสิ่งที่ผู้ใช้เห็นเวลาค้นหาข้อมูล"
+" A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data. "
+msgstr "ใน CKAN ชุดข้อมูลคือการรวบรวมของชุดข้อมูล (เช่นไฟล์) คำอธิบายและอื่นๆ บน URL หนึ่ง ชุดข้อมูลคือสิ่งที่ผู้ใช้เห็นเวลาค้นหาข้อมูล"
 
 #: ckan/templates/package/confirm_delete.html:11
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -3373,9 +3314,9 @@ msgstr ""
 msgid ""
 " Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer"
-" documentation</a>. "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>Data Explorer "
+"documentation</a>. "
 msgstr ""
 
 #: ckan/templates/package/new_view.html:29
@@ -3386,12 +3327,9 @@ msgstr "เพิ่ม"
 #: ckan/templates/package/read_base.html:38
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
-msgstr ""
-"นี่เป็นชุดข้อมูลรุ่นเก่าที่ถูกแก้ไขเมื่อ %(timestamp)s "
-"ซึ่งอาจจะแตกต่างจาก <a href=\"%(url)s\">รุ่นปัจจุบัน</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
+"differ significantly from the <a href=\"%(url)s\">current revision</a>."
+msgstr "นี่เป็นชุดข้อมูลรุ่นเก่าที่ถูกแก้ไขเมื่อ %(timestamp)s ซึ่งอาจจะแตกต่างจาก <a href=\"%(url)s\">รุ่นปัจจุบัน</a>."
 
 #: ckan/templates/package/related_list.html:7
 msgid "Related Media for {dataset}"
@@ -3514,9 +3452,9 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:125
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr ""
 
 #: ckan/templates/package/resource_read.html:147
@@ -3575,11 +3513,9 @@ msgstr "เพิ่มทรัพยากรใหม่"
 #: ckan/templates/package/snippets/resources_list.html:25
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
-" add some?</a></p> "
-msgstr ""
-" <p class=\"empty\">ชุดข้อมูลนี้ไม่มีข้อมูล <a "
-"href=\"%(url)s\">ลองเพิ่มดูไหม?</a></p> "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+"add some?</a></p> "
+msgstr " <p class=\"empty\">ชุดข้อมูลนี้ไม่มีข้อมูล <a href=\"%(url)s\">ลองเพิ่มดูไหม?</a></p> "
 
 #: ckan/templates/package/search.html:53
 msgid "API Docs"
@@ -3594,9 +3530,7 @@ msgstr "ถ่ายโอนข้อมูลเต็ม {format}"
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
-msgstr ""
-"คุณสามารถเข้าถึงคลังทาง %(api_link)s (ให้ดู %(api_doc_link)s) "
-"หรือดาวน์โหลด %(dump_link)s."
+msgstr "คุณสามารถเข้าถึงคลังทาง %(api_link)s (ให้ดู %(api_doc_link)s) หรือดาวน์โหลด %(dump_link)s."
 
 #: ckan/templates/package/search.html:60
 #, python-format
@@ -3678,9 +3612,7 @@ msgstr "ตัวอย่าง เศรษฐกิจ สุขภาพจ�
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
-msgstr ""
-"สามารถดูข้อมูลเกี่ยวกับประเภทลิขสิทธิ์ต่างได้ที่ <a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
+msgstr "สามารถดูข้อมูลเกี่ยวกับประเภทลิขสิทธิ์ต่างได้ที่ <a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:69
 #: ckan/templates/snippets/organization.html:23
@@ -3705,12 +3637,11 @@ msgstr "ทำงาน"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
 msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:39
@@ -3923,14 +3854,11 @@ msgstr "รายการที่เกี่ยวข้อง"
 
 #: ckan/templates/related/base_form_page.html:22
 msgid ""
-" <p>Related Media is any app, article, visualisation or idea related to "
-"this dataset.</p> <p>For example, it could be a custom visualisation, "
-"pictograph or bar chart, an app using all or part of the data or even a "
-"news story that references this dataset.</p> "
-msgstr ""
-"<p>สื่อที่เกี่ยวข้องกับชุดข้อมูลนี้ทั้งที่เป็นแอพลิเคชั่น บทความ แผนภาพ "
-"หรือแนวคิด</p> <p>ยกตัวอย่างเช่น สามารถที่จะเป็นแผนภาพ กราฟแท่ง "
-"และแอพพลิเคชั่นที่ใช้บางส่วนหรือทั้งหมดของข้อมูลหรือกระทั้งเนือหาข่าวที่เกี่ยวข้องกับชุดข้อมูลนี้</p>"
+" <p>Related Media is any app, article, visualisation or idea related to this"
+" dataset.</p> <p>For example, it could be a custom visualisation, pictograph"
+" or bar chart, an app using all or part of the data or even a news story "
+"that references this dataset.</p> "
+msgstr "<p>สื่อที่เกี่ยวข้องกับชุดข้อมูลนี้ทั้งที่เป็นแอพลิเคชั่น บทความ แผนภาพ หรือแนวคิด</p> <p>ยกตัวอย่างเช่น สามารถที่จะเป็นแผนภาพ กราฟแท่ง และแอพพลิเคชั่นที่ใช้บางส่วนหรือทั้งหมดของข้อมูลหรือกระทั้งเนือหาข่าวที่เกี่ยวข้องกับชุดข้อมูลนี้</p>"
 
 #: ckan/templates/related/confirm_delete.html:11
 msgid "Are you sure you want to delete related item - {name}?"
@@ -3947,9 +3875,7 @@ msgstr "แอพพลิเคชั่นและแนวคิด"
 msgid ""
 " <p>Showing items <strong>%(first)s - %(last)s</strong> of "
 "<strong>%(item_count)s</strong> related items found</p> "
-msgstr ""
-"<p>แสดงรายการ<strong>%(first)s - "
-"%(last)s</strong>จาก<strong>%(item_count)s</strong>รายการที่เกี่ยวข้อง</p>"
+msgstr "<p>แสดงรายการ<strong>%(first)s - %(last)s</strong>จาก<strong>%(item_count)s</strong>รายการที่เกี่ยวข้อง</p>"
 
 #: ckan/templates/related/dashboard.html:25
 #, python-format
@@ -3966,8 +3892,8 @@ msgstr "แอพพลิเคชั่นนี้คืออะไร"
 
 #: ckan/templates/related/dashboard.html:50
 msgid ""
-" These are applications built with the datasets as well as ideas for "
-"things that could be done with them. "
+" These are applications built with the datasets as well as ideas for things "
+"that could be done with them. "
 msgstr "นี้คือแอพพลิเคชั่นที่สร้างกับชุดข้อมูลนี้รวมถึงแนวคิดของสิ่งที่ทำขึ้นจากชุดข้อมูลนี้"
 
 #: ckan/templates/related/dashboard.html:58
@@ -4337,8 +4263,7 @@ msgstr "ข้อมูลผู้ใช้"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you "
-"do. "
+" Your profile lets other CKAN users know about who you are and what you do. "
 msgstr "ข้อมูลแนะนำตัวของคุณจะทำให้ผู้ใช้ CKAN อื่นๆ ได้รู้จักคุณและผลงานคุณดีขึ้น"
 
 #: ckan/templates/user/edit_user_form.html:7
@@ -4553,8 +4478,8 @@ msgstr ""
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
-"Enter your username into the box and we will send you an email with a "
-"link to enter a new password."
+"Enter your username into the box and we will send you an email with a link "
+"to enter a new password."
 msgstr "ป้อนชื่อผู้ใช้ของคุณใส่ลงในกล่องนี้เพื่อที่เราจะได้ส่งอีเมล์พร้อมลิ้งค์ในการตั้งรหัสผ่านใหม่ให้คุณ"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
@@ -4600,8 +4525,8 @@ msgstr "ไม่พบคลังข้อมูลทรัพยากร"
 
 #: ckanext/datastore/db.py:656
 msgid ""
-"The data was invalid (for example: a numeric value is out of range or was"
-" inserted into a text field)."
+"The data was invalid (for example: a numeric value is out of range or was "
+"inserted into a text field)."
 msgstr ""
 
 #: ckanext/datastore/logic/action.py:210 ckanext/datastore/logic/action.py:250
@@ -4870,11 +4795,9 @@ msgstr "ชุดข้อมูล ลีดเดอร์บอร์ด"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:18
 msgid ""
-"Choose a dataset attribute and find out which categories in that area "
-"have the most datasets. E.g. tags, groups, license, res_format, country."
-msgstr ""
-"เลือกคุณลักษณะของชุดข้อมูล เพื่อค้นหาว่าหมวดหมู่ไหนมีชุดข้อมูลมากที่สุด "
-"เช่น แท็ค กลุ่ม ลิขสิทธิ์ รูปแบบ และประเทศ"
+"Choose a dataset attribute and find out which categories in that area have "
+"the most datasets. E.g. tags, groups, license, res_format, country."
+msgstr "เลือกคุณลักษณะของชุดข้อมูล เพื่อค้นหาว่าหมวดหมู่ไหนมีชุดข้อมูลมากที่สุด เช่น แท็ค กลุ่ม ลิขสิทธิ์ รูปแบบ และประเทศ"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:20
 msgid "Choose area"
@@ -4895,120 +4818,3 @@ msgstr ""
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
 msgstr ""
-
-#~ msgid ""
-#~ "You have been invited to {site_title}."
-#~ " A user has already been createdto"
-#~ " you with the username {user_name}. "
-#~ "You can change it later.\n"
-#~ "\n"
-#~ "To accept this invite, please reset your password at:\n"
-#~ "\n"
-#~ "   {reset_link}\n"
-#~ msgstr ""
-
-#~ msgid "You cannot remove a dataset from an existing organization"
-#~ msgstr "คุณไม่สามารถลบชุดข้อมูลจากองค์กรที่มีอยู่ก่อนแล้ว"
-
-#~ msgid ""
-#~ "Copyright (c) 2010 Michael Leibman, "
-#~ "http://github.com/mleibman/slickgrid\n"
-#~ "\n"
-#~ "Permission is hereby granted, free of charge, to any person obtaining\n"
-#~ "a copy of this software and associated documentation files (the\n"
-#~ "\"Software\"), to deal in the Software without restriction, including\n"
-#~ "without limitation the rights to use, copy, modify, merge, publish,\n"
-#~ "distribute, sublicense, and/or sell copies of the Software, and to\n"
-#~ "permit persons to whom the Software is furnished to do so, subject to\n"
-#~ "the following conditions:\n"
-#~ "\n"
-#~ "The above copyright notice and this permission notice shall be\n"
-#~ "included in all copies or substantial portions of the Software.\n"
-#~ "\n"
-#~ "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\n"
-#~ "EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\n"
-#~ "MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n"
-#~ "NONINFRINGEMENT. IN NO EVENT SHALL THE"
-#~ " AUTHORS OR COPYRIGHT HOLDERS BE\n"
-#~ "LIABLE FOR ANY CLAIM, DAMAGES OR "
-#~ "OTHER LIABILITY, WHETHER IN AN ACTION"
-#~ "\n"
-#~ "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
-#~ "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
-#~ msgstr ""
-#~ "ลิขสิทธิ์ (c) 2010 ไมเคิล ลิบแมน, "
-#~ "http://github.com/mleibman/slickgrid\n"
-#~ "\n"
-#~ "ซึ่งอนุญาตไม่มีเสียค่าใช้จ่ายให้กับบุคคลที่ได้รับใด ๆ "
-#~ "สำเนาของซอฟต์แวร์นี้และไฟล์เอกสารที่เกี่ยวข้อง (\"ซอฟต์แวร์\"),"
-#~ " การจัดการซอฟต์แวร์โดยไม่มีข้อ จำกัด "
-#~ "รวมทั้งไม่จำกัดสิทธิ์ในการใช้คัดลอกดัดแปลงแก้ไขรวมเผยแพร่แจกจ่ายใบอนุญาตและ"
-#~ " / "
-#~ "หรือขายสำเนาของซอฟแวร์และอนุญาตให้บุคคลซึ่งซอฟแวร์ได้รับการตกแต่งให้ทำเช่นนั้นอาจมีการเงื่อนไขต่อไปนี้:"
-#~ "\n"
-#~ "\n"
-#~ "ประกาศลิขสิทธิ์ข้างต้นและประกาศการอนุญาตนี้จะเป็นรวมอยู่ในสำเนาทั้งหมดหรือบางส่วนที่สำคัญของซอฟแวร์"
-#~ "\n"
-#~ "\n"
-#~ "ซอฟต์แวร์นี้มีให้ \"ตามสภาพ\" โดยไม่มีการรับประกันใด "
-#~ "ๆ โดยชัดแจ้งหรือโดยนัย รวมถึงแต่ไม่จำกัด "
-#~ "เฉพาะการรับประกันของสินค้าความเหมาะสมสำหรับวัตถุประสงค์และโดยเฉพาะอย่างยิ่งการไม่ละเมิด"
-#~ " ไม่มีเหตุการณ์ใดที่ผู้เขียนหรือเจ้าของลิขสิทธิ์ พ.ศ. "
-#~ "รับผิดชอบต่อการเรียกร้องใด ๆ "
-#~ "ที่จะเกิดความเสียหายหรือความรับผิดอื่น ๆ "
-#~ "ไม่ว่าในการดำเนินการของสัญญาการละเมิดหรืออื่น ๆ "
-#~ "ที่เกิดจากการ, หมดอายุการใช้งาน "
-#~ "หรือเกี่ยวข้องกับซอฟต์แวร์หรือการใช้หรือการติดต่ออื่น ๆ "
-#~ "ในซอฟต์แวร์"
-
-#~ msgid ""
-#~ "This compiled version of SlickGrid has"
-#~ " been obtained with the Google "
-#~ "Closure\n"
-#~ "Compiler, using the following command:\n"
-#~ "\n"
-#~ "java -jar compiler.jar --js=slick.core.js "
-#~ "--js=slick.grid.js --js=slick.editors.js "
-#~ "--js_output_file=slick.grid.min.js\n"
-#~ "\n"
-#~ "There are two other files required "
-#~ "for the SlickGrid view to work "
-#~ "properly:\n"
-#~ "\n"
-#~ " * jquery-ui-1.8.16.custom.min.js \n"
-#~ " * jquery.event.drag-2.0.min.js\n"
-#~ "\n"
-#~ "These are included in the Recline "
-#~ "source, but have not been included "
-#~ "in the\n"
-#~ "built file to make easier to handle compatibility problems.\n"
-#~ "\n"
-#~ "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
-#~ "\n"
-#~ "[1] https://developers.google.com/closure/compiler/"
-#~ msgstr ""
-#~ "This compiled version of SlickGrid has"
-#~ " been obtained with the Google "
-#~ "Closure\n"
-#~ "Compiler, using the following command:\n"
-#~ "\n"
-#~ "java -jar compiler.jar --js=slick.core.js "
-#~ "--js=slick.grid.js --js=slick.editors.js "
-#~ "--js_output_file=slick.grid.min.js\n"
-#~ "\n"
-#~ "There are two other files required "
-#~ "for the SlickGrid view to work "
-#~ "properly:\n"
-#~ "\n"
-#~ " * jquery-ui-1.8.16.custom.min.js \n"
-#~ " * jquery.event.drag-2.0.min.js\n"
-#~ "\n"
-#~ "These are included in the Recline "
-#~ "source, but have not been included "
-#~ "in the\n"
-#~ "built file to make easier to handle compatibility problems.\n"
-#~ "\n"
-#~ "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
-#~ "\n"
-#~ "[1] https://developers.google.com/closure/compiler/"
-
