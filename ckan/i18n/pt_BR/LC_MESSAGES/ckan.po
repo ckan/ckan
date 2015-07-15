@@ -9,7 +9,7 @@
 # Christian Moryah Contiero Miranda <christianmoryah@gmail.com>, 2014
 # Gustavo Rocha Pereira de Souza <gustavorps@gustavorps.net>, 2014
 # Pablo Mendes <>, 2012
-# Yaso <yasodara.cordova@gmail.com>, 2013
+# Yaso <inactive+Yaso@transifex.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
@@ -17,7 +17,7 @@ msgstr ""
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
 "PO-Revision-Date: 2014-09-26 20:57+0000\n"
 "Last-Translator: Augusto Herrmann <augusto.herrmann@gmail.com>\n"
-"Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/ckan/language/pt_BR/)\n"
+"Language-Team: Portuguese (Brazil) (http://www.transifex.com/p/ckan/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

@@ -3,6 +3,8 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Andreas Ganimas <systemdrew@gmail.com>, 2013
+# CHRYSOSTOMOS ZEGKINIS <zegchris@csd.uoc.gr>, 2012
 # CHRYSOSTOMOS ZEGKINIS <zegchris@csd.uoc.gr>, 2012
 # dimispan <dimi.span@gmail.com>, 2012
 # Andreas Ganimas <systemdrew@gmail.com>, 2013
@@ -11,25 +13,29 @@
 # Lia Vrikou <>, 2012
 # Marios Bekatoros <>, 2013-2014
 # Micahel Tsapanos <mtsapano@auth.gr>, 2012
+# Micahel Tsapanos <mtsapano@auth.gr>, 2012
 # Nikos Roussos <nikos@roussos.cc>, 2012
 # Οφηλία Νεοφύτου <ophelia@ucnet.uoc.gr>, 2012
 # Sofia Karampataki <>, 2012
+# Sophia Valanis <sophiavalanis@yahoo.gr>, 2015
 # Spiros Alexiou <spiros.alexiou@gmail.com>, 2012
+# Themis Zamani <themiszamani@gmail.com>, 2013
 # Themis Zamani <themiszamani@gmail.com>, 2013
 # thodoris <>, 2013
 # Thodoris Vakkas <t.vakkas@gmail.com>, 2014
 # trap_cat <trap_cat@hotmail.com>, 2012
 # Thodoris Vakkas <t.vakkas@gmail.com>, 2014
 # Γιάννης Κασκαμανίδης <kiolalis@gmail.com>, 2013
-# Sophia Valanis <sophiavalanis@yahoo.gr>, 2015
+# λεωνίδας ζώης <leonidas7812@gmail.com>, 2013
+# Οφηλία Νεοφύτου <ophelia@ucnet.uoc.gr>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2014-12-12 15:28+0000\n"
-"Last-Translator: Marios Bekatoros <>\n"
-"Language-Team: Greek (http://www.transifex.com/projects/p/ckan/language/el/)\n"
+"PO-Revision-Date: 2015-05-12 11:28+0000\n"
+"Last-Translator: kalxas <gcpp.kalxas@gmail.com>\n"
+"Language-Team: Greek (http://www.transifex.com/p/ckan/language/el/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -494,9 +500,7 @@ msgstr "Μη έγκυρος μορφότυπος αναθεώρησης:%r"
 msgid ""
 "Viewing {package_type} datasets in {format} format is not supported "
 "(template file {file} not found)."
-msgstr ""
-"Η επισκόπηση των συνόλων δεδομένων {package_type} σε μορφότυπο {format} δεν υποστηρίζεται "
-"(το αρχείο προτύπου {file} δεν βρέθηκε)."
+msgstr "Η επισκόπηση των συνόλων δεδομένων {package_type} σε μορφότυπο {format} δεν υποστηρίζεται (το αρχείο προτύπου {file} δεν βρέθηκε)."
 
 #: ckan/controllers/package.py:449
 msgid "CKAN Dataset Revision History"
@@ -886,8 +890,7 @@ msgstr "Ο/Η {actor} ενημέρωσε το προφίλ του/της"
 #: ckan/lib/activity_streams.py:86
 msgid ""
 "{actor} updated the {related_type} {related_item} of the dataset {dataset}"
-msgstr ""
-"Ο/Η {actor} ενημέρωσε το {related_type} {related_item} του συνόλου δεδομένων {dataset}"
+msgstr "Ο/Η {actor} ενημέρωσε το {related_type} {related_item} του συνόλου δεδομένων {dataset}"
 
 #: ckan/lib/activity_streams.py:89
 msgid "{actor} updated the {related_type} {related_item}"
@@ -960,8 +963,7 @@ msgstr "Ο/Η {actor} άρχισε να ακολουθεί την ομάδα {gr
 #: ckan/lib/activity_streams.py:142
 msgid ""
 "{actor} added the {related_type} {related_item} to the dataset {dataset}"
-msgstr ""
-"Ο/Η {actor} πρόσθεσε το {related_type} {related_item} στο σύνολο δεδομένων {dataset}"
+msgstr "Ο/Η {actor} πρόσθεσε το {related_type} {related_item} στο σύνολο δεδομένων {dataset}"
 
 #: ckan/lib/activity_streams.py:145
 msgid "{actor} added the {related_type} {related_item}"
@@ -1191,13 +1193,7 @@ msgid ""
 "\n"
 "       %(reset_link)s\n"
 "    "
-msgstr ""
-"Ζητήσατε να γίνει επαναφορά του κωδικού πρόσβασής σας στο %(site_title)s.\n"
-"\n"
-"    Παρακαλώ κάντε κλικ στον παρακάτω σύνδεσμο για να επιβεβαιώσετε το αίτημά σας:\n"
-"\n"
-"       %(reset_link)s\n"
-"    "
+msgstr "Ζητήσατε να γίνει επαναφορά του κωδικού πρόσβασής σας στο %(site_title)s.\n\n    Παρακαλώ κάντε κλικ στον παρακάτω σύνδεσμο για να επιβεβαιώσετε το αίτημά σας:\n\n       %(reset_link)s\n    "
 
 #: ckan/lib/mailer.py:119
 #, python-format
@@ -1209,14 +1205,7 @@ msgid ""
 "\n"
 "       %(reset_link)s\n"
 "    "
-msgstr ""
-"Σας έχει γίνει πρόσκληση στο %(site_title)s. Έχει ήδη δημιουργηθεί χρήστης για σας\n"
-"    με το όνομα χρήστη %(user_name)s. Μπορείτε να το αλλάξετε αργότερα.\n"
-"\n"
-"    Για να αποδεχθείτε αυτή την πρόσκληση, παρακαλώ επαναφέρετε τον κωδικό πρόσβασής σας στο:\n"
-"\n"
-"       %(reset_link)s\n"
-"    "
+msgstr "Σας έχει γίνει πρόσκληση στο %(site_title)s. Έχει ήδη δημιουργηθεί χρήστης για σας\n    με το όνομα χρήστη %(user_name)s. Μπορείτε να το αλλάξετε αργότερα.\n\n    Για να αποδεχθείτε αυτή την πρόσκληση, παρακαλώ επαναφέρετε τον κωδικό πρόσβασής σας στο:\n\n       %(reset_link)s\n    "
 
 #: ckan/lib/mailer.py:145 ckan/templates_legacy/user/perform_reset.html:6
 #: ckan/templates_legacy/user/perform_reset.html:14
@@ -1399,9 +1388,7 @@ msgstr " Το όνομα πρέπει να έχει κατ' ανώτατο όρ�
 msgid ""
 "Url must be purely lowercase alphanumeric (ascii) characters and these "
 "symbols: -_"
-msgstr ""
-"Το URL πρέπει να περιέχει αμιγώς πεζούς αλφαριθμητικούς (ASCII) χαρακτήρες "
-"και τα σύμβολα: -_"
+msgstr "Το URL πρέπει να περιέχει αμιγώς πεζούς αλφαριθμητικούς (ASCII) χαρακτήρες και τα σύμβολα: -_"
 
 #: ckan/logic/validators.py:340
 msgid "That URL is already in use."
@@ -1479,9 +1466,7 @@ msgstr "Οι κωδικοί που δώσατε δεν ταιριάζουν"
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
-msgstr ""
-"Η επεξεργασία δεν επιτρέπεται, δεδομένου ότι μοιάζει με ανεπιθύμητη αλληλογραφία spam. "
-"Παρακαλούμε αποφύγετε τη χρήση συνδέσμων στην περιγραφή σας."
+msgstr "Η επεξεργασία δεν επιτρέπεται, δεδομένου ότι μοιάζει με ανεπιθύμητη αλληλογραφία spam. Παρακαλούμε αποφύγετε τη χρήση συνδέσμων στην περιγραφή σας."
 
 #: ckan/logic/validators.py:602
 msgid "That vocabulary name is already in use."
@@ -2164,9 +2149,7 @@ msgstr "Αδυναμία λήψης δεδομένων του αρχείου μ�
 msgid ""
 "You are uploading a file. Are you sure you want to navigate away and stop "
 "this upload?"
-msgstr ""
-"Πραγματοποιείτε μεταφόρτωση αρχείου. Είστε σίγουροι ότι θέλετε να πλοηγηθείτε σε κάτι άλλο και να σταματήσετε "
-"αυτή τη μεταφόρτωση;"
+msgstr "Πραγματοποιείτε μεταφόρτωση αρχείου. Είστε σίγουροι ότι θέλετε να πλοηγηθείτε σε κάτι άλλο και να σταματήσετε αυτή τη μεταφόρτωση;"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:35
 #: ckan/templates/group/snippets/group_form.html:18
@@ -2224,9 +2207,7 @@ msgstr "Ίδρυμα Ανοιχτής Γνώσης"
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
-msgstr ""
-"<strong>Βασισμένο στο</strong> <a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a>"
+msgstr "<strong>Βασισμένο στο</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
@@ -2354,22 +2335,7 @@ msgid ""
 "target=\"_blank\">reading the documentation</a>.</p> "
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p> "
-msgstr ""
-" <p><strong>Τίτλος Ιστοσελίδας:</strong> Αυτός είναι ο τίτλος αυτής της εκδοχής του CKAN. "
-"Εμφανίζεται σε διάφορα σημεία σε ολόκληρο το CKAN.</p> <p><strong>Στυλ:</strong> "
-"Επιλέξτε από μια λίστα με απλές παραλλαγές του βασικού συνδυασμού χρωμάτων ώστε να έχετε πολύ γρήγορα "
-"ένα προσαρμοσμένο θέμα σε λειτουργία.</p> <p><strong>Λογότυπο Ετικέτας Ιστοσελίδας:</strong> Αυτό"
-" είναι το λογότυπο που εμφανίζεται στην κεφαλίδα όλων των προτύπων αυτής της εκδοχής "
-"του CKAN.</p> <p><strong>Σχετικά:</strong> Αυτό το κείμενο θα εμφανίζεται στη "
-"<a href=\"%(about_url)s\">σελίδα πληροφοριών</a> αυτής της εκδοχής του CKAN.</p> <p><strong>Εισαγωγικό "
-"Κείμενο:</strong> Αυτό το κείμενο θα εμφανίζεται στην <a "
-"href=\"%(home_url)s\">αρχική σελίδα</a> αυτής της εκδοχής του CKAN ως καλωσόρισμα στους επισκέπτες.</p> "
-"<p><strong>Προσαρμοσμένο CSS:</strong> Αυτή είναι μια δέσμη εντολών CSS η οποία εμφανίζεται στην "
-"<code>&lt;head&gt;</code> ετικέτα κάθε σελίδας. Αν θέλετε να προσαρμόσετε "
-"τα πρότυπα σε μεγαλύτερο βαθμό σας συνιστούμε <a href=\"%(docs_url)s\" "
-"target=\"_blank\">ανάγνωση του εγχειριδίου</a>.</p> "
-"<p><strong>Αρχική Σελίδα:</strong> Αυτό είναι για την επιλογή μιας προκαθορισμένης διάταξης "
-"για τις λειτουργικές μονάδες που εμφανίζονται στην αρχική σελίδα σας.</p> "
+msgstr " <p><strong>Τίτλος Ιστοσελίδας:</strong> Αυτός είναι ο τίτλος αυτής της εκδοχής του CKAN. Εμφανίζεται σε διάφορα σημεία σε ολόκληρο το CKAN.</p> <p><strong>Στυλ:</strong> Επιλέξτε από μια λίστα με απλές παραλλαγές του βασικού συνδυασμού χρωμάτων ώστε να έχετε πολύ γρήγορα ένα προσαρμοσμένο θέμα σε λειτουργία.</p> <p><strong>Λογότυπο Ετικέτας Ιστοσελίδας:</strong> Αυτό είναι το λογότυπο που εμφανίζεται στην κεφαλίδα όλων των προτύπων αυτής της εκδοχής του CKAN.</p> <p><strong>Σχετικά:</strong> Αυτό το κείμενο θα εμφανίζεται στη <a href=\"%(about_url)s\">σελίδα πληροφοριών</a> αυτής της εκδοχής του CKAN.</p> <p><strong>Εισαγωγικό Κείμενο:</strong> Αυτό το κείμενο θα εμφανίζεται στην <a href=\"%(home_url)s\">αρχική σελίδα</a> αυτής της εκδοχής του CKAN ως καλωσόρισμα στους επισκέπτες.</p> <p><strong>Προσαρμοσμένο CSS:</strong> Αυτή είναι μια δέσμη εντολών CSS η οποία εμφανίζεται στην <code>&lt;head&gt;</code> ετικέτα κάθε σελίδας. Αν θέλετε να προσαρμόσετε τα πρότυπα σε μεγαλύτερο βαθμό σας συνιστούμε <a href=\"%(docs_url)s\" target=\"_blank\">ανάγνωση του εγχειριδίου</a>.</p> <p><strong>Αρχική Σελίδα:</strong> Αυτό είναι για την επιλογή μιας προκαθορισμένης διάταξης για τις λειτουργικές μονάδες που εμφανίζονται στην αρχική σελίδα σας.</p> "
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2404,10 +2370,7 @@ msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/datastore.html\" "
 "target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
-msgstr ""
-" Περισσότερες πληροφορίες στο <a       "
-"href=\"http://docs.ckan.org/en/latest/datastore.html\" "
-"target=\"_blank\">βασικό εγχειρίδιο για το Data API και το DataStore του CKAN/a>.</p> "
+msgstr " Περισσότερες πληροφορίες στο <a       href=\"http://docs.ckan.org/en/latest/datastore.html\" target=\"_blank\">βασικό εγχειρίδιο για το Data API και το DataStore του CKAN/a>.</p> "
 
 #: ckan/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
@@ -2417,8 +2380,7 @@ msgstr "Υποδομές"
 msgid ""
 "The Data API can be accessed via the following actions of the CKAN action "
 "API."
-msgstr ""
-"Η πρόσβαση στο Data API είναι δυνατή μέσω των παρακάτω ενεργειών στο API ενεργειών του CKAN."
+msgstr "Η πρόσβαση στο Data API είναι δυνατή μέσω των παρακάτω ενεργειών στο API ενεργειών του CKAN."
 
 #: ckan/templates/ajax_snippets/api_info.html:42
 #: ckan/templates/related/edit_form.html:7
@@ -2812,10 +2774,7 @@ msgid ""
 " <p><strong>Admin:</strong> Can edit group information, as well as manage "
 "organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
-msgstr ""
-" <p><strong>Διαχειριστής:</strong> Μπορεί να επεξεργάζεται τις πληροφορίες των ομάδων, καθώς και να διαχειρίζεται "
-"τα μέλη των οργανισμών.</p> <p><strong>Μέλος:</strong> Μπορεί να προσθέτει/αφαιρεί "
-"σύνολα δεδομένων από ομάδες</p> "
+msgstr " <p><strong>Διαχειριστής:</strong> Μπορεί να επεξεργάζεται τις πληροφορίες των ομάδων, καθώς και να διαχειρίζεται τα μέλη των οργανισμών.</p> <p><strong>Μέλος:</strong> Μπορεί να προσθέτει/αφαιρεί σύνολα δεδομένων από ομάδες</p> "
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -2916,11 +2875,7 @@ msgid ""
 "could be to catalogue datasets for a particular project or team, or on a "
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets. "
-msgstr ""
-" Μπορείτε να χρησιμοποιήσετε Ομάδες CKAN για να δημιουργήσετε και να διαχειριστείτε συλλογές από σύνολα δεδομένων. "
-"Αυτό θα ήταν χρήσιμο για να δημιουργήσετε καταλόγους από σύνολα δεδομένων για ένα συγκεκριμένο έργο ή κάποια ομάδα, "
-"είτε για ένα συγκεκριμένο θεμα, είτε ως έναν πολύ απλό τρόπο με τον οποίο να βοηθήσετε άλλους να βρίσκουν και να αναζητούν "
-"τα δικά σας δημοσιευμένα σύνολα δεδομένων. "
+msgstr " Μπορείτε να χρησιμοποιήσετε Ομάδες CKAN για να δημιουργήσετε και να διαχειριστείτε συλλογές από σύνολα δεδομένων. Αυτό θα ήταν χρήσιμο για να δημιουργήσετε καταλόγους από σύνολα δεδομένων για ένα συγκεκριμένο έργο ή κάποια ομάδα, είτε για ένα συγκεκριμένο θεμα, είτε ως έναν πολύ απλό τρόπο με τον οποίο να βοηθήσετε άλλους να βρίσκουν και να αναζητούν τα δικά σας δημοσιευμένα σύνολα δεδομένων. "
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
@@ -3004,26 +2959,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
-" <p>Το CKAN είναι η κορυφαία στον κόσμο πλατφόρμα ανοιχτού κώδικα για ανοιχτά δεδομένα.</p> "
-"<p>Το CKAN είναι μία ολοκληρωμένη λύση λογισμικού που είναι έτοιμο για χρήση και το οποίο "
-"καθιστά τα δεδομένα προσβάσιμα και εύχρηστα – καθώς παρέχει εργαλεία για τον εξορθολογισμό της δημοσίευσης, "
-"του διαμοιρασμού, της εύρεσης και της χρήσης δεδομένων (συμπεριλαμβανομένης της αποθήκευσης δεδομένων και "
-"της παροχής προγραμματισικών διεπαφών δεδομένων με μεγάλες δυνατότητες). Το CKAN απευθύνεται σε παρόχους δεδομένων "
-"(εθνικές και περιφερειακές κυβερνήσεις, εταιρείες και οργανισμούς) που θέλουν να καταστήσουν τα δεδομένα τους ανοιχτά "
-"και διαθέσιμα.</p> <p>Το CKAN χρησιμοποιείται από κυβερνήσεις και ομάδες χρηστών σε όλο τον κόσμο "
-"και τροφοδοτεί μια πληθώρα από επίσημες και κοινοτικές πύλες συμπεριλαμβανομένων και πυλών "
-"για τοπικές, εθνικές, και διεθνείς κυβερνήσεις, όπως του Ηνωμένου Βασιλείου "
-"<a href=\"http://data.gov.uk\">data.gov.uk</a> και της Ευρωπαϊκής Ένωσης <a "
-"href=\"http://publicdata.eu/\">publicdata.eu</a>, της Βραζιλίας <a "
-"href=\"http://dados.gov.br/\">dados.gov.br</a>, οι πύλες των κυβερνήσεων της Ολλανδίας "
-"και των Κάτω Χωρών, καθώς και ιστοσελίδες για πόλεις και δήμους στις ΗΠΑ, στο Ηνωμένο Βασίλειο, "
-"στην Αργεντινή, τη Φινλανδία και άλλες χώρες.</p> <p>CKAN: <a "
-"href=\"http://ckan.org/\">http://ckan.org/</a><br /> Περιήγηση στο CKAN: <a "
-"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Επισκόπηση "
-"Χαρακτηριστικών: <a "
-"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-
+msgstr " <p>Το CKAN είναι η κορυφαία στον κόσμο πλατφόρμα ανοιχτού κώδικα για ανοιχτά δεδομένα.</p> <p>Το CKAN είναι μία ολοκληρωμένη λύση λογισμικού που είναι έτοιμο για χρήση και το οποίο καθιστά τα δεδομένα προσβάσιμα και εύχρηστα – καθώς παρέχει εργαλεία για τον εξορθολογισμό της δημοσίευσης, του διαμοιρασμού, της εύρεσης και της χρήσης δεδομένων (συμπεριλαμβανομένης της αποθήκευσης δεδομένων και της παροχής προγραμματισικών διεπαφών δεδομένων με μεγάλες δυνατότητες). Το CKAN απευθύνεται σε παρόχους δεδομένων (εθνικές και περιφερειακές κυβερνήσεις, εταιρείες και οργανισμούς) που θέλουν να καταστήσουν τα δεδομένα τους ανοιχτά και διαθέσιμα.</p> <p>Το CKAN χρησιμοποιείται από κυβερνήσεις και ομάδες χρηστών σε όλο τον κόσμο και τροφοδοτεί μια πληθώρα από επίσημες και κοινοτικές πύλες συμπεριλαμβανομένων και πυλών για τοπικές, εθνικές, και διεθνείς κυβερνήσεις, όπως του Ηνωμένου Βασιλείου <a href=\"http://data.gov.uk\">data.gov.uk</a> και της Ευρωπαϊκής Ένωσης <a href=\"http://publicdata.eu/\">publicdata.eu</a>, της Βραζιλίας <a href=\"http://dados.gov.br/\">dados.gov.br</a>, οι πύλες των κυβερνήσεων της Ολλανδίας και των Κάτω Χωρών, καθώς και ιστοσελίδες για πόλεις και δήμους στις ΗΠΑ, στο Ηνωμένο Βασίλειο, στην Αργεντινή, τη Φινλανδία και άλλες χώρες.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> Περιήγηση στο CKAN: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Επισκόπηση Χαρακτηριστικών: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -3033,8 +2969,7 @@ msgstr "Καλωσήλθατε στο CKAN"
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will "
-msgstr ""
-"Μία ωραία μικρή εισαγωγική παράγραφος για το CKAN και τον δικτυακό τόπο γενικότερα."
+msgstr "Μία ωραία μικρή εισαγωγική παράγραφος για το CKAN και τον δικτυακό τόπο γενικότερα."
 
 #: ckan/templates/home/snippets/promoted.html:17
 msgid "This is a featured section"
@@ -3106,9 +3041,7 @@ msgstr "σχετικά ανιτκείμενα"
 msgid ""
 "You can use <a href=\"http://daringfireball.net/projects/markdown/syntax\" "
 "target=\"_blank\">Markdown formatting</a> here"
-msgstr ""
-"Μπορείτε να χρησιμοποιήσετε <a href=\"http://daringfireball.net/projects/markdown/syntax\" "
-"target=\"_blank\">μορφοποίηση Markdown</a> εδώ"
+msgstr "Μπορείτε να χρησιμοποιήσετε <a href=\"http://daringfireball.net/projects/markdown/syntax\" target=\"_blank\">μορφοποίηση Markdown</a> εδώ"
 
 #: ckan/templates/macros/form.html:264
 msgid "This field is required"
@@ -3314,10 +3247,7 @@ msgid ""
 " CKAN Organizations are used to create, manage and publish collections of "
 "datasets. Users can have different roles within an Organization, depending "
 "on their level of authorisation to create, edit and publish. "
-msgstr ""
-" Οι Οργανισμοί του CKAN χρησιμοποιούνται για τη δημιουργία, διαχείριση και δημοσίευση συλλογών"
-"συνόλων δεδομένων. Οι χρήστες μπορούν να έχουν διαφορετικούς ρόλους μέσα σε έναν Οργανισμό, αναλόγως με "
-"το επίπεδο εξουσιοδότησης που έχουν για δημιουργία, επεξεργασία και δημοσίευση. "
+msgstr " Οι Οργανισμοί του CKAN χρησιμοποιούνται για τη δημιουργία, διαχείριση και δημοσίευση συλλογώνσυνόλων δεδομένων. Οι χρήστες μπορούν να έχουν διαφορετικούς ρόλους μέσα σε έναν Οργανισμό, αναλόγως με το επίπεδο εξουσιοδότησης που έχουν για δημιουργία, επεξεργασία και δημοσίευση. "
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3335,9 +3265,7 @@ msgstr "Λίγες πληροφορίες σχετικά με τον οργαν�
 msgid ""
 "Are you sure you want to delete this Organization? This will delete all the "
 "public and private datasets belonging to this organization."
-msgstr ""
-"Είστε σίγουροι ότι θέλετε να διαγράψετε αυτόν τον Οργανισμό; Με αυτή την ενέργεια θα διαγραφούν "
-"όλα τα δημόσια και ιδιωτικά σύνολα δεδομένων που ανήκουν σε αυτόν τον οργανισμό."
+msgstr "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτόν τον Οργανισμό; Με αυτή την ενέργεια θα διαγραφούν όλα τα δημόσια και ιδιωτικά σύνολα δεδομένων που ανήκουν σε αυτόν τον οργανισμό."
 
 #: ckan/templates/organization/snippets/organization_form.html:85
 msgid "Save Organization"
@@ -3366,10 +3294,7 @@ msgid ""
 " A CKAN Dataset is a collection of data resources (such as files), together "
 "with a description and other information, at a fixed URL. Datasets are what "
 "users see when searching for data. "
-msgstr ""
-" Ένα Σύνολο Δεδομένων CKAN είναι μια συλλογή από πόρους δεδομένων (όπως αρχεία), που συνοδεύονται "
-"από μία περιγραφή και άλλες πληροφορίες, σε ένα συγκεκριμένο URL. Τα Σύνολα Δεδομένων είναι αυτό "
-"που βλέπουν οι χρήστες όταν αναζητούν δεδομένα. "
+msgstr " Ένα Σύνολο Δεδομένων CKAN είναι μια συλλογή από πόρους δεδομένων (όπως αρχεία), που συνοδεύονται από μία περιγραφή και άλλες πληροφορίες, σε ένα συγκεκριμένο URL. Τα Σύνολα Δεδομένων είναι αυτό που βλέπουν οι χρήστες όταν αναζητούν δεδομένα. "
 
 #: ckan/templates/package/confirm_delete.html:11
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -3430,16 +3355,13 @@ msgstr "Νέος πόρος"
 msgid ""
 "This is an old revision of this dataset, as edited at %(timestamp)s. It may "
 "differ significantly from the <a href=\"%(url)s\">current revision</a>."
-msgstr ""
-"Αυτή είναι μια παλιά αναθεώρηση αυτού του συνόλου δεδομένου, όπως το επεξεργάστηκαν στο %(timestamp)s. Μπορεί "
-"να διαφέρει σημαντικά από την <a href=\"%(url)s\">τρέχουσα αναθεώρηση</a>."
+msgstr "Αυτή είναι μια παλιά αναθεώρηση αυτού του συνόλου δεδομένου, όπως το επεξεργάστηκαν στο %(timestamp)s. Μπορεί να διαφέρει σημαντικά από την <a href=\"%(url)s\">τρέχουσα αναθεώρηση</a>."
 
 #: ckan/templates/package/read_base.html:41
 #, python-format
 msgid ""
 "This is the current revision of this dataset, as edited at %(timestamp)s."
-msgstr ""
-"Αυτή είναι η τρέχουσα αναθεώρηση αυτού του συνόλου δεδομένων, όπως το επεξεργάστηκαν στο %(timestamp)s."
+msgstr "Αυτή είναι η τρέχουσα αναθεώρηση αυτού του συνόλου δεδομένων, όπως το επεξεργάστηκαν στο %(timestamp)s."
 
 #: ckan/templates/package/related_list.html:8
 msgid "Related Media for {dataset}"
@@ -3601,9 +3523,7 @@ msgstr "Προσθήκη νέου πόρου"
 msgid ""
 " <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
 "add some?</a></p> "
-msgstr ""
-" <p class=\"empty\">Αυτό το σύνολο δεδομένων δεν περιέχει δεδομένα, <a href=\"%(url)s\">θα θέλατε "
-"να προσθέσετε μερικά;</a></p> "
+msgstr " <p class=\"empty\">Αυτό το σύνολο δεδομένων δεν περιέχει δεδομένα, <a href=\"%(url)s\">θα θέλατε να προσθέσετε μερικά;</a></p> "
 
 #: ckan/templates/package/search.html:29
 #: ckan/templates/snippets/sort_by.html:14
@@ -3632,18 +3552,14 @@ msgstr "πλήρης απεικόνιση {format}"
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
-msgstr ""
-" Μπορείτε επίσης να έχετε πρόσβαση σε αυτή την καταχώρηση χρησιμοποιώντας το/τα %(api_link)s (βλέπε "
-"%(api_doc_link)s) ή μεταφορτώστε το/τα %(dump_link)s. "
+msgstr " Μπορείτε επίσης να έχετε πρόσβαση σε αυτή την καταχώρηση χρησιμοποιώντας το/τα %(api_link)s (βλέπε %(api_doc_link)s) ή μεταφορτώστε το/τα %(dump_link)s. "
 
 #: ckan/templates/package/search.html:59
 #, python-format
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
-msgstr ""
-" Μπορείτε επίσης να έχετε πρόσβαση σε αυτή την καταχώρηση χρησιμοποιώντας το/τα %(api_link)s (βλέπε "
-"%(api_doc_link)s)."
+msgstr " Μπορείτε επίσης να έχετε πρόσβαση σε αυτή την καταχώρηση χρησιμοποιώντας το/τα %(api_link)s (βλέπε %(api_doc_link)s)."
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3745,9 +3661,7 @@ msgstr "Δεν υπάρχει περιγραφή για αυτό το σύνολ
 msgid ""
 "Important: By submitting content, you agree to release your contributions "
 "under the Open Database License."
-msgstr ""
-"Σημαντικό: Με την υποβολή περιεχομένου, συμφωνείτε να κυκλοφορήσετε τις "
-"συνεισφορές σας στο πλαίσιο της Ανοιχτής Άδειας Βάσης Δεδομένων (ODL)."
+msgstr "Σημαντικό: Με την υποβολή περιεχομένου, συμφωνείτε να κυκλοφορήσετε τις συνεισφορές σας στο πλαίσιο της Ανοιχτής Άδειας Βάσης Δεδομένων (ODL)."
 
 #: ckan/templates/package/snippets/package_form.html:37
 msgid "Are you sure you want to delete this dataset?"
@@ -4215,9 +4129,7 @@ msgstr " <p class=\"extra\">Παρακαλώ δοκιμάστε νέα αναζ�
 msgid ""
 " <p><strong>There was an error while searching.</strong> Please try "
 "again.</p> "
-msgstr ""
-" <p><strong>Παρουσιάστηκε σφάλμα κατά την αναζήτηση.</strong> Παρακαλώ "
-"δοκιμάστε ξανά.</p> "
+msgstr " <p><strong>Παρουσιάστηκε σφάλμα κατά την αναζήτηση.</strong> Παρακαλώ δοκιμάστε ξανά.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -5014,10 +4926,7 @@ msgid ""
 "when you want to restrict users from editing a collection. A [1:group] can "
 "be set-up to specify which users have permission to add or remove datasets "
 "from it."
-msgstr "Παρόλο που οι ετικέτες είναι καλές στη συλλογή συνόλων δεδομένων, υπάρχουν" 
-"περιπτώσεις που θέλουμε να περιορίσουμε τους χρήστες από την επεξεργασία μιας συλλογής. " 
-"Μια [1:group] μπορεί να συσταθεί για να προσδιορίσουμε ποιοι χρήστες έχουν την άδεια "
-"να προσθέτουν ή να αφαιρούν σύνολα δεδομένων από αυτή."
+msgstr "Παρόλο που οι ετικέτες είναι καλές στη συλλογή συνόλων δεδομένων, υπάρχουνπεριπτώσεις που θέλουμε να περιορίσουμε τους χρήστες από την επεξεργασία μιας συλλογής. Μια [1:group] μπορεί να συσταθεί για να προσδιορίσουμε ποιοι χρήστες έχουν την άδεια να προσθέτουν ή να αφαιρούν σύνολα δεδομένων από αυτή."
 
 #: ckan/templates_legacy/group/layout.html:18
 msgid "New Dataset..."
@@ -5121,11 +5030,7 @@ msgid ""
 "[3:publicly-funded art] in Seattle? Data to answer many, many questions like"
 " these is out there on the Internet somewhere - but it is not always easy to"
 " find."
-msgstr "Ποια ήταν η [1: μέση τιμή] ενός σπιτιού στην Αγγλία το 1935; Πότε o "
-"προβλεπόμενος πληθυσμός της Ινδίας [2: θα ξεπεράσει] αυτόν της Κίνας; Πού μπορείτε "
-"να δείτε [3: δημόσια χρηματοδοτούμενη τέχνη] στο Σιάτλ; Υπάρχει πληθώρα δεδομένων για "
-"να απαντήσουμε σε πολλές, πάρα πολλές ερωτήσεις όπως αυτές εκεί έξω κάπου στο "
-"διαδίκτυο - αλλά δεν είναι πάντα εύκολο να βρεθούν."
+msgstr "Ποια ήταν η [1: μέση τιμή] ενός σπιτιού στην Αγγλία το 1935; Πότε o προβλεπόμενος πληθυσμός της Ινδίας [2: θα ξεπεράσει] αυτόν της Κίνας; Πού μπορείτε να δείτε [3: δημόσια χρηματοδοτούμενη τέχνη] στο Σιάτλ; Υπάρχει πληθώρα δεδομένων για να απαντήσουμε σε πολλές, πάρα πολλές ερωτήσεις όπως αυτές εκεί έξω κάπου στο διαδίκτυο - αλλά δεν είναι πάντα εύκολο να βρεθούν."
 
 #: ckan/templates_legacy/home/about.html:16
 #, python-format
@@ -5136,13 +5041,7 @@ msgid ""
 "Depending on the type of data (and its conditions of use), %(site_title)s "
 "may also be able to store a copy of the data or host it in a database, and "
 "provide some basic visualisation tools."
-msgstr "" 
-"Το %(site_title)s είναι ένας κατάλογος που διευθύνεται από μια κοινότητα "
-"χρήσιμων συνόλων δεδομένων στο Διαδίκτυο. Μπορείτε να συλλέξετε συνδέσμους εδώ "
-"με τα δεδομένα από το διαδίκτυο για χρήση από εσάς και τους άλλους, ή να αναζητήσετε "
-"τα δεδομένα που έχουν συλλέξει οι άλλοι. Ανάλογα με τον τύπο των δεδομένων (και τους όρους χρήσης του), "
-"το %(site_title)s μπορεί επίσης να είναι σε θέση να αποθηκεύσει ένα αντίγραφο των δεδομένων ή να το "
-"φιλοξενήσει σε μια βάση δεδομένων και να παρέχει ορισμένα βασικά εργαλεία απεικόνισης."
+msgstr "Το %(site_title)s είναι ένας κατάλογος που διευθύνεται από μια κοινότητα χρήσιμων συνόλων δεδομένων στο Διαδίκτυο. Μπορείτε να συλλέξετε συνδέσμους εδώ με τα δεδομένα από το διαδίκτυο για χρήση από εσάς και τους άλλους, ή να αναζητήσετε τα δεδομένα που έχουν συλλέξει οι άλλοι. Ανάλογα με τον τύπο των δεδομένων (και τους όρους χρήσης του), το %(site_title)s μπορεί επίσης να είναι σε θέση να αποθηκεύσει ένα αντίγραφο των δεδομένων ή να το φιλοξενήσει σε μια βάση δεδομένων και να παρέχει ορισμένα βασικά εργαλεία απεικόνισης."
 
 #: ckan/templates_legacy/home/about.html:23
 msgid "How it works"
@@ -5157,13 +5056,7 @@ msgid ""
 "who owns it and whether it is freely available, and what subject areas the "
 "data is about. Other users can improve or add to this information (CKAN "
 "keeps a fully versioned history)."
-msgstr "" 
-"Αυτός ο ιστοχώρος λειτουργεί ένα ισχυρό κομμάτι λογισμικού καταλογογράφησης ανοικτού κώδικα "
-"που ονομάζεται [1: CKAN], το οποίο έχει γραφτεί και συντηρείται από το [2:Open Knowledge Foundation]. "
-"Κάθε εγγραφή \"συνόλου δεδομένων\" στο CKAN περιέχει μια περιγραφή των δεδομένων και άλλες χρήσιμες "
-"πληροφορίες, όπως σε τι μορφή θα είναι διαθέσιμα, ποιος τα κατέχει και αν είναι ελεύθερα διαθέσιμα, "
-"και σε ποιες θεματικές κατηγορίες εμπίπτουν τα δεδομένα. Άλλοι χρήστες μπορούν να βελτιώσουν αυτές τις "
-"πληροφορίες ή να προσθέσουν άλλες (το CKAN διατηρεί ένα πλήρες ιστορικό)."
+msgstr "Αυτός ο ιστοχώρος λειτουργεί ένα ισχυρό κομμάτι λογισμικού καταλογογράφησης ανοικτού κώδικα που ονομάζεται [1: CKAN], το οποίο έχει γραφτεί και συντηρείται από το [2:Open Knowledge Foundation]. Κάθε εγγραφή \"συνόλου δεδομένων\" στο CKAN περιέχει μια περιγραφή των δεδομένων και άλλες χρήσιμες πληροφορίες, όπως σε τι μορφή θα είναι διαθέσιμα, ποιος τα κατέχει και αν είναι ελεύθερα διαθέσιμα, και σε ποιες θεματικές κατηγορίες εμπίπτουν τα δεδομένα. Άλλοι χρήστες μπορούν να βελτιώσουν αυτές τις πληροφορίες ή να προσθέσουν άλλες (το CKAN διατηρεί ένα πλήρες ιστορικό)."
 
 #: ckan/templates_legacy/home/about.html:27
 msgid ""
@@ -5174,13 +5067,7 @@ msgid ""
 "listed in a CKAN catalogue at [3:publicdata.eu]. There is a comprehensive "
 "list of catalogues like these around the world at [4:datacatalogs.org], "
 "which is itself powered by CKAN."
-msgstr ""
-"Το CKAN τροφοδοτεί μια σειρά από καταλόγους δεδομένων στο Διαδίκτυο. [1: Το Data Hub] είναι "
-"ένας ανοιχτά επεξεργάσιμος κατάλογος των ανοιχτών δεδομένων, στο στυλ της Wikipedia. Η βρετανική "
-"κυβέρνηση χρησιμοποιεί το CKAN για να τρέχει το [2: data.gov.uk], το οποίο απαριθμεί σήμερα 8.000 "
-"βάσεις δεδομένων της κυβέρνησης. Επίσημα δημόσια δεδομένα από τις περισσότερες ευρωπαϊκές χώρες "
-"περιλαμβάνονται σε κατάλογο του CKAN στο [3: publicdata.eu]. Υπάρχει μια πλήρης λίστα των καταλόγων, "
-"όπως αυτοί σε όλο τον κόσμο στο [4: datacatalogs.org], η οποία τροφοδοτείται από το ίδιο CKAN."
+msgstr "Το CKAN τροφοδοτεί μια σειρά από καταλόγους δεδομένων στο Διαδίκτυο. [1: Το Data Hub] είναι ένας ανοιχτά επεξεργάσιμος κατάλογος των ανοιχτών δεδομένων, στο στυλ της Wikipedia. Η βρετανική κυβέρνηση χρησιμοποιεί το CKAN για να τρέχει το [2: data.gov.uk], το οποίο απαριθμεί σήμερα 8.000 βάσεις δεδομένων της κυβέρνησης. Επίσημα δημόσια δεδομένα από τις περισσότερες ευρωπαϊκές χώρες περιλαμβάνονται σε κατάλογο του CKAN στο [3: publicdata.eu]. Υπάρχει μια πλήρης λίστα των καταλόγων, όπως αυτοί σε όλο τον κόσμο στο [4: datacatalogs.org], η οποία τροφοδοτείται από το ίδιο CKAN."
 
 #: ckan/templates_legacy/home/about.html:30
 msgid "Open data and the Open Knowledge Foundation"
@@ -5196,14 +5083,7 @@ msgid ""
 " artworks when you visit the city. Open data means more enterprise, "
 "collaborative science and transparent government. You can read more about "
 "open data in the [1:Open Data Handbook]."
-msgstr ""
-"Τα περισσότερα από τα δεδομένα που υπάρχουν στο %(site_title)s έχουν ανοιχτή άδεια χρήσης, "
-"ο καθένας δηλαδή μπορεί να τα χρησιμοποιήσει ή να επαναχρησιμοποιηθεί όπως θέλει. Κάποιος "
-"μπορεί να πάρει αυτό το ωραίο dataset που βρήκατε για τα δημόσια έργα τέχνης μιας πόλης και "
-"να τα προσθέσει το σε ένα τουριστικό χάρτη - ή ακόμη και να κάνει μια πετυχημένη εφαρμογή για "
-"το τηλέφωνό σας, που θα σας βοηθήσει να βρείτε έργα τέχνης κατά την επίσκεψή σας στην πόλη. "
-"Ανοιχτά δεδομένα σημαίνει περισσότερες επιχειρήσεις, συνεργατική επιστήμη και διαφανή κυβέρνηση. "
-"Μπορείτε να διαβάσετε περισσότερα σχετικά με τα ανοιχτά δεδομένα στο [1: Open Data Handbook]."
+msgstr "Τα περισσότερα από τα δεδομένα που υπάρχουν στο %(site_title)s έχουν ανοιχτή άδεια χρήσης, ο καθένας δηλαδή μπορεί να τα χρησιμοποιήσει ή να επαναχρησιμοποιηθεί όπως θέλει. Κάποιος μπορεί να πάρει αυτό το ωραίο dataset που βρήκατε για τα δημόσια έργα τέχνης μιας πόλης και να τα προσθέσει το σε ένα τουριστικό χάρτη - ή ακόμη και να κάνει μια πετυχημένη εφαρμογή για το τηλέφωνό σας, που θα σας βοηθήσει να βρείτε έργα τέχνης κατά την επίσκεψή σας στην πόλη. Ανοιχτά δεδομένα σημαίνει περισσότερες επιχειρήσεις, συνεργατική επιστήμη και διαφανή κυβέρνηση. Μπορείτε να διαβάσετε περισσότερα σχετικά με τα ανοιχτά δεδομένα στο [1: Open Data Handbook]."
 
 #: ckan/templates_legacy/home/about.html:34
 msgid ""
@@ -5212,12 +5092,7 @@ msgid ""
 "If you want to get involved with its design or code, join the discussion or "
 "development [3:mailing lists], or take a look at the [4:OKFN] site to find "
 "out about our other projects."
-msgstr ""
-"Το [1:Open Knowledge Foundation] είναι ένας μη κερδοσκοπικός οργανισμός [2: που προωθεί] την "
-"ανοικτή γνώση: γράφοντας και βελτιώνοντας το CKAN είναι ένας από τους τρόπους να το κάνουμε αυτό. "
-"Αν θέλετε να ασχοληθείτε με το σχεδιασμό ή τον κώδικά του, μπορείτε να συμμετέχετε στη συζήτηση ή "
-"την ανάπτυξη [3:mailing lists], ή να ρίξετε μια ματιά στο site του [4: OKFN] για να μάθετε "
-"για άλλα έργα μας."
+msgstr "Το [1:Open Knowledge Foundation] είναι ένας μη κερδοσκοπικός οργανισμός [2: που προωθεί] την ανοικτή γνώση: γράφοντας και βελτιώνοντας το CKAN είναι ένας από τους τρόπους να το κάνουμε αυτό. Αν θέλετε να ασχοληθείτε με το σχεδιασμό ή τον κώδικά του, μπορείτε να συμμετέχετε στη συζήτηση ή την ανάπτυξη [3:mailing lists], ή να ρίξετε μια ματιά στο site του [4: OKFN] για να μάθετε για άλλα έργα μας."
 
 #: ckan/templates_legacy/home/index.html:13
 msgid "Welcome to"
@@ -5235,9 +5110,7 @@ msgstr "περιέχει"
 msgid ""
 "that you can \n"
 "            browse, learn about and download."
-msgstr ""
-"ότι μπορειτε να \n"
-"            περιηγηθείτε,μάθετε σχετικά και κατεβάστε."
+msgstr "ότι μπορειτε να \n            περιηγηθείτε,μάθετε σχετικά και κατεβάστε."
 
 #: ckan/templates_legacy/home/index.html:32
 msgid "Share data"
@@ -5247,9 +5120,7 @@ msgstr "Μοιραστείτε δεδομένα"
 msgid ""
 "Add your own datasets to share them with others and\n"
 "          to find other people interested in your data."
-msgstr ""
-"Προσθέστε τα δικά σας σύνολα δεδομένων για να τα μοιραστείτε με άλλους και\n"
-"           να βρείτε άλλους ανθρώπους που ενδιαφέρονται για τα δεδομένα σας."
+msgstr "Προσθέστε τα δικά σας σύνολα δεδομένων για να τα μοιραστείτε με άλλους και\n           να βρείτε άλλους ανθρώπους που ενδιαφέρονται για τα δεδομένα σας."
 
 #: ckan/templates_legacy/home/index.html:38
 msgid "Create a dataset »"
@@ -5267,9 +5138,7 @@ msgstr "Συνεργαστείτε"
 msgid ""
 "Find out more about working with open data by exploring \n"
 "          these resources:"
-msgstr ""
-"Μάθετε περισσότερα σχετικά με τα ανοιχτά δεδομένα διερευνώντας "
-"          τις εξής πηγές:"
+msgstr "Μάθετε περισσότερα σχετικά με τα ανοιχτά δεδομένα διερευνώντας           τις εξής πηγές:"
 
 #: ckan/templates_legacy/home/index.html:54
 msgid "GetTheData.org"
@@ -5307,9 +5176,7 @@ msgstr "Εισαγωγή Συνόλων Δεδομένων"
 msgid ""
 "Here you can supply an Excel file with details of multiple datasets and "
 "import these into"
-msgstr ""
-"Εδώ μπορείτε να δώσετε ένα αρχείο Excel με τα στοιχεία πολλαπλών συνόλων δεδομένων "
-"και να τα εισάγετε σε"
+msgstr "Εδώ μπορείτε να δώσετε ένα αρχείο Excel με τα στοιχεία πολλαπλών συνόλων δεδομένων και να τα εισάγετε σε"
 
 #: ckan/templates_legacy/importer/importer.html:30
 msgid "Log in to use this tool"
@@ -5391,10 +5258,7 @@ msgid ""
 "[1:Important:] By submitting content, you agree to release your "
 "contributions under the [2:Open Database License]. Please [3:refrain] from "
 "editing this page if you are [4:not] happy to do this."
-msgstr "" 
-"[1:Σημαντικό:] Υποβάλλωντας περιεχόμενο, συμφωνείτε στο να απελευθερωθούν "
-"οι συνεισφορές σας κάτω από την [2:Open Database License]. Παρακαλώ [3:αποφύγετε] να "
-"επεξεργαστείτε αυτή τη σελίδα αν [4:δεν] είστε ευχαριστημένοι με αυτό."
+msgstr "[1:Σημαντικό:] Υποβάλλωντας περιεχόμενο, συμφωνείτε στο να απελευθερωθούν οι συνεισφορές σας κάτω από την [2:Open Database License]. Παρακαλώ [3:αποφύγετε] να επεξεργαστείτε αυτή τη σελίδα αν [4:δεν] είστε ευχαριστημένοι με αυτό."
 
 #: ckan/templates_legacy/package/editresources.html:6
 msgid "- Edit Resources - Datasets"
@@ -5484,8 +5348,7 @@ msgstr "π.χ. http://www.example.com/growth-figures.html"
 msgid ""
 "(Don't worry if you don't know which license the data has been released "
 "under)."
-msgstr "" 
-"(Μην ανησυχείτε εάν δεν γνωρίζετε κάτω από ποια άδεια έχουν εκδοθεί τα δεδομένα)"
+msgstr "(Μην ανησυχείτε εάν δεν γνωρίζετε κάτω από ποια άδεια έχουν εκδοθεί τα δεδομένα)"
 
 #: ckan/templates_legacy/package/new_package_form.html:96
 msgid "Member of:"
@@ -5503,9 +5366,7 @@ msgstr "Δεν μπορείτε να δημιουργήσετε ομάδες"
 msgid ""
 "Comma-separated terms that may link this dataset to similar ones. For more "
 "information on conventions, see [1:this wiki page]."
-msgstr "" 
-"Όροι που διαχωρίζονται με κόμμα και ίσως συνδέουν αυτό το σύνολο δεδομένων με παρόμοια. Για περισσότερες "
-"πληροφορίες στις συμβάσεις, δείτε [1:την σελίδα wiki]."
+msgstr "Όροι που διαχωρίζονται με κόμμα και ίσως συνδέουν αυτό το σύνολο δεδομένων με παρόμοια. Για περισσότερες πληροφορίες στις συμβάσεις, δείτε [1:την σελίδα wiki]."
 
 #: ckan/templates_legacy/package/new_package_form.html:123
 msgid "e.g. pollution, rivers, water quality"
@@ -5518,8 +5379,7 @@ msgstr "Προσθήκη Πόρων"
 #: ckan/templates_legacy/package/new_package_form.html:132
 msgid ""
 "Upload or link data files, APIs and other materials related to your dataset."
-msgstr "" 
-"Φορτώστε ή συνδέστε αρχεία δεδομένων, APIs και άλλο υλικό σχετικά με το σύνολο δεδομένων σας."
+msgstr "Φορτώστε ή συνδέστε αρχεία δεδομένων, APIs και άλλο υλικό σχετικά με το σύνολο δεδομένων σας."
 
 #: ckan/templates_legacy/package/new_package_form.html:139
 msgid "New resource..."
@@ -5549,9 +5409,7 @@ msgstr "API URL"
 msgid ""
 "The name of the main contact, for enquiries about this particular dataset, "
 "using the e-mail address in the following field."
-msgstr "" 
-"Το όνομα της βασικής επαφής, για πληροφορίες σχετικά με αυτό το συγκεκριμένο σύνολο δεδομένων, "
-"χρησιμοποιήστε τη διεύθυνση ηλεκτρονικού ταχυδρομείου στο παρακάτω πεδίο."
+msgstr "Το όνομα της βασικής επαφής, για πληροφορίες σχετικά με αυτό το συγκεκριμένο σύνολο δεδομένων, χρησιμοποιήστε τη διεύθυνση ηλεκτρονικού ταχυδρομείου στο παρακάτω πεδίο."
 
 #: ckan/templates_legacy/package/new_package_form.html:198
 msgid "Author email"
@@ -5561,9 +5419,7 @@ msgstr "Email Συντάκτη"
 msgid ""
 "If there is another important contact person (in addition to the person in "
 "the Author field) then provide details here."
-msgstr "" 
-"Εάν υπάρχει ένα άλλο σημαντικό πρόσωπο επαφής (εκτός από το πρόσωπο στο πεδίο Συντάκτης) "
-"τότε καταχώρησε τις λεπτομέρειες εδώ."
+msgstr "Εάν υπάρχει ένα άλλο σημαντικό πρόσωπο επαφής (εκτός από το πρόσωπο στο πεδίο Συντάκτης) τότε καταχώρησε τις λεπτομέρειες εδώ."
 
 #: ckan/templates_legacy/package/new_package_form.html:213
 msgid "Maintainer email"
@@ -5581,9 +5437,7 @@ msgstr "π.χ. 1.2.0"
 msgid ""
 "Adding custom fields to the dataset such as \"location:uk\" can help users "
 "find it in the search engine. This data will also appear under"
-msgstr "" 
-"Προσθέτοντας δικά σας πεδία όπως \"location:uk\" μπορούν να βοηθήσουν τους χρήστες "
-"να τα βρουν στην μηχανή αναζήτησης. Τα δεδομένα αυτά θα εμφανιστούν από κάτω"
+msgstr "Προσθέτοντας δικά σας πεδία όπως \"location:uk\" μπορούν να βοηθήσουν τους χρήστες να τα βρουν στην μηχανή αναζήτησης. Τα δεδομένα αυτά θα εμφανιστούν από κάτω"
 
 #: ckan/templates_legacy/package/new_package_form.html:230
 msgid "when viewing the dataset."
@@ -5613,9 +5467,7 @@ msgstr "Περιγράψτε σύντομα τις αλλαγές που έχε�
 msgid ""
 "Since you have not signed in this will just be your IP address.\n"
 "    [1:Click here to sign in] before saving (opens in new window)."
-msgstr "" 
-"Εφόσον δεν έχετε εγγραφεί αυτή θα είναι απλά η IP διεύθυνσή σας.\n"
-"    [1:Κάντε κλικ εδώ για να εγγραφείτε] πριν την αποθήκευση (ανοίγει σε νέο παράθυρο)."
+msgstr "Εφόσον δεν έχετε εγγραφεί αυτή θα είναι απλά η IP διεύθυνσή σας.\n    [1:Κάντε κλικ εδώ για να εγγραφείτε] πριν την αποθήκευση (ανοίγει σε νέο παράθυρο)."
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid "Important:"
@@ -5624,8 +5476,7 @@ msgstr "Σημαντικό:"
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid ""
 "By submitting content, you agree to release your contributions under the"
-msgstr "" 
-"Με την υποβολή του περιεχομένου, συμφωνείτε στην κυκλοφορία των συνεισφορών σας κάτω από"
+msgstr "Με την υποβολή του περιεχομένου, συμφωνείτε στην κυκλοφορία των συνεισφορών σας κάτω από"
 
 #: ckan/templates_legacy/package/new_package_form.html:305
 msgid ". Please"
@@ -5716,9 +5567,7 @@ msgstr "Πόρος Συγκομιδής"
 msgid ""
 "[1:Dataset page] on \n"
 "            [2:%(harvest_catalogue_name)s]"
-msgstr "" 
-"[1:Σελίδα dataset] σε\n"
-"            [2:%(harvest_catalogue_name)s]"
+msgstr "[1:Σελίδα dataset] σε\n            [2:%(harvest_catalogue_name)s]"
 
 #: ckan/templates_legacy/package/resource_embedded_dataviewer.html:87
 #: ckan/templates_legacy/package/resource_read.html:58
@@ -5787,9 +5636,7 @@ msgstr "απεικόνιση"
 msgid ""
 "[1:There was an error while searching.] \n"
 "            Please try again."
-msgstr "" 
-"[1:Υπήρξε ένα λάθος κατά την αναζήτηση].\n"
-"            Παρακαλώ προσπαθήστε ξανά."
+msgstr "[1:Υπήρξε ένα λάθος κατά την αναζήτηση].\n            Παρακαλώ προσπαθήστε ξανά."
 
 #: ckan/templates_legacy/package/search.html:54
 #, python-format
@@ -5944,9 +5791,7 @@ msgstr "Μη ανοιχτά αδειοδοτημένα"
 msgid ""
 "This upload form is valid for a limited time (usually 1h or so). If the\n"
 "    form expires please reload the page."
-msgstr "" 
-"Αυτή η φόρμα αποστολής ισχύει για περιορισμένο χρονικό διάστημα (συνήθως 1 ώρα περίπου). Αν η \n"
-"φόρμα λήξει παρακαλώ ξαναφορτώστε την σελίδα."
+msgstr "Αυτή η φόρμα αποστολής ισχύει για περιορισμένο χρονικό διάστημα (συνήθως 1 ώρα περίπου). Αν η \nφόρμα λήξει παρακαλώ ξαναφορτώστε την σελίδα."
 
 #: ckan/templates_legacy/storage/index.html:33
 msgid "File:"
@@ -6067,9 +5912,7 @@ msgstr "Αλλαγή του όνομα χρήστη"
 msgid ""
 "Changing your username will log you out, and require you to log back in with"
 " the new username"
-msgstr "" 
-"Αλλάζοντας το όνομα χρήστη θα αποσυνδεθείτε και θα χρειαστεί να συνδεθείτε μετά "
-"με το καινούργιο όνομα χρήστη"
+msgstr "Αλλάζοντας το όνομα χρήστη θα αποσυνδεθείτε και θα χρειαστεί να συνδεθείτε μετά με το καινούργιο όνομα χρήστη"
 
 #: ckan/templates_legacy/user/followers.html:6
 msgid "- Followers - User"
@@ -6149,9 +5992,7 @@ msgstr "Σύνδεση με χρήση Open ID"
 msgid ""
 "NB: To set-up your OpenID for this site, you first need to [1:Register] and "
 "then edit your Profile to provide your OpenID."
-msgstr "" 
-"NB: Για να δημιουργήσετε το  OpenID για αυτόν τον ιστότοπο, πρέπει καταρχήν να [1:Εγγραφείτε] και "
-"μετά να επεξεργαστείτε το Προφίλ σας για να παρέχετε το OpenID σας."
+msgstr "NB: Για να δημιουργήσετε το  OpenID για αυτόν τον ιστότοπο, πρέπει καταρχήν να [1:Εγγραφείτε] και μετά να επεξεργαστείτε το Προφίλ σας για να παρέχετε το OpenID σας."
 
 #: ckan/templates_legacy/user/login.html:64
 msgid "Please click your account provider:"
@@ -6172,12 +6013,7 @@ msgid ""
 "          about OpenID] and [2:how to get an\n"
 "          OpenID enabled account]. Probably the simplest way is sign up with a\n"
 "          free OpenID provider such as [3:https://www.myopenid.com/]."
-msgstr "" 
-"Το OpenID είναι μια υπηρεσία που σας επιτρέπει να συνδεθείτε σε πολλά διαφορετικά website\n"
-"          χρησιμοποιώντας μια μοναδική ταυτότητα. Μάθετε  [1:περισσότερα\n"
-"          σχετικά με το OpenID] και [2:πώς να αποκτήσετε έναν ενεργοποιημένο\n"
-"          OpenID λογαριασμό]. Πιθανόν ο απλούστερος τρόπος είναι να εγγραφείτε\n"
-"          με έναν ελεύθερο OpenID provider όπως [3:https://www.myopenid.com/]."
+msgstr "Το OpenID είναι μια υπηρεσία που σας επιτρέπει να συνδεθείτε σε πολλά διαφορετικά website\n          χρησιμοποιώντας μια μοναδική ταυτότητα. Μάθετε  [1:περισσότερα\n          σχετικά με το OpenID] και [2:πώς να αποκτήσετε έναν ενεργοποιημένο\n          OpenID λογαριασμό]. Πιθανόν ο απλούστερος τρόπος είναι να εγγραφείτε\n          με έναν ελεύθερο OpenID provider όπως [3:https://www.myopenid.com/]."
 
 #: ckan/templates_legacy/user/login.html:83
 msgid "Sign in with OpenID"
@@ -6343,26 +6179,7 @@ msgid ""
 "LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
 "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
 "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
-msgstr ""
-"Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid\n"
-"\n"
-"Με το παρόν χορηγείται άδεια, δωρεάν, σε οποιοδήποτε άτομο αποκτά\n"
-"ένα αντίγραφο αυτού του λογισμικού και των σχετικών αρχείων τεκμηρίωσης (το\n"
-"\"Software\"), να χειρίζεται το λογισμικό χωρίς περιορισμούς, συμπεριλαμβανομένων\n"
-"χωρίς περιορισμό των δικαιωμάτων χρήσης, αντιγραφής, τροποίησης, συγχώνευσης, δημοσίευσης,\n"
-"διανομής, παραχώρησης, ή/και πώλησης αντιγράφων του Λογισμικού, και\n"
-"να επιτρέπει σε πρόσωπα στα οποία παρέχεται το Λογισμικό να το πράξουν,\n"
-"υπό τους ακόλουθους όρους:\n"
-"\n"
-"Η παραπάνω σημείωση περί πνευματικών δικαιωμάτων και η αναφορά στην άδεια θα πρέπει \n"
-"να περιλαμβάνονται σε όλα τα αντίγραφα ή σημαντικά τμήματα του Λογισμικού.\n"
-"\n"
-"ΤΟ ΛΟΓΙΣΜΙΚΟ ΠΑΡΕΧΕΤΑΙ \"ΩΣ ΕΧΕΙ\", ΧΩΡΙΣ ΚΑΝΕΝΟΣ ΕΙΔΟΥΣ ΕΓΓΥΗΣΗ, ΡΗΤΗ Ή ΣΙΩΠΗΡΗ,\n"
-"ΣΥΜΠΕΡΙΛΑΜΒΑΝΟΜΕΝΩΝ ΕΝΔΕΙΚΤΙΚΑ, ΤΩΝ ΕΓΓΥΗΣΕΩΝ ΕΜΠΟΡΕΥΣΙΜΟΤΗΤΑΣ, ΚΑΤΑΛΛΗΛΟΤΗΤΑΣ\n"
-"ΓΙΑ ΕΝΑΝ ΣΥΓΚΕΚΡΙΜΕΝΟ ΣΚΟΠΟ ΚΑΙ ΜΗ ΠΑΡΑΒΙΑΣΗΣ. ΣΕ ΚΑΜΙΑ ΠΕΡΙΠΤΩΣΗ ΔΕΝ ΕΙΝΑΙ ΥΠΕΥΘΥΝΟΙ\n"
-"ΟΙ ΣΥΝΤΑΚΤΕΣ Ή ΟΙ ΚΑΤΟΧΟΙ ΠΝΕΥΜΑΤΙΚΏΝ ΔΙΚΑΙΩΜΑΤΩΝ ΓΙΑ ΟΠΟΙΑΔΗΠΟΤΕ ΑΞΙΩΣΗ, ΖΗΜΙΑ Ή ΑΛΛΗ ΕΥΘΥΝΗ,\n"
-"ΕΙΤΕ ΣΤΑ ΠΛΑΙΣΙΑ ΤΗΣ ΣΥΜΒΑΣΗΣ, ΑΔΙΚΟΠΡΑΞΙΑΣ Ή ΑΛΛΗ, ΠΟΥ ΠΡΟΚΥΠΤΕΙ ΑΠΟ Ή ΣΕ ΣΧΕΣΗ ΜΕ ΤΟ ΛΟΓΙΣΜΙΚΟ\n"
-"Ή ΤΗ ΧΡΗΣΗ Ή ΑΛΛΗ ΣΥΜΠΕΡΙΦΟΡΑ ΠΟΥ ΑΦΟΡΑ ΤΟ ΛΟΓΙΣΜΙΚΟ."
+msgstr "Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid\n\nΜε το παρόν χορηγείται άδεια, δωρεάν, σε οποιοδήποτε άτομο αποκτά\nένα αντίγραφο αυτού του λογισμικού και των σχετικών αρχείων τεκμηρίωσης (το\n\"Software\"), να χειρίζεται το λογισμικό χωρίς περιορισμούς, συμπεριλαμβανομένων\nχωρίς περιορισμό των δικαιωμάτων χρήσης, αντιγραφής, τροποίησης, συγχώνευσης, δημοσίευσης,\nδιανομής, παραχώρησης, ή/και πώλησης αντιγράφων του Λογισμικού, και\nνα επιτρέπει σε πρόσωπα στα οποία παρέχεται το Λογισμικό να το πράξουν,\nυπό τους ακόλουθους όρους:\n\nΗ παραπάνω σημείωση περί πνευματικών δικαιωμάτων και η αναφορά στην άδεια θα πρέπει \nνα περιλαμβάνονται σε όλα τα αντίγραφα ή σημαντικά τμήματα του Λογισμικού.\n\nΤΟ ΛΟΓΙΣΜΙΚΟ ΠΑΡΕΧΕΤΑΙ \"ΩΣ ΕΧΕΙ\", ΧΩΡΙΣ ΚΑΝΕΝΟΣ ΕΙΔΟΥΣ ΕΓΓΥΗΣΗ, ΡΗΤΗ Ή ΣΙΩΠΗΡΗ,\nΣΥΜΠΕΡΙΛΑΜΒΑΝΟΜΕΝΩΝ ΕΝΔΕΙΚΤΙΚΑ, ΤΩΝ ΕΓΓΥΗΣΕΩΝ ΕΜΠΟΡΕΥΣΙΜΟΤΗΤΑΣ, ΚΑΤΑΛΛΗΛΟΤΗΤΑΣ\nΓΙΑ ΕΝΑΝ ΣΥΓΚΕΚΡΙΜΕΝΟ ΣΚΟΠΟ ΚΑΙ ΜΗ ΠΑΡΑΒΙΑΣΗΣ. ΣΕ ΚΑΜΙΑ ΠΕΡΙΠΤΩΣΗ ΔΕΝ ΕΙΝΑΙ ΥΠΕΥΘΥΝΟΙ\nΟΙ ΣΥΝΤΑΚΤΕΣ Ή ΟΙ ΚΑΤΟΧΟΙ ΠΝΕΥΜΑΤΙΚΏΝ ΔΙΚΑΙΩΜΑΤΩΝ ΓΙΑ ΟΠΟΙΑΔΗΠΟΤΕ ΑΞΙΩΣΗ, ΖΗΜΙΑ Ή ΑΛΛΗ ΕΥΘΥΝΗ,\nΕΙΤΕ ΣΤΑ ΠΛΑΙΣΙΑ ΤΗΣ ΣΥΜΒΑΣΗΣ, ΑΔΙΚΟΠΡΑΞΙΑΣ Ή ΑΛΛΗ, ΠΟΥ ΠΡΟΚΥΠΤΕΙ ΑΠΟ Ή ΣΕ ΣΧΕΣΗ ΜΕ ΤΟ ΛΟΓΙΣΜΙΚΟ\nΉ ΤΗ ΧΡΗΣΗ Ή ΑΛΛΗ ΣΥΜΠΕΡΙΦΟΡΑ ΠΟΥ ΑΦΟΡΑ ΤΟ ΛΟΓΙΣΜΙΚΟ."
 
 #: ckanext/reclinepreview/theme/public/vendor/slickgrid/2.0.1/README.txt:1
 msgid ""
@@ -6382,23 +6199,7 @@ msgid ""
 "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
 "\n"
 "[1] https://developers.google.com/closure/compiler/"
-msgstr ""
-"Αυτή η μεταγλωττισμένη έκδοση του SlickGrid έχει αποκτηθεί με τον Μεταγλωττιστή Closure της Google,\n"
-"χρησιμοποιώντας την παρακάτω εντολή:\n"
-"\n"
-"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n"
-"\n"
-"Απαιτούνται δύο ακόμη αρχεία προκειμένου να λειτουργεί σωστά η προβολή του SlickGrid:\n"
-"\n"
-" * jquery-ui-1.8.16.custom.min.js \n"
-" * jquery.event.drag-2.0.min.js\n"
-"\n"
-"Αυτά περιλαμβάνονται στην πηγή Recline, αλλά δεν έχουν συμπεριληφθεί\n"
-"στο ενωματωμένο αρχείο προκειμένου να είναι πιο εύκολη η αντιμετώπιση προβλημάτων συμβατότητας.\n"
-"\n"
-"Παρακαλούμε ελέγξτε την άδεια SlickGrid στο συμπεριλαμβανόμενο αρχείο MIT-LICENSE.txt.\n"
-"\n"
-"[1] https://developers.google.com/closure/compiler/"
+msgstr "Αυτή η μεταγλωττισμένη έκδοση του SlickGrid έχει αποκτηθεί με τον Μεταγλωττιστή Closure της Google,\nχρησιμοποιώντας την παρακάτω εντολή:\n\njava -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n\nΑπαιτούνται δύο ακόμη αρχεία προκειμένου να λειτουργεί σωστά η προβολή του SlickGrid:\n\n * jquery-ui-1.8.16.custom.min.js \n * jquery.event.drag-2.0.min.js\n\nΑυτά περιλαμβάνονται στην πηγή Recline, αλλά δεν έχουν συμπεριληφθεί\nστο ενωματωμένο αρχείο προκειμένου να είναι πιο εύκολη η αντιμετώπιση προβλημάτων συμβατότητας.\n\nΠαρακαλούμε ελέγξτε την άδεια SlickGrid στο συμπεριλαμβανόμενο αρχείο MIT-LICENSE.txt.\n\n[1] https://developers.google.com/closure/compiler/"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:57
@@ -6525,9 +6326,7 @@ msgstr "Πίνακας κορυφαίων σε αξιολόγηση συνόλω
 msgid ""
 "Choose a dataset attribute and find out which categories in that area have "
 "the most datasets. E.g. tags, groups, license, res_format, country."
-msgstr "" 
-"Επιλέξτε μια ιδιότητα ενός συνόλου δεδομένων και μάθετε ποιες κατηγορίες στον τομέα αυτό "
-"έχουν τα περισσότερα σύνολα δεδομένων. Π.χ. ετικέτες, ομάδες, άδεια, res_format, χώρα."
+msgstr "Επιλέξτε μια ιδιότητα ενός συνόλου δεδομένων και μάθετε ποιες κατηγορίες στον τομέα αυτό έχουν τα περισσότερα σύνολα δεδομένων. Π.χ. ετικέτες, ομάδες, άδεια, res_format, χώρα."
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:20
 msgid "Choose area"

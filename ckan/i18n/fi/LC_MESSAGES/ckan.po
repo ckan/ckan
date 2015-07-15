@@ -10,6 +10,7 @@
 # Hami Kekkonen <hami.kekkonen@hel.fi>, 2013
 # <internet@davidread.org>, 2011
 # jaakkokorhonen <jaakko.korhonen@outlook.com>, 2014
+# Kari Salovaara <kari.salovaara@pp1.inet.fi>, 2015
 # kyyberi <jarkko.moilanen@want3d.fi>, 2013
 # Open Knowledge Foundation <translations@okfn.org>, 2011
 # Mikko Koho <mikko.koho@csc.fi>, 2013
@@ -19,9 +20,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2014-01-10 13:43+0000\n"
-"Last-Translator: jaakkokorhonen <jaakko.korhonen@outlook.com>\n"
-"Language-Team: Finnish (http://www.transifex.com/projects/p/ckan/language/fi/)\n"
+"PO-Revision-Date: 2015-06-25 19:29+0000\n"
+"Last-Translator: Kari Salovaara <kari.salovaara@pp1.inet.fi>\n"
+"Language-Team: Finnish (http://www.transifex.com/p/ckan/language/fi/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -390,7 +391,7 @@ msgstr "Valitse kaksi revisiota vertailuun."
 #: ckan/controllers/group.py:722
 #, python-format
 msgid "User %r not authorized to edit %r"
-msgstr "Käyttäjä %r ei voi muokata %r"
+msgstr "Käyttäjällä %r ei ole oikeuksia muokata %r"
 
 #: ckan/controllers/group.py:729
 msgid "CKAN Group Revision History"
@@ -1354,7 +1355,7 @@ msgstr "Tietoaineistolinkki"
 
 #: ckan/logic/validators.py:310
 msgid "Names must be strings"
-msgstr "Nimien tulee olla string-muotoisia"
+msgstr "Nimien tulee olla merkkijonoja"
 
 #: ckan/logic/validators.py:314
 msgid "That name cannot be used"

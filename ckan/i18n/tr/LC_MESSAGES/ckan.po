@@ -4,14 +4,15 @@
 # 
 # Translators:
 # cagdas!123 <olgun.cagdas@gmail.com>, 2013
+# sercan erhan <sercanerhan@gmail.com>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2013-12-13 11:52+0000\n"
-"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
-"Language-Team: Turkish (http://www.transifex.com/projects/p/ckan/language/tr/)\n"
+"PO-Revision-Date: 2015-06-11 06:39+0000\n"
+"Last-Translator: sercan erhan <sercanerhan@gmail.com>\n"
+"Language-Team: Turkish (http://www.transifex.com/p/ckan/language/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -380,7 +381,7 @@ msgstr ""
 #: ckan/controllers/group.py:722
 #, python-format
 msgid "User %r not authorized to edit %r"
-msgstr ""
+msgstr "%r kullanıcısı, %r 'ı düzenlemek için yetkilendirilmemiştir."
 
 #: ckan/controllers/group.py:729
 msgid "CKAN Group Revision History"

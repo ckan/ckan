@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Adrià Mercader <adria.mercader@okfn.org>, 2015
 # darwinp <darwinpeltan@gmail.com>, 2013
 # Sean Hammond <sean.hammond@okfn.org>, 2013
 msgid ""
@@ -10,9 +11,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2013-12-13 11:52+0000\n"
+"PO-Revision-Date: 2015-07-15 17:47+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
-"Language-Team: English (Australia) (http://www.transifex.com/projects/p/ckan/language/en_AU/)\n"
+"Language-Team: English (Australia) (http://www.transifex.com/p/ckan/language/en_AU/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -23,7 +24,7 @@ msgstr ""
 #: ckan/new_authz.py:189
 #, python-format
 msgid "Authorization function not found: %s"
-msgstr "Authorization function not found: %s"
+msgstr "Authorisation function not found: %s"
 
 #: ckan/new_authz.py:201
 msgid "Admin"
@@ -124,7 +125,7 @@ msgstr "Action not implemented."
 #: ckan/controllers/user.py:46 ckan/controllers/user.py:73
 #: ckan/controllers/user.py:101 ckan/controllers/user.py:534
 msgid "Not authorized to see this page"
-msgstr "Not authorized to see this page"
+msgstr "Not authorised to see this page"
 
 #: ckan/controllers/api.py:118 ckan/controllers/api.py:201
 msgid "Access denied"
@@ -332,7 +333,7 @@ msgstr "Unauthorized to create a group"
 #: ckan/controllers/package.py:811
 #, python-format
 msgid "User %r not authorized to edit %s"
-msgstr "User %r not authorized to edit %s"
+msgstr "User %r not authorised to edit %s"
 
 #: ckan/controllers/group.py:519 ckan/controllers/group.py:551
 #: ckan/controllers/package.py:971 ckan/controllers/package.py:1022
@@ -344,7 +345,7 @@ msgstr "Integrity Error"
 #: ckan/controllers/group.py:574
 #, python-format
 msgid "User %r not authorized to edit %s authorizations"
-msgstr "User %r not authorized to edit %s authorizations"
+msgstr "User %r not authorised to edit %s authorizations"
 
 #: ckan/controllers/group.py:591 ckan/controllers/group.py:603
 #: ckan/controllers/group.py:618 ckan/controllers/group.py:687
@@ -381,7 +382,7 @@ msgstr "Select two revisions before doing the comparison."
 #: ckan/controllers/group.py:722
 #, python-format
 msgid "User %r not authorized to edit %r"
-msgstr "User %r not authorized to edit %r"
+msgstr "User %r not authorised to edit %r"
 
 #: ckan/controllers/group.py:729
 msgid "CKAN Group Revision History"
@@ -609,7 +610,7 @@ msgstr "Related item not found"
 #: ckan/controllers/related.py:158 ckan/logic/auth/get.py:10
 #: ckan/logic/auth/get.py:245
 msgid "Not authorized"
-msgstr "Not authorized"
+msgstr "Not authorised"
 
 #: ckan/controllers/related.py:163
 msgid "Package not found"
@@ -754,7 +755,7 @@ msgstr "Unauthorized to edit user %s"
 #: ckan/controllers/user.py:277
 #, python-format
 msgid "User %s not authorized to edit %s"
-msgstr "User %s not authorized to edit %s"
+msgstr "User %s not authorised to edit %s"
 
 #: ckan/controllers/user.py:307
 msgid "Profile updated"
@@ -1645,12 +1646,12 @@ msgstr "Organisation was not found."
 #: ckan/logic/auth/create.py:19 ckan/logic/auth/create.py:37
 #, python-format
 msgid "User %s not authorized to create packages"
-msgstr "User %s not authorized to create packages"
+msgstr "User %s not authorised to create packages"
 
 #: ckan/logic/auth/create.py:23 ckan/logic/auth/update.py:39
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr "User %s not authorized to edit these groups"
+msgstr "User %s not authorised to edit these groups"
 
 #: ckan/logic/auth/create.py:30
 #, python-format
@@ -1668,17 +1669,17 @@ msgstr "You must be logged in to add a related item"
 #: ckan/logic/auth/create.py:80
 #, python-format
 msgid "User %s not authorized to edit these packages"
-msgstr "User %s not authorized to edit these packages"
+msgstr "User %s not authorised to edit these packages"
 
 #: ckan/logic/auth/create.py:91
 #, python-format
 msgid "User %s not authorized to create groups"
-msgstr "User %s not authorized to create groups"
+msgstr "User %s not authorised to create groups"
 
 #: ckan/logic/auth/create.py:101
 #, python-format
 msgid "User %s not authorized to create organizations"
-msgstr "User %s not authorized to create organisations"
+msgstr "User %s not authorised to create organisations"
 
 #: ckan/logic/auth/create.py:117
 msgid "User {user} not authorized to create users via the API"
@@ -1703,17 +1704,17 @@ msgstr "Valid API key needed to create a group"
 #: ckan/logic/auth/create.py:211
 #, python-format
 msgid "User %s not authorized to add members"
-msgstr "User %s not authorized to add members"
+msgstr "User %s not authorised to add members"
 
 #: ckan/logic/auth/create.py:235 ckan/logic/auth/update.py:107
 #, python-format
 msgid "User %s not authorized to edit group %s"
-msgstr "User %s not authorized to edit group %s"
+msgstr "User %s not authorised to edit group %s"
 
 #: ckan/logic/auth/delete.py:19
 #, python-format
 msgid "User %s not authorized to delete package %s"
-msgstr "User %s not authorized to delete package %s"
+msgstr "User %s not authorised to delete package %s"
 
 #: ckan/logic/auth/delete.py:35 ckan/logic/auth/get.py:135
 #: ckan/logic/auth/update.py:61
@@ -1723,7 +1724,7 @@ msgstr "No package found for this resource, cannot check auth."
 #: ckan/logic/auth/delete.py:41
 #, python-format
 msgid "User %s not authorized to delete resource %s"
-msgstr "User %s not authorized to delete resource %s"
+msgstr "User %s not authorised to delete resource %s"
 
 #: ckan/logic/auth/delete.py:50 ckan/logic/auth/delete.py:64
 msgid "Only the owner can delete a related item"
@@ -1732,52 +1733,52 @@ msgstr "Only the owner can delete a related item"
 #: ckan/logic/auth/delete.py:76
 #, python-format
 msgid "User %s not authorized to delete relationship %s"
-msgstr "User %s not authorized to delete relationship %s"
+msgstr "User %s not authorised to delete relationship %s"
 
 #: ckan/logic/auth/delete.py:85
 #, python-format
 msgid "User %s not authorized to delete groups"
-msgstr "User %s not authorized to delete groups"
+msgstr "User %s not authorised to delete groups"
 
 #: ckan/logic/auth/delete.py:89
 #, python-format
 msgid "User %s not authorized to delete group %s"
-msgstr "User %s not authorized to delete group %s"
+msgstr "User %s not authorised to delete group %s"
 
 #: ckan/logic/auth/delete.py:106
 #, python-format
 msgid "User %s not authorized to delete organizations"
-msgstr "User %s not authorized to delete organisations"
+msgstr "User %s not authorised to delete organisations"
 
 #: ckan/logic/auth/delete.py:110
 #, python-format
 msgid "User %s not authorized to delete organization %s"
-msgstr "User %s not authorized to delete organisation %s"
+msgstr "User %s not authorised to delete organisation %s"
 
 #: ckan/logic/auth/delete.py:123
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr "User %s not authorized to delete task_status"
+msgstr "User %s not authorised to delete task_status"
 
 #: ckan/logic/auth/delete.py:139
 #, python-format
 msgid "User %s not authorized to delete organization %s members"
-msgstr "User %s not authorized to delete organisation %s members"
+msgstr "User %s not authorised to delete organisation %s members"
 
 #: ckan/logic/auth/get.py:93
 #, python-format
 msgid "User %s not authorized to read these packages"
-msgstr "User %s not authorized to read these packages"
+msgstr "User %s not authorised to read these packages"
 
 #: ckan/logic/auth/get.py:115
 #, python-format
 msgid "User %s not authorized to read package %s"
-msgstr "User %s not authorized to read package %s"
+msgstr "User %s not authorised to read package %s"
 
 #: ckan/logic/auth/get.py:141
 #, python-format
 msgid "User %s not authorized to read resource %s"
-msgstr "User %s not authorized to read resource %s"
+msgstr "User %s not authorised to read resource %s"
 
 #: ckan/logic/auth/get.py:216
 msgid "You must be logged in to access your dashboard."
@@ -1786,22 +1787,22 @@ msgstr "You must be logged in to access your dashboard."
 #: ckan/logic/auth/update.py:33
 #, python-format
 msgid "User %s not authorized to edit package %s"
-msgstr "User %s not authorized to edit package %s"
+msgstr "User %s not authorised to edit package %s"
 
 #: ckan/logic/auth/update.py:69
 #, python-format
 msgid "User %s not authorized to edit resource %s"
-msgstr "User %s not authorized to edit resource %s"
+msgstr "User %s not authorised to edit resource %s"
 
 #: ckan/logic/auth/update.py:92
 #, python-format
 msgid "User %s not authorized to change state of package %s"
-msgstr "User %s not authorized to change state of package %s"
+msgstr "User %s not authorised to change state of package %s"
 
 #: ckan/logic/auth/update.py:120
 #, python-format
 msgid "User %s not authorized to edit organization %s"
-msgstr "User %s not authorized to edit organisation %s"
+msgstr "User %s not authorised to edit organisation %s"
 
 #: ckan/logic/auth/update.py:131 ckan/logic/auth/update.py:137
 msgid "Only the owner can update a related item"
@@ -1814,12 +1815,12 @@ msgstr "You must be a sysadmin to change a related item's featured field."
 #: ckan/logic/auth/update.py:159
 #, python-format
 msgid "User %s not authorized to change state of group %s"
-msgstr "User %s not authorized to change state of group %s"
+msgstr "User %s not authorised to change state of group %s"
 
 #: ckan/logic/auth/update.py:176
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
-msgstr "User %s not authorized to edit permissions of group %s"
+msgstr "User %s not authorised to edit permissions of group %s"
 
 #: ckan/logic/auth/update.py:203
 msgid "Have to be logged in to edit user"
@@ -1828,22 +1829,22 @@ msgstr ""
 #: ckan/logic/auth/update.py:211
 #, python-format
 msgid "User %s not authorized to edit user %s"
-msgstr "User %s not authorized to edit user %s"
+msgstr "User %s not authorised to edit user %s"
 
 #: ckan/logic/auth/update.py:220
 #, python-format
 msgid "User %s not authorized to change state of revision"
-msgstr "User %s not authorized to change state of revision"
+msgstr "User %s not authorised to change state of revision"
 
 #: ckan/logic/auth/update.py:229
 #, python-format
 msgid "User %s not authorized to update task_status table"
-msgstr "User %s not authorized to update task_status table"
+msgstr "User %s not authorised to update task_status table"
 
 #: ckan/logic/auth/update.py:243
 #, python-format
 msgid "User %s not authorized to update term_translation table"
-msgstr "User %s not authorized to update term_translation table"
+msgstr "User %s not authorised to update term_translation table"
 
 #: ckan/logic/auth/update.py:265
 msgid "Valid API key needed to edit a package"
@@ -4151,7 +4152,7 @@ msgstr ""
 #: ckan/templates/snippets/search_result_text.html:27
 msgid "{number} organization found for \"{query}\""
 msgid_plural "{number} organizations found for \"{query}\""
-msgstr[0] "{number} organization found for \"{query}\""
+msgstr[0] "{number} organisation found for \"{query}\""
 msgstr[1] "{number} organisations found for \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:28
@@ -4161,7 +4162,7 @@ msgstr ""
 #: ckan/templates/snippets/search_result_text.html:29
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
-msgstr[0] "{number} organization found"
+msgstr[0] "{number} organisation found"
 msgstr[1] "{number} organisations found"
 
 #: ckan/templates/snippets/search_result_text.html:30
@@ -4790,7 +4791,7 @@ msgstr "v"
 #: ckan/templates_legacy/admin/authz.html:6
 #: ckan/templates_legacy/admin/authz.html:7
 msgid "Administration - Authorization"
-msgstr "Administration - Authorization"
+msgstr "Administration - Authorisation"
 
 #: ckan/templates_legacy/admin/authz.html:10
 #: ckan/templates_legacy/group/authz.html:9
@@ -4860,7 +4861,7 @@ msgstr "(None)"
 #: ckan/templates_legacy/package/authz.html:5
 #: ckan/templates_legacy/package/authz.html:6
 msgid "Authorization:"
-msgstr "Authorization:"
+msgstr "Authorisation:"
 
 #: ckan/templates_legacy/group/edit.html:5
 #: ckan/templates_legacy/group/edit.html:6
@@ -6120,7 +6121,7 @@ msgstr "Resource \"{0}\" was not found."
 
 #: ckanext/datastore/logic/auth.py:15
 msgid "User {0} not authorized to update resource {1}"
-msgstr "User {0} not authorized to update resource {1}"
+msgstr "User {0} not authorised to update resource {1}"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 msgid "Custom Text"
