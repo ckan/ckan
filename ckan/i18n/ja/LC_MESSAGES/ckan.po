@@ -1,7 +1,7 @@
-# Japanese translations for ckan.
+# Translations template for ckan.
 # Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
+# 
 # Translators:
 # Fumihiro Kato <>, 2013,2015
 # Fumihiro Kato <fumi@fumi.me>, 2012
@@ -13,18 +13,18 @@
 # Takayuki Miyauchi <miya0001@users.noreply.github.com>, 2015
 msgid ""
 msgstr ""
-"Project-Id-Version:  CKAN\n"
+"Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-06-23 20:40+0000\n"
-"PO-Revision-Date: 2015-02-26 03:06+0000\n"
+"PO-Revision-Date: 2015-06-26 01:16+0000\n"
 "Last-Translator: Fumihiro Kato <>\n"
-"Language-Team: Japanese "
-"(http://www.transifex.com/projects/p/ckan/language/ja/)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Team: Japanese (http://www.transifex.com/p/ckan/language/ja/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.0-dev\n"
+"Generated-By: Babel 1.3\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ckan/authz.py:178
 #, python-format
@@ -350,7 +350,7 @@ msgstr "グループが削除されました。"
 #: ckan/controllers/group.py:633
 #, python-format
 msgid "%s has been deleted."
-msgstr ""
+msgstr "%s はすでに削除されています"
 
 #: ckan/controllers/group.py:707
 #, python-format
@@ -412,12 +412,10 @@ msgstr "このサイトは現在オフラインです。データベースが起
 
 #: ckan/controllers/home.py:100
 msgid ""
-"Please <a href=\"{link}\">update your profile</a> and add your email "
-"address and your full name. {site} uses your email address if you need to"
-" reset your password."
-msgstr ""
-"<a href=\"{link}\">あなたのプロファイルを更新</a>して、メールアドレスとフルネームを追加してください。{site} "
-"は、あなたがパスワードリセットを行う際にあなたのメールアドレスを使います。"
+"Please <a href=\"{link}\">update your profile</a> and add your email address"
+" and your full name. {site} uses your email address if you need to reset "
+"your password."
+msgstr "<a href=\"{link}\">あなたのプロファイルを更新</a>して、メールアドレスとフルネームを追加してください。{site} は、あなたがパスワードリセットを行う際にあなたのメールアドレスを使います。"
 
 #: ckan/controllers/home.py:103
 #, python-format
@@ -470,9 +468,7 @@ msgstr "無効なリビジョン形式: %r"
 msgid ""
 "Viewing {package_type} datasets in {format} format is not supported "
 "(template file {file} not found)."
-msgstr ""
-"{format} formatでの {package_type} データセットの閲覧はサポートされていません (テンプレート {file} "
-"が見つかりません)。"
+msgstr "{format} formatでの {package_type} データセットの閲覧はサポートされていません (テンプレート {file} が見つかりません)。"
 
 #: ckan/controllers/package.py:472
 msgid "CKAN Dataset Revision History"
@@ -778,15 +774,15 @@ msgstr "ユーザ %s には %s の編集権限がありません"
 
 #: ckan/controllers/user.py:354
 msgid "Password entered was incorrect"
-msgstr ""
+msgstr "入力されたパスワードが間違っていました"
 
 #: ckan/controllers/user.py:355 ckan/templates/user/edit_user_form.html:27
 msgid "Old Password"
-msgstr ""
+msgstr "古いパスワード"
 
 #: ckan/controllers/user.py:355
 msgid "incorrect password"
-msgstr ""
+msgstr "間違っているパスワード"
 
 #: ckan/controllers/user.py:396
 msgid "Login failed. Bad username or password."
@@ -892,7 +888,8 @@ msgid "{actor} updated their profile"
 msgstr "{actor} がプロフィールを更新しました"
 
 #: ckan/lib/activity_streams.py:86
-msgid "{actor} updated the {related_type} {related_item} of the dataset {dataset}"
+msgid ""
+"{actor} updated the {related_type} {related_item} of the dataset {dataset}"
 msgstr "{actor} がデータセット {dataset} の {related_type} {related_item} を更新しました"
 
 #: ckan/lib/activity_streams.py:89
@@ -964,7 +961,8 @@ msgid "{actor} started following {group}"
 msgstr "{actor} が {group} のフォローを開始しました"
 
 #: ckan/lib/activity_streams.py:142
-msgid "{actor} added the {related_type} {related_item} to the dataset {dataset}"
+msgid ""
+"{actor} added the {related_type} {related_item} to the dataset {dataset}"
 msgstr "{actor} がデータセット {dataset} に {related_type} {related_item} を加えました"
 
 #: ckan/lib/activity_streams.py:145
@@ -1179,21 +1177,16 @@ msgid ""
 "Please click the following link to confirm this request:\n"
 "\n"
 "   {reset_link}\n"
-msgstr ""
-"{site_title} であなたのパスワードをリセットするように要求しています。\n"
-"この要求を確認するために以下のリンクをクリックしてください。\n"
-"\n"
-"{reset_link}\n"
+msgstr "{site_title} であなたのパスワードをリセットするように要求しています。\nこの要求を確認するために以下のリンクをクリックしてください。\n\n{reset_link}\n"
 
 #: ckan/lib/mailer.py:119
 msgid ""
-"You have been invited to {site_title}. A user has already been created to"
-" you with the username {user_name}. You can change it later.\n"
+"You have been invited to {site_title}. A user has already been created to you with the username {user_name}. You can change it later.\n"
 "\n"
 "To accept this invite, please reset your password at:\n"
 "\n"
 "   {reset_link}\n"
-msgstr ""
+msgstr "あなたは {site_title} に招待されています。ユーザはすでに ユーザ名 %{user_name} として作成されています。後でそれは変更可能です。\n\nこの招待を受けるために、以下でパスワードのリセットをして下さい。\n\n{reset_link}\n"
 
 #: ckan/lib/mailer.py:145 ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:13
@@ -1350,8 +1343,8 @@ msgstr "名前は最大 %i 文字以内でなければいけません"
 
 #: ckan/logic/validators.py:366
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
 msgstr "小文字のアルファベット(ascii)と、asciiに含まれる文字列: -_ のみです。"
 
 #: ckan/logic/validators.py:384
@@ -2129,8 +2122,8 @@ msgstr "アップロードしたファイルからデータを取得できませ
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop"
-" this upload?"
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
 msgstr "ファイルをアップロードしています。ナビゲートを離れてこのアップロードを終了しても良いですか？"
 
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:8
@@ -2189,9 +2182,7 @@ msgstr "オープンナレッジファウンデーション"
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
-msgstr ""
-"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a>"
+msgstr "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
@@ -2217,7 +2208,7 @@ msgstr "設定を編集"
 
 #: ckan/templates/header.html:37
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 #: ckan/templates/header.html:43 ckan/templates/header.html:45
 msgid "Log out"
@@ -2244,8 +2235,9 @@ msgstr "登録"
 #: ckan/templates/revision/diff.html:11 ckan/templates/revision/read.html:65
 #: ckan/templates/snippets/organization.html:59
 #: ckan/templates/snippets/context/group.html:17
-#: ckan/templates/snippets/context/user.html:19 ckan/templates/user/read.html:5
-#: ckan/templates/user/read_base.html:19 ckan/templates/user/read_base.html:53
+#: ckan/templates/snippets/context/user.html:19
+#: ckan/templates/user/read.html:5 ckan/templates/user/read_base.html:19
+#: ckan/templates/user/read_base.html:53
 msgid "Datasets"
 msgstr "データセット"
 
@@ -2311,34 +2303,22 @@ msgstr "CKANコンフィグオプション"
 #: ckan/templates/admin/config.html:34
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> "
-"<p><strong>Style:</strong> Choose from a list of simple variations of the"
-" main colour scheme to get a very quick custom theme working.</p> "
-"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
-"<p><strong>Homepage:</strong> This is for choosing a predefined layout "
-"for the modules that appear on your homepage.</p> "
-msgstr ""
-" <p><strong>サイトタイトル:</strong> このCKANインスタンスのタイトルで、CKANの様々な場所で表示されます。</p> "
-"<p><strong>スタイル:</strong> 手短にテーマのカスタマイズをするために、主な配色の種類のリストから選択して下さい。</p> "
-"<p><strong>サイトタグロゴ:</strong> これはCKANインスタンスのテンプレートのヘッダーで表示されるロゴです。</p> "
-"<p><strong>About:</strong> このテキストはCKANインスタンスの <a "
-"href=\"%(about_url)s\">aboutページ</a>で表示されます。</p> <p><strong>紹介文:</strong> "
-"このテキストはCKANインスタンスの <a href=\"%(home_url)s\">ホームページ</a> "
-"に、訪問者用のウェルカムメッセージとして表示されます。</p> <p><strong>カスタム CSS:</strong> これは各ページの "
-"<code>&lt;head&gt;</code> 要素に現れるCSSのブロックです。もっと多くテンプレートのカスタマイズをしたい場合は、<a "
-"href=\"%(docs_url)s\" target=\"_blank\">この文書を</a>読むのを勧めます。</p> "
-"<p><strong>ホームページ:</strong> "
-"あなたのホームページを表示するモジュールのための定義済のレイアウトを選択するために使われます。</p> "
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
+"the modules that appear on your homepage.</p> "
+msgstr " <p><strong>サイトタイトル:</strong> このCKANインスタンスのタイトルで、CKANの様々な場所で表示されます。</p> <p><strong>スタイル:</strong> 手短にテーマのカスタマイズをするために、主な配色の種類のリストから選択して下さい。</p> <p><strong>サイトタグロゴ:</strong> これはCKANインスタンスのテンプレートのヘッダーで表示されるロゴです。</p> <p><strong>About:</strong> このテキストはCKANインスタンスの <a href=\"%(about_url)s\">aboutページ</a>で表示されます。</p> <p><strong>紹介文:</strong> このテキストはCKANインスタンスの <a href=\"%(home_url)s\">ホームページ</a> に、訪問者用のウェルカムメッセージとして表示されます。</p> <p><strong>カスタム CSS:</strong> これは各ページの <code>&lt;head&gt;</code> 要素に現れるCSSのブロックです。もっと多くテンプレートのカスタマイズをしたい場合は、<a href=\"%(docs_url)s\" target=\"_blank\">この文書を</a>読むのを勧めます。</p> <p><strong>ホームページ:</strong> あなたのホームページを表示するモジュールのための定義済のレイアウトを選択するために使われます。</p> "
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2353,13 +2333,9 @@ msgstr "CKAN　管理者"
 #, python-format
 msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
-"the CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin "
-"guide</a></p> "
-msgstr ""
-"<p>一人のsysadmin ユーザとして、あなたはこのCKANインスタンスに対する完全な権限を持っています。注意して作業してください！</p>\n"
-"<p>sysadmin機能の利用についての説明は、CKAN<a href=\"%(docs_url)s\" "
-"target=\"_blank\">sysadminガイド</a>を参照してください。</p>"
+"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
+"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
+msgstr "<p>一人のsysadmin ユーザとして、あなたはこのCKANインスタンスに対する完全な権限を持っています。注意して作業してください！</p>\n<p>sysadmin機能の利用についての説明は、CKAN<a href=\"%(docs_url)s\" target=\"_blank\">sysadminガイド</a>を参照してください。</p>"
 
 #: ckan/templates/admin/trash.html:20
 msgid "Purge"
@@ -2381,13 +2357,8 @@ msgstr "パワフルなクエリサポートがあるweb APIを通してリソ�
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
-" "
-msgstr ""
-" より詳しい情報は <a "
-"href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore "
-"documentation</a>を参照してください。</p> "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr " より詳しい情報は <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">main CKAN Data API and DataStore documentation</a>を参照してください。</p> "
 
 #: ckan/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
@@ -2395,8 +2366,8 @@ msgstr "エンドポイント"
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
 msgstr "Data APIはCKAN action APIの次のようなアクションを通してアクセスすることができます。"
 
 #: ckan/templates/ajax_snippets/api_info.html:42
@@ -2605,8 +2576,9 @@ msgstr "メンバー - {name} を削除してもよろしいですか？"
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
 #: ckan/templates/package/read_base.html:19
-#: ckan/templates/package/resource_read.html:31 ckan/templates/user/edit.html:8
-#: ckan/templates/user/edit_base.html:3 ckan/templates/user/read_base.html:14
+#: ckan/templates/package/resource_read.html:31
+#: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
+#: ckan/templates/user/read_base.html:14
 msgid "Manage"
 msgstr "管理"
 
@@ -2674,7 +2646,8 @@ msgstr "名前で降順"
 msgid "There are currently no groups for this site"
 msgstr "このサイトに所属しているグループがありません"
 
-#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "作成方法"
 
@@ -2723,19 +2696,22 @@ msgstr "新規ユーザ"
 msgid "If you wish to invite a new user, enter their email address."
 msgstr "もし新規ユーザを招待したい場合は、そのメールアドレスを入力して下さい。"
 
-#: ckan/templates/group/member_new.html:55 ckan/templates/group/members.html:18
+#: ckan/templates/group/member_new.html:55
+#: ckan/templates/group/members.html:18
 #: ckan/templates/organization/member_new.html:56
 #: ckan/templates/organization/members.html:18
 msgid "Role"
 msgstr "ロール"
 
-#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:30
+#: ckan/templates/group/member_new.html:58
+#: ckan/templates/group/members.html:30
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:30
 msgid "Are you sure you want to delete this member?"
 msgstr "このメンバーを削除してよろしいですか？"
 
-#: ckan/templates/group/member_new.html:59 ckan/templates/group/members.html:35
+#: ckan/templates/group/member_new.html:59
+#: ckan/templates/group/members.html:35
 #: ckan/templates/group/snippets/group_form.html:61
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:60
@@ -2762,12 +2738,10 @@ msgstr "ロールとは？"
 
 #: ckan/templates/group/member_new.html:81
 msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage"
-" organization members.</p> <p><strong>Member:</strong> Can add/remove "
+" <p><strong>Admin:</strong> Can edit group information, as well as manage "
+"organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
-msgstr ""
-" <p><strong>管理者:</strong> グループ情報の編集や組織のメンバーの管理が可能です。</p> "
-"<p><strong>メンバー:</strong> グループへのデータセットの追加・削除が可能です。</p> "
+msgstr " <p><strong>管理者:</strong> グループ情報の編集や組織のメンバーの管理が可能です。</p> <p><strong>メンバー:</strong> グループへのデータセットの追加・削除が可能です。</p> "
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -2887,10 +2861,10 @@ msgstr "グループ機能とは"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. "
-"This could be to catalogue datasets for a particular project or team, or "
-"on a particular theme, or as a very simple way to help people find and "
-"search your own published datasets. "
+" You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets. "
 msgstr "あなたはデータセットの集合を作成・管理するためにCKANグループを使うことができます。これは特定のプロジェクトやチームあるいは特定のテーマのためのデータセットのカタログに成り得ますし、人々があなたの所有する公開データセットを発見し，検索するのを助ける簡単な方法として使えます。"
 
 #: ckan/templates/group/snippets/history_revisions.html:10
@@ -2954,14 +2928,13 @@ msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision of "
+"robust data APIs). CKAN is aimed at data publishers (national and regional "
+"governments, companies and organizations) wanting to make their data open "
+"and available.</p> <p>CKAN is used by governments and user groups worldwide "
+"and powers a variety of official and community data portals including "
+"portals for local, national and international government, such as the UK’s "
+"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -2970,14 +2943,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
-"<p>CKANは世界をリードするオープンソースのデータポータルプラットホームです。</p><p>CKANはデータをアクセス可能で使用可能にするための完全に枠を超えたソフトウェアソリューションです。データをストリームラインで公開、共有、発見、使用するためのツールを提供しています(データストレージや頑強なデータAPIの提供も含みます)。CKANはデータをオープンにして公開したいと思っているデータ公開者(国や地方行政、会社や組織)のために作られています。</p><p>CKANは世界中の行政やユーザグループによって使用されています。イギリスの"
-" <a href=\"http://data.gov.uk\">data.gov.uk</a>、EUの <a "
-"href=\"http://publicdata.eu/\">publicdata.eu</a>、ブラジルの <a "
-"href=\"http://dados.gov.br/\">dados.gov.br</a>、オランダの政府ポータル、US、UK、アルゼンチン、フィンランド等の地方自治体のように、地方、国、国際的な行政を含む、様々な公的あるいはコミュニティのデータポータルの力となっています。</p><p>CKAN:"
-"  <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN ツアー: <a "
-"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> 特徴: <a "
-"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
+msgstr "<p>CKANは世界をリードするオープンソースのデータポータルプラットホームです。</p><p>CKANはデータをアクセス可能で使用可能にするための完全に枠を超えたソフトウェアソリューションです。データをストリームラインで公開、共有、発見、使用するためのツールを提供しています(データストレージや頑強なデータAPIの提供も含みます)。CKANはデータをオープンにして公開したいと思っているデータ公開者(国や地方行政、会社や組織)のために作られています。</p><p>CKANは世界中の行政やユーザグループによって使用されています。イギリスの <a href=\"http://data.gov.uk\">data.gov.uk</a>、EUの <a href=\"http://publicdata.eu/\">publicdata.eu</a>、ブラジルの <a href=\"http://dados.gov.br/\">dados.gov.br</a>、オランダの政府ポータル、US、UK、アルゼンチン、フィンランド等の地方自治体のように、地方、国、国際的な行政を含む、様々な公的あるいはコミュニティのデータポータルの力となっています。</p><p>CKAN:  <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN ツアー: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> 特徴: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -2985,8 +2951,8 @@ msgstr "CKANへようこそ"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will "
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will "
 msgstr "これはCKANあるいはサイト全般についての良い紹介文です。我々はまだここへ行くためのコピーがありませんが、すぐに行くでしょう。"
 
 #: ckan/templates/home/snippets/promoted.html:19
@@ -3044,13 +3010,10 @@ msgstr "関連アイテム"
 #: ckan/templates/macros/form.html:126
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
-"html=\"true\">Markdown formatting</a> here"
-msgstr ""
-"ここでは<a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
 "target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
-"html=\"true\">Markdown形式</a>を使うことができます "
+"html=\"true\">Markdown formatting</a> here"
+msgstr "ここでは<a href=\"#markdown\" title=\"Markdown quick reference\" data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-html=\"true\">Markdown形式</a>を使うことができます "
 
 #: ckan/templates/macros/form.html:265
 msgid "This field is required"
@@ -3121,8 +3084,8 @@ msgstr "ドラフト"
 #: ckan/templates/package/read.html:11
 #: ckan/templates/package/snippets/package_basic_fields.html:91
 #: ckan/templates/snippets/package_item.html:31
-#: ckan/templates/snippets/private.html:2 ckan/templates/user/read_base.html:82
-#: ckan/templates/user/read_base.html:96
+#: ckan/templates/snippets/private.html:2
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "Private"
 msgstr "プライベート"
 
@@ -3165,7 +3128,7 @@ msgstr "ユーザ名"
 
 #: ckan/templates/organization/member_new.html:50
 msgid "Email address"
-msgstr ""
+msgstr "Emailアドレス"
 
 #: ckan/templates/organization/member_new.html:62
 msgid "Update Member"
@@ -3176,12 +3139,9 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p> "
-msgstr ""
-"<p><strong>管理者:</strong> "
-"データセットの追加/削除や組織メンバーの管理が可能です。</p><p><strong>編集者:</strong>データセットの追加や編集が可能ですが、組織メンバーの管理はできません。</p><p><strong>メンバー:</strong>"
-" 組織のプライベートなデータセットを閲覧できますが、新しいデータセットを追加することはできません。</p>"
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p> "
+msgstr "<p><strong>管理者:</strong> データセットの追加/削除や組織メンバーの管理が可能です。</p><p><strong>編集者:</strong>データセットの追加や編集が可能ですが、組織メンバーの管理はできません。</p><p><strong>メンバー:</strong> 組織のプライベートなデータセットを閲覧できますが、新しいデータセットを追加することはできません。</p>"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3215,22 +3175,19 @@ msgstr "組織について"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for "
-"example, the Department of Health). This means that datasets can be "
-"published by and belong to a department instead of an individual "
-"user.</p> <p>Within organizations, admins can assign roles and authorise "
-"its members, giving individual users the right to publish datasets from "
-"that particular organisation (e.g. Office of National Statistics).</p> "
-msgstr ""
-"<p>組織はデータセットを公開する部門のように振る舞います(例: "
-"保健省)。データセットが個々のユーザではなく、部門が所有して、部門によって公開されるということになります。</p><p>組織内では、管理者はメンバーに役割や権限を割り当てることができます。例えば個々のユーザに特定の組織"
-" (例: 統計局) からのデータセットについての公開権限を与えることができます。</p>"
+" <p>Organizations act like publishing departments for datasets (for example,"
+" the Department of Health). This means that datasets can be published by and"
+" belong to a department instead of an individual user.</p> <p>Within "
+"organizations, admins can assign roles and authorise its members, giving "
+"individual users the right to publish datasets from that particular "
+"organisation (e.g. Office of National Statistics).</p> "
+msgstr "<p>組織はデータセットを公開する部門のように振る舞います(例: 保健省)。データセットが個々のユーザではなく、部門が所有して、部門によって公開されるということになります。</p><p>組織内では、管理者はメンバーに役割や権限を割り当てることができます。例えば個々のユーザに特定の組織 (例: 統計局) からのデータセットについての公開権限を与えることができます。</p>"
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of"
-" datasets. Users can have different roles within an Organization, "
-"depending on their level of authorisation to create, edit and publish. "
+" CKAN Organizations are used to create, manage and publish collections of "
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish. "
 msgstr "CKANの組織は、データセットの集合を作成・管理・公開するために使われます。作成・編集・公開の権限レベルに応じて、ユーザは組織内で異なる役割を持てます。"
 
 #: ckan/templates/organization/snippets/organization_form.html:10
@@ -3247,8 +3204,8 @@ msgstr "私の組織についての簡単な情報"
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all "
-"the public and private datasets belonging to this organization."
+"Are you sure you want to delete this Organization? This will delete all the "
+"public and private datasets belonging to this organization."
 msgstr "この組織を削除しても良いですか？この操作によってこの組織が持つパブリックとプライベートのデータセット全てが削除されます。"
 
 #: ckan/templates/organization/snippets/organization_form.html:64
@@ -3271,12 +3228,10 @@ msgstr "データセットとは？"
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
-" A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data. "
-msgstr ""
-"CKANのデータセットはデータリソース (例: ファイル) "
-"の集合です。データリソースはその説明とその他の情報と固定のURLを持ちます。データセットはユーザがデータを検索するときに目にするものです。"
+" A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data. "
+msgstr "CKANのデータセットはデータリソース (例: ファイル) の集合です。データリソースはその説明とその他の情報と固定のURLを持ちます。データセットはユーザがデータを検索するときに目にするものです。"
 
 #: ckan/templates/package/confirm_delete.html:11
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -3358,14 +3313,10 @@ msgstr "ビューを追加"
 msgid ""
 " Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer"
-" documentation</a>. "
-msgstr ""
-"データストア拡張が有効でない場合、データ探索ビューは遅くて信頼性がないかもしれません。より詳しい情報は<a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>データ探索の文書</a> "
-"を参照してください。"
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>Data Explorer "
+"documentation</a>. "
+msgstr "データストア拡張が有効でない場合、データ探索ビューは遅くて信頼性がないかもしれません。より詳しい情報は<a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-structured-data-the-data-explorer' target='_blank'>データ探索の文書</a> を参照してください。"
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:82
@@ -3375,12 +3326,9 @@ msgstr "追加"
 #: ckan/templates/package/read_base.html:38
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
-msgstr ""
-"これはこのデータセットの古いリビジョンです。%(timestamp)sに編集されました。<a "
-"href=\"%(url)s\">現在のリビジョン</a>とはかなり異なるかもしれません。"
+"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
+"differ significantly from the <a href=\"%(url)s\">current revision</a>."
+msgstr "これはこのデータセットの古いリビジョンです。%(timestamp)sに編集されました。<a href=\"%(url)s\">現在のリビジョン</a>とはかなり異なるかもしれません。"
 
 #: ckan/templates/package/related_list.html:7
 msgid "Related Media for {dataset}"
@@ -3503,9 +3451,9 @@ msgstr "サイト管理者が関連ビューのプラグインを有効にして
 
 #: ckan/templates/package/resource_read.html:125
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr "ビューがデータストアを要求するなら、データストアプラグインが有効でないか、データがデータストアに入っていないか、データストアによるデータ処理がまだ終わっていないかもしれません"
 
 #: ckan/templates/package/resource_read.html:147
@@ -3564,11 +3512,9 @@ msgstr "新しいリソースの追加"
 #: ckan/templates/package/snippets/resources_list.html:25
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
-" add some?</a></p> "
-msgstr ""
-" <p class=\"empty\">このデータセットにはデータがありませんので、 <a "
-"href=\"%(url)s\">データを追加しましょう</a>。</p> "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+"add some?</a></p> "
+msgstr " <p class=\"empty\">このデータセットにはデータがありませんので、 <a href=\"%(url)s\">データを追加しましょう</a>。</p> "
 
 #: ckan/templates/package/search.html:53
 msgid "API Docs"
@@ -3583,9 +3529,7 @@ msgstr "完全な {format} ダンプ"
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
-msgstr ""
-" %(api_link)s (%(api_doc_link)s参照) を使うことでもこのレジストリにアクセスすることも、または "
-"%(dump_link)sをダウンロードすることもできます。"
+msgstr " %(api_link)s (%(api_doc_link)s参照) を使うことでもこのレジストリにアクセスすることも、または %(dump_link)sをダウンロードすることもできます。"
 
 #: ckan/templates/package/search.html:60
 #, python-format
@@ -3667,9 +3611,7 @@ msgstr "例：経済,政府"
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
-msgstr ""
-"ライセンス定義や追加情報は<a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>にあります。"
+msgstr "ライセンス定義や追加情報は<a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>にあります。"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:69
 #: ckan/templates/snippets/organization.html:23
@@ -3694,17 +3636,12 @@ msgstr "アクティブ"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
-msgstr ""
-"<i>データライセンス</i> "
-"あなたが上で選択したライセンスは、あなたがこのデータセットに追加するリソースファイルの内容に対してのみ適用されます。このフォームで投稿することで、あなたはフォームに入力している<i>メタデータ</i>の値を<a"
-" href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>のもとでリリースすることに同意することになります。"
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
+msgstr "<i>データライセンス</i> あなたが上で選択したライセンスは、あなたがこのデータセットに追加するリソースファイルの内容に対してのみ適用されます。このフォームで投稿することで、あなたはフォームに入力している<i>メタデータ</i>の値を<a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database License</a>のもとでリリースすることに同意することになります。"
 
 #: ckan/templates/package/snippets/package_form.html:39
 msgid "Are you sure you want to delete this dataset?"
@@ -3916,10 +3853,10 @@ msgstr "関連アイテムとは？"
 
 #: ckan/templates/related/base_form_page.html:22
 msgid ""
-" <p>Related Media is any app, article, visualisation or idea related to "
-"this dataset.</p> <p>For example, it could be a custom visualisation, "
-"pictograph or bar chart, an app using all or part of the data or even a "
-"news story that references this dataset.</p> "
+" <p>Related Media is any app, article, visualisation or idea related to this"
+" dataset.</p> <p>For example, it could be a custom visualisation, pictograph"
+" or bar chart, an app using all or part of the data or even a news story "
+"that references this dataset.</p> "
 msgstr "<p>関連するメディアとは、このデータセットに関連するアプリケーションや記事、可視化、アイデアです。</p><p>例えば、データ全部または一部を用いた可視化や図表、棒グラフ、アプリケーションだけではなく、データセットを参照する新しいストーリーもです。</p>"
 
 #: ckan/templates/related/confirm_delete.html:11
@@ -3937,10 +3874,7 @@ msgstr "アプリとアイデア"
 msgid ""
 " <p>Showing items <strong>%(first)s - %(last)s</strong> of "
 "<strong>%(item_count)s</strong> related items found</p> "
-msgstr ""
-"<p><strong>%(item_count)s</strong>個の関連アイテムの内<strong>%(first)s - "
-"%(last)s</strong>のアイテムを表示</p>\n"
-"  "
+msgstr "<p><strong>%(item_count)s</strong>個の関連アイテムの内<strong>%(first)s - %(last)s</strong>のアイテムを表示</p>\n  "
 
 #: ckan/templates/related/dashboard.html:25
 #, python-format
@@ -3957,8 +3891,8 @@ msgstr "アプリケーションとは？"
 
 #: ckan/templates/related/dashboard.html:50
 msgid ""
-" These are applications built with the datasets as well as ideas for "
-"things that could be done with them. "
+" These are applications built with the datasets as well as ideas for things "
+"that could be done with them. "
 msgstr "これらはそのデータセットを利用したアプリケーションや、データセットを用いてできるであろうアイデアになります。"
 
 #: ckan/templates/related/dashboard.html:58
@@ -4328,8 +4262,7 @@ msgstr "アカウント情報"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you "
-"do. "
+" Your profile lets other CKAN users know about who you are and what you do. "
 msgstr "プロフィールによって、他のCKANユーザにあなたが何者で、何をしているのかを知らせることができます"
 
 #: ckan/templates/user/edit_user_form.html:7
@@ -4544,8 +4477,8 @@ msgstr "初期化を申請"
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
-"Enter your username into the box and we will send you an email with a "
-"link to enter a new password."
+"Enter your username into the box and we will send you an email with a link "
+"to enter a new password."
 msgstr "ユーザ名をそのボックスに入力すれば、新しいパスワードを入力するためのリンクをメールで送ります。"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
@@ -4591,8 +4524,8 @@ msgstr "データストアリソースが見つかりません"
 
 #: ckanext/datastore/db.py:656
 msgid ""
-"The data was invalid (for example: a numeric value is out of range or was"
-" inserted into a text field)."
+"The data was invalid (for example: a numeric value is out of range or was "
+"inserted into a text field)."
 msgstr "不正なデータです (例: 数値が範囲外かテキストフィールドに入力された)"
 
 #: ckanext/datastore/logic/action.py:210 ckanext/datastore/logic/action.py:250
@@ -4607,11 +4540,11 @@ msgstr "ユーザ {0} には リソース {1} の更新権限がありません"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
-msgstr ""
+msgstr "ページ毎のデータセット"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:13
 msgid "Test conf"
-msgstr ""
+msgstr "テストコンフィグ"
 
 #: ckanext/example_idatasetform/templates/package/search.html:16
 msgid "Custom Field Ascending"
@@ -4861,8 +4794,8 @@ msgstr "データセット リーダーボード"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:18
 msgid ""
-"Choose a dataset attribute and find out which categories in that area "
-"have the most datasets. E.g. tags, groups, license, res_format, country."
+"Choose a dataset attribute and find out which categories in that area have "
+"the most datasets. E.g. tags, groups, license, res_format, country."
 msgstr "データセット属性を選択して、最も多いデータセットがある分野のカテゴリを見つけて下さい．例: タグ、グループ、ライセンス、リソース形式、国"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:20
@@ -4871,7 +4804,7 @@ msgstr "エリアを選択"
 
 #: ckanext/textview/plugin.py:65 ckanext/textview/plugin.py:67
 msgid "Text"
-msgstr ""
+msgstr "テキスト"
 
 #: ckanext/webpageview/plugin.py:19 ckanext/webpageview/plugin.py:24
 msgid "Website"
@@ -4884,119 +4817,3 @@ msgstr "ウェブページURL"
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
 msgstr "例： http://example.com (空白の場合はリソースURL)"
-
-#~ msgid ""
-#~ "You have been invited to {site_title}."
-#~ " A user has already been createdto"
-#~ " you with the username {user_name}. "
-#~ "You can change it later.\n"
-#~ "\n"
-#~ "To accept this invite, please reset your password at:\n"
-#~ "\n"
-#~ "   {reset_link}\n"
-#~ msgstr ""
-#~ "あなたは {site_title} に招待されています。ユーザはすでに ユーザ名 "
-#~ "%{user_name} として作成されています。後でそれは変更可能です。\n"
-#~ "\n"
-#~ "この招待を受けるために、以下でパスワードのリセットをして下さい。\n"
-#~ "\n"
-#~ "{reset_link}\n"
-
-#~ msgid "You cannot remove a dataset from an existing organization"
-#~ msgstr "既存の組織からはデータセットを削除できません"
-
-#~ msgid ""
-#~ "Copyright (c) 2010 Michael Leibman, "
-#~ "http://github.com/mleibman/slickgrid\n"
-#~ "\n"
-#~ "Permission is hereby granted, free of charge, to any person obtaining\n"
-#~ "a copy of this software and associated documentation files (the\n"
-#~ "\"Software\"), to deal in the Software without restriction, including\n"
-#~ "without limitation the rights to use, copy, modify, merge, publish,\n"
-#~ "distribute, sublicense, and/or sell copies of the Software, and to\n"
-#~ "permit persons to whom the Software is furnished to do so, subject to\n"
-#~ "the following conditions:\n"
-#~ "\n"
-#~ "The above copyright notice and this permission notice shall be\n"
-#~ "included in all copies or substantial portions of the Software.\n"
-#~ "\n"
-#~ "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\n"
-#~ "EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\n"
-#~ "MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n"
-#~ "NONINFRINGEMENT. IN NO EVENT SHALL THE"
-#~ " AUTHORS OR COPYRIGHT HOLDERS BE\n"
-#~ "LIABLE FOR ANY CLAIM, DAMAGES OR "
-#~ "OTHER LIABILITY, WHETHER IN AN ACTION"
-#~ "\n"
-#~ "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
-#~ "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
-#~ msgstr ""
-#~ "Copyright (c) 2010 Michael Leibman, "
-#~ "http://github.com/mleibman/slickgrid⏎ ⏎ Permission "
-#~ "is hereby granted, free of charge, "
-#~ "to any person obtaining⏎ a copy of"
-#~ " this software and associated documentation"
-#~ " files (the⏎ \"Software\"), to deal "
-#~ "in the Software without restriction, "
-#~ "including⏎ without limitation the rights "
-#~ "to use, copy, modify, merge, publish,⏎"
-#~ " distribute, sublicense, and/or sell copies"
-#~ " of the Software, and to⏎ permit "
-#~ "persons to whom the Software is "
-#~ "furnished to do so, subject to⏎ "
-#~ "the following conditions:⏎ ⏎ The above"
-#~ " copyright notice and this permission "
-#~ "notice shall be⏎ included in all "
-#~ "copies or substantial portions of the"
-#~ " Software.⏎ ⏎ THE SOFTWARE IS "
-#~ "PROVIDED \"AS IS\", WITHOUT WARRANTY OF"
-#~ " ANY KIND,⏎ EXPRESS OR IMPLIED, "
-#~ "INCLUDING BUT NOT LIMITED TO THE "
-#~ "WARRANTIES OF⏎ MERCHANTABILITY, FITNESS FOR"
-#~ " A PARTICULAR PURPOSE AND⏎ NONINFRINGEMENT."
-#~ " IN NO EVENT SHALL THE AUTHORS "
-#~ "OR COPYRIGHT HOLDERS BE⏎ LIABLE FOR "
-#~ "ANY CLAIM, DAMAGES OR OTHER LIABILITY,"
-#~ " WHETHER IN AN ACTION⏎ OF CONTRACT,"
-#~ " TORT OR OTHERWISE, ARISING FROM, OUT"
-#~ " OF OR IN CONNECTION⏎ WITH THE "
-#~ "SOFTWARE OR THE USE OR OTHER "
-#~ "DEALINGS IN THE SOFTWARE."
-
-#~ msgid ""
-#~ "This compiled version of SlickGrid has"
-#~ " been obtained with the Google "
-#~ "Closure\n"
-#~ "Compiler, using the following command:\n"
-#~ "\n"
-#~ "java -jar compiler.jar --js=slick.core.js "
-#~ "--js=slick.grid.js --js=slick.editors.js "
-#~ "--js_output_file=slick.grid.min.js\n"
-#~ "\n"
-#~ "There are two other files required "
-#~ "for the SlickGrid view to work "
-#~ "properly:\n"
-#~ "\n"
-#~ " * jquery-ui-1.8.16.custom.min.js \n"
-#~ " * jquery.event.drag-2.0.min.js\n"
-#~ "\n"
-#~ "These are included in the Recline "
-#~ "source, but have not been included "
-#~ "in the\n"
-#~ "built file to make easier to handle compatibility problems.\n"
-#~ "\n"
-#~ "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
-#~ "\n"
-#~ "[1] https://developers.google.com/closure/compiler/"
-#~ msgstr ""
-#~ "このSlickGridのコンパイルされたバージョンはGoogle Closure "
-#~ "Compilerによって生成されています。生成には以下のコマンドを使用しています: java -jar "
-#~ "compiler.jar --js=slick.core.js --js=slick.grid.js "
-#~ "--js=slick.editors.js "
-#~ "--js_output_file=slick.grid.min.js。SlickGridビューを正しく動かすためには他に二つのファイルが必要です:"
-#~ " * jquery-ui-1.8.16.custom.min.js ⏎ * "
-#~ "jquery.event.drag-2.0.min.js 。これらはRecline"
-#~ "ソースに含まれていますが、互換性問題を容易に回避できるようにするためにビルドされたファイルには含まれていません。MIT-"
-#~ "LICENSE.txtファイルに含まれているSlickGridライセンスをチェックして下さい。⏎ ⏎ [1] "
-#~ "https://developers.google.com/closure/compiler/"
-
