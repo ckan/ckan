@@ -10,7 +10,7 @@
     {% block page_heading %}{{ _('Edit Member') if user else _('Add Member') }}{% endblock %}
   </h1>
   {% block form %}
-  <form class="dataset-form form-horizontal add-member-form" method='post'>
+  <form class="dataset-form form-horizontal add-member-form" method='post' id="add-member-form">
     <div class="row-fluid">
       <div class="control-group control-medium">
         {% if not user %}

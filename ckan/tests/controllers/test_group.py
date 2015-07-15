@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from nose.tools import assert_equal, assert_true
 
 from routes import url_for
@@ -149,3 +150,144 @@ class TestGroupControllerEdit(helpers.FunctionalTestBase):
         assert_equal(group.title, u'Science')
         assert_equal(group.description, 'Sciencey datasets')
         assert_equal(group.image_url, 'http://example.com/image.png')
+
+
+class TestGroupMembership(helpers.FunctionalTestBase):
+
+    def _create_group(self, owner_username, users=None):
+        '''Create a group with the owner defined by owner_username and
+        optionally with a list of other users.'''
+        if users is None:
+            users = []
+        context = {'user': owner_username, 'ignore_auth': True, }
+        group = helpers.call_action('group_create', context=context,
+                                    name='test-group', users=users)
+        return group
+
+    def _get_group_add_member_page(self, app, user, group_name):
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        url = url_for(controller='group',
+                      action='member_new',
+                      id=group_name)
+        response = app.get(url=url, extra_environ=env)
+        return env, response
+
+    def test_membership_list(self):
+        '''List group admins and members'''
+        app = self._get_test_app()
+        user_one = factories.User(fullname='User One', name='user-one')
+        user_two = factories.User(fullname='User Two')
+
+        other_users = [
+            {'name': user_two['id'], 'capacity': 'member'}
+        ]
+
+        group = self._create_group(user_one['name'], other_users)
+
+        member_list_url = url_for(controller='group', action='members',
+                                  id=group['id'])
+        member_list_response = app.get(member_list_url)
+
+        assert_true('2 members' in member_list_response)
+
+        member_response_html = BeautifulSoup(member_list_response.body)
+        user_names = [u.string for u in
+                      member_response_html.select('#member-table td.media a')]
+        roles = [r.next_sibling.next_sibling.string
+                    for r in member_response_html.select('#member-table td.media')]
+
+        user_roles = dict(zip(user_names, roles))
+
+        assert_equal(user_roles['User One'], 'Admin')
+        assert_equal(user_roles['User Two'], 'Member')
+
+    def test_membership_add(self):
+        '''Member can be added via add member page'''
+        app = self._get_test_app()
+        owner = factories.User(fullname='My Owner')
+        factories.User(fullname="My Fullname", name='my-user')
+        group = self._create_group(owner['name'])
+
+        env, response = self._get_group_add_member_page(app,
+                                                        owner,
+                                                        group['name'])
+
+        add_form = response.forms['add-member-form']
+        add_form['username'] = 'my-user'
+        add_response = submit_and_follow(app, add_form, env, 'save')
+
+        assert_true('2 members' in add_response)
+
+        add_response_html = BeautifulSoup(add_response.body)
+        user_names = [u.string for u in
+                      add_response_html.select('#member-table td.media a')]
+        roles = [r.next_sibling.next_sibling.string
+                    for r in add_response_html.select('#member-table td.media')]
+
+        user_roles = dict(zip(user_names, roles))
+
+        assert_equal(user_roles['My Owner'], 'Admin')
+        assert_equal(user_roles['My Fullname'], 'Member')
+
+    def test_admin_add(self):
+        '''Admin can be added via add member page'''
+        app = self._get_test_app()
+        owner = factories.User(fullname='My Owner')
+        factories.User(fullname="My Fullname", name='my-user')
+        group = self._create_group(owner['name'])
+
+        env, response = self._get_group_add_member_page(app,
+                                                        owner,
+                                                        group['name'])
+
+        add_form = response.forms['add-member-form']
+        add_form['username'] = 'my-user'
+        add_form['role'] = 'admin'
+        add_response = submit_and_follow(app, add_form, env, 'save')
+
+        assert_true('2 members' in add_response)
+
+        add_response_html = BeautifulSoup(add_response.body)
+        user_names = [u.string for u in
+                      add_response_html.select('#member-table td.media a')]
+        roles = [r.next_sibling.next_sibling.string
+                    for r in add_response_html.select('#member-table td.media')]
+
+        user_roles = dict(zip(user_names, roles))
+
+        assert_equal(user_roles['My Owner'], 'Admin')
+        assert_equal(user_roles['My Fullname'], 'Admin')
+
+    def test_remove_member(self):
+        '''Member can be removed from group'''
+        app = self._get_test_app()
+        user_one = factories.User(fullname='User One', name='user-one')
+        user_two = factories.User(fullname='User Two')
+
+        other_users = [
+            {'name': user_two['id'], 'capacity': 'member'}
+        ]
+
+        group = self._create_group(user_one['name'], other_users)
+
+        remove_url = url_for(controller='group', action='member_delete',
+                             user=user_two['id'], id=group['id'])
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        remove_response = app.post(remove_url, extra_environ=env, status=302)
+        # redirected to member list after removal
+        remove_response = remove_response.follow()
+
+        assert_true('Group member has been deleted.' in remove_response)
+        assert_true('1 members' in remove_response)
+
+        remove_response_html = BeautifulSoup(remove_response.body)
+        user_names = [u.string for u in
+                      remove_response_html.select('#member-table td.media a')]
+        roles = [r.next_sibling.next_sibling.string
+                    for r in remove_response_html.select('#member-table td.media')]
+
+        user_roles = dict(zip(user_names, roles))
+
+        assert_equal(len(user_roles.keys()), 1)
+        assert_equal(user_roles['User One'], 'Admin')
