@@ -194,7 +194,8 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         user_names = [u.string for u in
                       member_response_html.select('#member-table td.media a')]
         roles = [r.next_sibling.next_sibling.string
-                    for r in member_response_html.select('#member-table td.media')]
+                 for r
+                 in member_response_html.select('#member-table td.media')]
 
         user_roles = dict(zip(user_names, roles))
 
@@ -222,7 +223,7 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         user_names = [u.string for u in
                       add_response_html.select('#member-table td.media a')]
         roles = [r.next_sibling.next_sibling.string
-                    for r in add_response_html.select('#member-table td.media')]
+                 for r in add_response_html.select('#member-table td.media')]
 
         user_roles = dict(zip(user_names, roles))
 
@@ -251,7 +252,7 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         user_names = [u.string for u in
                       add_response_html.select('#member-table td.media a')]
         roles = [r.next_sibling.next_sibling.string
-                    for r in add_response_html.select('#member-table td.media')]
+                 for r in add_response_html.select('#member-table td.media')]
 
         user_roles = dict(zip(user_names, roles))
 
@@ -285,7 +286,8 @@ class TestGroupMembership(helpers.FunctionalTestBase):
         user_names = [u.string for u in
                       remove_response_html.select('#member-table td.media a')]
         roles = [r.next_sibling.next_sibling.string
-                    for r in remove_response_html.select('#member-table td.media')]
+                 for r in
+                 remove_response_html.select('#member-table td.media')]
 
         user_roles = dict(zip(user_names, roles))
 
