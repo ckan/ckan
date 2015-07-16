@@ -6,6 +6,7 @@
 # <internet@davidread.org>, 2011
 # Kalman Kemenczy <kkemenczy@gmail.com>, 2011-2012
 # kitzinger <kitzinger@gmail.com>, 2012
+# Marietta Le <marietta@boun.cr>, 2015
 # Open Knowledge Foundation <translations@okfn.org>, 2011
 # Sean Hammond <sean.hammond@okfn.org>, 2012
 # stf <stefan.marsiske@gmail.com>, 2011
@@ -16,9 +17,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2014-08-12 20:59+0000\n"
-"Last-Translator: vargaviktor <viktor.varga@gmail.com>\n"
-"Language-Team: Hungarian (http://www.transifex.com/projects/p/ckan/language/hu/)\n"
+"PO-Revision-Date: 2015-03-13 14:50+0000\n"
+"Last-Translator: Marietta Le <marietta@boun.cr>\n"
+"Language-Team: Hungarian (http://www.transifex.com/p/ckan/language/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -60,7 +61,7 @@ msgstr "Stílus"
 
 #: ckan/controllers/admin.py:37
 msgid "Site Tag Line"
-msgstr ""
+msgstr "Oldal tag sor"
 
 #: ckan/controllers/admin.py:38
 msgid "Site Tag Logo"
@@ -84,7 +85,7 @@ msgstr "Rólunk"
 
 #: ckan/controllers/admin.py:39
 msgid "About page text"
-msgstr ""
+msgstr "Rólunk oldal szövege"
 
 #: ckan/controllers/admin.py:40
 msgid "Intro Text"
@@ -3116,7 +3117,7 @@ msgstr ""
 #: ckanext/organizations/templates_legacy/organizations/apply_form.html:21
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:99
 msgid "Organization"
-msgstr ""
+msgstr "Szervezet"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:49
 msgid "Select an organization..."
@@ -5852,7 +5853,7 @@ msgstr ""
 
 #: ckanext/organizations/templates_legacy/organizations/index.html:11
 msgid "What Are Organizations?"
-msgstr ""
+msgstr "Mik a szervezetek?"
 
 #: ckanext/organizations/templates_legacy/organizations/index.html:12
 msgid ""
@@ -5886,7 +5887,7 @@ msgstr ""
 #: ckanext/organizations/templates_legacy/organizations/users.html:5
 #: ckanext/organizations/templates_legacy/organizations/users.html:6
 msgid "Users:"
-msgstr ""
+msgstr "Felhasználók"
 
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:34
 msgid "There are no users currently in this organization."
@@ -5948,7 +5949,7 @@ msgstr "Adatkészlet száma"
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
 msgid "Date"
-msgstr ""
+msgstr "Dátum"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
@@ -6039,7 +6040,7 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:178
 msgid "Total Number of Datasets"
-msgstr ""
+msgstr "Adatkészlet száma"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:60
 msgid "Revisions to Datasets per week"
