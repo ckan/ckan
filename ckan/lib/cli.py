@@ -2418,10 +2418,6 @@ Not used when using the `-d` option.''')
         if not search_data_dict.get('q'):
             search_data_dict['q'] = '*:*'
 
-        if ('dataset_type:dataset' not in search_data_dict['fq'] and
-                'dataset_type:dataset' not in search_data_dict['fq_list']):
-            search_data_dict['fq_list'].append('dataset_type:dataset')
-
         query = p.toolkit.get_action('package_search')(
             {'ignore_capacity_check': True},
             search_data_dict)
