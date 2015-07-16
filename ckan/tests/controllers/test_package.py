@@ -764,3 +764,110 @@ class TestSearch(helpers.FunctionalTestBase):
             # get redirected ...
             assert plugin.calls['before_search'] == 1, plugin.calls
             assert plugin.calls['after_search'] == 1, plugin.calls
+
+
+class TestPackageFollow(helpers.FunctionalTestBase):
+
+    def test_package_follow(self):
+        app = self._get_test_app()
+
+        user = factories.User()
+        package = factories.Dataset()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        follow_url = url_for(controller='package',
+                             action='follow',
+                             id=package['id'])
+        response = app.post(follow_url, extra_environ=env, status=302)
+        response = response.follow()
+        assert_true('You are now following {0}'
+                    .format(package['title'])
+                    in response)
+
+    def test_package_follow_not_exist(self):
+        '''Pass an id for a package that doesn't exist'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='package',
+                             action='follow',
+                             id='not-here')
+        response = app.post(follow_url, extra_environ=env, status=302)
+        response = response.follow(status=404)
+        assert_true('Dataset not found' in response)
+
+    def test_package_unfollow(self):
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        package = factories.Dataset()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='package',
+                             action='follow',
+                             id=package['id'])
+        app.post(follow_url, extra_environ=env, status=302)
+
+        unfollow_url = url_for(controller='package', action='unfollow',
+                               id=package['id'])
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow()
+
+        assert_true('You are no longer following {0}'
+                    .format(package['title'])
+                    in unfollow_response)
+
+    def test_package_unfollow_not_following(self):
+        '''Unfollow a package not currently following'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        package = factories.Dataset()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        unfollow_url = url_for(controller='package', action='unfollow',
+                               id=package['id'])
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow()
+
+        assert_true('You are not following {0}'.format(package['id'])
+                    in unfollow_response)
+
+    def test_package_unfollow_not_exist(self):
+        '''Unfollow a package that doesn't exist.'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        unfollow_url = url_for(controller='package', action='unfollow',
+                               id='not-here')
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow(status=404)
+        assert_true('Dataset not found' in unfollow_response)
+
+    def test_package_follower_list(self):
+        '''Following users appear on followers list page.'''
+        app = self._get_test_app()
+
+        user_one = factories.Sysadmin()
+        package = factories.Dataset()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='package',
+                             action='follow',
+                             id=package['id'])
+        app.post(follow_url, extra_environ=env, status=302)
+
+        followers_url = url_for(controller='package', action='followers',
+                                id=package['id'])
+
+        # Only sysadmins can view the followers list pages
+        followers_response = app.get(followers_url, extra_environ=env,
+                                     status=200)
+        assert_true(user_one['display_name'] in followers_response)
