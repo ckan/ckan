@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from nose.tools import assert_true, assert_false, assert_equal
 
 from routes import url_for
@@ -388,3 +389,116 @@ class TestUserFollow(helpers.FunctionalTestBase):
         followers_response = app.get(followers_url, extra_environ=env,
                                      status=200)
         assert_true(user_one['display_name'] in followers_response)
+
+
+class TestUserSearch(helpers.FunctionalTestBase):
+
+    def test_user_page_anon_access(self):
+        '''Anon users can access the user list page'''
+        app = self._get_test_app()
+
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200)
+        assert_true('<title>All Users - CKAN</title>'
+                    in user_response)
+
+    def test_user_page_lists_users(self):
+        '''/users/ lists registered users'''
+        app = self._get_test_app()
+        factories.User(fullname='User One')
+        factories.User(fullname='User Two')
+        factories.User(fullname='User Three')
+
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200)
+
+        user_response_html = BeautifulSoup(user_response.body)
+        user_list = user_response_html.select('ul.user-list li')
+        # two pseudo users + the users we've added
+        assert_equal(len(user_list), 2 + 3)
+
+        user_names = [u.text.strip() for u in user_list]
+        assert_true('User One' in user_names)
+        assert_true('User Two' in user_names)
+        assert_true('User Three' in user_names)
+
+    def test_user_page_doesnot_list_deleted_users(self):
+        '''/users/ doesn't list deleted users'''
+        app = self._get_test_app()
+        factories.User(fullname='User One', state='deleted')
+        factories.User(fullname='User Two')
+        factories.User(fullname='User Three')
+
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200)
+
+        user_response_html = BeautifulSoup(user_response.body)
+        user_list = user_response_html.select('ul.user-list li')
+        # two pseudo users + the users we've added
+        assert_equal(len(user_list), 2 + 2)
+
+        user_names = [u.text.strip() for u in user_list]
+        assert_true('User One' not in user_names)
+        assert_true('User Two' in user_names)
+        assert_true('User Three' in user_names)
+
+    def test_user_page_anon_search(self):
+        '''Anon users can search for users by username.'''
+        app = self._get_test_app()
+        factories.User(fullname='User One', email='useroneemail@example.com')
+        factories.User(fullname='Person Two')
+        factories.User(fullname='Person Three')
+
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200)
+        search_form = user_response.forms['user-search-form']
+        search_form['q'] = 'Person'
+        search_response = webtest_submit(search_form, status=200)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        user_list = search_response_html.select('ul.user-list li')
+        assert_equal(len(user_list), 2)
+
+        user_names = [u.text.strip() for u in user_list]
+        assert_true('Person Two' in user_names)
+        assert_true('Person Three' in user_names)
+        assert_true('User One' not in user_names)
+
+    def test_user_page_anon_search_not_by_email(self):
+        '''Anon users can not search for users by email.'''
+        app = self._get_test_app()
+        factories.User(fullname='User One', email='useroneemail@example.com')
+        factories.User(fullname='Person Two')
+        factories.User(fullname='Person Three')
+
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200)
+        search_form = user_response.forms['user-search-form']
+        search_form['q'] = 'useroneemail@example.com'
+        search_response = webtest_submit(search_form, status=200)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        user_list = search_response_html.select('ul.user-list li')
+        assert_equal(len(user_list), 0)
+
+    def test_user_page_sysadmin_user(self):
+        '''Sysadmin can search for users by email.'''
+        app = self._get_test_app()
+        sysadmin = factories.Sysadmin()
+
+        factories.User(fullname='User One', email='useroneemail@example.com')
+        factories.User(fullname='Person Two')
+        factories.User(fullname='Person Three')
+
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200, extra_environ=env)
+        search_form = user_response.forms['user-search-form']
+        search_form['q'] = 'useroneemail@example.com'
+        search_response = webtest_submit(search_form, status=200,
+                                         extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        user_list = search_response_html.select('ul.user-list li')
+        assert_equal(len(user_list), 1)
+        assert_equal(user_list[0].text.strip(), 'User One')
