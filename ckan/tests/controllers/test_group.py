@@ -170,6 +170,68 @@ class TestGroupRead(helpers.FunctionalTestBase):
         assert_in(self.group['description'], response)
 
 
+class TestGroupDelete(helpers.FunctionalTestBase):
+    def setup(self):
+        super(TestGroupDelete, self).setup()
+        self.app = helpers._get_test_app()
+        self.user = factories.User()
+        self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
+        self.group = factories.Group(user=self.user)
+
+    def test_owner_delete(self):
+        response = self.app.get(url=url_for(controller='group',
+                                            action='delete',
+                                            id=self.group['id']),
+                                status=200,
+                                extra_environ=self.user_env)
+
+        form = response.forms['group-confirm-delete-form']
+        response = submit_and_follow(self.app, form, name='delete',
+                                     extra_environ=self.user_env)
+        group = helpers.call_action('group_show',
+                                    id=self.group['id'])
+        assert_equal(group['state'], 'deleted')
+
+    def test_sysadmin_delete(self):
+        sysadmin = factories.Sysadmin()
+        extra_environ = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        response = self.app.get(url=url_for(controller='group',
+                                            action='delete',
+                                            id=self.group['id']),
+                                status=200,
+                                extra_environ=extra_environ)
+
+        form = response.forms['group-confirm-delete-form']
+        response = submit_and_follow(self.app, form, name='delete',
+                                     extra_environ=self.user_env)
+        group = helpers.call_action('group_show',
+                                    id=self.group['id'])
+        assert_equal(group['state'], 'deleted')
+
+    def test_non_authorized_user_trying_to_delete_fails(self):
+        user = factories.User()
+        extra_environ = {'REMOTE_USER': user['name'].encode('ascii')}
+        self.app.get(url=url_for(controller='group',
+                                 action='delete',
+                                 id=self.group['id']),
+                     status=401,
+                     extra_environ=extra_environ)
+
+        group = helpers.call_action('group_show',
+                                    id=self.group['id'])
+        assert_equal(group['state'], 'active')
+
+    def test_anon_user_trying_to_delete_fails(self):
+        self.app.get(url=url_for(controller='group',
+                                 action='delete',
+                                 id=self.group['id']),
+                     status=302)  # redirects to login form
+
+        group = helpers.call_action('group_show',
+                                    id=self.group['id'])
+        assert_equal(group['state'], 'active')
+
+
 class TestGroupFollow(helpers.FunctionalTestBase):
 
     def test_group_follow(self):
