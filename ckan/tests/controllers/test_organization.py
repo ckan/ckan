@@ -264,16 +264,21 @@ class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
 
 class TestOrganizationSearch(helpers.FunctionalTestBase):
 
+    '''Test searching for organizations.'''
+
+    def setup(self):
+        super(TestOrganizationSearch, self).setup()
+        self.app = self._get_test_app()
+        factories.Organization(name='org-one', title='AOrg One')
+        factories.Organization(name='org-two', title='AOrg Two')
+        factories.Organization(name='org-three', title='Org Three')
+        self.search_url = url_for(controller='organization', action='index')
+
     def test_organization_search(self):
         '''Requesting organization search (index) returns list of
         organizations and search form.'''
-        app = self._get_test_app()
-        factories.Organization(name='org-one', title='Org One')
-        factories.Organization(name='org-two', title='Org Two')
-        factories.Organization(name='org-three', title='Org Three')
 
-        search_url = url_for(controller='organization', action='index')
-        index_response = app.get(search_url)
+        index_response = self.app.get(self.search_url)
         index_response_html = BeautifulSoup(index_response.body)
         org_names = index_response_html.select('ul.media-grid '
                                                'li.media-item '
@@ -281,20 +286,15 @@ class TestOrganizationSearch(helpers.FunctionalTestBase):
         org_names = [n.string for n in org_names]
 
         assert_equal(len(org_names), 3)
-        assert_true('Org One' in org_names)
-        assert_true('Org Two' in org_names)
+        assert_true('AOrg One' in org_names)
+        assert_true('AOrg Two' in org_names)
         assert_true('Org Three' in org_names)
 
     def test_organization_search_results(self):
         '''Searching via organization search form returns list of expected
         organizations.'''
-        app = self._get_test_app()
-        factories.Organization(name='org-one', title='AOrg One')
-        factories.Organization(name='org-two', title='AOrg Two')
-        factories.Organization(name='org-three', title='Org Three')
 
-        search_url = url_for(controller='organization', action='index')
-        index_response = app.get(search_url)
+        index_response = self.app.get(self.search_url)
         search_form = index_response.forms['organization-search-form']
         search_form['q'] = 'AOrg'
         search_response = webtest_submit(search_form)
@@ -312,13 +312,8 @@ class TestOrganizationSearch(helpers.FunctionalTestBase):
 
     def test_organization_search_no_results(self):
         '''Searching with a term that doesn't apply returns no results.'''
-        app = self._get_test_app()
-        factories.Organization(name='org-one', title='AOrg One')
-        factories.Organization(name='org-two', title='AOrg Two')
-        factories.Organization(name='org-three', title='Org Three')
 
-        search_url = url_for(controller='organization', action='index')
-        index_response = app.get(search_url)
+        index_response = self.app.get(self.search_url)
         search_form = index_response.forms['organization-search-form']
         search_form['q'] = 'No Results Here'
         search_response = webtest_submit(search_form)
