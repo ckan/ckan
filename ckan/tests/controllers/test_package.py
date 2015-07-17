@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from nose.tools import (
     assert_equal,
     assert_not_equal,
@@ -734,9 +735,6 @@ class TestSearch(helpers.FunctionalTestBase):
         super(cls, cls).setup_class()
         helpers.reset_db()
 
-    def setup(self):
-        model.repo.rebuild_db()
-
     def test_search_basic(self):
         dataset1 = factories.Dataset()
 
@@ -764,6 +762,128 @@ class TestSearch(helpers.FunctionalTestBase):
             # get redirected ...
             assert plugin.calls['before_search'] == 1, plugin.calls
             assert plugin.calls['after_search'] == 1, plugin.calls
+
+    def test_search_page_request(self):
+        '''Requesting package search page returns list of datasets.'''
+        app = self._get_test_app()
+        factories.Dataset(name="dataset-one", title='Dataset One')
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url)
+
+        assert_true('3 datasets found' in search_response)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [n.string for n in ds_titles]
+
+        assert_equal(len(ds_titles), 3)
+        assert_true('Dataset One' in ds_titles)
+        assert_true('Dataset Two' in ds_titles)
+        assert_true('Dataset Three' in ds_titles)
+
+    def test_search_page_results(self):
+        '''Searching for datasets returns expected results.'''
+        app = self._get_test_app()
+        factories.Dataset(name="dataset-one", title='Dataset One')
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url)
+
+        search_form = search_response.forms['dataset-search-form']
+        search_form['q'] = 'One'
+        search_results = webtest_submit(search_form)
+
+        assert_true('1 dataset found' in search_results)
+
+        search_response_html = BeautifulSoup(search_results.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [n.string for n in ds_titles]
+
+        assert_equal(len(ds_titles), 1)
+        assert_true('Dataset One' in ds_titles)
+
+    def test_search_page_no_results(self):
+        '''Search with non-returning phrase returns no results.'''
+        app = self._get_test_app()
+        factories.Dataset(name="dataset-one", title='Dataset One')
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url)
+
+        search_form = search_response.forms['dataset-search-form']
+        search_form['q'] = 'Nout'
+        search_results = webtest_submit(search_form)
+
+        assert_true('No datasets found for &#34;Nout&#34;' in search_results)
+
+        search_response_html = BeautifulSoup(search_results.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [n.string for n in ds_titles]
+
+        assert_equal(len(ds_titles), 0)
+
+    def test_search_page_results_tag(self):
+        '''Searching with a tag returns expected results.'''
+        app = self._get_test_app()
+        factories.Dataset(name="dataset-one", title='Dataset One',
+                          tags=[{'name': 'my-tag'}])
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url)
+
+        assert_true('/dataset?tags=my-tag' in search_response)
+
+        tag_search_response = app.get('/dataset?tags=my-tag')
+
+        assert_true('1 dataset found' in tag_search_response)
+
+        search_response_html = BeautifulSoup(tag_search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [n.string for n in ds_titles]
+
+        assert_equal(len(ds_titles), 1)
+        assert_true('Dataset One' in ds_titles)
+
+    def test_search_page_results_private(self):
+        '''Private datasets don't show up in dataset search results.'''
+        app = self._get_test_app()
+        org = factories.Organization()
+
+        factories.Dataset(name="dataset-one", title='Dataset One',
+                          owner_org=org['id'], private=True)
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [n.string for n in ds_titles]
+
+        assert_equal(len(ds_titles), 2)
+        assert_true('Dataset One' not in ds_titles)
+        assert_true('Dataset Two' in ds_titles)
+        assert_true('Dataset Three' in ds_titles)
 
 
 class TestPackageFollow(helpers.FunctionalTestBase):
