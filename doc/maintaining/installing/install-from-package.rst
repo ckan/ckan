@@ -35,7 +35,7 @@ CKAN:
 
    .. parsed-literal::
 
-      wget \http://packaging.ckan.org/|latest_package_name|
+       wget \http://packaging.ckan.org/|latest_package_name|
 
    .. note:: If ``wget`` is not present, you can install it
        via::
@@ -87,6 +87,22 @@ CKAN:
    then edit the :ref:`sqlalchemy.url` option in your |production.ini| file and
    set the correct password, database and database user.
 
+-------------------------------------------------------
+3. Update the configuration and initialize the database
+-------------------------------------------------------
+
+#. Edit the :ref:`config_file` (|production.ini|) to set up the following options:
+
+    site_id
+      Each CKAN site should have a unique ``site_id``, for example::
+
+        ckan.site_id = default
+
+    site_url
+      Provide the site's URL. For example::
+
+        ckan.site_url = http://demo.ckan.org
+
 #. Initialize your CKAN database by running this command in a terminal::
 
     sudo ckan db init
@@ -98,7 +114,7 @@ CKAN:
    instructions in :doc:`/maintaining/filestore`.
 
 ---------------------------
-3. Restart Apache and Nginx
+4. Restart Apache and Nginx
 ---------------------------
 
 Restart Apache and Nginx by running this command in a terminal::
@@ -107,7 +123,7 @@ Restart Apache and Nginx by running this command in a terminal::
     sudo service nginx restart
 
 ---------------
-4. You're done!
+5. You're done!
 ---------------
 
 Open http://localhost in your web browser. You should see the CKAN front

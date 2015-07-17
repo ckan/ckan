@@ -53,6 +53,8 @@ details on how to this check :doc:`/extensions/remote-config-update`.
 
 
 
+.. _config_file:
+
 CKAN configuration file
 ***********************
 
