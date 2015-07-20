@@ -7,11 +7,59 @@
 Changelog
 ---------
 
-v2.4
-====
+v2.4.0 2015-07-XX
+=================
+
+Note: This version requires a database upgrade
+
+Note: This version requires a Solr schema upgrade
+
+Major: (none)
+
+Minor:
+ * API calls now faster: ``group_show``, ``organization_show``, ``user_show``,
+   ``package_show``, ``vocabulary_show`` & ``tag_show`` (#1886, #2206, #2207,
+   #2376)
+ * Require/validate current password before allowing a password change (#1940)
+ * Added ``organization_autocomplete`` action (#2125)
+ * Default authorization no longer allows anyone to create datasets etc (#2164)
+ * ``organization_list_for_user`` now returns organizations in hierarchy if they
+   exist for roles set in ``ckan.auth.roles_that_cascade_to_sub_groups`` (#2199)
+ * Improved accessibility (text based browsers) focused on the page header
+   (#2258)
+ * Improved IGroupForm for better customizing groups and organization behaviour
+   (#2354)
+ * Admin page can now be extended to have new tabs (#2351)
+ * CKAN config can now be set from environment variables and via the API (#2429)
+
+
+Bug fixes:
+ * Command line ``paster user`` failed for non-ascii characters (#1244)
+ * Memory leak fixed in datastore API (#1847)
+ * Modifying resource didn't update it's last updated timestamp (#1874)
+ * Datastore didn't update if you uploaded a new file of the same name as the
+   existing file (#2147)
+ * Files with really long file were skipped by datapusher (#2057)
+ * Multi-lingual Solr schema is now updated so it works again (#2161)
+ * Resource views didn't display when embedded in another site (#2238)
+ * ``resource_update`` failed if you supplied a revision_id (#2340)
+ * Recline could not plot GeoJSON on a map (#2387)
+ * Dataset create form 404 error if you added a resource but left it blank (#2392)
+ * Editing a resource view for a file that was UTF-8 and had a BOM gave an
+   error (#2401)
+ * Email invites had the email address changed to lower-case (#2415)
+ * Default resource views not created when using a custom dataset schema (#2421)
+ * If the licences pick-list was customized to remove some, datasets with old
+   values had them overwritten when edited (#2472)
+ * Resource proxy failed if HEAD responds with 403 (#2530)
+ * Resource views for non-default dataset types couldn't be created (#2532)
 
 Changes and deprecations
 ------------------------
+
+* The default of allowing anyone to create datasets, groups and organizations
+  has been changed to False. It is advised to ensure you set all of the
+  :ref:`config-authorization` options explicitly in your CKAN config. (#2164)
 
 * The ``package_show`` API call does not return the ``tracking_summary``,
   keys in the dataset or resources by default any more.
@@ -23,27 +71,37 @@ Changes and deprecations
   `new_tests` directory has moved to `tests` and the `new_authz.py`
   module has been renamed `authz.py`. Code that imports names from the
   old locations will continue to work in this release but will issue
-  a deprecation warning.
+  a deprecation warning. (#1753)
 
-* Add text to account links in header, fixes text based browser support #2258
+* ``group_show`` and ``organization_show`` API calls no longer return the
+  datasets by default (#2206)
 
-* Add middleware that cleans up the response string after it has been
-  served, stabilizes memory usage for large requests #1847
+  Custom templates or users of this API call will need to pass
+  ``include_datasets=True`` to include datasets in the response.
 
 * The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the 
   ``packages`` key - i.e. datasets that use the vocabulary or tag. 
   However ``tag_show`` now has an ``include_datasets`` option. (#1886)
 
-* `organization_list_for_user` now returns organizations in hierarchy if they
-  exist for roles set in `ckan.auth.roles_that_cascade_to_sub_groups`.
+* Config option ``site_url`` is now required - CKAN will not abort during
+  start-up if it is not set. (#1976)
 
-* Update license keys to match opendefinition.org #2110
+v2.3.1 2015-07-XX
+=================
 
-* The ``group_show`` and ``organization_show`` API calls do not return
-  ``datasets`` by default any more.
+Bug fixes:
+ * Resource views won't display when embedded in another site (#2238)
+ * ``resource_update`` failed if you supplied a revision_id (#2340)
+ * Recline could not plot GeoJSON on a map (#2387)
+ * Dataset create form 404 error if you added a resource but left it blank (#2392)
+ * Editing a resource view for a file that was UTF-8 and had a BOM gave an
+   error (#2401)
+ * Email invites had the email address changed to lower-case (#2415)
+ * Default resource views not created when using a custom dataset schema (#2421)
+ * If the licences pick-list was customized to remove some, datasets with old
+   values had them overwritten when edited (#2472)
+ * Resource views for non-default dataset types couldn't be created (#2532)
 
-  Custom templates or users of this API call will need to pass
-  ``include_datasets=True`` to include datasets in the response.
 
 v2.3 2015-03-04
 ===============
@@ -200,7 +258,6 @@ Bug fixes:
  * Make resource_create auth work against package_update (#2037)
  * Fix DataStore permissions check on startup (#1374)
  * Fix datastore docs link (#2044)
- * Fix resource extras getting lost on resource update (#2158)
  * Clean up field names before rendering the Recline table (#2319)
  * Don't "normalize" resource URL in recline view (#2324)
  * Don't assume resource format is there on text preview (#2320)
