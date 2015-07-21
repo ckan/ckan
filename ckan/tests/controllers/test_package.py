@@ -5,14 +5,15 @@ from nose.tools import (
     assert_true,
 )
 
-
 from routes import url_for
 
 import ckan.model as model
 import ckan.plugins as p
+from ckan.lib import search
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+from ckan.tests.helpers import assert_in
 
 
 webtest_submit = helpers.webtest_submit
@@ -29,7 +30,7 @@ def _get_package_new_page(app):
     return env, response
 
 
-class TestPackageControllerNew(helpers.FunctionalTestBase):
+class TestPackageNew(helpers.FunctionalTestBase):
     def test_form_renders(self):
         app = self._get_test_app()
         env, response = _get_package_new_page(app)
@@ -112,6 +113,30 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         assert_equal(pkg.resources[1].url, u'http://example.com/resource1')
         assert_equal(pkg.state, 'active')
 
+    def test_resource_uploads(self):
+        app = self._get_test_app()
+        env, response = _get_package_new_page(app)
+        form = response.forms['dataset-edit']
+        form['name'] = u'complete-package-with-two-resources'
+
+        response = submit_and_follow(app, form, env, 'save')
+        form = response.forms['resource-edit']
+        form['upload'] = ('README.rst', b'data')
+
+        response = submit_and_follow(app, form, env, 'save', 'go-metadata')
+        pkg = model.Package.by_name(u'complete-package-with-two-resources')
+        assert_equal(pkg.resources[0].url_type, u'upload')
+        assert_equal(pkg.state, 'active')
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_download',
+                id=pkg.id,
+                resource_id=pkg.resources[0].id
+            ),
+        )
+        assert_equal('data', response.body)
+
     def test_previous_button_works(self):
         app = self._get_test_app()
         env, response = _get_package_new_page(app)
@@ -162,8 +187,10 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         '''
         user = factories.User()
         # user is admin of org.
-        org = factories.Organization(name="my-org",
-                                     users=[{'name': user['id'], 'capacity': 'admin'}])
+        org = factories.Organization(
+            name="my-org",
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
 
         app = self._get_test_app()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
@@ -334,6 +361,172 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         # The organization id is in the response in a value attribute
         assert 'value="{0}"'.format(org['id']) in pkg_edit_response
 
+    def test_unauthed_user_creating_dataset(self):
+        app = self._get_test_app()
+
+        # provide REMOTE_ADDR to idenfity as remote user, see
+        # BaseController._identify_user() for details
+        response = app.post(url=url_for(controller='package', action='new'),
+                            extra_environ={'REMOTE_ADDR': '127.0.0.1'})
+        response = response.follow()
+        assert_in('Unauthorized to create a package', response.body)
+
+
+class TestPackageEdit(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(cls, cls).setup_class()
+        helpers.reset_db()
+        search.clear()
+
+    def test_organization_admin_can_edit(self):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=organization['id'])
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(controller='package',
+                    action='edit',
+                    id=dataset['name']),
+            extra_environ=env,
+        )
+        form = response.forms['dataset-edit']
+        form['notes'] = u'edited description'
+        submit_and_follow(app, form, env, 'save')
+
+        result = helpers.call_action('package_show', id=dataset['id'])
+        assert_equal(u'edited description', result['notes'])
+
+    def test_organization_editor_can_edit(self):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'editor'}]
+        )
+        dataset = factories.Dataset(owner_org=organization['id'])
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(controller='package',
+                    action='edit',
+                    id=dataset['name']),
+            extra_environ=env,
+        )
+        form = response.forms['dataset-edit']
+        form['notes'] = u'edited description'
+        submit_and_follow(app, form, env, 'save')
+
+        result = helpers.call_action('package_show', id=dataset['id'])
+        assert_equal(u'edited description', result['notes'])
+
+    def test_organization_member_cannot_edit(self):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}]
+        )
+        dataset = factories.Dataset(owner_org=organization['id'])
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(controller='package',
+                    action='edit',
+                    id=dataset['name']),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(401, response.status_int)
+
+    def test_user_not_in_organization_cannot_edit(self):
+        user = factories.User()
+        organization = factories.Organization()
+        dataset = factories.Dataset(owner_org=organization['id'])
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(controller='package',
+                    action='edit',
+                    id=dataset['name']),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(401, response.status_int)
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(controller='package',
+                    action='post',
+                    id=dataset['name']),
+            {'notes': 'edited description'},
+            extra_environ=env,
+        )
+        response = response.follow()
+        assert_in('not authorized to edit {0}'.format(dataset['name']),
+                  response.body)
+
+    def test_anonymous_user_cannot_edit(self):
+        organization = factories.Organization()
+        dataset = factories.Dataset(owner_org=organization['id'])
+        app = helpers._get_test_app()
+        response = app.get(
+            url_for(controller='package',
+                    action='edit',
+                    id=dataset['name']),
+        )
+        # anonymous users get redirected to the login page
+        response = response.follow()
+        assert_in('not authorized to edit {0}'.format(dataset['name']),
+                  response.body)
+
+        response = app.post(
+            url_for(controller='package',
+                    action='edit',
+                    id=dataset['name']),
+            {'notes': 'edited description'},
+            expect_errors=True,
+
+        )
+        response = response.follow()
+        assert_in('not authorized to edit {0}'.format(dataset['name']),
+                  response.body)
+
+    def test_validation_errors_for_dataset_name_appear(self):
+        '''fill out a bad dataset set name and make sure errors appear'''
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=organization['id'])
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(controller='package',
+                    action='edit',
+                    id=dataset['name']),
+            extra_environ=env,
+        )
+        form = response.forms['dataset-edit']
+        form['name'] = u'this is not a valid name'
+        response = webtest_submit(form, 'save', status=200, extra_environ=env)
+        assert_in('The form contains invalid entries', response.body)
+
+        assert_in('Name: Must be purely lowercase alphanumeric (ascii) '
+                  'characters and these symbols: -_', response.body)
+
+    def test_edit_a_dataset_that_does_not_exist_404s(self):
+        user = factories.User()
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(controller='package',
+                    action='edit',
+                    id='does-not-exist'),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(404, response.status_int)
+
 
 class TestPackageRead(helpers.FunctionalTestBase):
     @classmethod
@@ -351,6 +544,71 @@ class TestPackageRead(helpers.FunctionalTestBase):
                                    id=dataset['name']))
         response.mustcontain('Test Dataset')
         response.mustcontain('Just another test dataset')
+
+    def test_organization_members_can_read_private_datasets(self):
+        members = {
+            'member': factories.User(),
+            'editor': factories.User(),
+            'admin': factories.User(),
+            'sysadmin': factories.Sysadmin()
+        }
+        organization = factories.Organization(
+            users=[
+                {'name': members['member']['id'], 'capacity': 'member'},
+                {'name': members['editor']['id'], 'capacity': 'editor'},
+                {'name': members['admin']['id'], 'capacity': 'admin'},
+            ]
+        )
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        app = helpers._get_test_app()
+
+        for user, user_dict in members.items():
+            response = app.get(
+                url_for(
+                    controller='package',
+                    action='read',
+                    id=dataset['name']
+                ),
+                extra_environ={
+                    'REMOTE_USER': user_dict['name'].encode('ascii'),
+                },
+            )
+            assert_in('Test Dataset', response.body)
+            assert_in('Just another test dataset', response.body)
+
+    def test_anonymous_users_cannot_read_private_datasets(self):
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        app = helpers._get_test_app()
+        response = app.get(
+            url_for(controller='package', action='read', id=dataset['name']),
+        )
+        # get redirected if you are not logged in
+        response = response.follow()
+        assert_in('Unauthorized to read package {0}'.format(dataset['name']),
+                  response.body)
+
+    def test_user_not_in_organization_cannot_read_private_datasets(self):
+        user = factories.User()
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        app = helpers._get_test_app()
+        response = app.get(
+            url_for(controller='package', action='read', id=dataset['name']),
+            extra_environ={'REMOTE_USER': user['name'].encode('ascii')},
+            expect_errors=True
+        )
+        assert_equal(401, response.status_int)
+        assert_in('Unauthorized to read package', response.body)
 
     def test_read_rdf(self):
         dataset1 = factories.Dataset()
@@ -485,7 +743,252 @@ class TestPackageDelete(helpers.FunctionalTestBase):
         assert_equal(200, response.status_int)
 
 
-class TestResourceRead(helpers.FunctionalTestBase):
+class TestResourceNew(helpers.FunctionalTestBase):
+    def test_manage_dataset_resource_listing_page(self):
+        user = factories.User()
+        organization = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=organization['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resources',
+                id=dataset['name'],
+            ),
+            extra_environ=env
+        )
+        assert_in(resource['name'], response)
+        assert_in(resource['description'], response)
+        assert_in(resource['format'], response)
+
+    def test_unauth_user_cannot_view_manage_dataset_resource_listing_page(self):
+        user = factories.User()
+        organization = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=organization['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resources',
+                id=dataset['name'],
+            ),
+            extra_environ=env
+        )
+        assert_in(resource['name'], response)
+        assert_in(resource['description'], response)
+        assert_in(resource['format'], response)
+
+    def test_404_on_manage_dataset_resource_listing_page_that_does_not_exist(self):
+        user = factories.User()
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resources',
+                id='does-not-exist'
+            ),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(404, response.status_int)
+
+    def test_add_new_resource_with_link_and_download(self):
+        user = factories.User()
+        dataset = factories.Dataset()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = helpers._get_test_app()
+
+        response = app.get(
+            url_for(
+                controller='package',
+                action='new_resource',
+                id=dataset['id'],
+            ),
+            extra_environ=env
+        )
+
+        form = response.forms['resource-edit']
+        form['url'] = u'http://test.com/'
+        response = submit_and_follow(app, form, env, 'save',
+                                     'go-dataset-complete')
+
+        result = helpers.call_action('package_show', id=dataset['id'])
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_download',
+                id=dataset['id'],
+                resource_id=result['resources'][0]['id']
+            ),
+            extra_environ=env,
+        )
+        assert_equal(302, response.status_int)
+
+    def test_editor_can_add_new_resource(self):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'editor'}]
+        )
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = helpers._get_test_app()
+
+        response = app.get(
+            url_for(
+                controller='package',
+                action='new_resource',
+                id=dataset['id'],
+            ),
+            extra_environ=env
+        )
+
+        form = response.forms['resource-edit']
+        form['name'] = u'test resource'
+        form['url'] = u'http://test.com/'
+        response = submit_and_follow(app, form, env, 'save',
+                                     'go-dataset-complete')
+
+        result = helpers.call_action('package_show', id=dataset['id'])
+        assert_equal(1, len(result['resources']))
+        assert_equal(u'test resource', result['resources'][0]['name'])
+
+    def test_admin_can_add_new_resource(self):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = helpers._get_test_app()
+
+        response = app.get(
+            url_for(
+                controller='package',
+                action='new_resource',
+                id=dataset['id'],
+            ),
+            extra_environ=env
+        )
+
+        form = response.forms['resource-edit']
+        form['name'] = u'test resource'
+        form['url'] = u'http://test.com/'
+        response = submit_and_follow(app, form, env, 'save',
+                                     'go-dataset-complete')
+
+        result = helpers.call_action('package_show', id=dataset['id'])
+        assert_equal(1, len(result['resources']))
+        assert_equal(u'test resource', result['resources'][0]['name'])
+
+    def test_member_cannot_add_new_resource(self):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}]
+        )
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = helpers._get_test_app()
+
+        response = app.get(
+            url_for(
+                controller='package',
+                action='new_resource',
+                id=dataset['id'],
+            ),
+            extra_environ=env,
+            expect_errors=True,
+        )
+        assert_equal(401, response.status_int)
+
+        response = app.post(
+            url_for(
+                controller='package',
+                action='new_resource',
+                id=dataset['id'],
+            ),
+            {'name': 'test', 'url': 'test', 'save': 'save', 'id': ''},
+            extra_environ=env,
+            expect_errors=True,
+        )
+        assert_equal(401, response.status_int)
+
+    def test_non_organization_users_cannot_add_new_resource(self):
+        '''on an owned dataset'''
+        user = factories.User()
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+        )
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = helpers._get_test_app()
+
+        response = app.get(
+            url_for(
+                controller='package',
+                action='new_resource',
+                id=dataset['id'],
+            ),
+            extra_environ=env,
+            expect_errors=True,
+        )
+        assert_equal(401, response.status_int)
+
+        response = app.post(
+            url_for(
+                controller='package',
+                action='new_resource',
+                id=dataset['id'],
+            ),
+            {'name': 'test', 'url': 'test', 'save': 'save', 'id': ''},
+            extra_environ=env,
+            expect_errors=True,
+        )
+        assert_equal(401, response.status_int)
+
+    def test_anonymous_users_cannot_add_new_resource(self):
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+        )
+        app = helpers._get_test_app()
+
+        response = app.get(
+            url_for(
+                controller='package',
+                action='new_resource',
+                id=dataset['id'],
+            ),
+        )
+        assert_equal(302, response.status_int)
+        response = response.follow()
+        assert_in('Unauthorized to create a resource', response)
+
+        response = app.post(
+            url_for(
+                controller='package',
+                action='new_resource',
+                id=dataset['id'],
+            ),
+            {'name': 'test', 'url': 'test', 'save': 'save', 'id': ''},
+            expect_errors=True,
+        )
+        assert_equal(302, response.status_int)
+        response = response.follow()
+        assert_in('Unauthorized to create a resource', response)
+
+
+class TestResourceView(helpers.FunctionalTestBase):
     @classmethod
     def setup_class(cls):
         super(cls, cls).setup_class()
@@ -495,12 +998,12 @@ class TestResourceRead(helpers.FunctionalTestBase):
 
         helpers.reset_db()
 
+    def setup(self):
+        model.repo.rebuild_db()
+
     @classmethod
     def teardown_class(cls):
         p.unload('image_view')
-
-    def setup(self):
-        model.repo.rebuild_db()
 
     def test_existent_resource_view_page_returns_ok_code(self):
         resource_view = factories.ResourceView()
@@ -526,18 +1029,16 @@ class TestResourceRead(helpers.FunctionalTestBase):
         app = self._get_test_app()
         app.get(url, status=404)
 
-    def test_existing_resource_with_associated_dataset(self):
 
-        dataset = factories.Dataset()
-        resource = factories.Resource(package_id=dataset['id'])
+class TestResourceRead(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(TestResourceRead, cls).setup_class()
+        helpers.reset_db()
+        search.clear()
 
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=dataset['id'],
-                      resource_id=resource['id'])
-
-        app = self._get_test_app()
-        app.get(url, status=200)
+    def setup(self):
+        model.repo.rebuild_db()
 
     def test_existing_resource_with_not_associated_dataset(self):
 
@@ -600,6 +1101,82 @@ class TestResourceRead(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         app.get(url, status=200, extra_environ=env)
+
+    def test_user_not_in_organization_cannot_read_private_dataset(self):
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        resource = factories.Resource(package_id=dataset['id'])
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=dataset['id'],
+                      resource_id=resource['id'])
+
+        app = self._get_test_app()
+        response = app.get(url,
+                           status=200,
+                           extra_environ=env,
+                           expect_errors=True)
+        assert_equal(401, response.status_int)
+        assert_in('Unauthorized to read dataset', response.body)
+
+    def test_organization_members_can_read_resources_in_private_datasets(self):
+        members = {
+            'member': factories.User(),
+            'editor': factories.User(),
+            'admin': factories.User(),
+            'sysadmin': factories.Sysadmin()
+        }
+        organization = factories.Organization(
+            users=[
+                {'name': members['member']['id'], 'capacity': 'member'},
+                {'name': members['editor']['id'], 'capacity': 'editor'},
+                {'name': members['admin']['id'], 'capacity': 'admin'},
+            ]
+        )
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        resource = factories.Resource(package_id=dataset['id'])
+
+        app = helpers._get_test_app()
+
+        for user, user_dict in members.items():
+            response = app.get(
+                url_for(
+                    controller='package',
+                    action='resource_read',
+                    id=dataset['name'],
+                    resource_id=resource['id'],
+                ),
+                extra_environ={
+                    'REMOTE_USER': user_dict['name'].encode('ascii'),
+                },
+            )
+            assert_in('Just another test resource', response.body)
+
+    def test_anonymous_users_cannot_read_private_datasets(self):
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        app = helpers._get_test_app()
+        response = app.get(
+            url_for(controller='package', action='read', id=dataset['name']),
+        )
+        # get redirected if you are not logged in
+        response = response.follow()
+        assert_in(
+            'Unauthorized to read package {0}'.format(dataset['name']),
+            response.body
+        )
 
 
 class TestResourceDelete(helpers.FunctionalTestBase):
