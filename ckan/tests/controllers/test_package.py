@@ -988,48 +988,6 @@ class TestResourceNew(helpers.FunctionalTestBase):
         assert_in('Unauthorized to create a resource', response)
 
 
-class TestResourceView(helpers.FunctionalTestBase):
-    @classmethod
-    def setup_class(cls):
-        super(cls, cls).setup_class()
-
-        if not p.plugin_loaded('image_view'):
-            p.load('image_view')
-
-        helpers.reset_db()
-
-    def setup(self):
-        model.repo.rebuild_db()
-
-    @classmethod
-    def teardown_class(cls):
-        p.unload('image_view')
-
-    def test_existent_resource_view_page_returns_ok_code(self):
-        resource_view = factories.ResourceView()
-
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=resource_view['package_id'],
-                      resource_id=resource_view['resource_id'],
-                      view_id=resource_view['id'])
-
-        app = self._get_test_app()
-        app.get(url, status=200)
-
-    def test_inexistent_resource_view_page_returns_not_found_code(self):
-        resource_view = factories.ResourceView()
-
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=resource_view['package_id'],
-                      resource_id=resource_view['resource_id'],
-                      view_id='inexistent-view-id')
-
-        app = self._get_test_app()
-        app.get(url, status=404)
-
-
 class TestResourceRead(helpers.FunctionalTestBase):
     @classmethod
     def setup_class(cls):
@@ -1459,6 +1417,392 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         response = form.submit('cancel')
         response = response.follow()
         assert_equal(200, response.status_int)
+
+
+class TestResourceView(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(cls, cls).setup_class()
+
+        if not p.plugin_loaded('image_view'):
+            p.load('image_view')
+
+        helpers.reset_db()
+
+    def setup(self):
+        model.repo.rebuild_db()
+
+    @classmethod
+    def teardown_class(cls):
+        p.unload('image_view')
+
+    def test_existent_resource_view_page_returns_ok_code(self):
+        resource_view = factories.ResourceView()
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=resource_view['package_id'],
+                      resource_id=resource_view['resource_id'],
+                      view_id=resource_view['id'])
+
+        app = self._get_test_app()
+        app.get(url, status=200)
+
+    def test_inexistent_resource_view_page_returns_not_found_code(self):
+        resource_view = factories.ResourceView()
+
+        url = url_for(controller='package',
+                      action='resource_read',
+                      id=resource_view['package_id'],
+                      resource_id=resource_view['resource_id'],
+                      view_id='inexistent-view-id')
+
+        app = self._get_test_app()
+        app.get(url, status=404)
+
+    def test_resource_view_listing(self):
+        resource_view = factories.ResourceView()
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_views',
+                id=resource_view['package_id'],
+                resource_id=resource_view['resource_id'],
+            ),
+        )
+        assert_in(resource_view['title'], response)
+
+    def test_resource_view_listing_that_does_not_exist(self):
+        resource_view = factories.ResourceView()
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_views',
+                id=resource_view['package_id'],
+                resource_id='does-not-exist',
+            ),
+            expect_errors=True
+        )
+        assert_equal(404, response.status_int)
+
+    def test_resource_view_listing_for_dataset_that_does_not_exist(self):
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_views',
+                id='does-not-exist',
+                resource_id='does-not-exist',
+            ),
+            expect_errors=True
+        )
+        assert_equal(404, response.status_int)
+
+    def test_owner_can_view_resource_view_listing(self):
+        user = factories.User()
+        organization = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=organization['id'],
+                                    private=True)
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_views',
+                id=resource_view['package_id'],
+                resource_id=resource_view['resource_id'],
+            ),
+            extra_environ=env
+        )
+        assert_in(resource_view['title'], response)
+
+    def test_editor_can_view_resource_view_listing(self):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'editor'}]
+        )
+        dataset = factories.Dataset(owner_org=organization['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        app = self._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_views',
+                id=resource_view['package_id'],
+                resource_id=resource_view['resource_id'],
+            ),
+            extra_environ=env
+        )
+        assert_in(resource_view['title'], response)
+
+    def test_member_cannot_view_resource_view_listing(self):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'member'}]
+        )
+        dataset = factories.Dataset(owner_org=organization['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        app = self._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_views',
+                id=resource_view['package_id'],
+                resource_id=resource_view['resource_id'],
+            ),
+            extra_environ=env,
+            expect_errors=True,
+        )
+        assert_equal(401, response.status_int)
+
+    def test_non_organization_user_cannot_view_resource_view_listing(self):
+        user = factories.User()
+        organization = factories.Organization()
+        dataset = factories.Dataset(owner_org=organization['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        app = self._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_views',
+                id=resource_view['package_id'],
+                resource_id=resource_view['resource_id'],
+            ),
+            extra_environ=env,
+            expect_errors=True,
+        )
+        assert_equal(401, response.status_int)
+
+    def test_anonymous_user_cannot_view_resource_view_listing(self):
+        organization = factories.Organization()
+        dataset = factories.Dataset(owner_org=organization['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_views',
+                id=resource_view['package_id'],
+                resource_id=resource_view['resource_id'],
+            ),
+            expect_errors=True,
+        )
+        response = response.follow()
+        assert_in('not authorized to edit', response)
+
+    def test_add_resource_view(self):
+        user = factories.User()
+        organization = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=organization['id'],
+                                    private=True)
+        resource = factories.Resource(package_id=dataset['id'])
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='edit_view',
+                id=dataset['id'],
+                resource_id=resource['id'],
+                view_type='image_view'
+            ),
+            extra_environ=env
+        )
+        form = response.forms['resource-view-edit']
+        form['description'] = u'test description'
+        form['title'] = u'test resource view'
+        response = submit_and_follow(app, form, env, 'save', value='Save')
+        assert_in('test resource view', response)
+        views = helpers.call_action('resource_view_list', id=resource['id'])
+        view = views[0]
+        assert_equal(view['description'], u'test description')
+        assert_equal(view['title'], u'test resource view')
+
+    def test_edit_resource_view(self):
+        user = factories.User()
+        organization = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=organization['id'],
+                                    private=True)
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='edit_view',
+                id=dataset['id'],
+                resource_id=resource['id'],
+                view_id=resource_view['id'],
+            ),
+            extra_environ=env
+        )
+        form = response.forms['resource-view-edit']
+        form['description'] = u'better description'
+        form['title'] = u'better view'
+        response = submit_and_follow(app, form, env, 'save', value='Save')
+        assert_in('better view', response)
+        views = helpers.call_action('resource_view_list', id=resource['id'])
+        view = views[0]
+        assert_equal(view['description'], u'better description')
+        assert_equal(view['title'], u'better view')
+
+    def test_unauthed_user_cannot_edit_views(self):
+        user = factories.User()
+        organization = factories.Organization()
+        dataset = factories.Dataset(owner_org=organization['id'],
+                                    private=True)
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='edit_view',
+                id=dataset['id'],
+                resource_id=resource['id'],
+                view_id=resource_view['id'],
+            ),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(401, response.status_int)
+
+    def test_anonymous_user_must_login_to_edit_views(self):
+        organization = factories.Organization()
+        dataset = factories.Dataset(owner_org=organization['id'],
+                                    private=True)
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='edit_view',
+                id=dataset['id'],
+                resource_id=resource['id'],
+                view_id=resource_view['id'],
+            ),
+        )
+        response = response.follow()
+        assert_in('not authorized to edit', response)
+
+    def test_cannot_edit_view_on_a_dataset_that_does_not_exist(self):
+        user = factories.User()
+        organization = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=organization['id'],
+                                    private=True)
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='edit_view',
+                id='does-not-exist',
+                resource_id=resource['id'],
+                view_id=resource_view['id'],
+            ),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(404, response.status_int)
+
+    def test_cannot_edit_view_on_a_resource_that_does_not_exist(self):
+        user = factories.User()
+        organization = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=organization['id'],
+                                    private=True)
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='edit_view',
+                id=dataset['id'],
+                resource_id='does-not-exist',
+                view_id=resource_view['id'],
+            ),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(404, response.status_int)
+
+    def test_cannot_edit_view_a_view_that_does_not_exist(self):
+        user = factories.User()
+        organization = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=organization['id'],
+                                    private=True)
+        resource = factories.Resource(package_id=dataset['id'])
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='edit_view',
+                id=dataset['id'],
+                resource_id=resource['id'],
+                view_id='does-not-exist',
+            ),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(404, response.status_int)
+
+    def test_delete_resource_view(self):
+        user = factories.User()
+        organization = factories.Organization(user=user)
+        dataset = factories.Dataset(owner_org=organization['id'],
+                                    private=True)
+        resource = factories.Resource(package_id=dataset['id'])
+        resource_view = factories.ResourceView(resource_id=resource['id'])
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = self._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='edit_view',
+                id=dataset['id'],
+                resource_id=resource['id'],
+                view_id=resource_view['id'],
+            ),
+            extra_environ=env
+        )
+        form = response.forms['resource-view-edit']
+        form['description'] = u'better description'
+        form['title'] = u'better view'
+        response = submit_and_follow(app, form, env, 'delete', value='Delete')
+        assert_not_in('better view', response)
+        views = helpers.call_action('resource_view_list', id=resource['id'])
+        assert_equal(views, [])
 
 
 class TestSearch(helpers.FunctionalTestBase):

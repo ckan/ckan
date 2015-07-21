@@ -1450,12 +1450,12 @@ class PackageController(base.BaseController):
             check_access('package_update', context, data_dict)
         except NotAuthorized:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
-        # check if package exists
+        except NotFound:
+            abort(404, _('Dataset not found'))
+
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-        except NotFound:
-            abort(404, _('Dataset not found'))
         except NotAuthorized:
             abort(401, _('Unauthorized to read dataset %s') % id)
 
@@ -1486,6 +1486,8 @@ class PackageController(base.BaseController):
             check_access('resource_update', context, {'id': resource_id})
         except NotAuthorized, e:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+        except NotFound:
+            abort(404, _('Resource not found'))
 
         # get resource and package data
         try:
