@@ -217,13 +217,18 @@ class Repository(vdm.sqlalchemy.Repository):
                 try:
                     import ckan.lib.celery_app as celery_app
                     import celery.db.session as celery_session
-                    ## This creates the database tables it is a slight
-                    ## hack to celery.
+                    import celery.backends.database
+                    ## This creates the database tables (if using that backend)
+                    ## It is a slight hack to celery
                     backend = celery_app.celery.backend
-                    celery_result_session = backend.ResultSession()
-                    engine = celery_result_session.bind
-                    celery_session.ResultModelBase.metadata.create_all(engine)
+                    if isinstance(backend,
+                                  celery.backends.database.DatabaseBackend):
+                        celery_result_session = backend.ResultSession()
+                        engine = celery_result_session.bind
+                        celery_session.ResultModelBase.metadata.\
+                            create_all(engine)
                 except ImportError:
+                    # use of celery is optional
                     pass
 
                 self.init_configuration_data()
