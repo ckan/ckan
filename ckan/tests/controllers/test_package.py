@@ -797,6 +797,39 @@ class TestResourceNew(helpers.FunctionalTestBase):
         )
         assert_equal(404, response.status_int)
 
+    def test_add_new_resource_with_file_and_download(self):
+        user = factories.User()
+        dataset = factories.Dataset()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = helpers._get_test_app()
+
+        response = app.get(
+            url_for(
+                controller='package',
+                action='new_resource',
+                id=dataset['id'],
+            ),
+            extra_environ=env
+        )
+
+        form = response.forms['resource-edit']
+        form['upload'] = ('README.rst', b'data')
+        response = submit_and_follow(app, form, env, 'save',
+                                     'go-dataset-complete')
+
+        result = helpers.call_action('package_show', id=dataset['id'])
+        assert_equal(result['resources'][0]['url_type'], u'upload')
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_download',
+                id=dataset['id'],
+                resource_id=result['resources'][0]['id']
+            ),
+            extra_environ=env,
+        )
+        assert_equal('data', response.body)
+
     def test_add_new_resource_with_link_and_download(self):
         user = factories.User()
         dataset = factories.Dataset()
