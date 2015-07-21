@@ -176,11 +176,3 @@ class TestHelpers(TestController):
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found'), None)
 
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found', 'default_value'), 'default_value')
-
-
-class TestLicenseOptions(object):
-    def test_includes_existing_license(self):
-        licenses = h.license_options('some-old-license')
-        eq_(dict(licenses)['some-old-license'], 'some-old-license')
-        # and it is first on the list
-        eq_(licenses[0][0], 'some-old-license')
