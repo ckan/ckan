@@ -582,7 +582,6 @@ class PackageController(base.BaseController):
 
     def resource_edit(self, id, resource_id, data=None, errors=None,
                       error_summary=None):
-
         if request.method == 'POST' and not data:
             data = data or clean_dict(dict_fns.unflatten(tuplize_dict(parse_params(
                 request.POST))))
@@ -610,21 +609,39 @@ class PackageController(base.BaseController):
             redirect(h.url_for(controller='package', action='resource_read',
                                id=id, resource_id=resource_id))
 
-        context = {'model': model, 'session': model.Session,
-                   'api_version': 3, 'for_edit': True,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
-        pkg_dict = get_action('package_show')(context, {'id': id})
+        try:
+            context = {
+                'model': model,
+                'session': model.Session,
+                'api_version': 3,
+                'for_edit': True,
+                'user': c.user or c.author,
+                'auth_user_obj': c.userobj
+            }
+            pkg_dict = get_action('package_show')(context, {'id': id})
+        except NotAuthorized:
+            abort(401, _('Unauthorized to edit this resource'))
+        except NotFound:
+            abort(404, _('Dataset not found'))
+
         if pkg_dict['state'].startswith('draft'):
             # dataset has not yet been fully created
-            resource_dict = get_action('resource_show')(context, {'id': resource_id})
-            fields = ['url', 'resource_type', 'format', 'name', 'description', 'id']
+            resource_dict = get_action('resource_show')(
+                context,
+                {'id': resource_id}
+            )
+            fields = ['url', 'resource_type', 'format', 'name',
+                      'description', 'id']
             data = {}
             for field in fields:
                 data[field] = resource_dict[field]
             return self.new_resource(id, data=data)
         # resource is fully created
         try:
-            resource_dict = get_action('resource_show')(context, {'id': resource_id})
+            resource_dict = get_action('resource_show')(
+                context,
+                {'id': resource_id}
+            )
         except NotFound:
             abort(404, _('Resource not found'))
         c.pkg_dict = pkg_dict

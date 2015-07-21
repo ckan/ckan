@@ -13,7 +13,7 @@ from ckan.lib import search
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-from ckan.tests.helpers import assert_in
+from ckan.tests.helpers import assert_in, assert_not_in
 
 
 webtest_submit = helpers.webtest_submit
@@ -1177,6 +1177,162 @@ class TestResourceRead(helpers.FunctionalTestBase):
             'Unauthorized to read package {0}'.format(dataset['name']),
             response.body
         )
+
+
+class TestResourceEdit(helpers.FunctionalTestBase):
+    def test_organization_editors_can_edit_in_private_datasets(self):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'editor'}]
+        )
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        resource = factories.Resource(package_id=dataset['id'])
+        app = helpers._get_test_app()
+        env = {
+            'REMOTE_USER': user['name'].encode('ascii'),
+        }
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_edit',
+                id=dataset['name'],
+                resource_id=resource['id'],
+            ),
+            extra_environ=env
+        )
+        form = response.forms['resource-edit']
+        form['description'] = 'new description'
+        form['format'] = 'new format'
+        response = submit_and_follow(app, form, env, 'save')
+        assert_in('new description', response.body)
+        assert_in('new format', response.body)
+
+    def test_organization_admins_can_edit_in_private_datasets(self):
+        user = factories.User()
+        organization = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        resource = factories.Resource(package_id=dataset['id'])
+        app = helpers._get_test_app()
+        env = {
+            'REMOTE_USER': user['name'].encode('ascii'),
+        }
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_edit',
+                id=dataset['name'],
+                resource_id=resource['id'],
+            ),
+            extra_environ=env
+        )
+        form = response.forms['resource-edit']
+        form['description'] = 'new description'
+        form['format'] = 'new format'
+        response = submit_and_follow(app, form, env, 'save')
+        assert_in('new description', response.body)
+        assert_in('new format', response.body)
+
+    def test_sysadmins_can_edit_in_private_datasets(self):
+        user = factories.Sysadmin()
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        resource = factories.Resource(package_id=dataset['id'])
+        app = helpers._get_test_app()
+        env = {
+            'REMOTE_USER': user['name'].encode('ascii'),
+        }
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_edit',
+                id=dataset['name'],
+                resource_id=resource['id'],
+            ),
+            extra_environ=env
+        )
+        form = response.forms['resource-edit']
+        form['description'] = 'new description'
+        form['format'] = 'new format'
+        response = submit_and_follow(app, form, env, 'save')
+        assert_in('new description', response.body)
+        assert_in('new format', response.body)
+
+    def test_anonymous_users_cannot_edit_private_datasets(self):
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        resource = factories.Resource(package_id=dataset['id'])
+        app = helpers._get_test_app()
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_edit',
+                id=dataset['name'],
+                resource_id=resource['id'],
+            ),
+        )
+        response = response.follow()
+        assert_in('Unauthorized to edit this resource', response.body)
+
+        response = app.post(
+            url_for(
+                controller='package',
+                action='resource_edit',
+                id=dataset['name'],
+                resource_id=resource['id'],
+            ),
+            {'save': True},
+        )
+        response = response.follow()
+        assert_in('Unauthorized to edit this resource', response.body)
+
+    def test_user_not_in_organization_cannot_edit_private_datasets(self):
+        user = factories.User()
+        organization = factories.Organization()
+        dataset = factories.Dataset(
+            owner_org=organization['id'],
+            private=True,
+        )
+        resource = factories.Resource(package_id=dataset['id'])
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(
+                controller='package',
+                action='resource_edit',
+                id=dataset['name'],
+                resource_id=resource['id'],
+            ),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(401, response.status_int)
+
+        response = app.post(
+            url_for(
+                controller='package',
+                action='resource_edit',
+                id=dataset['name'],
+                resource_id=resource['id'],
+            ),
+            {'save': True},
+            extra_environ=env,
+            expect_errors=True,
+        )
+        assert_equal(401, response.status_int)
 
 
 class TestResourceDelete(helpers.FunctionalTestBase):
