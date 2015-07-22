@@ -403,6 +403,17 @@ Troubleshooting:
 
   Also see the previous point for other ``who.ini`` changes.
 
+v2.2.3 2015-07-22
+=================
+
+Bug fixes:
+ * Allow uppercase emails on user invites (#2415)
+ * Fix broken boolean validator (#2443)
+ * Fix auth check in resources_list.html (#2037)
+ * Key error on resource proxy (#2425)
+ * Ignore revision_id passed to resources (#2340)
+ * Add reset for reset_key on successful password change (#2379)
+
 v2.2.2 2015-03-04
 =================
 
