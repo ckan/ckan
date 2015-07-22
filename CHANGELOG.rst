@@ -7,6 +7,15 @@
 Changelog
 ---------
 
+v2.1.5 2015-07-22
+=================
+
+Bug fixes:
+ * Fix broken boolean validator (#2443)
+ * Key error on resource proxy (#2425)
+ * Ignore revision_id passed to resources (#2340)
+ * Add reset for reset_key on successful password change (#2379)
+
 v2.1.4 2015-03-04
 =================
 
@@ -164,6 +173,15 @@ Deprecated and removed:
 Known issues:
  * Under certain authorization setups the forntend for the groups functionality
    may not work as expected (See #1176 #1175).
+
+v2.0.7 2015-07-22
+=================
+
+Bug fixes:
+ * Fix broken boolean validator (#2443)
+ * Key error on resource proxy (#2425)
+ * Ignore revision_id passed to resources (#2340)
+ * Add reset for reset_key on successful password change (#2379)
 
 v2.0.6 2015-03-04
 =================
