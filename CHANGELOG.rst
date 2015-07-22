@@ -50,7 +50,7 @@ Bug fixes:
  * Email invites had the email address changed to lower-case (#2415)
  * Default resource views not created when using a custom dataset schema (#2421,
    #2482)
- * If the licences pick-list was customized to remove some, datasets with old
+ * If the licenses pick-list was customized to remove some, datasets with old
    values had them overwritten when edited (#2472)
  * Recline views failed on some non-ascii characters (#2490)
  * Resource proxy failed if HEAD responds with 403 (#2530)
@@ -88,7 +88,6 @@ Changes and deprecations
 * Config option ``site_url`` is now required - CKAN will not abort during
   start-up if it is not set. (#1976)
 
-
 v2.3.1 2015-07-22
 =================
 
@@ -102,7 +101,7 @@ Bug fixes:
  * Email invites had the email address changed to lower-case (#2415)
  * Default resource views not created when using a custom dataset schema (#2421,
    #2482)
- * If the licences pick-list was customized to remove some, datasets with old
+ * If the licenses pick-list was customized to remove some, datasets with old
    values had them overwritten when edited (#2472)
  * Recline views failed on some non-ascii characters (#2490)
  * Resource views for non-default dataset types couldn't be created (#2532)
