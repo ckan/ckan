@@ -2,7 +2,7 @@
   "": {
     "domain": "ckan",
     "lang": "cs_CZ",
-    "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2"
+    "plural-forms": "nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;"
   },
   "An Error Occurred": [
     null,
@@ -54,7 +54,7 @@
   ],
   "Loading...": [
     null,
-    "Nahrávám ..."
+    "Nahrávám..."
   ],
   "No matches found": [
     null,
@@ -70,7 +70,7 @@
   ],
   "Reorder resource view": [
     null,
-    "Přeuspořádat zobrazení zdroje"
+    "Změnit pořadí zobrazení datového zdroje"
   ],
   "Reorder resources": [
     null,
@@ -78,7 +78,7 @@
   ],
   "Resource uploaded": [
     null,
-    "Zdroj nahrán"
+    "Datový zdroj nahrán"
   ],
   "Save order": [
     null,
@@ -102,7 +102,7 @@
   ],
   "There is no API data to load for this resource": [
     null,
-    "Tento zdroj neobsahuje žádná data, která lze poskytnou přes API"
+    "Tento datový zdroj neobsahuje žádná data, která lze poskytnou přes API"
   ],
   "URL": [
     null,
@@ -134,7 +134,7 @@
   ],
   "Upload a file on your computer": [
     null,
-    "Nahrát soubor na Váš počítač"
+    "Nahrát soubor z počítače"
   ],
   "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
     null,
