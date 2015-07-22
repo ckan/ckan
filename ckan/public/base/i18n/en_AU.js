@@ -44,6 +44,14 @@
     null,
     "Input is too short, must be at least one character"
   ],
+  "Link": [
+    null,
+    "Link"
+  ],
+  "Link to a URL on the internet (you can also link to an API)": [
+    null,
+    "Link to a URL on the internet (you can also link to an API)"
+  ],
   "Loading...": [
     null,
     "Loading..."
@@ -60,9 +68,25 @@
     null,
     "Remove"
   ],
+  "Reorder resource view": [
+    null,
+    "Reorder resource view"
+  ],
+  "Reorder resources": [
+    null,
+    "Reorder resources"
+  ],
   "Resource uploaded": [
     null,
     "Resource uploaded"
+  ],
+  "Save order": [
+    null,
+    "Save order"
+  ],
+  "Saving...": [
+    null,
+    "Saving..."
   ],
   "Show more": [
     null,
@@ -107,6 +131,14 @@
   "Upload a file": [
     null,
     "Upload a file"
+  ],
+  "Upload a file on your computer": [
+    null,
+    "Upload a file on your computer"
+  ],
+  "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
+    null,
+    "You are uploading a file. Are you sure you want to navigate away and stop this upload?"
   ],
   "show less": [
     null,

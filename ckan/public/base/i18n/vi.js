@@ -68,6 +68,10 @@
     null,
     "Xóa"
   ],
+  "Reorder resource view": [
+    null,
+    "Sắp xép lại dữ liệu."
+  ],
   "Reorder resources": [
     null,
     "Sắp xếp lại nguồn"

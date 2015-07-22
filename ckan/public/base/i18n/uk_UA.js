@@ -44,6 +44,14 @@
     null,
     "Ввід надто короткий, має бути хоча би один символ"
   ],
+  "Link": [
+    null,
+    "Посилання"
+  ],
+  "Link to a URL on the internet (you can also link to an API)": [
+    null,
+    "Додати посилання на адресу в інтернеті (або посилання на API)"
+  ],
   "Loading...": [
     null,
     "Завантаження..."
@@ -60,9 +68,25 @@
     null,
     "Видалити"
   ],
+  "Reorder resource view": [
+    null,
+    "Змінити порядок представлення ресурсу"
+  ],
+  "Reorder resources": [
+    null,
+    "Змінити порядок ресурсів"
+  ],
   "Resource uploaded": [
     null,
     "Ресурс вивантажено"
+  ],
+  "Save order": [
+    null,
+    "Зберегти порядок"
+  ],
+  "Saving...": [
+    null,
+    "Збереження..."
   ],
   "Show more": [
     null,
@@ -107,6 +131,14 @@
   "Upload a file": [
     null,
     "Вкласти файл"
+  ],
+  "Upload a file on your computer": [
+    null,
+    "Вкласти файл з комп’ютера"
+  ],
+  "You are uploading a file. Are you sure you want to navigate away and stop this upload?": [
+    null,
+    "Ви вкладаєте файл. Ви впевнені, що хочете перейти на іншу сторінку і припинити вкладення?"
   ],
   "show less": [
     null,

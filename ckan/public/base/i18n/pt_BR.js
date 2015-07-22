@@ -68,6 +68,10 @@
     null,
     "Remover"
   ],
+  "Reorder resource view": [
+    null,
+    "Reordenar visão de recurso"
+  ],
   "Reorder resources": [
     null,
     "Reordenar recursos"
