@@ -635,6 +635,15 @@ Troubleshooting:
    leaving the fields empty. Also make sure to restart running processes like
    harvesters after the update to make sure they use the new code base.
 
+v2.1.5 2015-07-22
+=================
+
+Bug fixes:
+ * Fix broken boolean validator (#2443)
+ * Key error on resource proxy (#2425)
+ * Ignore revision_id passed to resources (#2340)
+ * Add reset for reset_key on successful password change (#2379)
+
 v2.1.4 2015-03-04
 =================
 
