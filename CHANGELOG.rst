@@ -7,6 +7,24 @@
 Changelog
 ---------
 
+v2.3.1 2015-07-22
+=================
+
+Bug fixes:
+ * Resource views won't display when embedded in another site (#2238)
+ * ``resource_update`` failed if you supplied a revision_id (#2340)
+ * Recline could not plot GeoJSON on a map (#2387)
+ * Dataset create form 404 error if you added a resource but left it blank (#2392)
+ * Editing a resource view for a file that was UTF-8 and had a BOM gave an
+   error (#2401)
+ * Email invites had the email address changed to lower-case (#2415)
+ * Default resource views not created when using a custom dataset schema (#2421,
+   #2482)
+ * If the licences pick-list was customized to remove some, datasets with old
+   values had them overwritten when edited (#2472)
+ * Recline views failed on some non-ascii characters (#2490)
+ * Resource views for non-default dataset types couldn't be created (#2532)
+
 v2.3 2015-03-04
 ===============
 
