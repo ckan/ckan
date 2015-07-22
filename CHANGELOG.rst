@@ -7,14 +7,15 @@
 Changelog
 ---------
 
-v2.4.0 2015-07-XX
+v2.4.0 2015-07-22
 =================
 
 Note: This version requires a database upgrade
 
 Note: This version requires a Solr schema upgrade
 
-Major: (none)
+Major:
+ * CKAN config can now be set from environment variables and via the API (#2429)
 
 Minor:
  * API calls now faster: ``group_show``, ``organization_show``, ``user_show``,
@@ -30,7 +31,6 @@ Minor:
  * Improved IGroupForm for better customizing groups and organization behaviour
    (#2354)
  * Admin page can now be extended to have new tabs (#2351)
- * CKAN config can now be set from environment variables and via the API (#2429)
 
 
 Bug fixes:
@@ -49,7 +49,7 @@ Bug fixes:
    error (#2401)
  * Email invites had the email address changed to lower-case (#2415)
  * Default resource views not created when using a custom dataset schema (#2421)
- * If the licences pick-list was customized to remove some, datasets with old
+ * If the licenses pick-list was customized to remove some, datasets with old
    values had them overwritten when edited (#2472)
  * Resource proxy failed if HEAD responds with 403 (#2530)
  * Resource views for non-default dataset types couldn't be created (#2532)
@@ -86,7 +86,7 @@ Changes and deprecations
 * Config option ``site_url`` is now required - CKAN will not abort during
   start-up if it is not set. (#1976)
 
-v2.3.1 2015-07-XX
+v2.3.1 2015-07-22
 =================
 
 Bug fixes:
@@ -98,7 +98,7 @@ Bug fixes:
    error (#2401)
  * Email invites had the email address changed to lower-case (#2415)
  * Default resource views not created when using a custom dataset schema (#2421)
- * If the licences pick-list was customized to remove some, datasets with old
+ * If the licenses pick-list was customized to remove some, datasets with old
    values had them overwritten when edited (#2472)
  * Resource views for non-default dataset types couldn't be created (#2532)
 
