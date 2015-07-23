@@ -18,7 +18,7 @@
   ["MDB", "Access Database", "application/x-msaccess", []],
   ["NetCDF", "NetCDF File", "application/netcdf", []],
   ["ArcGIS Map Service", "ArcGIS Map Service", "ArcGIS Map Service", ["arcgis map service"]],
-  ["TSV", "Tab Separated Values File", "text/tsv", []],
+  ["TSV", "Tab Separated Values File", "text/tsv", ["text/tab-separated-values"]],
   ["WFS", "Web Feature Service", null, []],
   ["ArcGIS Online Map", "ArcGIS Online Map", "ArcGIS Online Map", ["web map application"]],
   ["Perl", "Perl Script", "text/x-perl", []],
