@@ -185,11 +185,9 @@ class ManageDb(CkanCommand):
     db upgrade [version no.]       - Data migrate
     db version                     - returns current version of data schema
     db dump FILE_PATH              - dump to a pg_dump file
-    db dump-rdf DATASET_NAME FILE_PATH
     db simple-dump-csv FILE_PATH   - dump just datasets in CSV format
     db simple-dump-json FILE_PATH  - dump just datasets in JSON format
     db user-dump-csv FILE_PATH     - dump user information to a CSV file
-    db send-rdf TALIS_STORE USERNAME PASSWORD
     db load FILE_PATH              - load a pg_dump from a file
     db load-only FILE_PATH         - load a pg_dump from a file but don\'t do
                                      the schema upgrade or search indexing
@@ -244,16 +242,12 @@ class ManageDb(CkanCommand):
             self.simple_dump_csv()
         elif cmd == 'simple-dump-json':
             self.simple_dump_json()
-        elif cmd == 'dump-rdf':
-            self.dump_rdf()
         elif cmd == 'user-dump-csv':
             self.user_dump_csv()
         elif cmd == 'create-from-model':
             model.repo.create_db()
             if self.verbose:
                 print 'Creating DB: SUCCESS'
-        elif cmd == 'send-rdf':
-            self.send_rdf()
         elif cmd == 'migrate-filestore':
             self.migrate_filestore()
         else:
@@ -351,23 +345,6 @@ class ManageDb(CkanCommand):
         dump_file = open(dump_filepath, 'w')
         dumper.SimpleDumper().dump(dump_file, format='json')
 
-    def dump_rdf(self):
-        if len(self.args) < 3:
-            print 'Need dataset name and rdf file path'
-            return
-        package_name = self.args[1]
-        rdf_path = self.args[2]
-        import ckan.model as model
-        import ckan.lib.rdf as rdf
-        pkg = model.Package.by_name(unicode(package_name))
-        if not pkg:
-            print 'Dataset name "%s" does not exist' % package_name
-            return
-        rdf = rdf.RdfExporter().export_package(pkg)
-        f = open(rdf_path, 'w')
-        f.write(rdf)
-        f.close()
-
     def user_dump_csv(self):
         if len(self.args) < 2:
             print 'Need csv file path'
@@ -376,17 +353,6 @@ class ManageDb(CkanCommand):
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
         dumper.UserDumper().dump(dump_file)
-
-    def send_rdf(self):
-        if len(self.args) < 4:
-            print 'Need all arguments: {talis-store} {username} {password}'
-            return
-        talis_store = self.args[1]
-        username = self.args[2]
-        password = self.args[3]
-        import ckan.lib.talis
-        talis = ckan.lib.talis.Talis()
-        return talis.send_rdf(talis_store, username, password)
 
     def migrate_filestore(self):
         from ckan.model import Session
