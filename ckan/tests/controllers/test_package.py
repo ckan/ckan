@@ -353,26 +353,22 @@ class TestPackageRead(helpers.FunctionalTestBase):
         response.mustcontain('Just another test dataset')
 
     def test_read_rdf(self):
+        ''' The RDF outputs now live in ckanext-dcat'''
         dataset1 = factories.Dataset()
 
         offset = url_for(controller='package', action='read',
                          id=dataset1['name']) + ".rdf"
         app = self._get_test_app()
-        res = app.get(offset, status=200)
-
-        assert 'dcat' in res, res
-        assert '{{' not in res, res
+        app.get(offset, status=404)
 
     def test_read_n3(self):
+        ''' The RDF outputs now live in ckanext-dcat'''
         dataset1 = factories.Dataset()
 
         offset = url_for(controller='package', action='read',
                          id=dataset1['name']) + ".n3"
         app = self._get_test_app()
-        res = app.get(offset, status=200)
-
-        assert 'dcat' in res, res
-        assert '{{' not in res, res
+        app.get(offset, status=404)
 
 
 class TestPackageDelete(helpers.FunctionalTestBase):

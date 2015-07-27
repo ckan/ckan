@@ -652,7 +652,13 @@ class RDFExport(CkanCommand):
             url = urlparse.urljoin(fetch_url, url[1:]) + '.rdf'
             try:
                 fname = os.path.join(out_folder, dd['name']) + ".rdf"
-                r = urllib2.urlopen(url).read()
+                try:
+                    r = urllib2.urlopen(url).read()
+                except urllib2.HTTPError, e:
+                    if e.code == 404:
+                        print ('Please install ckanext-dcat and enable the ' +
+                               '`dcat` plugin to use the RDF serializations')
+                        sys.exit(1)
                 with open(fname, 'wb') as f:
                     f.write(r)
             except IOError, ioe:
