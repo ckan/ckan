@@ -14,6 +14,7 @@ import ckanext.datastore.logic.auth as auth
 import ckanext.datastore.db as db
 import ckanext.datastore.interfaces as interfaces
 import ckanext.datastore.helpers as datastore_helpers
+from ckanext.datastore.helpers import literal_string
 
 
 log = logging.getLogger(__name__)
@@ -433,8 +434,9 @@ class DatastorePlugin(p.SingletonPlugin):
                         clause_str = u'_full_text @@ {0}'.format(query_field)
                         clauses.append((clause_str,))
 
-                    clause_str = (u'to_tsvector(\'{0}\', cast("{1}" as text)) '
-                                  u'@@ {2}').format(lang, field, query_field)
+                    clause_str = (u'to_tsvector({0}, cast("{1}" as text)) '
+                                  u'@@ {2}').format(literal_string(lang),
+                                                    field, query_field)
                     clauses.append((clause_str,))
 
         return clauses
@@ -503,17 +505,20 @@ class DatastorePlugin(p.SingletonPlugin):
     def _build_query_and_rank_statements(self, lang, query, plain, field=None):
         query_alias = self._ts_query_alias(field)
         rank_alias = self._ts_rank_alias(field)
+        lang_literal = literal_string(lang)
+        query_literal = literal_string(query)
         if plain:
-            statement = u"plainto_tsquery('{lang}', '{query}') {alias}"
+            statement = u"plainto_tsquery({lang_literal}, {query_literal}) {query_alias}"
         else:
-            statement = u"to_tsquery('{lang}', '{query}') {alias}"
+            statement = u"to_tsquery({lang_literal}, {query_literal}) {query_alias}"
+        statement = statement.format(lang_literal=lang_literal,
+            query_literal=query_literal, query_alias=query_alias)
         if field is None:
             rank_field = '_full_text'
         else:
-            rank_field = u'to_tsvector(\'{lang}\', cast("{field}" as text))'
-            rank_field = rank_field.format(lang=lang, field=field)
+            rank_field = u'to_tsvector({lang_literal}, cast("{field}" as text))'
+            rank_field = rank_field.format(lang_literal=lang_literal, field=field)
         rank_statement = u'ts_rank({rank_field}, {query_alias}, 32) AS {alias}'
-        statement = statement.format(lang=lang, query=query, alias=query_alias)
         rank_statement = rank_statement.format(rank_field=rank_field,
                                                query_alias=query_alias,
                                                alias=rank_alias)
