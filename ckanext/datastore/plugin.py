@@ -1,6 +1,5 @@
 import sys
 import logging
-import shlex
 import re
 
 import pylons
@@ -352,16 +351,14 @@ class DatastorePlugin(p.SingletonPlugin):
         return data_dict
 
     def _parse_sort_clause(self, clause, fields_types):
-        clause = ' '.join(shlex.split(clause.encode('utf-8')))
-        clause_match = re.match('^(.+?)( +(asc|desc) *)?$', clause, re.I)
+        clause_match = re.match(u'^(.+?)( +(asc|desc) *)?$', clause, re.I)
 
         if not clause_match:
             return False
 
         field = clause_match.group(1)
-        sort = (clause_match.group(3) or 'asc').lower()
+        sort = (clause_match.group(3) or u'asc').lower()
 
-        field, sort = unicode(field, 'utf-8'), unicode(sort, 'utf-8')
         if field not in fields_types:
             return False
 
