@@ -7,6 +7,17 @@
 Changelog
 ---------
 
+v2.5.0 XXXX-XX-XX
+=================
+
+Changes and deprecations
+------------------------
+
+* The old RDF templates to output a dataset in RDF/XML or N3 format have been
+  removed. These can be now enabled using the ``dcat`` plugin on *ckanext-dcat*:
+
+    https://github.com/ckan/ckanext-dcat#rdf-dcat-endpoints
+
 v2.4.0 2015-07-22
 =================
 
