@@ -129,10 +129,7 @@ Stylesheets
 -----------
 
 Because all the stylesheets are using LESS we need to compile them
-before beginning development. In production CKAN will look for the
-``main.css`` file which is included in the repository. In development
-CKAN looks for the file ``main.debug.css`` which you will need to
-generate by running:
+before beginning development by running:
 
 ::
 
