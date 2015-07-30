@@ -136,7 +136,8 @@ def resource_update(context, data_dict):
     del context["resource"]
 
     package_id = resource.package.id
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    pkg_dict = _get_action('package_show')(dict(context, return_type='dict'),
+        {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
         if p['id'] == id:

@@ -83,7 +83,9 @@ class ApiController(base.BaseController):
         if response_data is not None:
             response.headers['Content-Type'] = CONTENT_TYPES[content_type]
             if content_type == 'json':
-                response_msg = h.json.dumps(response_data)
+                response_msg = h.json.dumps(
+                    response_data,
+                    for_json=True) # handle objects with for_json methods
             else:
                 response_msg = response_data
             # Support "JSONP" callback.
@@ -164,7 +166,8 @@ class ApiController(base.BaseController):
                 _('Action name not known: %s') % logic_function)
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'auth_user_obj': c.userobj}
+                   'api_version': ver, 'return_type': 'LazyJSONObject',
+                   'auth_user_obj': c.userobj}
         model.Session()._context = context
 
         return_dict = {'help': h.url_for(controller='api',
