@@ -177,11 +177,9 @@ def package_create(context, data_dict):
     else:
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
-    admins = []
     if user:
         user_obj = model.User.by_name(user.decode('utf8'))
         if user_obj:
-            admins = [user_obj]
             data['creator_user_id'] = user_obj.id
 
     pkg = model_save.package_dict_save(data, context)
@@ -725,11 +723,6 @@ def _group_or_org_create(context, data_dict, is_org=False):
         rev.message = _(u'REST API: Create object %s') % data.get("name")
 
     group = model_save.group_dict_save(data, context)
-
-    if user:
-        admins = [model.User.by_name(user.decode('utf8'))]
-    else:
-        admins = []
 
     # Needed to let extensions know the group id
     session.flush()
