@@ -20,7 +20,7 @@ from ckan.tests.legacy import setup_test_search_index, search_related
 from ckan.tests.legacy import StatusCodes
 from ckan.logic import get_action, NotAuthorized
 from ckan.logic.action import get_domain_object
-from ckan.tests.legacy import TestRoles, call_action_api
+from ckan.tests.legacy import call_action_api
 import ckan.lib.search as search
 
 from ckan import plugins
@@ -781,114 +781,6 @@ class TestAction(WsgiAppCase):
         group = model.Group.by_name(u'david')
         assert_equal(get_domain_object(model, group.name).name, group.name)
         assert_equal(get_domain_object(model, group.id).name, group.name)
-
-    def test_33_roles_show(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        postparams = '%s=1' % json.dumps({'domain_object': anna.id})
-        res = self.app.post('/api/action/roles_show', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-        results = json.loads(res.body)['result']
-        anna = model.Package.by_name(u'annakarenina')
-        assert_equal(results['domain_object_id'], anna.id)
-        assert_equal(results['domain_object_type'], 'Package')
-        roles = results['roles']
-        assert len(roles) > 2, results
-        assert set(roles[0].keys()) > set(('user_id', 'package_id', 'role',
-                                           'context', 'user_object_role_id'))
-
-    def test_34_roles_show_for_user(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        postparams = '%s=1' % json.dumps({'domain_object': anna.id,
-                                          'user': 'annafan'})
-        res = self.app.post('/api/action/roles_show', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-        results = json.loads(res.body)['result']
-        anna = model.Package.by_name(u'annakarenina')
-        assert_equal(results['domain_object_id'], anna.id)
-        assert_equal(results['domain_object_type'], 'Package')
-        roles = results['roles']
-        assert_equal(len(roles), 1)
-        assert set(roles[0].keys()) > set(('user_id', 'package_id', 'role',
-                                           'context', 'user_object_role_id'))
-
-
-    def test_35_user_role_update(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        roles_before = get_action('roles_show') \
-                                 ({'model': model, 'session': model.Session}, \
-                                  {'domain_object': anna.id,
-                                   'user': 'tester'})
-        postparams = '%s=1' % json.dumps({'user': 'tester',
-                                          'domain_object': anna.id,
-                                          'roles': ['reader']})
-
-        res = self.app.post('/api/action/user_role_update', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-        results = json.loads(res.body)['result']
-        assert_equal(len(results['roles']), 1)
-        anna = model.Package.by_name(u'annakarenina')
-        tester = model.User.by_name(u'tester')
-        assert_equal(results['roles'][0]['role'], 'reader')
-        assert_equal(results['roles'][0]['package_id'], anna.id)
-        assert_equal(results['roles'][0]['user_id'], tester.id)
-
-        roles_after = get_action('roles_show') \
-                      ({'model': model, 'session': model.Session}, \
-                       {'domain_object': anna.id,
-                        'user': 'tester'})
-        assert_equal(results['roles'], roles_after['roles'])
-
-
-    def test_37_user_role_update_disallowed(self):
-        # Roles are no longer used so ignore this test
-        raise SkipTest
-        anna = model.Package.by_name(u'annakarenina')
-        postparams = '%s=1' % json.dumps({'user': 'tester',
-                                          'domain_object': anna.id,
-                                          'roles': ['editor']})
-        # tester has no admin priviledges for this package
-        res = self.app.post('/api/action/user_role_update', params=postparams,
-                            extra_environ={'Authorization': 'tester'},
-                            status=403)
-
-    def test_38_user_role_bulk_update(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        all_roles_before = TestRoles.get_roles(anna.id)
-        user_roles_before = TestRoles.get_roles(anna.id, user_ref=annafan.name)
-        roles_before = get_action('roles_show') \
-                                 ({'model': model, 'session': model.Session}, \
-                                  {'domain_object': anna.id})
-        postparams = '%s=1' % json.dumps({'domain_object': anna.id,
-                                          'user_roles': [
-                    {'user': 'annafan',
-                     'roles': ('admin', 'editor')},
-                    {'user': 'russianfan',
-                     'roles': ['editor']},
-                                              ]})
-
-        res = self.app.post('/api/action/user_role_bulk_update', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-        results = json.loads(res.body)['result']
-
-        # check there are 2 new roles (not 3 because annafan is already admin)
-        all_roles_after = TestRoles.get_roles(anna.id)
-        user_roles_after = TestRoles.get_roles(anna.id, user_ref=annafan.name)
-        assert_equal(set(all_roles_before) ^ set(all_roles_after),
-                     set([u'"annafan" is "editor" on "annakarenina"',
-                          u'"russianfan" is "editor" on "annakarenina"']))
-
-        roles_after = get_action('roles_show') \
-                      ({'model': model, 'session': model.Session}, \
-                       {'domain_object': anna.id})
-        assert_equal(results['roles'], roles_after['roles'])
 
     def test_40_task_resource_status(self):
 

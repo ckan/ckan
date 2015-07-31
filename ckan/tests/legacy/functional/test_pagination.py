@@ -112,10 +112,6 @@ class TestPaginationGroup(TestController):
 class TestPaginationUsers(TestController):
     @classmethod
     def setup_class(cls):
-        # Delete default user as it appears in the first page of results
-        model.User.by_name(u'logged_in').purge()
-        model.repo.commit_and_remove()
-
         # no. entities per page is hardcoded into the controllers, so
         # create enough of each here so that we can test pagination
         cls.num_users = 21
@@ -132,7 +128,6 @@ class TestPaginationUsers(TestController):
         model.repo.rebuild_db()
 
     def test_users_index(self):
-        # allow for 2 extra users shown on user listing, 'logged_in' and 'visitor'
         res = self.app.get(url_for(controller='user', action='index'))
         assert 'href="/user?q=&amp;order_by=name&amp;page=2"' in res
         user_numbers = scrape_search_results(res, 'user')

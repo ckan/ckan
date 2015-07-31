@@ -437,7 +437,6 @@ class TestUserList(helpers.FunctionalTestBase):
         user = factories.User()
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         got_user = got_users[0]
@@ -466,7 +465,6 @@ class TestUserList(helpers.FunctionalTestBase):
                             **dataset)
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         got_user = got_users[0]
@@ -479,7 +477,6 @@ class TestUserList(helpers.FunctionalTestBase):
         factories.User(state='deleted')
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         assert got_users[0]['name'] == user['name']

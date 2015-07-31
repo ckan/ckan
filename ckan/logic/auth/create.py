@@ -223,7 +223,7 @@ def _check_group_auth(context, data_dict):
 def package_create_rest(context, data_dict):
     model = context['model']
     user = context['user']
-    if user in (model.PSEUDO_USER__VISITOR, ''):
+    if not user:
         return {'success': False, 'msg': _('Valid API key needed to create a package')}
 
     return package_create(context, data_dict)
@@ -231,7 +231,7 @@ def package_create_rest(context, data_dict):
 def group_create_rest(context, data_dict):
     model = context['model']
     user = context['user']
-    if user in (model.PSEUDO_USER__VISITOR, ''):
+    if not user:
         return {'success': False, 'msg': _('Valid API key needed to create a group')}
 
     return group_create(context, data_dict)

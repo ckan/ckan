@@ -38,9 +38,6 @@ class PackagesTestCase(BaseModelApiTestCase):
                 groups.append(group.name)
             else:
                 groups.append(group.id)
-
-            if users:
-                model.setup_default_user_roles(group, users)
         return groups
 
     def test_register_get_ok(self):
@@ -369,7 +366,7 @@ class PackagesTestCase(BaseModelApiTestCase):
     def create_package_with_admin_user(self, package_data):
         '''Creates a package with self.user as admin and provided package_data.
         '''
-        self.create_package(admins=[self.user], data=package_data)
+        self.create_package(data=package_data)
 
     def assert_package_update_ok(self, package_ref_attribute,
                                  method_str):
@@ -698,7 +695,7 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_delete_ok(self):
         # create a package with package_fixture_data
         if not self.get_package_by_name(self.package_fixture_data['name']):
-            self.create_package(admins=[self.user], name=self.package_fixture_data['name'])
+            self.create_package(name=self.package_fixture_data['name'])
         assert self.get_package_by_name(self.package_fixture_data['name'])
         # delete it
         offset = self.package_offset(self.package_fixture_data['name'])
@@ -711,7 +708,7 @@ class PackagesTestCase(BaseModelApiTestCase):
     def test_entity_delete_ok_without_request_headers(self):
         # create a package with package_fixture_data
         if not self.get_package_by_name(self.package_fixture_data['name']):
-            self.create_package(admins=[self.user], name=self.package_fixture_data['name'])
+            self.create_package(name=self.package_fixture_data['name'])
         assert self.get_package_by_name(self.package_fixture_data['name'])
         # delete it
         offset = self.package_offset(self.package_fixture_data['name'])
@@ -821,12 +818,6 @@ class TestPackagesVersion1(Version1TestCase, PackagesTestCase):
         pkg.name = test_params['name']
         pkg.download_url = test_params['download_url']
         model.Session.commit()
-
-        pkg = self.get_package_by_name(test_params['name'])
-        model.setup_default_user_roles(pkg, [self.user])
-        rev = model.repo.new_revision()
-        model.repo.commit_and_remove()
-        assert self.get_package_by_name(test_params['name'])
 
         # edit it
         pkg_vals = {'download_url':u'newurl'}

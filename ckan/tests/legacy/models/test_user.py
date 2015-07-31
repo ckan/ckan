@@ -168,13 +168,11 @@ class TestUser2(object):
             assert model.User.by_name(u'annafan').number_of_edits() == i, \
                    "annafan should have made %i edit(s)" % i
 
-
     def test_number_of_administered_packages(self):
         model.User.by_name(u'annafan').number_created_packages() == 1, \
             "annafan should have created one package"
         model.User.by_name(u'joeadmin').number_created_packages() == 0, \
             "joeadmin shouldn't have created any packages"
-
 
     def test_search(self):
         anna_names = [a.name for a in  model.User.search('anna').all()]
