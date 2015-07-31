@@ -1,29 +1,52 @@
+'''
+The system_info table and SystemInfo mapped class store runtime-editable
+configuration options.
+
+For more details, check :doc:`maintaining/configuration`.
+'''
+
 from sqlalchemy import types, Column, Table
 
+import vdm.sqlalchemy
 import meta
 import core
 import domain_object
 
 __all__ = ['system_info_revision_table', 'system_info_table', 'SystemInfo',
-          'get_system_info', 'set_system_info']
+           'SystemInfoRevision', 'get_system_info', 'set_system_info']
 
-system_info_table = Table('system_info', meta.metadata,
-        Column('id', types.Integer(),  primary_key=True, nullable=False),
-        Column('key', types.Unicode(100), unique=True, nullable=False),
-        Column('value', types.UnicodeText),
-    )
+system_info_table = Table(
+    'system_info', meta.metadata,
+    Column('id', types.Integer(),  primary_key=True, nullable=False),
+    Column('key', types.Unicode(100), unique=True, nullable=False),
+    Column('value', types.UnicodeText),
+)
 
+vdm.sqlalchemy.make_table_stateful(system_info_table)
 system_info_revision_table = core.make_revisioned_table(system_info_table)
 
 
-class SystemInfo(domain_object.DomainObject):
+class SystemInfo(vdm.sqlalchemy.RevisionedObjectMixin,
+                 vdm.sqlalchemy.StatefulObjectMixin,
+                 domain_object.DomainObject):
 
     def __init__(self, key, value):
+
+        super(SystemInfo, self).__init__()
+
         self.key = key
         self.value = unicode(value)
 
 
-meta.mapper(SystemInfo, system_info_table)
+meta.mapper(SystemInfo, system_info_table,
+            extension=[
+                vdm.sqlalchemy.Revisioner(system_info_revision_table),
+                ])
+
+vdm.sqlalchemy.modify_base_object_mapper(SystemInfo, core.Revision, core.State)
+SystemInfoRevision = vdm.sqlalchemy.create_object_version(meta.mapper,
+                                                          SystemInfo,
+                                                          system_info_revision_table)
 
 
 def get_system_info(key, default=None):
@@ -45,7 +68,6 @@ def delete_system_info(key, default=None):
 
 def set_system_info(key, value):
     ''' save data in the system_info table '''
-
     obj = None
     obj = meta.Session.query(SystemInfo).filter_by(key=key).first()
     if obj and obj.value == unicode(value):
@@ -54,5 +76,11 @@ def set_system_info(key, value):
         obj = SystemInfo(key, value)
     else:
         obj.value = unicode(value)
+
+    from ckan.model import repo
+    rev = repo.new_revision()
+    rev.message = 'Set {0} setting in system_info table'.format(key)
     meta.Session.add(obj)
     meta.Session.commit()
+
+    return True

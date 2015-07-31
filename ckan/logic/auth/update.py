@@ -326,3 +326,11 @@ def bulk_update_delete(context, data_dict):
     if not authorized:
         return {'success': False}
     return {'success': True}
+
+
+def config_option_update(context, data_dict):
+    '''Update the runtime-editable configuration options
+
+       Only sysdmins can do it
+    '''
+    return {'success': False}

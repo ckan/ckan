@@ -10,7 +10,7 @@
     <dl>
 
       <dt>{{ _('Followers') }}</dt>
-      <dd>{{ h.get_action('dataset_follower_count', {'id': id}) }}</dd>
+      <dd>{{ h.follow_count('dataset', id) }}</dd>
 
       <dt>{{ _('Resources') }}</dt>
       <dd>{{ num_resources }}</dd>

@@ -212,7 +212,9 @@ def package_create(context, data_dict):
     # Create default views for resources if necessary
     if data.get('resources'):
         logic.get_action('package_create_default_resource_views')(
-            context, {'package': data})
+            {'model': context['model'], 'user': context['user'],
+             'ignore_auth': True},
+            {'package': data})
 
     if not context.get('defer_commit'):
         model.repo.commit()
@@ -282,7 +284,9 @@ def resource_create(context, data_dict):
     package_id = _get_or_bust(data_dict, 'package_id')
     _get_or_bust(data_dict, 'url')
 
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    pkg_dict = _get_action('package_show')(
+        dict(context, return_type='dict'),
+        {'id': package_id})
 
     _check_access('resource_create', context, data_dict)
 
@@ -785,7 +789,14 @@ def _group_or_org_create(context, data_dict, is_org=False):
     logic.get_action('member_create')(member_create_context, member_dict)
 
     log.debug('Created object %s' % group.name)
-    return model_dictize.group_dictize(group, context)
+
+    return_id_only = context.get('return_id_only', False)
+    action = 'organization_show' if is_org else 'group_show'
+
+    output = context['id'] if return_id_only \
+        else _get_action(action)(context, {'id': group.id})
+
+    return output
 
 
 def group_create(context, data_dict):
@@ -845,7 +856,9 @@ def group_create(context, data_dict):
         a member of the group)
     :type users: list of dictionaries
 
-    :returns: the newly created group
+    :returns: the newly created group (unless 'return_id_only' is set to True
+              in the context, in which case just the group id will
+              be returned)
     :rtype: dictionary
 
     '''
@@ -904,7 +917,9 @@ def organization_create(context, data_dict):
         in which the user is a member of the organization)
     :type users: list of dictionaries
 
-    :returns: the newly created organization
+    :returns: the newly created organization (unless 'return_id_only' is set
+              to True in the context, in which case just the organization id
+              will be returned)
     :rtype: dictionary
 
     '''
@@ -1092,7 +1107,7 @@ def user_invite(context, data_dict):
 
 def _get_random_username_from_email(email):
     localpart = email.split('@')[0]
-    cleaned_localpart = re.sub(r'[^\w]', '-', localpart)
+    cleaned_localpart = re.sub(r'[^\w]', '-', localpart).lower()
 
     # if we can't create a unique user name within this many attempts
     # then something else is probably wrong and we should give up
@@ -1255,8 +1270,8 @@ def tag_create(context, data_dict):
         characters long containing only alphanumeric characters and ``-``,
         ``_`` and ``.``, e.g. ``'Jazz'``
     :type name: string
-    :param vocabulary_id: the name or id of the vocabulary that the new tag
-        should be added to, e.g. ``'Genre'``
+    :param vocabulary_id: the id of the vocabulary that the new tag
+        should be added to, e.g. the id of vocabulary ``'Genre'``
     :type vocabulary_id: string
 
     :returns: the newly-created tag

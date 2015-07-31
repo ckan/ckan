@@ -27,7 +27,6 @@ def resource_dict_save(res_dict, context):
     table = class_mapper(model.Resource).mapped_table
     fields = [field.name for field in table.c]
 
-
     # Resource extras not submitted will be removed from the existing extras
     # dict
     new_extras = {}
@@ -40,7 +39,9 @@ def resource_dict_save(res_dict, context):
             if isinstance(getattr(obj, key), datetime.datetime):
                 if getattr(obj, key).isoformat() == value:
                     continue
-            if key == 'url' and not new and obj.url <> value:
+                if key == 'last_modified' and not new:
+                    obj.url_changed = True
+            if key == 'url' and not new and obj.url != value:
                 obj.url_changed = True
             setattr(obj, key, value)
         else:

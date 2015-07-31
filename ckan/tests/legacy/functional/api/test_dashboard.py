@@ -246,8 +246,9 @@ class TestDashboard(object):
 
         # Make someone that the user is not following update a group that the
         # user is following.
-        group = self.post('group_show', {'id': 'roger'},
-        apikey=self.testsysadmin['apikey'])
+        group = self.post('group_show',
+                          {'id': 'roger', 'include_datasets':True},
+                          apikey=self.testsysadmin['apikey'])
         group['description'] = 'updated'
         self.post('group_update', group, apikey=self.testsysadmin['apikey'])
 

@@ -20,17 +20,8 @@ class NameConflict(Exception):
     pass
 
 
-class AttributeDict(dict):
-    def __getattr__(self, name):
-        try:
-            return self[name]
-        except KeyError:
-            raise AttributeError('No such attribute %r' % name)
-
-    def __setattr__(self, name, value):
-        raise AttributeError(
-            'You cannot set attributes of this object directly'
-        )
+class UsernamePasswordError(Exception):
+    pass
 
 
 class ActionError(Exception):
@@ -73,7 +64,8 @@ class ValidationError(ActionError):
                 try:
                     tag_errors.append(', '.join(error['name']))
                 except KeyError:
-                    pass
+                    # e.g. if it is a vocabulary_id error
+                    tag_errors.append(error)
             error_dict['tags'] = tag_errors
         self.error_dict = error_dict
         self._error_summary = error_summary

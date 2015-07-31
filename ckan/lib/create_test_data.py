@@ -462,6 +462,7 @@ left arrow <
                              title=u'Roger\'s books',
                              description=u'Roger likes these books.',
                              type=auth_profile or 'group')
+
         for obj in [david, roger]:
             model.Session.add(obj)
 

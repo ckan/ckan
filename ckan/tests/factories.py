@@ -36,6 +36,8 @@ Usage::
  user = factories.User(**user_attributes_dict)
 
 '''
+import random
+import string
 import factory
 import mock
 
@@ -86,6 +88,12 @@ def _generate_group_title(group):
     '''Return a title for the given Group factory stub object.'''
 
     return group.name.replace('_', ' ').title()
+
+
+def _generate_random_string(length=6):
+    '''Return a random string of the defined length.'''
+
+    return ''.join(random.sample(string.ascii_lowercase, length))
 
 
 class User(factory.Factory):
@@ -330,7 +338,7 @@ class Dataset(factory.Factory):
 
     # These are the default params that will be used to create new groups.
     title = 'Test Dataset'
-    description = 'Just another test dataset.'
+    notes = 'Just another test dataset.'
 
     # Generate a different group name param for each user that gets created.
     name = factory.Sequence(lambda n: 'test_dataset_{n}'.format(n=n))
@@ -379,6 +387,32 @@ class MockUser(factory.Factory):
         return mock_user
 
 
+class SystemInfo(factory.Factory):
+    '''A factory class for creating SystemInfo objects (config objects
+       stored in the DB).'''
+
+    FACTORY_FOR = ckan.model.SystemInfo
+
+    key = factory.Sequence(lambda n: 'test_config_{n}'.format(n=n))
+    value = _generate_random_string()
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+
+        ckan.model.system_info.set_system_info(kwargs['key'],
+                                               kwargs['value'])
+        obj = ckan.model.Session.query(ckan.model.system_info.SystemInfo) \
+                                .filter_by(key=kwargs['key']).first()
+
+        return obj
+
+
 def validator_data_dict():
     '''Return a data dict with some arbitrary data in it, suitable to be passed
     to validator functions for testing.
@@ -393,3 +427,20 @@ def validator_errors_dict():
 
     '''
     return {('other key',): ['other error']}
+
+
+class Vocabulary(factory.Factory):
+    '''A factory class for creating tag vocabularies.'''
+
+    FACTORY_FOR = ckan.model.Vocabulary
+    name = factory.Sequence(lambda n: 'test_vocabulary_{n}'.format(n=n))
+
+    @classmethod
+    def _build(cls, target_class, *args, **kwargs):
+        raise NotImplementedError(".build() isn't supported in CKAN")
+
+    @classmethod
+    def _create(cls, target_class, *args, **kwargs):
+        if args:
+            assert False, "Positional args aren't supported, use keyword args."
+        return helpers.call_action('vocabulary_create', **kwargs)
