@@ -11,7 +11,8 @@ import ckan.model as model
 import ckan.tests.legacy as tests
 
 import ckanext.datastore.db as db
-from ckanext.datastore.tests.helpers import extract, rebuild_all_dbs
+from ckanext.datastore.tests.helpers import (extract, rebuild_all_dbs,
+                                             should_skip_test_for_legacy)
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
@@ -23,6 +24,9 @@ assert_raises = nose.tools.assert_raises
 class TestDatastoreSearchNewTest(object):
     @classmethod
     def setup_class(cls):
+        if should_skip_test_for_legacy():
+            raise nose.SkipTest("SQL tests are not supported in legacy mode")
+
         p.load('datastore')
 
     @classmethod
@@ -110,6 +114,9 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        if should_skip_test_for_legacy():
+            raise nose.SkipTest("SQL tests are not supported in legacy mode")
+
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
@@ -649,6 +656,9 @@ class TestDatastoreSearch(tests.WsgiAppCase):
 class TestDatastoreFullTextSearch(tests.WsgiAppCase):
     @classmethod
     def setup_class(cls):
+        if should_skip_test_for_legacy():
+            raise nose.SkipTest("SQL tests are not supported in legacy mode")
+
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         p.load('datastore')
@@ -779,6 +789,9 @@ class TestDatastoreSQL(tests.WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
+        if should_skip_test_for_legacy():
+            raise nose.SkipTest("SQL tests are not supported in legacy mode")
+
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         plugin = p.load('datastore')

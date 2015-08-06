@@ -2,10 +2,12 @@ import nose
 import mock
 
 import ckan.tests.helpers as helpers
+import ckanext.datastore.tests.helpers as datastore_helpers
 import ckan.plugins as p
 import ckanext.datastore.interfaces as interfaces
 import ckanext.datastore.plugin as plugin
 
+from pylons import config
 
 DatastorePlugin = plugin.DatastorePlugin
 assert_equal = nose.tools.assert_equal
@@ -53,6 +55,9 @@ class TestPluginLoadingOrder(object):
 class TestPluginDatastoreSearch(object):
     @classmethod
     def setup_class(cls):
+        if datastore_helpers.should_skip_test_for_legacy():
+            raise nose.SkipTest("SQL tests are not supported in legacy mode")
+
         p.load('datastore')
 
     @classmethod
@@ -94,7 +99,8 @@ class TestPluginDatastoreSearch(object):
         assert_equal(result['ts_query'], expected_ts_query)
 
     def test_fts_rank_column_uses_lang_when_casting_to_tsvector(self):
-        expected_select_content = u'to_tsvector(\'french\', cast("country" as text))'
+        expected_select_content = \
+            u'to_tsvector(\'french\', cast("country" as text))'
         data_dict = {
             'q': {'country': 'Brazil'},
             'lang': 'french',

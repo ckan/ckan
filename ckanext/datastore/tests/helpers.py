@@ -8,6 +8,13 @@ def extract(d, keys):
     return dict((k, d[k]) for k in keys if k in d)
 
 
+def should_skip_test_for_legacy():
+    legacy = False
+    with p.use_plugin('datastore') as the_plugin:
+        legacy = the_plugin.legacy_mode
+    return legacy
+
+
 def clear_db(Session):
     drop_tables = u'''select 'drop table "' || tablename || '" cascade;'
                     from pg_tables where schemaname = 'public' '''

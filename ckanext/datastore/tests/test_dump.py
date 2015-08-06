@@ -21,6 +21,9 @@ class TestDatastoreDump(object):
 
     @classmethod
     def setup_class(cls):
+        if helpers.should_skip_test_for_legacy():
+            raise nose.SkipTest("SQL tests are not supported in legacy mode")
+
         wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         if not tests.is_datastore_supported():
@@ -39,9 +42,9 @@ class TestDatastoreDump(object):
                        {'id': 'published'},
                        {'id': u'characters', u'type': u'_text'}],
             'records': [{u'b\xfck': 'annakarenina',
-                        'author': 'tolstoy',
-                        'published': '2005-03-01',
-                        'nested': ['b', {'moo': 'moo'}],
+                         'author': 'tolstoy',
+                         'published': '2005-03-01',
+                         'nested': ['b', {'moo': 'moo'}],
                         u'characters': [u'Princess Anna', u'Sergius']},
                         {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
                          'nested': {'a': 'b'}}]

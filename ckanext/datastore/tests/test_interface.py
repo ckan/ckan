@@ -2,6 +2,7 @@ import nose
 
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
+import ckanext.datastore.tests.helpers as datastore_helpers
 import ckan.tests.factories as factories
 
 assert_equals = nose.tools.assert_equals
@@ -11,6 +12,9 @@ assert_raises = nose.tools.assert_raises
 class TestInterfaces(object):
     @classmethod
     def setup_class(cls):
+        if datastore_helpers.should_skip_test_for_legacy():
+            raise nose.SkipTest("These tests are not supported in legacy mode")
+
         p.load('datastore')
         p.load('sample_datastore_plugin')
 

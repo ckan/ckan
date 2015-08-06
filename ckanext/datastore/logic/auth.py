@@ -2,7 +2,7 @@ import ckan.plugins as p
 
 
 def datastore_auth(context, data_dict, privilege='resource_update'):
-    if not 'id' in data_dict:
+    if 'id' not in data_dict:
         data_dict['id'] = data_dict.get('resource_id')
 
     user = context.get('user')
@@ -13,7 +13,7 @@ def datastore_auth(context, data_dict, privilege='resource_update'):
         return {
             'success': False,
             'msg': p.toolkit._('User {0} not authorized to update resource {1}'
-                    .format(str(user), data_dict['id']))
+                               .format(str(user), data_dict['id']))
         }
     else:
         return {'success': True}
@@ -50,7 +50,7 @@ def datastore_search(context, data_dict):
 
 @p.toolkit.auth_allow_anonymous_access
 def datastore_search_sql(context, data_dict):
-    return {'success': True}
+    return datastore_auth(context, data_dict, 'resource_show')
 
 
 def datastore_change_permissions(context, data_dict):

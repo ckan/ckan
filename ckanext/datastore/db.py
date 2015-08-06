@@ -86,8 +86,8 @@ def _is_valid_field_name(name):
     * can't contain double quote (")
     * can't be empty
     '''
-    return (name and name == name.strip() and not name.startswith('_')
-            and not '"' in name)
+    return (name and name == name.strip() and not name.startswith('_') and
+            '"' not in name)
 
 
 def _is_valid_table_name(name):
@@ -135,7 +135,7 @@ def _cache_types(context):
                         'json' if native_json else 'text'))
             _pg_types.clear()
 
-            ## redo cache types with json now available.
+            # redo cache types with json now available.
             return _cache_types(context)
 
         psycopg2.extras.register_composite('nested',
@@ -215,7 +215,7 @@ def _guess_type(field):
     elif float in data_types:
         return 'numeric'
 
-    ##try iso dates
+    # try iso dates
     for format in _DATE_FORMATS:
         try:
             datetime.datetime.strptime(field, format)
@@ -324,7 +324,7 @@ def create_table(context, data_dict):
             })
         supplied_field_ids = records[0].keys()
         for field_id in supplied_field_ids:
-            if not field_id in field_ids:
+            if field_id not in field_ids:
                 extra_fields.append({
                     'id': field_id,
                     'type': _guess_type(records[0][field_id])
@@ -565,7 +565,7 @@ def alter_table(context, data_dict):
                                 'present or in wrong order').format(
                         field['id'])]
                 })
-            ## no need to check type as field already defined.
+            # no need to check type as field already defined.
             continue
 
         if 'type' not in field:
@@ -589,7 +589,7 @@ def alter_table(context, data_dict):
             })
         supplied_field_ids = records[0].keys()
         for field_id in supplied_field_ids:
-            if not field_id in field_ids:
+            if field_id not in field_ids:
                 new_fields.append({
                     'id': field_id,
                     'type': _guess_type(records[0][field_id])
@@ -636,7 +636,7 @@ def upsert_data(context, data_dict):
             for field in fields:
                 value = record.get(field['id'])
                 if value and field['type'].lower() == 'nested':
-                    ## a tuple with an empty second value
+                    # a tuple with an empty second value
                     value = (json.dumps(value), '')
                 row.append(value)
             row.append(_to_full_text(fields, record))
@@ -678,7 +678,7 @@ def upsert_data(context, data_dict):
             for field in fields:
                 value = record.get(field['id'])
                 if value is not None and field['type'].lower() == 'nested':
-                    ## a tuple with an empty second value
+                    # a tuple with an empty second value
                     record[field['id']] = (json.dumps(value), '')
 
             non_existing_filed_names = [field for field in record
@@ -778,7 +778,7 @@ def _validate_record(record, num, field_names):
         raise ValidationError({
             'records': [u'row "{0}" is not a json object'.format(num)]
         })
-    ## check for extra fields in data
+    # check for extra fields in data
     extra_keys = set(record.keys()) - set(field_names)
 
     if extra_keys:
@@ -1159,7 +1159,7 @@ def delete(context, data_dict):
     trans = context['connection'].begin()
     try:
         # check if table exists
-        if not 'filters' in data_dict:
+        if 'filters' not in data_dict:
             context['connection'].execute(
                 u'DROP TABLE "{0}" CASCADE'.format(data_dict['resource_id'])
             )
@@ -1223,6 +1223,14 @@ def search_sql(context, data_dict):
             raise toolkit.NotAuthorized({
                 'permissions': ['Not authorized to access system tables']
             })
+
+        # Check the user has the correct permissions for this resource. This
+        # would normally be done in the action function
+        # (action.datastore_search_sql) but it is only at this point that we
+        # know which tables are being queried.
+        for resource_table in table_names:
+            data_dict['resource_id'] = resource_table
+            p.toolkit.check_access('datastore_search_sql', context, data_dict)
 
         results = context['connection'].execute(sql)
 
