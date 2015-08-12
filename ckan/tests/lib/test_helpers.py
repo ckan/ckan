@@ -118,3 +118,5 @@ class TestResourceFormat(object):
         eq_(h.unified_resource_format('tsv'), 'TSV')
 
         eq_(h.unified_resource_format('text/tab-separated-values'), 'TSV')
+
+        eq_(h.unified_resource_format('text/tsv'), 'TSV')
