@@ -1,7 +1,7 @@
 import json
 import nose
 import sys
-from nose.tools import assert_equal
+from nose.tools import assert_equal, raises
 
 import pylons
 from pylons import config
@@ -137,6 +137,21 @@ class TestDatastoreCreateNewTests(object):
         result = helpers.call_action('datastore_create', **data)
         current_index_names = self._get_index_names(resource['id'])
         assert_equal(previous_index_names, current_index_names)
+
+    @raises(p.toolkit.ValidationError)
+    def test_create_duplicate_fields(self):
+        package = factories.Dataset()
+        data = {
+            'resource': {
+                'book': 'crime',
+                'author': ['tolstoy', 'dostoevsky'],
+                'package_id': package['id']
+            },
+            'fields': [{'id': 'book', 'type': 'text'},
+                       {'id': 'book', 'type': 'text'}],
+        }
+        result = helpers.call_action('datastore_create', **data)
+
 
     def _has_index_on_field(self, resource_id, field):
         sql = u"""
