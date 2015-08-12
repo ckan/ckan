@@ -109,3 +109,14 @@ class TestLicenseOptions(object):
         eq_(dict(licenses)['some-old-license'], 'some-old-license')
         # and it is first on the list
         eq_(licenses[0][0], 'some-old-license')
+
+
+class TestResourceFormat(object):
+
+    def test_autodetect_tsv(self):
+
+        eq_(h.unified_resource_format('tsv'), 'TSV')
+
+        eq_(h.unified_resource_format('text/tab-separated-values'), 'TSV')
+
+        eq_(h.unified_resource_format('text/tsv'), 'TSV')
