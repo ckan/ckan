@@ -66,7 +66,7 @@ this.ckan.module('confirm-action', function (jQuery, _) {
         action: this.el.attr('href'),
         method: 'POST'
       });
-      $(this.el).closest('form').find('input.confirm-action').appendTo(form);
+      $(this.el).closest('form').find('input[data-module-confirm-action]').appendTo(form);
       form.appendTo('body').submit();
     },
 
