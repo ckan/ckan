@@ -31,6 +31,7 @@ features by developing your own CKAN extensions.
 
    tutorial
    custom-config-settings
+   remote-config-update
    testing-extensions
    best-practices
    adding-custom-fields

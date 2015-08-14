@@ -318,7 +318,6 @@ class TestImportStar(object):
         'ckan/tests/legacy/models/test_user.py',
         'ckan/tests/legacy/pylons_controller.py',
         'ckan/tests/legacy/test_dumper.py',
-        'ckan/tests/legacy/test_wsgi_ckanclient.py',
         'fabfile.py',
     ]
     fails = {}
@@ -371,26 +370,7 @@ class TestPep8(object):
     # list to prevent new errors being added to the file.
 
     PEP8_BLACKLIST_FILES = [
-        'bin/canada.py',
-        'bin/ckan-correct-tags.py',
-        'bin/ckan-edit-tags.py',
-        'bin/ckan-edit-tags2.py',
-        'bin/ckan-hmg-breakdown.py',
-        'bin/ckan-hmg-update-licenses.py',
-        'bin/ckan-rest-edit-tags.py',
-        'bin/ckan_edit_local.py',
-        'bin/ckan_spam.py',
-        'bin/copy-ckan-2-ckan.py',
-        'bin/dump-ukgov.py',
-        'bin/dump_23_pkgs.py',
-        'bin/fixes.py',
-        'bin/loadconfig.py',
-        'bin/ons-load.py',
-        'bin/revision_manager.py',
         'bin/running_stats.py',
-        'bin/status.py',
-        'bin/talisckan.py',
-        'bin/webstore_test.py',
         'ckan/__init__.py',
         'ckan/ckan_nose_plugin.py',
         'ckan/config/middleware.py',
@@ -639,8 +619,6 @@ class TestPep8(object):
         'ckan/tests/legacy/test_dumper.py',
         'ckan/tests/legacy/test_plugins.py',
         'ckan/tests/legacy/test_versions.py',
-        'ckan/tests/legacy/test_wsgi_ckanclient.py',
-        'ckan/tests/legacy/wsgi_ckanclient.py',
         'ckan/websetup.py',
         'ckanext/datastore/bin/datastore_setup.py',
         'ckanext/datastore/logic/action.py',
@@ -779,8 +757,6 @@ class TestActionAuth(object):
         'update: package_relationship_update_rest',
         'update: task_status_update_many',
         'update: term_translation_update_many',
-        'update: user_role_bulk_update',
-        'update: user_role_update',
     ]
 
     AUTH_NO_ACTION_BLACKLIST = [

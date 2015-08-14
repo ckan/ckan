@@ -173,6 +173,7 @@ class ResourceUpload(object):
             self.filename = munge.munge_filename(self.filename)
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
+            resource['last_modified'] = datetime.datetime.utcnow()
             self.upload_file = upload_field_storage.file
         elif self.clear:
             resource['url_type'] = ''

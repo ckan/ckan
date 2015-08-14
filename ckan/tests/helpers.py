@@ -197,7 +197,7 @@ class FunctionalTestBase(object):
         config.update(cls._original_config)
 
 
-def submit_and_follow(app, form, extra_environ, name=None,
+def submit_and_follow(app, form, extra_environ=None, name=None,
                       value=None, **args):
     '''
     Call webtest_submit with name/value passed expecting a redirect
@@ -269,6 +269,23 @@ def webtest_submit_fields(form, name=None, index=None, submit_value=None):
             else:
                 submit.append((name, value))
     return submit
+
+
+def webtest_maybe_follow(response, **kw):
+    """
+    Follow all redirects. If this response is not a redirect, do nothing.
+    Returns another response object.
+
+    (backported from WebTest 2.0.1)
+    """
+    remaining_redirects = 100  # infinite loops protection
+
+    while 300 <= response.status_int < 400 and remaining_redirects:
+        response = response.follow(**kw)
+        remaining_redirects -= 1
+
+    assert remaining_redirects > 0, "redirects chain looks infinite"
+    return response
 
 
 def change_config(key, value):

@@ -25,7 +25,7 @@ class TestGroupListDictize:
 
         assert_equal(len(group_dicts), 1)
         assert_equal(group_dicts[0]['name'], group['name'])
-        assert_equal(group_dicts[0]['packages'], 0)
+        assert_equal(group_dicts[0]['package_count'], 0)
         assert 'extras' not in group_dicts[0]
         assert 'tags' not in group_dicts[0]
         assert 'groups' not in group_dicts[0]
@@ -181,7 +181,6 @@ class TestGroupDictize:
 
         assert_equal(len(group['groups']), 1)
         assert_equal(group['groups'][0]['name'], 'parent')
-        assert_equal(group['groups'][0]['packages'], 0)  # deprecated
         assert_equal(group['groups'][0]['package_count'], 0)
 
     def test_group_dictize_without_packages(self):
@@ -250,8 +249,6 @@ class TestGroupDictize:
 
         group = model_dictize.group_dictize(group_obj, context,
                                             packages_field='dataset_count')
-
-        assert_equal(group['packages'], 1)
         assert_equal(group['package_count'], 1)
 
     def test_group_dictize_with_no_packages_field_but_still_package_count(self):
@@ -263,8 +260,7 @@ class TestGroupDictize:
         # not supplying dataset_counts in this case either
 
         group = model_dictize.group_dictize(group_obj, context,
-                                            packages_field=
-                                            'none_but_include_package_count')
+                                            packages_field='dataset_count')
 
         assert 'packages' not in group
         assert_equal(group['package_count'], 1)
@@ -293,7 +289,7 @@ class TestGroupDictize:
         org = model_dictize.group_dictize(org_obj, context,
                                           packages_field='dataset_count')
 
-        assert_equal(org['packages'], 1)
+        assert_equal(org['package_count'], 1)
 
 
 class TestPackageDictize:
@@ -509,3 +505,60 @@ def assert_equal_for_keys(dict1, dict2, *keys):
         assert key in dict2, 'Dict 2 misses key "%s"' % key
         assert dict1[key] == dict2[key], '%s != %s (key=%s)' % \
             (dict1[key], dict2[key], key)
+
+
+class TestTagDictize(object):
+    """Unit tests for the tag_dictize() function."""
+
+    def test_tag_dictize_including_datasets(self):
+        """By default a dictized tag should include the tag's datasets."""
+        # Make a dataset in order to have a tag created.
+        factories.Dataset(tags=[dict(name="test_tag")])
+        tag = model.Tag.get("test_tag")
+
+        tag_dict = model_dictize.tag_dictize(tag, context={"model": model})
+
+        assert len(tag_dict["packages"]) == 1
+
+    def test_tag_dictize_not_including_datasets(self):
+        """include_datasets=False should exclude datasets from tag dicts."""
+        # Make a dataset in order to have a tag created.
+        factories.Dataset(tags=[dict(name="test_tag")])
+        tag = model.Tag.get("test_tag")
+
+        tag_dict = model_dictize.tag_dictize(tag, context={"model": model},
+                                             include_datasets=False)
+
+        assert not tag_dict.get("packages")
+
+
+class TestVocabularyDictize(object):
+    """Unit tests for the vocabulary_dictize() function."""
+
+    def test_vocabulary_dictize_including_datasets(self):
+        """include_datasets=True should include datasets in vocab dicts."""
+        vocab_dict = factories.Vocabulary(
+            tags=[dict(name="test_tag_1"), dict(name="test_tag_2")])
+        factories.Dataset(tags=vocab_dict["tags"])
+        vocab_obj = model.Vocabulary.get(vocab_dict["name"])
+
+        vocab_dict = model_dictize.vocabulary_dictize(
+            vocab_obj, context={"model": model}, include_datasets=True)
+
+        assert len(vocab_dict["tags"]) == 2
+        for tag in vocab_dict["tags"]:
+            assert len(tag["packages"]) == 1
+
+    def test_vocabulary_dictize_not_including_datasets(self):
+        """By default datasets should not be included in vocab dicts."""
+        vocab_dict = factories.Vocabulary(
+            tags=[dict(name="test_tag_1"), dict(name="test_tag_2")])
+        factories.Dataset(tags=vocab_dict["tags"])
+        vocab_obj = model.Vocabulary.get(vocab_dict["name"])
+
+        vocab_dict = model_dictize.vocabulary_dictize(
+            vocab_obj, context={"model": model})
+
+        assert len(vocab_dict["tags"]) == 2
+        for tag in vocab_dict["tags"]:
+            assert len(tag.get("packages", [])) == 0

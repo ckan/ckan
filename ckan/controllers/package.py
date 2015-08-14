@@ -189,7 +189,7 @@ class PackageController(base.BaseController):
             return search_url(params, package_type)
 
         c.sort_by = _sort_by
-        if sort_by is None:
+        if not sort_by:
             c.sort_by_fields = []
         else:
             c.sort_by_fields = [field.split()[0]
@@ -1053,11 +1053,6 @@ class PackageController(base.BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj}
-
-        try:
-            check_access('package_delete', context, {'id': id})
-        except NotAuthorized:
-            abort(401, _('Unauthorized to delete package %s') % '')
 
         try:
             if request.method == 'POST':
