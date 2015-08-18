@@ -128,8 +128,6 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         expected_group = dict(group.items()[:])
         for field in ('users', 'tags', 'extras', 'groups'):
-            if field in group_list[0]:
-                del group_list[0][field]
             del expected_group[field]
 
         assert group_list[0] == expected_group
