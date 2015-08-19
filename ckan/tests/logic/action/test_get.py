@@ -8,6 +8,7 @@ import ckan.logic.schema as schema
 
 
 eq = nose.tools.eq_
+assert_raises = nose.tools.assert_raises
 
 
 class TestPackageShow(helpers.FunctionalTestBase):
@@ -178,6 +179,49 @@ class TestGroupList(helpers.FunctionalTestBase):
         expected_parent_group = dict(parent_group.items()[:])
 
         eq([g['name'] for g in child_group_returned['groups']], [expected_parent_group['name']])
+
+    def test_group_list_limit(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', limit=1)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group1['name'])
+
+    def test_group_list_offset(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', offset=2)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group3['name'])
+
+    def test_group_list_limit_and_offset(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', offset=1, limit=1)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group2['name'])
+
+    def test_group_list_wrong_limit(self):
+
+        assert_raises(logic.ValidationError, helpers.call_action, 'group_list',
+                      limit='a')
+
+    def test_group_list_wrong_offset(self):
+
+        assert_raises(logic.ValidationError, helpers.call_action, 'group_list',
+                      offset='-2')
 
 
 class TestGroupShow(helpers.FunctionalTestBase):
