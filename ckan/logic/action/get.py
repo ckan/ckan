@@ -392,13 +392,28 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     all_fields = data_dict.get('all_fields', None)
     include_extras = all_fields and \
-                     asbool(data_dict.get('include_extras', False))
+        asbool(data_dict.get('include_extras', False))
 
-    query = model.Session.query(model.Group)
-    if include_extras:
+    if sort_info and sort_info[0][0] == 'package_count':
+        query = model.Session.query(model.Group.id,
+                                    model.Group.name,
+                                    sqlalchemy.func.count(model.Group.id))
+
+        query = query.filter(model.Member.group_id==model.Group.id) \
+                     .filter(model.Member.table_id==model.Package.id) \
+                     .filter(model.Member.table_name=='package') \
+                     .filter(model.Package.state=='active')
+        # TODO: private datasets
+    else:
+        query = model.Session.query(model.Group.id,
+                                    model.Group.name)
+
+    query = query.filter(model.Group.state=='active')
+
+    # if include_extras:
         # this does an eager load of the extras, avoiding an sql query every
         # time group_list_dictize accesses a group's extra.
-        query = query.options(sqlalchemy.orm.joinedload(model.Group._extras))
+        # query = query.options(sqlalchemy.orm.joinedload(model.Group._extras))
     query = query.filter(model.Group.state == 'active')
     if groups:
         query = query.filter(model.Group.name.in_(groups))
@@ -414,20 +429,31 @@ def _group_or_org_list(context, data_dict, is_org=False):
     if not is_org:
         query = query.filter(model.Group.type == group_type)
 
+    if sort_info:
+        sort_field = sort_info[0][0]
+        sort_direction = sort_info[0][1]
+        if sort_field == 'package_count':
+            query = query.group_by(model.Group.id, model.Group.name)
+            sort_model_field = sqlalchemy.func.count(model.Group.id)
+        elif sort_field == 'name':
+            sort_model_field = model.Group.name
+        elif sort_field == 'title':
+            sort_model_field = model.Group.title
+
+        if sort_direction == 'asc':
+            query = query.order_by(sqlalchemy.asc(sort_model_field))
+        else:
+            query = query.order_by(sqlalchemy.desc(sort_model_field))
     groups = query.all()
 
-    action = 'organization_show' if is_org else 'group_show'
-
-    group_list = []
-    for group in groups:
-        data_dict['id'] = group.id
-        group_list.append(logic.get_action(action)(context, data_dict))
-
-    group_list = sorted(group_list, key=lambda x: x[sort_info[0][0]],
-        reverse=sort_info[0][1] == 'desc')
-
-    if not all_fields:
-        group_list = [group[ref_group_by] for group in group_list]
+    if all_fields:
+        action = 'organization_show' if is_org else 'group_show'
+        group_list = []
+        for group in groups:
+            data_dict['id'] = group.id
+            group_list.append(logic.get_action(action)(context, data_dict))
+    else:
+        group_list = [getattr(group, ref_group_by) for group in groups]
 
     return group_list
 
