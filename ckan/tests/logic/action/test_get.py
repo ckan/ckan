@@ -128,8 +128,6 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         expected_group = dict(group.items()[:])
         for field in ('users', 'tags', 'extras', 'groups'):
-            if field in group_list[0]:
-                del group_list[0][field]
             del expected_group[field]
 
         assert group_list[0] == expected_group
@@ -148,6 +146,17 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         eq(group_list[0]['extras'], group['extras'])
         eq(group_list[0]['extras'][0]['key'], 'key1')
+
+    def test_group_list_users_returned(self):
+        user = factories.User()
+        group = factories.Group(users=[{'name': user['name'],
+                                        'capacity': 'admin'}])
+
+        group_list = helpers.call_action('group_list', all_fields=True,
+                                         include_users=True)
+
+        eq(group_list[0]['users'], group['users'])
+        eq(group_list[0]['users'][0]['name'], group['users'][0]['name'])
 
     # NB there is no test_group_list_tags_returned because tags are not in the
     # group_create schema (yet)

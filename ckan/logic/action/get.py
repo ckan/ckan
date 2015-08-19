@@ -372,6 +372,8 @@ def _group_or_org_list(context, data_dict, is_org=False):
     sort = data_dict.get('sort', 'name')
     q = data_dict.get('q')
 
+    all_fields = asbool(data_dict.get('all_fields', None))
+
     # order_by deprecated in ckan 1.8
     # if it is supplied and sort isn't use order_by and raise a warning
     order_by = data_dict.get('order_by', '')
@@ -390,15 +392,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
                                                'package_count', 'title'],
                                total=1)
 
-    all_fields = data_dict.get('all_fields', None)
-    include_extras = all_fields and \
-                     asbool(data_dict.get('include_extras', False))
-
     query = model.Session.query(model.Group)
-    if include_extras:
-        # this does an eager load of the extras, avoiding an sql query every
-        # time group_list_dictize accesses a group's extra.
-        query = query.options(sqlalchemy.orm.joinedload(model.Group._extras))
     query = query.filter(model.Group.state == 'active')
     if groups:
         query = query.filter(model.Group.name.in_(groups))
@@ -421,6 +415,12 @@ def _group_or_org_list(context, data_dict, is_org=False):
     group_list = []
     for group in groups:
         data_dict['id'] = group.id
+
+        for key in ('include_extras', 'include_tags', 'include_users',
+                    'include_groups', 'include_followers'):
+            if key not in data_dict:
+                data_dict[key] = False
+
         group_list.append(logic.get_action(action)(context, data_dict))
 
     group_list = sorted(group_list, key=lambda x: x[sort_info[0][0]],
@@ -461,6 +461,10 @@ def group_list(context, data_dict):
     :param include_groups: if all_fields, include the groups the groups are in
         (optional, default: ``False``).
     :type include_groups: boolean
+    :param include_users: if all_fields, include the group users
+        (optional, default: ``False``).
+    :type include_users: boolean
+
 
     :rtype: list of strings
 
@@ -490,15 +494,19 @@ def organization_list(context, data_dict):
         packages in the `package_count` property.
         (optional, default: ``False``)
     :type all_fields: boolean
-    :param include_extras: if all_fields, include the group extra fields
+    :param include_extras: if all_fields, include the organization extra fields
         (optional, default: ``False``)
     :type include_extras: boolean
-    :param include_tags: if all_fields, include the group tags
+    :param include_tags: if all_fields, include the organization tags
         (optional, default: ``False``)
     :type include_tags: boolean
-    :param include_groups: if all_fields, include the groups the groups are in
+    :param include_groups: if all_fields, include the organizations the
+        organizations are in
         (optional, default: ``False``)
     :type all_fields: boolean
+    :param include_users: if all_fields, include the organization users
+        (optional, default: ``False``).
+    :type include_users: boolean
 
     :rtype: list of strings
 
@@ -1160,6 +1168,12 @@ def _group_or_org_show(context, data_dict, is_org=False):
     include_datasets = asbool(data_dict.get('include_datasets', False))
     packages_field = 'datasets' if include_datasets else 'dataset_count'
 
+    include_tags = asbool(data_dict.get('include_tags', True))
+    include_users = asbool(data_dict.get('include_users', True))
+    include_groups = asbool(data_dict.get('include_groups', True))
+    include_extras = asbool(data_dict.get('include_extras', True))
+    include_followers = asbool(data_dict.get('include_followers', True))
+
     if group is None:
         raise NotFound
     if is_org and not group.is_organization:
@@ -1173,7 +1187,11 @@ def _group_or_org_show(context, data_dict, is_org=False):
         _check_access('group_show', context, data_dict)
 
     group_dict = model_dictize.group_dictize(group, context,
-                                             packages_field=packages_field)
+                                             packages_field=packages_field,
+                                             include_tags=include_tags,
+                                             include_extras=include_extras,
+                                             include_groups=include_groups,
+                                             include_users=include_users,)
 
     if is_org:
         plugin_type = plugins.IOrganizationController
@@ -1192,9 +1210,12 @@ def _group_or_org_show(context, data_dict, is_org=False):
     except AttributeError:
         schema = group_plugin.db_to_form_schema()
 
-    group_dict['num_followers'] = logic.get_action('group_follower_count')(
-        {'model': model, 'session': model.Session},
-        {'id': group_dict['id']})
+    if include_followers:
+        group_dict['num_followers'] = logic.get_action('group_follower_count')(
+            {'model': model, 'session': model.Session},
+            {'id': group_dict['id']})
+    else:
+        group_dict['num_followers'] = 0
 
     if schema is None:
         schema = logic.schema.default_show_group_schema()
@@ -1211,6 +1232,21 @@ def group_show(context, data_dict):
     :type id: string
     :param include_datasets: include a list of the group's datasets
          (optional, default: ``False``)
+    :type id: boolean
+    :param include_extras: include the group's extra fields
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_users: include the group's users
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_groups: include the group's sub groups
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_tags: include the group's tags
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_followers: include the group's number of followers
+         (optional, default: ``True``)
     :type id: boolean
 
     :rtype: dictionary
@@ -1229,6 +1265,22 @@ def organization_show(context, data_dict):
     :param include_datasets: include a list of the organization's datasets
          (optional, default: ``False``)
     :type id: boolean
+    :param include_extras: include the organization's extra fields
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_users: include the organization's users
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_groups: include the organization's sub groups
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_tags: include the organization's tags
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_followers: include the organization's number of followers
+         (optional, default: ``True``)
+    :type id: boolean
+
 
     :rtype: dictionary
 
