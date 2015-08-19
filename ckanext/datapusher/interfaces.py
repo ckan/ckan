@@ -20,6 +20,11 @@ class IDataPusher(Interface):
         whilst returning True will submit the resource to the datapusher
         service
 
+        Note that before reaching this hook there is a prior check on the
+        resource format, which depends on the value of
+        the :ref:`ckan.datapusher.formats` configuration option (and requires
+        the resource to have a format defined).
+
         :param resource_id: The ID of the resource that is to be
             pushed to the datapusher service.
 
