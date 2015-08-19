@@ -368,8 +368,19 @@ def _group_or_org_list(context, data_dict, is_org=False):
     groups = data_dict.get('groups')
     group_type = data_dict.get('type', 'group')
     ref_group_by = 'id' if api == 2 else 'name'
-
-    sort = data_dict.get('sort', 'name')
+    pagination_dict = {}
+    limit = data_dict.get('limit')
+    if limit:
+        pagination_dict['limit'] = data_dict['limit']
+    offset = data_dict.get('offset')
+    if offset:
+        pagination_dict['offset'] = data_dict['offset']
+    if pagination_dict:
+        pagination_dict, errors = _validate(
+            data_dict, logic.schema.default_pagination_schema(), context)
+        if errors:
+            raise ValidationError(errors)
+    sort = data_dict.get('sort') or 'name'
     q = data_dict.get('q')
 
     all_fields = asbool(data_dict.get('all_fields', None))
@@ -436,6 +447,11 @@ def _group_or_org_list(context, data_dict, is_org=False):
         else:
             query = query.order_by(sqlalchemy.desc(sort_model_field))
 
+    if limit:
+        query = query.limit(limit)
+    if offset:
+        query = query.offset(offset)
+
     groups = query.all()
 
     if all_fields:
@@ -465,6 +481,13 @@ def group_list(context, data_dict):
         "name asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
+    :param limit: if given, the list of groups will be broken into pages of
+        at most ``limit`` groups per page and only one page will be returned
+        at a time (optional)
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start
+        returning groups from
+    :type offset: int
     :param groups: a list of names of the groups to return, if given only
         groups whose names are in this list will be returned (optional)
     :type groups: list of strings
@@ -506,6 +529,13 @@ def organization_list(context, data_dict):
         "name asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
+    :param limit: if given, the list of organizations will be broken into pages
+        of at most ``limit`` organizations per page and only one page will be
+        returned at a time (optional)
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start
+        returning organizations from
+    :type offset: int
     :param organizations: a list of names of the groups to return,
         if given only groups whose names are in this list will be
         returned (optional)
