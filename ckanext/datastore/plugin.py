@@ -357,6 +357,8 @@ class DatastorePlugin(p.SingletonPlugin):
             return False
 
         field = clause_match.group(1)
+        if field[0] == field[-1] == u'"':
+            field = field[1:-1]
         sort = (clause_match.group(3) or u'asc').lower()
 
         if field not in fields_types:
@@ -460,7 +462,8 @@ class DatastorePlugin(p.SingletonPlugin):
 
         for clause in clauses:
             field, sort = self._parse_sort_clause(clause, fields_types)
-            clause_parsed.append(u'"{0}" {1}'.format(field, sort))
+            clause_parsed.append(
+                u'{0} {1}'.format(datastore_helpers.identifier(field), sort))
 
         return clause_parsed
 
