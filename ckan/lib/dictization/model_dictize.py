@@ -143,6 +143,16 @@ def _unified_resource_format(format_):
         format_new = format_.lower()
     return format_new
 
+def get_site_url_and_protocol():
+    site_url = config.get('ckan.site_url', None)
+    if site_url is not None:
+        parsed_url = urlparse.urlparse(site_url)
+        return (
+            parsed_url.scheme.encode('utf-8'),
+            parsed_url.netloc.encode('utf-8')
+        )
+    return (None, None)
+
 def resource_dictize(res, context):
     model = context['model']
     resource = d.table_dictize(res, context)
@@ -160,11 +170,14 @@ def resource_dictize(res, context):
             model.ResourceGroup).get(resource_group_id)
         last_part = url.split('/')[-1]
         cleaned_name = munge.munge_filename(last_part)
+        protocol, host = get_site_url_and_protocol()
         resource['url'] = h.url_for(controller='package',
                                     action='resource_download',
                                     id=resource_group.package_id,
                                     resource_id=res.id,
                                     filename=cleaned_name,
+                                    protocol=protocol,
+                                    host=host,
                                     qualified=True)
     elif not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
         resource['url'] = u'http://' + url.lstrip('/')
@@ -576,7 +589,6 @@ def tag_to_api(tag, context):
         return sorted([package["name"] for package in dictized["packages"]])
     else:
         return sorted([package["id"] for package in dictized["packages"]])
-
 
 def resource_dict_to_api(res_dict, package_id, context):
     res_dict.pop("revision_id")
