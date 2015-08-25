@@ -12,9 +12,6 @@ from ckan.common import _, g, c
 
 CACHE_PARAMETERS = ['__cache', '__no_cache__']
 
-# horrible hack
-dirty_cached_group_stuff = None
-
 
 class HomeController(base.BaseController):
     repo = model.repo
