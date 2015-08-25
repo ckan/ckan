@@ -8,6 +8,7 @@ import ckan.logic.schema as schema
 
 
 eq = nose.tools.eq_
+assert_raises = nose.tools.assert_raises
 
 
 class TestPackageShow(helpers.FunctionalTestBase):
@@ -128,8 +129,6 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         expected_group = dict(group.items()[:])
         for field in ('users', 'tags', 'extras', 'groups'):
-            if field in group_list[0]:
-                del group_list[0][field]
             del expected_group[field]
 
         assert group_list[0] == expected_group
@@ -148,6 +147,17 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         eq(group_list[0]['extras'], group['extras'])
         eq(group_list[0]['extras'][0]['key'], 'key1')
+
+    def test_group_list_users_returned(self):
+        user = factories.User()
+        group = factories.Group(users=[{'name': user['name'],
+                                        'capacity': 'admin'}])
+
+        group_list = helpers.call_action('group_list', all_fields=True,
+                                         include_users=True)
+
+        eq(group_list[0]['users'], group['users'])
+        eq(group_list[0]['users'][0]['name'], group['users'][0]['name'])
 
     # NB there is no test_group_list_tags_returned because tags are not in the
     # group_create schema (yet)
@@ -169,6 +179,49 @@ class TestGroupList(helpers.FunctionalTestBase):
         expected_parent_group = dict(parent_group.items()[:])
 
         eq([g['name'] for g in child_group_returned['groups']], [expected_parent_group['name']])
+
+    def test_group_list_limit(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', limit=1)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group1['name'])
+
+    def test_group_list_offset(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', offset=2)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group3['name'])
+
+    def test_group_list_limit_and_offset(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', offset=1, limit=1)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group2['name'])
+
+    def test_group_list_wrong_limit(self):
+
+        assert_raises(logic.ValidationError, helpers.call_action, 'group_list',
+                      limit='a')
+
+    def test_group_list_wrong_offset(self):
+
+        assert_raises(logic.ValidationError, helpers.call_action, 'group_list',
+                      offset='-2')
 
 
 class TestGroupShow(helpers.FunctionalTestBase):
