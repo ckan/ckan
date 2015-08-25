@@ -104,6 +104,7 @@ def extras_list_dictize(extras_list, context):
 
     return sorted(result_list, key=lambda x: x["key"])
 
+
 def resource_dictize(res, context):
     model = context['model']
     resource = d.table_dictize(res, context)
