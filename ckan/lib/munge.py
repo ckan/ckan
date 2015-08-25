@@ -122,7 +122,7 @@ def munge_filename_legacy(filename):
     '''
     filename = substitute_ascii_equivalents(filename)
     filename = filename.strip()
-    filename = re.sub(r'[^a-zA-Z0-9.\-_ ]', '', filename).replace(' ', '-')
+    filename = re.sub(r'[^a-zA-Z0-9.\- ]', '', filename).replace(' ', '-')
     filename = _munge_to_length(filename, 3, 100)
     return filename
 
@@ -139,7 +139,7 @@ def munge_filename(filename):
     # clean up
     filename = substitute_ascii_equivalents(filename)
     filename = filename.lower().strip()
-    filename = re.sub(r'[^a-zA-Z0-9. -]', '', filename).replace(' ', '-')
+    filename = re.sub(r'[^a-zA-Z0-9. -_]', '', filename).replace(' ', '-')
     # resize if needed but keep extension
     name, ext = os.path.splitext(filename)
     # limit overly long extensions
