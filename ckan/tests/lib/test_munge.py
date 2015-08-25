@@ -14,7 +14,7 @@ class TestMungeFilenameLegacy(object):
         ('random:other%character&', 'randomothercharacter'),
         (u'u with umlaut \xfc', 'u-with-umlaut-u'),
         ('2014-11-10 12:24:05.340603my_image.jpeg',
-         '2014-11-10-122405.340603my_image.jpeg'),
+         '2014-11-10-122405.340603myimage.jpeg'),
         ('file.csv', 'file.csv'),
         ('f' * 100 + '.csv', 'f' * 100),
         ('path/to/file.csv', 'pathtofile.csv'),
