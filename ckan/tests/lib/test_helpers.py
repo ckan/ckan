@@ -55,6 +55,32 @@ class TestHelpersUrlForStaticOrExternal(object):
         eq_(h.url_for_static_or_external(url), url)
 
 
+class TestHelpersUrlFor(object):
+
+    @h.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_default(self):
+        url = '/dataset/my_dataset'
+        generated_url = h.url_for(controller='package', action='read', id='my_dataset')
+        eq_(generated_url, url)
+
+    @h.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_not_qualified(self):
+        url = '/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  qualified=False)
+        eq_(generated_url, url)
+
+    @h.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_qualified(self):
+        url = 'http://example.com/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  qualified=True)
+        eq_(generated_url, url)
+
 class TestHelpersRenderMarkdown(object):
 
     def test_render_markdown_allow_html(self):
