@@ -2,6 +2,7 @@ import nose
 
 import ckan.lib.helpers as h
 import ckan.exceptions
+from ckan.tests import helpers
 
 eq_ = nose.tools.eq_
 CkanUrlException = ckan.exceptions.CkanUrlException
@@ -57,13 +58,13 @@ class TestHelpersUrlForStaticOrExternal(object):
 
 class TestHelpersUrlFor(object):
 
-    @h.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_default(self):
         url = '/dataset/my_dataset'
         generated_url = h.url_for(controller='package', action='read', id='my_dataset')
         eq_(generated_url, url)
 
-    @h.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_not_qualified(self):
         url = '/dataset/my_dataset'
         generated_url = h.url_for(controller='package',
@@ -72,7 +73,7 @@ class TestHelpersUrlFor(object):
                                   qualified=False)
         eq_(generated_url, url)
 
-    @h.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_qualified(self):
         url = 'http://example.com/dataset/my_dataset'
         generated_url = h.url_for(controller='package',
