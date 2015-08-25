@@ -110,7 +110,18 @@ def url(*args, **kw):
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
 
-def get_site_url_and_protocol():
+def get_site_protocol_and_host():
+    '''Return the protocol and host of the configured `ckan.site_url`.
+    This is needed to generate valid, full-qualified URLs.
+
+    If `ckan.site_url` is set like this::
+
+        ckan.site_url = http://example.com
+    
+    Then this function would return a tuple `('http', 'example.com')`
+    If the setting is missing, `(None, None)` is returned instead.
+
+    '''
     site_url = config.get('ckan.site_url', None)
     if site_url is not None:
         parsed_url = urlparse.urlparse(site_url)
@@ -151,7 +162,7 @@ def url_for(*args, **kw):
         # fix ver to include the slash
         kw['ver'] = '/%s' % ver
     if kw.get('qualified', False):
-        kw['protocol'], kw['host'] = get_site_url_and_protocol()
+        kw['protocol'], kw['host'] = get_site_protocol_and_host()
     my_url = _routes_default_url_for(*args, **kw)
     kw['__ckan_no_root'] = no_root
     return _add_i18n_to_url(my_url, locale=locale, **kw)
@@ -235,7 +246,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = ''
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
-        protocol, host = get_site_url_and_protocol()
+        protocol, host = get_site_protocol_and_host()
         root = _routes_default_url_for('/',
                                        qualified=True,
                                        host=host,
