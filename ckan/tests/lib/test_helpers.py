@@ -82,6 +82,7 @@ class TestHelpersUrlFor(object):
                                   qualified=True)
         eq_(generated_url, url)
 
+
 class TestHelpersRenderMarkdown(object):
 
     def test_render_markdown_allow_html(self):
