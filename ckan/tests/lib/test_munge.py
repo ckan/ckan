@@ -50,6 +50,7 @@ class TestMungeFilename(object):
         ('2014-11-10 12:24:05.340603my_image.jpeg',
          '2014-11-10-122405.340603myimage.jpeg'),
         ('file.csv', 'file.csv'),
+        ('underscores_are_awesome','underscores_are_awesome'),
         ('f' * 100 + '.csv', 'f' * 96 + '.csv'),
         ('path/to/file.csv', 'file.csv'),
         ('.longextension', '.longextension'),
