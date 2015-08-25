@@ -129,7 +129,9 @@ class IMapper(Interface):
 
     def before_delete(self, mapper, connection, instance):
         """
-        Receive an object instance before that instance is DELETEed.
+        Receive an object instance before that instance is PURGEd.
+        (whereas usually in ckan 'delete' means to change the state property to
+        deleted, so use before_update for that case.)
         """
 
     def after_insert(self, mapper, connection, instance):
@@ -144,7 +146,9 @@ class IMapper(Interface):
 
     def after_delete(self, mapper, connection, instance):
         """
-        Receive an object instance after that instance is DELETEed.
+        Receive an object instance after that instance is PURGEd.
+        (whereas usually in ckan 'delete' means to change the state property to
+        deleted, so use before_update for that case.)
         """
 
 
@@ -750,6 +754,32 @@ class IConfigurer(Interface):
         :param config: ``pylons.config`` object
         """
 
+    def update_config_schema(self, schema):
+        '''
+        Return a schema with the runtime-editable config options
+
+        CKAN will use the returned schema to decide which configuration options
+        can be edited during runtime (using
+        :py:func:`ckan.logic.action.update.config_option_update`) and to
+        validate them before storing them.
+
+        Defaults to
+        :py:func:`ckan.logic.schema.default_update_configuration_schema`, which
+        will be passed to all extensions implementing this method, which can
+        add or remove runtime-editable config options to it.
+
+        :param schema: a dictionary mapping runtime-editable configuration
+          option keys to lists
+          of validator and converter functions to be applied to those keys
+        :type schema: dictionary
+
+        :returns: a dictionary mapping runtime-editable configuration option
+          keys to lists of
+          validator and converter functions to be applied to those keys
+        :rtype: dictionary
+        '''
+        return schema
+
 
 class IActions(Interface):
     """
@@ -1030,13 +1060,11 @@ class IDatasetForm(Interface):
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/read.html'``.
 
-        If the user requests the dataset in a format other than HTML
-        (CKAN supports returning datasets in RDF/XML or N3 format by appending
-        .rdf or .n3 to the dataset read URL, see
-        :doc:`/maintaining/linked-data-and-rdf`) then CKAN will try to render a
-        template file with the same path as returned by this function, but a
-        different filename extension, e.g. ``'package/read.rdf'``.  If your
-        extension doesn't have this RDF version of the template file, the user
+        If the user requests the dataset in a format other than HTML, then
+        CKAN will try to render a template file with the same path as returned
+        by this function, but a different filename extension,
+        e.g. ``'package/read.rdf'``.  If your extension (or another one)
+        does not provide this version of the template file, the user
         will get a 404 error.
 
         :rtype: string

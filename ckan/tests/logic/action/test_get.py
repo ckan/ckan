@@ -2,9 +2,9 @@ import nose.tools
 
 import ckan.logic as logic
 import ckan.plugins as p
-import ckan.lib.search as search
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import ckan.logic.schema as schema
 
 
 eq = nose.tools.eq_
@@ -97,9 +97,7 @@ class TestGroupList(helpers.FunctionalTestBase):
         factories.Dataset(groups=[{'name': 'bb'}])
 
         group_list = helpers.call_action('group_list', sort='package_count')
-        # default is descending order
-
-        eq(group_list, ['bb', 'aa'])
+        eq(sorted(group_list), sorted(['bb', 'aa']))
 
     def test_group_list_sort_by_package_count_ascending(self):
 
@@ -113,6 +111,15 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         eq(group_list, ['bb', 'aa'])
 
+    def assert_equals_expected(self, expected_dict, result_dict):
+        superfluous_keys = set(result_dict) - set(expected_dict)
+        assert not superfluous_keys, 'Did not expect key: %s' % \
+            ' '.join(('%s=%s' % (k, result_dict[k]) for k in superfluous_keys))
+        for key in expected_dict:
+            assert expected_dict[key] == result_dict[key], \
+                '%s=%s should be %s' % \
+                (key, result_dict[key], expected_dict[key])
+
     def test_group_list_all_fields(self):
 
         group = factories.Group()
@@ -121,8 +128,10 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         expected_group = dict(group.items()[:])
         for field in ('users', 'tags', 'extras', 'groups'):
+            if field in group_list[0]:
+                del group_list[0][field]
             del expected_group[field]
-        expected_group['packages'] = 0
+
         assert group_list[0] == expected_group
         assert 'extras' not in group_list[0]
         assert 'tags' not in group_list[0]
@@ -158,25 +167,20 @@ class TestGroupList(helpers.FunctionalTestBase):
         else:
             child_group_returned, parent_group_returned = group_list[::-1]
         expected_parent_group = dict(parent_group.items()[:])
-        for field in ('users', 'tags', 'extras'):
-            del expected_parent_group[field]
-        expected_parent_group['capacity'] = u'public'
-        expected_parent_group['packages'] = 0
-        expected_parent_group['package_count'] = 0
-        eq(child_group_returned['groups'], [expected_parent_group])
+
+        eq([g['name'] for g in child_group_returned['groups']], [expected_parent_group['name']])
 
 
 class TestGroupShow(helpers.FunctionalTestBase):
 
     def test_group_show(self):
-
         group = factories.Group(user=factories.User())
 
-        group_dict = helpers.call_action('group_show', id=group['id'])
+        group_dict = helpers.call_action('group_show', id=group['id'],
+                                         include_datasets=True)
 
-        # FIXME: Should this be returned by group_create?
-        group_dict.pop('num_followers', None)
-        assert group_dict == group
+        group_dict.pop('packages', None)
+        eq(group_dict, group)
 
     def test_group_show_error_not_found(self):
 
@@ -208,7 +212,8 @@ class TestGroupShow(helpers.FunctionalTestBase):
                                 context={'user': user_name},
                                 **dataset)
 
-        group_dict = helpers.call_action('group_show', id=group['id'])
+        group_dict = helpers.call_action('group_show', id=group['id'],
+                                         include_datasets=True)
 
         assert len(group_dict['packages']) == 2
         assert group_dict['package_count'] == 2
@@ -230,6 +235,7 @@ class TestGroupShow(helpers.FunctionalTestBase):
                                 **dataset)
 
         group_dict = helpers.call_action('group_show', id=group['id'],
+                                         include_datasets=True,
                                          context={'for_view': True})
 
         assert len(group_dict['packages']) == 2
@@ -303,7 +309,7 @@ class TestGroupShow(helpers.FunctionalTestBase):
                 context = {'user': user['name']}
 
             group = helpers.call_action('group_show', id=group['id'],
-                                        context=context)
+                                        include_datasets=True, context=context)
 
             assert private_dataset['id'] not in [dataset['id'] for dataset
                                                  in group['packages']], (
@@ -356,14 +362,13 @@ class TestOrganizationList(helpers.FunctionalTestBase):
 class TestOrganizationShow(helpers.FunctionalTestBase):
 
     def test_organization_show(self):
-
         org = factories.Organization()
 
-        org_dict = helpers.call_action('organization_show', id=org['id'])
+        org_dict = helpers.call_action('organization_show', id=org['id'],
+                                       include_datasets=True)
 
-        # FIXME: Should this be returned by organization_create?
-        org_dict.pop('num_followers', None)
-        assert org_dict == org
+        org_dict.pop('packages', None)
+        eq(org_dict, org)
 
     def test_organization_show_error_not_found(self):
 
@@ -395,7 +400,8 @@ class TestOrganizationShow(helpers.FunctionalTestBase):
                                 context={'user': user_name},
                                 **dataset)
 
-        org_dict = helpers.call_action('organization_show', id=org['id'])
+        org_dict = helpers.call_action('organization_show', id=org['id'],
+                                       include_datasets=True)
 
         assert len(org_dict['packages']) == 2
         assert org_dict['package_count'] == 2
@@ -416,7 +422,8 @@ class TestOrganizationShow(helpers.FunctionalTestBase):
                                 context={'user': user_name},
                                 **dataset)
 
-        org_dict = helpers.call_action('organization_show', id=org['id'])
+        org_dict = helpers.call_action('organization_show', id=org['id'],
+                                       include_datasets=True)
 
         assert len(org_dict['packages']) == 1
         assert org_dict['packages'][0]['name'] == 'dataset_1'
@@ -430,7 +437,6 @@ class TestUserList(helpers.FunctionalTestBase):
         user = factories.User()
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         got_user = got_users[0]
@@ -459,7 +465,6 @@ class TestUserList(helpers.FunctionalTestBase):
                             **dataset)
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         got_user = got_users[0]
@@ -472,7 +477,6 @@ class TestUserList(helpers.FunctionalTestBase):
         factories.User(state='deleted')
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         assert got_users[0]['name'] == user['name']
@@ -1487,7 +1491,151 @@ class TestGetHelpShow(object):
             helpers.call_action, 'help_show', name=function_name)
 
 
+class TestConfigOptionShow(helpers.FunctionalTestBase):
+
+    @helpers.change_config('ckan.site_title', 'My Test CKAN')
+    def test_config_option_show_in_config_not_in_db(self):
+        '''config_option_show returns value from config when value on in
+        system_info table.'''
+
+        title = helpers.call_action('config_option_show',
+                                    key='ckan.site_title')
+        nose.tools.assert_equal(title, 'My Test CKAN')
+
+    @helpers.change_config('ckan.site_title', 'My Test CKAN')
+    def test_config_option_show_in_config_and_in_db(self):
+        '''config_option_show returns value from db when value is in both
+        config and system_info table.'''
+
+        params = {'ckan.site_title': 'Test site title'}
+        helpers.call_action('config_option_update', **params)
+
+        title = helpers.call_action('config_option_show',
+                                    key='ckan.site_title')
+        nose.tools.assert_equal(title, 'Test site title')
+
+    @helpers.change_config('ckan.not.editable', 'My non editable option')
+    def test_config_option_show_not_whitelisted_key(self):
+        '''config_option_show raises exception if key is not a whitelisted
+        config option.'''
+
+        nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
+                                 'config_option_show', key='ckan.not.editable')
+
+
+class TestConfigOptionList(object):
+
+    def test_config_option_list(self):
+        '''config_option_list returns whitelisted config option keys'''
+
+        keys = helpers.call_action('config_option_list')
+        schema_keys = schema.update_configuration_schema().keys()
+
+        nose.tools.assert_equal(keys, schema_keys)
+
+
 def remove_pseudo_users(user_list):
     pseudo_users = set(('logged_in', 'visitor'))
     user_list[:] = [user for user in user_list
                     if user['name'] not in pseudo_users]
+
+
+class TestTagShow(helpers.FunctionalTestBase):
+
+    def test_tag_show_for_free_tag(self):
+        dataset = factories.Dataset(tags=[{'name': 'acid-rain'}])
+        tag_in_dataset = dataset['tags'][0]
+
+        tag_shown = helpers.call_action('tag_show', id='acid-rain')
+
+        eq(tag_shown['name'], 'acid-rain')
+        eq(tag_shown['display_name'], 'acid-rain')
+        eq(tag_shown['id'], tag_in_dataset['id'])
+        eq(tag_shown['vocabulary_id'], None)
+        assert 'packages' not in tag_shown
+
+    def test_tag_show_with_datasets(self):
+        dataset = factories.Dataset(tags=[{'name': 'acid-rain'}])
+
+        tag_shown = helpers.call_action('tag_show', id='acid-rain',
+                                        include_datasets=True)
+
+        eq([d['name'] for d in tag_shown['packages']], [dataset['name']])
+
+    def test_tag_show_not_found(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'tag_show', id='does-not-exist')
+
+    def test_tag_show_for_flexible_tag(self):
+        # A 'flexible' tag is one with spaces, some punctuation
+        # and foreign characters in its name
+        dataset = factories.Dataset(tags=[{'name': u'Flexible. \u30a1'}])
+
+        tag_shown = helpers.call_action('tag_show', id=u'Flexible. \u30a1',
+                                        include_datasets=True)
+
+        eq(tag_shown['name'], u'Flexible. \u30a1')
+        eq(tag_shown['display_name'], u'Flexible. \u30a1')
+        eq([d['name'] for d in tag_shown['packages']], [dataset['name']])
+
+    def test_tag_show_for_vocab_tag(self):
+        vocab = factories.Vocabulary(
+            tags=[dict(name='acid-rain')])
+        dataset = factories.Dataset(tags=vocab['tags'])
+        tag_in_dataset = dataset['tags'][0]
+
+        tag_shown = helpers.call_action('tag_show', id='acid-rain',
+                                        vocabulary_id=vocab['id'],
+                                        include_datasets=True)
+
+        eq(tag_shown['name'], 'acid-rain')
+        eq(tag_shown['display_name'], 'acid-rain')
+        eq(tag_shown['id'], tag_in_dataset['id'])
+        eq(tag_shown['vocabulary_id'], vocab['id'])
+        eq([d['name'] for d in tag_shown['packages']], [dataset['name']])
+
+
+class TestTagList(helpers.FunctionalTestBase):
+
+    def test_tag_list(self):
+        factories.Dataset(tags=[{'name': 'acid-rain'},
+                                {'name': 'pollution'}])
+        factories.Dataset(tags=[{'name': 'pollution'}])
+
+        tag_list = helpers.call_action('tag_list')
+
+        eq(set(tag_list), set(('acid-rain', 'pollution')))
+
+    def test_tag_list_all_fields(self):
+        factories.Dataset(tags=[{'name': 'acid-rain'}])
+
+        tag_list = helpers.call_action('tag_list', all_fields=True)
+
+        eq(tag_list[0]['name'], 'acid-rain')
+        eq(tag_list[0]['display_name'], 'acid-rain')
+        assert 'packages' not in tag_list
+
+    def test_tag_list_with_flexible_tag(self):
+        # A 'flexible' tag is one with spaces, punctuation (apart from commas)
+        # and foreign characters in its name
+        flexible_tag = u'Flexible. \u30a1'
+        factories.Dataset(tags=[{'name': flexible_tag}])
+
+        tag_list = helpers.call_action('tag_list', all_fields=True)
+
+        eq(tag_list[0]['name'], flexible_tag)
+
+    def test_tag_list_with_vocab(self):
+        vocab = factories.Vocabulary(
+            tags=[dict(name='acid-rain'),
+                  dict(name='pollution')])
+
+        tag_list = helpers.call_action('tag_list', vocabulary_id=vocab['id'])
+
+        eq(set(tag_list), set(('acid-rain', 'pollution')))
+
+    def test_tag_list_vocab_not_found(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'tag_list', vocabulary_id='does-not-exist')

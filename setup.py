@@ -127,6 +127,8 @@ entry_points = {
         'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',
         'example_ivalidators = ckanext.example_ivalidators.plugin:ExampleIValidatorsPlugin',
         'example_iconfigurer = ckanext.example_iconfigurer.plugin:ExampleIConfigurerPlugin',
+        'example_iconfigurer_v1 = ckanext.example_iconfigurer.plugin_v1:ExampleIConfigurerPlugin',
+        'example_iconfigurer_v2 = ckanext.example_iconfigurer.plugin_v2:ExampleIConfigurerPlugin',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
@@ -146,6 +148,7 @@ entry_points = {
         'test_json_resource_preview = tests.legacy.ckantestplugins:JsonMockResourcePreviewExtension',
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
         'test_datastore_view = ckan.tests.lib.test_datapreview:MockDatastoreBasedResourceView',
+        'test_datapusher_plugin = ckanext.datapusher.tests.test_interfaces:FakeDataPusherPlugin',
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',

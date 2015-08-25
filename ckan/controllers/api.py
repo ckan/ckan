@@ -83,7 +83,9 @@ class ApiController(base.BaseController):
         if response_data is not None:
             response.headers['Content-Type'] = CONTENT_TYPES[content_type]
             if content_type == 'json':
-                response_msg = h.json.dumps(response_data)
+                response_msg = h.json.dumps(
+                    response_data,
+                    for_json=True) # handle objects with for_json methods
             else:
                 response_msg = response_data
             # Support "JSONP" callback.
@@ -164,7 +166,8 @@ class ApiController(base.BaseController):
                 _('Action name not known: %s') % logic_function)
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'auth_user_obj': c.userobj}
+                   'api_version': ver, 'return_type': 'LazyJSONObject',
+                   'auth_user_obj': c.userobj}
         model.Session()._context = context
 
         return_dict = {'help': h.url_for(controller='api',
@@ -673,6 +676,18 @@ class ApiController(base.BaseController):
         out = map(convert_to_dict, query.all())
         return out
 
+    @jsonp.jsonpify
+    def organization_autocomplete(self):
+        q = request.params.get('q', '')
+        limit = request.params.get('limit', 20)
+        organization_list = []
+
+        if q:
+            context = {'user': c.user, 'model': model}
+            data_dict = {'q': q, 'limit': limit}
+            organization_list = get_action('organization_autocomplete')(context, data_dict)
+        return organization_list
+
     def is_slug_valid(self):
 
         def package_exists(val):
@@ -718,7 +733,8 @@ class ApiController(base.BaseController):
         return self._finish_ok(resultSet)
 
     def tag_autocomplete(self):
-        q = request.params.get('incomplete', '')
+        q = request.str_params.get('incomplete', '')
+        q = unicode(urllib.unquote(q), 'utf-8')
         limit = request.params.get('limit', 10)
         tag_names = []
         if q:

@@ -1,4 +1,10 @@
-from nose.tools import assert_equal, assert_true, assert_not_equal
+from nose.tools import (
+    assert_equal,
+    assert_not_equal,
+    assert_raises,
+    assert_true,
+)
+
 
 from routes import url_for
 
@@ -329,7 +335,153 @@ class TestPackageControllerNew(helpers.FunctionalTestBase):
         assert 'value="{0}"'.format(org['id']) in pkg_edit_response
 
 
-class TestPackageResourceRead(helpers.FunctionalTestBase):
+class TestPackageRead(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(cls, cls).setup_class()
+        helpers.reset_db()
+
+    def setup(self):
+        model.repo.rebuild_db()
+
+    def test_read(self):
+        dataset = factories.Dataset()
+        app = helpers._get_test_app()
+        response = app.get(url_for(controller='package', action='read',
+                                   id=dataset['name']))
+        response.mustcontain('Test Dataset')
+        response.mustcontain('Just another test dataset')
+
+    def test_read_rdf(self):
+        ''' The RDF outputs now live in ckanext-dcat'''
+        dataset1 = factories.Dataset()
+
+        offset = url_for(controller='package', action='read',
+                         id=dataset1['name']) + ".rdf"
+        app = self._get_test_app()
+        app.get(offset, status=404)
+
+    def test_read_n3(self):
+        ''' The RDF outputs now live in ckanext-dcat'''
+        dataset1 = factories.Dataset()
+
+        offset = url_for(controller='package', action='read',
+                         id=dataset1['name']) + ".n3"
+        app = self._get_test_app()
+        app.get(offset, status=404)
+
+
+class TestPackageDelete(helpers.FunctionalTestBase):
+    def test_owner_delete(self):
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.post(
+            url_for(controller='package', action='delete', id=dataset['name']),
+            extra_environ=env,
+        )
+        response = response.follow()
+        assert_equal(200, response.status_int)
+
+        deleted = helpers.call_action('package_show', id=dataset['id'])
+        assert_equal('deleted', deleted['state'])
+
+    def test_delete_on_non_existing_dataset(self):
+        app = helpers._get_test_app()
+        response = app.post(
+            url_for(controller='package', action='delete',
+                    id='schrodingersdatset'),
+            expect_errors=True,
+        )
+        assert_equal(404, response.status_int)
+
+    def test_sysadmin_can_delete_any_dataset(self):
+        owner_org = factories.Organization()
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        app = helpers._get_test_app()
+
+        user = factories.Sysadmin()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+
+        response = app.post(
+            url_for(controller='package', action='delete', id=dataset['name']),
+            extra_environ=env,
+        )
+        response = response.follow()
+        assert_equal(200, response.status_int)
+
+        deleted = helpers.call_action('package_show', id=dataset['id'])
+        assert_equal('deleted', deleted['state'])
+
+    def test_anon_user_cannot_delete_owned_dataset(self):
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+
+        app = helpers._get_test_app()
+        response = app.post(
+            url_for(controller='package', action='delete', id=dataset['name']),
+        )
+        response = response.follow()
+        assert_equal(200, response.status_int)
+        response.mustcontain('Unauthorized to delete package')
+
+        deleted = helpers.call_action('package_show', id=dataset['id'])
+        assert_equal('active', deleted['state'])
+
+    def test_logged_in_user_cannot_delete_owned_dataset(self):
+        owner = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': owner['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+
+        app = helpers._get_test_app()
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.post(
+            url_for(controller='package', action='delete', id=dataset['name']),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(401, response.status_int)
+        response.mustcontain('Unauthorized to delete package')
+
+    def test_confirm_cancel_delete(self):
+        '''Test confirmation of deleting datasets
+
+        When package_delete is made as a get request, it should return a
+        'do you want to delete this dataset? confirmation page'''
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(controller='package', action='delete', id=dataset['name']),
+            extra_environ=env,
+        )
+        assert_equal(200, response.status_int)
+        message = 'Are you sure you want to delete dataset - {name}?'
+        response.mustcontain(message.format(name=dataset['name']))
+
+        form = response.forms['confirm-dataset-delete-form']
+        response = form.submit('cancel')
+        response = helpers.webtest_maybe_follow(response)
+        assert_equal(200, response.status_int)
+
+
+class TestResourceRead(helpers.FunctionalTestBase):
     @classmethod
     def setup_class(cls):
         super(cls, cls).setup_class()
@@ -446,7 +598,133 @@ class TestPackageResourceRead(helpers.FunctionalTestBase):
         app.get(url, status=200, extra_environ=env)
 
 
-class TestPackageRead(helpers.FunctionalTestBase):
+class TestResourceDelete(helpers.FunctionalTestBase):
+    def test_dataset_owners_can_delete_resources(self):
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.post(
+            url_for(controller='package', action='resource_delete',
+                    id=dataset['name'], resource_id=resource['id']),
+            extra_environ=env,
+        )
+        response = response.follow()
+        assert_equal(200, response.status_int)
+        response.mustcontain('This dataset has no data')
+
+        assert_raises(p.toolkit.ObjectNotFound, helpers.call_action,
+                      'resource_show', id=resource['id'])
+
+    def test_deleting_non_existing_resource_404s(self):
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = helpers._get_test_app()
+        response = app.post(
+            url_for(controller='package', action='resource_delete',
+                    id=dataset['name'], resource_id='doesnotexist'),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(404, response.status_int)
+
+    def test_anon_users_cannot_delete_owned_resources(self):
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+
+        app = helpers._get_test_app()
+        response = app.post(
+            url_for(controller='package', action='resource_delete',
+                    id=dataset['name'], resource_id=resource['id']),
+        )
+        response = response.follow()
+        assert_equal(200, response.status_int)
+        response.mustcontain('Unauthorized to delete package')
+
+    def test_logged_in_users_cannot_delete_resources_they_do_not_own(self):
+        # setup our dataset
+        owner = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': owner['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+
+        # access as another user
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        app = helpers._get_test_app()
+        response = app.post(
+            url_for(controller='package', action='resource_delete',
+                    id=dataset['name'], resource_id=resource['id']),
+            extra_environ=env,
+            expect_errors=True
+        )
+        assert_equal(401, response.status_int)
+        response.mustcontain('Unauthorized to delete package')
+
+    def test_sysadmins_can_delete_any_resource(self):
+        owner_org = factories.Organization()
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+
+        sysadmin = factories.Sysadmin()
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        response = app.post(
+            url_for(controller='package', action='resource_delete',
+                    id=dataset['name'], resource_id=resource['id']),
+            extra_environ=env,
+        )
+        response = response.follow()
+        assert_equal(200, response.status_int)
+        response.mustcontain('This dataset has no data')
+
+        assert_raises(p.toolkit.ObjectNotFound, helpers.call_action,
+                      'resource_show', id=resource['id'])
+
+    def test_confirm_and_cancel_deleting_a_resource(self):
+        '''Test confirmation of deleting resources
+
+        When resource_delete is made as a get request, it should return a
+        'do you want to delete this reource? confirmation page'''
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['id'], 'capacity': 'admin'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+        app = helpers._get_test_app()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url_for(controller='package', action='resource_delete',
+                    id=dataset['name'], resource_id=resource['id']),
+            extra_environ=env,
+        )
+        assert_equal(200, response.status_int)
+        message = 'Are you sure you want to delete resource - {name}?'
+        response.mustcontain(message.format(name=resource['name']))
+
+        # cancelling sends us back to the resource edit page
+        form = response.forms['confirm-resource-delete-form']
+        response = form.submit('cancel')
+        response = response.follow()
+        assert_equal(200, response.status_int)
+
+
+class TestSearch(helpers.FunctionalTestBase):
     @classmethod
     def setup_class(cls):
         super(cls, cls).setup_class()
@@ -455,24 +733,137 @@ class TestPackageRead(helpers.FunctionalTestBase):
     def setup(self):
         model.repo.rebuild_db()
 
-    def test_read_rdf(self):
+    def test_search_basic(self):
         dataset1 = factories.Dataset()
 
-        offset = url_for(controller='package', action='read',
-                         id=dataset1['name']) + ".rdf"
+        offset = url_for(controller='package', action='search')
         app = self._get_test_app()
-        res = app.get(offset, status=200)
+        page = app.get(offset)
 
-        assert 'dcat' in res, res
-        assert '{{' not in res, res
+        assert dataset1['name'] in page.body.decode('utf8')
 
-    def test_read_n3(self):
-        dataset1 = factories.Dataset()
+    def test_search_sort_by_blank(self):
+        factories.Dataset()
 
-        offset = url_for(controller='package', action='read',
-                         id=dataset1['name']) + ".n3"
+        # ?sort has caused an exception in the past
+        offset = url_for(controller='package', action='search') + '?sort'
         app = self._get_test_app()
-        res = app.get(offset, status=200)
+        app.get(offset)
 
-        assert 'dcat' in res, res
-        assert '{{' not in res, res
+    def test_search_plugin_hooks(self):
+        with p.use_plugin('test_package_controller_plugin') as plugin:
+
+            offset = url_for(controller='package', action='search')
+            app = self._get_test_app()
+            app.get(offset)
+
+            # get redirected ...
+            assert plugin.calls['before_search'] == 1, plugin.calls
+            assert plugin.calls['after_search'] == 1, plugin.calls
+
+
+class TestPackageFollow(helpers.FunctionalTestBase):
+
+    def test_package_follow(self):
+        app = self._get_test_app()
+
+        user = factories.User()
+        package = factories.Dataset()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        follow_url = url_for(controller='package',
+                             action='follow',
+                             id=package['id'])
+        response = app.post(follow_url, extra_environ=env, status=302)
+        response = response.follow()
+        assert_true('You are now following {0}'
+                    .format(package['title'])
+                    in response)
+
+    def test_package_follow_not_exist(self):
+        '''Pass an id for a package that doesn't exist'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='package',
+                             action='follow',
+                             id='not-here')
+        response = app.post(follow_url, extra_environ=env, status=302)
+        response = response.follow(status=404)
+        assert_true('Dataset not found' in response)
+
+    def test_package_unfollow(self):
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        package = factories.Dataset()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='package',
+                             action='follow',
+                             id=package['id'])
+        app.post(follow_url, extra_environ=env, status=302)
+
+        unfollow_url = url_for(controller='package', action='unfollow',
+                               id=package['id'])
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow()
+
+        assert_true('You are no longer following {0}'
+                    .format(package['title'])
+                    in unfollow_response)
+
+    def test_package_unfollow_not_following(self):
+        '''Unfollow a package not currently following'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        package = factories.Dataset()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        unfollow_url = url_for(controller='package', action='unfollow',
+                               id=package['id'])
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow()
+
+        assert_true('You are not following {0}'.format(package['id'])
+                    in unfollow_response)
+
+    def test_package_unfollow_not_exist(self):
+        '''Unfollow a package that doesn't exist.'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        unfollow_url = url_for(controller='package', action='unfollow',
+                               id='not-here')
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow(status=404)
+        assert_true('Dataset not found' in unfollow_response)
+
+    def test_package_follower_list(self):
+        '''Following users appear on followers list page.'''
+        app = self._get_test_app()
+
+        user_one = factories.Sysadmin()
+        package = factories.Dataset()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='package',
+                             action='follow',
+                             id=package['id'])
+        app.post(follow_url, extra_environ=env, status=302)
+
+        followers_url = url_for(controller='package', action='followers',
+                                id=package['id'])
+
+        # Only sysadmins can view the followers list pages
+        followers_response = app.get(followers_url, extra_environ=env,
+                                     status=200)
+        assert_true(user_one['display_name'] in followers_response)

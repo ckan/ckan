@@ -10,6 +10,7 @@ import ckan.lib.navl.dictization_functions
 import ckan.logic as logic
 import ckan.plugins as p
 import ckanext.datapusher.logic.schema as dpschema
+import ckanext.datapusher.interfaces as interfaces
 
 log = logging.getLogger(__name__)
 _get_or_bust = logic.get_or_bust
@@ -52,6 +53,14 @@ def datapusher_submit(context, data_dict):
     callback_url = site_url.rstrip('/') + '/api/3/action/datapusher_hook'
 
     user = p.toolkit.get_action('user_show')(context, {'id': context['user']})
+
+    for plugin in p.PluginImplementations(interfaces.IDataPusher):
+        upload = plugin.can_upload(res_id)
+        if not upload:
+            msg = "Plugin {0} rejected resource {1}"\
+                .format(plugin.__class__.__name__, res_id)
+            log.info(msg)
+            return False
 
     task = {
         'entity_id': res_id,
@@ -165,6 +174,9 @@ def datapusher_hook(context, data_dict):
 
         dataset_dict = p.toolkit.get_action('package_show')(
             context, {'id': resource_dict['package_id']})
+
+        for plugin in p.PluginImplementations(interfaces.IDataPusher):
+            plugin.after_upload(context, resource_dict, dataset_dict)
 
         logic.get_action('resource_create_default_resource_views')(
             context,

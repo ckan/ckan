@@ -97,8 +97,8 @@ class DatapusherPlugin(p.SingletonPlugin):
 
     def notify(self, entity, operation=None):
         if isinstance(entity, model.Resource):
-            if (operation == model.domain_object.DomainObjectOperation.new
-                    or not operation):
+            if (operation == model.domain_object.DomainObjectOperation.new or
+                    not operation):
                 # if operation is None, resource URL has been changed, as
                 # the notify function in IResourceUrlChange only takes
                 # 1 parameter
@@ -107,6 +107,7 @@ class DatapusherPlugin(p.SingletonPlugin):
                 if (entity.format and
                         entity.format.lower() in self.datapusher_formats and
                         entity.url_type != 'datapusher'):
+
                     try:
                         p.toolkit.get_action('datapusher_submit')(context, {
                             'resource_id': entity.id

@@ -781,8 +781,6 @@ def get_action(action_name, data_dict=None):
 
 
 def linked_user(user, maxlength=0, avatar=20):
-    if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
-        return user
     if not isinstance(user, model.User):
         user_name = unicode(user)
         user = model.User.get(user_name)
@@ -1839,7 +1837,7 @@ def resource_view_full_page(resource_view):
 
 def remove_linebreaks(string):
     '''Remove linebreaks from string to make it usable in JavaScript'''
-    return str(string).replace('\n', '')
+    return unicode(string).replace('\n', '')
 
 
 def list_dict_filter(list_, search_field, output_field, value):
@@ -1928,7 +1926,8 @@ def featured_group_org(items, get_action, list_action, count):
         context = {'ignore_auth': True,
                    'limits': {'packages': 2},
                    'for_view': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id,
+                     'include_datasets': True}
 
         try:
             out = logic.get_action(get_action)(context, data_dict)
@@ -2036,6 +2035,22 @@ def get_organization(org=None, include_datasets=False):
         return logic.get_action('organization_show')({}, {'id': org, 'include_datasets': include_datasets})
     except (NotFound, ValidationError, NotAuthorized):
         return {}
+
+
+def license_options(existing_license_id=None):
+    '''Returns [(l.title, l.id), ...] for the licenses configured to be
+    offered. Always includes the existing_license_id, if supplied.
+    '''
+    register = model.Package.get_license_register()
+    sorted_licenses = sorted(register.values(), key=lambda x: x.title)
+    license_ids = [license.id for license in sorted_licenses]
+    if existing_license_id and existing_license_id not in license_ids:
+        license_ids.insert(0, existing_license_id)
+    return [
+        (license_id,
+         register[license_id].title if license_id in register else license_id)
+        for license_id in license_ids]
+
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -2156,4 +2171,5 @@ __allowed_functions__ = [
     'urlencode',
     'check_config_permission',
     'view_resource_url',
+    'license_options',
 ]

@@ -12,6 +12,7 @@ import ckan.logic.schema as schema
 import ckan.lib.captcha as captcha
 import ckan.lib.mailer as mailer
 import ckan.lib.navl.dictization_functions as dictization_functions
+import ckan.lib.authenticator as authenticator
 import ckan.plugins as p
 
 from ckan.common import _, c, g, request, response
@@ -21,13 +22,13 @@ log = logging.getLogger(__name__)
 
 abort = base.abort
 render = base.render
-validate = base.validate
 
 check_access = logic.check_access
 get_action = logic.get_action
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
+UsernamePasswordError = logic.UsernamePasswordError
 
 DataError = dictization_functions.DataError
 unflatten = dictization_functions.unflatten
@@ -137,8 +138,7 @@ class UserController(base.BaseController):
             h.redirect_to(locale=locale, controller='user', action='login',
                           id=None)
         user_ref = c.userobj.get_reference_preferred_for_uri()
-        h.redirect_to(locale=locale, controller='user', action='dashboard',
-                      id=user_ref)
+        h.redirect_to(locale=locale, controller='user', action='dashboard')
 
     def register(self, data=None, errors=None, error_summary=None):
         context = {'model': model, 'session': model.Session, 'user': c.user,
@@ -283,7 +283,8 @@ class UserController(base.BaseController):
 
             schema = self._db_to_edit_form_schema()
             if schema:
-                old_data, errors = validate(old_data, schema)
+                old_data, errors = \
+                    dictization_functions.validate(old_data, schema, context)
 
             c.display_name = old_data.get('display_name')
             c.user_name = old_data.get('name')
@@ -324,6 +325,14 @@ class UserController(base.BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
 
+            if data_dict['password1'] and data_dict['password2']:
+                identity = {'login': c.user,
+                            'password': data_dict['old_password']}
+                auth = authenticator.UsernamePasswordAuthenticator()
+
+                if auth.authenticate(request.environ, identity) != c.user:
+                    raise UsernamePasswordError
+
             # MOAN: Do I really have to do this here?
             if 'activity_streams_email_notifications' not in data_dict:
                 data_dict['activity_streams_email_notifications'] = False
@@ -340,6 +349,10 @@ class UserController(base.BaseController):
         except ValidationError, e:
             errors = e.error_dict
             error_summary = e.error_summary
+            return self.edit(id, data_dict, errors, error_summary)
+        except UsernamePasswordError:
+            errors = {'oldpassword': [_('Password entered was incorrect')]}
+            error_summary = {_('Old Password'): _('incorrect password')}
             return self.edit(id, data_dict, errors, error_summary)
 
     def login(self, error=None):
@@ -526,7 +539,8 @@ class UserController(base.BaseController):
     def followers(self, id=None):
         context = {'for_view': True, 'user': c.user or c.author,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id, 'user_obj': c.userobj}
+        data_dict = {'id': id, 'user_obj': c.userobj,
+                     'include_num_followers': True}
         self._setup_template_variables(context, data_dict)
         f = get_action('user_follower_list')
         try:
