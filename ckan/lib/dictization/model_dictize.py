@@ -104,16 +104,6 @@ def extras_list_dictize(extras_list, context):
 
     return sorted(result_list, key=lambda x: x["key"])
 
-def get_site_url_and_protocol():
-    site_url = config.get('ckan.site_url', None)
-    if site_url is not None:
-        parsed_url = urlparse.urlparse(site_url)
-        return (
-            parsed_url.scheme.encode('utf-8'),
-            parsed_url.netloc.encode('utf-8')
-        )
-    return (None, None)
-
 def resource_dictize(res, context):
     model = context['model']
     resource = d.table_dictize(res, context)
@@ -126,14 +116,11 @@ def resource_dictize(res, context):
     ## in the frontend. Without for_edit the whole qualified url is returned.
     if resource.get('url_type') == 'upload' and not context.get('for_edit'):
         cleaned_name = munge.munge_filename(url)
-        protocol, host = get_site_url_and_protocol()
         resource['url'] = h.url_for(controller='package',
                                     action='resource_download',
                                     id=resource['package_id'],
                                     resource_id=res.id,
                                     filename=cleaned_name,
-                                    protocol=protocol,
-                                    host=host,
                                     qualified=True)
     elif not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
         resource['url'] = u'http://' + url.lstrip('/')

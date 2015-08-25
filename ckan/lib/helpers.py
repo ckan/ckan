@@ -110,6 +110,17 @@ def url(*args, **kw):
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
 
+def get_site_url_and_protocol():
+    site_url = config.get('ckan.site_url', None)
+    if site_url is not None:
+        parsed_url = urlparse.urlparse(site_url)
+        return (
+            parsed_url.scheme.encode('utf-8'),
+            parsed_url.netloc.encode('utf-8')
+        )
+    return (None, None)
+
+
 def url_for(*args, **kw):
     '''Return the URL for the given controller, action, id, etc.
 
@@ -139,6 +150,8 @@ def url_for(*args, **kw):
             raise Exception('api calls must specify the version! e.g. ver=3')
         # fix ver to include the slash
         kw['ver'] = '/%s' % ver
+    if kw.get('qualified', False):
+        kw['protocol'], kw['host'] = get_site_url_and_protocol()
     my_url = _routes_default_url_for(*args, **kw)
     kw['__ckan_no_root'] = no_root
     return _add_i18n_to_url(my_url, locale=locale, **kw)
@@ -222,7 +235,11 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = ''
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
-        root = _routes_default_url_for('/', qualified=True)[:-1]
+        protocol, host = get_site_url_and_protocol()
+        root = _routes_default_url_for('/',
+                                       qualified=True,
+                                       host=host,
+                                       protocol=protocol)[:-1]
     # ckan.root_path is defined when we have none standard language
     # position in the url
     root_path = config.get('ckan.root_path', None)
