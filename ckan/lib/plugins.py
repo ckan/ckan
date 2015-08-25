@@ -261,8 +261,6 @@ class DefaultDatasetForm(object):
         return ckan.logic.schema.default_show_package_schema()
 
     def setup_template_variables(self, context, data_dict):
-        from ckan.lib.helpers import render_markdown
-
         authz_fn = logic.get_action('group_list_authz')
         c.groups_authz = authz_fn(context, data_dict)
         data_dict.update({'available_only': True})
@@ -276,8 +274,8 @@ class DefaultDatasetForm(object):
         c.is_sysadmin = ckan.authz.is_sysadmin(c.user)
 
         if c.pkg:
+            # Used by the disqus plugin
             c.related_count = c.pkg.related_count
-            c.pkg_notes_formatted = render_markdown(c.pkg.notes)
 
         if context.get('revision_id') or context.get('revision_date'):
             if context.get('revision_id'):
