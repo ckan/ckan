@@ -122,7 +122,7 @@ def munge_filename_legacy(filename):
     '''
     filename = substitute_ascii_equivalents(filename)
     filename = filename.strip()
-    filename = re.sub(r'[^a-zA-Z0-9.\- ]', '', filename).replace(' ', '-')
+    filename = re.sub(r'[^a-zA-Z0-9.\-_ ]', '', filename).replace(' ', '-')
     filename = _munge_to_length(filename, 3, 100)
     return filename
 
