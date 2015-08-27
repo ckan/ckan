@@ -265,7 +265,6 @@ def _add_i18n_to_url(url_to_amend, **kw):
         # make sure we don't have a trailing / on the root
         if root_path[-1] == '/':
             root_path = root_path[:-1]
-        # TODO: this seems broken
 
         url_path = url_to_amend[len(root):]
         url = '%s%s%s' % (root, root_path, url_path)
