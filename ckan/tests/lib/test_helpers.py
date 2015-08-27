@@ -1,4 +1,5 @@
 import nose
+import i18n
 
 import ckan.lib.helpers as h
 import ckan.exceptions
@@ -96,11 +97,12 @@ class TestHelpersUrlFor(object):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_qualified_with_root_path_and_locale(self):
         url = 'http://example.com/my/custom/path/en/foo/dataset/my_dataset'
+        locale = i18n.get_locales_dict().get('en')
         generated_url = h.url_for(controller='package',
                                   action='read',
                                   id='my_dataset',
                                   qualified=True,
-                                  locale='en')
+                                  locale=locale)
         eq_(generated_url, url)
 
 
