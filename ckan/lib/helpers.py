@@ -259,15 +259,16 @@ def _add_i18n_to_url(url_to_amend, **kw):
         # into the ecportal core is done - Toby
         # we have a special root specified so use that
         if default_locale:
-            root = re.sub('/{{LANG}}', '', root_path)
+            root_path = re.sub('/{{LANG}}', '', root_path)
         else:
-            root = re.sub('{{LANG}}', locale, root_path)
+            root_path = re.sub('{{LANG}}', locale, root_path)
         # make sure we don't have a trailing / on the root
-        if root[-1] == '/':
-            root = root[:-1]
-        url = url_to_amend[len(re.sub('/{{LANG}}', '', root_path)):]
-        url = '%s%s' % (root, url)
-        root = re.sub('/{{LANG}}', '', root_path)
+        if root_path[-1] == '/':
+            root_path = root_path[:-1]
+        # TODO: this seems broken
+
+        url_path = url_to_amend[len(root):]
+        url = '%s%s%s' % (root, root_path, url_path)
     else:
         if default_locale:
             url = url_to_amend
