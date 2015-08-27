@@ -66,6 +66,15 @@ class TestHelpersUrlFor(object):
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_with_locale(self):
+        url = '/de/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  locale='de')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_not_qualified(self):
         url = '/dataset/my_dataset'
         generated_url = h.url_for(controller='package',
