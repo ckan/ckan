@@ -94,9 +94,19 @@ class TestHelpersUrlFor(object):
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_qualified_with_locale(self):
+        url = 'http://example.com/de/foo/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  qualified=True,
+                                  locale='de')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_qualified_with_root_path_and_locale(self):
-        url = 'http://example.com/my/custom/path/en/foo/dataset/my_dataset'
+        url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
         generated_url = h.url_for(controller='package',
                                   action='read',
                                   id='my_dataset',
