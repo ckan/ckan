@@ -964,6 +964,20 @@ When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on t
 
 .. note::  This only applies to the legacy Genshi-based templates
 
+.. _ckan.related_enabled:
+
+ckan.related_enabled
+^^^^^^^^^^^^^^^^^^^^
+
+ckan.related_enabled::
+
+ ckan.related_enabled = true
+
+Default value: true
+
+When set to false, disables the Related tab on the dataset page, effectively
+hiding the Related Items feature.
+
 .. _ckan.dumps_url:
 
 ckan.dumps_url
