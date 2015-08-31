@@ -85,9 +85,6 @@ class PackageController(base.BaseController):
     def _read_template(self, package_type):
         return lookup_package_plugin(package_type).read_template()
 
-    def _history_template(self, package_type):
-        return lookup_package_plugin(package_type).history_template()
-
     def _resource_form(self, package_type):
         # backwards compatibility with plugins not inheriting from
         # DefaultDatasetPlugin and not implmenting resource_form
@@ -430,90 +427,6 @@ class PackageController(base.BaseController):
 
         assert False, "We should never get here"
 
-
-    def history(self, id):
-
-        if 'diff' in request.params or 'selected1' in request.params:
-            try:
-                params = {'id': request.params.getone('pkg_name'),
-                          'diff': request.params.getone('selected1'),
-                          'oldid': request.params.getone('selected2'),
-                          }
-            except KeyError, e:
-                if 'pkg_name' in dict(request.params):
-                    id = request.params.getone('pkg_name')
-                c.error = \
-                    _('Select two revisions before doing the comparison.')
-            else:
-                params['diff_entity'] = 'package'
-                h.redirect_to(controller='revision', action='diff', **params)
-
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
-        try:
-            c.pkg_dict = get_action('package_show')(context, data_dict)
-            c.pkg_revisions = get_action('package_revision_list')(context,
-                                                                  data_dict)
-            # TODO: remove
-            # Still necessary for the authz check in group/layout.html
-            c.pkg = context['package']
-
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % '')
-        except NotFound:
-            abort(404, _('Dataset not found'))
-
-        format = request.params.get('format', '')
-        if format == 'atom':
-            # Generate and return Atom 1.0 document.
-            from webhelpers.feedgenerator import Atom1Feed
-            feed = Atom1Feed(
-                title=_(u'CKAN Dataset Revision History'),
-                link=h.url_for(controller='revision', action='read',
-                               id=c.pkg_dict['name']),
-                description=_(u'Recent changes to CKAN Dataset: ') +
-                (c.pkg_dict['title'] or ''),
-                language=unicode(i18n.get_lang()),
-            )
-            for revision_dict in c.pkg_revisions:
-                revision_date = h.date_str_to_datetime(
-                    revision_dict['timestamp'])
-                try:
-                    dayHorizon = int(request.params.get('days'))
-                except:
-                    dayHorizon = 30
-                dayAge = (datetime.datetime.now() - revision_date).days
-                if dayAge >= dayHorizon:
-                    break
-                if revision_dict['message']:
-                    item_title = u'%s' % revision_dict['message'].\
-                        split('\n')[0]
-                else:
-                    item_title = u'%s' % revision_dict['id']
-                item_link = h.url_for(controller='revision', action='read',
-                                      id=revision_dict['id'])
-                item_description = _('Log message: ')
-                item_description += '%s' % (revision_dict['message'] or '')
-                item_author_name = revision_dict['author']
-                item_pubdate = revision_date
-                feed.add_item(
-                    title=item_title,
-                    link=item_link,
-                    description=item_description,
-                    author_name=item_author_name,
-                    pubdate=item_pubdate,
-                )
-            response.headers['Content-Type'] = 'application/atom+xml'
-            return feed.writeString('utf-8')
-
-        package_type = c.pkg_dict['type'] or 'dataset'
-
-        c.related_count = c.pkg.related_count
-        return render(
-            self._history_template(c.pkg_dict.get('type', package_type)),
-            extra_vars={'dataset_type': package_type})
-
     def new(self, data=None, errors=None, error_summary=None):
         if data and 'type' in data:
             package_type = data['type']
@@ -853,37 +766,6 @@ class PackageController(base.BaseController):
 
         data.pop('tags')
         data = flatten_to_string_key(data)
-        response.headers['Content-Type'] = 'application/json;charset=utf-8'
-        return h.json.dumps(data)
-
-    def history_ajax(self, id):
-
-        context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
-        data_dict = {'id': id}
-        try:
-            pkg_revisions = get_action('package_revision_list')(
-                context, data_dict)
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % '')
-        except NotFound:
-            abort(404, _('Dataset not found'))
-
-        data = []
-        approved = False
-        for num, revision in enumerate(pkg_revisions):
-            if not approved and revision['approved_timestamp']:
-                current_approved, approved = True, True
-            else:
-                current_approved = False
-
-            data.append({'revision_id': revision['id'],
-                         'message': revision['message'],
-                         'timestamp': revision['timestamp'],
-                         'author': revision['author'],
-                         'approved': bool(revision['approved_timestamp']),
-                         'current_approved': current_approved})
-
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return h.json.dumps(data)
 
