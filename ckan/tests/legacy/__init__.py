@@ -343,13 +343,6 @@ def is_datastore_supported():
     is_supported_db = model.engine_is_pg()
     return is_supported_db
 
-def search_related(test):
-    def skip_test(*args):
-        raise SkipTest("Search not supported")
-    if not is_search_supported():
-        return make_decorator(test)(skip_test)
-    return test
-
 def regex_related(test):
     def skip_test(*args):
         raise SkipTest("Regex not supported")

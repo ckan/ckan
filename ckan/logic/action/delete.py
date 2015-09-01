@@ -197,53 +197,6 @@ def package_relationship_delete(context, data_dict):
     relationship.delete()
     model.repo.commit()
 
-def related_delete(context, data_dict):
-    '''Delete a related item from a dataset.
-
-    You must be a sysadmin or the owner of the related item to delete it.
-
-    :param id: the id of the related item
-    :type id: string
-
-    '''
-    model = context['model']
-    session = context['session']
-    user = context['user']
-    userobj = model.User.get(user)
-
-    id = _get_or_bust(data_dict, 'id')
-
-    entity = model.Related.get(id)
-
-    if entity is None:
-        raise NotFound
-
-    _check_access('related_delete',context, data_dict)
-
-    related_dict = model_dictize.related_dictize(entity, context)
-    activity_dict = {
-        'user_id': userobj.id,
-        'object_id': entity.id,
-        'activity_type': 'deleted related item',
-    }
-    activity_dict['data'] = {
-        'related': related_dict
-    }
-    activity_create_context = {
-        'model': model,
-        'user': user,
-        'defer_commit': True,
-        'ignore_auth': True,
-        'session': session
-    }
-
-    _get_action('activity_create')(activity_create_context, activity_dict)
-    session.commit()
-
-    entity.delete()
-    model.repo.commit()
-
-
 def member_delete(context, data_dict=None):
     '''Remove an object (e.g. a user, dataset or group) from a group.
 

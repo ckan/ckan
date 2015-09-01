@@ -1149,14 +1149,6 @@ def resource_link(resource_dict, package_id):
     return link_to(text, url)
 
 
-def related_item_link(related_item_dict):
-    text = related_item_dict.get('title', '')
-    url = url_for(controller='related',
-                  action='read',
-                  id=related_item_dict['id'])
-    return link_to(text, url)
-
-
 def tag_link(tag):
     url = url_for(controller='tag', action='read', id=tag['name'])
     return link_to(tag.get('title', tag['name']), url)
@@ -1958,12 +1950,6 @@ def get_site_statistics():
     stats['group_count'] = len(logic.get_action('group_list')({}, {}))
     stats['organization_count'] = len(
         logic.get_action('organization_list')({}, {}))
-    result = model.Session.execute(
-        '''select count(*) from related r
-           left join related_dataset rd on r.id = rd.related_id
-           where rd.status = 'active' or rd.id is null''').first()[0]
-    stats['related_count'] = result
-
     return stats
 
 _RESOURCE_FORMATS = None
@@ -2088,7 +2074,6 @@ __allowed_functions__ = [
     'dataset_link',
     'resource_display_name',
     'resource_link',
-    'related_item_link',
     'tag_link',
     'group_link',
     'dump_json',

@@ -683,69 +683,6 @@ class TestUserShow(helpers.FunctionalTestBase):
         eq(got_user['number_created_packages'], 3)
 
 
-class TestRelatedList(helpers.FunctionalTestBase):
-
-    def test_related_list_with_no_params(self):
-        '''
-        Test related_list with no parameters and default sort
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list')
-        assert len(related_list) == 2
-        assert related1 in related_list
-        assert related2 in related_list
-
-    def test_related_list_type_filter(self):
-        '''
-        Test related_list with type filter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list',
-                                           type_filter='application')
-        assert ([related2] == related_list)
-
-    def test_related_list_sorted(self):
-        '''
-        Test related_list with sort parameter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list', sort='created_desc')
-        assert ([related2, related1] == related_list)
-
-    def test_related_list_invalid_sort_parameter(self):
-        '''
-        Test related_list with invalid value for sort parameter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list', sort='invalid')
-        assert ([related1, related2] == related_list)
-
-    def test_related_list_featured(self):
-        '''
-        Test related_list with no featured filter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list', featured=True)
-        assert ([related1] == related_list)
-        # TODO: Create related items associated with a dataset and test
-        # related_list with them
-
-
 class TestCurrentPackageList(helpers.FunctionalTestBase):
 
     def test_current_package_list(self):

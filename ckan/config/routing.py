@@ -107,7 +107,6 @@ def make_map():
         'resource',
         'tag',
         'group',
-        'related',
         'revision',
         'licenses',
         'rating',
@@ -193,17 +192,6 @@ def make_map():
     map.redirect('/packages/{url:.*}', '/dataset/{url}')
     map.redirect('/package', '/dataset')
     map.redirect('/package/{url:.*}', '/dataset/{url}')
-
-    with SubMapper(map, controller='related') as m:
-        m.connect('related_new', '/dataset/{id}/related/new', action='new')
-        m.connect('related_edit', '/dataset/{id}/related/edit/{related_id}',
-                  action='edit')
-        m.connect('related_delete', '/dataset/{id}/related/delete/{related_id}',
-                  action='delete')
-        m.connect('related_list', '/dataset/{id}/related', action='list',
-                  ckan_icon='picture')
-        m.connect('related_read', '/related/{id}', action='read')
-        m.connect('related_dashboard', '/related', action='dashboard')
 
     with SubMapper(map, controller='package') as m:
         m.connect('search', '/dataset', action='search',

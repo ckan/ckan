@@ -71,16 +71,6 @@ def resource_list_dictize(res_list, context):
 
     return sorted(result_list, key=lambda x: x["position"])
 
-def related_list_dictize(related_list, context):
-    result_list = []
-    for res in related_list:
-        related_dict = related_dictize(res, context)
-        result_list.append(related_dict)
-    if context.get('sorted'):
-        return result_list
-    return sorted(result_list, key=lambda x: x["created"], reverse=True)
-
-
 def extras_dict_dictize(extras_dict, context):
     result_list = []
     for name, extra in extras_dict.iteritems():
@@ -126,9 +116,6 @@ def resource_dictize(res, context):
     elif not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
         resource['url'] = u'http://' + url.lstrip('/')
     return resource
-
-def related_dictize(rel, context):
-    return d.table_dictize(rel, context)
 
 
 def _execute(q, table, context):
@@ -597,12 +584,6 @@ def user_dictize(user, context):
 
     model = context['model']
     session = model.Session
-
-    if context.get('with_related'):
-        related_items = session.query(model.Related).\
-                        filter(model.Related.owner_id==user.id).all()
-        result_dict['related_items'] = related_list_dictize(related_items,
-                                                            context)
 
     return result_dict
 

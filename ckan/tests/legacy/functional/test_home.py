@@ -7,7 +7,7 @@ import ckan.model as model
 from ckan.tests.legacy import *
 from ckan.tests.legacy.html_check import HtmlCheckMethods
 from ckan.tests.legacy.pylons_controller import PylonsTestCase
-from ckan.tests.legacy import search_related, setup_test_search_index
+from ckan.tests.legacy import setup_test_search_index
 
 from ckan.common import c, session
 

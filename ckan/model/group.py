@@ -86,16 +86,6 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
             member = cls.by_name(reference)
         return member
 
-    def get_related(self, type):
-        """ TODO: Determine if this is useful
-            Get all objects that are members of the group of the specified
-            type.
-
-            Should the type be used to get table_name or should we use the
-            one in the constructor
-        """
-        pass
-
     def related_packages(self):
         # TODO do we want to return all related packages or certain ones?
         return meta.Session.query(_package.Package).filter_by(
