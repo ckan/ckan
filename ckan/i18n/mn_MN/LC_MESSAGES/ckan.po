@@ -8,6 +8,7 @@
 # bat-orshih <orshih_bat@yahoo.com>, 2014
 # byambadorj <byambadorjp@gmail.com>, 2014
 # Chintogtokh Batbold <bchintogtokh@gmail.com>, 2014
+# dread <david.read@hackneyworkshop.com>, 2015
 # d.tsolmonbayar <d.tsolmonbayar@gmail.com>, 2014
 # muugii <apple.muugii@gmail.com>, 2014
 # Naranbayar <naranbayaru@gmail.com>, 2014
@@ -23,9 +24,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-06-23 20:40+0000\n"
-"PO-Revision-Date: 2015-06-25 10:44+0000\n"
-"Last-Translator: dread <david.read@hackneyworkshop.com>\n"
-"Language-Team: Mongolian (Mongolia) (http://www.transifex.com/p/ckan/language/mn_MN/)\n"
+"PO-Revision-Date: 2015-09-02 10:06+0000\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
+"Language-Team: Mongolian (Mongolia) (http://www.transifex.com/okfn/ckan/language/mn_MN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1162,14 +1163,14 @@ msgstr "Засварлах тохиргоо"
 #: ckan/lib/helpers.py:1456
 msgid "{number} view"
 msgid_plural "{number} views"
-msgstr[0] "{тоо} үзсэн"
+msgstr[0] "{number} үзсэн"
 msgstr[1] "{number} үзсэн"
 
 #: ckan/lib/helpers.py:1458
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
-msgstr[0] "{тоо} сүүлд үзсэн"
-msgstr[1] "{тоо} сүүлд үзсэн"
+msgstr[0] "{number} сүүлд үзсэн"
+msgstr[1] "{number} сүүлд үзсэн"
 
 #: ckan/lib/mailer.py:25
 #, python-format
@@ -4175,7 +4176,7 @@ msgstr "\"{query}\" холбогдолтой ямар ч бүлэг олдсон
 msgid "{number} group found"
 msgid_plural "{number} groups found"
 msgstr[0] "{number} бүлэг олдлоо"
-msgstr[1] "{тоо} бүлэг олдлоо"
+msgstr[1] "{number} бүлэг олдлоо"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -4195,7 +4196,7 @@ msgstr "\"{query}\" -н үр дүнд байгууллага олдсонгүй"
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
 msgstr[0] "{number} - н байгууллага олдлоо"
-msgstr[1] "{тоо} байгууллага олдлоо"
+msgstr[1] "{number} байгууллага олдлоо"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"
