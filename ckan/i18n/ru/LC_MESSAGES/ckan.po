@@ -3,18 +3,20 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Dmitry Oshkalo <dmitry.oshkalo@gmail.com>, 2015
 # Gromislav <igromislav@gmail.com>, 2013
 # ivbeg <ibegtin@gmail.com>, 2013
 # mih, 2015
 # Sean Hammond <sean.hammond@okfn.org>, 2012
+# Sergey Motornyuk <sergey.motornyuk@linkdigital.com.au>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-06-23 20:40+0000\n"
-"PO-Revision-Date: 2015-06-25 10:42+0000\n"
-"Last-Translator: dread <david.read@hackneyworkshop.com>\n"
-"Language-Team: Russian (http://www.transifex.com/p/ckan/language/ru/)\n"
+"PO-Revision-Date: 2015-07-29 22:32+0000\n"
+"Last-Translator: Dmitry Oshkalo <dmitry.oshkalo@gmail.com>\n"
+"Language-Team: Russian (http://www.transifex.com/okfn/ckan/language/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -90,7 +92,7 @@ msgstr "Настраиваемый CSS код внесен в заголовок
 
 #: ckan/controllers/admin.py:54
 msgid "Homepage"
-msgstr ""
+msgstr "Домашняя страница"
 
 #: ckan/controllers/admin.py:157
 #, python-format
@@ -242,11 +244,11 @@ msgstr "Группа не найдена"
 
 #: ckan/controllers/feed.py:234
 msgid "Organization not found"
-msgstr ""
+msgstr "Организация не найдена"
 
 #: ckan/controllers/group.py:140 ckan/controllers/group.py:589
 msgid "Incorrect group type"
-msgstr ""
+msgstr "Неправильный тип группы"
 
 #: ckan/controllers/group.py:206 ckan/controllers/group.py:390
 #: ckan/controllers/group.py:498 ckan/controllers/group.py:541
@@ -430,7 +432,7 @@ msgstr "Пожалуйста <a href=\"%s\">обновите Ваш профил
 
 #: ckan/controllers/package.py:295
 msgid "Parameter \"{parameter_name}\" is not an integer"
-msgstr ""
+msgstr "Параметр \"{parameter_name}\" не является целым числом"
 
 #: ckan/controllers/package.py:336 ckan/controllers/package.py:344
 #: ckan/controllers/package.py:397 ckan/controllers/package.py:465
@@ -774,11 +776,11 @@ msgstr ""
 
 #: ckan/controllers/user.py:355 ckan/templates/user/edit_user_form.html:27
 msgid "Old Password"
-msgstr ""
+msgstr "Старый пароль"
 
 #: ckan/controllers/user.py:355
 msgid "incorrect password"
-msgstr ""
+msgstr "некорректный пароль"
 
 #: ckan/controllers/user.py:396
 msgid "Login failed. Bad username or password."
@@ -1059,10 +1061,10 @@ msgstr[3] "{days} дней назад"
 #: ckan/lib/formatters.py:123
 msgid "{months} month ago"
 msgid_plural "{months} months ago"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "{months} месяц назад"
+msgstr[1] "{months} месяцев назад"
+msgstr[2] "{months} месяцев назад"
+msgstr[3] "{months} месяцев назад"
 
 #: ckan/lib/formatters.py:125
 msgid "over {years} year ago"
@@ -1074,7 +1076,7 @@ msgstr[3] ""
 
 #: ckan/lib/formatters.py:138
 msgid "{month} {day}, {year}, {hour:02}:{min:02}"
-msgstr ""
+msgstr "{month} {day}, {year}, {hour:02}:{min:02}"
 
 #: ckan/lib/formatters.py:142
 msgid "{month} {day}, {year}"
@@ -1307,11 +1309,11 @@ msgstr "Неверное число"
 
 #: ckan/logic/validators.py:94
 msgid "Must be a natural number"
-msgstr ""
+msgstr "Должно быть натуральным числом"
 
 #: ckan/logic/validators.py:100
 msgid "Must be a postive integer"
-msgstr ""
+msgstr "Должно быть положительным целым числом"
 
 #: ckan/logic/validators.py:127
 msgid "Date format incorrect"
@@ -1323,7 +1325,7 @@ msgstr "Гиперссылки в log_message запрещены."
 
 #: ckan/logic/validators.py:156
 msgid "Dataset id already exists"
-msgstr ""
+msgstr "Набор данных с таким идентификатором уже существует"
 
 #: ckan/logic/validators.py:197 ckan/logic/validators.py:288
 msgid "Resource"
@@ -1354,7 +1356,7 @@ msgstr "Это имя не может быть использовано"
 #: ckan/logic/validators.py:361
 #, python-format
 msgid "Must be at least %s characters long"
-msgstr ""
+msgstr "Длина слова должна быть не менее %s символов"
 
 #: ckan/logic/validators.py:363 ckan/logic/validators.py:641
 #, python-format
@@ -2114,7 +2116,7 @@ msgstr ""
 #: ckan/public/base/javascript/modules/resource-reorder.js:10
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:10
 msgid "Saving..."
-msgstr ""
+msgstr "Сохранение..."
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:25
 msgid "Upload a file"
@@ -2231,7 +2233,7 @@ msgstr "Редактировать настройки."
 
 #: ckan/templates/header.html:37
 msgid "Settings"
-msgstr ""
+msgstr "Настройки"
 
 #: ckan/templates/header.html:43 ckan/templates/header.html:45
 msgid "Log out"
@@ -2697,7 +2699,7 @@ msgstr "Добавить Участника"
 #: ckan/templates/group/member_new.html:18
 #: ckan/templates/organization/member_new.html:20
 msgid "Existing User"
-msgstr ""
+msgstr "Существующий Пользователь"
 
 #: ckan/templates/group/member_new.html:21
 #: ckan/templates/organization/member_new.html:23
@@ -2712,12 +2714,12 @@ msgstr ""
 #: ckan/templates/group/member_new.html:42
 #: ckan/templates/organization/member_new.html:44
 msgid "New User"
-msgstr ""
+msgstr "Новый Пользователь"
 
 #: ckan/templates/group/member_new.html:45
 #: ckan/templates/organization/member_new.html:47
 msgid "If you wish to invite a new user, enter their email address."
-msgstr ""
+msgstr "Если Вы хотите пригласить нового пользователя, введите его адрес электронной почты."
 
 #: ckan/templates/group/member_new.html:55
 #: ckan/templates/group/members.html:18
@@ -2879,7 +2881,7 @@ msgstr "Показать {name}"
 
 #: ckan/templates/group/snippets/group_item.html:43
 msgid "Remove dataset from this group"
-msgstr ""
+msgstr "Удалить набор данных из этой группы"
 
 #: ckan/templates/group/snippets/helper.html:4
 msgid "What are Groups?"
@@ -3011,19 +3013,19 @@ msgstr "наборы данных"
 
 #: ckan/templates/home/snippets/stats.html:17
 msgid "organization"
-msgstr ""
+msgstr "организация"
 
 #: ckan/templates/home/snippets/stats.html:17
 msgid "organizations"
-msgstr ""
+msgstr "организации"
 
 #: ckan/templates/home/snippets/stats.html:23
 msgid "group"
-msgstr ""
+msgstr "группа"
 
 #: ckan/templates/home/snippets/stats.html:23
 msgid "groups"
-msgstr ""
+msgstr "группы"
 
 #: ckan/templates/home/snippets/stats.html:29
 msgid "related item"
@@ -3154,7 +3156,7 @@ msgstr "Имя пользователя"
 
 #: ckan/templates/organization/member_new.html:50
 msgid "Email address"
-msgstr ""
+msgstr "Email"
 
 #: ckan/templates/organization/member_new.html:62
 msgid "Update Member"
@@ -3273,7 +3275,7 @@ msgstr "Показать пакеты данных"
 
 #: ckan/templates/package/edit_base.html:20
 msgid "Edit metadata"
-msgstr ""
+msgstr "Редактировать метаданные"
 
 #: ckan/templates/package/edit_view.html:3
 #: ckan/templates/package/edit_view.html:4
@@ -3683,7 +3685,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:10
 msgid "1.0"
-msgstr ""
+msgstr "1.0"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:20
@@ -3711,7 +3713,7 @@ msgstr "обновить Ресурс"
 
 #: ckan/templates/package/snippets/resource_form.html:24
 msgid "File"
-msgstr ""
+msgstr "Файл"
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
@@ -3803,11 +3805,11 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
-msgstr ""
+msgstr "Ширина"
 
 #: ckan/templates/package/snippets/resource_view.html:72
 msgid "Height"
-msgstr ""
+msgstr "Высота"
 
 #: ckan/templates/package/snippets/resource_view.html:75
 msgid "Code"
@@ -3851,15 +3853,15 @@ msgstr ""
 
 #: ckan/templates/package/snippets/view_form_filters.html:16
 msgid "Add Filter"
-msgstr ""
+msgstr "Добавить фильтр"
 
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
-msgstr ""
+msgstr "Удалить фильтр"
 
 #: ckan/templates/package/snippets/view_form_filters.html:46
 msgid "Filters"
-msgstr ""
+msgstr "Фильтры"
 
 #: ckan/templates/package/snippets/view_help.html:2
 msgid "What's a view?"
@@ -4335,7 +4337,7 @@ msgstr "Подпишитесь на рассылку уведомлений"
 
 #: ckan/templates/user/edit_user_form.html:26
 msgid "Change password"
-msgstr ""
+msgstr "Сменить пароль"
 
 #: ckan/templates/user/edit_user_form.html:29
 #: ckan/templates/user/logout_first.html:12
@@ -4390,7 +4392,7 @@ msgstr "Создать Аккаунт"
 
 #: ckan/templates/user/login.html:42
 msgid "Forgotten your password?"
-msgstr ""
+msgstr "Забыли пароль?"
 
 #: ckan/templates/user/login.html:44
 msgid "No problem, use our password recovery form to reset it."
@@ -4451,7 +4453,7 @@ msgstr "Создание пакетов данных, групп и других
 
 #: ckan/templates/user/new_user_form.html:5
 msgid "username"
-msgstr ""
+msgstr "имя пользователя"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
@@ -4662,7 +4664,7 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr ""
+msgstr "Количество строк"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
@@ -4848,7 +4850,7 @@ msgstr "Выберите область"
 
 #: ckanext/textview/plugin.py:65 ckanext/textview/plugin.py:67
 msgid "Text"
-msgstr ""
+msgstr "Текст"
 
 #: ckanext/webpageview/plugin.py:19 ckanext/webpageview/plugin.py:24
 msgid "Website"
@@ -4856,7 +4858,7 @@ msgstr "сайт"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "Web Page url"
-msgstr ""
+msgstr "URL страницы"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"

@@ -7,15 +7,16 @@
 # KUSROS <matej.uhlik@vlada.gov.sk>, 2012
 # mmahut <mmahut@fedoraproject.org>, 2012
 # Sean Hammond <sean.hammond@okfn.org>, 2012
+# Sveto Krchnavy, 2015
 # zufanka <ada@soit.sk>, 2012
 msgid ""
 msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-06-23 20:40+0000\n"
-"PO-Revision-Date: 2015-06-25 10:45+0000\n"
-"Last-Translator: dread <david.read@hackneyworkshop.com>\n"
-"Language-Team: Slovak (http://www.transifex.com/p/ckan/language/sk/)\n"
+"PO-Revision-Date: 2015-07-21 09:10+0000\n"
+"Last-Translator: Sveto Krchnavy\n"
+"Language-Team: Slovak (http://www.transifex.com/okfn/ckan/language/sk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -572,7 +573,7 @@ msgstr "Žiadne stiahnutie nie je dostupné"
 
 #: ckan/controllers/package.py:1527
 msgid "Unauthorized to edit resource"
-msgstr ""
+msgstr "Nemáte oprávnenie na upravovanie tohto zdroja"
 
 #: ckan/controllers/package.py:1545
 msgid "View not found"
@@ -1316,7 +1317,7 @@ msgstr "V log_message nie sú povolené odkazy."
 
 #: ckan/logic/validators.py:156
 msgid "Dataset id already exists"
-msgstr ""
+msgstr "Dataset s týmto identifikátorom už existuje"
 
 #: ckan/logic/validators.py:197 ckan/logic/validators.py:288
 msgid "Resource"
@@ -1800,7 +1801,7 @@ msgstr "Používateľ %s nemá oprávnenie čítať zdroj %s"
 #: ckan/logic/auth/get.py:166
 #, python-format
 msgid "User %s not authorized to read group %s"
-msgstr ""
+msgstr "Používateľ %s nemá oprávnenie čítať skupinu %s"
 
 #: ckan/logic/auth/get.py:237
 msgid "You must be logged in to access your dashboard."
@@ -2223,7 +2224,7 @@ msgstr "Úprava nastavení"
 
 #: ckan/templates/header.html:37
 msgid "Settings"
-msgstr ""
+msgstr "Nastavenia"
 
 #: ckan/templates/header.html:43 ckan/templates/header.html:45
 msgid "Log out"
@@ -2874,7 +2875,7 @@ msgstr "Vymaž dataset, z tejto skupiny"
 
 #: ckan/templates/group/snippets/helper.html:4
 msgid "What are Groups?"
-msgstr ""
+msgstr "Čo sú skupiny?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
@@ -3553,7 +3554,7 @@ msgstr ""
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
-msgstr ""
+msgstr "Prístup do tohto zoznamu je možný aj cez API rozhranie %(api_link)s (viď. dokumentácia API  %(api_doc_link)s)."
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
@@ -3666,7 +3667,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:44
 msgid "Next: Add Data"
-msgstr ""
+msgstr "Ďalej: Pridať dáta"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "http://example.com/dataset.json"
@@ -3684,7 +3685,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 msgid "Author Email"
-msgstr ""
+msgstr "Email autora"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:16
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
@@ -3694,7 +3695,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:22
 msgid "Maintainer Email"
-msgstr ""
+msgstr "Email správcu"
 
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
@@ -4000,7 +4001,7 @@ msgstr ""
 #: ckan/templates/revision/diff.html:13 ckan/templates/revision/diff.html:18
 #: ckan/templates/revision/diff.html:23
 msgid "Revision Differences"
-msgstr ""
+msgstr "Rozdiely revízií"
 
 #: ckan/templates/revision/diff.html:44
 msgid "Difference"
