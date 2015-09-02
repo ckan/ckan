@@ -7,6 +7,14 @@
 Changelog
 ---------
 
+v2.3.2 2015-09-02
+=================
+
+Bug fixes:
+* Fix autodetect for TSV resources (#2553)
+* Improve character escaping in DataStore parameters
+* Fix "paster db init" when celery is configured with a non-database backend
+
 v2.3.1 2015-07-22
 =================
 
