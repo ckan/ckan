@@ -1156,6 +1156,8 @@ def related_item_link(related_item_dict):
                   id=related_item_dict['id'])
     return link_to(text, url)
 
+def related_enabled():
+    return asbool(config.get('ckan.related_enabled', True))
 
 def tag_link(tag):
     url = url_for(controller='tag', action='read', id=tag['name'])
@@ -2089,6 +2091,7 @@ __allowed_functions__ = [
     'resource_display_name',
     'resource_link',
     'related_item_link',
+    'related_enabled',
     'tag_link',
     'group_link',
     'dump_json',
