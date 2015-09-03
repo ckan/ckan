@@ -338,7 +338,7 @@ class Dataset(factory.Factory):
 
     # These are the default params that will be used to create new groups.
     title = 'Test Dataset'
-    description = 'Just another test dataset.'
+    notes = 'Just another test dataset.'
 
     # Generate a different group name param for each user that gets created.
     name = factory.Sequence(lambda n: 'test_dataset_{n}'.format(n=n))

@@ -539,7 +539,8 @@ class UserController(base.BaseController):
     def followers(self, id=None):
         context = {'for_view': True, 'user': c.user or c.author,
                    'auth_user_obj': c.userobj}
-        data_dict = {'id': id, 'user_obj': c.userobj}
+        data_dict = {'id': id, 'user_obj': c.userobj,
+                     'include_num_followers': True}
         self._setup_template_variables(context, data_dict)
         f = get_action('user_follower_list')
         try:

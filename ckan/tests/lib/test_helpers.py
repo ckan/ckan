@@ -126,3 +126,11 @@ class TestUnifiedResourceFormat(object):
 
     def test_unified_resource_format_by_alternative_description2(self):
         eq_(h.unified_resource_format('Excel'), 'XLS')
+
+    def test_autodetect_tsv(self):
+
+        eq_(h.unified_resource_format('tsv'), 'TSV')
+
+        eq_(h.unified_resource_format('text/tab-separated-values'), 'TSV')
+
+        eq_(h.unified_resource_format('text/tsv'), 'TSV')

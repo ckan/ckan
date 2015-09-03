@@ -24,6 +24,7 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
+import ckan.lib.lazyjson as lazyjson
 
 from ckan.common import _
 
@@ -942,7 +943,11 @@ def package_show(context, data_dict):
         else:
             use_validated_cache = 'schema' not in context
             if use_validated_cache and 'validated_data_dict' in search_result:
-                package_dict = json.loads(search_result['validated_data_dict'])
+                package_json = search_result['validated_data_dict']
+                if context.get('return_type') == 'LazyJSONObject':
+                    package_dict = lazyjson.LazyJSONObject(package_json)
+                else:
+                    package_dict = json.loads(package_json)
                 package_dict_validated = True
             else:
                 package_dict = json.loads(search_result['data_dict'])
@@ -2291,60 +2296,6 @@ def get_site_user(context, data_dict):
 
     return {'name': user.name,
             'apikey': user.apikey}
-
-
-def roles_show(context, data_dict):
-    '''Return the roles of all users and authorization groups for an object.
-
-    :param domain_object: a package or group name or id
-        to filter the results by
-    :type domain_object: string
-    :param user: a user name or id
-    :type user: string
-
-    :rtype: list of dictionaries
-
-    '''
-    model = context['model']
-    session = context['session']
-    domain_object_ref = _get_or_bust(data_dict, 'domain_object')
-    user_ref = data_dict.get('user')
-
-    domain_object = ckan.logic.action.get_domain_object(
-        model, domain_object_ref)
-    if isinstance(domain_object, model.Package):
-        query = session.query(model.PackageRole).join('package')
-    elif isinstance(domain_object, model.Group):
-        query = session.query(model.GroupRole).join('group')
-    elif domain_object is model.System:
-        query = session.query(model.SystemRole)
-    else:
-        raise NotFound(_('Cannot list entity of this type: %s')
-                       % type(domain_object).__name__)
-    # Filter by the domain_obj (apart from if it is the system object)
-    if not isinstance(domain_object, type):
-        query = query.filter_by(id=domain_object.id)
-
-    # Filter by the user
-    if user_ref:
-        user = model.User.get(user_ref)
-        if not user:
-            raise NotFound(_('unknown user:') + repr(user_ref))
-        query = query.join('user').filter_by(id=user.id)
-
-    uors = query.all()
-
-    uors_dictized = [_table_dictize(uor, context) for uor in uors]
-
-    result = {
-        'domain_object_type': type(domain_object).__name__,
-        'domain_object_id':
-        domain_object.id if domain_object != model.System else None,
-        'roles': uors_dictized}
-    if user_ref:
-        result['user'] = user.id
-
-    return result
 
 
 def status_show(context, data_dict):

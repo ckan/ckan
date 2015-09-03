@@ -781,8 +781,6 @@ def get_action(action_name, data_dict=None):
 
 
 def linked_user(user, maxlength=0, avatar=20):
-    if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
-        return user
     if not isinstance(user, model.User):
         user_name = unicode(user)
         user = model.User.get(user_name)
@@ -1923,7 +1921,8 @@ def featured_group_org(items, get_action, list_action, count):
         context = {'ignore_auth': True,
                    'limits': {'packages': 2},
                    'for_view': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id,
+                     'include_datasets': True}
 
         try:
             out = logic.get_action(get_action)(context, data_dict)

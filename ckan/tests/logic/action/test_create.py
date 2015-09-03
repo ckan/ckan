@@ -75,6 +75,12 @@ class TestUserInvite(object):
     def test_requires_group_id(self, _):
         self._invite_user_to_group(group={'id': None})
 
+    @mock.patch('ckan.lib.mailer.send_invite')
+    def test_user_name_lowercase_when_email_is_uppercase(self, _):
+        invited_user = self._invite_user_to_group(email='Maria@example.com')
+
+        assert_equals(invited_user.name.split('-')[0], 'maria')
+
     def _invite_user_to_group(self, email='user@email.com',
                               group=None, role='member'):
         user = factories.User()

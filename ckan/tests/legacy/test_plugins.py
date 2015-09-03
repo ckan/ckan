@@ -1,7 +1,7 @@
 """
 Tests for plugin loading via PCA
 """
-from nose.tools import raises
+from nose.tools import raises, assert_equal
 from unittest import TestCase
 from pyutilib.component.core import PluginGlobals
 from pylons import config
@@ -11,7 +11,7 @@ import ckan.authz as authz
 import ckan.plugins as plugins
 from ckan.plugins.core import find_system_plugins
 from ckan.lib.create_test_data import CreateTestData
-
+from ckan.tests import factories
 
 def _make_calls(*args):
     out = []
@@ -19,6 +19,11 @@ def _make_calls(*args):
         out.append(((arg,), {}))
     return out
 
+def get_calls(mock_observer_func):
+    '''Given a mock IPluginObserver method, returns the plugins that caused its
+    methods to be called, so basically a list of plugins that
+    loaded/unloaded'''
+    return [call_tuple[0][0].name for call_tuple in mock_observer_func.calls]
 
 class IFoo(plugins.Interface):
     pass
@@ -52,8 +57,8 @@ class TestInterface(TestCase):
         assert IFoo.provided_by(FooBarImpl())
         assert not IFoo.provided_by(BarImpl())
 
-class TestIPluginObserverPlugin(object):
 
+class TestIPluginObserverPlugin(object):
 
     @classmethod
     def setup(cls):
@@ -67,11 +72,11 @@ class TestIPluginObserverPlugin(object):
 
         observer = self.observer
         observer.reset_calls()
-        with plugins.use_plugin('action_plugin') as action:
-            assert observer.before_load.calls == _make_calls(action), observer.before_load.calls
-            assert observer.after_load.calls == _make_calls(action), observer.after_load.calls
-            assert observer.before_unload.calls == []
-            assert observer.after_unload.calls == []
+        with plugins.use_plugin('action_plugin'):
+            assert_equal(get_calls(observer.before_load), ['action_plugin'])
+            assert_equal(get_calls(observer.after_load), ['action_plugin'])
+            assert_equal(get_calls(observer.before_unload), [])
+            assert_equal(get_calls(observer.after_unload), [])
 
     def test_notified_on_unload(self):
 
@@ -139,13 +144,32 @@ class TestPlugins(object):
         config['ckan.plugins'] = config_plugins
         plugins.load_all(config)
 
-    def test_mapper_plugin_fired(self):
+    def test_mapper_plugin_fired_on_insert(self):
         with plugins.use_plugin('mapper_plugin') as mapper_plugin:
-            CreateTestData.create_arbitrary([{'name':u'testpkg'}])
+            CreateTestData.create_arbitrary([{'name': u'testpkg'}])
+            assert mapper_plugin.calls == [
+                ('before_insert', 'testpkg'),
+                ('after_insert', 'testpkg'),
+                ]
+
+    def test_mapper_plugin_fired_on_delete(self):
+        with plugins.use_plugin('mapper_plugin') as mapper_plugin:
+            CreateTestData.create_arbitrary([{'name': u'testpkg'}])
+            mapper_plugin.calls = []
             # remove this data
-            CreateTestData.delete()
-            assert len(mapper_plugin.added) == 1
-            assert mapper_plugin.added[0].name == 'testpkg'
+            user = factories.User()
+            context = {'user': user['name']}
+            logic.get_action('package_delete')(context, {'id': 'testpkg'})
+            # state=deleted doesn't trigger before_delete()
+            assert_equal(mapper_plugin.calls, [])
+            from ckan import model
+            # purging the package does trigger before_delete()
+            model.Package.get('testpkg').purge()
+            model.Session.commit()
+            model.Session.remove()
+            assert_equal(mapper_plugin.calls,
+                [('before_delete', 'testpkg'),
+                 ('after_delete', 'testpkg')])
 
     def test_routes_plugin_fired(self):
         with plugins.use_plugin('routes_plugin'):

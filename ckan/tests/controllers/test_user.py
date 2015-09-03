@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from nose.tools import assert_true, assert_false, assert_equal
 
 from routes import url_for
@@ -20,6 +21,106 @@ def _get_user_edit_page(app):
         extra_environ=env,
     )
     return env, response, user
+
+
+class TestRegisterUser(helpers.FunctionalTestBase):
+    def test_register_a_user(self):
+        app = helpers._get_test_app()
+        response = app.get(url=url_for(controller='user', action='register'))
+
+        form = response.forms['user-register-form']
+        form['name'] = 'newuser'
+        form['fullname'] = 'New User'
+        form['email'] = 'test@test.com'
+        form['password1'] = 'testpassword'
+        form['password2'] = 'testpassword'
+        response = submit_and_follow(app, form, name='save')
+        response = response.follow()
+        assert_equal(200, response.status_int)
+
+        user = helpers.call_action('user_show', id='newuser')
+        assert_equal(user['name'], 'newuser')
+        assert_equal(user['fullname'], 'New User')
+        assert_false(user['sysadmin'])
+
+    def test_register_user_bad_password(self):
+        app = helpers._get_test_app()
+        response = app.get(url=url_for(controller='user', action='register'))
+
+        form = response.forms['user-register-form']
+        form['name'] = 'newuser'
+        form['fullname'] = 'New User'
+        form['email'] = 'test@test.com'
+        form['password1'] = 'testpassword'
+        form['password2'] = ''
+
+        response = form.submit('save')
+        assert_true('The passwords you entered do not match')
+
+
+class TestLoginView(helpers.FunctionalTestBase):
+    def test_registered_user_login(self):
+        '''
+        Registered user can submit valid login details at /user/login and
+        be returned to appropriate place.
+        '''
+        app = helpers._get_test_app()
+
+        # make a user
+        user = factories.User()
+
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+
+        # fill it in
+        login_form['login'] = user['name']
+        login_form['password'] = 'pass'
+
+        # submit it
+        submit_response = login_form.submit()
+        # let's go to the last redirect in the chain
+        final_response = helpers.webtest_maybe_follow(submit_response)
+
+        # the response is the user dashboard, right?
+        final_response.mustcontain('<a href="/dashboard">Dashboard</a>',
+                                   '<span class="username">{0}</span>'
+                                   .format(user['fullname']))
+        # and we're definitely not back on the login page.
+        final_response.mustcontain(no='<h1 class="page-heading">Login</h1>')
+
+    def test_registered_user_login_bad_password(self):
+        '''
+        Registered user is redirected to appropriate place if they submit
+        invalid login details at /user/login.
+        '''
+        app = helpers._get_test_app()
+
+        # make a user
+        user = factories.User()
+
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+
+        # fill it in
+        login_form['login'] = user['name']
+        login_form['password'] = 'badpass'
+
+        # submit it
+        submit_response = login_form.submit()
+        # let's go to the last redirect in the chain
+        final_response = helpers.webtest_maybe_follow(submit_response)
+
+        # the response is the login page again
+        final_response.mustcontain('<h1 class="page-heading">Login</h1>',
+                                   'Login failed. Bad username or password.')
+        # and we're definitely not on the dashboard.
+        final_response.mustcontain(no='<a href="/dashboard">Dashboard</a>'),
+        final_response.mustcontain(no='<span class="username">{0}</span>'
+                                   .format(user['fullname']))
 
 
 class TestUser(helpers.FunctionalTestBase):
@@ -180,3 +281,222 @@ class TestUserEdit(helpers.FunctionalTestBase):
 
         response = webtest_submit(form, 'save', status=200, extra_environ=env)
         assert_true('Old Password: incorrect password' in response)
+
+
+class TestUserFollow(helpers.FunctionalTestBase):
+
+    def test_user_follow(self):
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        user_two = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id=user_two['id'])
+        response = app.post(follow_url, extra_environ=env, status=302)
+        response = response.follow()
+        assert_true('You are now following {0}'
+                    .format(user_two['display_name'])
+                    in response)
+
+    def test_user_follow_not_exist(self):
+        '''Pass an id for a user that doesn't exist'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id='not-here')
+        response = app.post(follow_url, extra_environ=env, status=302)
+        response = response.follow(status=404)
+        assert_true('User not found' in response)
+
+    def test_user_unfollow(self):
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        user_two = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id=user_two['id'])
+        app.post(follow_url, extra_environ=env, status=302)
+
+        unfollow_url = url_for(controller='user', action='unfollow',
+                               id=user_two['id'])
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow()
+
+        assert_true('You are no longer following {0}'
+                    .format(user_two['display_name'])
+                    in unfollow_response)
+
+    def test_user_unfollow_not_following(self):
+        '''Unfollow a user not currently following'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        user_two = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        unfollow_url = url_for(controller='user', action='unfollow',
+                               id=user_two['id'])
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow()
+
+        assert_true('You are not following {0}'.format(user_two['id'])
+                    in unfollow_response)
+
+    def test_user_unfollow_not_exist(self):
+        '''Unfollow a user that doesn't exist.'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        unfollow_url = url_for(controller='user', action='unfollow',
+                               id='not-here')
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow(status=404)
+
+        assert_true('User not found' in unfollow_response)
+
+    def test_user_follower_list(self):
+        '''Following users appear on followers list page.'''
+        app = self._get_test_app()
+
+        user_one = factories.Sysadmin()
+        user_two = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='user',
+                             action='follow',
+                             id=user_two['id'])
+        app.post(follow_url, extra_environ=env, status=302)
+
+        followers_url = url_for(controller='user', action='followers',
+                                id=user_two['id'])
+
+        # Only sysadmins can view the followers list pages
+        followers_response = app.get(followers_url, extra_environ=env,
+                                     status=200)
+        assert_true(user_one['display_name'] in followers_response)
+
+
+class TestUserSearch(helpers.FunctionalTestBase):
+
+    def test_user_page_anon_access(self):
+        '''Anon users can access the user list page'''
+        app = self._get_test_app()
+
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200)
+        assert_true('<title>All Users - CKAN</title>'
+                    in user_response)
+
+    def test_user_page_lists_users(self):
+        '''/users/ lists registered users'''
+        app = self._get_test_app()
+        factories.User(fullname='User One')
+        factories.User(fullname='User Two')
+        factories.User(fullname='User Three')
+
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200)
+
+        user_response_html = BeautifulSoup(user_response.body)
+        user_list = user_response_html.select('ul.user-list li')
+        assert_equal(len(user_list), 3)
+
+        user_names = [u.text.strip() for u in user_list]
+        assert_true('User One' in user_names)
+        assert_true('User Two' in user_names)
+        assert_true('User Three' in user_names)
+
+    def test_user_page_doesnot_list_deleted_users(self):
+        '''/users/ doesn't list deleted users'''
+        app = self._get_test_app()
+        factories.User(fullname='User One', state='deleted')
+        factories.User(fullname='User Two')
+        factories.User(fullname='User Three')
+
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200)
+
+        user_response_html = BeautifulSoup(user_response.body)
+        user_list = user_response_html.select('ul.user-list li')
+        assert_equal(len(user_list), 2)
+
+        user_names = [u.text.strip() for u in user_list]
+        assert_true('User One' not in user_names)
+        assert_true('User Two' in user_names)
+        assert_true('User Three' in user_names)
+
+    def test_user_page_anon_search(self):
+        '''Anon users can search for users by username.'''
+        app = self._get_test_app()
+        factories.User(fullname='User One', email='useroneemail@example.com')
+        factories.User(fullname='Person Two')
+        factories.User(fullname='Person Three')
+
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200)
+        search_form = user_response.forms['user-search-form']
+        search_form['q'] = 'Person'
+        search_response = webtest_submit(search_form, status=200)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        user_list = search_response_html.select('ul.user-list li')
+        assert_equal(len(user_list), 2)
+
+        user_names = [u.text.strip() for u in user_list]
+        assert_true('Person Two' in user_names)
+        assert_true('Person Three' in user_names)
+        assert_true('User One' not in user_names)
+
+    def test_user_page_anon_search_not_by_email(self):
+        '''Anon users can not search for users by email.'''
+        app = self._get_test_app()
+        factories.User(fullname='User One', email='useroneemail@example.com')
+        factories.User(fullname='Person Two')
+        factories.User(fullname='Person Three')
+
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200)
+        search_form = user_response.forms['user-search-form']
+        search_form['q'] = 'useroneemail@example.com'
+        search_response = webtest_submit(search_form, status=200)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        user_list = search_response_html.select('ul.user-list li')
+        assert_equal(len(user_list), 0)
+
+    def test_user_page_sysadmin_user(self):
+        '''Sysadmin can search for users by email.'''
+        app = self._get_test_app()
+        sysadmin = factories.Sysadmin()
+
+        factories.User(fullname='User One', email='useroneemail@example.com')
+        factories.User(fullname='Person Two')
+        factories.User(fullname='Person Three')
+
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        user_url = url_for(controller='user', action='index')
+        user_response = app.get(user_url, status=200, extra_environ=env)
+        search_form = user_response.forms['user-search-form']
+        search_form['q'] = 'useroneemail@example.com'
+        search_response = webtest_submit(search_form, status=200,
+                                         extra_environ=env)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        user_list = search_response_html.select('ul.user-list li')
+        assert_equal(len(user_list), 1)
+        assert_equal(user_list[0].text.strip(), 'User One')
