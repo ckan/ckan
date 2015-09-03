@@ -220,14 +220,11 @@ def make_map():
                   requirements=dict(action='|'.join([
                       'read',
                       'edit',
-                      'history',
                   ])))
         m.connect('/dataset/{action}/{id}',
                   requirements=dict(action='|'.join([
                       'new_resource',
-                      'history',
                       'read_ajax',
-                      'history_ajax',
                       'follow',
                       'activity',
                       'groups',
@@ -296,7 +293,6 @@ def make_map():
                       'delete',
                       'member_new',
                       'member_delete',
-                      'history',
                       'followers',
                       'follow',
                       'unfollow',
@@ -325,7 +321,6 @@ def make_map():
                       'admins',
                       'member_new',
                       'member_delete',
-                      'history'
                   ])))
         m.connect('organization_activity', '/organization/activity/{id}',
                   action='activity', ckan_icon='time')

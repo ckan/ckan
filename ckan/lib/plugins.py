@@ -106,7 +106,7 @@ def register_package_plugins(map):
             map.connect('%s_read' % package_type, '/%s/{id}' % package_type,
                         controller='package', action='read')
 
-            for action in ['edit', 'authz', 'history']:
+            for action in ['edit', 'authz']:
                 map.connect('%s_%s' % (package_type, action),
                             '/%s/%s/{id}' % (package_type, action),
                             controller='package',
@@ -176,7 +176,7 @@ def register_group_plugins(map):
                         '/%s/{action}/{id}' % group_type,
                         controller=group_controller,
                         requirements=dict(action='|'.join(
-                            ['edit', 'authz', 'history', 'member_new',
+                            ['edit', 'authz', 'member_new',
                              'member_delete', 'followers', 'follow',
                              'unfollow', 'admins', 'activity'])))
             map.connect('%s_edit' % group_type, '/%s/edit/{id}' % group_type,
@@ -310,9 +310,6 @@ class DefaultDatasetForm(object):
     def search_template(self):
         return 'package/search.html'
 
-    def history_template(self):
-        return 'package/history.html'
-
     def resource_template(self):
         return 'package/resource_read.html'
 
@@ -366,13 +363,6 @@ class DefaultGroupForm(object):
         rendered for the about page
         """
         return 'group/about.html'
-
-    def history_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the history page
-        """
-        return 'group/history.html'
 
     def edit_template(self):
         """
@@ -512,8 +502,6 @@ class DefaultOrganizationForm(DefaultGroupForm):
 
     def read_template(self):
         return 'organization/read.html'
-
-    # don't override history_template - use group template for history
 
     def edit_template(self):
         return 'organization/edit.html'

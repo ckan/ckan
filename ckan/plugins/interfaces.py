@@ -1094,16 +1094,6 @@ class IDatasetForm(Interface):
 
         '''
 
-    def history_template(self):
-        '''Return the path to the template for the dataset history page.
-
-        The path should be relative to the plugin's templates dir, e.g.
-        ``'package/history.html'``.
-
-        :rtype: string
-
-        '''
-
     def resource_template(self):
         '''Return the path to the template for the resource read page.
 
@@ -1240,12 +1230,6 @@ class IGroupForm(Interface):
         """
         Returns a string representing the location of the template to be
         rendered for the read page
-        """
-
-    def history_template(self):
-        """
-        Returns a string representing the location of the template to be
-        rendered for the history page
         """
 
     def edit_template(self):
