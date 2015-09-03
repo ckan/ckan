@@ -24,19 +24,6 @@ class UsernamePasswordError(Exception):
     pass
 
 
-class AttributeDict(dict):
-    def __getattr__(self, name):
-        try:
-            return self[name]
-        except KeyError:
-            raise AttributeError('No such attribute %r' % name)
-
-    def __setattr__(self, name, value):
-        raise AttributeError(
-            'You cannot set attributes of this object directly'
-        )
-
-
 class ActionError(Exception):
     pass
 

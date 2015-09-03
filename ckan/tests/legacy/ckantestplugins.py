@@ -8,17 +8,24 @@ class MapperPlugin(p.SingletonPlugin):
     p.implements(p.IMapper, inherit=True)
 
     def __init__(self, *args, **kw):
-        self.added = []
-        self.deleted = []
+        self.calls = []
 
     def before_insert(self, mapper, conn, instance):
-        self.added.append(instance)
+        self.calls.append(('before_insert', instance.name))
+
+    def after_insert(self, mapper, conn, instance):
+        self.calls.append(('after_insert', instance.name))
 
     def before_delete(self, mapper, conn, instance):
-        self.deleted.append(instance)
+        self.calls.append(('before_delete', instance.name))
+
+    def after_delete(self, mapper, conn, instance):
+        self.calls.append(('after_delete', instance.name))
+
 
 class MapperPlugin2(MapperPlugin):
     p.implements(p.IMapper)
+
 
 class SessionPlugin(p.SingletonPlugin):
     p.implements(p.ISession, inherit=True)

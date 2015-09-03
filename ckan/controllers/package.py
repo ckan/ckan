@@ -1055,11 +1055,6 @@ class PackageController(base.BaseController):
                    'user': c.user or c.author, 'auth_user_obj': c.userobj}
 
         try:
-            check_access('package_delete', context, {'id': id})
-        except NotAuthorized:
-            abort(401, _('Unauthorized to delete package %s') % '')
-
-        try:
             if request.method == 'POST':
                 get_action('package_delete')(context, {'id': id})
                 h.flash_notice(_('Dataset has been deleted.'))

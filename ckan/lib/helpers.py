@@ -10,6 +10,8 @@ import datetime
 import logging
 import re
 import os
+import pytz
+import tzlocal
 import urllib
 import urlparse
 import pprint
@@ -72,6 +74,33 @@ def _datestamp_to_datetime(datetime_):
     # check we are now a datetime
     if not isinstance(datetime_, datetime.datetime):
         return None
+
+    if datetime_.tzinfo is not None:
+        return datetime_
+
+    # all dates are considered UTC internally,
+    # change output if `ckan.display_timezone` is available
+    datetime_ = datetime_.replace(tzinfo=pytz.utc)
+    timezone_name = config.get('ckan.display_timezone', '')
+    if timezone_name == 'server':
+        local_tz = tzlocal.get_localzone()
+        return datetime_.astimezone(local_tz)
+
+    try:
+        datetime_ = datetime_.astimezone(
+            pytz.timezone(timezone_name)
+        )
+    except pytz.UnknownTimeZoneError:
+        if timezone_name != '':
+            log.warning(
+                'Timezone `%s` not found. '
+                'Please provide a valid timezone setting in '
+                '`ckan.display_timezone` or leave the field empty. All valid '
+                'values can be found in pytz.all_timezones. You can use the '
+                'special value `server` to use the local timezone of the '
+                'server.' % timezone_name
+            )
+
     return datetime_
 
 
@@ -110,6 +139,28 @@ def url(*args, **kw):
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
 
+def get_site_protocol_and_host():
+    '''Return the protocol and host of the configured `ckan.site_url`.
+    This is needed to generate valid, full-qualified URLs.
+
+    If `ckan.site_url` is set like this::
+
+        ckan.site_url = http://example.com
+    
+    Then this function would return a tuple `('http', 'example.com')`
+    If the setting is missing, `(None, None)` is returned instead.
+
+    '''
+    site_url = config.get('ckan.site_url', None)
+    if site_url is not None:
+        parsed_url = urlparse.urlparse(site_url)
+        return (
+            parsed_url.scheme.encode('utf-8'),
+            parsed_url.netloc.encode('utf-8')
+        )
+    return (None, None)
+
+
 def url_for(*args, **kw):
     '''Return the URL for the given controller, action, id, etc.
 
@@ -139,6 +190,8 @@ def url_for(*args, **kw):
             raise Exception('api calls must specify the version! e.g. ver=3')
         # fix ver to include the slash
         kw['ver'] = '/%s' % ver
+    if kw.get('qualified', False):
+        kw['protocol'], kw['host'] = get_site_protocol_and_host()
     my_url = _routes_default_url_for(*args, **kw)
     kw['__ckan_no_root'] = no_root
     return _add_i18n_to_url(my_url, locale=locale, **kw)
@@ -222,7 +275,11 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = ''
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
-        root = _routes_default_url_for('/', qualified=True)[:-1]
+        protocol, host = get_site_protocol_and_host()
+        root = _routes_default_url_for('/',
+                                       qualified=True,
+                                       host=host,
+                                       protocol=protocol)[:-1]
     # ckan.root_path is defined when we have none standard language
     # position in the url
     root_path = config.get('ckan.root_path', None)
@@ -231,15 +288,15 @@ def _add_i18n_to_url(url_to_amend, **kw):
         # into the ecportal core is done - Toby
         # we have a special root specified so use that
         if default_locale:
-            root = re.sub('/{{LANG}}', '', root_path)
+            root_path = re.sub('/{{LANG}}', '', root_path)
         else:
-            root = re.sub('{{LANG}}', locale, root_path)
+            root_path = re.sub('{{LANG}}', locale, root_path)
         # make sure we don't have a trailing / on the root
-        if root[-1] == '/':
-            root = root[:-1]
-        url = url_to_amend[len(re.sub('/{{LANG}}', '', root_path)):]
-        url = '%s%s' % (root, url)
-        root = re.sub('/{{LANG}}', '', root_path)
+        if root_path[-1] == '/':
+            root_path = root_path[:-1]
+
+        url_path = url_to_amend[len(root):]
+        url = '%s%s%s' % (root, root_path, url_path)
     else:
         if default_locale:
             url = url_to_amend
@@ -781,8 +838,6 @@ def get_action(action_name, data_dict=None):
 
 
 def linked_user(user, maxlength=0, avatar=20):
-    if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
-        return user
     if not isinstance(user, model.User):
         user_name = unicode(user)
         user = model.User.get(user_name)
@@ -965,6 +1020,7 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
     datetime_ = _datestamp_to_datetime(datetime_)
     if not datetime_:
         return ''
+
     # if date_format was supplied we use it
     if date_format:
         return datetime_.strftime(date_format)
@@ -1923,7 +1979,8 @@ def featured_group_org(items, get_action, list_action, count):
         context = {'ignore_auth': True,
                    'limits': {'packages': 2},
                    'for_view': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id,
+                     'include_datasets': True}
 
         try:
             out = logic.get_action(get_action)(context, data_dict)
@@ -2031,6 +2088,22 @@ def get_organization(org=None, include_datasets=False):
         return logic.get_action('organization_show')({}, {'id': org, 'include_datasets': include_datasets})
     except (NotFound, ValidationError, NotAuthorized):
         return {}
+
+
+def license_options(existing_license_id=None):
+    '''Returns [(l.title, l.id), ...] for the licenses configured to be
+    offered. Always includes the existing_license_id, if supplied.
+    '''
+    register = model.Package.get_license_register()
+    sorted_licenses = sorted(register.values(), key=lambda x: x.title)
+    license_ids = [license.id for license in sorted_licenses]
+    if existing_license_id and existing_license_id not in license_ids:
+        license_ids.insert(0, existing_license_id)
+    return [
+        (license_id,
+         register[license_id].title if license_id in register else license_id)
+        for license_id in license_ids]
+
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -2150,4 +2223,5 @@ __allowed_functions__ = [
     'urlencode',
     'check_config_permission',
     'view_resource_url',
+    'license_options',
 ]

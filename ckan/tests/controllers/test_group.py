@@ -149,3 +149,151 @@ class TestGroupControllerEdit(helpers.FunctionalTestBase):
         assert_equal(group.title, u'Science')
         assert_equal(group.description, 'Sciencey datasets')
         assert_equal(group.image_url, 'http://example.com/image.png')
+
+
+class TestGroupFollow(helpers.FunctionalTestBase):
+
+    def test_group_follow(self):
+        app = self._get_test_app()
+
+        user = factories.User()
+        group = factories.Group()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        follow_url = url_for(controller='group',
+                             action='follow',
+                             id=group['id'])
+        response = app.post(follow_url, extra_environ=env, status=302)
+        response = response.follow()
+        assert_true('You are now following {0}'
+                    .format(group['display_name'])
+                    in response)
+
+    def test_group_follow_not_exist(self):
+        '''Pass an id for a group that doesn't exist'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='group',
+                             action='follow',
+                             id='not-here')
+        response = app.post(follow_url, extra_environ=env, status=404)
+        assert_true('Group not found' in response)
+
+    def test_group_unfollow(self):
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        group = factories.Group()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='group',
+                             action='follow',
+                             id=group['id'])
+        app.post(follow_url, extra_environ=env, status=302)
+
+        unfollow_url = url_for(controller='group', action='unfollow',
+                               id=group['id'])
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow()
+
+        assert_true('You are no longer following {0}'
+                    .format(group['display_name'])
+                    in unfollow_response)
+
+    def test_group_unfollow_not_following(self):
+        '''Unfollow a group not currently following'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+        group = factories.Group()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        unfollow_url = url_for(controller='group', action='unfollow',
+                               id=group['id'])
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=302)
+        unfollow_response = unfollow_response.follow()
+
+        assert_true('You are not following {0}'.format(group['id'])
+                    in unfollow_response)
+
+    def test_group_unfollow_not_exist(self):
+        '''Unfollow a group that doesn't exist.'''
+        app = self._get_test_app()
+
+        user_one = factories.User()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        unfollow_url = url_for(controller='group', action='unfollow',
+                               id='not-here')
+        unfollow_response = app.post(unfollow_url, extra_environ=env,
+                                     status=404)
+        assert_true('Group not found' in unfollow_response)
+
+    def test_group_follower_list(self):
+        '''Following users appear on followers list page.'''
+        app = self._get_test_app()
+
+        user_one = factories.Sysadmin()
+        group = factories.Group()
+
+        env = {'REMOTE_USER': user_one['name'].encode('ascii')}
+        follow_url = url_for(controller='group',
+                             action='follow',
+                             id=group['id'])
+        app.post(follow_url, extra_environ=env, status=302)
+
+        followers_url = url_for(controller='group', action='followers',
+                                id=group['id'])
+
+        # Only sysadmins can view the followers list pages
+        followers_response = app.get(followers_url, extra_environ=env,
+                                     status=200)
+        assert_true(user_one['display_name'] in followers_response)
+
+
+class TestGroupIndex(helpers.FunctionalTestBase):
+
+    def test_group_index(self):
+        app = self._get_test_app()
+
+        for i in xrange(1, 26):
+            _i = '0' + str(i) if i < 10 else i
+            factories.Group(
+                name='test-group-{0}'.format(_i),
+                title='Test Group {0}'.format(_i))
+
+        url = url_for(controller='group',
+                      action='index')
+        response = app.get(url)
+
+        for i in xrange(1, 22):
+            _i = '0' + str(i) if i < 10 else i
+            assert_in('Test Group {0}'.format(_i), response)
+
+        assert 'Test Group 22' not in response
+
+        url = url_for(controller='group',
+                      action='index',
+                      page=1)
+        response = app.get(url)
+
+        for i in xrange(1, 22):
+            _i = '0' + str(i) if i < 10 else i
+            assert_in('Test Group {0}'.format(_i), response)
+
+        assert 'Test Group 22' not in response
+
+        url = url_for(controller='group',
+                      action='index',
+                      page=2)
+        response = app.get(url)
+
+        for i in xrange(22, 26):
+            assert_in('Test Group {0}'.format(i), response)
+
+        assert 'Test Group 21' not in response

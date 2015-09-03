@@ -178,7 +178,9 @@ class ReclineMapView(ReclineViewBase):
 
     datastore_fields = []
 
-    datastore_field_types = ['numeric']
+    datastore_field_latlon_types = ['numeric']
+
+    datastore_field_geojson_types = ['text']
 
     def list_map_field_types(self):
         return [t['value'] for t in self.map_field_types]
@@ -213,12 +215,19 @@ class ReclineMapView(ReclineViewBase):
                 }
 
     def setup_template_variables(self, context, data_dict):
-        self.datastore_fields = datastore_fields(data_dict['resource'],
-                                                 self.datastore_field_types)
+        map_latlon_fields = datastore_fields(
+            data_dict['resource'], self.datastore_field_latlon_types)
+        map_geojson_fields = datastore_fields(
+            data_dict['resource'], self.datastore_field_geojson_types)
+
+        self.datastore_fields = map_latlon_fields + map_geojson_fields
+
         vars = ReclineViewBase.setup_template_variables(self, context,
                                                         data_dict)
         vars.update({'map_field_types': self.map_field_types,
-                     'map_fields': self.datastore_fields})
+                     'map_latlon_fields': map_latlon_fields,
+                     'map_geojson_fields': map_geojson_fields
+                     })
         return vars
 
     def form_template(self, context, data_dict):
