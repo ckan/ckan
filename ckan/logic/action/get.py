@@ -1863,7 +1863,7 @@ def package_search(context, data_dict):
 
     model = context['model']
     session = context['session']
-    user = context['user']
+    user = context.get('user')
 
     _check_access('package_search', context, data_dict)
 
