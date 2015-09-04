@@ -38,7 +38,9 @@ class TestPackageShow(helpers.FunctionalTestBase):
     def test_package_show_is_lazy(self):
         dataset1 = factories.Dataset()
 
-        dataset2 = helpers.call_action('package_show', id=dataset1['id'],
+        dataset2 = helpers.call_action(
+            'package_show',
+            id=dataset1['id'],
             context=dict(return_type='LazyJSONObject'))
 
         # LazyJSONObject passed through without being expanded
