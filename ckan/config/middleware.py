@@ -180,13 +180,33 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     from werkzeug.wsgi import DispatcherMiddleware
     from ckan_app import create_app
 
-    app = DispatcherMiddleware(app, {
-        '/api/4': create_app()
-    })
-    #from ckan_app import create_app
-    #app = PathDispatcher(app, create_app)
 
+    app = FlaskDispatcher(app, create_app)
     return app
+
+
+class FlaskDispatcher(object):
+    """
+    Dispatches requests either to the CKAN Pylons app, or
+    if the request path starts with one known by Flask, the
+    Flask app.
+    """
+
+    FLASK_PATHS = (
+        "/api/3",
+    )
+
+    def __init__(self, default_app, create_app):
+        self.default_app = default_app
+        self.create_app = create_app
+
+    def __call__(self, environ, start_response):
+        path = environ["PATH_INFO"]
+        if path.startswith(FlaskDispatcher.FLASK_PATHS):
+            return self.create_app()(environ, start_response)
+
+        return self.default_app(environ, start_response)
+
 
 
 class I18nMiddleware(object):

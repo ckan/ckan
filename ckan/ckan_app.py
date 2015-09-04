@@ -32,7 +32,7 @@ def create_app():
     ##############################################################################
     # Set up routes
     ##############################################################################
-    app.add_url_rule('/action/<func_name>', view_func=ApiView.as_view('api'))
+    app.add_url_rule('/api/3/action/<func_name>', view_func=ApiView.as_view('api'))
 
     return app
 
