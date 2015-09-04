@@ -211,7 +211,7 @@ class ApiController(base.BaseController):
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
             return_dict['success'] = False
-            
+
             if unicode(e):
                 return_dict['error']['message'] += u': %s' % e
 

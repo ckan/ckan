@@ -1,3 +1,4 @@
+Flask==0.10.1
 Babel==0.9.6
 Beaker==1.7.0
 FormEncode==1.2.6

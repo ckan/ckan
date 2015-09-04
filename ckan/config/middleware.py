@@ -177,6 +177,15 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     if asbool(config.get('ckan.tracking_enabled', 'false')):
         app = TrackingMiddleware(app, config)
 
+    from werkzeug.wsgi import DispatcherMiddleware
+    from ckan_app import create_app
+
+    app = DispatcherMiddleware(app, {
+        '/api/4': create_app()
+    })
+    #from ckan_app import create_app
+    #app = PathDispatcher(app, create_app)
+
     return app
 
 
