@@ -1122,6 +1122,13 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         eq(len(results), 1)
         eq(results[0]['name'], private_dataset['name'])
 
+    def test_package_works_without_user_in_context(self):
+        '''
+        package_search() should work even if user isn't in the context (e.g.
+        ckanext-showcase tests.
+        '''
+        logic.get_action('package_search')({}, dict(q='anything'))
+
 
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
     '''test class for #1258 non-int query parameters cause 500 errors
