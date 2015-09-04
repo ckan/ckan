@@ -24,7 +24,7 @@ class ApiView(MethodView):
         params = request.args.copy()
 
         # TODO: Check and pop callback
-
+        print c.user
         context = {'model':model, 'session': model.Session, 'user': c.user}
         try:
             response = fn(context, params)
