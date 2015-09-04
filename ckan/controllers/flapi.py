@@ -1,8 +1,8 @@
 import logging
-import json
 
 import ckan.model as model
 import ckan.logic as logic
+from ckan.common import json, _, ungettext, c
 
 from flask import abort, jsonify, request, Response
 from flask.views import MethodView
@@ -21,11 +21,11 @@ class ApiView(MethodView):
         except Exception, e:
             abort(404)
 
-        params = request.args
+        params = request.args.copy()
 
         # TODO: Check and pop callback
 
-        context = {'model':model, 'session': model.Session, 'user': ''}
+        context = {'model':model, 'session': model.Session, 'user': c.user}
         try:
             response = fn(context, params)
         except logic.ValidationError, e:
