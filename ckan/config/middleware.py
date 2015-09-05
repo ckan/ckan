@@ -28,6 +28,9 @@ import ckan.lib.uploader as uploader
 from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
 
+from ckan_app import create_app
+
+
 log = logging.getLogger(__name__)
 
 
@@ -177,12 +180,41 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     if asbool(config.get('ckan.tracking_enabled', 'false')):
         app = TrackingMiddleware(app, config)
 
-    from werkzeug.wsgi import DispatcherMiddleware
-    from ckan_app import create_app
-
-
-    app = FlaskDispatcher(app, create_app)
+    app = FlaskDispatcher(app, setup_flask_app(conf, who_parser))
     return app
+
+
+def setup_flask_app(conf, who_parser):
+    """ This has to pass the flask app through all the same
+    middleware that Pylons used """
+    flask_app = create_app()
+
+    for plugin in PluginImplementations(IMiddleware):
+        flask_app = plugin.make_middleware(flask_app, config)
+
+    flask_app = SessionMiddleware(flask_app, config)
+    flask_app = CacheMiddleware(flask_app, config)
+
+    for plugin in PluginImplementations(IMiddleware):
+        try:
+            flask_app = plugin.make_error_log_middleware(flask_app, config)
+        except AttributeError:
+            log.critical('Middleware class {0} is missing the method'
+                         'make_error_log_middleware.'.format(plugin.__class__.__name__))
+
+    flask_app = PluggableAuthenticationMiddleware(
+        flask_app,
+        who_parser.identifiers,
+        who_parser.authenticators,
+        who_parser.challengers,
+        who_parser.mdproviders,
+        who_parser.request_classifier,
+        who_parser.challenge_decider,
+        logging.getLogger('repoze.who'),
+        logging.WARN,  # ignored
+        who_parser.remote_user_key
+    )
+    return flask_app
 
 
 class FlaskDispatcher(object):
@@ -196,14 +228,14 @@ class FlaskDispatcher(object):
         "/api/3",
     )
 
-    def __init__(self, default_app, create_app):
+    def __init__(self, default_app, flask_app):
         self.default_app = default_app
-        self.create_app = create_app
+        self.flask_app = flask_app
 
     def __call__(self, environ, start_response):
         path = environ["PATH_INFO"]
         if path.startswith(FlaskDispatcher.FLASK_PATHS):
-            return self.create_app()(environ, start_response)
+            return self.flask_app(environ, start_response)
 
         return self.default_app(environ, start_response)
 
