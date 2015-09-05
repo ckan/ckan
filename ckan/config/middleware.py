@@ -225,7 +225,7 @@ class FlaskDispatcher(object):
     """
 
     FLASK_PATHS = (
-        "/api/3",
+        "/api/3/action",
     )
 
     def __init__(self, default_app, flask_app):

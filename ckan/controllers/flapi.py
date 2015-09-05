@@ -46,14 +46,15 @@ class ApiView(MethodView):
             log.info('Not Found error (Action API): %r' % str(nfe))
             return jsonify(return_dict), 404
         except logic.NotAuthorized, not_auth:
-            error_dict = not_auth.error_dict
-            error_dict['__type'] = 'Not Authorized Error',
             return_dict = {
-                'error': error_dict,
-                'success': False
+                'success': False,
+                'error': {
+                    '__type': 'Not Authorized Error',
+                    'message': 'Not Authorized'
+                }
             }
 
-            log.info('Not Authorized error (Action API): %r' % str(not_auth.error_dict))
+            log.info('Not Authorized error (Action API): %r' % str(not_auth))
             return jsonify(return_dict), 403
         except logic.ValidationError, e:
             error_dict = e.error_dict
