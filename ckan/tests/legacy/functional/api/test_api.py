@@ -5,7 +5,7 @@ from ckan.tests.legacy.functional.api.base import *
 import ckan.tests.legacy
 assert_in = ckan.tests.legacy.assert_in
 
-class ApiTestCase(ApiTestCase, ControllerTestCase): 
+class ApiTestCase(ApiTestCase, ControllerTestCase):
 
     def test_get_api(self):
         offset = self.offset('')
@@ -16,7 +16,7 @@ class ApiTestCase(ApiTestCase, ControllerTestCase):
         data = self.data_from_res(res)
         assert 'version' in data, data
         expected_version = self.get_expected_api_version()
-        self.assert_equal(data['version'], expected_version) 
+        self.assert_equal(data['version'], expected_version)
 
 class TestApi3(Api3TestCase, ApiTestCase):
 

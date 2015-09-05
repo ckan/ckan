@@ -17,7 +17,7 @@ class ApiView(MethodView):
         return self._make_request(func_name, params)
 
     def post(self, func_name):
-        data = json.decode(request.data)
+        data = request.get_json(force=True)
         return self._make_request(func_name, data)
 
     def _make_request(self, func_name, data):
