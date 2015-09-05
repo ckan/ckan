@@ -13,25 +13,25 @@ log = logging.getLogger(__name__)
 class ApiView(MethodView):
 
     def get(self, func_name):
+        params = request.args.copy()
+        return self._make_request(func_name, params)
 
-        # TODO: Identify user - check_access
+    def post(self, func_name):
+        data = json.decode(request.data)
+        return self._make_request(func_name, data)
 
+    def _make_request(self, func_name, data):
         try:
             fn = logic.get_action(func_name)
         except Exception, e:
             abort(404)
 
-        params = request.args.copy()
-
-        # TODO: Check and pop callback
-
-        # TODO: Switch to flask based route lookup ....
         help = url_for('api',func_name="help_show", _external=True)
         help = help + "?name={0}".format(func_name)
 
         context = {'model':model, 'session': model.Session, 'user': c.user}
         try:
-            response = fn(context, params)
+            response = fn(context, data)
         except logic.NotFound, nfe:
             error_dict = {
                 '__type': 'Not Found Error',
@@ -82,9 +82,4 @@ class ApiView(MethodView):
         response['help'] = help
 
         return jsonify(response)
-
-    def post(self, func_name):
-        print "A POST request to", func_name
-        return "!"
-
 
