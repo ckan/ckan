@@ -1171,7 +1171,7 @@ class IGroupForm(Interface):
 
     The behaviour of the plugin is determined by 5 method hooks:
 
-     - package_form(self)
+     - group_form(self)
      - form_to_db_schema(self)
      - db_to_form_schema(self)
      - check_data_dict(self, data_dict)
@@ -1220,7 +1220,7 @@ class IGroupForm(Interface):
 
     ##### End of control methods
 
-    ##### Hooks for customising the PackageController's behaviour        #####
+    ##### Hooks for customising the GroupController's behaviour          #####
     ##### TODO: flesh out the docstrings a little more.                  #####
     def new_template(self):
         """
@@ -1254,7 +1254,7 @@ class IGroupForm(Interface):
         rendered for the edit page
         """
 
-    def package_form(self):
+    def group_form(self):
         """
         Returns a string representing the location of the template to be
         rendered.  e.g. "group/new_group_form.html".

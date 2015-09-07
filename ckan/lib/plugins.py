@@ -439,7 +439,7 @@ class DefaultGroupForm(object):
         into a format suitable for the form (optional)'''
 
     def db_to_form_schema_options(self, options):
-        '''This allows the selectino of different schemas for different
+        '''This allows the selection of different schemas for different
         purposes.  It is optional and if not available, ``db_to_form_schema``
         should be used.
         If a context is provided, and it contains a schema, it will be
