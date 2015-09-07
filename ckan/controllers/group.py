@@ -127,8 +127,6 @@ class GroupController(base.BaseController):
             idx = -2
 
         gt = parts[idx]
-        if gt == 'group':
-            gt = None
 
         return gt
 
