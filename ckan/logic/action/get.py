@@ -3508,8 +3508,8 @@ def config_option_show(context, data_dict):
     :py:func:`~ckan.logic.action.get.config_option_list`), which can be updated with the
     :py:func:`~ckan.logic.action.update.config_option_update` action.
 
-    :param id: The configuration option key
-    :type id: string
+    :param key: The configuration option key
+    :type key: string
 
     :returns: The value of the config option from either the system_info table
         or ini file.
