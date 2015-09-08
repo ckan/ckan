@@ -85,7 +85,7 @@ class ApiController(base.BaseController):
             if content_type == 'json':
                 response_msg = h.json.dumps(
                     response_data,
-                    for_json=True) # handle objects with for_json methods
+                    for_json=True)  # handle objects with for_json methods
             else:
                 response_msg = response_data
             # Support "JSONP" callback.
@@ -161,7 +161,7 @@ class ApiController(base.BaseController):
         try:
             function = get_action(logic_function)
         except KeyError:
-            log.info('Can\'t find logic function: %s' % logic_function)
+            log.info('Can\'t find logic function: %s', logic_function)
             return self._finish_bad_request(
                 _('Action name not known: %s') % logic_function)
 
@@ -183,12 +183,13 @@ class ApiController(base.BaseController):
             request_data = self._get_request_data(try_url_params=
                                                   side_effect_free)
         except ValueError, inst:
-            log.info('Bad Action API request data: %s' % inst)
+            log.info('Bad Action API request data: %s', inst)
             return self._finish_bad_request(
                 _('JSON Error: %s') % inst)
         if not isinstance(request_data, dict):
             # this occurs if request_data is blank
-            log.info('Bad Action API request data - not dict: %r' % request_data)
+            log.info('Bad Action API request data - not dict: %r',
+                     request_data)
             return self._finish_bad_request(
                 _('Bad request data: %s') %
                 'Request data JSON decoded to %r but '
@@ -201,7 +202,8 @@ class ApiController(base.BaseController):
             return_dict['success'] = True
             return_dict['result'] = result
         except DataError, e:
-            log.info('Format incorrect (Action API): %s - %s' % (e.error, request_data))
+            log.info('Format incorrect (Action API): %s - %s',
+                     e.error, request_data)
             return_dict['error'] = {'__type': 'Integrity Error',
                                     'message': e.error,
                                     'data': request_data}
@@ -211,7 +213,7 @@ class ApiController(base.BaseController):
             return_dict['error'] = {'__type': 'Authorization Error',
                                     'message': _('Access denied')}
             return_dict['success'] = False
-            
+
             if unicode(e):
                 return_dict['error']['message'] += u': %s' % e
 
@@ -229,7 +231,7 @@ class ApiController(base.BaseController):
             return_dict['error'] = error_dict
             return_dict['success'] = False
             # CS nasty_string ignore
-            log.info('Validation error (Action API): %r' % str(e.error_dict))
+            log.info('Validation error (Action API): %r', str(e.error_dict))
             return self._finish(409, return_dict, content_type='json')
         except search.SearchQueryError, e:
             return_dict['error'] = {'__type': 'Search Query Error',
@@ -243,9 +245,10 @@ class ApiController(base.BaseController):
             return_dict['success'] = False
             return self._finish(409, return_dict, content_type='json')
         except search.SearchIndexError, e:
-            return_dict['error'] = {'__type': 'Search Index Error',
-                    'message': 'Unable to add package to search index: %s' %
-                    str(e)}
+            return_dict['error'] = {
+                '__type': 'Search Index Error',
+                'message': 'Unable to add package to search index: %s' %
+                           str(e)}
             return_dict['success'] = False
             return self._finish(500, return_dict, content_type='json')
         return self._finish_ok(return_dict)
@@ -268,7 +271,7 @@ class ApiController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user, 'api_version': ver,
                    'auth_user_obj': c.userobj}
-        log.debug('listing: %s' % context)
+        log.debug('listing: %s', context)
         action_map = {
             'revision': 'revision_list',
             'group': 'group_list',
@@ -313,7 +316,7 @@ class ApiController(base.BaseController):
                    'api_version': ver, 'auth_user_obj': c.userobj}
         data_dict = {'id': id, 'id2': id2, 'rel': subregister}
 
-        log.debug('show: %s' % context)
+        log.debug('show: %s', context)
 
         action = self._get_action_from_map(action_map, register, subregister)
         if not action:
@@ -345,7 +348,7 @@ class ApiController(base.BaseController):
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver, 'auth_user_obj': c.userobj}
-        log.debug('create: %s' % (context))
+        log.debug('create: %s', (context))
         try:
             request_data = self._get_request_data()
             data_dict = {'id': id, 'id2': id2, 'rel': subregister}
@@ -375,10 +378,11 @@ class ApiController(base.BaseController):
             return self._finish_not_found(unicode(e))
         except ValidationError, e:
             # CS: nasty_string ignore
-            log.info('Validation error (REST create): %r' % str(e.error_dict))
+            log.info('Validation error (REST create): %r', str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
         except DataError, e:
-            log.info('Format incorrect (REST create): %s - %s' % (e.error, request_data))
+            log.info('Format incorrect (REST create): %s - %s',
+                     e.error, request_data)
             error_dict = {
                 'success': False,
                 'error': {'__type': 'Integrity Error',
@@ -386,7 +390,7 @@ class ApiController(base.BaseController):
                                     'data': request_data}}
             return self._finish(400, error_dict, content_type='json')
         except search.SearchIndexError:
-            log.error('Unable to add package to search index: %s' %
+            log.error('Unable to add package to search index: %s',
                       request_data)
             return self._finish(500,
                                 _(u'Unable to add package to search index') %
@@ -407,7 +411,7 @@ class ApiController(base.BaseController):
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
                    'api_version': ver, 'id': id, 'auth_user_obj': c.userobj}
-        log.debug('update: %s' % (context))
+        log.debug('update: %s', context)
         try:
             request_data = self._get_request_data()
             data_dict = {'id': id, 'id2': id2, 'rel': subregister}
@@ -430,10 +434,11 @@ class ApiController(base.BaseController):
             return self._finish_not_found(unicode(e))
         except ValidationError, e:
             # CS: nasty_string ignore
-            log.info('Validation error (REST update): %r' % str(e.error_dict))
+            log.info('Validation error (REST update): %r', str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
         except DataError, e:
-            log.info('Format incorrect (REST update): %s - %s' % (e.error, request_data))
+            log.info('Format incorrect (REST update): %s - %s',
+                     e.error, request_data)
             error_dict = {
                 'success': False,
                 'error': {'__type': 'Integrity Error',
@@ -441,7 +446,7 @@ class ApiController(base.BaseController):
                                     'data': request_data}}
             return self._finish(400, error_dict, content_type='json')
         except search.SearchIndexError:
-            log.error('Unable to update search index: %s' % request_data)
+            log.error('Unable to update search index: %s', request_data)
             return self._finish(500, _(u'Unable to update search index') %
                                 request_data)
 
@@ -461,7 +466,7 @@ class ApiController(base.BaseController):
 
         data_dict = {'id': id, 'id2': id2, 'rel': subregister}
 
-        log.debug('delete %s/%s/%s/%s' % (register, id, subregister, id2))
+        log.debug('delete %s/%s/%s/%s', register, id, subregister, id2)
 
         action = self._get_action_from_map(action_map, register, subregister)
         if not action:
@@ -477,12 +482,12 @@ class ApiController(base.BaseController):
             return self._finish_not_found(unicode(e))
         except ValidationError, e:
             # CS: nasty_string ignore
-            log.info('Validation error (REST delete): %r' % str(e.error_dict))
+            log.info('Validation error (REST delete): %r', str(e.error_dict))
             return self._finish(409, e.error_dict, content_type='json')
 
     def search(self, ver=None, register=None):
 
-        log.debug('search %s params: %r' % (register, request.params))
+        log.debug('search %s params: %r', register, request.params)
         if register == 'revision':
             since_time = None
             if 'since_id' in request.params:
@@ -504,10 +509,10 @@ class ApiController(base.BaseController):
             else:
                 return self._finish_bad_request(
                     _("Missing search term ('since_id=UUID' or " +
-                            " 'since_time=TIMESTAMP')"))
+                      " 'since_time=TIMESTAMP')"))
             revs = model.Session.query(model.Revision).\
                 filter(model.Revision.timestamp > since_time)
-            return self._finish_ok([rev.id for rev in revs])
+            return self._finish_ok([rev_.id for rev_ in revs])
         elif register in ['dataset', 'package', 'resource']:
             try:
                 params = MultiDict(self._get_search_params(request.params))
@@ -685,14 +690,15 @@ class ApiController(base.BaseController):
         if q:
             context = {'user': c.user, 'model': model}
             data_dict = {'q': q, 'limit': limit}
-            organization_list = get_action('organization_autocomplete')(context, data_dict)
+            organization_list = \
+                get_action('organization_autocomplete')(context, data_dict)
         return organization_list
 
     def is_slug_valid(self):
 
         def package_exists(val):
             if model.Session.query(model.Package) \
-                .autoflush(False).filter_by(name=val).count():
+                    .autoflush(False).filter_by(name=val).count():
                 return True
             return False
 
@@ -849,9 +855,9 @@ class ApiController(base.BaseController):
             else:
                 return entity
 
-        cls.log.debug('Retrieving request params: %r' % request.params)
-        cls.log.debug('Retrieving request POST: %r' % request.POST)
-        cls.log.debug('Retrieving request GET: %r' % request.GET)
+        cls.log.debug('Retrieving request params: %r', request.params)
+        cls.log.debug('Retrieving request POST: %r', request.POST)
+        cls.log.debug('Retrieving request GET: %r', request.GET)
         request_data = None
         if request.POST and request.content_type == 'multipart/form-data':
             request_data = dict(request.POST)
@@ -882,7 +888,7 @@ class ApiController(base.BaseController):
                 msg = "Could not extract request body data: %s" % \
                       (inst)
                 raise ValueError(msg)
-            cls.log.debug('Retrieved request body: %r' % request.body)
+            cls.log.debug('Retrieved request body: %r', request.body)
             if not request_data:
                 if not try_url_params:
                     msg = "No request body data"
@@ -905,5 +911,5 @@ class ApiController(base.BaseController):
                 # if val is str then assume it is ascii, since json converts
                 # utf8 encoded JSON to unicode
                 request_data[key] = make_unicode(val)
-        cls.log.debug('Request data extracted: %r' % request_data)
+        cls.log.debug('Request data extracted: %r', request_data)
         return request_data
