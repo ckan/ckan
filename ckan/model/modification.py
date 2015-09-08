@@ -9,6 +9,7 @@ log = logging.getLogger(__name__)
 
 __all__ = ['DomainObjectModificationExtension']
 
+
 class DomainObjectModificationExtension(plugins.SingletonPlugin):
     """
     A domain object level interface to change notifications
@@ -29,7 +30,6 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
         for observer in plugins.PluginImplementations(
                 plugins.IDomainObjectModification):
             func(observer)
-
 
     def before_commit(self, session):
         self.notify_observers(session, self.notify)
@@ -60,7 +60,8 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 for item in plugins.PluginImplementations(plugins.IResourceUrlChange):
                     item.notify(obj)
 
-        changed_pkgs = set(obj for obj in changed if isinstance(obj, _package.Package))
+        changed_pkgs = set(obj for obj in changed
+                           if isinstance(obj, _package.Package))
 
         for obj in new | changed | deleted:
             if not isinstance(obj, _package.Package):
@@ -76,7 +77,6 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
         for obj in changed_pkgs:
             method(obj, domain_object.DomainObjectOperation.changed)
 
-
     def notify(self, entity, operation):
         for observer in plugins.PluginImplementations(
                 plugins.IDomainObjectModification):
@@ -84,9 +84,6 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 observer.notify(entity, operation)
             except Exception, ex:
                 log.exception(ex)
-                # We reraise all exceptions so they are obvious there
-                # is something wrong
-                raise
 
     def notify_after_commit(self, entity, operation):
         for observer in plugins.PluginImplementations(
@@ -95,6 +92,3 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 observer.notify_after_commit(entity, operation)
             except Exception, ex:
                 log.exception(ex)
-                # We reraise all exceptions so they are obvious there
-                # is something wrong
-                raise
