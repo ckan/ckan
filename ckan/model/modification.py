@@ -86,9 +86,13 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 observer.notify(entity, operation)
             except SearchIndexError, search_error:
                 log.exception(search_error)
+                # Reraise, since it's pretty crucial to ckan if it can't index
+                # a dataset
                 raise search_error
             except Exception, ex:
                 log.exception(ex)
+                # Don't reraise other exceptions since they are generally of
+                # secondary importance so shouldn't disrupt the commit.
 
     def notify_after_commit(self, entity, operation):
         for observer in plugins.PluginImplementations(
@@ -97,6 +101,10 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 observer.notify_after_commit(entity, operation)
             except SearchIndexError, search_error:
                 log.exception(search_error)
+                # Reraise, since it's pretty crucial to ckan if it can't index
+                # a dataset
                 raise search_error
             except Exception, ex:
                 log.exception(ex)
+                # Don't reraise other exceptions since they are generally of
+                # secondary importance so shouldn't disrupt the commit.
