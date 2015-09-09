@@ -150,15 +150,15 @@ class GroupController(base.BaseController):
     def index(self):
         group_type = self._guess_group_type()
 
+        page = self._get_page_number(request.params) or 1
+        items_per_page = 21
+
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'with_private': False}
 
         q = c.q = request.params.get('q', '')
-        data_dict = {'all_fields': True, 'q': q, 'type': group_type or 'group'}
         sort_by = c.sort_by_selected = request.params.get('sort')
-        if sort_by:
-            data_dict['sort'] = sort_by
         try:
             self._check_access('site_read', context)
         except NotAuthorized:
@@ -170,14 +170,34 @@ class GroupController(base.BaseController):
             context['user_id'] = c.userobj.id
             context['user_is_admin'] = c.userobj.sysadmin
 
-        results = self._action('group_list')(context, data_dict)
+        data_dict_global_results = {
+            'all_fields': False,
+            'q': q,
+            'sort': sort_by,
+            'type': group_type or 'group',
+        }
+        global_results = self._action('group_list')(context,
+                                                    data_dict_global_results)
+
+        data_dict_page_results = {
+            'all_fields': True,
+            'q': q,
+            'sort': sort_by,
+            'type': group_type or 'group',
+            'limit': items_per_page,
+            'offset': items_per_page * (page - 1),
+        }
+        page_results = self._action('group_list')(context,
+                                                  data_dict_page_results)
 
         c.page = h.Page(
-            collection=results,
-            page = self._get_page_number(request.params),
+            collection=global_results,
+            page=page,
             url=h.pager_url,
-            items_per_page=21
+            items_per_page=items_per_page,
         )
+
+        c.page.items = page_results
         return render(self._index_template(group_type),
                       extra_vars={'group_type': group_type})
 
@@ -192,7 +212,7 @@ class GroupController(base.BaseController):
         data_dict = {'id': id}
 
         # unicode format (decoded from utf8)
-        q = c.q = request.params.get('q', '')
+        c.q = request.params.get('q', '')
 
         try:
             # Do not query for the group datasets when dictizing, as they will
@@ -223,7 +243,8 @@ class GroupController(base.BaseController):
         else:
             q += ' groups:"%s"' % c.group_dict.get('name')
 
-        c.description_formatted = h.render_markdown(c.group_dict.get('description'))
+        c.description_formatted = \
+            h.render_markdown(c.group_dict.get('description'))
 
         context['return_query'] = True
 
@@ -319,7 +340,8 @@ class GroupController(base.BaseController):
                 'extras': search_extras
             }
 
-            context_ = dict((k, v) for (k, v) in context.items() if k != 'schema')
+            context_ = dict((k, v) for (k, v) in context.items()
+                            if k != 'schema')
             query = get_action('package_search')(context_, data_dict)
 
             c.page = h.Page(
@@ -351,8 +373,8 @@ class GroupController(base.BaseController):
             c.facets = {}
             c.page = h.Page(collection=[])
 
-        self._setup_template_variables(context, {'id':id},
-            group_type=group_type)
+        self._setup_template_variables(context, {'id': id},
+                                       group_type=group_type)
 
     def _update_facet_titles(self, facets, group_type):
         for plugin in plugins.PluginImplementations(plugins.IFacets):
@@ -503,7 +525,7 @@ class GroupController(base.BaseController):
 
         try:
             self._check_access('group_update', context)
-        except NotAuthorized, e:
+        except NotAuthorized:
             abort(401, _('User %r not authorized to edit %s') % (c.user, id))
 
         errors = errors or {}
@@ -688,19 +710,21 @@ class GroupController(base.BaseController):
                         'role': data_dict['role']
                     }
                     del data_dict['email']
-                    user_dict = self._action('user_invite')(context,
-                            user_data_dict)
+                    user_dict = self._action('user_invite')(
+                        context, user_data_dict)
                     data_dict['username'] = user_dict['name']
 
-                c.group_dict = self._action('group_member_create')(context, data_dict)
-
+                c.group_dict = self._action('group_member_create')(
+                    context, data_dict)
 
                 self._redirect_to_this_controller(action='members', id=id)
             else:
                 user = request.params.get('user')
                 if user:
-                    c.user_dict = get_action('user_show')(context, {'id': user})
-                    c.user_role = authz.users_role_for_group_or_org(id, user) or 'member'
+                    c.user_dict = \
+                        get_action('user_show')(context, {'id': user})
+                    c.user_role = \
+                        authz.users_role_for_group_or_org(id, user) or 'member'
                 else:
                     c.user_role = 'member'
         except NotAuthorized:
@@ -728,7 +752,8 @@ class GroupController(base.BaseController):
         try:
             user_id = request.params.get('user')
             if request.method == 'POST':
-                self._action('group_member_delete')(context, {'id': id, 'user_id': user_id})
+                self._action('group_member_delete')(
+                    context, {'id': id, 'user_id': user_id})
                 h.flash_notice(_('Group member has been deleted.'))
                 self._redirect_to_this_controller(action='members', id=id)
             c.user_dict = self._action('user_show')(context, {'id': user_id})
@@ -738,7 +763,8 @@ class GroupController(base.BaseController):
             abort(401, _('Unauthorized to delete group %s') % '')
         except NotFound:
             abort(404, _('Group not found'))
-        return self._render_template('group/confirm_delete_member.html', group_type)
+        return self._render_template('group/confirm_delete_member.html',
+                                     group_type)
 
     def history(self, id):
         group_type = self._ensure_controller_matches_group_type(id)
@@ -748,7 +774,7 @@ class GroupController(base.BaseController):
                           'diff': request.params.getone('selected1'),
                           'oldid': request.params.getone('selected2'),
                           }
-            except KeyError, e:
+            except KeyError:
                 if 'group_name' in dict(request.params):
                     id = request.params.getone('group_name')
                 c.error = \
@@ -889,7 +915,8 @@ class GroupController(base.BaseController):
                    'user': c.user or c.author}
         c.group_dict = self._get_group_dict(id)
         try:
-            c.followers = get_action('group_follower_list')(context, {'id': id})
+            c.followers = \
+                get_action('group_follower_list')(context, {'id': id})
         except NotAuthorized:
             abort(401, _('Unauthorized to view followers %s') % '')
         return render('group/followers.html',
@@ -920,7 +947,8 @@ class GroupController(base.BaseController):
                    'user': c.user or c.author,
                    'for_view': True}
         try:
-            return self._action('group_show')(context, {'id': id, 'include_datasets': False})
+            return self._action('group_show')(
+                context, {'id': id, 'include_datasets': False})
         except NotFound:
             abort(404, _('Group not found'))
         except NotAuthorized:

@@ -23,12 +23,6 @@
           {{ _('group') if stats.group_count == 1 else _('groups') }}
         </a>
       </li>
-      <li>
-        <a href="{{ h.url_for(controller='related', action='dashboard') }}">
-          <b>{{ h.SI_number_span(stats.related_count) }}</b>
-          {{ _('related item') if stats.related_count == 1 else _('related items') }}
-        </a>
-      </li>
       {% endblock %}
     </ul>
   </div>

@@ -13,7 +13,7 @@ class StatsController(BaseController):
         c.most_edited_packages = stats.most_edited_packages()
         c.largest_groups = stats.largest_groups()
         c.top_tags = stats.top_tags()
-        c.top_package_owners = stats.top_package_owners()
+        c.top_package_creators = stats.top_package_creators()
         c.new_packages_by_week = rev_stats.get_by_week('new_packages')
         c.deleted_packages_by_week = rev_stats.get_by_week('deleted_packages')
         c.num_packages_by_week = rev_stats.get_num_packages_by_week()
