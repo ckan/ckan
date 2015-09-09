@@ -497,3 +497,46 @@ class TestGroupInnerSearch(helpers.FunctionalTestBase):
         ds_titles = [t.string for t in ds_titles]
 
         assert_equal(len(ds_titles), 0)
+
+
+class TestGroupIndex(helpers.FunctionalTestBase):
+
+    def test_group_index(self):
+        app = self._get_test_app()
+
+        for i in xrange(1, 26):
+            _i = '0' + str(i) if i < 10 else i
+            factories.Group(
+                name='test-group-{0}'.format(_i),
+                title='Test Group {0}'.format(_i))
+
+        url = url_for(controller='group',
+                      action='index')
+        response = app.get(url)
+
+        for i in xrange(1, 22):
+            _i = '0' + str(i) if i < 10 else i
+            assert_in('Test Group {0}'.format(_i), response)
+
+        assert 'Test Group 22' not in response
+
+        url = url_for(controller='group',
+                      action='index',
+                      page=1)
+        response = app.get(url)
+
+        for i in xrange(1, 22):
+            _i = '0' + str(i) if i < 10 else i
+            assert_in('Test Group {0}'.format(_i), response)
+
+        assert 'Test Group 22' not in response
+
+        url = url_for(controller='group',
+                      action='index',
+                      page=2)
+        response = app.get(url)
+
+        for i in xrange(22, 26):
+            assert_in('Test Group {0}'.format(i), response)
+
+        assert 'Test Group 21' not in response

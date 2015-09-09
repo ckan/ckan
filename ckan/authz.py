@@ -81,7 +81,6 @@ class AuthFunctions:
                             resolved_auth_function_plugins[name]
                         )
                     )
-                log.debug('Auth function {0} from plugin {1} was inserted'.format(name, plugin.name))
                 resolved_auth_function_plugins[name] = plugin.name
                 fetched_auth_functions[name] = auth_function
         # Use the updated ones in preference to the originals.

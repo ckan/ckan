@@ -1558,6 +1558,21 @@ Default value: (none)
 
 By default, the locales are searched for in the ``ckan/i18n`` directory. Use this option if you want to use another folder.
 
+.. _ckan.display_timezone:
+
+ckan.display_timezone
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.display_timezone = Europe/Zurich
+
+Default value: UTC
+
+By default, all datetimes are considered to be in the UTC timezone. Use this option to change the displayed dates on the frontend. Internally, the dates are always saved as UTC. This option only changes the way the dates are displayed.
+
+The valid values for this options [can be found at pytz](http://pytz.sourceforge.net/#helpers) (``pytz.all_timezones``). You can specify the special value `server` to use the timezone settings of the server, that is running CKAN.
+
 .. _ckan.root_path:
 
 ckan.root_path

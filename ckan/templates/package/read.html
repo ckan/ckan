@@ -23,9 +23,9 @@
       {% endblock %}
     </h1>
     {% block package_notes %}
-      {% if c.pkg_notes_formatted %}
+      {% if pkg.notes %}
         <div class="notes embedded-content">
-          {{ c.pkg_notes_formatted }}
+          {{ h.render_markdown(pkg.notes) }}
         </div>
       {% endif %}
     {% endblock %}

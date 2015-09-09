@@ -1,7 +1,9 @@
 import nose
+import i18n
 
 import ckan.lib.helpers as h
 import ckan.exceptions
+from ckan.tests import helpers
 
 eq_ = nose.tools.eq_
 CkanUrlException = ckan.exceptions.CkanUrlException
@@ -53,6 +55,73 @@ class TestHelpersUrlForStaticOrExternal(object):
     def test_url_for_static_or_external_works_with_protocol_relative_url(self):
         url = '//assets.ckan.org/ckan.jpg'
         eq_(h.url_for_static_or_external(url), url)
+
+
+class TestHelpersUrlFor(object):
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_default(self):
+        url = '/dataset/my_dataset'
+        generated_url = h.url_for(controller='package', action='read', id='my_dataset')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_with_locale(self):
+        url = '/de/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  locale='de')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_not_qualified(self):
+        url = '/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  qualified=False)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_qualified(self):
+        url = 'http://example.com/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  qualified=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/prefix')
+    def test_url_for_qualified_with_root_path(self):
+        url = 'http://example.com/my/prefix/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  qualified=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_qualified_with_locale(self):
+        url = 'http://example.com/de/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  qualified=True,
+                                  locale='de')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_qualified_with_root_path_and_locale(self):
+        url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  qualified=True,
+                                  locale='de')
+        eq_(generated_url, url)
 
 
 class TestHelpersRenderMarkdown(object):
@@ -109,3 +178,14 @@ class TestLicenseOptions(object):
         eq_(dict(licenses)['some-old-license'], 'some-old-license')
         # and it is first on the list
         eq_(licenses[0][0], 'some-old-license')
+
+
+class TestResourceFormat(object):
+
+    def test_autodetect_tsv(self):
+
+        eq_(h.unified_resource_format('tsv'), 'TSV')
+
+        eq_(h.unified_resource_format('text/tab-separated-values'), 'TSV')
+
+        eq_(h.unified_resource_format('text/tsv'), 'TSV')
