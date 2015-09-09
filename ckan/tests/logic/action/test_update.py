@@ -6,14 +6,12 @@ import mock
 import pylons.config as config
 
 import ckan.logic as logic
+import ckan.lib.app_globals as app_globals
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
 assert_equals = nose.tools.assert_equals
-assert_raises = nose.tools.assert_raises
-
-
 assert_raises = nose.tools.assert_raises
 
 
@@ -723,3 +721,30 @@ class TestResourceUpdate(object):
         assert_equals(res_returned['url'], 'http://first')
         assert_equals(res_returned['anotherfield'], 'second')
         assert 'newfield' not in res_returned
+
+
+class TestConfigOptionUpdate(object):
+
+    @classmethod
+    def teardown_class(cls):
+        helpers.reset_db()
+
+    def setup(self):
+        helpers.reset_db()
+
+    # NOTE: the opposite is tested in
+    # ckan/ckanext/example_iconfigurer/tests/test_iconfigurer_update_config.py
+    # as we need to enable an external config option from an extension
+    def test_app_globals_set_if_defined(self):
+
+        key = 'ckan.site_title'
+        value = 'Test site title'
+
+        params = {key: value}
+
+        helpers.call_action('config_option_update', **params)
+
+        globals_key = app_globals.get_globals_key(key)
+        assert hasattr(app_globals.app_globals, globals_key)
+
+        assert_equals(getattr(app_globals.app_globals, globals_key), value)

@@ -815,6 +815,7 @@ class TestVocabulary(object):
 
         # Add the new vocab tag to the package.
         package['tags'].append(tag)
+
         updated_package = self._post('/api/action/package_update',
                 params={'id': package['id'], 'tags': package['tags']},
                 extra_environ={'Authorization':
@@ -826,25 +827,12 @@ class TestVocabulary(object):
                 tag_in_pkg['vocabulary_id'] == tag['vocabulary_id']]
         assert len(tags_in_pkg) == 1
 
-        # Test that the package appears vocabulary_list.
-        vocabs = self._post('/api/action/vocabulary_list')['result']
-        genre_vocab = [vocab for vocab in vocabs if vocab['name'] == 'Genre']
-        assert len(genre_vocab) == 1
-        genre_vocab = genre_vocab[0]
-        noise_tag = [tag_ for tag_ in genre_vocab['tags']
-                if tag_['name'] == 'noise']
-        assert len(noise_tag) == 1
-        noise_tag = noise_tag[0]
-        assert len([p for p in noise_tag['packages'] if
-                    p['id'] == updated_package['id']]) == 1
-
-        # Test that the tagged package appears in vocabulary_show.
-        genre_vocab = self._post('/api/action/vocabulary_show',
-                params={'id': genre_vocab['id']})['result']
-        noise_tag = [tag_ for tag_ in genre_vocab['tags']
-                if tag_['name'] == 'noise']
-        assert len(noise_tag) == 1
-        noise_tag = noise_tag[0]
+        # Test that the package appears in tag_show.
+        noise_tag = self._post('/api/action/tag_show',
+                               params={'id': 'noise',
+                                       'vocabulary_id': vocab['id'],
+                                       'include_datasets': True}
+                               )['result']
         assert len([p for p in noise_tag['packages'] if
                     p['id'] == updated_package['id']]) == 1
 
@@ -888,6 +876,7 @@ class TestVocabulary(object):
         # Add the new vocab tags to the package.
         for tag in tags:
             package['tags'].append(tag)
+
         updated_package = self._post('/api/action/package_update',
                 params={'id': package['id'], 'tags': package['tags']},
                 extra_environ={'Authorization':

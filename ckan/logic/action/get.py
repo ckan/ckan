@@ -24,6 +24,7 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
+import ckan.lib.lazyjson as lazyjson
 
 from ckan.common import _
 
@@ -186,17 +187,58 @@ def current_package_list_with_resources(context, data_dict):
 
 
 def revision_list(context, data_dict):
-    '''Return a list of the IDs of the site's revisions.
+    '''Return a list of the IDs of the site's revisions. They are sorted with
+    the newest first.
 
-    :rtype: list of strings
+    Since the results are limited to 50 IDs, you can page through them using
+    parameter ``since_id``.
+
+    :param since_id: the revision ID after which you want the revisions
+    :type id: string
+    :param since_time: the timestamp after which you want the revisions
+    :type id: string
+    :param sort: the order to sort the related items in, possible values are
+      'time_asc', 'time_desc' (default). (optional)
+    :type sort: string
+    :rtype: list of revision IDs, limited to 50
 
     '''
     model = context['model']
+    since_id = data_dict.get('since_id')
+    since_time_str = data_dict.get('since_time')
+    sort_str = data_dict.get('sort')
+    PAGE_LIMIT = 50
 
     _check_access('revision_list', context, data_dict)
 
-    revs = model.Session.query(model.Revision).all()
-    return [rev.id for rev in revs]
+    since_time = None
+    if since_id:
+        rev = model.Session.query(model.Revision).get(since_id)
+        if rev is None:
+            raise NotFound
+        since_time = rev.timestamp
+    elif since_time_str:
+        try:
+            from ckan.lib import helpers as h
+            since_time = h.date_str_to_datetime(since_time_str)
+        except ValueError:
+            raise logic.ValidationError('Timestamp did not parse')
+    revs = model.Session.query(model.Revision)
+    if since_time:
+        revs = revs.filter(model.Revision.timestamp > since_time)
+
+    sortables = {
+        'time_asc': model.Revision.timestamp.asc,
+        'time_desc': model.Revision.timestamp.desc,
+    }
+    if sort_str and sort_str not in sortables:
+        raise logic.ValidationError(
+            'Invalid sort value. Allowable values: %r' % sortables.keys())
+    sort_func = sortables.get(sort_str or 'time_desc')
+    revs = revs.order_by(sort_func())
+
+    revs = revs.limit(PAGE_LIMIT)
+    return [rev_.id for rev_ in revs]
 
 
 def package_revision_list(context, data_dict):
@@ -367,9 +409,22 @@ def _group_or_org_list(context, data_dict, is_org=False):
     groups = data_dict.get('groups')
     group_type = data_dict.get('type', 'group')
     ref_group_by = 'id' if api == 2 else 'name'
-
-    sort = data_dict.get('sort', 'name')
+    pagination_dict = {}
+    limit = data_dict.get('limit')
+    if limit:
+        pagination_dict['limit'] = data_dict['limit']
+    offset = data_dict.get('offset')
+    if offset:
+        pagination_dict['offset'] = data_dict['offset']
+    if pagination_dict:
+        pagination_dict, errors = _validate(
+            data_dict, logic.schema.default_pagination_schema(), context)
+        if errors:
+            raise ValidationError(errors)
+    sort = data_dict.get('sort') or 'name'
     q = data_dict.get('q')
+
+    all_fields = asbool(data_dict.get('all_fields', None))
 
     # order_by deprecated in ckan 1.8
     # if it is supplied and sort isn't use order_by and raise a warning
@@ -378,6 +433,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
         log.warn('`order_by` deprecated please use `sort`')
         if not data_dict.get('sort'):
             sort = order_by
+
     # if the sort is packages and no sort direction is supplied we want to do a
     # reverse sort to maintain compatibility.
     if sort.strip() in ('packages', 'package_count'):
@@ -388,16 +444,21 @@ def _group_or_org_list(context, data_dict, is_org=False):
                                                'package_count', 'title'],
                                total=1)
 
-    all_fields = data_dict.get('all_fields', None)
-    include_extras = all_fields and \
-                     asbool(data_dict.get('include_extras', False))
+    if sort_info and sort_info[0][0] == 'package_count':
+        query = model.Session.query(model.Group.id,
+                                    model.Group.name,
+                                    sqlalchemy.func.count(model.Group.id))
 
-    query = model.Session.query(model.Group)
-    if include_extras:
-        # this does an eager load of the extras, avoiding an sql query every
-        # time group_list_dictize accesses a group's extra.
-        query = query.options(sqlalchemy.orm.joinedload(model.Group._extras))
+        query = query.filter(model.Member.group_id == model.Group.id) \
+                     .filter(model.Member.table_id == model.Package.id) \
+                     .filter(model.Member.table_name == 'package') \
+                     .filter(model.Package.state == 'active')
+    else:
+        query = model.Session.query(model.Group.id,
+                                    model.Group.name)
+
     query = query.filter(model.Group.state == 'active')
+
     if groups:
         query = query.filter(model.Group.name.in_(groups))
     if q:
@@ -411,27 +472,42 @@ def _group_or_org_list(context, data_dict, is_org=False):
     query = query.filter(model.Group.is_organization == is_org)
     if not is_org:
         query = query.filter(model.Group.type == group_type)
+    if sort_info:
+        sort_field = sort_info[0][0]
+        sort_direction = sort_info[0][1]
+        if sort_field == 'package_count':
+            query = query.group_by(model.Group.id, model.Group.name)
+            sort_model_field = sqlalchemy.func.count(model.Group.id)
+        elif sort_field == 'name':
+            sort_model_field = model.Group.name
+        elif sort_field == 'title':
+            sort_model_field = model.Group.title
+
+        if sort_direction == 'asc':
+            query = query.order_by(sqlalchemy.asc(sort_model_field))
+        else:
+            query = query.order_by(sqlalchemy.desc(sort_model_field))
+
+    if limit:
+        query = query.limit(limit)
+    if offset:
+        query = query.offset(offset)
 
     groups = query.all()
-    if all_fields:
-        include_tags = asbool(data_dict.get('include_tags', False))
-    else:
-        include_tags = False
-    # even if we are not going to return all_fields, we need to dictize all the
-    # groups so that we can sort by any field.
-    group_list = model_dictize.group_list_dictize(
-        groups, context,
-        sort_key=lambda x: x[sort_info[0][0]],
-        reverse=sort_info[0][1] == 'desc',
-        with_package_counts=all_fields or
-        sort_info[0][0] in ('packages', 'package_count'),
-        include_groups=asbool(data_dict.get('include_groups', False)),
-        include_tags=include_tags,
-        include_extras=include_extras,
-        )
 
-    if not all_fields:
-        group_list = [group[ref_group_by] for group in group_list]
+    if all_fields:
+        action = 'organization_show' if is_org else 'group_show'
+        group_list = []
+        for group in groups:
+            data_dict['id'] = group.id
+            for key in ('include_extras', 'include_tags', 'include_users',
+                        'include_groups', 'include_followers'):
+                if key not in data_dict:
+                    data_dict[key] = False
+
+            group_list.append(logic.get_action(action)(context, data_dict))
+    else:
+        group_list = [getattr(group, ref_group_by) for group in groups]
 
     return group_list
 
@@ -446,6 +522,13 @@ def group_list(context, data_dict):
         "name asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
+    :param limit: if given, the list of groups will be broken into pages of
+        at most ``limit`` groups per page and only one page will be returned
+        at a time (optional)
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start
+        returning groups from
+    :type offset: int
     :param groups: a list of names of the groups to return, if given only
         groups whose names are in this list will be returned (optional)
     :type groups: list of strings
@@ -463,8 +546,12 @@ def group_list(context, data_dict):
         (optional, default: ``False``)
     :type include_tags: boolean
     :param include_groups: if all_fields, include the groups the groups are in
-        (optional, default: ``False``)
+        (optional, default: ``False``).
     :type include_groups: boolean
+    :param include_users: if all_fields, include the group users
+        (optional, default: ``False``).
+    :type include_users: boolean
+
 
     :rtype: list of strings
 
@@ -483,6 +570,13 @@ def organization_list(context, data_dict):
         "name asc" string of field name and sort-order. The allowed fields are
         'name', 'package_count' and 'title'
     :type sort: string
+    :param limit: if given, the list of organizations will be broken into pages
+        of at most ``limit`` organizations per page and only one page will be
+        returned at a time (optional)
+    :type limit: int
+    :param offset: when ``limit`` is given, the offset to start
+        returning organizations from
+    :type offset: int
     :param organizations: a list of names of the groups to return,
         if given only groups whose names are in this list will be
         returned (optional)
@@ -494,15 +588,19 @@ def organization_list(context, data_dict):
         packages in the `package_count` property.
         (optional, default: ``False``)
     :type all_fields: boolean
-    :param include_extras: if all_fields, include the group extra fields
+    :param include_extras: if all_fields, include the organization extra fields
         (optional, default: ``False``)
     :type include_extras: boolean
-    :param include_tags: if all_fields, include the group tags
+    :param include_tags: if all_fields, include the organization tags
         (optional, default: ``False``)
     :type include_tags: boolean
-    :param include_groups: if all_fields, include the groups the groups are in
+    :param include_groups: if all_fields, include the organizations the
+        organizations are in
         (optional, default: ``False``)
     :type all_fields: boolean
+    :param include_users: if all_fields, include the organization users
+        (optional, default: ``False``).
+    :type include_users: boolean
 
     :rtype: list of strings
 
@@ -947,7 +1045,11 @@ def package_show(context, data_dict):
         else:
             use_validated_cache = 'schema' not in context
             if use_validated_cache and 'validated_data_dict' in search_result:
-                package_dict = json.loads(search_result['validated_data_dict'])
+                package_json = search_result['validated_data_dict']
+                if context.get('return_type') == 'LazyJSONObject':
+                    package_dict = lazyjson.LazyJSONObject(package_json)
+                else:
+                    package_dict = json.loads(package_json)
                 package_dict_validated = True
             else:
                 package_dict = json.loads(search_result['data_dict'])
@@ -1157,11 +1259,14 @@ def _group_or_org_show(context, data_dict, is_org=False):
     group = model.Group.get(id)
     context['group'] = group
 
-    include_datasets = data_dict.get('include_datasets', True)
-    if isinstance(include_datasets, basestring):
-        include_datasets = (include_datasets.lower() in ('true', '1'))
-    packages_field = 'datasets' if include_datasets \
-                     else 'none_but_include_package_count'
+    include_datasets = asbool(data_dict.get('include_datasets', False))
+    packages_field = 'datasets' if include_datasets else 'dataset_count'
+
+    include_tags = asbool(data_dict.get('include_tags', True))
+    include_users = asbool(data_dict.get('include_users', True))
+    include_groups = asbool(data_dict.get('include_groups', True))
+    include_extras = asbool(data_dict.get('include_extras', True))
+    include_followers = asbool(data_dict.get('include_followers', True))
 
     if group is None:
         raise NotFound
@@ -1176,7 +1281,11 @@ def _group_or_org_show(context, data_dict, is_org=False):
         _check_access('group_show', context, data_dict)
 
     group_dict = model_dictize.group_dictize(group, context,
-                                             packages_field=packages_field)
+                                             packages_field=packages_field,
+                                             include_tags=include_tags,
+                                             include_extras=include_extras,
+                                             include_groups=include_groups,
+                                             include_users=include_users,)
 
     if is_org:
         plugin_type = plugins.IOrganizationController
@@ -1195,9 +1304,12 @@ def _group_or_org_show(context, data_dict, is_org=False):
     except AttributeError:
         schema = group_plugin.db_to_form_schema()
 
-    group_dict['num_followers'] = logic.get_action('group_follower_count')(
-        {'model': model, 'session': model.Session},
-        {'id': group_dict['id']})
+    if include_followers:
+        group_dict['num_followers'] = logic.get_action('group_follower_count')(
+            {'model': model, 'session': model.Session},
+            {'id': group_dict['id']})
+    else:
+        group_dict['num_followers'] = 0
 
     if schema is None:
         schema = logic.schema.default_show_group_schema()
@@ -1213,6 +1325,21 @@ def group_show(context, data_dict):
     :param id: the id or name of the group
     :type id: string
     :param include_datasets: include a list of the group's datasets
+         (optional, default: ``False``)
+    :type id: boolean
+    :param include_extras: include the group's extra fields
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_users: include the group's users
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_groups: include the group's sub groups
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_tags: include the group's tags
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_followers: include the group's number of followers
          (optional, default: ``True``)
     :type id: boolean
 
@@ -1230,8 +1357,24 @@ def organization_show(context, data_dict):
     :param id: the id or name of the organization
     :type id: string
     :param include_datasets: include a list of the organization's datasets
+         (optional, default: ``False``)
+    :type id: boolean
+    :param include_extras: include the organization's extra fields
          (optional, default: ``True``)
     :type id: boolean
+    :param include_users: include the organization's users
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_groups: include the organization's sub groups
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_tags: include the organization's tags
+         (optional, default: ``True``)
+    :type id: boolean
+    :param include_followers: include the organization's number of followers
+         (optional, default: ``True``)
+    :type id: boolean
+
 
     :rtype: dictionary
 
@@ -1284,6 +1427,15 @@ def tag_show(context, data_dict):
 
     :param id: the name or id of the tag
     :type id: string
+    :param vocabulary_id: the id or name of the tag vocabulary that the tag is
+        in - if it is not specified it will assume it is a free tag.
+        (optional)
+    :type vocabulary_id: string
+    :param include_datasets: include a list of the tag's datasets. (Up to a
+        limit of 1000 - for more flexibility, use package_search - see
+        :py:func:`package_search` for an example.)
+        (optional, default: ``False``)
+    :type include_datasets: bool
 
     :returns: the details of the tag, including a list of all of the tag's
         datasets and their details
@@ -1292,15 +1444,17 @@ def tag_show(context, data_dict):
 
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
+    include_datasets = asbool(data_dict.get('include_datasets', False))
 
-    tag = model.Tag.get(id)
+    tag = model.Tag.get(id, vocab_id_or_name=data_dict.get('vocabulary_id'))
     context['tag'] = tag
 
     if tag is None:
         raise NotFound
 
     _check_access('tag_show', context, data_dict)
-    return model_dictize.tag_dictize(tag, context)
+    return model_dictize.tag_dictize(tag, context,
+                                     include_datasets=include_datasets)
 
 
 def user_show(context, data_dict):
@@ -1549,6 +1703,38 @@ def user_autocomplete(context, data_dict):
     return user_list
 
 
+def organization_autocomplete(context, data_dict):
+    '''
+    Return a list of organization names that contain a string.
+
+    :param q: the string to search for
+    :type q: string
+    :param limit: the maximum number of organizations to return (optional,
+        default: 20)
+    :type limit: int
+
+    :rtype: a list of organization dictionaries each with keys ``'name'``,
+        ``'title'``, and ``'id'``
+    '''
+
+    _check_access('organization_autocomplete', context, data_dict)
+
+    q = data_dict['q']
+    limit = data_dict.get('limit', 20)
+    model = context['model']
+
+    query = model.Group.search_by_name_or_title(q, group_type=None, is_org=True)
+
+    organization_list = []
+    for organization in query.all():
+        result_dict = {}
+        for k in ['id', 'name', 'title']:
+            result_dict[k] = getattr(organization, k)
+        organization_list.append(result_dict)
+
+    return organization_list
+
+
 def package_search(context, data_dict):
     '''
     Searches for packages satisfying a given search criteria.
@@ -1608,6 +1794,12 @@ def package_search(context, data_dict):
     .. _dismax: http://wiki.apache.org/solr/DisMaxQParserPlugin
     .. _edismax: http://wiki.apache.org/solr/ExtendedDisMax
 
+
+    **Examples:**
+
+    ``q=flood`` datasets containing the word `flood`, `floods` or `flooding`
+    ``fq=tags:economy`` datasets with the tag `economy`
+    ``facet.field=["tags"] facet.limit=10 rows=0`` top 10 tags
 
     **Results:**
 
@@ -1671,7 +1863,7 @@ def package_search(context, data_dict):
 
     model = context['model']
     session = context['session']
-    user = context['user']
+    user = context.get('user')
 
     _check_access('package_search', context, data_dict)
 
@@ -2250,60 +2442,6 @@ def get_site_user(context, data_dict):
 
     return {'name': user.name,
             'apikey': user.apikey}
-
-
-def roles_show(context, data_dict):
-    '''Return the roles of all users and authorization groups for an object.
-
-    :param domain_object: a package or group name or id
-        to filter the results by
-    :type domain_object: string
-    :param user: a user name or id
-    :type user: string
-
-    :rtype: list of dictionaries
-
-    '''
-    model = context['model']
-    session = context['session']
-    domain_object_ref = _get_or_bust(data_dict, 'domain_object')
-    user_ref = data_dict.get('user')
-
-    domain_object = ckan.logic.action.get_domain_object(
-        model, domain_object_ref)
-    if isinstance(domain_object, model.Package):
-        query = session.query(model.PackageRole).join('package')
-    elif isinstance(domain_object, model.Group):
-        query = session.query(model.GroupRole).join('group')
-    elif domain_object is model.System:
-        query = session.query(model.SystemRole)
-    else:
-        raise NotFound(_('Cannot list entity of this type: %s')
-                       % type(domain_object).__name__)
-    # Filter by the domain_obj (apart from if it is the system object)
-    if not isinstance(domain_object, type):
-        query = query.filter_by(id=domain_object.id)
-
-    # Filter by the user
-    if user_ref:
-        user = model.User.get(user_ref)
-        if not user:
-            raise NotFound(_('unknown user:') + repr(user_ref))
-        query = query.join('user').filter_by(id=user.id)
-
-    uors = query.all()
-
-    uors_dictized = [_table_dictize(uor, context) for uor in uors]
-
-    result = {
-        'domain_object_type': type(domain_object).__name__,
-        'domain_object_id':
-        domain_object.id if domain_object != model.System else None,
-        'roles': uors_dictized}
-    if user_ref:
-        result['user'] = user.id
-
-    return result
 
 
 def status_show(context, data_dict):
@@ -3361,3 +3499,51 @@ def help_show(context, data_dict):
         raise NotFound('Action function not found')
 
     return function.__doc__
+
+
+def config_option_show(context, data_dict):
+    '''Show the current value of a particular configuration option.
+
+    Only returns runtime-editable config options (the ones returned by
+    :py:func:`~ckan.logic.action.get.config_option_list`), which can be updated with the
+    :py:func:`~ckan.logic.action.update.config_option_update` action.
+
+    :param id: The configuration option key
+    :type id: string
+
+    :returns: The value of the config option from either the system_info table
+        or ini file.
+    :rtype: string
+
+    :raises: :class:`ckan.logic.ValidationError`: if config option is not in
+        the schema (whitelisted as editable).
+    '''
+
+    _check_access('config_option_show', context, data_dict)
+
+    key = _get_or_bust(data_dict, 'key')
+
+    schema = ckan.logic.schema.update_configuration_schema()
+
+    # Only return whitelisted keys
+    if key not in schema:
+        raise ValidationError(
+            'Configuration option \'{0}\' can not be shown'.format(key))
+
+    # return the value from config
+    return config.get(key, None)
+
+
+def config_option_list(context, data_dict):
+    '''Return a list of runtime-editable config options keys that can be
+       updated with :py:func:`~ckan.logic.action.update.config_option_update`.
+
+    :returns: A list of config option keys.
+    :rtype: list
+    '''
+
+    _check_access('config_option_list', context, data_dict)
+
+    schema = ckan.logic.schema.update_configuration_schema()
+
+    return schema.keys()

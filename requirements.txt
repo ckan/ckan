@@ -1,5 +1,5 @@
 Babel==0.9.6
-Beaker==1.6.4
+Beaker==1.7.0
 FormEncode==1.2.6
 Genshi==0.6
 Jinja2==2.6
@@ -41,3 +41,5 @@ unicodecsv==0.9.4
 vdm==0.13
 wsgiref==0.1.2
 zope.interface==4.1.1
+pytz==2012j
+tzlocal==1.2

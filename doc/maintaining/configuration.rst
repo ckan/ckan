@@ -1,15 +1,67 @@
-===================
-Config File Options
-===================
+=====================
+Configuration Options
+=====================
 
-You can set many important options in the CKAN config file. By default, the
-configuration file is located at ``/etc/ckan/development.ini`` or
-``/etc/ckan/production.ini``. This section documents all of the config file
+The functionality and features of CKAN can be modified using many different
+configuration options. These are generally set in the `CKAN configuration file`_,
+but some of them can also be set via `Environment variables`_ or at :ref:`runtime <runtime-config>`.
+
+
+
+Environment variables
+*********************
+
+Some of the CKAN configuration options can be defined as `Environment variables <env-vars-wikipedia>`_
+on the server operating system.
+
+These are generally low-level critical settings needed when setting up the application, like the database
+connection, the Solr server URL, etc. Sometimes it can be useful to define them as environment variables to
+automate and orchestrate deployments without having to first modify the `configuration file <CKAN configuration file>`_.
+
+These options are only read at startup time to update the ``config`` object used by CKAN,
+but they won't we accessed any more during the lifetime of the application.
+
+CKAN environment variables names match the options in the configuration file, but they are always uppercase
+and prefixed with `CKAN_` (this prefix is added even if
+the corresponding option in the ini file does not have it), and replacing dots with underscores.
+
+This is the list of currently supported environment variables, please refer to the entries in the
+`configuration file <CKAN configuration file>`_ section below for more details about each one:
+
+.. literalinclude:: /../ckan/config/environment.py
+    :language: python
+    :start-after: Start CONFIG_FROM_ENV_VARS
+    :end-before: End CONFIG_FROM_ENV_VARS
+
+.. _env-vars-wikipedia: http://en.wikipedia.org/wiki/Environment_variable
+
+
+.. _runtime-config:
+
+Updating configuration options during runtime
+*********************************************
+
+CKAN configuration options are generally defined before starting the web application (either in the
+`configuration file <CKAN configuration file>`_ or via `Environment variables`_).
+
+A limited number of configuration options can also be edited during runtime. This can be done on the
+:ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.update.config_option_update`
+API action. Only :doc:`sysadmins </sysadmin-guide>` can edit these runtime-editable configuration options. Changes made to these configuration options will be stored on the database and persisted when the server is restarted.
+
+Extensions can add (or remove) configuration options to the ones that can be edited at runtime. For more
+details on how to this check :doc:`/extensions/remote-config-update`.
+
+
+
+.. _config_file:
+
+CKAN configuration file
+***********************
+
+By default, the
+configuration file is located at ``/etc/ckan/default/development.ini`` or
+``/etc/ckan/default/production.ini``. This section documents all of the config file
 settings, for reference.
-
-.. todo::
-
-   Insert cross-ref to section about location of config file?
 
 .. note:: After editing your config file, you need to restart your webserver
    for the changes to take effect.
@@ -36,7 +88,6 @@ settings, for reference.
 
    If the same option is set more than once in your config file, the last
    setting given in the file will override the others.
-
 
 General Settings
 ----------------
@@ -217,10 +268,12 @@ Example::
 
   ckan.site_url = http://scotdata.ckan.net
 
-Default value:  (none)
+Default value:  (an explicit value is mandatory)
 
 The URL of your CKAN site. Many CKAN features that need an absolute URL to your
 site use this setting.
+
+.. important:: It is mandatory to complete this setting
 
 .. warning::
 
@@ -935,6 +988,19 @@ web interface. ``dumps_format`` is just a string for display. Example::
 
   ckan.dumps_format = CSV/JSON
 
+.. _ckan.recaptcha.version:
+
+ckan.recaptcha.version
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The version of Recaptcha to use, for example::
+
+ ckan.recaptcha.version = 1
+
+Default Value: 1
+
+Valid options: 1, 2
+
 .. _ckan.recaptcha.publickey:
 
 ckan.recaptcha.publickey
@@ -1537,6 +1603,21 @@ Default value: (none)
 If you have set an extra i18n directory using ``ckan.18n.extra_directory``, you
 should specify the locales that have been translated in that directory in this
 option.
+
+.. _ckan.display_timezone:
+
+ckan.display_timezone
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.display_timezone = Europe/Zurich
+
+Default value: UTC
+
+By default, all datetimes are considered to be in the UTC timezone. Use this option to change the displayed dates on the frontend. Internally, the dates are always saved as UTC. This option only changes the way the dates are displayed.
+
+The valid values for this options [can be found at pytz](http://pytz.sourceforge.net/#helpers) (``pytz.all_timezones``). You can specify the special value `server` to use the timezone settings of the server, that is running CKAN.
 
 .. _ckan.root_path:
 
