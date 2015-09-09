@@ -8,7 +8,9 @@ from routes import url_for
 from nose.tools import assert_equal
 
 import ckan.tests.helpers as helpers
+from ckan.tests.helpers import assert_in
 from ckan.tests import factories
+from ckan import model
 
 
 class TestApiController(helpers.FunctionalTestBase):
@@ -166,3 +168,87 @@ class TestApiController(helpers.FunctionalTestBase):
         results = json.loads(response.body)
         assert_equal(len(results), 1)
         assert_equal(results[0]['title'], 'Simple dummy org')
+
+
+class TestRevisionSearch(helpers.FunctionalTestBase):
+
+    # Error cases
+
+    def test_no_search_term(self):
+        app = self._get_test_app()
+        response = app.get('/api/search/revision', status=400)
+        assert_in('Bad request - Missing search term', response.body)
+
+    def test_no_search_term_api_v2(self):
+        app = self._get_test_app()
+        response = app.get('/api/2/search/revision', status=400)
+        assert_in('Bad request - Missing search term', response.body)
+
+    def test_date_instead_of_revision(self):
+        app = self._get_test_app()
+        response = app.get('/api/search/revision'
+                           '?since_id=2010-01-01T00:00:00', status=404)
+        assert_in('Not found - There is no revision', response.body)
+
+    def test_date_invalid(self):
+        app = self._get_test_app()
+        response = app.get('/api/search/revision'
+                           '?since_time=2010-02-31T00:00:00', status=400)
+        assert_in('Bad request - ValueError: day is out of range for month',
+                  response.body)
+
+    def test_no_value(self):
+        app = self._get_test_app()
+        response = app.get('/api/search/revision?since_id=', status=400)
+        assert_in('Bad request - No revision specified', response.body)
+
+    def test_revision_doesnt_exist(self):
+        app = self._get_test_app()
+        response = app.get('/api/search/revision?since_id=1234', status=404)
+        assert_in('Not found - There is no revision', response.body)
+
+    def test_revision_doesnt_exist_api_v2(self):
+        app = self._get_test_app()
+        response = app.get('/api/2/search/revision?since_id=1234', status=404)
+        assert_in('Not found - There is no revision', response.body)
+
+    # Normal usage
+
+    @classmethod
+    def _create_revisions(cls, num_revisions):
+        rev_ids = []
+        for i in xrange(num_revisions):
+            rev = model.repo.new_revision()
+            rev.id = unicode(i)
+            model.Session.commit()
+            rev_ids.append(rev.id)
+        return rev_ids
+
+    def test_revision_since_id(self):
+        rev_ids = self._create_revisions(4)
+        app = self._get_test_app()
+
+        response = app.get('/api/2/search/revision?since_id=%s' % rev_ids[1])
+
+        res = json.loads(response.body)
+        assert_equal(res, rev_ids[2:])
+
+    def test_revision_since_time(self):
+        rev_ids = self._create_revisions(4)
+        app = self._get_test_app()
+
+        rev1 = model.Session.query(model.Revision).get(rev_ids[1])
+        response = app.get('/api/2/search/revision?since_time=%s'
+                           % rev1.timestamp.isoformat())
+
+        res = json.loads(response.body)
+        assert_equal(res, rev_ids[2:])
+
+    def test_revisions_returned_are_limited(self):
+        rev_ids = self._create_revisions(55)
+        app = self._get_test_app()
+
+        response = app.get('/api/2/search/revision?since_id=%s' % rev_ids[1])
+
+        res = json.loads(response.body)
+        assert_equal(res, rev_ids[2:52])  # i.e. limited to 50
