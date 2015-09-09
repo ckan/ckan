@@ -21,7 +21,7 @@ class TestGroupController(helpers.FunctionalTestBase):
         app = self._get_test_app()
         bulk_process_url = url_for(controller='organization',
                                    action='bulk_process', id='does-not-exist')
-        response = app.get(url=bulk_process_url, status=404)
+        app.get(url=bulk_process_url, status=404)
 
     def test_page_thru_list_of_orgs(self):
         orgs = [factories.Organization() for i in range(35)]
@@ -150,6 +150,86 @@ class TestGroupControllerEdit(helpers.FunctionalTestBase):
         assert_equal(group.title, u'Science')
         assert_equal(group.description, 'Sciencey datasets')
         assert_equal(group.image_url, 'http://example.com/image.png')
+
+
+class TestGroupRead(helpers.FunctionalTestBase):
+    def setup(self):
+        super(TestGroupRead, self).setup()
+        self.app = helpers._get_test_app()
+        self.user = factories.User()
+        self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
+        self.group = factories.Group(user=self.user)
+
+    def test_group_read(self):
+        response = self.app.get(url=url_for(controller='group',
+                                            action='read',
+                                            id=self.group['id']),
+                                status=200,
+                                extra_environ=self.user_env)
+        assert_in(self.group['title'], response)
+        assert_in(self.group['description'], response)
+
+
+class TestGroupDelete(helpers.FunctionalTestBase):
+    def setup(self):
+        super(TestGroupDelete, self).setup()
+        self.app = helpers._get_test_app()
+        self.user = factories.User()
+        self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
+        self.group = factories.Group(user=self.user)
+
+    def test_owner_delete(self):
+        response = self.app.get(url=url_for(controller='group',
+                                            action='delete',
+                                            id=self.group['id']),
+                                status=200,
+                                extra_environ=self.user_env)
+
+        form = response.forms['group-confirm-delete-form']
+        response = submit_and_follow(self.app, form, name='delete',
+                                     extra_environ=self.user_env)
+        group = helpers.call_action('group_show',
+                                    id=self.group['id'])
+        assert_equal(group['state'], 'deleted')
+
+    def test_sysadmin_delete(self):
+        sysadmin = factories.Sysadmin()
+        extra_environ = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        response = self.app.get(url=url_for(controller='group',
+                                            action='delete',
+                                            id=self.group['id']),
+                                status=200,
+                                extra_environ=extra_environ)
+
+        form = response.forms['group-confirm-delete-form']
+        response = submit_and_follow(self.app, form, name='delete',
+                                     extra_environ=self.user_env)
+        group = helpers.call_action('group_show',
+                                    id=self.group['id'])
+        assert_equal(group['state'], 'deleted')
+
+    def test_non_authorized_user_trying_to_delete_fails(self):
+        user = factories.User()
+        extra_environ = {'REMOTE_USER': user['name'].encode('ascii')}
+        self.app.get(url=url_for(controller='group',
+                                 action='delete',
+                                 id=self.group['id']),
+                     status=401,
+                     extra_environ=extra_environ)
+
+        group = helpers.call_action('group_show',
+                                    id=self.group['id'])
+        assert_equal(group['state'], 'active')
+
+    def test_anon_user_trying_to_delete_fails(self):
+        self.app.get(url=url_for(controller='group',
+                                 action='delete',
+                                 id=self.group['id']),
+                     status=302)  # redirects to login form
+
+        group = helpers.call_action('group_show',
+                                    id=self.group['id'])
+        assert_equal(group['state'], 'active')
 
 
 class TestGroupMembership(helpers.FunctionalTestBase):
@@ -398,6 +478,168 @@ class TestGroupFollow(helpers.FunctionalTestBase):
         followers_response = app.get(followers_url, extra_environ=env,
                                      status=200)
         assert_true(user_one['display_name'] in followers_response)
+
+
+class TestGroupSearch(helpers.FunctionalTestBase):
+
+    '''Test searching for groups.'''
+
+    def setup(self):
+        super(TestGroupSearch, self).setup()
+        self.app = self._get_test_app()
+        factories.Group(name='grp-one', title='AGrp One')
+        factories.Group(name='grp-two', title='AGrp Two')
+        factories.Group(name='grp-three', title='Grp Three')
+        self.search_url = url_for(controller='group', action='index')
+
+    def test_group_search(self):
+        '''Requesting group search (index) returns list of groups and search
+        form.'''
+
+        index_response = self.app.get(self.search_url)
+        index_response_html = BeautifulSoup(index_response.body)
+        grp_names = index_response_html.select('ul.media-grid '
+                                               'li.media-item '
+                                               'h3.media-heading')
+        grp_names = [n.string for n in grp_names]
+
+        assert_equal(len(grp_names), 3)
+        assert_true('AGrp One' in grp_names)
+        assert_true('AGrp Two' in grp_names)
+        assert_true('Grp Three' in grp_names)
+
+    def test_group_search_results(self):
+        '''Searching via group search form returns list of expected groups.'''
+
+        index_response = self.app.get(self.search_url)
+        search_form = index_response.forms['group-search-form']
+        search_form['q'] = 'AGrp'
+        search_response = webtest_submit(search_form)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        grp_names = search_response_html.select('ul.media-grid '
+                                                'li.media-item '
+                                                'h3.media-heading')
+        grp_names = [n.string for n in grp_names]
+
+        assert_equal(len(grp_names), 2)
+        assert_true('AGrp One' in grp_names)
+        assert_true('AGrp Two' in grp_names)
+        assert_true('Grp Three' not in grp_names)
+
+    def test_group_search_no_results(self):
+        '''Searching with a term that doesn't apply returns no results.'''
+
+        index_response = self.app.get(self.search_url)
+        search_form = index_response.forms['group-search-form']
+        search_form['q'] = 'No Results Here'
+        search_response = webtest_submit(search_form)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        grp_names = search_response_html.select('ul.media-grid '
+                                                'li.media-item '
+                                                'h3.media-heading')
+        grp_names = [n.string for n in grp_names]
+
+        assert_equal(len(grp_names), 0)
+        assert_true("No groups found for &#34;No Results Here&#34;"
+                    in search_response)
+
+
+class TestGroupInnerSearch(helpers.FunctionalTestBase):
+
+    '''Test searching within an group.'''
+
+    def test_group_search_within_org(self):
+        '''Group read page request returns list of datasets owned by group.'''
+        app = self._get_test_app()
+
+        grp = factories.Group()
+        factories.Dataset(name="ds-one", title="Dataset One",
+                          groups=[{'id': grp['id']}])
+        factories.Dataset(name="ds-two", title="Dataset Two",
+                          groups=[{'id': grp['id']}])
+        factories.Dataset(name="ds-three", title="Dataset Three",
+                          groups=[{'id': grp['id']}])
+
+        grp_url = url_for(controller='group', action='read',
+                          id=grp['id'])
+        grp_response = app.get(grp_url)
+        grp_response_html = BeautifulSoup(grp_response.body)
+
+        ds_titles = grp_response_html.select('.dataset-list '
+                                             '.dataset-item '
+                                             '.dataset-heading a')
+        ds_titles = [t.string for t in ds_titles]
+
+        assert_true('3 datasets found' in grp_response)
+        assert_equal(len(ds_titles), 3)
+        assert_true('Dataset One' in ds_titles)
+        assert_true('Dataset Two' in ds_titles)
+        assert_true('Dataset Three' in ds_titles)
+
+    def test_group_search_within_org_results(self):
+        '''Searching within an group returns expected dataset results.'''
+        app = self._get_test_app()
+
+        grp = factories.Group()
+        factories.Dataset(name="ds-one", title="Dataset One",
+                          groups=[{'id': grp['id']}])
+        factories.Dataset(name="ds-two", title="Dataset Two",
+                          groups=[{'id': grp['id']}])
+        factories.Dataset(name="ds-three", title="Dataset Three",
+                          groups=[{'id': grp['id']}])
+
+        grp_url = url_for(controller='group', action='read',
+                          id=grp['id'])
+        grp_response = app.get(grp_url)
+        search_form = grp_response.forms['group-datasets-search-form']
+        search_form['q'] = 'One'
+        search_response = webtest_submit(search_form)
+        assert_true('1 dataset found for &#34;One&#34;' in search_response)
+
+        search_response_html = BeautifulSoup(search_response.body)
+
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [t.string for t in ds_titles]
+
+        assert_equal(len(ds_titles), 1)
+        assert_true('Dataset One' in ds_titles)
+        assert_true('Dataset Two' not in ds_titles)
+        assert_true('Dataset Three' not in ds_titles)
+
+    def test_group_search_within_org_no_results(self):
+        '''Searching for non-returning phrase within an group returns no
+        results.'''
+        app = self._get_test_app()
+
+        grp = factories.Group()
+        factories.Dataset(name="ds-one", title="Dataset One",
+                          groups=[{'id': grp['id']}])
+        factories.Dataset(name="ds-two", title="Dataset Two",
+                          groups=[{'id': grp['id']}])
+        factories.Dataset(name="ds-three", title="Dataset Three",
+                          groups=[{'id': grp['id']}])
+
+        grp_url = url_for(controller='group', action='read',
+                          id=grp['id'])
+        grp_response = app.get(grp_url)
+        search_form = grp_response.forms['group-datasets-search-form']
+        search_form['q'] = 'Nout'
+        search_response = webtest_submit(search_form)
+
+        assert_true('No datasets found for &#34;Nout&#34;' in search_response)
+
+        search_response_html = BeautifulSoup(search_response.body)
+
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [t.string for t in ds_titles]
+
+        assert_equal(len(ds_titles), 0)
 
 
 class TestGroupIndex(helpers.FunctionalTestBase):
