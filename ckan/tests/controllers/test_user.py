@@ -125,8 +125,12 @@ class TestLoginView(helpers.FunctionalTestBase):
 
 class TestLogout(helpers.FunctionalTestBase):
 
-    def test_user_logout(self):
-        '''_logout url redirects to logged out page.'''
+    def test_user_logout_url_redirect(self):
+        '''_logout url redirects to logged out page.
+
+        Note: this doesn't test the actual logout of a logged in user, just
+        the associated redirect.
+        '''
         app = self._get_test_app()
 
         logout_url = url_for(controller='user', action='logout')
