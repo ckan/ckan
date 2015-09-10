@@ -6,6 +6,7 @@ import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
 import ckan.lib.dictization.model_dictize as model_dictize
+from ckan import authz
 
 from ckan.common import _
 
@@ -399,6 +400,26 @@ def _group_or_org_purge(context, data_dict, is_org=False):
     else:
         _check_access('group_purge', context, data_dict)
 
+    if is_org:
+        # Clear the owner_org field
+        datasets = model.Session.query(model.Package) \
+                        .filter_by(owner_org=group.id) \
+                        .filter(model.Package.state != 'deleted') \
+                        .count()
+        if datasets:
+            if not authz.check_config_permission('ckan.auth.create_unowned_dataset'):
+                raise ValidationError('Organization cannot be purged while it '
+                                      'still has datasets')
+            pkg_table = model.package_table
+            # using Core SQLA instead of the ORM should be faster
+            model.Session.execute(
+                pkg_table.update().where(
+                    sqla.and_(pkg_table.c.owner_org == group.id,
+                              pkg_table.c.state != 'deleted')
+                ).values(owner_org=None)
+            )
+
+    # Delete related Memberships
     members = model.Session.query(model.Member) \
                    .filter(sqla.or_(model.Member.group_id == group.id,
                                     model.Member.table_id == group.id))
@@ -423,6 +444,8 @@ def group_purge(context, data_dict):
     whereas deleting a group simply marks the group as deleted (it will no
     longer show up in the frontend, but is still in the db).
 
+    Datasets in the organization will remain, just not in the purged group.
+
     You must be authorized to purge the group.
 
     :param id: the name or id of the group to be purged
@@ -440,6 +463,9 @@ def organization_purge(context, data_dict):
     database, whereas deleting an organization simply marks the organization as
     deleted (it will no longer show up in the frontend, but is still in the
     db).
+
+    Datasets owned by the organization will remain, just not in an
+    organization any more.
 
     You must be authorized to purge the organization.
 

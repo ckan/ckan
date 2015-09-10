@@ -5,6 +5,7 @@ import ckan.tests.factories as factories
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as p
+import ckan.lib.search as search
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
@@ -159,12 +160,41 @@ class TestGroupPurge(object):
     def test_purged_group_does_not_show(self):
         group = factories.Group()
 
-        helpers.call_action('group_purge',
-                            context={'ignore_auth': True},
-                            id=group['name'])
+        helpers.call_action('group_purge', id=group['name'])
 
         assert_raises(logic.NotFound, helpers.call_action, 'group_show',
                       context={}, id=group['name'])
+
+    def test_purged_group_is_not_listed(self):
+        group = factories.Group()
+
+        helpers.call_action('group_purge', id=group['name'])
+
+        assert_equals(helpers.call_action('group_list', context={}), [])
+
+    def test_dataset_in_a_purged_group_no_longer_shows_that_group(self):
+        group = factories.Group()
+        dataset = factories.Dataset(groups=[{'name': group['name']}])
+
+        helpers.call_action('group_purge', id=group['name'])
+
+        dataset_shown = helpers.call_action('package_show', context={},
+                                            id=dataset['id'])
+        assert_equals(dataset_shown['groups'], [])
+
+    def test_purged_group_is_not_in_search_results_for_its_ex_dataset(self):
+        search.clear()
+        group = factories.Group()
+        dataset = factories.Dataset(groups=[{'name': group['name']}])
+        def get_search_result_groups():
+            results = helpers.call_action('package_search',
+                                          q=dataset['title'])['results']
+            return [g['name'] for g in results[0]['groups']]
+        assert_equals(get_search_result_groups(), [group['name']])
+
+        helpers.call_action('group_purge', id=group['name'])
+
+        assert_equals(get_search_result_groups(), [])
 
     def test_purged_group_leaves_no_trace_in_the_model(self):
         factories.Group(name='parent')
@@ -173,12 +203,11 @@ class TestGroupPurge(object):
                                  extras=[{'key': 'key1', 'value': 'val1'}],
                                  users=[{'name': user['name']}],
                                  groups=[{'name': 'parent'}])
+        factories.Dataset(name='ds', groups=[{'name': 'group1'}])
         factories.Group(name='child', groups=[{'name': 'group1'}])
         num_revisions_before = model.Session.query(model.Revision).count()
 
-        helpers.call_action('group_purge',
-                            context={'ignore_auth': True},
-                            id=group1['name'])
+        helpers.call_action('group_purge', id=group1['name'])
         num_revisions_after = model.Session.query(model.Revision).count()
 
         # the Group and related objects are gone
@@ -191,6 +220,9 @@ class TestGroupPurge(object):
             (m.table_name, m.group.name)
             for m in model.Session.query(model.Member).join(model.Group)]),
             [('user', 'child'), ('user', 'parent')])
+        # the dataset is still there though
+        assert_equals([p.name for p in model.Session.query(model.Package)],
+                      ['ds'])
 
         # the group's object revisions were purged too
         assert_equals(sorted(
@@ -221,12 +253,41 @@ class TestOrganizationPurge(object):
     def test_purged_org_does_not_show(self):
         org = factories.Organization()
 
-        helpers.call_action('organization_purge',
-                            context={'ignore_auth': True},
-                            id=org['name'])
+        helpers.call_action('organization_purge', id=org['name'])
 
         assert_raises(logic.NotFound, helpers.call_action, 'organization_show',
                       context={}, id=org['name'])
+
+    def test_purged_org_is_not_listed(self):
+        org = factories.Organization()
+
+        helpers.call_action('organization_purge', id=org['name'])
+
+        assert_equals(helpers.call_action('organization_list', context={}), [])
+
+    def test_dataset_in_a_purged_org_no_longer_shows_that_org(self):
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+
+        helpers.call_action('organization_purge', id=org['name'])
+
+        dataset_shown = helpers.call_action('package_show', context={},
+                                            id=dataset['id'])
+        assert_equals(dataset_shown['owner_org'], None)
+
+    def test_purged_org_is_not_in_search_results_for_its_ex_dataset(self):
+        search.clear()
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        def get_search_result_owner_org():
+            results = helpers.call_action('package_search',
+                                          q=dataset['title'])['results']
+            return results[0]['owner_org']
+        assert_equals(get_search_result_owner_org(), org['id'])
+
+        helpers.call_action('organization_purge', id=org['name'])
+
+        assert_equals(get_search_result_owner_org(), None)
 
     def test_purged_organization_leaves_no_trace_in_the_model(self):
         factories.Organization(name='parent')
@@ -236,12 +297,11 @@ class TestOrganizationPurge(object):
             extras=[{'key': 'key1', 'value': 'val1'}],
             users=[{'name': user['name']}],
             groups=[{'name': 'parent'}])
-        factories.Organization(name='child', groups=[{'name': 'group1'}])
+        factories.Dataset(name='ds', owner_org=org1['id'])
+        factories.Organization(name='child', groups=[{'name': 'org1'}])
         num_revisions_before = model.Session.query(model.Revision).count()
 
-        helpers.call_action('organization_purge',
-                            context={'ignore_auth': True},
-                            id=org1['name'])
+        helpers.call_action('organization_purge', id=org1['name'])
         num_revisions_after = model.Session.query(model.Revision).count()
 
         # the Organization and related objects are gone
@@ -254,6 +314,9 @@ class TestOrganizationPurge(object):
             (m.table_name, m.group.name)
             for m in model.Session.query(model.Member).join(model.Group)]),
             [('user', 'child'), ('user', 'parent')])
+        # the dataset is still there though
+        assert_equals([p.name for p in model.Session.query(model.Package)],
+                      ['ds'])
 
         # the organization's object revisions were purged too
         assert_equals(sorted(
