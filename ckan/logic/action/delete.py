@@ -1,5 +1,7 @@
 '''API functions for deleting data from CKAN.'''
 
+import sqlalchemy as sqla
+
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
@@ -397,12 +399,14 @@ def _group_or_org_purge(context, data_dict, is_org=False):
     else:
         _check_access('group_purge', context, data_dict)
 
-    members = model.Session.query(model.Member)
-    members = members.filter(model.Member.group_id == group.id)
+    members = model.Session.query(model.Member) \
+                   .filter(sqla.or_(model.Member.group_id == group.id,
+                                    model.Member.table_id == group.id))
     if members.count() > 0:
-        model.repo.new_revision()
+        # no need to do new_revision() because Member is not revisioned, nor
+        # does it cascade delete any revisioned objects
         for m in members.all():
-            m.delete()
+            m.purge()
         model.repo.commit_and_remove()
 
     group = model.Group.get(id)

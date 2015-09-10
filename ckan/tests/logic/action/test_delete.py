@@ -140,3 +140,55 @@ class TestDeleteTags(object):
             assert u'Delta symbol: \u0394' in unicode(e)
         else:
             assert 0, 'Should have raised NotFound'
+
+
+class TestGroupPurge(object):
+    def setup(self):
+        helpers.reset_db()
+
+    def test_purged_group_does_not_show(self):
+        group = factories.Group()
+
+        helpers.call_action('group_purge',
+                            context={'ignore_auth': True},
+                            id=group['name'])
+
+        assert_raises(logic.NotFound, helpers.call_action, 'group_show',
+                      context={}, id=group['name'])
+
+    def test_purged_group_leaves_no_trace_in_the_model(self):
+        factories.Group(name='parent')
+        user = factories.User()
+        group1 = factories.Group(name='group1',
+                                 extras=[{'key': 'key1', 'value': 'val1'}],
+                                 users=[{'name': user['name']}],
+                                 groups=[{'name': 'parent'}])
+        factories.Group(name='child', groups=[{'name': 'group1'}])
+        num_revisions_before = model.Session.query(model.Revision).count()
+
+        helpers.call_action('group_purge',
+                            context={'ignore_auth': True},
+                            id=group1['name'])
+        num_revisions_after = model.Session.query(model.Revision).count()
+
+        # the Group and related objects are gone
+        assert_equals(sorted([g.name for g in
+                              model.Session.query(model.Group).all()]),
+                      ['child', 'parent'])
+        assert_equals(model.Session.query(model.GroupExtra).all(), [])
+        # the only members left are the users for the parent and child
+        assert_equals(sorted([
+            (m.table_name, m.group.name)
+            for m in model.Session.query(model.Member).join(model.Group)]),
+            [('user', 'child'), ('user', 'parent')])
+
+        # the group's object revisions were purged too
+        assert_equals(sorted(
+            [gr.name for gr in model.Session.query(model.GroupRevision)]),
+            ['child', 'parent'])
+        assert_equals(model.Session.query(model.GroupExtraRevision).all(),
+                      [])
+        # Member is not revisioned
+
+        # No Revision objects were purged, in fact 1 is created for the purge
+        assert_equals(num_revisions_after - num_revisions_before, 1)
