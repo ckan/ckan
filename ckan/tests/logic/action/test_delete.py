@@ -188,6 +188,7 @@ class TestDatasetPurge(object):
     def test_purged_dataset_is_not_in_search_results(self):
         search.clear()
         dataset = factories.Dataset()
+
         def get_search_results():
             results = helpers.call_action('package_search',
                                           q=dataset['title'])['results']
@@ -222,9 +223,10 @@ class TestDatasetPurge(object):
         assert_equals(model.Session.query(model.PackageExtra).all(), [])
         # the only member left is for the user created in factories.Group() and
         # factories.Organization()
-        assert_equals([(m.table_name, m.group.name)
-                       for m in model.Session.query(model.Member).join(model.Group)],
-                      [('user', 'group1'), ('user', 'test_org_0')])
+        assert_equals(sorted(
+            [(m.table_name, m.group.name)
+             for m in model.Session.query(model.Member).join(model.Group)]),
+            [('user', 'group1'), ('user', org['name'])])
 
         # all the object revisions were purged too
         assert_equals(model.Session.query(model.PackageRevision).all(), [])

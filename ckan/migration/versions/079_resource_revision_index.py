@@ -5,4 +5,3 @@ def upgrade(migrate_engine):
             ON resource_revision (continuity_id);
         '''
     )
-
