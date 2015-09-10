@@ -2103,7 +2103,7 @@ def get_organization(org=None, include_datasets=False):
     try:
         return logic.get_action('organization_show')(
             {}, {'id': org, 'include_datasets': include_datasets})
-    except (NotFound, ValidationError, NotAuthorized):
+    except (logic.NotFound, logic.ValidationError, logic.NotAuthorized):
         return {}
 
 

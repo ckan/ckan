@@ -28,7 +28,7 @@ def _loads_method(name):
         return getattr(self._loads(), name)(*args, **kwargs)
     return method
 
-for fn in ['__cmp__', '__contains__', '__delitem__', '__eq__', '__ge__',
+for fn in ['__contains__', '__delitem__', '__eq__', '__ge__',
            '__getitem__', '__gt__', '__iter__', '__le__', '__len__', '__lt__',
            '__ne__', '__setitem__', 'clear', 'copy', 'fromkeys', 'get',
            'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys',
@@ -47,9 +47,13 @@ class JSONString(int):
     subclassing JSONEncoder and modifying its internal workings, or
     monkeypatching the simplejson library.
     '''
-    def __init__(self, s):
-        self.s = s
-        super(JSONString, self).__init__(-1)
+    def __new__(cls, s):
+        obj = super(JSONString, cls).__new__(cls, -1)
+        obj.s = s
+        return obj
 
     def __str__(self):
-        return s
+        return self.s
+
+    def __repr__(self):
+        return "JSONString(%r)" % self.s
