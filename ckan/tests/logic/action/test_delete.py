@@ -186,6 +186,7 @@ class TestGroupPurge(object):
         search.clear()
         group = factories.Group()
         dataset = factories.Dataset(groups=[{'name': group['name']}])
+
         def get_search_result_groups():
             results = helpers.call_action('package_search',
                                           q=dataset['title'])['results']
@@ -287,6 +288,7 @@ class TestOrganizationPurge(object):
         search.clear()
         org = factories.Organization()
         dataset = factories.Dataset(owner_org=org['id'])
+
         def get_search_result_owner_org():
             results = helpers.call_action('package_search',
                                           q=dataset['title'])['results']
