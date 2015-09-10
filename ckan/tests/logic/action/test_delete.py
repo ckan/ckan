@@ -140,3 +140,63 @@ class TestDeleteTags(object):
             assert u'Delta symbol: \u0394' in unicode(e)
         else:
             assert 0, 'Should have raised NotFound'
+
+
+class TestDatasetPurge(object):
+    def setup(self):
+        helpers.reset_db()
+
+    def test_a_non_sysadmin_cant_purge_dataset(self):
+        user = factories.User()
+        dataset = factories.Dataset(user=user)
+
+        assert_raises(logic.NotAuthorized,
+                      helpers.call_action,
+                      'dataset_purge',
+                      context={'user': user['name'], 'ignore_auth': False},
+                      id=dataset['name'])
+
+    def test_purged_dataset_does_not_show(self):
+        dataset = factories.Dataset()
+
+        helpers.call_action('dataset_purge',
+                            context={'ignore_auth': True},
+                            id=dataset['name'])
+
+        assert_raises(logic.NotFound, helpers.call_action, 'package_show',
+                      context={}, id=dataset['name'])
+
+    def test_purged_dataset_leaves_no_trace_in_the_model(self):
+        factories.Group(name='group1')
+        dataset = factories.Dataset(
+            tags=[{'name': 'tag1'}],
+            groups=[{'name': 'group1'}],
+            extras=[{'key': 'testkey', 'value': 'testvalue'}])
+        num_revisions_before = model.Session.query(model.Revision).count()
+
+        helpers.call_action('dataset_purge',
+                            context={'ignore_auth': True},
+                            id=dataset['name'])
+        num_revisions_after = model.Session.query(model.Revision).count()
+
+        # the Package and related objects are gone
+        assert_equals(model.Session.query(model.Package).all(), [])
+        assert_equals(model.Session.query(model.PackageTag).all(), [])
+        # there is no clean-up of the tag object itself, just the PackageTag.
+        assert_equals([t.name for t in model.Session.query(model.Tag).all()],
+                      ['tag1'])
+        assert_equals(model.Session.query(model.PackageExtra).all(), [])
+        # the only member left is the user created by factories.Group()
+        assert_equals([m.table_name
+                       for m in model.Session.query(model.Member).all()],
+                      ['user'])
+
+        # all the object revisions were purged too
+        assert_equals(model.Session.query(model.PackageRevision).all(), [])
+        assert_equals(model.Session.query(model.PackageTagRevision).all(), [])
+        assert_equals(model.Session.query(model.PackageExtraRevision).all(),
+                      [])
+        # Member is not revisioned
+
+        # No Revision objects were purged, in fact 1 is created for the purge
+        assert_equals(num_revisions_after - num_revisions_before, 1)

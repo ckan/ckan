@@ -890,7 +890,6 @@ class DatasetCmd(CkanCommand):
 
     def command(self):
         self._load_config()
-        import ckan.model as model
 
         if not self.args:
             print self.usage
@@ -939,13 +938,12 @@ class DatasetCmd(CkanCommand):
         print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
 
     def purge(self, dataset_ref):
-        import ckan.model as model
         dataset = self._get_dataset(dataset_ref)
         name = dataset.name
 
-        rev = model.repo.new_revision()
-        dataset.purge()
-        model.repo.commit_and_remove()
+        context = {'user': self.site_user['name']}
+        logic.get_action('dataset_purge')(
+            context, {'id': dataset_ref})
         print '%s purged' % name
 
 
