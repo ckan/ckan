@@ -146,6 +146,16 @@ class TestGroupPurge(object):
     def setup(self):
         helpers.reset_db()
 
+    def test_a_non_sysadmin_cant_purge_group(self):
+        user = factories.User()
+        group = factories.Group(user=user)
+
+        assert_raises(logic.NotAuthorized,
+                      helpers.call_action,
+                      'group_purge',
+                      context={'user': user['name'], 'ignore_auth': False},
+                      id=group['name'])
+
     def test_purged_group_does_not_show(self):
         group = factories.Group()
 
@@ -183,6 +193,69 @@ class TestGroupPurge(object):
             [('user', 'child'), ('user', 'parent')])
 
         # the group's object revisions were purged too
+        assert_equals(sorted(
+            [gr.name for gr in model.Session.query(model.GroupRevision)]),
+            ['child', 'parent'])
+        assert_equals(model.Session.query(model.GroupExtraRevision).all(),
+                      [])
+        # Member is not revisioned
+
+        # No Revision objects were purged, in fact 1 is created for the purge
+        assert_equals(num_revisions_after - num_revisions_before, 1)
+
+
+class TestOrganizationPurge(object):
+    def setup(self):
+        helpers.reset_db()
+
+    def test_a_non_sysadmin_cant_purge_org(self):
+        user = factories.User()
+        org = factories.Organization(user=user)
+
+        assert_raises(logic.NotAuthorized,
+                      helpers.call_action,
+                      'organization_purge',
+                      context={'user': user['name'], 'ignore_auth': False},
+                      id=org['name'])
+
+    def test_purged_org_does_not_show(self):
+        org = factories.Organization()
+
+        helpers.call_action('organization_purge',
+                            context={'ignore_auth': True},
+                            id=org['name'])
+
+        assert_raises(logic.NotFound, helpers.call_action, 'organization_show',
+                      context={}, id=org['name'])
+
+    def test_purged_organization_leaves_no_trace_in_the_model(self):
+        factories.Organization(name='parent')
+        user = factories.User()
+        org1 = factories.Organization(
+            name='org1',
+            extras=[{'key': 'key1', 'value': 'val1'}],
+            users=[{'name': user['name']}],
+            groups=[{'name': 'parent'}])
+        factories.Organization(name='child', groups=[{'name': 'group1'}])
+        num_revisions_before = model.Session.query(model.Revision).count()
+
+        helpers.call_action('organization_purge',
+                            context={'ignore_auth': True},
+                            id=org1['name'])
+        num_revisions_after = model.Session.query(model.Revision).count()
+
+        # the Organization and related objects are gone
+        assert_equals(sorted([o.name for o in
+                              model.Session.query(model.Group).all()]),
+                      ['child', 'parent'])
+        assert_equals(model.Session.query(model.GroupExtra).all(), [])
+        # the only members left are the users for the parent and child
+        assert_equals(sorted([
+            (m.table_name, m.group.name)
+            for m in model.Session.query(model.Member).join(model.Group)]),
+            [('user', 'child'), ('user', 'parent')])
+
+        # the organization's object revisions were purged too
         assert_equals(sorted(
             [gr.name for gr in model.Session.query(model.GroupRevision)]),
             ['child', 'parent'])
