@@ -235,6 +235,14 @@ class TestGroupPurge(object):
         # No Revision objects were purged, in fact 1 is created for the purge
         assert_equals(num_revisions_after - num_revisions_before, 1)
 
+    def test_missing_id_returns_error(self):
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'group_purge')
+
+    def test_bad_id_returns_404(self):
+        assert_raises(logic.NotFound,
+                      helpers.call_action, 'group_purge', id='123')
+
 
 class TestOrganizationPurge(object):
     def setup(self):
@@ -328,3 +336,11 @@ class TestOrganizationPurge(object):
 
         # No Revision objects were purged, in fact 1 is created for the purge
         assert_equals(num_revisions_after - num_revisions_before, 1)
+
+    def test_missing_id_returns_error(self):
+        assert_raises(logic.ValidationError,
+                      helpers.call_action, 'organization_purge')
+
+    def test_bad_id_returns_404(self):
+        assert_raises(logic.NotFound,
+                      helpers.call_action, 'organization_purge', id='123')
