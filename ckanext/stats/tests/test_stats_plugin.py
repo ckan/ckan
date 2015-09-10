@@ -1,6 +1,6 @@
 import os
 
-from ckan.tests import url_for
+from ckan.tests.legacy import url_for
 
 from ckanext.stats.tests import StatsFixture
 

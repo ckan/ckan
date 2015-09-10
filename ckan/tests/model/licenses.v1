@@ -1,0 +1,17 @@
+[{
+
+    "status": "active",
+    "maintainer": "",
+    "family": "",
+    "title": "Creative Commons Attribution",
+    "domain_data": "False",
+    "is_okd_compliant": "True",
+    "is_generic": "False",
+    "url": "http://www.opendefinition.org/licenses/cc-by",
+    "is_osi_compliant": "False",
+    "domain_content": "False",
+    "domain_software": "False",
+    "id": "cc-by"
+
+}
+]

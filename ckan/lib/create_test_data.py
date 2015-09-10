@@ -133,19 +133,14 @@ class CreateTestData(object):
 
     @classmethod
     def create_arbitrary(cls, package_dicts, relationships=[],
-            extra_user_names=[], extra_group_names=[],
-            admins=[]):
+            extra_user_names=[], extra_group_names=[]):
         '''Creates packages and a few extra objects as well at the
         same time if required.
         @param package_dicts - a list of dictionaries with the package
                                properties.
                                Extra keys allowed:
-                               "admins" - list of user names to make admin
-                                          for this package.
         @param extra_group_names - a list of group names to create. No
                                properties get set though.
-        @param admins - a list of user names to make admins of all the
-                               packages created.
         '''
         assert isinstance(relationships, (list, tuple))
         assert isinstance(extra_user_names, (list, tuple))
@@ -155,8 +150,6 @@ class CreateTestData(object):
         new_group_names = set()
         new_groups = {}
 
-
-        admins_list = defaultdict(list) # package_name: admin_names
         if package_dicts:
             if isinstance(package_dicts, dict):
                 package_dicts = [package_dicts]
@@ -249,17 +242,10 @@ class CreateTestData(object):
                     elif attr == 'extras':
                         pkg.extras = val
                     elif attr == 'admins':
-                        assert isinstance(val, list)
-                        admins_list[item['name']].extend(val)
-                        for user_name in val:
-                            if user_name not in new_user_names:
-                                new_user_names.append(user_name)
+                        assert 0, 'Deprecated param "admins"'
                     else:
                         raise NotImplementedError(attr)
                 cls.pkg_names.append(item['name'])
-                model.setup_default_user_roles(pkg, admins=[])
-                for admin in admins:
-                    admins_list[item['name']].append(admin)
                 model.repo.commit_and_remove()
 
         needs_commit = False
@@ -287,24 +273,9 @@ class CreateTestData(object):
             model.repo.commit_and_remove()
             needs_commit = False
 
-        # setup authz for admins
-        for pkg_name, admins in admins_list.items():
-            pkg = model.Package.by_name(unicode(pkg_name))
-            admins_obj_list = []
-            for admin in admins:
-                if isinstance(admin, model.User):
-                    admin_obj = admin
-                else:
-                    admin_obj = model.User.by_name(unicode(admin))
-                assert admin_obj, admin
-                admins_obj_list.append(admin_obj)
-            model.setup_default_user_roles(pkg, admins_obj_list)
-            needs_commit = True
-
         # setup authz for groups just created
         for group_name in new_group_names:
             group = model.Group.by_name(unicode(group_name))
-            model.setup_default_user_roles(group)
             cls.group_names.add(group_name)
             needs_commit = True
 
@@ -390,7 +361,6 @@ class CreateTestData(object):
                 member = model.Member(group=group, table_id=parent.id,
                                       table_name='group', capacity='parent')
                 model.Session.add(member)
-            #model.setup_default_user_roles(group, admin_users)
             cls.group_names.add(group_dict['name'])
         model.repo.commit_and_remove()
 
@@ -416,7 +386,7 @@ class CreateTestData(object):
         model.Session.add(pkg1)
         pkg1.title = u'A Novel By Tolstoy'
         pkg1.version = u'0.7a'
-        pkg1.url = u'http://www.annakarenina.com'
+        pkg1.url = u'http://datahub.io'
         # put an & in the url string to test escaping
         if 'alt_url' in model.Resource.get_extra_columns():
             configured_extras = ({'alt_url': u'alt123'},
@@ -424,7 +394,7 @@ class CreateTestData(object):
         else:
             configured_extras = ({}, {})
         pr1 = model.Resource(
-            url=u'http://www.annakarenina.com/download/x=1&y=2',
+            url=u'http://datahub.io/download/x=1&y=2',
             format=u'plain text',
             description=u'Full text. Needs escaping: " Umlaut: \xfc',
             hash=u'abc123',
@@ -432,7 +402,7 @@ class CreateTestData(object):
             **configured_extras[0]
             )
         pr2 = model.Resource(
-            url=u'http://www.annakarenina.com/index.json',
+            url=u'http://datahub.io/index.json',
             format=u'JSON',
             description=u'Index of the novel',
             hash=u'def456',
@@ -492,6 +462,7 @@ left arrow <
                              title=u'Roger\'s books',
                              description=u'Roger likes these books.',
                              type=auth_profile or 'group')
+
         for obj in [david, roger]:
             model.Session.add(obj)
 
@@ -509,29 +480,11 @@ left arrow <
         model.Session.add_all([
             model.User(name=u'tester', apikey=u'tester', password=u'tester'),
             model.User(name=u'joeadmin', password=u'joeadmin'),
-            model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: http://anna.com', password=u'annafan'),
+            model.User(name=u'annafan', about=u'I love reading Annakarenina. My site: http://datahub.io', password=u'annafan'),
             model.User(name=u'russianfan', password=u'russianfan'),
             sysadmin,
             ])
         cls.user_refs.extend([u'tester', u'joeadmin', u'annafan', u'russianfan', u'testsysadmin'])
-        model.repo.commit_and_remove()
-
-        visitor = model.User.by_name(model.PSEUDO_USER__VISITOR)
-        anna = model.Package.by_name(u'annakarenina')
-        war = model.Package.by_name(u'warandpeace')
-        annafan = model.User.by_name(u'annafan')
-        russianfan = model.User.by_name(u'russianfan')
-        model.setup_default_user_roles(anna, [annafan])
-        model.setup_default_user_roles(war, [russianfan])
-        model.add_user_to_role(visitor, model.Role.ADMIN, war)
-        david = model.Group.by_name(u'david')
-        roger = model.Group.by_name(u'roger')
-        model.setup_default_user_roles(david, [russianfan])
-        model.setup_default_user_roles(roger, [russianfan])
-
-        # in new_authz you can't give a visitor permissions to a
-        # group it seems, so this is a bit meaningless
-        model.add_user_to_role(visitor, model.Role.ADMIN, roger)
         model.repo.commit_and_remove()
 
     # method used in DGU and all good tests elsewhere

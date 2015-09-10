@@ -20,7 +20,7 @@
      */
     url: function (path) {
       if (!(/^https?:\/\//i).test(path)) {
-        path = this.endpoint + '/' + encodeURI(path).replace(/^\//, '');
+        path = this.endpoint + '/' + path.replace(/^\//, '');
       }
       return path;
     },
