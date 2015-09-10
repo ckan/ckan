@@ -1,13 +1,13 @@
 '''
 
 Note: This is the old file store controller for CKAN < 2.2.
-If you are looking for how the file uploads work, you should check `lib/uploader.py`
-and the `resource_download` method of the package controller.
+If you are looking for how the file uploads work, you should check
+`lib/uploader.py` and the `resource_download` method of the package
+controller.
 
 '''
 import os
 import re
-import urllib
 
 from ofs import get_impl
 from paste.fileapp import FileApp
