@@ -36,6 +36,17 @@ class TestPackageShow(helpers.FunctionalTestBase):
 
         eq(dataset2['new_field'], 'foo')
 
+    def test_package_show_is_lazy(self):
+        dataset1 = factories.Dataset()
+
+        dataset2 = helpers.call_action(
+            'package_show',
+            id=dataset1['id'],
+            context=dict(return_type='LazyJSONObject'))
+
+        # LazyJSONObject passed through without being expanded
+        assert dataset2._json_dict is None
+
 
 class TestGroupList(helpers.FunctionalTestBase):
 
