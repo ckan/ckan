@@ -938,10 +938,12 @@ class DatasetCmd(CkanCommand):
         print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
 
     def purge(self, dataset_ref):
+        import ckan.logic as logic
         dataset = self._get_dataset(dataset_ref)
         name = dataset.name
 
-        context = {'user': self.site_user['name']}
+        site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+        context = {'user': site_user['name']}
         logic.get_action('dataset_purge')(
             context, {'id': dataset_ref})
         print '%s purged' % name

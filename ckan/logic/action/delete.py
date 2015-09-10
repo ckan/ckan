@@ -83,7 +83,7 @@ def dataset_purge(context, data_dict):
     .. warning:: Purging a dataset cannot be undone!
 
     Purging a database completely removes the dataset from the CKAN database,
-    whereias deleting a dataset simply marks the dataset as deleted (it will no
+    whereas deleting a dataset simply marks the dataset as deleted (it will no
     longer show up in the front-end, but is still in the db).
 
     You must be authorized to purge the dataset.
