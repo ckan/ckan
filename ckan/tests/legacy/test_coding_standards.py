@@ -414,7 +414,6 @@ class TestPep8(object):
         'ckan/lib/search/index.py',
         'ckan/lib/search/query.py',
         'ckan/lib/search/sql.py',
-        'ckan/logic/__init__.py',
         'ckan/logic/action/__init__.py',
         'ckan/logic/action/delete.py',
         'ckan/logic/action/get.py',
