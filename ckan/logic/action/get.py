@@ -1198,6 +1198,7 @@ def resource_view_list(context, data_dict):
     ]
     return model_dictize.resource_view_list_dictize(resource_views, context)
 
+
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
 
@@ -1207,6 +1208,9 @@ def resource_status_show(context, data_dict):
     :rtype: list of (status, date_done, traceback, task_status) dictionaries
 
     '''
+
+    _check_access('resource_status_show', context, data_dict)
+
     try:
         import ckan.lib.celery_app as celery_app
     except ImportError:
@@ -1214,8 +1218,6 @@ def resource_status_show(context, data_dict):
 
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
-
-    _check_access('resource_status_show', context, data_dict)
 
     # needs to be text query as celery tables are not in our model
     q = _text("""
@@ -1225,7 +1227,12 @@ def resource_status_show(context, data_dict):
            and key = 'celery_task_id'
         where entity_id = :entity_id
     """)
-    result = model.Session.connection().execute(q, entity_id=id)
+    try:
+        result = model.Session.connection().execute(q, entity_id=id)
+    except sqlalchemy.exc.ProgrammingError:
+        # celery tables (celery_taskmeta) may not be created even with celery
+        # installed, causing ProgrammingError exception.
+        return {'message': 'queue tables not installed on this instance'}
     result_list = [_table_dictize(row, context) for row in result]
     return result_list
 
