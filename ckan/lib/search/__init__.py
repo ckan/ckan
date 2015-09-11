@@ -56,7 +56,7 @@ _QUERIES = {
     'package': PackageSearchQuery
 }
 
-SOLR_SCHEMA_FILE_OFFSET = '/admin/file/?file=schema.xml'
+SOLR_SCHEMA_FILE_OFFSET = '/schema?wt=xml'
 
 if SIMPLE_SEARCH:
     import sql as sql
@@ -295,7 +295,13 @@ def check_solr_schema_version(schema_file=None):
 
     tree = xml.dom.minidom.parseString(res.read())
 
-    version = tree.documentElement.getAttribute('version')
+    floats = tree.getElementsByTagName("float")
+    version = ""
+    for flt in floats:
+        if flt.getAttribute("name") == "version":
+            version = flt.childNodes[0].nodeValue
+            break
+
     if not len(version):
         raise SearchError('Could not extract version info from the SOLR'
                           ' schema, using file: \n%s' % url)
