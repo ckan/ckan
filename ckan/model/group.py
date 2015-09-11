@@ -104,11 +104,11 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
     def __unicode__(self):
         # refer to objects by name, not ID, to help debugging
         if self.table_name == 'package':
-            table_info = 'package=%s' % meta.Session.query(_package.Package).\
-                get(self.table_id).name
+            pkg = meta.Session.query(_package.Package).get(self.table_id)
+            table_info = 'package=%s' % pkg.name if pkg else 'None'
         elif self.table_name == 'group':
-            table_info = 'group=%s' % meta.Session.query(Group).\
-                get(self.table_id).name
+            group = meta.Session.query(Group).get(self.table_id)
+            table_info = 'group=%s' % group.name if group else 'None'
         else:
             table_info = 'table_name=%s table_id=%s' % (self.table_name,
                                                         self.table_id)

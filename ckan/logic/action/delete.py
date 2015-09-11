@@ -44,6 +44,9 @@ def user_delete(context, data_dict):
 def package_delete(context, data_dict):
     '''Delete a dataset (package).
 
+    This makes the dataset disappear from all web & API views, apart from the
+    trash.
+
     You must be authorized to delete the dataset.
 
     :param id: the id or name of the dataset to delete
@@ -72,6 +75,45 @@ def package_delete(context, data_dict):
 
     entity.delete()
     model.repo.commit()
+
+
+def dataset_purge(context, data_dict):
+    '''Purge a dataset.
+
+    .. warning:: Purging a dataset cannot be undone!
+
+    Purging a database completely removes the dataset from the CKAN database,
+    whereas deleting a dataset simply marks the dataset as deleted (it will no
+    longer show up in the front-end, but is still in the db).
+
+    You must be authorized to purge the dataset.
+
+    :param id: the name or id of the dataset to be purged
+    :type id: string
+
+    '''
+    model = context['model']
+    id = _get_or_bust(data_dict, 'id')
+
+    pkg = model.Package.get(id)
+    context['package'] = pkg
+    if pkg is None:
+        raise NotFound('Dataset was not found')
+
+    _check_access('dataset_purge', context, data_dict)
+
+    members = model.Session.query(model.Member) \
+                   .filter(model.Member.table_id == pkg.id) \
+                   .filter(model.Member.table_name == 'package')
+    if members.count() > 0:
+        for m in members.all():
+            m.purge()
+
+    pkg = model.Package.get(id)
+    model.repo.new_revision()
+    pkg.purge()
+    model.repo.commit_and_remove()
+
 
 def resource_delete(context, data_dict):
     '''Delete a resource from a dataset.
