@@ -207,6 +207,7 @@ class TestDatasetPurge(object):
             groups=[{'name': 'group1'}],
             owner_org=org['id'],
             extras=[{'key': 'testkey', 'value': 'testvalue'}])
+        factories.Resource(package_id=dataset['id'])
         num_revisions_before = model.Session.query(model.Revision).count()
 
         helpers.call_action('dataset_purge',
@@ -216,6 +217,7 @@ class TestDatasetPurge(object):
 
         # the Package and related objects are gone
         assert_equals(model.Session.query(model.Package).all(), [])
+        assert_equals(model.Session.query(model.Resource).all(), [])
         assert_equals(model.Session.query(model.PackageTag).all(), [])
         # there is no clean-up of the tag object itself, just the PackageTag.
         assert_equals([t.name for t in model.Session.query(model.Tag).all()],
@@ -230,13 +232,14 @@ class TestDatasetPurge(object):
 
         # all the object revisions were purged too
         assert_equals(model.Session.query(model.PackageRevision).all(), [])
+        assert_equals(model.Session.query(model.ResourceRevision).all(), [])
         assert_equals(model.Session.query(model.PackageTagRevision).all(), [])
         assert_equals(model.Session.query(model.PackageExtraRevision).all(),
                       [])
         # Member is not revisioned
 
-        # No Revision objects were purged, in fact 1 is created for the purge
-        assert_equals(num_revisions_after - num_revisions_before, 1)
+        # No Revision objects were purged or created
+        assert_equals(num_revisions_after - num_revisions_before, 0)
 
     def test_missing_id_returns_error(self):
         assert_raises(logic.ValidationError,

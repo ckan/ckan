@@ -110,7 +110,8 @@ def dataset_purge(context, data_dict):
             m.purge()
 
     pkg = model.Package.get(id)
-    model.repo.new_revision()
+    # no new_revision() needed since there are no object_revisions created
+    # during purge
     pkg.purge()
     model.repo.commit_and_remove()
 
