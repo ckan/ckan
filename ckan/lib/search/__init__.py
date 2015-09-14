@@ -183,7 +183,12 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False, def
             if not refresh:
                 package_index.clear()
 
-        for pkg_id in package_ids:
+        total_packages = len(package_ids)
+        for counter, pkg_id in enumerate(package_ids):
+            sys.stdout.write(
+                "\rIndexing dataset {0}/{1}".format(counter, total_packages)
+            )
+            sys.stdout.flush()
             try:
                 package_index.update_dict(
                     logic.get_action('package_show')(context,
