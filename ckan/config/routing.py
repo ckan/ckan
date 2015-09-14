@@ -316,7 +316,7 @@ def make_map():
                       'member_delete',
                       'history'
                   ])))
-        m.connect('organization_activity', '/organization/activity/{id}',
+        m.connect('organization_activity', '/organization/activity/{id}/{offset}',
                   action='activity', ckan_icon='time')
         m.connect('organization_read', '/organization/{id}', action='read')
         m.connect('organization_about', '/organization/about/{id}',
