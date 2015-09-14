@@ -180,7 +180,21 @@ class TestLicenseOptions(object):
         eq_(licenses[0][0], 'some-old-license')
 
 
-class TestResourceFormat(object):
+class TestUnifiedResourceFormat(object):
+    def test_unified_resource_format_by_extension(self):
+        eq_(h.unified_resource_format('xls'), 'XLS')
+
+    def test_unified_resource_format_by_description(self):
+        eq_(h.unified_resource_format('Excel document'), 'XLS')
+
+    def test_unified_resource_format_by_primary_mimetype(self):
+        eq_(h.unified_resource_format('application/vnd.ms-excel'), 'XLS')
+
+    def test_unified_resource_format_by_alternative_description(self):
+        eq_(h.unified_resource_format('application/msexcel'), 'XLS')
+
+    def test_unified_resource_format_by_alternative_description2(self):
+        eq_(h.unified_resource_format('Excel'), 'XLS')
 
     def test_autodetect_tsv(self):
 
