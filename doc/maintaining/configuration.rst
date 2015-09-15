@@ -270,10 +270,14 @@ Example::
 
 Default value:  (an explicit value is mandatory)
 
-The URL of your CKAN site. Many CKAN features that need an absolute URL to your
+Set this to the URL of your CKAN site. Many CKAN features that need an absolute URL to your
 site use this setting.
 
 .. important:: It is mandatory to complete this setting
+
+.. note:: If you want to mount CKAN at a path other than /, then this setting
+  should reflect that, but the URL you mount it at is determined by your
+  apache config (your WSGIScriptAlias path) (or equivalent for other servers).
 
 .. warning::
 
