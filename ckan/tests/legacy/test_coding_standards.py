@@ -379,7 +379,6 @@ class TestPep8(object):
         'ckan/controllers/admin.py',
         'ckan/controllers/revision.py',
         'ckan/exceptions.py',
-        'ckan/i18n/check_po_files.py',
         'ckan/include/rcssmin.py',
         'ckan/include/rjsmin.py',
         'ckan/lib/activity_streams.py',
