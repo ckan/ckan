@@ -1465,7 +1465,7 @@ class IAuthenticator(Interface):
 
 class ITranslation(Interface):
     def i18n_directory(self):
-        '''Change the directory of the *.mo translation files'''
+        '''Change the directory of the .mo translation files'''
 
     def i18n_locales(self):
         '''Change the list of locales that this plugin handles '''
