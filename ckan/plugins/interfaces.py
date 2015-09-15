@@ -23,6 +23,7 @@ __all__ = [
     'IFacets',
     'IAuthenticator',
     'ITranslation',
+    'IUploader'
 ]
 
 from inspect import isclass
@@ -1440,11 +1441,10 @@ class IAuthenticator(Interface):
     Allows custom authentication methods to be integrated into CKAN.
     Currently it is experimental and the interface may change.'''
 
-
     def identify(self):
         '''called to identify the user.
 
-        If the user is identfied then it should set
+        If the user is identified then it should set
         c.user: The id of the user
         c.userobj: The actual user object (this may be removed as a
         requirement in a later release so that access to the model is not
@@ -1472,3 +1472,85 @@ class ITranslation(Interface):
 
     def i18n_domain(self):
         '''Change the gettext domain handled by this plugin'''
+
+
+class IUploader(Interface):
+    '''
+    Extensions implementing this interface can provide custom uploaders to
+    upload resources and group images.
+    '''
+
+    def get_uploader(self):
+        '''Return an uploader object to upload general files that must
+        implement the following methods:
+
+        ``__init__(upload_to, old_filename=None)``
+
+        Set up the uploader.
+
+        :param upload_to: name of the subdirectory within the storage
+            directory to upload the file
+        :type upload_to: string
+
+        :param old_filename: name of an existing image asset, so the extension
+            can replace it if necessary
+        :type old_filename: string
+
+        ``update_data_dict(data_dict, url_field, file_field, clear_field)``
+
+        Allow the data_dict to be manipulated before it reaches any
+        validators.
+
+        :param data_dict: data_dict to be updated
+        :type data_dict: dictionary
+
+        :param url_field: name of the field where the upload is going to be
+        :type url_field: string
+
+        :param file_field: name of the key where the FieldStorage is kept (i.e
+            the field where the file data actually is).
+        :type file_field: string
+
+        :param clear_field: name of a boolean field which requests the upload
+            to be deleted.
+        :type clear_field: string
+
+        ``upload(max_size)``
+
+        Perform the actual upload.
+
+        :param max_size: upload size can be limited by this value in MBs.
+        :type max_size: int
+
+        '''
+
+    def get_resource_uploader(self):
+        '''Return an uploader object used to upload resource files that must
+        implement the following methods:
+
+        ``__init__(resource)``
+
+        Set up the resource uploader.
+
+        :param resource: resource dict
+        :type resource: dictionary
+
+        ``upload(id, max_size)``
+
+        Perform the actual upload.
+
+        :param id: resource id, can be used to create filepath
+        :type id: string
+
+        :param max_size: upload size can be limited by this value in MBs.
+        :type max_size: int
+
+        ``get_path(id)``
+
+        Required by the ``resource_download`` action to determine the path to
+        the file.
+
+        :param id: resource id
+        :type id: string
+
+        '''
