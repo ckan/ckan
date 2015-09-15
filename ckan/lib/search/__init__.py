@@ -135,7 +135,8 @@ class SynchronousSearchPlugin(p.SingletonPlugin):
             log.warn("Discarded Sync. indexing for: %s" % entity)
 
 
-def rebuild(package_id=None, only_missing=False, force=False, refresh=False, defer_commit=False, package_ids=None):
+def rebuild(package_id=None, only_missing=False, force=False, refresh=False,
+            defer_commit=False, package_ids=None, quiet=False):
     '''
         Rebuilds the search index.
 
@@ -185,10 +186,12 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False, def
 
         total_packages = len(package_ids)
         for counter, pkg_id in enumerate(package_ids):
-            sys.stdout.write(
-                "\rIndexing dataset {0}/{1}".format(counter, total_packages)
-            )
-            sys.stdout.flush()
+            if not quiet:
+                sys.stdout.write(
+                    "\rIndexing dataset {0}/{1}".format(
+                        counter +1, total_packages)
+                )
+                sys.stdout.flush()
             try:
                 package_index.update_dict(
                     logic.get_action('package_show')(context,
