@@ -1558,6 +1558,52 @@ Default value: (none)
 
 By default, the locales are searched for in the ``ckan/i18n`` directory. Use this option if you want to use another folder.
 
+.. _ckan.18n.extra_directory:
+
+ckan.i18n.extra_directory
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.18n.extra_directory = /opt/ckan/extra_translations/
+
+Default value: (none)
+
+If you wish to add extra translation strings and have them merged with the 
+default ckan translations at runtime you can specify the location of the extra
+translations using this option.
+
+.. _ckan.18n.extra_gettext_domain:
+
+ckan.i18n.extra_gettext_domain
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.18n.extra_gettext_domain = mydomain
+
+Default value: (none)
+
+You can specify the name of the gettext domain of the extra translations. For
+example if your translations are stored as
+``i18n/<locale>/LC_MESSAGES/somedomain.mo`` you would want to set this option
+to ``somedomain``
+
+.. _ckan.18n.extra_locales:
+
+ckan.18n.extra_locales
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.18n.extra_locales = fr es de
+
+Default value: (none)
+
+If you have set an extra i18n directory using ``ckan.18n.extra_directory``, you
+should specify the locales that have been translated in that directory in this
+option.
+
 .. _ckan.display_timezone:
 
 ckan.display_timezone

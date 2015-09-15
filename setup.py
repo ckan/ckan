@@ -127,6 +127,7 @@ entry_points = {
         'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',
         'example_ivalidators = ckanext.example_ivalidators.plugin:ExampleIValidatorsPlugin',
         'example_iconfigurer = ckanext.example_iconfigurer.plugin:ExampleIConfigurerPlugin',
+        'example_itranslation = ckanext.example_itranslation.plugin:ExampleITranslationPlugin',
         'example_iconfigurer_v1 = ckanext.example_iconfigurer.plugin_v1:ExampleIConfigurerPlugin',
         'example_iconfigurer_v2 = ckanext.example_iconfigurer.plugin_v2:ExampleIConfigurerPlugin',
     ],

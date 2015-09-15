@@ -22,6 +22,7 @@ __all__ = [
     'ITemplateHelpers',
     'IFacets',
     'IAuthenticator',
+    'ITranslation',
     'IUploader'
 ]
 
@@ -1460,6 +1461,17 @@ class IAuthenticator(Interface):
         '''called on abort.  This allows aborts due to authorization issues
         to be overriden'''
         return (status_code, detail, headers, comment)
+
+
+class ITranslation(Interface):
+    def i18n_directory(self):
+        '''Change the directory of the *.mo translation files'''
+
+    def i18n_locales(self):
+        '''Change the list of locales that this plugin handles '''
+
+    def i18n_domain(self):
+        '''Change the gettext domain handled by this plugin'''
 
 
 class IUploader(Interface):
