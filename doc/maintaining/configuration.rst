@@ -256,6 +256,20 @@ The default method used when creating full-text search indexes. Currently it
 can be "gin" or "gist". Refer to PostgreSQL's documentation to understand the
 characteristics of each one and pick the best for your instance.
 
+.. _ckan.datastore.sqlsearch.enabled:
+
+ckan.datastore.sqlsearch.enabled
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.sqlsearch.enabled = False
+
+Default value:  ``True``
+
+This option allows you to disable the datastore_search_sql action function, and
+corresponding API endpoint if you do not wish it to be activated.
+
 Site Settings
 -------------
 
