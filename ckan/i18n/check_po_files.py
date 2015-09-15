@@ -10,6 +10,7 @@ Requires polib <http://pypi.python.org/pypi/polib>:
     pip install polib
 
 '''
+import polib
 import re
 import paste.script.command
 
@@ -97,19 +98,41 @@ class CheckPoFiles(paste.script.command.Command):
     parser = paste.script.command.Command.standard_parser(verbose=True)
 
     def command(self):
-        import polib
 
         test_simple_conv_specs()
         test_mapping_keys()
         test_replacement_fields()
         for path in self.args:
             print u'Checking file {}'.format(path)
-            po = polib.pofile(path)
-            for entry in po.translated_entries():
-                if not entry.msgstr:
-                    continue
-                for function in (simple_conv_specs, mapping_keys,
-                        replacement_fields):
-                    if not function(entry.msgid) == function(entry.msgstr):
-                        print "    Format specifiers don't match:"
-                        print u'    {0} -> {1}'.format(entry.msgid, entry.msgstr)
+            errors = check_po_file(path)
+            if errors:
+                for msgid, msgstr in errors:
+                    print 'Format specifiers don\'t match:'
+                    print u'   {0} -> {1}'.format(msgid, msgstr)
+
+
+def check_po_file(path):
+    errors = []
+
+    def check_translation(validator, msgid, msgstr):
+        if not validator(msgid) == validator(msgstr):
+            errors.append((msgid, msgstr))
+
+    po = polib.pofile(path)
+    for entry in po.translated_entries():
+        if entry.msgid_plural and entry.msgstr_plural:
+            for function in (simple_conv_specs, mapping_keys,
+                             replacement_fields):
+                for key, msgstr in entry.msgstr_plural.iteritems():
+                    if key == '0':
+                        check_translation(function, entry.msgid,
+                                          entry.msgstr_plural[key])
+                    else:
+                        check_translation(function, entry.msgid_plural,
+                                          entry.msgstr_plural[key])
+        elif entry.msgstr:
+            for function in (simple_conv_specs, mapping_keys,
+                             replacement_fields):
+                check_translation(function, entry.msgid, entry.msgstr)
+
+    return errors
