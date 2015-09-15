@@ -38,3 +38,4 @@ features by developing your own CKAN extensions.
    plugin-interfaces
    plugins-toolkit
    validators
+   translating-extensions
