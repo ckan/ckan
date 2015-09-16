@@ -538,7 +538,7 @@ def user_list_dictize(obj_list, context,
 def member_dictize(member, context):
     return d.table_dictize(member, context)
 
-def user_dictize(user, context):
+def user_dictize(user, context, include_password_hash=False):
 
     if context.get('with_capacity'):
         user, capacity = user
@@ -546,7 +546,7 @@ def user_dictize(user, context):
     else:
         result_dict = d.table_dictize(user, context)
 
-    del result_dict['password']
+    password_hash = result_dict.pop('password')
     del result_dict['reset_key']
 
     result_dict['display_name'] = user.display_name
@@ -576,6 +576,9 @@ def user_dictize(user, context):
     if new_authz.is_sysadmin(requester):
         result_dict['apikey'] = apikey
         result_dict['email'] = email
+
+        if include_password_hash:
+            result_dict['password_hash'] = password_hash
 
     model = context['model']
     session = model.Session
