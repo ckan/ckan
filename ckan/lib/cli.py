@@ -402,14 +402,14 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index [-i] [-o] [-r] [-e] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
-                                                                 full search index (all datasets)
-      search-index rebuild_fast                                - reindex using multiprocessing using all cores.
-                                                                 This acts in the same way as rubuild -r [EXPERIMENTAL]
-      search-index check                                       - checks for datasets not indexed
-      search-index show DATASET_NAME                           - shows index of a dataset
-      search-index clear [dataset_name]                        - clears the search index for the provided dataset or
-                                                                 for the whole ckan instance
+      search-index [-i] [-o] [-r] [-e] [-q] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
+                                                                    full search index (all datasets)
+      search-index rebuild_fast                                     - reindex using multiprocessing using all cores.
+                                                                    This acts in the same way as rubuild -r [EXPERIMENTAL]
+      search-index check                                            - checks for datasets not indexed
+      search-index show DATASET_NAME                                - shows index of a dataset
+      search-index clear [dataset_name]                             - clears the search index for the provided dataset or
+                                                                    for the whole ckan instance
     '''
 
     summary = __doc__.split('\n')[0]
@@ -431,6 +431,10 @@ class SearchIndexCommand(CkanCommand):
         self.parser.add_option('-r', '--refresh', dest='refresh',
                                action='store_true', default=False,
                                help='Refresh current index (does not clear the existing one)')
+
+        self.parser.add_option('-q', '--quiet', dest='quiet',
+                               action='store_true', default=False,
+                               help='Do not output index rebuild progress')
 
         self.parser.add_option('-e', '--commit-each', dest='commit_each',
                                action='store_true', default=False, help=
@@ -474,7 +478,8 @@ Default is false.''')
             rebuild(only_missing=self.options.only_missing,
                     force=self.options.force,
                     refresh=self.options.refresh,
-                    defer_commit=(not self.options.commit_each))
+                    defer_commit=(not self.options.commit_each),
+                    quiet=self.options.quiet)
 
         if not self.options.commit_each:
             commit()
