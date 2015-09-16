@@ -43,7 +43,7 @@ class TestRegisterUser(helpers.FunctionalTestBase):
         form['password2'] = ''
 
         response = form.submit('save')
-        assert_true('The passwords you entered do not match')
+        assert_true(response, 'The passwords you entered do not match')
 
 
 class TestLoginView(helpers.FunctionalTestBase):
