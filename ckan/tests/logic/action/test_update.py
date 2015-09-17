@@ -10,6 +10,7 @@ import ckan.lib.app_globals as app_globals
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+from ckan import model
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
@@ -748,3 +749,42 @@ class TestConfigOptionUpdate(object):
         assert hasattr(app_globals.app_globals, globals_key)
 
         assert_equals(getattr(app_globals.app_globals, globals_key), value)
+
+
+class TestUserUpdate(helpers.FunctionalTestBase):
+
+    def test_user_update_with_password_hash(self):
+        sysadmin = factories.Sysadmin()
+        context = {
+            'user': sysadmin['name'],
+        }
+
+        user = helpers.call_action(
+            'user_update',
+            context=context,
+            email='test@example.com',
+            id=sysadmin['name'],
+            password_hash='pretend-this-is-a-valid-hash'
+            )
+
+        user_obj = model.User.get(user['id'])
+        assert user_obj.password == 'pretend-this-is-a-valid-hash'
+
+    def test_user_create_password_hash_not_for_normal_users(self):
+        normal_user = factories.User()
+        context = {
+            'user': normal_user['name'],
+        }
+
+        user = helpers.call_action(
+            'user_update',
+            context=context,
+            email='test@example.com',
+            id=normal_user['name'],
+            password='required',
+            password_hash='pretend-this-is-a-valid-hash'
+            )
+
+        user_obj = model.User.get(user['id'])
+        assert user_obj.password != 'pretend-this-is-a-valid-hash'
+
