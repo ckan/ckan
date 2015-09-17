@@ -430,6 +430,7 @@ def default_user_schema():
         'name': [not_empty, name_validator, user_name_validator, unicode],
         'fullname': [ignore_missing, unicode],
         'password': [user_password_validator, user_password_not_empty, ignore_missing, unicode],
+        'password_hash': [ignore_missing, unicode],
         'email': [not_empty, unicode],
         'about': [ignore_missing, user_about_validator, unicode],
         'created': [ignore],
@@ -464,7 +465,6 @@ def default_update_user_schema():
 
     schema['name'] = [ignore_missing, name_validator, user_name_validator, unicode]
     schema['password'] = [user_password_validator,ignore_missing, unicode]
-    schema['password_hash'] = [ignore_missing, unicode]
 
     return schema
 
