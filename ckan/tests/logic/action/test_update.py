@@ -764,8 +764,7 @@ class TestUserUpdate(helpers.FunctionalTestBase):
             context=context,
             email='test@example.com',
             id=sysadmin['name'],
-            password_hash='pretend-this-is-a-valid-hash'
-            )
+            password_hash='pretend-this-is-a-valid-hash')
 
         user_obj = model.User.get(user['id'])
         assert user_obj.password == 'pretend-this-is-a-valid-hash'
@@ -782,9 +781,7 @@ class TestUserUpdate(helpers.FunctionalTestBase):
             email='test@example.com',
             id=normal_user['name'],
             password='required',
-            password_hash='pretend-this-is-a-valid-hash'
-            )
+            password_hash='pretend-this-is-a-valid-hash')
 
         user_obj = model.User.get(user['id'])
         assert user_obj.password != 'pretend-this-is-a-valid-hash'
-
