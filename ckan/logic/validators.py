@@ -620,7 +620,8 @@ def user_password_not_empty(key, data, errors, context):
        If not, user_both_passwords_entered will handle the validation'''
 
     # sysadmin may provide password_hash directly for importing users
-    if ('password_hash',) in data and authz.is_sysadmin(context.get('user')):
+    if (data.get(('password_hash',), missing) is not missing and
+            authz.is_sysadmin(context.get('user'))):
         return
 
     if not ('password1',) in data and not ('password2',) in data:
