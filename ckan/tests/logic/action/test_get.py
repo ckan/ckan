@@ -568,6 +568,7 @@ class TestUserShow(helpers.FunctionalTestBase):
         assert 'apikey' not in got_user
         assert 'email' not in got_user
         assert 'datasets' not in got_user
+        assert 'password_hash' not in got_user
 
     def test_user_show_keep_email(self):
 
@@ -595,6 +596,16 @@ class TestUserShow(helpers.FunctionalTestBase):
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
+    def test_user_show_normal_user_no_password_hash(self):
+
+        user = factories.User()
+
+        got_user = helpers.call_action('user_show',
+                                       id=user['id'],
+                                       include_password_hash=True)
+
+        assert 'password_hash' not in got_user
+
     def test_user_show_for_myself(self):
 
         user = factories.User()
@@ -620,6 +631,23 @@ class TestUserShow(helpers.FunctionalTestBase):
 
         assert got_user['email'] == user['email']
         assert got_user['apikey'] == user['apikey']
+        assert 'password' not in got_user
+        assert 'reset_key' not in got_user
+
+    def test_user_show_sysadmin_password_hash(self):
+
+        user = factories.User(password='test')
+
+        sysadmin = factories.User(sysadmin=True)
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': sysadmin['name']},
+                                       id=user['id'],
+                                       include_password_hash=True)
+
+        assert got_user['email'] == user['email']
+        assert got_user['apikey'] == user['apikey']
+        assert 'password_hash' in got_user
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
