@@ -222,7 +222,7 @@ class ManageDb(CkanCommand):
                 os.remove(f)
 
             model.repo.clean_db()
-            search.clear()
+            search.clear_all()
             if self.verbose:
                 print 'Cleaning DB: SUCCESS'
         elif cmd == 'upgrade':
@@ -498,9 +498,12 @@ Default is false.''')
         pprint(index)
 
     def clear(self):
-        from ckan.lib.search import clear
+        from ckan.lib.search import clear, clear_all
         package_id = self.args[1] if len(self.args) > 1 else None
-        clear(package_id)
+        if not package_id:
+            clear_all()
+        else:
+            clear(package_id)
 
     def rebuild_fast(self):
         ###  Get out config but without starting pylons environment ####

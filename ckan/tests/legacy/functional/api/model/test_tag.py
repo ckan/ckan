@@ -1,20 +1,20 @@
 import copy
 
-from nose.tools import assert_equal 
+from nose.tools import assert_equal
 
 from ckan import model
 from ckan.lib.create_test_data import CreateTestData
 import ckan.lib.search as search
 
 from ckan.tests.legacy.functional.api.base import BaseModelApiTestCase
-from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCase 
-from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase 
+from ckan.tests.legacy.functional.api.base import Api1TestCase as Version1TestCase
+from ckan.tests.legacy.functional.api.base import Api2TestCase as Version2TestCase
 
 class TagsTestCase(BaseModelApiTestCase):
 
     @classmethod
     def setup_class(cls):
-        search.clear()
+        search.clear_all()
         CreateTestData.create()
         cls.testsysadmin = model.User.by_name(u'testsysadmin')
         cls.comment = u'Comment umlaut: \xfc.'
@@ -23,7 +23,7 @@ class TagsTestCase(BaseModelApiTestCase):
 
     @classmethod
     def teardown_class(cls):
-        search.clear()
+        search.clear_all()
         model.repo.rebuild_db()
 
     def test_register_get_ok(self):
@@ -33,7 +33,7 @@ class TagsTestCase(BaseModelApiTestCase):
         assert self.russian.name in results, results
         assert self.tolstoy.name in results, results
         assert self.flexible_tag.name in results, results
-    
+
     def test_entity_get_ok(self):
         offset = self.tag_offset(self.russian.name)
         res = self.app.get(offset, status=self.STATUS_200_OK)

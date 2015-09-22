@@ -34,7 +34,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        search.clear()
+        search.clear_all()
 
     def assert_results(self, res_dict, expected_package_names):
         expected_pkgs = [self.package_ref_from_name(expected_package_name) \
@@ -62,7 +62,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
 
     def test_00_read_search_params_with_errors(self):
         def check_error(request_params):
-            assert_raises(ValueError, ApiController._get_search_params, request_params)            
+            assert_raises(ValueError, ApiController._get_search_params, request_params)
         # uri json
         check_error(UnicodeMultiDict({'qjson': '{"q": illegal json}'}))
         # posted json
@@ -109,7 +109,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         res_dict = self.data_from_res(res)
         self.assert_results(res_dict, [u'annakarenina'])
         assert res_dict['count'] == 1, res_dict
-        
+
     def test_05_uri_json_tags_multiple(self):
         query = {'q': 'tags:russian tags:tolstoy'}
         json_query = self.dumps(query)
@@ -131,7 +131,7 @@ class PackageSearchApiTestCase(ApiTestCase, ControllerTestCase):
         offset = self.base_url + '?qjson="q":""' # user forgot the curly braces
         res = self.app.get(offset, status=400)
         self.assert_json_response(res, 'Bad request - Could not read parameters')
-        
+
     def test_09_just_tags(self):
         offset = self.base_url + '?q=tags:russian'
         res = self.app.get(offset, status=200)
@@ -199,7 +199,7 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        search.clear()
+        search.clear_all()
 
     def test_07_uri_qjson_tags(self):
         query = {'q': '', 'tags':['tolstoy']}
@@ -239,11 +239,11 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
         assert res_dict['count'] == 2, res_dict
 
     def test_07_uri_qjson_extras(self):
-        # TODO: solr is not currently set up to allow partial matches 
+        # TODO: solr is not currently set up to allow partial matches
         #       and extras are not saved as multivalued so this
         #       test will fail. Make extras multivalued or remove?
         raise SkipTest()
-    
+
         query = {"geographic_coverage":"England"}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query
@@ -267,7 +267,7 @@ class LegacyOptionsTestCase(ApiTestCase, ControllerTestCase):
                               rating=3.0)
         model.Session.add(rating)
         model.repo.commit_and_remove()
-        
+
         query = {'q': 'russian', 'all_fields': 1}
         json_query = self.dumps(query)
         offset = self.base_url + '?qjson=%s' % json_query

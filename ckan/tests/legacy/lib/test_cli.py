@@ -8,7 +8,7 @@ from ckan.lib.cli import ManageDb,SearchIndexCommand
 from ckan.lib.create_test_data import CreateTestData
 from ckan.common import json
 
-from ckan.lib.search import index_for,query_for
+from ckan.lib.search import index_for,query_for, clear_all
 
 class TestDb:
     @classmethod

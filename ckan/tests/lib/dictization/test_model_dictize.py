@@ -14,7 +14,7 @@ class TestGroupListDictize:
 
     def setup(self):
         helpers.reset_db()
-        search.clear()
+        search.clear_all()
 
     def test_group_list_dictize(self):
         group = factories.Group()
@@ -136,7 +136,7 @@ class TestGroupDictize:
 
     def setup(self):
         helpers.reset_db()
-        search.clear()
+        search.clear_all()
 
     def test_group_dictize(self):
         group = factories.Group(name='test_dictize')

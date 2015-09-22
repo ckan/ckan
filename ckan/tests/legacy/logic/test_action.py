@@ -35,7 +35,7 @@ class TestAction(WsgiAppCase):
     @classmethod
     def setup_class(cls):
         model.repo.rebuild_db()
-        search.clear()
+        search.clear_all()
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -1349,7 +1349,7 @@ class TestBulkActions(WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        search.clear()
+        search.clear_all()
         model.Session.add_all([
             model.User(name=u'sysadmin', apikey=u'sysadmin',
                        password=u'sysadmin', sysadmin=True),
@@ -1436,7 +1436,7 @@ class TestResourceAction(WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        search.clear()
+        search.clear_all()
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
 
@@ -1539,7 +1539,7 @@ class TestRelatedAction(WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        search.clear()
+        search.clear_all()
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
 
