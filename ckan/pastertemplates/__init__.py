@@ -51,6 +51,8 @@ class CkanextTemplate(Template):
     def check_vars(self, vars, cmd):
         vars = Template.check_vars(self, vars, cmd)
 
+        # workaround for a paster issue https://github.com/ckan/ckan/issues/2636
+        # this is only used from a short-lived paster command
         reload(sys)
         sys.setdefaultencoding('utf-8')
 
