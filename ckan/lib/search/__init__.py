@@ -239,13 +239,16 @@ def show(package_reference):
     return package_query.get_index(package_reference)
 
 
-def clear(package_reference=None):
+def clear(package_reference):
     package_index = index_for(model.Package)
-    if package_reference:
-        log.debug("Clearing search index for dataset %s..." %
-                  package_reference)
-        package_index.delete_package({'id': package_reference})
-    elif not SIMPLE_SEARCH:
+    log.debug("Clearing search index for dataset %s..." %
+              package_reference)
+    package_index.delete_package({'id': package_reference})
+
+
+def clear_all():
+    if not SIMPLE_SEARCH:
+        package_index = index_for(model.Package)
         log.debug("Clearing search index...")
         package_index.clear()
 

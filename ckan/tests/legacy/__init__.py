@@ -320,7 +320,7 @@ def setup_test_search_index():
     #from ckan import plugins
     if not is_search_supported():
         raise SkipTest("Search not supported")
-    search.clear()
+    search.clear_all()
     #plugins.load('synchronous_search')
 
 def is_search_supported():

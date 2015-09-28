@@ -186,7 +186,7 @@ class TestGroupPurge(object):
         assert_equals(dataset_shown['groups'], [])
 
     def test_purged_group_is_not_in_search_results_for_its_ex_dataset(self):
-        search.clear()
+        search.clear_all()
         group = factories.Group()
         dataset = factories.Dataset(groups=[{'name': group['name']}])
 
@@ -288,7 +288,7 @@ class TestOrganizationPurge(object):
         assert_equals(dataset_shown['owner_org'], None)
 
     def test_purged_org_is_not_in_search_results_for_its_ex_dataset(self):
-        search.clear()
+        search.clear_all()
         org = factories.Organization()
         dataset = factories.Dataset(owner_org=org['id'])
 
@@ -394,7 +394,7 @@ class TestDatasetPurge(object):
         assert_equals(dataset_shown['packages'], [])
 
     def test_purged_dataset_is_not_in_search_results(self):
-        search.clear()
+        search.clear_all()
         dataset = factories.Dataset()
 
         def get_search_results():

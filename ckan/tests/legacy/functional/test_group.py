@@ -13,7 +13,7 @@ class TestGroup(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
-        search.clear()
+        search.clear_all()
         model.Session.remove()
         CreateTestData.create()
 
