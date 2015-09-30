@@ -15,7 +15,7 @@ class GroupsTestCase(BaseModelApiTestCase):
 
     @classmethod
     def setup_class(cls):
-        search.clear()
+        search.clear_all()
         CreateTestData.create()
         cls.user_name = u'russianfan' # created in CreateTestData
         cls.init_extra_environ(cls.user_name)

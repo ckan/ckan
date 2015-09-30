@@ -19,7 +19,7 @@ class TestBasicDictize:
 
     @classmethod
     def setup_class(cls):
-        search.clear()
+        search.clear_all()
         CreateTestData.create()
 
     @classmethod
