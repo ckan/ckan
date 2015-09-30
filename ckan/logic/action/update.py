@@ -25,7 +25,6 @@ import ckan.lib.app_globals as app_globals
 
 
 from ckan.common import _, request
-from ckan import authz
 
 log = logging.getLogger(__name__)
 
@@ -700,8 +699,8 @@ def user_update(context, data_dict):
         session.rollback()
         raise ValidationError(errors)
 
-    # allow importing password_hash from another ckan
-    if authz.is_sysadmin(context['user']) and 'password_hash' in data:
+    # user schema prevents non-sysadmins from providing password_hash
+    if 'password_hash' in data:
         data['_password'] = data.pop('password_hash')
 
     user = model_save.user_dict_save(data, context)
