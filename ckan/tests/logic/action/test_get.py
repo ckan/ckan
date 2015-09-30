@@ -2,21 +2,16 @@ import nose.tools
 
 import ckan.logic as logic
 import ckan.plugins as p
-import ckan.lib.search as search
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
+import ckan.logic.schema as schema
 
 
 eq = nose.tools.eq_
+assert_raises = nose.tools.assert_raises
 
 
-class TestGet(object):
-
-    def setup(self):
-        helpers.reset_db()
-
-        # Clear the search index
-        search.clear()
+class TestPackageShow(helpers.FunctionalTestBase):
 
     def test_package_show(self):
         dataset1 = factories.Dataset()
@@ -40,6 +35,20 @@ class TestGet(object):
                                        context={'schema': custom_schema})
 
         eq(dataset2['new_field'], 'foo')
+
+    def test_package_show_is_lazy(self):
+        dataset1 = factories.Dataset()
+
+        dataset2 = helpers.call_action(
+            'package_show',
+            id=dataset1['id'],
+            context=dict(return_type='LazyJSONObject'))
+
+        # LazyJSONObject passed through without being expanded
+        assert dataset2._json_dict is None
+
+
+class TestGroupList(helpers.FunctionalTestBase):
 
     def test_group_list(self):
 
@@ -100,9 +109,7 @@ class TestGet(object):
         factories.Dataset(groups=[{'name': 'bb'}])
 
         group_list = helpers.call_action('group_list', sort='package_count')
-        # default is descending order
-
-        eq(group_list, ['bb', 'aa'])
+        eq(sorted(group_list), sorted(['bb', 'aa']))
 
     def test_group_list_sort_by_package_count_ascending(self):
 
@@ -116,6 +123,15 @@ class TestGet(object):
 
         eq(group_list, ['bb', 'aa'])
 
+    def assert_equals_expected(self, expected_dict, result_dict):
+        superfluous_keys = set(result_dict) - set(expected_dict)
+        assert not superfluous_keys, 'Did not expect key: %s' % \
+            ' '.join(('%s=%s' % (k, result_dict[k]) for k in superfluous_keys))
+        for key in expected_dict:
+            assert expected_dict[key] == result_dict[key], \
+                '%s=%s should be %s' % \
+                (key, result_dict[key], expected_dict[key])
+
     def test_group_list_all_fields(self):
 
         group = factories.Group()
@@ -125,7 +141,7 @@ class TestGet(object):
         expected_group = dict(group.items()[:])
         for field in ('users', 'tags', 'extras', 'groups'):
             del expected_group[field]
-        expected_group['packages'] = 0
+
         assert group_list[0] == expected_group
         assert 'extras' not in group_list[0]
         assert 'tags' not in group_list[0]
@@ -142,6 +158,17 @@ class TestGet(object):
 
         eq(group_list[0]['extras'], group['extras'])
         eq(group_list[0]['extras'][0]['key'], 'key1')
+
+    def test_group_list_users_returned(self):
+        user = factories.User()
+        group = factories.Group(users=[{'name': user['name'],
+                                        'capacity': 'admin'}])
+
+        group_list = helpers.call_action('group_list', all_fields=True,
+                                         include_users=True)
+
+        eq(group_list[0]['users'], group['users'])
+        eq(group_list[0]['users'][0]['name'], group['users'][0]['name'])
 
     # NB there is no test_group_list_tags_returned because tags are not in the
     # group_create schema (yet)
@@ -161,22 +188,63 @@ class TestGet(object):
         else:
             child_group_returned, parent_group_returned = group_list[::-1]
         expected_parent_group = dict(parent_group.items()[:])
-        for field in ('users', 'tags', 'extras'):
-            del expected_parent_group[field]
-        expected_parent_group['capacity'] = u'public'
-        expected_parent_group['packages'] = 0
-        expected_parent_group['package_count'] = 0
-        eq(child_group_returned['groups'], [expected_parent_group])
+
+        eq([g['name'] for g in child_group_returned['groups']], [expected_parent_group['name']])
+
+    def test_group_list_limit(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', limit=1)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group1['name'])
+
+    def test_group_list_offset(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', offset=2)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group3['name'])
+
+    def test_group_list_limit_and_offset(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', offset=1, limit=1)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group2['name'])
+
+    def test_group_list_wrong_limit(self):
+
+        assert_raises(logic.ValidationError, helpers.call_action, 'group_list',
+                      limit='a')
+
+    def test_group_list_wrong_offset(self):
+
+        assert_raises(logic.ValidationError, helpers.call_action, 'group_list',
+                      offset='-2')
+
+
+class TestGroupShow(helpers.FunctionalTestBase):
 
     def test_group_show(self):
-
         group = factories.Group(user=factories.User())
 
-        group_dict = helpers.call_action('group_show', id=group['id'])
+        group_dict = helpers.call_action('group_show', id=group['id'],
+                                         include_datasets=True)
 
-        # FIXME: Should this be returned by group_create?
-        group_dict.pop('num_followers', None)
-        assert group_dict == group
+        group_dict.pop('packages', None)
+        eq(group_dict, group)
 
     def test_group_show_error_not_found(self):
 
@@ -208,7 +276,8 @@ class TestGet(object):
                                 context={'user': user_name},
                                 **dataset)
 
-        group_dict = helpers.call_action('group_show', id=group['id'])
+        group_dict = helpers.call_action('group_show', id=group['id'],
+                                         include_datasets=True)
 
         assert len(group_dict['packages']) == 2
         assert group_dict['package_count'] == 2
@@ -230,6 +299,7 @@ class TestGet(object):
                                 **dataset)
 
         group_dict = helpers.call_action('group_show', id=group['id'],
+                                         include_datasets=True,
                                          context={'for_view': True})
 
         assert len(group_dict['packages']) == 2
@@ -254,8 +324,63 @@ class TestGet(object):
         group_dict = helpers.call_action('group_show', id=group['id'],
                                          include_datasets=False)
 
-        assert not 'packages' in group_dict
+        assert 'packages' not in group_dict
         assert group_dict['package_count'] == 2
+
+    def test_group_show_does_not_show_private_datasets(self):
+        '''group_show() should never show private datasets.
+
+        If a dataset is a private member of an organization and also happens to
+        be a member of a group, group_show() should not return the dataset as
+        part of the group dict, even if the user calling group_show() is a
+        member or admin of the group or the organization or is a sysadmin.
+
+        '''
+        org_member = factories.User()
+        org = factories.Organization(user=org_member)
+        private_dataset = factories.Dataset(user=org_member,
+                                            owner_org=org['name'], private=True)
+
+        group = factories.Group()
+
+        # Add the private dataset to the group.
+        helpers.call_action('member_create', id=group['id'],
+                            object=private_dataset['id'], object_type='package',
+                            capacity='public')
+
+        # Create a member user and an admin user of the group.
+        group_member = factories.User()
+        helpers.call_action('member_create', id=group['id'],
+                            object=group_member['id'], object_type='user',
+                            capacity='member')
+        group_admin = factories.User()
+        helpers.call_action('member_create', id=group['id'],
+                            object=group_admin['id'], object_type='user',
+                            capacity='admin')
+
+        # Create a user who isn't a member of any group or organization.
+        non_member = factories.User()
+
+        sysadmin = factories.Sysadmin()
+
+        # None of the users should see the dataset when they call group_show().
+        for user in (org_member, group_member, group_admin, non_member,
+                     sysadmin, None):
+
+            if user is None:
+                context = None  # No user logged-in.
+            else:
+                context = {'user': user['name']}
+
+            group = helpers.call_action('group_show', id=group['id'],
+                                        include_datasets=True, context=context)
+
+            assert private_dataset['id'] not in [dataset['id'] for dataset
+                                                 in group['packages']], (
+                "group_show() should never show private datasets")
+
+
+class TestOrganizationList(helpers.FunctionalTestBase):
 
     def test_organization_list(self):
 
@@ -297,15 +422,17 @@ class TestGet(object):
         assert (sorted(org_list) ==
                 sorted([g['name'] for g in [org1, org2]]))
 
-    def test_organization_show(self):
 
+class TestOrganizationShow(helpers.FunctionalTestBase):
+
+    def test_organization_show(self):
         org = factories.Organization()
 
-        org_dict = helpers.call_action('organization_show', id=org['id'])
+        org_dict = helpers.call_action('organization_show', id=org['id'],
+                                       include_datasets=True)
 
-        # FIXME: Should this be returned by organization_create?
-        org_dict.pop('num_followers', None)
-        assert org_dict == org
+        org_dict.pop('packages', None)
+        eq(org_dict, org)
 
     def test_organization_show_error_not_found(self):
 
@@ -337,7 +464,8 @@ class TestGet(object):
                                 context={'user': user_name},
                                 **dataset)
 
-        org_dict = helpers.call_action('organization_show', id=org['id'])
+        org_dict = helpers.call_action('organization_show', id=org['id'],
+                                       include_datasets=True)
 
         assert len(org_dict['packages']) == 2
         assert org_dict['package_count'] == 2
@@ -358,18 +486,21 @@ class TestGet(object):
                                 context={'user': user_name},
                                 **dataset)
 
-        org_dict = helpers.call_action('organization_show', id=org['id'])
+        org_dict = helpers.call_action('organization_show', id=org['id'],
+                                       include_datasets=True)
 
         assert len(org_dict['packages']) == 1
         assert org_dict['packages'][0]['name'] == 'dataset_1'
         assert org_dict['package_count'] == 1
+
+
+class TestUserList(helpers.FunctionalTestBase):
 
     def test_user_list_default_values(self):
 
         user = factories.User()
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         got_user = got_users[0]
@@ -398,7 +529,6 @@ class TestGet(object):
                             **dataset)
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         got_user = got_users[0]
@@ -411,10 +541,12 @@ class TestGet(object):
         factories.User(state='deleted')
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         assert got_users[0]['name'] == user['name']
+
+
+class TestUserShow(helpers.FunctionalTestBase):
 
     def test_user_show_default_values(self):
 
@@ -535,10 +667,10 @@ class TestGet(object):
                                        include_datasets=True,
                                        id=user['id'])
 
-        assert len(got_user['datasets']) == 3
+        eq(len(got_user['datasets']), 3)
         datasets_got = set([user_['name'] for user_ in got_user['datasets']])
         assert dataset_deleted['name'] not in datasets_got
-        assert got_user['number_created_packages'] == 3
+        eq(got_user['number_created_packages'], 3)
 
     def test_user_show_include_datasets_includes_draft_sysadmin(self):
         # sysadmin should see the draft and private datasets
@@ -556,10 +688,13 @@ class TestGet(object):
                                        include_datasets=True,
                                        id=user['id'])
 
-        assert len(got_user['datasets']) == 3
+        eq(len(got_user['datasets']), 3)
         datasets_got = set([user_['name'] for user_ in got_user['datasets']])
         assert dataset_deleted['name'] not in datasets_got
-        assert got_user['number_created_packages'] == 3
+        eq(got_user['number_created_packages'], 3)
+
+
+class TestRelatedList(helpers.FunctionalTestBase):
 
     def test_related_list_with_no_params(self):
         '''
@@ -620,6 +755,9 @@ class TestGet(object):
         assert ([related1] == related_list)
         # TODO: Create related items associated with a dataset and test
         # related_list with them
+
+
+class TestCurrentPackageList(helpers.FunctionalTestBase):
 
     def test_current_package_list(self):
         '''
@@ -686,6 +824,9 @@ class TestGet(object):
                         sysadmin['name']})
         eq(len(current_package_list), 2)
 
+
+class TestPackageAutocomplete(helpers.FunctionalTestBase):
+
     def test_package_autocomplete_does_not_return_private_datasets(self):
 
         user = factories.User()
@@ -699,57 +840,8 @@ class TestGet(object):
                                            q='some')
         eq(len(package_list), 1)
 
-    def test_group_show_does_not_show_private_datasets(self):
-        '''group_show() should never show private datasets.
 
-        If a dataset is a private member of an organization and also happens to
-        be a member of a group, group_show() should not return the dataset as
-        part of the group dict, even if the user calling group_show() is a
-        member or admin of the group or the organization or is a sysadmin.
-
-        '''
-        org_member = factories.User()
-        org = factories.Organization(user=org_member)
-        private_dataset = factories.Dataset(user=org_member,
-                                            owner_org=org['name'], private=True)
-
-        group = factories.Group()
-
-        # Add the private dataset to the group.
-        helpers.call_action('member_create', id=group['id'],
-                            object=private_dataset['id'], object_type='package',
-                            capacity='public')
-
-        # Create a member user and an admin user of the group.
-        group_member = factories.User()
-        helpers.call_action('member_create', id=group['id'],
-                            object=group_member['id'], object_type='user',
-                            capacity='member')
-        group_admin = factories.User()
-        helpers.call_action('member_create', id=group['id'],
-                            object=group_admin['id'], object_type='user',
-                            capacity='admin')
-
-        # Create a user who isn't a member of any group or organization.
-        non_member = factories.User()
-
-        sysadmin = factories.Sysadmin()
-
-        # None of the users should see the dataset when they call group_show().
-        for user in (org_member, group_member, group_admin, non_member,
-                     sysadmin, None):
-
-            if user is None:
-                context = None  # No user logged-in.
-            else:
-                context = {'user': user['name']}
-
-            group = helpers.call_action('group_show', id=group['id'],
-                                        context=context)
-
-            assert private_dataset['id'] not in [dataset['id'] for dataset
-                                                 in group['packages']], (
-                "group_show() should never show private datasets")
+class TestPackageSearch(helpers.FunctionalTestBase):
 
     def test_package_search_on_resource_name(self):
         '''
@@ -761,8 +853,295 @@ class TestGet(object):
         search_result = helpers.call_action('package_search', q='resource_abc')
         eq(search_result['results'][0]['resources'][0]['name'], resource_name)
 
+    def test_package_search_excludes_private_and_drafts(self):
+        '''
+        package_search() with no options should not return private and draft
+        datasets.
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        factories.Dataset(user=user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-class TestBadLimitQueryParameters(object):
+        results = helpers.call_action('package_search')['results']
+
+        eq(len(results), 1)
+        eq(results[0]['name'], dataset['name'])
+
+    def test_package_search_with_fq_excludes_private(self):
+        '''
+        package_search() with fq capacity:private should not return private
+        and draft datasets.
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        factories.Dataset(user=user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        fq = "capacity:private"
+        results = helpers.call_action('package_search', fq=fq)['results']
+
+        eq(len(results), 1)
+        eq(results[0]['name'], dataset['name'])
+
+    def test_package_search_with_fq_excludes_drafts(self):
+        '''
+        An anon user can't use fq drafts to get draft datasets. Nothing is
+        returned.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user, name="dataset")
+        factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        factories.Dataset(user=user, state='draft', name="draft-dataset")
+        factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "state:draft"
+        results = helpers.call_action('package_search', fq=fq)['results']
+
+        eq(len(results), 0)
+
+    def test_package_search_with_include_drafts_option_excludes_drafts_for_anon_user(self):
+        '''
+        An anon user can't user include_drafts to get draft datasets.
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        draft_dataset = factories.Dataset(user=user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action('package_search', include_drafts=True)['results']
+
+        eq(len(results), 1)
+        nose.tools.assert_not_equals(results[0]['name'], draft_dataset['name'])
+        nose.tools.assert_equal(results[0]['name'], dataset['name'])
+
+    def test_package_search_with_include_drafts_option_includes_drafts_for_sysadmin(self):
+        '''
+        A sysadmin can use the include_drafts option to get draft datasets for
+        all users.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        draft_dataset = factories.Dataset(user=user, state='draft')
+        other_draft_dataset = factories.Dataset(user=other_user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action('package_search', include_drafts=True,
+                                      context={'user': sysadmin['name']})['results']
+
+        eq(len(results), 3)
+        names = [r['name'] for r in results]
+        nose.tools.assert_true(draft_dataset['name'] in names)
+        nose.tools.assert_true(other_draft_dataset['name'] in names)
+        nose.tools.assert_true(dataset['name'] in names)
+
+    def test_package_search_with_include_drafts_false_option_doesnot_include_drafts_for_sysadmin(self):
+        '''
+        A sysadmin with include_drafts option set to `False` will not get
+        drafts returned in results.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        draft_dataset = factories.Dataset(user=user, state='draft')
+        other_draft_dataset = factories.Dataset(user=other_user, state='draft')
+        factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        results = helpers.call_action('package_search', include_drafts=False,
+                                      context={'user': sysadmin['name']})['results']
+
+        eq(len(results), 1)
+        names = [r['name'] for r in results]
+        nose.tools.assert_true(draft_dataset['name'] not in names)
+        nose.tools.assert_true(other_draft_dataset['name'] not in names)
+        nose.tools.assert_true(dataset['name'] in names)
+
+    def test_package_search_with_include_drafts_option_includes_drafts_for_user(self):
+        '''
+        The include_drafts option will include draft datasets for the
+        authorized user, but not drafts for other users.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user, name="dataset")
+        other_dataset = factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        draft_dataset = factories.Dataset(user=user, state='draft', name="draft-dataset")
+        other_draft_dataset = factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        results = helpers.call_action('package_search', include_drafts=True,
+                                      context={'user': user['name']})['results']
+
+        eq(len(results), 3)
+        names = [r['name'] for r in results]
+        nose.tools.assert_true(draft_dataset['name'] in names)
+        nose.tools.assert_true(other_draft_dataset['name'] not in names)
+        nose.tools.assert_true(dataset['name'] in names)
+        nose.tools.assert_true(other_dataset['name'] in names)
+
+    def test_package_search_with_fq_for_create_user_id_will_include_datasets_for_other_users(self):
+        '''
+        A normal user can use the fq creator_user_id to get active datasets
+        (but not draft) for another user.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user, name="dataset")
+        other_dataset = factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        draft_dataset = factories.Dataset(user=user, state='draft', name="draft-dataset")
+        other_draft_dataset = factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "creator_user_id:{0}".format(other_user['id'])
+        results = helpers.call_action('package_search', fq=fq,
+                                      context={'user': user['name']})['results']
+
+        eq(len(results), 1)
+        names = [r['name'] for r in results]
+        nose.tools.assert_true(draft_dataset['name'] not in names)
+        nose.tools.assert_true(other_draft_dataset['name'] not in names)
+        nose.tools.assert_true(dataset['name'] not in names)
+        nose.tools.assert_true(other_dataset['name'] in names)
+
+    def test_package_search_with_fq_for_create_user_id_will_not_include_drafts_for_other_users(self):
+        '''
+        A normal user can't use fq creator_user_id and drafts to get draft
+        datasets for another user.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user, name="dataset")
+        factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        factories.Dataset(user=user, state='draft', name="draft-dataset")
+        factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "(creator_user_id:{0} AND +state:draft)".format(other_user['id'])
+        results = helpers.call_action('package_search', fq=fq,
+                                      context={'user': user['name']})['results']
+
+        eq(len(results), 0)
+
+    def test_package_search_with_fq_for_creator_user_id_and_drafts_and_include_drafts_option_will_not_include_drafts_for_other_user(self):
+        '''
+        A normal user can't use fq creator_user_id and drafts and the
+        include_drafts option to get draft datasets for another user.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user, name="dataset")
+        factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        factories.Dataset(user=user, state='draft', name="draft-dataset")
+        factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "(creator_user_id:{0} AND +state:draft)".format(other_user['id'])
+        results = helpers.call_action('package_search', fq=fq, include_drafts=True,
+                                      context={'user': user['name']})['results']
+
+        eq(len(results), 0)
+
+    def test_package_search_with_fq_for_creator_user_id_and_include_drafts_option_will_not_include_drafts_for_other_user(self):
+        '''
+        A normal user can't use fq creator_user_id and the include_drafts
+        option to get draft datasets for another user.
+        '''
+        user = factories.User()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user, name="dataset")
+        other_dataset = factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        factories.Dataset(user=user, state='draft', name="draft-dataset")
+        other_draft_dataset = factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "creator_user_id:{0}".format(other_user['id'])
+        results = helpers.call_action('package_search', fq=fq, include_drafts=True,
+                                      context={'user': user['name']})['results']
+
+        names = [r['name'] for r in results]
+        eq(len(results), 1)
+        nose.tools.assert_true(other_dataset['name'] in names)
+        nose.tools.assert_true(other_draft_dataset['name'] not in names)
+
+    def test_package_search_with_fq_for_create_user_id_will_include_drafts_for_other_users_for_sysadmin(self):
+        '''
+        Sysadmins can use fq to get draft datasets for another user.
+        '''
+        user = factories.User()
+        sysadmin = factories.Sysadmin()
+        other_user = factories.User()
+        org = factories.Organization(user=user)
+        dataset = factories.Dataset(user=user, name="dataset")
+        factories.Dataset(user=other_user, name="other-dataset")
+        factories.Dataset(user=user, state='deleted', name="deleted-dataset")
+        draft_dataset = factories.Dataset(user=user, state='draft', name="draft-dataset")
+        factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
+        factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
+
+        fq = "(creator_user_id:{0} AND +state:draft)".format(user['id'])
+        results = helpers.call_action('package_search', fq=fq,
+                                      context={'user': sysadmin['name']})['results']
+
+        names = [r['name'] for r in results]
+        eq(len(results), 1)
+        nose.tools.assert_true(dataset['name'] not in names)
+        nose.tools.assert_true(draft_dataset['name'] in names)
+
+    def test_package_search_private_with_ignore_capacity_check(self):
+        '''
+        package_search() can return private datasets when
+        `ignore_capacity_check` present in context.
+        '''
+        user = factories.User()
+        org = factories.Organization(user=user)
+        factories.Dataset(user=user)
+        factories.Dataset(user=user, state='deleted')
+        factories.Dataset(user=user, state='draft')
+        private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
+
+        fq = '+capacity:"private"'
+        results = helpers.call_action('package_search', fq=fq,
+                                      context={'ignore_capacity_check': True})['results']
+
+        eq(len(results), 1)
+        eq(results[0]['name'], private_dataset['name'])
+
+    def test_package_works_without_user_in_context(self):
+        '''
+        package_search() should work even if user isn't in the context (e.g.
+        ckanext-showcase tests.
+        '''
+        logic.get_action('package_search')({}, dict(q='anything'))
+
+
+class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
     '''test class for #1258 non-int query parameters cause 500 errors
 
     Test that validation errors are raised when calling actions with
@@ -798,19 +1177,13 @@ class TestBadLimitQueryParameters(object):
             **kwargs)
 
 
-class TestOrganizationListForUser(object):
+class TestOrganizationListForUser(helpers.FunctionalTestBase):
     '''Functional tests for the organization_list_for_user() action function.'''
-
-    def setup(self):
-        helpers.reset_db()
-        search.clear()
 
     def test_when_user_is_not_a_member_of_any_organizations(self):
         """
-
         When the user isn't a member of any organizations (in any capacity)
         organization_list_for_user() should return an empty list.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -825,11 +1198,9 @@ class TestOrganizationListForUser(object):
 
     def test_when_user_is_an_admin_of_one_organization(self):
         """
-
         When the user is an admin of one organization
         organization_list_for_user() should return a list of just that one
         organization.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -851,11 +1222,9 @@ class TestOrganizationListForUser(object):
 
     def test_when_user_is_an_admin_of_three_organizations(self):
         """
-
         When the user is an admin of three organizations
         organization_list_for_user() should return a list of all three
         organizations.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -881,12 +1250,45 @@ class TestOrganizationListForUser(object):
         for organization in (organization_1, organization_2, organization_3):
             assert organization['id'] in ids
 
-    def test_does_not_return_members(self):
+    def test_when_permissions_extend_to_sub_organizations(self):
         """
 
+        When the user is an admin of one organization
+        organization_list_for_user() should return a list of just that one
+        organization.
+
+        """
+        user = factories.User()
+        context = {'user': user['name']}
+        user['capacity'] = 'admin'
+        top_organization = factories.Organization(users=[user])
+        middle_organization = factories.Organization(users=[user])
+        bottom_organization = factories.Organization()
+
+        # Create another organization just so we can test that it does not get
+        # returned.
+        factories.Organization()
+
+        helpers.call_action('member_create',
+                            id=bottom_organization['id'],
+                            object=middle_organization['id'],
+                            object_type='group', capacity='parent')
+        helpers.call_action('member_create',
+                            id=middle_organization['id'],
+                            object=top_organization['id'],
+                            object_type='group', capacity='parent')
+
+        organizations = helpers.call_action('organization_list_for_user',
+                                            context=context)
+
+        assert len(organizations) == 3
+        org_ids = set(org['id'] for org in organizations)
+        assert bottom_organization['id'] in org_ids
+
+    def test_does_not_return_members(self):
+        """
         By default organization_list_for_user() should not return organizations
         that the user is just a member (not an admin) of.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -903,10 +1305,8 @@ class TestOrganizationListForUser(object):
 
     def test_does_not_return_editors(self):
         """
-
         By default organization_list_for_user() should not return organizations
         that the user is just an editor (not an admin) of.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -923,10 +1323,8 @@ class TestOrganizationListForUser(object):
 
     def test_editor_permission(self):
         """
-
         organization_list_for_user() should return organizations that the user
         is an editor of if passed a permission that belongs to the editor role.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -944,10 +1342,8 @@ class TestOrganizationListForUser(object):
 
     def test_member_permission(self):
         """
-
         organization_list_for_user() should return organizations that the user
         is a member of if passed a permission that belongs to the member role.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -965,7 +1361,6 @@ class TestOrganizationListForUser(object):
 
     def test_invalid_permission(self):
         '''
-
         organization_list_for_user() should return an empty list if passed a
         non-existent or invalid permission.
 
@@ -973,7 +1368,6 @@ class TestOrganizationListForUser(object):
         If the user was an admin of the organization then it would return that
         organization - admins have all permissions, including permissions that
         don't exist.
-
         '''
         user = factories.User()
         context = {'user': user['name']}
@@ -992,10 +1386,8 @@ class TestOrganizationListForUser(object):
 
     def test_that_it_does_not_return_groups(self):
         """
-
         organization_list_for_user() should not return groups that the user is
         a member, editor or admin of.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1019,10 +1411,8 @@ class TestOrganizationListForUser(object):
 
     def test_that_it_does_not_return_previous_memberships(self):
         """
-
         organization_list_for_user() should return organizations that the user
         was previously an admin of.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1044,10 +1434,8 @@ class TestOrganizationListForUser(object):
 
     def test_when_user_is_sysadmin(self):
         """
-
         When the user is a sysadmin organization_list_for_user() should just
         return all organizations, even if the user is not a member of them.
-
         """
         user = factories.Sysadmin()
         context = {'user': user['name']}
@@ -1060,10 +1448,8 @@ class TestOrganizationListForUser(object):
 
     def test_that_it_does_not_return_deleted_organizations(self):
         """
-
         organization_list_for_user() should not return deleted organizations
         that the user was an admin of.
-
         """
         user = factories.User()
         context = {'user': user['name']}
@@ -1084,10 +1470,8 @@ class TestOrganizationListForUser(object):
 
     def test_with_no_authorized_user(self):
         """
-
         organization_list_for_user() should return an empty list if there's no
         authorized user. Users who aren't logged-in don't have any permissions.
-
         """
         # Create an organization so we can test that it doesn't get returned.
         organization = factories.Organization()
@@ -1178,7 +1562,236 @@ class TestGetHelpShow(object):
             helpers.call_action, 'help_show', name=function_name)
 
 
+class TestConfigOptionShow(helpers.FunctionalTestBase):
+
+    @helpers.change_config('ckan.site_title', 'My Test CKAN')
+    def test_config_option_show_in_config_not_in_db(self):
+        '''config_option_show returns value from config when value on in
+        system_info table.'''
+
+        title = helpers.call_action('config_option_show',
+                                    key='ckan.site_title')
+        nose.tools.assert_equal(title, 'My Test CKAN')
+
+    @helpers.change_config('ckan.site_title', 'My Test CKAN')
+    def test_config_option_show_in_config_and_in_db(self):
+        '''config_option_show returns value from db when value is in both
+        config and system_info table.'''
+
+        params = {'ckan.site_title': 'Test site title'}
+        helpers.call_action('config_option_update', **params)
+
+        title = helpers.call_action('config_option_show',
+                                    key='ckan.site_title')
+        nose.tools.assert_equal(title, 'Test site title')
+
+    @helpers.change_config('ckan.not.editable', 'My non editable option')
+    def test_config_option_show_not_whitelisted_key(self):
+        '''config_option_show raises exception if key is not a whitelisted
+        config option.'''
+
+        nose.tools.assert_raises(logic.ValidationError, helpers.call_action,
+                                 'config_option_show', key='ckan.not.editable')
+
+
+class TestConfigOptionList(object):
+
+    def test_config_option_list(self):
+        '''config_option_list returns whitelisted config option keys'''
+
+        keys = helpers.call_action('config_option_list')
+        schema_keys = schema.update_configuration_schema().keys()
+
+        nose.tools.assert_equal(keys, schema_keys)
+
+
 def remove_pseudo_users(user_list):
     pseudo_users = set(('logged_in', 'visitor'))
     user_list[:] = [user for user in user_list
                     if user['name'] not in pseudo_users]
+
+
+class TestTagShow(helpers.FunctionalTestBase):
+
+    def test_tag_show_for_free_tag(self):
+        dataset = factories.Dataset(tags=[{'name': 'acid-rain'}])
+        tag_in_dataset = dataset['tags'][0]
+
+        tag_shown = helpers.call_action('tag_show', id='acid-rain')
+
+        eq(tag_shown['name'], 'acid-rain')
+        eq(tag_shown['display_name'], 'acid-rain')
+        eq(tag_shown['id'], tag_in_dataset['id'])
+        eq(tag_shown['vocabulary_id'], None)
+        assert 'packages' not in tag_shown
+
+    def test_tag_show_with_datasets(self):
+        dataset = factories.Dataset(tags=[{'name': 'acid-rain'}])
+
+        tag_shown = helpers.call_action('tag_show', id='acid-rain',
+                                        include_datasets=True)
+
+        eq([d['name'] for d in tag_shown['packages']], [dataset['name']])
+
+    def test_tag_show_not_found(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'tag_show', id='does-not-exist')
+
+    def test_tag_show_for_flexible_tag(self):
+        # A 'flexible' tag is one with spaces, some punctuation
+        # and foreign characters in its name
+        dataset = factories.Dataset(tags=[{'name': u'Flexible. \u30a1'}])
+
+        tag_shown = helpers.call_action('tag_show', id=u'Flexible. \u30a1',
+                                        include_datasets=True)
+
+        eq(tag_shown['name'], u'Flexible. \u30a1')
+        eq(tag_shown['display_name'], u'Flexible. \u30a1')
+        eq([d['name'] for d in tag_shown['packages']], [dataset['name']])
+
+    def test_tag_show_for_vocab_tag(self):
+        vocab = factories.Vocabulary(
+            tags=[dict(name='acid-rain')])
+        dataset = factories.Dataset(tags=vocab['tags'])
+        tag_in_dataset = dataset['tags'][0]
+
+        tag_shown = helpers.call_action('tag_show', id='acid-rain',
+                                        vocabulary_id=vocab['id'],
+                                        include_datasets=True)
+
+        eq(tag_shown['name'], 'acid-rain')
+        eq(tag_shown['display_name'], 'acid-rain')
+        eq(tag_shown['id'], tag_in_dataset['id'])
+        eq(tag_shown['vocabulary_id'], vocab['id'])
+        eq([d['name'] for d in tag_shown['packages']], [dataset['name']])
+
+
+class TestTagList(helpers.FunctionalTestBase):
+
+    def test_tag_list(self):
+        factories.Dataset(tags=[{'name': 'acid-rain'},
+                                {'name': 'pollution'}])
+        factories.Dataset(tags=[{'name': 'pollution'}])
+
+        tag_list = helpers.call_action('tag_list')
+
+        eq(set(tag_list), set(('acid-rain', 'pollution')))
+
+    def test_tag_list_all_fields(self):
+        factories.Dataset(tags=[{'name': 'acid-rain'}])
+
+        tag_list = helpers.call_action('tag_list', all_fields=True)
+
+        eq(tag_list[0]['name'], 'acid-rain')
+        eq(tag_list[0]['display_name'], 'acid-rain')
+        assert 'packages' not in tag_list
+
+    def test_tag_list_with_flexible_tag(self):
+        # A 'flexible' tag is one with spaces, punctuation (apart from commas)
+        # and foreign characters in its name
+        flexible_tag = u'Flexible. \u30a1'
+        factories.Dataset(tags=[{'name': flexible_tag}])
+
+        tag_list = helpers.call_action('tag_list', all_fields=True)
+
+        eq(tag_list[0]['name'], flexible_tag)
+
+    def test_tag_list_with_vocab(self):
+        vocab = factories.Vocabulary(
+            tags=[dict(name='acid-rain'),
+                  dict(name='pollution')])
+
+        tag_list = helpers.call_action('tag_list', vocabulary_id=vocab['id'])
+
+        eq(set(tag_list), set(('acid-rain', 'pollution')))
+
+    def test_tag_list_vocab_not_found(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action, 'tag_list', vocabulary_id='does-not-exist')
+
+
+class TestRevisionList(helpers.FunctionalTestBase):
+
+    @classmethod
+    def setup_class(cls):
+        super(TestRevisionList, cls).setup_class()
+        helpers.reset_db()
+
+    # Error cases
+
+    def test_date_instead_of_revision(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action,
+            'revision_list',
+            since_id='2010-01-01T00:00:00')
+
+    def test_date_invalid(self):
+        nose.tools.assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'revision_list',
+            since_time='2010-02-31T00:00:00')
+
+    def test_revision_doesnt_exist(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action,
+            'revision_list',
+            since_id='1234')
+
+    def test_sort_param_not_valid(self):
+        nose.tools.assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'revision_list',
+            sort='invalid')
+
+    # Normal usage
+
+    @classmethod
+    def _create_revisions(cls, num_revisions):
+        from ckan import model
+        rev_ids = []
+        for i in xrange(num_revisions):
+            rev = model.repo.new_revision()
+            rev.id = unicode(i)
+            model.Session.commit()
+            rev_ids.append(rev.id)
+        return rev_ids
+
+    def test_all_revisions(self):
+        rev_ids = self._create_revisions(2)
+        revs = helpers.call_action('revision_list')
+        # only test the 2 newest revisions, since the system creates one at
+        # start-up.
+        eq(revs[:2], rev_ids[::-1])
+
+    def test_revisions_since_id(self):
+        self._create_revisions(4)
+        revs = helpers.call_action('revision_list', since_id='1')
+        eq(revs, ['3', '2'])
+
+    def test_revisions_since_time(self):
+        from ckan import model
+        self._create_revisions(4)
+
+        rev1 = model.Session.query(model.Revision).get('1')
+        revs = helpers.call_action('revision_list',
+                                   since_time=rev1.timestamp.isoformat())
+        eq(revs, ['3', '2'])
+
+    def test_revisions_returned_are_limited(self):
+        self._create_revisions(55)
+        revs = helpers.call_action('revision_list', since_id='1')
+        eq(len(revs), 50)  # i.e. limited to 50
+        eq(revs[0], '54')
+        eq(revs[-1], '5')
+
+    def test_sort_asc(self):
+        self._create_revisions(4)
+        revs = helpers.call_action('revision_list', since_id='1',
+                                   sort='time_asc')
+        eq(revs, ['2', '3'])

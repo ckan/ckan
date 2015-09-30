@@ -55,9 +55,9 @@ class TestGroup(object):
     def test_3_search(self):
         model.repo.new_revision()
         model.Session.add(model.Group(name=u'test_org',
-                                       title=u'Test org',
-                                       type=u'organization'
-                         ))
+                                      title=u'Test org',
+                                      type=u'organization'
+                        ))
         model.repo.commit_and_remove()
 
 

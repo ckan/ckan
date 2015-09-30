@@ -174,6 +174,8 @@ def make_map():
         m.connect('/util/resource/format_icon',
                   action='format_icon', conditions=GET)
         m.connect('/util/group/autocomplete', action='group_autocomplete')
+        m.connect('/util/organization/autocomplete', action='organization_autocomplete',
+                  conditions=GET)
         m.connect('/util/markdown', action='markdown')
         m.connect('/util/dataset/munge_name', action='munge_package_name')
         m.connect('/util/dataset/munge_title_to_name',
@@ -191,17 +193,6 @@ def make_map():
     map.redirect('/packages/{url:.*}', '/dataset/{url}')
     map.redirect('/package', '/dataset')
     map.redirect('/package/{url:.*}', '/dataset/{url}')
-
-    with SubMapper(map, controller='related') as m:
-        m.connect('related_new', '/dataset/{id}/related/new', action='new')
-        m.connect('related_edit', '/dataset/{id}/related/edit/{related_id}',
-                  action='edit')
-        m.connect('related_delete', '/dataset/{id}/related/delete/{related_id}',
-                  action='delete')
-        m.connect('related_list', '/dataset/{id}/related', action='list',
-                  ckan_icon='picture')
-        m.connect('related_read', '/related/{id}', action='read')
-        m.connect('related_dashboard', '/related', action='dashboard')
 
     with SubMapper(map, controller='package') as m:
         m.connect('search', '/dataset', action='search',
@@ -222,7 +213,6 @@ def make_map():
                   ])))
         m.connect('/dataset/{action}/{id}',
                   requirements=dict(action='|'.join([
-                      'new_metadata',
                       'new_resource',
                       'history',
                       'read_ajax',
@@ -326,7 +316,7 @@ def make_map():
                       'member_delete',
                       'history'
                   ])))
-        m.connect('organization_activity', '/organization/activity/{id}',
+        m.connect('organization_activity', '/organization/activity/{id}/{offset}',
                   action='activity', ckan_icon='time')
         m.connect('organization_read', '/organization/{id}', action='read')
         m.connect('organization_about', '/organization/about/{id}',
@@ -414,29 +404,7 @@ def make_map():
                 action='trash', ckan_icon='trash')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
 
-    # Storage routes
-    with SubMapper(map, controller='ckan.controllers.storage:StorageAPIController') as m:
-        m.connect('storage_api', '/api/storage', action='index')
-        m.connect('storage_api_set_metadata', '/api/storage/metadata/{label:.*}',
-                  action='set_metadata', conditions=PUT_POST)
-        m.connect('storage_api_get_metadata', '/api/storage/metadata/{label:.*}',
-                  action='get_metadata', conditions=GET)
-        m.connect('storage_api_auth_request',
-                  '/api/storage/auth/request/{label:.*}',
-                  action='auth_request')
-        m.connect('storage_api_auth_form',
-                  '/api/storage/auth/form/{label:.*}',
-                  action='auth_form')
-
     with SubMapper(map, controller='ckan.controllers.storage:StorageController') as m:
-        m.connect('storage_upload', '/storage/upload',
-                  action='upload')
-        m.connect('storage_upload_handle', '/storage/upload_handle',
-                  action='upload_handle')
-        m.connect('storage_upload_success', '/storage/upload/success',
-                  action='success')
-        m.connect('storage_upload_success_empty', '/storage/upload/success_empty',
-                  action='success_empty')
         m.connect('storage_file', '/storage/f/{label:.*}',
                   action='file')
 

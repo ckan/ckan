@@ -131,7 +131,8 @@ class PackageSearchIndex(SearchIndex):
         if title:
             pkg_dict['title_string'] = title
 
-        if (not pkg_dict.get('state')) or ('active' not in pkg_dict.get('state')):
+        # delete the package if there is no state, or the state is `deleted`
+        if (not pkg_dict.get('state') or 'deleted' in pkg_dict.get('state')):
             return self.delete_package(pkg_dict)
 
         index_fields = RESERVED_FIELDS + pkg_dict.keys()

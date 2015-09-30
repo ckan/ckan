@@ -1,25 +1,19 @@
-import re
-
-from nose.tools import assert_equal
 import mock
 
 import ckan.model as model
 import ckan.lib.search as search
 
-from ckan.tests.legacy import setup_test_search_index
-from ckan import plugins
 from ckan.lib.create_test_data import CreateTestData
 from ckan.logic import get_action
 from ckan.tests.legacy import *
 from base import FunctionalTestCase
-from ckan.tests.legacy import is_search_supported
 
 
 class TestGroup(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
-        search.clear()
+        search.clear_all()
         model.Session.remove()
         CreateTestData.create()
 
@@ -84,19 +78,19 @@ class TestGroup(FunctionalTestCase):
         assert results[-1]['name'] == u'alpha', results[-1]['name']
 
         # Test packages reversed
-        data_dict = {'all_fields': True, 'sort': 'packages desc'}
+        data_dict = {'all_fields': True, 'sort': 'package_count desc'}
         results = get_action('group_list')(context, data_dict)
         assert results[0]['name'] == u'beta', results[0]['name']
         assert results[1]['name'] == u'delta', results[1]['name']
 
         # Test packages forward
-        data_dict = {'all_fields': True, 'sort': 'packages asc'}
+        data_dict = {'all_fields': True, 'sort': 'package_count asc'}
         results = get_action('group_list')(context, data_dict)
         assert results[-2]['name'] == u'delta', results[-2]['name']
         assert results[-1]['name'] == u'beta', results[-1]['name']
 
         # Default ordering for packages
-        data_dict = {'all_fields': True, 'sort': 'packages'}
+        data_dict = {'all_fields': True, 'sort': 'package_count'}
         results = get_action('group_list')(context, data_dict)
         assert results[0]['name'] == u'beta', results[0]['name']
         assert results[1]['name'] == u'delta', results[1]['name']
@@ -105,73 +99,6 @@ class TestGroup(FunctionalTestCase):
         name = u'group_does_not_exist'
         offset = url_for(controller='group', action='read', id=name)
         res = self.app.get(offset, status=404)
-
-
-class TestEdit(FunctionalTestCase):
-
-    @classmethod
-    def setup_class(self):
-        setup_test_search_index()
-        model.Session.remove()
-        CreateTestData.create()
-        self.groupname = u'david'
-        self.packagename = u'testpkg'
-        model.repo.new_revision()
-        model.Session.add(model.Package(name=self.packagename))
-        model.repo.commit_and_remove()
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    def test_0_not_authz(self):
-        offset = url_for(controller='group', action='edit', id=self.groupname)
-        # 401 gets caught by repoze.who and turned into redirect
-        res = self.app.get(offset, status=[302, 401])
-        res = res.follow()
-        assert res.request.url.startswith('/user/login')
-
-    def test_edit_non_existent(self):
-        name = u'group_does_not_exist'
-        offset = url_for(controller='group', action='edit', id=name)
-        res = self.app.get(offset, status=404)
-
-
-class TestNew(FunctionalTestCase):
-    groupname = u'david'
-
-    @classmethod
-    def setup_class(self):
-        model.Session.remove()
-        CreateTestData.create()
-
-        self.packagename = u'testpkg'
-        model.repo.new_revision()
-        model.Session.add(model.Package(name=self.packagename))
-        model.repo.commit_and_remove()
-
-    @classmethod
-    def teardown_class(self):
-        model.Session.remove()
-        model.repo.rebuild_db()
-        model.Session.remove()
-
-    def test_1_not_authz(self):
-        offset = url_for(controller='group', action='new')
-        # 401 gets caught by repoze.who and turned into redirect
-        res = self.app.get(offset, status=[302, 401])
-        res = res.follow()
-        assert res.request.url.startswith('/user/login')
-
-    def test_new_bad_param(self):
-        offset = url_for(controller='group', action='new',
-                         __bad_parameter='value')
-        res = self.app.post(offset, {'save': '1'},
-                            extra_environ={'REMOTE_USER': 'testsysadmin'},
-                            status=400)
-        assert 'Integrity Error' in res.body
 
 
 class TestRevisions(FunctionalTestCase):
@@ -189,7 +116,6 @@ class TestRevisions(FunctionalTestCase):
         self.grp = model.Group(name=self.name)
         self.grp.description = self.description[0]
         model.Session.add(self.grp)
-        model.setup_default_user_roles(self.grp)
         model.repo.commit_and_remove()
 
         # edit pkg

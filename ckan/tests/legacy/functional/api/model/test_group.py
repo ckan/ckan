@@ -115,7 +115,6 @@ class GroupsTestCase(BaseModelApiTestCase):
         assert group
         assert len(group.member_all) == 3, group.member_all
         user = model.User.by_name(self.user_name)
-        model.setup_default_user_roles(group, [user])
 
         # edit it
         group_vals = {'name':u'somethingnew', 'title':u'newtesttitle',
@@ -145,7 +144,6 @@ class GroupsTestCase(BaseModelApiTestCase):
             model.Session.commit()
 
             group = model.Group.by_name(self.testgroupvalues['name'])
-            model.setup_default_user_roles(group, [self.user])
             rev = model.repo.new_revision()
             model.repo.commit_and_remove()
         assert model.Group.by_name(self.testgroupvalues['name'])
@@ -183,11 +181,9 @@ class GroupsTestCase(BaseModelApiTestCase):
 
             rev = model.repo.new_revision()
             group = model.Group.by_name(self.testgroupvalues['name'])
-            model.setup_default_user_roles(group, [self.user])
             model.repo.commit_and_remove()
         assert group
         user = model.User.by_name(self.user_name)
-        model.setup_default_user_roles(group, [user])
 
         # delete it
         offset = self.group_offset(self.testgroupvalues['name'])

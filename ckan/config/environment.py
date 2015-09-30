@@ -232,22 +232,68 @@ def load_environment(global_conf, app_conf):
     p.load_all(config)
 
 
+# A mapping of config settings that can be overridden by env vars.
+# Note: Do not remove the following lines, they are used in the docs
+# Start CONFIG_FROM_ENV_VARS
+CONFIG_FROM_ENV_VARS = {
+    'sqlalchemy.url': 'CKAN_SQLALCHEMY_URL',
+    'ckan.datastore.write_url': 'CKAN_DATASTORE_WRITE_URL',
+    'ckan.datastore.read_url': 'CKAN_DATASTORE_READ_URL',
+    'solr_url': 'CKAN_SOLR_URL',
+    'ckan.site_id': 'CKAN_SITE_ID',
+    'ckan.site_url': 'CKAN_SITE_URL',
+    'ckan.storage_path': 'CKAN_STORAGE_PATH',
+    'ckan.datapusher.url': 'CKAN_DATAPUSHER_URL',
+    'smtp.server': 'CKAN_SMTP_SERVER',
+    'smtp.starttls': 'CKAN_SMTP_STARTTLS',
+    'smtp.user': 'CKAN_SMTP_USER',
+    'smtp.password': 'CKAN_SMTP_PASSWORD',
+    'smtp.mail_from': 'CKAN_SMTP_MAIL_FROM'
+}
+# End CONFIG_FROM_ENV_VARS
+
+
 def update_config():
     ''' This code needs to be run when the config is changed to take those
-    changes into account. '''
+    changes into account. It is called whenever a plugin is loaded as the
+    plugin might have changed the config values (for instance it might
+    change ckan.site_url) '''
 
     for plugin in p.PluginImplementations(p.IConfigurer):
         # must do update in place as this does not work:
         # config = plugin.update_config(config)
         plugin.update_config(config)
 
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Set whitelisted env vars on config object
     # This is set up before globals are initialized
-    site_id = os.environ.get('CKAN_SITE_ID')
-    if site_id:
-        config['ckan.site_id'] = site_id
+
+    ckan_db = os.environ.get('CKAN_DB', None)
+    if ckan_db:
+        msg = 'Setting CKAN_DB as an env var is deprecated and will be' \
+            ' removed in a future release. Use CKAN_SQLALCHEMY_URL instead.'
+        log.warn(msg)
+        config['sqlalchemy.url'] = ckan_db
+
+    for option in CONFIG_FROM_ENV_VARS:
+        from_env = os.environ.get(CONFIG_FROM_ENV_VARS[option], None)
+        if from_env:
+            config[option] = from_env
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     site_url = config.get('ckan.site_url', '')
+    if not site_url:
+        raise RuntimeError(
+            'ckan.site_url is not configured and it must have a value.'
+            ' Please amend your .ini file.')
+    if not site_url.lower().startswith('http'):
+        raise RuntimeError(
+            'ckan.site_url should be a full URL, including the schema '
+            '(http or https)')
+
+    # Remove backslash from site_url if present
+    config['ckan.site_url'] = config['ckan.site_url'].rstrip('/')
+
     ckan_host = config['ckan.host'] = urlparse(site_url).netloc
     if config.get('ckan.site_id') is None:
         if ':' in ckan_host:
@@ -340,10 +386,6 @@ def update_config():
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
-
-    ckan_db = os.environ.get('CKAN_DB')
-    if ckan_db:
-        config['sqlalchemy.url'] = ckan_db
 
     # for postgresql we want to enforce utf-8
     sqlalchemy_url = config.get('sqlalchemy.url', '')
