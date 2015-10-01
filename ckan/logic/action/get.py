@@ -1076,6 +1076,10 @@ def package_show(context, data_dict):
     if context.get('for_view'):
         for item in plugins.PluginImplementations(plugins.IPackageController):
             package_dict = item.before_view(package_dict)
+    elif context.get('for_edit'):
+        for item in plugins.PluginImplementations(plugins.IPackageController):
+            package_dict = item.before_edit(package_dict)
+
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
