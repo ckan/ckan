@@ -31,7 +31,8 @@ class Mapper(_Mapper):
         Also takes some additional params:
 
         :param ckan_icon: name of the icon to be associated with this route,
-            e.g. 'group', 'time'
+            e.g. 'group', 'time'. Available icons are listed here:
+            http://fortawesome.github.io/Font-Awesome/3.2.1/icons/
         :type ckan_icon: string
         :param highlight_actions: space-separated list of controller actions
             that should be treated as the same as this named route for menu
