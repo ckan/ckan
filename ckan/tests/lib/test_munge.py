@@ -104,14 +104,14 @@ class TestMungeTitleToName(object):
     # (original, expected)
     munge_list = [
         ('unchanged', 'unchanged'),
-        ('some spaces  here', 'some-spaces-here'),
+        ('some spaces  here    &here', 'some-spaces-here-here'),
         ('s', 's_'),  # too short
         ('random:other%character&', 'random-othercharacter'),
         (u'u with umlaut \xfc', 'u-with-umlaut-u'),
         ('reallylong' * 12, 'reallylong' * 9 + 'reall'),
         ('reallylong' * 12 + ' - 2012', 'reallylong' * 9 + '-2012'),
         ('10cm - 50cm Near InfraRed (NI) Digital Aerial Photography (AfA142)',
-            '10cm--50cm-near-infrared-ni-digital-aerial-photography-afa142')
+         '10cm-50cm-near-infrared-ni-digital-aerial-photography-afa142')
     ]
 
     def test_munge_title_to_name(self):
@@ -128,7 +128,8 @@ class TestMungeTag:
         ('unchanged', 'unchanged'),
         ('s', 's_'),  # too short
         ('some spaces  here', 'some-spaces--here'),
-        ('random:other%character&', 'randomothercharacter')
+        ('random:other%characters&_.here', 'randomothercharactershere'),
+        ('river-water-dashes', 'river-water-dashes'),
     ]
 
     def test_munge_tag(self):
@@ -137,7 +138,7 @@ class TestMungeTag:
             munge = munge_tag(org)
             nose_tools.assert_equal(munge, exp)
 
-    def test_munge_tag_muliple_pass(self):
+    def test_munge_tag_multiple_pass(self):
         '''Munge a list of tags muliple times gives expected results.'''
         for org, exp in self.munge_list:
             first_munge = munge_tag(org)
