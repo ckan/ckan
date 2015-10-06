@@ -46,11 +46,15 @@ Setting up the DataStore
 
 .. note::
 
-   The DataStore requires PostgreSQL 9.0 or later. It is possible to use the
-   DataStore on versions prior to 9.0 (for example 8.4). However, the
-   :meth:`~ckanext.datastore.logic.action.datastore_search_sql` will not be
-   available and the set-up is slightly different. Make sure, you read
-   :ref:`legacy-mode` for more details.
+   The DataStore (like CKAN) requires |postgres| 9.2 or later. This was
+   released in 2012, is widely available. At the time of writing, the only version
+   that is not supported by CKAN that has not been made 'end-of-life' by the
+   |postgres| community is 9.1.
+
+.. versionchanged:: 2.5
+
+   Previous CKAN (and DataStore) versions were compatible with earlier versions
+   of |postgres|.
 
 1. Enable the plugin
 ====================
