@@ -377,9 +377,6 @@ class TestPep8(object):
         'ckan/config/routing.py',
         'ckan/config/sp_config.py',
         'ckan/controllers/admin.py',
-        'ckan/controllers/api.py',
-        'ckan/controllers/group.py',
-        'ckan/controllers/package.py',
         'ckan/controllers/revision.py',
         'ckan/exceptions.py',
         'ckan/i18n/check_po_files.py',
@@ -403,7 +400,6 @@ class TestPep8(object):
         'ckan/lib/formatters.py',
         'ckan/lib/hash.py',
         'ckan/lib/help/flash_messages.py',
-        'ckan/lib/helpers.py',
         'ckan/lib/i18n.py',
         'ckan/lib/jinja_extensions.py',
         'ckan/lib/jsonp.py',
@@ -569,7 +565,6 @@ class TestPep8(object):
         'ckan/tests/legacy/functional/test_related.py',
         'ckan/tests/legacy/functional/test_revision.py',
         'ckan/tests/legacy/functional/test_search.py',
-        'ckan/tests/legacy/functional/test_storage.py',
         'ckan/tests/legacy/functional/test_tag.py',
         'ckan/tests/legacy/functional/test_tag_vocab.py',
         'ckan/tests/legacy/functional/test_upload.py',
@@ -757,8 +752,6 @@ class TestActionAuth(object):
         'update: package_relationship_update_rest',
         'update: task_status_update_many',
         'update: term_translation_update_many',
-        'update: user_role_bulk_update',
-        'update: user_role_update',
     ]
 
     AUTH_NO_ACTION_BLACKLIST = [

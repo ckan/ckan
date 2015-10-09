@@ -8,7 +8,7 @@ from ckan.lib.cli import ManageDb,SearchIndexCommand
 from ckan.lib.create_test_data import CreateTestData
 from ckan.common import json
 
-from ckan.lib.search import index_for,query_for
+from ckan.lib.search import index_for,query_for, clear_all
 
 class TestDb:
     @classmethod
@@ -80,7 +80,7 @@ class TestSearch:
 
         # Rebuild index
         self.search.args = ()
-        self.search.options = FakeOptions(only_missing=False,force=False,refresh=False,commit_each=False)
+        self.search.options = FakeOptions(only_missing=False, force=False, refresh=False, commit_each=False, quiet=False)
         self.search.rebuild()
         pkg_count = model.Session.query(model.Package).filter(model.Package.state==u'active').count()
 

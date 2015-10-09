@@ -136,7 +136,8 @@ def resource_update(context, data_dict):
     del context["resource"]
 
     package_id = resource.package.id
-    pkg_dict = _get_action('package_show')(context, {'id': package_id})
+    pkg_dict = _get_action('package_show')(dict(context, return_type='dict'),
+        {'id': package_id})
 
     for n, p in enumerate(pkg_dict['resources']):
         if p['id'] == id:
@@ -148,7 +149,7 @@ def resource_update(context, data_dict):
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
-    upload = uploader.ResourceUpload(data_dict)
+    upload = uploader.get_resource_uploader(data_dict)
 
     pkg_dict['resources'][n] = data_dict
 
@@ -499,6 +500,7 @@ def package_relationship_update(context, data_dict):
     context['relationship'] = entity
     return _update_package_relationship(entity, comment, context)
 
+
 def _group_or_org_update(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
@@ -515,15 +517,15 @@ def _group_or_org_update(context, data_dict, is_org=False):
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)
     try:
-        schema = group_plugin.form_to_db_schema_options({'type':'update',
-                                               'api':'api_version' in context,
+        schema = group_plugin.form_to_db_schema_options({'type': 'update',
+                                               'api': 'api_version' in context,
                                                'context': context})
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    upload = uploader.Upload('group', group.image_url)
+    upload = uploader.get_uploader('group', group.image_url)
     upload.update_data_dict(data_dict, 'image_url',
-                           'image_upload', 'clear_upload')
+                            'image_upload', 'clear_upload')
 
     if is_org:
         _check_access('organization_update', context, data_dict)
@@ -609,11 +611,12 @@ def _group_or_org_update(context, data_dict, is_org=False):
         # in the group.
 
     upload.upload(uploader.get_max_image_size())
+
     if not context.get('defer_commit'):
         model.repo.commit()
 
-
     return model_dictize.group_dictize(group, context)
+
 
 def group_update(context, data_dict):
     '''Update a group.
@@ -1025,100 +1028,6 @@ def package_relationship_update_rest(context, data_dict):
     relationship_dict = _get_action('package_relationship_update')(context, data_dict)
 
     return relationship_dict
-
-def user_role_update(context, data_dict):
-    '''Update a user or authorization group's roles for a domain object.
-
-    The ``user`` parameter must be given.
-
-    You must be authorized to update the domain object.
-
-    To delete all of a user or authorization group's roles for domain object,
-    pass an empty list ``[]`` to the ``roles`` parameter.
-
-    :param user: the name or id of the user
-    :type user: string
-    :param domain_object: the name or id of the domain object (e.g. a package,
-        group or authorization group)
-    :type domain_object: string
-    :param roles: the new roles, e.g. ``['editor']``
-    :type roles: list of strings
-
-    :returns: the updated roles of all users for the
-        domain object
-    :rtype: dictionary
-
-    '''
-    model = context['model']
-
-    new_user_ref = data_dict.get('user') # the user who is being given the new role
-    if not bool(new_user_ref):
-        raise ValidationError('You must provide the "user" parameter.')
-    domain_object_ref = _get_or_bust(data_dict, 'domain_object')
-    if not isinstance(data_dict['roles'], (list, tuple)):
-        raise ValidationError('Parameter "%s" must be of type: "%s"' % ('role', 'list'))
-    desired_roles = set(data_dict['roles'])
-
-    if new_user_ref:
-        user_object = model.User.get(new_user_ref)
-        if not user_object:
-            raise NotFound('Cannot find user %r' % new_user_ref)
-        data_dict['user'] = user_object.id
-        add_user_to_role_func = model.add_user_to_role
-        remove_user_from_role_func = model.remove_user_from_role
-
-    domain_object = logic.action.get_domain_object(model, domain_object_ref)
-    data_dict['id'] = domain_object.id
-
-    # current_uors: in order to avoid either creating a role twice or
-    # deleting one which is non-existent, we need to get the users\'
-    # current roles (if any)
-    current_role_dicts = _get_action('roles_show')(context, data_dict)['roles']
-    current_roles = set([role_dict['role'] for role_dict in current_role_dicts])
-
-    # Whenever our desired state is different from our current state,
-    # change it.
-    for role in (desired_roles - current_roles):
-        add_user_to_role_func(user_object, role, domain_object)
-    for role in (current_roles - desired_roles):
-        remove_user_from_role_func(user_object, role, domain_object)
-
-    # and finally commit all these changes to the database
-    if not (current_roles == desired_roles):
-        model.repo.commit_and_remove()
-
-    return _get_action('roles_show')(context, data_dict)
-
-def user_role_bulk_update(context, data_dict):
-    '''Update the roles of many users or authorization groups for an object.
-
-    You must be authorized to update the domain object.
-
-    :param user_roles: the updated user roles, for the format of user role
-        dictionaries see :py:func:`~user_role_update`
-    :type user_roles: list of dictionaries
-
-    :returns: the updated roles of all users and authorization groups for the
-        domain object
-    :rtype: dictionary
-
-    '''
-    # Collate all the roles for each user
-    roles_by_user = {} # user:roles
-    for user_role_dict in data_dict['user_roles']:
-        user = user_role_dict.get('user')
-        if user:
-            roles = user_role_dict['roles']
-            if user not in roles_by_user:
-                roles_by_user[user] = []
-            roles_by_user[user].extend(roles)
-    # For each user, update its roles
-    for user in roles_by_user:
-        uro_data_dict = {'user': user,
-                         'roles': roles_by_user[user],
-                         'domain_object': data_dict['domain_object']}
-        user_role_update(context, uro_data_dict)
-    return _get_action('roles_show')(context, data_dict)
 
 
 def dashboard_mark_activities_old(context, data_dict):

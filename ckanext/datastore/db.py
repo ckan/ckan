@@ -316,6 +316,13 @@ def create_table(context, data_dict):
                 })
             field['type'] = _guess_type(records[0][field['id']])
 
+    # Check for duplicate fields
+    unique_fields = set([f['id'] for f in supplied_fields])
+    if not len(unique_fields) == len(supplied_fields):
+        raise ValidationError({
+            'field': ['Duplicate column names are not supported']
+        })
+
     if records:
         # check record for sanity
         if not isinstance(records[0], dict):

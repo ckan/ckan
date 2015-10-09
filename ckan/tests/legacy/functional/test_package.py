@@ -285,7 +285,6 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         rev.timestamp = cls.date1
         pkg = model.Package(name=cls.pkg_name, title=u'title1')
         model.Session.add(pkg)
-        model.setup_default_user_roles(pkg)
         model.repo.commit_and_remove()
 
         # edit dataset
@@ -410,7 +409,6 @@ class TestEdit(TestPackageForm):
              'resources':[{'url':u'url escape: & umlaut: \xfc quote: "',
                           'description':u'description escape: & umlaut: \xfc quote "',
                           }],
-             'admins':[u'testadmin'],
              })
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
@@ -671,7 +669,6 @@ class TestNonActivePackages(TestPackageBase):
 
         pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
         admin = model.User.by_name(u'joeadmin')
-        model.setup_default_user_roles(pkg, [admin])
         model.repo.commit_and_remove()
 
         model.repo.new_revision()
@@ -707,7 +704,6 @@ class TestRevisions(TestPackageBase):
         cls.pkg1 = model.Package(name=cls.name)
         cls.pkg1.notes = cls.notes[0]
         model.Session.add(cls.pkg1)
-        model.setup_default_user_roles(cls.pkg1)
         model.repo.commit_and_remove()
 
         # edit pkg

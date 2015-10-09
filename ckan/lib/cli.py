@@ -185,11 +185,9 @@ class ManageDb(CkanCommand):
     db upgrade [version no.]       - Data migrate
     db version                     - returns current version of data schema
     db dump FILE_PATH              - dump to a pg_dump file
-    db dump-rdf DATASET_NAME FILE_PATH
     db simple-dump-csv FILE_PATH   - dump just datasets in CSV format
     db simple-dump-json FILE_PATH  - dump just datasets in JSON format
     db user-dump-csv FILE_PATH     - dump user information to a CSV file
-    db send-rdf TALIS_STORE USERNAME PASSWORD
     db load FILE_PATH              - load a pg_dump from a file
     db load-only FILE_PATH         - load a pg_dump from a file but don\'t do
                                      the schema upgrade or search indexing
@@ -224,7 +222,7 @@ class ManageDb(CkanCommand):
                 os.remove(f)
 
             model.repo.clean_db()
-            search.clear()
+            search.clear_all()
             if self.verbose:
                 print 'Cleaning DB: SUCCESS'
         elif cmd == 'upgrade':
@@ -244,16 +242,12 @@ class ManageDb(CkanCommand):
             self.simple_dump_csv()
         elif cmd == 'simple-dump-json':
             self.simple_dump_json()
-        elif cmd == 'dump-rdf':
-            self.dump_rdf()
         elif cmd == 'user-dump-csv':
             self.user_dump_csv()
         elif cmd == 'create-from-model':
             model.repo.create_db()
             if self.verbose:
                 print 'Creating DB: SUCCESS'
-        elif cmd == 'send-rdf':
-            self.send_rdf()
         elif cmd == 'migrate-filestore':
             self.migrate_filestore()
         else:
@@ -351,23 +345,6 @@ class ManageDb(CkanCommand):
         dump_file = open(dump_filepath, 'w')
         dumper.SimpleDumper().dump(dump_file, format='json')
 
-    def dump_rdf(self):
-        if len(self.args) < 3:
-            print 'Need dataset name and rdf file path'
-            return
-        package_name = self.args[1]
-        rdf_path = self.args[2]
-        import ckan.model as model
-        import ckan.lib.rdf as rdf
-        pkg = model.Package.by_name(unicode(package_name))
-        if not pkg:
-            print 'Dataset name "%s" does not exist' % package_name
-            return
-        rdf = rdf.RdfExporter().export_package(pkg)
-        f = open(rdf_path, 'w')
-        f.write(rdf)
-        f.close()
-
     def user_dump_csv(self):
         if len(self.args) < 2:
             print 'Need csv file path'
@@ -376,17 +353,6 @@ class ManageDb(CkanCommand):
         import ckan.lib.dumper as dumper
         dump_file = open(dump_filepath, 'w')
         dumper.UserDumper().dump(dump_file)
-
-    def send_rdf(self):
-        if len(self.args) < 4:
-            print 'Need all arguments: {talis-store} {username} {password}'
-            return
-        talis_store = self.args[1]
-        username = self.args[2]
-        password = self.args[3]
-        import ckan.lib.talis
-        talis = ckan.lib.talis.Talis()
-        return talis.send_rdf(talis_store, username, password)
 
     def migrate_filestore(self):
         from ckan.model import Session
@@ -436,14 +402,14 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index [-i] [-o] [-r] [-e] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
-                                                                 full search index (all datasets)
-      search-index rebuild_fast                                - reindex using multiprocessing using all cores.
-                                                                 This acts in the same way as rubuild -r [EXPERIMENTAL]
-      search-index check                                       - checks for datasets not indexed
-      search-index show DATASET_NAME                           - shows index of a dataset
-      search-index clear [dataset_name]                        - clears the search index for the provided dataset or
-                                                                 for the whole ckan instance
+      search-index [-i] [-o] [-r] [-e] [-q] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
+                                                                    full search index (all datasets)
+      search-index rebuild_fast                                     - reindex using multiprocessing using all cores.
+                                                                    This acts in the same way as rubuild -r [EXPERIMENTAL]
+      search-index check                                            - checks for datasets not indexed
+      search-index show DATASET_NAME                                - shows index of a dataset
+      search-index clear [dataset_name]                             - clears the search index for the provided dataset or
+                                                                    for the whole ckan instance
     '''
 
     summary = __doc__.split('\n')[0]
@@ -465,6 +431,10 @@ class SearchIndexCommand(CkanCommand):
         self.parser.add_option('-r', '--refresh', dest='refresh',
                                action='store_true', default=False,
                                help='Refresh current index (does not clear the existing one)')
+
+        self.parser.add_option('-q', '--quiet', dest='quiet',
+                               action='store_true', default=False,
+                               help='Do not output index rebuild progress')
 
         self.parser.add_option('-e', '--commit-each', dest='commit_each',
                                action='store_true', default=False, help=
@@ -508,7 +478,8 @@ Default is false.''')
             rebuild(only_missing=self.options.only_missing,
                     force=self.options.force,
                     refresh=self.options.refresh,
-                    defer_commit=(not self.options.commit_each))
+                    defer_commit=(not self.options.commit_each),
+                    quiet=self.options.quiet)
 
         if not self.options.commit_each:
             commit()
@@ -527,9 +498,12 @@ Default is false.''')
         pprint(index)
 
     def clear(self):
-        from ckan.lib.search import clear
+        from ckan.lib.search import clear, clear_all
         package_id = self.args[1] if len(self.args) > 1 else None
-        clear(package_id)
+        if not package_id:
+            clear_all()
+        else:
+            clear(package_id)
 
     def rebuild_fast(self):
         ###  Get out config but without starting pylons environment ####
@@ -652,7 +626,13 @@ class RDFExport(CkanCommand):
             url = urlparse.urljoin(fetch_url, url[1:]) + '.rdf'
             try:
                 fname = os.path.join(out_folder, dd['name']) + ".rdf"
-                r = urllib2.urlopen(url).read()
+                try:
+                    r = urllib2.urlopen(url).read()
+                except urllib2.HTTPError, e:
+                    if e.code == 404:
+                        print ('Please install ckanext-dcat and enable the ' +
+                               '`dcat` plugin to use the RDF serializations')
+                        sys.exit(1)
                 with open(fname, 'wb') as f:
                     f.write(r)
             except IOError, ioe:
@@ -918,7 +898,6 @@ class DatasetCmd(CkanCommand):
 
     def command(self):
         self._load_config()
-        import ckan.model as model
 
         if not self.args:
             print self.usage
@@ -967,13 +946,14 @@ class DatasetCmd(CkanCommand):
         print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
 
     def purge(self, dataset_ref):
-        import ckan.model as model
+        import ckan.logic as logic
         dataset = self._get_dataset(dataset_ref)
         name = dataset.name
 
-        rev = model.repo.new_revision()
-        dataset.purge()
-        model.repo.commit_and_remove()
+        site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+        context = {'user': site_user['name']}
+        logic.get_action('dataset_purge')(
+            context, {'id': dataset_ref})
         print '%s purged' % name
 
 

@@ -123,6 +123,23 @@ class TestLoginView(helpers.FunctionalTestBase):
                                    .format(user['fullname']))
 
 
+class TestLogout(helpers.FunctionalTestBase):
+
+    def test_user_logout_url_redirect(self):
+        '''_logout url redirects to logged out page.
+
+        Note: this doesn't test the actual logout of a logged in user, just
+        the associated redirect.
+        '''
+        app = self._get_test_app()
+
+        logout_url = url_for(controller='user', action='logout')
+        logout_response = app.get(logout_url, status=302)
+        final_response = helpers.webtest_maybe_follow(logout_response)
+
+        assert_true('You are now logged out.' in final_response)
+
+
 class TestUser(helpers.FunctionalTestBase):
 
     def test_own_datasets_show_up_on_user_dashboard(self):
@@ -414,8 +431,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
 
         user_response_html = BeautifulSoup(user_response.body)
         user_list = user_response_html.select('ul.user-list li')
-        # two pseudo users + the users we've added
-        assert_equal(len(user_list), 2 + 3)
+        assert_equal(len(user_list), 3)
 
         user_names = [u.text.strip() for u in user_list]
         assert_true('User One' in user_names)
@@ -434,8 +450,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
 
         user_response_html = BeautifulSoup(user_response.body)
         user_list = user_response_html.select('ul.user-list li')
-        # two pseudo users + the users we've added
-        assert_equal(len(user_list), 2 + 2)
+        assert_equal(len(user_list), 2)
 
         user_names = [u.text.strip() for u in user_list]
         assert_true('User One' not in user_names)

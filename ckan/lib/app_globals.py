@@ -73,13 +73,9 @@ app_globals_from_config_details = {
 _CONFIG_CACHE = {}
 
 def set_main_css(css_file):
-    ''' Sets the main_css using debug css if needed.  The css_file
-    must be of the form file.css '''
+    ''' Sets the main_css.  The css_file must be of the form file.css '''
     assert css_file.endswith('.css')
-    if config.get('debug') and css_file == '/base/css/main.css':
-        new_css = '/base/css/main.debug.css'
-    else:
-        new_css = css_file
+    new_css = css_file
     # FIXME we should check the css file exists
     app_globals.main_css = str(new_css)
 

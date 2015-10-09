@@ -26,6 +26,7 @@ psycopg2==2.4.5
 pygments==2.0.2           # via weberror
 Pylons==0.9.7
 python-dateutil==1.5
+pytz==2012j
 pyutilib.component.core==4.5.3
 repoze.lru==0.6           # via routes
 repoze.who-friendlyform==1.0.8
@@ -39,6 +40,7 @@ sqlalchemy-migrate==0.9.1
 sqlalchemy==0.9.6
 sqlparse==0.1.11
 tempita==0.5.2            # via pylons, sqlalchemy-migrate, weberror
+tzlocal==1.2
 unicodecsv==0.14.1
 vdm==0.13
 weberror==0.11            # via pylons

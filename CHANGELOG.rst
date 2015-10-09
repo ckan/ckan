@@ -7,6 +7,38 @@
 Changelog
 ---------
 
+v2.5.0 XXXX-XX-XX
+=================
+
+Changes and deprecations
+------------------------
+
+* The old RDF templates to output a dataset in RDF/XML or N3 format have been
+  removed. These can be now enabled using the ``dcat`` plugin on *ckanext-dcat*:
+
+    https://github.com/ckan/ckanext-dcat#rdf-dcat-endpoints
+
+
+v2.4.1 2015-09-02
+=================
+
+Note: #2554 fixes a regression where ``group_list`` and ``organization_list``
+      where returning extra additional fields by default, causing performance
+      issues. This is now fixed, so the output for these actions no longer returns
+      ``users``, ``extras``, etc.
+      Also, on the homepage template the ``c.groups`` and ``c.group_package_stuff``
+      context variables are no longer available.
+
+
+Bug fixes:
+
+* Fix dataset count in templates and show datasets on featured org/group (#2557)
+* Fix autodetect for TSV resources (#2553)
+* Improve character escaping in DataStore parameters
+* Fix "paster db init" when celery is configured with a non-database backend
+* Fix severe performance issues with groups and orgs listings (#2554)
+
+
 v2.4.0 2015-07-22
 =================
 
@@ -87,6 +119,16 @@ Changes and deprecations
 
 * Config option ``site_url`` is now required - CKAN will not abort during
   start-up if it is not set. (#1976)
+
+
+v2.3.2 2015-09-02
+=================
+
+Bug fixes:
+* Fix autodetect for TSV resources (#2553)
+* Improve character escaping in DataStore parameters
+* Fix "paster db init" when celery is configured with a non-database backend
+
 
 v2.3.1 2015-07-22
 =================
