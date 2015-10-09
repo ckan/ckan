@@ -3,7 +3,14 @@ import simplejson.encoder as json_encoder
 
 
 class LazyJSONObject(dict):
-    '''An object that behaves like a dict returned from json.loads'''
+    '''An object that behaves like a dict returned from json.loads,
+    however it will not actually do the expensive decoding from a JSON string
+    into a dict unless you start treating it like a dict.
+
+    This is therefore useful for the situation where there's a good chance you
+    won't need to use the data in dict form, and all you're going to do is
+    json.dumps it again, for which your original string is returned.
+    '''
     def __init__(self, json_string):
         self._json_string = json_string
         self._json_dict = None
