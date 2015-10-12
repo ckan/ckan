@@ -32,7 +32,7 @@ repoze.lru==0.6
 repoze.who==2.0
 repoze.who-friendlyform==1.0.8
 requests==2.7.0
-simplejson==3.3.1
+simplejson==3.8.0
 six==1.7.3
 solrpy==0.9.5
 sqlalchemy-migrate==0.9.1
