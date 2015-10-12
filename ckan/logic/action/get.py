@@ -1056,7 +1056,7 @@ def package_show(context, data_dict):
                 package_dict_validated = False
             metadata_modified = pkg.metadata_modified.isoformat()
             search_metadata_modified = search_result['metadata_modified']
-            # solr stores less precise datetime,
+            # solr stores less precice datetime,
             # truncate to 22 charactors to get good enough match
             if metadata_modified[:22] != search_metadata_modified[:22]:
                 package_dict = None
