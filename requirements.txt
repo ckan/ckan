@@ -33,7 +33,7 @@ repoze.who-friendlyform==1.0.8
 repoze.who==2.0
 requests==2.3.0
 routes==1.13
-simplejson==3.8.0         # via pylons
+simplejson==3.3.1         # via pylons HAND-FIXED FOR NOW #2681
 six==1.10.0               # via pastescript, sqlalchemy-migrate
 solrpy==0.9.5
 sqlalchemy-migrate==0.9.1
