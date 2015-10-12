@@ -31,7 +31,7 @@ pyutilib.component.core==4.5.3
 repoze.lru==0.6           # via routes
 repoze.who-friendlyform==1.0.8
 repoze.who==2.0
-requests==2.3.0
+requests==2.7.0
 routes==1.13
 simplejson==3.3.1         # via pylons HAND-FIXED FOR NOW #2681
 six==1.10.0               # via pastescript, sqlalchemy-migrate
@@ -52,4 +52,4 @@ zope.interface==4.1.1
 # The following packages are commented out because they are
 # considered to be unsafe in a requirements file:
 # pip==7.1.2                # via pbr
-# setuptools==18.3.2
+# setuptools==18.4
