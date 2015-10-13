@@ -868,7 +868,11 @@ def dict_list_reduce(list_, key, unique=True):
     values for the key with unique values if requested. '''
     new_list = []
     for item in list_:
-        value = item.get(key)
+        try:
+            value = item.get(key)
+        except AttributeError:
+            # item might not be a dict.
+            continue
         if not value or (unique and value in new_list):
             continue
         new_list.append(value)
