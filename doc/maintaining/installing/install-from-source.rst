@@ -287,6 +287,24 @@ installed, we need to install and configure Solr.
     or::
 
         JAVA_HOME=/usr/lib/jvm/java-6-openjdk-i386/
+    
+        
+    .. note::
+
+    Very common error I'm got, when trying Install CKAN on clean Ubuntu 12.04 x64::
+
+        HTTP ERROR 500
+        Problem accessing /solr/. Reason:
+        Unable to find a javac compiler;
+        com.sun.tools.javac.Main is not on the classpath.
+        Perhaps JAVA_HOME does not point to the JDK.
+        It is currently set to "/usr/lib/jvm/java-6-openjdk-amd64/jre"
+        
+    This one is not obvious, because you clearly set JAVA_HOME in ``/etc/default/jetty`` and error still appears. But your global JAVA_HOME variable pointing to `usr/lib/jvm/java-6-*/jre`, and Solr using it. To solve in follow: 
+        1. Remove /jre from the environment variable by ``export `JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/` ``
+        2. Install the JDK as well as the JRE: ``sudo apt-get install default-jdk``
+        3. Restart jetty: ``sudo service jetty restart``
+ 
 
 #. Replace the default ``schema.xml`` file with a symlink to the CKAN schema
    file included in the sources.
