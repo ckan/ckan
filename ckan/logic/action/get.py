@@ -1944,7 +1944,7 @@ def package_search(context, data_dict):
                         package_dict = item.before_view(package_dict)
                 results.append(package_dict)
             else:
-                results.append(model_dictize.package_dictize(pkg, context))
+                log.error('No package_dict is coming from solr for package with id {}'.format(package))
 
         count = query.count
         facets = query.facets
