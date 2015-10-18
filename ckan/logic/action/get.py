@@ -1968,7 +1968,7 @@ def package_search(context, data_dict):
 
     #Querying just for the columns we're interested in: name and title
     groups = session.query(model.Group.name, model.Group.title).filter(model.Group.name.in_(group_keys)).all()
-    group_display_names = {g.name: g.title for g in groups}
+    group_display_names = dict((g.name, g.title) for g in groups)
 
     # Transform facets into a more useful data structure.
     restructured_facets = {}
