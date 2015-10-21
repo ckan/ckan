@@ -10,7 +10,7 @@
       {% block form %}
         <p>{{ _('Are you sure you want to delete group - {name}?').format(name=c.group_dict.name) }}</p>
         <p class="form-actions">
-          <form action="{% url_for controller='group', action='delete', id=c.group_dict.name %}" method="post">
+          <form id="group-confirm-delete-form" action="{% url_for controller='group', action='delete', id=c.group_dict.name %}" method="post">
             <button class="btn" type="submit" name="cancel" >{{ _('Cancel') }}</button>
             <button class="btn btn-primary" type="submit" name="delete" >{{ _('Confirm Delete') }}</button>
           </form>

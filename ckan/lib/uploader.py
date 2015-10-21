@@ -2,10 +2,11 @@ import os
 import cgi
 import pylons
 import datetime
-import ckan.lib.munge as munge
 import logging
-import ckan.logic as logic
 
+import ckan.lib.munge as munge
+import ckan.logic as logic
+import ckan.plugins as plugins
 
 config = pylons.config
 log = logging.getLogger(__name__)
@@ -15,11 +16,38 @@ _max_resource_size = None
 _max_image_size = None
 
 
+def get_uploader(upload_to, old_filename=None):
+    '''Query IUploader plugins and return an uploader instance for general
+    files.'''
+    upload = None
+    for plugin in plugins.PluginImplementations(plugins.IUploader):
+        upload = plugin.get_uploader(upload_to, old_filename)
+
+    # default uploader
+    if upload is None:
+        upload = Upload(upload_to, old_filename)
+
+    return upload
+
+
+def get_resource_uploader(data_dict):
+    '''Query IUploader plugins and return a resource uploader instance.'''
+    upload = None
+    for plugin in plugins.PluginImplementations(plugins.IUploader):
+        upload = plugin.get_resource_uploader(data_dict)
+
+    # default uploader
+    if upload is None:
+        upload = ResourceUpload(data_dict)
+
+    return upload
+
+
 def get_storage_path():
     '''Function to cache storage path'''
     global _storage_path
 
-    #None means it has not been set. False means not in config.
+    # None means it has not been set. False means not in config.
     if _storage_path is None:
         storage_path = config.get('ckan.storage_path')
         ofs_impl = config.get('ofs.impl')
@@ -60,7 +88,7 @@ def get_max_resource_size():
 
 class Upload(object):
     def __init__(self, object_type, old_filename=None):
-        ''' Setup upload by creating  a subdirectory of the storage directory
+        ''' Setup upload by creating a subdirectory of the storage directory
         of name object_type. old_filename is the name of the file in the url
         field last time'''
 
@@ -75,7 +103,7 @@ class Upload(object):
         try:
             os.makedirs(self.storage_path)
         except OSError, e:
-            ## errno 17 is file already exists
+            # errno 17 is file already exists
             if e.errno != 17:
                 raise
         self.object_type = object_type
@@ -102,12 +130,12 @@ class Upload(object):
         if isinstance(self.upload_field_storage, cgi.FieldStorage):
             self.filename = self.upload_field_storage.filename
             self.filename = str(datetime.datetime.utcnow()) + self.filename
-            self.filename = munge.munge_filename(self.filename)
+            self.filename = munge.munge_filename_legacy(self.filename)
             self.filepath = os.path.join(self.storage_path, self.filename)
             data_dict[url_field] = self.filename
             self.upload_file = self.upload_field_storage.file
             self.tmp_filepath = self.filepath + '~'
-        ### keep the file if there has been no change
+        # keep the file if there has been no change
         elif self.old_filename and not self.old_filename.startswith('http'):
             if not self.clear:
                 data_dict[url_field] = self.old_filename
@@ -127,7 +155,7 @@ class Upload(object):
             current_size = 0
             while True:
                 current_size = current_size + 1
-                # MB chuncks
+                # MB chunks
                 data = self.upload_file.read(2 ** 20)
                 if not data:
                     break
@@ -145,7 +173,7 @@ class Upload(object):
                 and not self.old_filename.startswith('http')):
             try:
                 os.remove(self.old_filepath)
-            except OSError, e:
+            except OSError:
                 pass
 
 
@@ -159,7 +187,7 @@ class ResourceUpload(object):
         try:
             os.makedirs(self.storage_path)
         except OSError, e:
-            ## errno 17 is file already exists
+            # errno 17 is file already exists
             if e.errno != 17:
                 raise
         self.filename = None
@@ -173,6 +201,7 @@ class ResourceUpload(object):
             self.filename = munge.munge_filename(self.filename)
             resource['url'] = self.filename
             resource['url_type'] = 'upload'
+            resource['last_modified'] = datetime.datetime.utcnow()
             self.upload_file = upload_field_storage.file
         elif self.clear:
             resource['url_type'] = ''
@@ -213,7 +242,7 @@ class ResourceUpload(object):
             try:
                 os.makedirs(directory)
             except OSError, e:
-                ## errno 17 is file already exists
+                # errno 17 is file already exists
                 if e.errno != 17:
                     raise
             tmp_filepath = filepath + '~'
@@ -222,7 +251,7 @@ class ResourceUpload(object):
             current_size = 0
             while True:
                 current_size = current_size + 1
-                #MB chunks
+                # MB chunks
                 data = self.upload_file.read(2 ** 20)
                 if not data:
                     break

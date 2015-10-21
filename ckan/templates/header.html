@@ -10,7 +10,8 @@
               {% if c.userobj.sysadmin %}
                 <li>
                   <a href="{{ h.url_for(controller='admin', action='index') }}" title="{{ _('Sysadmin settings') }}">
-                    <i class="icon-legal"></i>
+                    <i class="icon-legal" aria-hidden="true"></i>
+                    <span class="text">{{ _('Admin') }}</span>
                   </a>
                 </li>
               {% endif %}
@@ -24,21 +25,24 @@
               <li class="notifications {% if new_activities > 0 %}notifications-important{% endif %}">
                 {% set notifications_tooltip = ngettext('Dashboard (%(num)d new item)', 'Dashboard (%(num)d new items)', new_activities) %}
                 <a href="{{ h.url_for(controller='user', action='dashboard') }}" title="{{ notifications_tooltip }}">
-                  <i class="icon-dashboard"></i>
-                  <span>{{ new_activities }}</span>
+                  <i class="icon-dashboard" aria-hidden="true"></i>
+                  <span class="text">{{ _('Dashboard') }}</span>
+                  <span class="badge">{{ new_activities }}</span>
                 </a>
               </li>
               {% block header_account_settings_link %}
                 <li>
                   <a href="{{ h.url_for(controller='user', action='edit', id=c.userobj.name) }}" title="{{ _('Edit settings') }}">
-                    <i class="icon-cog"></i>
+                    <i class="icon-cog" aria-hidden="true"></i>
+                    <span class="text">{{ _('Settings') }}</span>
                   </a>
                 </li>
               {% endblock %}
               {% block header_account_log_out_link %}
                 <li>
                   <a href="{{ h.url_for('/user/_logout') }}" title="{{ _('Log out') }}">
-                    <i class="icon-signout"></i>
+                    <i class="icon-signout" aria-hidden="true"></i>
+                    <span class="text">{{ _('Log out') }}</span>
                   </a>
                 </li>
               {% endblock %}

@@ -58,7 +58,9 @@ class ReclineViewBase(p.SingletonPlugin):
         toolkit.add_resource('theme/public', 'ckanext-reclineview')
 
     def can_view(self, data_dict):
-        return data_dict['resource'].get('datastore_active')
+        resource = data_dict['resource']
+        return (resource.get('datastore_active') or
+                resource.get('url') == '_datastore_only_resource')
 
     def setup_template_variables(self, context, data_dict):
         return {'resource_json': json.dumps(data_dict['resource']),
@@ -83,9 +85,12 @@ class ReclineView(ReclineViewBase):
                 }
 
     def can_view(self, data_dict):
-        if data_dict['resource'].get('datastore_active'):
+        resource = data_dict['resource']
+
+        if (resource.get('datastore_active') or
+                resource.get('url') == '_datastore_only_resource'):
             return True
-        resource_format = data_dict['resource'].get('format', None)
+        resource_format = resource.get('format', None)
         if resource_format:
             return resource_format.lower() in ['csv', 'xls', 'xlsx', 'tsv']
         else:
@@ -173,7 +178,9 @@ class ReclineMapView(ReclineViewBase):
 
     datastore_fields = []
 
-    datastore_field_types = ['numeric']
+    datastore_field_latlon_types = ['numeric']
+
+    datastore_field_geojson_types = ['text']
 
     def list_map_field_types(self):
         return [t['value'] for t in self.map_field_types]
@@ -208,12 +215,19 @@ class ReclineMapView(ReclineViewBase):
                 }
 
     def setup_template_variables(self, context, data_dict):
-        self.datastore_fields = datastore_fields(data_dict['resource'],
-                                                 self.datastore_field_types)
+        map_latlon_fields = datastore_fields(
+            data_dict['resource'], self.datastore_field_latlon_types)
+        map_geojson_fields = datastore_fields(
+            data_dict['resource'], self.datastore_field_geojson_types)
+
+        self.datastore_fields = map_latlon_fields + map_geojson_fields
+
         vars = ReclineViewBase.setup_template_variables(self, context,
                                                         data_dict)
         vars.update({'map_field_types': self.map_field_types,
-                     'map_fields': self.datastore_fields})
+                     'map_latlon_fields': map_latlon_fields,
+                     'map_geojson_fields': map_geojson_fields
+                     })
         return vars
 
     def form_template(self, context, data_dict):

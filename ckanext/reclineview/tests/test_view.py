@@ -2,12 +2,14 @@ import paste.fixture
 import pylons.config as config
 
 import ckan.model as model
-import ckan.tests as tests
+import ckan.tests.legacy as tests
 import ckan.plugins as p
 import ckan.lib.helpers as h
 import ckanext.reclineview.plugin as plugin
 import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
+
+from ckan.tests import helpers, factories
 
 
 class BaseTestReclineViewBase(tests.WsgiAppCase):
@@ -76,6 +78,47 @@ class TestReclineView(BaseTestReclineViewBase):
             data_dict = {'resource': {'datastore_active': False,
                                       'format': resource_format}}
             assert not self.p.can_view(data_dict)
+
+
+class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
+
+    @classmethod
+    def setup_class(cls):
+        if not p.plugin_loaded('recline_view'):
+            p.load('recline_view')
+        if not p.plugin_loaded('datastore'):
+            p.load('datastore')
+        app_config = config.copy()
+        app_config['ckan.legacy_templates'] = 'false'
+        app_config['ckan.plugins'] = 'recline_view datastore'
+        app_config['ckan.views.default_views'] = 'recline_view'
+        wsgiapp = middleware.make_app(config['global_conf'], **app_config)
+        cls.app = paste.fixture.TestApp(wsgiapp)
+
+    @classmethod
+    def teardown_class(cls):
+        if p.plugin_loaded('recline_view'):
+            p.unload('recline_view')
+        if p.plugin_loaded('datastore'):
+            p.unload('datastore')
+
+    def test_create_datastore_only_view(self):
+        dataset = factories.Dataset()
+        data = {
+            'resource': {'package_id': dataset['id']},
+            'fields': [{'id': 'a'}, {'id': 'b'}],
+            'records': [{'a': 1, 'b': 'xyz'}, {'a': 2, 'b': 'zzz'}]
+        }
+        result = helpers.call_action('datastore_create', **data)
+
+        resource_id = result['resource_id']
+
+        url = h.url_for(controller='package', action='resource_read',
+                        id=dataset['id'], resource_id=resource_id)
+
+        result = self.app.get(url)
+
+        assert 'data-module="data-viewer"' in result.body
 
 
 class TestReclineGridView(BaseTestReclineViewBase):

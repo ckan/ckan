@@ -1,5 +1,5 @@
 import ckan.logic as logic
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 from ckan.logic.auth import get_group_object, get_related_object
 from ckan.logic.auth import get_resource_object
 import ckan.logic.auth.create as _auth_create
@@ -16,6 +16,10 @@ def package_delete(context, data_dict):
     # Defer authorization for package_delete to package_update, as deletions
     # are essentially changing the state field
     return _auth_update.package_update(context, data_dict)
+
+def dataset_purge(context, data_dict):
+    # Only sysadmins are authorized to purge datasets
+    return {'success': False}
 
 def resource_delete(context, data_dict):
     model = context['model']
@@ -86,7 +90,7 @@ def package_relationship_delete(context, data_dict):
     relationship = context['relationship']
 
     # If you can create this relationship the you can also delete it
-    authorized = new_authz.is_authorized_boolean('package_relationship_create', context, data_dict)
+    authorized = authz.is_authorized_boolean('package_relationship_create', context, data_dict)
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete relationship %s') % (user ,relationship.id)}
     else:
@@ -95,10 +99,10 @@ def package_relationship_delete(context, data_dict):
 def group_delete(context, data_dict):
     group = get_group_object(context, data_dict)
     user = context['user']
-    if not new_authz.check_config_permission('user_delete_groups'):
+    if not authz.check_config_permission('user_delete_groups'):
         return {'success': False,
             'msg': _('User %s not authorized to delete groups') % user}
-    authorized = new_authz.has_user_permission_for_group_or_org(
+    authorized = authz.has_user_permission_for_group_or_org(
         group.id, user, 'delete')
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete group %s') % (user ,group.id)}
@@ -116,10 +120,10 @@ def organization_purge(context, data_dict):
 def organization_delete(context, data_dict):
     group = get_group_object(context, data_dict)
     user = context['user']
-    if not new_authz.check_config_permission('user_delete_organizations'):
+    if not authz.check_config_permission('user_delete_organizations'):
         return {'success': False,
             'msg': _('User %s not authorized to delete organizations') % user}
-    authorized = new_authz.has_user_permission_for_group_or_org(
+    authorized = authz.has_user_permission_for_group_or_org(
         group.id, user, 'delete')
     if not authorized:
         return {'success': False, 'msg': _('User %s not authorized to delete organization %s') % (user ,group.id)}

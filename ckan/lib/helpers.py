@@ -10,6 +10,8 @@ import datetime
 import logging
 import re
 import os
+import pytz
+import tzlocal
 import urllib
 import urlparse
 import pprint
@@ -41,7 +43,7 @@ import ckan.lib.maintain as maintain
 import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
-import ckan.new_authz as new_authz
+import ckan.authz as authz
 
 from ckan.common import (
     _, ungettext, g, c, request, session, json, OrderedDict
@@ -72,6 +74,33 @@ def _datestamp_to_datetime(datetime_):
     # check we are now a datetime
     if not isinstance(datetime_, datetime.datetime):
         return None
+
+    if datetime_.tzinfo is not None:
+        return datetime_
+
+    # all dates are considered UTC internally,
+    # change output if `ckan.display_timezone` is available
+    datetime_ = datetime_.replace(tzinfo=pytz.utc)
+    timezone_name = config.get('ckan.display_timezone', '')
+    if timezone_name == 'server':
+        local_tz = tzlocal.get_localzone()
+        return datetime_.astimezone(local_tz)
+
+    try:
+        datetime_ = datetime_.astimezone(
+            pytz.timezone(timezone_name)
+        )
+    except pytz.UnknownTimeZoneError:
+        if timezone_name != '':
+            log.warning(
+                'Timezone `%s` not found. '
+                'Please provide a valid timezone setting in '
+                '`ckan.display_timezone` or leave the field empty. All valid '
+                'values can be found in pytz.all_timezones. You can use the '
+                'special value `server` to use the local timezone of the '
+                'server.', timezone_name
+            )
+
     return datetime_
 
 
@@ -110,6 +139,28 @@ def url(*args, **kw):
     return _add_i18n_to_url(my_url, locale=locale, **kw)
 
 
+def get_site_protocol_and_host():
+    '''Return the protocol and host of the configured `ckan.site_url`.
+    This is needed to generate valid, full-qualified URLs.
+
+    If `ckan.site_url` is set like this::
+
+        ckan.site_url = http://example.com
+
+    Then this function would return a tuple `('http', 'example.com')`
+    If the setting is missing, `(None, None)` is returned instead.
+
+    '''
+    site_url = config.get('ckan.site_url', None)
+    if site_url is not None:
+        parsed_url = urlparse.urlparse(site_url)
+        return (
+            parsed_url.scheme.encode('utf-8'),
+            parsed_url.netloc.encode('utf-8')
+        )
+    return (None, None)
+
+
 def url_for(*args, **kw):
     '''Return the URL for the given controller, action, id, etc.
 
@@ -139,6 +190,8 @@ def url_for(*args, **kw):
             raise Exception('api calls must specify the version! e.g. ver=3')
         # fix ver to include the slash
         kw['ver'] = '/%s' % ver
+    if kw.get('qualified', False):
+        kw['protocol'], kw['host'] = get_site_protocol_and_host()
     my_url = _routes_default_url_for(*args, **kw)
     kw['__ckan_no_root'] = no_root
     return _add_i18n_to_url(my_url, locale=locale, **kw)
@@ -222,7 +275,11 @@ def _add_i18n_to_url(url_to_amend, **kw):
         root = ''
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
-        root = _routes_default_url_for('/', qualified=True)[:-1]
+        protocol, host = get_site_protocol_and_host()
+        root = _routes_default_url_for('/',
+                                       qualified=True,
+                                       host=host,
+                                       protocol=protocol)[:-1]
     # ckan.root_path is defined when we have none standard language
     # position in the url
     root_path = config.get('ckan.root_path', None)
@@ -231,15 +288,15 @@ def _add_i18n_to_url(url_to_amend, **kw):
         # into the ecportal core is done - Toby
         # we have a special root specified so use that
         if default_locale:
-            root = re.sub('/{{LANG}}', '', root_path)
+            root_path = re.sub('/{{LANG}}', '', root_path)
         else:
-            root = re.sub('{{LANG}}', locale, root_path)
+            root_path = re.sub('{{LANG}}', locale, root_path)
         # make sure we don't have a trailing / on the root
-        if root[-1] == '/':
-            root = root[:-1]
-        url = url_to_amend[len(re.sub('/{{LANG}}', '', root_path)):]
-        url = '%s%s' % (root, url)
-        root = re.sub('/{{LANG}}', '', root_path)
+        if root_path[-1] == '/':
+            root_path = root_path[:-1]
+
+        url_path = url_to_amend[len(root):]
+        url = '%s%s%s' % (root, root_path, url_path)
     else:
         if default_locale:
             url = url_to_amend
@@ -542,6 +599,22 @@ def build_nav(menu_item, title, **kw):
     return _make_menu_item(menu_item, title, icon=None, **kw)
 
 
+def build_extra_admin_nav():
+    '''Build extra navigation items used in ``admin/base.html`` for values
+    defined in the config option ``ckan.admin_tabs``. Typically this is
+    populated by extensions.
+
+    :rtype: HTML literal
+
+    '''
+    admin_tabs_dict = config.get('ckan.admin_tabs')
+    output = ''
+    if admin_tabs_dict:
+        for key in admin_tabs_dict:
+            output += build_nav_icon(key, admin_tabs_dict[key])
+    return output
+
+
 def _make_menu_item(menu_item, title, **kw):
     ''' build a navigation item used for example breadcrumbs
 
@@ -670,7 +743,8 @@ def unselected_facet_items(facet, limit=10):
     return get_facet_items_dict(facet, limit=limit, exclude_active=True)
 
 
-@maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be removed.')
+@maintain.deprecated('h.get_facet_title is deprecated in 2.0 and will be '
+                     'removed.')
 def get_facet_title(name):
     '''Deprecated in ckan 2.0 '''
     # if this is set in the config use this
@@ -765,8 +839,6 @@ def get_action(action_name, data_dict=None):
 
 
 def linked_user(user, maxlength=0, avatar=20):
-    if user in [model.PSEUDO_USER__LOGGED_IN, model.PSEUDO_USER__VISITOR]:
-        return user
     if not isinstance(user, model.User):
         user_name = unicode(user)
         user = model.User.get(user_name)
@@ -778,8 +850,9 @@ def linked_user(user, maxlength=0, avatar=20):
         displayname = user.display_name
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
-        return icon + u' ' + link_to(displayname,
-                                     url_for(controller='user', action='read', id=name))
+        return icon + u' ' + \
+            link_to(displayname,
+                    url_for(controller='user', action='read', id=name))
 
 
 def group_name_to_title(name):
@@ -798,7 +871,8 @@ def markdown_extract(text, extract_length=190):
     plain = RE_MD_HTML_TAGS.sub('', markdown(text))
     if not extract_length or len(plain) < extract_length:
         return literal(plain)
-    return literal(unicode(truncate(plain, length=extract_length, indicator='...', whole_word=True)))
+    return literal(unicode(truncate(plain, length=extract_length,
+                                    indicator='...', whole_word=True)))
 
 
 def icon_url(name):
@@ -830,13 +904,20 @@ def resource_icon(res):
 
 def format_icon(_format):
     _format = _format.lower()
-    if ('json' in _format): return 'page_white_cup'
-    if ('csv' in _format): return 'page_white_gear'
-    if ('xls' in _format): return 'page_white_excel'
-    if ('zip' in _format): return 'page_white_compressed'
-    if ('api' in _format): return 'page_white_database'
-    if ('plain text' in _format): return 'page_white_text'
-    if ('xml' in _format): return 'page_white_code'
+    if ('json' in _format):
+        return 'page_white_cup'
+    if ('csv' in _format):
+        return 'page_white_gear'
+    if ('xls' in _format):
+        return 'page_white_excel'
+    if ('zip' in _format):
+        return 'page_white_compressed'
+    if ('api' in _format):
+        return 'page_white_database'
+    if ('plain text' in _format):
+        return 'page_white_text'
+    if ('xml' in _format):
+        return 'page_white_code'
     return 'page_white'
 
 
@@ -867,7 +948,7 @@ def gravatar(email_hash, size=100, default=None):
     if default is None:
         default = config.get('ckan.gravatar_default', 'identicon')
 
-    if not default in _VALID_GRAVATAR_DEFAULTS:
+    if default not in _VALID_GRAVATAR_DEFAULTS:
         # treat the default as a url
         default = urllib.quote(default, safe='')
 
@@ -893,7 +974,8 @@ class Page(paginate.Page):
 
     def pager(self, *args, **kwargs):
         kwargs.update(
-            format=u"<div class='pagination pagination-centered'><ul>$link_previous ~2~ $link_next</ul></div>",
+            format=u"<div class='pagination pagination-centered'><ul>"
+            "$link_previous ~2~ $link_next</ul></div>",
             symbol_previous=u'«', symbol_next=u'»',
             curpage_attr={'class': 'active'}, link_attr={}
         )
@@ -942,6 +1024,7 @@ def render_datetime(datetime_, date_format=None, with_hours=False):
     datetime_ = _datestamp_to_datetime(datetime_)
     if not datetime_:
         return ''
+
     # if date_format was supplied we use it
     if date_format:
         return datetime_.strftime(date_format)
@@ -1049,6 +1132,7 @@ class _RFC2282TzInfo(datetime.tzinfo):
     def tzname(self, dt):
         return None
 
+
 @maintain.deprecated('h.time_ago_in_words_from_str is deprecated in 2.2 '
                      'and will be removed.  Please use '
                      'h.time_ago_from_timestamp instead')
@@ -1101,6 +1185,7 @@ def dataset_link(package_or_package_dict):
         url_for(controller='package', action='read', id=name)
     )
 
+
 # TODO: (?) support resource objects as well
 def resource_display_name(resource_dict):
     name = resource_dict.get('name', None)
@@ -1145,7 +1230,8 @@ def group_link(group):
 
 
 def organization_link(organization):
-    url = url_for(controller='organization', action='read', id=organization['name'])
+    url = url_for(controller='organization', action='read',
+                  id=organization['name'])
     return link_to(organization['name'], url)
 
 
@@ -1154,7 +1240,7 @@ def dump_json(obj, **kw):
 
 
 def _get_template_name():
-    #FIX ME THIS IS BROKEN
+    # FIX ME THIS IS BROKEN
     ''' helper function to get the currently/last rendered template name '''
     return c.__debug_info[-1]['template_name']
 
@@ -1399,7 +1485,8 @@ def debug_full_info_as_list(debug_info):
     ignored_keys = ['c', 'app_globals', 'g', 'h', 'request', 'tmpl_context',
                     'actions', 'translator', 'session', 'N_', 'ungettext',
                     'config', 'response', '_']
-    ignored_context_keys = ['__class__', '__context', '__delattr__', '__dict__',
+    ignored_context_keys = ['__class__', '__context', '__delattr__',
+                            '__dict__',
                             '__doc__', '__format__', '__getattr__',
                             '__getattribute__', '__hash__', '__init__',
                             '__module__', '__new__', '__reduce__',
@@ -1409,7 +1496,7 @@ def debug_full_info_as_list(debug_info):
                             'start_response']
     debug_vars = debug_info['vars']
     for key in debug_vars.keys():
-        if not key in ignored_keys:
+        if key not in ignored_keys:
             data = pprint.pformat(debug_vars.get(key))
             data = data.decode('utf-8')
             out.append((key, data))
@@ -1417,7 +1504,7 @@ def debug_full_info_as_list(debug_info):
     if 'tmpl_context' in debug_vars:
         for key in debug_info['c_vars']:
 
-            if not key in ignored_context_keys:
+            if key not in ignored_context_keys:
                 data = pprint.pformat(getattr(debug_vars['tmpl_context'], key))
                 data = data.decode('utf-8')
                 out.append(('c.%s' % key, data))
@@ -1430,10 +1517,12 @@ def popular(type_, number, min=1, title=None):
     if type_ == 'views':
         title = ungettext('{number} view', '{number} views', number)
     elif type_ == 'recent views':
-        title = ungettext('{number} recent view', '{number} recent views', number)
+        title = ungettext('{number} recent view', '{number} recent views',
+                          number)
     elif not title:
         raise Exception('popular() did not recieve a valid type_ or title')
-    return snippet('snippets/popular.html', title=title, number=number, min=min)
+    return snippet('snippets/popular.html',
+                   title=title, number=number, min=min)
 
 
 def groups_available(am_member=False):
@@ -1452,7 +1541,9 @@ def groups_available(am_member=False):
 
 
 def organizations_available(permission='edit_group'):
-    ''' return a list of available organizations '''
+    '''Return a list of organizations that the current user has the specified
+    permission for.
+    '''
     context = {'user': c.user}
     data_dict = {'permission': permission}
     return logic.get_action('organization_list_for_user')(context, data_dict)
@@ -1573,8 +1664,8 @@ RE_MD_INTERNAL_LINK = re.compile(
 # but ignore trailing punctuation since it is probably not part of the link
 RE_MD_EXTERNAL_LINK = re.compile(
     r'(\bhttps?:\/\/[\w\-\.,@?^=%&;:\/~\\+#]*'
-     '[\w\-@?^=%&:\/~\\+#]' # but last character can't be punctuation [.,;]
-     ')',
+    '[\w\-@?^=%&:\/~\\+#]'  # but last character can't be punctuation [.,;]
+    ')',
     flags=re.UNICODE
 )
 
@@ -1690,13 +1781,14 @@ def resource_preview(resource, package):
     if not resource['url']:
         return False
 
-    format_lower = datapreview.res_format(resource)
+    datapreview.res_format(resource)
     directly = False
     data_dict = {'resource': resource, 'package': package}
 
     if datapreview.get_preview_plugin(data_dict, return_first=True):
         url = url_for(controller='package', action='resource_datapreview',
-                      resource_id=resource['id'], id=package['id'], qualified=True)
+                      resource_id=resource['id'], id=package['id'],
+                      qualified=True)
     else:
         return False
 
@@ -1780,12 +1872,14 @@ def resource_view_is_iframed(resource_view):
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('iframed', True)
 
+
 def resource_view_icon(resource_view):
     '''
     Returns the icon for a particular view type.
     '''
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('icon', 'picture')
+
 
 def resource_view_display_preview(resource_view):
     '''
@@ -1794,6 +1888,7 @@ def resource_view_display_preview(resource_view):
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('preview_enabled', True)
 
+
 def resource_view_full_page(resource_view):
     '''
     Returns if the edit view page should be full page.
@@ -1801,9 +1896,11 @@ def resource_view_full_page(resource_view):
     view_plugin = datapreview.get_view_plugin(resource_view['view_type'])
     return view_plugin.info().get('full_page_edit', False)
 
+
 def remove_linebreaks(string):
     '''Remove linebreaks from string to make it usable in JavaScript'''
-    return str(string).replace('\n', '')
+    return unicode(string).replace('\n', '')
+
 
 def list_dict_filter(list_, search_field, output_field, value):
     ''' Takes a list of dicts and returns the value of a given key if the
@@ -1833,7 +1930,8 @@ def SI_number_span(number):
     if number < 1000:
         output = literal('<span>')
     else:
-        output = literal('<span title="' + formatters.localised_number(number) + '">')
+        output = literal('<span title="' + formatters.localised_number(number)
+                         + '">')
     return output + formatters.localised_SI_number(number) + literal('</span>')
 
 # add some formatter functions
@@ -1841,6 +1939,7 @@ localised_number = formatters.localised_number
 localised_SI_number = formatters.localised_SI_number
 localised_nice_date = formatters.localised_nice_date
 localised_filesize = formatters.localised_filesize
+
 
 def new_activities():
     '''Return the number of activities for the current user.
@@ -1854,10 +1953,12 @@ def new_activities():
     action = logic.get_action('dashboard_new_activities_count')
     return action({}, {})
 
+
 def uploads_enabled():
     if uploader.get_storage_path():
         return True
     return False
+
 
 def get_featured_organizations(count=1):
     '''Returns a list of favourite organization in the form
@@ -1888,7 +1989,8 @@ def featured_group_org(items, get_action, list_action, count):
         context = {'ignore_auth': True,
                    'limits': {'packages': 2},
                    'for_view': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id,
+                     'include_datasets': True}
 
         try:
             out = logic.get_action(get_action)(context, data_dict)
@@ -1934,10 +2036,15 @@ def get_site_statistics():
 
 _RESOURCE_FORMATS = None
 
+
 def resource_formats():
-    ''' Returns the resource formats as a dict, sourced from the resource format JSON file.
-    key:  potential user input value
-    value:  [canonical mimetype lowercased, canonical format (lowercase), human readable form]
+    ''' Returns the resource formats as a dict, sourced from the resource
+    format JSON file.
+
+    :param key:  potential user input value
+    :param value:  [canonical mimetype lowercased, canonical format
+                    (lowercase), human readable form]
+
     Fuller description of the fields are described in
     `ckan/config/resource_formats.json`.
     '''
@@ -1953,8 +2060,10 @@ def resource_formats():
         with open(format_file_path) as format_file:
             try:
                 file_resource_formats = json.loads(format_file.read())
-            except ValueError, e:  # includes simplejson.decoder.JSONDecodeError
-                raise ValueError('Invalid JSON syntax in %s: %s' % (format_file_path, e))
+            except ValueError, e:
+                # includes simplejson.decoder.JSONDecodeError
+                raise ValueError('Invalid JSON syntax in %s: %s' %
+                                 (format_file_path, e))
 
             for format_line in file_resource_formats:
                 if format_line[0] == '_comment':
@@ -1983,17 +2092,35 @@ def unified_resource_format(format):
         format_new = format
     return format_new
 
+
 def check_config_permission(permission):
-    return new_authz.check_config_permission(permission)
+    return authz.check_config_permission(permission)
 
 
 def get_organization(org=None, include_datasets=False):
     if org is None:
         return {}
     try:
-        return logic.get_action('organization_show')({}, {'id': org, 'include_datasets': include_datasets})
-    except (NotFound, ValidationError, NotAuthorized):
+        return logic.get_action('organization_show')(
+            {}, {'id': org, 'include_datasets': include_datasets})
+    except (logic.NotFound, logic.ValidationError, logic.NotAuthorized):
         return {}
+
+
+def license_options(existing_license_id=None):
+    '''Returns [(l.title, l.id), ...] for the licenses configured to be
+    offered. Always includes the existing_license_id, if supplied.
+    '''
+    register = model.Package.get_license_register()
+    sorted_licenses = sorted(register.values(), key=lambda x: x.title)
+    license_ids = [license.id for license in sorted_licenses]
+    if existing_license_id and existing_license_id not in license_ids:
+        license_ids.insert(0, existing_license_id)
+    return [
+        (license_id,
+         register[license_id].title if license_id in register else license_id)
+        for license_id in license_ids]
+
 
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
@@ -2052,6 +2179,7 @@ __allowed_functions__ = [
     'build_nav_main',
     'build_nav_icon',
     'build_nav',
+    'build_extra_admin_nav',
     'debug_inspect',
     'dict_list_reduce',
     'full_current_url',
@@ -2112,4 +2240,5 @@ __allowed_functions__ = [
     'urlencode',
     'check_config_permission',
     'view_resource_url',
+    'license_options',
 ]

@@ -10,7 +10,7 @@ from pylons import cache, config, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.controllers.util import redirect_to, redirect
-from pylons.decorators import jsonify, validate
+from pylons.decorators import jsonify
 from pylons.i18n import N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
 from genshi.template import MarkupTemplate
@@ -119,7 +119,6 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     def render_template():
         globs = extra_vars or {}
         globs.update(pylons_globals())
-        globs['actions'] = model.Action
 
         # Using pylons.url() directly destroys the localisation stuff so
         # we remove it so any bad templates crash and burn

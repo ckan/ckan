@@ -1,13 +1,12 @@
-# Thai translations for ckan.
-# Copyright (C) 2013 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
+# 
 # Translators:
 # Anuchit Chalothorn <anoochit@gmail.com>, 2014
 # Chutika Udomsinn <chutika@goodfactory.co>, 2014
 # kaanpakpum <kaanpakpum@gmail.com>, 2014
 # Klaikong Vaidhyakarn <klaikong@gmail.com>, 2014
-# Misharim <misharim@gmail.com>, 2014-2015
 # Misharim <misharim@gmail.com>, 2014
 # ODM Thailand <thailand@opendevmekong.net>, 2014
 # Sakchai <sakchai@toitmall.com>, 2014
@@ -15,18 +14,18 @@
 # tuwannu <tuwannu@gmail.com>, 2014
 msgid ""
 msgstr ""
-"Project-Id-Version:  CKAN\n"
+"Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-01-26 11:29+0000\n"
-"PO-Revision-Date: 2015-01-15 14:47+0000\n"
-"Last-Translator: Misharim <misharim@gmail.com>\n"
-"Language-Team: Thai "
-"(http://www.transifex.com/projects/p/ckan/language/th/)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"POT-Creation-Date: 2015-01-26 11:55+0000\n"
+"PO-Revision-Date: 2015-01-26 12:21+0000\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
+"Language-Team: Thai (http://www.transifex.com/projects/p/ckan/language/th/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: th\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ckan/new_authz.py:178
 #, python-format
@@ -408,13 +407,10 @@ msgstr "ขณะนี้เว็บไซต์อยู่ในสถาน
 
 #: ckan/controllers/home.py:100
 msgid ""
-"Please <a href=\"{link}\">update your profile</a> and add your email "
-"address and your full name. {site} uses your email address if you need to"
-" reset your password."
-msgstr ""
-"กรุณา <a href=\"{link}\">ปรับปรุงข้อมูล</a> "
-"และเพิ่มที่อยู่อีเมลและชื่อของคุณ เพื่อที่ {site} "
-"ใช้อีเมลสำหรับการตั้งค่ารหัสผ่านใหม่"
+"Please <a href=\"{link}\">update your profile</a> and add your email address"
+" and your full name. {site} uses your email address if you need to reset "
+"your password."
+msgstr "กรุณา <a href=\"{link}\">ปรับปรุงข้อมูล</a> และเพิ่มที่อยู่อีเมลและชื่อของคุณ เพื่อที่ {site} ใช้อีเมลสำหรับการตั้งค่ารหัสผ่านใหม่"
 
 #: ckan/controllers/home.py:103
 #, python-format
@@ -467,9 +463,7 @@ msgstr "รูปแบบรุ่นไม่ถูกต้อง: %r"
 msgid ""
 "Viewing {package_type} datasets in {format} format is not supported "
 "(template file {file} not found)."
-msgstr ""
-"ระบบไม่รองรับการดูชุดข้อมูล {package_type} ในรูปแบบ {format} "
-"(ไม่พบไฟล์แม่แบบ {file})"
+msgstr "ระบบไม่รองรับการดูชุดข้อมูล {package_type} ในรูปแบบ {format} (ไม่พบไฟล์แม่แบบ {file})"
 
 #: ckan/controllers/package.py:472
 msgid "CKAN Dataset Revision History"
@@ -877,7 +871,8 @@ msgid "{actor} updated their profile"
 msgstr "{actor} ปรับปรุงข้อมูลส่วนตัว"
 
 #: ckan/lib/activity_streams.py:86
-msgid "{actor} updated the {related_type} {related_item} of the dataset {dataset}"
+msgid ""
+"{actor} updated the {related_type} {related_item} of the dataset {dataset}"
 msgstr "{actor} ปรับปรุง {related_type} {related_item} ของชุดข้อมูล {dataset}"
 
 #: ckan/lib/activity_streams.py:89
@@ -949,7 +944,8 @@ msgid "{actor} started following {group}"
 msgstr "{actor} ได้ติดตาม {group}"
 
 #: ckan/lib/activity_streams.py:142
-msgid "{actor} added the {related_type} {related_item} to the dataset {dataset}"
+msgid ""
+"{actor} added the {related_type} {related_item} to the dataset {dataset}"
 msgstr "{actor} เพิ่ม {related_type} {related_item} ไปยังชุดข้อมูล {dataset}"
 
 #: ckan/lib/activity_streams.py:145
@@ -1168,8 +1164,7 @@ msgstr ""
 
 #: ckan/lib/mailer.py:119
 msgid ""
-"You have been invited to {site_title}. A user has already been createdto "
-"you with the username {user_name}. You can change it later.\n"
+"You have been invited to {site_title}. A user has already been createdto you with the username {user_name}. You can change it later.\n"
 "\n"
 "To accept this invite, please reset your password at:\n"
 "\n"
@@ -1335,8 +1330,8 @@ msgstr "ชื่อต้องมีความยาวไม่เกิน
 
 #: ckan/logic/validators.py:361
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
 msgstr ""
 
 #: ckan/logic/validators.py:379
@@ -1429,9 +1424,7 @@ msgstr "ชื่อคำศัพท์นี้ถูกใช้ไปแล
 #: ckan/logic/validators.py:647
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr ""
-"ไม่สามารถเปลี่ยนค่าของกุญแจจาก %s ไปเป็น %s "
-"ได้เนื่องจากกุญแจนี้สามารถอ่านได้เท่านั้น"
+msgstr "ไม่สามารถเปลี่ยนค่าของกุญแจจาก %s ไปเป็น %s ได้เนื่องจากกุญแจนี้สามารถอ่านได้เท่านั้น"
 
 #: ckan/logic/validators.py:656
 msgid "Tag vocabulary was not found."
@@ -2115,11 +2108,9 @@ msgstr "ไม่สามารถที่จะดึงข้อมูลจ
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop"
-" this upload?"
-msgstr ""
-"คุณกำลังอัพโหลดไฟล์อยู่ กรุณายืนยันว่าคุณต้องการเปลี่ยนไปหน้าอื่น "
-"และหยุดการอัพโหลดนี้"
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
+msgstr "คุณกำลังอัพโหลดไฟล์อยู่ กรุณายืนยันว่าคุณต้องการเปลี่ยนไปหน้าอื่น และหยุดการอัพโหลดนี้"
 
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:8
 msgid "Reorder resource view"
@@ -2177,9 +2168,7 @@ msgstr "Open Knowledge Foundation"
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
-msgstr ""
-"<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a>"
+msgstr "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
@@ -2224,8 +2213,9 @@ msgstr "ลงทะเบียน"
 #: ckan/templates/revision/diff.html:11 ckan/templates/revision/read.html:65
 #: ckan/templates/snippets/organization.html:59
 #: ckan/templates/snippets/context/group.html:17
-#: ckan/templates/snippets/context/user.html:19 ckan/templates/user/read.html:5
-#: ckan/templates/user/read_base.html:19 ckan/templates/user/read_base.html:53
+#: ckan/templates/snippets/context/user.html:19
+#: ckan/templates/user/read.html:5 ckan/templates/user/read_base.html:19
+#: ckan/templates/user/read_base.html:53
 msgid "Datasets"
 msgstr "ชุดข้อมูล"
 
@@ -2293,37 +2283,22 @@ msgstr "ตัวเลือกการปรับแต่ง CKAN"
 #: ckan/templates/admin/config.html:29
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> "
-"<p><strong>Style:</strong> Choose from a list of simple variations of the"
-" main colour scheme to get a very quick custom theme working.</p> "
-"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
-"<p><strong>Homepage:</strong> This is for choosing a predefined layout "
-"for the modules that appear on your homepage.</p> "
-msgstr ""
-"<p><strong>ชื่อไซต์:</strong> หัวข้อของ CKAN นี้ ซึ่งจะใช้ในส่วนต่างๆ ของ"
-" CKAN.</p> <p><strong>รูปแบบ:</strong> เลือกจากรายการตัวเลือกที่มี "
-"เพื่อให้สามารถตกแต่งหน้าตาได้แบบรวดเร็ว</p> "
-"<p><strong>ป้ายกำกับโลโก้:</strong> โลโก้ที่จะแสดงในส่วนหัวของแม่แบบของ "
-"CKAN ทั้งหมด</p> <p><strong>เกี่ยวกับ:</strong> ข้อความส่วนนี้จะแสดงใน <a"
-" href=\"%(about_url)s\">หน้าเกี่ยวกับ</a> ของ CKAN</p> "
-"<p><strong>ข้อความเกริ่นนำ:</strong> ข้อความส่วนนี้จะแสดงใน <a "
-"href=\"%(home_url)s\">หน้าหลัก</a> ของ CKAN "
-"เพื่อเป็นการต้อนรับผู้ที่เข้ามา</p> <p><strong>CSS ที่กำหนดเอง:</strong> "
-"โค๊ด  CSS ที่จะแสดงใน <code>&lt;head&gt;</code> ของทุกหน้า "
-"หากคุณต้องการปรับแต่งแม่แบบเพิ่มเติม เราขอแนะนำให้<a "
-"href=\"%(docs_url)s\" target=\"_blank\">อ่านเอกสารอ้างอิง</a></p> "
-"<p><strong>หน้าหลัก:</strong> "
-"สำหรับเลือกรูปแบบการจัดเรียงของโมดูลที่มีเตรียมไว้ให้</p>"
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
+"the modules that appear on your homepage.</p> "
+msgstr "<p><strong>ชื่อไซต์:</strong> หัวข้อของ CKAN นี้ ซึ่งจะใช้ในส่วนต่างๆ ของ CKAN.</p> <p><strong>รูปแบบ:</strong> เลือกจากรายการตัวเลือกที่มี เพื่อให้สามารถตกแต่งหน้าตาได้แบบรวดเร็ว</p> <p><strong>ป้ายกำกับโลโก้:</strong> โลโก้ที่จะแสดงในส่วนหัวของแม่แบบของ CKAN ทั้งหมด</p> <p><strong>เกี่ยวกับ:</strong> ข้อความส่วนนี้จะแสดงใน <a href=\"%(about_url)s\">หน้าเกี่ยวกับ</a> ของ CKAN</p> <p><strong>ข้อความเกริ่นนำ:</strong> ข้อความส่วนนี้จะแสดงใน <a href=\"%(home_url)s\">หน้าหลัก</a> ของ CKAN เพื่อเป็นการต้อนรับผู้ที่เข้ามา</p> <p><strong>CSS ที่กำหนดเอง:</strong> โค๊ด  CSS ที่จะแสดงใน <code>&lt;head&gt;</code> ของทุกหน้า หากคุณต้องการปรับแต่งแม่แบบเพิ่มเติม เราขอแนะนำให้<a href=\"%(docs_url)s\" target=\"_blank\">อ่านเอกสารอ้างอิง</a></p> <p><strong>หน้าหลัก:</strong> สำหรับเลือกรูปแบบการจัดเรียงของโมดูลที่มีเตรียมไว้ให้</p>"
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2338,9 +2313,8 @@ msgstr ""
 #, python-format
 msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
-"the CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin "
-"guide</a></p> "
+"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
+"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
 msgstr ""
 
 #: ckan/templates/admin/trash.html:20
@@ -2363,8 +2337,7 @@ msgstr "เข้าถึงทรัพยากรข้อมูลผ่า
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
-" "
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
 msgstr ""
 
 #: ckan/templates/ajax_snippets/api_info.html:33
@@ -2373,8 +2346,8 @@ msgstr "ปลายทาง"
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
 msgstr "Data API สามารถเข้าถึงได้ด้วยการเรียกใช้ CKAN action API"
 
 #: ckan/templates/ajax_snippets/api_info.html:42
@@ -2583,8 +2556,9 @@ msgstr "คุณแน่ใจว่าต้องการลบสมาช
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
 #: ckan/templates/package/read_base.html:19
-#: ckan/templates/package/resource_read.html:31 ckan/templates/user/edit.html:8
-#: ckan/templates/user/edit_base.html:3 ckan/templates/user/read_base.html:14
+#: ckan/templates/package/resource_read.html:31
+#: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
+#: ckan/templates/user/read_base.html:14
 msgid "Manage"
 msgstr "จัดการ"
 
@@ -2652,7 +2626,8 @@ msgstr "เรียงชื่อตามลำดับตัวอักษ
 msgid "There are currently no groups for this site"
 msgstr "ยังไม่มีกลุ่มสำหรับไซต์นี้"
 
-#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "ต้องการสร้างหรือไม่?"
 
@@ -2701,19 +2676,22 @@ msgstr "ผู้ใช้ใหม่"
 msgid "If you wish to invite a new user, enter their email address."
 msgstr "ถ้าคุณต้องการเชิญผู้ใช้ใหม่ กรอกที่อยู่อีเมลของพวกเขา"
 
-#: ckan/templates/group/member_new.html:55 ckan/templates/group/members.html:18
+#: ckan/templates/group/member_new.html:55
+#: ckan/templates/group/members.html:18
 #: ckan/templates/organization/member_new.html:56
 #: ckan/templates/organization/members.html:18
 msgid "Role"
 msgstr "หน้าที่"
 
-#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:30
+#: ckan/templates/group/member_new.html:58
+#: ckan/templates/group/members.html:30
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:30
 msgid "Are you sure you want to delete this member?"
 msgstr "คุณแน่ใจว่าต้องการลบสมาชิกนี้?"
 
-#: ckan/templates/group/member_new.html:59 ckan/templates/group/members.html:35
+#: ckan/templates/group/member_new.html:59
+#: ckan/templates/group/members.html:35
 #: ckan/templates/group/snippets/group_form.html:61
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:60
@@ -2740,13 +2718,10 @@ msgstr "มีหน้าที่อะไร?"
 
 #: ckan/templates/group/member_new.html:81
 msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage"
-" organization members.</p> <p><strong>Member:</strong> Can add/remove "
+" <p><strong>Admin:</strong> Can edit group information, as well as manage "
+"organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
-msgstr ""
-" <p><strong>ผู้ดูแลระบบ:</strong> สามารถเปลี่ยนแปลงข้อมูลของกลุ่ม "
-"และจัดการสมาชิกขององค์กร</p> <p><strong>สมาชิก:</strong> "
-"สามารถเพิ่ม/ลบชุดข้อมูลของกลุ่ม</p> "
+msgstr " <p><strong>ผู้ดูแลระบบ:</strong> สามารถเปลี่ยนแปลงข้อมูลของกลุ่ม และจัดการสมาชิกขององค์กร</p> <p><strong>สมาชิก:</strong> สามารถเพิ่ม/ลบชุดข้อมูลของกลุ่ม</p> "
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -2866,14 +2841,11 @@ msgstr "กลุ่มคืออะไร?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. "
-"This could be to catalogue datasets for a particular project or team, or "
-"on a particular theme, or as a very simple way to help people find and "
-"search your own published datasets. "
-msgstr ""
-"คุณสามารถใช้กลุ่ม CKAN ในการสร้างและจัดการชุดข้อมูล "
-"ไม่ว่าจะเป็นการสร้างแค็ตตาล็อกสำหรับชุดข้อมูลสำหรับโปรเจ็คต์ ทีม หรือธีม "
-"หรือเป็นวิธีง่ายๆ ในการให้ผู้ค้าหาชุดข้อมูลของคุณได้"
+" You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets. "
+msgstr "คุณสามารถใช้กลุ่ม CKAN ในการสร้างและจัดการชุดข้อมูล ไม่ว่าจะเป็นการสร้างแค็ตตาล็อกสำหรับชุดข้อมูลสำหรับโปรเจ็คต์ ทีม หรือธีม หรือเป็นวิธีง่ายๆ ในการให้ผู้ค้าหาชุดข้อมูลของคุณได้"
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
@@ -2936,14 +2908,13 @@ msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision of "
+"robust data APIs). CKAN is aimed at data publishers (national and regional "
+"governments, companies and organizations) wanting to make their data open "
+"and available.</p> <p>CKAN is used by governments and user groups worldwide "
+"and powers a variety of official and community data portals including "
+"portals for local, national and international government, such as the UK’s "
+"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -2952,26 +2923,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
-" <p>CKAN เป็นแพลตฟอร์มด้านข้อมูลเปิดระดับโลก</p> <p>CKAN "
-"เป็นเครื่องมือสำเร็จรูปที่ทำให้ข้อมูลถูกเข้าถึงและใช้งานได้ "
-"โดยมีเครื่องมือที่ใช้ในการทำให้การเผยแพร่ การแบ่งปัน การค้นหา "
-"และการใช้งานข้อมูล (รวมไปถึงการจัดเก็บข้อมูลและการจัดเตรียม API "
-"ข้อมูลที่ทนทาน) CKAN มีจุดมุ่งหมายที่จะทำให้ผู้เผยแพร่ข้อมูล "
-"(ทั้งหน่วยงานราชการระดับประเทศและระดับภาค บริษัทห้างร้าน และองค์กร) "
-"ต้องการที่จะทำให้ข้อมูลของพวกเขาเป็นข้อมูลเปิดและเข้าถึงได้</p> <p>CKAN "
-"ถูกใช้โดยราชการและกลุ่มบุคคลทั่วทั้งโลก "
-"และเป็นตัวขับเคลื่อนพอร์ทัลข้อมูลทั้งที่จัดตั้งโดยชุมชนและที่เป็นของหน่วยงาน"
-" เช่น <a href=\"http://data.gov.uk\">data.gov.uk</a> ของสหราชอาณาจักร <a "
-"href=\"http://publicdata.eu/\">publicdata.eu</a> ของสหภาพยุโรป <a "
-"href=\"http://dados.gov.br/\">dados.gov.br</a> ของบราซิล "
-"รวมไปถึงพอร์ทัลราชการของประเทศเนเธอร์แลนด์ "
-"และไซท์ของเมืองและเทศบาลเมืองในสหรัฐอเมริกา สหราชอาณาจักร อาร์เจนตินา "
-"ฟินแลนด์ และที่อื่นๆ ทั่วโลก</p> <p>CKAN: <a "
-"href=\"http://ckan.org/\">http://ckan.org/</a><br /> ชมรอบๆ CKAN: <a "
-"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> "
-"ภาพรวมฟีเจอร์การใช้งาน: <a "
-"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
+msgstr " <p>CKAN เป็นแพลตฟอร์มด้านข้อมูลเปิดระดับโลก</p> <p>CKAN เป็นเครื่องมือสำเร็จรูปที่ทำให้ข้อมูลถูกเข้าถึงและใช้งานได้ โดยมีเครื่องมือที่ใช้ในการทำให้การเผยแพร่ การแบ่งปัน การค้นหา และการใช้งานข้อมูล (รวมไปถึงการจัดเก็บข้อมูลและการจัดเตรียม API ข้อมูลที่ทนทาน) CKAN มีจุดมุ่งหมายที่จะทำให้ผู้เผยแพร่ข้อมูล (ทั้งหน่วยงานราชการระดับประเทศและระดับภาค บริษัทห้างร้าน และองค์กร) ต้องการที่จะทำให้ข้อมูลของพวกเขาเป็นข้อมูลเปิดและเข้าถึงได้</p> <p>CKAN ถูกใช้โดยราชการและกลุ่มบุคคลทั่วทั้งโลก และเป็นตัวขับเคลื่อนพอร์ทัลข้อมูลทั้งที่จัดตั้งโดยชุมชนและที่เป็นของหน่วยงาน เช่น <a href=\"http://data.gov.uk\">data.gov.uk</a> ของสหราชอาณาจักร <a href=\"http://publicdata.eu/\">publicdata.eu</a> ของสหภาพยุโรป <a href=\"http://dados.gov.br/\">dados.gov.br</a> ของบราซิล รวมไปถึงพอร์ทัลราชการของประเทศเนเธอร์แลนด์ และไซท์ของเมืองและเทศบาลเมืองในสหรัฐอเมริกา สหราชอาณาจักร อาร์เจนตินา ฟินแลนด์ และที่อื่นๆ ทั่วโลก</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> ชมรอบๆ CKAN: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> ภาพรวมฟีเจอร์การใช้งาน: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -2979,11 +2931,9 @@ msgstr "ยินดีต้อนรับสู่ CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will "
-msgstr ""
-"พื้นที่สำหรับใส่ข้อความสั้นๆ แนะนำภาพรวมของ CKAN หรือของไซท์ "
-"เรายังไม่มีข้อความแนะนำมาให้ในส่วนนี้ แต่จะมีให้ในอนาคต"
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will "
+msgstr "พื้นที่สำหรับใส่ข้อความสั้นๆ แนะนำภาพรวมของ CKAN หรือของไซท์ เรายังไม่มีข้อความแนะนำมาให้ในส่วนนี้ แต่จะมีให้ในอนาคต"
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -3040,8 +2990,8 @@ msgstr "รายการที่เกี่ยวข้อง"
 #: ckan/templates/macros/form.html:126
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
 msgstr ""
 
@@ -3114,8 +3064,8 @@ msgstr "ร่าง"
 #: ckan/templates/package/read.html:11
 #: ckan/templates/package/snippets/package_basic_fields.html:91
 #: ckan/templates/snippets/package_item.html:31
-#: ckan/templates/snippets/private.html:2 ckan/templates/user/read_base.html:82
-#: ckan/templates/user/read_base.html:96
+#: ckan/templates/snippets/private.html:2
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "Private"
 msgstr "ส่วนตัว"
 
@@ -3155,14 +3105,9 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p> "
-msgstr ""
-"<p><strong>Admin:</strong>เพิ่ม/แก้ไข/ลบ ชุดข้อมูล "
-"และจัดการสมาชิกขององค์กร</p> "
-"<p><strong>บรรณาธิการ:</strong>สามารถเพิ่มหรือแก้ไขชุดข้อมูลแต่ไม่สามารถจัดการสมาชิกองค์กรได้</p>"
-" <p><strong>สมาชิก:</strong> "
-"สามารถดูชุดข้อมูลส่วนบุคคลขององค์กรคุณได้แต่ไม่สามารถเพิ่มชุดข้อมูลใหม่ได้</p>"
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p> "
+msgstr "<p><strong>Admin:</strong>เพิ่ม/แก้ไข/ลบ ชุดข้อมูล และจัดการสมาชิกขององค์กร</p> <p><strong>บรรณาธิการ:</strong>สามารถเพิ่มหรือแก้ไขชุดข้อมูลแต่ไม่สามารถจัดการสมาชิกองค์กรได้</p> <p><strong>สมาชิก:</strong> สามารถดูชุดข้อมูลส่วนบุคคลขององค์กรคุณได้แต่ไม่สามารถเพิ่มชุดข้อมูลใหม่ได้</p>"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3196,23 +3141,20 @@ msgstr "อะไรคือองค์กร?"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for "
-"example, the Department of Health). This means that datasets can be "
-"published by and belong to a department instead of an individual "
-"user.</p> <p>Within organizations, admins can assign roles and authorise "
-"its members, giving individual users the right to publish datasets from "
-"that particular organisation (e.g. Office of National Statistics).</p> "
+" <p>Organizations act like publishing departments for datasets (for example,"
+" the Department of Health). This means that datasets can be published by and"
+" belong to a department instead of an individual user.</p> <p>Within "
+"organizations, admins can assign roles and authorise its members, giving "
+"individual users the right to publish datasets from that particular "
+"organisation (e.g. Office of National Statistics).</p> "
 msgstr ""
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of"
-" datasets. Users can have different roles within an Organization, "
-"depending on their level of authorisation to create, edit and publish. "
-msgstr ""
-"องค์กรสามารถถูกใช้ในการสร้าง จัดการ และเผยแพร่ชุดข้อมูล "
-"ผู้ใช้อาจมีได้มากกว่าหนึ่งหน้าที่ในองค์กร "
-"ขึ้นอยู่กับสิทธิ์ที่ผู้ใช้ดังกล่าวมี"
+" CKAN Organizations are used to create, manage and publish collections of "
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish. "
+msgstr "องค์กรสามารถถูกใช้ในการสร้าง จัดการ และเผยแพร่ชุดข้อมูล ผู้ใช้อาจมีได้มากกว่าหนึ่งหน้าที่ในองค์กร ขึ้นอยู่กับสิทธิ์ที่ผู้ใช้ดังกล่าวมี"
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3228,8 +3170,8 @@ msgstr "ข้อมูลเบื้องต้นเกี่ยวกับ
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all "
-"the public and private datasets belonging to this organization."
+"Are you sure you want to delete this Organization? This will delete all the "
+"public and private datasets belonging to this organization."
 msgstr "คุณแน่ใจว่าคุณต้องการลบองค์กรนี้ ซึ่งจะลบชุดข้อมูลทั้งหมดขององค์กรนี้"
 
 #: ckan/templates/organization/snippets/organization_form.html:64
@@ -3252,12 +3194,10 @@ msgstr "อะไรคือข้อมูล?"
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
-" A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data. "
-msgstr ""
-"ใน CKAN ชุดข้อมูลคือการรวบรวมของชุดข้อมูล (เช่นไฟล์) คำอธิบายและอื่นๆ บน "
-"URL หนึ่ง ชุดข้อมูลคือสิ่งที่ผู้ใช้เห็นเวลาค้นหาข้อมูล"
+" A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data. "
+msgstr "ใน CKAN ชุดข้อมูลคือการรวบรวมของชุดข้อมูล (เช่นไฟล์) คำอธิบายและอื่นๆ บน URL หนึ่ง ชุดข้อมูลคือสิ่งที่ผู้ใช้เห็นเวลาค้นหาข้อมูล"
 
 #: ckan/templates/package/confirm_delete.html:11
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -3339,9 +3279,9 @@ msgstr ""
 msgid ""
 " Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer"
-" documentation</a>. "
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>Data Explorer "
+"documentation</a>. "
 msgstr ""
 
 #: ckan/templates/package/new_view.html:29
@@ -3352,12 +3292,9 @@ msgstr "เพิ่ม"
 #: ckan/templates/package/read_base.html:38
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
-msgstr ""
-"นี่เป็นชุดข้อมูลรุ่นเก่าที่ถูกแก้ไขเมื่อ %(timestamp)s "
-"ซึ่งอาจจะแตกต่างจาก <a href=\"%(url)s\">รุ่นปัจจุบัน</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
+"differ significantly from the <a href=\"%(url)s\">current revision</a>."
+msgstr "นี่เป็นชุดข้อมูลรุ่นเก่าที่ถูกแก้ไขเมื่อ %(timestamp)s ซึ่งอาจจะแตกต่างจาก <a href=\"%(url)s\">รุ่นปัจจุบัน</a>."
 
 #: ckan/templates/package/related_list.html:7
 msgid "Related Media for {dataset}"
@@ -3480,9 +3417,9 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:125
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
 msgstr ""
 
 #: ckan/templates/package/resource_read.html:147
@@ -3541,11 +3478,9 @@ msgstr "เพิ่มทรัพยากรใหม่"
 #: ckan/templates/package/snippets/resources_list.html:25
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
-" add some?</a></p> "
-msgstr ""
-" <p class=\"empty\">ชุดข้อมูลนี้ไม่มีข้อมูล <a "
-"href=\"%(url)s\">ลองเพิ่มดูไหม?</a></p> "
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+"add some?</a></p> "
+msgstr " <p class=\"empty\">ชุดข้อมูลนี้ไม่มีข้อมูล <a href=\"%(url)s\">ลองเพิ่มดูไหม?</a></p> "
 
 #: ckan/templates/package/search.html:53
 msgid "API Docs"
@@ -3560,9 +3495,7 @@ msgstr "ถ่ายโอนข้อมูลเต็ม {format}"
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
-msgstr ""
-"คุณสามารถเข้าถึงคลังทาง %(api_link)s (ให้ดู %(api_doc_link)s) "
-"หรือดาวน์โหลด %(dump_link)s."
+msgstr "คุณสามารถเข้าถึงคลังทาง %(api_link)s (ให้ดู %(api_doc_link)s) หรือดาวน์โหลด %(dump_link)s."
 
 #: ckan/templates/package/search.html:60
 #, python-format
@@ -3644,9 +3577,7 @@ msgstr "ตัวอย่าง เศรษฐกิจ สุขภาพจ�
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
-msgstr ""
-"สามารถดูข้อมูลเกี่ยวกับประเภทลิขสิทธิ์ต่างได้ที่ <a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
+msgstr "สามารถดูข้อมูลเกี่ยวกับประเภทลิขสิทธิ์ต่างได้ที่ <a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:69
 #: ckan/templates/snippets/organization.html:23
@@ -3671,12 +3602,11 @@ msgstr "ทำงาน"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
 msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:39
@@ -3889,14 +3819,11 @@ msgstr "รายการที่เกี่ยวข้อง"
 
 #: ckan/templates/related/base_form_page.html:22
 msgid ""
-" <p>Related Media is any app, article, visualisation or idea related to "
-"this dataset.</p> <p>For example, it could be a custom visualisation, "
-"pictograph or bar chart, an app using all or part of the data or even a "
-"news story that references this dataset.</p> "
-msgstr ""
-"<p>สื่อที่เกี่ยวข้องกับชุดข้อมูลนี้ทั้งที่เป็นแอพลิเคชั่น บทความ แผนภาพ "
-"หรือแนวคิด</p> <p>ยกตัวอย่างเช่น สามารถที่จะเป็นแผนภาพ กราฟแท่ง "
-"และแอพพลิเคชั่นที่ใช้บางส่วนหรือทั้งหมดของข้อมูลหรือกระทั้งเนือหาข่าวที่เกี่ยวข้องกับชุดข้อมูลนี้</p>"
+" <p>Related Media is any app, article, visualisation or idea related to this"
+" dataset.</p> <p>For example, it could be a custom visualisation, pictograph"
+" or bar chart, an app using all or part of the data or even a news story "
+"that references this dataset.</p> "
+msgstr "<p>สื่อที่เกี่ยวข้องกับชุดข้อมูลนี้ทั้งที่เป็นแอพลิเคชั่น บทความ แผนภาพ หรือแนวคิด</p> <p>ยกตัวอย่างเช่น สามารถที่จะเป็นแผนภาพ กราฟแท่ง และแอพพลิเคชั่นที่ใช้บางส่วนหรือทั้งหมดของข้อมูลหรือกระทั้งเนือหาข่าวที่เกี่ยวข้องกับชุดข้อมูลนี้</p>"
 
 #: ckan/templates/related/confirm_delete.html:11
 msgid "Are you sure you want to delete related item - {name}?"
@@ -3913,9 +3840,7 @@ msgstr "แอพพลิเคชั่นและแนวคิด"
 msgid ""
 " <p>Showing items <strong>%(first)s - %(last)s</strong> of "
 "<strong>%(item_count)s</strong> related items found</p> "
-msgstr ""
-"<p>แสดงรายการ<strong>%(first)s - "
-"%(last)s</strong>จาก<strong>%(item_count)s</strong>รายการที่เกี่ยวข้อง</p>"
+msgstr "<p>แสดงรายการ<strong>%(first)s - %(last)s</strong>จาก<strong>%(item_count)s</strong>รายการที่เกี่ยวข้อง</p>"
 
 #: ckan/templates/related/dashboard.html:25
 #, python-format
@@ -3932,8 +3857,8 @@ msgstr "แอพพลิเคชั่นนี้คืออะไร"
 
 #: ckan/templates/related/dashboard.html:50
 msgid ""
-" These are applications built with the datasets as well as ideas for "
-"things that could be done with them. "
+" These are applications built with the datasets as well as ideas for things "
+"that could be done with them. "
 msgstr "นี้คือแอพพลิเคชั่นที่สร้างกับชุดข้อมูลนี้รวมถึงแนวคิดของสิ่งที่ทำขึ้นจากชุดข้อมูลนี้"
 
 #: ckan/templates/related/dashboard.html:58
@@ -4307,8 +4232,7 @@ msgstr "ข้อมูลผู้ใช้"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you "
-"do. "
+" Your profile lets other CKAN users know about who you are and what you do. "
 msgstr "ข้อมูลแนะนำตัวของคุณจะทำให้ผู้ใช้ CKAN อื่นๆ ได้รู้จักคุณและผลงานคุณดีขึ้น"
 
 #: ckan/templates/user/edit_user_form.html:7
@@ -4532,8 +4456,8 @@ msgstr ""
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
-"Enter your username into the box and we will send you an email with a "
-"link to enter a new password."
+"Enter your username into the box and we will send you an email with a link "
+"to enter a new password."
 msgstr "ป้อนชื่อผู้ใช้ของคุณใส่ลงในกล่องนี้เพื่อที่เราจะได้ส่งอีเมล์พร้อมลิ้งค์ในการตั้งรหัสผ่านใหม่ให้คุณ"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
@@ -4579,8 +4503,8 @@ msgstr "ไม่พบคลังข้อมูลทรัพยากร"
 
 #: ckanext/datastore/db.py:652
 msgid ""
-"The data was invalid (for example: a numeric value is out of range or was"
-" inserted into a text field)."
+"The data was invalid (for example: a numeric value is out of range or was "
+"inserted into a text field)."
 msgstr ""
 
 #: ckanext/datastore/logic/action.py:209 ckanext/datastore/logic/action.py:259
@@ -4674,72 +4598,27 @@ msgid ""
 "LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
 "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
 "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
-msgstr ""
-"ลิขสิทธิ์ (c) 2010 ไมเคิล ลิบแมน, http://github.com/mleibman/slickgrid\n"
-"\n"
-"ซึ่งอนุญาตไม่มีเสียค่าใช้จ่ายให้กับบุคคลที่ได้รับใด ๆ "
-"สำเนาของซอฟต์แวร์นี้และไฟล์เอกสารที่เกี่ยวข้อง (\"ซอฟต์แวร์\"), "
-"การจัดการซอฟต์แวร์โดยไม่มีข้อ จำกัด "
-"รวมทั้งไม่จำกัดสิทธิ์ในการใช้คัดลอกดัดแปลงแก้ไขรวมเผยแพร่แจกจ่ายใบอนุญาตและ"
-" / "
-"หรือขายสำเนาของซอฟแวร์และอนุญาตให้บุคคลซึ่งซอฟแวร์ได้รับการตกแต่งให้ทำเช่นนั้นอาจมีการเงื่อนไขต่อไปนี้:"
-"\n"
-"\n"
-"ประกาศลิขสิทธิ์ข้างต้นและประกาศการอนุญาตนี้จะเป็นรวมอยู่ในสำเนาทั้งหมดหรือบางส่วนที่สำคัญของซอฟแวร์"
-"\n"
-"\n"
-"ซอฟต์แวร์นี้มีให้ \"ตามสภาพ\" โดยไม่มีการรับประกันใด ๆ "
-"โดยชัดแจ้งหรือโดยนัย รวมถึงแต่ไม่จำกัด "
-"เฉพาะการรับประกันของสินค้าความเหมาะสมสำหรับวัตถุประสงค์และโดยเฉพาะอย่างยิ่งการไม่ละเมิด"
-" ไม่มีเหตุการณ์ใดที่ผู้เขียนหรือเจ้าของลิขสิทธิ์ พ.ศ. "
-"รับผิดชอบต่อการเรียกร้องใด ๆ ที่จะเกิดความเสียหายหรือความรับผิดอื่น ๆ "
-"ไม่ว่าในการดำเนินการของสัญญาการละเมิดหรืออื่น ๆ ที่เกิดจากการ, "
-"หมดอายุการใช้งาน หรือเกี่ยวข้องกับซอฟต์แวร์หรือการใช้หรือการติดต่ออื่น ๆ "
-"ในซอฟต์แวร์"
+msgstr "ลิขสิทธิ์ (c) 2010 ไมเคิล ลิบแมน, http://github.com/mleibman/slickgrid\n\nซึ่งอนุญาตไม่มีเสียค่าใช้จ่ายให้กับบุคคลที่ได้รับใด ๆ สำเนาของซอฟต์แวร์นี้และไฟล์เอกสารที่เกี่ยวข้อง (\"ซอฟต์แวร์\"), การจัดการซอฟต์แวร์โดยไม่มีข้อ จำกัด รวมทั้งไม่จำกัดสิทธิ์ในการใช้คัดลอกดัดแปลงแก้ไขรวมเผยแพร่แจกจ่ายใบอนุญาตและ / หรือขายสำเนาของซอฟแวร์และอนุญาตให้บุคคลซึ่งซอฟแวร์ได้รับการตกแต่งให้ทำเช่นนั้นอาจมีการเงื่อนไขต่อไปนี้:\n\nประกาศลิขสิทธิ์ข้างต้นและประกาศการอนุญาตนี้จะเป็นรวมอยู่ในสำเนาทั้งหมดหรือบางส่วนที่สำคัญของซอฟแวร์\n\nซอฟต์แวร์นี้มีให้ \"ตามสภาพ\" โดยไม่มีการรับประกันใด ๆ โดยชัดแจ้งหรือโดยนัย รวมถึงแต่ไม่จำกัด เฉพาะการรับประกันของสินค้าความเหมาะสมสำหรับวัตถุประสงค์และโดยเฉพาะอย่างยิ่งการไม่ละเมิด ไม่มีเหตุการณ์ใดที่ผู้เขียนหรือเจ้าของลิขสิทธิ์ พ.ศ. รับผิดชอบต่อการเรียกร้องใด ๆ ที่จะเกิดความเสียหายหรือความรับผิดอื่น ๆ ไม่ว่าในการดำเนินการของสัญญาการละเมิดหรืออื่น ๆ ที่เกิดจากการ, หมดอายุการใช้งาน หรือเกี่ยวข้องกับซอฟต์แวร์หรือการใช้หรือการติดต่ออื่น ๆ ในซอฟต์แวร์"
 
 #: ckanext/reclineview/theme/public/vendor/slickgrid/2.0.1/README.txt:1
 msgid ""
-"This compiled version of SlickGrid has been obtained with the Google "
-"Closure\n"
+"This compiled version of SlickGrid has been obtained with the Google Closure\n"
 "Compiler, using the following command:\n"
 "\n"
-"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js "
-"--js=slick.editors.js --js_output_file=slick.grid.min.js\n"
+"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n"
 "\n"
-"There are two other files required for the SlickGrid view to work "
-"properly:\n"
+"There are two other files required for the SlickGrid view to work properly:\n"
 "\n"
 " * jquery-ui-1.8.16.custom.min.js \n"
 " * jquery.event.drag-2.0.min.js\n"
 "\n"
-"These are included in the Recline source, but have not been included in "
-"the\n"
+"These are included in the Recline source, but have not been included in the\n"
 "built file to make easier to handle compatibility problems.\n"
 "\n"
 "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
 "\n"
 "[1] https://developers.google.com/closure/compiler/"
-msgstr ""
-"This compiled version of SlickGrid has been obtained with the Google "
-"Closure\n"
-"Compiler, using the following command:\n"
-"\n"
-"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js "
-"--js=slick.editors.js --js_output_file=slick.grid.min.js\n"
-"\n"
-"There are two other files required for the SlickGrid view to work "
-"properly:\n"
-"\n"
-" * jquery-ui-1.8.16.custom.min.js \n"
-" * jquery.event.drag-2.0.min.js\n"
-"\n"
-"These are included in the Recline source, but have not been included in "
-"the\n"
-"built file to make easier to handle compatibility problems.\n"
-"\n"
-"Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
-"\n"
-"[1] https://developers.google.com/closure/compiler/"
+msgstr "This compiled version of SlickGrid has been obtained with the Google Closure\nCompiler, using the following command:\n\njava -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n\nThere are two other files required for the SlickGrid view to work properly:\n\n * jquery-ui-1.8.16.custom.min.js \n * jquery.event.drag-2.0.min.js\n\nThese are included in the Recline source, but have not been included in the\nbuilt file to make easier to handle compatibility problems.\n\nPlease check SlickGrid license in the included MIT-LICENSE.txt file.\n\n[1] https://developers.google.com/closure/compiler/"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -4930,11 +4809,9 @@ msgstr "ชุดข้อมูล ลีดเดอร์บอร์ด"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:18
 msgid ""
-"Choose a dataset attribute and find out which categories in that area "
-"have the most datasets. E.g. tags, groups, license, res_format, country."
-msgstr ""
-"เลือกคุณลักษณะของชุดข้อมูล เพื่อค้นหาว่าหมวดหมู่ไหนมีชุดข้อมูลมากที่สุด "
-"เช่น แท็ค กลุ่ม ลิขสิทธิ์ รูปแบบ และประเทศ"
+"Choose a dataset attribute and find out which categories in that area have "
+"the most datasets. E.g. tags, groups, license, res_format, country."
+msgstr "เลือกคุณลักษณะของชุดข้อมูล เพื่อค้นหาว่าหมวดหมู่ไหนมีชุดข้อมูลมากที่สุด เช่น แท็ค กลุ่ม ลิขสิทธิ์ รูปแบบ และประเทศ"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:20
 msgid "Choose area"
@@ -4951,1500 +4828,3 @@ msgstr ""
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
 msgstr ""
-
-#~ msgid "\"page\" parameter must be a positive integer"
-#~ msgstr "ข้อมูล \"หน้า\" ต้องเป็นเลขจำนวนเต็มบวก"
-
-#~ msgid "%s is now logged in"
-#~ msgstr "%s ได้เข้าสู่ระบบแล้ว"
-
-#~ msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
-#~ msgstr "(หรือถ้าใช้ OpenID มันไม่เชื่อมโยงกับบัญชีผู้ใช้)"
-
-#~ msgid "The resource url is not specified."
-#~ msgstr "ไม่ได้ระบุ URL ของทรัพยากร"
-
-#~ msgid "No preview handler for resource of type {0}"
-#~ msgstr "ไม่มีตัวประมวลตัวอย่างสำหรับทรัพยากรชนิด {0}"
-
-#~ msgid "The resource format is not specified."
-#~ msgstr "ไม่ได้ระบุรูปแบบของทรัพยากร"
-
-#~ msgid ""
-#~ "You have requested your password on %(site_title)s to be reset.\n"
-#~ "\n"
-#~ "    Please click the following link to confirm this request:\n"
-#~ "\n"
-#~ "       %(reset_link)s\n"
-#~ "    "
-#~ msgstr ""
-#~ "คุณได้ขอตั้งค่ารหัสผ่านใหม่บน %(site_title)s.\n"
-#~ "\n"
-#~ "กรุณาคลิกที่ลิงค์ต่อไปนี้เพื่อยืนยันคำขอนี้:\n"
-#~ "\n"
-#~ "%(reset_link)s\n"
-#~ "    "
-
-#~ msgid ""
-#~ "You have been invited to %(site_title)s."
-#~ " A user has already been created "
-#~ "to\n"
-#~ "    you with the username %(user_name)s. You can change it later.\n"
-#~ "\n"
-#~ "    To accept this invite, please reset your password at:\n"
-#~ "\n"
-#~ "       %(reset_link)s\n"
-#~ "    "
-#~ msgstr ""
-#~ "คุณได้รับเชิญให้ %(site_title)s "
-#~ "ซึ่งมีผู้ใช้ที่ได้ถูกสร้างขึ้นให้คุณแล้ว\n"
-#~ "\n"
-#~ "ด้วยชื่อ %(user_name)s ซึ่งคุณสามารถเปลี่ยนได้ในภายหลัง\n"
-#~ "\n"
-#~ "ยอมรับการเชิญนี้ด้วยการตั้งค่ารหัสผ่านของคุณที่:\n"
-#~ "\n"
-#~ "       %(reset_link)s\n"
-#~ "    "
-
-#~ msgid "No web page given"
-#~ msgstr "ไม่ได้ระบุหน้าเว็บ"
-
-#~ msgid "Author not given"
-#~ msgstr "ไมได้ระบุผู้แต่ง"
-
-#~ msgid "Maintainer not given"
-#~ msgstr "ไม่ได้ระบุผู้ดูแล"
-
-#~ msgid ""
-#~ "Url must be purely lowercase "
-#~ "alphanumeric (ascii) characters and these "
-#~ "symbols: -_"
-#~ msgstr ""
-#~ "Url จะต้องประกอบด้วยตัวเลขและตัวพิมพ์เล็ก (ASCII) "
-#~ "และตัวอักษรและสัญลักษณ์เหล่านี้เท่านั้น: -_"
-
-#~ msgid "User %s not authorized to delete package %s"
-#~ msgstr "ผู้ใช้ %s ไม่ได้รับอนุญาตให้ลบเพคเกจ %s"
-
-#~ msgid "User %s not authorized to delete organization %s members"
-#~ msgstr "ผู้ใช้ %s ไม่ได้รับอนุญาตให้ลบสมาชิกขององค์กร %s"
-
-#~ msgid "License Not Specified"
-#~ msgstr "ไม่ได้ระบุสัญญาอนุญาต"
-
-#~ msgid "Reset this"
-#~ msgstr "ตั้งค่าใหม่"
-
-#~ msgid "What are sysadmins?"
-#~ msgstr "ใครคือผู้ดูแลระบบ"
-
-#~ msgid ""
-#~ " <p>A sysadmin is someone that has"
-#~ " full control over a CKAN instance."
-#~ " You can only add CKAN sysadmins "
-#~ "via the <code>sysadmin</code> paster "
-#~ "command.</p> "
-#~ msgstr ""
-#~ "<p>ผู้ดูแลระบบคือผู้ที่มีสิทธิเต็มในการควบคุมระบบ CKAN "
-#~ "ซึ่งคุณสามารถเพิ่มผู้ดูแลระบบได้ผ่านคำสั่ง "
-#~ "<code>sysadmin</code></p>"
-
-#~ msgid "Read the documentation"
-#~ msgstr "อ่านเอกสารประกอบ"
-
-#~ msgid ""
-#~ " Further information in the <a       "
-#~ "href=\"http://docs.ckan.org/en/latest/datastore.html\" "
-#~ "target=\"_blank\">main CKAN Data API and "
-#~ "DataStore documentation</a>.</p> "
-#~ msgstr ""
-#~ "ข้อมูลเพิ่มเติมที่ <a "
-#~ "href=\"http://docs.ckan.org/en/latest/datastore.html\" "
-#~ "target=\"_blank\">หน้าหลักของเอกสารประกอบ CKAN Data "
-#~ "API และ DataStore</a></p>"
-
-#~ msgid "There is no description for this group"
-#~ msgstr "ไม่มีรายละเอียดสำหรับกลุ่มนี้"
-
-#~ msgid "eg. Gold Prices"
-#~ msgstr "ตัวอย่างเช่น ราคาทอง"
-
-#~ msgid "Search Your Data"
-#~ msgstr "ค้นหาข้อมูลของคุณ"
-
-#~ msgid "Popular Tags"
-#~ msgstr "แท็คยอดนิยม"
-
-#~ msgid ""
-#~ "You can use <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\" "
-#~ "target=\"_blank\">Markdown formatting</a> here"
-#~ msgstr ""
-#~ "คุณสามารถใช้ <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\" "
-#~ "target=\"_blank\">รูปแบบของ markdown</a>ที่นี่"
-
-#~ msgid ""
-#~ " <p>Organizations act like publishing "
-#~ "departments for datasets (for example, "
-#~ "the Department of Health). This means"
-#~ " that datasets can be published by"
-#~ " and belong to a department instead"
-#~ " of an individual user.</p> <p>Within "
-#~ "organizations, admins can assign roles "
-#~ "and authorisation its members, giving "
-#~ "individual users the right to publish"
-#~ " datasets from that particular organisation"
-#~ " (e.g. Office of National Statistics).</p>"
-#~ " "
-#~ msgstr ""
-#~ "<p>องค์กรคือหน่วยงานที่เผยแพร่ชุดช้อมูล (ตัวอย่างเช่น, "
-#~ "กรมอนามัย) ซึ่งแปลว่าชุดข้อมูลต่างๆ "
-#~ "จะถูกเผยแพร่และเป็นขององค์กรแทนที่จะเป็นของบุคคล</p> "
-#~ "<p>ภายในองค์กร "
-#~ "ผู้ดูแลระบบสามารถกำหนดสิทธิ์และหน้าที่ของสมาชิกรวมทั้งการเผยแพร่ชุดข้อมูลขององค์กรได้ด้วย.</p>?"
-
-#~ msgid "This organization has no description"
-#~ msgstr "ไม่มีคำอธิบายสำหรับองค์กรนี้"
-
-#~ msgid "Add metadata to the dataset"
-#~ msgstr "เพิ่มข้อมูลเมตาไปที่ชุดข้อมูลนี้"
-
-#~ msgid ""
-#~ "This is the current revision of "
-#~ "this dataset, as edited at "
-#~ "%(timestamp)s."
-#~ msgstr "นี่คือรุ่นปัจจุบันของชุดข้อมูลนี้ที่ถูกแก้ไขเมื่อ %(timestamp)s."
-
-#~ msgid "There is no description for this resource"
-#~ msgstr "ไม่มีรายละเอียดสำหรับทรัพยากรนี้"
-
-#~ msgid "There is no description for this dataset"
-#~ msgstr "ไม่มีรายละเอียดสำหรับชุดข้อมูลนี้"
-
-#~ msgid ""
-#~ "Important: By submitting content, you "
-#~ "agree to release your contributions "
-#~ "under the Open Database License."
-#~ msgstr ""
-#~ "สำคัญ: โดยการส่งข้อมูลนี้ "
-#~ "คุณตกลงที่จะเผยแพร่สิ่งที่คุณเพิ่มเติมภายใต้สัญญาอนุญาต Open "
-#~ "Database License"
-
-#~ msgid "Next: Additional Info"
-#~ msgstr "ต่อไป: ข้อมูลเพิ่มเติม"
-
-#~ msgid "No description for this resource"
-#~ msgstr "ไม่มีรายละเอียดสำหรับทรัพยากรนี้"
-
-#~ msgid ""
-#~ " <p class=\"empty\">This dataset has no"
-#~ " data, <a href=\"%(url)s\">why not add "
-#~ "some?</a> "
-#~ msgstr ""
-#~ "<p class=\"empty\">ชุดข้อมูลนี้ไม่มีข้อมูล<a "
-#~ "href=\"%(url)s\">ลองเพิ่มดูไหม?</a>"
-
-#~ msgid "Additional info"
-#~ msgstr "ข้อมูลเพิ่มเติม"
-
-#~ msgid "This item has no description"
-#~ msgstr "รายการนี้ไม่มีคำอธิบาย"
-
-#~ msgid "Request Reset"
-#~ msgstr "ขอตั้งค่าใหม่"
-
-#~ msgid "You can use"
-#~ msgstr "คุณสามารถใช้"
-
-#~ msgid "Markdown formatting"
-#~ msgstr "รูปแบบของ markdown"
-
-#~ msgid "here."
-#~ msgstr "ที่นี่"
-
-#~ msgid "View dataset resources"
-#~ msgstr "ดูทรัพยากรของชุดข้อมูล"
-
-#~ msgid "DOWNLOAD"
-#~ msgstr "ดาวน์โหลด"
-
-#~ msgid "No downloadable resources."
-#~ msgstr "ไม่มีทรัพยากรที่สามารถดาวน์โหลดได้"
-
-#~ msgid "No description for this item"
-#~ msgstr "ไม่มีคำอธิบายสำหรับรายการนี้"
-
-#~ msgid "View this"
-#~ msgstr "ดูสิ่งนี้"
-
-#~ msgid "no ratings yet"
-#~ msgstr "ยังไม่มีการให้คะแนน"
-
-#~ msgid ""
-#~ "–\n"
-#~ "    rate it now"
-#~ msgstr ""
-#~ "–\n"
-#~ "    ให้คะแนนตอนนี้"
-
-#~ msgid "Checking..."
-#~ msgstr "กำลังตรวจสอบ..."
-
-#~ msgid "Type at least two characters..."
-#~ msgstr "พิมพ์อย่างน้อยสองตัวอักษร..."
-
-#~ msgid "This is the current URL."
-#~ msgstr "นี่คือ URL ปัจจุบัน"
-
-#~ msgid "This URL is available!"
-#~ msgstr "URL นี้สามารถใช้ได้ "
-
-#~ msgid "This URL is already used, please use a different one."
-#~ msgstr "URL นี้ถูกใช้แล้ว กรุณาเลือกใหม่"
-
-#~ msgid "Failed to save, possibly due to invalid data "
-#~ msgstr "ไม่สามารถบันทึกข้อมูลได้ อาจเนื่องจากข้อมูลไม่ถูกต้อง"
-
-#~ msgid ""
-#~ "You have unsaved changes. Make sure "
-#~ "to click 'Save Changes' below before "
-#~ "leaving this page."
-#~ msgstr ""
-#~ "คุณมีการปรับปรุงที่ยังไม่ถูกบันทึก กรุณาคลิ๊ก "
-#~ "'บันทึกการปรับปรุง' ด้านล่างก่อนออกจากหน้านี้"
-
-#~ msgid "(no name)"
-#~ msgstr "(ไม่มีชื่อ)"
-
-#~ msgid "Delete the resource '%name%'?"
-#~ msgstr "ลบทรัพยากร '%name%'?"
-
-#~ msgid "Preview not available for data type: "
-#~ msgstr "ไม่มีการแสดงตัวอย่างของข้อมูลประเภทนี้:"
-
-#~ msgid "Failed to get credentials for storage upload. Upload cannot proceed"
-#~ msgstr "ไม่สามารถเรียกการรับรองสำหรับการอัพโหลด จึงไม่สามารถอัพโหลดต่อได้"
-
-#~ msgid "Checking upload permissions ..."
-#~ msgstr "กำลังตรวจสอบการอนุญาตให้อัพโหลด"
-
-#~ msgid "Uploading file ..."
-#~ msgstr "กำลังอัพโหลดไฟล์ ..."
-
-#~ msgid "Data File"
-#~ msgstr "ไฟล์ข้อมูล"
-
-#~ msgid "Metadata"
-#~ msgstr "ข้อมูลเมตา"
-
-#~ msgid "Documentation"
-#~ msgstr "เอกสารประกอบ"
-
-#~ msgid "Example"
-#~ msgstr "ตัวอย่าง"
-
-#~ msgid "Url"
-#~ msgstr "Url"
-
-#~ msgid "Resource Type"
-#~ msgstr "ประเภทของทรัพยากร"
-
-#~ msgid "DataStore enabled"
-#~ msgstr "DataStore ถูกเปิดใช้"
-
-#~ msgid "Size (Bytes)"
-#~ msgstr "ขนาด (ไบต์)"
-
-#~ msgid "Mimetype"
-#~ msgstr "Mimetype"
-
-#~ msgid "Mimetype (Inner)"
-#~ msgstr "Mimetype (ด้านใน)"
-
-#~ msgid "Hash"
-#~ msgstr "แฮช"
-
-#~ msgid "ID"
-#~ msgstr "ไอดี"
-
-#~ msgid "Done"
-#~ msgstr "เสร็จสิ้น"
-
-#~ msgid "This resource has unsaved changes."
-#~ msgstr "ทรัพยากรนี้มีการปรับปรุงที่ยังไม่ถูกบันทึก"
-
-#~ msgid "e.g. csv, html, xls, rdf, ..."
-#~ msgstr "เช่น csv, html, xls, rdf"
-
-#~ msgid "Extra Fields"
-#~ msgstr "ฟิลด์เพิ่มเติม"
-
-#~ msgid "Add Extra Field"
-#~ msgstr "เพิ่มฟิลด์"
-
-#~ msgid "Key"
-#~ msgstr "กุญแจข้อมูล"
-
-#~ msgid "Delete Resource"
-#~ msgstr "ลบทรัพยากร"
-
-#~ msgid "You can use %aMarkdown formatting%b here."
-#~ msgstr "คุณสามารถใช้ %aรูปแบบ Markdown%b ในนี้"
-
-#~ msgid ""
-#~ "Dates are in %aISO Format%b — eg."
-#~ " %c2012-12-25%d or %c2010-05-31T14:30%d."
-#~ msgstr ""
-#~ "วันที่อยู่ใน %aรูปแบบ ISO%b — เช่น "
-#~ "%c2012-12-25%d หรือ %c2010-05-31T14:30%d."
-
-#~ msgid "Data File (Uploaded)"
-#~ msgstr "ไฟล์ข้อมูล (อัพโหลดแล้ว)"
-
-#~ msgid "Could not load preview"
-#~ msgstr "ไม่สามารถดูตัวอย่างได้"
-
-#~ msgid "DataProxy returned an error"
-#~ msgstr "DataProxy ส่งข้อผิดพลาดกลับมา"
-
-#~ msgid "DataStore returned an error"
-#~ msgstr "DataStore ส่งข้อผิดพลาดกลับมา"
-
-#~ msgid "Find datasets"
-#~ msgstr "ค้นหาชุดข้อมูล"
-
-#~ msgid "Add a dataset"
-#~ msgstr "เพิ่มชุดข้อมูล"
-
-#~ msgid "Page Logo"
-#~ msgstr "โลโก้หน้า"
-
-#~ msgid "Master content template placeholder … please replace me."
-#~ msgstr "พื้นที่หลักสำหรับวางเนื้อหา ... กรุณาเปลี่ยนเนื้อหาฉันด้วย"
-
-#~ msgid "Twitter @ckanproject"
-#~ msgstr "ทวิตเตอร์ @ckanproject"
-
-#~ msgid "Contact Us"
-#~ msgstr "ติดต่อเรา"
-
-#~ msgid "Privacy Policy"
-#~ msgstr "นโยบายความเป็นส่วนตัว"
-
-#~ msgid "Sections"
-#~ msgstr "ส่วน"
-
-#~ msgid "Site Admin"
-#~ msgstr "ผู้ดูแลเว็บไซต์"
-
-#~ msgid "Languages"
-#~ msgstr "ภาษา"
-
-#~ msgid "Meta"
-#~ msgstr "เมตา"
-
-#~ msgid "Licensed under the"
-#~ msgstr "ใช้งานภายใต้ลิขสิทธิ์"
-
-#~ msgid "Open Database License"
-#~ msgstr "สัญญาอนุญาตฐานข้อมูลแบบเปิด"
-
-#~ msgid "This Content and Data is Open"
-#~ msgstr "เนื้อหาและข้อมูลเป็นลักษณะเปิด"
-
-#~ msgid "Powered by"
-#~ msgstr "ขับเคลื่อนด้วย"
-
-#~ msgid "CKAN"
-#~ msgstr "CKAN"
-
-#~ msgid "v"
-#~ msgstr "v"
-
-#~ msgid "Administration - Authorization"
-#~ msgstr "การดูแลระบบ - การอนุมัติ"
-
-#~ msgid "Update Existing Roles"
-#~ msgstr "ปรับปรุงหน้าที่"
-
-#~ msgid "Save Changes"
-#~ msgstr "บันทึกการเปลี่ยนแปลง"
-
-#~ msgid "Add Roles for Any User"
-#~ msgstr "เพิ่มหน้าที่ให้ผู้ใช้"
-
-#~ msgid "Add Role"
-#~ msgstr "เพิ่มหน้าที่"
-
-#~ msgid "Administration Dashboard"
-#~ msgstr "หน้าปัดของผู้ดูแลระบบ"
-
-#~ msgid "Current Sysadmins"
-#~ msgstr "ผู้ดูแลระบบคนปัจจุบัน"
-
-#~ msgid "Administration - Trash"
-#~ msgstr "ผู้ดูและระบบ - ถังขยะ"
-
-#~ msgid "Deleted Revisions"
-#~ msgstr "การแก้ไขที่ลบไปแล้ว"
-
-#~ msgid "Purge them all (forever and irreversibly)"
-#~ msgstr "ลบทุกสิ่งในนี้ (ตลอดไปและไม่สามารถย้อนกลับได้)"
-
-#~ msgid "Deleted Datasets"
-#~ msgstr "ชุดข้อมูลที่ถูกลบไปแล้ว"
-
-#~ msgid "(None)"
-#~ msgstr "(ไม่มี)"
-
-#~ msgid "Authorization:"
-#~ msgstr "การอนุญาต:"
-
-#~ msgid "Edit:"
-#~ msgstr "แก้ไข"
-
-#~ msgid "There are no datasets currently in this group."
-#~ msgstr "ไม่มีชุดข้อมูลในกรุ๊ปนี้"
-
-#~ msgid "History:"
-#~ msgstr "ประวัติ"
-
-#~ msgid "Compare »"
-#~ msgstr "เปรียบเทียบ »"
-
-#~ msgid "Group History"
-#~ msgstr "ประวัติของกลุ่ม"
-
-#~ msgid "Groups of Datasets"
-#~ msgstr "กลุ่มของชุดข้อมูล"
-
-#~ msgid "What Are Groups?"
-#~ msgstr "อะไรคือกลุ่ม?"
-
-#~ msgid ""
-#~ "Whilst tags are great at collecting "
-#~ "datasets together, there are occasions "
-#~ "when you want to restrict users "
-#~ "from editing a collection. A [1:group]"
-#~ " can be set-up to specify which"
-#~ " users have permission to add or "
-#~ "remove datasets from it."
-#~ msgstr ""
-#~ "ขณะที่ tag ทำหน้าที่ได้ดีในการรวบรวมชุดข้อมูลได้ด้วยกัน"
-#~ " แต่อาจจะมีกรณีที่คุณต้องการจำกัดสิทธิ์ของผู้ใช้ในการแก้ไขชุดข้อมูล"
-#~ " [1:group] "
-#~ "สามารถถูกตั้งค่าว่าผู้ใช้สามารถลบหรือเพิ่มข้อมูลในกลุ่มได้"
-
-#~ msgid "New Dataset..."
-#~ msgstr "ชุดข้อมูลใหม่..."
-
-#~ msgid "Existing Dataset..."
-#~ msgstr "ชุดข้อมูลที่มีอยู่ก่อนแล้ว..."
-
-#~ msgid "List Groups"
-#~ msgstr "รายการของกลุ่ม"
-
-#~ msgid "Login to Add a Group"
-#~ msgstr "เข้าระบบเพื่อเพิ่มกลุ่ม"
-
-#~ msgid "Add A Group"
-#~ msgstr "เพิ่มกลุ่ม"
-
-#~ msgid "Errors in form"
-#~ msgstr "ความผิดพลาดในฟอร์ม"
-
-#~ msgid "Warning: URL is very long. Consider changing it to something shorter."
-#~ msgstr "คำเตือน: URL นี้ยาวเกินไป กรุณาทำให้สั้นลง"
-
-#~ msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
-#~ msgstr "ใช้ตัวอักษรอย่างน้อยสองตัว เป็นตัว 'a-z0-9' หรือ '-_' เท่านั้น"
-
-#~ msgid "Start with a summary sentence ..."
-#~ msgstr "เริ่มด้วยประโยคสรุป"
-
-#~ msgid "Image URL:"
-#~ msgstr "URL ของรูปภาพ"
-
-#~ msgid "The URL for the image that is associated with this group."
-#~ msgstr "URL สำหรับรูปภาพที่เกี่ยวข้องกับกลุ่มนี้"
-
-#~ msgid "active"
-#~ msgstr "ใช้งานได้"
-
-#~ msgid "deleted"
-#~ msgstr "ถูกลบไปแล้ว"
-
-#~ msgid "Add..."
-#~ msgstr "เพิ่ม..."
-
-#~ msgid "Key ="
-#~ msgstr "กุญแจ = "
-
-#~ msgid "Value ="
-#~ msgstr "ค่า ="
-
-#~ msgid "Add datasets"
-#~ msgstr "เพิ่มชุดข้อมูล"
-
-#~ msgid "Resource Formats"
-#~ msgstr "รูปแบบของทรัพยากร"
-
-#~ msgid "State:"
-#~ msgstr "สถานะ"
-
-#~ msgid ""
-#~ "[1:You searched for \"%(query)s\". "
-#~ "]%(number_of_results)s datasets found."
-#~ msgstr "[1:การค้นหา \"%(query)s\". ]%(number_of_results)s ชุดข้อมูล ."
-
-#~ msgid ""
-#~ "What was the [1:average price] of "
-#~ "a house in the UK in 1935? "
-#~ "When will India's projected population "
-#~ "[2:overtake] that of China? Where can"
-#~ " you see [3:publicly-funded art] in"
-#~ " Seattle? Data to answer many, many"
-#~ " questions like these is out there"
-#~ " on the Internet somewhere - but "
-#~ "it is not always easy to find."
-#~ msgstr ""
-#~ "What was the [1:average price] of "
-#~ "a house in the UK in 1935? "
-#~ "When will India's projected population "
-#~ "[2:overtake] that of China? Where can"
-#~ " you see [3:publicly-funded art] in"
-#~ " Seattle? Data to answer many, many"
-#~ " questions like these is out there"
-#~ " on the Internet somewhere - but "
-#~ "it is not always easy to find."
-
-#~ msgid ""
-#~ "%(site_title)s is a community-run "
-#~ "catalogue of useful sets of data "
-#~ "on the Internet. You can collect "
-#~ "links here to data from around the"
-#~ " web for yourself and others to "
-#~ "use, or search for data that "
-#~ "others have collected. Depending on the"
-#~ " type of data (and its conditions "
-#~ "of use), %(site_title)s may also be "
-#~ "able to store a copy of the "
-#~ "data or host it in a database, "
-#~ "and provide some basic visualisation "
-#~ "tools."
-#~ msgstr ""
-#~ "%(site_title)s "
-#~ "คือการรวบรวมของชุดข้อมูลที่เป็นประโยชน์จากอินเตอร์เน็ต "
-#~ "ขึ้นอยู่ประเภทของข้อมูลหรือเงื่อนไขในการใช้ %(site_title)s "
-#~ "สามารถใช้เก็บสำเนาของข้อมูลหรือเก็บไว้ในฐานข้อมูลและสามารถใช้เครื่องมือในการมโนภาพได้"
-#~ " (visualization)"
-
-#~ msgid "How it works"
-#~ msgstr "ทำงานอย่างไร"
-
-#~ msgid ""
-#~ "This site is running a powerful "
-#~ "piece of open-source data cataloguing"
-#~ " software called [1:CKAN], written and "
-#~ "maintained by the [2:Open Knowledge "
-#~ "Foundation]. Each 'dataset' record on "
-#~ "CKAN contains a description of the "
-#~ "data and other useful information, such"
-#~ " as what formats it is available "
-#~ "in, who owns it and whether it "
-#~ "is freely available, and what subject"
-#~ " areas the data is about. Other "
-#~ "users can improve or add to this"
-#~ " information (CKAN keeps a fully "
-#~ "versioned history)."
-#~ msgstr ""
-
-#~ msgid ""
-#~ "CKAN powers a number of data "
-#~ "catalogues on the Internet. [1:The Data"
-#~ " Hub] is an openly editable open "
-#~ "data catalogue, in the style of "
-#~ "Wikipedia. The UK Government uses CKAN"
-#~ " to run [2:data.gov.uk], which currently"
-#~ " lists 8,000 government datasets. Official"
-#~ " public data from most European "
-#~ "countries is listed in a CKAN "
-#~ "catalogue at [3:publicdata.eu]. There is "
-#~ "a comprehensive list of catalogues like"
-#~ " these around the world at "
-#~ "[4:datacatalogs.org], which is itself powered"
-#~ " by CKAN."
-#~ msgstr ""
-
-#~ msgid "Open data and the Open Knowledge Foundation"
-#~ msgstr "ข้อมูลแบบเปิดกับ Open Knowledge Foundation"
-
-#~ msgid ""
-#~ "Most of the data indexed at "
-#~ "%(site_title)s is openly licensed, meaning "
-#~ "anyone is free to use or re-"
-#~ "use it however they like. Perhaps "
-#~ "someone will take that nice dataset "
-#~ "of a city's public art that you"
-#~ " found, and add it to a tourist"
-#~ " map - or even make a neat "
-#~ "app for your phone that'll help "
-#~ "you find artworks when you visit "
-#~ "the city. Open data means more "
-#~ "enterprise, collaborative science and "
-#~ "transparent government. You can read "
-#~ "more about open data in the "
-#~ "[1:Open Data Handbook]."
-#~ msgstr ""
-#~ "ข้อมูลส่วนใหญ่ที่ %(site_title)s "
-#~ "ถูกเผยแพร่ภายใต้ลิขสิทธิ์ที่เปิด "
-#~ "หมายความว่าใครก็สามารถนำข้อมูลไปใช้หรือเผยแพร่ได้ตามใจชอบ "
-#~ "อาจมีใครบางคนเอาชุดข้อมูลเกี่ยวกับงานศิลปะสาธารนะที่คุณเอามาลงไปใส่ในแผนที่สำหรับนักท่องเที่ยว"
-#~ " หรือสร้างแอพมือถือที่จะให้ช่วยหางานศิลปะในเมือง "
-#~ "ข้อมูลแบบเปิดนำไปสู่นวตกรรมที่เพิ่มขึ้น "
-#~ "การร่วมมือทางด้านวิทยาศาสตร์ และรัฐบาลที่โปร่งใส "
-#~ "คุณสามารถอ่านรายละเอียดเพิ่มเติมเกี่ยวกับข้อมูลแบบเปิดได้ที่ "
-#~ "[1:Open Data Handbook]."
-
-#~ msgid ""
-#~ "The [1:Open Knowledge Foundation] is a"
-#~ " non-profit organisation [2:promoting] open"
-#~ " knowledge: writing and improving CKAN "
-#~ "is one of the ways we do "
-#~ "that. If you want to get involved"
-#~ " with its design or code, join "
-#~ "the discussion or development [3:mailing "
-#~ "lists], or take a look at the "
-#~ "[4:OKFN] site to find out about "
-#~ "our other projects."
-#~ msgstr ""
-#~ "[1:Open Knowledge Foundation] "
-#~ "เป็นองค์กรไม่แสวงกำไรที่ [2:promoting] open "
-#~ "knowledge: การสร้างและพัฒนา CKAN "
-#~ "เป็นหนึ่งในวิธีที่เราบรรลุวัตถุประสงค์นี้ "
-#~ "ถ้าคุณต้องการที่จะมีส่วนร่วมในการเขียนโปรแกรม "
-#~ "ให้เข้าร่วมการสนทนากลุ่ม หรือdevelopment [3:mailing "
-#~ "lists] หรือเข้าไปดูที่ [4:OKFN] "
-#~ "เพื่อที่จะหาข้อมูลเกี่ยวกับโปรเจ็กต์อื่นๆ"
-
-#~ msgid "Welcome to"
-#~ msgstr "ยินดีต้อนรับสู่"
-
-#~ msgid "Find data"
-#~ msgstr "ค้นหาข้อมูล"
-
-#~ msgid "contains"
-#~ msgstr "ประกอบด้วย"
-
-#~ msgid ""
-#~ "that you can \n"
-#~ "            browse, learn about and download."
-#~ msgstr ""
-#~ "ที่คุณสามารถ\n"
-#~ "เรียกดู เรียนรู้ และดาวน์โหลด"
-
-#~ msgid "Share data"
-#~ msgstr "แบ่งปันข้อมูล"
-
-#~ msgid ""
-#~ "Add your own datasets to share them with others and\n"
-#~ "          to find other people interested in your data."
-#~ msgstr ""
-#~ "เพิ่มชุดข้อมูลเข้าไปเพื่อที่จะแบ่งปันกับคนอื่นและ\n"
-#~ "หาคนอื่นที่สนใจในข้อมูลของคุณ"
-
-#~ msgid "Create a dataset »"
-#~ msgstr "สร้างชุดข้อมูล »"
-
-#~ msgid "Sign up »"
-#~ msgstr "สมัครสมาชิก »"
-
-#~ msgid "Collaborate"
-#~ msgstr "ร่วมมือ"
-
-#~ msgid ""
-#~ "Find out more about working with open data by exploring \n"
-#~ "          these resources:"
-#~ msgstr ""
-#~ "เรียนรู้เพิ่มเติมเกี่ยวกับการทำงานกับข้อมูลแบบเปิดโดยการเข้าไปดู\n"
-#~ "ทรัพยากรดังต่อไปนี้:"
-
-#~ msgid "GetTheData.org"
-#~ msgstr "GetTheData.org"
-
-#~ msgid "DataPatterns.org"
-#~ msgstr "DataPatterns.org"
-
-#~ msgid "Open Data Handbook"
-#~ msgstr "Open Data Handbook"
-
-#~ msgid "Who else is here?"
-#~ msgstr "มีใครอยู่ที่นี่บ้าง"
-
-#~ msgid "has"
-#~ msgstr "มี"
-
-#~ msgid "datasets."
-#~ msgstr "ชุดข้อมูล"
-
-#~ msgid "Importer"
-#~ msgstr "ผู้นำเข้า"
-
-#~ msgid "Import Datasets"
-#~ msgstr "นำเข้าชุดข้อมูล"
-
-#~ msgid ""
-#~ "Here you can supply an Excel file"
-#~ " with details of multiple datasets "
-#~ "and import these into"
-#~ msgstr "ที่นี่คุณสามารถระบุไฟล์ Excel ที่มีข้อมูลของหลายๆชุดข้อมูลและนำเข้าไปใน"
-
-#~ msgid "Log in to use this tool"
-#~ msgstr "เข้าสู่ระบบเพื่อที่จะใช้เครื่องมือ"
-
-#~ msgid "Preview - Importer"
-#~ msgstr "ดูตัวอย่าง - ผู้นำเข้า"
-
-#~ msgid "Import Preview"
-#~ msgstr "ตัวอย่างการนำเข้า"
-
-#~ msgid "read from"
-#~ msgstr "อ่านจาก"
-
-#~ msgid "Further dataset previews not shown."
-#~ msgstr "ตัวอย่างชุดข้อมูลอื่นๆไม่ได้ถูกแสดง"
-
-#~ msgid "Edit summary (briefly describe the changes you have made)"
-#~ msgstr "สรุปการแก้ไข (บรรยายการเปลี่ยนแปลงของคุณโดยคร่าวๆ)"
-
-#~ msgid "Author:"
-#~ msgstr "ผู้แต่ง:"
-
-#~ msgid "Import"
-#~ msgstr "นำเข้า"
-
-#~ msgid "Results - Importer"
-#~ msgstr "ผลลัพธ์ - ผู้นำเข้า "
-
-#~ msgid "Import Results"
-#~ msgstr "ผลการนำเข้า"
-
-#~ msgid "- Datasets - History"
-#~ msgstr "- ชุดข้อมูล - ประวัติ"
-
-#~ msgid "- Edit - Datasets"
-#~ msgstr "- แก้ไข - ชุดข้อมูล"
-
-#~ msgid "Basic Information"
-#~ msgstr "ข้อมูลพื้นฐาน"
-
-#~ msgid "Further Information"
-#~ msgstr "ข้อมูลเพิ่มเติม"
-
-#~ msgid "Since you have not signed in this will just be your IP address."
-#~ msgstr "เนื่องจากว่าคุณไม่ได้ทำการเข้าระบบ ไอพีของคุณจะถูกใช้แทน"
-
-#~ msgid "Click here to sign in"
-#~ msgstr "คลิ๊กที่นี้เพื่อที่จะเข้าระบบ"
-
-#~ msgid "before saving (opens in new window)."
-#~ msgstr "ก่อนที่จะบันทึกข้อมูล (เปิดในหน้าต่างใหม่)"
-
-#~ msgid ""
-#~ "[1:Important:] By submitting content, you "
-#~ "agree to release your contributions "
-#~ "under the [2:Open Database License]. "
-#~ "Please [3:refrain] from editing this "
-#~ "page if you are [4:not] happy to"
-#~ " do this."
-#~ msgstr ""
-#~ "[1:Important:] By submitting content, you "
-#~ "agree to release your contributions "
-#~ "under the [2:Open Database License]. "
-#~ "Please [3:refrain] from editing this "
-#~ "page if you are [4:not] happy to"
-#~ " do this."
-
-#~ msgid "- Edit Resources - Datasets"
-#~ msgstr "- แก้ไขทรัพยากร - ชุดข้อมูล"
-
-#~ msgid "Edit Resources:"
-#~ msgstr "แก้ไขทรัพยากร:"
-
-#~ msgid "- Datasets - Followers"
-#~ msgstr "- ชุดข้อมูล - ผู้ติดตาม"
-
-#~ msgid "Followers:"
-#~ msgstr "ผู้ติดตาม:"
-
-#~ msgid "no-sidebar"
-#~ msgstr "no-sidebar"
-
-#~ msgid "New key"
-#~ msgstr "กุญแจใหม่"
-
-#~ msgid "with value"
-#~ msgstr "พร้อมกับค่า"
-
-#~ msgid "Dataset History"
-#~ msgstr "ประวัติชุดข้อมูล"
-
-#~ msgid "Resources (0)"
-#~ msgstr "ทรัพยากร (0)"
-
-#~ msgid "Add / Edit resources"
-#~ msgstr "เพิ่ม / แก้ไข ทรัพยากร"
-
-#~ msgid "Apps, Ideas etc"
-#~ msgstr "แอพพลิเคชั่น แนวคิด และอื่นๆ"
-
-#~ msgid "Followers ({num_followers})"
-#~ msgstr "ผู้ติดตาม ({num_followers})"
-
-#~ msgid "Settings"
-#~ msgstr "การตั้งค่า"
-
-#~ msgid "Add - Datasets"
-#~ msgstr "เพิ่ม-ชุดข้อมูล"
-
-#~ msgid "Add a Dataset"
-#~ msgstr "เพิ่มชุดข้อมูล"
-
-#~ msgid "A short descriptive title for the dataset"
-#~ msgstr "คำอธิบายสั้นๆสำหรับชุดข้อมูล"
-
-#~ msgid "Home Page"
-#~ msgstr "หน้าแรก"
-
-#~ msgid "The URL for the web page describing the data (not the data itself)."
-#~ msgstr "URL สำหรับเว็บไซต์ที่ให้รายละเอียดของข้อมูล (ไม่ใช่ตัวข้อมูล)"
-
-#~ msgid "e.g. http://www.example.com/growth-figures.html"
-#~ msgstr "ตัวอย่าง http://www.example.com/growth-figures.html"
-
-#~ msgid ""
-#~ "(Don't worry if you don't know "
-#~ "which license the data has been "
-#~ "released under)."
-#~ msgstr "(ไม่เป็นไรหากคุณไม่รู้ว่าข้อมูลนี้ใช้สัญญาอนุญาตแบบไหน)"
-
-#~ msgid "Member of:"
-#~ msgstr "สมาชิกของ:"
-
-#~ msgid "Add to:"
-#~ msgstr "เพิ่มไปที่:"
-
-#~ msgid "Cannot add any groups."
-#~ msgstr "ไม่สามารถเพิ่มกลุ่มใดๆ"
-
-#~ msgid ""
-#~ "Comma-separated terms that may link "
-#~ "this dataset to similar ones. For "
-#~ "more information on conventions, see "
-#~ "[1:this wiki page]."
-#~ msgstr ""
-#~ "การใช้เครื่องหมายจุคภาค อาจใช้เพื่อเชื่อมโยงชุดข้อมูลที่คล้ายกัน"
-#~ " ข้อมูลเพิ่มเติมเกี่ยวกับเรื่องนี้ไปที่ [1:this wiki"
-#~ " page]"
-
-#~ msgid "e.g. pollution, rivers, water quality"
-#~ msgstr "ตัวอย่าง มลภาวะ แม่น้ำ คุณภาพน้ำ"
-
-#~ msgid "Add Resources"
-#~ msgstr "เพิ่มทรัพยากร"
-
-#~ msgid ""
-#~ "Upload or link data files, APIs "
-#~ "and other materials related to your "
-#~ "dataset."
-#~ msgstr ""
-#~ "อัปโหลดหรือเพิ่มลิ้งค์ไฟล์ข้อมูล API "
-#~ "และวัตถุดิบอื่นที่เกี่ยวข้องกับชุดข้อมูลของคุณ"
-
-#~ msgid "New resource..."
-#~ msgstr "ทรัพยากรใหม่"
-
-#~ msgid "x"
-#~ msgstr "x"
-
-#~ msgid "Link to a file"
-#~ msgstr "เชื่อมโยงไปไฟล์"
-
-#~ msgid "Link to an API"
-#~ msgstr "เชื่อมโยงไป API"
-
-#~ msgid "File URL"
-#~ msgstr "ไฟล์ URL"
-
-#~ msgid "API URL"
-#~ msgstr "API URL"
-
-#~ msgid ""
-#~ "The name of the main contact, for"
-#~ " enquiries about this particular dataset,"
-#~ " using the e-mail address in the "
-#~ "following field."
-#~ msgstr ""
-#~ "ผู้ติดต่อหลักเพื่อติดต่อสอบถามเรื่องข้อมูลที่เกี่ยวกับชุดข้อมูล "
-#~ "ใช้อีเมลในฟิลด์ต่อไปนี้"
-
-#~ msgid "Author email"
-#~ msgstr "อีเมลผู้แต่ง"
-
-#~ msgid ""
-#~ "If there is another important contact"
-#~ " person (in addition to the person"
-#~ " in the Author field) then provide"
-#~ " details here."
-#~ msgstr ""
-#~ "ถ้ามีผู้ติดต่อที่สำคัญอีกคน (บุคคลที่ถูกเพิ่มขึ้นในฟิลด์ผู้แต่ง)"
-#~ " กรุณาให้รายละเอียดที่นี่"
-
-#~ msgid "Maintainer email"
-#~ msgstr "อีเมลผู้ดูแล"
-
-#~ msgid "A number representing the version (if applicable)"
-#~ msgstr "เลขที่รุ่น (ถ้ามี)"
-
-#~ msgid "e.g. 1.2.0"
-#~ msgstr "ตัวอย่าง 1.2.0"
-
-#~ msgid ""
-#~ "Adding custom fields to the dataset "
-#~ "such as \"location:uk\" can help users"
-#~ " find it in the search engine. "
-#~ "This data will also appear under"
-#~ msgstr ""
-#~ "เพิ่มฟิลด์กำหนดเองในชุดข้อมูลเช่น \"พื้นที่:กทม.\" (หรือ"
-#~ " location:bangkok) ที่ช่วยให้ผู้ใช้ค้นหาข้อมูลในเสิร์ชเอ็นจิน"
-#~ " (เช่น Google) ข้อมูลนี้จะแสดงภายใต้"
-
-#~ msgid "when viewing the dataset."
-#~ msgstr "เมื่อแสดงชุดข้อมูล"
-
-#~ msgid "Do you really want to change the state of this dataset?"
-#~ msgstr "คุณต้องการจะเปลี่ยนคำอธิบายของชุดข้อมูลนี้"
-
-#~ msgid "Yes!"
-#~ msgstr "ใช่"
-
-#~ msgid "This dataset is"
-#~ msgstr "ชุดข้อมูลนี้คือ"
-
-#~ msgid "Summary"
-#~ msgstr "สรุป"
-
-#~ msgid "Briefly describe the changes you have made..."
-#~ msgstr "คำอธิบายสังเขปที่คุณเป็นผู้เปลี่ยน"
-
-#~ msgid ""
-#~ "Since you have not signed in this will just be your IP address.\n"
-#~ "    [1:Click here to sign in] before saving (opens in new window)."
-#~ msgstr ""
-#~ "เมื่อคุณไม่ได้ลงชื่อเข้าสู่ระบบจึงแสดงเฉพาะเลขที่ไอพีของคุณ\n"
-#~ "[1:คลิกเพื่อเข้าสู่ระบบ] ก่อนบันทึก (เปิดหน้าต่างใหม่)"
-
-#~ msgid "Important:"
-#~ msgstr "สำคัญ:"
-
-#~ msgid ""
-#~ "By submitting content, you agree to "
-#~ "release your contributions under the"
-#~ msgstr "การส่งข้อมูลนี้ คุณตกลงที่จะเผยแพร่สิ่งที่คุณเพิ่มเติมภายใต้"
-
-#~ msgid ". Please"
-#~ msgstr ". กรุณา"
-
-#~ msgid "refrain"
-#~ msgstr "ละเว้น"
-
-#~ msgid "from editing this page if you are"
-#~ msgstr "จากการแก้ไขหน้านี้ ถ้าหากคุณเป็นผู้แก้ไข"
-
-#~ msgid "not"
-#~ msgstr "ไม่"
-
-#~ msgid "happy to do this."
-#~ msgstr "ความสุขที่จะทำเช่นนี้"
-
-#~ msgid "- Datasets"
-#~ msgstr "- ชุดข้อมูล"
-
-#~ msgid "License:"
-#~ msgstr "สัญญาอนุญาต:"
-
-#~ msgid "[Open Data]"
-#~ msgstr "[Open Data]"
-
-#~ msgid "Related Datasets"
-#~ msgstr "ชุดข้อมูลที่เกี่ยวข้อง"
-
-#~ msgid "This is an old revision of this dataset, as edited"
-#~ msgstr "นี่คือชุดข้อมูลรุ่นเก่าที่ถูกแก้ไข"
-
-#~ msgid "at"
-#~ msgstr "ที่"
-
-#~ msgid ". It may differ significantly from the"
-#~ msgstr ". มันอาจจะแตกต่างกันอย่างมีนัยสำคัญจาก"
-
-#~ msgid "current revision"
-#~ msgstr "การแก้ไขปัจจุบัน"
-
-#~ msgid "This is the current revision of this dataset, as edited"
-#~ msgstr "นี่เป็นเวอร์ชั่นปัจจุบันของชุดข้อมูลนี้"
-
-#~ msgid "RDF/XML"
-#~ msgstr "RDF/XML"
-
-#~ msgid "(edit)"
-#~ msgstr "(แก้ไข)"
-
-#~ msgid "(none)"
-#~ msgstr "(ไม่มี)"
-
-#~ msgid "(settings)"
-#~ msgstr "(ตั้งค่า)"
-
-#~ msgid "Country"
-#~ msgstr "ประเทศ"
-
-#~ msgid "Harvest Source"
-#~ msgstr "Harvest Source"
-
-#~ msgid ""
-#~ "[1:Dataset page] on \n"
-#~ "            [2:%(harvest_catalogue_name)s]"
-#~ msgstr "[1:Dataset page] บน [2:%(harvest_catalogue_name)s]"
-
-#~ msgid "- Dataset - Resource"
-#~ msgstr "- ชุดข้อมูล - ทรัพยากร"
-
-#~ msgid "Data API is unavailable for this resource as DataStore is disabled"
-#~ msgstr ""
-#~ "ไม่มี Data API สำหรับทรัพยากรนี้ เนื่องจาก "
-#~ "DataStore ถูกปิดการใช้งานอยู่"
-
-#~ msgid "License unknown"
-#~ msgstr "ไม่มีใบอนุญาต"
-
-#~ msgid "From the [1:Dataset]:"
-#~ msgstr "จาก [1:Dataset]:"
-
-#~ msgid "Cannot embed as resource is private."
-#~ msgstr "ไม่สามารถฝังทรัพยากรนี้เป็นส่วนบุคคล"
-
-#~ msgid "Search -"
-#~ msgstr "ค้นหา -"
-
-#~ msgid "Do you know of a dataset that should be added to"
-#~ msgstr "คุณทราบเกี่ยวกับชุดข้อมูลที่ควรจะถูกเพิ่มเติมใหม่"
-
-#~ msgid "Register it now"
-#~ msgstr "ลงทะเบียนเลย"
-
-#~ msgid "Other access"
-#~ msgstr "การเข้าถึงอื่นๆ"
-
-#~ msgid "You can also access this registry using the"
-#~ msgstr "คุณสามารถเข้าถึงคลังโดยใช้"
-
-#~ msgid "(see"
-#~ msgstr "(เห็น"
-
-#~ msgid "or download a"
-#~ msgstr "หรือดาวน์โหลด"
-
-#~ msgid "full"
-#~ msgstr "เต็ม"
-
-#~ msgid "dump"
-#~ msgstr "ข้อมูลชุดใหญ่"
-
-#~ msgid ""
-#~ "[1:There was an error while searching.] \n"
-#~ "            Please try again."
-#~ msgstr ""
-#~ "[1:เกิดข้อผิดพลาดขณะค้นหา] \n"
-#~ "            กรุณาลองใหม่."
-
-#~ msgid "[1:%(item_count)s] datasets found"
-#~ msgstr "พบชุดข้อมูล [1:%(item_count)s] "
-
-#~ msgid "Would you like to [1:create a new dataset?]"
-#~ msgstr "คุณต้องการ [1:สร้างชุดข้อมูลใหม่?]"
-
-#~ msgid "Search..."
-#~ msgstr "ค้นหา..."
-
-#~ msgid "Add item"
-#~ msgstr "เพิ่มรายการ"
-
-#~ msgid "(required)"
-#~ msgstr "(ต้องการ)"
-
-#~ msgid "Please add the title for the item"
-#~ msgstr "กรุณาเพิ่มชื่อสำหรับรายการ"
-
-#~ msgid "Type of item"
-#~ msgstr "ชนิดของรายการ"
-
-#~ msgid "Please describe the item"
-#~ msgstr "กรุณาอธิบายรายการ"
-
-#~ msgid "Please add a url"
-#~ msgstr "กรุณาเพิ่ม URL"
-
-#~ msgid "Please add a link to the image"
-#~ msgstr "กรุณาเพิ่มลิงค์ไปยังภาพ"
-
-#~ msgid "Showing items"
-#~ msgstr "แสดงรายการ"
-
-#~ msgid "of"
-#~ msgstr "ของ"
-
-#~ msgid "related items found"
-#~ msgstr "พบรายการที่เกี่ยวข้อง"
-
-#~ msgid "Least viewed"
-#~ msgstr "ดูน้อย"
-
-#~ msgid "Featured items only?"
-#~ msgstr "รายการแนะนำเท่านั้น?"
-
-#~ msgid "- Apps, Ideas etc"
-#~ msgstr "- แอพ ไอเดีย ฯลฯ"
-
-#~ msgid "There are no items here yet"
-#~ msgstr "ไม่มีรายการที่นี่เลย"
-
-#~ msgid ", why not"
-#~ msgstr ", ทำไมไม่"
-
-#~ msgid "add one"
-#~ msgstr "เพิ่มอีกหนึ่ง"
-
-#~ msgid "Differences - Revisions"
-#~ msgstr "ความแตกต่าง - การแก้ไข"
-
-#~ msgid "Revision Differences -"
-#~ msgstr "ความแตกต่างระหว่างแต่ละการแก้ไข -"
-
-#~ msgid "From:"
-#~ msgstr "จาก:"
-
-#~ msgid "To:"
-#~ msgstr "ถึง:"
-
-#~ msgid "No differences"
-#~ msgstr "ไม่พบความแตกต่าง"
-
-#~ msgid "List"
-#~ msgstr "รายการ"
-
-#~ msgid ""
-#~ "Track the most recent changes to the system, with most recent\n"
-#~ "    changes first."
-#~ msgstr "ติดตามการเปลี่ยนแปลงล่าสุดของระบบ, โดยการเปลี่ยนแปลงล่าสุดจะขึ้นมาก่อน"
-
-#~ msgid "Revision:"
-#~ msgstr "การแก้ไข:"
-
-#~ msgid "Revision Actions"
-#~ msgstr "การดำเนินการแก้ไข"
-
-#~ msgid "Timestamp:"
-#~ msgstr "ตราประทับเวลา:"
-
-#~ msgid "Log Message:"
-#~ msgstr "การบันทึกข้อมูล"
-
-#~ msgid "Dataset -"
-#~ msgstr "ชุดข้อมูล -"
-
-#~ msgid ""
-#~ ",\n"
-#~ "      Tag -"
-#~ msgstr ""
-#~ ",\n"
-#~ "      ป้ายกำกับ -"
-
-#~ msgid "Embed this view"
-#~ msgstr "ฝังมุมมองนี้"
-
-#~ msgid "by copying this into your webpage:"
-#~ msgstr "โดยการคัดลอกไปที่เว็บไชต์ของคุณ:"
-
-#~ msgid "Not Openly Licensed"
-#~ msgstr "ไม่ได้รับอนุญาตอย่างเปิดเผย"
-
-#~ msgid ""
-#~ "This upload form is valid for a"
-#~ " limited time (usually 1h or so). "
-#~ "If the\n"
-#~ "    form expires please reload the page."
-#~ msgstr ""
-#~ "ฟอร์มนี้สามารถใช้ได้ภายในระยะเวลาที่จำกัด (ประมาณ 1 "
-#~ "ชั่วโมง) หากฟอร์มหมดอายุแล้ว กรุณาโหลดใหม่อีกครั้ง"
-
-#~ msgid "File:"
-#~ msgstr "ไฟล์:"
-
-#~ msgid "Upload - Successful"
-#~ msgstr "อัพโหลดสำเร็จแล้ว"
-
-#~ msgid "Filed uploaded to:"
-#~ msgstr "ไฟล์ถูกอัพโหลดไปที่:"
-
-#~ msgid "Upload another »"
-#~ msgstr "อัพโหลดอีกไฟล์ »"
-
-#~ msgid "There are"
-#~ msgstr "มี"
-
-#~ msgid "results for ‘"
-#~ msgstr "ผลลัพธ์สำหรับ"
-
-#~ msgid "results for tags."
-#~ msgstr "ผลลัพธ์สำหรับ tag"
-
-#~ msgid "Clear search"
-#~ msgstr "เคลียร์การค้นหา"
-
-#~ msgid "and see all tags."
-#~ msgstr "และดู tag ทั้งหมด"
-
-#~ msgid "- Tags"
-#~ msgstr "- Tag"
-
-#~ msgid "Tag:"
-#~ msgstr "Tag:"
-
-#~ msgid "There are %(count)s datasets tagged with [1:%(tagname)s]:"
-#~ msgstr "นี่คือ %(count)s ชุดข้อมูลที่ใช้ป้ายกำกับ [1:%(tagname)s]:"
-
-#~ msgid "- Dashboard - User"
-#~ msgstr "- แผงควบคุม -  ผู้ใช้"
-
-#~ msgid "What's going on?"
-#~ msgstr "เกิดอะไรขึ้น?"
-
-#~ msgid "Nothing new on CKAN?"
-#~ msgstr "ไม่มีอะไรใหม่ใน CKAN?"
-
-#~ msgid "So, why don't you ..."
-#~ msgstr "ดังนั้นทำไมคุณไม่ ..."
-
-#~ msgid "Add a new dataset"
-#~ msgstr "เพิ่มชุดข้อมูลใหม่"
-
-#~ msgid "Follow another user"
-#~ msgstr "ติดตามผู้ใช้อื่น"
-
-#~ msgid "Create a group or a tag"
-#~ msgstr "สร้างกลุ่มหรือป้ายกำกับ"
-
-#~ msgid "Or simply browse the repository"
-#~ msgstr "หรือเพียงแค่เรียกดูคลังเก็บข้อมูล"
-
-#~ msgid "- Edit - User"
-#~ msgstr "- แก้ไข -ผู้ใช้"
-
-#~ msgid "Edit User:"
-#~ msgstr "แก้ไขผู้ใช้:"
-
-#~ msgid "E-mail"
-#~ msgstr "อีเมล์"
-
-#~ msgid "OpenId"
-#~ msgstr "OpenId"
-
-#~ msgid "A little about you..."
-#~ msgstr "เล็ก ๆ น้อย ๆ เกี่ยวกับคุณ ..."
-
-#~ msgid "Change your password"
-#~ msgstr "เปลี่ยนรหัสผ่านของคุณ"
-
-#~ msgid "Password (repeat)"
-#~ msgstr "รหัสผ่าน (กรอกอีกครั้ง)"
-
-#~ msgid "Change your username"
-#~ msgstr "เปลี่ยนชื่อผู้ใช้ของคุณ"
-
-#~ msgid ""
-#~ "Changing your username will log you "
-#~ "out, and require you to log back"
-#~ " in with the new username"
-#~ msgstr ""
-#~ "การเปลี่ยนบัญชีการใช้จะนำคุณออกจากระบบ "
-#~ "กรุณาเข้าระบบอีกครั้งด้วยบัญชีใหม่"
-
-#~ msgid "- Followers - User"
-#~ msgstr "- ผู้ติดตาม - ผู้ใช้"
-
-#~ msgid "'s Followers"
-#~ msgstr "ผู้ติดตามของ"
-
-#~ msgid "My Profile"
-#~ msgstr "ประวัติของฉัน"
-
-#~ msgid "Edit Profile"
-#~ msgstr "แก้ไขประวัติ"
-
-#~ msgid "My Followers ({num_followers})"
-#~ msgstr "ผู้ติดตามของฉัน ({num_followers})"
-
-#~ msgid "View Profile"
-#~ msgstr "ดูประวัติ"
-
-#~ msgid "Register Account"
-#~ msgstr "ลงทะเบียนบัญชี"
-
-#~ msgid "[1:%(item_count)s] users found."
-#~ msgstr "พบผู้ใช้ [1:%(item_count)s] ราย"
-
-#~ msgid "Sort by name"
-#~ msgstr "เรียงตามชื่อ"
-
-#~ msgid "Sort by edits"
-#~ msgstr "เรียงตามที่แก้ไข"
-
-#~ msgid "Member for"
-#~ msgstr "สมาชิกสำหรับ"
-
-#~ msgid "Login - User"
-#~ msgstr "เข้าสู่ระบบ - ผู้ใช้"
-
-#~ msgid "Login to"
-#~ msgstr "เข้าสู่ระบบ"
-
-#~ msgid "Login:"
-#~ msgstr "เข้าสู่ระบบ:"
-
-#~ msgid "Password:"
-#~ msgstr "รหัสผ่าน:"
-
-#~ msgid "Remember me:"
-#~ msgstr "จำฉันไว้:"
-
-#~ msgid "Sign In"
-#~ msgstr "เข้าสู่ระบบ"
-
-#~ msgid "Login using Open ID"
-#~ msgstr "เข้าสู่ระบบโดยใช้ OpenID"
-
-#~ msgid ""
-#~ "NB: To set-up your OpenID for "
-#~ "this site, you first need to "
-#~ "[1:Register] and then edit your Profile"
-#~ " to provide your OpenID."
-#~ msgstr ""
-#~ "หมายเหตุ: การตั้งค่าโอเพนไอดีของคุณสำหรับเว็บไซต์นี้ "
-#~ "คุณต้องไปที่ [1: ลงทะเบียน] "
-#~ "แล้วแก้ไขข้อมูลส่วนตัวของคุณ"
-
-#~ msgid "Please click your account provider:"
-#~ msgstr "กรุณาคลิกที่ผู้ให้บริการบัญชีของคุณ"
-
-#~ msgid "OpenID Identifier:"
-#~ msgstr "รหัสโอเพนไอดี:"
-
-#~ msgid "Don't have an OpenID?"
-#~ msgstr "ไม่มีรหัสโอเพนไอดีใช่หรือไม่"
-
-#~ msgid ""
-#~ "OpenID is service that allows you "
-#~ "to log-on to many different "
-#~ "websites\n"
-#~ "          using a single identity. Find out [1:more\n"
-#~ "          about OpenID] and [2:how to get an\n"
-#~ "          OpenID enabled account]. Probably"
-#~ " the simplest way is sign up "
-#~ "with a\n"
-#~ "          free OpenID provider such as [3:https://www.myopenid.com/]."
-#~ msgstr ""
-#~ "โอเพนไอดีเป็นบริการที่ช่วยให้คุณสามารถเข้าสู่ระบบเพื่อท่องเวบไซต์ที่แตกต่างกันมาก"
-#~ "\n"
-#~ "ใช้ตัวเดียว \n"
-#~ "ค้นหา [1:เพิ่มเติมเกี่ยวกับ โอเพนไอดี] และ "
-#~ "[2:การเข้าถึงการเปิดใช้งานบัญชี\n"
-#~ "โอเพนไอดี] อาจมีวิธีง่ายที่สุดคือสร้างบัญชีผู้ใช้ "
-#~ "บริการฟรีของโอเพนไอดี เช่น [3:https://www.myopenid.com/]"
-
-#~ msgid "Sign in with OpenID"
-#~ msgstr "เข้าสู่ระบบด้วยโอเพนไอดี"
-
-#~ msgid "Logout - User"
-#~ msgstr "ออกจากระบบ - ผู้ใช้"
-
-#~ msgid "Logout from"
-#~ msgstr "ออกจากระบบ"
-
-#~ msgid "You have logged out successfully."
-#~ msgstr "คุณออกจากระบบเรียบร้อยแล้ว"
-
-#~ msgid "Logged in - User"
-#~ msgstr "เข้าสู่ระบบ - ผู้ใช้"
-
-#~ msgid "Logged into"
-#~ msgstr "เข้าสู่ระบบ"
-
-#~ msgid "is currently logged in"
-#~ msgstr "เข้าสู่ระบบในขณะนี้"
-
-#~ msgid "To register or log in as another user, you need to"
-#~ msgstr "ลงทะเบียนหรือเข้าสู่ระบบโดยผู้ใช้อื่นคุณต้อง"
-
-#~ msgid "logout"
-#~ msgstr "ออกจากระบบ"
-
-#~ msgid "first."
-#~ msgstr "ลำดับแรก"
-
-#~ msgid "Register - User"
-#~ msgstr "ลงทะเบียน - ผู้ใช้"
-
-#~ msgid "Register for a new Account"
-#~ msgstr "ลงทะเบียนสำหรับบัญชีใหม่"
-
-#~ msgid "3+ chars, using only 'a-z0-9' and '-_'"
-#~ msgstr "มากกว่า 3 ตัวอักษร ใช้ได้เฉพาะตัว 'a-z0-9' และ '-_'"
-
-#~ msgid "Full name (optional)"
-#~ msgstr "ชื่อเต็ม (ถ้ามี)"
-
-#~ msgid "E-Mail"
-#~ msgstr "อีเมล"
-
-#~ msgid "Register now"
-#~ msgstr "ลงทะเบียนตอนนี้"
-
-#~ msgid "Password (repeat):"
-#~ msgstr "รหัสผ่าน (กรอกอีกครั้ง):"
-
-#~ msgid "- User"
-#~ msgstr "- ผู้ใช้"
-
-#~ msgid "Member since"
-#~ msgstr "เป็นสมาชิกตั้งแต่"
-
-#~ msgid "No email"
-#~ msgstr "ไม่มีอีเมล"
-
-#~ msgid "– Note: your API key is visible only to you!"
-#~ msgstr "– หมายเหตุ: API key ของคุณจะมองเห็นได้เฉพาะคุณเท่านั้น!"
-
-#~ msgid "Public Activity"
-#~ msgstr "กิจกรรมสาธารณะ"
-
-#~ msgid "Reset password"
-#~ msgstr "เปลี่ยนรหัสผ่าน"
-
-#~ msgid "Request a password reset"
-#~ msgstr "ขอเปลี่ยนรหัสผ่าน"
-
-#~ msgid "User name:"
-#~ msgstr "ชื่อผู้ใช้"
-

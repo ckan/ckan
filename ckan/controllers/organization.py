@@ -1,19 +1,31 @@
+import re
+
 import ckan.controllers.group as group
+import ckan.plugins as plugins
 
 
 class OrganizationController(group.GroupController):
-    ''' The organization controller is pretty much just the group
-    controller. It has a few templates defined that are different and sets
-    the group_type to organization so that the group controller knows that
-    it is in fact the organization controller.  All the main logical
-    differences are therefore in the group controller.
+    ''' The organization controller is for Organizations, which are implemented
+    as Groups with is_organization=True and group_type='organization'. It works
+    the same as the group controller apart from:
+    * templates and logic action/auth functions are sometimes customized
+      (switched using _replace_group_org)
+    * 'bulk_process' action only works for organizations
 
-    The main differences the group controller provides for organizations are
-    a few wrapper functions that swap organization for group when rendering
-    templates, redirecting or calling logic actions '''
+    Nearly all the code for both is in the GroupController (for historical
+    reasons).
+    '''
 
-    # this makes us use organization actions
-    group_type = 'organization'
+    group_types = ['organization']
 
     def _guess_group_type(self, expecting_name=False):
         return 'organization'
+
+    def _replace_group_org(self, string):
+        ''' substitute organization for group if this is an org'''
+        return re.sub('^group', 'organization', string)
+
+    def _update_facet_titles(self, facets, group_type):
+        for plugin in plugins.PluginImplementations(plugins.IFacets):
+            facets = plugin.organization_facets(
+                facets, group_type, None)

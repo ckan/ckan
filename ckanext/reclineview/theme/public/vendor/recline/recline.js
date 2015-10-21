@@ -1875,7 +1875,7 @@ my.Map = Backbone.View.extend({
 
   initialize: function(options) {
     var self = this;
-    this.visible = true;
+    this.visible = this.$el.is(':visible');
     this.mapReady = false;
     // this will be the Leaflet L.Map object (setup below)
     this.map = null;
@@ -3221,10 +3221,20 @@ my.SlickGrid = Backbone.View.extend({
       })
     }
 
+    function sanitizeFieldName(name) {
+      var sanitized;
+      try{
+        sanitized = $(name).text();
+      } catch(e) {
+        sanitized = '';
+      }
+      return (name !== sanitized && sanitized !== '') ? sanitized : name;
+    }
+
     _.each(this.model.fields.toJSON(),function(field){
       var column = {
         id: field.id,
-        name: field.label,
+        name: sanitizeFieldName(field.label),
         field: field.id,
         sortable: true,
         minWidth: 80,

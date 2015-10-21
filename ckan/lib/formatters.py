@@ -1,5 +1,5 @@
 import datetime
-
+import pytz
 from babel import numbers
 
 import ckan.lib.i18n as i18n
@@ -97,7 +97,12 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
         return months
 
     if not show_date:
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
+        if datetime_.tzinfo is not None:
+            now = now.replace(tzinfo=datetime_.tzinfo)
+        else:
+            now = now.replace(tzinfo=pytz.utc)
+            datetime_ = datetime_.replace(tzinfo=pytz.utc)
         date_diff = now - datetime_
         days = date_diff.days
         if days < 1 and now > datetime_:
@@ -124,6 +129,7 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
                              months).format(months=months)
         return ungettext('over {years} year ago', 'over {years} years ago',
                          months / 12).format(years=months / 12)
+
     # actual date
     details = {
         'min': datetime_.minute,
@@ -131,11 +137,14 @@ def localised_nice_date(datetime_, show_date=False, with_hours=False):
         'day': datetime_.day,
         'year': datetime_.year,
         'month': _MONTH_FUNCTIONS[datetime_.month - 1](),
+        'timezone': datetime_.tzinfo.zone,
     }
+
     if with_hours:
         return (
-            # NOTE: This is for translating dates like `April 24, 2013, 10:45`
-            _('{month} {day}, {year}, {hour:02}:{min:02}').format(**details))
+            # NOTE: This is for translating dates like `April 24, 2013, 10:45 (Europe/Zurich)`
+            _('{month} {day}, {year}, {hour:02}:{min:02} ({timezone})') \
+            .format(**details))
     else:
         return (
             # NOTE: This is for translating dates like `April 24, 2013`

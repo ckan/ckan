@@ -316,6 +316,13 @@ def create_table(context, data_dict):
                 })
             field['type'] = _guess_type(records[0][field['id']])
 
+    # Check for duplicate fields
+    unique_fields = set([f['id'] for f in supplied_fields])
+    if not len(unique_fields) == len(supplied_fields):
+        raise ValidationError({
+            'field': ['Duplicate column names are not supported']
+        })
+
     if records:
         # check record for sanity
         if not isinstance(records[0], dict):
@@ -799,8 +806,8 @@ def _to_full_text(fields, record):
         if not value:
             continue
 
-        if field['type'].lower() in ft_types and str(value):
-            full_text.append(str(value))
+        if field['type'].lower() in ft_types and unicode(value):
+            full_text.append(unicode(value))
         else:
             full_text.extend(json_get_values(value))
     return ' '.join(set(full_text))

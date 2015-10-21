@@ -35,7 +35,6 @@ this.ckan.module('recline_view', function (jQuery, _) {
         window.parent.ckan.pubsub.publish('data-viewer-error', msg);
       }
 
-      resourceData.url  = this.normalizeUrl(resourceData.url);
       if (resourceData.formatNormalized === '') {
         var tmp = resourceData.url.split('/');
         tmp = tmp[tmp.length - 1];
@@ -62,14 +61,17 @@ this.ckan.module('recline_view', function (jQuery, _) {
       var query = new recline.Model.Query();
       query.set({ size: reclineView.limit || 100 });
       query.set({ from: reclineView.offset || 0 });
-      if (window.parent.ckan.views && window.parent.ckan.views.filters) {
-        var defaultFilters = reclineView.filters || {},
-            urlFilters = window.parent.ckan.views.filters.get(),
-            filters = $.extend({}, defaultFilters, urlFilters);
-        $.each(filters, function (field,values) {
-          query.addFilter({type: 'term', field: field, term: values});
-        });
-      }
+
+      try {
+        if (window.parent.ckan.views && window.parent.ckan.views.filters) {
+          var defaultFilters = reclineView.filters || {},
+              urlFilters = window.parent.ckan.views.filters.get(),
+              filters = $.extend({}, defaultFilters, urlFilters);
+          $.each(filters, function (field,values) {
+            query.addFilter({type: 'term', field: field, term: values});
+          });
+        }
+      } catch(e) {}
 
       dataset.queryState.set(query.toJSON(), {silent: true});
 
@@ -192,14 +194,6 @@ this.ckan.module('recline_view', function (jQuery, _) {
       });
 
       return dataExplorer;
-    },
-
-    normalizeUrl: function (url) {
-      if (url.indexOf('https') === 0) {
-        return 'http' + url.slice(5);
-      } else {
-        return url;
-      }
     },
 
     _renderControls: function (el, controls, className) {

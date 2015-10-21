@@ -2,11 +2,6 @@
 
 {% block subtitle %}{{ pkg.title or pkg.name }} - {{ super() }}{% endblock %}
 
-{% block links -%}
-  {{ super() }}
-  <link rel="alternate" type="application/rdf+xml" href="{{ h.url_for(controller='package', action='read', id=pkg.id, format='rdf', qualified=True) }}"/>
-{% endblock -%}
-
 {% block head_extras -%}
   {{ super() }}
   {% set description = h.markdown_extract(pkg.notes, extract_length=200)|forceescape %}
@@ -24,7 +19,6 @@
   {{ h.build_nav_icon('dataset_read', _('Dataset'), id=pkg.name) }}
   {{ h.build_nav_icon('dataset_groups', _('Groups'), id=pkg.name) }}
   {{ h.build_nav_icon('dataset_activity', _('Activity Stream'), id=pkg.name) }}
-  {{ h.build_nav_icon('related_list', _('Related'), id=pkg.name) }}
 {% endblock %}
 
 {% block primary_content_inner %}

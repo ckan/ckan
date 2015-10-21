@@ -1,6 +1,6 @@
 {% import 'macros/form.html' as form %}
 
-<form class="dataset-form form-horizontal" method="post" data-module="basic-form" enctype="multipart/form-data">
+<form id='organization-edit-form' class="dataset-form form-horizontal" method="post" data-module="basic-form" enctype="multipart/form-data">
   {% block error_summary %}
     {{ form.errors(error_summary) }}
   {% endblock %}

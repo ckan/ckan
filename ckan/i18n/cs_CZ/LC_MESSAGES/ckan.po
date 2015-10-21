@@ -1,27 +1,27 @@
-# Czech (Czech Republic) translations for ckan.
-# Copyright (C) 2013 ORGANIZATION
+# Translations template for ckan.
+# Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the ckan project.
-#
+# 
 # Translators:
 # Adrià Mercader <adria.mercader@okfn.org>, 2013
-# kuceraj <elquenor@gmail.com>, 2014
 # klimek <klimek@ksi.mff.cuni.cz>, 2011
-# kuceraj <elquenor@gmail.com>, 2013
+# klimek <klimek@ksi.mff.cuni.cz>, 2015
+# kuceraj <elquenor@gmail.com>, 2013-2014
 # uep, 2011
 msgid ""
 msgstr ""
-"Project-Id-Version:  CKAN\n"
+"Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-01-26 11:29+0000\n"
-"PO-Revision-Date: 2014-01-05 12:40+0000\n"
-"Last-Translator: kuceraj <elquenor@gmail.com>\n"
-"Language-Team: Czech (Czech Republic) "
-"(http://www.transifex.com/projects/p/ckan/language/cs_CZ/)\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2\n"
+"POT-Creation-Date: 2015-01-26 11:55+0000\n"
+"PO-Revision-Date: 2015-02-23 22:33+0000\n"
+"Last-Translator: klimek <klimek@ksi.mff.cuni.cz>\n"
+"Language-Team: Czech (Czech Republic) (http://www.transifex.com/projects/p/ckan/language/cs_CZ/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: cs_CZ\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: ckan/new_authz.py:178
 #, python-format
@@ -98,9 +98,7 @@ msgstr "Hlavní stránka"
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
-msgstr ""
-"Balíček %s nelze vymazat, dokud propojená revize %s obsahuje nesmazané "
-"balíčky %s"
+msgstr "Balíček %s nelze vymazat, dokud propojená revize %s obsahuje nesmazané balíčky %s"
 
 #: ckan/controllers/admin.py:153
 #, python-format
@@ -205,9 +203,7 @@ msgstr "Neexistuje verze s id: %s"
 
 #: ckan/controllers/api.py:503
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
-msgstr ""
-"Chybějící parametr vyhledávání ('since_id=UUID' nebo "
-"'since_time=TIMESTAMP')"
+msgstr "Chybějící parametr vyhledávání ('since_id=UUID' nebo 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:513
 #, python-format
@@ -246,7 +242,7 @@ msgstr "Skupina nebyla nalezena"
 
 #: ckan/controllers/feed.py:234 ckan/controllers/group.py:364
 msgid "Organization not found"
-msgstr ""
+msgstr "Organizace nebyla nalezena"
 
 #: ckan/controllers/group.py:172
 msgid "Incorrect group type"
@@ -407,20 +403,15 @@ msgstr "Tato stránka je v právě off-line. Databáze není inicializována."
 
 #: ckan/controllers/home.py:100
 msgid ""
-"Please <a href=\"{link}\">update your profile</a> and add your email "
-"address and your full name. {site} uses your email address if you need to"
-" reset your password."
-msgstr ""
-"Prosím, <a href=\"{link}\"> upravte si svůj profil</a> a doplňte svou "
-"emailovou adresu a své celé jméno. {site}používá Vaši emailovou adresu v "
-"případě, že potřebujete obnovit heslo."
+"Please <a href=\"{link}\">update your profile</a> and add your email address"
+" and your full name. {site} uses your email address if you need to reset "
+"your password."
+msgstr "Prosím, <a href=\"{link}\"> upravte si svůj profil</a> a doplňte svou emailovou adresu a své celé jméno. {site}používá Vaši emailovou adresu v případě, že potřebujete obnovit heslo."
 
 #: ckan/controllers/home.py:103
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
-msgstr ""
-"Prosím, <a href=\"%s\">upravte si svůj profil</a> a doplňte svou "
-"emailovou adresu. "
+msgstr "Prosím, <a href=\"%s\">upravte si svůj profil</a> a doplňte svou emailovou adresu. "
 
 #: ckan/controllers/home.py:105
 #, python-format
@@ -430,9 +421,7 @@ msgstr "%s používá Vaši emailovou adresu v případě, že potřebujete obno
 #: ckan/controllers/home.py:109
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your full name."
-msgstr ""
-"Prosím, <a href=\"%s\">upravte si svůj profil</a> a doplňte své celé "
-"jméno."
+msgstr "Prosím, <a href=\"%s\">upravte si svůj profil</a> a doplňte své celé jméno."
 
 #: ckan/controllers/package.py:295
 msgid "Parameter \"{parameter_name}\" is not an integer"
@@ -470,9 +459,7 @@ msgstr "Neplatný formát verze: %r"
 msgid ""
 "Viewing {package_type} datasets in {format} format is not supported "
 "(template file {file} not found)."
-msgstr ""
-"Zobrazení datasetů typu {package_type} ve formátu {format} není "
-"podporováno (soubor šablony {file} nebyl nalezen)."
+msgstr "Zobrazení datasetů typu {package_type} ve formátu {format} není podporováno (soubor šablony {file} nebyl nalezen)."
 
 #: ckan/controllers/package.py:472
 msgid "CKAN Dataset Revision History"
@@ -522,7 +509,7 @@ msgstr "Nemáte oprávnění vytvořit zdroj"
 
 #: ckan/controllers/package.py:750
 msgid "Unauthorized to create a resource for this package"
-msgstr ""
+msgstr "Nemáte oprávnění vytvořit zdroj pro tento balíček"
 
 #: ckan/controllers/package.py:973
 msgid "Unable to add package to search index."
@@ -560,7 +547,7 @@ msgstr "Nemáte oprávnění k prohlížení datasetu %s"
 
 #: ckan/controllers/package.py:1153 ckan/controllers/package.py:1615
 msgid "Resource view not found"
-msgstr ""
+msgstr "Zobrazení zdroje nebylo nalezeno"
 
 #: ckan/controllers/package.py:1184 ckan/controllers/package.py:1375
 #: ckan/controllers/package.py:1455 ckan/controllers/package.py:1488
@@ -579,33 +566,33 @@ msgstr "K dispozici nejsou žádné stažitelné soubory"
 
 #: ckan/controllers/package.py:1523
 msgid "Unauthorized to edit resource"
-msgstr ""
+msgstr "Nemáte povolení upravovat zdroj"
 
 #: ckan/controllers/package.py:1541
 msgid "View not found"
-msgstr ""
+msgstr "Zobrazení nebylo nalezeno"
 
 #: ckan/controllers/package.py:1543
 #, python-format
 msgid "Unauthorized to view View %s"
-msgstr ""
+msgstr "Nemáte povolení pro Zobrazení %s"
 
 #: ckan/controllers/package.py:1549
 msgid "View Type Not found"
-msgstr ""
+msgstr "Typ zobrazení nebyl nalezen"
 
 #: ckan/controllers/package.py:1609
 msgid "Bad resource view data"
-msgstr ""
+msgstr "Chybná data zobrazení zdroje"
 
 #: ckan/controllers/package.py:1618
 #, python-format
 msgid "Unauthorized to read resource view %s"
-msgstr ""
+msgstr "Nemáte povolení číst zobrazení zdroje %s"
 
 #: ckan/controllers/package.py:1621
 msgid "Resource view not supplied"
-msgstr ""
+msgstr "Zobrazení zdroje nebylo dodáno"
 
 #: ckan/controllers/package.py:1650
 msgid "No preview has been defined."
@@ -765,9 +752,7 @@ msgstr "Chybný kontrolní kód. Zkuste to prosím znovu."
 msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
-msgstr ""
-"Uživatel \"%s\" byl úspěšně zaregistrován, nicméně od minula jste stále "
-"přihlášeni jako \"%s\""
+msgstr "Uživatel \"%s\" byl úspěšně zaregistrován, nicméně od minula jste stále přihlášeni jako \"%s\""
 
 #: ckan/controllers/user.py:276
 msgid "Unauthorized to edit a user."
@@ -851,7 +836,7 @@ msgstr "Chybějící hodnota"
 
 #: ckan/controllers/util.py:21
 msgid "Redirecting to external site is not allowed."
-msgstr ""
+msgstr "Přesměrování na externí stránky není povoleno"
 
 #: ckan/lib/activity_streams.py:64
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
@@ -882,10 +867,9 @@ msgid "{actor} updated their profile"
 msgstr "{actor} aktualizoval(a) profil"
 
 #: ckan/lib/activity_streams.py:86
-msgid "{actor} updated the {related_type} {related_item} of the dataset {dataset}"
-msgstr ""
-"{actor} upravil(-a) související položku {related_item} typu "
-"{related_type}, která náleží k datasetu {dataset}"
+msgid ""
+"{actor} updated the {related_type} {related_item} of the dataset {dataset}"
+msgstr "{actor} upravil(-a) související položku {related_item} typu {related_type}, která náleží k datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:89
 msgid "{actor} updated the {related_type} {related_item}"
@@ -956,10 +940,9 @@ msgid "{actor} started following {group}"
 msgstr "{actor} nyní sleduje {group}"
 
 #: ckan/lib/activity_streams.py:142
-msgid "{actor} added the {related_type} {related_item} to the dataset {dataset}"
-msgstr ""
-"{actor} přidal(-a) související položku {related_item} typu {related_type}"
-" k datasetu {dataset}"
+msgid ""
+"{actor} added the {related_type} {related_item} to the dataset {dataset}"
+msgstr "{actor} přidal(-a) související položku {related_item} typu {related_type} k datasetu {dataset}"
 
 #: ckan/lib/activity_streams.py:145
 msgid "{actor} added the {related_type} {related_item}"
@@ -1189,17 +1172,16 @@ msgid ""
 "Please click the following link to confirm this request:\n"
 "\n"
 "   {reset_link}\n"
-msgstr ""
+msgstr "Požádali jste o znovunastavení vašeho hesla na stránce {site_title}.\n\nKlikněte prosím na následující odkaz pro potvrzení tohoto požadavku:\n\n{reset_link}\n"
 
 #: ckan/lib/mailer.py:119
 msgid ""
-"You have been invited to {site_title}. A user has already been createdto "
-"you with the username {user_name}. You can change it later.\n"
+"You have been invited to {site_title}. A user has already been createdto you with the username {user_name}. You can change it later.\n"
 "\n"
 "To accept this invite, please reset your password at:\n"
 "\n"
 "   {reset_link}\n"
-msgstr ""
+msgstr "Byli jste pozváni na {site_title}. Uživatelské jméno {user_name} pro vás již bylo vytvořeno. Můžete si ho změnit později.\n\nPro přijetí této pozvánky si nastavte heslo na:\n\n{reset_link}\n"
 
 #: ckan/lib/mailer.py:145 ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:13
@@ -1320,7 +1302,7 @@ msgstr "V log_message nejsou povoleny odkazy."
 
 #: ckan/logic/validators.py:151
 msgid "Dataset id already exists"
-msgstr ""
+msgstr "ID datové sady již existuje"
 
 #: ckan/logic/validators.py:192 ckan/logic/validators.py:283
 msgid "Resource"
@@ -1351,7 +1333,7 @@ msgstr "Takovéto jméno nemůže být použito"
 #: ckan/logic/validators.py:356
 #, python-format
 msgid "Must be at least %s characters long"
-msgstr ""
+msgstr "Musí být alespoň %s znaků"
 
 #: ckan/logic/validators.py:358 ckan/logic/validators.py:636
 #, python-format
@@ -1360,9 +1342,9 @@ msgstr "Jméno může mít nejvýše %i znaků"
 
 #: ckan/logic/validators.py:361
 msgid ""
-"Must be purely lowercase alphanumeric (ascii) characters and these "
-"symbols: -_"
-msgstr ""
+"Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
+"-_"
+msgstr "Musí být čistě alfanumerické (ascii) malé znaky a tyto symboly: -_"
 
 #: ckan/logic/validators.py:379
 msgid "That URL is already in use."
@@ -1405,9 +1387,7 @@ msgstr "Délka tag \"%s\" je větší než povolené maximum %i"
 #: ckan/logic/validators.py:446
 #, python-format
 msgid "Tag \"%s\" must be alphanumeric characters or symbols: -_."
-msgstr ""
-"Tag \"%s\" může obsahovat pouze malá písmena bez diakritiky, číslice a "
-"znaky - (pomlčka) a _ (podtržítko)"
+msgstr "Tag \"%s\" může obsahovat pouze malá písmena bez diakritiky, číslice a znaky - (pomlčka) a _ (podtržítko)"
 
 #: ckan/logic/validators.py:454
 #, python-format
@@ -1442,9 +1422,7 @@ msgstr "Zadaná hesla se neshodují"
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
-msgstr ""
-"Úprava nebyla povolena, protože vypadá jako spam. Vyhněte se prosím v "
-"popisu odkazům."
+msgstr "Úprava nebyla povolena, protože vypadá jako spam. Vyhněte se prosím v popisu odkazům."
 
 #: ckan/logic/validators.py:633
 #, python-format
@@ -1500,25 +1478,23 @@ msgstr "Toto není textový řetězec"
 
 #: ckan/logic/validators.py:795
 msgid "This parent would create a loop in the hierarchy"
-msgstr ""
-"Přidáním tohoto nadřazeného objektu vytvoříte v rámci hierarchie "
-"cyklickou vazbu"
+msgstr "Přidáním tohoto nadřazeného objektu vytvoříte v rámci hierarchie cyklickou vazbu"
 
 #: ckan/logic/validators.py:805
 msgid "\"filter_fields\" and \"filter_values\" should have the same length"
-msgstr ""
+msgstr "\"filter_fields\" a \"filter_values\" by měly mít stejnou délku"
 
 #: ckan/logic/validators.py:816
 msgid "\"filter_fields\" is required when \"filter_values\" is filled"
-msgstr ""
+msgstr "\"filter_fields\" je vyžadováno když je vyplněno \"filter_values\""
 
 #: ckan/logic/validators.py:819
 msgid "\"filter_values\" is required when \"filter_fields\" is filled"
-msgstr ""
+msgstr "\"filter_values\" je vyžadováno když je \"filter_fields\" vyplněno"
 
 #: ckan/logic/validators.py:833
 msgid "There is a schema field with the same name"
-msgstr ""
+msgstr "Pole schematu se stejným jménem již existuje"
 
 #: ckan/logic/action/create.py:178 ckan/logic/action/create.py:638
 #, python-format
@@ -1684,9 +1660,7 @@ msgstr "Uživatel %s nemá oprávnění přidat dataset k této organizaci"
 
 #: ckan/logic/auth/create.py:58
 msgid "You must be a sysadmin to create a featured related item"
-msgstr ""
-"Musíte být systémovým administrátorem, abyste mohli přidat související "
-"položku"
+msgstr "Musíte být systémovým administrátorem, abyste mohli přidat související položku"
 
 #: ckan/logic/auth/create.py:62
 msgid "You must be logged in to add a related item"
@@ -1694,7 +1668,7 @@ msgstr "Musíte se přihlásit, pokud chcete přidat související položku"
 
 #: ckan/logic/auth/create.py:77
 msgid "No dataset id provided, cannot check auth."
-msgstr ""
+msgstr "Nebylo zadáno žádné ID datové sady. Nelze autorizovat."
 
 #: ckan/logic/auth/create.py:84 ckan/logic/auth/delete.py:28
 #: ckan/logic/auth/get.py:135 ckan/logic/auth/update.py:61
@@ -1704,7 +1678,7 @@ msgstr "Pro tento zdroj nebyl nalezen žádný balíček, nelze zkontrolovat opr
 #: ckan/logic/auth/create.py:92
 #, python-format
 msgid "User %s not authorized to create resources on dataset %s"
-msgstr ""
+msgstr "Uživatel %s není oprávněn k tvorbě zdrojů datové sady %s"
 
 #: ckan/logic/auth/create.py:115
 #, python-format
@@ -1723,9 +1697,7 @@ msgstr "Uživatel %s nemá oprávnění vytvářet organizace"
 
 #: ckan/logic/auth/create.py:152
 msgid "User {user} not authorized to create users via the API"
-msgstr ""
-"Uživatel {user} není oprávněn vytvářet uživatelské účty prostřednictvím "
-"API"
+msgstr "Uživatel {user} není oprávněn vytvářet uživatelské účty prostřednictvím API"
 
 #: ckan/logic/auth/create.py:155
 msgid "Not authorized to create users"
@@ -1760,7 +1732,7 @@ msgstr "Uživatel %s nemá oprávnění odstranit zdroj %s"
 
 #: ckan/logic/auth/delete.py:50
 msgid "Resource view not found, cannot check auth."
-msgstr ""
+msgstr "Nebylo nalezeno zobrazení zdroje. Nelze autorizovat."
 
 #: ckan/logic/auth/delete.py:60 ckan/logic/auth/delete.py:74
 msgid "Only the owner can delete a related item"
@@ -1814,7 +1786,7 @@ msgstr "Uživatel %s není oprávněn přistupovat ke zdroji %s"
 #: ckan/logic/auth/get.py:166
 #, python-format
 msgid "User %s not authorized to read group %s"
-msgstr ""
+msgstr "Uživatel %s není oprávněn ke čtení skupiny %s"
 
 #: ckan/logic/auth/get.py:234
 msgid "You must be logged in to access your dashboard."
@@ -1846,9 +1818,7 @@ msgstr "Pouze vlastník může aktualizovat související položku"
 
 #: ckan/logic/auth/update.py:148
 msgid "You must be a sysadmin to change a related item's featured field."
-msgstr ""
-"Musíte být systémovým administrátorem, abyste mohli změnit, k čemu "
-"související položka náleží."
+msgstr "Musíte být systémovým administrátorem, abyste mohli změnit, k čemu související položka náleží."
 
 #: ckan/logic/auth/update.py:165
 #, python-format
@@ -1871,7 +1841,7 @@ msgstr "Uživatel %s nemá oprávnění upravovat uživatele %s"
 
 #: ckan/logic/auth/update.py:228
 msgid "User {0} not authorized to update user {1}"
-msgstr ""
+msgstr "Uživatel {0} není oprávněn aktualizovat data uživatele {1}"
 
 #: ckan/logic/auth/update.py:236
 #, python-format
@@ -1898,7 +1868,7 @@ msgstr "K úpravě skupiny je potřebný platný API klíč"
 
 #: ckan/model/license.py:177
 msgid "License not specified"
-msgstr ""
+msgstr "Nebyla specifikována licence"
 
 #: ckan/model/license.py:187
 msgid "Open Data Commons Public Domain Dedication and License (PDDL)"
@@ -2150,15 +2120,13 @@ msgstr "Nelze získat data z nahraného souboru"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:31
 msgid ""
-"You are uploading a file. Are you sure you want to navigate away and stop"
-" this upload?"
-msgstr ""
-"Právě nahráváte soubor. Jste si opravdu jistí, že chcete tuto stránku "
-"opustit a ukončit tak nahrávání?"
+"You are uploading a file. Are you sure you want to navigate away and stop "
+"this upload?"
+msgstr "Právě nahráváte soubor. Jste si opravdu jistí, že chcete tuto stránku opustit a ukončit tak nahrávání?"
 
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:8
 msgid "Reorder resource view"
-msgstr ""
+msgstr "Přeuspořádat zobrazení zdroje"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:35
 #: ckan/templates/group/snippets/group_form.html:18
@@ -2212,9 +2180,7 @@ msgstr "Open Knowledge Foundation"
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
-msgstr ""
-"<strong>Využíván</strong> <a class=\"hide-text ckan-footer-logo\" "
-"href=\"http://ckan.org\">CKAN</a>"
+msgstr "<strong>Využíván</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:12
 msgid "Sysadmin settings"
@@ -2261,8 +2227,9 @@ msgstr "Registrace"
 #: ckan/templates/revision/diff.html:11 ckan/templates/revision/read.html:65
 #: ckan/templates/snippets/organization.html:59
 #: ckan/templates/snippets/context/group.html:17
-#: ckan/templates/snippets/context/user.html:19 ckan/templates/user/read.html:5
-#: ckan/templates/user/read_base.html:19 ckan/templates/user/read_base.html:53
+#: ckan/templates/snippets/context/user.html:19
+#: ckan/templates/user/read.html:5 ckan/templates/user/read_base.html:19
+#: ckan/templates/user/read_base.html:53
 msgid "Datasets"
 msgstr "Datasety"
 
@@ -2280,7 +2247,7 @@ msgstr "Vyhledat"
 
 #: ckan/templates/page.html:6
 msgid "Skip to content"
-msgstr ""
+msgstr "Přejít na obsah"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:9
 msgid "Load less"
@@ -2330,39 +2297,22 @@ msgstr "Konfigurační volby CKAN"
 #: ckan/templates/admin/config.html:29
 #, python-format
 msgid ""
-" <p><strong>Site Title:</strong> This is the title of this CKAN instance "
-"It appears in various places throughout CKAN.</p> "
-"<p><strong>Style:</strong> Choose from a list of simple variations of the"
-" main colour scheme to get a very quick custom theme working.</p> "
-"<p><strong>Site Tag Logo:</strong> This is the logo that appears in the "
-"header of all the CKAN instance templates.</p> <p><strong>About:</strong>"
-" This text will appear on this CKAN instances <a "
-"href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
+" <p><strong>Site Title:</strong> This is the title of this CKAN instance It "
+"appears in various places throughout CKAN.</p> <p><strong>Style:</strong> "
+"Choose from a list of simple variations of the main colour scheme to get a "
+"very quick custom theme working.</p> <p><strong>Site Tag Logo:</strong> This"
+" is the logo that appears in the header of all the CKAN instance "
+"templates.</p> <p><strong>About:</strong> This text will appear on this CKAN"
+" instances <a href=\"%(about_url)s\">about page</a>.</p> <p><strong>Intro "
 "Text:</strong> This text will appear on this CKAN instances <a "
 "href=\"%(home_url)s\">home page</a> as a welcome to visitors.</p> "
 "<p><strong>Custom CSS:</strong> This is a block of CSS that appears in "
-"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the"
-" templates more fully we recommend <a href=\"%(docs_url)s\" "
+"<code>&lt;head&gt;</code> tag of every page. If you wish to customize the "
+"templates more fully we recommend <a href=\"%(docs_url)s\" "
 "target=\"_blank\">reading the documentation</a>.</p> "
-"<p><strong>Homepage:</strong> This is for choosing a predefined layout "
-"for the modules that appear on your homepage.</p> "
-msgstr ""
-"<p><strong>Název portálu:</strong> Toto je název této CKAN instance. "
-"Objevuje se na různých místech CKANu.</p> <p><strong>Styl:</strong> "
-"Můžete si vybrat z nabídky jednoduchých variant barevného schematu a "
-"rychle tak upravit vzhled Vašeho portálu.</p> <p><strong>Malé logo "
-"portálu:</strong> Toto logo se zobrazuje v záhlaví každé šablony CKAN "
-"instance.</p> <p><strong>O portálu:</strong> Tento text se objeví na <a "
-"href=\"%(about_url)s\">informační stránce</a> této CKAN instance.</p> "
-"<p><strong>Úvodní text:</strong> Tento text se objeví na <a "
-"href=\"%(home_url)s\">domovské stránce</a> této CKAN instance pro "
-"přivítání návštěvníků.</p> <p><strong>Vlastní nebo upravené CSS:</strong>"
-" Toto je blok pro CSS, který se objeví v <code>&lt;head&gt;</code> tagu "
-"každé stránky. Pokud si přejete upravit šablony ještě více, doporučuje "
-"přečíst si <a href=\"%(docs_url)s\" "
-"target=\"_blank\">dokumentaci</a>.</p> <p><strong>Hlavní "
-"stránka:</strong> Tato volba slouží k určení předpřipraveného rozložení "
-"modulů, které se zobrazují na hlavní stránce.</p>"
+"<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
+"the modules that appear on your homepage.</p> "
+msgstr "<p><strong>Název portálu:</strong> Toto je název této CKAN instance. Objevuje se na různých místech CKANu.</p> <p><strong>Styl:</strong> Můžete si vybrat z nabídky jednoduchých variant barevného schematu a rychle tak upravit vzhled Vašeho portálu.</p> <p><strong>Malé logo portálu:</strong> Toto logo se zobrazuje v záhlaví každé šablony CKAN instance.</p> <p><strong>O portálu:</strong> Tento text se objeví na <a href=\"%(about_url)s\">informační stránce</a> této CKAN instance.</p> <p><strong>Úvodní text:</strong> Tento text se objeví na <a href=\"%(home_url)s\">domovské stránce</a> této CKAN instance pro přivítání návštěvníků.</p> <p><strong>Vlastní nebo upravené CSS:</strong> Toto je blok pro CSS, který se objeví v <code>&lt;head&gt;</code> tagu každé stránky. Pokud si přejete upravit šablony ještě více, doporučuje přečíst si <a href=\"%(docs_url)s\" target=\"_blank\">dokumentaci</a>.</p> <p><strong>Hlavní stránka:</strong> Tato volba slouží k určení předpřipraveného rozložení modulů, které se zobrazují na hlavní stránce.</p>"
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -2371,24 +2321,23 @@ msgstr "Potvrďte reset"
 
 #: ckan/templates/admin/index.html:15
 msgid "Administer CKAN"
-msgstr ""
+msgstr "Spravovat CKAN"
 
 #: ckan/templates/admin/index.html:20
 #, python-format
 msgid ""
 " <p>As a sysadmin user you have full control over this CKAN instance. "
-"Proceed with care!</p> <p>For guidance on using sysadmin features, see "
-"the CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin "
-"guide</a></p> "
-msgstr ""
+"Proceed with care!</p> <p>For guidance on using sysadmin features, see the "
+"CKAN <a href=\"%(docs_url)s\" target=\"_blank\">sysadmin guide</a></p> "
+msgstr "<p>Jako uživatel sysadmin máte plnou kontrolu nad touto instancí CKAN. Pokračujte s opatrností!</p> <p>Pro návod k funkcím sysadmin se podívejte na <a href=\"%(docs_url)s\" target=\"_blank\">příručku sysadmin</a> CKAN</p>"
 
 #: ckan/templates/admin/trash.html:20
 msgid "Purge"
-msgstr ""
+msgstr "Odstranit"
 
 #: ckan/templates/admin/trash.html:32
 msgid " <p>Purge deleted datasets forever and irreversibly.</p> "
-msgstr ""
+msgstr "<p>Odstranit smazané datové sady navždy a nevratně.</p>"
 
 #: ckan/templates/ajax_snippets/api_info.html:19
 msgid "CKAN Data API"
@@ -2396,17 +2345,14 @@ msgstr "Datové CKAN API"
 
 #: ckan/templates/ajax_snippets/api_info.html:23
 msgid "Access resource data via a web API with powerful query support"
-msgstr ""
-"Přistupte ke zdrojovým datům přes webové API s pokročilými možnostmi "
-"dotazování"
+msgstr "Přistupte ke zdrojovým datům přes webové API s pokročilými možnostmi dotazování"
 
 #: ckan/templates/ajax_snippets/api_info.html:24
 msgid ""
 " Further information in the <a       "
 "href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" "
-"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p>"
-" "
-msgstr ""
+"target=\"_blank\">main CKAN Data API and DataStore documentation</a>.</p> "
+msgstr "Další informace naleznete v dokumentaci pro <a href=\"http://docs.ckan.org/en/latest/maintaining/datastore.html\" target=\"_blank\">datové CKAN API a DataStore</a>.</p>"
 
 #: ckan/templates/ajax_snippets/api_info.html:33
 msgid "Endpoints"
@@ -2414,11 +2360,9 @@ msgstr "Přístupové body"
 
 #: ckan/templates/ajax_snippets/api_info.html:37
 msgid ""
-"The Data API can be accessed via the following actions of the CKAN action"
-" API."
-msgstr ""
-"Datové API můžete využít pomocí následujících akcí CKAN API pro provádění"
-" operací."
+"The Data API can be accessed via the following actions of the CKAN action "
+"API."
+msgstr "Datové API můžete využít pomocí následujících akcí CKAN API pro provádění operací."
 
 #: ckan/templates/ajax_snippets/api_info.html:42
 #: ckan/templates/related/edit_form.html:7
@@ -2459,9 +2403,7 @@ msgstr "Příklad: Javascript"
 
 #: ckan/templates/ajax_snippets/api_info.html:97
 msgid "A simple ajax (JSONP) request to the data API using jQuery."
-msgstr ""
-"Jednoduchý požadavek odeslaný na datové API s využitím ajax (JSONP) a "
-"jQuery."
+msgstr "Jednoduchý požadavek odeslaný na datové API s využitím ajax (JSONP) a jQuery."
 
 #: ckan/templates/ajax_snippets/api_info.html:118
 msgid "Example: Python"
@@ -2628,8 +2570,9 @@ msgstr "Jste si jistí, že chcete odstranit člena - {name}?"
 #: ckan/templates/organization/edit_base.html:11
 #: ckan/templates/organization/read_base.html:12
 #: ckan/templates/package/read_base.html:19
-#: ckan/templates/package/resource_read.html:31 ckan/templates/user/edit.html:8
-#: ckan/templates/user/edit_base.html:3 ckan/templates/user/read_base.html:14
+#: ckan/templates/package/resource_read.html:31
+#: ckan/templates/user/edit.html:8 ckan/templates/user/edit_base.html:3
+#: ckan/templates/user/read_base.html:14
 msgid "Manage"
 msgstr "Spravovat"
 
@@ -2697,7 +2640,8 @@ msgstr "Jména sestupně"
 msgid "There are currently no groups for this site"
 msgstr "Na tomto portálu aktuálně nejsou žádné skupiny"
 
-#: ckan/templates/group/index.html:31 ckan/templates/organization/index.html:31
+#: ckan/templates/group/index.html:31
+#: ckan/templates/organization/index.html:31
 msgid "How about creating one?"
 msgstr "Nechcete jednu založit?"
 
@@ -2729,9 +2673,7 @@ msgstr "Existující uživatel"
 #: ckan/templates/group/member_new.html:21
 #: ckan/templates/organization/member_new.html:23
 msgid "If you wish to add an existing user, search for their username below."
-msgstr ""
-"Pokud si přejete přidat existujícího uživatele, zadejte níže jeho "
-"uživatelské jméno a vyhledejte ho."
+msgstr "Pokud si přejete přidat existujícího uživatele, zadejte níže jeho uživatelské jméno a vyhledejte ho."
 
 #: ckan/templates/group/member_new.html:38
 #: ckan/templates/organization/member_new.html:40
@@ -2748,19 +2690,22 @@ msgstr "Nový uživatel"
 msgid "If you wish to invite a new user, enter their email address."
 msgstr "Pokud si přejete pozvat nové uživatele, zadejte jejich emailové adresy."
 
-#: ckan/templates/group/member_new.html:55 ckan/templates/group/members.html:18
+#: ckan/templates/group/member_new.html:55
+#: ckan/templates/group/members.html:18
 #: ckan/templates/organization/member_new.html:56
 #: ckan/templates/organization/members.html:18
 msgid "Role"
 msgstr "Role"
 
-#: ckan/templates/group/member_new.html:58 ckan/templates/group/members.html:30
+#: ckan/templates/group/member_new.html:58
+#: ckan/templates/group/members.html:30
 #: ckan/templates/organization/member_new.html:59
 #: ckan/templates/organization/members.html:30
 msgid "Are you sure you want to delete this member?"
 msgstr "Jste si jist, že chcete smazat tohoto člena?"
 
-#: ckan/templates/group/member_new.html:59 ckan/templates/group/members.html:35
+#: ckan/templates/group/member_new.html:59
+#: ckan/templates/group/members.html:35
 #: ckan/templates/group/snippets/group_form.html:61
 #: ckan/templates/organization/bulk_process.html:47
 #: ckan/templates/organization/member_new.html:60
@@ -2787,13 +2732,10 @@ msgstr "Co jsou to role?"
 
 #: ckan/templates/group/member_new.html:81
 msgid ""
-" <p><strong>Admin:</strong> Can edit group information, as well as manage"
-" organization members.</p> <p><strong>Member:</strong> Can add/remove "
+" <p><strong>Admin:</strong> Can edit group information, as well as manage "
+"organization members.</p> <p><strong>Member:</strong> Can add/remove "
 "datasets from groups</p> "
-msgstr ""
-" <p><strong>Administrátor:</strong> Může upravovat informace o skupině a "
-"může spravovat členy skupiny.</p> <p><strong>Člen skupiny:</strong> Může "
-"přidávat a odebírat datasety k nebo ze skupiny</p> "
+msgstr " <p><strong>Administrátor:</strong> Může upravovat informace o skupině a může spravovat členy skupiny.</p> <p><strong>Člen skupiny:</strong> Může přidávat a odebírat datasety k nebo ze skupiny</p> "
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:5
 #: ckan/templates/group/new.html:7
@@ -2915,15 +2857,11 @@ msgstr "Co jsou skupiny?"
 
 #: ckan/templates/group/snippets/helper.html:8
 msgid ""
-" You can use CKAN Groups to create and manage collections of datasets. "
-"This could be to catalogue datasets for a particular project or team, or "
-"on a particular theme, or as a very simple way to help people find and "
-"search your own published datasets. "
-msgstr ""
-"V CKAN můžete skupiny použít k vytváření a správě kolekcí datasetů. Může "
-"to být např. katalog datasetů určitého projektu nebo týmu, případně to "
-"mohou být datasety určitého tématu. Skupiny také můžete použít jako "
-"pomůcku pro uživatele, aby mohli snáze najít Vámi publikované datasety."
+" You can use CKAN Groups to create and manage collections of datasets. This "
+"could be to catalogue datasets for a particular project or team, or on a "
+"particular theme, or as a very simple way to help people find and search "
+"your own published datasets. "
+msgstr "V CKAN můžete skupiny použít k vytváření a správě kolekcí datasetů. Může to být např. katalog datasetů určitého projektu nebo týmu, případně to mohou být datasety určitého tématu. Skupiny také můžete použít jako pomůcku pro uživatele, aby mohli snáze najít Vámi publikované datasety."
 
 #: ckan/templates/group/snippets/history_revisions.html:10
 #: ckan/templates/package/snippets/history_revisions.html:10
@@ -2986,14 +2924,13 @@ msgid ""
 " <p>CKAN is the world’s leading open-source data portal platform.</p> "
 "<p>CKAN is a complete out-of-the-box software solution that makes data "
 "accessible and usable – by providing tools to streamline publishing, "
-"sharing, finding and using data (including storage of data and provision "
-"of robust data APIs). CKAN is aimed at data publishers (national and "
-"regional governments, companies and organizations) wanting to make their "
-"data open and available.</p> <p>CKAN is used by governments and user "
-"groups worldwide and powers a variety of official and community data "
-"portals including portals for local, national and international "
-"government, such as the UK’s <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
+"sharing, finding and using data (including storage of data and provision of "
+"robust data APIs). CKAN is aimed at data publishers (national and regional "
+"governments, companies and organizations) wanting to make their data open "
+"and available.</p> <p>CKAN is used by governments and user groups worldwide "
+"and powers a variety of official and community data portals including "
+"portals for local, national and international government, such as the UK’s "
+"<a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a "
 "href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a "
 "href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland "
 "government portals, as well as city and municipal sites in the US, UK, "
@@ -3002,27 +2939,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
-"<p>CKAN je přední světová open source platforma pro datové portály.</p> "
-"<p>CKAN je kompletní softwarové řešení, které je ihned připravené k "
-"nasazení, pomáhající k tomu, aby data byla dostupná a využitelná. To je "
-"dosaženo pomocí nástrojů, které usnadňují publikaci, sdílení, vyhledávání"
-" a využívání dat (včetně ukládání dat a zpřístupnění dat pomocí "
-"robustního API). CKAN je určen poskytovatelům dat (orgány státní správy a"
-" samosprávy, podniky a organizace), kteří chtějí, aby jejich data byla "
-"dobře dostupná.</p> <p>CKAN je využíván vládami a skupinami uživatelů po "
-"celém světě a je to platforma mnoha oficiálních a komunitních datových "
-"portálů, mezi které patří portály veřejné správy na regionální, národní a"
-" nadnárodní úrovni, jako jsou např. portály Velké Británie <a "
-"href=\"http://data.gov.uk\">data.gov.uk</a> a Evropské Unie <a "
-"href=\"http://publicdata.eu/\">publicdata.eu</a>, Brazílie <a "
-"href=\"http://dados.gov.br/\">dados.gov.br</a>, portály veřejné správy v "
-"Holandsku, jakož i portály měst a obcí v USA, Velké Británii, Argentině, "
-"Finsku a jinde.</p> <p>CKAN: <a "
-"href=\"http://ckan.org/\">http://ckan.org/</a><br /> Prohlídka CKANu: <a "
-"href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Přehled "
-"vlastností: <a "
-"href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
+msgstr "<p>CKAN je přední světová open source platforma pro datové portály.</p> <p>CKAN je kompletní softwarové řešení, které je ihned připravené k nasazení, pomáhající k tomu, aby data byla dostupná a využitelná. To je dosaženo pomocí nástrojů, které usnadňují publikaci, sdílení, vyhledávání a využívání dat (včetně ukládání dat a zpřístupnění dat pomocí robustního API). CKAN je určen poskytovatelům dat (orgány státní správy a samosprávy, podniky a organizace), kteří chtějí, aby jejich data byla dobře dostupná.</p> <p>CKAN je využíván vládami a skupinami uživatelů po celém světě a je to platforma mnoha oficiálních a komunitních datových portálů, mezi které patří portály veřejné správy na regionální, národní a nadnárodní úrovni, jako jsou např. portály Velké Británie <a href=\"http://data.gov.uk\">data.gov.uk</a> a Evropské Unie <a href=\"http://publicdata.eu/\">publicdata.eu</a>, Brazílie <a href=\"http://dados.gov.br/\">dados.gov.br</a>, portály veřejné správy v Holandsku, jakož i portály měst a obcí v USA, Velké Británii, Argentině, Finsku a jinde.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> Prohlídka CKANu: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Přehled vlastností: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 
 #: ckan/templates/home/snippets/promoted.html:8
 msgid "Welcome to CKAN"
@@ -3030,11 +2947,9 @@ msgstr "Vítá Vás CKAN"
 
 #: ckan/templates/home/snippets/promoted.html:10
 msgid ""
-"This is a nice introductory paragraph about CKAN or the site in general. "
-"We don't have any copy to go here yet but soon we will "
-msgstr ""
-"Toto je pěkných pár řádků na úvod o CKANu obecně. Nemáme sem zatím příliš"
-" co dát, ale to se brzy změní"
+"This is a nice introductory paragraph about CKAN or the site in general. We "
+"don't have any copy to go here yet but soon we will "
+msgstr "Toto je pěkných pár řádků na úvod o CKANu obecně. Nemáme sem zatím příliš co dát, ale to se brzy změní"
 
 #: ckan/templates/home/snippets/promoted.html:19
 msgid "This is a featured section"
@@ -3042,15 +2957,15 @@ msgstr "Toto je vybraná sekce"
 
 #: ckan/templates/home/snippets/search.html:2
 msgid "E.g. environment"
-msgstr ""
+msgstr "Např. prostředí"
 
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
-msgstr ""
+msgstr "Hledat data"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
-msgstr ""
+msgstr "Populární tagy"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
@@ -3091,10 +3006,10 @@ msgstr "související položky"
 #: ckan/templates/macros/form.html:126
 #, python-format
 msgid ""
-"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" "
-"data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
+"You can use <a href=\"#markdown\" title=\"Markdown quick reference\" data-"
+"target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-"
 "html=\"true\">Markdown formatting</a> here"
-msgstr ""
+msgstr "Zde můžete použít <a href=\"#markdown\" title=\"Markdown quick reference\" data-target=\"popover\" data-content=\"%(markdown_tooltip)s\" data-html=\"true\">formátování Markdown</a>"
 
 #: ckan/templates/macros/form.html:265
 msgid "This field is required"
@@ -3165,8 +3080,8 @@ msgstr "Předběžný návrh"
 #: ckan/templates/package/read.html:11
 #: ckan/templates/package/snippets/package_basic_fields.html:91
 #: ckan/templates/snippets/package_item.html:31
-#: ckan/templates/snippets/private.html:2 ckan/templates/user/read_base.html:82
-#: ckan/templates/user/read_base.html:96
+#: ckan/templates/snippets/private.html:2
+#: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:96
 msgid "Private"
 msgstr "Soukromá"
 
@@ -3206,15 +3121,9 @@ msgid ""
 " <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
 "manage organization members.</p> <p><strong>Editor:</strong> Can add and "
 "edit datasets, but not manage organization members.</p> "
-"<p><strong>Member:</strong> Can view the organization's private datasets,"
-" but not add new datasets.</p> "
-msgstr ""
-"<p><strong>Administrátor:</strong> Může přidávat, upravovat a mazat "
-"datasety a může také spravovat členy organizace.</p> "
-"<p><strong>Editor:</strong> Může přidávat, upravovat a mazat datasety, "
-"ale nemůže spravovat členy organizace.</p> <p><strong>Člen:</strong> Může"
-" si zobrazit soukromé datasety organizace, ale nemůže přidávat "
-"datasety.</p>"
+"<p><strong>Member:</strong> Can view the organization's private datasets, "
+"but not add new datasets.</p> "
+msgstr "<p><strong>Administrátor:</strong> Může přidávat, upravovat a mazat datasety a může také spravovat členy organizace.</p> <p><strong>Editor:</strong> Může přidávat, upravovat a mazat datasety, ale nemůže spravovat členy organizace.</p> <p><strong>Člen:</strong> Může si zobrazit soukromé datasety organizace, ale nemůže přidávat datasety.</p>"
 
 #: ckan/templates/organization/new.html:3
 #: ckan/templates/organization/new.html:5
@@ -3239,7 +3148,7 @@ msgstr "Vytvořit Dataset"
 
 #: ckan/templates/organization/snippets/feeds.html:3
 msgid "Datasets in organization: {group}"
-msgstr ""
+msgstr "Datové sady v organizaci: {group}"
 
 #: ckan/templates/organization/snippets/help.html:4
 #: ckan/templates/organization/snippets/helper.html:4
@@ -3248,23 +3157,20 @@ msgstr "Co jsou organizace?"
 
 #: ckan/templates/organization/snippets/help.html:7
 msgid ""
-" <p>Organizations act like publishing departments for datasets (for "
-"example, the Department of Health). This means that datasets can be "
-"published by and belong to a department instead of an individual "
-"user.</p> <p>Within organizations, admins can assign roles and authorise "
-"its members, giving individual users the right to publish datasets from "
-"that particular organisation (e.g. Office of National Statistics).</p> "
-msgstr ""
+" <p>Organizations act like publishing departments for datasets (for example,"
+" the Department of Health). This means that datasets can be published by and"
+" belong to a department instead of an individual user.</p> <p>Within "
+"organizations, admins can assign roles and authorise its members, giving "
+"individual users the right to publish datasets from that particular "
+"organisation (e.g. Office of National Statistics).</p> "
+msgstr "<p>Organizace se chovají jako publikační oddělení pro datovou sadu (například oddělení zdravotnictví). To znamená že datová sada může být publikována oddělením a nebo oddělení patřit místo toho aby patříla konkrétnímu uživateli.</p> <p>Uvnitř organizací mohou administrátoři přidělovat role a autorizovat členy. Členům mohou individuálně přidělovat práva na publikaci datových sad za danou organizaci (např. Český statistický úřad)."
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
-" CKAN Organizations are used to create, manage and publish collections of"
-" datasets. Users can have different roles within an Organization, "
-"depending on their level of authorisation to create, edit and publish. "
-msgstr ""
-"V CKAN jsou organizace používány k vytváření, správě a publikaci kolekcí "
-"datasetů. Uživatelé mohou mít v rámci organizace různé role v závislosti "
-"na úrovni oprávnění k vytváření, úpravám a publikaci datasetů."
+" CKAN Organizations are used to create, manage and publish collections of "
+"datasets. Users can have different roles within an Organization, depending "
+"on their level of authorisation to create, edit and publish. "
+msgstr "V CKAN jsou organizace používány k vytváření, správě a publikaci kolekcí datasetů. Uživatelé mohou mít v rámci organizace různé role v závislosti na úrovni oprávnění k vytváření, úpravám a publikaci datasetů."
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 msgid "My Organization"
@@ -3280,11 +3186,9 @@ msgstr "Stručné informace o mé organizaci"
 
 #: ckan/templates/organization/snippets/organization_form.html:60
 msgid ""
-"Are you sure you want to delete this Organization? This will delete all "
-"the public and private datasets belonging to this organization."
-msgstr ""
-"Opravdu chcete smazat tuto organizaci? Smažete tak veškeré soukromé a "
-"veřejné datasety, které k ní náleží."
+"Are you sure you want to delete this Organization? This will delete all the "
+"public and private datasets belonging to this organization."
+msgstr "Opravdu chcete smazat tuto organizaci? Smažete tak veškeré soukromé a veřejné datasety, které k ní náleží."
 
 #: ckan/templates/organization/snippets/organization_form.html:64
 msgid "Save Organization"
@@ -3306,13 +3210,10 @@ msgstr "Co jsou to datasety?"
 
 #: ckan/templates/package/base_form_page.html:25
 msgid ""
-" A CKAN Dataset is a collection of data resources (such as files), "
-"together with a description and other information, at a fixed URL. "
-"Datasets are what users see when searching for data. "
-msgstr ""
-"V CKAN je datasetem soubor datových zdrojů (jako jsou např. soubory) "
-"spolu s jeho popisem a dalšími údaji, který má pevnou URL adresu. "
-"Uživatelům se zobrazují datasety jako výsledky jejich hledání."
+" A CKAN Dataset is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Datasets are what "
+"users see when searching for data. "
+msgstr "V CKAN je datasetem soubor datových zdrojů (jako jsou např. soubory) spolu s jeho popisem a dalšími údaji, který má pevnou URL adresu. Uživatelům se zobrazují datasety jako výsledky jejich hledání."
 
 #: ckan/templates/package/confirm_delete.html:11
 msgid "Are you sure you want to delete dataset - {name}?"
@@ -3335,7 +3236,7 @@ msgstr "Upravit metadata"
 #: ckan/templates/package/edit_view.html:8
 #: ckan/templates/package/edit_view.html:12
 msgid "Edit view"
-msgstr ""
+msgstr "Upravit zobrazení"
 
 #: ckan/templates/package/edit_view.html:20
 #: ckan/templates/package/new_view.html:28
@@ -3388,16 +3289,16 @@ msgstr "Nový zdroj"
 #: ckan/templates/package/new_view.html:8
 #: ckan/templates/package/new_view.html:12
 msgid "Add view"
-msgstr ""
+msgstr "Přidat zobrazení"
 
 #: ckan/templates/package/new_view.html:19
 msgid ""
 " Data Explorer views may be slow and unreliable unless the DataStore "
 "extension is enabled. For more information, please see the <a "
-"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html"
-"#viewing-structured-data-the-data-explorer' target='_blank'>Data Explorer"
-" documentation</a>. "
-msgstr ""
+"href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-"
+"structured-data-the-data-explorer' target='_blank'>Data Explorer "
+"documentation</a>. "
+msgstr "Zobrazení prohlížeče dat může být pomalé a nespolehlivé, pokud není aktivováno rozšíření DataStore. Pro více informací se podívejte na <a href='http://docs.ckan.org/en/latest/maintaining/data-viewer.html#viewing-structured-data-the-data-explorer' target='_blank'>dokumentaci Datového prohlížeče</a>."
 
 #: ckan/templates/package/new_view.html:29
 #: ckan/templates/package/snippets/resource_form.html:82
@@ -3407,12 +3308,9 @@ msgstr "Přidat"
 #: ckan/templates/package/read_base.html:38
 #, python-format
 msgid ""
-"This is an old revision of this dataset, as edited at %(timestamp)s. It "
-"may differ significantly from the <a href=\"%(url)s\">current "
-"revision</a>."
-msgstr ""
-"Toto je stará revize tohoto dataset, která byla upravena %(timestamp)s. "
-"Může se tak značně lišit od <a href=\"%(url)s\">aktuální revize</a>."
+"This is an old revision of this dataset, as edited at %(timestamp)s. It may "
+"differ significantly from the <a href=\"%(url)s\">current revision</a>."
+msgstr "Toto je stará revize tohoto dataset, která byla upravena %(timestamp)s. Může se tak značně lišit od <a href=\"%(url)s\">aktuální revize</a>."
 
 #: ckan/templates/package/related_list.html:7
 msgid "Related Media for {dataset}"
@@ -3483,7 +3381,7 @@ msgstr "DataStore"
 
 #: ckan/templates/package/resource_edit_base.html:28
 msgid "Views"
-msgstr ""
+msgstr "Zobrazení"
 
 #: ckan/templates/package/resource_read.html:39
 msgid "API Endpoint"
@@ -3515,30 +3413,30 @@ msgstr "Zdroj: <a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckan/templates/package/resource_read.html:112
 msgid "There are no views created for this resource yet."
-msgstr ""
+msgstr "Pro tento zdroj ještě nejsou vytvořena žádná zobrazení"
 
 #: ckan/templates/package/resource_read.html:116
 msgid "Not seeing the views you were expecting?"
-msgstr ""
+msgstr "Nevidíte zobrazení které jste očekávali?"
 
 #: ckan/templates/package/resource_read.html:121
 msgid "Here are some reasons you may not be seeing expected views:"
-msgstr ""
+msgstr "Zde je pár důvodů proč nemusíte vidět očekávaná zobrazení:"
 
 #: ckan/templates/package/resource_read.html:123
 msgid "No view has been created that is suitable for this resource"
-msgstr ""
+msgstr "Nebylo vytvořeno žádné zobrazení které by se hodilo pro tento zdroj"
 
 #: ckan/templates/package/resource_read.html:124
 msgid "The site administrators may not have enabled the relevant view plugins"
-msgstr ""
+msgstr "Administrátoři možná nepovolili relevantní pluginy pro zobrazení"
 
 #: ckan/templates/package/resource_read.html:125
 msgid ""
-"If a view requires the DataStore, the DataStore plugin may not be "
-"enabled, or the data may not have been pushed to the DataStore, or the "
-"DataStore hasn't finished processing the data yet"
-msgstr ""
+"If a view requires the DataStore, the DataStore plugin may not be enabled, "
+"or the data may not have been pushed to the DataStore, or the DataStore "
+"hasn't finished processing the data yet"
+msgstr "Jestliže zobrazení vyžaduje DataStore, plugin DataStore možná není zapnutý, data nebyla nahrána do DataStore a nebo DataStore ještě nedokončil zpracování dat."
 
 #: ckan/templates/package/resource_read.html:147
 msgid "Additional Information"
@@ -3582,11 +3480,11 @@ msgstr "Licence"
 
 #: ckan/templates/package/resource_views.html:10
 msgid "New view"
-msgstr ""
+msgstr "Nové zobrazení"
 
 #: ckan/templates/package/resource_views.html:28
 msgid "This resource has no views"
-msgstr ""
+msgstr "Tento zdroj nemá žádná zobrazení"
 
 #: ckan/templates/package/resources.html:8
 msgid "Add new resource"
@@ -3596,11 +3494,9 @@ msgstr "Přidat nový zdroj"
 #: ckan/templates/package/snippets/resources_list.html:25
 #, python-format
 msgid ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not"
-" add some?</a></p> "
-msgstr ""
-"<p class=\"empty\">Tento dataset neobsahuje žádná data, <a "
-"href=\"%(url)s\">tak proč nějaká nepřidat?</a></p>"
+" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+"add some?</a></p> "
+msgstr "<p class=\"empty\">Tento dataset neobsahuje žádná data, <a href=\"%(url)s\">tak proč nějaká nepřidat?</a></p>"
 
 #: ckan/templates/package/search.html:53
 msgid "API Docs"
@@ -3615,30 +3511,26 @@ msgstr "úplný {format} obsah ke stažení"
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
-msgstr ""
-"Tento katalog je také dostupný prostřednictvím %(api_link)s (viz "
-"%(api_doc_link)s) nebo si můžete jeho obsah stáhnout %(dump_link)s."
+msgstr "Tento katalog je také dostupný prostřednictvím %(api_link)s (viz %(api_doc_link)s) nebo si můžete jeho obsah stáhnout %(dump_link)s."
 
 #: ckan/templates/package/search.html:60
 #, python-format
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
-msgstr ""
-"Tento katalog je také dostupný prostřednictvím %(api_link)s (see "
-"%(api_doc_link)s)."
+msgstr "Tento katalog je také dostupný prostřednictvím %(api_link)s (see %(api_doc_link)s)."
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
-msgstr ""
+msgstr "Všechna zobrazení"
 
 #: ckan/templates/package/view_edit_base.html:12
 msgid "View view"
-msgstr ""
+msgstr "Zobrazit zobrazení"
 
 #: ckan/templates/package/view_edit_base.html:37
 msgid "View preview"
-msgstr ""
+msgstr "Zobrazit náhled"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3669,7 +3561,7 @@ msgstr "Stav"
 
 #: ckan/templates/package/snippets/additional_info.html:62
 msgid "Last Updated"
-msgstr ""
+msgstr "Naposledy aktualizováno"
 
 #: ckan/templates/package/snippets/data_api_button.html:10
 msgid "Data API"
@@ -3701,9 +3593,7 @@ msgstr "např. ekonomie, duševní zdraví, vláda"
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
-msgstr ""
-"Znění jednotlivých licencí a další informace lze nalézt na webu <a "
-"href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
+msgstr "Znění jednotlivých licencí a další informace lze nalézt na webu <a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:69
 #: ckan/templates/snippets/organization.html:23
@@ -3728,13 +3618,12 @@ msgstr "Aktivní"
 
 #: ckan/templates/package/snippets/package_form.html:28
 msgid ""
-"The <i>data license</i> you select above only applies to the contents of "
-"any resource files that you add to this dataset. By submitting this form,"
-" you agree to release the <i>metadata</i> values that you enter into the "
-"form under the <a "
-"href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database "
-"License</a>."
-msgstr ""
+"The <i>data license</i> you select above only applies to the contents of any"
+" resource files that you add to this dataset. By submitting this form, you "
+"agree to release the <i>metadata</i> values that you enter into the form "
+"under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
+"Database License</a>."
+msgstr "<i>Datová licence</i> kterou výše vyberete se vztahuje pouze na obsah každého ze zdrojových souborů které přidáte do této datové sady. Odesláním tohoto formuláře souhlasíte s uvolněním <i>metadatových</i> hodnot, které zadáváte do formuláře, pod licencí <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open Database License</a>."
 
 #: ckan/templates/package/snippets/package_form.html:39
 msgid "Are you sure you want to delete this dataset?"
@@ -3794,7 +3683,7 @@ msgstr "např. CSV, XML nebo JSON"
 
 #: ckan/templates/package/snippets/resource_form.html:40
 msgid "This will be guessed automatically. Leave blank if you wish"
-msgstr ""
+msgstr "Toto bude uhádnuto automaticky. Můžete nechat prázdné."
 
 #: ckan/templates/package/snippets/resource_form.html:51
 msgid "eg. 2012-06-05"
@@ -3840,9 +3729,7 @@ msgstr "Co jsou to zdroje?"
 
 #: ckan/templates/package/snippets/resource_help.html:4
 msgid "A resource can be any file or link to a file containing useful data."
-msgstr ""
-"Zdrojem může být libovolný soubor nebo odkaz na soubor, který obsahuje "
-"nějaká užitečná data."
+msgstr "Zdrojem může být libovolný soubor nebo odkaz na soubor, který obsahuje nějaká užitečná data."
 
 #: ckan/templates/package/snippets/resource_item.html:24
 msgid "Explore"
@@ -3858,25 +3745,25 @@ msgstr "Zakomponovat"
 
 #: ckan/templates/package/snippets/resource_view.html:24
 msgid "This resource view is not available at the moment."
-msgstr ""
+msgstr "Toto zobrazení zdroje není v tento okamžik k dispozici."
 
 #: ckan/templates/package/snippets/resource_view.html:63
 msgid "Embed resource view"
-msgstr ""
+msgstr "Embedovat zobrazení zdroje"
 
 #: ckan/templates/package/snippets/resource_view.html:66
 msgid ""
 "You can copy and paste the embed code into a CMS or blog software that "
 "supports raw HTML"
-msgstr ""
+msgstr "Můžete kopírovat a vložit kód embedu do CMS nebo blogovacího software který podporuje čisté HTML"
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
-msgstr ""
+msgstr "Šířka"
 
 #: ckan/templates/package/snippets/resource_view.html:72
 msgid "Height"
-msgstr ""
+msgstr "Výška"
 
 #: ckan/templates/package/snippets/resource_view.html:75
 msgid "Code"
@@ -3884,7 +3771,7 @@ msgstr "Kód"
 
 #: ckan/templates/package/snippets/resource_views_list.html:8
 msgid "Resource Preview"
-msgstr ""
+msgstr "Náhled zdroje"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
@@ -3892,7 +3779,7 @@ msgstr "Data a zdroje"
 
 #: ckan/templates/package/snippets/resources_list.html:29
 msgid "This dataset has no data"
-msgstr ""
+msgstr "Tato datová sada neobsahuje data"
 
 #: ckan/templates/package/snippets/revisions_table.html:24
 #, python-format
@@ -3912,31 +3799,31 @@ msgstr "Přidat data"
 
 #: ckan/templates/package/snippets/view_form.html:8
 msgid "eg. My View"
-msgstr ""
+msgstr "např. Moje Zobrazení"
 
 #: ckan/templates/package/snippets/view_form.html:9
 msgid "eg. Information about my view"
-msgstr ""
+msgstr "např. Informace o mém zobrazení"
 
 #: ckan/templates/package/snippets/view_form_filters.html:16
 msgid "Add Filter"
-msgstr ""
+msgstr "Přidat filtr"
 
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
-msgstr ""
+msgstr "Odstranit filtr"
 
 #: ckan/templates/package/snippets/view_form_filters.html:46
 msgid "Filters"
-msgstr ""
+msgstr "Filtry"
 
 #: ckan/templates/package/snippets/view_help.html:2
 msgid "What's a view?"
-msgstr ""
+msgstr "Co je zobrazení?"
 
 #: ckan/templates/package/snippets/view_help.html:4
 msgid "A view is a representation of the data held against a resource"
-msgstr ""
+msgstr "Zobrazení je reprezentace dat ze zdroje"
 
 #: ckan/templates/related/base_form_page.html:12
 msgid "Related Form"
@@ -3948,16 +3835,11 @@ msgstr "Co jsou to související položky?"
 
 #: ckan/templates/related/base_form_page.html:22
 msgid ""
-" <p>Related Media is any app, article, visualisation or idea related to "
-"this dataset.</p> <p>For example, it could be a custom visualisation, "
-"pictograph or bar chart, an app using all or part of the data or even a "
-"news story that references this dataset.</p> "
-msgstr ""
-"<p>Souvisejícím médiem může být jakákoli aplikace, článek, vizualizace "
-"nebo nápad, který se vztahuje k datasetu.</p> <p>Může to na příklad být "
-"zajímavá vizualizace, obrázek nebo graf, aplikace využívající všechna "
-"nebo alespoň část dat, nebo dokonce i článek v novinách, který se k "
-"datasetu vztahuje.</p>"
+" <p>Related Media is any app, article, visualisation or idea related to this"
+" dataset.</p> <p>For example, it could be a custom visualisation, pictograph"
+" or bar chart, an app using all or part of the data or even a news story "
+"that references this dataset.</p> "
+msgstr "<p>Souvisejícím médiem může být jakákoli aplikace, článek, vizualizace nebo nápad, který se vztahuje k datasetu.</p> <p>Může to na příklad být zajímavá vizualizace, obrázek nebo graf, aplikace využívající všechna nebo alespoň část dat, nebo dokonce i článek v novinách, který se k datasetu vztahuje.</p>"
 
 #: ckan/templates/related/confirm_delete.html:11
 msgid "Are you sure you want to delete related item - {name}?"
@@ -3974,16 +3856,12 @@ msgstr "Aplikace a nápady"
 msgid ""
 " <p>Showing items <strong>%(first)s - %(last)s</strong> of "
 "<strong>%(item_count)s</strong> related items found</p> "
-msgstr ""
-"<p>Zobrazuji položky <strong>%(first)s - %(last)s</strong> z celkového "
-"počtu <strong>%(item_count)s</strong> souvisejících položek</p>"
+msgstr "<p>Zobrazuji položky <strong>%(first)s - %(last)s</strong> z celkového počtu <strong>%(item_count)s</strong> souvisejících položek</p>"
 
 #: ckan/templates/related/dashboard.html:25
 #, python-format
 msgid " <p><strong>%(item_count)s</strong> related items found</p> "
-msgstr ""
-"<p>počet nalezených souvisejících položek: "
-"<strong>%(item_count)s</strong></p>"
+msgstr "<p>počet nalezených souvisejících položek: <strong>%(item_count)s</strong></p>"
 
 #: ckan/templates/related/dashboard.html:29
 msgid "There have been no apps submitted yet."
@@ -3995,11 +3873,9 @@ msgstr "Co jsou to aplikace?"
 
 #: ckan/templates/related/dashboard.html:50
 msgid ""
-" These are applications built with the datasets as well as ideas for "
-"things that could be done with them. "
-msgstr ""
-"Jedná se o aplikace vybudované nad datasety nebo o nápady, co by se s "
-"daty dalo dělat."
+" These are applications built with the datasets as well as ideas for things "
+"that could be done with them. "
+msgstr "Jedná se o aplikace vybudované nad datasety nebo o nápady, co by se s daty dalo dělat."
 
 #: ckan/templates/related/dashboard.html:58
 #: ckan/templates/snippets/search_form.html:70
@@ -4134,9 +4010,7 @@ msgstr "Zakomponovat prohlížeč dat"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:8
 msgid "Embed this view by copying this into your webpage:"
-msgstr ""
-"Zkopírováním následujícího kódu si můžete přidat tento pohled na Vaši "
-"webovou stránku:"
+msgstr "Zkopírováním následujícího kódu si můžete přidat tento pohled na Vaši webovou stránku:"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:10
 msgid "Choose width and height in pixels:"
@@ -4206,9 +4080,7 @@ msgstr "Tento dataset nemá uveden žádný popis"
 msgid ""
 "No apps, ideas, news stories or images have been related to this dataset "
 "yet."
-msgstr ""
-"Žádné aplikace, nápady, články nebo obrázky nebyly k tomuto datasetu "
-"doposud přidány."
+msgstr "Žádné aplikace, nápady, články nebo obrázky nebyly k tomuto datasetu doposud přidány."
 
 #: ckan/templates/snippets/related.html:18
 msgid "Add Item"
@@ -4232,9 +4104,7 @@ msgstr "<p class=\"extra\">Prosím, zkuste jiný dotaz.</p>"
 msgid ""
 " <p><strong>There was an error while searching.</strong> Please try "
 "again.</p> "
-msgstr ""
-"<p><strong>Bohužel při vyhledávání došlo k chybě.</strong> Prosím, zkuste"
-" to znovu.</p>"
+msgstr "<p><strong>Bohužel při vyhledávání došlo k chybě.</strong> Prosím, zkuste to znovu.</p>"
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -4390,11 +4260,8 @@ msgstr "Informace o uživatelském účtu"
 
 #: ckan/templates/user/edit.html:19
 msgid ""
-" Your profile lets other CKAN users know about who you are and what you "
-"do. "
-msgstr ""
-"Pomocí Vašeho CKAN profilu můžete říci ostatním uživatelům něco o sobě a "
-"o tom, co děláte."
+" Your profile lets other CKAN users know about who you are and what you do. "
+msgstr "Pomocí Vašeho CKAN profilu můžete říci ostatním uživatelům něco o sobě a o tom, co děláte."
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change details"
@@ -4451,11 +4318,11 @@ msgstr "Opravdu chcete smazat tohoto uživatele?"
 
 #: ckan/templates/user/edit_user_form.html:43
 msgid "Are you sure you want to regenerate the API key?"
-msgstr ""
+msgstr "Jste si jisti že chcete znovu vygenerovat klíč API?"
 
 #: ckan/templates/user/edit_user_form.html:44
 msgid "Regenerate API Key"
-msgstr ""
+msgstr "Znovu vygenerovat klíč API"
 
 #: ckan/templates/user/edit_user_form.html:48
 msgid "Update Profile"
@@ -4547,7 +4414,7 @@ msgstr "Abyste mohli vytvářet datasety, skupiny a spoustu dalších zajímavý
 
 #: ckan/templates/user/new_user_form.html:5
 msgid "username"
-msgstr ""
+msgstr "uživatelské jméno"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
@@ -4609,19 +4476,17 @@ msgstr "Klíč k API"
 
 #: ckan/templates/user/request_reset.html:6
 msgid "Password reset"
-msgstr ""
+msgstr "Obnovení hesla"
 
 #: ckan/templates/user/request_reset.html:19
 msgid "Request reset"
-msgstr ""
+msgstr "Žádost o obnovení"
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
-"Enter your username into the box and we will send you an email with a "
-"link to enter a new password."
-msgstr ""
-"Zadejte uživatelské jméno do textového pole a bude Vám zaslán email s "
-"odkazem, kde si budete moci zadat nové heslo."
+"Enter your username into the box and we will send you an email with a link "
+"to enter a new password."
+msgstr "Zadejte uživatelské jméno do textového pole a bude Vám zaslán email s odkazem, kde si budete moci zadat nové heslo."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:14
 #: ckan/templates/user/snippets/followee_dropdown.html:15
@@ -4666,9 +4531,9 @@ msgstr "Požadovaný zdroj z DataStore nebyl nalezen"
 
 #: ckanext/datastore/db.py:652
 msgid ""
-"The data was invalid (for example: a numeric value is out of range or was"
-" inserted into a text field)."
-msgstr ""
+"The data was invalid (for example: a numeric value is out of range or was "
+"inserted into a text field)."
+msgstr "Data byla nevalidní (příklad: číselná hodnota je mimo rozsah nebo byla vložena do textového pole)"
 
 #: ckanext/datastore/logic/action.py:209 ckanext/datastore/logic/action.py:259
 #: ckanext/datastore/logic/action.py:343 ckanext/datastore/logic/action.py:425
@@ -4682,11 +4547,11 @@ msgstr "Uživatel {0} nemá oprávnění upravovat zdroj {1}"
 
 #: ckanext/example_idatasetform/templates/package/search.html:16
 msgid "Custom Field Ascending"
-msgstr ""
+msgstr "Vzestupně dle vlastního pole"
 
 #: ckanext/example_idatasetform/templates/package/search.html:17
 msgid "Custom Field Descending"
-msgstr ""
+msgstr "Sestupně dle vlastního pole"
 
 #: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
@@ -4704,7 +4569,7 @@ msgstr "Kód země"
 
 #: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
 msgid "custom resource text"
-msgstr ""
+msgstr "vlastní text zdroje"
 
 #: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
@@ -4713,31 +4578,31 @@ msgstr "Tato skupina nemá žádný popis"
 
 #: ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
-msgstr ""
+msgstr "Nástroj pro náhled dat CKAN má mnoho mocných funkcí"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "Image url"
-msgstr ""
+msgstr "Url obrázku"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
-msgstr ""
+msgstr "např. http://example.com/image.jpg (používá url zdroje pokud je prázdné)"
 
 #: ckanext/reclineview/plugin.py:82
 msgid "Data Explorer"
-msgstr ""
+msgstr "Prohlížeč dat"
 
 #: ckanext/reclineview/plugin.py:106
 msgid "Table"
-msgstr ""
+msgstr "Tabulka"
 
 #: ckanext/reclineview/plugin.py:149
 msgid "Graph"
-msgstr ""
+msgstr "Graf"
 
 #: ckanext/reclineview/plugin.py:207
 msgid "Map"
-msgstr ""
+msgstr "Mapa"
 
 #: ckanext/reclineview/theme/public/vendor/slickgrid/2.0.1/MIT-LICENSE.txt:1
 msgid ""
@@ -4761,125 +4626,83 @@ msgid ""
 "LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
 "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
 "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
-msgstr ""
-"Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid\n"
-"\n"
-"Permission is hereby granted, free of charge, to any person obtaining\n"
-"a copy of this software and associated documentation files (the\n"
-"\"Software\"), to deal in the Software without restriction, including\n"
-"without limitation the rights to use, copy, modify, merge, publish,\n"
-"distribute, sublicense, and/or sell copies of the Software, and to\n"
-"permit persons to whom the Software is furnished to do so, subject to\n"
-"the following conditions:\n"
-"\n"
-"The above copyright notice and this permission notice shall be\n"
-"included in all copies or substantial portions of the Software.\n"
-"\n"
-"THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\n"
-"EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\n"
-"MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n"
-"NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\n"
-"LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n"
-"OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n"
-"WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
+msgstr "Copyright (c) 2010 Michael Leibman, http://github.com/mleibman/slickgrid\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\nLIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\nWITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
 
 #: ckanext/reclineview/theme/public/vendor/slickgrid/2.0.1/README.txt:1
 msgid ""
-"This compiled version of SlickGrid has been obtained with the Google "
-"Closure\n"
+"This compiled version of SlickGrid has been obtained with the Google Closure\n"
 "Compiler, using the following command:\n"
 "\n"
-"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js "
-"--js=slick.editors.js --js_output_file=slick.grid.min.js\n"
+"java -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n"
 "\n"
-"There are two other files required for the SlickGrid view to work "
-"properly:\n"
+"There are two other files required for the SlickGrid view to work properly:\n"
 "\n"
 " * jquery-ui-1.8.16.custom.min.js \n"
 " * jquery.event.drag-2.0.min.js\n"
 "\n"
-"These are included in the Recline source, but have not been included in "
-"the\n"
+"These are included in the Recline source, but have not been included in the\n"
 "built file to make easier to handle compatibility problems.\n"
 "\n"
 "Please check SlickGrid license in the included MIT-LICENSE.txt file.\n"
 "\n"
 "[1] https://developers.google.com/closure/compiler/"
-msgstr ""
-"Tato zkompilovaná verze SlickGrid byla získána pomocí Google Closure "
-"Compiler s využitím následujícího příkazu:\n"
-"\n"
-" java -jar compiler.jar --js=slick.core.js --js=slick.grid.js "
-"--js=slick.editors.js --js_output_file=slick.grid.min.js\n"
-"\n"
-"Další dva soubory jsou třeba k tomu, aby SlickGrid náhled fungoval "
-"správně:\n"
-"* jquery-ui-1.8.16.custom.min.js\n"
-"* jquery.event.drag-2.0.min.js\n"
-"\n"
-"Tyto soubory jsou součástí zdrojového kódu Recline, ale nebyly zařazeny "
-"do buildu za účelem usnadnění řešení problémů s kompatibilitou.\n"
-"\n"
-"Prosím, seznamte se s licencí SlickGrid, která je obsažena v souboru MIT-"
-"LICENSE.txt file.\n"
-"\n"
-"[1] https://developers.google.com/closure/compiler/"
+msgstr "Tato zkompilovaná verze SlickGrid byla získána pomocí Google Closure Compiler s využitím následujícího příkazu:\n\n java -jar compiler.jar --js=slick.core.js --js=slick.grid.js --js=slick.editors.js --js_output_file=slick.grid.min.js\n\nDalší dva soubory jsou třeba k tomu, aby SlickGrid náhled fungoval správně:\n* jquery-ui-1.8.16.custom.min.js\n* jquery.event.drag-2.0.min.js\n\nTyto soubory jsou součástí zdrojového kódu Recline, ale nebyly zařazeny do buildu za účelem usnadnění řešení problémů s kompatibilitou.\n\nProsím, seznamte se s licencí SlickGrid, která je obsažena v souboru MIT-LICENSE.txt file.\n\n[1] https://developers.google.com/closure/compiler/"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
 msgid "Row offset"
-msgstr ""
+msgstr "Posunutí řádků"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
 msgid "eg: 0"
-msgstr ""
+msgstr "např.: 0"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr ""
+msgstr "Počet řádek"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "eg: 100"
-msgstr ""
+msgstr "např.: 100"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:6
 msgid "Graph type"
-msgstr ""
+msgstr "Typ grafu"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:7
 msgid "Group (Axis 1)"
-msgstr ""
+msgstr "Skupina (Osa 1)"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:8
 msgid "Series (Axis 2)"
-msgstr ""
+msgstr "Řada (Osa 2)"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:6
 msgid "Field type"
-msgstr ""
+msgstr "Typ pole"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:7
 msgid "Latitude field"
-msgstr ""
+msgstr "Pole zeměpisné šířky"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:8
 msgid "Longitude field"
-msgstr ""
+msgstr "Pole zeměpisné délky"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:9
 msgid "GeoJSON field"
-msgstr ""
+msgstr "Pole GeoJSON"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:10
 msgid "Auto zoom to features"
-msgstr ""
+msgstr "Automaticky zoomovat na funkce"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:11
 msgid "Cluster markers"
-msgstr ""
+msgstr "Značky shluku"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:57
@@ -5014,12 +4837,9 @@ msgstr "Žebříček datasetů"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:18
 msgid ""
-"Choose a dataset attribute and find out which categories in that area "
-"have the most datasets. E.g. tags, groups, license, res_format, country."
-msgstr ""
-"Zvolte atribut datasetu a zjistěte, jaké kategorie ze zvolené oblasti "
-"jsou zastoupeny u nejvíce datasetů. Např.: tagy (tags), skupiny (groups),"
-" licence (license), formát zdroje (res_format), země (country)."
+"Choose a dataset attribute and find out which categories in that area have "
+"the most datasets. E.g. tags, groups, license, res_format, country."
+msgstr "Zvolte atribut datasetu a zjistěte, jaké kategorie ze zvolené oblasti jsou zastoupeny u nejvíce datasetů. Např.: tagy (tags), skupiny (groups), licence (license), formát zdroje (res_format), země (country)."
 
 #: ckanext/stats/templates_legacy/ckanext/stats/leaderboard.html:20
 msgid "Choose area"
@@ -5027,1600 +4847,12 @@ msgstr "Zvolte oblast"
 
 #: ckanext/webpageview/plugin.py:24
 msgid "Website"
-msgstr ""
+msgstr "Webová stránka"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "Web Page url"
-msgstr ""
+msgstr "URL webové stránky"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
-msgstr ""
-
-#~ msgid "\"page\" parameter must be a positive integer"
-#~ msgstr "hodnota parametru „page“ musí být kladné celé číslo (integer)"
-
-#~ msgid "%s is now logged in"
-#~ msgstr "%s je právě přihlášeno"
-
-#~ msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
-#~ msgstr ""
-#~ " (V případě, že používáte OpenID, "
-#~ "mohlo se stát, že Váše OpenID není"
-#~ " přiřazeno k uživatelskému účtu.)"
-
-#~ msgid "The resource url is not specified."
-#~ msgstr "URL zdroje není zadáno."
-
-#~ msgid "No preview handler for resource of type {0}"
-#~ msgstr "Není k dispozici ovladač náhledu zdroje typu {0}"
-
-#~ msgid "The resource format is not specified."
-#~ msgstr "Formát zdroje není uveden."
-
-#~ msgid ""
-#~ "You have requested your password on %(site_title)s to be reset.\n"
-#~ "\n"
-#~ "    Please click the following link to confirm this request:\n"
-#~ "\n"
-#~ "       %(reset_link)s\n"
-#~ "    "
-#~ msgstr ""
-#~ "Na stránce %(site_title)s jste požádal(-a) o obnovení hesla.\n"
-#~ "\n"
-#~ "Prosím, použijte následující odkaz a potvrďte Váš požadavek:\n"
-#~ "\n"
-#~ "%(reset_link)s"
-
-#~ msgid ""
-#~ "You have been invited to %(site_title)s."
-#~ " A user has already been created "
-#~ "to\n"
-#~ "    you with the username %(user_name)s. You can change it later.\n"
-#~ "\n"
-#~ "    To accept this invite, please reset your password at:\n"
-#~ "\n"
-#~ "       %(reset_link)s\n"
-#~ "    "
-#~ msgstr ""
-#~ "Toto je pozvánka ke vstupu na "
-#~ "%(site_title)s. Byl pro Vás vytvořen "
-#~ "uživatelský účet s uživatelským jménem: "
-#~ "%(user_name)s. Toto uživatelské jméno si "
-#~ "můžete později změnit.\n"
-#~ "\n"
-#~ "Pokud chcete tuto pozvánku přijmout, prosím, nastavte si heslo zde:\n"
-#~ "\n"
-#~ "%(reset_link)s"
-
-#~ msgid "No web page given"
-#~ msgstr "Nebyla zadána webová stránka"
-
-#~ msgid "Author not given"
-#~ msgstr "Autor není zadán"
-
-#~ msgid "Maintainer not given"
-#~ msgstr "Správce není zadán"
-
-#~ msgid ""
-#~ "Url must be purely lowercase "
-#~ "alphanumeric (ascii) characters and these "
-#~ "symbols: -_"
-#~ msgstr ""
-#~ "URL může obsahovat pouze malá písmena"
-#~ " bez diakritiky, číslice a znaky -"
-#~ " (pomlčka) a _ (podtržítko)"
-
-#~ msgid "User %s not authorized to delete package %s"
-#~ msgstr "Uživatel %s nemá oprávnění smazat balíček %s"
-
-#~ msgid "User %s not authorized to delete organization %s members"
-#~ msgstr "Uživatel %s nemá oprávnění odstranit členy organizace %s"
-
-#~ msgid "License Not Specified"
-#~ msgstr "Licence není uvedena"
-
-#~ msgid "Reset this"
-#~ msgstr "Resetovat"
-
-#~ msgid "What are sysadmins?"
-#~ msgstr "Co jsou systémoví administrátoři?"
-
-#~ msgid ""
-#~ " <p>A sysadmin is someone that has"
-#~ " full control over a CKAN instance."
-#~ " You can only add CKAN sysadmins "
-#~ "via the <code>sysadmin</code> paster "
-#~ "command.</p> "
-#~ msgstr ""
-#~ "<p>Systémový administrátor je osoba, která "
-#~ "má plnou kontrolu nad CKAN instancí. "
-#~ "Systémové administrátory lze přidat pouze "
-#~ "pomocí příkazu <code>sysadmin</code>.</p>"
-
-#~ msgid "Read the documentation"
-#~ msgstr "Přečtěte si dokumentaci"
-
-#~ msgid ""
-#~ " Further information in the <a       "
-#~ "href=\"http://docs.ckan.org/en/latest/datastore.html\" "
-#~ "target=\"_blank\">main CKAN Data API and "
-#~ "DataStore documentation</a>.</p> "
-#~ msgstr ""
-#~ "Další informace naleznete v dokumentaci "
-#~ "pro <a "
-#~ "href=\"http://docs.ckan.org/en/latest/datastore.html\" "
-#~ "target=\"_blank\">datové CKAN API a "
-#~ "DataStore</a>.</p>"
-
-#~ msgid "There is no description for this group"
-#~ msgstr "Tato skupina nemá uveden žádný popis"
-
-#~ msgid "eg. Gold Prices"
-#~ msgstr "např. ceny zlata"
-
-#~ msgid "Search Your Data"
-#~ msgstr "Prohledejte svá data"
-
-#~ msgid "Popular Tags"
-#~ msgstr "Populární tagy"
-
-#~ msgid ""
-#~ "You can use <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\" "
-#~ "target=\"_blank\">Markdown formatting</a> here"
-#~ msgstr ""
-#~ "Zde můžete použít <a "
-#~ "href=\"http://daringfireball.net/projects/markdown/syntax\" "
-#~ "target=\"_blank\">Markdown formátování</a>"
-
-#~ msgid ""
-#~ " <p>Organizations act like publishing "
-#~ "departments for datasets (for example, "
-#~ "the Department of Health). This means"
-#~ " that datasets can be published by"
-#~ " and belong to a department instead"
-#~ " of an individual user.</p> <p>Within "
-#~ "organizations, admins can assign roles "
-#~ "and authorisation its members, giving "
-#~ "individual users the right to publish"
-#~ " datasets from that particular organisation"
-#~ " (e.g. Office of National Statistics).</p>"
-#~ " "
-#~ msgstr ""
-#~ "<p>Organizace představují organizační jednotky, "
-#~ "které publikují datasety (např. Ministerstvo"
-#~ " zdravotnictví). To znamená, že datasety"
-#~ " mohou být publikovány a také "
-#~ "náležejí k určité organizaci a nikoli"
-#~ " k jednotlivým uživatelům.</p> <p>V rámci"
-#~ " organizací jejich administrátoři mohou "
-#~ "jejich členům přidělovat role a "
-#~ "oprávnění, čímž jim umožní publikovat "
-#~ "datasety v rámci určité organizace "
-#~ "(např. v rámci  statistického úřadu).</p>"
-
-#~ msgid "This organization has no description"
-#~ msgstr "Tato organizace nemá uveden žádný popis"
-
-#~ msgid "Add metadata to the dataset"
-#~ msgstr "Přidat metadata datasetu"
-
-#~ msgid ""
-#~ "This is the current revision of "
-#~ "this dataset, as edited at "
-#~ "%(timestamp)s."
-#~ msgstr ""
-#~ "Toto je aktuální revize tohoto datasetu,"
-#~ " která byla provedena %(timestamp)s."
-
-#~ msgid "There is no description for this resource"
-#~ msgstr "Tento zdroj nemá uveden žádný popis"
-
-#~ msgid "There is no description for this dataset"
-#~ msgstr "Tento dataset nemá uveden žádný popis"
-
-#~ msgid ""
-#~ "Important: By submitting content, you "
-#~ "agree to release your contributions "
-#~ "under the Open Database License."
-#~ msgstr ""
-#~ "Důležité upozornění: Odesláním obsahu "
-#~ "souhlasíte s jeho zpřístupněním pod Open"
-#~ " Database Licence."
-
-#~ msgid "Next: Additional Info"
-#~ msgstr "Následující krok: doplňující informace"
-
-#~ msgid "No description for this resource"
-#~ msgstr "Tento zdroj nemá uveden žádný popis"
-
-#~ msgid ""
-#~ " <p class=\"empty\">This dataset has no"
-#~ " data, <a href=\"%(url)s\">why not add "
-#~ "some?</a> "
-#~ msgstr ""
-#~ "<p class=\"empty\">Tento dataset neobsahuje "
-#~ "žádná data, <a href=\"%(url)s\">tak proč "
-#~ "nějaká nepřidat?</a>"
-
-#~ msgid "Additional info"
-#~ msgstr "Doplňující údaje"
-
-#~ msgid "This item has no description"
-#~ msgstr "Tato položka nemá uveden žádný popis"
-
-#~ msgid "Request Reset"
-#~ msgstr "Požaduji obnovení"
-
-#~ msgid "You can use"
-#~ msgstr "Můžete zde použít"
-
-#~ msgid "Markdown formatting"
-#~ msgstr "Markdown formátování"
-
-#~ msgid "here."
-#~ msgstr "."
-
-#~ msgid "View dataset resources"
-#~ msgstr "Zobrazit zdroje datasetu"
-
-#~ msgid "DOWNLOAD"
-#~ msgstr "STÁHNOUT"
-
-#~ msgid "No downloadable resources."
-#~ msgstr "Žádné zdroje ke stažení."
-
-#~ msgid "No description for this item"
-#~ msgstr "Tato položka nemá popis"
-
-#~ msgid "View this"
-#~ msgstr "Prohlédnout"
-
-#~ msgid "no ratings yet"
-#~ msgstr "zatím bez hodnocení"
-
-#~ msgid ""
-#~ "–\n"
-#~ "    rate it now"
-#~ msgstr ""
-#~ "–\n"
-#~ "    ohodnoťte nyní"
-
-#~ msgid "Checking..."
-#~ msgstr "Kontrola ..."
-
-#~ msgid "Type at least two characters..."
-#~ msgstr "Zadejte alespoň dva znaky..."
-
-#~ msgid "This is the current URL."
-#~ msgstr "Toto je aktuální URL."
-
-#~ msgid "This URL is available!"
-#~ msgstr "Toto URL je k dispozici!"
-
-#~ msgid "This URL is already used, please use a different one."
-#~ msgstr "Toto URL je již používáno, použijte prosím jiné."
-
-#~ msgid "Failed to save, possibly due to invalid data "
-#~ msgstr "Uložení se nepodařilo, zřejmě kvůli chybným datům "
-
-#~ msgid ""
-#~ "You have unsaved changes. Make sure "
-#~ "to click 'Save Changes' below before "
-#~ "leaving this page."
-#~ msgstr ""
-#~ "Některé z Vámi provedených změn nejsou"
-#~ " uloženy. Stiskněte tlačítko 'Uložit změny'"
-#~ " než opustíte tuto stránku."
-
-#~ msgid "(no name)"
-#~ msgstr "(bez názvu)"
-
-#~ msgid "Delete the resource '%name%'?"
-#~ msgstr "Odstranit zdroj '%name%'?"
-
-#~ msgid "Preview not available for data type: "
-#~ msgstr "Náhled není k dispozici pro datový typ: "
-
-#~ msgid "Failed to get credentials for storage upload. Upload cannot proceed"
-#~ msgstr ""
-#~ "Nepodařilo se získat přihlašovací údaje "
-#~ "pro uložení nahrávaného souboru. Nahrávání "
-#~ "nemůže pokračovat"
-
-#~ msgid "Checking upload permissions ..."
-#~ msgstr "Probíhá ověřování oprávnění pro nahrání souboru ..."
-
-#~ msgid "Uploading file ..."
-#~ msgstr "Probíhá nahrávání souboru ..."
-
-#~ msgid "Data File"
-#~ msgstr "Datový soubor"
-
-#~ msgid "Metadata"
-#~ msgstr "Metadata"
-
-#~ msgid "Documentation"
-#~ msgstr "Dokumentace"
-
-#~ msgid "Example"
-#~ msgstr "Příklad"
-
-#~ msgid "Url"
-#~ msgstr "Url"
-
-#~ msgid "Resource Type"
-#~ msgstr "Typ zdroje"
-
-#~ msgid "DataStore enabled"
-#~ msgstr "DataStore je povolen"
-
-#~ msgid "Size (Bytes)"
-#~ msgstr "Velikost (Byte)"
-
-#~ msgid "Mimetype"
-#~ msgstr "Mimetype"
-
-#~ msgid "Mimetype (Inner)"
-#~ msgstr "Mimetype (Inner)"
-
-#~ msgid "Hash"
-#~ msgstr "Hash"
-
-#~ msgid "ID"
-#~ msgstr "ID"
-
-#~ msgid "Done"
-#~ msgstr "Hotovo"
-
-#~ msgid "This resource has unsaved changes."
-#~ msgstr "Tento zdroj obsahuje neuložené změny."
-
-#~ msgid "e.g. csv, html, xls, rdf, ..."
-#~ msgstr "např. csv, html, xls, rdf, ..."
-
-#~ msgid "Extra Fields"
-#~ msgstr "Doplňující položky"
-
-#~ msgid "Add Extra Field"
-#~ msgstr "Přidat doplňující položku"
-
-#~ msgid "Key"
-#~ msgstr "Klíč"
-
-#~ msgid "Delete Resource"
-#~ msgstr "Smazat zdroj"
-
-#~ msgid "You can use %aMarkdown formatting%b here."
-#~ msgstr "Zde můžete použít %aformátování Markdown%b."
-
-#~ msgid ""
-#~ "Dates are in %aISO Format%b — eg."
-#~ " %c2012-12-25%d or %c2010-05-31T14:30%d."
-#~ msgstr ""
-#~ "Data jsou v %aISO formátu%b — "
-#~ "např. %c2012-12-25%d nebo %c2010-05-31T14:30%d."
-
-#~ msgid "Data File (Uploaded)"
-#~ msgstr "Datový soubor (nahraný)"
-
-#~ msgid "Could not load preview"
-#~ msgstr "Náhled nelze nahrát"
-
-#~ msgid "DataProxy returned an error"
-#~ msgstr "Nastala chyba v DataProxy"
-
-#~ msgid "DataStore returned an error"
-#~ msgstr "Nastala chyba v DataStore"
-
-#~ msgid "Find datasets"
-#~ msgstr "Najít datasety"
-
-#~ msgid "Add a dataset"
-#~ msgstr "Přidat dataset"
-
-#~ msgid "Page Logo"
-#~ msgstr "Logo stránky"
-
-#~ msgid "Master content template placeholder … please replace me."
-#~ msgstr "Prostor hlavní šablony obsahu ... prosím nahraďte dle potřeby"
-
-#~ msgid "Twitter @ckanproject"
-#~ msgstr "Twitter @ckanproject"
-
-#~ msgid "Contact Us"
-#~ msgstr "Kontaktujte nás"
-
-#~ msgid "Privacy Policy"
-#~ msgstr "Pravidla pro ochranu soukromí"
-
-#~ msgid "Sections"
-#~ msgstr "Sekce"
-
-#~ msgid "Site Admin"
-#~ msgstr "Správce webu"
-
-#~ msgid "Languages"
-#~ msgstr "Jazyky"
-
-#~ msgid "Meta"
-#~ msgstr "Meta"
-
-#~ msgid "Licensed under the"
-#~ msgstr "Licencován v rámci"
-
-#~ msgid "Open Database License"
-#~ msgstr "Open Database License"
-
-#~ msgid "This Content and Data is Open"
-#~ msgstr "Otevřený obsah a data"
-
-#~ msgid "Powered by"
-#~ msgstr "Tento web využívá"
-
-#~ msgid "CKAN"
-#~ msgstr "CKAN"
-
-#~ msgid "v"
-#~ msgstr "v"
-
-#~ msgid "Administration - Authorization"
-#~ msgstr "Správa - Oprávnění"
-
-#~ msgid "Update Existing Roles"
-#~ msgstr "Aktualizovat existující role"
-
-#~ msgid "Save Changes"
-#~ msgstr "Uložit změny"
-
-#~ msgid "Add Roles for Any User"
-#~ msgstr "Přidat role pro všechny uživatele"
-
-#~ msgid "Add Role"
-#~ msgstr "Přidat roli"
-
-#~ msgid "Administration Dashboard"
-#~ msgstr "Nástěnka správy"
-
-#~ msgid "Current Sysadmins"
-#~ msgstr "Aktuální administrátoři"
-
-#~ msgid "Administration - Trash"
-#~ msgstr "Správa - Koš"
-
-#~ msgid "Deleted Revisions"
-#~ msgstr "Smazané revize"
-
-#~ msgid "Purge them all (forever and irreversibly)"
-#~ msgstr "Vymazat všechny (navždy a nevratně)"
-
-#~ msgid "Deleted Datasets"
-#~ msgstr "Smazané datasety"
-
-#~ msgid "(None)"
-#~ msgstr "(Žádný)"
-
-#~ msgid "Authorization:"
-#~ msgstr "Oprávnění:"
-
-#~ msgid "Edit:"
-#~ msgstr "Úprava:"
-
-#~ msgid "There are no datasets currently in this group."
-#~ msgstr "V této skupině momentálně nejsou žádné datasety."
-
-#~ msgid "History:"
-#~ msgstr "Historie:"
-
-#~ msgid "Compare »"
-#~ msgstr "Porovnat »"
-
-#~ msgid "Group History"
-#~ msgstr "Historie skupiny"
-
-#~ msgid "Groups of Datasets"
-#~ msgstr "Skupiny datasetů"
-
-#~ msgid "What Are Groups?"
-#~ msgstr "Co to jsou skupiny?"
-
-#~ msgid ""
-#~ "Whilst tags are great at collecting "
-#~ "datasets together, there are occasions "
-#~ "when you want to restrict users "
-#~ "from editing a collection. A [1:group]"
-#~ " can be set-up to specify which"
-#~ " users have permission to add or "
-#~ "remove datasets from it."
-#~ msgstr ""
-#~ "I když jsou tagy skvělé pro "
-#~ "tvoření kolekcí datasetů, existují případy "
-#~ "kdy chcete zabrátnit uživatelům v úpravě"
-#~ " kolekce. Může být vytvořena [1:skupina]"
-#~ " určující kteří uživatelé mají právo "
-#~ "přidávat a odebírat datasety z kolekce."
-
-#~ msgid "New Dataset..."
-#~ msgstr "Nový dataset..."
-
-#~ msgid "Existing Dataset..."
-#~ msgstr "Existující dataset..."
-
-#~ msgid "List Groups"
-#~ msgstr "Seznam skupin"
-
-#~ msgid "Login to Add a Group"
-#~ msgstr "Abyste mohli přidat skupinu, musíte se přihlásit"
-
-#~ msgid "Add A Group"
-#~ msgstr "Přidat skupinu"
-
-#~ msgid "Errors in form"
-#~ msgstr "Chyby ve formuláři"
-
-#~ msgid "Warning: URL is very long. Consider changing it to something shorter."
-#~ msgstr "Warování: URL je dosti dlouhé. Zvažte, zda ho nezkrátit."
-
-#~ msgid "2+ characters, lowercase, using only 'a-z0-9' and '-_'"
-#~ msgstr "alespoň 2 znaky, malá písmena, přípustné jen 'a-z0-9' a '-_'"
-
-#~ msgid "Start with a summary sentence ..."
-#~ msgstr "Vložte popis datasetu "
-
-#~ msgid "Image URL:"
-#~ msgstr "URL obrázku:"
-
-#~ msgid "The URL for the image that is associated with this group."
-#~ msgstr "URL obrázku, který je přiřazen této skupině."
-
-#~ msgid "active"
-#~ msgstr "aktivní"
-
-#~ msgid "deleted"
-#~ msgstr "smazaný"
-
-#~ msgid "Add..."
-#~ msgstr "Přidat..."
-
-#~ msgid "Key ="
-#~ msgstr "Pojem ="
-
-#~ msgid "Value ="
-#~ msgstr "Hodnota ="
-
-#~ msgid "Add datasets"
-#~ msgstr "Přidat datasety"
-
-#~ msgid "Resource Formats"
-#~ msgstr "Formáty zdrojů"
-
-#~ msgid "State:"
-#~ msgstr "Stav:"
-
-#~ msgid ""
-#~ "[1:You searched for \"%(query)s\". "
-#~ "]%(number_of_results)s datasets found."
-#~ msgstr ""
-#~ "[1:Hledali jste \"%(query)s\". "
-#~ "]%(number_of_results)s datasetů se podařilo "
-#~ "najít."
-
-#~ msgid ""
-#~ "What was the [1:average price] of "
-#~ "a house in the UK in 1935? "
-#~ "When will India's projected population "
-#~ "[2:overtake] that of China? Where can"
-#~ " you see [3:publicly-funded art] in"
-#~ " Seattle? Data to answer many, many"
-#~ " questions like these is out there"
-#~ " on the Internet somewhere - but "
-#~ "it is not always easy to find."
-#~ msgstr ""
-#~ "Jaká byla [1:průměrná cena] domu ve "
-#~ "Velké Británii v roce 1935? Kdy "
-#~ "předpokládaná popoluace Indie [2:převýší] tu"
-#~ " Číny? Kde můžete v Seattlu vidět "
-#~ "[3:umění placené z veřejných prostředků]? "
-#~ "Data, pomocí kterých je možné zodpovědět"
-#~ " velké množství otázek jako jsou "
-#~ "tyto, jsou dostupná na Internetu, ale"
-#~ " vždy není jednoduché je najít."
-
-#~ msgid ""
-#~ "%(site_title)s is a community-run "
-#~ "catalogue of useful sets of data "
-#~ "on the Internet. You can collect "
-#~ "links here to data from around the"
-#~ " web for yourself and others to "
-#~ "use, or search for data that "
-#~ "others have collected. Depending on the"
-#~ " type of data (and its conditions "
-#~ "of use), %(site_title)s may also be "
-#~ "able to store a copy of the "
-#~ "data or host it in a database, "
-#~ "and provide some basic visualisation "
-#~ "tools."
-#~ msgstr ""
-#~ "%(site_title)s je komunitou spravovaný katalog"
-#~ " užitečných dat dostupných na Internetu."
-#~ " Můžete zde uchovávat odkazy na data"
-#~ " z celého webu pro sebe, ale i"
-#~ " pro ostatní. Můžete také vyhledávat "
-#~ "data, která sem přidali jiní lidé. "
-#~ "V závislosti na typu dat (a "
-#~ "podmínkách jejich využití) můžete "
-#~ "%(site_title)s využít pro ukládání kopií "
-#~ "dat nebo je zpřístupnit v databázi. "
-#~ "K dispozici máte také jednoduché "
-#~ "vizualizační nástroje."
-
-#~ msgid "How it works"
-#~ msgstr "Jak to funguje"
-
-#~ msgid ""
-#~ "This site is running a powerful "
-#~ "piece of open-source data cataloguing"
-#~ " software called [1:CKAN], written and "
-#~ "maintained by the [2:Open Knowledge "
-#~ "Foundation]. Each 'dataset' record on "
-#~ "CKAN contains a description of the "
-#~ "data and other useful information, such"
-#~ " as what formats it is available "
-#~ "in, who owns it and whether it "
-#~ "is freely available, and what subject"
-#~ " areas the data is about. Other "
-#~ "users can improve or add to this"
-#~ " information (CKAN keeps a fully "
-#~ "versioned history)."
-#~ msgstr ""
-#~ "Na této stránce je provozován vyspělý"
-#~ " open-source software pro katalogizaci "
-#~ "dat [1:CKAN], který je vytvářen a "
-#~ "spravován [2:Open Knowledge Foundation]. Každý"
-#~ " záznam o 'datasetu' v CKANu obsahuje"
-#~ " popis dat a další užitečné informace"
-#~ " jako např. v jakých formátech jsou"
-#~ " data k dispozici, kdo je vlastní,"
-#~ " zda jsou data volně k dispozici "
-#~ "a jakých oblastí se data dotýkají. "
-#~ "Ostatní uživatelé mohou tyto informace "
-#~ "doplňovat a vylepšovat (CKAN udržuje "
-#~ "úplnou historii změn)."
-
-#~ msgid ""
-#~ "CKAN powers a number of data "
-#~ "catalogues on the Internet. [1:The Data"
-#~ " Hub] is an openly editable open "
-#~ "data catalogue, in the style of "
-#~ "Wikipedia. The UK Government uses CKAN"
-#~ " to run [2:data.gov.uk], which currently"
-#~ " lists 8,000 government datasets. Official"
-#~ " public data from most European "
-#~ "countries is listed in a CKAN "
-#~ "catalogue at [3:publicdata.eu]. There is "
-#~ "a comprehensive list of catalogues like"
-#~ " these around the world at "
-#~ "[4:datacatalogs.org], which is itself powered"
-#~ " by CKAN."
-#~ msgstr ""
-#~ "CKAN je využíván pro řadu datových "
-#~ "katalogů na Internetu. [1:The Data Hub]"
-#~ " je volně upravovatelný katalog otevřených"
-#~ " dat ve stylu Wikipedie. Vláda Velké"
-#~ " Británie využívá CKAN pro svůj "
-#~ "portál [2:data.gov.uk], který aktuálně "
-#~ "obsahuje 8000 vládních datasetů. Oficiální "
-#~ "data veřejné správy většiny evropských "
-#~ "zemí jsou uvedena v katalogu "
-#~ "[3:publicdata.eu] využívajícím CKAN. Obsáhlý "
-#~ "seznam katalogů jako tyto z celého "
-#~ "světa je uveden na portálu "
-#~ "[4:datacatalogs.org], který také využívá CKAN."
-
-#~ msgid "Open data and the Open Knowledge Foundation"
-#~ msgstr "Otevřená data a Open Knowledge Foundation"
-
-#~ msgid ""
-#~ "Most of the data indexed at "
-#~ "%(site_title)s is openly licensed, meaning "
-#~ "anyone is free to use or re-"
-#~ "use it however they like. Perhaps "
-#~ "someone will take that nice dataset "
-#~ "of a city's public art that you"
-#~ " found, and add it to a tourist"
-#~ " map - or even make a neat "
-#~ "app for your phone that'll help "
-#~ "you find artworks when you visit "
-#~ "the city. Open data means more "
-#~ "enterprise, collaborative science and "
-#~ "transparent government. You can read "
-#~ "more about open data in the "
-#~ "[1:Open Data Handbook]."
-#~ msgstr ""
-#~ "Většina dat indexovaných na %(site_title)s "
-#~ "je otevřeně licencovaná, což znamená, že"
-#~ " každý je může užívat libovolně. "
-#~ "Možná tak někdo vezme dataset o "
-#~ "umění ve Vašem městě a zobrazí ho"
-#~ " na mapě, nebo dokonce vytvoří pěknou"
-#~ " aplikaci pro Váš mobilní telefon, "
-#~ "která Vám pomůže najít umění při "
-#~ "procházení městem. Otevřená data znamenají "
-#~ "více příležitostí pro podnikání, spolupráci"
-#~ " ve vědě a transparentnější vládnutí. "
-#~ "Více informací o otevřených datech Vám"
-#~ " poskytne [1:Open Data Handbook]."
-
-#~ msgid ""
-#~ "The [1:Open Knowledge Foundation] is a"
-#~ " non-profit organisation [2:promoting] open"
-#~ " knowledge: writing and improving CKAN "
-#~ "is one of the ways we do "
-#~ "that. If you want to get involved"
-#~ " with its design or code, join "
-#~ "the discussion or development [3:mailing "
-#~ "lists], or take a look at the "
-#~ "[4:OKFN] site to find out about "
-#~ "our other projects."
-#~ msgstr ""
-#~ "[1:Open Knowledge Foundation] je nezisková "
-#~ "organizace, která [2:propaguje] otevřené "
-#~ "vědění: vývoj a vylepšování CKANu je "
-#~ "jedna z cest, kterou to děláme. "
-#~ "Pokud máte zájem se zapojit do "
-#~ "jeho návrhu nebo vývoje, přidejte se "
-#~ "do vývojářského nebo diskusního mailing "
-#~ "listu [3:mailing lists]. Nebo se můžete"
-#~ " podívat na stránky [4:OKFN] a "
-#~ "dozvědět se více o našich dalších "
-#~ "projektech."
-
-#~ msgid "Welcome to"
-#~ msgstr "Vítejte na"
-
-#~ msgid "Find data"
-#~ msgstr "Vyhledat data"
-
-#~ msgid "contains"
-#~ msgstr "obsahuje"
-
-#~ msgid ""
-#~ "that you can \n"
-#~ "            browse, learn about and download."
-#~ msgstr ""
-#~ "to můžete\n"
-#~ "              prohlížet, poznávat a stahovat."
-
-#~ msgid "Share data"
-#~ msgstr "Sdílení dat"
-
-#~ msgid ""
-#~ "Add your own datasets to share them with others and\n"
-#~ "          to find other people interested in your data."
-#~ msgstr ""
-#~ "Přidejte vlastní datasety, sdílejte je s"
-#~ " ostatními a zjistěte, kdo další se"
-#~ " zajímá o Vaše data."
-
-#~ msgid "Create a dataset »"
-#~ msgstr "Vytvoření datasetu »"
-
-#~ msgid "Sign up »"
-#~ msgstr "Zaregistrujte se »"
-
-#~ msgid "Collaborate"
-#~ msgstr "Spolupracovat"
-
-#~ msgid ""
-#~ "Find out more about working with open data by exploring \n"
-#~ "          these resources:"
-#~ msgstr ""
-#~ "Prozkoumáním následujících zdrojů se dozvíte"
-#~ " více o tom, jak pracovat s "
-#~ "otevřenými daty:"
-
-#~ msgid "GetTheData.org"
-#~ msgstr "GetTheData.org"
-
-#~ msgid "DataPatterns.org"
-#~ msgstr "DataPatterns.org"
-
-#~ msgid "Open Data Handbook"
-#~ msgstr "Příručka otevřených dat"
-
-#~ msgid "Who else is here?"
-#~ msgstr "Kdo sem přispívá?"
-
-#~ msgid "has"
-#~ msgstr "má"
-
-#~ msgid "datasets."
-#~ msgstr "datasetů."
-
-#~ msgid "Importer"
-#~ msgstr "Importer"
-
-#~ msgid "Import Datasets"
-#~ msgstr "Importovat datasety"
-
-#~ msgid ""
-#~ "Here you can supply an Excel file"
-#~ " with details of multiple datasets "
-#~ "and import these into"
-#~ msgstr ""
-#~ "Sem můžete vložit soubor typu Excel "
-#~ "s informacemi o více datasetech a "
-#~ "tím je importovat do"
-
-#~ msgid "Log in to use this tool"
-#~ msgstr "Pro použití tohoto nástroje se musíte přihlásit"
-
-#~ msgid "Preview - Importer"
-#~ msgstr "Náhled - Importer"
-
-#~ msgid "Import Preview"
-#~ msgstr "Náhled importu"
-
-#~ msgid "read from"
-#~ msgstr "načten z"
-
-#~ msgid "Further dataset previews not shown."
-#~ msgstr "Další náhledy datasetu nejsou zobrazeny."
-
-#~ msgid "Edit summary (briefly describe the changes you have made)"
-#~ msgstr "Shrnutí úpravy (stručně popište provedené změny)"
-
-#~ msgid "Author:"
-#~ msgstr "Autor:"
-
-#~ msgid "Import"
-#~ msgstr "Importovat"
-
-#~ msgid "Results - Importer"
-#~ msgstr "Výsledky - Importer"
-
-#~ msgid "Import Results"
-#~ msgstr "Výsledky importu"
-
-#~ msgid "- Datasets - History"
-#~ msgstr "- Datasety - Historie"
-
-#~ msgid "- Edit - Datasets"
-#~ msgstr "- Upravit - Datasety"
-
-#~ msgid "Basic Information"
-#~ msgstr "Základní informace"
-
-#~ msgid "Further Information"
-#~ msgstr "Další informace"
-
-#~ msgid "Since you have not signed in this will just be your IP address."
-#~ msgstr "Protože nejste přihlášeni, bude zde uvedena Vaše IP adresa."
-
-#~ msgid "Click here to sign in"
-#~ msgstr "Klikněte sem pro přihlášení"
-
-#~ msgid "before saving (opens in new window)."
-#~ msgstr "před uložením (otevře se v novém okně)"
-
-#~ msgid ""
-#~ "[1:Important:] By submitting content, you "
-#~ "agree to release your contributions "
-#~ "under the [2:Open Database License]. "
-#~ "Please [3:refrain] from editing this "
-#~ "page if you are [4:not] happy to"
-#~ " do this."
-#~ msgstr ""
-#~ "[1:Důležité:] Zasláním obsahu souhlasíte se"
-#~ " zveřejněním vašeho příspěvku pod "
-#~ "[2:Otevřenou licencí]. Prosím, [3:neprovádějte] "
-#~ "úpravy této stránky, pokud si to "
-#~ "[4:nepřejete]."
-
-#~ msgid "- Edit Resources - Datasets"
-#~ msgstr "- Upravit zdroje - Datasety"
-
-#~ msgid "Edit Resources:"
-#~ msgstr "Upravit zdroje:"
-
-#~ msgid "- Datasets - Followers"
-#~ msgstr "- Datasety - Následovníci"
-
-#~ msgid "Followers:"
-#~ msgstr "Následovníci:"
-
-#~ msgid "no-sidebar"
-#~ msgstr "no-sidebar"
-
-#~ msgid "New key"
-#~ msgstr "Nový klíč"
-
-#~ msgid "with value"
-#~ msgstr "s hodnotou"
-
-#~ msgid "Dataset History"
-#~ msgstr "Historie datasetu"
-
-#~ msgid "Resources (0)"
-#~ msgstr "Zdroje (0)"
-
-#~ msgid "Add / Edit resources"
-#~ msgstr "Přidat / Upravit zdroje"
-
-#~ msgid "Apps, Ideas etc"
-#~ msgstr "Aplikace, nápady atd."
-
-#~ msgid "Followers ({num_followers})"
-#~ msgstr "Následovníci ({num_followers})"
-
-#~ msgid "Settings"
-#~ msgstr "Upravit"
-
-#~ msgid "Add - Datasets"
-#~ msgstr "Přidat - Datasety"
-
-#~ msgid "Add a Dataset"
-#~ msgstr "Přidat Dataset"
-
-#~ msgid "A short descriptive title for the dataset"
-#~ msgstr "Krátký popisný název datasetu"
-
-#~ msgid "Home Page"
-#~ msgstr "Domovská stránka"
-
-#~ msgid "The URL for the web page describing the data (not the data itself)."
-#~ msgstr "URL stránky popisující data (ne dat samotných)."
-
-#~ msgid "e.g. http://www.example.com/growth-figures.html"
-#~ msgstr "např. http://www.priklad.cz/grafy-rustu.html"
-
-#~ msgid ""
-#~ "(Don't worry if you don't know "
-#~ "which license the data has been "
-#~ "released under)."
-#~ msgstr ""
-#~ "(Pokud nevíte, pod jakou licencí byla"
-#~ " data zveřejněna, nechte položku "
-#~ "nevyplněnou)."
-
-#~ msgid "Member of:"
-#~ msgstr "Je členem:"
-
-#~ msgid "Add to:"
-#~ msgstr "Přidat do:"
-
-#~ msgid "Cannot add any groups."
-#~ msgstr "Nelze přidat žádné skupiny."
-
-#~ msgid ""
-#~ "Comma-separated terms that may link "
-#~ "this dataset to similar ones. For "
-#~ "more information on conventions, see "
-#~ "[1:this wiki page]."
-#~ msgstr ""
-#~ "Skupina termínů oddělených čárkami, které "
-#~ "mohou provázat tento dataset s jemu "
-#~ "podobnými. Další informace o pravidlech "
-#~ "jejich vytváření naleznete na [1:této "
-#~ "wiki stránce]."
-
-#~ msgid "e.g. pollution, rivers, water quality"
-#~ msgstr "např. znečištění, řeky, kvalita vody"
-
-#~ msgid "Add Resources"
-#~ msgstr "Přidat zdroje"
-
-#~ msgid ""
-#~ "Upload or link data files, APIs "
-#~ "and other materials related to your "
-#~ "dataset."
-#~ msgstr ""
-#~ "Nahrajte nebo přidejte odkaz na datové"
-#~ " soubory, API a další materiály "
-#~ "související s Vaším datasetem."
-
-#~ msgid "New resource..."
-#~ msgstr "Nový zdroj..."
-
-#~ msgid "x"
-#~ msgstr "x"
-
-#~ msgid "Link to a file"
-#~ msgstr "Odkaz na soubor"
-
-#~ msgid "Link to an API"
-#~ msgstr "Odkaz na API"
-
-#~ msgid "File URL"
-#~ msgstr "URL souboru"
-
-#~ msgid "API URL"
-#~ msgstr "API URL"
-
-#~ msgid ""
-#~ "The name of the main contact, for"
-#~ " enquiries about this particular dataset,"
-#~ " using the e-mail address in the "
-#~ "following field."
-#~ msgstr ""
-#~ "Jméno hlavního kontaktu pro dotazy o "
-#~ "tomto konkrétním datasetu, který používá "
-#~ "email v následujícím poli."
-
-#~ msgid "Author email"
-#~ msgstr "Email autora"
-
-#~ msgid ""
-#~ "If there is another important contact"
-#~ " person (in addition to the person"
-#~ " in the Author field) then provide"
-#~ " details here."
-#~ msgstr ""
-#~ "Pokud existuje jiná důležitá kontaktní "
-#~ "osoba (kromě osoby v poli Autor), "
-#~ "uveďte ji zde."
-
-#~ msgid "Maintainer email"
-#~ msgstr "Email správce"
-
-#~ msgid "A number representing the version (if applicable)"
-#~ msgstr "Číslo reprezentující verzi (pokud lze)"
-
-#~ msgid "e.g. 1.2.0"
-#~ msgstr "např. 1.2.0"
-
-#~ msgid ""
-#~ "Adding custom fields to the dataset "
-#~ "such as \"location:uk\" can help users"
-#~ " find it in the search engine. "
-#~ "This data will also appear under"
-#~ msgstr ""
-#~ "Přidání vlastních polí k datasetu jako"
-#~ " je například \"location:uk\" může pomoci"
-#~ " ostatním uživatelům data lépe vyhledat "
-#~ "pomocí vyhledávačů. Tyto hodnoty se také"
-#~ " objeví v dolní části"
-
-#~ msgid "when viewing the dataset."
-#~ msgstr "při prohlížení datasetu."
-
-#~ msgid "Do you really want to change the state of this dataset?"
-#~ msgstr "Opravdu si přejete změnit stav tohoto datasetu?"
-
-#~ msgid "Yes!"
-#~ msgstr "Ano!"
-
-#~ msgid "This dataset is"
-#~ msgstr "Tento dataset je"
-
-#~ msgid "Summary"
-#~ msgstr "Souhrn"
-
-#~ msgid "Briefly describe the changes you have made..."
-#~ msgstr "Stručně popište změny, které jste udělali"
-
-#~ msgid ""
-#~ "Since you have not signed in this will just be your IP address.\n"
-#~ "    [1:Click here to sign in] before saving (opens in new window)."
-#~ msgstr ""
-#~ "Protože nejste přihlášeni, bude zde uvedena Vaše IP adresa.\n"
-#~ "    Před uložením se můžete přihlásit"
-#~ " [1:kliknutím na tento odkaz] (otevře "
-#~ "se nové okno)."
-
-#~ msgid "Important:"
-#~ msgstr "Důležité:"
-
-#~ msgid ""
-#~ "By submitting content, you agree to "
-#~ "release your contributions under the"
-#~ msgstr "Vložením obsahu souhlasíte se zpřístupněním Vašeho příspěvku pod"
-
-#~ msgid ". Please"
-#~ msgstr ". Prosím,"
-
-#~ msgid "refrain"
-#~ msgstr "zdržete se"
-
-#~ msgid "from editing this page if you are"
-#~ msgstr "úprav této stránky pokud"
-
-#~ msgid "not"
-#~ msgstr "nesouhlasíte"
-
-#~ msgid "happy to do this."
-#~ msgstr "s těmito podmínkami."
-
-#~ msgid "- Datasets"
-#~ msgstr "- Datasety"
-
-#~ msgid "License:"
-#~ msgstr "Licence:"
-
-#~ msgid "[Open Data]"
-#~ msgstr "[Otevřená data]"
-
-#~ msgid "Related Datasets"
-#~ msgstr "Zveřejněné datasety"
-
-#~ msgid "This is an old revision of this dataset, as edited"
-#~ msgstr "Toto je starší verze tohoto datasetu, jak ji editoval"
-
-#~ msgid "at"
-#~ msgstr "na"
-
-#~ msgid ". It may differ significantly from the"
-#~ msgstr ". Může se výrazně lišit od"
-
-#~ msgid "current revision"
-#~ msgstr "aktuální verze"
-
-#~ msgid "This is the current revision of this dataset, as edited"
-#~ msgstr "Toto je aktuální verze tohoto datasetu tak, jak byl upraven"
-
-#~ msgid "RDF/XML"
-#~ msgstr "RDF/XML"
-
-#~ msgid "(edit)"
-#~ msgstr "(upravit)"
-
-#~ msgid "(none)"
-#~ msgstr "(žádný)"
-
-#~ msgid "(settings)"
-#~ msgstr "(upravit)"
-
-#~ msgid "Country"
-#~ msgstr "Země"
-
-#~ msgid "Harvest Source"
-#~ msgstr "Zdroj datasetů, které mají být automaticky přidány"
-
-#~ msgid ""
-#~ "[1:Dataset page] on \n"
-#~ "            [2:%(harvest_catalogue_name)s]"
-#~ msgstr ""
-#~ "[1: Stránka datasetu] se nachází zde \n"
-#~ "                                                      "
-#~ "[2:%(harvest_catalogue_name)s]"
-
-#~ msgid "- Dataset - Resource"
-#~ msgstr "- Dataset - Zdroj"
-
-#~ msgid "Data API is unavailable for this resource as DataStore is disabled"
-#~ msgstr ""
-#~ "Datové API není možné pro tento "
-#~ "datový zdroj použít, protože DataStore "
-#~ "není povolen"
-
-#~ msgid "License unknown"
-#~ msgstr "Licence není známa"
-
-#~ msgid "From the [1:Dataset]:"
-#~ msgstr "Z [1:datasetu]:"
-
-#~ msgid "Cannot embed as resource is private."
-#~ msgstr "Protože zdroje je soukromý, nemůže být zakomponován"
-
-#~ msgid "Search -"
-#~ msgstr "Hledání -"
-
-#~ msgid "Do you know of a dataset that should be added to"
-#~ msgstr "Víte o datasetu který by měl být přidán do"
-
-#~ msgid "Register it now"
-#~ msgstr "Zaregistrujte ho teď"
-
-#~ msgid "Other access"
-#~ msgstr "Jiné přístup"
-
-#~ msgid "You can also access this registry using the"
-#~ msgstr "K tomuto registru můžete také přistoupit pomocí"
-
-#~ msgid "(see"
-#~ msgstr "(ukázat"
-
-#~ msgid "or download a"
-#~ msgstr "nebo stáhnout"
-
-#~ msgid "full"
-#~ msgstr "úplný"
-
-#~ msgid "dump"
-#~ msgstr "výpis"
-
-#~ msgid ""
-#~ "[1:There was an error while searching.] \n"
-#~ "            Please try again."
-#~ msgstr ""
-#~ "[1:Při hledání došlo k chybě.]\n"
-#~ "            Prosím zkuste to znovu."
-
-#~ msgid "[1:%(item_count)s] datasets found"
-#~ msgstr "Nalezeno [1:%(item_count)s] datasetů"
-
-#~ msgid "Would you like to [1:create a new dataset?]"
-#~ msgstr "Chcete [1: vytvořit nový dataset?]"
-
-#~ msgid "Search..."
-#~ msgstr "Hledat ..."
-
-#~ msgid "Add item"
-#~ msgstr "Přidat položku"
-
-#~ msgid "(required)"
-#~ msgstr "(povinné)"
-
-#~ msgid "Please add the title for the item"
-#~ msgstr "Prosím, zadejte označení položky"
-
-#~ msgid "Type of item"
-#~ msgstr "Typ položky"
-
-#~ msgid "Please describe the item"
-#~ msgstr "Prosím, popište položku"
-
-#~ msgid "Please add a url"
-#~ msgstr "Prosím, zadejte URL"
-
-#~ msgid "Please add a link to the image"
-#~ msgstr "Prosím, zadejte odkaz na obrázek"
-
-#~ msgid "Showing items"
-#~ msgstr "Zobrazuji výsledky hledání"
-
-#~ msgid "of"
-#~ msgstr "v"
-
-#~ msgid "related items found"
-#~ msgstr "souvisejících položkách"
-
-#~ msgid "Least viewed"
-#~ msgstr "Naposledy zobrazené"
-
-#~ msgid "Featured items only?"
-#~ msgstr "Pouze přidružené položky?"
-
-#~ msgid "- Apps, Ideas etc"
-#~ msgstr "- Aplikace, nápady atd."
-
-#~ msgid "There are no items here yet"
-#~ msgstr "Zatím tu nejsou žádné položky"
-
-#~ msgid ", why not"
-#~ msgstr ", proč tedy"
-
-#~ msgid "add one"
-#~ msgstr "nějakou nepřidat"
-
-#~ msgid "Differences - Revisions"
-#~ msgstr "Rozdíly - Revize"
-
-#~ msgid "Revision Differences -"
-#~ msgstr "Rozdíly revizí -"
-
-#~ msgid "From:"
-#~ msgstr "Od:"
-
-#~ msgid "To:"
-#~ msgstr "Pro:"
-
-#~ msgid "No differences"
-#~ msgstr "Žádné rozdíly"
-
-#~ msgid "List"
-#~ msgstr "Seznam"
-
-#~ msgid ""
-#~ "Track the most recent changes to the system, with most recent\n"
-#~ "    changes first."
-#~ msgstr ""
-#~ "Zobrazuje poslední změny v systému, s tím, že poslední změny\n"
-#~ "    jsou zobrazeny jako první."
-
-#~ msgid "Revision:"
-#~ msgstr "Verze:"
-
-#~ msgid "Revision Actions"
-#~ msgstr "Akce verze"
-
-#~ msgid "Timestamp:"
-#~ msgstr "Časový údaj:"
-
-#~ msgid "Log Message:"
-#~ msgstr "Zpráva logu:"
-
-#~ msgid "Dataset -"
-#~ msgstr "Dataset -"
-
-#~ msgid ""
-#~ ",\n"
-#~ "      Tag -"
-#~ msgstr ""
-#~ ",\n"
-#~ "      Tag -"
-
-#~ msgid "Embed this view"
-#~ msgstr "Zakomponovat tento pohled"
-
-#~ msgid "by copying this into your webpage:"
-#~ msgstr "prostřednictvím přidání následujícího kódu do Vaší webové stránky:"
-
-#~ msgid "Not Openly Licensed"
-#~ msgstr "Nemá otevřenou licenci"
-
-#~ msgid ""
-#~ "This upload form is valid for a"
-#~ " limited time (usually 1h or so). "
-#~ "If the\n"
-#~ "    form expires please reload the page."
-#~ msgstr ""
-#~ "Tento formulář pro nahrávání je platný"
-#~ " pouze po omezenou dobu (zpravidla "
-#~ "okolo jedné hodiny). Pokud platnost "
-#~ "formuláře vyprší, prosím, znovu načtěte "
-#~ "stránku."
-
-#~ msgid "File:"
-#~ msgstr "Soubor:"
-
-#~ msgid "Upload - Successful"
-#~ msgstr "Nahrávání bylo úspěšné"
-
-#~ msgid "Filed uploaded to:"
-#~ msgstr "Soubor byl nahrán do:"
-
-#~ msgid "Upload another »"
-#~ msgstr "Nahrát další »"
-
-#~ msgid "There are"
-#~ msgstr "Je zde"
-
-#~ msgid "results for ‘"
-#~ msgstr "výsledků pro"
-
-#~ msgid "results for tags."
-#~ msgstr "výsledků pro tagy."
-
-#~ msgid "Clear search"
-#~ msgstr "Vymazat hledání"
-
-#~ msgid "and see all tags."
-#~ msgstr "a zobrazit všechny tagy."
-
-#~ msgid "- Tags"
-#~ msgstr "- Tagy"
-
-#~ msgid "Tag:"
-#~ msgstr "Tag:"
-
-#~ msgid "There are %(count)s datasets tagged with [1:%(tagname)s]:"
-#~ msgstr "Počet výsledků pro tag [1: %(tagname)s ] je %(count)s:"
-
-#~ msgid "- Dashboard - User"
-#~ msgstr "- Přehled - Uživatel"
-
-#~ msgid "What's going on?"
-#~ msgstr "Co se děje?"
-
-#~ msgid "Nothing new on CKAN?"
-#~ msgstr "Na CKAN není nic nového?"
-
-#~ msgid "So, why don't you ..."
-#~ msgstr "Tak proč tedy ..."
-
-#~ msgid "Add a new dataset"
-#~ msgstr "Přidat nový dataset"
-
-#~ msgid "Follow another user"
-#~ msgstr "Sledovat další uživatele"
-
-#~ msgid "Create a group or a tag"
-#~ msgstr "Vytvořit skupinu nebo tag"
-
-#~ msgid "Or simply browse the repository"
-#~ msgstr "Nebo jednoduše procházejte databázi"
-
-#~ msgid "- Edit - User"
-#~ msgstr "- Upravit - Uživatel"
-
-#~ msgid "Edit User:"
-#~ msgstr "Upravit uživatele:"
-
-#~ msgid "E-mail"
-#~ msgstr "E-mail"
-
-#~ msgid "OpenId"
-#~ msgstr "OpenId"
-
-#~ msgid "A little about you..."
-#~ msgstr "Něco málo o vás ..."
-
-#~ msgid "Change your password"
-#~ msgstr "Změnit heslo"
-
-#~ msgid "Password (repeat)"
-#~ msgstr "Heslo (znovu pro kontrolu)"
-
-#~ msgid "Change your username"
-#~ msgstr "Změnit uživatelské jméno"
-
-#~ msgid ""
-#~ "Changing your username will log you "
-#~ "out, and require you to log back"
-#~ " in with the new username"
-#~ msgstr ""
-#~ "Po změně uživatelského jména budete "
-#~ "odhlášeni a budete se muset přihlásit"
-#~ " pomocí nového uživatelského jména"
-
-#~ msgid "- Followers - User"
-#~ msgstr "- Následovníci - Uživatel"
-
-#~ msgid "'s Followers"
-#~ msgstr "má tyto následovníky"
-
-#~ msgid "My Profile"
-#~ msgstr "Můj profil"
-
-#~ msgid "Edit Profile"
-#~ msgstr "Upravit profil"
-
-#~ msgid "My Followers ({num_followers})"
-#~ msgstr "Moji následovníci ({num_followers})"
-
-#~ msgid "View Profile"
-#~ msgstr "Zobrazit profil"
-
-#~ msgid "Register Account"
-#~ msgstr "Registrovat účet"
-
-#~ msgid "[1:%(item_count)s] users found."
-#~ msgstr "Nalezeno [1:%(item_count)s] uživatelů."
-
-#~ msgid "Sort by name"
-#~ msgstr "Seřadit dle jména"
-
-#~ msgid "Sort by edits"
-#~ msgstr "Seřadit dle úprav"
-
-#~ msgid "Member for"
-#~ msgstr "Je členem"
-
-#~ msgid "Login - User"
-#~ msgstr "Přihlášení - Uživatel"
-
-#~ msgid "Login to"
-#~ msgstr "Přihlášení do"
-
-#~ msgid "Login:"
-#~ msgstr "Uživatelské jméno:"
-
-#~ msgid "Password:"
-#~ msgstr "Heslo:"
-
-#~ msgid "Remember me:"
-#~ msgstr "Pamatovat si mě:"
-
-#~ msgid "Sign In"
-#~ msgstr "Přihlásit se"
-
-#~ msgid "Login using Open ID"
-#~ msgstr "Přihlásit se pomocí Open ID"
-
-#~ msgid ""
-#~ "NB: To set-up your OpenID for "
-#~ "this site, you first need to "
-#~ "[1:Register] and then edit your Profile"
-#~ " to provide your OpenID."
-#~ msgstr ""
-#~ "Abyste mohli používat svoje OpenID pro"
-#~ " tyto stránky, musíte se nejprve "
-#~ "[1:registrovat] a pak upravit svůj "
-#~ "profil pro poskytnutí svého OpenID."
-
-#~ msgid "Please click your account provider:"
-#~ msgstr "Prosím klikněte na vašeho poskytovatele účtu:"
-
-#~ msgid "OpenID Identifier:"
-#~ msgstr "OpenID identifikátor:"
-
-#~ msgid "Don't have an OpenID?"
-#~ msgstr "Nemáte OpenID?"
-
-#~ msgid ""
-#~ "OpenID is service that allows you "
-#~ "to log-on to many different "
-#~ "websites\n"
-#~ "          using a single identity. Find out [1:more\n"
-#~ "          about OpenID] and [2:how to get an\n"
-#~ "          OpenID enabled account]. Probably"
-#~ " the simplest way is sign up "
-#~ "with a\n"
-#~ "          free OpenID provider such as [3:https://www.myopenid.com/]."
-#~ msgstr ""
-#~ "OpenID je služba, která umožňuje přihlášení na mnoho různých webů\n"
-#~ "        za použití jediné identifikace. Zjistěte [1:více\n"
-#~ "        o OpenID] a [2:postupech pro vytvoření\n"
-#~ "        OpenID účtu]. Pravděpodobně "
-#~ "nejjednodušší je založení účtu u "
-#~ "některého\n"
-#~ "        bezplatného poskytovatele OpenID jako"
-#~ " je [3:https://www.myopenid.com/]."
-
-#~ msgid "Sign in with OpenID"
-#~ msgstr "Přihlásit se pomocí OpenID"
-
-#~ msgid "Logout - User"
-#~ msgstr "Odhlášení - Uživatel"
-
-#~ msgid "Logout from"
-#~ msgstr "Odhlásit z"
-
-#~ msgid "You have logged out successfully."
-#~ msgstr "Byl jste úspěšně odhlášen."
-
-#~ msgid "Logged in - User"
-#~ msgstr "Přihlášen - Uživatel"
-
-#~ msgid "Logged into"
-#~ msgstr "Přihlášen do"
-
-#~ msgid "is currently logged in"
-#~ msgstr "je právě přihlášen do"
-
-#~ msgid "To register or log in as another user, you need to"
-#~ msgstr "Abyste se mohli zaregistrovat nebo přihlásit jako jiný uživatel, musíte"
-
-#~ msgid "logout"
-#~ msgstr "provést odhlášení"
-
-#~ msgid "first."
-#~ msgstr "jako první krok."
-
-#~ msgid "Register - User"
-#~ msgstr "Zaregistrovat - Uživatel"
-
-#~ msgid "Register for a new Account"
-#~ msgstr "Zaregistrujte si nový účet"
-
-#~ msgid "3+ chars, using only 'a-z0-9' and '-_'"
-#~ msgstr "alespoň 3 znaky, přípustné jen 'a-z0-9' a '-_'"
-
-#~ msgid "Full name (optional)"
-#~ msgstr "Celé jméno (volitelné)"
-
-#~ msgid "E-Mail"
-#~ msgstr "E-Mail"
-
-#~ msgid "Register now"
-#~ msgstr "Registrujte se nyní"
-
-#~ msgid "Password (repeat):"
-#~ msgstr "Heslo (znovu):"
-
-#~ msgid "- User"
-#~ msgstr "- Uživatel"
-
-#~ msgid "Member since"
-#~ msgstr "Členem od"
-
-#~ msgid "No email"
-#~ msgstr "Žádný email"
-
-#~ msgid "– Note: your API key is visible only to you!"
-#~ msgstr "– Poznámka: Váš klíč k API nevidí nikdo kromě Vás"
-
-#~ msgid "Public Activity"
-#~ msgstr "Veřejná událost"
-
-#~ msgid "Reset password"
-#~ msgstr "Obnovit heslo"
-
-#~ msgid "Request a password reset"
-#~ msgstr "Žádost o obnovení hesla"
-
-#~ msgid "User name:"
-#~ msgstr "Uživatelské jméno:"
-
+msgstr "např. http://example.com (používá url zdroje pokud zůstane prázdné)"
