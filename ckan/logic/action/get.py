@@ -1608,7 +1608,7 @@ def package_autocomplete(context, data_dict):
     limit = data_dict.get('limit', 10)
     q = data_dict['q']
 
-    like_q = u"%%%s%%" % q
+    like_q = u"%s%%" % q
 
     query = model.Session.query(model.Package)
     query = query.filter(model.Package.state == 'active')
