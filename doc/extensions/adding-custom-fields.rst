@@ -279,10 +279,10 @@ Otherwise this is the same as the single-parameter form above.
 Validators that need to access or update multiple fields
 may be written as a callable taking four parameters.
 
-This form of validator is passed to all the fields and
-errors in a "flattened" form. Validator must fetch
-values from ``flattened_data`` and may replace values in
-``flattened_data``. The return value from this function is ignored.
+All fields and errors in a ``flattened`` form are passed to the 
+validator. The validator must fetch values from ``flattened_data`` 
+and may replace values in ``flattened_data``. The return value 
+from this function is ignored.
 
 ``key`` is the flattened key for the field to which this validator was
 applied. For example ``('notes',)`` for the dataset notes field or
