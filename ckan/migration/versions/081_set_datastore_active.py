@@ -20,6 +20,7 @@ def upgrade(migrate_engine):
             SELECT table_name
             FROM information_schema.tables
             WHERE table_schema = 'public'
+            AND table_name != '_table_metadata'
         ''')
 
         if resources_in_datastore.rowcount:
@@ -34,17 +35,20 @@ def upgrade(migrate_engine):
                           in resources_in_datastore])
                 )
             )
+            if resources.rowcount:
+                params = []
+                for resource in resources:
+                    new_extras = json.loads(resource[1])
+                    new_extras.update({'datastore_active': True})
+                    params.append(
+                        {'id': resource[0],
+                         'extras': json.dumps(new_extras)})
 
-            params = []
-            for resource in resources:
-                new_extras = json.loads(resource[1])
-                new_extras.update({'datastore_active': True})
-                params.append(
-                    {'id': resource[0],
-                     'extras': json.dumps(new_extras)})
-
-            migrate_engine.execute(
-                text('UPDATE resource SET extras = :extras WHERE id = :id'),
-                params)
+                migrate_engine.execute(
+                    text('''
+                    UPDATE resource
+                    SET extras = :extras
+                    WHERE id = :id'''),
+                    params)
     finally:
         datastore_engine.dispose()
