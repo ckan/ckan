@@ -200,8 +200,8 @@ def rebuild(package_id=None, only_missing=False, force=False, refresh=False,
                     defer_commit
                 )
             except Exception, e:
-                log.error('Error while indexing dataset %s: %s' %
-                          (pkg_id, str(e)))
+                log.error(u'Error while indexing dataset %s: %s' %
+                          (pkg_id, repr(e)))
                 if force:
                     log.error(text_traceback())
                     continue
