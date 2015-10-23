@@ -151,7 +151,9 @@ ckan.feeds.author_link =
 
 # Resource Proxy settings
 # Preview size limit, default: 1MB
-#ckan.resource_proxy.max_file_size = 1 * 1024 * 1024
+#ckan.resource_proxy.max_file_size = 1048576
+# Size of chunks to read/write.
+#ckan.resource_proxy.chunk_size = 4096
 
 ## Activity Streams Settings
 
