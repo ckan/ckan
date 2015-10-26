@@ -591,7 +591,8 @@ class PackageController(base.BaseController):
 
             context = {'model': model, 'session': model.Session,
                        'api_version': 3, 'for_edit': True,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                       'action': 'edit'}
 
             data['package_id'] = id
             try:
@@ -612,7 +613,8 @@ class PackageController(base.BaseController):
 
         context = {'model': model, 'session': model.Session,
                    'api_version': 3, 'for_edit': True,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'action': 'edit'}
         pkg_dict = get_action('package_show')(context, {'id': id})
         if pkg_dict['state'].startswith('draft'):
             # dataset has not yet been fully created
@@ -642,7 +644,7 @@ class PackageController(base.BaseController):
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary, 'action': 'new',
+                'error_summary': error_summary, 'action': 'edit',
                 'resource_form_snippet': self._resource_form(package_type),
                 'dataset_type':package_type}
         return render('package/resource_edit.html', extra_vars=vars)
