@@ -8,12 +8,12 @@ CKAN 2.5 requires |postgres| to be of version 9.2 or later (previously it was
 What are CKAN's |postgres| connection settings?
 ===============================================
 
-Find out the |postgres| connection settings, as used by CKAN and Datastore:
+Find out the |postgres| connection settings, as used by CKAN and Datastore::
 
    grep sqlalchemy.url |production.ini|
    grep ckan.datastore.write_url |production.ini|
 
-where the format of the connection strings is one of these:
+where the format of the connection strings is one of these::
 
    postgres://USERNAME:PASSWORD@HOST/DBNAME
    postgres://USERNAME:PASSWORD@HOST:PORT/DBNAME
@@ -29,19 +29,19 @@ where the format of the connection strings is one of these:
 What version are you running?
 =============================
 
-To ask |postgres| its version:
+To ask |postgres| its version::
 
     sudo -u postgres psql -c 'SHOW server_version;'
 
 Or if |postgres| is on a remote host then you can either run the command on
-that machine or if you have psql installed locally you can use:
+that machine or if you have psql installed locally you can use::
 
     psql --host=HOSTNAME --username=USERNAME -W -c 'SHOW server_version;'
 
 (replace `HOSTNAME` and `USERNAME` with the values from your connection
 settings, as previously mentioned. It will prompt you for the password).
 
-The version will look like this:
+The version will look like this::
 
     server_version
     ----------------
@@ -64,19 +64,12 @@ Upgrading
 
 .. note::
 
-   If you are running Ubuntu 12.04 (which defaults to |postgres| 9.1) then you
-   might consider moving to Ubuntu 14.04 (which defaults to |postgres| 9.3),
-   which has now become the official version for CKAN. However in most cases it is
-   fine just to upgrade |postgres|.
-
-.. note::
-
    These instructions are for Ubuntu, but can be adapted to other distributions.
 
 #. If the |postgres| cluster that ckan uses is not running on localhost then
    log-in to the |postgres| machine now.
 
-#. Check to see what |postgresql| packages are installed:
+#. Check to see what |postgres| packages are installed::
 
      aptitude search '~i postgres'
 
@@ -86,7 +79,7 @@ Upgrading
 
 #. Install the Postgres Apt repository, containing newer versions. This is for
    Ubuntu 12.04 (Precise) - for other versions and more information, refer to:
-   http://www.postgresql.org/download/linux/ubuntu/
+   http://www.postgresql.org/download/linux/ubuntu/ ::
 
      echo 'deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main' | sudo tee /etc/apt/sources.list.d/pgdg.list
      wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
@@ -95,25 +88,25 @@ Upgrading
 
    You should now see there are packages for postgresql-9.4 etc.
 
-#. Install the newer |postgres| version. It is suggested you pick the newest stable version (from those listed in the previous step). At the time of writing, 9.5 is listed but is actually still an alpha version, so instead we'll use 9.4:
+#. Install the newer |postgres| version. It is suggested you pick the newest stable version (from those listed in the previous step). At the time of writing, 9.5 is listed but is actually still an alpha version, so instead we'll use 9.4::
 
      sudo apt-get install postgresql-9.4
 
-   And if you need PostGIS:
+   And if you need PostGIS::
 
      sudo apt-get install postgresql-9.4-postgis
 
 #. If you have customized any |postgres| options, insert them into the new version's config files.
 
-   You can probably just copy the authentication rules straight:
+   You can probably just copy the authentication rules straight::
 
      sudo cp /etc/postgresql/9.1/main/pg_hba.conf /etc/postgresql/9.4/main/pg_hba.conf
 
-   And you should read through the differences in postgresql.conf. This is a handy way to do this whilst ignoring changes in the comment lines:
+   And you should read through the differences in postgresql.conf. This is a handy way to do this whilst ignoring changes in the comment lines::
 
      diff -u -B <(grep -vE '^\s*(#|$)' /etc/postgresql/9.1/main/postgresql.conf)  <(grep -vE '^\s*(#|$)' /etc/postgresql/9.4/main/postgresql.conf)
 
-   Once you've finished your changes, restart |postgres|:
+   Once you've finished your changes, restart both versions of |postgres|::
 
      sudo /etc/init.d/postgresql restart 9.4
 
@@ -129,88 +122,146 @@ Upgrading
     cd |virtualenv|/src/ckan
 
 #. Stop your server to prevent further writes to the database (because those
-   changes would be lost):
+   changes would be lost)::
 
      sudo service apache2 stop
 
-#. Create a back-up of the database roles:
+#. Create a back-up of the database roles::
 
-     sudo -u postgres pg_dumpall --roles-only -f postgres_roles.sql
+     sudo -u postgres pg_dumpall --roles-only > backup_roles.sql
 
-   or for a remote database:
+   or for a remote database::
 
-     pg_dumpall --host=HOSTNAME --username=USERNAME -W --roles-only -f postgres_roles.sql
+     pg_dumpall --host=HOSTNAME --username=USERNAME -W --roles-only -f backup_roles.sql
 
 #. Make a note of the names of all the databases in your |postgres| so that you
-can create dumps of them. List them using:
+   can create dumps of them. List them using::
 
      sudo -u postgres psql -l
 
-   or remotely:
+   or remotely::
 
      psql --host=HOSTNAME --username=USERNAME -W -l 
 
    The databases listed should comprise:
 
-     * CKAN database - as given in `sqlalchemy.url`. Default: `|database|`
-     * Datastore database - as given in `ckan.datastore.write_url`. Default: `|datastore|`
+     * CKAN database - as given in `sqlalchemy.url`. Default: '|database|'
+     * Datastore database - as given in `ckan.datastore.write_url`. Default: '|datastore|'
      * `template0` - should not be dumped
      * `template1` - you'll only need to dump this if you have edited it for some reason
 
    You may also have:
-     * Test CKAN database - default `|test_database|`
-     * Test Datastore database - default `|test_datastore|`
 
+     * Test CKAN database - default '|test_database|'
+     * Test Datastore database - default '|test_datastore|'
+
+   which do not need to be migrated - they will be regenerated later on.
    .. warning::
-    
+
      If you have other databases apart from these (or have created any
      |postgres| tablespaces) then you'll have to decide how to deal with them -
      they are outside the scope of this guide.
 
 #. Create the backups of the databases you are migrating e.g.:
 
-     sudo -u postgres pg_dump -Fc -b -v |database| -f postgres-ckan.sql
-     sudo -u postgres pg_dump -Fc -b -v |datastore| -f postgres-datastore.sql
-     sudo -u postgres pg_dump -Fc -b -v |test_database| -f postgres-test-ckan.sql
-     sudo -u postgres pg_dump -Fc -b -v |test_datastore| -f postgres-test-datastore.sql
+   .. parsed-literal::
+
+     sudo -u postgres pg_dump -Fc -b -v |database| > backup_ckan.sql
+     sudo -u postgres pg_dump -Fc -b -v |datastore| > backup_datastore.sql
 
    or remotely:
 
-     pg_dump --host=HOSTNAME --username=USERNAME -W |database| -f postgres-ckan.sql
-     pg_dump --host=HOSTNAME --username=USERNAME -W |datastore| -f postgres-datastore.sql
-     pg_dump --host=HOSTNAME --username=USERNAME -W |test_database| -f postgres-test-ckan.sql
-     pg_dump --host=HOSTNAME --username=USERNAME -W |test_datastore| -f postgres-test-datastore.sql
+   .. parsed-literal::
+
+     pg_dump --host=HOSTNAME --username=USERNAME -W |database| -f backup_ckan.sql
+     pg_dump --host=HOSTNAME --username=USERNAME -W |datastore| -f backup_datastore.sql
 
    You need to use the `-Fc -b` options because that is required by PostGIS migration.
 
-#. Update the PostGIS
+#. Update the PostGIS objects (known as a 'hard upgrade')::
 
-#. Restore your backups into the new cluster. If you're not upgrading to |postgres| 9.4, you'll need to change the number in this psql command and future ones too:
+     perl /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis_restore.pl backup_ckan.sql > backup_ckan_postgis.sql
+     perl /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis_restore.pl backup_datastore.sql > backup_datastore_postgis.sql
 
-     sudo -u postgres psql --cluster 9.4/main < my_ckan_databases.pg_dump
+#. Restore your |postgres| roles into the new |postgres| version cluster. If
+   you're not upgrading to |postgres| version 9.4, you'll need to change the
+   number in this psql command and future ones too. So::
 
-   .. note::
+     sudo -u postgres psql --cluster 9.4/main -f backup_roles.sql
 
-   If you get encoding errors like:``encoding "UTF8" does not match locale
-   "en_US"`` it is probably because the encoding of the new cluster is
-   different to the previous one. This can be seen when you use psql -l for
-   template0. You can usually solve it by deleting and recreate the new cluster
-   in UTF8 encoding, before retrying the restore:
+   Expect there will be one error::
 
-       sudo pg_dropcluster --stop 9.4 main
-       sudo pg_createcluster --start 9.4 main --locale=en_US.UTF-8
+     psql:backup_roles.sql:22: ERROR:  role "postgres" already exists
 
-   .. note::
+   which you can ignore - it should carry on regardless and finish ok.
 
-   If you get errors like ``could not access file "$libdir/postgis-1.5": No such file or directory``:
+#. Create the databases and enable PostGIS on them:
 
-       ???
+   .. parsed-literal::
 
-#. Once you are happy everything is running ok, you can delete your old |postgres| version's config and database files:
+        sudo -u postgres createdb --cluster 9.4/main |database|
+        sudo -u postgres createdb --cluster 9.4/main |datastore|
+        sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis.sql
+        sudo -u postgres psql --cluster 9.4/main -d |datastore| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/postgis.sql
+        sudo -u postgres psql --cluster 9.4/main -d |database| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/spatial_ref_sys.sql
+        sudo -u postgres psql --cluster 9.4/main -d |datastore| -f /usr/share/postgresql/9.4/contrib/postgis-2.1/spatial_ref_sys.sql
+        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
+        sudo -u postgres psql --cluster 9.4/main -d |datastore| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
+        sudo -u postgres psql --cluster 9.4/main -d |database| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
+        sudo -u postgres psql --cluster 9.4/main -d |datastore| -c 'ALTER TABLE geometry_columns OWNER TO ckan_default;'
+
+   Just check if PostGIS was properly installed on each database:
+
+   .. parsed-literal::
+
+        sudo -u postgres psql --cluster 9.4/main -d |database| -c "SELECT postgis_full_version()"
+        sudo -u postgres psql --cluster 9.4/main -d |datastore| -c "SELECT postgis_full_version()"
+
+#. Now restore your databases::
+
+     sudo -u postgres psql --cluster 9.4/main -f backup_ckan_postgis.sql
+     sudo -u postgres psql --cluster 9.4/main -f backup_datastore_postgis.sql
+
+   .. note:
+
+      If you get encoding errors like:``encoding "UTF8" does not match locale
+      "en_US"`` it is probably because the encoding of the new cluster is
+      different to the previous one. This can be seen when you use psql -l for
+      template0. You can usually solve it by deleting and recreate the new cluster
+      in UTF8 encoding, before retrying the restore::
+
+        sudo pg_dropcluster --stop 9.4 main
+        sudo pg_createcluster --start 9.4 main --locale=en_US.UTF-8
+
+   .. note:
+
+      If you get errors like ``could not access file "$libdir/postgis-1.5": No such file or directory``:
+
+        ???
+
+#. Tell CKAN to use the new |postgres| database by switching the |postgres| port number in the |production.ini|. First find the correct port::
+
+     sudo pg_lsclusters
+
+   It is likely that the old |postgres| is port 5432 and the new one is on 5433.
+
+   Now edit the |production.ini| to insert the port number into the `sqlalchemy.url`. e.g.:
+
+   .. parsed-literal::
+
+     sqlalchemy.url = postgresql://|database_user|:pass@localhost:5433/|database|
+
+   And restart CKAN e.g.::
+
+     |restart_apache|
+
+#. If you run the ckan tests then you should recreate the test databases, as described in :doc:`../../contributing/test`.
+
+#. Once you are happy everything is running ok, you can delete your old |postgres| version's config and database files::
 
      sudo apt-get purge postgresql-9.1
 
-   If you also have PostGIS install, remove that too:
+   If you also have PostGIS install, remove that too::
 
      sudo apt-get remove postgresql-9.1-postgis
 
