@@ -894,7 +894,7 @@ class ApiController(base.BaseController):
             if not request_data:
                 if not try_url_params:
                     msg = "Invalid request. Please use POST method" \
-                        "for your request"
+                        " for your request"
                     raise ValueError(msg)
                 else:
                     request_data = {}
