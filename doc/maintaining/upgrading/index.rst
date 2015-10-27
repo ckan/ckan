@@ -136,3 +136,4 @@ appropriate one of these documents:
     upgrade-package-to-patch-release
     upgrade-package-to-minor-release
     upgrade-source
+    upgrade-postgres
