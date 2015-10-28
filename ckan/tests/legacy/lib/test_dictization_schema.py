@@ -1,6 +1,7 @@
 from pprint import pprint, pformat
 
 from ckan.lib.create_test_data import CreateTestData
+from ckan.lib import search
 from ckan import model
 from ckan.lib.dictization.model_dictize import (package_dictize,
                                                 group_dictize)
@@ -18,6 +19,7 @@ class TestBasicDictize:
 
     @classmethod
     def setup_class(cls):
+        search.clear_all()
         CreateTestData.create()
 
     @classmethod

@@ -52,19 +52,19 @@ class TestSearchOverallWithSynchronousIndexing:
     @classmethod
     def teardown_class(cls):
         model.repo.rebuild_db()
-        search.clear()
+        search.clear_all()
 
     def setup(self):
         self._create_package()
-        
+
     def teardown(self):
         self._remove_package()
         self._remove_package(u'new_name')
-        
+
     def _create_package(self, package=None):
         CreateTestData.create_arbitrary(self.new_pkg_dict)
         return model.Package.by_name(self.new_pkg_dict['name'])
-    
+
     def _remove_package(self, name=None):
         package = model.Package.by_name(name or 'council-owned-litter-bins')
         if package:
@@ -84,7 +84,7 @@ class TestSearchOverallWithSynchronousIndexing:
         extra = model.PackageExtra(key='published_by', value='barrow')
         package._extras[extra.key] = extra
         model.repo.commit_and_remove()
-        
+
         check_search_results('', 3)
         check_search_results('barrow', 1, ['new_name'])
 
@@ -106,5 +106,5 @@ class TestSearchOverallWithSynchronousIndexing:
         rev = model.repo.new_revision()
         package.delete()
         model.repo.commit_and_remove()
-        
+
         check_search_results('', 2)

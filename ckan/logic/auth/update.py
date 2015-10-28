@@ -276,7 +276,7 @@ def send_email_notifications(context, data_dict):
 def package_update_rest(context, data_dict):
     model = context['model']
     user = context['user']
-    if user in (model.PSEUDO_USER__VISITOR, ''):
+    if not user:
         return {'success': False,
                 'msg': _('Valid API key needed to edit a package')}
 
@@ -286,7 +286,7 @@ def package_update_rest(context, data_dict):
 def group_update_rest(context, data_dict):
     model = context['model']
     user = context['user']
-    if user in (model.PSEUDO_USER__VISITOR, ''):
+    if not user:
         return {'success': False,
                 'msg': _('Valid API key needed to edit a group')}
 
@@ -326,3 +326,11 @@ def bulk_update_delete(context, data_dict):
     if not authorized:
         return {'success': False}
     return {'success': True}
+
+
+def config_option_update(context, data_dict):
+    '''Update the runtime-editable configuration options
+
+       Only sysdmins can do it
+    '''
+    return {'success': False}

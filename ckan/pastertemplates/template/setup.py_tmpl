@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from setuptools import setup, find_packages  # Always prefer setuptools over distutils
 from codecs import open  # To use a consistent encoding
 from os import path
@@ -79,6 +80,20 @@ setup(
     entry_points='''
         [ckan.plugins]
         {{ project_shortname }}=ckanext.{{ project_shortname }}.plugin:{{ plugin_class_name }}
+	[babel.extractors]
+	ckan = ckan.lib.extract:extract_ckan
     ''',
+
+    # If you are changing from the default layout of your extension, you may
+    # have to change the message extractors, you can read more about babel
+    # message extraction at
+    # http://babel.pocoo.org/docs/messages/#extraction-method-mapping-and-configuration
+    message_extractors={
+        'ckanext': [
+            ('**.py', 'python', None),
+            ('**.js', 'javascript', None),
+            ('**/templates/**.html', 'ckan', None),
+        ],
+    }
 )
 

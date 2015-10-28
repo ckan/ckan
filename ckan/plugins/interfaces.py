@@ -22,6 +22,8 @@ __all__ = [
     'ITemplateHelpers',
     'IFacets',
     'IAuthenticator',
+    'ITranslation',
+    'IUploader'
 ]
 
 from inspect import isclass
@@ -129,7 +131,9 @@ class IMapper(Interface):
 
     def before_delete(self, mapper, connection, instance):
         """
-        Receive an object instance before that instance is DELETEed.
+        Receive an object instance before that instance is PURGEd.
+        (whereas usually in ckan 'delete' means to change the state property to
+        deleted, so use before_update for that case.)
         """
 
     def after_insert(self, mapper, connection, instance):
@@ -144,7 +148,9 @@ class IMapper(Interface):
 
     def after_delete(self, mapper, connection, instance):
         """
-        Receive an object instance after that instance is DELETEed.
+        Receive an object instance after that instance is PURGEd.
+        (whereas usually in ckan 'delete' means to change the state property to
+        deleted, so use before_update for that case.)
         """
 
 
@@ -750,6 +756,32 @@ class IConfigurer(Interface):
         :param config: ``pylons.config`` object
         """
 
+    def update_config_schema(self, schema):
+        '''
+        Return a schema with the runtime-editable config options
+
+        CKAN will use the returned schema to decide which configuration options
+        can be edited during runtime (using
+        :py:func:`ckan.logic.action.update.config_option_update`) and to
+        validate them before storing them.
+
+        Defaults to
+        :py:func:`ckan.logic.schema.default_update_configuration_schema`, which
+        will be passed to all extensions implementing this method, which can
+        add or remove runtime-editable config options to it.
+
+        :param schema: a dictionary mapping runtime-editable configuration
+          option keys to lists
+          of validator and converter functions to be applied to those keys
+        :type schema: dictionary
+
+        :returns: a dictionary mapping runtime-editable configuration option
+          keys to lists of
+          validator and converter functions to be applied to those keys
+        :rtype: dictionary
+        '''
+        return schema
+
 
 class IActions(Interface):
     """
@@ -1030,13 +1062,11 @@ class IDatasetForm(Interface):
         The path should be relative to the plugin's templates dir, e.g.
         ``'package/read.html'``.
 
-        If the user requests the dataset in a format other than HTML
-        (CKAN supports returning datasets in RDF/XML or N3 format by appending
-        .rdf or .n3 to the dataset read URL, see
-        :doc:`/maintaining/linked-data-and-rdf`) then CKAN will try to render a
-        template file with the same path as returned by this function, but a
-        different filename extension, e.g. ``'package/read.rdf'``.  If your
-        extension doesn't have this RDF version of the template file, the user
+        If the user requests the dataset in a format other than HTML, then
+        CKAN will try to render a template file with the same path as returned
+        by this function, but a different filename extension,
+        e.g. ``'package/read.rdf'``.  If your extension (or another one)
+        does not provide this version of the template file, the user
         will get a 404 error.
 
         :rtype: string
@@ -1411,11 +1441,10 @@ class IAuthenticator(Interface):
     Allows custom authentication methods to be integrated into CKAN.
     Currently it is experimental and the interface may change.'''
 
-
     def identify(self):
         '''called to identify the user.
 
-        If the user is identfied then it should set
+        If the user is identified then it should set
         c.user: The id of the user
         c.userobj: The actual user object (this may be removed as a
         requirement in a later release so that access to the model is not
@@ -1432,3 +1461,96 @@ class IAuthenticator(Interface):
         '''called on abort.  This allows aborts due to authorization issues
         to be overriden'''
         return (status_code, detail, headers, comment)
+
+
+class ITranslation(Interface):
+    def i18n_directory(self):
+        '''Change the directory of the .mo translation files'''
+
+    def i18n_locales(self):
+        '''Change the list of locales that this plugin handles '''
+
+    def i18n_domain(self):
+        '''Change the gettext domain handled by this plugin'''
+
+
+class IUploader(Interface):
+    '''
+    Extensions implementing this interface can provide custom uploaders to
+    upload resources and group images.
+    '''
+
+    def get_uploader(self):
+        '''Return an uploader object to upload general files that must
+        implement the following methods:
+
+        ``__init__(upload_to, old_filename=None)``
+
+        Set up the uploader.
+
+        :param upload_to: name of the subdirectory within the storage
+            directory to upload the file
+        :type upload_to: string
+
+        :param old_filename: name of an existing image asset, so the extension
+            can replace it if necessary
+        :type old_filename: string
+
+        ``update_data_dict(data_dict, url_field, file_field, clear_field)``
+
+        Allow the data_dict to be manipulated before it reaches any
+        validators.
+
+        :param data_dict: data_dict to be updated
+        :type data_dict: dictionary
+
+        :param url_field: name of the field where the upload is going to be
+        :type url_field: string
+
+        :param file_field: name of the key where the FieldStorage is kept (i.e
+            the field where the file data actually is).
+        :type file_field: string
+
+        :param clear_field: name of a boolean field which requests the upload
+            to be deleted.
+        :type clear_field: string
+
+        ``upload(max_size)``
+
+        Perform the actual upload.
+
+        :param max_size: upload size can be limited by this value in MBs.
+        :type max_size: int
+
+        '''
+
+    def get_resource_uploader(self):
+        '''Return an uploader object used to upload resource files that must
+        implement the following methods:
+
+        ``__init__(resource)``
+
+        Set up the resource uploader.
+
+        :param resource: resource dict
+        :type resource: dictionary
+
+        ``upload(id, max_size)``
+
+        Perform the actual upload.
+
+        :param id: resource id, can be used to create filepath
+        :type id: string
+
+        :param max_size: upload size can be limited by this value in MBs.
+        :type max_size: int
+
+        ``get_path(id)``
+
+        Required by the ``resource_download`` action to determine the path to
+        the file.
+
+        :param id: resource id
+        :type id: string
+
+        '''

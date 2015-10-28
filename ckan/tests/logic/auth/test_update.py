@@ -13,6 +13,7 @@ import ckan.tests.factories as factories
 
 
 assert_equals = nose.tools.assert_equals
+assert_raises = nose.tools.assert_raises
 
 
 class TestUpdate(object):
@@ -263,3 +264,30 @@ class TestUpdateResourceViews(object):
         nose.tools.assert_raises(logic.NotAuthorized, helpers.call_auth,
                                  'resource_view_update', context=context,
                                  **params)
+
+
+class TestConfigOptionUpdateAuth(object):
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_config_option_update_anon_user(self):
+        '''An anon user is not authorized to use config_option_update
+        action.'''
+        context = {'user': None, 'model': None}
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'config_option_update', context=context)
+
+    def test_config_option_update_normal_user(self):
+        '''A normal logged in user is not authorized to use config_option_update
+        action.'''
+        factories.User(name='fred')
+        context = {'user': 'fred', 'model': None}
+        assert_raises(logic.NotAuthorized, helpers.call_auth,
+                      'config_option_update', context=context)
+
+    def test_config_option_update_sysadmin(self):
+        '''A sysadmin is authorized to use config_option_update action.'''
+        factories.Sysadmin(name='fred')
+        context = {'user': 'fred', 'model': None}
+        assert helpers.call_auth('config_option_update', context=context)
