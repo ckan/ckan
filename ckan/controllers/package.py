@@ -644,7 +644,7 @@ class PackageController(base.BaseController):
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary, 'action': 'new',
+                'error_summary': error_summary, 'action': 'edit',
                 'resource_form_snippet': self._resource_form(package_type),
                 'dataset_type': package_type}
         return render('package/resource_edit.html', extra_vars=vars)
