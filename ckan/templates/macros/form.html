@@ -71,7 +71,7 @@ name        - The name of the form parameter.
 id          - The id to use on the input and label. Convention is to prefix with 'field-'.
 label       - The human readable label.
 options     - A list/tuple of fields to be used as <options>.
-selected    - The value of the selected <option>.
+selected    - The value(s) of the selected <option>s. A list of strings for multiple selected <option>s.
 error       - A list of error strings for the field or just true to highlight the field.
 classes     - An array of classes to apply to the control-group.
 is_required - Boolean of whether this input is requred for the form to validate
@@ -85,12 +85,13 @@ Examples:
 {% macro select(name, id='', label='', options='', selected='', error='', classes=[], attrs={}, is_required=false) %}
   {% set classes = (classes|list) %}
   {% do classes.append('control-select') %}
+  {% if selected is string %}{% set selected = [selected] %}{% endif %}
 
   {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error, classes, extra_html=extra_html, is_required=is_required) %}
     <select id="{{ id or name }}" name="{{ name }}" {{ attributes(attrs) }}>
       {% for option in options %}
-        <option value="{{ option.value }}"{% if option.value in selected %} selected{% endif %}>{{ option.text or option.value }}</option>
+        <option value="{{ option.value }}"{% if option.value in selected %} selected="selected"{% endif %}>{{ option.text or option.value }}</option>
       {% endfor %}
     </select>
   {% endcall %}
