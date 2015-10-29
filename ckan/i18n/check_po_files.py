@@ -112,4 +112,4 @@ class CheckPoFiles(paste.script.command.Command):
                         replacement_fields):
                     if not function(entry.msgid) == function(entry.msgstr):
                         print "    Format specifiers don't match:"
-                        print u'    {0} -> {1}'.format(entry.msgid, entry.msgstr)
+                        print u'    {0} -> {1}'.format(entry.msgid, entry.msgstr).encode('latin7', 'ignore')
