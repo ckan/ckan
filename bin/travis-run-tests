@@ -1,9 +1,9 @@
 #!/bin/sh
 
 # Configure Solr
-echo "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | sudo tee /etc/default/jetty
-sudo cp ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
-sudo service jetty restart
+echo "NO_START=0\nJETTY_HOST=127.0.0.1\nJETTY_PORT=8983\nJAVA_HOME=$JAVA_HOME" | tee /etc/default/jetty
+cp ckan/config/solr/schema.xml /etc/solr/conf/schema.xml
+service jetty restart
 
 # Run mocha front-end tests
 # We need ckan to be running for some tests
@@ -20,7 +20,7 @@ nosetests --ckan --reset-db --with-pylons=test-core.ini --nologcapture --with-co
 # Did an error occur?
 NOSE_ERROR=$?
 
-[ "0" -ne "$MOCHA_ERROR" ] && echo MOCKA tests have failed
+[ "0" -ne "$MOCHA_ERROR" ] && echo MOCHA tests have failed
 [ "0" -ne "$NOSE_ERROR" ] && echo NOSE tests have failed
 
 # If an error occurred in our tests make sure travis knows
