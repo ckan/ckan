@@ -893,7 +893,8 @@ class ApiController(base.BaseController):
             cls.log.debug('Retrieved request body: %r', request.body)
             if not request_data:
                 if not try_url_params:
-                    msg = "No request body data"
+                    msg = "Invalid request. Please use POST method" \
+                        " for your request"
                     raise ValueError(msg)
                 else:
                     request_data = {}
