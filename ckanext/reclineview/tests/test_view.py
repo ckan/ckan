@@ -1,3 +1,4 @@
+import nose
 import paste.fixture
 import pylons.config as config
 
@@ -10,6 +11,7 @@ import ckan.lib.create_test_data as create_test_data
 import ckan.config.middleware as middleware
 
 from ckan.tests import helpers, factories
+from ckanext.datastore.tests.helpers import should_skip_test_for_legacy
 
 
 class BaseTestReclineViewBase(tests.WsgiAppCase):
@@ -84,6 +86,9 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
 
     @classmethod
     def setup_class(cls):
+        if should_skip_test_for_legacy():
+            raise nose.SkipTest("SQL tests are not supported in legacy mode")
+
         if not p.plugin_loaded('recline_view'):
             p.load('recline_view')
         if not p.plugin_loaded('datastore'):
