@@ -1961,15 +1961,16 @@ def package_search(context, data_dict):
         'sort': data_dict['sort']
     }
 
-    # Group keys will contain all the names of the orgs and groups in the facets
-    group_keys = []
-    for key, value in facets.items():
-        if key in ('groups', 'organization'):
-            group_keys.extend(value.keys())
+    # create a lookup table of group name to title for all the groups and
+    # organizations in the current search's facets.
+    group_names = []
+    for field_name in ('groups', 'organization'):
+        group_names.extend(facets.get(field_name, {}).keys())
 
-    #Querying just for the columns we're interested in: name and title
-    groups = session.query(model.Group.name, model.Group.title).filter(model.Group.name.in_(group_keys)).all()
-    group_display_names = dict((g.name, g.title) for g in groups)
+    groups = session.query(model.Group.name, model.Group.title) \
+                    .filter(model.Group.name.in_(group_names)) \
+                    .all()
+    group_titles_by_name = dict(groups)
 
     # Transform facets into a more useful data structure.
     restructured_facets = {}
@@ -1982,7 +1983,7 @@ def package_search(context, data_dict):
             new_facet_dict = {}
             new_facet_dict['name'] = key_
             if key in ('groups', 'organization'):
-                display_name = group_display_names.get(key_, key_)
+                display_name = group_titles_by_name.get(key_, key_)
                 display_name = display_name if display_name and display_name.strip() else key_
                 new_facet_dict['display_name'] = display_name
             elif key == 'license_id':
