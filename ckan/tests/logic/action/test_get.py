@@ -877,7 +877,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         # depending on the solr version.
 
     def test_facets(self):
-        org = factories.Organization()
+        org = factories.Organization(name='test-org-facet', title='Test Org')
         factories.Dataset(owner_org=org['id'])
         factories.Dataset(owner_org=org['id'])
 
@@ -887,13 +887,13 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         eq(search_result['count'], 2)
         eq(search_result['search_facets'],
            {'organization': {'items': [{'count': 2,
-                                        'display_name': u'Test Organization',
-                                        'name': 'test_org_0'}],
+                                        'display_name': u'Test Org',
+                                        'name': 'test-org-facet'}],
                              'title': 'organization'}})
 
     def test_facet_limit(self):
-        group1 = factories.Group()
-        group2 = factories.Group()
+        group1 = factories.Group(name='test-group-fl1', title='Test Group 1')
+        group2 = factories.Group(name='test-group-fl2', title='Test Group 2')
         factories.Dataset(groups=[{'name': group1['name']},
                                   {'name': group2['name']}])
         factories.Dataset(groups=[{'name': group1['name']}])
@@ -906,8 +906,8 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         eq(len(search_result['search_facets']['groups']['items']), 1)
         eq(search_result['search_facets'],
            {'groups': {'items': [{'count': 2,
-                                  'display_name': u'Test Group 0',
-                                  'name': 'test_group_0'}],
+                                  'display_name': u'Test Group 1',
+                                  'name': 'test-group-fl1'}],
                        'title': 'groups'}})
 
     def test_facet_no_limit(self):
