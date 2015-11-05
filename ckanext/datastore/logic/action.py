@@ -143,12 +143,8 @@ def datastore_create(context, data_dict):
         raise p.toolkit.ValidationError(str(err))
 
     # Set the datastore_active flag on the resource if necessary
-    if not resource_dict:
-        resource_dict = p.toolkit.get_action('resource_show')(
-            context, {'id': data_dict['resource_id']})
-    if not resource_dict.get('datastore_active'):
-        resource_dict['datastore_active'] = True
-        p.toolkit.get_action('resource_update')(context, resource_dict)
+    p.toolkit.get_action('resource_patch')(
+        context, {'id': data_dict['resource_id'], 'datastore_active': True})
 
     result.pop('id', None)
     result.pop('private', None)
@@ -340,10 +336,8 @@ def datastore_delete(context, data_dict):
 
     # Set the datastore_active flag on the resource if necessary
     if not data_dict.get('filters'):
-        resource_dict = p.toolkit.get_action('resource_show')(
-            context, {'id': data_dict['resource_id']})
-        resource_dict['datastore_active'] = False
-        p.toolkit.get_action('resource_update')(context, resource_dict)
+        p.toolkit.get_action('resource_patch')(
+            context, {'id': data_dict['resource_id'], 'datastore_active': False})
 
     result.pop('id', None)
     result.pop('connection_url')
