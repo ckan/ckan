@@ -5,6 +5,7 @@ import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.logic.schema as schema
+from ckan.lib.search.common import SearchError
 
 
 eq = nose.tools.eq_
@@ -843,12 +844,103 @@ class TestPackageAutocomplete(helpers.FunctionalTestBase):
 
 class TestPackageSearch(helpers.FunctionalTestBase):
 
+    def test_search(self):
+        factories.Dataset(title='Rivers')
+        factories.Dataset(title='Lakes')  # decoy
+
+        search_result = helpers.call_action('package_search', q='rivers')
+
+        eq(search_result['results'][0]['title'], 'Rivers')
+        eq(search_result['count'], 1)
+
+    def test_search_all(self):
+        factories.Dataset(title='Rivers')
+        factories.Dataset(title='Lakes')
+
+        search_result = helpers.call_action('package_search')  # no q
+
+        eq(search_result['count'], 2)
+
+    def test_bad_action_parameter(self):
+        nose.tools.assert_raises(
+            SearchError,
+            helpers.call_action,
+            'package_search', weird_param=1)
+
+    def test_bad_solr_parameter(self):
+        nose.tools.assert_raises(
+            SearchError,
+            helpers.call_action,
+            'package_search', sort='metadata_modified')
+            # SOLR doesn't like that we didn't specify 'asc' or 'desc'
+        # SOLR error is 'Missing sort order' or 'Missing_sort_order',
+        # depending on the solr version.
+
+    def test_facets(self):
+        org = factories.Organization(name='test-org-facet', title='Test Org')
+        factories.Dataset(owner_org=org['id'])
+        factories.Dataset(owner_org=org['id'])
+
+        data_dict = {'facet.field': ['organization']}
+        search_result = helpers.call_action('package_search', **data_dict)
+
+        eq(search_result['count'], 2)
+        eq(search_result['search_facets'],
+           {'organization': {'items': [{'count': 2,
+                                        'display_name': u'Test Org',
+                                        'name': 'test-org-facet'}],
+                             'title': 'organization'}})
+
+    def test_facet_limit(self):
+        group1 = factories.Group(name='test-group-fl1', title='Test Group 1')
+        group2 = factories.Group(name='test-group-fl2', title='Test Group 2')
+        factories.Dataset(groups=[{'name': group1['name']},
+                                  {'name': group2['name']}])
+        factories.Dataset(groups=[{'name': group1['name']}])
+        factories.Dataset()
+
+        data_dict = {'facet.field': ['groups'],
+                     'facet.limit': 1}
+        search_result = helpers.call_action('package_search', **data_dict)
+
+        eq(len(search_result['search_facets']['groups']['items']), 1)
+        eq(search_result['search_facets'],
+           {'groups': {'items': [{'count': 2,
+                                  'display_name': u'Test Group 1',
+                                  'name': 'test-group-fl1'}],
+                       'title': 'groups'}})
+
+    def test_facet_no_limit(self):
+        group1 = factories.Group()
+        group2 = factories.Group()
+        factories.Dataset(groups=[{'name': group1['name']},
+                                  {'name': group2['name']}])
+        factories.Dataset(groups=[{'name': group1['name']}])
+        factories.Dataset()
+
+        data_dict = {'facet.field': ['groups'],
+                     'facet.limit': -1}  # no limit
+        search_result = helpers.call_action('package_search', **data_dict)
+
+        eq(len(search_result['search_facets']['groups']['items']), 2)
+
+    def test_sort(self):
+        factories.Dataset(name='test0')
+        factories.Dataset(name='test1')
+        factories.Dataset(name='test2')
+
+        search_result = helpers.call_action('package_search',
+                                            sort='metadata_created desc')
+
+        result_names = [result['name'] for result in search_result['results']]
+        eq(result_names, [u'test2', u'test1', u'test0'])
+
     def test_package_search_on_resource_name(self):
         '''
         package_search() should allow searching on resource name field.
         '''
         resource_name = 'resource_abc'
-        package = factories.Resource(name=resource_name)
+        factories.Resource(name=resource_name)
 
         search_result = helpers.call_action('package_search', q='resource_abc')
         eq(search_result['results'][0]['resources'][0]['name'], resource_name)
