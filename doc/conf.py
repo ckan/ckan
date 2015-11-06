@@ -66,6 +66,7 @@ rst_epilog = '''
 .. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan
 .. |reload_nginx| replace:: sudo service nginx reload
 .. |jquery| replace:: jQuery
+.. |nodejs| replace:: Node.js
 
 .. _Jinja2: http://jinja.pocoo.org/
 .. _CKAN front page: http://127.0.0.1:5000
