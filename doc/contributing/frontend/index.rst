@@ -43,7 +43,7 @@ package::
 
         sudo apt-get install npm
 
-    For more information, refer to the |nodejs| `website
+    For more information, refer to the |nodejs| `instructions
     <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>`_.
 
 Less can then be installed via the node package manager (npm).
