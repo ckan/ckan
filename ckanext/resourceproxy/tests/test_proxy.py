@@ -63,7 +63,6 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
                 and p.plugin_loaded('synchronous_search')):
             p.unload('synchronous_search')
 
-
     @classmethod
     def teardown_class(cls):
         config.clear()
@@ -73,7 +72,6 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         if (sys.version_info[0] == 2 and sys.version_info[1] == 6
                 and not p.plugin_loaded('synchronous_search')):
             p.load('synchronous_search')
-
 
     def setUp(self):
         self.url = 'http://www.ckan.org/static/example.json'
