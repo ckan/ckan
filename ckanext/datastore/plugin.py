@@ -282,21 +282,9 @@ class DatastorePlugin(p.SingletonPlugin):
                 controller='ckanext.datastore.controller:DatastoreController',
                 action='dump', resource_id=resource_dict['id'])
 
-        connection = None
+        if 'datastore_active' not in resource_dict:
+            resource_dict[u'datastore_active'] = False
 
-        resource_dict['datastore_active'] = False
-
-        try:
-            connection = self.read_engine.connect()
-            result = connection.execute(
-                'SELECT 1 FROM "_table_metadata" WHERE name = %s AND alias_of IS NULL',
-                resource_dict['id']
-            ).fetchone()
-            if result:
-                resource_dict['datastore_active'] = True
-        finally:
-            if connection:
-                connection.close()
         return resource_dict
 
     def datastore_validate(self, context, data_dict, fields_types):
