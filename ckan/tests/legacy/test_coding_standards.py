@@ -317,7 +317,6 @@ class TestImportStar(object):
         'ckan/tests/legacy/models/test_revision.py',
         'ckan/tests/legacy/models/test_user.py',
         'ckan/tests/legacy/pylons_controller.py',
-        'ckan/tests/legacy/test_dumper.py',
         'fabfile.py',
     ]
     fails = {}
@@ -392,7 +391,6 @@ class TestPep8(object):
         'ckan/lib/dictization/__init__.py',
         'ckan/lib/dictization/model_dictize.py',
         'ckan/lib/dictization/model_save.py',
-        'ckan/lib/dumper.py',
         'ckan/lib/email_notifications.py',
         'ckan/lib/extract.py',
         'ckan/lib/fanstatic_extensions.py',
@@ -611,7 +609,6 @@ class TestPep8(object):
         'ckan/tests/legacy/monkey.py',
         'ckan/tests/legacy/pylons_controller.py',
         'ckan/tests/legacy/schema/test_schema.py',
-        'ckan/tests/legacy/test_dumper.py',
         'ckan/tests/legacy/test_plugins.py',
         'ckan/tests/legacy/test_versions.py',
         'ckan/websetup.py',
