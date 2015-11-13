@@ -65,7 +65,7 @@ class CsvWriter:
     def _add_row_dict(self, row_dict):
         row = []
         for title in self._col_titles:
-            if 'title' in row_dict:
+            if title in row_dict:
                 if isinstance(row_dict[title], int):
                     row.append(row_dict[title])
                 elif isinstance(row_dict[title], unicode):
