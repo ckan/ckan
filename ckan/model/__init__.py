@@ -136,6 +136,7 @@ from domain_object import (
 from dashboard import (
     Dashboard,
 )
+from db_disconnect_mitigation import ping_connection
 
 import ckan.migration
 
