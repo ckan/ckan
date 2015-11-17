@@ -1,6 +1,7 @@
 import json
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
+from sqlalchemy.exc import SQLAlchemyError
 from pylons import config
 
 
@@ -12,11 +13,20 @@ def upgrade(migrate_engine):
     if not datastore_connection_url:
         return
 
-    datastore_engine = create_engine(datastore_connection_url)
+    try:
+        datastore_engine = create_engine(datastore_connection_url)
+    except SQLAlchemyError:
+        return
+
+    try:
+        datastore_connection = datastore_engine.connect()
+    except SQLAlchemyError:
+        datastore_engine.dispose()
+        return
 
     try:
 
-        resources_in_datastore = datastore_engine.execute('''
+        resources_in_datastore = datastore_connection.execute('''
             SELECT table_name
             FROM information_schema.tables
             WHERE table_schema = 'public'
@@ -51,4 +61,5 @@ def upgrade(migrate_engine):
                     WHERE id = :id'''),
                     params)
     finally:
+        datastore_connection.close()
         datastore_engine.dispose()
