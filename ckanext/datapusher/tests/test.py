@@ -47,11 +47,10 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
-        # Httpretty crashes with Solr on Python 2.6, disable the automatic
-        # Solr indexing
-        if (sys.version_info[0] == 2 and sys.version_info[1] == 6
-                and p.plugin_loaded('synchronous_search')):
-            p.unload('synchronous_search')
+        # Httpretty crashes with Solr on Python 2.6,
+        # skip the tests
+        if (sys.version_info[0] == 2 and sys.version_info[1] == 6):
+            raise nose.SkipTest()
 
     @classmethod
     def teardown_class(cls):

@@ -3,6 +3,7 @@ import requests
 import unittest
 import json
 import httpretty
+import nose
 
 import paste.fixture
 from pylons import config
@@ -57,11 +58,10 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
         wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         create_test_data.CreateTestData.create()
-        # Httpretty crashes with Solr on Python 2.6, disable the automatic
-        # Solr indexing
-        if (sys.version_info[0] == 2 and sys.version_info[1] == 6
-                and p.plugin_loaded('synchronous_search')):
-            p.unload('synchronous_search')
+        # Httpretty crashes with Solr on Python 2.6,
+        # skip the tests
+        if (sys.version_info[0] == 2 and sys.version_info[1] == 6):
+            raise nose.SkipTest()
 
     @classmethod
     def teardown_class(cls):
