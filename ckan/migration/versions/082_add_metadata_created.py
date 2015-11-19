@@ -3,8 +3,7 @@ def upgrade(migrate_engine):
         ALTER TABLE package_revision
             ADD COLUMN metadata_created timestamp without time zone;
         ALTER TABLE package
-            ADD COLUMN metadata_created timestamp without time zone
-            DEFAULT now();
+            ADD COLUMN metadata_created timestamp without time zone;
 
         UPDATE package SET metadata_created=
             (SELECT revision_timestamp
