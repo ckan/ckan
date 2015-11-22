@@ -118,7 +118,7 @@ Examples:
 {% macro markdown(name, id='', label='', value='', placeholder='', error="", classes=[], attrs={}, is_required=false) %}
   {% set classes = (classes|list) %}
   {% do classes.append('control-full') %}
-  {% set markdown_tooltip = "<pre><p>__Bold text__ or _italic text_</p><p># title<br>## secondary title<br>### etc</p><p>* list<br>* of<br>* items</p><p>http://auto.link.ed/</p></pre><p><b><a href='http://daringfireball.net/projects/markdown/syntax' target='_blank'>Full markdown syntax</a></b></p><p class='muted'><b>Please note:</b> HTML tags are stripped out for security reasons</p>" %} 
+  {% set markdown_tooltip = "<pre><p>__Bold text__ or _italic text_</p><p># title<br>## secondary title<br>### etc</p><p>* list<br>* of<br>* items</p><p>http://auto.link.ed/</p></pre><p><b><a href='http://daringfireball.net/projects/markdown/syntax' target='_blank'>Full markdown syntax</a></b></p><p class='muted'><b>Please note:</b> HTML tags are stripped out for security reasons</p>" %}
 
   {%- set extra_html = caller() if caller -%}
   {% call input_block(id or name, label or name, error, classes, control_classes=["editor"], extra_html=extra_html, is_required=is_required) %}
@@ -236,6 +236,37 @@ Examples:
         </label>
       {% endif %}
     </div>
+  {% endcall %}
+{% endmacro %}
+
+{% macro custom_org(names=(), id="", label="", values=(), placeholders=(), error="", classes=[], attrs={}, is_required=false, key_values=()) %}
+  {%- set classes = (classes|list) -%}
+  {%- set label_id = (id or names[0]) ~ "-key" -%}
+  {%- set extra_html = caller() if caller -%}
+  {%- do classes.append('control-custom') -%}
+
+  {% call input_block(label_id, label or name, error, classes, control_classes=["editor"], extra_html=extra_html, is_required=is_required) %}
+    <div class="input-prepend" {{ attributes(attrs) }}>
+      <label for="{{ label_id }}" class="add-on">Key</label><input id="{{ id or names[0] }}-key" type="text" name="{{ names[0] }}" value="{{ values[0] | empty_and_escape }}" placeholder="{{ placeholders[0] }}" />
+      <label for="{{ id or names[1] }}-value" class="add-on">Value</label><input id="{{ id or names[1] }}-value" type="text" name="{{ names[1] }}" value="{{ values[1] | empty_and_escape }}" placeholder="{{ placeholders[1] }}" />
+      {% if values[0] or values[1] or error %}
+        <label class="checkbox" for="{{ id or names[2] }}-remove">
+          <input type="checkbox" id="{{ id or names[2] }}-remove" name="{{ names[2] }}"{% if values[2] %} checked{% endif %} style="display:none;" /> <span id="{{ id or names[2] }}-remove-button" class="btn btn-default btn-primary" onclick="organization_remove_custom(event)">{{ _('Remove') }}</span>
+        </label>
+      {% endif %}
+    </div>
+    <script type="text/javascript">
+      function organization_remove_custom(event) {
+        var removeButtonId = event.target.id;
+        var baseId = removeButtonId.split('-');
+        baseId.splice(-2,2)
+        baseId = baseId.join('-');
+        var keyField = document.getElementById(baseId + '-key');
+        keyField.value = '';
+        var valueField = document.getElementById(baseId + '-value');
+        valueField.value = '';
+      }
+    </script>
   {% endcall %}
 {% endmacro %}
 

@@ -507,6 +507,16 @@ def _group_or_org_update(context, data_dict, is_org=False):
     session = context['session']
     id = _get_or_bust(data_dict, 'id')
 
+    #Wipe out empty and "deleted" extras
+    _extras = []
+    for _extra in data_dict['extras']:
+        deleted = _extra.get('deleted', None)
+        if _extra['value'] == '' or _extra['key'] == '' or deleted == 'on':
+            pass
+        else:
+            _extras.append(_extra)
+    data_dict['extras'] = _extras
+
     group = model.Group.get(id)
     context["group"] = group
     if group is None:
