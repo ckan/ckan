@@ -29,7 +29,7 @@
   {% block custom_fields %}
     {% for extra in data.extras %}
       {% set prefix = 'extras__%d__' % loop.index0 %}
-      {{ form.custom(
+      {{ form.custom_org(
         names=(prefix ~ 'key', prefix ~ 'value', prefix ~ 'deleted'),
         id='field-extras-%d' % loop.index,
         label=_('Custom Field'),

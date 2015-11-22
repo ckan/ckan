@@ -420,6 +420,10 @@ def group_dict_save(group_dict, context, prevent_packages_update=False):
         for key in new_extras:
             group.extras[key] = extras[key]
 
+    #necessary to wipe extras completely
+    if extras == {}:
+        group.extras = {}
+
     # We will get a list of packages that we have either added or
     # removed from the group, and trigger a re-index.
     package_ids = pkgs_edited['removed']
