@@ -1,4 +1,4 @@
-from nose.tools import assert_equal
+from nose import tools as nose_tools
 
 from ckan.lib.munge import (munge_filename_legacy, munge_filename, munge_name,
                             munge_title_to_name, munge_tag)
@@ -27,15 +27,15 @@ class TestMungeFilenameLegacy(object):
         '''Munge a list of filenames gives expected results.'''
         for org, exp in self.munge_list:
             munge = munge_filename_legacy(org)
-            assert_equal(munge, exp)
+            nose_tools.assert_equal(munge, exp)
 
     def test_munge_filename_multiple_pass(self):
         '''Munging filename multiple times produces same result.'''
         for org, exp in self.munge_list:
             first_munge = munge_filename_legacy(org)
-            assert_equal(first_munge, exp)
+            nose_tools.assert_equal(first_munge, exp)
             second_munge = munge_filename_legacy(first_munge)
-            assert_equal(second_munge, exp)
+            nose_tools.assert_equal(second_munge, exp)
 
 
 class TestMungeFilename(object):
@@ -61,15 +61,15 @@ class TestMungeFilename(object):
         '''Munge a list of filenames gives expected results.'''
         for org, exp in self.munge_list:
             munge = munge_filename(org)
-            assert_equal(munge, exp)
+            nose_tools.assert_equal(munge, exp)
 
     def test_munge_filename_multiple_pass(self):
         '''Munging filename multiple times produces same result.'''
         for org, exp in self.munge_list:
             first_munge = munge_filename(org)
-            assert_equal(first_munge, exp)
+            nose_tools.assert_equal(first_munge, exp)
             second_munge = munge_filename(first_munge)
-            assert_equal(second_munge, exp)
+            nose_tools.assert_equal(second_munge, exp)
 
 
 class TestMungeName(object):
@@ -88,15 +88,15 @@ class TestMungeName(object):
         '''Munge a list of names gives expected results.'''
         for org, exp in self.munge_list:
             munge = munge_name(org)
-            assert_equal(munge, exp)
+            nose_tools.assert_equal(munge, exp)
 
     def test_munge_name_multiple_pass(self):
         '''Munging name multiple times produces same result.'''
         for org, exp in self.munge_list:
             first_munge = munge_name(org)
-            assert_equal(first_munge, exp)
+            nose_tools.assert_equal(first_munge, exp)
             second_munge = munge_name(first_munge)
-            assert_equal(second_munge, exp)
+            nose_tools.assert_equal(second_munge, exp)
 
 
 class TestMungeTitleToName(object):
@@ -118,7 +118,7 @@ class TestMungeTitleToName(object):
         '''Munge a list of names gives expected results.'''
         for org, exp in self.munge_list:
             munge = munge_title_to_name(org)
-            assert_equal(munge, exp)
+            nose_tools.assert_equal(munge, exp)
 
 
 class TestMungeTag:
@@ -136,12 +136,12 @@ class TestMungeTag:
         '''Munge a list of tags gives expected results.'''
         for org, exp in self.munge_list:
             munge = munge_tag(org)
-            assert_equal(munge, exp)
+            nose_tools.assert_equal(munge, exp)
 
     def test_munge_tag_multiple_pass(self):
         '''Munge a list of tags muliple times gives expected results.'''
         for org, exp in self.munge_list:
             first_munge = munge_tag(org)
-            assert_equal(first_munge, exp)
+            nose_tools.assert_equal(first_munge, exp)
             second_munge = munge_tag(first_munge)
-            assert_equal(second_munge, exp)
+            nose_tools.assert_equal(second_munge, exp)
