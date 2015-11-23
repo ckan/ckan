@@ -4,6 +4,8 @@ from paste.deploy.converters import asbool
 import logging
 
 logger = logging.getLogger(__name__)
+# Suppress noisy debug log normally. Enable it only if working on this feature.
+logger.setLevel(logging.WARN)
 
 
 def activity_stream_item(obj, activity_type, revision, user_id):
