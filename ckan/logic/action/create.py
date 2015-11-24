@@ -1016,6 +1016,10 @@ def user_create(context, data_dict):
         session.rollback()
         raise ValidationError(errors)
 
+    # user schema prevents non-sysadmins from providing password_hash
+    if 'password_hash' in data:
+        data['_password'] = data.pop('password_hash')
+
     user = model_save.user_dict_save(data, context)
 
     # Flush the session to cause user.id to be initialised, because

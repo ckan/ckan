@@ -1479,8 +1479,11 @@ def user_show(context, data_dict):
         (optional, default:``False``, limit:50)
     :type include_datasets: boolean
     :param include_num_followers: Include the number of followers the user has
-         (optional, default:``False``)
+        (optional, default:``False``)
     :type include_num_followers: boolean
+    :param include_password_hash: Include the stored password hash
+        (sysadmin only, optional, default:``False``)
+    :type include_password_hash: boolean
 
     :returns: the details of the user. Includes email_hash, number_of_edits and
         number_created_packages (which excludes draft or private datasets
@@ -1508,24 +1511,29 @@ def user_show(context, data_dict):
 
     # include private and draft datasets?
     requester = context.get('user')
+    sysadmin = False
     if requester:
+        sysadmin = authz.is_sysadmin(requester)
         requester_looking_at_own_account = requester == user_obj.name
-        include_private_and_draft_datasets = \
-            authz.is_sysadmin(requester) or \
-            requester_looking_at_own_account
+        include_private_and_draft_datasets = (
+            sysadmin or requester_looking_at_own_account)
     else:
         include_private_and_draft_datasets = False
     context['count_private_and_draft_datasets'] = \
         include_private_and_draft_datasets
 
-    user_dict = model_dictize.user_dictize(user_obj, context)
+    include_password_hash = sysadmin and asbool(
+        data_dict.get('include_password_hash', False))
+
+    user_dict = model_dictize.user_dictize(
+        user_obj, context, include_password_hash)
 
     if context.get('return_minimal'):
         log.warning('Use of the "return_minimal" in user_show is '
                     'deprecated.')
         return user_dict
 
-    if data_dict.get('include_datasets', False):
+    if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []
 
         fq = "+creator_user_id:{0}".format(user_dict['id'])
@@ -1543,7 +1551,7 @@ def user_show(context, data_dict):
                                                data_dict=search_dict) \
             .get('results')
 
-    if data_dict.get('include_num_followers', False):
+    if asbool(data_dict.get('include_num_followers', False)):
         user_dict['num_followers'] = logic.get_action('user_follower_count')(
             {'model': model, 'session': model.Session},
             {'id': user_dict['id']})
