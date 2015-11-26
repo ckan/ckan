@@ -46,7 +46,13 @@ Doing a beta release
 Beta releases are branched off a certain point in master and will eventually
 become stable releases.
 
-#. Create a new release branch::
+Turn this file into a github issue with a checklist using this command::
+
+   egrep '^(\#\.|Doing)' doc/contributing/release-process.rst | sed 's/\#\./* [ ]/g' | sed 's/Doing/\n## Doing/g' |sed 's/:://g'
+
+#. Create a new release branch
+
+   ::
 
         git checkout -b release-v2.5.0
 
@@ -60,11 +66,11 @@ become stable releases.
    You will probably need to update the same file on master to increase the
    version number, in this case ending with an *a* (for alpha).
 
-#. During the beta process, all changes to the release branch must be
+   During the beta process, all changes to the release branch must be
    cherry-picked from master (or merged from special branches based on the
    release branch if the original branch was not compatible).
 
-#. As in the master branch, if some commits involving CSS changes are
+   As in the master branch, if some commits involving CSS changes are
    cherry-picked from master, the less compiling command needs to be run on
    the release branch. This will update the ``main.css`` file::
 
@@ -74,11 +80,15 @@ become stable releases.
 
    There will be a final front-end build before the actual release.
 
-#. The beta staging site (http://beta.ckan.org, currently on s084) must be
-   set to track the latest beta release branch to allow user testing. This site
-   is updated nightly.
+#. Update beta.ckan.org to run new branch.
 
-#. During beta, a translation freeze is in place (ie no changes to the translatable
+   The beta staging site
+   (http://beta.ckan.org, currently on s084) must be set to track the latest beta
+   release branch to allow user testing. This site is updated nightly.
+
+#. Make latest translation strings available on Transifex.
+
+   During beta, a translation freeze is in place (ie no changes to the translatable
    strings are allowed). Strings need to be extracted and uploaded to
    Transifex_:
 
@@ -112,10 +122,10 @@ become stable releases.
 
         tx pull --all --force
 
-   c. Delete any language files which have no strings or hardly any translated.
+   d. Delete any language files which have no strings or hardly any translated.
       Check for 5% or less on Transifex.
 
-   d. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file::
+   e. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file::
 
         python setup.py update_catalog --no-fuzzy-matching
 
@@ -134,7 +144,7 @@ become stable releases.
       does. Just delete that translation locally - it may be ok with a newer Babel in
       later CKAN releases.
 
-   e. Run msgfmt checks::
+   f. Run msgfmt checks::
 
           find ckan/i18n/ -name "*.po"| xargs -n 1 msgfmt -c
 
@@ -144,7 +154,7 @@ become stable releases.
       comments any extra strings it has, but msgfmt doesn't understand them. Just
       delete these lines.
 
-   f. Run our script that checks for mistakes in the ckan.po files::
+   g. Run our script that checks for mistakes in the ckan.po files::
 
         pip install polib
         paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
@@ -157,11 +167,11 @@ become stable releases.
       the tx pull command again, don't edit the files directly. Repeat until the
       script finds no mistakes.
 
-   g. Edit ``.tx/config``, on line 4 to set the Transifex 'resource' to the new
+   h. Edit ``.tx/config``, on line 4 to set the Transifex 'resource' to the new
       major release name (if different), using dashes instead of dots.
       For instance v2.4.0, v2.4.1 and v2.4.2 all share: ``[ckan.2-4]``.
 
-   h. Create a new resource in the CKAN project on Transifex by pushing the new
+   i. Create a new resource in the CKAN project on Transifex by pushing the new
       pot and po files::
 
         tx push --source --translations --force
@@ -173,14 +183,14 @@ become stable releases.
 
       You may get a 'msgfmt' error....
 
-   i. Update the ``ckan.mo`` files by compiling the po files::
+   j. Update the ``ckan.mo`` files by compiling the po files::
 
         python setup.py compile_catalog
 
       The mo files are the files that CKAN actually reads when displaying
       strings to the user.
 
-   j. Commit all the above changes to git and push them to GitHub::
+   k. Commit all the above changes to git and push them to GitHub::
 
         git add ckan/i18n/*.mo ckan/i18n/*.po
         git commit -am "Update strings files before CKAN X.Y call for translations"
@@ -203,11 +213,13 @@ become stable releases.
         git commit -am " Update translations from Transifex"
         git push
 
-#. Send an annoucement email with a call for translations.
+#. Send an annoucement email with a call for translations to ckan-dev list.
 
-#. Once a week create a deb package with the latest release branch, using ``betaX``
-   iterations. Deb packages are built using Ansible_ scripts located at the
-   following repo:
+#. Create debian packages.
+
+   Ideally do this once a week. Create the deb package with the latest release
+   branch, using ``betaX`` iterations. Deb packages are built using Ansible_
+   scripts located at the following repo:
 
     https://github.com/ckan/ckan-packaging
 
@@ -222,10 +234,13 @@ become stable releases.
    Packages are created by default on the `/build` folder of the publicly accessible directory of
    the packaging server.
 
-#. A week before the actual release, send an email to the
+#. A week before the actual release, announce the upcoming release(s).
+
+   Send an email to the
    `ckan-announce mailing list <http://lists.okfn.org/mailman/listinfo/ckan-announce>`_,
-   so CKAN instance maintainers can be aware of the upcoming releases. List any patch releases
-   that will be also available. Here's an `example <https://lists.okfn.org/pipermail/ckan-announce/2015-July/000013.html>`_ email.
+   so CKAN instance maintainers can be aware of the upcoming releases. List any
+   patch releases that will be also available. Here's an `example
+   <https://lists.okfn.org/pipermail/ckan-announce/2015-July/000013.html>`_ email.
 
 
 ----------------------
@@ -274,18 +289,23 @@ a release.
         rm build/sphinx -rf
         python setup.py build_sphinx
 
-#. Remove the beta letter in the version number in ``ckan/__init__.py``
+#. Remove the beta letter in the version number.
+
+   The version number is in ``ckan/__init__.py``
    (eg 1.1b -> 1.1) and commit the change::
 
         git commit -am "Update version number for release X.Y"
 
-#. Tag the repository with the version number, and make sure to push it to
-   GitHub afterwards::
+#. Tag the repository with the version number.
+
+   Make sure to push it to GitHub afterwards::
 
         git tag -a -m '[release]: Release tag' ckan-X.Y
         git push --tags
 
-#. Create the final deb package and move it to the root of the
+#. Create and deploy the final deb package.
+
+   Move it to the root of the
    `publicly accessible folder <http://packaging.ckan.org/>`_ of
    the packaging server from the `/build` folder.
 
@@ -305,8 +325,9 @@ a release.
    If you make a mistake, you can always remove the release file on PyPI and
    re-upload it.
 
-#. Enable the new version of the docs on Read the Docs (you will need an admin
-   account):
+#. Enable the new version of the docs on Read the Docs.
+
+   (You will need an admin account.)
 
    a. Go to the `Read The Docs`_ versions page
       and enable the relevant release (make sure to use the tag, ie ckan-X.Y,
@@ -315,9 +336,11 @@ a release.
    b. If it is the latest stable release, set it to be the Default Version and
       check it is displayed on http://docs.ckan.org.
 
-#. Write a `CKAN Blog post <http://ckan.org/wp-admin>`_ and send an email to
-   the mailing list announcing the release, including the relevant bit of
-   changelog.
+#. Write a CKAN blog post and announce it to ckan-announce & ckan-dev.
+
+   CKAN blog here: <http://ckan.org/wp-admin>`_
+
+   In the email, include the relevant bit of changelog.
 
 #. Cherry-pick the i18n changes from the release branch onto master.
 
