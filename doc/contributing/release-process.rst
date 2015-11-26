@@ -60,10 +60,6 @@ become stable releases.
    You will probably need to update the same file on master to increase the
    version number, in this case ending with an *a* (for alpha).
 
-#. Once the release branch is created, send an annoucement email with an
-   initial call for translations, warning that at this point strings can still
-   change, but hopefully not too much.
-
 #. During the beta process, all changes to the release branch must be
    cherry-picked from master (or merged from special branches based on the
    release branch if the original branch was not compatible).
@@ -82,25 +78,8 @@ become stable releases.
    set to track the latest beta release branch to allow user testing. This site
    is updated nightly.
 
-#. Once a week create a deb package with the latest release branch, using ``betaX``
-   iterations. Deb packages are built using Ansible_ scripts located at the
-   following repo:
-
-    https://github.com/ckan/ckan-packaging
-
-   The repository contains furhter instructions on how to run the scripts, but essentially
-   you will need access to the packaging server, and then run something like::
-
-     ansible-playbook package.yml -u your_user -s
-
-   You will be prompted for the CKAN version to package (eg ``2.4.0``), the iteration (eg ``beta1``)
-   and whether to package the DataPusher (always do it on release packages).
-
-   Packages are created by default on the `/build` folder of the publicly accessible directory of
-   the packaging server.
-
-#. Once the translation freeze is in place (ie no changes to the translatable
-   strings are allowed), strings need to be extracted and uploaded to
+#. During beta, a translation freeze is in place (ie no changes to the translatable
+   strings are allowed). Strings need to be extracted and uploaded to
    Transifex_:
 
    a. Install the Babel and Transifex libraries if necessary::
@@ -128,20 +107,15 @@ become stable releases.
       the po files (on Transifex) to update the translations. We never edit the
       po files locally.
 
-   d. Run our script that checks for mistakes in the ckan.po files::
+   c. Get the latest translations (of the previous CKAN release) from
+      Transifex, in case any have changed since.
 
-        pip install polib
-        paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
+        tx pull --all --force
 
-      If the script finds any mistakes correct them on Transifex and then run the
-      tx pull command again, don't edit the files directly. Repeat until the
-      script finds no mistakes.
+   c. Delete any language files which have no strings or hardly any translated.
+      Check for 5% or less on Transifex.
 
-   e. Edit ``.tx/config``, on line 4 to set the Transifex 'resource' to the new
-      major release name (if different), using dashes instead of dots.
-      For instance v2.4.0, v2.4.1 and v2.4.2 all share: ``[ckan.2-4]``.
-
-   f. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file::
+   d. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file::
 
         python setup.py update_catalog --no-fuzzy-matching
 
@@ -152,7 +126,42 @@ become stable releases.
       We use the ``--no-fuzzy-matching`` option because fuzzy matching often
       causes problems with Babel and Transifex.
 
-   g. Create a new resource in the CKAN project on Transifex by pushing the new
+      If you get this error for a new translation:
+
+          babel.core.UnknownLocaleError: unknown locale 'crh'
+    
+      then it's Transifex appears to know about new languages before Babel
+      does. Just delete that translation locally - it may be ok with a newer Babel in
+      later CKAN releases.
+
+   e. Run msgfmt checks::
+
+          find ckan/i18n/ -name "*.po"| xargs -n 1 msgfmt -c
+
+      You must correct any errors or you will not be able to send these to Transifex.
+
+      A common problem is that Transifex adds to the end of a po file as
+      comments any extra strings it has, but msgfmt doesn't understand them. Just
+      delete these lines.
+
+   f. Run our script that checks for mistakes in the ckan.po files::
+
+        pip install polib
+        paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
+
+      If the script finds any mistakes then at some point before release you
+      will need to correct them, but it doesn't need to be done now, since the priority
+      is to announce the call for translations.
+
+      When it is done, you must do the correctsion on Transifex and then run
+      the tx pull command again, don't edit the files directly. Repeat until the
+      script finds no mistakes.
+
+   g. Edit ``.tx/config``, on line 4 to set the Transifex 'resource' to the new
+      major release name (if different), using dashes instead of dots.
+      For instance v2.4.0, v2.4.1 and v2.4.2 all share: ``[ckan.2-4]``.
+
+   h. Create a new resource in the CKAN project on Transifex by pushing the new
       pot and po files::
 
         tx push --source --translations --force
@@ -162,27 +171,30 @@ become stable releases.
       resource (updating an existing resource, especially with the ``--force``
       option, can result in translations being deleted from Transifex).
 
-   h. Update the ``ckan.mo`` files by compiling the po files::
+      You may get a 'msgfmt' error....
+
+   i. Update the ``ckan.mo`` files by compiling the po files::
 
         python setup.py compile_catalog
 
       The mo files are the files that CKAN actually reads when displaying
       strings to the user.
 
-   i. Commit all the above changes to git and push them to GitHub::
+   j. Commit all the above changes to git and push them to GitHub::
 
+        git add ckan/i18n/*.mo ckan/i18n/*.po
         git commit -am "Update strings files before CKAN X.Y call for translations"
         git push
 
-   j. Announce that strings for the new release are ready for translators. Send
+   l. Announce that strings for the new release are ready for translators. Send
       an email to the mailing lists, tweet or post it on the blog. Make sure to
       post a link to the correct Transifex resource (like
-      `this one <https://www.transifex.com/projects/p/ckan/resource/2-0/>`_)
+      `this one <https://www.transifex.com/okfn/ckan/2-5/>`_)
       and tell users that they can register on Transifex to contribute.
 
-   k. A week before the translations will be closed send a reminder email.
+   m. A week before the translations will be closed send a reminder email.
 
-   l. Once the translations are closed, pull the updated strings from Transifex,
+   n. Once the translations are closed, pull the updated strings from Transifex,
       check them, compile and push as described in the previous steps::
 
         tx pull --all --force
@@ -190,6 +202,25 @@ become stable releases.
         python setup.py compile_catalog
         git commit -am " Update translations from Transifex"
         git push
+
+#. Send an annoucement email with a call for translations.
+
+#. Once a week create a deb package with the latest release branch, using ``betaX``
+   iterations. Deb packages are built using Ansible_ scripts located at the
+   following repo:
+
+    https://github.com/ckan/ckan-packaging
+
+   The repository contains furhter instructions on how to run the scripts, but essentially
+   you will need access to the packaging server, and then run something like::
+
+     ansible-playbook package.yml -u your_user -s
+
+   You will be prompted for the CKAN version to package (eg ``2.4.0``), the iteration (eg ``beta1``)
+   and whether to package the DataPusher (always do it on release packages).
+
+   Packages are created by default on the `/build` folder of the publicly accessible directory of
+   the packaging server.
 
 #. A week before the actual release, send an email to the
    `ckan-announce mailing list <http://lists.okfn.org/mailman/listinfo/ckan-announce>`_,
