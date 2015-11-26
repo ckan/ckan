@@ -39,20 +39,18 @@ process is described in the following sections.
 
 .. _beta-release:
 
---------------------
-Doing a beta release
---------------------
+----------------------
+Doing the beta release
+----------------------
 
 Beta releases are branched off a certain point in master and will eventually
 become stable releases.
 
 Turn this file into a github issue with a checklist using this command::
 
-   egrep '^(\#\.|Doing)' doc/contributing/release-process.rst | sed 's/\#\./* [ ]/g' | sed 's/Doing/\n## Doing/g' |sed 's/:://g'
+   egrep '^(\#\.|Doing|Leading)' doc/contributing/release-process.rst | sed 's/^\([^#]\)/\n# \1/g' | sed 's/\#\./* [ ]/g' |sed 's/::/./g'
 
-#. Create a new release branch
-
-   ::
+#. Create a new release branch::
 
         git checkout -b release-v2.5.0
 
@@ -198,24 +196,12 @@ Turn this file into a github issue with a checklist using this command::
         git commit -am "Update strings files before CKAN X.Y call for translations"
         git push
 
-   l. Announce that strings for the new release are ready for translators. Send
-      an email to the mailing lists, tweet or post it on the blog. Make sure to
-      post a link to the correct Transifex resource (like
-      `this one <https://www.transifex.com/okfn/ckan/2-5/>`_)
-      and tell users that they can register on Transifex to contribute.
+#. Send an annoucement email with a call for translations.
 
-   m. A week before the translations will be closed send a reminder email.
-
-   n. Once the translations are closed, pull the updated strings from Transifex,
-      check them, compile and push as described in the previous steps::
-
-        tx pull --all --force
-        paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
-        python setup.py compile_catalog
-        git commit -am " Update translations from Transifex"
-        git push
-
-#. Send an annoucement email with a call for translations to ckan-dev list.
+   Send an email to the ckan-dev list, tweet or post it on the blog. Make sure
+   to post a link to the correct Transifex resource (like `this one
+   <https://www.transifex.com/okfn/ckan/2-5/>`_) and tell users that they can
+   register on Transifex to contribute.
 
 #. Create debian packages.
 
@@ -236,32 +222,12 @@ Turn this file into a github issue with a checklist using this command::
    Packages are created by default on the `/build` folder of the publicly accessible directory of
    the packaging server.
 
-#. A week before the actual release, announce the upcoming release(s).
 
-   Send an email to the
-   `ckan-announce mailing list <http://lists.okfn.org/mailman/listinfo/ckan-announce>`_,
-   so CKAN instance maintainers can be aware of the upcoming releases. List any
-   patch releases that will be also available. Here's an `example
-   <https://lists.okfn.org/pipermail/ckan-announce/2015-July/000013.html>`_ email.
+-------------------------
+Leading up to the release
+-------------------------
 
-
-----------------------
-Doing a proper release
-----------------------
-
-Once the release branch has been thoroughly tested and is stable we can do
-a release.
-
-#. Run the most thorough tests::
-
-        nosetests ckan/tests --ckan --ckan-migration --with-pylons=test-core.ini
-
-#. Do a final build of the front-end and commit the changes::
-
-        paster front-end-build
-        git commit -am "Rebuild front-end"
-
-#. Update the CHANGELOG.txt with the new version changes:
+#. Update the CHANGELOG.txt with the new version changes.
 
    * Add the release date next to the version number
    * Add the following notices at the top of the release, reflecting whether
@@ -285,6 +251,45 @@ a release.
 
         git log --no-merges release-v1.8.1..release-v2.0
         git shortlog --no-merges release-v1.8.1..release-v2.0
+
+#. A week before the translations will be closed send a reminder email.
+
+#. Once the translations are closed, sync them from Transifex.
+
+   Pull the updated strings from Transifex, check them, compile and push as
+   described in the previous steps::
+
+        tx pull --all --force
+        paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
+        python setup.py compile_catalog
+        git commit -am " Update translations from Transifex"
+        git push
+
+#. A week before the actual release, announce the upcoming release(s).
+
+   Send an email to the
+   `ckan-announce mailing list <http://lists.okfn.org/mailman/listinfo/ckan-announce>`_,
+   so CKAN instance maintainers can be aware of the upcoming releases. List any
+   patch releases that will be also available. Here's an `example
+   <https://lists.okfn.org/pipermail/ckan-announce/2015-July/000013.html>`_ email.
+
+-----------------------
+Doing the final release
+-----------------------
+
+Once the release branch has been thoroughly tested and is stable we can do
+a release.
+
+#. Run the most thorough tests::
+
+        nosetests ckan/tests --ckan --ckan-migration --with-pylons=test-core.ini
+
+#. Do a final build of the front-end and commit the changes::
+
+        paster front-end-build
+        git commit -am "Rebuild front-end"
+
+#. Review the CHANGELOG to check it is complete.
 
 #. Check that the docs compile correctly::
 
