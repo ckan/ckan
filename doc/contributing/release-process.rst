@@ -48,7 +48,7 @@ become stable releases.
 
 Turn this file into a github issue with a checklist using this command::
 
-   egrep '^(\#\.|Doing|Leading)' doc/contributing/release-process.rst | sed 's/^\([^#]\)/\n# \1/g' | sed 's/\#\./* [ ]/g' |sed 's/::/./g'
+   echo 'Full instructions here: https://github.com/ckan/ckan/blob/master/doc/contributing/release-process.rst'; egrep '^(\#\.|Doing|Leading)' doc/contributing/release-process.rst | sed 's/^\([^#]\)/\n## \1/g' | sed 's/\#\./* [ ]/g' |sed 's/::/./g'
 
 #. Create a new release branch::
 
