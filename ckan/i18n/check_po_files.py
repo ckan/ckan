@@ -66,7 +66,8 @@ class CheckPoFiles(paste.script.command.Command):
             if errors:
                 for msgid, msgstr in errors:
                     print 'Format specifiers don\'t match:'
-                    print u'    {0} -> {1}'.format(msgid, msgstr)
+                    print u'    {0} -> {1}'.format(
+                        msgid, msgstr.encode('ascii', 'replace'))
 
 
 def check_po_file(path):
