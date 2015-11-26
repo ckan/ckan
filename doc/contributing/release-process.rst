@@ -86,6 +86,8 @@ Turn this file into a github issue with a checklist using this command::
    (http://beta.ckan.org, currently on s084) must be set to track the latest beta
    release branch to allow user testing. This site is updated nightly.
 
+#. Announce the branch and ask for help testing on beta.ckan.org on ckan-dev.
+
 #. Make latest translation strings available on Transifex.
 
    During beta, a translation freeze is in place (ie no changes to the translatable
