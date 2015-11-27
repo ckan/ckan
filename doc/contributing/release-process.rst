@@ -82,7 +82,10 @@ Turn this file into a github issue with a checklist using this command::
 
    The beta staging site
    (http://beta.ckan.org, currently on s084) must be set to track the latest beta
-   release branch to allow user testing. This site is updated nightly.
+   release branch to allow user testing. This site is automatically updated nightly.
+
+   Check the message on the front page reflects the current version. Edit it as
+   a syadmin here: http://beta.ckan.org/ckan-admin/config
 
 #. Announce the branch and ask for help testing on beta.ckan.org on ckan-dev.
 
@@ -181,16 +184,21 @@ Turn this file into a github issue with a checklist using this command::
       resource (updating an existing resource, especially with the ``--force``
       option, can result in translations being deleted from Transifex).
 
-      You may get a 'msgfmt' error....
+      If you get a 'msgfmt' error, go back to the step where msgfmt is run.
 
-   j. Update the ``ckan.mo`` files by compiling the po files::
+   j. On Transifex give the new resource a more friendly name. Go to the
+      resource e.g. https://www.transifex.com/okfn/ckan/2-5/ and the settings are
+      accessed from the triple dot icon "...". Keep the slug like "2-4", but change
+      the name to be like "CKAN 2.5".
+
+   k. Update the ``ckan.mo`` files by compiling the po files::
 
         python setup.py compile_catalog
 
       The mo files are the files that CKAN actually reads when displaying
       strings to the user.
 
-   k. Commit all the above changes to git and push them to GitHub::
+   l. Commit all the above changes to git and push them to GitHub::
 
         git add ckan/i18n/*.mo ckan/i18n/*.po
         git commit -am "Update strings files before CKAN X.Y call for translations"
@@ -201,7 +209,7 @@ Turn this file into a github issue with a checklist using this command::
    Send an email to the ckan-dev list, tweet or post it on the blog. Make sure
    to post a link to the correct Transifex resource (like `this one
    <https://www.transifex.com/okfn/ckan/2-5/>`_) and tell users that they can
-   register on Transifex to contribute.
+   register on Transifex to contribute. Give a deadline in two weeks time.
 
 #. Create debian packages.
 
