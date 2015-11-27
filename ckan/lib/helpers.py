@@ -584,7 +584,7 @@ def build_nav_icon(menu_item, title, **kw):
 def build_nav(menu_item, title, **kw):
     '''Build a navigation item used for example breadcrumbs.
 
-    Outputs ``<li><a href="..."></i> title</a></li>``.
+    Outputs ``<li><a href="...">title</a></li>``.
 
     :param menu_item: the name of the defined menu item defined in
       config/routing as the named route of the same name
