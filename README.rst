@@ -33,6 +33,9 @@ question first).
 If you've found a bug in CKAN, open a new issue on CKAN's `GitHub Issues`_ (try
 searching first to see if there's already an issue for your bug).
 
+If you find a potential security vulnerability please email security@ckan.org,
+rather than creating a public issue on GitHub.
+
 
 .. _CKAN tag on Stack Overflow: http://stackoverflow.com/questions/tagged/ckan
 .. _ckan-discuss: http://lists.okfn.org/mailman/listinfo/ckan-discuss
