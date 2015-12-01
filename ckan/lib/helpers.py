@@ -23,10 +23,11 @@ from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tools import mail_to
 from webhelpers.html.tags import *
-from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
+from markdown import markdown
+from bleach import clean as clean_html
 from pylons import url as _pylons_default_url
 from pylons.decorators.cache import beaker_cache
 from pylons import config
@@ -1723,10 +1724,10 @@ def render_markdown(data, auto_link=True, allow_html=False):
     if not data:
         return ''
     if allow_html:
-        data = markdown(data.strip(), safe_mode=False)
+        data = markdown(data.strip())
     else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
-        data = markdown(data, safe_mode=True)
+        data = markdown(clean_html(data, strip=True))
     # tags can be added by tag:... or tag:"...." and a link will be made
     # from it
     if auto_link:
