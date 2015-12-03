@@ -68,6 +68,6 @@
   ["TAR", "TAR Compressed File", "application/x-tar", []],
   ["PNG", "PNG Image File", "image/png", []],
   ["RSS", "RSS feed", "application/rss+xml", []],
-  ["GeoJSON", "Geographic JavaScript Object Notation", null, []],
+  ["GeoJSON", "Geographic JavaScript Object Notation", "application/vnd.geo+json", []],
   ["SHP", "Shapefile", null, ["esri shapefile"]]
 ]
