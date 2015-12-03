@@ -14,7 +14,7 @@ formencode==1.3.0         # via pylons
 Genshi==0.6
 Jinja2==2.6
 mako==1.0.2               # via pylons
-Markdown==2.1
+Markdown==2.4
 markupsafe==0.23          # via mako, webhelpers
 nose==1.3.7               # via pylons
 ofs==0.4.1
