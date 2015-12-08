@@ -245,8 +245,11 @@ def is_url(*args, **kw):
     except ValueError:
         return False
 
-    valid_schemes = ('http', 'https', 'ftp')
-    return url.scheme in valid_schemes
+    default_valid_schemes = ('http', 'https', 'ftp')
+
+    valid_schemes = config.get('ckan.valid_url_schemes', '').lower().split()
+
+    return url.scheme in (valid_schemes or default_valid_schemes)
 
 
 def _add_i18n_to_url(url_to_amend, **kw):

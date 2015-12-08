@@ -392,6 +392,16 @@ Default value: ``False``
 
 This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
 
+ckan.valid_url_schemes
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.valid_url_schemes = http https ftp sftp
+
+Default value: ``http https ftp``
+
+Controls what uri schemes are rendered as links.
 
 .. _config-authorization:
 
