@@ -505,9 +505,9 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
             assert results == results_alias
 
-            sql = (u"select * from _table_metadata "
-                "where alias_of='{0}' and name='{1}'").format(resource.id, alias)
-            results = c.execute(sql)
+            sql = u"select * from _table_metadata " \
+                  "where alias_of=%s and name=%s"
+            results = c.execute(sql, resource.id, alias)
             assert results.rowcount == 1
         self.Session.remove()
 
@@ -617,14 +617,14 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         # new aliases should replace old aliases
         c = self.Session.connection()
         for alias in aliases:
-            sql = (u"select * from _table_metadata "
-                "where alias_of='{0}' and name='{1}'").format(resource.id, alias)
-            results = c.execute(sql)
+            sql = "select * from _table_metadata " \
+                  "where alias_of=%s and name=%s"
+            results = c.execute(sql, resource.id, alias)
             assert results.rowcount == 0
 
-        sql = (u"select * from _table_metadata "
-            "where alias_of='{0}' and name='{1}'").format(resource.id, 'another_alias')
-        results = c.execute(sql)
+        sql = "select * from _table_metadata " \
+              "where alias_of=%s and name=%s"
+        results = c.execute(sql, resource.id, 'another_alias')
         assert results.rowcount == 1
         self.Session.remove()
 

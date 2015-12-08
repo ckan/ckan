@@ -13,7 +13,6 @@ import ckan.lib.base as base
 import ckan.lib.maintain as maintain
 import ckan.lib.i18n as i18n
 import ckan.lib.navl.dictization_functions as dict_fns
-import ckan.lib.accept as accept
 import ckan.lib.helpers as h
 import ckan.model as model
 import ckan.lib.datapreview as datapreview
@@ -306,22 +305,6 @@ class PackageController(base.BaseController):
         return render(self._search_template(package_type),
                       extra_vars={'dataset_type': package_type})
 
-    def _content_type_from_extension(self, ext):
-        ct, ext = accept.parse_extension(ext)
-        if not ct:
-            return None, None
-        return ct, ext
-
-    def _content_type_from_accept(self):
-        """
-        Given a requested format this method determines the content-type
-        to set and the genshi template loader to use in order to render
-        it accurately.  TextTemplate must be used for non-xml templates
-        whilst all that are some sort of XML should use MarkupTemplate.
-        """
-        ct, ext = accept.parse_header(request.headers.get('Accept', ''))
-        return ct, ext
-
     def resources(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
@@ -350,20 +333,7 @@ class PackageController(base.BaseController):
         return render('package/resources.html',
                       extra_vars={'dataset_type': package_type})
 
-    def read(self, id, format='html'):
-        if not format == 'html':
-            ctype, extension = \
-                self._content_type_from_extension(format)
-            if not ctype:
-                # An unknown format, we'll carry on in case it is a
-                # revision specifier and re-constitute the original id
-                id = "%s.%s" % (id, format)
-                ctype, format = "text/html; charset=utf-8", "html"
-        else:
-            ctype, format = self._content_type_from_accept()
-
-        response.headers['Content-Type'] = ctype
-
+    def read(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'for_view': True,
                    'auth_user_obj': c.userobj}
@@ -415,8 +385,6 @@ class PackageController(base.BaseController):
                                        package_type=package_type)
 
         template = self._read_template(package_type)
-        template = template[:template.index('.') + 1] + format
-
         try:
             return render(template,
                           extra_vars={'dataset_type': package_type})
@@ -644,7 +612,7 @@ class PackageController(base.BaseController):
         errors = errors or {}
         error_summary = error_summary or {}
         vars = {'data': data, 'errors': errors,
-                'error_summary': error_summary, 'action': 'new',
+                'error_summary': error_summary, 'action': 'edit',
                 'resource_form_snippet': self._resource_form(package_type),
                 'dataset_type': package_type}
         return render('package/resource_edit.html', extra_vars=vars)

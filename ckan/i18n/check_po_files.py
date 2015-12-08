@@ -10,8 +10,10 @@ Requires polib <http://pypi.python.org/pypi/polib>:
     pip install polib
 
 '''
+import polib
 import re
 import paste.script.command
+
 
 def simple_conv_specs(s):
     '''Return the simple Python string conversion specifiers in the string s.
@@ -24,27 +26,6 @@ def simple_conv_specs(s):
     simple_conv_specs_re = re.compile('\%\w')
     return simple_conv_specs_re.findall(s)
 
-def test_simple_conv_specs():
-    assert simple_conv_specs("Authorization function not found: %s") == (
-            ['%s'])
-    assert simple_conv_specs("Problem purging revision %s: %s") == (
-            ['%s', '%s'])
-    assert simple_conv_specs(
-            "Cannot create new entity of this type: %s %s") == ['%s', '%s']
-    assert simple_conv_specs("Could not read parameters: %r") == ['%r']
-    assert simple_conv_specs("User %r not authorized to edit %r") == (
-            ['%r', '%r'])
-    assert simple_conv_specs(
-        "Please <a href=\"%s\">update your profile</a> and add your email "
-        "address and your full name. "
-        "%s uses your email address if you need to reset your password.") == (
-                ['%s', '%s'])
-    assert simple_conv_specs(
-            "You can use %sMarkdown formatting%s here.") == ['%s', '%s']
-    assert simple_conv_specs(
-            "Name must be a maximum of %i characters long") == ['%i']
-    assert simple_conv_specs("Blah blah %s blah %(key)s blah %i") == (
-        ['%s', '%i'])
 
 def mapping_keys(s):
     '''Return a sorted list of the mapping keys in the string s.
@@ -57,20 +38,6 @@ def mapping_keys(s):
     mapping_keys_re = re.compile('\%\([^\)]*\)\w')
     return sorted(mapping_keys_re.findall(s))
 
-def test_mapping_keys():
-    assert mapping_keys(
-            "You have requested your password on %(site_title)s to be reset.\n"
-            "\n"
-            "Please click the following link to confirm this request:\n"
-            "\n"
-            "   %(reset_link)s\n") == ['%(reset_link)s', '%(site_title)s']
-    assert mapping_keys(
-            "The input field %(name)s was not expected.") == ['%(name)s']
-    assert mapping_keys(
-            "[1:You searched for \"%(query)s\". ]%(number_of_results)s "
-            "datasets found.") == ['%(number_of_results)s', '%(query)s']
-    assert mapping_keys("Blah blah %s blah %(key)s blah %i") == (
-        ['%(key)s']), mapping_keys("Blah blah %s blah %(key)s blah %i")
 
 def replacement_fields(s):
     '''Return a sorted list of the Python replacement fields in the string s.
@@ -83,11 +50,6 @@ def replacement_fields(s):
     repl_fields_re = re.compile('\{[^\}]*\}')
     return sorted(repl_fields_re.findall(s))
 
-def test_replacement_fields():
-    assert replacement_fields(
-            "{actor} added the tag {object} to the dataset {target}") == (
-                    ['{actor}', '{object}', '{target}'])
-    assert replacement_fields("{actor} updated their profile") == ['{actor}']
 
 class CheckPoFiles(paste.script.command.Command):
 
@@ -97,19 +59,38 @@ class CheckPoFiles(paste.script.command.Command):
     parser = paste.script.command.Command.standard_parser(verbose=True)
 
     def command(self):
-        import polib
 
-        test_simple_conv_specs()
-        test_mapping_keys()
-        test_replacement_fields()
         for path in self.args:
             print u'Checking file {}'.format(path)
-            po = polib.pofile(path)
-            for entry in po.translated_entries():
-                if not entry.msgstr:
-                    continue
-                for function in (simple_conv_specs, mapping_keys,
-                        replacement_fields):
-                    if not function(entry.msgid) == function(entry.msgstr):
-                        print "    Format specifiers don't match:"
-                        print u'    {0} -> {1}'.format(entry.msgid, entry.msgstr)
+            errors = check_po_file(path)
+            if errors:
+                for msgid, msgstr in errors:
+                    print 'Format specifiers don\'t match:'
+                    print u'    {0} -> {1}'.format(msgid, msgstr)
+
+
+def check_po_file(path):
+    errors = []
+
+    def check_translation(validator, msgid, msgstr):
+        if not validator(msgid) == validator(msgstr):
+            errors.append((msgid, msgstr))
+
+    po = polib.pofile(path)
+    for entry in po.translated_entries():
+        if entry.msgid_plural and entry.msgstr_plural:
+            for function in (simple_conv_specs, mapping_keys,
+                             replacement_fields):
+                for key, msgstr in entry.msgstr_plural.iteritems():
+                    if key == '0':
+                        check_translation(function, entry.msgid,
+                                          entry.msgstr_plural[key])
+                    else:
+                        check_translation(function, entry.msgid_plural,
+                                          entry.msgstr_plural[key])
+        elif entry.msgstr:
+            for function in (simple_conv_specs, mapping_keys,
+                             replacement_fields):
+                check_translation(function, entry.msgid, entry.msgstr)
+
+    return errors

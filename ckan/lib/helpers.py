@@ -23,10 +23,11 @@ from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tools import mail_to
 from webhelpers.html.tags import *
-from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
+from markdown import markdown
+from bleach import clean as clean_html
 from pylons import url as _pylons_default_url
 from pylons.decorators.cache import beaker_cache
 from pylons import config
@@ -584,7 +585,7 @@ def build_nav_icon(menu_item, title, **kw):
 def build_nav(menu_item, title, **kw):
     '''Build a navigation item used for example breadcrumbs.
 
-    Outputs ``<li><a href="..."></i> title</a></li>``.
+    Outputs ``<li><a href="...">title</a></li>``.
 
     :param menu_item: the name of the defined menu item defined in
       config/routing as the named route of the same name
@@ -866,7 +867,7 @@ def markdown_extract(text, extract_length=190):
     ''' return the plain text representation of markdown encoded text.  That
     is the texted without any html tags.  If extract_length is 0 then it
     will not be truncated.'''
-    if (text is None) or (text.strip() == ''):
+    if not text:
         return ''
     plain = RE_MD_HTML_TAGS.sub('', markdown(text))
     if not extract_length or len(plain) < extract_length:
@@ -1728,10 +1729,10 @@ def render_markdown(data, auto_link=True, allow_html=False):
     if not data:
         return ''
     if allow_html:
-        data = markdown(data.strip(), safe_mode=False)
+        data = markdown(data.strip())
     else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
-        data = markdown(data, safe_mode=True)
+        data = markdown(clean_html(data, strip=True))
     # tags can be added by tag:... or tag:"...." and a link will be made
     # from it
     if auto_link:

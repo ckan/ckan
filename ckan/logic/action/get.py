@@ -1479,8 +1479,11 @@ def user_show(context, data_dict):
         (optional, default:``False``, limit:50)
     :type include_datasets: boolean
     :param include_num_followers: Include the number of followers the user has
-         (optional, default:``False``)
+        (optional, default:``False``)
     :type include_num_followers: boolean
+    :param include_password_hash: Include the stored password hash
+        (sysadmin only, optional, default:``False``)
+    :type include_password_hash: boolean
 
     :returns: the details of the user. Includes email_hash, number_of_edits and
         number_created_packages (which excludes draft or private datasets
@@ -1508,24 +1511,29 @@ def user_show(context, data_dict):
 
     # include private and draft datasets?
     requester = context.get('user')
+    sysadmin = False
     if requester:
+        sysadmin = authz.is_sysadmin(requester)
         requester_looking_at_own_account = requester == user_obj.name
-        include_private_and_draft_datasets = \
-            authz.is_sysadmin(requester) or \
-            requester_looking_at_own_account
+        include_private_and_draft_datasets = (
+            sysadmin or requester_looking_at_own_account)
     else:
         include_private_and_draft_datasets = False
     context['count_private_and_draft_datasets'] = \
         include_private_and_draft_datasets
 
-    user_dict = model_dictize.user_dictize(user_obj, context)
+    include_password_hash = sysadmin and asbool(
+        data_dict.get('include_password_hash', False))
+
+    user_dict = model_dictize.user_dictize(
+        user_obj, context, include_password_hash)
 
     if context.get('return_minimal'):
         log.warning('Use of the "return_minimal" in user_show is '
                     'deprecated.')
         return user_dict
 
-    if data_dict.get('include_datasets', False):
+    if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []
 
         fq = "+creator_user_id:{0}".format(user_dict['id'])
@@ -1543,7 +1551,7 @@ def user_show(context, data_dict):
                                                data_dict=search_dict) \
             .get('results')
 
-    if data_dict.get('include_num_followers', False):
+    if asbool(data_dict.get('include_num_followers', False)):
         user_dict['num_followers'] = logic.get_action('user_follower_count')(
             {'model': model, 'session': model.Session},
             {'id': user_dict['id']})
@@ -1945,7 +1953,8 @@ def package_search(context, data_dict):
                         package_dict = item.before_view(package_dict)
                 results.append(package_dict)
             else:
-                results.append(model_dictize.package_dictize(pkg, context))
+                log.error('No package_dict is coming from solr for package '
+                          'id %s', package['id'])
 
         count = query.count
         facets = query.facets
@@ -1961,6 +1970,17 @@ def package_search(context, data_dict):
         'sort': data_dict['sort']
     }
 
+    # create a lookup table of group name to title for all the groups and
+    # organizations in the current search's facets.
+    group_names = []
+    for field_name in ('groups', 'organization'):
+        group_names.extend(facets.get(field_name, {}).keys())
+
+    groups = session.query(model.Group.name, model.Group.title) \
+                    .filter(model.Group.name.in_(group_names)) \
+                    .all()
+    group_titles_by_name = dict(groups)
+
     # Transform facets into a more useful data structure.
     restructured_facets = {}
     for key, value in facets.items():
@@ -1972,11 +1992,9 @@ def package_search(context, data_dict):
             new_facet_dict = {}
             new_facet_dict['name'] = key_
             if key in ('groups', 'organization'):
-                group = model.Group.get(key_)
-                if group:
-                    new_facet_dict['display_name'] = group.display_name
-                else:
-                    new_facet_dict['display_name'] = key_
+                display_name = group_titles_by_name.get(key_, key_)
+                display_name = display_name if display_name and display_name.strip() else key_
+                new_facet_dict['display_name'] = display_name
             elif key == 'license_id':
                 license = model.Package.get_license_register().get(key_)
                 if license:

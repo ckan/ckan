@@ -791,14 +791,30 @@ ckan.resource_proxy.max_file_size
 
 Example::
 
-    ckan.resource_proxy.max_file_size = 1 * 1024 * 1024
+    ckan.resource_proxy.max_file_size = 1048576
 
-Default value:  ``1 * 1024 * 1024`` (1 MB)
+Default value:  ``1048576`` (1 MB)
 
 This sets the upper file size limit for in-line previews.
 Increasing the value allows CKAN to preview larger files (e.g. PDFs) in-line;
 however, a higher value might cause time-outs, or unresponsive browsers for CKAN users
 with lower bandwidth. If left commented out, CKAN will default to 1 MB.
+
+
+.. _ckan.resource_proxy.chunk_size:
+
+ckan.resource_proxy.chunk_size
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.resource_proxy.chunk_size = 8192
+
+Default value:  ``4096``
+
+This sets size of the chunk to read and write when proxying.
+Raising this value might save some CPU cycles. It makes no sense to lower it
+below the page size, which is default.
 
 
 Front-End Settings

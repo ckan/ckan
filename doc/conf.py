@@ -45,7 +45,7 @@ rst_epilog = '''
 .. |datastore_user| replace:: datastore_default
 .. |test_database| replace:: ckan_test
 .. |test_datastore| replace:: datastore_test
-.. |apache_config_file| replace:: /etc/apache2/sites-available/ckan_default
+.. |apache_config_file| replace:: /etc/apache2/sites-available/ckan_default.conf
 .. |apache.wsgi| replace:: |config_dir|/apache.wsgi
 .. |data_dir| replace:: |config_dir|/data
 .. |sstore| replace:: |config_dir|/sstore
@@ -63,9 +63,10 @@ rst_epilog = '''
 .. |sqlalchemy| replace:: SQLAlchemy
 .. |javascript| replace:: JavaScript
 .. |apache| replace:: Apache
-.. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan_default
+.. |nginx_config_file| replace:: /etc/nginx/sites-available/ckan
 .. |reload_nginx| replace:: sudo service nginx reload
 .. |jquery| replace:: jQuery
+.. |nodejs| replace:: Node.js
 
 .. _Jinja2: http://jinja.pocoo.org/
 .. _CKAN front page: http://127.0.0.1:5000
@@ -154,10 +155,10 @@ def latest_release_version():
     return version
 
 
-def latest_package_name():
+def latest_package_name(distro='trusty'):
     '''Return the filename of the Ubuntu package for the latest stable release.
 
-    e.g. "python-ckan_2.1_amd64.deb"
+    e.g. "python-ckan_2.1-trusty_amd64.deb"
 
     '''
     # We don't create a new package file name for a patch release like 2.1.1,
@@ -165,8 +166,8 @@ def latest_package_name():
     # have the X.Y part of the version number in them, not X.Y.Z.
     latest_minor_version = latest_release_version()[:3]
 
-    return 'python-ckan_{version}_amd64.deb'.format(
-        version=latest_minor_version)
+    return 'python-ckan_{version}-{distro}_amd64.deb'.format(
+        version=latest_minor_version, distro=distro)
 
 
 def write_latest_release_file():
@@ -192,14 +193,16 @@ def write_latest_release_file():
 
 .. |latest_release_tag| replace:: {latest_tag}
 .. |latest_release_version| replace:: {latest_version}
-.. |latest_package_name| replace:: {package_name}
+.. |latest_package_name_precise| replace:: {package_name_precise}
+.. |latest_package_name_trusty| replace:: {package_name_trusty}
 
 '''
     open(filename, 'w').write(template.format(
         filename=filename,
         latest_tag=latest_release_tag(),
         latest_version=latest_release_version(),
-        package_name=latest_package_name(),
+        package_name_precise=latest_package_name('precise'),
+        package_name_trusty=latest_package_name('trusty'),
         ))
 
 

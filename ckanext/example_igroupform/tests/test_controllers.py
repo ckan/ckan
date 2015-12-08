@@ -10,10 +10,11 @@ assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
-group_type = u'grup'
+custom_group_type = u'grup'
+group_type = u'group'
 
 
-def _get_group_new_page(app):
+def _get_group_new_page(app, group_type):
     user = factories.User()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
     response = app.get(
@@ -36,7 +37,43 @@ class TestGroupControllerNew(helpers.FunctionalTestBase):
 
     def test_save(self):
         app = self._get_test_app()
-        env, response = _get_group_new_page(app)
+        env, response = _get_group_new_page(app, custom_group_type)
+        form = response.forms['group-edit']
+        form['name'] = u'saved'
+
+        response = submit_and_follow(app, form, env, 'save')
+        # check correct redirect
+        assert_equal(response.req.url,
+                     'http://localhost/%s/saved' % custom_group_type)
+        # check saved ok
+        group = model.Group.by_name(u'saved')
+        assert_equal(group.title, u'')
+        assert_equal(group.type, custom_group_type)
+        assert_equal(group.state, 'active')
+
+    def test_custom_group_form(self):
+        '''Our custom group form is being used for new groups.'''
+        app = self._get_test_app()
+        env, response = _get_group_new_page(app, custom_group_type)
+
+        assert_in('My Custom Group Form!', response,
+                  msg="Custom group form not being used.")
+
+
+class TestGroupControllerNew_DefaultGroupType(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(TestGroupControllerNew_DefaultGroupType, cls).setup_class()
+        plugins.load('example_igroupform_default_group_type')
+
+    @classmethod
+    def teardown_class(cls):
+        plugins.unload('example_igroupform_default_group_type')
+        super(TestGroupControllerNew_DefaultGroupType, cls).teardown_class()
+
+    def test_save(self):
+        app = self._get_test_app()
+        env, response = _get_group_new_page(app, group_type)
         form = response.forms['group-edit']
         form['name'] = u'saved'
 
@@ -50,8 +87,16 @@ class TestGroupControllerNew(helpers.FunctionalTestBase):
         assert_equal(group.type, group_type)
         assert_equal(group.state, 'active')
 
+    def test_custom_group_form(self):
+        '''Our custom group form is being used for new groups.'''
+        app = self._get_test_app()
+        env, response = _get_group_new_page(app, group_type)
 
-def _get_group_edit_page(app, group_name=None):
+        assert_in('My Custom Group Form!', response,
+                  msg="Custom group form not being used.")
+
+
+def _get_group_edit_page(app, group_type, group_name=None):
     user = factories.User()
     if group_name is None:
         group = factories.Group(user=user, type=group_type)
@@ -78,6 +123,47 @@ class TestGroupControllerEdit(helpers.FunctionalTestBase):
         app = self._get_test_app()
         user = factories.User()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
+        url = url_for('%s_edit' % custom_group_type,
+                      id='doesnt_exist')
+        app.get(url=url, extra_environ=env,
+                status=404)
+
+    def test_save(self):
+        app = self._get_test_app()
+        env, response, group_name = \
+            _get_group_edit_page(app, custom_group_type)
+        form = response.forms['group-edit']
+
+        response = submit_and_follow(app, form, env, 'save')
+        group = model.Group.by_name(group_name)
+        assert_equal(group.state, 'active')
+        assert_equal(group.type, custom_group_type)
+
+    def test_custom_group_form(self):
+        '''Our custom group form is being used to edit groups.'''
+        app = self._get_test_app()
+        env, response, group_name = \
+            _get_group_edit_page(app, custom_group_type)
+
+        assert_in('My Custom Group Form!', response,
+                  msg="Custom group form not being used.")
+
+
+class TestGroupControllerEdit_DefaultGroupType(helpers.FunctionalTestBase):
+    @classmethod
+    def setup_class(cls):
+        super(TestGroupControllerEdit_DefaultGroupType, cls).setup_class()
+        plugins.load('example_igroupform_default_group_type')
+
+    @classmethod
+    def teardown_class(cls):
+        plugins.unload('example_igroupform_default_group_type')
+        super(TestGroupControllerEdit_DefaultGroupType, cls).teardown_class()
+
+    def test_group_doesnt_exist(self):
+        app = self._get_test_app()
+        user = factories.User()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
         url = url_for('%s_edit' % group_type,
                       id='doesnt_exist')
         app.get(url=url, extra_environ=env,
@@ -85,10 +171,18 @@ class TestGroupControllerEdit(helpers.FunctionalTestBase):
 
     def test_save(self):
         app = self._get_test_app()
-        env, response, group_name = _get_group_edit_page(app)
+        env, response, group_name = _get_group_edit_page(app, group_type)
         form = response.forms['group-edit']
 
         response = submit_and_follow(app, form, env, 'save')
         group = model.Group.by_name(group_name)
         assert_equal(group.state, 'active')
         assert_equal(group.type, group_type)
+
+    def test_custom_group_form(self):
+        '''Our custom group form is being used to edit groups.'''
+        app = self._get_test_app()
+        env, response, group_name = _get_group_edit_page(app, group_type)
+
+        assert_in('My Custom Group Form!', response,
+                  msg="Custom group form not being used.")
