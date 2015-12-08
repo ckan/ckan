@@ -18,6 +18,9 @@ Changes and deprecations
 
     https://github.com/ckan/ckanext-dcat#rdf-dcat-endpoints
 
+* The library used to render markdown has been changed to python-markdown. This
+  introduces both ``python-markdown`` and ``bleach`` as dependencies, as ``bleach``
+  is used to clean any HTML provided to the markdown processor.
 
 v2.4.1 2015-09-02
 =================
@@ -113,8 +116,8 @@ Changes and deprecations
   Custom templates or users of this API call will need to pass
   ``include_datasets=True`` to include datasets in the response.
 
-* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the 
-  ``packages`` key - i.e. datasets that use the vocabulary or tag. 
+* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the
+  ``packages`` key - i.e. datasets that use the vocabulary or tag.
   However ``tag_show`` now has an ``include_datasets`` option. (#1886)
 
 * Config option ``site_url`` is now required - CKAN will not abort during
