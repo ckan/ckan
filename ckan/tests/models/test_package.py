@@ -106,7 +106,7 @@ class TestPackage:
         assert out['metadata_modified'] == pkg.metadata_modified.isoformat()
         assert out['metadata_created'] == pkg.metadata_created.isoformat()
         assert_equal(out['notes'], pkg.notes)
-        assert_equal(out['notes_rendered'], '<p>A great package  like <a href="/dataset/pollution_stats">package:pollution_stats</a>\n</p>')
+        assert_equal(out['notes_rendered'], '<p>A great package  like <a href="/dataset/pollution_stats">package:pollution_stats</a></p>')
 
 
 class TestPackageWithTags:
