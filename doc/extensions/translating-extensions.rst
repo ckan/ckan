@@ -6,19 +6,19 @@ Internationalizating of strings in extensions
 
    In order to internationalize you extension you must mark the strings for
    internationalization. You can find out how to do this by reading
-   :doc: `/contributing/frontend/string-i18n.rst`
-   
+   :doc:`/contributing/i18n`
+
 .. seealso::
 
    In this tutorial we are assuming that you have read the
-   :doc: `/extensions/tutorial`
+   :doc:`/extensions/tutorial`
 
 We will create a simple extension that demonstrates the translation of strings
-inside extensions. After running 
+inside extensions. After running::
 
     paster --plugin=ckan create -t ckanext ckanext-itranslation
 
-Change and simply the ``plugin.py`` file to be 
+Change the ``plugin.py`` file to:
 
 .. literalinclude:: ../../ckanext/example_itranslation/plugin_v1.py
 
@@ -43,7 +43,7 @@ Extracting strings
 Check your ``setup.py`` file in your extension for the following lines
 
 .. code-block:: python
-    :emphasize-lines: 5-6, 12-15 
+    :emphasize-lines: 5-6, 12-15
 
     setup(
         entry_points='''
@@ -62,30 +62,33 @@ Check your ``setup.py`` file in your extension for the following lines
         }
 
 These lines will already be present in our example, but if you are adding
-internationalization to an older extension, you may need to add these them.
-If you have your templates in a directory differing from the default location,
-you may need to change the ``message_extractors`` stanza, you can read more
+internationalization to an older extension, you may need to add them.
+If you have your templates in a directory differing from the default location
+(``ckanext/yourplugin/i18n``),
+you may need to change the ``message_extractors`` stanza. You can read more
 about message extractors at the `babel documentation <http://babel.pocoo.org/docs/messages/#extraction-method-mapping-and-configuration>`_
 
 
-Add an directory to store your translations
+Add a directory to store your translations::
 
-    mkdir ckanext-itranslations/i18n
+    mkdir ckanext-itranslations/ckanext/itranslations/i18n
 
-Next you will need a babel config file. Add ``setup.cfg`` file containing
+Next you will need a babel config file. Add ``setup.cfg`` file containing the
+following (make sure to replace ``itranslations`` with the name of your extension):
 
 .. literalinclude:: ../../ckanext/example_itranslation/setup.cfg
 
 This file tells babel where the translation files are stored.
 You can then run the ``extract_messages`` command to extract the strings from
-your extension
+your extension::
 
     python setup.py extract_messages
 
-This will create a template PO file named 
-``ckanext/itranslations/i18n/ckanext-itranslation.pot``
-At this point, you can either upload an manage your translations using
-transifex or manually create your translations.
+This will create a template PO file named
+``ckanext/itranslations/i18n/ckanext-itranslation.pot``.
+
+At this point, you can either upload and manage your translations using
+Transifex or manually edit your translations.
 
 ------------------------------
 Creating translations manually
@@ -93,12 +96,13 @@ Creating translations manually
 
 We will be creating translation files for the ``fr`` locale.
 Create the translation PO files for the locale that you are translating for
-by running `init_catalog <http://babel.pocoo.org/docs/setup/#init-catalog>`_
+by running `init_catalog <http://babel.pocoo.org/docs/setup/#init-catalog>`_::
 
     python setup.py init_catalog -l fr
 
 This will generate a file called ``i18n/fr/LC_MESSAGES/ckanext-itranslation.po``.
-Edit this file to contain the following.
+This file should contain the untranslated string on our template. You can manually add
+a translation for it filling the ``msgstr`` section:
 
 .. literalinclude:: ../../ckanext/example_itranslation/i18n/fr/LC_MESSAGES/ckanext-example_itranslation.po
     :lines: 17-19
@@ -108,23 +112,24 @@ Edit this file to contain the following.
 Translations with Transifex
 ---------------------------
 
-Once you have created your translations, you can manage them using Transifex,
-this is out side of the scope of this tutorial, but the Transifex documentation
-provides tutorials on how to 
+Once you have created your translations, you can manage them using Transifex.
+This is out side of the scope of this tutorial, but the Transifex documentation
+provides tutorials on how to
 `upload translations <http://docs.transifex.com/tutorials/content/#upload-files-and-download-the-translations>`_
-and how to manage them using them 
-`command line client <http://docs.transifex.com/tutorials/client/>`_
+and how to manage them using the
+`command line client <http://docs.transifex.com/tutorials/client/>`_.
 
 
 ---------------------
 Compiling the catalog
 ---------------------
 
-Now compile the PO files by running
+Once the translation files (``po``) have been updated, either manually or via Transifex, compile them
+by running::
 
-    python setup.py compile_catalog -l fr
+    python setup.py compile_catalog
 
-This will generate an mo file containing your translations.
+This will generate a ``mo`` file containing your translations that can be used by CKAN.
 
 --------------------------
 The ITranslation interface
