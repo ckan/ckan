@@ -23,7 +23,8 @@ __all__ = [
     'IFacets',
     'IAuthenticator',
     'ITranslation',
-    'IUploader'
+    'IUploader',
+    'IMigration'
 ]
 
 from inspect import isclass
@@ -1553,4 +1554,16 @@ class IUploader(Interface):
         :param id: resource id
         :type id: string
 
+        '''
+
+
+class IMigration(Interface):
+
+    def migrations(self):
+        '''Returns the repository name for the migrations.
+
+          This should be a / separated string specifying a path to a module.
+          For instance, in ckan this is 'ckan/migrations'.  In an extension called
+          my_extension it would be 'my_extension/migrations' if the migrations
+          folder contains versions folder.
         '''

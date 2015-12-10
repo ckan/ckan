@@ -3,6 +3,7 @@ import warnings
 import logging
 import re
 from datetime import datetime
+import ckan.plugins as plugins
 
 import vdm.sqlalchemy
 from vdm.sqlalchemy.base import SQLAlchemySession
@@ -273,6 +274,14 @@ class Repository(vdm.sqlalchemy.Repository):
         except migrate.exceptions.DatabaseAlreadyControlledError:
             pass
 
+        for plugin in plugins.PluginImplementations(plugins.IMigration):
+            path = plugin.migrations()
+            try:
+                mig.version_control(self.metadata.bind, path, version=None)
+            except migrate.exceptions.DatabaseAlreadyControlledError:
+                pass
+
+
     def upgrade_db(self, version=None):
         '''Upgrade db using sqlalchemy migrations.
 
@@ -282,7 +291,9 @@ class Repository(vdm.sqlalchemy.Repository):
             'Database migration - only Postgresql engine supported (not %s).' \
                 % meta.engine.name
         import migrate.versioning.api as mig
+
         self.setup_migration_version_control()
+
         version_before = mig.db_version(self.metadata.bind, self.migrate_repository)
         mig.upgrade(self.metadata.bind, self.migrate_repository, version=version)
         version_after = mig.db_version(self.metadata.bind, self.migrate_repository)
@@ -290,6 +301,17 @@ class Repository(vdm.sqlalchemy.Repository):
             log.info('CKAN database version upgraded: %s -> %s', version_before, version_after)
         else:
             log.info('CKAN database version remains as: %s', version_after)
+
+
+        for plugin in plugins.PluginImplementations(plugins.IMigration):
+            path = plugin.migrations()
+            version_before = mig.db_version(self.metadata.bind, path)
+            mig.upgrade(self.metadata.bind, path, version=None)
+            version_after = mig.db_version(self.metadata.bind, path)
+            if version_after != version_before:
+                log.info('Extension database (%s) version upgraded: %s -> %s', path, version_before, version_after)
+            else:
+                log.info('Extension database (%s) version remains as: %s', path, version_after)
 
         ##this prints the diffs in a readable format
         ##import pprint

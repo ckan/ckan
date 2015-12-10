@@ -1,2 +1,3 @@
 include README.rst
 recursive-include ckanext/{{ project_shortname }} *.html *.json *.js *.less *.css
+recursive-include ckanext/{{ project_shortname }}/migrations *

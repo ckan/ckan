@@ -1,12 +1,20 @@
+import os
+
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
 
 class {{ plugin_class_name }}(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
+    plugins.implements(plugins.IMigration)
+
+    # IMigration
+    def migrations(self):
+        current_directory = os.path.dirname(os.path.abspath(__file__))
+        plugin_root = '/'.join(current_directory.split('/')[0:-2])
+        return  os.path.join(plugin_root, 'ckanext/{{ project_shortname }}/migrations')
 
     # IConfigurer
-
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates')
         toolkit.add_public_directory(config_, 'public')
