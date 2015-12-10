@@ -63,22 +63,22 @@ class TestHelpersRenderMarkdown(object):
 
     def test_render_markdown_not_allow_html(self):
         data = '<h1>moo</h1>'
-        output = '<p>moo\n</p>'
+        output = '<p>moo</p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link_without_path(self):
         data = 'http://example.com'
-        output = '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a>\n</p>'
+        output = '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link(self):
         data = 'https://example.com/page.html'
-        output = '<p><a href="https://example.com/page.html" target="_blank" rel="nofollow">https://example.com/page.html</a>\n</p>'
+        output = '<p><a href="https://example.com/page.html" target="_blank" rel="nofollow">https://example.com/page.html</a></p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link_ignoring_trailing_punctuation(self):
         data = 'My link: http://example.com/page.html.'
-        output = '<p>My link: <a href="http://example.com/page.html" target="_blank" rel="nofollow">http://example.com/page.html</a>.\n</p>'
+        output = '<p>My link: <a href="http://example.com/page.html" target="_blank" rel="nofollow">http://example.com/page.html</a>.</p>'
         eq_(h.render_markdown(data), output)
 
 
