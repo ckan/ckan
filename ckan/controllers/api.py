@@ -197,6 +197,10 @@ class ApiController(base.BaseController):
         # if callback is specified we do not want to send that to the search
         if 'callback' in request_data:
             del request_data['callback']
+            c.user = None
+            c.userobj = None
+            context['user'] = None
+            context['auth_user_obj'] = None
         try:
             result = function(context, request_data)
             return_dict['success'] = True
