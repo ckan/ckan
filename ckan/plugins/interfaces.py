@@ -1558,12 +1558,37 @@ class IUploader(Interface):
 
 
 class IMigration(Interface):
+    ''' This interface allows extensions to provide migrations.
+
+    By providing migrations, extension specific database tables will be
+    kept up to date whenever ```paster db upgrade``` is run.
+    '''
 
     def migrations(self):
         '''Returns the repository name for the migrations.
 
           This should be a / separated string specifying a path to a module.
           For instance, in ckan this is 'ckan/migrations'.  In an extension called
-          my_extension it would be 'my_extension/migrations' if the migrations
-          folder contains versions folder.
+          my_extension it would be '/full/path/to/my_extension/migrations' to
+          ensure the migrations can be found from within the ckan plugin.
+
+          The folder structure for migrations is fairly specific and should be
+          structured as:
+
+                ckanext/myext/migrations/
+                ckanext/myext/migrations/__init__.py
+                ckanext/myext/migrations/migrate.cfg
+                ckanext/myext/migrations/versions/
+                ckanext/myext/migrations/versions/__init__.py
+
+           Each migration should them be a python file named with an
+           incrementing counter as part of the filename.  The first migration
+           would be 001_add_tables.py, the second 002_update_tables.py.
+
+           The migrate.cfg file, should follow the layout below:
+
+                [db_settings]
+                repository_id=ckanext-myext
+                version_table=migrate_version
+                required_dbs=[]
         '''

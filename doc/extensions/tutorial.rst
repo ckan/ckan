@@ -71,6 +71,11 @@ to get you started::
             __init__.py
             iauthfunctions/
                 __init__.py
+                migrations/
+                    __init__.py
+                    versions/
+                        __init__.py
+                        001_initial_creation.py
         ckanext_iauthfunctions.egg-info/
         setup.py
 
@@ -82,6 +87,10 @@ this directory, and you should not add it to version control.
 ``setup.py`` is the setup script for your project. As you'll see later, you use
 this script to install your project into a virtual environment. It contains
 several settings that you'll update as you develop your project.
+
+``ckanext/iauthfunctions/migrations/versions`` is the module which will contain
+any database migrations that you wish to use to build and migrate database
+tables.
 
 ``ckanext/iauthfunctions`` is the Python package directory where we'll add the
 source code files for our extension.
