@@ -22,7 +22,6 @@ WebTest==1.4.3
 apachemiddleware==0.1.1
 argparse==1.2.1
 decorator==3.4.0
-distribute==0.6.34
 fanstatic==0.12
 nose==1.3.0
 ofs==0.4.1
