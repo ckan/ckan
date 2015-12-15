@@ -22,6 +22,10 @@ Changes and deprecations
   introduces both ``python-markdown`` and ``bleach`` as dependencies, as ``bleach``
   is used to clean any HTML provided to the markdown processor.
 
+* Note: This is the last version of CKAN to support Postgresql 8.x, 9.0 and 9.1. The
+  next minor version of CKAN will require Postgresql 9.2 or later.
+
+
 v2.4.1 2015-09-02
 =================
 
