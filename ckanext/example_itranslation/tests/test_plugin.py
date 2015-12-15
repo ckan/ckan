@@ -31,14 +31,6 @@ class TestExampleITranslationPlugin(helpers.FunctionalTestBase):
         assert_true('This is an untranslated string' in response.body)
         assert_false('This is a itranslated string' in response.body)
 
-        # check that we have only overwritten 'fr'
-        response = app.get(
-            url=plugins.toolkit.url_for(controller='home', action='index',
-                                        locale='es'),
-        )
-        assert_true('This is an untranslated string' in response.body)
-        assert_false('This is a itranslated string' in response.body)
-
     def test_translated_string_in_core_templates(self):
         app = self._get_test_app()
         response = app.get(
