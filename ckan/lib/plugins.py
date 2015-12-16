@@ -341,6 +341,9 @@ class DefaultGroupForm(object):
     Note - this isn't a plugin implementation. This is deliberate, as we
            don't want this being registered.
     """
+    def group_controller(self):
+        return 'group'
+
     def new_template(self):
         """
         Returns a string representing the location of the template to be
@@ -491,6 +494,9 @@ class DefaultGroupForm(object):
 
 
 class DefaultOrganizationForm(DefaultGroupForm):
+    def group_controller(self):
+        return 'organization'
+
     def group_form(self):
         return 'organization/new_organization_form.html'
 
