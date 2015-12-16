@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-01-26 11:55+0000\n"
-"PO-Revision-Date: 2015-01-26 12:20+0000\n"
+"PO-Revision-Date: 2015-11-26 14:22+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
 "Language-Team: Norwegian (http://www.transifex.com/okfn/ckan/language/no/)\n"
 "MIME-Version: 1.0\n"
@@ -2956,7 +2956,7 @@ msgstr ""
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
-msgstr ""
+msgstr "Populære stikkord"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
@@ -3750,11 +3750,11 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
-msgstr ""
+msgstr "Bredde"
 
 #: ckan/templates/package/snippets/resource_view.html:72
 msgid "Height"
-msgstr ""
+msgstr "Høyde"
 
 #: ckan/templates/package/snippets/resource_view.html:75
 msgid "Code"

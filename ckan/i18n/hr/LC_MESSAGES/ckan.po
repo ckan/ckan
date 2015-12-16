@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-01-26 11:55+0000\n"
-"PO-Revision-Date: 2015-01-26 12:21+0000\n"
+"PO-Revision-Date: 2015-12-04 19:48+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
 "Language-Team: Croatian (http://www.transifex.com/okfn/ckan/language/hr/)\n"
 "MIME-Version: 1.0\n"
@@ -239,7 +239,7 @@ msgstr "Grupа nije pronаđenа"
 
 #: ckan/controllers/feed.py:234 ckan/controllers/group.py:364
 msgid "Organization not found"
-msgstr ""
+msgstr "Organizacija nije pronađena"
 
 #: ckan/controllers/group.py:172
 msgid "Incorrect group type"
@@ -506,7 +506,7 @@ msgstr "Nemate ovlasti za kreiranje resursa"
 
 #: ckan/controllers/package.py:750
 msgid "Unauthorized to create a resource for this package"
-msgstr ""
+msgstr "Nemate prava za izradu resursa u odabranom paketu"
 
 #: ckan/controllers/package.py:973
 msgid "Unable to add package to search index."
@@ -544,7 +544,7 @@ msgstr "Nemate ovlasti za čitanje skupa podataka %s"
 
 #: ckan/controllers/package.py:1153 ckan/controllers/package.py:1615
 msgid "Resource view not found"
-msgstr ""
+msgstr "Resurs nije pronаđen"
 
 #: ckan/controllers/package.py:1184 ckan/controllers/package.py:1375
 #: ckan/controllers/package.py:1455 ckan/controllers/package.py:1488
@@ -563,20 +563,20 @@ msgstr "Preuzimanje nije moguće"
 
 #: ckan/controllers/package.py:1523
 msgid "Unauthorized to edit resource"
-msgstr ""
+msgstr "Nemate ovlasti za izmjenu resursa"
 
 #: ckan/controllers/package.py:1541
 msgid "View not found"
-msgstr ""
+msgstr "Pogled nije pronađen"
 
 #: ckan/controllers/package.py:1543
 #, python-format
 msgid "Unauthorized to view View %s"
-msgstr ""
+msgstr "Nemate prava za pregled pogleda %s"
 
 #: ckan/controllers/package.py:1549
 msgid "View Type Not found"
-msgstr ""
+msgstr "Tip pogleda nije pronađen"
 
 #: ckan/controllers/package.py:1609
 msgid "Bad resource view data"
@@ -585,7 +585,7 @@ msgstr ""
 #: ckan/controllers/package.py:1618
 #, python-format
 msgid "Unauthorized to read resource view %s"
-msgstr ""
+msgstr "Nemate prava za pregled %s"
 
 #: ckan/controllers/package.py:1621
 msgid "Resource view not supplied"
@@ -833,7 +833,7 @@ msgstr "Nedostаje vrijednost"
 
 #: ckan/controllers/util.py:21
 msgid "Redirecting to external site is not allowed."
-msgstr ""
+msgstr "Preusmjeravanje na vanjske adrese nije dozvoljeno."
 
 #: ckan/lib/activity_streams.py:64
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
@@ -1169,7 +1169,7 @@ msgid ""
 "Please click the following link to confirm this request:\n"
 "\n"
 "   {reset_link}\n"
-msgstr ""
+msgstr "Zatražili ste resetiranje vaše lozinke na %{site_title}.\n\n    Molimo vas kliknite na sljedeći link za potvrdu zahtjeva:\n   \n   %{reset_link}\n"
 
 #: ckan/lib/mailer.py:119
 msgid ""
@@ -1299,7 +1299,7 @@ msgstr "Nisu dozvoljeni linkovi u log poruci."
 
 #: ckan/logic/validators.py:151
 msgid "Dataset id already exists"
-msgstr ""
+msgstr "ID za skup podataka već postoji"
 
 #: ckan/logic/validators.py:192 ckan/logic/validators.py:283
 msgid "Resource"
@@ -1330,7 +1330,7 @@ msgstr "To ime se ne može koristiti"
 #: ckan/logic/validators.py:356
 #, python-format
 msgid "Must be at least %s characters long"
-msgstr ""
+msgstr "Mora sadržavati najmanje %s znakova "
 
 #: ckan/logic/validators.py:358 ckan/logic/validators.py:636
 #, python-format
@@ -2318,7 +2318,7 @@ msgstr "Potvrdi resetiranje"
 
 #: ckan/templates/admin/index.html:15
 msgid "Administer CKAN"
-msgstr ""
+msgstr "Administriraj CKAN"
 
 #: ckan/templates/admin/index.html:20
 #, python-format
@@ -2330,7 +2330,7 @@ msgstr ""
 
 #: ckan/templates/admin/trash.html:20
 msgid "Purge"
-msgstr ""
+msgstr "Trajno brisanje"
 
 #: ckan/templates/admin/trash.html:32
 msgid " <p>Purge deleted datasets forever and irreversibly.</p> "
@@ -2958,11 +2958,11 @@ msgstr ""
 
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
-msgstr ""
+msgstr "Pretraga"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
-msgstr ""
+msgstr "Popularne oznake"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
@@ -3233,7 +3233,7 @@ msgstr "Uredi metаpodаtke"
 #: ckan/templates/package/edit_view.html:8
 #: ckan/templates/package/edit_view.html:12
 msgid "Edit view"
-msgstr ""
+msgstr "Izmjeni pogled"
 
 #: ckan/templates/package/edit_view.html:20
 #: ckan/templates/package/new_view.html:28
@@ -3286,7 +3286,7 @@ msgstr "Novi resurs"
 #: ckan/templates/package/new_view.html:8
 #: ckan/templates/package/new_view.html:12
 msgid "Add view"
-msgstr ""
+msgstr "Dodaj pogled"
 
 #: ckan/templates/package/new_view.html:19
 msgid ""
@@ -3378,7 +3378,7 @@ msgstr "DataStore"
 
 #: ckan/templates/package/resource_edit_base.html:28
 msgid "Views"
-msgstr ""
+msgstr "Pogledi"
 
 #: ckan/templates/package/resource_read.html:39
 msgid "API Endpoint"
@@ -3477,7 +3477,7 @@ msgstr "Licencа"
 
 #: ckan/templates/package/resource_views.html:10
 msgid "New view"
-msgstr ""
+msgstr "Novi pogled"
 
 #: ckan/templates/package/resource_views.html:28
 msgid "This resource has no views"
@@ -3519,7 +3519,7 @@ msgstr " Također možete pristupiti registru koristeći %(api_link)s (vidi %(ap
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
-msgstr ""
+msgstr "Svi pogledi"
 
 #: ckan/templates/package/view_edit_base.html:12
 msgid "View view"
@@ -3558,7 +3558,7 @@ msgstr "Stаtus"
 
 #: ckan/templates/package/snippets/additional_info.html:62
 msgid "Last Updated"
-msgstr ""
+msgstr "Zadnja izmjena"
 
 #: ckan/templates/package/snippets/data_api_button.html:10
 msgid "Data API"
@@ -3756,11 +3756,11 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
-msgstr ""
+msgstr "Širina"
 
 #: ckan/templates/package/snippets/resource_view.html:72
 msgid "Height"
-msgstr ""
+msgstr "Visina"
 
 #: ckan/templates/package/snippets/resource_view.html:75
 msgid "Code"
@@ -3776,7 +3776,7 @@ msgstr "Podaci i Resursi"
 
 #: ckan/templates/package/snippets/resources_list.html:29
 msgid "This dataset has no data"
-msgstr ""
+msgstr "Ovaj Skup podataka je prazan"
 
 #: ckan/templates/package/snippets/revisions_table.html:24
 #, python-format
@@ -3804,23 +3804,23 @@ msgstr ""
 
 #: ckan/templates/package/snippets/view_form_filters.html:16
 msgid "Add Filter"
-msgstr ""
+msgstr "Dodaj filter"
 
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
-msgstr ""
+msgstr "Ukloni filter"
 
 #: ckan/templates/package/snippets/view_form_filters.html:46
 msgid "Filters"
-msgstr ""
+msgstr "Filteri"
 
 #: ckan/templates/package/snippets/view_help.html:2
 msgid "What's a view?"
-msgstr ""
+msgstr "Što je pogled?"
 
 #: ckan/templates/package/snippets/view_help.html:4
 msgid "A view is a representation of the data held against a resource"
-msgstr ""
+msgstr "Pogled je način prikaza podataka unutar resursa"
 
 #: ckan/templates/related/base_form_page.html:12
 msgid "Related Form"
@@ -4315,11 +4315,11 @@ msgstr "Jeste li sigurni da želite izbrisati ovog korisnika?"
 
 #: ckan/templates/user/edit_user_form.html:43
 msgid "Are you sure you want to regenerate the API key?"
-msgstr ""
+msgstr "Da li ste sigurni da želite izraditi novi API ključ"
 
 #: ckan/templates/user/edit_user_form.html:44
 msgid "Regenerate API Key"
-msgstr ""
+msgstr "Izradi novi API ključ"
 
 #: ckan/templates/user/edit_user_form.html:48
 msgid "Update Profile"
@@ -4411,7 +4411,7 @@ msgstr "Kreirajte skupove podataka, grupe i ostale zanimljive stvari"
 
 #: ckan/templates/user/new_user_form.html:5
 msgid "username"
-msgstr ""
+msgstr "korisničko ime"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
@@ -4473,11 +4473,11 @@ msgstr "API Ključ"
 
 #: ckan/templates/user/request_reset.html:6
 msgid "Password reset"
-msgstr ""
+msgstr "Resetiranje lozinke"
 
 #: ckan/templates/user/request_reset.html:19
 msgid "Request reset"
-msgstr ""
+msgstr "Zahtjev"
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
@@ -4530,7 +4530,7 @@ msgstr "DataStore resurs nije pronаđen"
 msgid ""
 "The data was invalid (for example: a numeric value is out of range or was "
 "inserted into a text field)."
-msgstr ""
+msgstr "Neispravni unos (npr. uneseni broj je prevelik ili se očekuje tekst)"
 
 #: ckanext/datastore/logic/action.py:209 ckanext/datastore/logic/action.py:259
 #: ckanext/datastore/logic/action.py:343 ckanext/datastore/logic/action.py:425
@@ -4544,11 +4544,11 @@ msgstr "Korisnik {0} nema ovlasti za ažuriranje resursa {1}"
 
 #: ckanext/example_idatasetform/templates/package/search.html:16
 msgid "Custom Field Ascending"
-msgstr ""
+msgstr "Korisnički opis polja uzlazno"
 
 #: ckanext/example_idatasetform/templates/package/search.html:17
 msgid "Custom Field Descending"
-msgstr ""
+msgstr "Korisnički opis polja silazno"
 
 #: ckanext/example_idatasetform/templates/package/snippets/additional_info.html:6
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
@@ -4566,7 +4566,7 @@ msgstr "Kod zemlje"
 
 #: ckanext/example_idatasetform/templates/package/snippets/resource_form.html:6
 msgid "custom resource text"
-msgstr ""
+msgstr "korisnički tekst"
 
 #: ckanext/example_theme/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:20
 #: ckanext/example_theme/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:19
@@ -4575,11 +4575,11 @@ msgstr "Ova grupa nema opis"
 
 #: ckanext/example_theme/v12_extra_public_dir/templates/home/snippets/promoted.html:4
 msgid "CKAN's data previewing tool has many powerful features"
-msgstr ""
+msgstr "CKAN nudi niz korisnih funkcionalnosti za pregled podataka"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "Image url"
-msgstr ""
+msgstr "Adresa slike"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
@@ -4591,15 +4591,15 @@ msgstr ""
 
 #: ckanext/reclineview/plugin.py:106
 msgid "Table"
-msgstr ""
+msgstr "Tablica"
 
 #: ckanext/reclineview/plugin.py:149
 msgid "Graph"
-msgstr ""
+msgstr "Graf"
 
 #: ckanext/reclineview/plugin.py:207
 msgid "Map"
-msgstr ""
+msgstr "Karta"
 
 #: ckanext/reclineview/theme/public/vendor/slickgrid/2.0.1/MIT-LICENSE.txt:1
 msgid ""
@@ -4653,33 +4653,33 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
 msgid "eg: 0"
-msgstr ""
+msgstr "npr. 0"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr ""
+msgstr "Broj redova"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "eg: 100"
-msgstr ""
+msgstr "npr. 100"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:6
 msgid "Graph type"
-msgstr ""
+msgstr "Tip grafa"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:7
 msgid "Group (Axis 1)"
-msgstr ""
+msgstr "Grupa (Os 1)"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:8
 msgid "Series (Axis 2)"
-msgstr ""
+msgstr "Serije (Os 2)"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:6
 msgid "Field type"
-msgstr ""
+msgstr "Tip polja"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:7
 msgid "Latitude field"
@@ -4699,7 +4699,7 @@ msgstr ""
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:11
 msgid "Cluster markers"
-msgstr ""
+msgstr "Grupiraj oznake"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:57
@@ -4844,12 +4844,12 @@ msgstr "Odaberite područje"
 
 #: ckanext/webpageview/plugin.py:24
 msgid "Website"
-msgstr ""
+msgstr "Web"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "Web Page url"
-msgstr ""
+msgstr "Adresa web stranice"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "eg. http://example.com (if blank uses resource url)"
-msgstr ""
+msgstr "npr. http://example.com (ako je prazno koristi se url od resursa)"

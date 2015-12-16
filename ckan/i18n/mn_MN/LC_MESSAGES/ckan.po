@@ -23,7 +23,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-01-26 11:55+0000\n"
-"PO-Revision-Date: 2015-01-26 12:22+0000\n"
+"PO-Revision-Date: 2015-12-07 02:22+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
 "Language-Team: Mongolian (Mongolia) (http://www.transifex.com/okfn/ckan/language/mn_MN/)\n"
 "MIME-Version: 1.0\n"
@@ -252,7 +252,7 @@ msgstr "Бүлэг олдсонгүй"
 
 #: ckan/controllers/feed.py:234 ckan/controllers/group.py:364
 msgid "Organization not found"
-msgstr ""
+msgstr "Байгууллага олдсонгүй"
 
 #: ckan/controllers/group.py:172
 msgid "Incorrect group type"
@@ -846,7 +846,7 @@ msgstr "Орхигдсон утга"
 
 #: ckan/controllers/util.py:21
 msgid "Redirecting to external site is not allowed."
-msgstr ""
+msgstr "Гадаад вэб сайтруу чиглүүлэхийг зөвшөөрөхгүй"
 
 #: ckan/lib/activity_streams.py:64
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
@@ -1144,14 +1144,14 @@ msgstr "Засварлах тохиргоо"
 #: ckan/lib/helpers.py:1431
 msgid "{number} view"
 msgid_plural "{number} views"
-msgstr[0] "{тоо} үзсэн"
+msgstr[0] "{number} үзсэн"
 msgstr[1] "{number} үзсэн"
 
 #: ckan/lib/helpers.py:1433
 msgid "{number} recent view"
 msgid_plural "{number} recent views"
-msgstr[0] "{тоо} сүүлд үзсэн"
-msgstr[1] "{тоо} сүүлд үзсэн"
+msgstr[0] "{number} сүүлд үзсэн"
+msgstr[1] "{number} сүүлд үзсэн"
 
 #: ckan/lib/mailer.py:25
 #, python-format
@@ -1304,7 +1304,7 @@ msgstr "Лог мессежэнд холбогдох хаягууд агуула
 
 #: ckan/logic/validators.py:151
 msgid "Dataset id already exists"
-msgstr ""
+msgstr "Өгөгдлийн бүрдлийн id аль хэдийнэ үүссэн байна"
 
 #: ckan/logic/validators.py:192 ckan/logic/validators.py:283
 msgid "Resource"
@@ -4140,7 +4140,7 @@ msgstr "\"{query}\" холбогдолтой ямар ч бүлэг олдсон
 msgid "{number} group found"
 msgid_plural "{number} groups found"
 msgstr[0] "{number} бүлэг олдлоо"
-msgstr[1] "{тоо} бүлэг олдлоо"
+msgstr[1] "{number} бүлэг олдлоо"
 
 #: ckan/templates/snippets/search_result_text.html:24
 msgid "No groups found"
@@ -4160,7 +4160,7 @@ msgstr "\"{query}\" -н үр дүнд байгууллага олдсонгүй"
 msgid "{number} organization found"
 msgid_plural "{number} organizations found"
 msgstr[0] "{number} - н байгууллага олдлоо"
-msgstr[1] "{тоо} байгууллага олдлоо"
+msgstr[1] "{number} байгууллага олдлоо"
 
 #: ckan/templates/snippets/search_result_text.html:30
 msgid "No organizations found"

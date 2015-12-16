@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-01-26 11:55+0000\n"
-"PO-Revision-Date: 2015-01-26 12:20+0000\n"
+"PO-Revision-Date: 2015-12-14 16:48+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
 "Language-Team: Dutch (http://www.transifex.com/okfn/ckan/language/nl/)\n"
 "MIME-Version: 1.0\n"
@@ -245,7 +245,7 @@ msgstr "De titel van de dataset."
 
 #: ckan/controllers/feed.py:234 ckan/controllers/group.py:364
 msgid "Organization not found"
-msgstr ""
+msgstr "Organisatie niet gevonden"
 
 #: ckan/controllers/group.py:172
 msgid "Incorrect group type"
@@ -512,7 +512,7 @@ msgstr "Niet de rechten om deze bron te creëren"
 
 #: ckan/controllers/package.py:750
 msgid "Unauthorized to create a resource for this package"
-msgstr ""
+msgstr "Niet gemachtigd om een bron te creëren voor dit pakket"
 
 #: ckan/controllers/package.py:973
 msgid "Unable to add package to search index."
@@ -550,7 +550,7 @@ msgstr "Niet de rechten om deze dataset te lezen %s"
 
 #: ckan/controllers/package.py:1153 ckan/controllers/package.py:1615
 msgid "Resource view not found"
-msgstr ""
+msgstr "Bronoverzicht niet gevonden"
 
 #: ckan/controllers/package.py:1184 ckan/controllers/package.py:1375
 #: ckan/controllers/package.py:1455 ckan/controllers/package.py:1488
@@ -569,33 +569,33 @@ msgstr "Er is geen download beschikbaar"
 
 #: ckan/controllers/package.py:1523
 msgid "Unauthorized to edit resource"
-msgstr ""
+msgstr "Niet gemachtigd om bron te bewerken"
 
 #: ckan/controllers/package.py:1541
 msgid "View not found"
-msgstr ""
+msgstr "Overzicht niet gevonden"
 
 #: ckan/controllers/package.py:1543
 #, python-format
 msgid "Unauthorized to view View %s"
-msgstr ""
+msgstr "Niet gemachtigd om overzicht %s te bekijken"
 
 #: ckan/controllers/package.py:1549
 msgid "View Type Not found"
-msgstr ""
+msgstr "Soort overzicht niet gevonden"
 
 #: ckan/controllers/package.py:1609
 msgid "Bad resource view data"
-msgstr ""
+msgstr "Fout in bronoverzicht gegevens"
 
 #: ckan/controllers/package.py:1618
 #, python-format
 msgid "Unauthorized to read resource view %s"
-msgstr ""
+msgstr "Niet gemachtigd om bron %s te lezen"
 
 #: ckan/controllers/package.py:1621
 msgid "Resource view not supplied"
-msgstr ""
+msgstr "Bronoverzicht niet ingevoerd"
 
 #: ckan/controllers/package.py:1650
 msgid "No preview has been defined."
@@ -839,7 +839,7 @@ msgstr "Missende Waarde"
 
 #: ckan/controllers/util.py:21
 msgid "Redirecting to external site is not allowed."
-msgstr ""
+msgstr "Het is niet toegestaan door te verwijzen naar externe omgevingen."
 
 #: ckan/lib/activity_streams.py:64
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
@@ -1297,7 +1297,7 @@ msgstr "Links zijn niet toegestaan in het logboekbericht"
 
 #: ckan/logic/validators.py:151
 msgid "Dataset id already exists"
-msgstr ""
+msgstr "Er bestaat al een gegevensset met deze sleutel"
 
 #: ckan/logic/validators.py:192 ckan/logic/validators.py:283
 msgid "Resource"
@@ -1328,7 +1328,7 @@ msgstr "Die naam kan niet worden gebruikt"
 #: ckan/logic/validators.py:356
 #, python-format
 msgid "Must be at least %s characters long"
-msgstr ""
+msgstr "Moet tenminste %s tekens bevatten"
 
 #: ckan/logic/validators.py:358 ckan/logic/validators.py:636
 #, python-format
@@ -1339,7 +1339,7 @@ msgstr "Naam mag maximaal %i karakters lang zijn"
 msgid ""
 "Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
 "-_"
-msgstr ""
+msgstr "Moet bestaan uit kleine letters (ascii), cijfers en deze symbolen: -_"
 
 #: ckan/logic/validators.py:379
 msgid "That URL is already in use."
@@ -1477,7 +1477,7 @@ msgstr "Deze ouder zou een oneindige lus in de hiërarchie veroorzaken"
 
 #: ckan/logic/validators.py:805
 msgid "\"filter_fields\" and \"filter_values\" should have the same length"
-msgstr ""
+msgstr "\"filter_fields\" en \"filter_values\" moeten dezelfde lengte hebben"
 
 #: ckan/logic/validators.py:816
 msgid "\"filter_fields\" is required when \"filter_values\" is filled"
@@ -1485,11 +1485,11 @@ msgstr ""
 
 #: ckan/logic/validators.py:819
 msgid "\"filter_values\" is required when \"filter_fields\" is filled"
-msgstr ""
+msgstr "\"filter_values\" is vereist wanneer \"filter_fields\" is ingevuld"
 
 #: ckan/logic/validators.py:833
 msgid "There is a schema field with the same name"
-msgstr ""
+msgstr "Er is een veld in het schema met dezelfde naam"
 
 #: ckan/logic/action/create.py:178 ckan/logic/action/create.py:638
 #, python-format
@@ -1663,7 +1663,7 @@ msgstr "U moet ingelogd zijn om een verwant item te maken"
 
 #: ckan/logic/auth/create.py:77
 msgid "No dataset id provided, cannot check auth."
-msgstr ""
+msgstr "Geen sleutel voor de gegevensset ingevoerd. Machtiging kan niet worden gecontroleerd."
 
 #: ckan/logic/auth/create.py:84 ckan/logic/auth/delete.py:28
 #: ckan/logic/auth/get.py:135 ckan/logic/auth/update.py:61
@@ -1673,7 +1673,7 @@ msgstr "Geen package gevonden voor deze bron, kan autorisatie niet controleren."
 #: ckan/logic/auth/create.py:92
 #, python-format
 msgid "User %s not authorized to create resources on dataset %s"
-msgstr ""
+msgstr "Gebruiker %s is niet gemachtigd om bronnen aan te maken voor gegevensset %s"
 
 #: ckan/logic/auth/create.py:115
 #, python-format
@@ -1727,7 +1727,7 @@ msgstr "Gebruiker %s is niet geautoriseerd om bron %s te verwijderen"
 
 #: ckan/logic/auth/delete.py:50
 msgid "Resource view not found, cannot check auth."
-msgstr ""
+msgstr "Bronoverzicht niet gevonden. Machtiging kan niet worden gecontroleerd."
 
 #: ckan/logic/auth/delete.py:60 ckan/logic/auth/delete.py:74
 msgid "Only the owner can delete a related item"
@@ -1781,7 +1781,7 @@ msgstr "Gebruiker %s is niet geautoriseerd om bron %s te lezen "
 #: ckan/logic/auth/get.py:166
 #, python-format
 msgid "User %s not authorized to read group %s"
-msgstr ""
+msgstr "Gebruiker %s is niet gemachtigd om groep %s te lezen "
 
 #: ckan/logic/auth/get.py:234
 msgid "You must be logged in to access your dashboard."
@@ -1836,7 +1836,7 @@ msgstr "Gebruiker %s is niet geautoriseerd om gebruiker %s te wijzigen"
 
 #: ckan/logic/auth/update.py:228
 msgid "User {0} not authorized to update user {1}"
-msgstr ""
+msgstr "Gebruiker {0} heeft geen toestemming om de gebruiker {1} bij te werken"
 
 #: ckan/logic/auth/update.py:236
 #, python-format
@@ -1863,7 +1863,7 @@ msgstr "Geldige API key nodig om een groep te wijzigen"
 
 #: ckan/model/license.py:177
 msgid "License not specified"
-msgstr ""
+msgstr "Licentie is niet gespecificeerd"
 
 #: ckan/model/license.py:187
 msgid "Open Data Commons Public Domain Dedication and License (PDDL)"
@@ -2121,7 +2121,7 @@ msgstr "Bestand wordt geupload. Als u deze pagina verlaat stopt de upload. Weet 
 
 #: ckan/public/base/javascript/modules/resource-view-reorder.js:8
 msgid "Reorder resource view"
-msgstr ""
+msgstr "Wijzig sortering bronnen"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:35
 #: ckan/templates/group/snippets/group_form.html:18
@@ -2241,7 +2241,7 @@ msgstr "Zoek"
 
 #: ckan/templates/page.html:6
 msgid "Skip to content"
-msgstr ""
+msgstr "Ga verder naar de inhoud"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:9
 msgid "Load less"
@@ -2315,7 +2315,7 @@ msgstr "Bevestig reset"
 
 #: ckan/templates/admin/index.html:15
 msgid "Administer CKAN"
-msgstr ""
+msgstr "Beheer CKAN"
 
 #: ckan/templates/admin/index.html:20
 #, python-format
@@ -2327,11 +2327,11 @@ msgstr ""
 
 #: ckan/templates/admin/trash.html:20
 msgid "Purge"
-msgstr ""
+msgstr "Definitief verwijderen"
 
 #: ckan/templates/admin/trash.html:32
 msgid " <p>Purge deleted datasets forever and irreversibly.</p> "
-msgstr ""
+msgstr "<p>Onherstelbaar en definitief verwijderen</p>"
 
 #: ckan/templates/ajax_snippets/api_info.html:19
 msgid "CKAN Data API"
@@ -2950,15 +2950,15 @@ msgstr "Dit is een gekenmerkte sectie"
 
 #: ckan/templates/home/snippets/search.html:2
 msgid "E.g. environment"
-msgstr ""
+msgstr "Bijv. omgeving"
 
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
-msgstr ""
+msgstr "Zoek gegevens"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
-msgstr ""
+msgstr "Veel gebruikte labels"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
@@ -3141,7 +3141,7 @@ msgstr "Dataset toevoegen"
 
 #: ckan/templates/organization/snippets/feeds.html:3
 msgid "Datasets in organization: {group}"
-msgstr ""
+msgstr "Datasets in organisatie: {group}"
 
 #: ckan/templates/organization/snippets/help.html:4
 #: ckan/templates/organization/snippets/helper.html:4
@@ -3156,7 +3156,7 @@ msgid ""
 "organizations, admins can assign roles and authorise its members, giving "
 "individual users the right to publish datasets from that particular "
 "organisation (e.g. Office of National Statistics).</p> "
-msgstr ""
+msgstr " <p>Organisaties zijn afdelingen die datasets publiceren (bv. de afdeling Volksgezondheid). Dit betekent dat de datasets gepubliceerd en beheerd kunnen worden door een afdeling in plaats van een enkele gebruiker.</p> <p>Binnen organisaties kunnen beheerders rollen toewijzen aan leden. Hiermee geven zij leden toestemming om datasets te publiceren (bv. Centraal Bureau voor de Statistiek).</p> "
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
@@ -3229,7 +3229,7 @@ msgstr "Wijzigen metadata"
 #: ckan/templates/package/edit_view.html:8
 #: ckan/templates/package/edit_view.html:12
 msgid "Edit view"
-msgstr ""
+msgstr "Overzicht bijwerken"
 
 #: ckan/templates/package/edit_view.html:20
 #: ckan/templates/package/new_view.html:28
@@ -3282,7 +3282,7 @@ msgstr "Nieuwe bron"
 #: ckan/templates/package/new_view.html:8
 #: ckan/templates/package/new_view.html:12
 msgid "Add view"
-msgstr ""
+msgstr "Overzicht toevoegen"
 
 #: ckan/templates/package/new_view.html:19
 msgid ""
@@ -3374,7 +3374,7 @@ msgstr "DataStore"
 
 #: ckan/templates/package/resource_edit_base.html:28
 msgid "Views"
-msgstr ""
+msgstr "Overzichten"
 
 #: ckan/templates/package/resource_read.html:39
 msgid "API Endpoint"
@@ -3406,7 +3406,7 @@ msgstr "Bron: <a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckan/templates/package/resource_read.html:112
 msgid "There are no views created for this resource yet."
-msgstr ""
+msgstr "Er zijn nog geen overzichten voor deze bron."
 
 #: ckan/templates/package/resource_read.html:116
 msgid "Not seeing the views you were expecting?"
@@ -3473,11 +3473,11 @@ msgstr "Licentie"
 
 #: ckan/templates/package/resource_views.html:10
 msgid "New view"
-msgstr ""
+msgstr "Nieuw overzicht"
 
 #: ckan/templates/package/resource_views.html:28
 msgid "This resource has no views"
-msgstr ""
+msgstr "Deze bron heeft geen overzichten"
 
 #: ckan/templates/package/resources.html:8
 msgid "Add new resource"
@@ -3515,15 +3515,15 @@ msgstr "U kunt ook het register raadplegen met behulp van de %(api_link)s (see %
 
 #: ckan/templates/package/view_edit_base.html:9
 msgid "All views"
-msgstr ""
+msgstr "Alle overzichten"
 
 #: ckan/templates/package/view_edit_base.html:12
 msgid "View view"
-msgstr ""
+msgstr "Overzicht bekijken"
 
 #: ckan/templates/package/view_edit_base.html:37
 msgid "View preview"
-msgstr ""
+msgstr "Voorbeeld bekijken"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 #: ckan/templates/snippets/additional_info.html:7
@@ -3554,7 +3554,7 @@ msgstr "Provincie"
 
 #: ckan/templates/package/snippets/additional_info.html:62
 msgid "Last Updated"
-msgstr ""
+msgstr "Laatst gewijzigd"
 
 #: ckan/templates/package/snippets/data_api_button.html:10
 msgid "Data API"
@@ -3752,11 +3752,11 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
-msgstr ""
+msgstr "Breedte"
 
 #: ckan/templates/package/snippets/resource_view.html:72
 msgid "Height"
-msgstr ""
+msgstr "Hoogte"
 
 #: ckan/templates/package/snippets/resource_view.html:75
 msgid "Code"
@@ -3764,7 +3764,7 @@ msgstr "Code"
 
 #: ckan/templates/package/snippets/resource_views_list.html:8
 msgid "Resource Preview"
-msgstr ""
+msgstr "Voorbeeld van de bron"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
@@ -3772,7 +3772,7 @@ msgstr "Data en bronnen"
 
 #: ckan/templates/package/snippets/resources_list.html:29
 msgid "This dataset has no data"
-msgstr ""
+msgstr "Deze gegevensset heeft geen inhoud"
 
 #: ckan/templates/package/snippets/revisions_table.html:24
 #, python-format
@@ -3796,27 +3796,27 @@ msgstr ""
 
 #: ckan/templates/package/snippets/view_form.html:9
 msgid "eg. Information about my view"
-msgstr ""
+msgstr "b.v. informatie over mijn overzicht"
 
 #: ckan/templates/package/snippets/view_form_filters.html:16
 msgid "Add Filter"
-msgstr ""
+msgstr "Filter toevoegen"
 
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
-msgstr ""
+msgstr "Filter verwijderen"
 
 #: ckan/templates/package/snippets/view_form_filters.html:46
 msgid "Filters"
-msgstr ""
+msgstr "Filters"
 
 #: ckan/templates/package/snippets/view_help.html:2
 msgid "What's a view?"
-msgstr ""
+msgstr "Wat is een overzicht?"
 
 #: ckan/templates/package/snippets/view_help.html:4
 msgid "A view is a representation of the data held against a resource"
-msgstr ""
+msgstr "Een overzicht is een representatie van gegevens uit een bepaalde bron"
 
 #: ckan/templates/related/base_form_page.html:12
 msgid "Related Form"
@@ -4309,7 +4309,7 @@ msgstr ""
 
 #: ckan/templates/user/edit_user_form.html:44
 msgid "Regenerate API Key"
-msgstr ""
+msgstr "Vernieuw API key"
 
 #: ckan/templates/user/edit_user_form.html:48
 msgid "Update Profile"
@@ -4401,7 +4401,7 @@ msgstr "Dreëer datasets, groepen en andere interessante dingen"
 
 #: ckan/templates/user/new_user_form.html:5
 msgid "username"
-msgstr ""
+msgstr "gebruikersnaam"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
@@ -4463,11 +4463,11 @@ msgstr "API key"
 
 #: ckan/templates/user/request_reset.html:6
 msgid "Password reset"
-msgstr ""
+msgstr "Wachtwoord herstellen"
 
 #: ckan/templates/user/request_reset.html:19
 msgid "Request reset"
-msgstr ""
+msgstr "Herstel aanvragen"
 
 #: ckan/templates/user/request_reset.html:34
 msgid ""
@@ -4569,7 +4569,7 @@ msgstr ""
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "Image url"
-msgstr ""
+msgstr "Afbeelding URL"
 
 #: ckanext/imageview/theme/templates/image_form.html:3
 msgid "eg. http://example.com/image.jpg (if blank uses resource url)"
@@ -4581,15 +4581,15 @@ msgstr ""
 
 #: ckanext/reclineview/plugin.py:106
 msgid "Table"
-msgstr ""
+msgstr "Tabel"
 
 #: ckanext/reclineview/plugin.py:149
 msgid "Graph"
-msgstr ""
+msgstr "Grafiek"
 
 #: ckanext/reclineview/plugin.py:207
 msgid "Map"
-msgstr ""
+msgstr "Kaart"
 
 #: ckanext/reclineview/theme/public/vendor/slickgrid/2.0.1/MIT-LICENSE.txt:1
 msgid ""
@@ -4643,53 +4643,53 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
 msgid "eg: 0"
-msgstr ""
+msgstr "bijv.: 0"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr ""
+msgstr "Aantal rijen"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "eg: 100"
-msgstr ""
+msgstr "bijv.: 100"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:6
 msgid "Graph type"
-msgstr ""
+msgstr "Grafieksoort"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:7
 msgid "Group (Axis 1)"
-msgstr ""
+msgstr "Groep (As 1)"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:8
 msgid "Series (Axis 2)"
-msgstr ""
+msgstr "Series (As 2)"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:6
 msgid "Field type"
-msgstr ""
+msgstr "Veldsoort"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:7
 msgid "Latitude field"
-msgstr ""
+msgstr "Veld voor geografische breedte (lat)"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:8
 msgid "Longitude field"
-msgstr ""
+msgstr "Veld voor geografische lengte (lon)"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:9
 msgid "GeoJSON field"
-msgstr ""
+msgstr "GeoJSON veld"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:10
 msgid "Auto zoom to features"
-msgstr ""
+msgstr "Automatische alle objecten in beeld brengen"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:11
 msgid "Cluster markers"
-msgstr ""
+msgstr "Objecten samenvoegen (clusteren)"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:57
@@ -4834,7 +4834,7 @@ msgstr "Kies thema"
 
 #: ckanext/webpageview/plugin.py:24
 msgid "Website"
-msgstr ""
+msgstr "Website"
 
 #: ckanext/webpageview/theme/templates/webpage_form.html:3
 msgid "Web Page url"
