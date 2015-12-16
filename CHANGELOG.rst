@@ -7,6 +7,14 @@
 Changelog
 ---------
 
+v2.1.6 2015-12-17
+=================
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
+
 v2.1.5 2015-07-22
 =================
 
@@ -173,6 +181,15 @@ Deprecated and removed:
 Known issues:
  * Under certain authorization setups the forntend for the groups functionality
    may not work as expected (See #1176 #1175).
+
+v2.0.8 2015-12-17
+=================
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
+
 
 v2.0.7 2015-07-22
 =================
