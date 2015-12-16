@@ -1,6 +1,14 @@
 CKAN CHANGELOG
 ++++++++++++++
 
+v2.0.8 2015-12-17
+=================
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
+
 v2.0.7 2015-07-22
 =================
 
