@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Adrià Mercader <adria.mercader@okfn.org>, 2015
 # Adrià Mercader <adria.mercader@okfn.org>, 2013
 # irina.tisacova <irina.tisacova@egov.md>, 2013
 # irina.tisacova <irina.tisacova@egov.md>, 2013
@@ -14,9 +15,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-12-13 11:40+0000\n"
-"PO-Revision-Date: 2013-12-13 12:00+0000\n"
-"Last-Translator: irina.tisacova <irina.tisacova@egov.md>\n"
-"Language-Team: Romanian (http://www.transifex.com/p/ckan/language/ro/)\n"
+"PO-Revision-Date: 2015-11-26 14:21+0000\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
+"Language-Team: Romanian (http://www.transifex.com/okfn/ckan/language/ro/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -953,8 +954,8 @@ msgstr "{actor} a adăugat {related_type} {related_item}"
 #: ckan/lib/email_notifications.py:103
 msgid "1 new activity from {site_title}"
 msgid_plural "{n} new activities from {site_title}"
-msgstr[0] "  o nouă activitate din {site_title}"
-msgstr[1] "cîteva activităţi din {site_title}"
+msgstr[0] "{n} nouă activitate din {site_title}"
+msgstr[1] "{n} noi activităţi din {site_title}"
 msgstr[2] "{n} noi activităţi din {site_title}"
 
 #: ckan/lib/formatters.py:17
@@ -1012,15 +1013,15 @@ msgstr "Chiar acum"
 #: ckan/lib/formatters.py:111
 msgid "{mins} minute ago"
 msgid_plural "{mins} minutes ago"
-msgstr[0] "un minut în urmâ"
-msgstr[1] "cîteva minute în urmă"
+msgstr[0] "{mins} minut în urmâ"
+msgstr[1] "{mins} minute în urmă"
 msgstr[2] "{mins} minute în urmă"
 
 #: ckan/lib/formatters.py:114
 msgid "{hours} hour ago"
 msgid_plural "{hours} hours ago"
-msgstr[0] "o oră în urmă"
-msgstr[1] "cîteva ore în urmă"
+msgstr[0] "{hours} oră în urmă"
+msgstr[1] "{hours} ore în urmă"
 msgstr[2] "{hours} ore în urmă"
 
 #: ckan/lib/formatters.py:120
@@ -1136,7 +1137,7 @@ msgstr "Setări editate."
 #: ckan/lib/helpers.py:1346
 msgid "{number} view"
 msgid_plural "{number} views"
-msgstr[0] "nici o vizualizare"
+msgstr[0] "{number} vizualizare"
 msgstr[1] "{number} vizualizări"
 msgstr[2] "{number} vizualizări"
 
