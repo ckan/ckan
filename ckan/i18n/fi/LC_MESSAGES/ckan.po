@@ -18,9 +18,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-06-23 09:06+0000\n"
+"PO-Revision-Date: 2015-11-26 14:20+0000\n"
 "Last-Translator: kyyberi <jarkko.moilanen@want3d.fi>\n"
-"Language-Team: Finnish (http://www.transifex.com/p/ckan/language/fi/)\n"
+"Language-Team: Finnish (http://www.transifex.com/okfn/ckan/language/fi/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2090,7 +2090,7 @@ msgstr "Järjestelmän ylläpitäjät"
 
 #: ckan/templates/admin/base.html:15
 msgid "Config"
-msgstr ""
+msgstr "Asetus"
 
 #: ckan/templates/admin/config.html:9
 #: ckan/templates/admin/confirm_reset.html:7
@@ -2214,11 +2214,11 @@ msgstr "Etuliite"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend Input"
-msgstr ""
+msgstr "Syötteen etuliite"
 
 #: ckan/templates/development/snippets/form.html:13
 msgid "Custom Field (empty)"
-msgstr ""
+msgstr "Muokattu kenttä (tyhjä)"
 
 #: ckan/templates/development/snippets/form.html:19
 #: ckan/templates/group/snippets/group_form.html:32
@@ -2228,7 +2228,7 @@ msgstr ""
 #: ckan/templates/snippets/custom_form_fields.html:20
 #: ckan/templates/snippets/custom_form_fields.html:37
 msgid "Custom Field"
-msgstr ""
+msgstr "Muokattu kenttä"
 
 #: ckan/templates/development/snippets/form.html:22
 msgid "Markdown"
@@ -2495,7 +2495,7 @@ msgstr "Minun ryhmä"
 
 #: ckan/templates/group/snippets/group_form.html:18
 msgid "my-group"
-msgstr ""
+msgstr "Minun ryhmäni"
 
 #: ckan/templates/group/snippets/group_form.html:20
 #: ckan/templates/organization/snippets/organization_form.html:20
@@ -2611,7 +2611,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
+msgstr " <p>CKAN on maailman johtava avoimen lähdekoodin dataportaaliratkaisu.</p> <p>CKAN on täydellinen out-of-the-box sovellusratkaisu, joka mahdollistaa helpon pääsyn dataan, korkean käytettävyyden ja sujuvan käyttökokemuksen. CKAN tarjoaa työkalut julkaisuun, jakamiseen, etsimiseen ja datan käyttöön - mukaanlukien datan varastoinnin ja provisioinnin. CKAN on tarkoitettu datan julkaisijoille - kansalliselle ja alueelliselle hallinnolle, yrityksille ja organisaatioille, jotka haluavat avata ja julkaista datansa.</p> <p>Hallitukset ja käyttäjäryhmät ympäri maailmaa käyttävät CKAN:ia. Sen varassa pyörii useita virallisia ja yhteisöllisiä dataportaaleja paikallisille, kansallisille ja kansainvälisille toimijoille, kuten Britannian <a href=\"http://data.gov.uk\">data.gov.uk</a>, Euroopan unionin <a href=\"http://publicdata.eu/\">publicdata.eu</a>, Brasilian <a href=\"http://dados.gov.br/\">dados.gov.br</a>, Saksan ja Alankomaiden portaalit sekä kaupunkien ja kuntien palveluja Yhdysvalloissa, Britanniassa, Argentinassa ja muualla.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features overview: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/macros/form.html:120
 msgid ""
@@ -2760,7 +2760,7 @@ msgstr "Minun organisaatio"
 #: ckan/templates/organization/snippets/organization_form.html:18
 #: ckanext/organizations/templates/organizations/form.html:36
 msgid "my-organization"
-msgstr ""
+msgstr "Organisaationi"
 
 #: ckan/templates/organization/snippets/organization_form.html:20
 #: ckanext/organizations/templates/organizations/form.html:38
@@ -3471,7 +3471,7 @@ msgstr "Siirry {type}"
 
 #: ckan/templates/snippets/activity_item.html:3
 msgid "New activity item"
-msgstr ""
+msgstr "Uusi tapahtuma"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:4
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:13
@@ -3499,7 +3499,7 @@ msgstr "Korkeus:"
 
 #: ckan/templates/snippets/disqus_trackback.html:2
 msgid "Trackback URL"
-msgstr ""
+msgstr "Takaisinlinkitys URL"
 
 #: ckan/templates/snippets/facet_list.html:39
 msgid "Clear All"
@@ -3637,7 +3637,7 @@ msgstr "Lajittelu"
 
 #: ckan/templates/snippets/sort_by.html:14
 msgid "Relevance"
-msgstr ""
+msgstr "Relevanssi"
 
 #: ckan/templates/snippets/sort_by.html:15
 msgid "Name Ascending"
@@ -3828,7 +3828,7 @@ msgstr "Olet jo kirjautunut sisään"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
-msgstr ""
+msgstr "Sinun tulee kirjautua ulos ennen kuin voit kirjautua sisään toisella tilillä."
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
@@ -3928,7 +3928,7 @@ msgstr "Pyydä uudelleenasettamista"
 msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
-msgstr ""
+msgstr "Syötä käyttäjänimesi laatikkoon, niin lähetämme sinulle sähköpostin, jossa on linkki uuden salasanan syöttämislomakkeeseen."
 
 #: ckan/templates/user/snippets/back_to_user_action.html:1
 msgid "View my profile"
@@ -3937,11 +3937,11 @@ msgstr "Tarkastele profiiliani"
 #: ckan/templates/user/snippets/followee_dropdown.html:12
 #: ckan/templates/user/snippets/followee_dropdown.html:13
 msgid "Activity from:"
-msgstr ""
+msgstr "Tapahtumia kohteessa:"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:21
 msgid "Search list..."
-msgstr ""
+msgstr "Etsi listalta..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:42
 msgid "You are not following anything"

@@ -12,9 +12,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-04-24 11:31+0000\n"
+"PO-Revision-Date: 2015-11-26 14:23+0000\n"
 "Last-Translator: Xiaohong Zhang <xzhang50@yahoo.com>\n"
-"Language-Team: Chinese (China) (http://www.transifex.com/p/ckan/language/zh_CN/)\n"
+"Language-Team: Chinese (China) (http://www.transifex.com/okfn/ckan/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1423,15 +1423,15 @@ msgstr "你并没关注 {0}"
 
 #: ckan/logic/action/get.py:1427
 msgid "Do not specify if using \"query\" parameter"
-msgstr ""
+msgstr "如果使用「查询」参数则不必详细说明"
 
 #: ckan/logic/action/get.py:1436
 msgid "Must be <field>:<value> pair(s)"
-msgstr ""
+msgstr "必须为 <field>:<value> 对"
 
 #: ckan/logic/action/get.py:1464
 msgid "Field \"{field}\" not recognised in resource_search."
-msgstr ""
+msgstr "在 resource_search 中无法辨识「{field}」域"
 
 #: ckan/logic/action/get.py:1786
 msgid "unknown user:"
@@ -1439,35 +1439,35 @@ msgstr ""
 
 #: ckan/logic/action/update.py:138
 msgid "Item was not found."
-msgstr ""
+msgstr "项目未找到。"
 
 #: ckan/logic/action/update.py:178
 msgid "Resource was not found."
-msgstr ""
+msgstr "资源未找到。"
 
 #: ckan/logic/action/update.py:192 ckan/logic/action/update.py:266
 #: ckan/logic/action/update.py:443
 #, python-format
 msgid "REST API: Update object %s"
-msgstr ""
+msgstr "REST API: 更新对象 %s"
 
 #: ckan/logic/action/update.py:228 ckan/logic/action/update.py:304
 #: ckan/logic/action/update.py:1041
 msgid "Package was not found."
-msgstr ""
+msgstr "包未找到。"
 
 #: ckan/logic/action/update.py:333
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
-msgstr ""
+msgstr "REST API: 更新包关系: %s %s %s"
 
 #: ckan/logic/action/update.py:651
 msgid "TaskStatus was not found."
-msgstr ""
+msgstr "任务状态未找到。"
 
 #: ckan/logic/action/update.py:1045
 msgid "Organization was not found."
-msgstr ""
+msgstr "组织未找到。"
 
 #: ckan/logic/auth/create.py:16 ckan/logic/auth/create.py:28
 #, python-format
@@ -2597,7 +2597,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
+msgstr " <p>CKAN is the world’s leading open-source data portal platform.</p> <p>CKAN is a complete out-of-the-box software solution that makes data accessible and usable – by providing tools to streamline publishing, sharing, finding and using data (including storage of data and provision of robust data APIs). CKAN is aimed at data publishers (national and regional governments, companies and organizations) wanting to make their data open and available.</p> <p>CKAN is used by governments and user groups worldwide and powers a variety of official and community data portals including portals for local, national and international government, such as the UK’s <a href=\"http://data.gov.uk\">data.gov.uk</a> and the European Union’s <a href=\"http://publicdata.eu/\">publicdata.eu</a>, the Brazilian <a href=\"http://dados.gov.br/\">dados.gov.br</a>, Dutch and Netherland government portals, as well as city and municipal sites in the US, UK, Argentina, Finland and elsewhere.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN Tour: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features overview: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
 
 #: ckan/templates/macros/form.html:120
 msgid ""
@@ -2808,7 +2808,7 @@ msgstr "给数据集添加员数据"
 
 #: ckan/templates/package/new_resource.html:9
 msgid "Add data to the dataset"
-msgstr ""
+msgstr "添加数据至该数据集"
 
 #: ckan/templates/package/new_resource.html:18
 msgid "What's a resource?"
@@ -2892,7 +2892,7 @@ msgstr "此资源没有描述"
 
 #: ckan/templates/package/resource_read.html:55
 msgid "From the dataset abstract"
-msgstr ""
+msgstr "来自数据集摘要"
 
 #: ckan/templates/package/resource_read.html:57
 #, python-format
@@ -2913,7 +2913,7 @@ msgstr "其他信息"
 #: ckan/templates_legacy/package/resource_read.html:163
 #: ckan/templates_legacy/revision/diff.html:32
 msgid "Field"
-msgstr ""
+msgstr "域"
 
 #: ckan/templates/package/resource_read.html:79
 #: ckan/templates/package/snippets/additional_info.html:7
@@ -3010,23 +3010,23 @@ msgstr "您也可以使用%(api_link)s (看 %(api_doc_link)s)注册."
 
 #: ckan/templates/package/search.html:82
 msgid "full {format} dump"
-msgstr ""
+msgstr "以 {format} 格式完整备份"
 
 #: ckan/templates/package/search.html:83
 #, python-format
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
-msgstr ""
+msgstr "您也可以使用%(api_link)s (参见 %(api_doc_link)s)来访问这个注册表或者下载%(dump_link)s"
 
 #: ckan/templates/package/snippets/additional_info.html:2
 msgid "Additional Info"
-msgstr ""
+msgstr "其他信息"
 
 #: ckan/templates/package/snippets/additional_info.html:13
 #: ckan/templates_legacy/package/read_core.html:63
 msgid "Source"
-msgstr ""
+msgstr "源"
 
 #: ckan/templates/package/snippets/additional_info.html:32
 #: ckan/templates/package/snippets/additional_info.html:37
@@ -3036,28 +3036,28 @@ msgstr ""
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:23
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:217
 msgid "Maintainer"
-msgstr ""
+msgstr "维护者"
 
 #: ckan/templates/package/snippets/additional_info.html:44
 #: ckan/templates_legacy/package/new_package_form.html:220
 #: ckan/templates_legacy/package/read_core.html:78
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:232
 msgid "Version"
-msgstr ""
+msgstr "版本"
 
 #: ckan/templates/package/snippets/additional_info.html:51
 #: ckan/templates_legacy/group/new_group_form.html:54
 #: ckan/templates_legacy/package/read_core.html:88
 #: ckanext/organizations/templates_legacy/organizations/form.html:54
 msgid "State"
-msgstr ""
+msgstr "状态"
 
 #: ckan/templates/package/snippets/data_api_button.html:10
 #: ckan/templates/package/snippets/data_api_button.html:12
 #: ckan/templates_legacy/package/resource_read.html:84
 #: ckan/templates_legacy/package/resource_read.html:87
 msgid "Data API"
-msgstr ""
+msgstr "数据 API"
 
 #: ckan/templates/package/snippets/data_api_button.html:12
 msgid ""
@@ -3075,36 +3075,36 @@ msgstr ""
 
 #: ckan/templates/package/snippets/info.html:29
 msgid "Add New Resource"
-msgstr ""
+msgstr "添加新资源"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:3
 msgid "eg. A descriptive title"
-msgstr ""
+msgstr "例如：一个描述性的标题"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:10
 msgid "eg. my-dataset"
-msgstr ""
+msgstr "例如：我的数据"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:12
 msgid "eg. Some useful notes about the data"
-msgstr ""
+msgstr "例如：关于数据的有用信息"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:15
 msgid "eg. economy, mental health, government"
-msgstr ""
+msgstr "例如：经济，健康，政府"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:29
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
-msgstr ""
+msgstr "授权协议的定义和其他信息可以参见 <a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:46
 #: ckanext/organizations/templates/organizations/index.html:3
 #: ckanext/organizations/templates_legacy/organizations/apply_form.html:21
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:99
 msgid "Organization"
-msgstr ""
+msgstr "组织"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:49
 msgid "Select an organization..."
@@ -3122,59 +3122,59 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:37
 msgid "Are you sure you want to delete this dataset?"
-msgstr ""
+msgstr "你确定要删除此数据集吗？"
 
 #: ckan/templates/package/snippets/package_form.html:44
 msgid "Next: Add Data"
-msgstr ""
+msgstr "下一步：添加数据"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "Visibility"
-msgstr ""
+msgstr "可见性"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:9
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:115
 msgid "Public"
-msgstr ""
+msgstr "公开"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:17
 #: ckan/templates/package/snippets/package_metadata_fields.html:21
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:19
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:23
 msgid "Joe Bloggs"
-msgstr ""
+msgstr "Joe Bloggs"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:19
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:21
 msgid "Author Email"
-msgstr ""
+msgstr "作者邮箱"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:19
 #: ckan/templates/package/snippets/package_metadata_fields.html:23
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:21
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:25
 msgid "joe@example.com"
-msgstr ""
+msgstr "joe@example.com"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:23
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:25
 msgid "Maintainer Email"
-msgstr ""
+msgstr "维护者邮箱"
 
 #: ckan/templates/package/snippets/package_metadata_form.html:14
 #: ckan/templates/package/snippets/resource_form.html:78
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_form.html:17
 msgid "Previous"
-msgstr ""
+msgstr "上一步"
 
 #: ckan/templates/package/snippets/package_metadata_form.html:15
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_form.html:18
 msgid "Finish"
-msgstr ""
+msgstr "完成"
 
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
-msgstr ""
+msgstr "更新资源"
 
 #: ckan/templates/package/snippets/resource_form.html:30
 #: ckan/templates_legacy/package/new_package_form.html:147
@@ -3192,7 +3192,7 @@ msgstr ""
 #: ckan/templates_legacy/package/new_package_form.html:20
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:18
 msgid "Resource"
-msgstr ""
+msgstr "资源"
 
 #: ckan/templates/package/snippets/resource_form.html:37
 msgid "eg. http://example.com/gold-prices-jan-2011.json"
@@ -3202,19 +3202,19 @@ msgstr ""
 #: ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/user/read.html:23
 msgid "Name"
-msgstr ""
+msgstr "名称"
 
 #: ckan/templates/package/snippets/resource_form.html:39
 msgid "eg. January 2011 Gold Prices"
-msgstr ""
+msgstr "例如：2011年1月的黄金价格"
 
 #: ckan/templates/package/snippets/resource_form.html:41
 msgid "Some useful notes about the data"
-msgstr ""
+msgstr "关于数据的有用信息"
 
 #: ckan/templates/package/snippets/resource_form.html:44
 msgid "eg. CSV, XML or JSON"
-msgstr ""
+msgstr "例如：CSV, XML, 或者 JSON"
 
 #: ckan/templates/package/snippets/resource_form.html:47
 msgid "This is generated automatically. You can edit if you wish"
@@ -3224,37 +3224,37 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:17
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Last Modified"
-msgstr ""
+msgstr "最后修改时间"
 
 #: ckan/templates/package/snippets/resource_form.html:57
 msgid "eg. 2012-06-05"
-msgstr ""
+msgstr "例如：2012-06-05"
 
 #: ckan/templates/package/snippets/resource_form.html:59
 msgid "File Size"
-msgstr ""
+msgstr "文件大小"
 
 #: ckan/templates/package/snippets/resource_form.html:59
 msgid "eg. 1024"
-msgstr ""
+msgstr "例如：1024"
 
 #: ckan/templates/package/snippets/resource_form.html:61
 #: ckan/templates/package/snippets/resource_form.html:63
 msgid "MIME Type"
-msgstr ""
+msgstr "MIME 类型"
 
 #: ckan/templates/package/snippets/resource_form.html:61
 #: ckan/templates/package/snippets/resource_form.html:63
 msgid "eg. application/json"
-msgstr ""
+msgstr "例如：application/json"
 
 #: ckan/templates/package/snippets/resource_form.html:71
 msgid "Are you sure you want to delete this resource?"
-msgstr ""
+msgstr "你确定要删除此资源吗?"
 
 #: ckan/templates/package/snippets/resource_form.html:81
 msgid "Save & add another"
-msgstr ""
+msgstr "保存并添加另一个"
 
 #: ckan/templates/package/snippets/resource_form.html:83
 msgid "Next: Additional Info"
@@ -3266,7 +3266,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_item.html:20
 msgid "Explore"
-msgstr ""
+msgstr "浏览"
 
 #: ckan/templates/package/snippets/resource_item.html:28
 #: ckan/templates/snippets/datapreview_embed_dialog.html:16
@@ -3277,11 +3277,11 @@ msgstr ""
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:27
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:89
 msgid "Preview"
-msgstr ""
+msgstr "预览"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
-msgstr ""
+msgstr "数据与资源"
 
 #: ckan/templates/package/snippets/resources_list.html:23
 #, python-format
@@ -3299,7 +3299,7 @@ msgstr ""
 #: ckan/templates/package/snippets/stages.html:36
 #: ckan/templates/package/snippets/stages.html:38
 msgid "Add data"
-msgstr ""
+msgstr "添加数据"
 
 #: ckan/templates/package/snippets/stages.html:44
 #: ckan/templates/package/snippets/stages.html:48
@@ -3363,7 +3363,7 @@ msgstr ""
 
 #: ckan/templates/related/dashboard.html:48
 msgid "Filter Results"
-msgstr ""
+msgstr "过滤结果"
 
 #: ckan/templates/related/dashboard.html:53
 #: ckan/templates_legacy/related/dashboard.html:31
@@ -3409,7 +3409,7 @@ msgstr ""
 
 #: ckan/templates/related/edit_form.html:7
 msgid "Create"
-msgstr ""
+msgstr "创建"
 
 #: ckan/templates/related/new.html:3
 msgid "Create a related item"
@@ -3457,35 +3457,35 @@ msgstr ""
 
 #: ckan/templates/snippets/activity_item.html:3
 msgid "New activity item"
-msgstr ""
+msgstr "新的活动项目"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:4
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:13
 msgid "Embed Data Viewer"
-msgstr ""
+msgstr "嵌入数据查看器"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:8
 msgid "Embed this view by copying this into your webpage:"
-msgstr ""
+msgstr "将下列代码复制到你的网页来嵌入查看器"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:10
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:21
 msgid "Choose width and height in pixels:"
-msgstr ""
+msgstr "设定宽和高的像素："
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:11
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:22
 msgid "Width:"
-msgstr ""
+msgstr "宽："
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:13
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:24
 msgid "Height:"
-msgstr ""
+msgstr "高："
 
 #: ckan/templates/snippets/disqus_trackback.html:2
 msgid "Trackback URL"
-msgstr ""
+msgstr "Trackback URL"
 
 #: ckan/templates/snippets/facet_list.html:39
 msgid "Clear All"
@@ -3507,51 +3507,51 @@ msgstr ""
 #: ckan/templates_legacy/admin/layout.html:10
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:51
 msgid "Home"
-msgstr ""
+msgstr "首页"
 
 #: ckan/templates/snippets/language_selector.html:4
 msgid "Language"
-msgstr ""
+msgstr "语言"
 
 #: ckan/templates/snippets/language_selector.html:12
 #: ckan/templates/snippets/sort_by.html:20
 msgid "Go"
-msgstr ""
+msgstr "Go"
 
 #: ckan/templates/snippets/license.html:14
 #: ckan/templates_legacy/package/read.html:32
 #: ckan/templates_legacy/package/resource_read.html:116
 #: ckan/templates_legacy/snippets/package_list.html:31
 msgid "This dataset satisfies the Open Definition."
-msgstr ""
+msgstr "该数据集满足开放知识定义的要求"
 
 #: ckan/templates/snippets/license.html:24
 msgid "No License Provided"
-msgstr ""
+msgstr "没有指定授权"
 
 #: ckan/templates/snippets/package_item.html:35
 msgid "Deleted"
-msgstr ""
+msgstr "已删除"
 
 #: ckan/templates/snippets/package_item.html:40
 #: ckan/templates/snippets/popular.html:3
 #: ckan/templates/snippets/sort_by.html:18
 msgid "Popular"
-msgstr ""
+msgstr "热门"
 
 #: ckan/templates/snippets/package_item.html:45
 msgid "This dataset has no description"
-msgstr ""
+msgstr "该数据集没有简介"
 
 #: ckan/templates/snippets/related.html:15
 msgid ""
 "No apps, ideas, news stories or images have been related to this dataset "
 "yet."
-msgstr ""
+msgstr "没有与该数据集相关的应用，想法，故事，或图片。"
 
 #: ckan/templates/snippets/related.html:18
 msgid "Add Item"
-msgstr ""
+msgstr "添加项目"
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -3560,7 +3560,7 @@ msgstr[0] ""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "Sorry no datasets found for \"{query}\""
-msgstr ""
+msgstr "未找到匹配「{query}」的结果"
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
@@ -3609,27 +3609,27 @@ msgstr ""
 
 #: ckan/templates/snippets/social.html:3
 msgid "Social"
-msgstr ""
+msgstr "社会"
 
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr ""
+msgstr "排序"
 
 #: ckan/templates/snippets/sort_by.html:14
 msgid "Relevance"
-msgstr ""
+msgstr "相关度"
 
 #: ckan/templates/snippets/sort_by.html:15
 msgid "Name Ascending"
-msgstr ""
+msgstr "按名称升序"
 
 #: ckan/templates/snippets/sort_by.html:16
 msgid "Name Descending"
-msgstr ""
+msgstr "按名称降序"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
-msgstr ""
+msgstr "订阅"
 
 #: ckan/templates/snippets/subscribe.html:4
 #: ckan/templates/user/edit_user_form.html:13
@@ -3637,21 +3637,21 @@ msgstr ""
 #: ckan/templates/user/read_base.html:82
 #: ckan/templates_legacy/user/read.html:32
 msgid "Email"
-msgstr ""
+msgstr "邮箱"
 
 #: ckan/templates/snippets/subscribe.html:5
 msgid "RSS"
-msgstr ""
+msgstr "RSS"
 
 #: ckan/templates/snippets/context/user.html:23
 #: ckan/templates/user/read_base.html:66
 #: ckan/templates_legacy/user/read.html:59
 msgid "Edits"
-msgstr ""
+msgstr "编辑"
 
 #: ckan/templates/user/dashboard.html:13 ckan/templates/user/edit_base.html:17
 msgid "News feed"
-msgstr ""
+msgstr "News feed"
 
 #: ckan/templates/user/dashboard.html:14
 msgid "Activity from items that you follow"
@@ -3659,7 +3659,7 @@ msgstr ""
 
 #: ckan/templates/user/dashboard.html:30
 msgid "My Datasets"
-msgstr ""
+msgstr "我的数据集"
 
 #: ckan/templates/user/dashboard.html:43
 msgid "You do not have any datasets"
@@ -3667,17 +3667,17 @@ msgstr ""
 
 #: ckan/templates/user/edit.html:13
 msgid "Account Info"
-msgstr ""
+msgstr "账户信息"
 
 #: ckan/templates/user/edit.html:15
 msgid ""
 " Your profile lets other CKAN users know about who you are and what you do. "
-msgstr ""
+msgstr "你的个人档案可以让其他 CKAN 用户了解你是谁以及你是做什么的。"
 
 #: ckan/templates/user/edit_base.html:5 ckan/templates/user/edit_base.html:8
 #: ckan/templates_legacy/user/layout.html:11
 msgid "Dashboard"
-msgstr ""
+msgstr "仪表盘"
 
 #: ckan/templates/user/edit_base.html:18
 #: ckan/templates_legacy/package/layout.html:53
@@ -3691,23 +3691,23 @@ msgstr ""
 #: ckan/templates/user/edit_user_form.html:11
 #: ckan/templates_legacy/user/edit_user_form.html:21
 msgid "Full name"
-msgstr ""
+msgstr "全名"
 
 #: ckan/templates/user/edit_user_form.html:11
 msgid "eg. Joe Bloggs"
-msgstr ""
+msgstr "例如：Joe Bloggs"
 
 #: ckan/templates/user/edit_user_form.html:13
 msgid "eg. joe@example.com"
-msgstr ""
+msgstr "例如：joe@example.com"
 
 #: ckan/templates/user/edit_user_form.html:15
 msgid "A little information about yourself"
-msgstr ""
+msgstr "关于你自己的一些信息"
 
 #: ckan/templates/user/edit_user_form.html:18
 msgid "Subscribe to notification emails"
-msgstr ""
+msgstr "订阅提醒邮件"
 
 #: ckan/templates/user/edit_user_form.html:26
 #: ckan/templates_legacy/user/edit_user_form.html:46
@@ -3722,11 +3722,11 @@ msgstr ""
 #: ckan/templates_legacy/user/edit_user_form.html:48
 #: ckan/templates_legacy/user/new_user_form.html:40
 msgid "Password"
-msgstr ""
+msgstr "密码"
 
 #: ckan/templates/user/edit_user_form.html:30
 msgid "Confirm Password"
-msgstr ""
+msgstr "确认密码"
 
 #: ckan/templates/user/edit_user_form.html:34
 msgid "Update Profile"
@@ -3746,7 +3746,7 @@ msgstr ""
 #: ckanext/organizations/templates_legacy/organizations/form.html:133
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:18
 msgid "Users"
-msgstr ""
+msgstr "用户"
 
 #: ckan/templates/user/login.html:3 ckan/templates/user/login.html:6
 #: ckan/templates/user/login.html:12 ckan/templates_legacy/layout_base.html:59
@@ -3865,11 +3865,11 @@ msgstr ""
 
 #: ckan/templates/user/read.html:13
 msgid "You haven't created any datasets."
-msgstr ""
+msgstr "你还未创建任何数据集"
 
 #: ckan/templates/user/read.html:15
 msgid "Create one now?"
-msgstr ""
+msgstr "现在就创建一个数据集？"
 
 #: ckan/templates/user/read.html:20
 msgid "User hasn't created any datasets."
@@ -3989,7 +3989,7 @@ msgstr ""
 
 #: ckan/templates_legacy/error_document_template.html:5
 msgid "Error"
-msgstr ""
+msgstr "错误"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Checking..."
@@ -4051,7 +4051,7 @@ msgstr ""
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Image"
-msgstr ""
+msgstr "图片"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Metadata"
@@ -4074,7 +4074,7 @@ msgstr ""
 #: ckan/templates_legacy/storage/index.html:15
 #: ckan/templates_legacy/storage/success.html:6
 msgid "Upload"
-msgstr ""
+msgstr "上传"
 
 #: ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/group/new_group_form.html:28
@@ -4211,7 +4211,7 @@ msgstr ""
 #: ckan/templates_legacy/package/history.html:11
 #: ckanext/organizations/templates_legacy/organizations/history.html:9
 msgid "Revisions"
-msgstr ""
+msgstr "版本"
 
 #: ckan/templates_legacy/layout_base.html:180
 msgid "Site Admin"
@@ -4357,7 +4357,7 @@ msgstr ""
 #: ckan/templates_legacy/package/new.html:18
 #: ckanext/organizations/templates_legacy/organizations/history.html:24
 msgid "Error:"
-msgstr ""
+msgstr "错误："
 
 #: ckan/templates_legacy/group/history.html:32
 #: ckan/templates_legacy/package/history.html:25
@@ -4365,21 +4365,21 @@ msgstr ""
 #: ckan/templates_legacy/snippets/revision_list.html:11
 #: ckanext/organizations/templates_legacy/organizations/history.html:32
 msgid "Revision"
-msgstr ""
+msgstr "版本"
 
 #: ckan/templates_legacy/group/history.html:32
 #: ckan/templates_legacy/package/history.html:25
 #: ckan/templates_legacy/snippets/revision_list.html:11
 #: ckanext/organizations/templates_legacy/organizations/history.html:32
 msgid "Timestamp"
-msgstr ""
+msgstr "时间戳"
 
 #: ckan/templates_legacy/group/history.html:32
 #: ckan/templates_legacy/package/history.html:25
 #: ckan/templates_legacy/snippets/revision_list.html:11
 #: ckanext/organizations/templates_legacy/organizations/history.html:32
 msgid "Log Message"
-msgstr ""
+msgstr "日志信息"
 
 #: ckan/templates_legacy/group/history.html:49
 #: ckan/templates_legacy/package/history.html:43
@@ -4407,7 +4407,7 @@ msgstr ""
 #: ckan/templates_legacy/package/layout.html:38
 #: ckanext/organizations/templates_legacy/organizations/layout.html:19
 msgid "History"
-msgstr ""
+msgstr "历史"
 
 #: ckan/templates_legacy/group/layout.html:18
 msgid "New Dataset..."
@@ -4612,7 +4612,7 @@ msgstr ""
 
 #: ckan/templates_legacy/home/index.html:24
 msgid "datasets"
-msgstr ""
+msgstr "数据集"
 
 #: ckan/templates_legacy/home/index.html:24
 msgid ""
@@ -4700,7 +4700,7 @@ msgstr ""
 
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "dataset"
-msgstr ""
+msgstr "数据集"
 
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "read from"
@@ -4810,7 +4810,7 @@ msgstr ""
 #: ckan/templates_legacy/package/history.html:37
 #, python-format
 msgid "Read dataset as of %s"
-msgstr ""
+msgstr "以%s形式查看数据集"
 
 #: ckan/templates_legacy/package/history.html:48
 #: ckan/templates_legacy/package/read.html:101
@@ -5268,7 +5268,7 @@ msgstr ""
 
 #: ckan/templates_legacy/revision/diff.html:32
 msgid "Difference"
-msgstr ""
+msgstr "差异"
 
 #: ckan/templates_legacy/revision/diff.html:40
 msgid "No differences"
@@ -5281,7 +5281,7 @@ msgstr ""
 #: ckan/templates_legacy/revision/list.html:5
 #: ckan/templates_legacy/revision/list.html:6
 msgid "Revision History"
-msgstr ""
+msgstr "版本历史"
 
 #: ckan/templates_legacy/revision/list.html:10
 msgid ""
@@ -5300,7 +5300,7 @@ msgstr ""
 #: ckan/templates_legacy/revision/read.html:23
 #: ckan/templates_legacy/snippets/revision_list.html:39
 msgid "Undelete"
-msgstr ""
+msgstr "未删除"
 
 #: ckan/templates_legacy/revision/read.html:39
 msgid "Timestamp:"
@@ -5312,11 +5312,11 @@ msgstr ""
 
 #: ckan/templates_legacy/revision/read.html:44
 msgid "Changes"
-msgstr ""
+msgstr "变更"
 
 #: ckan/templates_legacy/revision/read.html:54
 msgid "Datasets' Tags"
-msgstr ""
+msgstr "数据集标签"
 
 #: ckan/templates_legacy/revision/read.html:57
 msgid "Dataset -"
@@ -5342,7 +5342,7 @@ msgstr ""
 
 #: ckan/templates_legacy/snippets/revision_list.html:11
 msgid "Entity"
-msgstr ""
+msgstr "实体"
 
 #: ckan/templates_legacy/storage/index.html:17
 msgid ""

@@ -17,9 +17,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2015-03-13 14:50+0000\n"
+"PO-Revision-Date: 2015-11-26 14:21+0000\n"
 "Last-Translator: Marietta Le <marietta@boun.cr>\n"
-"Language-Team: Hungarian (http://www.transifex.com/p/ckan/language/hu/)\n"
+"Language-Team: Hungarian (http://www.transifex.com/okfn/ckan/language/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -65,7 +65,7 @@ msgstr "Oldal tag sor"
 
 #: ckan/controllers/admin.py:38
 msgid "Site Tag Logo"
-msgstr ""
+msgstr "Oldal Tag Logo"
 
 #: ckan/controllers/admin.py:39 ckan/templates/header.html:81
 #: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:26
@@ -89,19 +89,19 @@ msgstr "Rólunk oldal szövege"
 
 #: ckan/controllers/admin.py:40
 msgid "Intro Text"
-msgstr ""
+msgstr "Bevezető szöveg"
 
 #: ckan/controllers/admin.py:40
 msgid "Text on home page"
-msgstr ""
+msgstr "Szöveg a kezdőlapon"
 
 #: ckan/controllers/admin.py:41
 msgid "Custom CSS"
-msgstr ""
+msgstr "Egyedi CSS"
 
 #: ckan/controllers/admin.py:41
 msgid "Customisable css inserted into the page header"
-msgstr ""
+msgstr "Egyedi css beszúrva az oldal fejlécébe"
 
 #: ckan/controllers/admin.py:122
 #, python-format
@@ -117,11 +117,11 @@ msgstr ""
 
 #: ckan/controllers/admin.py:146
 msgid "Purge complete"
-msgstr ""
+msgstr "Takarítás kész"
 
 #: ckan/controllers/admin.py:148
 msgid "Action not implemented."
-msgstr ""
+msgstr "Művelet nincs végrehajtva."
 
 #: ckan/controllers/api.py:60 ckan/controllers/group.py:136
 #: ckan/controllers/home.py:26 ckan/controllers/package.py:141
@@ -166,7 +166,7 @@ msgstr "JSON Hiba: %s"
 #: ckan/controllers/api.py:180
 #, python-format
 msgid "Bad request data: %s"
-msgstr ""
+msgstr "Hibás kérés adat: %s"
 
 #: ckan/controllers/api.py:190 ckan/controllers/api.py:362
 #: ckan/controllers/api.py:414 ckan/controllers/group.py:413
@@ -198,7 +198,7 @@ msgstr "Ilyen típusú egyed létrehozása sikertelen: %s %s"
 
 #: ckan/controllers/api.py:368
 msgid "Unable to add package to search index"
-msgstr ""
+msgstr "A csomag keresőindexhez adása sikertelen"
 
 #: ckan/controllers/api.py:398
 #, python-format
@@ -207,7 +207,7 @@ msgstr "Ilyen típusú egyed létrehozása sikertelen: %s"
 
 #: ckan/controllers/api.py:418
 msgid "Unable to update search index"
-msgstr ""
+msgstr "A keresőindex frissítése sikertelen"
 
 #: ckan/controllers/api.py:442
 #, python-format
@@ -225,7 +225,7 @@ msgstr "Nincs ilyen azonosítóval rendelkező verzió: %s"
 
 #: ckan/controllers/api.py:479
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
-msgstr ""
+msgstr "Hiányzó kereső szó ('since_id=UUID' vagy  'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:489
 #, python-format
@@ -311,7 +311,7 @@ msgstr "Cimkék"
 #: ckan/controllers/group.py:254 ckan/controllers/home.py:68
 #: ckan/controllers/package.py:240 ckan/lib/helpers.py:529
 msgid "Formats"
-msgstr ""
+msgstr "Formátumok"
 
 #: ckan/controllers/group.py:255 ckan/controllers/home.py:69
 #: ckan/controllers/package.py:241 ckan/lib/helpers.py:530
@@ -338,29 +338,29 @@ msgstr "A(z) %r felhasználó nem jogosult az %s jog módosítására"
 #: ckan/controllers/group.py:512 ckan/controllers/group.py:566
 #, python-format
 msgid "Unauthorized to delete group %s"
-msgstr ""
+msgstr "Nem jogosult csoport törlésére %s"
 
 #: ckan/controllers/group.py:492
 msgid "Organization has been deleted."
-msgstr ""
+msgstr "Szervezetek törlésre kerültek."
 
 #: ckan/controllers/group.py:494
 msgid "Group has been deleted."
-msgstr ""
+msgstr "Csoport törlésre került."
 
 #: ckan/controllers/group.py:539
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr ""
+msgstr "Nem jogosult tag a(z) %s csoporthoz adására"
 
 #: ckan/controllers/group.py:554
 #, python-format
 msgid "Unauthorized to delete group %s members"
-msgstr ""
+msgstr "Nem jogosult a(z) %s csoport tagok törlésére"
 
 #: ckan/controllers/group.py:560
 msgid "Group member has been deleted."
-msgstr ""
+msgstr "Csoport tag törlésre került"
 
 #: ckan/controllers/group.py:583 ckan/controllers/package.py:409
 msgid "Select two revisions before doing the comparison."
@@ -385,22 +385,22 @@ msgstr "Naplóbejegyzés: "
 
 #: ckan/controllers/group.py:662
 msgid "Unauthorized to read group {group_id}"
-msgstr ""
+msgstr "Nem jogosult a {group_id} csoport olvasására"
 
 #: ckan/controllers/group.py:682 ckan/controllers/package.py:1238
 #: ckan/controllers/user.py:594
 msgid "You are now following {0}"
-msgstr ""
+msgstr "Jelenleg követ {0}"
 
 #: ckan/controllers/group.py:701 ckan/controllers/package.py:1257
 #: ckan/controllers/user.py:613
 msgid "You are no longer following {0}"
-msgstr ""
+msgstr "Többé nem követ {0}"
 
 #: ckan/controllers/group.py:720 ckan/controllers/user.py:489
 #, python-format
 msgid "Unauthorized to view followers %s"
-msgstr ""
+msgstr "Nem jogosult a(z) %s követő megtekintésére"
 
 #: ckan/controllers/home.py:34
 msgid "This site is currently off-line. Database is not initialised."
@@ -455,11 +455,11 @@ msgstr "A %s csomag olvasás nem engedélyezett."
 
 #: ckan/controllers/package.py:435
 msgid "CKAN Dataset Revision History"
-msgstr ""
+msgstr "CKAN Adathalmaz Revizió történet"
 
 #: ckan/controllers/package.py:438
 msgid "Recent changes to CKAN Dataset: "
-msgstr ""
+msgstr "A CKAN Adathalmaz aktuális változásai:"
 
 #: ckan/controllers/package.py:489
 msgid "Unauthorized to create a package"
@@ -467,71 +467,71 @@ msgstr "Nincs joga a csoport készítéshez"
 
 #: ckan/controllers/package.py:560
 msgid "Unauthorized to edit this resource"
-msgstr ""
+msgstr "Nem jogosult ezen erőforrás szerkesztésére"
 
 #: ckan/controllers/package.py:581 ckan/controllers/package.py:1116
 #: ckan/controllers/package.py:1192 ckan/controllers/package.py:1221
 #: ckan/controllers/package.py:1328 ckan/controllers/package.py:1422
 msgid "Resource not found"
-msgstr ""
+msgstr "Erőforrás nem található"
 
 #: ckan/controllers/package.py:629 ckan/controllers/package.py:717
 msgid "Unauthorized to update dataset"
-msgstr ""
+msgstr "Nem jogosult az adathalmaz frissítésére"
 
 #: ckan/controllers/package.py:632
 msgid "You must add at least one data resource"
-msgstr ""
+msgstr "Legalább egy adaterőforrás hozzáadása szükséges"
 
 #: ckan/controllers/package.py:651
 msgid "Unauthorized to create a resource"
-msgstr ""
+msgstr "Nem jogosult erőforrás létrehozására"
 
 #: ckan/controllers/package.py:955
 msgid "Unable to add package to search index."
-msgstr ""
+msgstr "Nem sikerült a csomag hozzáadása a keresési indexhez."
 
 #: ckan/controllers/package.py:1006
 msgid "Unable to update search index."
-msgstr ""
+msgstr "Nem sikerült a keresési index frissítése."
 
 #: ckan/controllers/package.py:1079 ckan/controllers/package.py:1088
 #: ckan/controllers/package.py:1104
 #, python-format
 msgid "Unauthorized to delete package %s"
-msgstr ""
+msgstr "Nem jogosult a(z) %s csomag törlésére"
 
 #: ckan/controllers/package.py:1084
 msgid "Dataset has been deleted."
-msgstr ""
+msgstr "Az Adathalmaz törlésre került."
 
 #: ckan/controllers/package.py:1109
 msgid "Resource has been deleted."
-msgstr ""
+msgstr "Az Erőforrás törlésre került."
 
 #: ckan/controllers/package.py:1114
 #, python-format
 msgid "Unauthorized to delete resource %s"
-msgstr ""
+msgstr "Nem jogosult a(z) %s erőforrás törlésére"
 
 #: ckan/controllers/package.py:1194 ckan/controllers/package.py:1223
 #: ckan/controllers/package.py:1330 ckan/controllers/package.py:1424
 #, python-format
 msgid "Unauthorized to read resource %s"
-msgstr ""
+msgstr "Nem jogosult a(z) %s erőforrás olvasására"
 
 #: ckan/controllers/package.py:1226
 msgid "No download is available"
-msgstr ""
+msgstr "Nincs elérhető letöltés"
 
 #: ckan/controllers/package.py:1302
 #, python-format
 msgid "Unauthorized to read dataset %s"
-msgstr ""
+msgstr "Nem jogosult a(z) %s Adathalmaz olvasására."
 
 #: ckan/controllers/package.py:1411
 msgid "No preview has been defined."
-msgstr ""
+msgstr "Nincs előnézet definiálva."
 
 #: ckan/controllers/related.py:69
 #: ckan/templates_legacy/related/dashboard.html:46
@@ -567,7 +567,7 @@ msgstr ""
 #: ckan/controllers/related.py:155 ckan/logic/auth/get.py:10
 #: ckan/logic/auth/get.py:240
 msgid "Not authorized"
-msgstr ""
+msgstr "Nem jogosult"
 
 #: ckan/controllers/related.py:160
 msgid "Package not found"
@@ -646,7 +646,7 @@ msgstr "Legutóbbi változások a CKAN gyűjteményben."
 #: ckan/controllers/revision.py:116
 #, python-format
 msgid "Datasets affected: %s.\n"
-msgstr ""
+msgstr "Érintett adathalmazok: %s.\n"
 
 #: ckan/controllers/revision.py:196
 msgid "Revision updated"
@@ -684,7 +684,7 @@ msgstr "Hibás Captcha. Kérjük próbalkozzon újra"
 msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
-msgstr ""
+msgstr "\"%s\" felhasználó most regisztrálva, de még mindig \"%s\"-ként van bejelentkezve, mint előtte"
 
 #: ckan/controllers/user.py:221
 msgid "No user specified"
@@ -703,7 +703,7 @@ msgstr "%s felhasználó nem szerkesztheti %s felhasználót."
 
 #: ckan/controllers/user.py:278
 msgid "Profile updated"
-msgstr ""
+msgstr "Profil frissítve"
 
 #: ckan/controllers/user.py:334
 #, python-format
@@ -712,7 +712,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:340
 msgid "Login failed. Bad username or password."
-msgstr ""
+msgstr "Belépés sikertelen. Rossz felhasználónév vagy jelszó."
 
 #: ckan/controllers/user.py:342
 msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
@@ -881,55 +881,55 @@ msgstr[1] ""
 
 #: ckan/lib/formatters.py:16
 msgid "January"
-msgstr ""
+msgstr "Január"
 
 #: ckan/lib/formatters.py:20
 msgid "February"
-msgstr ""
+msgstr "Február"
 
 #: ckan/lib/formatters.py:24
 msgid "March"
-msgstr ""
+msgstr "Március"
 
 #: ckan/lib/formatters.py:28
 msgid "April"
-msgstr ""
+msgstr "Április"
 
 #: ckan/lib/formatters.py:32
 msgid "May"
-msgstr ""
+msgstr "Május"
 
 #: ckan/lib/formatters.py:36
 msgid "June"
-msgstr ""
+msgstr "Június"
 
 #: ckan/lib/formatters.py:40
 msgid "July"
-msgstr ""
+msgstr "Július"
 
 #: ckan/lib/formatters.py:44
 msgid "August"
-msgstr ""
+msgstr "Augusztus"
 
 #: ckan/lib/formatters.py:48
 msgid "September"
-msgstr ""
+msgstr "Szeptember"
 
 #: ckan/lib/formatters.py:52
 msgid "October"
-msgstr ""
+msgstr "Október"
 
 #: ckan/lib/formatters.py:56
 msgid "November"
-msgstr ""
+msgstr "November"
 
 #: ckan/lib/formatters.py:60
 msgid "December"
-msgstr ""
+msgstr "December"
 
 #: ckan/lib/formatters.py:81
 msgid "Just now"
-msgstr ""
+msgstr "Épp most"
 
 #: ckan/lib/formatters.py:83
 msgid "{mins} minute ago"
@@ -951,71 +951,71 @@ msgstr[1] ""
 
 #: ckan/lib/formatters.py:97
 msgid "{month} {day}, {year}"
-msgstr ""
+msgstr "{year} {month} {day}"
 
 #: ckan/lib/formatters.py:114
 msgid "{bytes} bytes"
-msgstr ""
+msgstr "{bytes} bájt"
 
 #: ckan/lib/formatters.py:116
 msgid "{kibibytes} KiB"
-msgstr ""
+msgstr "{kibibytes} KiB"
 
 #: ckan/lib/formatters.py:118
 msgid "{mebibytes} MiB"
-msgstr ""
+msgstr "{mebibytes} MiB"
 
 #: ckan/lib/formatters.py:120
 msgid "{gibibytes} GiB"
-msgstr ""
+msgstr "{gibibytes} GiB"
 
 #: ckan/lib/formatters.py:122
 msgid "{tebibytes} TiB"
-msgstr ""
+msgstr "{tebibytes} TiB"
 
 #: ckan/lib/formatters.py:134
 msgid "{n}"
-msgstr ""
+msgstr "{n}"
 
 #: ckan/lib/formatters.py:136
 msgid "{k}k"
-msgstr ""
+msgstr "{k}k"
 
 #: ckan/lib/formatters.py:138
 msgid "{m}M"
-msgstr ""
+msgstr "{m}M"
 
 #: ckan/lib/formatters.py:140
 msgid "{g}G"
-msgstr ""
+msgstr "{g}G"
 
 #: ckan/lib/formatters.py:142
 msgid "{t}T"
-msgstr ""
+msgstr "{t}T"
 
 #: ckan/lib/formatters.py:144
 msgid "{p}P"
-msgstr ""
+msgstr "{p}P"
 
 #: ckan/lib/formatters.py:146
 msgid "{e}E"
-msgstr ""
+msgstr "{e}E"
 
 #: ckan/lib/formatters.py:148
 msgid "{z}Z"
-msgstr ""
+msgstr "{z}Z"
 
 #: ckan/lib/formatters.py:150
 msgid "{y}Y"
-msgstr ""
+msgstr "{y}Y"
 
 #: ckan/lib/helpers.py:674
 msgid "Update your avatar at gravatar.com"
-msgstr ""
+msgstr "Frissítse avatárját a gravatar.com-on"
 
 #: ckan/lib/helpers.py:870 ckan/templates_legacy/js_strings.html:16
 msgid "Unknown"
-msgstr ""
+msgstr "Ismeretlen"
 
 #: ckan/lib/helpers.py:915
 msgid "no name"
@@ -1023,15 +1023,15 @@ msgstr ""
 
 #: ckan/lib/helpers.py:963
 msgid "Created new dataset."
-msgstr ""
+msgstr "Létrehozott új Adathalmaz."
 
 #: ckan/lib/helpers.py:965
 msgid "Edited resources."
-msgstr ""
+msgstr "Szerkesztett erőforrás."
 
 #: ckan/lib/helpers.py:967
 msgid "Edited settings."
-msgstr ""
+msgstr "Szerkesztett beállítások."
 
 #: ckan/lib/helpers.py:1218
 msgid "{number} view"
@@ -1115,7 +1115,7 @@ msgstr ""
 
 #: ckan/lib/navl/validators.py:93
 msgid "Please enter an integer value"
-msgstr ""
+msgstr "Adjon meg egész értéket"
 
 #: ckan/logic/__init__.py:83 ckan/logic/action/__init__.py:54
 #: ckan/templates/package/snippets/package_context.html:14
@@ -2049,7 +2049,7 @@ msgstr "Adatkészletek"
 #: ckanext/organizations/templates_legacy/organizations/index.html:6
 #: ckanext/organizations/templates_legacy/organizations/index.html:7
 msgid "Organizations"
-msgstr ""
+msgstr "Szervezetek"
 
 #: ckan/templates/header.html:90
 msgid "Search Datasets"
@@ -2456,7 +2456,7 @@ msgstr ""
 #: ckan/templates_legacy/group/layout.html:16
 #: ckanext/organizations/templates_legacy/organizations/layout.html:22
 msgid "Add Dataset"
-msgstr ""
+msgstr "Adathalmaz hozzáadása"
 
 #: ckan/templates/group/read_base.html:47
 #: ckan/templates/package/snippets/package_context.html:7
@@ -2522,13 +2522,13 @@ msgstr ""
 #: ckan/templates_legacy/related/add-related.html:42
 #: ckanext/organizations/templates/organizations/form.html:40
 msgid "Image URL"
-msgstr ""
+msgstr "Kép URL"
 
 #: ckan/templates/group/snippets/group_form.html:22
 #: ckan/templates/organization/snippets/organization_form.html:22
 #: ckanext/organizations/templates/organizations/form.html:40
 msgid "http://example.com/my-image.jpg"
-msgstr ""
+msgstr "http://example.com/my-image.jpg"
 
 #: ckan/templates/group/snippets/group_form.html:75
 msgid "Are you sure you want to delete this Group?"
@@ -2625,7 +2625,7 @@ msgstr ""
 
 #: ckan/templates/macros/form.html:255
 msgid "Custom"
-msgstr ""
+msgstr "Egyéni"
 
 #: ckan/templates/macros/form.html:280
 #: ckan/templates/related/snippets/related_form.html:7
@@ -2645,22 +2645,22 @@ msgstr "Az űrlap hibás mezőket tartalmaz:"
 #: ckan/templates/snippets/organization.html:29
 #: ckan/templates/snippets/organization_item.html:17
 msgid "There is no description for this organization"
-msgstr ""
+msgstr "Nincs leírás ehhez a szervezethez"
 
 #: ckan/templates/organization/base_form_page.html:5
 msgid "Organization Form"
-msgstr ""
+msgstr "Szervezeti forma"
 
 #: ckan/templates/organization/confirm_delete.html:10
 msgid "Are you sure you want to delete organization - {name}?"
-msgstr ""
+msgstr "Biztos hogy szeretné törölni a(z) {name} szervezetet?"
 
 #: ckan/templates/organization/edit.html:3
 #: ckan/templates/organization/edit.html:5
 #: ckan/templates/organization/snippets/info.html:13
 #: ckan/templates/organization/snippets/info.html:16
 msgid "Edit Organization"
-msgstr ""
+msgstr "Szervezet szerkesztése"
 
 #: ckan/templates/organization/edit_base.html:19
 msgid "View organization"
@@ -2677,18 +2677,18 @@ msgstr ""
 #: ckan/templates/organization/index.html:11
 #: ckanext/organizations/templates/organizations/index.html:10
 msgid "Add Organization"
-msgstr ""
+msgstr "Szervezet hozzáadása"
 
 #: ckan/templates/organization/index.html:23
 #: ckanext/organizations/templates/organizations/index.html:21
 msgid "There are currently no organizations for this site"
-msgstr ""
+msgstr "Jelenleg nincsenek szervezetek az oldalhoz"
 
 #: ckan/templates/organization/index.html:38
 #: ckanext/organizations/templates/organizations/index.html:34
 #: ckanext/organizations/templates/organizations/new.html:11
 msgid "What are Organizations?"
-msgstr ""
+msgstr "Mik a Szervezetek?"
 
 #: ckan/templates/organization/index.html:41
 msgid ""
@@ -2738,33 +2738,33 @@ msgstr ""
 #: ckan/templates/organization/new.html:7
 #: ckan/templates/organization/new.html:12
 msgid "Create an Organization"
-msgstr ""
+msgstr "Szervezet létrehozása"
 
 #: ckan/templates/organization/new_organization_form.html:17
 #: ckanext/organizations/templates/organizations/form.html:17
 msgid "Update Organization"
-msgstr ""
+msgstr "Szervezet frissítése"
 
 #: ckan/templates/organization/new_organization_form.html:19
 #: ckanext/organizations/templates/organizations/form.html:19
 #: ckanext/organizations/templates/organizations/new.html:5
 msgid "Create Organization"
-msgstr ""
+msgstr "Szervezet létrehozása"
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 #: ckanext/organizations/templates/organizations/form.html:29
 msgid "My Organization"
-msgstr ""
+msgstr "Szervezetem"
 
 #: ckan/templates/organization/snippets/organization_form.html:18
 #: ckanext/organizations/templates/organizations/form.html:36
 msgid "my-organization"
-msgstr ""
+msgstr "szervezetem"
 
 #: ckan/templates/organization/snippets/organization_form.html:20
 #: ckanext/organizations/templates/organizations/form.html:38
 msgid "A little information about my organization..."
-msgstr ""
+msgstr "Kevés információ a szervezetemről..."
 
 #: ckan/templates/organization/snippets/organization_form.html:77
 msgid "Are you sure you want to delete this Organization?"
@@ -2772,7 +2772,7 @@ msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:81
 msgid "Save Organization"
-msgstr ""
+msgstr "Szervezet mentése"
 
 #: ckan/templates/organization/snippets/organization_item.html:30
 msgid "This organization has no description"
@@ -2838,12 +2838,12 @@ msgstr ""
 #: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:92
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:119
 msgid "Private"
-msgstr ""
+msgstr "Privát"
 
 #: ckan/templates/package/read.html:20
 #: ckan/templates/snippets/package_item.html:33
 msgid "Draft"
-msgstr ""
+msgstr "Vázlat"
 
 #: ckan/templates/package/read_base.html:28
 #, python-format
@@ -3237,7 +3237,7 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:17
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Last Modified"
-msgstr ""
+msgstr "Utóljára módosítva"
 
 #: ckan/templates/package/snippets/resource_form.html:57
 msgid "eg. 2012-06-05"
@@ -3544,7 +3544,7 @@ msgstr ""
 
 #: ckan/templates/snippets/package_item.html:35
 msgid "Deleted"
-msgstr ""
+msgstr "Törölt"
 
 #: ckan/templates/snippets/package_item.html:40
 #: ckan/templates/snippets/popular.html:3
@@ -3554,7 +3554,7 @@ msgstr ""
 
 #: ckan/templates/snippets/package_item.html:45
 msgid "This dataset has no description"
-msgstr ""
+msgstr "Ennek az adathalmaznak nincs leírása"
 
 #: ckan/templates/snippets/related.html:15
 msgid ""
@@ -3640,11 +3640,11 @@ msgstr ""
 
 #: ckan/templates/snippets/sort_by.html:15
 msgid "Name Ascending"
-msgstr ""
+msgstr "Név növekvő sorrendben"
 
 #: ckan/templates/snippets/sort_by.html:16
 msgid "Name Descending"
-msgstr ""
+msgstr "Név csökkenő sorrendben"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
@@ -4719,7 +4719,7 @@ msgstr ""
 
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "dataset"
-msgstr ""
+msgstr "adathalmaz"
 
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "read from"

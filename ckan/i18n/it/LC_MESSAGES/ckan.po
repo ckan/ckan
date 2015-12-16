@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Adrià Mercader <adria.mercader@okfn.org>, 2015
 # Alessandro <alessandro.sarretta@gmail.com>, 2013
 # <dex@lucadex.it>, 2012
 # groundrace <groundrace@me.com>, 2013
@@ -19,9 +20,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-05-21 12:45+0000\n"
-"Last-Translator: Maurizio Napolitano <maurizio.napolitano@okfn.org>\n"
-"Language-Team: Italian (http://www.transifex.com/p/ckan/language/it/)\n"
+"PO-Revision-Date: 2015-11-26 15:06+0000\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
+"Language-Team: Italian (http://www.transifex.com/okfn/ckan/language/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -3591,7 +3592,7 @@ msgstr "Spiacente, nessun dataset trovato"
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
 msgid_plural "{number} groups found for \"{query}\""
-msgstr[0] "nessun gruppo trovato per \"{query}\""
+msgstr[0] "{number} gruppo trovato per \"{query}\""
 msgstr[1] "{number} gruppi trovati per \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:22

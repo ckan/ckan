@@ -12,9 +12,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-03-11 14:01+0000\n"
+"PO-Revision-Date: 2015-11-26 14:24+0000\n"
 "Last-Translator: Sean Hammond <sean.hammond@okfn.org>\n"
-"Language-Team: Albanian (http://www.transifex.com/p/ckan/language/sq/)\n"
+"Language-Team: Albanian (http://www.transifex.com/okfn/ckan/language/sq/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,36 +31,36 @@ msgstr "Funksioni i autorizimit nuk u gjet:%s"
 #: ckan/templates/organization/read_base.html:13
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:26
 msgid "Admin"
-msgstr ""
+msgstr "Administratori"
 
 #: ckan/new_authz.py:86
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:27
 msgid "Editor"
-msgstr ""
+msgstr "Redaktori"
 
 #: ckan/new_authz.py:89
 msgid "Member"
-msgstr ""
+msgstr "Anëtar"
 
 #: ckan/controllers/admin.py:24
 msgid "Need to be system administrator to administer"
-msgstr ""
+msgstr "Duhesh me qenë administrator i sistemit për të administruar"
 
 #: ckan/controllers/admin.py:35
 msgid "Site Title"
-msgstr ""
+msgstr "Titulli faqes"
 
 #: ckan/controllers/admin.py:36
 msgid "Style"
-msgstr ""
+msgstr "Stilizimi"
 
 #: ckan/controllers/admin.py:37
 msgid "Site Tag Line"
-msgstr ""
+msgstr "Etiketat e faqës"
 
 #: ckan/controllers/admin.py:38
 msgid "Site Tag Logo"
-msgstr ""
+msgstr "Etiketa e logos së faqës"
 
 #: ckan/controllers/admin.py:39 ckan/templates/header.html:81
 #: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:26
@@ -80,43 +80,43 @@ msgstr "Rreth"
 
 #: ckan/controllers/admin.py:39
 msgid "About page text"
-msgstr ""
+msgstr "Teksti i faqes Rreth nesh"
 
 #: ckan/controllers/admin.py:40
 msgid "Intro Text"
-msgstr ""
+msgstr "Teksti hyrës"
 
 #: ckan/controllers/admin.py:40
 msgid "Text on home page"
-msgstr ""
+msgstr "Teksti në ballinë"
 
 #: ckan/controllers/admin.py:41
 msgid "Custom CSS"
-msgstr ""
+msgstr "Kostumizo CSS-in"
 
 #: ckan/controllers/admin.py:41
 msgid "Customisable css inserted into the page header"
-msgstr ""
+msgstr "Ne kreun e faqes u shtua css is kostumizuar"
 
 #: ckan/controllers/admin.py:122
 #, python-format
 msgid ""
 "Cannot purge package %s as associated revision %s includes non-deleted "
 "packages %s"
-msgstr ""
+msgstr "Nuk mund të largohet paketa %s si version i lidhur i %s, perfshirë %s paketat të cilat nuk janë fshirë."
 
 #: ckan/controllers/admin.py:144
 #, python-format
 msgid "Problem purging revision %s: %s"
-msgstr ""
+msgstr "Problem në largimin e versionit %s: %s"
 
 #: ckan/controllers/admin.py:146
 msgid "Purge complete"
-msgstr ""
+msgstr "Largimi u kompletua"
 
 #: ckan/controllers/admin.py:148
 msgid "Action not implemented."
-msgstr ""
+msgstr "Veprimi nuk u përfundua."
 
 #: ckan/controllers/api.py:60 ckan/controllers/group.py:136
 #: ckan/controllers/home.py:26 ckan/controllers/package.py:141
@@ -161,7 +161,7 @@ msgstr "Gabim në JSON: %s"
 #: ckan/controllers/api.py:180
 #, python-format
 msgid "Bad request data: %s"
-msgstr ""
+msgstr "Kërkesë e gabuar e të dhënave: %s"
 
 #: ckan/controllers/api.py:190 ckan/controllers/api.py:362
 #: ckan/controllers/api.py:414 ckan/controllers/group.py:413
@@ -193,7 +193,7 @@ msgstr "Nuk mund të krijoj një ent të këtij grupi: %s %s"
 
 #: ckan/controllers/api.py:368
 msgid "Unable to add package to search index"
-msgstr ""
+msgstr "E pamundur të shtohet një paketë për të kërkuar ideksin"
 
 #: ckan/controllers/api.py:398
 #, python-format
@@ -202,7 +202,7 @@ msgstr "Nuk mund ta updatoj këtë tip: %s"
 
 #: ckan/controllers/api.py:418
 msgid "Unable to update search index"
-msgstr ""
+msgstr "E pamundur të ndryshohet indeksi i kërkimit"
 
 #: ckan/controllers/api.py:442
 #, python-format
@@ -220,7 +220,7 @@ msgstr "Nuk ka ndryshime me këtë id: %s"
 
 #: ckan/controllers/api.py:479
 msgid "Missing search term ('since_id=UUID' or  'since_time=TIMESTAMP')"
-msgstr ""
+msgstr "Mungon kushti i kerkimit ('since_id=UUID' or 'since_time=TIMESTAMP')"
 
 #: ckan/controllers/api.py:489
 #, python-format
@@ -306,7 +306,7 @@ msgstr "Terma"
 #: ckan/controllers/group.py:254 ckan/controllers/home.py:68
 #: ckan/controllers/package.py:240 ckan/lib/helpers.py:529
 msgid "Formats"
-msgstr ""
+msgstr "Formatet"
 
 #: ckan/controllers/group.py:255 ckan/controllers/home.py:69
 #: ckan/controllers/package.py:241 ckan/lib/helpers.py:530
@@ -333,29 +333,29 @@ msgstr "Përdoruesi %r nuk është i autorizuar të modifikojë autorizimet %s"
 #: ckan/controllers/group.py:512 ckan/controllers/group.py:566
 #, python-format
 msgid "Unauthorized to delete group %s"
-msgstr ""
+msgstr "Nuk jeni i autorizuar për të fshirë grupin %s"
 
 #: ckan/controllers/group.py:492
 msgid "Organization has been deleted."
-msgstr ""
+msgstr "Organizata është fshirë."
 
 #: ckan/controllers/group.py:494
 msgid "Group has been deleted."
-msgstr ""
+msgstr "Grupi është fshirë."
 
 #: ckan/controllers/group.py:539
 #, python-format
 msgid "Unauthorized to add member to group %s"
-msgstr ""
+msgstr "Nuk jeni i autorizuar për të shtuar anëtar në grupin %s"
 
 #: ckan/controllers/group.py:554
 #, python-format
 msgid "Unauthorized to delete group %s members"
-msgstr ""
+msgstr "Nuk jeni i autorizuar për të fshirë anëtar në grupin %s"
 
 #: ckan/controllers/group.py:560
 msgid "Group member has been deleted."
-msgstr ""
+msgstr "Anëtari i grupit është fshirë."
 
 #: ckan/controllers/group.py:583 ckan/controllers/package.py:409
 msgid "Select two revisions before doing the comparison."
@@ -380,22 +380,22 @@ msgstr "Mesazhet e log:"
 
 #: ckan/controllers/group.py:662
 msgid "Unauthorized to read group {group_id}"
-msgstr ""
+msgstr "Të paautorizuar për të lexuar grupin {group_id}"
 
 #: ckan/controllers/group.py:682 ckan/controllers/package.py:1238
 #: ckan/controllers/user.py:594
 msgid "You are now following {0}"
-msgstr ""
+msgstr "Tani po ndiqni {0}"
 
 #: ckan/controllers/group.py:701 ckan/controllers/package.py:1257
 #: ckan/controllers/user.py:613
 msgid "You are no longer following {0}"
-msgstr ""
+msgstr "Më nuk ndiqni {0}"
 
 #: ckan/controllers/group.py:720 ckan/controllers/user.py:489
 #, python-format
 msgid "Unauthorized to view followers %s"
-msgstr ""
+msgstr "Të paautorizuar për të shikuar ndjekësit %s"
 
 #: ckan/controllers/home.py:34
 msgid "This site is currently off-line. Database is not initialised."
@@ -411,12 +411,12 @@ msgstr ""
 #: ckan/controllers/home.py:96
 #, python-format
 msgid "Please <a href=\"%s\">update your profile</a> and add your email address. "
-msgstr ""
+msgstr "Ju lutem <a href=\"%s\"> ndryshoni profilin tuaj</a>, si dhe shtoni email adresën "
 
 #: ckan/controllers/home.py:98
 #, python-format
 msgid "%s uses your email address if you need to reset your password."
-msgstr ""
+msgstr "%s përdor email adresën tuaj nëse ju nevojitet ndryshimi i fjalëkalimit."
 
 #: ckan/controllers/home.py:102
 #, python-format
@@ -437,7 +437,7 @@ msgstr "Format rishikimi i pavlefshëm :%r"
 #: ckan/controllers/package.py:1280 ckan/controllers/package.py:1300
 #: ckan/controllers/related.py:111 ckan/controllers/related.py:120
 msgid "Dataset not found"
-msgstr ""
+msgstr "Seti i të dhënave nuk u gjet"
 
 #: ckan/controllers/package.py:359 ckan/controllers/package.py:387
 #: ckan/controllers/package.py:426 ckan/controllers/package.py:762
@@ -450,11 +450,11 @@ msgstr "I paautorizuar të lexoni paketën %s"
 
 #: ckan/controllers/package.py:435
 msgid "CKAN Dataset Revision History"
-msgstr ""
+msgstr "Historiku i ndryshimeve të setit të dhënave të CKAN-it"
 
 #: ckan/controllers/package.py:438
 msgid "Recent changes to CKAN Dataset: "
-msgstr ""
+msgstr "Ndryshimet e fundit në setin e të dhënave të CKAN:"
 
 #: ckan/controllers/package.py:489
 msgid "Unauthorized to create a package"
@@ -462,71 +462,71 @@ msgstr "I paautorizuar të krijoni një paketë"
 
 #: ckan/controllers/package.py:560
 msgid "Unauthorized to edit this resource"
-msgstr ""
+msgstr "Të paautorizuar për t'a redaktuar këtë burim"
 
 #: ckan/controllers/package.py:581 ckan/controllers/package.py:1116
 #: ckan/controllers/package.py:1192 ckan/controllers/package.py:1221
 #: ckan/controllers/package.py:1328 ckan/controllers/package.py:1422
 msgid "Resource not found"
-msgstr ""
+msgstr "Burimi nuk u gjet"
 
 #: ckan/controllers/package.py:629 ckan/controllers/package.py:717
 msgid "Unauthorized to update dataset"
-msgstr ""
+msgstr "Të paautorizuar të ndryshoni setin e të dhënave"
 
 #: ckan/controllers/package.py:632
 msgid "You must add at least one data resource"
-msgstr ""
+msgstr "Duhet të shtoni të paktën nj burim të të dhënave"
 
 #: ckan/controllers/package.py:651
 msgid "Unauthorized to create a resource"
-msgstr ""
+msgstr "Të paautorizuar për të krijuar një burim"
 
 #: ckan/controllers/package.py:955
 msgid "Unable to add package to search index."
-msgstr ""
+msgstr "E pamundur të shtoni paketën për të kërkuar indeksin"
 
 #: ckan/controllers/package.py:1006
 msgid "Unable to update search index."
-msgstr ""
+msgstr "E pamundur të ndryshoni indeksin e kërkimit."
 
 #: ckan/controllers/package.py:1079 ckan/controllers/package.py:1088
 #: ckan/controllers/package.py:1104
 #, python-format
 msgid "Unauthorized to delete package %s"
-msgstr ""
+msgstr "I paautorizuar për të fshirë paketën %s"
 
 #: ckan/controllers/package.py:1084
 msgid "Dataset has been deleted."
-msgstr ""
+msgstr "Seti i të dhënave është fshirë."
 
 #: ckan/controllers/package.py:1109
 msgid "Resource has been deleted."
-msgstr ""
+msgstr "Burimi është fshirë."
 
 #: ckan/controllers/package.py:1114
 #, python-format
 msgid "Unauthorized to delete resource %s"
-msgstr ""
+msgstr "Të paautorizuar për të fshirë burimin %s"
 
 #: ckan/controllers/package.py:1194 ckan/controllers/package.py:1223
 #: ckan/controllers/package.py:1330 ckan/controllers/package.py:1424
 #, python-format
 msgid "Unauthorized to read resource %s"
-msgstr ""
+msgstr "Të paautorizuar të lexoni burimin %s"
 
 #: ckan/controllers/package.py:1226
 msgid "No download is available"
-msgstr ""
+msgstr "Asnjë shkarkim nuk është në dispozicion"
 
 #: ckan/controllers/package.py:1302
 #, python-format
 msgid "Unauthorized to read dataset %s"
-msgstr ""
+msgstr "Të paautorizuar të lexoni setin e të dhënave %s"
 
 #: ckan/controllers/package.py:1411
 msgid "No preview has been defined."
-msgstr ""
+msgstr "Nuk u përcaktua asnjë parapamje"
 
 #: ckan/controllers/related.py:69
 #: ckan/templates_legacy/related/dashboard.html:46
@@ -562,7 +562,7 @@ msgstr ""
 #: ckan/controllers/related.py:155 ckan/logic/auth/get.py:10
 #: ckan/logic/auth/get.py:240
 msgid "Not authorized"
-msgstr ""
+msgstr "Nuk jeni i autorizuar"
 
 #: ckan/controllers/related.py:160
 msgid "Package not found"
@@ -641,7 +641,7 @@ msgstr "Ndryshime të fundit në katalogun CKAN"
 #: ckan/controllers/revision.py:116
 #, python-format
 msgid "Datasets affected: %s.\n"
-msgstr ""
+msgstr "Setet e të dhënave janë prekur: %s.\n"
 
 #: ckan/controllers/revision.py:196
 msgid "Revision updated"
@@ -679,7 +679,7 @@ msgstr "Captcha keqe. Ju lutem provoni përsëri."
 msgid ""
 "User \"%s\" is now registered but you are still logged in as \"%s\" from "
 "before"
-msgstr ""
+msgstr "Përdoruesi \"%s\" është i regjistruar tani, mirëpo ju jeni ende të kyçur si \"%s\", nga më parë"
 
 #: ckan/controllers/user.py:221
 msgid "No user specified"
@@ -698,7 +698,7 @@ msgstr " Përdoruesi %s nuk është i autorizuar për të redaktuar %s"
 
 #: ckan/controllers/user.py:278
 msgid "Profile updated"
-msgstr ""
+msgstr "Profili u përditsua"
 
 #: ckan/controllers/user.py:334
 #, python-format
@@ -707,7 +707,7 @@ msgstr ""
 
 #: ckan/controllers/user.py:340
 msgid "Login failed. Bad username or password."
-msgstr ""
+msgstr "Kycja dështoi. Emri përdoruesit ose fjalëkalimi gabim."
 
 #: ckan/controllers/user.py:342
 msgid " (Or if using OpenID, it hasn't been associated with a user account.)"
@@ -750,23 +750,23 @@ msgstr "Fjalëkalimet nuk përputhen."
 
 #: ckan/controllers/user.py:479
 msgid "You must provide a password"
-msgstr ""
+msgstr "Duhet të jepni një fjalëkalim"
 
 #: ckan/controllers/user.py:536
 msgid "Follow item not found"
-msgstr ""
+msgstr "Artikulli Ndjek nuk u gjet"
 
 #: ckan/controllers/user.py:540
 msgid "{0} not found"
-msgstr ""
+msgstr "{0}  nuk u gjet"
 
 #: ckan/controllers/user.py:542
 msgid "Unauthorized to read {0} {1}"
-msgstr ""
+msgstr "Të paautorizuar të lexoni {0} {1}"
 
 #: ckan/controllers/user.py:557
 msgid "Everything"
-msgstr ""
+msgstr "Gjithçka"
 
 #: ckan/controllers/user.py:631
 msgid "Error: Could not parse About text"
@@ -774,95 +774,95 @@ msgstr ""
 
 #: ckan/lib/activity_streams.py:64
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} shtoi etiketën {tag} në setin e të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:67
 msgid "{actor} updated the group {group}"
-msgstr ""
+msgstr "{actor} ndryshoj  grupin {group}"
 
 #: ckan/lib/activity_streams.py:70
 msgid "{actor} updated the organization {organization}"
-msgstr ""
+msgstr "{actor} ndryshoj organizatën {organization}"
 
 #: ckan/lib/activity_streams.py:73
 msgid "{actor} updated the dataset {dataset}"
-msgstr ""
+msgstr "{actor} ndryshoj setin e të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:76
 msgid "{actor} changed the extra {extra} of the dataset {dataset}"
-msgstr ""
+msgstr "{actor} ndryshoj extra vlerën {extra} në setin e të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:79
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
-msgstr ""
+msgstr "{actor} ndryshoj burimin {resource} në setin e të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:82
 msgid "{actor} updated their profile"
-msgstr ""
+msgstr "{actor} ndryshoj profilin e tyre"
 
 #: ckan/lib/activity_streams.py:85
 msgid "{actor} deleted the group {group}"
-msgstr ""
+msgstr "{actor} fshiu grupin {group}"
 
 #: ckan/lib/activity_streams.py:88
 msgid "{actor} deleted the organization {organization}"
-msgstr ""
+msgstr "{actor} fshiu organizatën {organization}"
 
 #: ckan/lib/activity_streams.py:91
 msgid "{actor} deleted the dataset {dataset}"
-msgstr ""
+msgstr "{actor} fshiu setin e të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:94
 msgid "{actor} deleted the extra {extra} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} fshiu ekstra {extra} nga seti i të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:97
 msgid "{actor} deleted the resource {resource} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} fshiu burimin {resource} nga seti i të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:100
 msgid "{actor} created the group {group}"
-msgstr ""
+msgstr "{actor} krijoi grupin {group}"
 
 #: ckan/lib/activity_streams.py:103
 msgid "{actor} created the organization {organization}"
-msgstr ""
+msgstr "{actor} krijoi organizatën {organization}"
 
 #: ckan/lib/activity_streams.py:106
 msgid "{actor} created the dataset {dataset}"
-msgstr ""
+msgstr "{actor} krijoi setin e të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:109
 msgid "{actor} added the extra {extra} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} shtoi ekstra {extra} në setin e të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:112
 msgid "{actor} added the resource {resource} to the dataset {dataset}"
-msgstr ""
+msgstr "{actor} shtoi burimin {resource} në setin e të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:115
 msgid "{actor} signed up"
-msgstr ""
+msgstr "{actor} u regjistrua"
 
 #: ckan/lib/activity_streams.py:118
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
-msgstr ""
+msgstr "{actor} fshiu etiketën {tag} nga seti i të dhënave {dataset}"
 
 #: ckan/lib/activity_streams.py:121
 msgid "{actor} deleted the related item {related_item}"
-msgstr ""
+msgstr "{actor} fshiu artikullin e ngjashëm {related_item}"
 
 #: ckan/lib/activity_streams.py:124
 msgid "{actor} started following {dataset}"
-msgstr ""
+msgstr "{actor} filloi të ndjek {dataset}"
 
 #: ckan/lib/activity_streams.py:127
 msgid "{actor} started following {user}"
-msgstr ""
+msgstr "{actor} filloi të ndjek {user}"
 
 #: ckan/lib/activity_streams.py:130
 msgid "{actor} started following {group}"
-msgstr ""
+msgstr "{actor} filloi të ndjek {group}"
 
 #: ckan/lib/activity_streams.py:133
 msgid "{actor} created the link to related {related_type} {related_item}"
@@ -876,55 +876,55 @@ msgstr[1] ""
 
 #: ckan/lib/formatters.py:16
 msgid "January"
-msgstr ""
+msgstr "Janar"
 
 #: ckan/lib/formatters.py:20
 msgid "February"
-msgstr ""
+msgstr "Shkurt"
 
 #: ckan/lib/formatters.py:24
 msgid "March"
-msgstr ""
+msgstr "Mars"
 
 #: ckan/lib/formatters.py:28
 msgid "April"
-msgstr ""
+msgstr "Prill"
 
 #: ckan/lib/formatters.py:32
 msgid "May"
-msgstr ""
+msgstr "Maj"
 
 #: ckan/lib/formatters.py:36
 msgid "June"
-msgstr ""
+msgstr "Qershor "
 
 #: ckan/lib/formatters.py:40
 msgid "July"
-msgstr ""
+msgstr "Korrik"
 
 #: ckan/lib/formatters.py:44
 msgid "August"
-msgstr ""
+msgstr "Gusht"
 
 #: ckan/lib/formatters.py:48
 msgid "September"
-msgstr ""
+msgstr "Shtator"
 
 #: ckan/lib/formatters.py:52
 msgid "October"
-msgstr ""
+msgstr "Tetor"
 
 #: ckan/lib/formatters.py:56
 msgid "November"
-msgstr ""
+msgstr "Nëntor"
 
 #: ckan/lib/formatters.py:60
 msgid "December"
-msgstr ""
+msgstr "Dhjetor"
 
 #: ckan/lib/formatters.py:81
 msgid "Just now"
-msgstr ""
+msgstr "Tani"
 
 #: ckan/lib/formatters.py:83
 msgid "{mins} minute ago"
@@ -946,71 +946,71 @@ msgstr[1] ""
 
 #: ckan/lib/formatters.py:97
 msgid "{month} {day}, {year}"
-msgstr ""
+msgstr "{month} {day}, {year}"
 
 #: ckan/lib/formatters.py:114
 msgid "{bytes} bytes"
-msgstr ""
+msgstr "{bytes} bajta"
 
 #: ckan/lib/formatters.py:116
 msgid "{kibibytes} KiB"
-msgstr ""
+msgstr "{kibibytes} KiB"
 
 #: ckan/lib/formatters.py:118
 msgid "{mebibytes} MiB"
-msgstr ""
+msgstr "{mebibytes} MiB"
 
 #: ckan/lib/formatters.py:120
 msgid "{gibibytes} GiB"
-msgstr ""
+msgstr "{gibibytes} GiB"
 
 #: ckan/lib/formatters.py:122
 msgid "{tebibytes} TiB"
-msgstr ""
+msgstr "{tebibytes} TiB"
 
 #: ckan/lib/formatters.py:134
 msgid "{n}"
-msgstr ""
+msgstr "{n}"
 
 #: ckan/lib/formatters.py:136
 msgid "{k}k"
-msgstr ""
+msgstr "{k}k"
 
 #: ckan/lib/formatters.py:138
 msgid "{m}M"
-msgstr ""
+msgstr "{m}M"
 
 #: ckan/lib/formatters.py:140
 msgid "{g}G"
-msgstr ""
+msgstr "{g}G"
 
 #: ckan/lib/formatters.py:142
 msgid "{t}T"
-msgstr ""
+msgstr "{t}T"
 
 #: ckan/lib/formatters.py:144
 msgid "{p}P"
-msgstr ""
+msgstr "{p}P"
 
 #: ckan/lib/formatters.py:146
 msgid "{e}E"
-msgstr ""
+msgstr "{e}E"
 
 #: ckan/lib/formatters.py:148
 msgid "{z}Z"
-msgstr ""
+msgstr "{z}Z"
 
 #: ckan/lib/formatters.py:150
 msgid "{y}Y"
-msgstr ""
+msgstr "{y}Y"
 
 #: ckan/lib/helpers.py:674
 msgid "Update your avatar at gravatar.com"
-msgstr ""
+msgstr "Ndrysho avatarin tuaj në gravatar.com"
 
 #: ckan/lib/helpers.py:870 ckan/templates_legacy/js_strings.html:16
 msgid "Unknown"
-msgstr ""
+msgstr "I panjohur"
 
 #: ckan/lib/helpers.py:915
 msgid "no name"
@@ -1018,15 +1018,15 @@ msgstr ""
 
 #: ckan/lib/helpers.py:963
 msgid "Created new dataset."
-msgstr ""
+msgstr "U krijua seti i ri i të dhënave"
 
 #: ckan/lib/helpers.py:965
 msgid "Edited resources."
-msgstr ""
+msgstr "Redakto burimet."
 
 #: ckan/lib/helpers.py:967
 msgid "Edited settings."
-msgstr ""
+msgstr "Redakto cilësimet"
 
 #: ckan/lib/helpers.py:1218
 msgid "{number} view"
@@ -1101,16 +1101,16 @@ msgstr "Nuk lejohen linke në messazhet log"
 #: ckan/logic/__init__.py:359 ckan/logic/validators.py:488
 #: ckan/logic/action/get.py:1423
 msgid "Missing value"
-msgstr ""
+msgstr "Vlera mungon"
 
 #: ckan/lib/navl/validators.py:54
 #, python-format
 msgid "The input field %(name)s was not expected."
-msgstr ""
+msgstr "Fusha hyrëse %(name)s nuk pritej."
 
 #: ckan/lib/navl/validators.py:93
 msgid "Please enter an integer value"
-msgstr ""
+msgstr "Ju lutem vendosni një vlerë të plotë"
 
 #: ckan/logic/__init__.py:83 ckan/logic/action/__init__.py:54
 #: ckan/templates/package/snippets/package_context.html:14
@@ -1123,7 +1123,7 @@ msgstr "Burime"
 
 #: ckan/logic/__init__.py:83 ckan/logic/action/__init__.py:54
 msgid "Package resource(s) invalid"
-msgstr ""
+msgstr "Paketa e burimit(eve) e pavlefshme"
 
 #: ckan/logic/__init__.py:85 ckan/logic/__init__.py:87
 #: ckan/logic/action/__init__.py:56 ckan/logic/action/__init__.py:58
@@ -1135,7 +1135,7 @@ msgstr "Ekstra"
 
 #: ckan/logic/__init__.py:85 ckan/logic/action/__init__.py:56
 msgid "Missing Value"
-msgstr ""
+msgstr "Vlera mungon"
 
 #: ckan/logic/__init__.py:213
 msgid "No valid API key provided."
@@ -1144,7 +1144,7 @@ msgstr "Nuk gjeta celes API"
 #: ckan/logic/converters.py:59 ckan/logic/converters.py:74
 #, python-format
 msgid "Tag vocabulary \"%s\" does not exist"
-msgstr ""
+msgstr "Fjali i etiketës \"%s\" nuk ekziston"
 
 #: ckan/logic/converters.py:106 ckan/logic/validators.py:137
 #: ckan/logic/validators.py:154 ckan/logic/validators.py:588
@@ -1156,7 +1156,7 @@ msgstr ""
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:38
 #: ckanext/stats/templates/ckanext/stats/index.html:156
 msgid "User"
-msgstr ""
+msgstr "Përdorues"
 
 #: ckan/logic/converters.py:131 ckan/logic/validators.py:91
 #: ckan/logic/validators.py:123 ckan/templates/package/read_base.html:42
@@ -1175,40 +1175,40 @@ msgstr "Grup"
 
 #: ckan/logic/validators.py:23
 msgid "A organization must be supplied"
-msgstr ""
+msgstr "Organizata duhet të jetë e furnizuar"
 
 #: ckan/logic/validators.py:30
 msgid "Organization does not exist"
-msgstr ""
+msgstr "Organizata nuk ekziston"
 
 #: ckan/logic/validators.py:35
 msgid "You cannot add a dataset to this organization"
-msgstr ""
+msgstr "Nuk mund të shtoni set të të dhënave në këtë organizatë"
 
 #: ckan/logic/validators.py:55
 msgid "Invalid integer"
-msgstr ""
+msgstr "Numër i plotë i pavlefshëm"
 
 #: ckan/logic/validators.py:72
 msgid "Date format incorrect"
-msgstr ""
+msgstr "Formati i datës është gabim"
 
 #: ckan/logic/validators.py:181 ckan/templates/package/read_base.html:44
 #: ckan/templates/snippets/related.html:2
 msgid "Related"
-msgstr ""
+msgstr "I ndërlidhur"
 
 #: ckan/logic/validators.py:191
 msgid "That group name or ID does not exist."
-msgstr ""
+msgstr "Emri i tillë i grupit ose ID-s nuk ekziston."
 
 #: ckan/logic/validators.py:205
 msgid "Activity type"
-msgstr ""
+msgstr "Lloji aktivitetit"
 
 #: ckan/logic/validators.py:259
 msgid "That name cannot be used"
-msgstr ""
+msgstr "Ky emër nuk mund të përdoret"
 
 #: ckan/logic/validators.py:262 ckan/logic/validators.py:501
 #, python-format
@@ -1218,7 +1218,7 @@ msgstr "Emri duhet të jetë të paktën %s karaktere"
 #: ckan/logic/validators.py:264 ckan/logic/validators.py:504
 #, python-format
 msgid "Name must be a maximum of %i characters long"
-msgstr ""
+msgstr "Emri duhet të jetë një maksimum prej %i karaktere i gjatë"
 
 #: ckan/logic/validators.py:267
 msgid ""
@@ -1228,22 +1228,22 @@ msgstr ""
 
 #: ckan/logic/validators.py:285
 msgid "That URL is already in use."
-msgstr ""
+msgstr "Ky URL është tashmë në përdorim"
 
 #: ckan/logic/validators.py:290
 #, python-format
 msgid "Name \"%s\" length is less than minimum %s"
-msgstr ""
+msgstr "Gjatësia e emrit \"%s\" është më pak se minimumi %s"
 
 #: ckan/logic/validators.py:294
 #, python-format
 msgid "Name \"%s\" length is more than maximum %s"
-msgstr ""
+msgstr "Gjatësia e emrit \"%s\" është më shumë se maksimumi %s"
 
 #: ckan/logic/validators.py:300
 #, python-format
 msgid "Version must be a maximum of %i characters long"
-msgstr ""
+msgstr "Versioni duhet të jetë një maksimum prej %i karaktere të gjatë"
 
 #: ckan/logic/validators.py:316
 #, python-format
@@ -1262,7 +1262,7 @@ msgstr "Gjatësia e termit \"%s\" është më e shkurtër se minimumi %s"
 #: ckan/logic/validators.py:342
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
-msgstr ""
+msgstr "Gjatësia e etiketës \"%s\" është më shumë se maksimumi %i"
 
 #: ckan/logic/validators.py:350
 #, python-format
@@ -1276,60 +1276,60 @@ msgstr "Termi \"%s\" nuk duhet të jetë me shkronja të mëdha"
 
 #: ckan/logic/validators.py:453
 msgid "That login name is not available."
-msgstr ""
+msgstr "Emri i pëdoruesit nuk është në dispozicion."
 
 #: ckan/logic/validators.py:462
 msgid "Please enter both passwords"
-msgstr ""
+msgstr "Ju lutem jepni dy fjalëkalimet"
 
 #: ckan/logic/validators.py:468
 msgid "Your password must be 4 characters or longer"
-msgstr ""
+msgstr "Fjalëkalimi juaj duhet të jetë 4 karaktere ose më i gjatë"
 
 #: ckan/logic/validators.py:476
 msgid "The passwords you entered do not match"
-msgstr ""
+msgstr "Fjalëkalimi i dhënë nuk përputhet"
 
 #: ckan/logic/validators.py:492
 msgid ""
 "Edit not allowed as it looks like spam. Please avoid links in your "
 "description."
-msgstr ""
+msgstr "Redaktimi nuk lejohet sepse duket si spam. Ju lutem shmangni linqet në pëshkrimin tuaj."
 
 #: ckan/logic/validators.py:509
 msgid "That vocabulary name is already in use."
-msgstr ""
+msgstr "Ai emër i fjalorit është tashmë në përdorim. "
 
 #: ckan/logic/validators.py:515
 #, python-format
 msgid "Cannot change value of key from %s to %s. This key is read-only"
-msgstr ""
+msgstr "Nuk mund të ndryshojë vlerën e çelësit nga nga %s në %s. Ky çelës është vetëm për lexim"
 
 #: ckan/logic/validators.py:524
 msgid "Tag vocabulary was not found."
-msgstr ""
+msgstr "Etiketa e fjalorit nuk u gjet."
 
 #: ckan/logic/validators.py:537
 #, python-format
 msgid "Tag %s does not belong to vocabulary %s"
-msgstr ""
+msgstr "Etiketa %s nuk i takon fjalorit %s"
 
 #: ckan/logic/validators.py:543
 msgid "No tag name"
-msgstr ""
+msgstr "Nuk emër të etiketës"
 
 #: ckan/logic/validators.py:556
 #, python-format
 msgid "Tag %s already belongs to vocabulary %s"
-msgstr ""
+msgstr "Etiketa %s tashmë i takon fjalorit %s"
 
 #: ckan/logic/validators.py:579
 msgid "Please provide a valid URL"
-msgstr ""
+msgstr "Ju lutem jepni një URL valid"
 
 #: ckan/logic/validators.py:594
 msgid "role does not exist."
-msgstr ""
+msgstr "Roli nuk ekziston"
 
 #: ckan/logic/action/create.py:141 ckan/logic/action/create.py:492
 #, python-format
@@ -1344,11 +1344,11 @@ msgstr "API REST: Krijoni lidhjen e pakos: %s %s %s"
 #: ckan/logic/action/create.py:425
 #, python-format
 msgid "REST API: Create member object %s"
-msgstr ""
+msgstr "REST API: Krijo objektin anëtar %s"
 
 #: ckan/logic/action/create.py:631
 msgid "Trying to create an organization as a group"
-msgstr ""
+msgstr "Duke u përpjekur për të krijuar një organizatë si një grup"
 
 #: ckan/logic/action/create.py:719
 msgid "You must supply a package id or name (parameter \"package\")."
@@ -1369,24 +1369,24 @@ msgstr "Vlera duhet të jetë midis %i dhe %i."
 
 #: ckan/logic/action/create.py:998 ckan/logic/action/create.py:1005
 msgid "You must be logged in to follow users"
-msgstr ""
+msgstr "Ju duhet të jeni të kyçur për të ndjekur përdoruesit"
 
 #: ckan/logic/action/create.py:1018
 msgid "You cannot follow yourself"
-msgstr ""
+msgstr "Nuk mund t'a ndiqni veten"
 
 #: ckan/logic/action/create.py:1026 ckan/logic/action/create.py:1083
 #: ckan/logic/action/create.py:1177
 msgid "You are already following {0}"
-msgstr ""
+msgstr "Tani po ndiqni {0}"
 
 #: ckan/logic/action/create.py:1057 ckan/logic/action/create.py:1065
 msgid "You must be logged in to follow a dataset."
-msgstr ""
+msgstr "Ju duhet të jeni të kyçur për të ndjekur një set të të dhënave."
 
 #: ckan/logic/action/create.py:1153 ckan/logic/action/create.py:1161
 msgid "You must be logged in to follow a group."
-msgstr ""
+msgstr "Ju duhet të jeni të kyçur për të ndjekur një grup."
 
 #: ckan/logic/action/delete.py:40
 #, python-format
@@ -1401,43 +1401,43 @@ msgstr "API REST: Fshij %s"
 #: ckan/logic/action/delete.py:192
 #, python-format
 msgid "REST API: Delete Member: %s"
-msgstr ""
+msgstr "REST API: Fshij anëtarin: %s"
 
 #: ckan/logic/action/delete.py:300 ckan/logic/action/delete.py:326
 #: ckan/logic/action/get.py:1835 ckan/logic/action/update.py:841
 msgid "id not in data"
-msgstr ""
+msgstr "Id nuk është në të dhënat"
 
 #: ckan/logic/action/delete.py:304 ckan/logic/action/get.py:1838
 #: ckan/logic/action/update.py:845
 #, python-format
 msgid "Could not find vocabulary \"%s\""
-msgstr ""
+msgstr "Fjalori nuk u gjet \"%s\""
 
 #: ckan/logic/action/delete.py:334
 #, python-format
 msgid "Could not find tag \"%s\""
-msgstr ""
+msgstr "Etiketa nuk u gjet \"%s\""
 
 #: ckan/logic/action/delete.py:360 ckan/logic/action/delete.py:364
 msgid "You must be logged in to unfollow something."
-msgstr ""
+msgstr "Ju duhet të jeni të kyçur mos ndjekni diçka."
 
 #: ckan/logic/action/delete.py:375
 msgid "You are not following {0}."
-msgstr ""
+msgstr "Ju nuk jeni duke ndjekur {0}."
 
 #: ckan/logic/action/get.py:1427
 msgid "Do not specify if using \"query\" parameter"
-msgstr ""
+msgstr "Mos specifikoni nëse jeni duke përdorur \"query\" parametrin"
 
 #: ckan/logic/action/get.py:1436
 msgid "Must be <field>:<value> pair(s)"
-msgstr ""
+msgstr "Duhet të jenë <field>:<value> palë(t)"
 
 #: ckan/logic/action/get.py:1464
 msgid "Field \"{field}\" not recognised in resource_search."
-msgstr ""
+msgstr "Fusha \"{field}\" nuk njihet në resource_search."
 
 #: ckan/logic/action/get.py:1786
 msgid "unknown user:"
@@ -1445,17 +1445,17 @@ msgstr ""
 
 #: ckan/logic/action/update.py:138
 msgid "Item was not found."
-msgstr ""
+msgstr "Artikulli nuk u gjet."
 
 #: ckan/logic/action/update.py:178
 msgid "Resource was not found."
-msgstr ""
+msgstr "Burimi nuk u gjet."
 
 #: ckan/logic/action/update.py:192 ckan/logic/action/update.py:266
 #: ckan/logic/action/update.py:443
 #, python-format
 msgid "REST API: Update object %s"
-msgstr ""
+msgstr "REST API: Ndrysho objektin %s"
 
 #: ckan/logic/action/update.py:228 ckan/logic/action/update.py:304
 #: ckan/logic/action/update.py:1041
@@ -1469,44 +1469,44 @@ msgstr "API REST: Update lidhjen e paketës: %s %s %s"
 
 #: ckan/logic/action/update.py:651
 msgid "TaskStatus was not found."
-msgstr ""
+msgstr "TaskStatus nuk u gjet."
 
 #: ckan/logic/action/update.py:1045
 msgid "Organization was not found."
-msgstr ""
+msgstr "Organizata nuk u gjet"
 
 #: ckan/logic/auth/create.py:16 ckan/logic/auth/create.py:28
 #, python-format
 msgid "User %s not authorized to create packages"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar për të krijuar paketa"
 
 #: ckan/logic/auth/create.py:21 ckan/logic/auth/update.py:33
 #, python-format
 msgid "User %s not authorized to edit these groups"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar për të redaktuar këto grupe"
 
 #: ckan/logic/auth/create.py:43
 msgid "You must be a sysadmin to create a featured related item"
-msgstr ""
+msgstr "Ju duhet të jeni adiminstrator i sistemit për të krijuar artikullin me tipare të ngjashme"
 
 #: ckan/logic/auth/create.py:47
 msgid "You must be logged in to add a related item"
-msgstr ""
+msgstr "Duhet të jenit të kyçur për të shtuar një artikull të ngjashëm"
 
 #: ckan/logic/auth/create.py:71
 #, python-format
 msgid "User %s not authorized to edit these packages"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të redaktoj këto paketa"
 
 #: ckan/logic/auth/create.py:82
 #, python-format
 msgid "User %s not authorized to create groups"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të krijoj grupe"
 
 #: ckan/logic/auth/create.py:92
 #, python-format
 msgid "User %s not authorized to create organizations"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të krijoj  organizata"
 
 #: ckan/logic/auth/create.py:103
 #, python-format
@@ -1515,20 +1515,20 @@ msgstr ""
 
 #: ckan/logic/auth/create.py:133
 msgid "Group was not found."
-msgstr ""
+msgstr "Grupi nuk u gjet."
 
 #: ckan/logic/auth/create.py:153
 msgid "Valid API key needed to create a package"
-msgstr ""
+msgstr "Çelës valid i API-së nevojitet për të krijuar një paketë"
 
 #: ckan/logic/auth/create.py:161
 msgid "Valid API key needed to create a group"
-msgstr ""
+msgstr "Çelës valid i API-së nevojitet për të krijuar një grup"
 
 #: ckan/logic/auth/create.py:181
 #, python-format
 msgid "User %s not authorized to add members"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të shtoj anëtarë"
 
 #: ckan/logic/auth/delete.py:13
 #, python-format
@@ -1538,46 +1538,46 @@ msgstr ""
 #: ckan/logic/auth/delete.py:29 ckan/logic/auth/get.py:130
 #: ckan/logic/auth/update.py:49
 msgid "No package found for this resource, cannot check auth."
-msgstr ""
+msgstr "Asnjë paketë nuk u gjet për këtë burim, autentifkimi nuk mund të kryhet."
 
 #: ckan/logic/auth/delete.py:35
 #, python-format
 msgid "User %s not authorized to delete resource %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të fshijë burimin %s"
 
 #: ckan/logic/auth/delete.py:44 ckan/logic/auth/delete.py:58
 msgid "Only the owner can delete a related item"
-msgstr ""
+msgstr "Vetëm pronari mund t'a fshijë një artikull të ngjashëm"
 
 #: ckan/logic/auth/delete.py:70
 #, python-format
 msgid "User %s not authorized to delete relationship %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të fshij raportin %s"
 
 #: ckan/logic/auth/delete.py:79
 #, python-format
 msgid "User %s not authorized to delete groups"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të fshij grupet"
 
 #: ckan/logic/auth/delete.py:83
 #, python-format
 msgid "User %s not authorized to delete group %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të fshij grupin %s"
 
 #: ckan/logic/auth/delete.py:92
 #, python-format
 msgid "User %s not authorized to delete organizations"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të fshij organizatat"
 
 #: ckan/logic/auth/delete.py:96
 #, python-format
 msgid "User %s not authorized to delete organization %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të fshij organizatën %s"
 
 #: ckan/logic/auth/delete.py:109
 #, python-format
 msgid "User %s not authorized to delete task_status"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të fshij task_status"
 
 #: ckan/logic/auth/delete.py:125
 #, python-format
@@ -1587,92 +1587,92 @@ msgstr ""
 #: ckan/logic/auth/get.py:90
 #, python-format
 msgid "User %s not authorized to read these packages"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të lexoj këto paketa"
 
 #: ckan/logic/auth/get.py:110
 #, python-format
 msgid "User %s not authorized to read package %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të lexoj paketën %s"
 
 #: ckan/logic/auth/get.py:136
 #, python-format
 msgid "User %s not authorized to read resource %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të lexoj burimin %s"
 
 #: ckan/logic/auth/get.py:211
 msgid "You must be logged in to access your dashboard."
-msgstr ""
+msgstr "Ju duhet të jeni të kyçur që të keni qasje në panelin tuaj."
 
 #: ckan/logic/auth/update.py:29
 #, python-format
 msgid "User %s not authorized to edit package %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të redaktoj paketën %s"
 
 #: ckan/logic/auth/update.py:55
 #, python-format
 msgid "User %s not authorized to edit resource %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të redaktoj burimin %s"
 
 #: ckan/logic/auth/update.py:69
 #, python-format
 msgid "User %s not authorized to change state of package %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të ndryshoj gjendjen e paketës %s"
 
 #: ckan/logic/auth/update.py:79
 #, python-format
 msgid "User %s not authorized to edit group %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të redaktoj grupin %s"
 
 #: ckan/logic/auth/update.py:89
 #, python-format
 msgid "User %s not authorized to edit organization %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të redaktoj organizatën %s"
 
 #: ckan/logic/auth/update.py:97 ckan/logic/auth/update.py:102
 msgid "Only the owner can update a related item"
-msgstr ""
+msgstr "Vetëm pronari mund të ndryshoj një artikull të ndërlidhur"
 
 #: ckan/logic/auth/update.py:107
 msgid "You must be a sysadmin to change a related item's featured field."
-msgstr ""
+msgstr "Ju duhet të jeni adiminstrator i sistemit për të ndryshuar fushën e artikullit të ngjashëm."
 
 #: ckan/logic/auth/update.py:120
 #, python-format
 msgid "User %s not authorized to change state of group %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të ndryshoj gjendjen e grupit %s"
 
 #: ckan/logic/auth/update.py:129
 #, python-format
 msgid "User %s not authorized to edit permissions of group %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të redaktoj lejet e grupit %s"
 
 #: ckan/logic/auth/update.py:141
 #, python-format
 msgid "User %s not authorized to edit user %s"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të redaktoj përdoruesin %s"
 
 #: ckan/logic/auth/update.py:149
 #, python-format
 msgid "User %s not authorized to change state of revision"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të ndryshoj gjendjen e versionit të ripunuar"
 
 #: ckan/logic/auth/update.py:154
 #, python-format
 msgid "User %s not authorized to update task_status table"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të ndryshoj tabelën e task_status"
 
 #: ckan/logic/auth/update.py:163
 #, python-format
 msgid "User %s not authorized to update term_translation table"
-msgstr ""
+msgstr "Përdoruesi %s nuk është i autorizuar të ndryshoj tabelën e term_translation"
 
 #: ckan/logic/auth/update.py:184
 msgid "Valid API key needed to edit a package"
-msgstr ""
+msgstr "Çelës valid i API-së nevojitet për t'a redaktuar një paketë"
 
 #: ckan/logic/auth/update.py:192
 msgid "Valid API key needed to edit a group"
-msgstr ""
+msgstr "Çelës valid i API-së nevojitet për t'a redaktuar një grup"
 
 #: ckan/model/license.py:177
 msgid "License Not Specified"
@@ -1684,55 +1684,55 @@ msgstr ""
 
 #: ckan/model/license.py:197
 msgid "Open Data Commons Open Database License (ODbL)"
-msgstr ""
+msgstr "Open Data Commons Open Database License (ODbL)"
 
 #: ckan/model/license.py:207
 msgid "Open Data Commons Attribution License"
-msgstr ""
+msgstr "Licenca e atributëve të Open Data Commons"
 
 #: ckan/model/license.py:218
 msgid "Creative Commons CCZero"
-msgstr ""
+msgstr "Creative Commons CCZero"
 
 #: ckan/model/license.py:227
 msgid "Creative Commons Attribution"
-msgstr ""
+msgstr "Creative Commons Attribution"
 
 #: ckan/model/license.py:237
 msgid "Creative Commons Attribution Share-Alike"
-msgstr ""
+msgstr "Creative Commons Attribution Share-Alike"
 
 #: ckan/model/license.py:246
 msgid "GNU Free Documentation License"
-msgstr ""
+msgstr "GNU Dokumentimi i Licencës Pa Pagesë "
 
 #: ckan/model/license.py:256
 msgid "Other (Open)"
-msgstr ""
+msgstr "Tjera (Hape)"
 
 #: ckan/model/license.py:266
 msgid "Other (Public Domain)"
-msgstr ""
+msgstr "Tjera (Domena Publike)"
 
 #: ckan/model/license.py:276
 msgid "Other (Attribution)"
-msgstr ""
+msgstr "Tjera(Atributet)"
 
 #: ckan/model/license.py:286
 msgid "UK Open Government Licence (OGL)"
-msgstr ""
+msgstr "UK Open Government Licence (OGL)"
 
 #: ckan/model/license.py:294
 msgid "Creative Commons Non-Commercial (Any)"
-msgstr ""
+msgstr "Creative Commons Non-Commercial (Ndonjë)"
 
 #: ckan/model/license.py:302
 msgid "Other (Non-Commercial)"
-msgstr ""
+msgstr "Tjera (Jo-komerciale)"
 
 #: ckan/model/license.py:310
 msgid "Other (Not Open)"
-msgstr ""
+msgstr "Tjera (Pa Hapura)"
 
 #: ckan/model/package_relationship.py:52
 #, python-format
@@ -1788,54 +1788,54 @@ msgstr "ka vëlla %s"
 #: ckanext/jsonpreview/theme/templates/json.html:7
 #: ckanext/reclinepreview/theme/templates/recline.html:7
 msgid "Loading..."
-msgstr ""
+msgstr "Duke u ngarkuar..."
 
 #: ckan/public/base/javascript/modules/api-info.js:20
 #: ckan/public/base/javascript/modules/api-info.min.js:1
 msgid "There is no API data to load for this resource"
-msgstr ""
+msgstr "Nuk ka ndonjë API të të dhënave që të ngarkoj burimin"
 
 #: ckan/public/base/javascript/modules/api-info.js:21
 #: ckan/public/base/javascript/modules/api-info.min.js:1
 msgid "Failed to load data API information"
-msgstr ""
+msgstr "Dështoi ngarkimi i informacioneve të të dhënave të API-së"
 
 #: ckan/public/base/javascript/modules/autocomplete.js:31
 #: ckan/public/base/javascript/modules/autocomplete.min.js:1
 msgid "No matches found"
-msgstr ""
+msgstr "Asnjë rezultat nuk u përputh"
 
 #: ckan/public/base/javascript/modules/autocomplete.js:32
 #: ckan/public/base/javascript/modules/autocomplete.min.js:1
 msgid "Start typing…"
-msgstr ""
+msgstr "Fillo shkrimin..."
 
 #: ckan/public/base/javascript/modules/autocomplete.js:34
 #: ckan/public/base/javascript/modules/autocomplete.min.js:1
 msgid "Input is too short, must be at least one character"
-msgstr ""
+msgstr "E dhëna është shum e shkurtër, duhet të jet të paktën një karakter"
 
 #: ckan/public/base/javascript/modules/basic-form.js:4
 #: ckan/public/base/javascript/modules/basic-form.min.js:1
 msgid "There are unsaved modifications to this form"
-msgstr ""
+msgstr "Forma përmbanë ndryshime të paruajtura"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:7
 #: ckan/public/base/javascript/modules/confirm-action.min.js:1
 msgid "Please Confirm Action"
-msgstr ""
+msgstr "Ju lutem konfirmoni veprimin"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:8
 #: ckan/public/base/javascript/modules/confirm-action.min.js:1
 msgid "Are you sure you want to perform this action?"
-msgstr ""
+msgstr "A jeni te sigurte qe doni ta kryeni këtë veprim?"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:9
 #: ckan/public/base/javascript/modules/confirm-action.min.js:1
 #: ckan/templates/user/new_user_form.html:9
 #: ckan/templates/user/perform_reset.html:18
 msgid "Confirm"
-msgstr ""
+msgstr "Konfirmo"
 
 #: ckan/public/base/javascript/modules/confirm-action.js:10
 #: ckan/public/base/javascript/modules/confirm-action.min.js:1
@@ -1859,7 +1859,7 @@ msgstr ""
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:315
 #: ckanext/organizations/templates_legacy/organizations/users_form.html:48
 msgid "Cancel"
-msgstr ""
+msgstr "Anulo"
 
 #: ckan/public/base/javascript/modules/follow.js:23
 #: ckan/public/base/javascript/modules/follow.min.js:1
@@ -1867,7 +1867,7 @@ msgstr ""
 #: ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/snippets/follow_button.html:9
 msgid "Follow"
-msgstr ""
+msgstr "Ndjek"
 
 #: ckan/public/base/javascript/modules/follow.js:24
 #: ckan/public/base/javascript/modules/follow.min.js:1
@@ -1875,49 +1875,49 @@ msgstr ""
 #: ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/snippets/follow_button.html:8
 msgid "Unfollow"
-msgstr ""
+msgstr "Mos ndjek"
 
 #: ckan/public/base/javascript/modules/related-item.js:24
 #: ckan/public/base/javascript/modules/related-item.min.js:1
 msgid "show more"
-msgstr ""
+msgstr "Shfaq më shumë"
 
 #: ckan/public/base/javascript/modules/related-item.js:25
 #: ckan/public/base/javascript/modules/related-item.min.js:1
 msgid "show less"
-msgstr ""
+msgstr "Shfaq më pak"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:25
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
 #: ckan/templates_legacy/package/new_package_form.html:149
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:161
 msgid "Upload a file"
-msgstr ""
+msgstr "Ngarko një skedar"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:26
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
 msgid "An Error Occurred"
-msgstr ""
+msgstr "Ka ndodhur një gabim"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:27
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
 msgid "Resource uploaded"
-msgstr ""
+msgstr "Burimi u ngarkua"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:28
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
 msgid "Unable to upload file"
-msgstr ""
+msgstr "Skedari nuk u ngarkua"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:29
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
 msgid "Unable to authenticate upload"
-msgstr ""
+msgstr "E pamundur të autentikohet ngarkimi"
 
 #: ckan/public/base/javascript/modules/resource-upload-field.js:30
 #: ckan/public/base/javascript/modules/resource-upload-field.min.js:1
 msgid "Unable to get data for uploaded file"
-msgstr ""
+msgstr "E pamundur të nxirren të dhënat për dosjen e ngarkuar"
 
 #: ckan/public/base/javascript/modules/slug-preview.js:32
 #: ckan/public/base/javascript/modules/slug-preview.min.js:1
@@ -1949,24 +1949,24 @@ msgstr "Modifikoni"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:9
 msgid "Show more"
-msgstr ""
+msgstr "Shfaq më shumë"
 
 #: ckan/public/base/javascript/modules/table-toggle-more.js:10
 msgid "Hide"
-msgstr ""
+msgstr "Fsheh"
 
 #: ckan/templates/error_document_template.html:3
 #, python-format
 msgid "Error %(error_code)s"
-msgstr ""
+msgstr "Gabim %(error_code)s"
 
 #: ckan/templates/footer.html:9
 msgid "About {0}"
-msgstr ""
+msgstr "Rreth {0}"
 
 #: ckan/templates/footer.html:10
 msgid "CKAN API"
-msgstr ""
+msgstr "CKAN API"
 
 #: ckan/templates/footer.html:12 ckan/templates_legacy/layout_base.html:207
 msgid "Open Knowledge Foundation"
@@ -1976,15 +1976,15 @@ msgstr "Open Knowledge Foundation"
 msgid ""
 "<strong>Powered by</strong> <a class=\"hide-text ckan-footer-logo\" "
 "href=\"http://ckan.org\">CKAN</a>"
-msgstr ""
+msgstr "<strong>Mundësuar nga</strong> <a class=\"hide-text ckan-footer-logo\" href=\"http://ckan.org\">CKAN</a>"
 
 #: ckan/templates/header.html:10
 msgid "Sysadmin settings"
-msgstr ""
+msgstr "Cilësimet e Administratorit të sistemit"
 
 #: ckan/templates/header.html:16
 msgid "View profile"
-msgstr ""
+msgstr "Shiko Profilin"
 
 #: ckan/templates/header.html:22
 #, python-format
@@ -1995,7 +1995,7 @@ msgstr[1] ""
 
 #: ckan/templates/header.html:29
 msgid "Edit settings"
-msgstr ""
+msgstr "Redakto cilësimet"
 
 #: ckan/templates/header.html:34 ckan/templates_legacy/user/layout.html:14
 msgid "Log out"
@@ -2004,7 +2004,7 @@ msgstr "Dilni nga sistemi"
 #: ckan/templates/header.html:43 ckan/templates/user/logout_first.html:15
 #: ckan/templates/user/snippets/login_form.html:27
 msgid "Log in"
-msgstr ""
+msgstr "Kyçu"
 
 #: ckan/templates/header.html:44 ckan/templates/user/new.html:3
 #: ckan/templates_legacy/layout_base.html:60
@@ -2031,7 +2031,7 @@ msgstr "Regjistrohu"
 #: ckan/templates_legacy/user/read.html:78
 #: ckanext/organizations/templates_legacy/organizations/read.html:68
 msgid "Datasets"
-msgstr ""
+msgstr "Seti i të dhënave"
 
 #: ckan/templates/header.html:79 ckan/templates/organization/edit_base.html:10
 #: ckan/templates/organization/index.html:6
@@ -2044,11 +2044,11 @@ msgstr ""
 #: ckanext/organizations/templates_legacy/organizations/index.html:6
 #: ckanext/organizations/templates_legacy/organizations/index.html:7
 msgid "Organizations"
-msgstr ""
+msgstr "Organizatat"
 
 #: ckan/templates/header.html:90
 msgid "Search Datasets"
-msgstr ""
+msgstr "Kërko Setet e të dhënave"
 
 #: ckan/templates/header.html:91 ckan/templates/header.html:92
 #: ckan/templates/home/index.html:64
@@ -2064,44 +2064,44 @@ msgstr "Kërko"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:7
 msgid "Load less"
-msgstr ""
+msgstr "Ngarko më shum"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:15
 msgid "Load more"
-msgstr ""
+msgstr "Ngarko më pak"
 
 #: ckan/templates/activity_streams/activity_stream_items.html:19
 msgid "No activities are within this activity stream"
-msgstr ""
+msgstr "Asnjë aktivitet mbrenda rrjedhës së këtij aktiviteti"
 
 #: ckan/templates/admin/base.html:3
 msgid "Administration"
-msgstr ""
+msgstr "Administrimi"
 
 #: ckan/templates/admin/base.html:14
 msgid "Sysadmins"
-msgstr ""
+msgstr "Administratorët e sistemit"
 
 #: ckan/templates/admin/base.html:15
 msgid "Config"
-msgstr ""
+msgstr "Konfigurimet"
 
 #: ckan/templates/admin/config.html:9
 #: ckan/templates/admin/confirm_reset.html:7
 msgid "Are you sure you want to reset the config?"
-msgstr ""
+msgstr "A jeni të sigurt që dëshironi resetimin e konfigurimit?"
 
 #: ckan/templates/admin/config.html:10
 msgid "Reset"
-msgstr ""
+msgstr "Reseto"
 
 #: ckan/templates/admin/config.html:11 ckan/templates/related/edit_form.html:5
 msgid "Update"
-msgstr ""
+msgstr "Ndrysho"
 
 #: ckan/templates/admin/config.html:20
 msgid "CKAN config options"
-msgstr ""
+msgstr "Opcionet e konfigurimit të CKAN"
 
 #: ckan/templates/admin/config.html:26
 #, python-format
@@ -2124,7 +2124,7 @@ msgstr ""
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
 msgid "Confirm Reset"
-msgstr ""
+msgstr "Konfirmo rivendosjen"
 
 #: ckan/templates/admin/index.html:15
 msgid "What are sysadmins?"
@@ -2143,19 +2143,19 @@ msgstr ""
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:9
 msgid "This resource can not be previewed at the moment."
-msgstr ""
+msgstr "Ky burim nuk mund të inspektohet për momentin."
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:11
 msgid "Click here for more information."
-msgstr ""
+msgstr "Kliko këtu për më shum informacione"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:18
 msgid "Download resource"
-msgstr ""
+msgstr "Shakrko burimin"
 
 #: ckan/templates/dataviewer/snippets/data_preview.html:23
 msgid "Your browser does not support iframes."
-msgstr ""
+msgstr "Shfletuesi juaj nuk i përkrah iframes."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:3
 msgid "This resource cannot be previewed."
@@ -2163,56 +2163,56 @@ msgstr ""
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:5
 msgid "More details..."
-msgstr ""
+msgstr "Më shum detaje..."
 
 #: ckan/templates/dataviewer/snippets/no_preview.html:12
 #, python-format
 msgid "No handler defined for data type: %(type)s."
-msgstr ""
+msgstr "Nuk ka mbajtës të përcaktuara për llojin e të dhënave: %(type)s."
 
 #: ckan/templates/development/snippets/form.html:5
 msgid "Standard"
-msgstr ""
+msgstr "Standard"
 
 #: ckan/templates/development/snippets/form.html:5
 msgid "Standard Input"
-msgstr ""
+msgstr "E dhënë standarde"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium"
-msgstr ""
+msgstr "Mesatare"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium Width Input"
-msgstr ""
+msgstr "E dhënë me gjerësi mesatare"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full"
-msgstr ""
+msgstr "E plotë"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full Width Input"
-msgstr ""
+msgstr "E dhënë me gjerësi të plotë"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large"
-msgstr ""
+msgstr "E madhe"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large Input"
-msgstr ""
+msgstr "E dhënë e madhe"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend"
-msgstr ""
+msgstr "Parashto"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend Input"
-msgstr ""
+msgstr "Parashtro të dhënën"
 
 #: ckan/templates/development/snippets/form.html:13
 msgid "Custom Field (empty)"
-msgstr ""
+msgstr "Kostumizo Fushën(e zbrazët)"
 
 #: ckan/templates/development/snippets/form.html:19
 #: ckan/templates/group/snippets/group_form.html:32
@@ -2222,19 +2222,19 @@ msgstr ""
 #: ckan/templates/snippets/custom_form_fields.html:20
 #: ckan/templates/snippets/custom_form_fields.html:37
 msgid "Custom Field"
-msgstr ""
+msgstr "Kostumizo Fushën"
 
 #: ckan/templates/development/snippets/form.html:22
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: ckan/templates/development/snippets/form.html:23
 msgid "Textarea"
-msgstr ""
+msgstr "Textarea"
 
 #: ckan/templates/development/snippets/form.html:24
 msgid "Select"
-msgstr ""
+msgstr "Selekto"
 
 #: ckan/templates/group/about.html:11 ckan/templates/group/read_base.html:50
 #: ckan/templates/snippets/group.html:24
@@ -2257,7 +2257,7 @@ msgstr ""
 #: ckan/templates/user/activity_stream.html:6
 #: ckan/templates/user/read_base.html:28
 msgid "Activity Stream"
-msgstr ""
+msgstr "Rrjedha e Aktivitetit"
 
 #: ckan/templates/group/admins.html:3 ckan/templates/group/admins.html:7
 #: ckan/templates/organization/admins.html:3
@@ -2266,16 +2266,16 @@ msgstr ""
 #: ckanext/organizations/templates/organizations/read.html:32
 #: ckanext/organizations/templates_legacy/organizations/read.html:35
 msgid "Administrators"
-msgstr ""
+msgstr "Administratorët"
 
 #: ckan/templates/group/base_form_page.html:7
 #: ckan/templates_legacy/group/layout.html:32
 msgid "Add a Group"
-msgstr ""
+msgstr "Shto një Grup"
 
 #: ckan/templates/group/base_form_page.html:13
 msgid "Group Form"
-msgstr ""
+msgstr "Forma e grupit"
 
 #: ckan/templates/group/confirm_delete.html:3
 #: ckan/templates/group/confirm_delete.html:14
@@ -2292,16 +2292,16 @@ msgstr ""
 #: ckan/templates/related/confirm_delete.html:3
 #: ckan/templates/related/confirm_delete.html:14
 msgid "Confirm Delete"
-msgstr ""
+msgstr "Konfirmo fshirjen"
 
 #: ckan/templates/group/confirm_delete.html:10
 msgid "Are you sure you want to delete group - {name}?"
-msgstr ""
+msgstr "A jeni të sigurtë që doni të fshini grupin - {name}?"
 
 #: ckan/templates/group/confirm_delete_member.html:10
 #: ckan/templates/organization/confirm_delete_member.html:10
 msgid "Are you sure you want to delete member - {name}?"
-msgstr ""
+msgstr "A jeni të sigurtë që doni të fshini anëtarin - {name}?"
 
 #: ckan/templates/group/edit.html:3 ckan/templates/group/edit.html:7
 msgid "Edit a Group"
@@ -2309,7 +2309,7 @@ msgstr ""
 
 #: ckan/templates/group/edit.html:5
 msgid "Edit Group"
-msgstr ""
+msgstr "Redakto Grupin"
 
 #: ckan/templates/group/followers.html:3 ckan/templates/group/followers.html:7
 #: ckan/templates/group/read_base.html:54
@@ -2323,7 +2323,7 @@ msgstr ""
 #: ckan/templates_legacy/package/followers.html:11
 #: ckan/templates_legacy/user/read.html:65
 msgid "Followers"
-msgstr ""
+msgstr "Ndjekësit"
 
 #: ckan/templates/group/index.html:3 ckan/templates_legacy/group/index.html:6
 #: ckan/templates_legacy/group/index.html:7
@@ -2334,21 +2334,21 @@ msgstr ""
 #: ckan/templates/package/snippets/package_metadata_fields.html:46
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Add Group"
-msgstr ""
+msgstr "Shto Grupin"
 
 #: ckan/templates/group/index.html:23
 msgid "There are currently no groups for this site"
-msgstr ""
+msgstr "Momentalisht nuk ka grupe për këtë faqe"
 
 #: ckan/templates/group/index.html:25
 #: ckan/templates/organization/index.html:25
 #: ckanext/organizations/templates/organizations/index.html:23
 msgid "How about creating one?"
-msgstr ""
+msgstr "Dëshironi të krijoni një të re?"
 
 #: ckan/templates/group/index.html:38
 msgid "What are Groups?"
-msgstr ""
+msgstr "Çfarë janë Grupet?"
 
 #: ckan/templates/group/index.html:41
 msgid ""
@@ -2368,7 +2368,7 @@ msgstr ""
 #: ckan/templates/snippets/organization.html:38
 #: ckanext/organizations/templates_legacy/organizations/read.html:43
 msgid "Members"
-msgstr ""
+msgstr "Anëtarët"
 
 #: ckan/templates/group/member_new.html:21
 msgid "Edit Member:"
@@ -2378,7 +2378,7 @@ msgstr ""
 #: ckan/templates/group/members.html:12
 #: ckan/templates/organization/member_new.html:15
 msgid "Add Member"
-msgstr ""
+msgstr "Shto Anëtar"
 
 #: ckan/templates/group/member_new.html:30
 #: ckan/templates/organization/member_new.html:24
@@ -2390,25 +2390,25 @@ msgstr ""
 #: ckan/templates/user/snippets/login_form.html:20
 #: ckan/templates_legacy/user/edit_user_form.html:63
 msgid "Username"
-msgstr ""
+msgstr "Emri përdoruesit"
 
 #: ckan/templates/group/member_new.html:33
 #: ckan/templates/organization/member_new.html:27
 #: ckan/templates/organization/members.html:15
 msgid "Role"
-msgstr ""
+msgstr "Roli"
 
 #: ckan/templates/group/member_new.html:34
 #: ckan/templates/organization/member_new.html:37
 #: ckan/templates/package/snippets/resource_form.html:85
 msgid "Add"
-msgstr ""
+msgstr "Shto"
 
 #: ckan/templates/group/members.html:26
 #: ckan/templates/organization/member_new.html:30
 #: ckan/templates/organization/members.html:27
 msgid "Are you sure you want to delete this member?"
-msgstr ""
+msgstr "A jeni i sigurtë që dëshironi të fshini këtë anëtar?"
 
 #: ckan/templates/group/members.html:27
 #: ckan/templates/group/snippets/group_form.html:76
@@ -2434,15 +2434,15 @@ msgstr "Fshij"
 
 #: ckan/templates/group/new.html:3 ckan/templates/group/new.html:7
 msgid "Create a Group"
-msgstr ""
+msgstr "Krijo një Grup"
 
 #: ckan/templates/group/new.html:5 ckan/templates/group/new_group_form.html:19
 msgid "Create Group"
-msgstr ""
+msgstr "Krijo Grupin"
 
 #: ckan/templates/group/new_group_form.html:17
 msgid "Update Group"
-msgstr ""
+msgstr "Përditëso Grupin"
 
 #: ckan/templates/group/read_base.html:12
 #: ckan/templates/organization/read_base.html:12
@@ -2451,23 +2451,23 @@ msgstr ""
 #: ckan/templates_legacy/group/layout.html:16
 #: ckanext/organizations/templates_legacy/organizations/layout.html:22
 msgid "Add Dataset"
-msgstr ""
+msgstr "Shto Setin e të dhënave"
 
 #: ckan/templates/group/read_base.html:47
 #: ckan/templates/package/snippets/package_context.html:7
 #: ckan/templates/snippets/organization.html:26
 msgid "read more"
-msgstr ""
+msgstr "lexo më shum"
 
 #: ckan/templates/group/snippets/feeds.html:3
 #: ckan/templates/organization/snippets/feeds.html:3
 msgid "Datasets in group: {group}"
-msgstr ""
+msgstr "Seti i të dhënave në grupin: {group}"
 
 #: ckan/templates/group/snippets/feeds.html:4
 #: ckan/templates/organization/snippets/feeds.html:4
 msgid "Recent Revision History"
-msgstr ""
+msgstr "Historiku i versioneve të fundit"
 
 #: ckan/templates/group/snippets/group_form.html:10
 #: ckan/templates/organization/snippets/organization_form.html:10
@@ -2485,11 +2485,11 @@ msgstr "Titull"
 
 #: ckan/templates/group/snippets/group_form.html:10
 msgid "My Group"
-msgstr ""
+msgstr "Grupi Im"
 
 #: ckan/templates/group/snippets/group_form.html:18
 msgid "my-group"
-msgstr ""
+msgstr "grupi-im"
 
 #: ckan/templates/group/snippets/group_form.html:20
 #: ckan/templates/organization/snippets/organization_form.html:20
@@ -2509,7 +2509,7 @@ msgstr "Përshkrimi"
 
 #: ckan/templates/group/snippets/group_form.html:20
 msgid "A little information about my group..."
-msgstr ""
+msgstr "Pak informacione rreth grupit tim..."
 
 #: ckan/templates/group/snippets/group_form.html:22
 #: ckan/templates/organization/snippets/organization_form.html:22
@@ -2517,31 +2517,31 @@ msgstr ""
 #: ckan/templates_legacy/related/add-related.html:42
 #: ckanext/organizations/templates/organizations/form.html:40
 msgid "Image URL"
-msgstr ""
+msgstr "Imazhi i URL-it"
 
 #: ckan/templates/group/snippets/group_form.html:22
 #: ckan/templates/organization/snippets/organization_form.html:22
 #: ckanext/organizations/templates/organizations/form.html:40
 msgid "http://example.com/my-image.jpg"
-msgstr ""
+msgstr "http://example.com/my-image.jpg"
 
 #: ckan/templates/group/snippets/group_form.html:75
 msgid "Are you sure you want to delete this Group?"
-msgstr ""
+msgstr "A jeni i sigurtë që dëshironi të fshini këtë grup?"
 
 #: ckan/templates/group/snippets/group_form.html:79
 msgid "Save Group"
-msgstr ""
+msgstr "Ruaj grupin"
 
 #: ckan/templates/group/snippets/group_item.html:23
 #: ckan/templates/organization/snippets/organization_item.html:23
 #: ckan/templates/related/snippets/related_item.html:31
 msgid "View {name}"
-msgstr ""
+msgstr "Shiko {name}"
 
 #: ckan/templates/group/snippets/group_item.html:30
 msgid "This group has no description"
-msgstr ""
+msgstr "Ky grup nuk ka përshkrim"
 
 #: ckan/templates/group/snippets/group_item.html:33
 #: ckan/templates/organization/snippets/organization_item.html:33
@@ -2553,25 +2553,25 @@ msgstr[1] ""
 #: ckan/templates/group/snippets/group_item.html:35
 #: ckan/templates/organization/snippets/organization_item.html:35
 msgid "0 Datasets"
-msgstr ""
+msgstr "0 sete të të dhënave"
 
 #: ckan/templates/home/index.html:3 ckan/templates_legacy/home/index.html:9
 msgid "Welcome"
-msgstr ""
+msgstr "Mirësevini"
 
 #: ckan/templates/home/index.html:30
 msgid "Welcome to CKAN"
-msgstr ""
+msgstr "Mirësevini në CKAN"
 
 #: ckan/templates/home/index.html:33
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will "
-msgstr ""
+msgstr "Ky është një paragraf hyrës rreth CKAN ose faqës në përgjithësi. Nuk kemi ndonjë shembull për të treguar këtu ende, por së shpejti do kemi"
 
 #: ckan/templates/home/index.html:45
 msgid "This is a featured section"
-msgstr ""
+msgstr "Ky është një seksion i paraqitur"
 
 #: ckan/templates/home/index.html:61
 msgid "Search Your Data"
@@ -2616,11 +2616,11 @@ msgstr ""
 #: ckan/templates/macros/form.html:226 ckan/templates/package/search.html:49
 #: ckan/templates/package/snippets/search_form.html:30
 msgid "Remove"
-msgstr ""
+msgstr "Largo"
 
 #: ckan/templates/macros/form.html:255
 msgid "Custom"
-msgstr ""
+msgstr "Kostumizo"
 
 #: ckan/templates/macros/form.html:280
 #: ckan/templates/related/snippets/related_form.html:7
@@ -2640,22 +2640,22 @@ msgstr "Forma përmban këto fusha të gabuara:"
 #: ckan/templates/snippets/organization.html:29
 #: ckan/templates/snippets/organization_item.html:17
 msgid "There is no description for this organization"
-msgstr ""
+msgstr "Nuk ka asnjë përshkrim për këtë organizatë"
 
 #: ckan/templates/organization/base_form_page.html:5
 msgid "Organization Form"
-msgstr ""
+msgstr "Forma e Organizatës"
 
 #: ckan/templates/organization/confirm_delete.html:10
 msgid "Are you sure you want to delete organization - {name}?"
-msgstr ""
+msgstr "A jeni i sigurtë për fshirjën e organizatës {name}?"
 
 #: ckan/templates/organization/edit.html:3
 #: ckan/templates/organization/edit.html:5
 #: ckan/templates/organization/snippets/info.html:13
 #: ckan/templates/organization/snippets/info.html:16
 msgid "Edit Organization"
-msgstr ""
+msgstr "Redakto Organizatën"
 
 #: ckan/templates/organization/edit_base.html:19
 msgid "View organization"
@@ -2672,18 +2672,18 @@ msgstr ""
 #: ckan/templates/organization/index.html:11
 #: ckanext/organizations/templates/organizations/index.html:10
 msgid "Add Organization"
-msgstr ""
+msgstr "Shto Organizatën"
 
 #: ckan/templates/organization/index.html:23
 #: ckanext/organizations/templates/organizations/index.html:21
 msgid "There are currently no organizations for this site"
-msgstr ""
+msgstr "Momentalisht nuk ka organizatë për këtë faqe"
 
 #: ckan/templates/organization/index.html:38
 #: ckanext/organizations/templates/organizations/index.html:34
 #: ckanext/organizations/templates/organizations/new.html:11
 msgid "What are Organizations?"
-msgstr ""
+msgstr "Çfarë janë Organizatat?"
 
 #: ckan/templates/organization/index.html:41
 msgid ""
@@ -2697,11 +2697,11 @@ msgstr ""
 
 #: ckan/templates/organization/member_new.html:11
 msgid "Back to all members"
-msgstr ""
+msgstr "Kthehu te Anëtarët"
 
 #: ckan/templates/organization/member_new.html:13
 msgid "Edit Member"
-msgstr ""
+msgstr "Redakto Anëtarin"
 
 #: ckan/templates/organization/member_new.html:33
 #: ckan/templates/related/snippets/related_form.html:33
@@ -2713,7 +2713,7 @@ msgstr "Ruaj"
 
 #: ckan/templates/organization/member_new.html:50
 msgid "What are roles?"
-msgstr ""
+msgstr "Çka janë rolet?"
 
 #: ckan/templates/organization/member_new.html:53
 msgid ""
@@ -2722,7 +2722,7 @@ msgid ""
 "edit datasets, but not manage organization members.</p> "
 "<p><strong>Member:</strong> Can view the organization's private datasets, "
 "but not add new datasets.</p> "
-msgstr ""
+msgstr "<p><strong>Administratori:</strong> Mund të shtoj/redaktoj dhe fshij setet e të dhënave, si dhe të menaxhoj anëtarët e organizatës</p> <p><strong>Redaktori:</strong>Mund të shtoj dhe redaktoj setet e të dhënave, por jo të menaxhoj anëtarët e organizatës.</p> <p><strong>Anëtari:</strong> Mund të shikoj setet private të të dhënave të organizatës .</p>"
 
 #: ckan/templates/organization/members.html:40
 msgid "Add member"
@@ -2733,33 +2733,33 @@ msgstr ""
 #: ckan/templates/organization/new.html:7
 #: ckan/templates/organization/new.html:12
 msgid "Create an Organization"
-msgstr ""
+msgstr "Krijo një Organizatë"
 
 #: ckan/templates/organization/new_organization_form.html:17
 #: ckanext/organizations/templates/organizations/form.html:17
 msgid "Update Organization"
-msgstr ""
+msgstr "Modifiko Organizatën"
 
 #: ckan/templates/organization/new_organization_form.html:19
 #: ckanext/organizations/templates/organizations/form.html:19
 #: ckanext/organizations/templates/organizations/new.html:5
 msgid "Create Organization"
-msgstr ""
+msgstr "Krijo Organizatën"
 
 #: ckan/templates/organization/snippets/organization_form.html:10
 #: ckanext/organizations/templates/organizations/form.html:29
 msgid "My Organization"
-msgstr ""
+msgstr "Organizata ime"
 
 #: ckan/templates/organization/snippets/organization_form.html:18
 #: ckanext/organizations/templates/organizations/form.html:36
 msgid "my-organization"
-msgstr ""
+msgstr "organizata-ime"
 
 #: ckan/templates/organization/snippets/organization_form.html:20
 #: ckanext/organizations/templates/organizations/form.html:38
 msgid "A little information about my organization..."
-msgstr ""
+msgstr "Disa informacione rreth organizatës time..."
 
 #: ckan/templates/organization/snippets/organization_form.html:77
 msgid "Are you sure you want to delete this Organization?"
@@ -2767,7 +2767,7 @@ msgstr ""
 
 #: ckan/templates/organization/snippets/organization_form.html:81
 msgid "Save Organization"
-msgstr ""
+msgstr "Ruaj organizatën"
 
 #: ckan/templates/organization/snippets/organization_item.html:30
 msgid "This organization has no description"
@@ -2776,11 +2776,11 @@ msgstr ""
 #: ckan/templates/package/base.html:20
 #: ckan/templates/package/snippets/new_package_breadcrumb.html:2
 msgid "Create Dataset"
-msgstr ""
+msgstr "Krijo setin e të dhënave"
 
 #: ckan/templates/package/base_form_page.html:14
 msgid "What are datasets?"
-msgstr ""
+msgstr "Çfarë janë setet e të dhënave?"
 
 #: ckan/templates/package/base_form_page.html:17
 msgid ""
@@ -2790,25 +2790,25 @@ msgstr ""
 
 #: ckan/templates/package/confirm_delete.html:10
 msgid "Are you sure you want to delete dataset - {name}?"
-msgstr ""
+msgstr "A jeni i sigurtë që dëshironi të fshini setin e të dhënave - {name}?"
 
 #: ckan/templates/package/confirm_delete_resource.html:10
 msgid "Are you sure you want to delete resource - {name}?"
-msgstr ""
+msgstr "A jeni të sigurtë që dëshironi të fshini burimin - {name}?"
 
 #: ckan/templates/package/edit.html:17
 msgid "View dataset"
-msgstr ""
+msgstr "Shfaq setin e të dhënave"
 
 #: ckan/templates/package/new.html:3
 #: ckan/templates/package/snippets/stages.html:25
 #: ckan/templates/package/snippets/stages.html:27
 msgid "Create dataset"
-msgstr ""
+msgstr "Krijoni setin e të dhënave"
 
 #: ckan/templates/package/new_package_form.html:23
 msgid "Update Dataset"
-msgstr ""
+msgstr "Ndrysho setin e të dhënave"
 
 #: ckan/templates/package/new_package_metadata.html:3
 msgid "Add metadata to the dataset"
@@ -2820,11 +2820,11 @@ msgstr ""
 
 #: ckan/templates/package/new_resource.html:18
 msgid "What's a resource?"
-msgstr ""
+msgstr "Çfarë është një burim?"
 
 #: ckan/templates/package/new_resource.html:20
 msgid "A resource can be any file or link to a file containing useful data."
-msgstr ""
+msgstr "Një burim mund të jetë çdo skedar ose lidhje në një skedar që përmban të dhëna të dobishme."
 
 #: ckan/templates/package/read.html:14
 #: ckan/templates/package/snippets/package_metadata_fields.html:9
@@ -2833,19 +2833,19 @@ msgstr ""
 #: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:92
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:119
 msgid "Private"
-msgstr ""
+msgstr "Private"
 
 #: ckan/templates/package/read.html:20
 #: ckan/templates/snippets/package_item.html:33
 msgid "Draft"
-msgstr ""
+msgstr "Draft"
 
 #: ckan/templates/package/read_base.html:28
 #, python-format
 msgid ""
 "This is an old revision of this dataset, as edited at %(timestamp)s. It may "
 "differ significantly from the <a href=\"%(url)s\">current revision</a>."
-msgstr ""
+msgstr "Ky është një verison i vjetër i setit të të dhënave, e modifikuar më %(timestamp)s. Mund të dalloj thelbësisht prej versionit momental <a href=\"%(url)s\">."
 
 #: ckan/templates/package/read_base.html:30
 #, python-format
@@ -2855,19 +2855,19 @@ msgstr ""
 
 #: ckan/templates/package/related_list.html:7
 msgid "Related Media for {dataset}"
-msgstr ""
+msgstr "Media e ngjashme për {dataset}"
 
 #: ckan/templates/package/related_list.html:11
 msgid "No related items"
-msgstr ""
+msgstr "Nuk ka artikull të ngjashëm"
 
 #: ckan/templates/package/related_list.html:14
 msgid "Add Related Item"
-msgstr ""
+msgstr "Shto Artikull të ngjashëm"
 
 #: ckan/templates/package/resource_edit.html:16
 msgid "View resource"
-msgstr ""
+msgstr "Shiko burimin"
 
 #: ckan/templates/package/resource_read.html:27
 #: ckan/templates_legacy/group/layout.html:12
@@ -2882,17 +2882,17 @@ msgstr "Shikoni"
 #: ckan/templates/package/resource_read.html:29
 #: ckan/templates_legacy/package/resource_read.html:73
 msgid "API Endpoint"
-msgstr ""
+msgstr "Pika fundore e API-së"
 
 #: ckan/templates/package/resource_read.html:31
 #: ckan/templates/package/snippets/resource_item.html:34
 #: ckan/templates_legacy/package/resource_read.html:76
 msgid "Download"
-msgstr ""
+msgstr "Shkarko"
 
 #: ckan/templates/package/resource_read.html:45
 msgid "URL:"
-msgstr ""
+msgstr "URL:"
 
 #: ckan/templates/package/resource_read.html:52
 msgid "There is no description for this resource"
@@ -2900,12 +2900,12 @@ msgstr ""
 
 #: ckan/templates/package/resource_read.html:55
 msgid "From the dataset abstract"
-msgstr ""
+msgstr "Nga abstrakti i setit të të dhënave"
 
 #: ckan/templates/package/resource_read.html:57
 #, python-format
 msgid "Source: <a href=\"%(url)s\">%(dataset)s</a>"
-msgstr ""
+msgstr "Burimi: <a href=\"%(url)s\">%(dataset)s</a>"
 
 #: ckan/templates/package/resource_read.html:74
 #: ckan/templates_legacy/package/new_package_form.html:230
@@ -2913,7 +2913,7 @@ msgstr ""
 #: ckan/templates_legacy/package/resource_read.html:159
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:242
 msgid "Additional Information"
-msgstr ""
+msgstr "Informata shtesë"
 
 #: ckan/templates/package/resource_read.html:78
 #: ckan/templates/package/snippets/additional_info.html:6
@@ -2929,24 +2929,24 @@ msgstr "Fusha"
 #: ckan/templates_legacy/package/read_core.html:58
 #: ckan/templates_legacy/package/resource_read.html:164
 msgid "Value"
-msgstr ""
+msgstr "Vlera"
 
 #: ckan/templates/package/resource_read.html:84
 #: ckan/templates_legacy/package/resource_read.html:100
 msgid "Last updated"
-msgstr ""
+msgstr "Ndryshimi i fundit"
 
 #: ckan/templates/package/resource_read.html:85
 #: ckan/templates/package/resource_read.html:89
 #: ckan/templates/package/resource_read.html:93
 #: ckan/templates/package/resource_read.html:101
 msgid "unknown"
-msgstr ""
+msgstr "I panjohur"
 
 #: ckan/templates/package/resource_read.html:88
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Created"
-msgstr ""
+msgstr "U krijua"
 
 #: ckan/templates/package/resource_read.html:92
 #: ckan/templates/package/snippets/resource_form.html:44
@@ -2991,17 +2991,17 @@ msgstr ""
 #: ckan/templates/package/search.html:22
 #: ckan/templates_legacy/related/add-related.html:46
 msgid "Submit"
-msgstr ""
+msgstr "Paraqit"
 
 #: ckan/templates/package/search.html:55
 msgid " <p class=\"extra\">Please try another search.</p> "
-msgstr ""
+msgstr "<p class=\"extra\">Ju lutem provoni të kërkoni diçka tjetër </p>"
 
 #: ckan/templates/package/search.html:62
 msgid ""
 " <p><strong>There was an error while searching.</strong> Please try "
 "again.</p> "
-msgstr ""
+msgstr "<p><strong>Ndodhi një gabim gjatë kërkimit.</strong> Ju lutem provoni pësêri.</p>"
 
 #: ckan/templates/package/search.html:76
 #: ckan/templates_legacy/layout_base.html:145
@@ -3014,7 +3014,7 @@ msgstr "API Docs"
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s). "
-msgstr ""
+msgstr "Ju gjithashtu mund të keni qasje në këtë regjistër duke përdorur %(api_link)s (see %(api_doc_link)s)."
 
 #: ckan/templates/package/search.html:82
 msgid "full {format} dump"
@@ -3025,16 +3025,16 @@ msgstr ""
 msgid ""
 " You can also access this registry using the %(api_link)s (see "
 "%(api_doc_link)s) or download a %(dump_link)s. "
-msgstr ""
+msgstr "Ju gjithashtu mund të keni qasje në këtë regjistër duke përdorur %(api_link)s (see %(api_doc_link)s) ose të shkarkoni %(dump_link)s."
 
 #: ckan/templates/package/snippets/additional_info.html:2
 msgid "Additional Info"
-msgstr ""
+msgstr "Info shtesë"
 
 #: ckan/templates/package/snippets/additional_info.html:13
 #: ckan/templates_legacy/package/read_core.html:63
 msgid "Source"
-msgstr ""
+msgstr "Burimi"
 
 #: ckan/templates/package/snippets/additional_info.html:32
 #: ckan/templates/package/snippets/additional_info.html:37
@@ -3065,7 +3065,7 @@ msgstr "Shtet"
 #: ckan/templates_legacy/package/resource_read.html:84
 #: ckan/templates_legacy/package/resource_read.html:87
 msgid "Data API"
-msgstr ""
+msgstr "API i të dhënave"
 
 #: ckan/templates/package/snippets/data_api_button.html:12
 msgid ""
@@ -3087,32 +3087,32 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_basic_fields.html:3
 msgid "eg. A descriptive title"
-msgstr ""
+msgstr "p.sh. Një titull përshkrues"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:10
 msgid "eg. my-dataset"
-msgstr ""
+msgstr "p.sh. Seti i të dhënave të mia"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:12
 msgid "eg. Some useful notes about the data"
-msgstr ""
+msgstr "p.sh. Disa shënime të dobishme në lidhje me të dhënat"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:15
 msgid "eg. economy, mental health, government"
-msgstr ""
+msgstr "p.sh. ekonomi, shëndeti mendor, qeveria"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:29
 msgid ""
 " License definitions and additional information can be found at <a "
 "href=\"http://opendefinition.org/licenses/\">opendefinition.org</a> "
-msgstr ""
+msgstr "Përkufizimet e licencës dhe informacione shtesë mund të gjenden në <a href=\"http://opendefinition.org/licenses/\">opendefinition.org</a>"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:46
 #: ckanext/organizations/templates/organizations/index.html:3
 #: ckanext/organizations/templates_legacy/organizations/apply_form.html:21
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:99
 msgid "Organization"
-msgstr ""
+msgstr "Organizatë"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:49
 msgid "Select an organization..."
@@ -3130,59 +3130,59 @@ msgstr ""
 
 #: ckan/templates/package/snippets/package_form.html:37
 msgid "Are you sure you want to delete this dataset?"
-msgstr ""
+msgstr "Jeni të sigurtë që doni të fshini këtë set të të dhënave?"
 
 #: ckan/templates/package/snippets/package_form.html:44
 msgid "Next: Add Data"
-msgstr ""
+msgstr "Tjetër: Shtoni të dhëna"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "Visibility"
-msgstr ""
+msgstr "Dukshmëria"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:9
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:115
 msgid "Public"
-msgstr ""
+msgstr "Publiku"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:17
 #: ckan/templates/package/snippets/package_metadata_fields.html:21
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:19
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:23
 msgid "Joe Bloggs"
-msgstr ""
+msgstr "Joe Bloggs"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:19
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:21
 msgid "Author Email"
-msgstr ""
+msgstr "Adresa elektronike e autorit"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:19
 #: ckan/templates/package/snippets/package_metadata_fields.html:23
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:21
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:25
 msgid "joe@example.com"
-msgstr ""
+msgstr "joe@example.com"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:23
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:25
 msgid "Maintainer Email"
-msgstr ""
+msgstr "Mirëmbajtësi i adresës elektronike"
 
 #: ckan/templates/package/snippets/package_metadata_form.html:14
 #: ckan/templates/package/snippets/resource_form.html:78
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_form.html:17
 msgid "Previous"
-msgstr ""
+msgstr "I mëparshëm"
 
 #: ckan/templates/package/snippets/package_metadata_form.html:15
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_form.html:18
 msgid "Finish"
-msgstr ""
+msgstr "Përfundo"
 
 #: ckan/templates/package/snippets/resource_edit_form.html:12
 msgid "Update Resource"
-msgstr ""
+msgstr "Ndrysho burimet"
 
 #: ckan/templates/package/snippets/resource_form.html:30
 #: ckan/templates_legacy/package/new_package_form.html:147
@@ -3200,7 +3200,7 @@ msgstr ""
 #: ckan/templates_legacy/package/new_package_form.html:20
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:18
 msgid "Resource"
-msgstr ""
+msgstr "Burimi"
 
 #: ckan/templates/package/snippets/resource_form.html:37
 msgid "eg. http://example.com/gold-prices-jan-2011.json"
@@ -3214,15 +3214,15 @@ msgstr "Emri"
 
 #: ckan/templates/package/snippets/resource_form.html:39
 msgid "eg. January 2011 Gold Prices"
-msgstr ""
+msgstr "p.sh. Janar 2011 Çmimet e Arta"
 
 #: ckan/templates/package/snippets/resource_form.html:41
 msgid "Some useful notes about the data"
-msgstr ""
+msgstr "Disa shënime të dobishme në lidhje me të dhënat"
 
 #: ckan/templates/package/snippets/resource_form.html:44
 msgid "eg. CSV, XML or JSON"
-msgstr ""
+msgstr "p.sh. CSV, XML ose JSON"
 
 #: ckan/templates/package/snippets/resource_form.html:47
 msgid "This is generated automatically. You can edit if you wish"
@@ -3232,37 +3232,37 @@ msgstr ""
 #: ckan/templates/snippets/sort_by.html:17
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Last Modified"
-msgstr ""
+msgstr "U ndryshua për herë të fundit"
 
 #: ckan/templates/package/snippets/resource_form.html:57
 msgid "eg. 2012-06-05"
-msgstr ""
+msgstr "p.sh. 2012-06-05"
 
 #: ckan/templates/package/snippets/resource_form.html:59
 msgid "File Size"
-msgstr ""
+msgstr "Madhësia e skedarit"
 
 #: ckan/templates/package/snippets/resource_form.html:59
 msgid "eg. 1024"
-msgstr ""
+msgstr "p.sh. 1024"
 
 #: ckan/templates/package/snippets/resource_form.html:61
 #: ckan/templates/package/snippets/resource_form.html:63
 msgid "MIME Type"
-msgstr ""
+msgstr "MIME Type"
 
 #: ckan/templates/package/snippets/resource_form.html:61
 #: ckan/templates/package/snippets/resource_form.html:63
 msgid "eg. application/json"
-msgstr ""
+msgstr "p.sh application/json"
 
 #: ckan/templates/package/snippets/resource_form.html:71
 msgid "Are you sure you want to delete this resource?"
-msgstr ""
+msgstr "Jeni të sigurtë që doni të fshini këtë burim?"
 
 #: ckan/templates/package/snippets/resource_form.html:81
 msgid "Save & add another"
-msgstr ""
+msgstr "Ruaj & shtoni një tjetër"
 
 #: ckan/templates/package/snippets/resource_form.html:83
 msgid "Next: Additional Info"
@@ -3274,7 +3274,7 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_item.html:20
 msgid "Explore"
-msgstr ""
+msgstr "Hulumto"
 
 #: ckan/templates/package/snippets/resource_item.html:28
 #: ckan/templates/snippets/datapreview_embed_dialog.html:16
@@ -3289,7 +3289,7 @@ msgstr "Parashih"
 
 #: ckan/templates/package/snippets/resources_list.html:13
 msgid "Data and Resources"
-msgstr ""
+msgstr "Të dhënat dhe burimet"
 
 #: ckan/templates/package/snippets/resources_list.html:23
 #, python-format
@@ -3307,7 +3307,7 @@ msgstr ""
 #: ckan/templates/package/snippets/stages.html:36
 #: ckan/templates/package/snippets/stages.html:38
 msgid "Add data"
-msgstr ""
+msgstr "Shtoni të dhëna"
 
 #: ckan/templates/package/snippets/stages.html:44
 #: ckan/templates/package/snippets/stages.html:48
@@ -3371,7 +3371,7 @@ msgstr ""
 
 #: ckan/templates/related/dashboard.html:48
 msgid "Filter Results"
-msgstr ""
+msgstr "Filtro rezultatet"
 
 #: ckan/templates/related/dashboard.html:53
 #: ckan/templates_legacy/related/dashboard.html:31
@@ -3417,7 +3417,7 @@ msgstr ""
 
 #: ckan/templates/related/edit_form.html:7
 msgid "Create"
-msgstr ""
+msgstr "Krijo"
 
 #: ckan/templates/related/new.html:3
 msgid "Create a related item"
@@ -3465,35 +3465,35 @@ msgstr ""
 
 #: ckan/templates/snippets/activity_item.html:3
 msgid "New activity item"
-msgstr ""
+msgstr "Artikulli i ri i aktivitetit"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:4
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:13
 msgid "Embed Data Viewer"
-msgstr ""
+msgstr "Ndërthur faqën e të dhënave"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:8
 msgid "Embed this view by copying this into your webpage:"
-msgstr ""
+msgstr "Ndërthur këtë faqe duke kopjuar në ueb faqen tuaj:"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:10
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:21
 msgid "Choose width and height in pixels:"
-msgstr ""
+msgstr "Zgjidhni gjerësinë dhe lartësinë në piksela:"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:11
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:22
 msgid "Width:"
-msgstr ""
+msgstr "Gjerësia:"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:13
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:24
 msgid "Height:"
-msgstr ""
+msgstr "Lartësia:"
 
 #: ckan/templates/snippets/disqus_trackback.html:2
 msgid "Trackback URL"
-msgstr ""
+msgstr "URL-i gjurmimit"
 
 #: ckan/templates/snippets/facet_list.html:39
 msgid "Clear All"
@@ -3519,47 +3519,47 @@ msgstr "Kreu"
 
 #: ckan/templates/snippets/language_selector.html:4
 msgid "Language"
-msgstr ""
+msgstr "Gjuha"
 
 #: ckan/templates/snippets/language_selector.html:12
 #: ckan/templates/snippets/sort_by.html:20
 msgid "Go"
-msgstr ""
+msgstr "Shko"
 
 #: ckan/templates/snippets/license.html:14
 #: ckan/templates_legacy/package/read.html:32
 #: ckan/templates_legacy/package/resource_read.html:116
 #: ckan/templates_legacy/snippets/package_list.html:31
 msgid "This dataset satisfies the Open Definition."
-msgstr ""
+msgstr "Ky set i të dhënave plotëson definicion e hapur."
 
 #: ckan/templates/snippets/license.html:24
 msgid "No License Provided"
-msgstr ""
+msgstr "Asnjë licencë e pajisur"
 
 #: ckan/templates/snippets/package_item.html:35
 msgid "Deleted"
-msgstr ""
+msgstr "E fshirë"
 
 #: ckan/templates/snippets/package_item.html:40
 #: ckan/templates/snippets/popular.html:3
 #: ckan/templates/snippets/sort_by.html:18
 msgid "Popular"
-msgstr ""
+msgstr "Popullarizuar"
 
 #: ckan/templates/snippets/package_item.html:45
 msgid "This dataset has no description"
-msgstr ""
+msgstr "Ky set i të dhënave nuk ka përshkrim"
 
 #: ckan/templates/snippets/related.html:15
 msgid ""
 "No apps, ideas, news stories or images have been related to this dataset "
 "yet."
-msgstr ""
+msgstr "Asnjë aplikacion, ide, lajmë apo imazh nuk është ndërlidhur ende me këtë set të të dhënave."
 
 #: ckan/templates/snippets/related.html:18
 msgid "Add Item"
-msgstr ""
+msgstr "Shtoni artikullin"
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -3569,7 +3569,7 @@ msgstr[1] ""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "Sorry no datasets found for \"{query}\""
-msgstr ""
+msgstr "Na vjen keq nuk u gjetën setet e të dhënave për \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
@@ -3623,27 +3623,27 @@ msgstr ""
 
 #: ckan/templates/snippets/social.html:3
 msgid "Social"
-msgstr ""
+msgstr "Shoqëror"
 
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr ""
+msgstr "Rendit nga"
 
 #: ckan/templates/snippets/sort_by.html:14
 msgid "Relevance"
-msgstr ""
+msgstr "Ndërlidhja"
 
 #: ckan/templates/snippets/sort_by.html:15
 msgid "Name Ascending"
-msgstr ""
+msgstr "Renditje rritëse"
 
 #: ckan/templates/snippets/sort_by.html:16
 msgid "Name Descending"
-msgstr ""
+msgstr "Renditje zbritëse"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
-msgstr ""
+msgstr "Abonohu"
 
 #: ckan/templates/snippets/subscribe.html:4
 #: ckan/templates/user/edit_user_form.html:13
@@ -3651,21 +3651,21 @@ msgstr ""
 #: ckan/templates/user/read_base.html:82
 #: ckan/templates_legacy/user/read.html:32
 msgid "Email"
-msgstr ""
+msgstr "Adresa elektronike"
 
 #: ckan/templates/snippets/subscribe.html:5
 msgid "RSS"
-msgstr ""
+msgstr "RSS"
 
 #: ckan/templates/snippets/context/user.html:23
 #: ckan/templates/user/read_base.html:66
 #: ckan/templates_legacy/user/read.html:59
 msgid "Edits"
-msgstr ""
+msgstr "Redaktimet"
 
 #: ckan/templates/user/dashboard.html:13 ckan/templates/user/edit_base.html:17
 msgid "News feed"
-msgstr ""
+msgstr "Furnizimi i lajmeve"
 
 #: ckan/templates/user/dashboard.html:14
 msgid "Activity from items that you follow"
@@ -3673,7 +3673,7 @@ msgstr ""
 
 #: ckan/templates/user/dashboard.html:30
 msgid "My Datasets"
-msgstr ""
+msgstr "Seti i të dhënave të mia"
 
 #: ckan/templates/user/dashboard.html:43
 msgid "You do not have any datasets"
@@ -3681,22 +3681,22 @@ msgstr ""
 
 #: ckan/templates/user/edit.html:13
 msgid "Account Info"
-msgstr ""
+msgstr "Info mbi llogarinë"
 
 #: ckan/templates/user/edit.html:15
 msgid ""
 " Your profile lets other CKAN users know about who you are and what you do. "
-msgstr ""
+msgstr "Profili juaj lejon që përdoruesit e tjerë të CKAN të dijnë se kush jeni ju dhe se çfarë bëni."
 
 #: ckan/templates/user/edit_base.html:5 ckan/templates/user/edit_base.html:8
 #: ckan/templates_legacy/user/layout.html:11
 msgid "Dashboard"
-msgstr ""
+msgstr "Paneli"
 
 #: ckan/templates/user/edit_base.html:18
 #: ckan/templates_legacy/package/layout.html:53
 msgid "Settings"
-msgstr ""
+msgstr "Cilësimet"
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change your details"
@@ -3705,23 +3705,23 @@ msgstr ""
 #: ckan/templates/user/edit_user_form.html:11
 #: ckan/templates_legacy/user/edit_user_form.html:21
 msgid "Full name"
-msgstr ""
+msgstr "Emri i plotë"
 
 #: ckan/templates/user/edit_user_form.html:11
 msgid "eg. Joe Bloggs"
-msgstr ""
+msgstr "p.sh. Joe Bloggs"
 
 #: ckan/templates/user/edit_user_form.html:13
 msgid "eg. joe@example.com"
-msgstr ""
+msgstr "p.sh. joe@example.com"
 
 #: ckan/templates/user/edit_user_form.html:15
 msgid "A little information about yourself"
-msgstr ""
+msgstr "Disa informacione për veten"
 
 #: ckan/templates/user/edit_user_form.html:18
 msgid "Subscribe to notification emails"
-msgstr ""
+msgstr "Abonohuni tek adresat elektronike të njoftimeve"
 
 #: ckan/templates/user/edit_user_form.html:26
 #: ckan/templates_legacy/user/edit_user_form.html:46
@@ -3736,20 +3736,20 @@ msgstr "Ndryshoni fjalëkalimin tuaj"
 #: ckan/templates_legacy/user/edit_user_form.html:48
 #: ckan/templates_legacy/user/new_user_form.html:40
 msgid "Password"
-msgstr ""
+msgstr "Fjalëkalimi"
 
 #: ckan/templates/user/edit_user_form.html:30
 msgid "Confirm Password"
-msgstr ""
+msgstr "Konfirmo fjalëkalimin"
 
 #: ckan/templates/user/edit_user_form.html:34
 msgid "Update Profile"
-msgstr ""
+msgstr "Ndryshoni profilin"
 
 #: ckan/templates/user/list.html:3
 #: ckan/templates/user/snippets/user_search.html:11
 msgid "All Users"
-msgstr ""
+msgstr "Të gjithë përdoruesit"
 
 #: ckan/templates/user/list.html:6 ckan/templates/user/list.html:12
 #: ckan/templates/user/read_base.html:8
@@ -3771,15 +3771,15 @@ msgstr "Identifikohu"
 
 #: ckan/templates/user/login.html:22
 msgid "Need an Account?"
-msgstr ""
+msgstr "Ju nevojitet një llogari?"
 
 #: ckan/templates/user/login.html:24
 msgid "Then sign right up, it only takes a minute."
-msgstr ""
+msgstr "Atëherë regjistrohu, merr vetëm një minutë kohë."
 
 #: ckan/templates/user/login.html:26
 msgid "Create an Account"
-msgstr ""
+msgstr "Krijoni një llogari"
 
 #: ckan/templates/user/login.html:32
 msgid "Forgotten your details?"
@@ -3787,23 +3787,23 @@ msgstr ""
 
 #: ckan/templates/user/login.html:34
 msgid "No problem, use our password recovery form to reset it."
-msgstr ""
+msgstr "Nuk ka problem, përdorni formularin tonë të rimëkëmbjes të fjalëkalimit për të rivendosur atë."
 
 #: ckan/templates/user/login.html:36 ckan/templates_legacy/user/login.html:51
 msgid "Forgot your password?"
-msgstr ""
+msgstr "Keni harruar fjalëkalimin tuaj?"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:8
 msgid "Logged Out"
-msgstr ""
+msgstr "Jasht sistemit"
 
 #: ckan/templates/user/logout.html:9
 msgid "You are now logged out."
-msgstr ""
+msgstr "Ju jeni tashmë jasht sistemit."
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
-msgstr ""
+msgstr "Ju jeni tashmë të kyçur si {user}."
 
 #: ckan/templates/user/logout_first.html:9
 #: ckan/templates_legacy/layout_base.html:56
@@ -3814,105 +3814,105 @@ msgstr "Dilni nga sistemi"
 #: ckan/templates/user/logout_first.html:13
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr ""
+msgstr "Më mbani në mend"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
-msgstr ""
+msgstr "Ju jeni tashmë të kyçur"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
-msgstr ""
+msgstr "Ju duhet të dilni jasht sistemit para se të kyçeni me një tjetër llogari."
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
-msgstr ""
+msgstr "Dilni nga sistemi tani"
 
 #: ckan/templates/user/new.html:6
 msgid "Registration"
-msgstr ""
+msgstr "Regjistrimi"
 
 #: ckan/templates/user/new.html:12
 msgid "Register for an Account"
-msgstr ""
+msgstr "Regjistrohu për një llogari"
 
 #: ckan/templates/user/new.html:20
 msgid "Why Sign Up?"
-msgstr ""
+msgstr "Pse të regjistroheni?"
 
 #: ckan/templates/user/new.html:22
 msgid "Create datasets, groups and other exciting things"
-msgstr ""
+msgstr "Krijoni set të të dhënave, grupe si dhe gjëra të tjera emocionuese"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
-msgstr ""
+msgstr "Emri i plotë"
 
 #: ckan/templates/user/new_user_form.html:11
 msgid "Create Account"
-msgstr ""
+msgstr "Krijo llogari"
 
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:12
 #: ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:12
 msgid "Reset Your Password"
-msgstr ""
+msgstr "Rivendosni fjalëkalimin tuaj"
 
 #: ckan/templates/user/perform_reset.html:7
 #: ckan/templates/user/request_reset.html:6
 msgid "Password Reset"
-msgstr ""
+msgstr "Fjalëkalimi u rivendos"
 
 #: ckan/templates/user/perform_reset.html:20
 msgid "Update Password"
-msgstr ""
+msgstr "Ndryshoni fjalëkalimin"
 
 #: ckan/templates/user/perform_reset.html:30
 #: ckan/templates/user/request_reset.html:26
 msgid "How does this work?"
-msgstr ""
+msgstr "Si funksionon kjo?"
 
 #: ckan/templates/user/perform_reset.html:32
 msgid "Simply enter a new password and we'll update your account"
-msgstr ""
+msgstr "Thjesht shkruani një fjalëkalim të ri dhe ne do të ndryshojmë llogarinë tuaj."
 
 #: ckan/templates/user/read.html:13
 msgid "You haven't created any datasets."
-msgstr ""
+msgstr "Ju nuk keni krijuar asnjë set të të dhënave."
 
 #: ckan/templates/user/read.html:15
 msgid "Create one now?"
-msgstr ""
+msgstr "Krijoni një tani?"
 
 #: ckan/templates/user/read.html:20
 msgid "User hasn't created any datasets."
-msgstr ""
+msgstr "Përdoruesi nuk ka krijuar asnjë set të të dhënave."
 
 #: ckan/templates/user/read_base.html:50
 msgid "You have not provided a biography."
-msgstr ""
+msgstr "Ju nuk keni dhënë një biografi."
 
 #: ckan/templates/user/read_base.html:52
 msgid "This user has no biography."
-msgstr ""
+msgstr "Ky përdorues nuk ka biografi."
 
 #: ckan/templates/user/read_base.html:73
 msgid "Open ID"
-msgstr ""
+msgstr "ID e hapur"
 
 #: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:92
 msgid "This means only you can see this"
-msgstr ""
+msgstr "Kjo do të thotë që vetëm ju mund të shihni këtë"
 
 #: ckan/templates/user/read_base.html:87
 msgid "Member Since"
-msgstr ""
+msgstr "Anëtar që nga"
 
 #: ckan/templates/user/read_base.html:92
 #: ckan/templates_legacy/user/read.html:42
 msgid "API Key"
-msgstr ""
+msgstr "API çelësi"
 
 #: ckan/templates/user/request_reset.html:17
 msgid "Request Reset"
@@ -3922,7 +3922,7 @@ msgstr ""
 msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
-msgstr ""
+msgstr "Shtypni emrin tuaj të përdoruesit në kuti dhe ne do të ju dërgojmë një lidhje për të shtypur një fjalëkalim të ri."
 
 #: ckan/templates/user/snippets/back_to_user_action.html:1
 msgid "View my profile"
@@ -3931,24 +3931,24 @@ msgstr ""
 #: ckan/templates/user/snippets/followee_dropdown.html:12
 #: ckan/templates/user/snippets/followee_dropdown.html:13
 msgid "Activity from:"
-msgstr ""
+msgstr "Aktiviteti nga:"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:21
 msgid "Search list..."
-msgstr ""
+msgstr "Lista e kërkimit..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:42
 msgid "You are not following anything"
-msgstr ""
+msgstr "Ju nuk jeni duke ndjekur asgjë"
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"
-msgstr ""
+msgstr "Asnjë ndjekës"
 
 #: ckan/templates/user/snippets/user_search.html:5
 #: ckan/templates_legacy/user/list.html:11
 msgid "Search Users"
-msgstr ""
+msgstr "Kërko përdorues"
 
 #: ckan/templates_legacy/_util.html:18
 #: ckanext/organizations/templates_legacy/organizations/package_form.html:93
@@ -4065,7 +4065,7 @@ msgstr ""
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Image"
-msgstr ""
+msgstr "Figurë"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Metadata"
@@ -4077,7 +4077,7 @@ msgstr ""
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Code"
-msgstr ""
+msgstr "Kodi"
 
 #: ckan/templates_legacy/js_strings.html:16
 msgid "Example"
@@ -4088,7 +4088,7 @@ msgstr ""
 #: ckan/templates_legacy/storage/index.html:15
 #: ckan/templates_legacy/storage/success.html:6
 msgid "Upload"
-msgstr ""
+msgstr "Ngarko"
 
 #: ckan/templates_legacy/js_strings.html:16
 #: ckan/templates_legacy/group/new_group_form.html:28
@@ -4310,7 +4310,7 @@ msgstr ""
 
 #: ckan/templates_legacy/admin/layout.html:13
 msgid "Trash"
-msgstr ""
+msgstr "Shporta"
 
 #: ckan/templates_legacy/admin/trash.html:6
 #: ckan/templates_legacy/admin/trash.html:7
@@ -4626,7 +4626,7 @@ msgstr ""
 
 #: ckan/templates_legacy/home/index.html:24
 msgid "datasets"
-msgstr ""
+msgstr "setet e të dhënave"
 
 #: ckan/templates_legacy/home/index.html:24
 msgid ""
@@ -4714,7 +4714,7 @@ msgstr ""
 
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "dataset"
-msgstr ""
+msgstr "set i të dhënave"
 
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "read from"
@@ -4824,7 +4824,7 @@ msgstr "me vlerën"
 #: ckan/templates_legacy/package/history.html:37
 #, python-format
 msgid "Read dataset as of %s"
-msgstr ""
+msgstr "Lexoni setin e të dhënave si %s"
 
 #: ckan/templates_legacy/package/history.html:48
 #: ckan/templates_legacy/package/read.html:101
@@ -5142,7 +5142,7 @@ msgstr ""
 #: ckan/templates_legacy/package/resource_read.html:151
 #: ckan/templates_legacy/package/resource_read.html:152
 msgid "Embed"
-msgstr ""
+msgstr "Ndërthur"
 
 #: ckan/templates_legacy/package/search.html:9
 #: ckan/templates_legacy/package/search.html:10
@@ -5314,7 +5314,7 @@ msgstr ""
 #: ckan/templates_legacy/revision/read.html:23
 #: ckan/templates_legacy/snippets/revision_list.html:39
 msgid "Undelete"
-msgstr ""
+msgstr "Mos fshij"
 
 #: ckan/templates_legacy/revision/read.html:39
 msgid "Timestamp:"
@@ -5330,7 +5330,7 @@ msgstr "Ndryshime"
 
 #: ckan/templates_legacy/revision/read.html:54
 msgid "Datasets' Tags"
-msgstr ""
+msgstr "Etiketa e setit të të dhënave"
 
 #: ckan/templates_legacy/revision/read.html:57
 msgid "Dataset -"
@@ -5685,11 +5685,11 @@ msgstr ""
 #: ckanext/datastore/logic/action.py:54 ckanext/datastore/logic/action.py:122
 #: ckanext/datastore/logic/action.py:161 ckanext/datastore/logic/action.py:236
 msgid "Resource \"{0}\" was not found."
-msgstr ""
+msgstr "Burimi \"{0}\" nuk u gjet."
 
 #: ckanext/datastore/logic/auth.py:15
 msgid "User {0} not authorized to update resource {1}"
-msgstr ""
+msgstr "Përdoruesi {0} nuk është i autorizuar të ndryshoj burimin {1}"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:7
 msgid "Add to Groups"
@@ -5701,15 +5701,15 @@ msgstr ""
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:27
 msgid "Country Code"
-msgstr ""
+msgstr "Kodi i vendit"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:36
 msgid "Custom Text"
-msgstr ""
+msgstr "Teksti i kustomizuar"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:36
 msgid "custom text"
-msgstr ""
+msgstr "teksti i kustomizuar"
 
 #: ckanext/organizations/controllers.py:32
 msgid ""
@@ -5944,24 +5944,24 @@ msgstr "Numri total i të dhënave"
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
 msgid "Date"
-msgstr ""
+msgstr "Data"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
-msgstr ""
+msgstr "Totali i setit të të dhënave"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
 msgid "Dataset Revisions per Week"
-msgstr ""
+msgstr "Rishikimet e  setit të të dhënave në javë"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
-msgstr ""
+msgstr "Rishikimet e gjithë setit të të dhënave"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
-msgstr ""
+msgstr "Seti i të dhënave të reja"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 #: ckanext/stats/templates/ckanext/stats/index.html:180
@@ -5997,7 +5997,7 @@ msgstr "Numri i modifikimeve"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:103
 msgid "No edited datasets"
-msgstr ""
+msgstr "Asnjë set i të dhënave nuk u redaktua"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:108
 #: ckanext/stats/templates/ckanext/stats/index.html:182
@@ -6007,7 +6007,7 @@ msgstr "Grupet më të mëdha"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:127
 msgid "No groups"
-msgstr ""
+msgstr "Nuk ka grupe"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:132
 #: ckanext/stats/templates/ckanext/stats/index.html:183
@@ -6017,12 +6017,12 @@ msgstr "Togfjalëshat kryesorë"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:136
 msgid "Tag Name"
-msgstr ""
+msgstr "Emri i etiketës"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:137
 #: ckanext/stats/templates/ckanext/stats/index.html:157
 msgid "Number of Datasets"
-msgstr ""
+msgstr "Numri i setit të të dhënave"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
@@ -6031,11 +6031,11 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
-msgstr ""
+msgstr "Mënyja e statistikave"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:178
 msgid "Total Number of Datasets"
-msgstr ""
+msgstr "Numri total i seteve të të dhënave"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:60
 msgid "Revisions to Datasets per week"

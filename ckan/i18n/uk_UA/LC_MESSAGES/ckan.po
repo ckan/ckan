@@ -10,9 +10,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-03-11 14:22+0100\n"
-"PO-Revision-Date: 2013-04-19 22:00+0000\n"
+"PO-Revision-Date: 2015-11-26 14:19+0000\n"
 "Last-Translator: Gromislav <igromislav@gmail.com>\n"
-"Language-Team: Ukrainian (Ukraine) (http://www.transifex.com/p/ckan/language/uk_UA/)\n"
+"Language-Team: Ukrainian (Ukraine) (http://www.transifex.com/okfn/ckan/language/uk_UA/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2573,7 +2573,7 @@ msgstr "Вітаємо у CKAN"
 msgid ""
 "This is a nice introductory paragraph about CKAN or the site in general. We "
 "don't have any copy to go here yet but soon we will "
-msgstr ""
+msgstr "Це вступний абзац про CKAN або сайт загалом."
 
 #: ckan/templates/home/index.html:45
 msgid "This is a featured section"
@@ -2611,7 +2611,7 @@ msgid ""
 "href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Features "
 "overview: <a "
 "href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p> "
-msgstr ""
+msgstr "<p>CKAN є провідною платформою інформаційних порталів з відкритим кодом.</p> <p>CKAN це повністю завершене програмне рішення, що дозволяє доступ та використання даних за допомогою інструментів для швидкої публікації, поширення, пошуку та будь-якої іншої роботи з даними (включно зі зберіганням даних та забезпечення потужних API). CKAN корисний тим, хто займається публікацєю даних (національні та регіональні уряди, компанії та організації) та хоче зробити ці дані відкритими та доступними.</p> <p>CKAN використовується урядами та користувацькими групами по всьому світу та є основою різноманітних офіційних та громадських порталів, включаючи портали для місцевих, національних та міжнародних урядів, таких як британський <a href=\"http://data.gov.uk\">data.gov.uk</a> та <a href=\"http://publicdata.eu/\">publicdata.eu</a> ЄС, бразильський <a href=\"http://dados.gov.br/\">dados.gov.br</a>, голандський та нідерландський урядові портали, а також міські та муніципальні сайти в США, Великобританії, Аргентині, Фінляндії та ін.</p> <p>CKAN: <a href=\"http://ckan.org/\">http://ckan.org/</a><br /> CKAN тур: <a href=\"http://ckan.org/tour/\">http://ckan.org/tour/</a><br /> Огляд можливостей: <a href=\"http://ckan.org/features/\">http://ckan.org/features/</a></p>"
 
 #: ckan/templates/macros/form.html:120
 msgid ""
@@ -2728,7 +2728,7 @@ msgid ""
 "edit datasets, but not manage organization members.</p> "
 "<p><strong>Member:</strong> Can view the organization's private datasets, "
 "but not add new datasets.</p> "
-msgstr ""
+msgstr "<p><strong>Адміністратор:</strong> Може додавати/редагувати та видаляти набори даних, а також управляти членами організації.</p> <p><strong>Редактор:</strong> Може додавати та редагувати набори даних, але не може управляти членами організації.</p> <p><strong>Член:</strong> Може переглядати приватні набори даних організації, але не може додавати нові.</p>"
 
 #: ckan/templates/organization/members.html:40
 msgid "Add member"
@@ -3480,7 +3480,7 @@ msgstr "Код візуалізації даних"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:8
 msgid "Embed this view by copying this into your webpage:"
-msgstr ""
+msgstr "Приєднайте це представлення, скопіювавши це у свою сторінку:"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:10
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:21
@@ -3499,7 +3499,7 @@ msgstr "Висота:"
 
 #: ckan/templates/snippets/disqus_trackback.html:2
 msgid "Trackback URL"
-msgstr ""
+msgstr "Трекбек URL (зворотні посилання)"
 
 #: ckan/templates/snippets/facet_list.html:39
 msgid "Clear All"
@@ -3561,7 +3561,7 @@ msgstr "Цей набір даних не має опису"
 msgid ""
 "No apps, ideas, news stories or images have been related to this dataset "
 "yet."
-msgstr ""
+msgstr "Поки що з цим набором даних не було пов’язано жодних додатків, ідей, новин чи зображень."
 
 #: ckan/templates/snippets/related.html:18
 msgid "Add Item"
@@ -3698,7 +3698,7 @@ msgstr "Інформація про акаунт"
 #: ckan/templates/user/edit.html:15
 msgid ""
 " Your profile lets other CKAN users know about who you are and what you do. "
-msgstr ""
+msgstr "Ваш профіль дозволяє іншим користувачам CKAN дізнатись про те, хто ви і чим займаєтесь."
 
 #: ckan/templates/user/edit_base.html:5 ckan/templates/user/edit_base.html:8
 #: ckan/templates_legacy/user/layout.html:11
@@ -4405,7 +4405,7 @@ msgstr "Час"
 #: ckan/templates_legacy/snippets/revision_list.html:11
 #: ckanext/organizations/templates_legacy/organizations/history.html:32
 msgid "Log Message"
-msgstr ""
+msgstr "Повідомлення журналу"
 
 #: ckan/templates_legacy/group/history.html:49
 #: ckan/templates_legacy/package/history.html:43
@@ -5965,11 +5965,11 @@ msgstr "Всього наборів даних"
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
 msgid "Dataset Revisions per Week"
-msgstr ""
+msgstr "Версії набору даних за тиждень"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
-msgstr ""
+msgstr "Усі версії набору даних"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
@@ -5994,7 +5994,7 @@ msgstr "Кількість оцінок"
 #: ckanext/stats/templates/ckanext/stats/index.html:79
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:70
 msgid "No ratings"
-msgstr ""
+msgstr "Немає оцінок"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:84
 #: ckanext/stats/templates/ckanext/stats/index.html:181
@@ -6009,7 +6009,7 @@ msgstr "Кількість редагувань"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:103
 msgid "No edited datasets"
-msgstr ""
+msgstr "Немає редагованих наборів даних"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:108
 #: ckanext/stats/templates/ckanext/stats/index.html:182
