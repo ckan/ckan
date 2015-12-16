@@ -1,4 +1,4 @@
-__version__ = '2.2.4b'
+__version__ = '2.2.4'
 
 __description__ = 'Comprehensive Knowledge Archive Network (CKAN) Software'
 __long_description__ = \
