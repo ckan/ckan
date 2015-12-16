@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-06-23 20:40+0000\n"
-"PO-Revision-Date: 2015-09-01 11:30+0000\n"
+"PO-Revision-Date: 2015-11-26 14:23+0000\n"
 "Last-Translator: Fatima Pires <pires.serip@gmail.com>\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/okfn/ckan/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
@@ -1061,11 +1061,11 @@ msgstr[1] "Há mais de {years} anos"
 
 #: ckan/lib/formatters.py:138
 msgid "{month} {day}, {year}, {hour:02}:{min:02}"
-msgstr "{month} {day}, {year}, {hour:02}:{min:02}"
+msgstr "{day} de {month}, {year}, {hour:02}:{min:02}"
 
 #: ckan/lib/formatters.py:142
 msgid "{month} {day}, {year}"
-msgstr "{month} {day}, {year}"
+msgstr "{day} de {month}, {year}"
 
 #: ckan/lib/formatters.py:158
 msgid "{bytes} bytes"
@@ -2322,7 +2322,7 @@ msgid ""
 "target=\"_blank\">reading the documentation</a>.</p> "
 "<p><strong>Homepage:</strong> This is for choosing a predefined layout for "
 "the modules that appear on your homepage.</p> "
-msgstr "<p><strong> Título da página: </strong> Este é o título desta instância CKAN. Aparece em vários lugares em tudo o CKAN. </p> <p><strong> Estilo: </strong> Escolha, a partir de uma lista com variações simples de esquemas de cores, a cor principal que deseja obter para uma personalização rápida do tema da pagina. </p> <p><strong> Logótipo da página: </strong> Este é o logótipo que aparece no cabeçalho de todos os modelos de instância CKAN. </p> <p><strong> Sobre: </strong> Texto descritivo sobre a página <a href=\"%(about_url)s\"> será exibido nesta instância CKAN </a>. </p> <p><strong> Texto Introdutório: </strong> Este texto será exibido nesta instância CKAN <a href=\"%(home_url)s\">home page</a> como uma nota de boas vindas aos visitantes. </p> <p><strong> CSS personalizado: </strong> O bloco CSS aparece na <code>&lt;head&gt;</code>  etiqueta de cada página. Se deseja personalizar os estilos e os conteúdos da página de uma forma mais completa, recomendamos <a href=\"%(docs_url)s\" target=\"_blank\"> a leitura da seguinte documentação </a>. </p> <p><strong> Página Inicial: </strong> Permite escolher o layout pré-definido dos módulos que surgem na página inicial. </p>"
+msgstr "<p><strong> Título do portal: </strong> Este é o título desta instância CKAN. Aparece em vários pontos do CKAN. </p> <p><strong> Estilo: </strong> Escolha de uma lista de esquemas de cores com variações simples do esquema principal para conseguir uma personalização rápida do tema do portal. </p> <p><strong> Logótipo do portal: </strong> Este é o logótipo que aparece no cabeçalho de todos os modelos de instância CKAN. </p> <p><strong> Sobre: </strong> Texto descritivo sobre a página <a href=\"%(about_url)s\"> será exibido nesta instância CKAN </a>. </p> <p><strong> Texto Introdutório: </strong> Este texto será exibido nesta instância CKAN <a href=\"%(home_url)s\">home page</a> como uma nota de boas vindas aos visitantes. </p> <p><strong> CSS personalizado: </strong> O bloco CSS aparece na <code>&lt;head&gt;</code>  etiqueta de cada página. Se deseja personalizar os estilos e os conteúdos da página de uma forma mais completa, recomendamos <a href=\"%(docs_url)s\" target=\"_blank\"> a leitura da seguinte documentação </a>. </p> <p><strong> Página Inicial: </strong> Permite escolher o layout pré-definido dos módulos que surgem na página inicial. </p>"
 
 #: ckan/templates/admin/confirm_reset.html:3
 #: ckan/templates/admin/confirm_reset.html:10
@@ -3487,7 +3487,7 @@ msgstr "desconhecido"
 #: ckan/templates/package/resource_read.html:161
 #: ckan/templates/package/snippets/additional_info.html:68
 msgid "Created"
-msgstr "Criado"
+msgstr "Data de criação"
 
 #: ckan/templates/package/resource_read.html:165
 #: ckan/templates/package/snippets/resource_form.html:37
@@ -4406,7 +4406,7 @@ msgstr "Inscrição"
 
 #: ckan/templates/user/new.html:14
 msgid "Register for an Account"
-msgstr "Inscreva-se para criar uma Conta"
+msgstr "Registe-se para criar uma Conta"
 
 #: ckan/templates/user/new.html:26
 msgid "Why Sign Up?"

@@ -4,6 +4,7 @@
 # 
 # Translators:
 # geirmund <geirmund@gmail.com>, 2012
+# Hilde Austlid <hilde.austlid@vegvesen.no>, 2015
 # <internet@davidread.org>, 2011
 # Olav A. Øvrebø <olav.ovrebo@gmail.com>, 2014
 # Open Knowledge Foundation <translations@okfn.org>, 2011
@@ -14,8 +15,8 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-06-23 20:40+0000\n"
-"PO-Revision-Date: 2015-06-25 10:42+0000\n"
-"Last-Translator: dread <david.read@hackneyworkshop.com>\n"
+"PO-Revision-Date: 2015-11-26 14:22+0000\n"
+"Last-Translator: Hilde Austlid <hilde.austlid@vegvesen.no>\n"
 "Language-Team: Norwegian (http://www.transifex.com/okfn/ckan/language/no/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2977,7 +2978,7 @@ msgstr ""
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
-msgstr ""
+msgstr "Populære stikkord"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
@@ -3136,7 +3137,7 @@ msgstr "Brukernavn"
 
 #: ckan/templates/organization/member_new.html:50
 msgid "Email address"
-msgstr ""
+msgstr "E-post"
 
 #: ckan/templates/organization/member_new.html:62
 msgid "Update Member"
@@ -3785,11 +3786,11 @@ msgstr ""
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
-msgstr ""
+msgstr "Bredde"
 
 #: ckan/templates/package/snippets/resource_view.html:72
 msgid "Height"
-msgstr ""
+msgstr "Høyde"
 
 #: ckan/templates/package/snippets/resource_view.html:75
 msgid "Code"

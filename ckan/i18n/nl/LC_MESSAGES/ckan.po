@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the ckan project.
 # 
 # Translators:
+# Adrià Mercader <adria.mercader@okfn.org>, 2015
 # EdoPlantinga <edo.plantinga@koop.wmrijk.nl>, 2012
 # egonwillighagen <egon.willighagen@gmail.com>, 2012
 # Gerard Persoon <mail@gpersoon.com>, 2014
@@ -16,8 +17,8 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-06-23 20:40+0000\n"
-"PO-Revision-Date: 2015-06-25 18:14+0000\n"
-"Last-Translator: Milo van der Linden <milo@dogodigi.net>\n"
+"PO-Revision-Date: 2015-12-16 13:08+0000\n"
+"Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
 "Language-Team: Dutch (http://www.transifex.com/okfn/ckan/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1194,7 +1195,7 @@ msgid ""
 "To accept this invite, please reset your password at:\n"
 "\n"
 "   {reset_link}\n"
-msgstr ""
+msgstr "U bent uitgenodigd voor {site_title}. Er is een gebruiker aangemaakt met de naam {user_name}. De gebruikersnaam kan later nog worden veranderd.\n\nKlik op onderstaande link om de uitnodiging te accepteren en een wachtwoord aan te maken:\n\n{reset_link}\n"
 
 #: ckan/lib/mailer.py:145 ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:13
@@ -1353,7 +1354,7 @@ msgstr "Naam mag maximaal %i karakters lang zijn"
 msgid ""
 "Must be purely lowercase alphanumeric (ascii) characters and these symbols: "
 "-_"
-msgstr ""
+msgstr "Moet bestaan uit kleine letters (ascii), cijfers en deze symbolen: -_"
 
 #: ckan/logic/validators.py:384
 msgid "That URL is already in use."
@@ -1491,7 +1492,7 @@ msgstr "Deze ouder zou een oneindige lus in de hiërarchie veroorzaken"
 
 #: ckan/logic/validators.py:810
 msgid "\"filter_fields\" and \"filter_values\" should have the same length"
-msgstr ""
+msgstr "\"filter_fields\" en \"filter_values\" moeten dezelfde lengte hebben"
 
 #: ckan/logic/validators.py:821
 msgid "\"filter_fields\" is required when \"filter_values\" is filled"
@@ -3176,7 +3177,7 @@ msgstr "Dataset toevoegen"
 
 #: ckan/templates/organization/snippets/feeds.html:3
 msgid "Datasets in organization: {group}"
-msgstr ""
+msgstr "Datasets in organisatie: {group}"
 
 #: ckan/templates/organization/snippets/help.html:4
 #: ckan/templates/organization/snippets/helper.html:4
@@ -3191,7 +3192,7 @@ msgid ""
 "organizations, admins can assign roles and authorise its members, giving "
 "individual users the right to publish datasets from that particular "
 "organisation (e.g. Office of National Statistics).</p> "
-msgstr ""
+msgstr " <p>Organisaties zijn afdelingen die datasets publiceren (bv. de afdeling Volksgezondheid). Dit betekent dat de datasets gepubliceerd en beheerd kunnen worden door een afdeling in plaats van een enkele gebruiker.</p> <p>Binnen organisaties kunnen beheerders rollen toewijzen aan leden. Hiermee geven zij leden toestemming om datasets te publiceren (bv. Centraal Bureau voor de Statistiek).</p> "
 
 #: ckan/templates/organization/snippets/helper.html:8
 msgid ""
@@ -4331,7 +4332,7 @@ msgstr ""
 
 #: ckan/templates/user/edit_user_form.html:44
 msgid "Regenerate API Key"
-msgstr ""
+msgstr "Vernieuw API key"
 
 #: ckan/templates/user/edit_user_form.html:48
 msgid "Update Profile"

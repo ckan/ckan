@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-06-23 20:40+0000\n"
-"PO-Revision-Date: 2015-06-29 13:40+0000\n"
+"PO-Revision-Date: 2015-12-04 19:48+0000\n"
 "Last-Translator: Vladimir Mašala <vladimir.masala@gmail.com>\n"
 "Language-Team: Croatian (http://www.transifex.com/okfn/ckan/language/hr/)\n"
 "MIME-Version: 1.0\n"
@@ -551,7 +551,7 @@ msgstr "Nemate ovlasti za čitanje skupa podataka %s"
 
 #: ckan/controllers/package.py:1157 ckan/controllers/package.py:1619
 msgid "Resource view not found"
-msgstr ""
+msgstr "Resurs nije pronаđen"
 
 #: ckan/controllers/package.py:1188 ckan/controllers/package.py:1379
 #: ckan/controllers/package.py:1459 ckan/controllers/package.py:1492
@@ -3812,7 +3812,7 @@ msgstr "Podaci i Resursi"
 
 #: ckan/templates/package/snippets/resources_list.html:29
 msgid "This dataset has no data"
-msgstr ""
+msgstr "Ovaj Skup podataka je prazan"
 
 #: ckan/templates/package/snippets/revisions_table.html:24
 #, python-format
@@ -4553,7 +4553,7 @@ msgstr "DataStore resurs nije pronаđen"
 msgid ""
 "The data was invalid (for example: a numeric value is out of range or was "
 "inserted into a text field)."
-msgstr ""
+msgstr "Neispravni unos (npr. uneseni broj je prevelik ili se očekuje tekst)"
 
 #: ckanext/datastore/logic/action.py:210 ckanext/datastore/logic/action.py:250
 #: ckanext/datastore/logic/action.py:327 ckanext/datastore/logic/action.py:411
