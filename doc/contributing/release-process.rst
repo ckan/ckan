@@ -142,7 +142,7 @@ Turn this file into a github issue with a checklist using this command::
       If you get this error for a new translation:
 
           babel.core.UnknownLocaleError: unknown locale 'crh'
-    
+
       then it's Transifex appears to know about new languages before Babel
       does. Just delete that translation locally - it may be ok with a newer Babel in
       later CKAN releases.
@@ -219,17 +219,21 @@ Turn this file into a github issue with a checklist using this command::
 
     https://github.com/ckan/ckan-packaging
 
-   The repository contains furhter instructions on how to run the scripts, but essentially
-   you will need access to the packaging server, and then run something like::
+   The repository contains furhter instructions on how to run the scripts, but
+   essentially you need to generate the packages (one for precise and one for
+   trusty) on your local machine and upload them to the Amazon S3 bucket.
 
-     ansible-playbook package.yml -u your_user -s
+   To generate the packages, run::
 
-   You will be prompted for the CKAN version to package (eg ``2.4.0``), the iteration (eg ``beta1``)
-   and whether to package the DataPusher (always do it on release packages).
+     ./ckan-package -v 2.x.y -i betaX
 
-   Packages are created by default on the `/build` folder of the publicly accessible directory of
-   the packaging server.
+   To upload the files to the S3 bucket, you will need the relevant credentials and
+   to install the `Amazon AWS command line interface <http://docs.aws.amazon.com/cli/latest/userguide/installing.html>`_
 
+   Make sure to upload them to the `build` folder, so they are not mistaken by
+   the stable ones::
+
+     aws s3 cp python-ckan_2.5.0-precisebeta1_amd64.deb s3://packaging.ckan.org/build/python-ckan_2.5.0-precisebeta1_amd64.deb
 
 -------------------------
 Leading up to the release
@@ -318,17 +322,25 @@ a release.
         git tag -a -m '[release]: Release tag' ckan-X.Y
         git push --tags
 
-#. Create and deploy the final deb package.
+#. Create the final deb packages.
 
-   Move it to the root of the
-   `publicly accessible folder <http://packaging.ckan.org/>`_ of
-   the packaging server from the `/build` folder.
+   Using the `packaging scripts <https://github.com/ckan/ckan-packaging>`_ on your
+   local machine, build the final deb packages::
 
-   Make sure to rename it so it follows the deb packages name convention::
+     ./ckan-package -v 2.x.y -i 1
 
-    python-ckan_Major.minor_amd64.deb
+   To upload the files to the S3 bucket, you will need the relevant credentials and
+   to install the `Amazon AWS command line interface <http://docs.aws.amazon.com/cli/latest/userguide/installing.html>`_
 
-   Note that we drop any patch version or iteration from the package name.
+   Make sure to drop the patch version and iteration before uploading the packages::
+
+
+    mv python-ckan_2.5.0-precise1_amd64.deb python-ckan_2.5-precise_amd64.deb
+    mv python-ckan_2.5.0-trusty1_amd64.deb python-ckan_2.5-trusty_amd64.deb
+
+   To upload them::
+
+     aws s3 cp python-ckan_2.5-trusty_amd64.deb s3://packaging.ckan.org/python-ckan_2.5-trusty_amd64.deb
 
 #. Upload the release to PyPI::
 
