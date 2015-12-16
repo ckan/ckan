@@ -22,6 +22,14 @@ Changes and deprecations
   introduces both ``python-markdown`` and ``bleach`` as dependencies, as ``bleach``
   is used to clean any HTML provided to the markdown processor.
 
+v2.4.2 2015-12-17
+=================
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
+
 v2.4.1 2015-09-02
 =================
 
@@ -116,13 +124,20 @@ Changes and deprecations
   Custom templates or users of this API call will need to pass
   ``include_datasets=True`` to include datasets in the response.
 
-* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the
-  ``packages`` key - i.e. datasets that use the vocabulary or tag.
+* The ``vocabulary_show`` and ``tag_show`` API calls no longer returns the 
+  ``packages`` key - i.e. datasets that use the vocabulary or tag. 
   However ``tag_show`` now has an ``include_datasets`` option. (#1886)
 
 * Config option ``site_url`` is now required - CKAN will not abort during
   start-up if it is not set. (#1976)
 
+v2.3.3 2015-12-17
+=================
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
 
 v2.3.2 2015-09-02
 =================
@@ -447,6 +462,14 @@ Troubleshooting:
 
   Also see the previous point for other ``who.ini`` changes.
 
+v2.2.4 2015-12-17
+=================
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
+
 v2.2.3 2015-07-22
 =================
 
@@ -679,6 +702,14 @@ Troubleshooting:
    leaving the fields empty. Also make sure to restart running processes like
    harvesters after the update to make sure they use the new code base.
 
+v2.1.6 2015-12-17
+=================
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
+
 v2.1.5 2015-07-22
 =================
 
@@ -845,6 +876,14 @@ Deprecated and removed:
 Known issues:
  * Under certain authorization setups the frontend for the groups functionality
    may not work as expected (See #1176 #1175).
+
+v2.0.8 2015-12-17
+=================
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
 
 v2.0.7 2015-07-22
 =================
