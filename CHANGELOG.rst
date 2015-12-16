@@ -34,7 +34,7 @@ Minor:
 
 Bug fixes:
  * Fix to allow uppercase letters in local part of email when sending user invitations (#2415)
- * Licence pick-list changes woudl cause old values in datasets to be overwritten when edited (#2472)
+ * License pick-list changes would cause old values in datasets to be overwritten when edited (#2472)
  * Schema was being passed to package_create_default_resource_views (#2484)
  * Arabic translation format string issue (#2493)
  * Error when deleting organizations (#2512)
