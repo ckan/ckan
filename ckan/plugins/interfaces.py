@@ -1188,6 +1188,7 @@ class IGroupForm(Interface):
 
      - is_fallback(self)
      - group_types(self)
+     - group_controller(self)
 
     Implementations might want to consider mixing in
     ckan.lib.plugins.DefaultGroupForm which provides
@@ -1218,6 +1219,17 @@ class IGroupForm(Interface):
         There must only be one plugin registered to each group type.  Any
         attempts to register more than one plugin instance to a given group
         type will raise an exception at startup.
+        """
+
+    def group_controller(self):
+        """
+        Returns the name of the group controller.
+
+        The group controller is the controller, that is used to handle requests
+        of the group type(s) of this plugin.
+        
+        If this method is not provided, the default group controller is used
+        (`group`).
         """
 
     ##### End of control methods
