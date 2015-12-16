@@ -14,9 +14,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-07-01 17:35+0100\n"
-"PO-Revision-Date: 2013-07-02 16:43+0000\n"
+"PO-Revision-Date: 2015-11-26 14:22+0000\n"
 "Last-Translator: Olav A. Øvrebø <olav.ovrebo@gmail.com>\n"
-"Language-Team: Norwegian (http://www.transifex.com/p/ckan/language/no/)\n"
+"Language-Team: Norwegian (http://www.transifex.com/okfn/ckan/language/no/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -60,7 +60,7 @@ msgstr "Nettstedets slagord"
 
 #: ckan/controllers/admin.py:38
 msgid "Site Tag Logo"
-msgstr ""
+msgstr "Logo"
 
 #: ckan/controllers/admin.py:39 ckan/templates/header.html:92
 #: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:19
@@ -96,7 +96,7 @@ msgstr "Spesiallaget CSS"
 
 #: ckan/controllers/admin.py:41
 msgid "Customisable css inserted into the page header"
-msgstr ""
+msgstr "Egendefinert CSS som settes inn på hver side"
 
 #: ckan/controllers/admin.py:122
 #, python-format
@@ -788,7 +788,7 @@ msgstr "Du må oppgi et passord"
 
 #: ckan/controllers/user.py:555
 msgid "Follow item not found"
-msgstr ""
+msgstr "Fant ikke materiale"
 
 #: ckan/controllers/user.py:559
 msgid "{0} not found"
@@ -3557,7 +3557,7 @@ msgstr ""
 
 #: ckan/templates/related/dashboard.html:58
 msgid "Filter Results"
-msgstr ""
+msgstr "Filterresultater"
 
 #: ckan/templates/related/dashboard.html:63
 #: ckan/templates_legacy/related/dashboard.html:31
@@ -3646,12 +3646,12 @@ msgstr ""
 
 #: ckan/templates/revision/diff.html:6
 msgid "Differences"
-msgstr ""
+msgstr "Endringer"
 
 #: ckan/templates/revision/diff.html:13 ckan/templates/revision/diff.html:18
 #: ckan/templates/revision/diff.html:23
 msgid "Revision Differences"
-msgstr ""
+msgstr "Forskjeller mellom versjoner"
 
 #: ckan/templates/revision/diff.html:44
 #: ckan/templates_legacy/revision/diff.html:32
@@ -3660,7 +3660,7 @@ msgstr "Forskjell"
 
 #: ckan/templates/revision/diff.html:54
 msgid "No Differences"
-msgstr ""
+msgstr "Ingen endringer"
 
 #: ckan/templates/revision/list.html:3 ckan/templates/revision/list.html:6
 #: ckan/templates/revision/list.html:10
@@ -3699,7 +3699,7 @@ msgstr "Enhet"
 
 #: ckan/templates/snippets/activity_item.html:3
 msgid "New activity item"
-msgstr ""
+msgstr "Nytt aktivitetselement"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:4
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:13
@@ -3708,7 +3708,7 @@ msgstr "Embed Data Viewer"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:8
 msgid "Embed this view by copying this into your webpage:"
-msgstr ""
+msgstr "Inkluder denne visningen ved å kopiere dette til nettstedet ditt:"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:10
 #: ckan/templates_legacy/snippets/data-viewer-embed-dialog.html:21
@@ -3727,7 +3727,7 @@ msgstr "Høyde:"
 
 #: ckan/templates/snippets/disqus_trackback.html:2
 msgid "Trackback URL"
-msgstr ""
+msgstr "Tilbakesporings-URL"
 
 #: ckan/templates/snippets/facet_list.html:53
 msgid "Clear All"
@@ -3735,15 +3735,15 @@ msgstr ""
 
 #: ckan/templates/snippets/facet_list.html:73
 msgid "Show More {facet_type}"
-msgstr ""
+msgstr "Vis mer {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:75
 msgid "Show Only Popular {facet_type}"
-msgstr ""
+msgstr "Vis bare populære {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:79
 msgid "There are no {facet_type} that match this search"
-msgstr ""
+msgstr "Det er ingen {facet_type} som passer med dette søket"
 
 #: ckan/templates/snippets/home_breadcrumb_item.html:2
 #: ckan/templates_legacy/admin/layout.html:10
@@ -3753,14 +3753,14 @@ msgstr "Hjem"
 
 #: ckan/templates/snippets/language_selector.html:4
 msgid "Language"
-msgstr ""
+msgstr "Språk"
 
 #: ckan/templates/snippets/language_selector.html:12
 #: ckan/templates/snippets/search_form.html:36
 #: ckan/templates/snippets/simple_search.html:15
 #: ckan/templates/snippets/sort_by.html:22
 msgid "Go"
-msgstr ""
+msgstr "Velg"
 
 #: ckan/templates/snippets/license.html:14
 #: ckan/templates_legacy/package/read.html:32
@@ -3771,17 +3771,17 @@ msgstr "Dette datasettet tilfredsstiller definisjonen av åpen kunnskap."
 
 #: ckan/templates/snippets/license.html:22
 msgid "No License Provided"
-msgstr ""
+msgstr "Lisens er ikke oppgitt"
 
 #: ckan/templates/snippets/related.html:15
 msgid ""
 "No apps, ideas, news stories or images have been related to this dataset "
 "yet."
-msgstr ""
+msgstr "Ingen apper, ideer, nyheter eller bilder er satt som relatert til dette datasettet ennå."
 
 #: ckan/templates/snippets/related.html:18
 msgid "Add Item"
-msgstr ""
+msgstr "Legg til element"
 
 #: ckan/templates/snippets/search_form.html:3
 #: ckan/templates_legacy/package/search_form.html:9
@@ -3797,17 +3797,17 @@ msgstr "Send inn"
 #: ckan/templates/snippets/simple_search.html:8
 #: ckan/templates/snippets/sort_by.html:12
 msgid "Order by"
-msgstr ""
+msgstr "Sorter etter"
 
 #: ckan/templates/snippets/search_form.html:71
 msgid " <p class=\"extra\">Please try another search.</p> "
-msgstr ""
+msgstr " <p class=\"extra\">Prøv et annet søk.</p> "
 
 #: ckan/templates/snippets/search_form.html:77
 msgid ""
 " <p><strong>There was an error while searching.</strong> Please try "
 "again.</p> "
-msgstr ""
+msgstr " <p><strong>Det oppstod en feil under søking.</strong> Prøv igjen.</p> "
 
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
@@ -3867,11 +3867,11 @@ msgstr ""
 
 #: ckan/templates/snippets/social.html:3
 msgid "Social"
-msgstr ""
+msgstr "Sosiale nettverk"
 
 #: ckan/templates/snippets/subscribe.html:2
 msgid "Subscribe"
-msgstr ""
+msgstr "Abonner"
 
 #: ckan/templates/snippets/subscribe.html:4
 #: ckan/templates/user/edit_user_form.html:13
@@ -3883,7 +3883,7 @@ msgstr "Epost"
 
 #: ckan/templates/snippets/subscribe.html:5
 msgid "RSS"
-msgstr ""
+msgstr "RSS"
 
 #: ckan/templates/snippets/context/user.html:23
 #: ckan/templates/user/read_base.html:66
@@ -3893,7 +3893,7 @@ msgstr "Endringer"
 
 #: ckan/templates/tag/index.html:33 ckan/templates/tag/index.html:34
 msgid "Search Tags"
-msgstr ""
+msgstr "Søk i stikkord"
 
 #: ckan/templates/user/dashboard.html:4 ckan/templates/user/edit.html:7
 #: ckan/templates/user/edit_base.html:5
@@ -3903,22 +3903,22 @@ msgstr "Dashbord"
 
 #: ckan/templates/user/dashboard.html:18 ckan/templates/user/dashboard.html:31
 msgid "News feed"
-msgstr ""
+msgstr "Nyhetsstrøm"
 
 #: ckan/templates/user/dashboard.html:19
 #: ckan/templates/user/dashboard_datasets.html:12
 msgid "My Datasets"
-msgstr ""
+msgstr "Mine datasett"
 
 #: ckan/templates/user/dashboard.html:20
 #: ckan/templates/user/dashboard_organizations.html:12
 msgid "My Organizations"
-msgstr ""
+msgstr "Mine organisasjoner"
 
 #: ckan/templates/user/dashboard.html:21
 #: ckan/templates/user/dashboard_groups.html:12
 msgid "My Groups"
-msgstr ""
+msgstr "Mine grupper"
 
 #: ckan/templates/user/dashboard.html:33
 msgid "Activity from items that you follow"
@@ -3927,22 +3927,22 @@ msgstr ""
 #: ckan/templates/user/dashboard_datasets.html:17
 #: ckan/templates/user/read.html:16
 msgid "You haven't created any datasets."
-msgstr ""
+msgstr "Du har ikke opprettet noen datasett."
 
 #: ckan/templates/user/dashboard_datasets.html:19
 #: ckan/templates/user/dashboard_groups.html:22
 #: ckan/templates/user/dashboard_organizations.html:22
 #: ckan/templates/user/read.html:18
 msgid "Create one now?"
-msgstr ""
+msgstr "Opprette nå?"
 
 #: ckan/templates/user/dashboard_groups.html:20
 msgid "You are not a member of any groups."
-msgstr ""
+msgstr "Du er ikke medlem av noen grupper."
 
 #: ckan/templates/user/dashboard_organizations.html:20
 msgid "You are not a member of any organizations."
-msgstr ""
+msgstr "Du er ikke medlem av noen organisasjoner."
 
 #: ckan/templates/user/edit.html:10 ckan/templates/user/list.html:6
 #: ckan/templates/user/list.html:13 ckan/templates/user/read_base.html:8
@@ -3955,12 +3955,12 @@ msgstr "Brukere:"
 
 #: ckan/templates/user/edit.html:22
 msgid "Account Info"
-msgstr ""
+msgstr "Kontoinformasjon"
 
 #: ckan/templates/user/edit.html:24
 msgid ""
 " Your profile lets other CKAN users know about who you are and what you do. "
-msgstr ""
+msgstr "I profilen kan du fortelle andre CKAN-brukere om hvem du er og hva du gjør."
 
 #: ckan/templates/user/edit_user_form.html:7
 msgid "Change your details"
@@ -3973,19 +3973,19 @@ msgstr "Fullt navn"
 
 #: ckan/templates/user/edit_user_form.html:11
 msgid "eg. Joe Bloggs"
-msgstr ""
+msgstr "f.eks. Kari Nordmann"
 
 #: ckan/templates/user/edit_user_form.html:13
 msgid "eg. joe@example.com"
-msgstr ""
+msgstr "f.eks. kari@example.com"
 
 #: ckan/templates/user/edit_user_form.html:15
 msgid "A little information about yourself"
-msgstr ""
+msgstr "Litt informasjon om deg selv."
 
 #: ckan/templates/user/edit_user_form.html:18
 msgid "Subscribe to notification emails"
-msgstr ""
+msgstr "Abonner på e-postvarsling"
 
 #: ckan/templates/user/edit_user_form.html:26
 #: ckan/templates_legacy/user/edit_user_form.html:46
@@ -4004,16 +4004,16 @@ msgstr "Passord"
 
 #: ckan/templates/user/edit_user_form.html:30
 msgid "Confirm Password"
-msgstr ""
+msgstr "Bekreft passord"
 
 #: ckan/templates/user/edit_user_form.html:34
 msgid "Update Profile"
-msgstr ""
+msgstr "Oppdater profil"
 
 #: ckan/templates/user/list.html:3
 #: ckan/templates/user/snippets/user_search.html:11
 msgid "All Users"
-msgstr ""
+msgstr "Alle brukere"
 
 #: ckan/templates/user/login.html:3 ckan/templates/user/login.html:6
 #: ckan/templates/user/login.html:12 ckan/templates_legacy/layout_base.html:59
@@ -4024,15 +4024,15 @@ msgstr "Innlogging"
 
 #: ckan/templates/user/login.html:22
 msgid "Need an Account?"
-msgstr ""
+msgstr "Trenger du en konto?"
 
 #: ckan/templates/user/login.html:24
 msgid "Then sign right up, it only takes a minute."
-msgstr ""
+msgstr "Opprett brukerkonto, det tar bare et øyeblikk."
 
 #: ckan/templates/user/login.html:26
 msgid "Create an Account"
-msgstr ""
+msgstr "Opprett konto"
 
 #: ckan/templates/user/login.html:32
 msgid "Forgotten your details?"
@@ -4040,7 +4040,7 @@ msgstr ""
 
 #: ckan/templates/user/login.html:34
 msgid "No problem, use our password recovery form to reset it."
-msgstr ""
+msgstr "Ikke noe problem, bruk skjemaet vårt for tilbakestilling av passord."
 
 #: ckan/templates/user/login.html:36 ckan/templates_legacy/user/login.html:51
 msgid "Forgot your password?"
@@ -4048,15 +4048,15 @@ msgstr "Glemt passordet?"
 
 #: ckan/templates/user/logout.html:3 ckan/templates/user/logout.html:9
 msgid "Logged Out"
-msgstr ""
+msgstr "Logget ut"
 
 #: ckan/templates/user/logout.html:11
 msgid "You are now logged out."
-msgstr ""
+msgstr "Du er logget ut."
 
 #: ckan/templates/user/logout_first.html:9
 msgid "You're already logged in as {user}."
-msgstr ""
+msgstr "Du er allerede logget inn som  {user}."
 
 #: ckan/templates/user/logout_first.html:9
 #: ckan/templates_legacy/layout_base.html:56
@@ -4067,92 +4067,92 @@ msgstr "Logg ut"
 #: ckan/templates/user/logout_first.html:13
 #: ckan/templates/user/snippets/login_form.html:24
 msgid "Remember me"
-msgstr ""
+msgstr "Husk meg"
 
 #: ckan/templates/user/logout_first.html:22
 msgid "You're already logged in"
-msgstr ""
+msgstr "Du er logget inn allerede"
 
 #: ckan/templates/user/logout_first.html:24
 msgid "You need to log out before you can log in with another account."
-msgstr ""
+msgstr "Du må logge ut før du kan logge inn med en annen konto."
 
 #: ckan/templates/user/logout_first.html:25
 msgid "Log out now"
-msgstr ""
+msgstr "Logg ut nå"
 
 #: ckan/templates/user/new.html:6
 msgid "Registration"
-msgstr ""
+msgstr "Registrering"
 
 #: ckan/templates/user/new.html:13
 msgid "Register for an Account"
-msgstr ""
+msgstr "Opprette brukerkonto"
 
 #: ckan/templates/user/new.html:22
 msgid "Why Sign Up?"
-msgstr ""
+msgstr "Hvorfor registrere deg?"
 
 #: ckan/templates/user/new.html:24
 msgid "Create datasets, groups and other exciting things"
-msgstr ""
+msgstr "Opprett datasett, grupper og andre interessante ting"
 
 #: ckan/templates/user/new_user_form.html:6
 msgid "Full Name"
-msgstr ""
+msgstr "Fullt navn"
 
 #: ckan/templates/user/new_user_form.html:11
 msgid "Create Account"
-msgstr ""
+msgstr "Opprett konto"
 
 #: ckan/templates/user/perform_reset.html:4
 #: ckan/templates/user/perform_reset.html:13
 #: ckan/templates/user/request_reset.html:3
 #: ckan/templates/user/request_reset.html:12
 msgid "Reset Your Password"
-msgstr ""
+msgstr "Tilbakestill passordet ditt"
 
 #: ckan/templates/user/perform_reset.html:7
 #: ckan/templates/user/request_reset.html:6
 msgid "Password Reset"
-msgstr ""
+msgstr "Tilbakestill passord"
 
 #: ckan/templates/user/perform_reset.html:22
 msgid "Update Password"
-msgstr ""
+msgstr "Oppdater passord"
 
 #: ckan/templates/user/perform_reset.html:32
 #: ckan/templates/user/request_reset.html:26
 msgid "How does this work?"
-msgstr ""
+msgstr "Hvordan virker dette?"
 
 #: ckan/templates/user/perform_reset.html:34
 msgid "Simply enter a new password and we'll update your account"
-msgstr ""
+msgstr "Oppgi nytt passord, så oppdaterer vi informasjonen for kontoen din"
 
 #: ckan/templates/user/read.html:23
 msgid "User hasn't created any datasets."
-msgstr ""
+msgstr "Brukeren har ikke opprettet noen datasett"
 
 #: ckan/templates/user/read_base.html:50
 msgid "You have not provided a biography."
-msgstr ""
+msgstr "Du har ikke skrevet noen biografi."
 
 #: ckan/templates/user/read_base.html:52
 msgid "This user has no biography."
-msgstr ""
+msgstr "Denne brukeren har ingen biografi."
 
 #: ckan/templates/user/read_base.html:73
 msgid "Open ID"
-msgstr ""
+msgstr "Open ID"
 
 #: ckan/templates/user/read_base.html:82 ckan/templates/user/read_base.html:92
 msgid "This means only you can see this"
-msgstr ""
+msgstr "Det betyr at du er den eneste som kan se dette"
 
 #: ckan/templates/user/read_base.html:87
 msgid "Member Since"
-msgstr ""
+msgstr "Medlem siden"
 
 #: ckan/templates/user/read_base.html:92
 #: ckan/templates_legacy/user/read.html:42
@@ -4167,7 +4167,7 @@ msgstr ""
 msgid ""
 "Enter your username into the box and we will send you an email with a link "
 "to enter a new password."
-msgstr ""
+msgstr "Oppgi brukernavnet ditt, så sender vi deg en e-post med lenke som du kan bruke for å velge nytt passord."
 
 #: ckan/templates/user/snippets/back_to_user_action.html:1
 msgid "View my profile"
@@ -4176,19 +4176,19 @@ msgstr ""
 #: ckan/templates/user/snippets/followee_dropdown.html:12
 #: ckan/templates/user/snippets/followee_dropdown.html:13
 msgid "Activity from:"
-msgstr ""
+msgstr "Aktivitet fra:"
 
 #: ckan/templates/user/snippets/followee_dropdown.html:21
 msgid "Search list..."
-msgstr ""
+msgstr "Søk i lista..."
 
 #: ckan/templates/user/snippets/followee_dropdown.html:42
 msgid "You are not following anything"
-msgstr ""
+msgstr "Du følger ikke noe"
 
 #: ckan/templates/user/snippets/followers.html:9
 msgid "No followers"
-msgstr ""
+msgstr "Ingen følgere"
 
 #: ckan/templates/user/snippets/user_search.html:5
 #: ckan/templates_legacy/user/list.html:11
@@ -4884,7 +4884,7 @@ msgstr ""
 
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "dataset"
-msgstr ""
+msgstr "datasett"
 
 #: ckan/templates_legacy/importer/preview.html:16
 msgid "read from"
@@ -5797,29 +5797,29 @@ msgstr "Brukernavn:"
 
 #: ckanext/datastore/controller.py:31
 msgid "DataStore resource not found"
-msgstr ""
+msgstr "Fant ikke DataStore-ressurs"
 
 #: ckanext/datastore/logic/action.py:140 ckanext/datastore/logic/action.py:184
 #: ckanext/datastore/logic/action.py:268 ckanext/datastore/logic/action.py:352
 #: ckanext/datastore/logic/action.py:378
 msgid "Resource \"{0}\" was not found."
-msgstr ""
+msgstr "Fant ikke ressursen \"{0}\""
 
 #: ckanext/datastore/logic/auth.py:15
 msgid "User {0} not authorized to update resource {1}"
-msgstr ""
+msgstr "Brukeren {0} har ikke tillatelse til å oppdatere ressursen {1}"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 msgid "Custom Text"
-msgstr ""
+msgstr "Egendefinert tekst"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_basic_fields.html:4
 msgid "custom text"
-msgstr ""
+msgstr "egendefinert tekst"
 
 #: ckanext/example_idatasetform/templates/package/snippets/package_metadata_fields.html:13
 msgid "Country Code"
-msgstr ""
+msgstr "Landkode"
 
 #: ckanext/reclinepreview/theme/public/vendor/slickgrid/2.0.1/MIT-LICENSE.txt:1
 msgid ""
@@ -5873,24 +5873,24 @@ msgstr "Totalt antall datasett"
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
 msgid "Date"
-msgstr ""
+msgstr "Dato"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
-msgstr ""
+msgstr "Totalt antall datasett"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:179
 msgid "Dataset Revisions per Week"
-msgstr ""
+msgstr "Datasettversjoner per uke"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
-msgstr ""
+msgstr "Alle datasettversjoner"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
-msgstr ""
+msgstr "Nye datasett"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 #: ckanext/stats/templates/ckanext/stats/index.html:180
@@ -5926,7 +5926,7 @@ msgstr "Antall endringer"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:103
 msgid "No edited datasets"
-msgstr ""
+msgstr "Ingen redigerte datasett"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:108
 #: ckanext/stats/templates/ckanext/stats/index.html:182
@@ -5936,7 +5936,7 @@ msgstr "Største grupper"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:127
 msgid "No groups"
-msgstr ""
+msgstr "Ingen grupper"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:132
 #: ckanext/stats/templates/ckanext/stats/index.html:183
@@ -5946,12 +5946,12 @@ msgstr "Beste tags"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:136
 msgid "Tag Name"
-msgstr ""
+msgstr "Stikkordnavn"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:137
 #: ckanext/stats/templates/ckanext/stats/index.html:157
 msgid "Number of Datasets"
-msgstr ""
+msgstr "Antall datasett"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
@@ -5960,11 +5960,11 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
-msgstr ""
+msgstr "Statistikkmeny"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:178
 msgid "Total Number of Datasets"
-msgstr ""
+msgstr "Totalt antall datasett"
 
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:60
 msgid "Revisions to Datasets per week"

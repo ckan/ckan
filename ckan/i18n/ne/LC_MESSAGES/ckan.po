@@ -9,9 +9,9 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-07-01 17:35+0100\n"
-"PO-Revision-Date: 2014-08-24 10:19+0000\n"
+"PO-Revision-Date: 2015-11-26 14:18+0000\n"
 "Last-Translator: Firoj Ghimire <firojghimire@gmail.com>\n"
-"Language-Team: Nepali (http://www.transifex.com/projects/p/ckan/language/ne/)\n"
+"Language-Team: Nepali (http://www.transifex.com/okfn/ckan/language/ne/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,11 +31,11 @@ msgstr "व्यवस्थापक"
 
 #: ckan/new_authz.py:95
 msgid "Editor"
-msgstr ""
+msgstr "सम्पादक"
 
 #: ckan/new_authz.py:98
 msgid "Member"
-msgstr ""
+msgstr "सदस्य"
 
 #: ckan/controllers/admin.py:24
 msgid "Need to be system administrator to administer"
@@ -43,19 +43,19 @@ msgstr ""
 
 #: ckan/controllers/admin.py:35
 msgid "Site Title"
-msgstr ""
+msgstr "साइट शीर्षक"
 
 #: ckan/controllers/admin.py:36
 msgid "Style"
-msgstr ""
+msgstr "शैली"
 
 #: ckan/controllers/admin.py:37
 msgid "Site Tag Line"
-msgstr ""
+msgstr "साइट ट्याग रेखा"
 
 #: ckan/controllers/admin.py:38
 msgid "Site Tag Logo"
-msgstr ""
+msgstr "साइट ट्याग लोगो"
 
 #: ckan/controllers/admin.py:39 ckan/templates/header.html:92
 #: ckan/templates/group/about.html:3 ckan/templates/group/read_base.html:19
@@ -71,27 +71,27 @@ msgstr ""
 #: ckan/templates_legacy/user/edit_user_form.html:39
 #: ckan/templates_legacy/user/read.html:28
 msgid "About"
-msgstr ""
+msgstr "बारे"
 
 #: ckan/controllers/admin.py:39
 msgid "About page text"
-msgstr ""
+msgstr "पृष्ठ पाठ बारे"
 
 #: ckan/controllers/admin.py:40
 msgid "Intro Text"
-msgstr ""
+msgstr "पहिचान पाठ"
 
 #: ckan/controllers/admin.py:40
 msgid "Text on home page"
-msgstr ""
+msgstr "घर पेजमा पाठ"
 
 #: ckan/controllers/admin.py:41
 msgid "Custom CSS"
-msgstr ""
+msgstr "Custom CSS"
 
 #: ckan/controllers/admin.py:41
 msgid "Customisable css inserted into the page header"
-msgstr ""
+msgstr "पृष्ठ हेडर मा सम्मिलित Customisable css गरियो"
 
 #: ckan/controllers/admin.py:122
 #, python-format
