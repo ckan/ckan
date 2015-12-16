@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-11-26 13:42+0000\n"
-"PO-Revision-Date: 2015-12-06 13:07+0000\n"
+"PO-Revision-Date: 2015-12-16 13:37+0000\n"
 "Last-Translator: Augusto Herrmann <augusto.herrmann@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/okfn/ckan/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -2864,7 +2864,7 @@ msgstr "Pesquisar dados"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
-msgstr "Etiquetas populares"
+msgstr "Etiquetas mais comuns"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
@@ -3814,7 +3814,7 @@ msgstr "Mostrar mais {facet_type}"
 
 #: ckan/templates/snippets/facet_list.html:83
 msgid "Show Only Popular {facet_type}"
-msgstr "Mostrar somente {facet_type} popular"
+msgstr "Mostrar somente {facet_type} mais comuns"
 
 #: ckan/templates/snippets/facet_list.html:87
 msgid "There are no {facet_type} that match this search"
