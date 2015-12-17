@@ -6,6 +6,8 @@ from ckan.tests import helpers
 
 
 assert_equals = nose.tools.assert_equals
+assert_true = nose.tools.assert_true
+assert_false = nose.tools.assert_false
 
 
 class TestCheckConfigPermission(object):
@@ -64,3 +66,31 @@ class TestCheckConfigPermission(object):
         assert_equals(sorted(auth.check_config_permission(
             'roles_that_cascade_to_sub_groups')),
             sorted(['admin', 'editor']))
+
+    def test_auth_is_anon_user_is_false_if_user_is_truthy(self):
+        context = {
+            'user': 'some-user'
+        }
+        assert_false(auth.auth_is_anon_user(context))
+
+    def test_auth_is_anon_user_is_true_if_user_wasnt_passed(self):
+        context = {}
+        assert_true(auth.auth_is_anon_user(context))
+
+    def test_auth_is_anon_user_is_true_if_user_is_falsy(self):
+        context = {
+            'user': '',
+        }
+        assert_true(auth.auth_is_anon_user(context))
+
+    def test_auth_is_anon_user_is_true_if_user_is_an_IP(self):
+        context = {
+            'user': '0.0.0.0',
+        }
+        assert_true(auth.auth_is_anon_user(context))
+
+    def test_auth_is_anon_user_is_true_if_user_is_Unknown_IP_Address(self):
+        context = {
+            'user': 'Unknown IP Address',
+        }
+        assert_true(auth.auth_is_anon_user(context))
