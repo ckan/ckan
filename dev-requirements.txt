@@ -8,7 +8,7 @@ Sphinx==1.2.3
 polib==1.0.3
 mock==1.0.1
 factory-boy==2.1.1
-coveralls==0.4.1
+coveralls
 sphinx-rtd-theme==0.1.9
 beautifulsoup4==4.3.2
 pip-tools==1.1.2
