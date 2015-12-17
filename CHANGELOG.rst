@@ -7,7 +7,7 @@
 Changelog
 ---------
 
-v2.5.0 2015-12-17
+v2.5.1 2015-12-17
 =================
 
 Note: This version requires a requirements upgrade on source installations
@@ -64,6 +64,12 @@ Changes and deprecations
 
 * This is the last version of CKAN to support Postgresql 8.x, 9.0 and 9.1. The
   next minor version of CKAN will require Postgresql 9.2 or later.
+
+
+v2.5.0 2015-12-17
+=================
+
+Cancelled release
 
 
 v2.4.2 2015-12-17
