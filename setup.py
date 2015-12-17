@@ -1,3 +1,8 @@
+# Avoid problem releasing to pypi from vagrant
+import os
+if os.environ.get('USER', '') == 'vagrant':
+    del os.link
+
 try:
     from setuptools import setup, find_packages
 except ImportError:
