@@ -24,7 +24,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-06-23 20:40+0000\n"
-"PO-Revision-Date: 2015-09-02 10:06+0000\n"
+"PO-Revision-Date: 2015-12-07 02:24+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
 "Language-Team: Mongolian (Mongolia) (http://www.transifex.com/okfn/ckan/language/mn_MN/)\n"
 "MIME-Version: 1.0\n"
@@ -254,7 +254,7 @@ msgstr "Бүлэг олдсонгүй"
 
 #: ckan/controllers/feed.py:234
 msgid "Organization not found"
-msgstr ""
+msgstr "Байгууллага олдсонгүй"
 
 #: ckan/controllers/group.py:140 ckan/controllers/group.py:589
 msgid "Incorrect group type"
@@ -358,7 +358,7 @@ msgstr "Бүлэг устсан байна."
 #: ckan/controllers/group.py:633
 #, python-format
 msgid "%s has been deleted."
-msgstr ""
+msgstr "%s утслаа."
 
 #: ckan/controllers/group.py:707
 #, python-format
@@ -786,11 +786,11 @@ msgstr ""
 
 #: ckan/controllers/user.py:355 ckan/templates/user/edit_user_form.html:27
 msgid "Old Password"
-msgstr ""
+msgstr "Хуучин нууц үг"
 
 #: ckan/controllers/user.py:355
 msgid "incorrect password"
-msgstr ""
+msgstr "буруу нууц үг"
 
 #: ckan/controllers/user.py:396
 msgid "Login failed. Bad username or password."
@@ -865,7 +865,7 @@ msgstr "Орхигдсон утга"
 
 #: ckan/controllers/util.py:21
 msgid "Redirecting to external site is not allowed."
-msgstr ""
+msgstr "Гадаад вэб сайтруу чиглүүлэхийг зөвшөөрөхгүй"
 
 #: ckan/lib/activity_streams.py:64
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
@@ -1319,7 +1319,7 @@ msgstr "Лог мессежэнд холбогдох хаягууд агуула
 
 #: ckan/logic/validators.py:156
 msgid "Dataset id already exists"
-msgstr ""
+msgstr "Өгөгдлийн бүрдлийн id аль хэдийнэ үүссэн байна"
 
 #: ckan/logic/validators.py:197 ckan/logic/validators.py:288
 msgid "Resource"

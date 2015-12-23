@@ -21,7 +21,7 @@ from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tools import mail_to
 from webhelpers.html.tags import *
-from webhelpers.markdown import markdown
+from lib.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
