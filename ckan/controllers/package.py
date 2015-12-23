@@ -1107,7 +1107,6 @@ class PackageController(base.BaseController):
         c.datastore_api = '%s/api/action' % \
             config.get('ckan.site_url', '').rstrip('/')
 
-
         c.resource['can_be_previewed'] = self._resource_preview(
             {'resource': c.resource, 'package': c.package})
 
@@ -1310,8 +1309,8 @@ class PackageController(base.BaseController):
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
             c.package_activity_stream = get_action(
-                    'package_activity_list_html')(context,
-                            {'id': c.pkg_dict['id']})
+                'package_activity_list_html')(
+                context, {'id': c.pkg_dict['id']})
             dataset_type = c.pkg_dict['type'] or 'dataset'
         except NotFound:
             abort(404, _('Dataset not found'))
