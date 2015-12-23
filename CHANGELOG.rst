@@ -7,8 +7,48 @@
 Changelog
 ---------
 
-v2.5.0 XXXX-XX-XX
+v2.5.1 2015-12-17
 =================
+
+Note: This version requires a requirements upgrade on source installations
+
+Note: This version requires a database upgrade
+
+Note: This version does not require a Solr schema upgrade
+
+Major:
+ * CKAN extension language translations integrated using ITranslations interface (#2461, #2643)
+ * Speed improvements for displaying a dataset (#2234), home page (#2554), searching (#2382, #2724) and API actions: package_show (#1078) and user_list (#2752).
+ * An interface to replace the file uploader, allowing integration with other cloud storage providers (IUploader interface) (#2510)
+
+Minor:
+ * package_purge API action added (#1572)
+ * revision_list API action now has paging (#1431)
+ * Official Ubuntu 14.04 LTS support (#1651)
+ * Require/validate current password before allowing a password change (#1940)
+ * recline_map_view now recognizes GeoJSON fileds (#2387)
+ * Timezone setting (#2494)
+ * Updating a resource via upload now saves the last_modified value in the resource (#2519)
+ * DataPusher can be customized using the new IDataPusher interface (#2571)
+ * Exporting and importing users, with their passwords (if sysadmin) (#2647)
+
+Bug fixes:
+ * Fix to allow uppercase letters in local part of email when sending user invitations (#2415)
+ * License pick-list changes would cause old values in datasets to be overwritten when edited (#2472)
+ * Schema was being passed to package_create_default_resource_views (#2484)
+ * Arabic translation format string issue (#2493)
+ * Error when deleting organizations (#2512)
+ * When DataPusher had an error storing a resource in Data Store, the resource data page gave an error (#2518)
+ * Data preview failed when it comes from a server that gives 403 error from a HEAD request (#2530)
+ * 'paster views create' failed for non-default dataset types (#2532)
+ * DataPusher didn't work for TSV files (#2553)
+ * DataPusher failed sometimes due to 'type mismatch' (#2581)
+ * IGroupForm wasn't allowing new groups (of type 'group') to use group_form (#2617, #2640)
+ * group_purge left behind a Member if it has a parent group/org (#2631)
+ * organization_purge left orphaned datasets still with owner_id (#2632)
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
 
 Changes and deprecations
 ------------------------
@@ -17,6 +57,51 @@ Changes and deprecations
   removed. These can be now enabled using the ``dcat`` plugin on *ckanext-dcat*:
 
     https://github.com/ckan/ckanext-dcat#rdf-dcat-endpoints
+
+* The library used to render markdown has been changed to python-markdown. This
+  introduces both ``python-markdown`` and ``bleach`` as dependencies, as ``bleach``
+  is used to clean any HTML provided to the markdown processor.
+
+* This is the last version of CKAN to support Postgresql 8.x, 9.0 and 9.1. The
+  next minor version of CKAN will require Postgresql 9.2 or later.
+
+
+v2.5.0 2015-12-17
+=================
+
+Cancelled release
+
+
+v2.4.2 2015-12-17
+=================
+
+Note: This version requires a requirements upgrade on source installations
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
+
+
+v2.4.1 2015-09-02
+=================
+
+Note: #2554 fixes a regression where ``group_list`` and ``organization_list``
+      where returning extra additional fields by default, causing performance
+      issues. This is now fixed, so the output for these actions no longer returns
+      ``users``, ``extras``, etc.
+      Also, on the homepage template the ``c.groups`` and ``c.group_package_stuff``
+      context variables are no longer available.
+
+
+Bug fixes:
+
+* Fix dataset count in templates and show datasets on featured org/group (#2557)
+* Fix autodetect for TSV resources (#2553)
+* Improve character escaping in DataStore parameters
+* Fix "paster db init" when celery is configured with a non-database backend
+* Fix severe performance issues with groups and orgs listings (#2554)
+
 
 v2.4.0 2015-07-22
 =================
@@ -98,6 +183,34 @@ Changes and deprecations
 
 * Config option ``site_url`` is now required - CKAN will not abort during
   start-up if it is not set. (#1976)
+
+v2.3.3 2015-12-17
+=================
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
+
+v2.3.3 2015-12-17
+=================
+
+Note: This version requires a requirements upgrade on source installations
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
+
+
+v2.3.2 2015-09-02
+=================
+
+Bug fixes:
+* Fix autodetect for TSV resources (#2553)
+* Improve character escaping in DataStore parameters
+* Fix "paster db init" when celery is configured with a non-database backend
+
 
 v2.3.1 2015-07-22
 =================
@@ -413,6 +526,16 @@ Troubleshooting:
 
   Also see the previous point for other ``who.ini`` changes.
 
+v2.2.4 2015-12-17
+=================
+
+Note: This version requires a requirements upgrade on source installations
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
+
 v2.2.3 2015-07-22
 =================
 
@@ -645,6 +768,16 @@ Troubleshooting:
    leaving the fields empty. Also make sure to restart running processes like
    harvesters after the update to make sure they use the new code base.
 
+v2.1.6 2015-12-17
+=================
+
+Note: This version requires a requirements upgrade on source installations
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
+
 v2.1.5 2015-07-22
 =================
 
@@ -811,6 +944,16 @@ Deprecated and removed:
 Known issues:
  * Under certain authorization setups the frontend for the groups functionality
    may not work as expected (See #1176 #1175).
+
+v2.0.8 2015-12-17
+=================
+
+Note: This version requires a requirements upgrade on source installations
+
+Bug fixes:
+ * Fix Markdown rendering issue
+ * Return default error page on fanstatic errors
+ * Prevent authentication when using API callbacks
 
 v2.0.7 2015-07-22
 =================

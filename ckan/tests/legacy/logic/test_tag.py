@@ -10,7 +10,7 @@ from ckan.tests.legacy import StatusCodes
 class TestAction(WsgiAppCase):
     @classmethod
     def setup_class(cls):
-        search.clear()
+        search.clear_all()
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')

@@ -187,17 +187,58 @@ def current_package_list_with_resources(context, data_dict):
 
 
 def revision_list(context, data_dict):
-    '''Return a list of the IDs of the site's revisions.
+    '''Return a list of the IDs of the site's revisions. They are sorted with
+    the newest first.
 
-    :rtype: list of strings
+    Since the results are limited to 50 IDs, you can page through them using
+    parameter ``since_id``.
+
+    :param since_id: the revision ID after which you want the revisions
+    :type id: string
+    :param since_time: the timestamp after which you want the revisions
+    :type id: string
+    :param sort: the order to sort the related items in, possible values are
+      'time_asc', 'time_desc' (default). (optional)
+    :type sort: string
+    :rtype: list of revision IDs, limited to 50
 
     '''
     model = context['model']
+    since_id = data_dict.get('since_id')
+    since_time_str = data_dict.get('since_time')
+    sort_str = data_dict.get('sort')
+    PAGE_LIMIT = 50
 
     _check_access('revision_list', context, data_dict)
 
-    revs = model.Session.query(model.Revision).all()
-    return [rev.id for rev in revs]
+    since_time = None
+    if since_id:
+        rev = model.Session.query(model.Revision).get(since_id)
+        if rev is None:
+            raise NotFound
+        since_time = rev.timestamp
+    elif since_time_str:
+        try:
+            from ckan.lib import helpers as h
+            since_time = h.date_str_to_datetime(since_time_str)
+        except ValueError:
+            raise logic.ValidationError('Timestamp did not parse')
+    revs = model.Session.query(model.Revision)
+    if since_time:
+        revs = revs.filter(model.Revision.timestamp > since_time)
+
+    sortables = {
+        'time_asc': model.Revision.timestamp.asc,
+        'time_desc': model.Revision.timestamp.desc,
+    }
+    if sort_str and sort_str not in sortables:
+        raise logic.ValidationError(
+            'Invalid sort value. Allowable values: %r' % sortables.keys())
+    sort_func = sortables.get(sort_str or 'time_desc')
+    revs = revs.order_by(sort_func())
+
+    revs = revs.limit(PAGE_LIMIT)
+    return [rev_.id for rev_ in revs]
 
 
 def package_revision_list(context, data_dict):
@@ -953,9 +994,9 @@ def package_show(context, data_dict):
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.read(pkg)
 
-    for resource_dict in package_dict['resources']:
-        for item in plugins.PluginImplementations(plugins.IResourceController):
-            resource_dict = item.before_show(resource_dict)
+    for item in plugins.PluginImplementations(plugins.IResourceController):
+        for resource_dict in package_dict['resources']:
+            item.before_show(resource_dict)
 
     if not package_dict_validated:
         package_plugin = lib_plugins.lookup_package_plugin(
@@ -1071,6 +1112,7 @@ def resource_view_list(context, data_dict):
     ]
     return model_dictize.resource_view_list_dictize(resource_views, context)
 
+
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
 
@@ -1080,6 +1122,9 @@ def resource_status_show(context, data_dict):
     :rtype: list of (status, date_done, traceback, task_status) dictionaries
 
     '''
+
+    _check_access('resource_status_show', context, data_dict)
+
     try:
         import ckan.lib.celery_app as celery_app
     except ImportError:
@@ -1087,8 +1132,6 @@ def resource_status_show(context, data_dict):
 
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
-
-    _check_access('resource_status_show', context, data_dict)
 
     # needs to be text query as celery tables are not in our model
     q = _text("""
@@ -1098,7 +1141,12 @@ def resource_status_show(context, data_dict):
            and key = 'celery_task_id'
         where entity_id = :entity_id
     """)
-    result = model.Session.connection().execute(q, entity_id=id)
+    try:
+        result = model.Session.connection().execute(q, entity_id=id)
+    except sqlalchemy.exc.ProgrammingError:
+        # celery tables (celery_taskmeta) may not be created even with celery
+        # installed, causing ProgrammingError exception.
+        return {'message': 'queue tables not installed on this instance'}
     result_list = [_table_dictize(row, context) for row in result]
     return result_list
 
@@ -1345,8 +1393,11 @@ def user_show(context, data_dict):
         (optional, default:``False``, limit:50)
     :type include_datasets: boolean
     :param include_num_followers: Include the number of followers the user has
-         (optional, default:``False``)
+        (optional, default:``False``)
     :type include_num_followers: boolean
+    :param include_password_hash: Include the stored password hash
+        (sysadmin only, optional, default:``False``)
+    :type include_password_hash: boolean
 
     :returns: the details of the user. Includes email_hash, number_of_edits and
         number_created_packages (which excludes draft or private datasets
@@ -1374,24 +1425,29 @@ def user_show(context, data_dict):
 
     # include private and draft datasets?
     requester = context.get('user')
+    sysadmin = False
     if requester:
+        sysadmin = authz.is_sysadmin(requester)
         requester_looking_at_own_account = requester == user_obj.name
-        include_private_and_draft_datasets = \
-            authz.is_sysadmin(requester) or \
-            requester_looking_at_own_account
+        include_private_and_draft_datasets = (
+            sysadmin or requester_looking_at_own_account)
     else:
         include_private_and_draft_datasets = False
     context['count_private_and_draft_datasets'] = \
         include_private_and_draft_datasets
 
-    user_dict = model_dictize.user_dictize(user_obj, context)
+    include_password_hash = sysadmin and asbool(
+        data_dict.get('include_password_hash', False))
+
+    user_dict = model_dictize.user_dictize(
+        user_obj, context, include_password_hash)
 
     if context.get('return_minimal'):
         log.warning('Use of the "return_minimal" in user_show is '
                     'deprecated.')
         return user_dict
 
-    if data_dict.get('include_datasets', False):
+    if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []
 
         fq = "+creator_user_id:{0}".format(user_dict['id'])
@@ -1409,7 +1465,7 @@ def user_show(context, data_dict):
                                                data_dict=search_dict) \
             .get('results')
 
-    if data_dict.get('include_num_followers', False):
+    if asbool(data_dict.get('include_num_followers', False)):
         user_dict['num_followers'] = logic.get_action('user_follower_count')(
             {'model': model, 'session': model.Session},
             {'id': user_dict['id']})
@@ -1634,7 +1690,8 @@ def package_search(context, data_dict):
         documentation, this is a comma-separated string of field names and
         sort-orderings.
     :type sort: string
-    :param rows: the number of matching rows to return.
+    :param rows: the number of matching rows to return. There is a hard limit
+        of 1000 datasets per query.
     :type rows: int
     :param start: the offset in the complete result for where the set of
         returned datasets should begin.
@@ -1736,7 +1793,7 @@ def package_search(context, data_dict):
 
     model = context['model']
     session = context['session']
-    user = context['user']
+    user = context.get('user')
 
     _check_access('package_search', context, data_dict)
 
@@ -1800,18 +1857,7 @@ def package_search(context, data_dict):
         for package in query.results:
             # get the package object
             package, package_dict = package['id'], package.get(data_source)
-            pkg_query = session.query(model.Package)\
-                .filter(model.Package.id == package)\
-                .filter(model.Package.state.in_((u'active', u'draft')))
-            pkg = pkg_query.first()
-
-            # if the index has got a package that is not in ckan then
-            # ignore it.
-            if not pkg:
-                log.warning('package %s in index but not in database'
-                            % package)
-                continue
-            # use data in search index if there
+            ## use data in search index if there
             if package_dict:
                 # the package_dict still needs translating when being viewed
                 package_dict = json.loads(package_dict)
@@ -1821,7 +1867,8 @@ def package_search(context, data_dict):
                         package_dict = item.before_view(package_dict)
                 results.append(package_dict)
             else:
-                results.append(model_dictize.package_dictize(pkg, context))
+                log.error('No package_dict is coming from solr for package '
+                          'id %s', package['id'])
 
         count = query.count
         facets = query.facets
@@ -1837,6 +1884,17 @@ def package_search(context, data_dict):
         'sort': data_dict['sort']
     }
 
+    # create a lookup table of group name to title for all the groups and
+    # organizations in the current search's facets.
+    group_names = []
+    for field_name in ('groups', 'organization'):
+        group_names.extend(facets.get(field_name, {}).keys())
+
+    groups = session.query(model.Group.name, model.Group.title) \
+                    .filter(model.Group.name.in_(group_names)) \
+                    .all()
+    group_titles_by_name = dict(groups)
+
     # Transform facets into a more useful data structure.
     restructured_facets = {}
     for key, value in facets.items():
@@ -1848,11 +1906,9 @@ def package_search(context, data_dict):
             new_facet_dict = {}
             new_facet_dict['name'] = key_
             if key in ('groups', 'organization'):
-                group = model.Group.get(key_)
-                if group:
-                    new_facet_dict['display_name'] = group.display_name
-                else:
-                    new_facet_dict['display_name'] = key_
+                display_name = group_titles_by_name.get(key_, key_)
+                display_name = display_name if display_name and display_name.strip() else key_
+                new_facet_dict['display_name'] = display_name
             elif key == 'license_id':
                 license = model.Package.get_license_register().get(key_)
                 if license:

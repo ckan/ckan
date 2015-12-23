@@ -83,7 +83,7 @@ def resource_update(context, data_dict):
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
-    upload = uploader.ResourceUpload(data_dict)
+    upload = uploader.get_resource_uploader(data_dict)
 
     pkg_dict['resources'][n] = data_dict
 
@@ -434,6 +434,7 @@ def package_relationship_update(context, data_dict):
     context['relationship'] = entity
     return _update_package_relationship(entity, comment, context)
 
+
 def _group_or_org_update(context, data_dict, is_org=False):
     model = context['model']
     user = context['user']
@@ -450,15 +451,15 @@ def _group_or_org_update(context, data_dict, is_org=False):
     # get the schema
     group_plugin = lib_plugins.lookup_group_plugin(group.type)
     try:
-        schema = group_plugin.form_to_db_schema_options({'type':'update',
-                                               'api':'api_version' in context,
+        schema = group_plugin.form_to_db_schema_options({'type': 'update',
+                                               'api': 'api_version' in context,
                                                'context': context})
     except AttributeError:
         schema = group_plugin.form_to_db_schema()
 
-    upload = uploader.Upload('group', group.image_url)
+    upload = uploader.get_uploader('group', group.image_url)
     upload.update_data_dict(data_dict, 'image_url',
-                           'image_upload', 'clear_upload')
+                            'image_upload', 'clear_upload')
 
     if is_org:
         _check_access('organization_update', context, data_dict)
@@ -544,11 +545,12 @@ def _group_or_org_update(context, data_dict, is_org=False):
         # in the group.
 
     upload.upload(uploader.get_max_image_size())
+
     if not context.get('defer_commit'):
         model.repo.commit()
 
-
     return model_dictize.group_dictize(group, context)
+
 
 def group_update(context, data_dict):
     '''Update a group.
@@ -630,6 +632,10 @@ def user_update(context, data_dict):
     if errors:
         session.rollback()
         raise ValidationError(errors)
+
+    # user schema prevents non-sysadmins from providing password_hash
+    if 'password_hash' in data:
+        data['_password'] = data.pop('password_hash')
 
     user = model_save.user_dict_save(data, context)
 

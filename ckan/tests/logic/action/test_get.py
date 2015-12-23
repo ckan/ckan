@@ -5,6 +5,7 @@ import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.logic.schema as schema
+from ckan.lib.search.common import SearchError
 
 
 eq = nose.tools.eq_
@@ -35,6 +36,17 @@ class TestPackageShow(helpers.FunctionalTestBase):
                                        context={'schema': custom_schema})
 
         eq(dataset2['new_field'], 'foo')
+
+    def test_package_show_is_lazy(self):
+        dataset1 = factories.Dataset()
+
+        dataset2 = helpers.call_action(
+            'package_show',
+            id=dataset1['id'],
+            context=dict(return_type='LazyJSONObject'))
+
+        # LazyJSONObject passed through without being expanded
+        assert dataset2._json_dict is None
 
 
 class TestGroupList(helpers.FunctionalTestBase):
@@ -557,6 +569,7 @@ class TestUserShow(helpers.FunctionalTestBase):
         assert 'apikey' not in got_user
         assert 'email' not in got_user
         assert 'datasets' not in got_user
+        assert 'password_hash' not in got_user
 
     def test_user_show_keep_email(self):
 
@@ -584,6 +597,16 @@ class TestUserShow(helpers.FunctionalTestBase):
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
+    def test_user_show_normal_user_no_password_hash(self):
+
+        user = factories.User()
+
+        got_user = helpers.call_action('user_show',
+                                       id=user['id'],
+                                       include_password_hash=True)
+
+        assert 'password_hash' not in got_user
+
     def test_user_show_for_myself(self):
 
         user = factories.User()
@@ -609,6 +632,23 @@ class TestUserShow(helpers.FunctionalTestBase):
 
         assert got_user['email'] == user['email']
         assert got_user['apikey'] == user['apikey']
+        assert 'password' not in got_user
+        assert 'reset_key' not in got_user
+
+    def test_user_show_sysadmin_password_hash(self):
+
+        user = factories.User(password='test')
+
+        sysadmin = factories.User(sysadmin=True)
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': sysadmin['name']},
+                                       id=user['id'],
+                                       include_password_hash=True)
+
+        assert got_user['email'] == user['email']
+        assert got_user['apikey'] == user['apikey']
+        assert 'password_hash' in got_user
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
@@ -769,12 +809,103 @@ class TestPackageAutocomplete(helpers.FunctionalTestBase):
 
 class TestPackageSearch(helpers.FunctionalTestBase):
 
+    def test_search(self):
+        factories.Dataset(title='Rivers')
+        factories.Dataset(title='Lakes')  # decoy
+
+        search_result = helpers.call_action('package_search', q='rivers')
+
+        eq(search_result['results'][0]['title'], 'Rivers')
+        eq(search_result['count'], 1)
+
+    def test_search_all(self):
+        factories.Dataset(title='Rivers')
+        factories.Dataset(title='Lakes')
+
+        search_result = helpers.call_action('package_search')  # no q
+
+        eq(search_result['count'], 2)
+
+    def test_bad_action_parameter(self):
+        nose.tools.assert_raises(
+            SearchError,
+            helpers.call_action,
+            'package_search', weird_param=1)
+
+    def test_bad_solr_parameter(self):
+        nose.tools.assert_raises(
+            SearchError,
+            helpers.call_action,
+            'package_search', sort='metadata_modified')
+            # SOLR doesn't like that we didn't specify 'asc' or 'desc'
+        # SOLR error is 'Missing sort order' or 'Missing_sort_order',
+        # depending on the solr version.
+
+    def test_facets(self):
+        org = factories.Organization(name='test-org-facet', title='Test Org')
+        factories.Dataset(owner_org=org['id'])
+        factories.Dataset(owner_org=org['id'])
+
+        data_dict = {'facet.field': ['organization']}
+        search_result = helpers.call_action('package_search', **data_dict)
+
+        eq(search_result['count'], 2)
+        eq(search_result['search_facets'],
+           {'organization': {'items': [{'count': 2,
+                                        'display_name': u'Test Org',
+                                        'name': 'test-org-facet'}],
+                             'title': 'organization'}})
+
+    def test_facet_limit(self):
+        group1 = factories.Group(name='test-group-fl1', title='Test Group 1')
+        group2 = factories.Group(name='test-group-fl2', title='Test Group 2')
+        factories.Dataset(groups=[{'name': group1['name']},
+                                  {'name': group2['name']}])
+        factories.Dataset(groups=[{'name': group1['name']}])
+        factories.Dataset()
+
+        data_dict = {'facet.field': ['groups'],
+                     'facet.limit': 1}
+        search_result = helpers.call_action('package_search', **data_dict)
+
+        eq(len(search_result['search_facets']['groups']['items']), 1)
+        eq(search_result['search_facets'],
+           {'groups': {'items': [{'count': 2,
+                                  'display_name': u'Test Group 1',
+                                  'name': 'test-group-fl1'}],
+                       'title': 'groups'}})
+
+    def test_facet_no_limit(self):
+        group1 = factories.Group()
+        group2 = factories.Group()
+        factories.Dataset(groups=[{'name': group1['name']},
+                                  {'name': group2['name']}])
+        factories.Dataset(groups=[{'name': group1['name']}])
+        factories.Dataset()
+
+        data_dict = {'facet.field': ['groups'],
+                     'facet.limit': -1}  # no limit
+        search_result = helpers.call_action('package_search', **data_dict)
+
+        eq(len(search_result['search_facets']['groups']['items']), 2)
+
+    def test_sort(self):
+        factories.Dataset(name='test0')
+        factories.Dataset(name='test1')
+        factories.Dataset(name='test2')
+
+        search_result = helpers.call_action('package_search',
+                                            sort='metadata_created desc')
+
+        result_names = [result['name'] for result in search_result['results']]
+        eq(result_names, [u'test2', u'test1', u'test0'])
+
     def test_package_search_on_resource_name(self):
         '''
         package_search() should allow searching on resource name field.
         '''
         resource_name = 'resource_abc'
-        package = factories.Resource(name=resource_name)
+        factories.Resource(name=resource_name)
 
         search_result = helpers.call_action('package_search', q='resource_abc')
         eq(search_result['results'][0]['resources'][0]['name'], resource_name)
@@ -1058,6 +1189,13 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
         eq(len(results), 1)
         eq(results[0]['name'], private_dataset['name'])
+
+    def test_package_works_without_user_in_context(self):
+        '''
+        package_search() should work even if user isn't in the context (e.g.
+        ckanext-showcase tests.
+        '''
+        logic.get_action('package_search')({}, dict(q='anything'))
 
 
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
@@ -1629,3 +1767,88 @@ class TestTagList(helpers.FunctionalTestBase):
         nose.tools.assert_raises(
             logic.NotFound,
             helpers.call_action, 'tag_list', vocabulary_id='does-not-exist')
+
+
+class TestRevisionList(helpers.FunctionalTestBase):
+
+    @classmethod
+    def setup_class(cls):
+        super(TestRevisionList, cls).setup_class()
+        helpers.reset_db()
+
+    # Error cases
+
+    def test_date_instead_of_revision(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action,
+            'revision_list',
+            since_id='2010-01-01T00:00:00')
+
+    def test_date_invalid(self):
+        nose.tools.assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'revision_list',
+            since_time='2010-02-31T00:00:00')
+
+    def test_revision_doesnt_exist(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action,
+            'revision_list',
+            since_id='1234')
+
+    def test_sort_param_not_valid(self):
+        nose.tools.assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'revision_list',
+            sort='invalid')
+
+    # Normal usage
+
+    @classmethod
+    def _create_revisions(cls, num_revisions):
+        from ckan import model
+        rev_ids = []
+        for i in xrange(num_revisions):
+            rev = model.repo.new_revision()
+            rev.id = unicode(i)
+            model.Session.commit()
+            rev_ids.append(rev.id)
+        return rev_ids
+
+    def test_all_revisions(self):
+        rev_ids = self._create_revisions(2)
+        revs = helpers.call_action('revision_list')
+        # only test the 2 newest revisions, since the system creates one at
+        # start-up.
+        eq(revs[:2], rev_ids[::-1])
+
+    def test_revisions_since_id(self):
+        self._create_revisions(4)
+        revs = helpers.call_action('revision_list', since_id='1')
+        eq(revs, ['3', '2'])
+
+    def test_revisions_since_time(self):
+        from ckan import model
+        self._create_revisions(4)
+
+        rev1 = model.Session.query(model.Revision).get('1')
+        revs = helpers.call_action('revision_list',
+                                   since_time=rev1.timestamp.isoformat())
+        eq(revs, ['3', '2'])
+
+    def test_revisions_returned_are_limited(self):
+        self._create_revisions(55)
+        revs = helpers.call_action('revision_list', since_id='1')
+        eq(len(revs), 50)  # i.e. limited to 50
+        eq(revs[0], '54')
+        eq(revs[-1], '5')
+
+    def test_sort_asc(self):
+        self._create_revisions(4)
+        revs = helpers.call_action('revision_list', since_id='1',
+                                   sort='time_asc')
+        eq(revs, ['2', '3'])

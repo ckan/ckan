@@ -1,3 +1,8 @@
+# Avoid problem releasing to pypi from vagrant
+import os
+if os.environ.get('USER', '') == 'vagrant':
+    del os.link
+
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -96,6 +101,7 @@ entry_points = {
         'example_idatasetform_v3 = ckanext.example_idatasetform.plugin_v3:ExampleIDatasetFormPlugin',
         'example_idatasetform_v4 = ckanext.example_idatasetform.plugin_v4:ExampleIDatasetFormPlugin',
         'example_igroupform = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin',
+        'example_igroupform_default_group_type = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin_DefaultGroupType',
         'example_iauthfunctions_v1 = ckanext.example_iauthfunctions.plugin_v1:ExampleIAuthFunctionsPlugin',
         'example_iauthfunctions_v2 = ckanext.example_iauthfunctions.plugin_v2:ExampleIAuthFunctionsPlugin',
         'example_iauthfunctions_v3 = ckanext.example_iauthfunctions.plugin_v3:ExampleIAuthFunctionsPlugin',
@@ -127,6 +133,7 @@ entry_points = {
         'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',
         'example_ivalidators = ckanext.example_ivalidators.plugin:ExampleIValidatorsPlugin',
         'example_iconfigurer = ckanext.example_iconfigurer.plugin:ExampleIConfigurerPlugin',
+        'example_itranslation = ckanext.example_itranslation.plugin:ExampleITranslationPlugin',
         'example_iconfigurer_v1 = ckanext.example_iconfigurer.plugin_v1:ExampleIConfigurerPlugin',
         'example_iconfigurer_v2 = ckanext.example_iconfigurer.plugin_v2:ExampleIConfigurerPlugin',
     ],
@@ -183,24 +190,13 @@ setup(
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'ckan', None),
             ('templates_legacy/**.html', 'ckan', None),
-            ('ckan/templates/home/language.js', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
-            ('templates/**.txt', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
-            ('templates_legacy/**.txt', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
             ('public/**', 'ignore', None),
         ],
         'ckanext': [
             ('**.py', 'python', None),
+            ('**.js', 'javascript', None),
             ('**.html', 'ckan', None),
             ('multilingual/solr/*.txt', 'ignore', None),
-            ('**.txt', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
         ]
     },
     entry_points=entry_points,

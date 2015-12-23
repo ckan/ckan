@@ -602,6 +602,11 @@ def user_password_not_empty(key, data, errors, context):
     '''Only check if password is present if the user is created via action API.
        If not, user_both_passwords_entered will handle the validation'''
 
+    # sysadmin may provide password_hash directly for importing users
+    if (data.get(('password_hash',), missing) is not missing and
+            authz.is_sysadmin(context.get('user'))):
+        return
+
     if not ('password1',) in data and not ('password2',) in data:
         password = data.get(('password',),None)
         if not password:

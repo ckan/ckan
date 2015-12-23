@@ -31,7 +31,7 @@ class TestBasicDictize:
     def setup_class(cls):
         # clean the db so we can run these tests on their own
         model.repo.rebuild_db()
-        search.clear()
+        search.clear_all()
         CreateTestData.create()
 
         cls.package_expected = {

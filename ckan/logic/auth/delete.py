@@ -17,6 +17,10 @@ def package_delete(context, data_dict):
     # are essentially changing the state field
     return _auth_update.package_update(context, data_dict)
 
+def dataset_purge(context, data_dict):
+    # Only sysadmins are authorized to purge datasets
+    return {'success': False}
+
 def resource_delete(context, data_dict):
     model = context['model']
     user = context.get('user')

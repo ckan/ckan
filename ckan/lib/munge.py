@@ -34,7 +34,7 @@ def munge_title_to_name(name):
     # take out not-allowed characters
     name = re.sub('[^a-zA-Z0-9-_]', '', name).lower()
     # remove doubles
-    name = re.sub('--', '-', name)
+    name = re.sub('-+', '-', name)
     # remove leading or trailing hyphens
     name = name.strip('-')
     # if longer than max_length, keep last word if a year

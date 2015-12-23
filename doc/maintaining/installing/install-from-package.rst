@@ -5,8 +5,8 @@ Installing CKAN from package
 ============================
 
 This section describes how to install CKAN from package. This is the quickest
-and easiest way to install CKAN, but it requires **Ubuntu 12.04 64-bit**. If
-you're not using Ubuntu 12.04 64-bit, or if you're installing CKAN for
+and easiest way to install CKAN, but it requires **Ubuntu 14.04 64-bit** or **Ubuntu 12.04 64-bit**. If
+you're not using Ubuntu 14.04 64-bit or Ubuntu 12.04 64-bit, or if you're installing CKAN for
 development, you should follow :doc:`install-from-source` instead.
 
 At the end of the installation process you will end up with two running web
@@ -20,7 +20,7 @@ importing data to CKAN's :doc:`/maintaining/datastore`.
 1. Install the CKAN package
 ---------------------------
 
-On your Ubuntu 12.04 system, open a terminal and run these commands to install
+On your Ubuntu 14.04 or 12.04 system, open a terminal and run these commands to install
 CKAN:
 
 #. Update Ubuntu's package index::
@@ -33,9 +33,18 @@ CKAN:
 
 #. Download the CKAN package:
 
-   .. parsed-literal::
+   - On Ubuntu 14.04:
 
-       wget \http://packaging.ckan.org/|latest_package_name|
+       .. parsed-literal::
+
+           wget \http://packaging.ckan.org/|latest_package_name_trusty|
+
+   - On Ubuntu 12.04:
+
+       .. parsed-literal::
+
+           wget \http://packaging.ckan.org/|latest_package_name_precise|
+
 
    .. note:: If ``wget`` is not present, you can install it
        via::
@@ -44,23 +53,31 @@ CKAN:
 
 #. Install the CKAN package:
 
-   .. parsed-literal::
+   - On Ubuntu 14.04:
 
-      sudo dpkg -i |latest_package_name|
+       .. parsed-literal::
 
-.. note:: If you get the following error it means that for some reason the
- Apache WSGI module was not enabled::
+           sudo dpkg -i |latest_package_name_trusty|
 
-    Syntax error on line 1 of /etc/apache2/sites-enabled/ckan_default:
-    Invalid command 'WSGISocketPrefix', perhaps misspelled or defined by a module not included in the server configuration
-    Action 'configtest' failed.
-    The Apache error log may have more information.
-       ...fail!
+   - On Ubuntu 12.04:
 
- You can enable it by running these commands in a terminal::
+       .. parsed-literal::
 
-    sudo a2enmod wsgi
-    sudo service apache2 restart
+           sudo dpkg -i |latest_package_name_precise|
+
+    .. note:: If you get the following error it means that for some reason the
+     Apache WSGI module was not enabled::
+
+        Syntax error on line 1 of /etc/apache2/sites-enabled/ckan_default:
+        Invalid command 'WSGISocketPrefix', perhaps misspelled or defined by a module not included in the server configuration
+        Action 'configtest' failed.
+        The Apache error log may have more information.
+           ...fail!
+
+     You can enable it by running these commands in a terminal::
+
+        sudo a2enmod wsgi
+        sudo service apache2 restart
 
 
 ------------------------------

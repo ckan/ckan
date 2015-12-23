@@ -98,7 +98,7 @@ def default_resource_schema():
         'cache_last_updated': [ignore_missing, isodate],
         'webstore_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
-        'datastore_active': [ignore],
+        'datastore_active': [ignore_missing],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
@@ -405,6 +405,7 @@ def default_user_schema():
         'name': [not_empty, name_validator, user_name_validator, unicode],
         'fullname': [ignore_missing, unicode],
         'password': [user_password_validator, user_password_not_empty, ignore_missing, unicode],
+        'password_hash': [ignore_missing, ignore_not_sysadmin, unicode],
         'email': [not_empty, unicode],
         'about': [ignore_missing, user_about_validator, unicode],
         'created': [ignore],

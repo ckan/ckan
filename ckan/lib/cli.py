@@ -181,7 +181,8 @@ class ManageDb(CkanCommand):
 
     db create                      - alias of db upgrade
     db init                        - create and put in default data
-    db clean
+    db clean                       - clears db (including dropping tables) and
+                                     search index
     db upgrade [version no.]       - Data migrate
     db version                     - returns current version of data schema
     db dump FILE_PATH              - dump to a pg_dump file
@@ -222,7 +223,7 @@ class ManageDb(CkanCommand):
                 os.remove(f)
 
             model.repo.clean_db()
-            search.clear()
+            search.clear_all()
             if self.verbose:
                 print 'Cleaning DB: SUCCESS'
         elif cmd == 'upgrade':
@@ -386,10 +387,11 @@ class ManageDb(CkanCommand):
                         out.write(chunk)
 
             Session.execute("update resource set url_type = 'upload'"
-                            "where id = '%s'" % id)
+                            "where id = :id", {'id': id})
             Session.execute("update resource_revision set url_type = 'upload'"
-                            "where id = '%s' and "
-                            "revision_id = '%s'" % (id, revision_id))
+                            "where id = :id and "
+                            "revision_id = :revision_id",
+                            {'id': id, 'revision_id': revision_id})
             Session.commit()
             print "Saved url %s" % url
 
@@ -402,14 +404,14 @@ class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index [-i] [-o] [-r] [-e] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
-                                                                 full search index (all datasets)
-      search-index rebuild_fast                                - reindex using multiprocessing using all cores.
-                                                                 This acts in the same way as rubuild -r [EXPERIMENTAL]
-      search-index check                                       - checks for datasets not indexed
-      search-index show DATASET_NAME                           - shows index of a dataset
-      search-index clear [dataset_name]                        - clears the search index for the provided dataset or
-                                                                 for the whole ckan instance
+      search-index [-i] [-o] [-r] [-e] [-q] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
+                                                                    full search index (all datasets)
+      search-index rebuild_fast                                     - reindex using multiprocessing using all cores.
+                                                                    This acts in the same way as rubuild -r [EXPERIMENTAL]
+      search-index check                                            - checks for datasets not indexed
+      search-index show DATASET_NAME                                - shows index of a dataset
+      search-index clear [dataset_name]                             - clears the search index for the provided dataset or
+                                                                    for the whole ckan instance
     '''
 
     summary = __doc__.split('\n')[0]
@@ -431,6 +433,10 @@ class SearchIndexCommand(CkanCommand):
         self.parser.add_option('-r', '--refresh', dest='refresh',
                                action='store_true', default=False,
                                help='Refresh current index (does not clear the existing one)')
+
+        self.parser.add_option('-q', '--quiet', dest='quiet',
+                               action='store_true', default=False,
+                               help='Do not output index rebuild progress')
 
         self.parser.add_option('-e', '--commit-each', dest='commit_each',
                                action='store_true', default=False, help=
@@ -474,7 +480,8 @@ Default is false.''')
             rebuild(only_missing=self.options.only_missing,
                     force=self.options.force,
                     refresh=self.options.refresh,
-                    defer_commit=(not self.options.commit_each))
+                    defer_commit=(not self.options.commit_each),
+                    quiet=self.options.quiet)
 
         if not self.options.commit_each:
             commit()
@@ -493,9 +500,12 @@ Default is false.''')
         pprint(index)
 
     def clear(self):
-        from ckan.lib.search import clear
+        from ckan.lib.search import clear, clear_all
         package_id = self.args[1] if len(self.args) > 1 else None
-        clear(package_id)
+        if not package_id:
+            clear_all()
+        else:
+            clear(package_id)
 
     def rebuild_fast(self):
         ###  Get out config but without starting pylons environment ####
@@ -890,7 +900,6 @@ class DatasetCmd(CkanCommand):
 
     def command(self):
         self._load_config()
-        import ckan.model as model
 
         if not self.args:
             print self.usage
@@ -939,13 +948,14 @@ class DatasetCmd(CkanCommand):
         print '%s %s -> %s' % (dataset.name, old_state, dataset.state)
 
     def purge(self, dataset_ref):
-        import ckan.model as model
+        import ckan.logic as logic
         dataset = self._get_dataset(dataset_ref)
         name = dataset.name
 
-        rev = model.repo.new_revision()
-        dataset.purge()
-        model.repo.commit_and_remove()
+        site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+        context = {'user': site_user['name']}
+        logic.get_action('dataset_purge')(
+            context, {'id': dataset_ref})
         print '%s purged' % name
 
 
@@ -1203,7 +1213,7 @@ class Tracking(CkanCommand):
                      CAST(access_timestamp AS Date) AS tracking_date,
                      tracking_type INTO tracking_tmp
                  FROM tracking_raw
-                 WHERE CAST(access_timestamp as Date)='%s';
+                 WHERE CAST(access_timestamp as Date)=%s;
 
                  INSERT INTO tracking_summary
                    (url, count, tracking_date, tracking_type)
@@ -1212,8 +1222,8 @@ class Tracking(CkanCommand):
                  GROUP BY url, tracking_date, tracking_type;
 
                  DROP TABLE tracking_tmp;
-                 COMMIT;''' % summary_date
-        engine.execute(sql)
+                 COMMIT;'''
+        engine.execute(sql, summary_date)
 
         # get ids for dataset urls
         sql = '''UPDATE tracking_summary t

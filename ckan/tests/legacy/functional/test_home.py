@@ -102,7 +102,7 @@ class TestHomeController(TestController, PylonsTestCase, HtmlCheckMethods):
                     assert fullname_notice not in response
                 elif user.email and not user.fullname:
                     assert email_notice not in response
-                    assert fullname_notice in response
+                    assert fullname_notice in response, response
                     assert email_and_fullname_notice not in response
                 elif not user.email and user.fullname:
                     assert email_notice in response

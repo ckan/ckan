@@ -1,4 +1,6 @@
 import logging
+import os
+import sys
 
 from pylons import c
 from ckan.lib import base
@@ -335,6 +337,9 @@ class DefaultGroupForm(object):
     Note - this isn't a plugin implementation. This is deliberate, as we
            don't want this being registered.
     """
+    def group_controller(self):
+        return 'group'
+
     def new_template(self):
         """
         Returns a string representing the location of the template to be
@@ -435,7 +440,7 @@ class DefaultGroupForm(object):
         into a format suitable for the form (optional)'''
 
     def db_to_form_schema_options(self, options):
-        '''This allows the selectino of different schemas for different
+        '''This allows the selection of different schemas for different
         purposes.  It is optional and if not available, ``db_to_form_schema``
         should be used.
         If a context is provided, and it contains a schema, it will be
@@ -485,6 +490,9 @@ class DefaultGroupForm(object):
 
 
 class DefaultOrganizationForm(DefaultGroupForm):
+    def group_controller(self):
+        return 'organization'
+
     def group_form(self):
         return 'organization/new_organization_form.html'
 
@@ -518,3 +526,38 @@ class DefaultOrganizationForm(DefaultGroupForm):
         return 'organization/activity_stream.html'
 
 _default_organization_plugin = DefaultOrganizationForm()
+
+
+class DefaultTranslation(object):
+    def i18n_directory(self):
+        '''Change the directory of the *.mo translation files
+
+        The default implementation assumes the plugin is
+        ckanext/myplugin/plugin.py and the translations are stored in
+        i18n/
+        '''
+        # assume plugin is called ckanext.<myplugin>.<...>.PluginClass
+        extension_module_name = '.'.join(self.__module__.split('.')[0:2])
+        module = sys.modules[extension_module_name]
+        return os.path.join(os.path.dirname(module.__file__), 'i18n')
+
+    def i18n_locales(self):
+        '''Change the list of locales that this plugin handles
+
+        By default the will assume any directory in subdirectory in the
+        directory defined by self.directory() is a locale handled by this
+        plugin
+        '''
+        directory = self.i18n_directory()
+        return [ d for
+                 d in os.listdir(directory)
+                 if os.path.isdir(os.path.join(directory, d))
+        ]
+
+    def i18n_domain(self):
+        '''Change the gettext domain handled by this plugin
+
+        This implementation assumes the gettext domain is
+        ckanext-{extension name}, hence your pot, po and mo files should be
+        named ckanext-{extension name}.mo'''
+        return 'ckanext-{name}'.format(name=self.name)

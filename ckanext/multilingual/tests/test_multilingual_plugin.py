@@ -58,7 +58,7 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
         ckan.plugins.unload('multilingual_group')
         ckan.plugins.unload('multilingual_tag')
         ckan.model.repo.rebuild_db()
-        ckan.lib.search.clear()
+        ckan.lib.search.clear_all()
 
     def test_user_read_translation(self):
         '''Test the translation of datasets on user view pages by the

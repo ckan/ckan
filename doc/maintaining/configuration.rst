@@ -256,6 +256,20 @@ The default method used when creating full-text search indexes. Currently it
 can be "gin" or "gist". Refer to PostgreSQL's documentation to understand the
 characteristics of each one and pick the best for your instance.
 
+.. _ckan.datastore.sqlsearch.enabled:
+
+ckan.datastore.sqlsearch.enabled
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+ ckan.datastore.sqlsearch.enabled = False
+
+Default value:  ``True``
+
+This option allows you to disable the datastore_search_sql action function, and
+corresponding API endpoint if you do not wish it to be activated.
+
 Site Settings
 -------------
 
@@ -270,10 +284,14 @@ Example::
 
 Default value:  (an explicit value is mandatory)
 
-The URL of your CKAN site. Many CKAN features that need an absolute URL to your
+Set this to the URL of your CKAN site. Many CKAN features that need an absolute URL to your
 site use this setting.
 
 .. important:: It is mandatory to complete this setting
+
+.. note:: If you want to mount CKAN at a path other than /, then this setting
+  should reflect that, but the URL you mount it at is determined by your
+  apache config (your WSGIScriptAlias path) (or equivalent for other servers).
 
 .. warning::
 
@@ -374,6 +392,16 @@ Default value: ``False``
 
 This controls if CKAN will track the site usage. For more info, read :ref:`tracking`.
 
+ckan.valid_url_schemes
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.valid_url_schemes = http https ftp sftp
+
+Default value: ``http https ftp``
+
+Controls what uri schemes are rendered as links.
 
 .. _config-authorization:
 
@@ -773,14 +801,30 @@ ckan.resource_proxy.max_file_size
 
 Example::
 
-    ckan.resource_proxy.max_file_size = 1 * 1024 * 1024
+    ckan.resource_proxy.max_file_size = 1048576
 
-Default value:  ``1 * 1024 * 1024`` (1 MB)
+Default value:  ``1048576`` (1 MB)
 
 This sets the upper file size limit for in-line previews.
 Increasing the value allows CKAN to preview larger files (e.g. PDFs) in-line;
 however, a higher value might cause time-outs, or unresponsive browsers for CKAN users
 with lower bandwidth. If left commented out, CKAN will default to 1 MB.
+
+
+.. _ckan.resource_proxy.chunk_size:
+
+ckan.resource_proxy.chunk_size
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+    ckan.resource_proxy.chunk_size = 8192
+
+Default value:  ``4096``
+
+This sets size of the chunk to read and write when proxying.
+Raising this value might save some CPU cycles. It makes no sense to lower it
+below the page size, which is default.
 
 
 Front-End Settings
@@ -1557,6 +1601,67 @@ Example::
 Default value: (none)
 
 By default, the locales are searched for in the ``ckan/i18n`` directory. Use this option if you want to use another folder.
+
+.. _ckan.18n.extra_directory:
+
+ckan.i18n.extra_directory
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.18n.extra_directory = /opt/ckan/extra_translations/
+
+Default value: (none)
+
+If you wish to add extra translation strings and have them merged with the 
+default ckan translations at runtime you can specify the location of the extra
+translations using this option.
+
+.. _ckan.18n.extra_gettext_domain:
+
+ckan.i18n.extra_gettext_domain
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.18n.extra_gettext_domain = mydomain
+
+Default value: (none)
+
+You can specify the name of the gettext domain of the extra translations. For
+example if your translations are stored as
+``i18n/<locale>/LC_MESSAGES/somedomain.mo`` you would want to set this option
+to ``somedomain``
+
+.. _ckan.18n.extra_locales:
+
+ckan.18n.extra_locales
+^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.18n.extra_locales = fr es de
+
+Default value: (none)
+
+If you have set an extra i18n directory using ``ckan.18n.extra_directory``, you
+should specify the locales that have been translated in that directory in this
+option.
+
+.. _ckan.display_timezone:
+
+ckan.display_timezone
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.display_timezone = Europe/Zurich
+
+Default value: UTC
+
+By default, all datetimes are considered to be in the UTC timezone. Use this option to change the displayed dates on the frontend. Internally, the dates are always saved as UTC. This option only changes the way the dates are displayed.
+
+The valid values for this options [can be found at pytz](http://pytz.sourceforge.net/#helpers) (``pytz.all_timezones``). You can specify the special value `server` to use the timezone settings of the server, that is running CKAN.
 
 .. _ckan.root_path:
 

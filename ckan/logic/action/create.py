@@ -294,7 +294,7 @@ def resource_create(context, data_dict):
     if not 'resources' in pkg_dict:
         pkg_dict['resources'] = []
 
-    upload = uploader.ResourceUpload(data_dict)
+    upload = uploader.get_resource_uploader(data_dict)
 
     pkg_dict['resources'].append(data_dict)
 
@@ -603,7 +603,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     session = context['session']
     data_dict['is_organization'] = is_org
 
-    upload = uploader.Upload('group')
+    upload = uploader.get_uploader('group')
     upload.update_data_dict(data_dict, 'image_url',
                             'image_upload', 'clear_upload')
     # get the schema
@@ -680,6 +680,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
     logic.get_action('activity_create')(activity_create_context, activity_dict)
 
     upload.upload(uploader.get_max_image_size())
+
     if not context.get('defer_commit'):
         model.repo.commit()
     context["group"] = group
@@ -934,6 +935,10 @@ def user_create(context, data_dict):
     if errors:
         session.rollback()
         raise ValidationError(errors)
+
+    # user schema prevents non-sysadmins from providing password_hash
+    if 'password_hash' in data:
+        data['_password'] = data.pop('password_hash')
 
     user = model_save.user_dict_save(data, context)
 

@@ -12,9 +12,9 @@ three ways to install CKAN:
 .. _Docker: http://www.docker.com/
 
 From package is the quickest and easiest way to install CKAN, but it requires
-Ubuntu 12.04 64-bit. **You should install CKAN from package if**:
+Ubuntu 14.04 64-bit or Ubuntu 12.04 64-bit. **You should install CKAN from package if**:
 
-* You want to install CKAN on an Ubuntu 12.04, 64-bit server, *and*
+* You want to install CKAN on an Ubuntu 14.04 or 12.04, 64-bit server, *and*
 * You only want to run one CKAN website per server
 
 See :doc:`install-from-package`.
@@ -22,7 +22,7 @@ See :doc:`install-from-package`.
 **You should install CKAN from source if**:
 
 * You want to install CKAN on a 32-bit computer, *or*
-* You want to install CKAN on a different version of Ubuntu, not 12.04, *or*
+* You want to install CKAN on a different version of Ubuntu, not 14.04 or 12.04, *or*
 * You want to install CKAN on another operating system
   (eg. RedHat, CentOS, OS X), *or*
 * You want to run multiple CKAN websites on the same server, *or*
