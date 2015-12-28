@@ -1457,7 +1457,7 @@ class Profile(CkanCommand):
     by runsnakerun.
 
     Usage:
-       profile URL
+       profile URL [username]
 
     e.g. profile /data/search
 
@@ -1469,7 +1469,7 @@ class Profile(CkanCommand):
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
-    max_args = 1
+    max_args = 2
     min_args = 1
 
     def _load_config_into_test_app(self):
@@ -1494,10 +1494,15 @@ class Profile(CkanCommand):
         import re
 
         url = self.args[0]
+        if self.args[1:]:
+            user = self.args[1]
+        else:
+            user = 'visitor'
 
         def profile_url(url):
             try:
-                res = self.app.get(url, status=[200], extra_environ={'REMOTE_USER': 'visitor'})
+                res = self.app.get(url, status=[200],
+                                   extra_environ={'REMOTE_USER': user})
             except paste.fixture.AppError:
                 print 'App error: ', url.strip()
             except KeyboardInterrupt:
