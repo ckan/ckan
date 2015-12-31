@@ -819,7 +819,7 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
 
 def check_access(action, data_dict=None):
     context = {'model': model,
-               'user': c.user or c.author}
+               'user': c.user}
     if not data_dict:
         data_dict = {}
     try:
