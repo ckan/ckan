@@ -3,6 +3,12 @@ Installing CKAN using a Docker image
 ====================================
 
 .. important::
+   These are **legacy** instructions for Docker images which are now
+   **unmaintained**. They have serious issues such as `SOLR version conflicts
+   <https://github.com/ckan/ckan/issues/2255#issuecomment-168943596>`_. Newer
+   versions of this file provide more up-to-date guidance.
+
+.. important::
    These instructions require Docker >=1.0. The released version of Docker is
    1.0.1 as at this writing.
 
