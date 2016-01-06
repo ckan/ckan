@@ -636,3 +636,39 @@ class TestOrganizationCreate(helpers.FunctionalTestBase):
         assert sorted(created.keys()) == sorted(shown.keys())
         for k in created.keys():
             assert created[k] == shown[k], k
+
+
+class TestUserCreate(helpers.FunctionalTestBase):
+
+    def test_user_create_with_password_hash(self):
+        sysadmin = factories.Sysadmin()
+        context = {
+            'user': sysadmin['name'],
+        }
+
+        user = helpers.call_action(
+            'user_create',
+            context=context,
+            email='test@example.com',
+            name='test',
+            password_hash='pretend-this-is-a-valid-hash')
+
+        user_obj = model.User.get(user['id'])
+        assert user_obj.password == 'pretend-this-is-a-valid-hash'
+
+    def test_user_create_password_hash_not_for_normal_users(self):
+        normal_user = factories.User()
+        context = {
+            'user': normal_user['name'],
+        }
+
+        user = helpers.call_action(
+            'user_create',
+            context=context,
+            email='test@example.com',
+            name='test',
+            password='required',
+            password_hash='pretend-this-is-a-valid-hash')
+
+        user_obj = model.User.get(user['id'])
+        assert user_obj.password != 'pretend-this-is-a-valid-hash'
