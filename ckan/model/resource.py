@@ -111,8 +111,10 @@ class Resource(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get(cls, reference):
         '''Returns a resource object referenced by its name or id.'''
-        query = meta.Session.query(Resource).filter(Resource.id == reference)
-        resource = query.first()
+        if not reference:
+            return None
+
+        resource = meta.Session.query(cls).get(reference)
         if resource is None:
             resource = cls.by_name(reference)
         return resource
