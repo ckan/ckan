@@ -1086,6 +1086,11 @@ def user_invite(context, data_dict):
     if errors:
         raise ValidationError(errors)
 
+    model = context['model']
+    group = model.Group.get(data['group_id'])
+    if not group:
+        raise NotFound()
+
     name = _get_random_username_from_email(data['email'])
     password = str(random.SystemRandom().random())
     data['name'] = name
@@ -1098,8 +1103,17 @@ def user_invite(context, data_dict):
         'id': data['group_id'],
         'role': data['role']
     }
-    _get_action('group_member_create')(context, member_dict)
-    mailer.send_invite(user)
+
+    if group.is_organization:
+        _get_action('organization_member_create')(context, member_dict)
+        group_dict = _get_action('organization_show')(context,
+                                                      {'id': data['group_id']})
+    else:
+        _get_action('group_member_create')(context, member_dict)
+        group_dict = _get_action('group_show')(context,
+                                               {'id': data['group_id']})
+
+    mailer.send_invite(user, group_dict, data['role'])
     return model_dictize.user_dictize(user, context)
 
 
@@ -1424,6 +1438,9 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
     role = data_dict.get('role')
     group_id = data_dict.get('id')
     group = model.Group.get(group_id)
+    if not group:
+        msg = _('Organization not found') if is_org else _('Group not found')
+        raise NotFound(msg)
     result = model.User.get(username)
     if result:
         user_id = result.id
