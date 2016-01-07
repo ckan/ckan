@@ -2,9 +2,9 @@ from nose.tools import assert_equal
 from routes import url_for
 
 import ckan.plugins as plugins
-import ckan.new_tests.helpers as helpers
+import ckan.tests.helpers as helpers
 import ckan.model as model
-from ckan.new_tests import factories
+from ckan.tests import factories
 
 assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit

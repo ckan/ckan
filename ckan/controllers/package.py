@@ -533,14 +533,6 @@ class PackageController(base.BaseController):
                                        package_type=package_type)
 
         new_template = self._new_template(package_type)
-        c.form = ckan.lib.render.deprecated_lazy_render(
-            new_template,
-            form_snippet,
-            lambda: render(form_snippet, extra_vars=form_vars),
-            'use of c.form is deprecated. please see '
-            'ckan/templates/package/base_form_page.html for an example '
-            'of the new way to include the form snippet'
-            )
         return render(new_template,
                       extra_vars={'form_vars': form_vars,
                                   'form_snippet': form_snippet,
@@ -799,14 +791,6 @@ class PackageController(base.BaseController):
             form_vars['stage'] = ['active', 'complete']
 
         edit_template = self._edit_template(package_type)
-        c.form = ckan.lib.render.deprecated_lazy_render(
-            edit_template,
-            form_snippet,
-            lambda: render(form_snippet, extra_vars=form_vars),
-            'use of c.form is deprecated. please see '
-            'ckan/templates/package/edit.html for an example '
-            'of the new way to include the form snippet'
-            )
         return render(edit_template,
                       extra_vars={'form_vars': form_vars,
                                   'form_snippet': form_snippet,
