@@ -1172,9 +1172,11 @@ def button_attr(enable, type='primary'):
 
 def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
-        return package_or_package_dict.get('title', '') or \
-            package_or_package_dict.get('name', '')
+        return get_translated(package_or_package_dict, 'title') or \
+            package_or_package_dict['name']
     else:
+        # FIXME: we probably shouldn't use the same functions for
+        # package dicts and real package objects
         return package_or_package_dict.title or package_or_package_dict.name
 
 
@@ -1192,8 +1194,8 @@ def dataset_link(package_or_package_dict):
 
 # TODO: (?) support resource objects as well
 def resource_display_name(resource_dict):
-    name = resource_dict.get('name', None)
-    description = resource_dict.get('description', None)
+    name = get_translated(resource_dict, 'name')
+    description = get_translated(resource_dict, 'description')
     if name:
         return name
     elif description:
@@ -2131,6 +2133,14 @@ def license_options(existing_license_id=None):
         for license_id in license_ids]
 
 
+def get_translated(data_dict, field):
+    language = i18n.get_lang()
+    try:
+        return data_dict[field+'_translated'][language]
+    except KeyError:
+        return data_dict.get(field, '')
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -2196,6 +2206,7 @@ __allowed_functions__ = [
     'debug_full_info_as_list',
     'get_facet_title',
     'get_param_int',
+    'get_translated',
     'sorted_extras',
     'follow_button',
     'follow_count',

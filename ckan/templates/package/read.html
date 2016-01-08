@@ -13,7 +13,7 @@
     {% endif %}
     <h1>
       {% block page_heading %}
-        {{ pkg.title or pkg.name }}
+        {{ h.dataset_display_name(pkg) }}
         {% if pkg.state.startswith('draft') %}
           [{{ _('Draft') }}]
         {% endif %}
@@ -25,7 +25,7 @@
     {% block package_notes %}
       {% if pkg.notes %}
         <div class="notes embedded-content">
-          {{ h.render_markdown(pkg.notes) }}
+          {{ h.render_markdown(h.get_translated(pkg, 'notes')) }}
         </div>
       {% endif %}
     {% endblock %}

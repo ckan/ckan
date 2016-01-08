@@ -1,6 +1,6 @@
 {% extends "package/read_base.html" %}
 
-{% block subtitle %}{{ _('History') }} - {{ c.pkg_dict.title or c.pkg_dict.name }}{% endblock %}
+{% block subtitle %}{{ _('History') }} - {{ h.dataset_display_name(c.pkg_dict) }}{% endblock %}
 
 {% block primary_content_inner %}
   <h1 class="hide-heading">{{ _('History') }}</h1>
