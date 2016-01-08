@@ -1169,8 +1169,10 @@ def button_attr(enable, type='primary'):
 def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
         return get_translated(package_or_package_dict, 'title') or \
-            get_translated(package_or_package_dict, 'name')
+            package_or_package_dict['name']
     else:
+        # FIXME: we probably shouldn't use the same functions for
+        # package dicts and real package objects
         return package_or_package_dict.title or package_or_package_dict.name
 
 
