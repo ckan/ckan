@@ -76,8 +76,10 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get(cls, reference):
         '''Returns a package object referenced by its id or name.'''
-        query = meta.Session.query(cls).filter(cls.id==reference)
-        pkg = query.first()
+        if not reference:
+            return None
+
+        pkg = meta.Session.query(cls).get(reference)
         if pkg == None:
             pkg = cls.by_name(reference)
         return pkg
