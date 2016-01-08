@@ -474,7 +474,7 @@ class TestPackageDelete(helpers.FunctionalTestBase):
         )
         assert_equal(200, response.status_int)
         message = 'Are you sure you want to delete dataset - {name}?'
-        response.mustcontain(message.format(name=dataset['name']))
+        response.mustcontain(message.format(name=dataset['title']))
 
         form = response.forms['confirm-dataset-delete-form']
         response = form.submit('cancel')
