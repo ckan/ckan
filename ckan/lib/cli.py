@@ -1454,7 +1454,7 @@ class Profile(CkanCommand):
     '''Code speed profiler
     Provide a ckan url and it will make the request and record
     how long each function call took in a file that can be read
-    by runsnakerun.
+    by pstats.Stats (command-line) or runsnakerun (gui).
 
     Usage:
        profile URL [username]
@@ -1515,6 +1515,11 @@ class Profile(CkanCommand):
         output_filename = 'ckan%s.profile' % re.sub('[/?]', '.', url.replace('/', '.'))
         profile_command = "profile_url('%s')" % url
         cProfile.runctx(profile_command, globals(), locals(), filename=output_filename)
+        import pstats
+        stats = pstats.Stats(output_filename)
+        stats.sort_stats('cumulative')
+        stats.print_stats(0.1)  # show only top 10% of lines
+        print 'Only top 10% of lines shown'
         print 'Written profile to: %s' % output_filename
 
 
