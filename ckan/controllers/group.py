@@ -585,8 +585,6 @@ class GroupController(base.BaseController):
             data_dict['id'] = id
             context['allow_partial_update'] = True
             group = self._action('group_update')(context, data_dict)
-            if id != group['name']:
-                self._force_reindex(group)
 
             h.redirect_to('%s_read' % group['type'], id=group['name'])
         except NotAuthorized:
