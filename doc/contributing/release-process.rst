@@ -121,12 +121,12 @@ Turn this file into a github issue with a checklist using this command::
       po files locally.
 
    c. Get the latest translations (of the previous CKAN release) from
-      Transifex, in case any have changed since.
+      Transifex, in case any have changed since::
 
-        tx pull --all --force
+        tx pull --all --minimum-perc=5 --force
 
-   d. Delete any language files which have no strings or hardly any translated.
-      Check for 5% or less on Transifex.
+      (This ignores any language files which less than 5% translation - which
+      is the bare minimum we require)
 
    e. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file::
 
@@ -267,9 +267,9 @@ Leading up to the release
 
 #. Once the translations are closed, sync them from Transifex.
 
-   Pull the updated strings from Transifex
+   Pull the updated strings from Transifex::
 
-        tx pull --all --force
+        tx pull --all --minimum-perc=5 --force
 
    Check and compile them as before::
 
@@ -281,7 +281,8 @@ Leading up to the release
 
         git status
 
-   ``git add`` any that are now over 5% translated and delete the rest (of the new ones).
+   ``git add`` any new ones. (If all is well, you won't see any that are under
+   5% translated.)
 
    Now push::
 
