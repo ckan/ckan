@@ -461,6 +461,11 @@ Doing the patch releases
 
         python setup.py sdist upload
 
+#. Merge the patch release branch to the relevant ``release-v2.X-latest`` branch, eg::
+
+        git checkout release-v2.5-latest
+        git merge release-v2.5.2
+
 #. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
 
    Often this will be part of the announcement of a CKAN major/minor release.
