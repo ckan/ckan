@@ -48,7 +48,7 @@ become stable releases.
 
 Turn this file into a github issue with a checklist using this command::
 
-   echo 'Full instructions here: https://github.com/ckan/ckan/blob/master/doc/contributing/release-process.rst'; egrep '^(\#\.|Doing|Leading)' doc/contributing/release-process.rst | sed 's/^\([^#]\)/\n## \1/g' | sed 's/\#\./* [ ]/g' |sed 's/::/./g'
+   echo 'Full instructions here: https://github.com/ckan/ckan/blob/master/doc/contributing/release-process.rst'; egrep '^(\#\.|Doing|Leading|Preparing)' doc/contributing/release-process.rst | sed 's/^\([^#]\)/\n## \1/g' | sed 's/\#\./* [ ]/g' |sed 's/::/./g'
 
 #. Create a new release branch::
 
@@ -390,6 +390,86 @@ a release.
    problems. Run CKAN's tests, again just to be safe.  Then do ``git push
    origin master``.
 
+------------------------
+Preparing patch releases
+------------------------
+
+#. Announce the release date & time with a week's notice on ckan-announce.
+
+   Often this will be part of the announcement of a CKAN major/minor release.
+   But if patches go out separately then they will need their own announcement.
+
+#. Create a new branch off the existing release branch::
+
+        git checkout release-v2.5.1
+        git checkout -b release-v2.5.2
+
+   Update ``ckan/__init__.py`` with the incremented patch number e.g. `2.5.1` becomes `2.5.2`.
+   Commit the change and push the new branch to GitHub::
+
+        git commit -am "Update version number"
+        git push origin release-v2.5.2
+
+#. Cherry-pick PRs marked for back-port.
+
+   These are usually marked on Github using a label: https://github.com/ckan/ckan/labels
+   and remember to look for PRs that are closed i.e. merged.
+
+#. Ask the tech team if there are security fixes or other fixes to include.
+
+#. Update the CHANGELOG.
+
+------------------------
+Doing the patch releases
+------------------------
+
+#. If there have been any CSS or JS changes, rebuild the front-end.
+
+   Rebuild the front-end, add new files and commit with::
+
+        paster front-end-build
+        git add ckan ckanext
+        git commit -am "Rebuild front-end"
+
+#. Review the CHANGELOG to check it is complete.
+
+#. Tag the repository with the version number.
+
+   Make sure to push it to GitHub afterwards::
+
+        git tag -a -m '[release]: Release tag' ckan-X.Y.Z
+        git push --tags
+
+#. Create and deploy the final deb package.
+
+   Create using ckan-packaging checkout e.g.::
+
+     ./ckan-package -v 2.5.2 -i 1
+
+   Make sure to rename the deb files so it follows the deb packages name convention::
+
+     python-ckan_Major.minor_amd64.deb
+
+   Note that we drop the patch version and iteration number from the package name.
+
+   Move it to the root of the
+   `publicly accessible folder <http://packaging.ckan.org/>`_ of
+   the packaging server from the `/build` folder, replacing the existing file
+   for this minor version.
+
+#. Upload the release to PyPI::
+
+        python setup.py sdist upload
+
+#. Merge the patch release branch to the relevant ``release-v2.X-latest`` branch, eg::
+
+        git checkout release-v2.5-latest
+        git merge release-v2.5.2
+
+#. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
+
+   Often this will be part of the announcement of a CKAN major/minor release.
+   But if patches go out separately then they will need their own announcement.
 
 .. _Transifex: https://www.transifex.com/projects/p/ckan
 .. _`Read The Docs`: http://readthedocs.org/dashboard/ckan/versions/
