@@ -121,12 +121,12 @@ Turn this file into a github issue with a checklist using this command::
       po files locally.
 
    c. Get the latest translations (of the previous CKAN release) from
-      Transifex, in case any have changed since.
+      Transifex, in case any have changed since::
 
-        tx pull --all --force
+        tx pull --all --minimum-perc=5 --force
 
-   d. Delete any language files which have no strings or hardly any translated.
-      Check for 5% or less on Transifex.
+      (This ignores any language files which less than 5% translation - which
+      is the bare minimum we require)
 
    e. Update the ``ckan.po`` files with the new strings from the ``ckan.pot`` file::
 
@@ -166,7 +166,7 @@ Turn this file into a github issue with a checklist using this command::
       will need to correct them, but it doesn't need to be done now, since the priority
       is to announce the call for translations.
 
-      When it is done, you must do the correctsion on Transifex and then run
+      When it is done, you must do the correction on Transifex and then run
       the tx pull command again, don't edit the files directly. Repeat until the
       script finds no mistakes.
 
@@ -201,25 +201,26 @@ Turn this file into a github issue with a checklist using this command::
    l. Commit all the above changes to git and push them to GitHub::
 
         git add ckan/i18n/*.mo ckan/i18n/*.po
-        git commit -am "Update strings files before CKAN X.Y call for translations"
+        git commit -am "Update strings files before CKAN X.Y.Z call for translations"
         git push
 
 #. Send an annoucement email with a call for translations.
 
-   Send an email to the ckan-dev list, tweet or post it on the blog. Make sure
-   to post a link to the correct Transifex resource (like `this one
+   Send an email to the ckan-dev list, tweet from @CKANproject and send a
+   transifex announcement from: https://www.transifex.com/okfn/ckan/announcements/
+   . Make sure to post a link to the correct Transifex resource (like `this one
    <https://www.transifex.com/okfn/ckan/2-5/>`_) and tell users that they can
    register on Transifex to contribute. Give a deadline in two weeks time.
 
-#. Create debian packages.
+#. Create deb packages.
 
    Ideally do this once a week. Create the deb package with the latest release
    branch, using ``betaX`` iterations. Deb packages are built using Ansible_
    scripts located at the following repo:
 
-    https://github.com/ckan/ckan-packaging
+       https://github.com/ckan/ckan-packaging
 
-   The repository contains furhter instructions on how to run the scripts, but
+   The repository contains further instructions on how to run the scripts, but
    essentially you need to generate the packages (one for precise and one for
    trusty) on your local machine and upload them to the Amazon S3 bucket.
 
@@ -234,6 +235,9 @@ Turn this file into a github issue with a checklist using this command::
    the stable ones::
 
      aws s3 cp python-ckan_2.5.0-precisebeta1_amd64.deb s3://packaging.ckan.org/build/python-ckan_2.5.0-precisebeta1_amd64.deb
+
+   Now the .deb files are available at http://packaging.ckan.org/build/ invite
+   people on ckan-dev to test them.
 
 -------------------------
 Leading up to the release
@@ -255,26 +259,34 @@ Leading up to the release
 
         https://gist.github.com/amercader/4ec55774b9a625e815bf
 
-     Other helpful commands are::
+     But dread found changed the first step slightly to get it to work::
 
-        git branch -a --merged > merged-current.txt
-        git branch -a --merged ckan-1.8.1 > merged-previous.txt
-        diff merged-previous.txt merged-current.txt
-
-        git log --no-merges release-v1.8.1..release-v2.0
-        git shortlog --no-merges release-v1.8.1..release-v2.0
+        git log --pretty=format:%s --reverse --no-merges release-v2.4.2...release-v2.5.0 -- | grep -Pzo "^\[#\K[0-9]+" | sort -u -n > issues_2.5.txt
 
 #. A week before the translations will be closed send a reminder email.
 
 #. Once the translations are closed, sync them from Transifex.
 
-   Pull the updated strings from Transifex, check them, compile and push as
-   described in the previous steps::
+   Pull the updated strings from Transifex::
 
-        tx pull --all --force
+        tx pull --all --minimum-perc=5 --force
+
+   Check and compile them as before::
+
         paster check-po-files ckan/i18n/*/LC_MESSAGES/ckan.po
         python setup.py compile_catalog
-        git commit -am " Update translations from Transifex"
+
+    The compilation shows the translation percentage. Compare this with the new
+    languages directories added to ckan/i18n::
+
+        git status
+
+   ``git add`` any new ones. (If all is well, you won't see any that are under
+   5% translated.)
+
+   Now push::
+
+        git commit -am "Update translations from Transifex"
         git push
 
 #. A week before the actual release, announce the upcoming release(s).
@@ -296,9 +308,11 @@ a release.
 
         nosetests ckan/tests --ckan --ckan-migration --with-pylons=test-core.ini
 
-#. Do a final build of the front-end and commit the changes::
+#. Do a final build of the front-end, add the generated files to the repo and
+   commit the changes::
 
         paster front-end-build
+        git add ckan ckanext
         git commit -am "Rebuild front-end"
 
 #. Review the CHANGELOG to check it is complete.
@@ -311,63 +325,82 @@ a release.
 #. Remove the beta letter in the version number.
 
    The version number is in ``ckan/__init__.py``
-   (eg 1.1b -> 1.1) and commit the change::
+   (eg 2.5.0b -> 2.5.0) and commit the change::
 
-        git commit -am "Update version number for release X.Y"
+        git commit -am "Update version number for release X.Y.Z"
 
 #. Tag the repository with the version number.
 
    Make sure to push it to GitHub afterwards::
 
-        git tag -a -m '[release]: Release tag' ckan-X.Y
+        git tag -a -m '[release]: Release tag' ckan-X.Y.Z
         git push --tags
 
-#. Create the final deb packages.
+#. Create and deploy the final deb package.
 
-   Using the `packaging scripts <https://github.com/ckan/ckan-packaging>`_ on your
-   local machine, build the final deb packages::
+   Move it to the root of the
+   `publicly accessible folder <http://packaging.ckan.org/>`_ of
+   the packaging server from the `/build` folder.
 
-     ./ckan-package -v 2.x.y -i 1
+   Make sure to rename it so it follows the deb packages name convention::
 
-   To upload the files to the S3 bucket, you will need the relevant credentials and
-   to install the `Amazon AWS command line interface <http://docs.aws.amazon.com/cli/latest/userguide/installing.html>`_
+    python-ckan_Major.minor_amd64.deb
 
-   Make sure to drop the patch version and iteration before uploading the packages::
-
-
-    mv python-ckan_2.5.0-precise1_amd64.deb python-ckan_2.5-precise_amd64.deb
-    mv python-ckan_2.5.0-trusty1_amd64.deb python-ckan_2.5-trusty_amd64.deb
-
-   To upload them::
-
-     aws s3 cp python-ckan_2.5-trusty_amd64.deb s3://packaging.ckan.org/python-ckan_2.5-trusty_amd64.deb
+   Note that we drop any patch version or iteration from the package name.
 
 #. Upload the release to PyPI::
 
         python setup.py sdist upload
 
    You will need a PyPI account with admin permissions on the ckan package,
-   and your credentials should be defined on a ``~/.pypirc`` file, as described
+   and your credentials should be defined on a ``~/.pypirc`` file such as::
+
+        [distutils]
+        index-servers =
+            pypi
+
+        [pypi]
+        username: <user-name>
+        password: <password>
+
+   For more info, see:
    `here <http://docs.python.org/distutils/packageindex.html#pypirc>`_
-   If you make a mistake, you can always remove the release file on PyPI and
-   re-upload it.
+
+   If running in Vagrant you may get error ``error: Operation not permitted``
+   due to failure to create a hard link. The solution is to add a line at the top
+   of setup.py::
+
+        # Avoid problem releasing to pypi from vagrant
+        import os
+        if os.environ.get('USER', '') == 'vagrant':
+            del os.link
+
+   as described here: https://stackoverflow.com/questions/7719380/python-setup-py-sdist-error-operation-not-permitted
+
+   If you upload a bad package, then you can remove it from PyPI however you
+   must use a new version number next time.
+
 
 #. Enable the new version of the docs on Read the Docs.
 
    (You will need an admin account.)
 
-   a. Go to the `Read The Docs`_ versions page
-      and enable the relevant release (make sure to use the tag, ie ckan-X.Y,
-      not the branch, ie release-vX.Y).
+   a. Go to the
+      `Read The Docs versions page <https://readthedocs.org/projects/ckan/versions/>`_
+      and make the relevant release 'active' (make sure to use the tag, ie ckan-X.Y.Z,
+      not the branch, ie release-vX.Y.Z).
 
    b. If it is the latest stable release, set it to be the Default Version and
       check it is displayed on http://docs.ckan.org.
 
-#. Write a CKAN blog post and announce it to ckan-announce & ckan-dev.
+#. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
 
    CKAN blog here: <http://ckan.org/wp-admin>`_
 
-   In the email, include the relevant bit of changelog.
+   * `Example blog <http://ckan.org/2015/07/22/ckan-2-4-release-and-patch-releases/>`_
+   * `Example email <https://lists.okfn.org/pipermail/ckan-dev/2015-July/009141.html>`_
+
+   Tweet from @CKANproject
 
 #. Cherry-pick the i18n changes from the release branch onto master.
 
