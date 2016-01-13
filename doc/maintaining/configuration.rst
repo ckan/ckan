@@ -1273,7 +1273,7 @@ Example::
 
  extra_template_paths = /home/okfn/brazil_ckan_config/templates
 
-To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
+Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
 For more information on theming, see :doc:`/theming/index`.
 
@@ -1613,7 +1613,7 @@ Example::
 
 Default value: (none)
 
-If you wish to add extra translation strings and have them merged with the 
+If you wish to add extra translation strings and have them merged with the
 default ckan translations at runtime you can specify the location of the extra
 translations using this option.
 

@@ -4,7 +4,7 @@ extend CKAN.
 '''
 __all__ = [
     'Interface',
-    'IGenshiStreamFilter', 'IRoutes',
+    'IRoutes',
     'IMapper', 'ISession',
     'IMiddleware',
     'IAuthFunctions',
@@ -58,23 +58,6 @@ class IMiddleware(Interface):
         '''Return an app configured with this error log middleware
         '''
         return app
-
-
-class IGenshiStreamFilter(Interface):
-    '''
-    Hook into template rendering.
-    See ckan.lib.base.py:render
-    '''
-
-    def filter(self, stream):
-        """
-        Return a filtered Genshi stream.
-        Called when any page is rendered.
-
-        :param stream: Genshi stream of the current output document
-        :returns: filtered Genshi stream
-        """
-        return stream
 
 
 class IRoutes(Interface):
@@ -1227,7 +1210,7 @@ class IGroupForm(Interface):
 
         The group controller is the controller, that is used to handle requests
         of the group type(s) of this plugin.
-        
+
         If this method is not provided, the default group controller is used
         (`group`).
         """
