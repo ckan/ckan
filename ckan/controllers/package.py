@@ -361,10 +361,8 @@ class PackageController(base.BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
