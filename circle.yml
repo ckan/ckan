@@ -29,8 +29,11 @@ database:
         - paster db init -c test-core.ini
 
 test:
+    pre:
+        - mkdir -p $CIRCLE_TEST_REPORTS/nose
+
     override:
-        - nosetests --ckan --reset-db --with-pylons=test-core.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext
+        - nosetests --ckan --reset-db --with-pylons=test-core.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/nose/junit.xml ckan ckanext
 
     post:
         - paster serve test-core.ini:
