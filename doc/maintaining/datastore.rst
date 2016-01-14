@@ -140,7 +140,7 @@ Then you can use this connection to set the permissions::
 .. note::
    If you performed a source install, you will need to replace all references to
    ``sudo ckan ...`` with ``paster --plugin=ckan ...`` and provide the path to
-   the config file, e.g. ``paster --plugin=ckan datastore set-permissions postgres -c /etc/ckan/default/development.ini``
+   the config file, e.g. ``paster --plugin=ckan datastore set-permissions -c /etc/ckan/default/development.ini``
 
 If your database server is not local, but you can access it over SSH, you can
 pipe the permissions script over SSH::
