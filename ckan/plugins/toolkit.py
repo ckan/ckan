@@ -39,6 +39,8 @@ class _Toolkit(object):
         'NotAuthorized',        # action not authorized exception
         'UnknownValidator',     # validator not found exception
         'ValidationError',      # model update validation error
+        'StopOnError',          # validation exception to stop further
+                                # validators from being called
         'Invalid',              # validation invalid exception
         'CkanCommand',          # class for providing cli interfaces
         'DefaultDatasetForm',   # base class for IDatasetForm plugins
@@ -180,6 +182,7 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['ObjectNotFound'] = logic.NotFound  # Name change intentional
         t['NotAuthorized'] = logic.NotAuthorized
         t['ValidationError'] = logic.ValidationError
+        t['StopOnError'] = dictization_functions.StopOnError
         t['UnknownValidator'] = logic.UnknownValidator
         t['Invalid'] = logic_validators.Invalid
 
