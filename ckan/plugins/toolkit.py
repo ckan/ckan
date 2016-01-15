@@ -20,6 +20,7 @@ class _Toolkit(object):
         '_',                    # i18n translation
         'ungettext',            # i18n translation (plural forms)
         'c',                    # template context
+        'h',                    # template helpers
         'request',              # http request object
         'render',               # template render function
         'render_text',          # Genshi NewTextTemplate render function
@@ -141,6 +142,7 @@ available throughout the template and application code, and are local to the
 current request.
 
 '''
+        t['h'] = pylons.config['pylons.h']
         t['request'] = common.request
         self.docstring_overrides['request'] = '''The Pylons request object.
 
