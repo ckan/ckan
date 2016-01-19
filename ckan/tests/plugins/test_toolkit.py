@@ -263,8 +263,8 @@ class TestRequiresCkanVersion(object):
 class TestTemplateHelper(object):
     def test_call_helper(self):
         # the null_function would return ''
-        assert_true(tk.h.lang())
+        assert_true(tk.h.icon_url('x'))
 
     def test_attribute_error_on_missing_helper(self):
         assert_raises(AttributeError, getattr,
-            tk.h, 'not_a_real_helper_function')
+                      tk.h, 'not_a_real_helper_function')
