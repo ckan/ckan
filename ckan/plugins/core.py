@@ -152,10 +152,6 @@ def load(*plugins):
         for observer_plugin in observers:
             observer_plugin.after_load(service)
 
-        if interfaces.IGenshiStreamFilter in service.__interfaces__:
-            log.warn("Plugin '%s' is using deprecated interface "
-                     'IGenshiStreamFilter' % plugin)
-
         _PLUGINS.append(plugin)
         _PLUGINS_CLASS.append(service.__class__)
 

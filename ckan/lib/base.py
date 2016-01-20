@@ -13,8 +13,6 @@ from pylons.controllers.util import redirect_to, redirect
 from pylons.decorators import jsonify
 from pylons.i18n import N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
-from genshi.template import MarkupTemplate
-from genshi.template.text import NewTextTemplate
 from webhelpers.html import literal
 
 import ckan.exceptions
@@ -82,22 +80,6 @@ def render_snippet(template_name, **kw):
     return literal(output)
 
 
-def render_text(template_name, extra_vars=None, cache_force=None):
-    '''Render a Genshi :py:class:`NewTextTemplate`.
-
-    This is just a wrapper function that lets you render a Genshi
-    :py:class:`NewTextTemplate` without having to pass ``method='text'`` or
-    ``loader_class=NewTextTemplate`` (it passes them to
-    :py:func:`~ckan.plugins.toolkit.render` for you).
-
-    '''
-    return render(template_name,
-                  extra_vars=extra_vars,
-                  cache_force=cache_force,
-                  method='text',
-                  loader_class=NewTextTemplate)
-
-
 def render_jinja2(template_name, extra_vars):
     env = config['pylons.app_globals'].jinja_env
     template = env.get_template(template_name)
@@ -105,8 +87,7 @@ def render_jinja2(template_name, extra_vars):
 
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
-           cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
-           cache_force=None, renderer=None):
+           cache_expire=None, cache_force=None, renderer=None):
     '''Render a template and return the output.
 
     This is CKAN's main template rendering function.
@@ -144,29 +125,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
                 request.environ['CKAN_DEBUG_INFO'] = []
             request.environ['CKAN_DEBUG_INFO'].append(debug_info)
 
-        # Jinja2 templates
-        if template_type == 'jinja2':
-            # We don't want to have the config in templates it should be
-            # accessed via g (app_globals) as this gives us flexability such
-            # as changing via database settings.
-            del globs['config']
-            # TODO should we raise error if genshi filters??
-            return render_jinja2(template_name, globs)
-
-        # Genshi templates
-        template = globs['app_globals'].genshi_loader.load(
-            template_name.encode('utf-8'), cls=loader_class
-        )
-        stream = template.generate(**globs)
-
-        for item in p.PluginImplementations(p.IGenshiStreamFilter):
-            stream = item.filter(stream)
-
-        if loader_class == NewTextTemplate:
-            return literal(stream.render(method="text", encoding=None))
-
-        return literal(stream.render(method=method, encoding=None,
-                                     strip_whitespace=True))
+        del globs['config']
+        return render_jinja2(template_name, globs)
 
     if 'Pragma' in response.headers:
         del response.headers["Pragma"]
@@ -188,7 +148,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     # Don't cache if we have set the __no_cache__ param in the query string.
     elif request.params.get('__no_cache__'):
         allow_cache = False
-    # Don't cache if we have extra vars containing data.
+   # Don't cache if we have extra vars containing data.
     elif extra_vars:
         for k, v in extra_vars.iteritems():
             allow_cache = False
@@ -212,8 +172,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
 
     # Render Time :)
     try:
-        return cached_template(template_name, render_template,
-                               loader_class=loader_class)
+        return cached_template(template_name, render_template)
     except ckan.exceptions.CkanUrlException, e:
         raise ckan.exceptions.CkanUrlException(
             '\nAn Exception has been raised for template %s\n%s' %

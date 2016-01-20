@@ -22,7 +22,6 @@ class _Toolkit(object):
         'c',                    # template context
         'request',              # http request object
         'render',               # template render function
-        'render_text',          # Genshi NewTextTemplate render function
         'render_snippet',       # snippet render function
         'asbool',               # converts an object to a boolean
         'asint',                # converts an object to an integer
@@ -147,7 +146,6 @@ request body variables, cookies, the request URL, etc.
 
 '''
         t['render'] = base.render
-        t['render_text'] = base.render_text
         t['asbool'] = converters.asbool
         self.docstring_overrides['asbool'] = '''Convert a string from the
 config file into a boolean.

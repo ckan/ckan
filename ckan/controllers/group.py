@@ -246,10 +246,6 @@ class GroupController(base.BaseController):
 
         context['return_query'] = True
 
-        # c.group_admins is used by CKAN's legacy (Genshi) templates only,
-        # if we drop support for those then we can delete this line.
-        c.group_admins = authz.get_group_or_org_admin_ids(c.group.id)
-
         page = self._get_page_number(request.params)
 
         # most search operations should reset the page counter:

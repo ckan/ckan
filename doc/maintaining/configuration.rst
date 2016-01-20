@@ -765,21 +765,6 @@ Format as a space-separated list of the plugin names. The plugin name is the key
         they're given in the config file, regardless of which Python modules
         they're implemented in.
 
-.. _ckan.datastore.enabled:
-
-ckan.datastore.enabled
-^^^^^^^^^^^^^^^^^^^^^^
-
-Example::
-
-  ckan.datastore.enabled = True
-
-Default value: ``False``
-
-Controls if the Data API link will appear in Dataset's Resource page.
-
-.. note:: This setting only applies to the legacy templates.
-
 .. _ckanext.stats.cache_enabled:
 
 ckanext.stats.cache_enabled
@@ -963,7 +948,7 @@ Default value: ``False``
 
 This controls if the legacy genshi templates are used.
 
-.. note:: This is only for legacy code, and shouldn't be used anymore.
+.. note:: This is option is **deprecated** and has no effect any more.
 
 .. _ckan.datasets_per_page:
 
@@ -992,21 +977,6 @@ Default value:  (empty)
 This sets a space-separated list of extra field key values which will not be shown on the dataset read page.
 
 .. warning::  While this is useful to e.g. create internal notes, it is not a security measure. The keys will still be available via the API and in revision diffs.
-
-.. _ckan.dataset.show_apps_ideas:
-
-ckan.dataset.show_apps_ideas
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-ckan.dataset.show_apps_ideas::
-
- ckan.dataset.show_apps_ideas = false
-
-Default value:  true
-
-When set to false, or no, this setting will hide the 'Apps, Ideas, etc' tab on the package read page. If the value is not set, or is set to true or yes, then the tab will shown.
-
-.. note::  This only applies to the legacy Genshi-based templates
 
 .. _ckan.dumps_url:
 
@@ -1273,7 +1243,7 @@ Example::
 
  extra_template_paths = /home/okfn/brazil_ckan_config/templates
 
-To customise the display of CKAN you can supply replacements for the Genshi template files. Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
+Use this option to specify where CKAN should look for additional templates, before reverting to the ``ckan/templates`` folder. You can supply more than one folder, separating the paths with a comma (,).
 
 For more information on theming, see :doc:`/theming/index`.
 
@@ -1613,7 +1583,7 @@ Example::
 
 Default value: (none)
 
-If you wish to add extra translation strings and have them merged with the 
+If you wish to add extra translation strings and have them merged with the
 default ckan translations at runtime you can specify the location of the extra
 translations using this option.
 
