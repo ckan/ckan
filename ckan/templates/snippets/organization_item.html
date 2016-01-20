@@ -1,9 +1,9 @@
+{% set url=h.url_for(controller='organization', action='read', id=organization.name) %}
+{% set truncate=truncate or 0 %}
 {% block organization_item %}
   <section class="group-list module module-narrow module-shallow">
     {% block organization_item_header %}
       <header class="module-heading">
-        {% set url=h.url_for(controller='organization', action='read', id=organization.name) %}
-        {% set truncate=truncate or 0 %}
         {% block organization_item_header_image %}
         <a class="module-image" href="{{ url }}">
           <img src="{{ organization.image_display_url or h.url_for_static('/base/images/placeholder-organization.png') }}" alt="{{ organization.name }}" />
