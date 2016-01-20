@@ -20,6 +20,8 @@ class _Toolkit(object):
         '_',                    # i18n translation
         'ungettext',            # i18n translation (plural forms)
         'c',                    # template context
+        'config',               # The pylons configuration
+        'translator',           # Pylons translator, often used in plugins when create commands
         'request',              # http request object
         'render',               # template render function
         'render_snippet',       # snippet render function
@@ -137,6 +139,20 @@ available throughout the template and application code, and are local to the
 current request.
 
 '''
+        t['config'] = pylons.config
+        self.docstring_overrides['config'] = '''The Pylons configuration object.
+
+The configuration object containing information about this request as well as
+options loaded from the .ini file.
+'''
+
+        t['translator'] = pylons.translator
+        self.docstring_overrides['translator'] = '''The Pylons translator object.
+
+Often used in extensions within commands or migrations for setting up the
+CKAN i18n translator.
+'''
+
         t['request'] = common.request
         self.docstring_overrides['request'] = '''The Pylons request object.
 
