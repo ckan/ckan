@@ -85,5 +85,5 @@ class ProxyController(base.BaseController):
     def proxy_resource(self, resource_id):
         data_dict = {'resource_id': resource_id}
         context = {'model': base.model, 'session': base.model.Session,
-                   'user': base.c.user or base.c.author}
+                   'user': base.c.user}
         return proxy_resource(context, data_dict)

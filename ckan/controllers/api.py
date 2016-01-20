@@ -52,7 +52,7 @@ class ApiController(base.BaseController):
 
         self._identify_user()
         try:
-            context = {'model': model, 'user': c.user or c.author,
+            context = {'model': model, 'user': c.user,
                        'auth_user_obj': c.userobj}
             logic.check_access('site_read', context)
         except NotAuthorized:
@@ -622,7 +622,7 @@ class ApiController(base.BaseController):
         c.q = request.params.get('q', '')
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                   'user': c.user, 'auth_user_obj': c.userobj}
 
         tag_names = get_action('tag_list')(context, {})
         results = []
@@ -657,7 +657,7 @@ class ApiController(base.BaseController):
         user_list = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
 
             data_dict = {'q': q, 'limit': limit}
 
@@ -734,7 +734,7 @@ class ApiController(base.BaseController):
         package_dicts = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
 
             data_dict = {'q': q, 'limit': limit}
 
@@ -751,7 +751,7 @@ class ApiController(base.BaseController):
         tag_names = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
 
             data_dict = {'q': q, 'limit': limit}
 
@@ -770,7 +770,7 @@ class ApiController(base.BaseController):
         formats = []
         if q:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
             data_dict = {'q': q, 'limit': limit}
             formats = get_action('format_autocomplete')(context, data_dict)
 

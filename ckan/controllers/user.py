@@ -38,7 +38,7 @@ class UserController(base.BaseController):
     def __before__(self, action, **env):
         base.BaseController.__before__(self, action, **env)
         try:
-            context = {'model': model, 'user': c.user or c.author,
+            context = {'model': model, 'user': c.user,
                        'auth_user_obj': c.userobj}
             check_access('site_read', context)
         except NotAuthorized:
@@ -91,7 +91,7 @@ class UserController(base.BaseController):
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
-        context = {'return_query': True, 'user': c.user or c.author,
+        context = {'return_query': True, 'user': c.user,
                    'auth_user_obj': c.userobj}
 
         data_dict = {'q': c.q,
@@ -114,7 +114,7 @@ class UserController(base.BaseController):
 
     def read(self, id=None):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'user': c.user, 'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id,
                      'user_obj': c.userobj,
@@ -155,7 +155,7 @@ class UserController(base.BaseController):
            or POST the form data to actually do the user registration.
         '''
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'auth_user_obj': c.userobj,
                    'schema': self._new_form_to_db_schema(),
                    'save': 'save' in request.params}
@@ -308,7 +308,7 @@ class UserController(base.BaseController):
 
         self._setup_template_variables({'model': model,
                                         'session': model.Session,
-                                        'user': c.user or c.author},
+                                        'user': c.user},
                                        data_dict)
 
         c.is_myself = True
@@ -537,7 +537,7 @@ class UserController(base.BaseController):
         raise ValueError(_('You must provide a password'))
 
     def followers(self, id=None):
-        context = {'for_view': True, 'user': c.user or c.author,
+        context = {'for_view': True, 'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'id': id, 'user_obj': c.userobj,
                      'include_num_followers': True}
@@ -553,7 +553,7 @@ class UserController(base.BaseController):
         '''Render this user's public activity stream page.'''
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'user': c.user, 'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj,
                      'include_num_followers': True}
@@ -583,7 +583,7 @@ class UserController(base.BaseController):
         if (filter_type and filter_id):
             context = {
                 'model': model, 'session': model.Session,
-                'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                'user': c.user, 'auth_user_obj': c.userobj,
                 'for_view': True
             }
             data_dict = {'id': filter_id, 'include_num_followers': True}
@@ -627,7 +627,7 @@ class UserController(base.BaseController):
 
     def dashboard(self, id=None, offset=0):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'user': c.user, 'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj, 'offset': offset}
         self._setup_template_variables(context, data_dict)
@@ -651,21 +651,21 @@ class UserController(base.BaseController):
         return render('user/dashboard.html')
 
     def dashboard_datasets(self):
-        context = {'for_view': True, 'user': c.user or c.author,
+        context = {'for_view': True, 'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'user_obj': c.userobj, 'include_datasets': True}
         self._setup_template_variables(context, data_dict)
         return render('user/dashboard_datasets.html')
 
     def dashboard_organizations(self):
-        context = {'for_view': True, 'user': c.user or c.author,
+        context = {'for_view': True, 'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         return render('user/dashboard_organizations.html')
 
     def dashboard_groups(self):
-        context = {'for_view': True, 'user': c.user or c.author,
+        context = {'for_view': True, 'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
@@ -675,7 +675,7 @@ class UserController(base.BaseController):
         '''Start following this user.'''
         context = {'model': model,
                    'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'id': id, 'include_num_followers': True}
         try:
@@ -695,7 +695,7 @@ class UserController(base.BaseController):
         '''Stop following this user.'''
         context = {'model': model,
                    'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'id': id, 'include_num_followers': True}
         try:
