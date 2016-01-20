@@ -87,8 +87,7 @@ def render_jinja2(template_name, extra_vars):
 
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
-           cache_expire=None, method='xhtml',
-           cache_force=None, renderer=None):
+           cache_expire=None, cache_force=None, renderer=None):
     '''Render a template and return the output.
 
     This is CKAN's main template rendering function.
