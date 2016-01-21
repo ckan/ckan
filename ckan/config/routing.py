@@ -108,7 +108,6 @@ def make_map():
         'resource',
         'tag',
         'group',
-        'related',
         'revision',
         'licenses',
         'rating',

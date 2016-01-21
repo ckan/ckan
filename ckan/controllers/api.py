@@ -281,7 +281,6 @@ class ApiController(base.BaseController):
             'group': 'group_list',
             'dataset': 'package_list',
             'tag': 'tag_list',
-            'related': 'related_list',
             'licenses': 'license_list',
             ('dataset', 'relationships'): 'package_relationships_list',
             ('dataset', 'revisions'): 'package_revision_list',
@@ -309,7 +308,6 @@ class ApiController(base.BaseController):
             'revision': 'revision_show',
             'group': 'group_show_rest',
             'tag': 'tag_show_rest',
-            'related': 'related_show',
             'dataset': 'package_show_rest',
             ('dataset', 'relationships'): 'package_relationships_list',
         }
@@ -344,7 +342,6 @@ class ApiController(base.BaseController):
             'group': 'group_create_rest',
             'dataset': 'package_create_rest',
             'rating': 'rating_create',
-            'related': 'related_create',
             ('dataset', 'relationships'): 'package_relationship_create_rest',
         }
         for type in model.PackageRelationship.get_all_types():
@@ -459,7 +456,6 @@ class ApiController(base.BaseController):
         action_map = {
             'group': 'group_delete',
             'dataset': 'package_delete',
-            'related': 'related_delete',
             ('dataset', 'relationships'): 'package_relationship_delete_rest',
         }
         for type in model.PackageRelationship.get_all_types():

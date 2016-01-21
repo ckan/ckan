@@ -121,8 +121,6 @@ class UserController(base.BaseController):
                      'include_datasets': True,
                      'include_num_followers': True}
 
-        context['with_related'] = True
-
         self._setup_template_variables(context, data_dict)
 
         # The legacy templates have the user's activity stream on the user

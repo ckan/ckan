@@ -348,31 +348,6 @@ def default_show_group_schema():
 
     return schema
 
-
-def default_related_schema():
-    schema = {
-        'id': [ignore_missing, unicode],
-        'title': [not_empty, unicode],
-        'description': [ignore_missing, unicode],
-        'type': [not_empty, unicode],
-        'image_url': [ignore_missing, unicode, url_validator],
-        'url': [ignore_missing, unicode, url_validator],
-        'owner_id': [not_empty, unicode],
-        'created': [ignore],
-        'featured': [ignore_missing, int],
-    }
-    return schema
-
-
-def default_update_related_schema():
-    schema = default_related_schema()
-    schema['id'] = [not_empty, unicode]
-    schema['title'] = [ignore_missing, unicode]
-    schema['type'] = [ignore_missing, unicode]
-    schema['owner_id'] = [ignore_missing, unicode]
-    return schema
-
-
 def default_extras_schema():
 
     schema = {
