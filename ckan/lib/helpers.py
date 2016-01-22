@@ -11,7 +11,6 @@ import logging
 import re
 import os
 import urllib
-import urlparse
 import pprint
 import copy
 import urlparse
@@ -201,10 +200,13 @@ def _add_i18n_to_url(url_to_amend, **kw):
     # (as part of the language changing feature).
     # A locale of default will not add locale info to the url.
 
-    default_locale = False
-    locale = kw.pop('locale', None)
     no_root = kw.pop('__ckan_no_root', False)
     allowed_locales = ['default'] + i18n.get_locales()
+    default_locale = False
+    url_scheme, url_netloc, url_path, url_params, url_query, url_fragment = \
+        urlparse.urlparse(url_to_amend)
+
+    locale = kw.pop('locale', None)
     if locale and locale not in allowed_locales:
         locale = None
     if locale:
@@ -216,20 +218,27 @@ def _add_i18n_to_url(url_to_amend, **kw):
             default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
         except TypeError:
             default_locale = True
-    try:
-        root = request.environ.get('SCRIPT_NAME', '')
-    except TypeError:
-        root = ''
+
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
         root = _routes_default_url_for('/', qualified=True)[:-1]
-    # ckan.root_path is defined when we have none standard language
+        parsed_root = urlparse.urlparse(root)
+        url_scheme = parsed_root[0]
+        url_netloc = parsed_root[1]
+    else:
+        try:
+            root = request.environ.get('SCRIPT_NAME', '')
+        except TypeError:
+            root = ''
+
+    # ckan.root_path is defined when we have non-standard language
     # position in the url
     root_path = config.get('ckan.root_path', None)
     if root_path:
-        # FIXME this can be written better once the merge
-        # into the ecportal core is done - Toby
-        # we have a special root specified so use that
+        if '{{LANG}}' not in root_path:
+            error = 'ckan.root_path must include {{LANG}}'
+            raise ckan.exceptions.CkanUrlException(error)
+
         if default_locale:
             root = re.sub('/{{LANG}}', '', root_path)
         else:
@@ -237,17 +246,12 @@ def _add_i18n_to_url(url_to_amend, **kw):
         # make sure we don't have a trailing / on the root
         if root[-1] == '/':
             root = root[:-1]
-        url = url_to_amend[len(re.sub('/{{LANG}}', '', root_path)):]
-        url = '%s%s' % (root, url)
-        root = re.sub('/{{LANG}}', '', root_path)
+        url_path = '%s/%s' % (root, url_path)
     else:
-        if default_locale:
-            url = url_to_amend
-        else:
-            # we need to strip the root from the url and the add it before
-            # the language specification.
-            url = url_to_amend[len(root):]
-            url = '%s/%s%s' % (root, locale, url)
+        if not default_locale:
+            url_path = '/%s%s' % (locale, url_path)
+    url = urlparse.urlunparse((url_scheme, url_netloc, url_path, url_params,
+                               url_query, url_fragment))
 
     # stop the root being added twice in redirects
     if no_root:
