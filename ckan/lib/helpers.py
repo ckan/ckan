@@ -246,7 +246,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         # make sure we don't have a trailing / on the root
         if root[-1] == '/':
             root = root[:-1]
-        url_path = '%s/%s' % (root, url_path)
+        url_path = '%s%s' % (root, url_path)
     else:
         if not default_locale:
             url_path = '/%s%s' % (locale, url_path)
