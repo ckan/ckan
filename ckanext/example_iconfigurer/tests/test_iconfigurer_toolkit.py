@@ -1,6 +1,6 @@
 from nose import tools as nosetools
 
-import ckan.new_tests.helpers as helpers
+import ckan.tests.helpers as helpers
 import ckan.plugins.toolkit as toolkit
 
 

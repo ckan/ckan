@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from nose.tools import assert_equal, assert_true
 from routes import url_for
 
@@ -259,3 +260,168 @@ class TestOrganizationBulkProcess(helpers.FunctionalTestBase):
         for dataset in datasets:
             d = helpers.call_action('package_show', id=dataset['id'])
             assert_equal(d['state'], 'deleted')
+
+
+class TestOrganizationSearch(helpers.FunctionalTestBase):
+
+    '''Test searching for organizations.'''
+
+    def setup(self):
+        super(TestOrganizationSearch, self).setup()
+        self.app = self._get_test_app()
+        factories.Organization(name='org-one', title='AOrg One')
+        factories.Organization(name='org-two', title='AOrg Two')
+        factories.Organization(name='org-three', title='Org Three')
+        self.search_url = url_for(controller='organization', action='index')
+
+    def test_organization_search(self):
+        '''Requesting organization search (index) returns list of
+        organizations and search form.'''
+
+        index_response = self.app.get(self.search_url)
+        index_response_html = BeautifulSoup(index_response.body)
+        org_names = index_response_html.select('ul.media-grid '
+                                               'li.media-item '
+                                               'h3.media-heading')
+        org_names = [n.string for n in org_names]
+
+        assert_equal(len(org_names), 3)
+        assert_true('AOrg One' in org_names)
+        assert_true('AOrg Two' in org_names)
+        assert_true('Org Three' in org_names)
+
+    def test_organization_search_results(self):
+        '''Searching via organization search form returns list of expected
+        organizations.'''
+
+        index_response = self.app.get(self.search_url)
+        search_form = index_response.forms['organization-search-form']
+        search_form['q'] = 'AOrg'
+        search_response = webtest_submit(search_form)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        org_names = search_response_html.select('ul.media-grid '
+                                                'li.media-item '
+                                                'h3.media-heading')
+        org_names = [n.string for n in org_names]
+
+        assert_equal(len(org_names), 2)
+        assert_true('AOrg One' in org_names)
+        assert_true('AOrg Two' in org_names)
+        assert_true('Org Three' not in org_names)
+
+    def test_organization_search_no_results(self):
+        '''Searching with a term that doesn't apply returns no results.'''
+
+        index_response = self.app.get(self.search_url)
+        search_form = index_response.forms['organization-search-form']
+        search_form['q'] = 'No Results Here'
+        search_response = webtest_submit(search_form)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        org_names = search_response_html.select('ul.media-grid '
+                                                'li.media-item '
+                                                'h3.media-heading')
+        org_names = [n.string for n in org_names]
+
+        assert_equal(len(org_names), 0)
+        assert_true("No organizations found for &#34;No Results Here&#34;"
+                    in search_response)
+
+
+class TestOrganizationInnerSearch(helpers.FunctionalTestBase):
+
+    '''Test searching within an organization.'''
+
+    def test_organization_search_within_org(self):
+        '''Organization read page request returns list of datasets owned by
+        organization.'''
+        app = self._get_test_app()
+
+        org = factories.Organization()
+        factories.Dataset(name="ds-one", title="Dataset One",
+                          owner_org=org['id'])
+        factories.Dataset(name="ds-two", title="Dataset Two",
+                          owner_org=org['id'])
+        factories.Dataset(name="ds-three", title="Dataset Three",
+                          owner_org=org['id'])
+
+        org_url = url_for(controller='organization', action='read',
+                          id=org['id'])
+        org_response = app.get(org_url)
+        org_response_html = BeautifulSoup(org_response.body)
+
+        ds_titles = org_response_html.select('.dataset-list '
+                                             '.dataset-item '
+                                             '.dataset-heading a')
+        ds_titles = [t.string for t in ds_titles]
+
+        assert_true('3 datasets found' in org_response)
+        assert_equal(len(ds_titles), 3)
+        assert_true('Dataset One' in ds_titles)
+        assert_true('Dataset Two' in ds_titles)
+        assert_true('Dataset Three' in ds_titles)
+
+    def test_organization_search_within_org_results(self):
+        '''Searching within an organization returns expected dataset
+        results.'''
+        app = self._get_test_app()
+
+        org = factories.Organization()
+        factories.Dataset(name="ds-one", title="Dataset One",
+                          owner_org=org['id'])
+        factories.Dataset(name="ds-two", title="Dataset Two",
+                          owner_org=org['id'])
+        factories.Dataset(name="ds-three", title="Dataset Three",
+                          owner_org=org['id'])
+
+        org_url = url_for(controller='organization', action='read',
+                          id=org['id'])
+        org_response = app.get(org_url)
+        search_form = org_response.forms['organization-datasets-search-form']
+        search_form['q'] = 'One'
+        search_response = webtest_submit(search_form)
+        assert_true('1 dataset found for &#34;One&#34;' in search_response)
+
+        search_response_html = BeautifulSoup(search_response.body)
+
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [t.string for t in ds_titles]
+
+        assert_equal(len(ds_titles), 1)
+        assert_true('Dataset One' in ds_titles)
+        assert_true('Dataset Two' not in ds_titles)
+        assert_true('Dataset Three' not in ds_titles)
+
+    def test_organization_search_within_org_no_results(self):
+        '''Searching for non-returning phrase within an organization returns
+        no results.'''
+        app = self._get_test_app()
+
+        org = factories.Organization()
+        factories.Dataset(name="ds-one", title="Dataset One",
+                          owner_org=org['id'])
+        factories.Dataset(name="ds-two", title="Dataset Two",
+                          owner_org=org['id'])
+        factories.Dataset(name="ds-three", title="Dataset Three",
+                          owner_org=org['id'])
+
+        org_url = url_for(controller='organization', action='read',
+                          id=org['id'])
+        org_response = app.get(org_url)
+        search_form = org_response.forms['organization-datasets-search-form']
+        search_form['q'] = 'Nout'
+        search_response = webtest_submit(search_form)
+
+        assert_true('No datasets found for &#34;Nout&#34;' in search_response)
+
+        search_response_html = BeautifulSoup(search_response.body)
+
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [t.string for t in ds_titles]
+
+        assert_equal(len(ds_titles), 0)

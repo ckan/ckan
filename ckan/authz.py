@@ -431,12 +431,6 @@ def auth_is_anon_user(context):
         See ckan/lib/base.py:232 for pylons context object logic
     '''
     context_user = context.get('user')
-    # FIXME: our current pattern is to set context['user'] to
-    # the IP address in our controller code. Detect and
-    # ignore that case for now. Stop putting the IP address
-    # in context['user'] in a future ckan version.
-    if context_user and '.' in context_user:
-        context_user = None
     is_anon_user = not bool(context_user)
 
     return is_anon_user

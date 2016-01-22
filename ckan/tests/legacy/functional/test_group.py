@@ -13,13 +13,9 @@ class TestGroup(FunctionalTestCase):
 
     @classmethod
     def setup_class(self):
-        search.clear()
+        search.clear_all()
         model.Session.remove()
         CreateTestData.create()
-
-        # reduce extraneous logging
-        from ckan.lib import activity_streams_session_extension
-        activity_streams_session_extension.logger.level = 100
 
     @classmethod
     def teardown_class(self):

@@ -46,7 +46,8 @@ class TestApi3(Api3TestCase, ApiTestCase):
                            params=data_dict,
                            status=[400],
                            expect_errors=True)
-        assert_in('Bad request - JSON Error: No request body data',
+        assert_in('Bad request - JSON Error: Invalid request.'\
+                  ' Please use POST method for your request',
                   res.body)
 
 # Tests for Version 1 of the API.

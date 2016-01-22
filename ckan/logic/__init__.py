@@ -211,7 +211,7 @@ def _prepopulate_context(context):
     context.setdefault('model', model)
     context.setdefault('session', model.Session)
     try:
-        context.setdefault('user', c.user or c.author)
+        context.setdefault('user', c.user)
     except TypeError:
         # c not registered
         pass
@@ -322,7 +322,7 @@ def get_action(action):
     As the context parameter passed to an action function is commonly::
 
         context = {'model': ckan.model, 'session': ckan.model.Session,
-                   'user': pylons.c.user or pylons.c.author}
+                   'user': pylons.c.user}
 
     an action function returned by ``get_action()`` will automatically add
     these parameters to the context if they are not defined.  This is

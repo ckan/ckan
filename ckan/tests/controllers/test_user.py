@@ -55,7 +55,7 @@ class TestRegisterUser(helpers.FunctionalTestBase):
         form['password2'] = ''
 
         response = form.submit('save')
-        assert_true('The passwords you entered do not match')
+        assert_true('The passwords you entered do not match' in response)
 
 
 class TestLoginView(helpers.FunctionalTestBase):
@@ -121,6 +121,23 @@ class TestLoginView(helpers.FunctionalTestBase):
         final_response.mustcontain(no='<a href="/dashboard">Dashboard</a>'),
         final_response.mustcontain(no='<span class="username">{0}</span>'
                                    .format(user['fullname']))
+
+
+class TestLogout(helpers.FunctionalTestBase):
+
+    def test_user_logout_url_redirect(self):
+        '''_logout url redirects to logged out page.
+
+        Note: this doesn't test the actual logout of a logged in user, just
+        the associated redirect.
+        '''
+        app = self._get_test_app()
+
+        logout_url = url_for(controller='user', action='logout')
+        logout_response = app.get(logout_url, status=302)
+        final_response = helpers.webtest_maybe_follow(logout_response)
+
+        assert_true('You are now logged out.' in final_response)
 
 
 class TestUser(helpers.FunctionalTestBase):

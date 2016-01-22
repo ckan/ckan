@@ -1,7 +1,6 @@
 import datetime
 
 from pylons import config, c
-from genshi.core import escape as genshi_escape
 from difflib import unified_diff
 from nose.tools import assert_equal
 
@@ -143,8 +142,8 @@ class TestPackageForm(TestPackageBase):
         for num, (key, value, deleted) in enumerate(sorted(extras)):
             key_in_html_body = self.escape_for_html_body(key)
             value_in_html_body = self.escape_for_html_body(value)
-            key_escaped = genshi_escape(key)
-            value_escaped = genshi_escape(value)
+            key_escaped = key
+            value_escaped = value
             self.check_tag(main_res, 'extras__%s__key' % num, key_in_html_body)
             self.check_tag(main_res, 'extras__%s__value' % num, value_escaped)
             if deleted:

@@ -18,10 +18,10 @@ class _Toolkit(object):
     contents = [
         ## Imported functions/objects ##
         '_',                    # i18n translation
+        'ungettext',            # i18n translation (plural forms)
         'c',                    # template context
         'request',              # http request object
         'render',               # template render function
-        'render_text',          # Genshi NewTextTemplate render function
         'render_snippet',       # snippet render function
         'asbool',               # converts an object to a boolean
         'asint',                # converts an object to an integer
@@ -112,6 +112,19 @@ Everywhere in your code where you want strings to be internationalized
     msg = toolkit._("Hello")
 
 '''
+        t['ungettext'] = common.ungettext
+        self.docstring_overrides['ungettext'] = '''The Pylons ``ungettext``
+        function.
+
+Mark a string for translation that has pural forms in the format
+``ungettext(singular, plural, n)``. Returns the localized unicode string of
+the pluralized value.
+
+Mark a string to be localized as follows::
+
+    msg = toolkit.ungettext("Mouse", "Mice", len(mouses))
+
+'''
         t['c'] = common.c
         self.docstring_overrides['c'] = '''The Pylons template context object.
 
@@ -133,7 +146,6 @@ request body variables, cookies, the request URL, etc.
 
 '''
         t['render'] = base.render
-        t['render_text'] = base.render_text
         t['asbool'] = converters.asbool
         self.docstring_overrides['asbool'] = '''Convert a string from the
 config file into a boolean.

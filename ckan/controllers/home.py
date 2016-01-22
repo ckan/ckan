@@ -19,7 +19,7 @@ class HomeController(base.BaseController):
     def __before__(self, action, **env):
         try:
             base.BaseController.__before__(self, action, **env)
-            context = {'model': model, 'user': c.user or c.author,
+            context = {'model': model, 'user': c.user,
                        'auth_user_obj': c.userobj}
             logic.check_access('site_read', context)
         except logic.NotAuthorized:
@@ -41,7 +41,7 @@ class HomeController(base.BaseController):
         try:
             # package search
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
             data_dict = {
                 'q': '*:*',
                 'facet.field': g.facets,
@@ -74,30 +74,14 @@ class HomeController(base.BaseController):
         except search.SearchError:
             c.package_count = 0
 
-        if c.userobj is not None:
-            msg = None
+        if c.userobj and not c.userobj.email:
             url = h.url_for(controller='user', action='edit')
-            is_google_id = \
-                c.userobj.name.startswith(
-                    'https://www.google.com/accounts/o8/id')
-            if not c.userobj.email and (is_google_id and
-                                        not c.userobj.fullname):
-                msg = _(u'Please <a href="{link}">update your profile</a>'
-                        u' and add your email address and your full name. '
-                        u'{site} uses your email address'
-                        u' if you need to reset your password.'.format(
-                            link=url, site=g.site_title))
-            elif not c.userobj.email:
-                msg = _('Please <a href="%s">update your profile</a>'
-                        ' and add your email address. ') % url + \
-                    _('%s uses your email address'
-                        ' if you need to reset your password.') \
-                    % g.site_title
-            elif is_google_id and not c.userobj.fullname:
-                msg = _('Please <a href="%s">update your profile</a>'
-                        ' and add your full name.') % (url)
-            if msg:
-                h.flash_notice(msg, allow_html=True)
+            msg = _('Please <a href="%s">update your profile</a>'
+                    ' and add your email address. ') % url + \
+                _('%s uses your email address'
+                    ' if you need to reset your password.') \
+                % g.site_title
+            h.flash_notice(msg, allow_html=True)
 
         return base.render('home/index.html', cache_force=True)
 

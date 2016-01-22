@@ -95,7 +95,8 @@ class TestConfig(helpers.FunctionalTestBase):
 
         # current style
         index_response = app.get('/')
-        assert_true('main.css' in index_response)
+        assert_true('main.css' in index_response or
+                    'main.min.css' in index_response)
 
         # set new style css
         env, config_response = _get_admin_config_page(app)
@@ -105,13 +106,16 @@ class TestConfig(helpers.FunctionalTestBase):
 
         # new style
         new_index_response = app.get('/')
-        assert_true('red.css' in new_index_response)
+        assert_true('red.css' in new_index_response or
+                    'red.min.css' in new_index_response)
         assert_true('main.css' not in new_index_response)
+        assert_true('main.min.css' not in new_index_response)
 
         # reset config value
         _reset_config(app)
         reset_index_response = app.get('/')
-        assert_true('main.css' in reset_index_response)
+        assert_true('main.css' in reset_index_response or
+                    'main.min.css' in reset_index_response)
 
     def test_tag_line(self):
         '''Add a tag line (only when no logo)'''
