@@ -38,6 +38,7 @@ class _Helpers(object):
     def __init__(self, helpers):
         self.helpers = helpers
         self._setup()
+        self.no_magic = _HelpersNoMagic(self)
 
     def _setup(self):
         helpers = self.helpers
@@ -71,13 +72,6 @@ class _Helpers(object):
         # logging
         self.log = logging.getLogger('ckan.helpers')
 
-    @classmethod
-    def null_function(cls, *args, **kw):
-        ''' This function is returned if no helper is found. The idea is
-        to try to allow templates to be rendered even if helpers are
-        missing.  Returning the empty string seems to work well.'''
-        return ''
-
     def __getattr__(self, name):
         ''' return the function/object requested '''
         if name in self.functions:
@@ -94,7 +88,29 @@ class _Helpers(object):
                 msg = 'Helper function `%s` could not be found\n ' \
                       '(are you missing an extension?)' % name
                 self.log.critical(msg)
-            return self.null_function
+            return _null_function
+
+
+def _null_function(*args, **kw):
+    ''' This function is returned if no helper is found. The idea is
+    to try to allow templates to be rendered even if helpers are
+    missing.  Returning the empty string seems to work well.'''
+    return ''
+
+
+class _HelpersNoMagic(object):
+    """
+    Access helper.functions as attributes, but raise AttributeError
+    for missing functions instead of returning null_function
+    """
+    def __init__(self, helpers):
+        self._helpers = helpers
+
+    def __getattr__(self, name):
+        fn = getattr(self._helpers, name)
+        if fn is _null_function:
+            raise AttributeError("No helper found named '%s'" % name)
+        return fn
 
 
 def load_environment(global_conf, app_conf):

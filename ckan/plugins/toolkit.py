@@ -20,6 +20,7 @@ class _Toolkit(object):
         '_',                    # i18n translation
         'ungettext',            # i18n translation (plural forms)
         'c',                    # template context
+        'h',                    # template helpers
         'request',              # http request object
         'render',               # template render function
         'render_snippet',       # snippet render function
@@ -38,10 +39,13 @@ class _Toolkit(object):
         'NotAuthorized',        # action not authorized exception
         'UnknownValidator',     # validator not found exception
         'ValidationError',      # model update validation error
+        'StopOnError',          # validation exception to stop further
+                                # validators from being called
         'Invalid',              # validation invalid exception
         'CkanCommand',          # class for providing cli interfaces
         'DefaultDatasetForm',   # base class for IDatasetForm plugins
         'DefaultGroupForm',     # base class for IGroupForm plugins
+        'DefaultOrganizationForm', # base class for IGroupForm plugins for orgs
         'response',             # response object for cookies etc
         'BaseController',       # Allow controllers to be created
         'abort',                # abort actions
@@ -137,6 +141,7 @@ available throughout the template and application code, and are local to the
 current request.
 
 '''
+        t['h'] = getattr(pylons.config['pylons.h'], 'no_magic', None)
         t['request'] = common.request
         self.docstring_overrides['request'] = '''The Pylons request object.
 
@@ -178,12 +183,14 @@ For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
         t['ObjectNotFound'] = logic.NotFound  # Name change intentional
         t['NotAuthorized'] = logic.NotAuthorized
         t['ValidationError'] = logic.ValidationError
+        t['StopOnError'] = dictization_functions.StopOnError
         t['UnknownValidator'] = logic.UnknownValidator
         t['Invalid'] = logic_validators.Invalid
 
         t['CkanCommand'] = cli.CkanCommand
         t['DefaultDatasetForm'] = lib_plugins.DefaultDatasetForm
         t['DefaultGroupForm'] = lib_plugins.DefaultGroupForm
+        t['DefaultOrganizationForm'] = lib_plugins.DefaultOrganizationForm
 
         t['response'] = pylons.response
         self.docstring_overrides['response'] = '''The Pylons response object.
