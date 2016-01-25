@@ -1,4 +1,4 @@
-from pylons import config
+from ckan.common import config
 from sqlalchemy.orm.session import SessionExtension
 from paste.deploy.converters import asbool
 import logging

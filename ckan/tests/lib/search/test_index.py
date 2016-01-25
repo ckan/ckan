@@ -4,7 +4,7 @@ import json
 import nose.tools
 import nose
 
-from pylons import config
+from ckan.common import config
 import ckan.lib.search as search
 import ckan.tests.helpers as helpers
 

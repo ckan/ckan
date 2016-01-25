@@ -1,5 +1,5 @@
 from nose.tools import assert_equal, assert_raises
-from pylons import config, session
+from ckan.common import config, session
 import pylons
 
 import ckan.lib.i18n

@@ -3,7 +3,7 @@ import subprocess
 import urllib2
 import time
 
-from pylons import config
+from ckan.common import config
 
 import ckan.model as model
 from ckan.tests.legacy import *

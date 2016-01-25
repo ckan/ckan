@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import pylons.test
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 import paste.fixture
 from nose import SkipTest

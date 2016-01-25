@@ -1,7 +1,7 @@
 import datetime
 
 from paste.deploy.converters import asbool
-from pylons import config
+from ckan.common import config
 """SQLAlchemy Metadata and Session object"""
 from sqlalchemy import MetaData, and_
 import sqlalchemy.orm as orm

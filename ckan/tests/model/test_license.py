@@ -1,7 +1,7 @@
 import os
 
 from nose.tools import assert_equal
-from pylons import config
+from ckan.common import config
 
 from ckan.model.license import LicenseRegister
 from ckan.tests import helpers

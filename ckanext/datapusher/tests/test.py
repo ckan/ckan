@@ -5,7 +5,7 @@ import sys
 import datetime
 
 import pylons
-from pylons import config
+from ckan.common import config
 import sqlalchemy.orm as orm
 import paste.fixture
 

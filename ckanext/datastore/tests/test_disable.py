@@ -1,6 +1,6 @@
 import nose
 
-import pylons.config as config
+from ckan.common import config
 import ckan.plugins as p
 import nose.tools as t
 

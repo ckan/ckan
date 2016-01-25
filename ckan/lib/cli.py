@@ -18,7 +18,7 @@ import ckan.plugins as p
 import sqlalchemy as sa
 import urlparse
 import routes
-from pylons import config
+from ckan.common import config
 
 import paste.script
 from paste.registry import Registry
@@ -35,7 +35,7 @@ def parse_db_config(config_key='sqlalchemy.url'):
 
     'postgres://tester:pass@localhost/ckantest3'
     '''
-    from pylons import config
+    from ckan.common import config
     url = config[config_key]
     regex = [
         '^\s*(?P<db_type>\w*)',
@@ -605,7 +605,7 @@ class RDFExport(CkanCommand):
         '''
         import urlparse
         import urllib2
-        import pylons.config as config
+        from ckan.common import config
         import ckan.model as model
         import ckan.logic as logic
         import ckan.lib.helpers as h
@@ -1794,7 +1794,7 @@ class TranslationsCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        from pylons import config
+        from ckan.common import config
         self.ckan_path = os.path.join(os.path.dirname(__file__), '..')
         i18n_path = os.path.join(self.ckan_path, 'i18n')
         self.i18n_path = config.get('ckan.i18n_directory', i18n_path)

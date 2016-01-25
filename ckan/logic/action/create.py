@@ -4,7 +4,7 @@ import logging
 import random
 import re
 
-from pylons import config
+from ckan.common import config
 import paste.deploy.converters
 from sqlalchemy import func
 

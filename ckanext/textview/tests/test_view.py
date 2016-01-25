@@ -1,5 +1,5 @@
 import paste.fixture
-import pylons.config as config
+from ckan.common import config
 import urlparse
 
 import ckan.model as model

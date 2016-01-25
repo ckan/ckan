@@ -2,7 +2,7 @@
 
 '''
 
-from pylons import config
+from ckan.common import config
 import mock
 import nose.tools
 

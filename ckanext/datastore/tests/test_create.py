@@ -4,7 +4,7 @@ import sys
 from nose.tools import assert_equal, raises
 
 import pylons
-from pylons import config
+from ckan.common import config
 import sqlalchemy.orm as orm
 import paste.fixture
 

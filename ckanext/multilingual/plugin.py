@@ -3,7 +3,7 @@ from ckan.plugins import SingletonPlugin, implements, IPackageController
 from ckan.plugins import IGroupController, IOrganizationController, ITagController, IResourceController
 import pylons
 from ckan.logic import get_action
-from pylons import config
+from ckan.common import config
 
 LANGS = ['en', 'fr', 'de', 'es', 'it', 'nl', 'ro', 'pt', 'pl']
 

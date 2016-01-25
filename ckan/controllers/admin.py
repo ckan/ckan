@@ -1,4 +1,4 @@
-from pylons import config
+from ckan.common import config
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h

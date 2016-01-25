@@ -3,7 +3,7 @@
 '''
 import paste.fixture
 import pylons.test
-import pylons.config as config
+from ckan.common import config
 import webtest
 
 import ckan.model as model

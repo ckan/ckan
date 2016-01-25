@@ -5,7 +5,7 @@ import warnings
 import xml.dom.minidom
 import urllib2
 
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 
 import ckan.model as model

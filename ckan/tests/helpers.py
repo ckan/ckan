@@ -18,7 +18,7 @@ This module is reserved for these very useful functions.
 
 '''
 import webtest
-from pylons import config
+from ckan.common import config
 import nose.tools
 
 import ckan.lib.search as search

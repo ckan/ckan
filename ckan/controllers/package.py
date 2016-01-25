@@ -4,7 +4,7 @@ import datetime
 import mimetypes
 import cgi
 
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 import paste.fileapp
 

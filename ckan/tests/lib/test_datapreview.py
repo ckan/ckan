@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import nose
-from pylons import config
+from ckan.common import config
 
 import ckan.plugins as p
 import ckan.lib.datapreview as datapreview

@@ -123,7 +123,7 @@ def identify_user_default():
     return c.user, c.userobj
 
 def get_user_for_apikey():
-    from pylons import config
+    from ckan.common import config
     APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
     APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 

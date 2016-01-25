@@ -7,7 +7,7 @@ from email.header import Header
 from email import Utils
 from urlparse import urljoin
 
-from pylons import config
+from ckan.common import config
 import paste.deploy.converters
 
 import ckan
