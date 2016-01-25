@@ -32,7 +32,7 @@ class TestAuth(tests.WsgiAppCase):
         config['ckan.auth.roles_that_cascade_to_sub_groups'] = 'admin'
 
         wsgiapp = ckan.config.middleware.make_app(
-            config['global_conf'], **config)
+            config.pylons_config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod

@@ -69,7 +69,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
         CreateTestData.create()
         cls._original_config = config.copy()
         wsgiapp = ckan.config.middleware.make_app(
-            config['global_conf'], **config)
+            config.pylons_config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()
@@ -119,7 +119,7 @@ class TestCreateUserApiEnabled(PylonsTestCase):
         cls._original_config = config.copy()
         config['ckan.auth.create_user_via_api'] = True
         wsgiapp = ckan.config.middleware.make_app(
-            config['global_conf'], **config)
+            config.pylons_config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         PylonsTestCase.setup_class()
         cls.sysadmin_user = model.User.get('testsysadmin')
@@ -167,7 +167,7 @@ class TestCreateUserWebDisabled(PylonsTestCase):
         cls._original_config = config.copy()
         config['ckan.auth.create_user_via_web'] = False
         wsgiapp = ckan.config.middleware.make_app(
-            config['global_conf'], **config)
+            config.pylons_config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()
@@ -203,7 +203,7 @@ class TestCreateUserWebEnabled(PylonsTestCase):
         cls._original_config = config.copy()
         config['ckan.auth.create_user_via_web'] = True
         wsgiapp = ckan.config.middleware.make_app(
-            config['global_conf'], **config)
+            config.pylons_config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()

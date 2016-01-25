@@ -21,7 +21,7 @@ class TestDatastoreDump(object):
 
     @classmethod
     def setup_class(cls):
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
+        wsgiapp = middleware.make_app(config.pylons_config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
