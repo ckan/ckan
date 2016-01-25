@@ -280,7 +280,8 @@ def resource_create(context, data_dict):
     user = context['user']
 
     package_id = _get_or_bust(data_dict, 'package_id')
-    _get_or_bust(data_dict, 'url')
+    if not data_dict.get('url'):
+        data_dict['url'] = ''
 
     pkg_dict = _get_action('package_show')(
         dict(context, return_type='dict'),
