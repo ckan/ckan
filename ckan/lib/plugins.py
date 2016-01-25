@@ -275,10 +275,6 @@ class DefaultDatasetForm(object):
         maintain.deprecate_context_item('licences', 'Use `c.licenses` instead')
         c.is_sysadmin = ckan.authz.is_sysadmin(c.user)
 
-        if c.pkg:
-            # Used by the disqus plugin
-            c.related_count = c.pkg.related_count
-
         if context.get('revision_id') or context.get('revision_date'):
             if context.get('revision_id'):
                 rev = base.model.Session.query(base.model.Revision) \

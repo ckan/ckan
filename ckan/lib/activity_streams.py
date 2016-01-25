@@ -48,13 +48,6 @@ def get_snippet_resource(activity, detail):
     return h.resource_link(detail['data']['resource'],
                            activity['data']['package']['id'])
 
-def get_snippet_related_item(activity, detail):
-    return h.related_item_link(activity['data']['related'])
-
-def get_snippet_related_type(activity, detail):
-    # FIXME this needs to be translated
-    return activity['data']['related']['type']
-
 # activity_stream_string_*() functions return translatable string
 # representations of activity types, the strings contain placeholders like
 # {user}, {dataset} etc. to be replaced with snippets from the get_snippet_*()
@@ -80,13 +73,6 @@ def activity_stream_string_changed_resource(context, activity):
 
 def activity_stream_string_changed_user(context, activity):
     return _("{actor} updated their profile")
-
-def activity_stream_string_changed_related_item(context, activity):
-    if activity['data'].get('dataset'):
-        return _("{actor} updated the {related_type} {related_item} of the "
-                "dataset {dataset}")
-    else:
-        return _("{actor} updated the {related_type} {related_item}")
 
 def activity_stream_string_deleted_group(context, activity):
     return _("{actor} deleted the group {group}")
@@ -125,9 +111,6 @@ def activity_stream_string_new_user(context, activity):
 def activity_stream_string_removed_tag(context, activity):
     return _("{actor} removed the tag {tag} from the dataset {dataset}")
 
-def activity_stream_string_deleted_related_item(context, activity):
-    return _("{actor} deleted the related item {related_item}")
-
 def activity_stream_string_follow_dataset(context, activity):
     return _("{actor} started following {dataset}")
 
@@ -136,13 +119,6 @@ def activity_stream_string_follow_user(context, activity):
 
 def activity_stream_string_follow_group(context, activity):
     return _("{actor} started following {group}")
-
-def activity_stream_string_new_related_item(context, activity):
-    if activity['data'].get('dataset'):
-        return _("{actor} added the {related_type} {related_item} to the "
-                 "dataset {dataset}")
-    else:
-        return _("{actor} added the {related_type} {related_item}")
 
 # A dictionary mapping activity snippets to functions that expand the snippets.
 activity_snippet_functions = {
@@ -154,8 +130,6 @@ activity_snippet_functions = {
     'organization': get_snippet_organization,
     'extra': get_snippet_extra,
     'resource': get_snippet_resource,
-    'related_item': get_snippet_related_item,
-    'related_type': get_snippet_related_type,
 }
 
 # A dictionary mapping activity types to functions that return translatable
@@ -168,7 +142,6 @@ activity_stream_string_functions = {
   'changed package_extra': activity_stream_string_changed_package_extra,
   'changed resource': activity_stream_string_changed_resource,
   'changed user': activity_stream_string_changed_user,
-  'changed related item': activity_stream_string_changed_related_item,
   'deleted group': activity_stream_string_deleted_group,
   'deleted organization': activity_stream_string_deleted_organization,
   'deleted package': activity_stream_string_deleted_package,
@@ -181,11 +154,9 @@ activity_stream_string_functions = {
   'new resource': activity_stream_string_new_resource,
   'new user': activity_stream_string_new_user,
   'removed tag': activity_stream_string_removed_tag,
-  'deleted related item': activity_stream_string_deleted_related_item,
   'follow dataset': activity_stream_string_follow_dataset,
   'follow user': activity_stream_string_follow_user,
   'follow group': activity_stream_string_follow_group,
-  'new related item': activity_stream_string_new_related_item,
 }
 
 # A dictionary mapping activity types to the icons associated to them
@@ -206,11 +177,9 @@ activity_stream_string_icons = {
   'new resource': 'file',
   'new user': 'user',
   'removed tag': 'tag',
-  'deleted related item': 'picture',
   'follow dataset': 'sitemap',
   'follow user': 'user',
   'follow group': 'group',
-  'new related item': 'picture',
   'changed organization': 'briefcase',
   'deleted organization': 'briefcase',
   'new organization': 'briefcase',

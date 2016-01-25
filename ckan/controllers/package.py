@@ -368,7 +368,6 @@ class PackageController(base.BaseController):
 
         # used by disqus plugin
         c.current_package_id = c.pkg.id
-        c.related_count = c.pkg.related_count
 
         # can the resources be previewed?
         for resource in c.pkg_dict['resources']:
@@ -475,7 +474,6 @@ class PackageController(base.BaseController):
 
         package_type = c.pkg_dict['type'] or 'dataset'
 
-        c.related_count = c.pkg.related_count
         return render(
             self._history_template(c.pkg_dict.get('type', package_type)),
             extra_vars={'dataset_type': package_type})
@@ -783,7 +781,6 @@ class PackageController(base.BaseController):
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
-        c.related_count = c.pkg.related_count
 
         # we have already completed stage 1
         form_vars['stage'] = ['active']
@@ -1094,8 +1091,6 @@ class PackageController(base.BaseController):
         c.datastore_api = '%s/api/action' % \
             config.get('ckan.site_url', '').rstrip('/')
 
-        c.related_count = c.pkg.related_count
-
         c.resource['can_be_previewed'] = self._resource_preview(
             {'resource': c.resource, 'package': c.package})
 
@@ -1218,7 +1213,6 @@ class PackageController(base.BaseController):
             c.followers = get_action('dataset_follower_list')(
                 context, {'id': c.pkg_dict['id']})
 
-            c.related_count = c.pkg.related_count
             dataset_type = c.pkg.type or 'dataset'
         except NotFound:
             abort(404, _('Dataset not found'))
@@ -1299,9 +1293,8 @@ class PackageController(base.BaseController):
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
             c.package_activity_stream = get_action(
-                'package_activity_list_html')(context,
-                                              {'id': c.pkg_dict['id']})
-            c.related_count = c.pkg.related_count
+                'package_activity_list_html')(
+                context, {'id': c.pkg_dict['id']})
             dataset_type = c.pkg_dict['type'] or 'dataset'
         except NotFound:
             abort(404, _('Dataset not found'))
