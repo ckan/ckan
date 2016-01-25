@@ -79,7 +79,7 @@ def default_resource_schema():
         'id': [ignore_empty, unicode],
         'revision_id': [ignore_missing, unicode],
         'package_id': [ignore],
-        'url': [not_empty, unicode, remove_whitespace],
+        'url': [ignore_missing, unicode, remove_whitespace],
         'description': [ignore_missing, unicode],
         'format': [if_empty_guess_format, ignore_missing, clean_format, unicode],
         'hash': [ignore_missing, unicode],
