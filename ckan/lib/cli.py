@@ -144,6 +144,8 @@ class CkanCommand(paste.script.command.Command):
         # We have now loaded the config. Now we can import ckan for the
         # first time.
         from ckan.config.environment import load_environment
+        from pylons import config as pylons_config
+        config.initialize(pylons_config=pylons_config)
         load_environment(conf.global_conf, conf.local_conf)
 
         self.registry = Registry()

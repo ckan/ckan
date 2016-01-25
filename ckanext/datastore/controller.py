@@ -12,6 +12,7 @@ from ckan.common import request
 
 class DatastoreController(base.BaseController):
     def dump(self, resource_id):
+        return "Hola"
         context = {
             'model': model,
             'session': model.Session,
