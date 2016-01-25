@@ -47,6 +47,7 @@ package_table = Table('package', meta.metadata,
         Column('type', types.UnicodeText, default=u'dataset'),
         Column('owner_org', types.UnicodeText),
         Column('creator_user_id', types.UnicodeText),
+        Column('metadata_created', types.DateTime, default=datetime.datetime.utcnow),
         Column('metadata_modified', types.DateTime, default=datetime.datetime.utcnow),
         Column('private', types.Boolean, default=False),
 )
@@ -482,16 +483,6 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
             groupcaps = zip( groups,caps )
             groups = [g[0] for g in groupcaps if g[1] == capacity]
         return groups
-
-    @property
-    def metadata_created(self):
-        import ckan.model as model
-        q = meta.Session.query(model.PackageRevision.revision_timestamp)\
-            .filter(model.PackageRevision.id == self.id)\
-            .order_by(model.PackageRevision.revision_timestamp.asc())
-        ts = q.first()
-        if ts:
-            return ts[0]
 
     @staticmethod
     def get_fields(core_only=False, fields_to_ignore=None):
