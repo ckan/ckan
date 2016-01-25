@@ -682,7 +682,7 @@ class TestNonActivePackages(TestPackageBase):
 
     def test_read(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)
-        res = self.app.get(offset, status=[302, 401])
+        res = self.app.get(offset, status=[404])
 
 
     def test_read_as_admin(self):
