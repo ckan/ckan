@@ -8,7 +8,8 @@ from urlparse import urlparse
 import pylons
 from paste.deploy.converters import asbool
 import sqlalchemy
-from pylons import config
+from pylons import config as pylons_config
+from ckan.common import config
 
 import ckan.config.routing as routing
 import ckan.model as model
@@ -133,8 +134,14 @@ def load_environment(global_conf, app_conf):
                  static_files=os.path.join(root, 'public'),
                  templates=[])
 
+    # Set up the actual CKAN config object
+    config.update(global_conf)
+    config.update(app_conf)
+
     # Initialize config with the basic options
-    config.init_app(global_conf, app_conf, package='ckan', paths=paths)
+
+    pylons_config.init_app(global_conf, app_conf, package='ckan', paths=paths)
+
 
     # Setup the SQLAlchemy database engine
     # Suppress a couple of sqlalchemy warnings
@@ -233,6 +240,11 @@ def update_config():
     search.check_solr_schema_version()
 
     routes_map = routing.make_map()
+    # TODO: do we want the following configuration options just on the pylons
+    # config instead of the ckan one? (ie assign to pylons_config instead of
+    # config)
+    # The only reason I see for keeping them in config is in case some
+    # extension is using them which seems very unlickely
     config['routes.map'] = routes_map
     # The RoutesMiddleware needs its mapper updating if it exists
     if 'routes.middleware' in config:
