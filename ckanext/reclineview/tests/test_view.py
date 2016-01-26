@@ -92,7 +92,7 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
         app_config['ckan.legacy_templates'] = 'false'
         app_config['ckan.plugins'] = 'recline_view datastore'
         app_config['ckan.views.default_views'] = 'recline_view'
-        wsgiapp = middleware.make_app(config['global_conf'], **app_config)
+        wsgiapp = middleware.make_app(config.pylons_config['global_conf'], **app_config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod
