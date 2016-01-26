@@ -194,8 +194,6 @@ class TestUserEdit(helpers.FunctionalTestBase):
             url_for(controller='user', action='edit', id='unknown_person'),
             status=403
         )
-        response = response.follow()
-        assert_true('Login' in response)
 
     def test_user_edit_not_logged_in(self):
         '''Attempt to read edit user for an existing, not-logged in user

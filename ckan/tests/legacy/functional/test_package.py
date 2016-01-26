@@ -511,7 +511,7 @@ class TestEdit(TestPackageForm):
             self.res = self.app.get(self.offset, extra_environ=self.extra_environ_admin)
             fv = self.res.forms['dataset-edit']
             fv['title'] = u'New Title'
-            res = fv.submit('save')
+            res = fv.submit('save', extra_environ=self.extra_environ_admin)
 
             # check relationship still exists
             rels = model.Package.by_name(self.editpkg_name).get_relationships()
