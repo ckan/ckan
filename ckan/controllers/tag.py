@@ -20,7 +20,7 @@ class TagController(base.BaseController):
                        'auth_user_obj': c.userobj}
             logic.check_access('site_read', context)
         except logic.NotAuthorized:
-            base.abort(401, _('Not authorized to see this page'))
+            base.abort(403, _('Not authorized to see this page'))
 
     def index(self):
         c.q = request.params.get('q', '')

@@ -28,7 +28,7 @@ class AdminController(base.BaseController):
         try:
             logic.check_access('sysadmin', context, {})
         except logic.NotAuthorized:
-            base.abort(401, _('Need to be system administrator to administer'))
+            base.abort(403, _('Need to be system administrator to administer'))
         c.revision_change_state_allowed = True
 
     def _get_config_form_items(self):

@@ -28,7 +28,7 @@ class RevisionController(base.BaseController):
         try:
             logic.check_access('site_read', context)
         except logic.NotAuthorized:
-            base.abort(401, _('Not authorized to see this page'))
+            base.abort(403, _('Not authorized to see this page'))
 
     def index(self):
         return self.list()
@@ -179,7 +179,7 @@ class RevisionController(base.BaseController):
         if action in ['delete', 'undelete']:
             # this should be at a lower level (e.g. logic layer)
             if not c.revision_change_state_allowed:
-                base.abort(401)
+                base.abort(403)
             if action == 'delete':
                 revision.state = model.State.DELETED
             elif action == 'undelete':

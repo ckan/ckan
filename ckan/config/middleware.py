@@ -108,12 +108,12 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         # Handle Python exceptions
         app = ErrorHandler(app, conf, **config['pylons.errorware'])
 
-        # Display error documents for 401, 403, 404 status codes (and
+        # Display error documents for 400, 403, 404 status codes (and
         # 500 when debug is disabled)
         if asbool(config['debug']):
-            app = StatusCodeRedirect(app, [400, 404])
+            app = StatusCodeRedirect(app, [400, 403, 404])
         else:
-            app = StatusCodeRedirect(app, [400, 404, 500])
+            app = StatusCodeRedirect(app, [400, 403, 404, 500])
 
     # Initialize repoze.who
     who_parser = WhoConfig(conf['here'])
