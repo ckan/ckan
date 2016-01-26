@@ -50,7 +50,7 @@ class TestGroupControllerNew(helpers.FunctionalTestBase):
     def test_not_logged_in(self):
         app = self._get_test_app()
         app.get(url=url_for(controller='group', action='new'),
-                status=302)
+                status=403)
 
     def test_form_renders(self):
         app = self._get_test_app()
@@ -110,7 +110,7 @@ class TestGroupControllerEdit(helpers.FunctionalTestBase):
     def test_not_logged_in(self):
         app = self._get_test_app()
         app.get(url=url_for(controller='group', action='new'),
-                status=302)
+                status=403)
 
     def test_group_doesnt_exist(self):
         app = self._get_test_app()
@@ -214,7 +214,7 @@ class TestGroupDelete(helpers.FunctionalTestBase):
         self.app.get(url=url_for(controller='group',
                                  action='delete',
                                  id=self.group['id']),
-                     status=401,
+                     status=403,
                      extra_environ=extra_environ)
 
         group = helpers.call_action('group_show',
@@ -225,7 +225,7 @@ class TestGroupDelete(helpers.FunctionalTestBase):
         self.app.get(url=url_for(controller='group',
                                  action='delete',
                                  id=self.group['id']),
-                     status=302)  # redirects to login form
+                     status=403)
 
         group = helpers.call_action('group_show',
                                     id=self.group['id'])

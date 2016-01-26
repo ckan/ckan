@@ -763,10 +763,10 @@ class TestResourceListing(TestPackageBase):
          self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_tester, status=200)
 
     def test_resource_listing_premissions_non_auth_user(self):
-        # non auth user 401
-         self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_someone_else, status=[302,401])
+        # non auth user 403
+         self.app.get('/dataset/resources/crimeandpunishment', extra_environ=self.extra_environ_someone_else, status=[403])
 
     def test_resource_listing_premissions_not_logged_in(self):
-        # not logged in 401
-         self.app.get('/dataset/resources/crimeandpunishment', status=[302,401])
+        # not logged in 403
+         self.app.get('/dataset/resources/crimeandpunishment', status=[403])
 

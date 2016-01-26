@@ -430,8 +430,7 @@ class TestPackageDelete(helpers.FunctionalTestBase):
         response = app.post(
             url_for(controller='package', action='delete', id=dataset['name']),
         )
-        response = response.follow()
-        assert_equal(200, response.status_int)
+        assert_equal(403, response.status_int)
         response.mustcontain('Unauthorized to delete package')
 
         deleted = helpers.call_action('package_show', id=dataset['id'])
@@ -452,7 +451,7 @@ class TestPackageDelete(helpers.FunctionalTestBase):
             extra_environ=env,
             expect_errors=True
         )
-        assert_equal(401, response.status_int)
+        assert_equal(403, response.status_int)
         response.mustcontain('Unauthorized to delete package')
 
     def test_confirm_cancel_delete(self):
@@ -650,8 +649,7 @@ class TestResourceDelete(helpers.FunctionalTestBase):
             url_for(controller='package', action='resource_delete',
                     id=dataset['name'], resource_id=resource['id']),
         )
-        response = response.follow()
-        assert_equal(200, response.status_int)
+        assert_equal(403, response.status_int)
         response.mustcontain('Unauthorized to delete package')
 
     def test_logged_in_users_cannot_delete_resources_they_do_not_own(self):
@@ -673,7 +671,7 @@ class TestResourceDelete(helpers.FunctionalTestBase):
             extra_environ=env,
             expect_errors=True
         )
-        assert_equal(401, response.status_int)
+        assert_equal(403, response.status_int)
         response.mustcontain('Unauthorized to delete package')
 
     def test_sysadmins_can_delete_any_resource(self):

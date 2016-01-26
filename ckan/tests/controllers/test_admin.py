@@ -260,13 +260,7 @@ class TestTrashView(helpers.FunctionalTestBase):
         app = self._get_test_app()
 
         trash_url = url_for(controller='admin', action='trash')
-        trash_response = app.get(trash_url, status=302)
-        # redirects to login page with flash message
-        trash_response = trash_response.follow()
-        assert_true('Need to be system administrator to administer'
-                    in trash_response)
-        assert_true('<!-- Snippet user/snippets/login_form.html start -->'
-                    in trash_response)
+        trash_response = app.get(trash_url, status=403)
 
     def test_trash_view_normal_user(self):
         '''A normal logged in user shouldn't be able to access trash view.'''
@@ -275,7 +269,7 @@ class TestTrashView(helpers.FunctionalTestBase):
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
         trash_url = url_for(controller='admin', action='trash')
-        trash_response = app.get(trash_url, extra_environ=env, status=401)
+        trash_response = app.get(trash_url, extra_environ=env, status=403)
         assert_true('Need to be system administrator to administer'
                     in trash_response)
 

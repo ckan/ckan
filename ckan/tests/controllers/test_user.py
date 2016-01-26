@@ -192,7 +192,7 @@ class TestUserEdit(helpers.FunctionalTestBase):
         app = self._get_test_app()
         response = app.get(
             url_for(controller='user', action='edit', id='unknown_person'),
-            status=302  # redirect to login page
+            status=403
         )
         response = response.follow()
         assert_true('Login' in response)
@@ -205,10 +205,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
         username = user['name']
         response = app.get(
             url_for(controller='user', action='edit', id=username),
-            status=302
+            status=403
         )
-        response = response.follow()
-        assert_true('Login' in response)
 
     def test_edit_user(self):
         user = factories.User(password='pass')
