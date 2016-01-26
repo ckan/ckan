@@ -51,7 +51,7 @@ characteristics above, including participants with disabilities.
 Reporting Issues
 ----
 
-If you experience or witness unacceptable behavior—or have any other concerns—please report it by contacting us via abuse@ckan.org. All reports will be handled with discretion. In your report please include:
+If you experience or witness unacceptable behavior—or have any other concerns—please report it by contacting us via conduct@ckan.org. All reports will be handled with discretion. In your report please include:
 
 - Your contact information.
 - Names (real, nicknames, or pseudonyms) of any individuals involved. If there are additional witnesses, please
