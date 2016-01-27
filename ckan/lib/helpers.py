@@ -13,7 +13,6 @@ import os
 import pytz
 import tzlocal
 import urllib
-import urlparse
 import pprint
 import copy
 import urlparse
@@ -294,7 +293,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         if default_locale:
             root_path = re.sub('/{{LANG}}', '', root_path)
         else:
-            root_path = re.sub('{{LANG}}', locale, root_path)
+            root_path = re.sub('{{LANG}}', str(locale), root_path)
         # make sure we don't have a trailing / on the root
         if root_path[-1] == '/':
             root_path = root_path[:-1]
