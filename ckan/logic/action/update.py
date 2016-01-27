@@ -1098,7 +1098,7 @@ def _bulk_update_dataset(context, data_dict, update_dict):
             'q': q,
             'fl': 'data_dict',
             'wt': 'json',
-            'fq': 'site_id:"%s"' % config.get('ckan.site_id'),
+            'fq': ['site_id:"%s"' % config.get('ckan.site_id')],
             'rows': BATCH_SIZE
         }
 
