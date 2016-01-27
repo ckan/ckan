@@ -78,10 +78,10 @@ class TestGetTables(object):
         datastore_test_helpers.clear_db(cls.Session)
 
         create_tables = [
-            'CREATE TABLE test_a (id_a text)',
-            'CREATE TABLE test_b (id_b text)',
-            'CREATE TABLE "TEST_C" (id_c text)',
-            'CREATE TABLE test_d ("α/α" integer)', # non-ascii name for a column
+            u'CREATE TABLE test_a (id_a text)',
+            u'CREATE TABLE test_b (id_b text)',
+            u'CREATE TABLE "TEST_C" (id_c text)',
+            u'CREATE TABLE test_d ("α/α" integer)',
         ]
         for create_table_sql in create_tables:
             cls.Session.execute(create_table_sql)
