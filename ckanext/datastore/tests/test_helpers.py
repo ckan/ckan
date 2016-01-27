@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 import pylons
 import sqlalchemy.orm as orm
 import nose
@@ -79,6 +81,7 @@ class TestGetTables(object):
             'CREATE TABLE test_a (id_a text)',
             'CREATE TABLE test_b (id_b text)',
             'CREATE TABLE "TEST_C" (id_c text)',
+            'CREATE TABLE test_d ("α/α" integer)', # non-ascii name for a column
         ]
         for create_table_sql in create_tables:
             cls.Session.execute(create_table_sql)
@@ -109,6 +112,8 @@ class TestGetTables(object):
                         test_b) AS b,
                     test_a AS a''', ['test_a', 'test_b', 'TEST_C']),
             ('INSERT INTO test_a VALUES (\'a\')', ['test_a']),
+            ('SELECT "α/α" FROM test_d', ['test_d']),
+            ('SELECT "α/α" FROM test_d WHERE "α/α" > 1000', ['test_d']),
         ]
 
         context = {
