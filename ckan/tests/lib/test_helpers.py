@@ -1,5 +1,6 @@
 import nose
 import i18n
+from babel import Locale
 
 import ckan.lib.helpers as h
 import ckan.exceptions
@@ -72,6 +73,14 @@ class TestHelpersUrlFor(object):
                                   action='read',
                                   id='my_dataset',
                                   locale='de')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/foo/{{LANG}}')
+    def test_url_for_with_locale_object(self):
+        url = '/foo/de/dataset/my_dataset'
+        generated_url = h.url_for('/dataset/my_dataset',
+                                  locale=Locale('de'))
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
