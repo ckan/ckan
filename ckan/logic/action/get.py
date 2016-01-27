@@ -1737,6 +1737,10 @@ def package_search(context, data_dict):
         sysadmin will be returned all draft datasets. Optional, the default is
         ``False``.
     :type include_drafts: boolean
+    :param use_default_schema: use default package schema instead of
+        a custom schema defined with an IDatasetForm plugin (default: False)
+    :type use_default_schema: bool
+
 
     The following advanced Solr parameters are supported as well. Note that
     some of these are only available on particular Solr versions. See Solr's
@@ -1776,9 +1780,6 @@ def package_search(context, data_dict):
         "count", "display_name" and "name" entries.  The display_name is a
         form of the name that can be used in titles.
     :type search_facets: nested dict of dicts.
-    :param use_default_schema: use default package schema instead of
-        a custom schema defined with an IDatasetForm plugin (default: False)
-    :type use_default_schema: bool
 
     An example result: ::
 
@@ -1840,7 +1841,11 @@ def package_search(context, data_dict):
 
     results = []
     if not abort:
-        data_source = 'data_dict' if data_dict.get('use_default_schema') else 'validated_data_dict'
+        if asbool(data_dict.get('use_default_schema')):
+            data_source = 'data_dict'
+        else:
+            data_source = 'validated_data_dict'
+        data_dict.pop('use_default_schema', None)
         # return a list of package ids
         data_dict['fl'] = 'id {0}'.format(data_source)
 
