@@ -823,7 +823,8 @@ def extra_key_not_in_root_schema(key, data, errors, context):
 
     for schema_key in context.get('schema_keys', []):
         if schema_key == data[key]:
-            raise Invalid(_('There is a schema field with the same name'))
+            error_message = _('There is a schema field with the same name')
+            raise Invalid(error_message + ":field_name=" + schema_key)
 
 
 def empty_if_not_sysadmin(key, data, errors, context):
