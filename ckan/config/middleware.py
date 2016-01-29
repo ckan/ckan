@@ -20,6 +20,14 @@ from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 from fanstatic import Fanstatic
 
+from wsgi_party import WSGIParty, HighAndDry
+from flask import Flask
+from flask import abort as flask_abort
+from flask import request as flask_request
+from flask import _request_ctx_stack
+from werkzeug.routing import BuildError
+from werkzeug.test import create_environ, run_wsgi_app
+
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
 from ckan.lib.i18n import get_locales_from_config
@@ -32,6 +40,19 @@ log = logging.getLogger(__name__)
 
 
 def make_app(conf, full_stack=True, static_files=True, **app_conf):
+
+    # :::TODO::: like the flask app, make the pylons app respond to invites at
+    # /__invite__/, and handle can_handle_url requests.
+
+    pylons_app = make_pylons_stack(conf, full_stack, static_files, **app_conf)
+    flask_app = make_flask_stack(conf)
+
+    app = AskAppDispatcherMiddleware([pylons_app, flask_app])
+
+    return app
+
+
+def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
     """Create a Pylons WSGI application and return it
 
     ``conf``
@@ -74,7 +95,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     app = CacheMiddleware(app, config)
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
-    #app = QueueLogMiddleware(app)
+    # app = QueueLogMiddleware(app)
     if asbool(config.get('ckan.use_pylons_response_cleanup_middleware', True)):
         app = execute_on_completion(app, config, cleanup_pylons_response_string)
 
@@ -152,7 +173,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
             try:
                 os.makedirs(path)
             except OSError, e:
-                ## errno 17 is file already exists
+                # errno 17 is file already exists
                 if e.errno != 17:
                     raise
 
@@ -178,6 +199,113 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         app = TrackingMiddleware(app, config)
 
     return app
+
+
+def make_flask_stack(conf):
+    """ This has to pass the flask app through all the same middleware that
+    Pylons used """
+
+    app = CKANFlask(__name__)
+
+    @app.route('/flask_hello')
+    def hello_world():
+        return 'Hello World!'
+
+    return app
+
+
+class CKANFlask(Flask):
+
+    '''Extend the Flask class with a special view to join the 'partyline'
+    established by AskAppDispatcherMiddleware.
+
+    Also provide a 'can_handle_url' method.
+    '''
+
+    def __init__(self, import_name, *args, **kwargs):
+        super(CKANFlask, self).__init__(import_name, *args, **kwargs)
+        self.add_url_rule('/__invite__/', endpoint='partyline',
+                          view_func=self.join_party)
+        self.partyline = None
+        self.connected = False
+        self.invitation_context = None
+
+    def join_party(self, request=flask_request):
+        # Bootstrap, turn the view function into a 404 after registering.
+        if self.connected:
+            # This route does not exist at the HTTP level.
+            flask_abort(404)
+        self.invitation_context = _request_ctx_stack.top
+        self.partyline = request.environ.get(WSGIParty.partyline_key)
+        self.partyline.connect('can_handle_url', self.can_handle_url)
+        self.connected = True
+        return 'ok'
+
+    def can_handle_url(self, payload):
+        # :::TODO::: don't hardcode accepted url paths here, instead query the route map with .match()
+        if payload == '/flask_hello':
+            return (True, self)
+        else:
+            raise HighAndDry()
+
+
+class AskAppDispatcherMiddleware(WSGIParty):
+
+    '''
+    Establish a 'partyline' to each provided app. Select which app to call
+    by asking each if they can handle the requested path at PATH_INFO.
+
+    Used to help transition from Pylons to Flask, and should be removed once
+    Pylons has been deprecated and all app requests are handled by Flask.
+
+    Each app should handle a call to 'can_handle_url(payload)', responding with a tuple:
+        (<bool>, <app>, [<origin>])
+    where:
+        `bool` is True if the app can handle the payload url,
+        `app` is the wsgi app returning the answer
+        `origin` is an optional string to determine where in the app the url
+        will be handled, e.g. 'core' or 'extension'.
+
+    Order of precedence if more than one app can handle a url:
+        Flask Extension > Pylons Extension > Flask Core > Pylons Core
+    '''
+
+    def __init__(self, apps=None, invites=(), ignore_missing_services=False):
+        # Array of apps managed by this middleware
+        self.apps = apps or []
+
+        # A dict of service name => handler mappings.
+        self.handlers = {}
+
+        # If True, suppress :class:`NoSuchServiceName` errors. Default: False.
+        self.ignore_missing_services = ignore_missing_services
+
+        self.send_invitations(apps)
+
+    def send_invitations(self, apps):
+        '''Call each app at the invite route to establish a partyline. Called
+        on init.'''
+        PATH = '/__invite__/'
+        for app in apps:
+            environ = create_environ(path=PATH)
+            environ[self.partyline_key] = self.operator_class(self)
+            run_wsgi_app(app, environ)
+
+    def __call__(self, environ, start_response):
+        '''Determine which app to call by asking each app if can handle the
+        url at PATH_INFO'''
+        url_path = environ.get('PATH_INFO', '')
+        # path_info = ''
+        print(url_path)
+
+        app = self.apps[0]  # currently defaulting to pylons app
+        answers = self.ask_around('can_handle_url', url_path)
+        for answer in answers:
+            can_handle, asked_app = answer
+            if can_handle:
+                app = asked_app
+                break
+        return app(environ, start_response)
 
 
 class I18nMiddleware(object):
