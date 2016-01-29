@@ -98,6 +98,8 @@ def make_map():
     for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.before_map(map)
 
+    map.connect('invite', '/__invite__/', controller='partyline', action='join_party')
+
     map.connect('home', '/', controller='home', action='index')
     map.connect('about', '/about', controller='home', action='about')
 

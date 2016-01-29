@@ -47,7 +47,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     pylons_app = make_pylons_stack(conf, full_stack, static_files, **app_conf)
     flask_app = make_flask_stack(conf)
 
-    app = AskAppDispatcherMiddleware([pylons_app, flask_app])
+    app = AskAppDispatcherMiddleware({'pylons_app': pylons_app, 'flask_app': flask_app})
 
     return app
 
@@ -229,6 +229,7 @@ class CKANFlask(Flask):
         self.partyline = None
         self.connected = False
         self.invitation_context = None
+        self.app = None  # A label for the app handling this request (this app).
 
     def join_party(self, request=flask_request):
         # Bootstrap, turn the view function into a 404 after registering.
@@ -237,6 +238,7 @@ class CKANFlask(Flask):
             flask_abort(404)
         self.invitation_context = _request_ctx_stack.top
         self.partyline = request.environ.get(WSGIParty.partyline_key)
+        self.app = request.environ.get('partyline_handling_app')
         self.partyline.connect('can_handle_url', self.can_handle_url)
         self.connected = True
         return 'ok'
@@ -244,7 +246,7 @@ class CKANFlask(Flask):
     def can_handle_url(self, payload):
         # :::TODO::: don't hardcode accepted url paths here, instead query the route map with .match()
         if payload == '/flask_hello':
-            return (True, self)
+            return (True, self.app)
         else:
             raise HighAndDry()
 
@@ -271,8 +273,8 @@ class AskAppDispatcherMiddleware(WSGIParty):
     '''
 
     def __init__(self, apps=None, invites=(), ignore_missing_services=False):
-        # Array of apps managed by this middleware
-        self.apps = apps or []
+        # Dict of apps managed by this middleware {<app_name>: <app_obj>, ...}
+        self.apps = apps or {}
 
         # A dict of service name => handler mappings.
         self.handlers = {}
@@ -286,26 +288,28 @@ class AskAppDispatcherMiddleware(WSGIParty):
         '''Call each app at the invite route to establish a partyline. Called
         on init.'''
         PATH = '/__invite__/'
-        for app in apps:
+        for app_name, app in apps.items():
             environ = create_environ(path=PATH)
             environ[self.partyline_key] = self.operator_class(self)
+            # A reference to the handling app. Used to id the app when
+            # responding to a handling request.
+            environ['partyline_handling_app'] = app_name
             run_wsgi_app(app, environ)
 
     def __call__(self, environ, start_response):
         '''Determine which app to call by asking each app if can handle the
         url at PATH_INFO'''
+        # :::TODO::: Enforce order of precedence for dispatching to apps here.
         url_path = environ.get('PATH_INFO', '')
-        # path_info = ''
-        print(url_path)
 
-        app = self.apps[0]  # currently defaulting to pylons app
+        app_name = self.apps['pylons_app']  # currently defaulting to pylons app
         answers = self.ask_around('can_handle_url', url_path)
         for answer in answers:
             can_handle, asked_app = answer
             if can_handle:
-                app = asked_app
+                app_name = asked_app
                 break
-        return app(environ, start_response)
+        return self.apps[app_name](environ, start_response)
 
 
 class I18nMiddleware(object):
