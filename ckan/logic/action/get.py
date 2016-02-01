@@ -1856,7 +1856,7 @@ def package_search(context, data_dict):
 
         for package in query.results:
             # get the package object
-            package, package_dict = package['id'], package.get(data_source)
+            package_dict = package.get(data_source)
             ## use data in search index if there
             if package_dict:
                 # the package_dict still needs translating when being viewed
