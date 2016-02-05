@@ -20,6 +20,7 @@
   ["ArcGIS Map Service", "ArcGIS Map Service", "ArcGIS Map Service", ["arcgis map service"]],
   ["TSV", "Tab Separated Values File", "text/tab-separated-values", ["text/tsv"]],
   ["WFS", "Web Feature Service", null, []],
+  ["WMTS", "Web Map Tile Service", null, []],
   ["ArcGIS Online Map", "ArcGIS Online Map", "ArcGIS Online Map", ["web map application"]],
   ["Perl", "Perl Script", "text/x-perl", []],
   ["KMZ", "KMZ File", "application/vnd.google-earth.kmz+xml", ["application/vnd.google-earth.kmz"]],
