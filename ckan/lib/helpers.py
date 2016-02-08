@@ -81,15 +81,10 @@ def _datestamp_to_datetime(datetime_):
     # all dates are considered UTC internally,
     # change output if `ckan.display_timezone` is available
     datetime_ = datetime_.replace(tzinfo=pytz.utc)
-    timezone_name = config.get('ckan.display_timezone', '')
-    if timezone_name == 'server':
-        local_tz = tzlocal.get_localzone()
-        return datetime_.astimezone(local_tz)
+    timezone = get_display_timezone()
 
     try:
-        datetime_ = datetime_.astimezone(
-            pytz.timezone(timezone_name)
-        )
+        datetime_ = datetime_.astimezone(timezone)
     except pytz.UnknownTimeZoneError:
         if timezone_name != '':
             log.warning(
@@ -1008,6 +1003,19 @@ class Page(paginate.Page):
         current_page_link = self._pagerlink(self.page, text,
                                             extra_attributes=self.curpage_attr)
         return re.sub(current_page_span, current_page_link, html)
+
+
+def get_display_timezone():
+    ''' Returns a pytz timezone for the display_timezone setting in the
+    configuration file or UTC if not specified.
+    :rtype: timezone
+    '''
+    timezone_name = config.get('ckan.display_timezone') or 'utc'
+
+    if timezone_name == 'server':
+        return tzlocal.get_localzone()
+
+    return pytz.timezone(timezone_name)
 
 
 def render_datetime(datetime_, date_format=None, with_hours=False):
@@ -2158,6 +2166,7 @@ __allowed_functions__ = [
     'linked_gravatar',
     'gravatar',
     'pager_url',
+    'get_display_timezone',
     'render_datetime',
     'date_str_to_datetime',
     'parse_rfc_2822_date',
