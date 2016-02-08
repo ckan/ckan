@@ -81,20 +81,7 @@ def _datestamp_to_datetime(datetime_):
     # all dates are considered UTC internally,
     # change output if `ckan.display_timezone` is available
     datetime_ = datetime_.replace(tzinfo=pytz.utc)
-    timezone = get_display_timezone()
-
-    try:
-        datetime_ = datetime_.astimezone(timezone)
-    except pytz.UnknownTimeZoneError:
-        if timezone_name != '':
-            log.warning(
-                'Timezone `%s` not found. '
-                'Please provide a valid timezone setting in '
-                '`ckan.display_timezone` or leave the field empty. All valid '
-                'values can be found in pytz.all_timezones. You can use the '
-                'special value `server` to use the local timezone of the '
-                'server.', timezone_name
-            )
+    datetime_ = datetime_.astimezone(get_display_timezone())
 
     return datetime_
 

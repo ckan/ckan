@@ -4,6 +4,7 @@ import os
 import logging
 import warnings
 from urlparse import urlparse
+import pytz
 
 import pylons
 from paste.deploy.converters import asbool
@@ -22,6 +23,7 @@ import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
 
 from ckan.common import _, ungettext
+from ckan.exceptions import CkanConfigurationException
 
 log = logging.getLogger(__name__)
 
@@ -223,6 +225,14 @@ def update_config():
         raise RuntimeError(
             'ckan.site_url should be a full URL, including the schema '
             '(http or https)')
+
+    display_timezone = config.get('ckan.display_timezone', '')
+    if (display_timezone and
+            display_timezone != 'server' and
+            display_timezone not in pytz.all_timezones):
+        raise CkanConfigurationException(
+            "ckan.display_timezone is not 'server' or a valid timezone"
+        )
 
     # Remove backslash from site_url if present
     config['ckan.site_url'] = config['ckan.site_url'].rstrip('/')
