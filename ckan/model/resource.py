@@ -26,8 +26,7 @@ __all__ = ['Resource', 'resource_table',
 CORE_RESOURCE_COLUMNS = ['url', 'format', 'description', 'hash', 'name',
                          'resource_type', 'mimetype', 'mimetype_inner',
                          'size', 'created', 'last_modified', 'cache_url',
-                         'cache_last_updated', 'webstore_url',
-                         'webstore_last_updated', 'url_type']
+                         'cache_last_updated', 'url_type']
 
 ##formally package_resource
 resource_table = Table(
@@ -51,8 +50,6 @@ resource_table = Table(
     Column('last_modified', types.DateTime),
     Column('cache_url', types.UnicodeText),
     Column('cache_last_updated', types.DateTime),
-    Column('webstore_url', types.UnicodeText),
-    Column('webstore_last_updated', types.DateTime),
     Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
 )
