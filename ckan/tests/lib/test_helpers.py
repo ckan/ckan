@@ -1,4 +1,6 @@
 import nose
+import pytz
+import tzlocal
 
 import ckan.lib.helpers as h
 import ckan.exceptions
@@ -120,3 +122,17 @@ class TestResourceFormat(object):
         eq_(h.unified_resource_format('text/tab-separated-values'), 'TSV')
 
         eq_(h.unified_resource_format('text/tsv'), 'TSV')
+
+
+class TestGetDisplayTimezone(object):
+    @helpers.change_config('ckan.display_timezone', '')
+    def test_missing_config(self):
+        eq_(h.get_display_timezone(), pytz.timezone('utc'))
+
+    @helpers.change_config('ckan.display_timezone', 'server')
+    def test_server_timezone(self):
+        eq_(h.get_display_timezone(), tzlocal.get_localzone())
+
+    @helpers.change_config('ckan.display_timezone', 'America/New_York')
+    def test_named_timezone(self):
+        eq_(h.get_display_timezone(), pytz.timezone('America/New_York'))
