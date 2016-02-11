@@ -16,6 +16,7 @@ import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
 
+assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
@@ -747,6 +748,34 @@ class TestSearch(helpers.FunctionalTestBase):
         offset = url_for(controller='package', action='search') + '?sort'
         app = self._get_test_app()
         app.get(offset)
+
+    def test_search_sort_by_bad(self):
+        factories.Dataset()
+
+        # bad spiders try all sorts of invalid values for sort. They should get
+        # a 400 error with specific error message. No need to alert the
+        # administrator.
+        offset = url_for(controller='package', action='search') + \
+            '?sort=gvgyr_fgevat+nfp'
+        app = self._get_test_app()
+        app.get(offset, status=400)
+
+    def test_search_solr_syntax_error(self):
+        factories.Dataset()
+
+        # SOLR raises SyntaxError when it can't parse q (or other fields?).
+        # Whilst this could be due to a bad user input, it could also be
+        # because CKAN mangled things somehow and therefore we flag it up to
+        # the administrator and give a meaningless error, just in case
+        offset = url_for(controller='package', action='search') + \
+            '?q=--included'
+        app = self._get_test_app()
+        search_response = app.get(offset)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        err_msg = search_response_html.select('#search-error')
+        err_msg = ''.join([n.text for n in err_msg])
+        assert_in('error while searching', err_msg)
 
     def test_search_plugin_hooks(self):
         with p.use_plugin('test_package_controller_plugin') as plugin:

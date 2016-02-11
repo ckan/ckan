@@ -360,8 +360,15 @@ class PackageSearchQuery(SearchQuery):
         try:
             solr_response = conn.raw_query(**query)
         except SolrException, e:
+            error_msg = e.reason
+            try:
+                error_msg = json.loads(e.body)['error']['msg']
+                if error_msg.startswith("Can't determine a Sort Order"):
+                    raise SearchQueryError('Invalid "sort" parameter')
+            except ValueError:
+                pass
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
-                              (query, e.reason))
+                              (query, error_msg))
         try:
             data = json.loads(solr_response)
             response = data['response']

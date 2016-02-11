@@ -130,7 +130,7 @@ class PackageController(base.BaseController):
         return pt
 
     def search(self):
-        from ckan.lib.search import SearchError
+        from ckan.lib.search import SearchError, SearchQueryError
 
         package_type = self._guess_package_type()
 
@@ -278,7 +278,17 @@ class PackageController(base.BaseController):
             c.facets = query['facets']
             c.search_facets = query['search_facets']
             c.page.items = query['results']
+        except SearchQueryError, se:
+            # User's search parameters are invalid, in such a way that is not
+            # achievable with the web interface, so return a proper error to
+            # discourage spiders which are the main cause of this.
+            log.info('Dataset search query rejected: %r', se.args)
+            abort(400, _('Invalid search query: {error_message}')
+                  .format(error_message=str(se)))
         except SearchError, se:
+            # May be bad input from the user, but may also be more serious like
+            # bad code causing a SOLR syntax error, or a problem connecting to
+            # SOLR
             log.error('Dataset search error: %r', se.args)
             c.query_error = True
             c.facets = {}
