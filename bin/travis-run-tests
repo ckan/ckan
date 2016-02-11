@@ -16,7 +16,7 @@ MOCHA_ERROR=$?
 killall paster
 
 # And finally, run the nosetests
-nosetests --ckan --reset-db --with-pylons=test-core.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext
+nosetests --ckan --reset-db --with-pylons=test-core.ini --with-coverage --cover-package=ckan --cover-package=ckanext ckan ckanext
 # Did an error occur?
 NOSE_ERROR=$?
 
