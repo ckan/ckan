@@ -14,3 +14,6 @@ class CkanVersionException(Exception):
 
     '''
     pass
+
+class CkanConfigurationException(Exception):
+    pass
