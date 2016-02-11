@@ -362,7 +362,7 @@ class PackageSearchQuery(SearchQuery):
             error_msg = e.reason
             try:
                 error_msg = json.loads(e.body)['error']['msg']
-                if error_msg.startswith("Can't determine a Sort Order") or
+                if error_msg.startswith("Can't determine a Sort Order") or \
                         error_msg.startswith('Unknown sort order'):
                     raise SearchQueryError('Invalid "sort" parameter')
             except ValueError:
