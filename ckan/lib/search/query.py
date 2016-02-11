@@ -361,6 +361,7 @@ class PackageSearchQuery(SearchQuery):
             solr_response = conn.raw_query(**query)
         except SolrException, e:
             error_msg = e.reason
+            print 'SOLR ERROR', e.body
             try:
                 error_msg = json.loads(e.body)['error']['msg']
                 if error_msg.startswith("Can't determine a Sort Order"):
