@@ -354,17 +354,16 @@ class PackageSearchQuery(SearchQuery):
             query['mm'] = query.get('mm', '2<-1 5<80%')
             query['qf'] = query.get('qf', QUERY_FIELDS)
 
-
         conn = make_connection()
         log.debug('Package query: %r' % query)
         try:
             solr_response = conn.raw_query(**query)
         except SolrException, e:
             error_msg = e.reason
-            print 'SOLR ERROR', e.body
             try:
                 error_msg = json.loads(e.body)['error']['msg']
-                if error_msg.startswith("Can't determine a Sort Order"):
+                if error_msg.startswith("Can't determine a Sort Order") or
+                        error_msg.startswith('Unknown sort order'):
                     raise SearchQueryError('Invalid "sort" parameter')
             except ValueError:
                 pass
