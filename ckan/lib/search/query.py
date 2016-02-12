@@ -359,20 +359,15 @@ class PackageSearchQuery(SearchQuery):
         try:
             solr_response = conn.raw_query(**query)
         except SolrException, e:
-            error_msg = e.reason
-            print 'Exception %r' % repr(e)
-            print 'Exception %r' % repr(e.body)
-            try:
-                error_msg = json.loads(e.body)['error']['msg']
-                if error_msg.startswith("Can't determine a Sort Order") or \
-                        error_msg.startswith('Unknown sort order'):
-                    raise SearchQueryError('Invalid "sort" parameter')
-                print 'Msg: %r' % error_msg
-            except ValueError:
-                print 'Cannot parse %r' % repr(e)
-                pass
-            raise SearchError('SOLR returned an error running query: %r Error: %r' %
-                              (query, error_msg))
+            # Error with the sort parameter.  You see slightly different
+            # error messages depending on whether the SOLR JSON comes back
+            # or Jetty gets in the way converting it to HTML - not sure why
+            if "Can't determine a Sort Order" in e.body or \
+                    'Unknown sort order' in e.body:
+                raise SearchQueryError('Invalid "sort" parameter')
+            raise SearchError(
+                'SOLR returned an error running query: %r Error: %r' %
+                (query, e.body or e.reason))
         try:
             data = json.loads(solr_response)
             response = data['response']
