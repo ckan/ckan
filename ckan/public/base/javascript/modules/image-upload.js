@@ -101,7 +101,8 @@ this.ckan.module('image-upload', function($, _) {
      */
     _onFromWeb: function() {
       this._showOnlyFieldUrl();
-      this.field_url_input.focus();
+      this.field_url_input.focus()
+        .on('blur', this._onFromWebBlur);
       if (this.options.is_upload) {
         this.field_clear.val('true');
       }
@@ -128,6 +129,7 @@ this.ckan.module('image-upload', function($, _) {
       this.field_url_input.prop('readonly', true);
       this.field_clear.val('');
       this._showOnlyFieldUrl();
+      this._autoName(file_name);
     },
 
     /* Show only the buttons, hiding all others
@@ -166,7 +168,26 @@ this.ckan.module('image-upload', function($, _) {
      */
     _onInputMouseOut: function() {
       this.button_upload.removeClass('hover');
-    }
+    },
 
+    /* Event listener for when someone loses focus of URL field
+     *
+     * Returns nothing
+     */
+    _onFromWebBlur: function() {
+      var url = this.field_url_input.val().match(/([^\/]+)\/?$/)
+      if (url) {
+        this._autoName(url.pop());
+      }
+    },
+
+    /* Automatically add file name into field Name
+     *
+     * Select by attribute [name] to be on the safe side and allow to change field id
+     * Returns nothing
+     */
+     _autoName: function(name) {
+       $('[name="name"]', this.el.closest('form')).val(name);
+     }
   };
 });
