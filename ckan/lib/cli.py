@@ -186,9 +186,6 @@ class ManageDb(CkanCommand):
     db upgrade [version no.]       - Data migrate
     db version                     - returns current version of data schema
     db dump FILE_PATH              - dump to a pg_dump file
-    db simple-dump-csv FILE_PATH   - dump just datasets in CSV format
-    db simple-dump-json FILE_PATH  - dump just datasets in JSON format
-    db user-dump-csv FILE_PATH     - dump user information to a CSV file
     db load FILE_PATH              - load a pg_dump from a file
     db load-only FILE_PATH         - load a pg_dump from a file but don\'t do
                                      the schema upgrade or search indexing
@@ -239,12 +236,6 @@ class ManageDb(CkanCommand):
             self.load()
         elif cmd == 'load-only':
             self.load(only_load=True)
-        elif cmd == 'simple-dump-csv':
-            self.simple_dump_csv()
-        elif cmd == 'simple-dump-json':
-            self.simple_dump_json()
-        elif cmd == 'user-dump-csv':
-            self.user_dump_csv()
         elif cmd == 'create-from-model':
             model.repo.create_db()
             if self.verbose:
@@ -325,35 +316,6 @@ class ManageDb(CkanCommand):
         else:
             print 'Now remember you have to call \'db upgrade\' and then \'search-index rebuild\'.'
         print 'Done'
-
-    def simple_dump_csv(self):
-        import ckan.model as model
-        if len(self.args) < 2:
-            print 'Need csv file path'
-            return
-        dump_filepath = self.args[1]
-        import ckan.lib.dumper as dumper
-        dump_file = open(dump_filepath, 'w')
-        dumper.SimpleDumper().dump(dump_file, format='csv')
-
-    def simple_dump_json(self):
-        import ckan.model as model
-        if len(self.args) < 2:
-            print 'Need json file path'
-            return
-        dump_filepath = self.args[1]
-        import ckan.lib.dumper as dumper
-        dump_file = open(dump_filepath, 'w')
-        dumper.SimpleDumper().dump(dump_file, format='json')
-
-    def user_dump_csv(self):
-        if len(self.args) < 2:
-            print 'Need csv file path'
-            return
-        dump_filepath = self.args[1]
-        import ckan.lib.dumper as dumper
-        dump_file = open(dump_filepath, 'w')
-        dumper.UserDumper().dump(dump_file)
 
     def migrate_filestore(self):
         from ckan.model import Session
