@@ -10,7 +10,7 @@ import re
 
 import solr
 
-from pylons import config
+from pylons import config, app_globals as g
 from paste.deploy.converters import asbool
 
 from common import SearchIndexError, make_connection
@@ -46,21 +46,21 @@ def escape_xml_illegal_chars(val, replacement=''):
 
 def clear_index():
     import solr.core
-    conn = make_connection()
+    if g._solr_connection == None:
+        g._solr_connection = make_connection()
+
     query = "+site_id:\"%s\"" % (config.get('ckan.site_id'))
     try:
-        conn.delete_query(query)
-        conn.commit()
+        g._solr_connection.delete_query(query)
+        g._solr_connection.commit()
     except socket.error, e:
-        err = 'Could not connect to SOLR %r: %r' % (conn.url, e)
+        err = 'Could not connect to SOLR %r: %r' % (g._solr_connection.url, e)
         log.error(err)
         raise SearchIndexError(err)
     except solr.core.SolrException, e:
-        err = 'SOLR %r exception: %r' % (conn.url, e)
+        err = 'SOLR %r exception: %r' % (g._solr_connection.url, e)
         log.error(err)
         raise SearchIndexError(err)
-    finally:
-        conn.close()
 
 class SearchIndex(object):
     """
@@ -283,48 +283,45 @@ class PackageSearchIndex(SearchIndex):
 
         # send to solr:
         try:
-            conn = make_connection()
+            if g._solr_connection == None:
+                g._solr_connection = make_connection()
             commit = not defer_commit
             if not asbool(config.get('ckan.search.solr_commit', 'true')):
                 commit = False
-            conn.add_many([pkg_dict], _commit=commit)
+            g._solr_connection.add_many([pkg_dict], _commit=commit)
         except solr.core.SolrException, e:
             msg = 'Solr returned an error: {0} {1} - {2}'.format(
                 e.httpcode, e.reason, e.body[:1000] # limit huge responses
             )
             raise SearchIndexError(msg)
         except socket.error, e:
-            err = 'Could not connect to Solr using {0}: {1}'.format(conn.url, str(e))
+            err = 'Could not connect to Solr using {0}: {1}'.format(g._solr_connection.url, str(e))
             log.error(err)
             raise SearchIndexError(err)
-        finally:
-            conn.close()
 
         commit_debug_msg = 'Not committed yet' if defer_commit else 'Committed'
         log.debug('Updated index for %s [%s]' % (pkg_dict.get('name'), commit_debug_msg))
 
     def commit(self):
         try:
-            conn = make_connection()
-            conn.commit(wait_searcher=False)
+            if g._solr_connection == None:
+                g._solr_connection = make_connection()
+            g._solr_connection.commit(wait_searcher=False)
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)
-        finally:
-            conn.close()
 
 
     def delete_package(self, pkg_dict):
-        conn = make_connection()
+        if g._solr_connection == None:
+            g._solr_connection = make_connection()
         query = "+%s:%s (+id:\"%s\" OR +name:\"%s\") +site_id:\"%s\"" % (TYPE_FIELD, PACKAGE_TYPE,
                                                        pkg_dict.get('id'), pkg_dict.get('id'),
                                                        config.get('ckan.site_id'))
         try:
-            conn.delete_query(query)
+            g._solr_connection.delete_query(query)
             if asbool(config.get('ckan.search.solr_commit', 'true')):
-                conn.commit()
+                g._solr_connection.commit()
         except Exception, e:
             log.exception(e)
             raise SearchIndexError(e)
-        finally:
-            conn.close()

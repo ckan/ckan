@@ -195,6 +195,7 @@ class _Globals(object):
         self._init()
         self._config_update = None
         self._mutex = Lock()
+        self._solr_connection = None
 
     def _check_uptodate(self):
         ''' check the config is uptodate needed when several instances are

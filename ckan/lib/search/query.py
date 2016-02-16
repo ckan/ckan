@@ -1,7 +1,7 @@
 import re
 import logging
 
-from pylons import config
+from pylons import config, app_globals as g
 from solr import SolrException
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict
@@ -253,12 +253,13 @@ class PackageSearchQuery(SearchQuery):
         fq = "+site_id:\"%s\" " % config.get('ckan.site_id')
         fq += "+state:active "
 
-        conn = make_connection()
+        if g._solr_connection == None:
+            g._solr_connection = make_connection()
         try:
-            data = conn.query(query, fq=fq, rows=max_results, fields='id')
-        finally:
-            conn.close()
-
+            data = g._solr_connection.query(query, fq=fq, rows=max_results, fields='id')
+        except SolrException, e:
+            raise SearchError('SOLR returned an error running query: %r Error: %r' %
+                              (query, e.reason))
         return [r.get('id') for r in data.results]
 
     def get_index(self,reference):
@@ -268,10 +269,11 @@ class PackageSearchQuery(SearchQuery):
             'wt': 'json',
             'fq': 'site_id:"%s"' % config.get('ckan.site_id')}
 
-        conn = make_connection()
+        if g._solr_connection == None:
+            g._solr_connection = make_connection()
         log.debug('Package query: %r' % query)
         try:
-            solr_response = conn.raw_query(**query)
+            solr_response = g._solr_connection.raw_query(**query)
         except SolrException, e:
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e.reason))
@@ -286,8 +288,6 @@ class PackageSearchQuery(SearchQuery):
             if not isinstance(e, SearchError):
                 log.exception(e)
             raise SearchError(e)
-        finally:
-            conn.close()
 
 
     def run(self, query):
@@ -355,10 +355,11 @@ class PackageSearchQuery(SearchQuery):
             query['qf'] = query.get('qf', QUERY_FIELDS)
 
 
-        conn = make_connection()
+        if g._solr_connection == None:
+            g._solr_connection = make_connection()
         log.debug('Package query: %r' % query)
         try:
-            solr_response = conn.raw_query(**query)
+            solr_response = g._solr_connection.raw_query(**query)
         except SolrException, e:
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e.reason))
@@ -392,7 +393,5 @@ class PackageSearchQuery(SearchQuery):
         except Exception, e:
             log.exception(e)
             raise SearchError(e)
-        finally:
-            conn.close()
 
         return {'results': self.results, 'count': self.count}
