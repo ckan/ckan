@@ -20,7 +20,7 @@ nosetests --ckan --reset-db --with-pylons=test-core.ini --nologcapture --with-co
 # Did an error occur?
 NOSE_ERROR=$?
 
-[ "0" -ne "$MOCHA_ERROR" ] && echo MOCKA tests have failed
+[ "0" -ne "$MOCHA_ERROR" ] && echo MOCHA tests have failed
 [ "0" -ne "$NOSE_ERROR" ] && echo NOSE tests have failed
 
 # If an error occurred in our tests make sure travis knows
