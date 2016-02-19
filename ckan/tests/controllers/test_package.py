@@ -758,7 +758,13 @@ class TestSearch(helpers.FunctionalTestBase):
         offset = url_for(controller='package', action='search') + \
             '?sort=gvgyr_fgevat+nfp'
         app = self._get_test_app()
-        app.get(offset, status=400)
+        response = app.get(offset, status=[200, 400])
+        if response.status == 200:
+            import sys
+            sys.stdout.write(response.body)
+            raise Exception("Solr returned an unknown error message. "
+                            "Please check the error handling "
+                            "in ckan/lib/search/query.py:run")
 
     def test_search_solr_syntax_error(self):
         factories.Dataset()
