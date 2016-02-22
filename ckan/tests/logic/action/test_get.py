@@ -37,6 +37,21 @@ class TestPackageShow(helpers.FunctionalTestBase):
 
         eq(dataset2['new_field'], 'foo')
 
+    def test_package_show_with_custom_schema_return_default_schema(self):
+        dataset1 = factories.Dataset()
+        from ckan.logic.schema import default_show_package_schema
+        custom_schema = default_show_package_schema()
+
+        def foo(key, data, errors, context):
+            data[key] = 'foo'
+        custom_schema['new_field'] = [foo]
+
+        dataset2 = helpers.call_action('package_show', id=dataset1['id'],
+                                       use_default_schema=True,
+                                       context={'schema': custom_schema})
+
+        assert 'new_field' not in dataset2
+
     def test_package_show_is_lazy(self):
         dataset1 = factories.Dataset()
 
@@ -1196,6 +1211,36 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         ckanext-showcase tests.
         '''
         logic.get_action('package_search')({}, dict(q='anything'))
+
+    def test_custom_schema_returned(self):
+        if not p.plugin_loaded('example_idatasetform'):
+            p.load('example_idatasetform')
+
+        dataset1 = factories.Dataset(custom_text='foo')
+
+        query = helpers.call_action('package_search',
+                                    q='id:{0}'.format(dataset1['id']))
+
+        eq(query['results'][0]['id'], dataset1['id'])
+        eq(query['results'][0]['custom_text'], 'foo')
+
+        p.unload('example_idatasetform')
+
+    def test_custom_schema_not_returned(self):
+
+        if not p.plugin_loaded('example_idatasetform'):
+            p.load('example_idatasetform')
+
+        dataset1 = factories.Dataset(custom_text='foo')
+
+        query = helpers.call_action('package_search',
+                                    q='id:{0}'.format(dataset1['id']),
+                                    use_default_schema=True)
+
+        eq(query['results'][0]['id'], dataset1['id'])
+        assert 'custom_text' not in query['results'][0]
+        eq(query['results'][0]['extras'][0]['key'], 'custom_text')
+        eq(query['results'][0]['extras'][0]['value'], 'foo')
 
 
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
