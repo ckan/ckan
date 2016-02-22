@@ -323,8 +323,10 @@ class UserController(base.BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
 
+            email_changed = data_dict['email'] != c.userobj.email
+            
             if (data_dict['password1'] and data_dict['password2']) \
-                    or data_dict['email']:
+                    or email_changed:
                 identity = {'login': c.user,
                             'password': data_dict['old_password']}
                 auth = authenticator.UsernamePasswordAuthenticator()
