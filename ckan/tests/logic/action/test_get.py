@@ -1244,6 +1244,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
         p.unload('example_idatasetform')
 
+
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
     '''test class for #1258 non-int query parameters cause 500 errors
 
