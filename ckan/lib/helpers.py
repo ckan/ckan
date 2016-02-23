@@ -585,7 +585,7 @@ def build_nav(menu_item, title, **kw):
 
 
 def build_extra_admin_nav():
-    '''Build extra navigation items used in ``admin/base.html`` for values
+    '''Build extra navigation items used in ``ckan-admin/base.html`` for values
     defined in the config option ``ckan.admin_tabs``. Typically this is
     populated by extensions.
 
