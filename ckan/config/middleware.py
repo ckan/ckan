@@ -302,7 +302,7 @@ class AskAppDispatcherMiddleware(WSGIParty):
         # :::TODO::: Enforce order of precedence for dispatching to apps here.
         url_path = environ.get('PATH_INFO', '')
 
-        app_name = self.apps['pylons_app']  # currently defaulting to pylons app
+        app_name = 'pylons_app'  # currently defaulting to pylons app
         answers = self.ask_around('can_handle_url', url_path)
         for answer in answers:
             can_handle, asked_app = answer
