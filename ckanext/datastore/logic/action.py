@@ -308,7 +308,7 @@ def datastore_delete(context, data_dict):
     schema = context.get('schema', dsschema.datastore_upsert_schema())
     filters = data_dict.pop('filters', None)
     data_dict, errors = _validate(data_dict, schema, context)
-    if filters:
+    if filters is not None:
         data_dict['filters'] = filters
     if errors:
         raise p.toolkit.ValidationError(errors)
@@ -335,7 +335,7 @@ def datastore_delete(context, data_dict):
     result = db.delete(context, data_dict)
 
     # Set the datastore_active flag on the resource if necessary
-    if not data_dict.get('filters'):
+    if data_dict.get('filters') is None:
         p.toolkit.get_action('resource_patch')(
             context, {'id': data_dict['resource_id'], 'datastore_active': False})
 
