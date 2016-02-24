@@ -255,8 +255,6 @@ def resource_create(context, data_dict):
     :type mimetype: string
     :param mimetype_inner: (optional)
     :type mimetype_inner: string
-    :param webstore_url: (optional)
-    :type webstore_url: string
     :param cache_url: (optional)
     :type cache_url: string
     :param size: (optional)
@@ -267,8 +265,6 @@ def resource_create(context, data_dict):
     :type last_modified: iso date string
     :param cache_last_updated: (optional)
     :type cache_last_updated: iso date string
-    :param webstore_last_updated: (optional)
-    :type webstore_last_updated: iso date string
     :param upload: (optional)
     :type upload: FieldStorage (optional) needs multipart/form-data
 

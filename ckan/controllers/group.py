@@ -207,7 +207,7 @@ class GroupController(base.BaseController):
                    'user': c.user,
                    'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'type': group_type}
 
         # unicode format (decoded from utf8)
         c.q = request.params.get('q', '')
@@ -392,7 +392,7 @@ class GroupController(base.BaseController):
                    'user': c.user,
                    'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True, 'extras_as_string': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'type': group_type}
 
         try:
             # Do not query for the group datasets when dictizing, as they will
@@ -531,16 +531,6 @@ class GroupController(base.BaseController):
         c.form = render(self._group_form(group_type), extra_vars=vars)
         return render(self._edit_template(c.group.type),
                       extra_vars={'group_type': group_type})
-
-    def _get_group_type(self, id):
-        """
-        Given the id of a group it determines the type of a group given
-        a valid id/name for the group.
-        """
-        group = model.Group.get(id)
-        if not group:
-            return None
-        return group.type
 
     def _save_new(self, context, group_type=None):
         try:
