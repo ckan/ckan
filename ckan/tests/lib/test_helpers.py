@@ -1,5 +1,8 @@
 import nose
 import i18n
+import pytz
+import tzlocal
+from babel import Locale
 
 import ckan.lib.helpers as h
 import ckan.exceptions
@@ -75,6 +78,14 @@ class TestHelpersUrlFor(object):
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/foo/{{LANG}}')
+    def test_url_for_with_locale_object(self):
+        url = '/foo/de/dataset/my_dataset'
+        generated_url = h.url_for('/dataset/my_dataset',
+                                  locale=Locale('de'))
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_not_qualified(self):
         url = '/dataset/my_dataset'
         generated_url = h.url_for(controller='package',
@@ -132,22 +143,27 @@ class TestHelpersRenderMarkdown(object):
 
     def test_render_markdown_not_allow_html(self):
         data = '<h1>moo</h1>'
-        output = '<p>moo\n</p>'
+        output = '<p>moo</p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link_without_path(self):
         data = 'http://example.com'
-        output = '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a>\n</p>'
+        output = '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link(self):
         data = 'https://example.com/page.html'
-        output = '<p><a href="https://example.com/page.html" target="_blank" rel="nofollow">https://example.com/page.html</a>\n</p>'
+        output = '<p><a href="https://example.com/page.html" target="_blank" rel="nofollow">https://example.com/page.html</a></p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link_ignoring_trailing_punctuation(self):
         data = 'My link: http://example.com/page.html.'
-        output = '<p>My link: <a href="http://example.com/page.html" target="_blank" rel="nofollow">http://example.com/page.html</a>.\n</p>'
+        output = '<p>My link: <a href="http://example.com/page.html" target="_blank" rel="nofollow">http://example.com/page.html</a>.</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_render_naughty_markdown(self):
+        data = u'* [Foo (http://foo.bar) * Bar] (http://foo.bar)'
+        output = u'<ul>\n<li>[Foo (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>) * Bar] (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>)</li>\n</ul>'
         eq_(h.render_markdown(data), output)
 
 
@@ -203,3 +219,17 @@ class TestUnifiedResourceFormat(object):
         eq_(h.unified_resource_format('text/tab-separated-values'), 'TSV')
 
         eq_(h.unified_resource_format('text/tsv'), 'TSV')
+
+
+class TestGetDisplayTimezone(object):
+    @helpers.change_config('ckan.display_timezone', '')
+    def test_missing_config(self):
+        eq_(h.get_display_timezone(), pytz.timezone('utc'))
+
+    @helpers.change_config('ckan.display_timezone', 'server')
+    def test_server_timezone(self):
+        eq_(h.get_display_timezone(), tzlocal.get_localzone())
+
+    @helpers.change_config('ckan.display_timezone', 'America/New_York')
+    def test_named_timezone(self):
+        eq_(h.get_display_timezone(), pytz.timezone('America/New_York'))

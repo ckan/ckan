@@ -275,10 +275,6 @@ class DefaultDatasetForm(object):
         maintain.deprecate_context_item('licences', 'Use `c.licenses` instead')
         c.is_sysadmin = ckan.authz.is_sysadmin(c.user)
 
-        if c.pkg:
-            # Used by the disqus plugin
-            c.related_count = c.pkg.related_count
-
         if context.get('revision_id') or context.get('revision_date'):
             if context.get('revision_id'):
                 rev = base.model.Session.query(base.model.Revision) \
@@ -341,6 +337,9 @@ class DefaultGroupForm(object):
     Note - this isn't a plugin implementation. This is deliberate, as we
            don't want this being registered.
     """
+    def group_controller(self):
+        return 'group'
+
     def new_template(self):
         """
         Returns a string representing the location of the template to be
@@ -441,7 +440,7 @@ class DefaultGroupForm(object):
         into a format suitable for the form (optional)'''
 
     def db_to_form_schema_options(self, options):
-        '''This allows the selectino of different schemas for different
+        '''This allows the selection of different schemas for different
         purposes.  It is optional and if not available, ``db_to_form_schema``
         should be used.
         If a context is provided, and it contains a schema, it will be
@@ -491,6 +490,9 @@ class DefaultGroupForm(object):
 
 
 class DefaultOrganizationForm(DefaultGroupForm):
+    def group_controller(self):
+        return 'organization'
+
     def group_form(self):
         return 'organization/new_organization_form.html'
 

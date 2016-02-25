@@ -10,12 +10,10 @@ class TestFormatText:
 *Some italicized text.*
 '''
         exp = '''<h1>Hello World</h1>
-<p><strong>Some bolded text.</strong>
-</p>
-<p><em>Some italicized text.</em>
-</p>'''
+<p><strong>Some bolded text.</strong></p>
+<p><em>Some italicized text.</em></p>'''
         out = h.render_markdown(instr)
-        assert out == exp
+        assert out == exp, out
 
     def test_markdown_blank(self):
         instr = None
@@ -24,13 +22,13 @@ class TestFormatText:
 
     def test_evil_markdown(self):
         instr = 'Evil <script src="http://evilserver.net/evil.js";>'
-        exp = '''<p>Evil \n</p>'''
+        exp = '''<p>Evil </p>'''
         out = h.render_markdown(instr)
         assert out == exp, out
 
     def test_internal_link(self):
         instr = 'dataset:test-_pkg'
-        exp = '<p><a href="/dataset/test-_pkg">dataset:test-_pkg</a>\n</p>'
+        exp = '<p><a href="/dataset/test-_pkg">dataset:test-_pkg</a></p>'
         out = h.render_markdown(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
 
@@ -44,14 +42,14 @@ class TestFormatText:
     def test_internal_tag_linked_with_quotes(self):
         """Asserts links like 'tag:"test-tag"' work"""
         instr = 'tag:"test-tag" foobar'
-        exp = '<p><a href="/tag/test-tag">tag:&#34;test-tag&#34;</a> foobar\n</p>'
+        exp = '<p><a href="/tag/test-tag">tag:&#34;test-tag&#34;</a> foobar</p>'
         out = h.render_markdown(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
 
     def test_internal_tag_linked_with_quotes_and_space(self):
         """Asserts links like 'tag:"test tag"' work"""
         instr = 'tag:"test tag" foobar'
-        exp = '<p><a href="/tag/test%20tag">tag:&#34;test tag&#34;</a> foobar\n</p>'
+        exp = '<p><a href="/tag/test%20tag">tag:&#34;test tag&#34;</a> foobar</p>'
         out = h.render_markdown(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
 
@@ -78,7 +76,7 @@ class TestFormatText:
     def test_tag_names_match_simple_punctuation(self):
         """Asserts punctuation and capital letters are matched in the tag name"""
         instr = 'tag:"Test- _." foobar'
-        exp = '<p><a href="/tag/Test-%20_.">tag:&#34;Test- _.&#34;</a> foobar\n</p>'
+        exp = '<p><a href="/tag/Test-%20_.">tag:&#34;Test- _.&#34;</a> foobar</p>'
         out = h.render_markdown(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
 
@@ -101,7 +99,7 @@ class TestFormatText:
     def test_tag_names_with_unicode_alphanumeric(self):
         """Asserts that unicode alphanumeric characters are captured"""
         instr = u'tag:"Japanese katakana \u30a1" blah'
-        exp = u'<p><a href="/tag/Japanese%20katakana%20%E3%82%A1">tag:&#34;Japanese katakana \u30a1&#34;</a> blah\n</p>'
+        exp = u'<p><a href="/tag/Japanese%20katakana%20%E3%82%A1">tag:&#34;Japanese katakana \u30a1&#34;</a> blah</p>'
         out = h.render_markdown(instr)
         assert exp in out, u'\nGot: %s\nWanted: %s' % (out, exp)
 
@@ -135,7 +133,7 @@ class TestFormatText:
 
     def test_malformed_link_1(self):
         instr = u'<a href=\u201dsomelink\u201d>somelink</a>'
-        exp = '<p>somelink\n</p>'
+        exp = '<p>somelink</p>'
         out = h.render_markdown(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)
 
@@ -147,8 +145,6 @@ class TestFormatText:
   [yahoo]:  http://search.yahoo.com/  "Yahoo Search"
   [msn]:    http://search.msn.com/    "MSN Search"'''
         exp = '''<p>I get 10 times more traffic from <a href="http://google.com/" title="Google">Google</a> than from
-   <a href="http://search.yahoo.com/" title="Yahoo Search">Yahoo</a> or <a href="http://search.msn.com/" title="MSN Search">MSN</a>.
-</p>'''
-        # NB when this is put into Genshi, it will close the tag for you.
+<a href="http://search.yahoo.com/" title="Yahoo Search">Yahoo</a> or <a href="http://search.msn.com/" title="MSN Search">MSN</a>.</p>'''
         out = h.render_markdown(instr)
         assert exp in out, '\nGot: %s\nWanted: %s' % (out, exp)

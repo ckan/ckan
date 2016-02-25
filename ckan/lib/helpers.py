@@ -13,7 +13,6 @@ import os
 import pytz
 import tzlocal
 import urllib
-import urlparse
 import pprint
 import copy
 import urlparse
@@ -23,10 +22,11 @@ from paste.deploy.converters import asbool
 from webhelpers.html import escape, HTML, literal, url_escape
 from webhelpers.html.tools import mail_to
 from webhelpers.html.tags import *
-from webhelpers.markdown import markdown
 from webhelpers import paginate
 from webhelpers.text import truncate
 import webhelpers.date as date
+from markdown import markdown
+from bleach import clean as clean_html
 from pylons import url as _pylons_default_url
 from pylons.decorators.cache import beaker_cache
 from pylons import config
@@ -81,25 +81,7 @@ def _datestamp_to_datetime(datetime_):
     # all dates are considered UTC internally,
     # change output if `ckan.display_timezone` is available
     datetime_ = datetime_.replace(tzinfo=pytz.utc)
-    timezone_name = config.get('ckan.display_timezone', '')
-    if timezone_name == 'server':
-        local_tz = tzlocal.get_localzone()
-        return datetime_.astimezone(local_tz)
-
-    try:
-        datetime_ = datetime_.astimezone(
-            pytz.timezone(timezone_name)
-        )
-    except pytz.UnknownTimeZoneError:
-        if timezone_name != '':
-            log.warning(
-                'Timezone `%s` not found. '
-                'Please provide a valid timezone setting in '
-                '`ckan.display_timezone` or leave the field empty. All valid '
-                'values can be found in pytz.all_timezones. You can use the '
-                'special value `server` to use the local timezone of the '
-                'server.', timezone_name
-            )
+    datetime_ = datetime_.astimezone(get_display_timezone())
 
     return datetime_
 
@@ -244,8 +226,11 @@ def is_url(*args, **kw):
     except ValueError:
         return False
 
-    valid_schemes = ('http', 'https', 'ftp')
-    return url.scheme in valid_schemes
+    default_valid_schemes = ('http', 'https', 'ftp')
+
+    valid_schemes = config.get('ckan.valid_url_schemes', '').lower().split()
+
+    return url.scheme in (valid_schemes or default_valid_schemes)
 
 
 def _add_i18n_to_url(url_to_amend, **kw):
@@ -290,7 +275,7 @@ def _add_i18n_to_url(url_to_amend, **kw):
         if default_locale:
             root_path = re.sub('/{{LANG}}', '', root_path)
         else:
-            root_path = re.sub('{{LANG}}', locale, root_path)
+            root_path = re.sub('{{LANG}}', str(locale), root_path)
         # make sure we don't have a trailing / on the root
         if root_path[-1] == '/':
             root_path = root_path[:-1]
@@ -584,7 +569,7 @@ def build_nav_icon(menu_item, title, **kw):
 def build_nav(menu_item, title, **kw):
     '''Build a navigation item used for example breadcrumbs.
 
-    Outputs ``<li><a href="..."></i> title</a></li>``.
+    Outputs ``<li><a href="...">title</a></li>``.
 
     :param menu_item: the name of the defined menu item defined in
       config/routing as the named route of the same name
@@ -815,7 +800,7 @@ def sorted_extras(package_extras, auto_clean=False, subs=None, exclude=None):
 
 def check_access(action, data_dict=None):
     context = {'model': model,
-               'user': c.user or c.author}
+               'user': c.user}
     if not data_dict:
         data_dict = {}
     try:
@@ -866,7 +851,7 @@ def markdown_extract(text, extract_length=190):
     ''' return the plain text representation of markdown encoded text.  That
     is the texted without any html tags.  If extract_length is 0 then it
     will not be truncated.'''
-    if (text is None) or (text.strip() == ''):
+    if not text:
         return ''
     plain = RE_MD_HTML_TAGS.sub('', markdown(text))
     if not extract_length or len(plain) < extract_length:
@@ -1005,6 +990,19 @@ class Page(paginate.Page):
         current_page_link = self._pagerlink(self.page, text,
                                             extra_attributes=self.curpage_attr)
         return re.sub(current_page_span, current_page_link, html)
+
+
+def get_display_timezone():
+    ''' Returns a pytz timezone for the display_timezone setting in the
+    configuration file or UTC if not specified.
+    :rtype: timezone
+    '''
+    timezone_name = config.get('ckan.display_timezone') or 'utc'
+
+    if timezone_name == 'server':
+        return tzlocal.get_localzone()
+
+    return pytz.timezone(timezone_name)
 
 
 def render_datetime(datetime_, date_format=None, with_hours=False):
@@ -1168,9 +1166,11 @@ def button_attr(enable, type='primary'):
 
 def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
-        return package_or_package_dict.get('title', '') or \
-            package_or_package_dict.get('name', '')
+        return get_translated(package_or_package_dict, 'title') or \
+            package_or_package_dict['name']
     else:
+        # FIXME: we probably shouldn't use the same functions for
+        # package dicts and real package objects
         return package_or_package_dict.title or package_or_package_dict.name
 
 
@@ -1188,8 +1188,8 @@ def dataset_link(package_or_package_dict):
 
 # TODO: (?) support resource objects as well
 def resource_display_name(resource_dict):
-    name = resource_dict.get('name', None)
-    description = resource_dict.get('description', None)
+    name = get_translated(resource_dict, 'name')
+    description = get_translated(resource_dict, 'description')
     if name:
         return name
     elif description:
@@ -1208,14 +1208,6 @@ def resource_link(resource_dict, package_id):
                   action='resource_read',
                   id=package_id,
                   resource_id=resource_dict['id'])
-    return link_to(text, url)
-
-
-def related_item_link(related_item_dict):
-    text = related_item_dict.get('title', '')
-    url = url_for(controller='related',
-                  action='read',
-                  id=related_item_dict['id'])
     return link_to(text, url)
 
 
@@ -1549,6 +1541,11 @@ def organizations_available(permission='edit_group'):
     return logic.get_action('organization_list_for_user')(context, data_dict)
 
 
+def roles_translated():
+    '''Return a dict of available roles with their translations'''
+    return authz.roles_trans()
+
+
 def user_in_org_or_group(group_id):
     ''' Check if user is in a group or organization '''
     # we need a user
@@ -1723,10 +1720,10 @@ def render_markdown(data, auto_link=True, allow_html=False):
     if not data:
         return ''
     if allow_html:
-        data = markdown(data.strip(), safe_mode=False)
+        data = markdown(data.strip())
     else:
         data = RE_MD_HTML_TAGS.sub('', data.strip())
-        data = markdown(data, safe_mode=True)
+        data = markdown(clean_html(data, strip=True))
     # tags can be added by tag:... or tag:"...." and a link will be made
     # from it
     if auto_link:
@@ -2026,12 +2023,6 @@ def get_site_statistics():
     stats['group_count'] = len(logic.get_action('group_list')({}, {}))
     stats['organization_count'] = len(
         logic.get_action('organization_list')({}, {}))
-    result = model.Session.execute(
-        '''select count(*) from related r
-           left join related_dataset rd on r.id = rd.related_id
-           where rd.status = 'active' or rd.id is null''').first()[0]
-    stats['related_count'] = result
-
     return stats
 
 _RESOURCE_FORMATS = None
@@ -2122,6 +2113,14 @@ def license_options(existing_license_id=None):
         for license_id in license_ids]
 
 
+def get_translated(data_dict, field):
+    language = i18n.get_lang()
+    try:
+        return data_dict[field+'_translated'][language]
+    except KeyError:
+        return data_dict.get(field, '')
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -2154,6 +2153,7 @@ __allowed_functions__ = [
     'linked_gravatar',
     'gravatar',
     'pager_url',
+    'get_display_timezone',
     'render_datetime',
     'date_str_to_datetime',
     'parse_rfc_2822_date',
@@ -2163,7 +2163,6 @@ __allowed_functions__ = [
     'dataset_link',
     'resource_display_name',
     'resource_link',
-    'related_item_link',
     'tag_link',
     'group_link',
     'dump_json',
@@ -2187,6 +2186,7 @@ __allowed_functions__ = [
     'debug_full_info_as_list',
     'get_facet_title',
     'get_param_int',
+    'get_translated',
     'sorted_extras',
     'follow_button',
     'follow_count',
@@ -2221,6 +2221,7 @@ __allowed_functions__ = [
     'time_ago_from_timestamp',
     'get_organization',
     'has_more_facets',
+    'roles_translated',
     # imported into ckan.lib.helpers
     'literal',
     'link_to',

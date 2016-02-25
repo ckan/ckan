@@ -264,92 +264,6 @@ def package_revision_list(context, data_dict):
     return revision_dicts
 
 
-def related_show(context, data_dict=None):
-    '''Return a single related item.
-
-    :param id: the id of the related item to show
-    :type id: string
-
-    :rtype: dictionary
-
-    '''
-    model = context['model']
-    id = _get_or_bust(data_dict, 'id')
-
-    related = model.Related.get(id)
-    context['related'] = related
-
-    if related is None:
-        raise NotFound
-
-    _check_access('related_show', context, data_dict)
-    schema = context.get('schema') \
-        or ckan.logic.schema.default_related_schema()
-    related_dict = model_dictize.related_dictize(related, context)
-    related_dict, errors = _validate(related_dict, schema, context=context)
-
-    return related_dict
-
-
-def related_list(context, data_dict=None):
-    '''Return a dataset's related items.
-
-    :param id: id or name of the dataset (optional)
-    :type id: string
-    :param dataset: dataset dictionary of the dataset (optional)
-    :type dataset: dictionary
-    :param type_filter: the type of related item to show (optional,
-      default: None, show all items)
-    :type type_filter: string
-    :param sort: the order to sort the related items in, possible values are
-      'view_count_asc', 'view_count_desc', 'created_asc' or 'created_desc'
-      (optional)
-    :type sort: string
-    :param featured: whether or not to restrict the results to only featured
-      related items (optional, default: False)
-    :type featured: bool
-
-    :rtype: list of dictionaries
-
-    '''
-    model = context['model']
-    dataset = data_dict.get('dataset', None)
-    if not dataset:
-        dataset = model.Package.get(data_dict.get('id'))
-    _check_access('related_show', context, data_dict)
-    related_list = []
-    if not dataset:
-        related_list = model.Session.query(model.Related)
-
-        filter_on_type = data_dict.get('type_filter', None)
-        if filter_on_type:
-            related_list = related_list.filter(
-                model.Related.type == filter_on_type)
-
-        sort = data_dict.get('sort', None)
-        if sort:
-            sortables = {
-                'view_count_asc': model.Related.view_count.asc,
-                'view_count_desc': model.Related.view_count.desc,
-                'created_asc': model.Related.created.asc,
-                'created_desc': model.Related.created.desc,
-            }
-            s = sortables.get(sort, None)
-            if s:
-                related_list = related_list.order_by(s())
-
-        if data_dict.get('featured', False):
-            related_list = related_list.filter(model.Related.featured == 1)
-        related_items = related_list.all()
-        context['sorted'] = True
-    else:
-        relateds = model.Related.get_for_dataset(dataset, status='active')
-        related_items = (r.related for r in relateds)
-    related_list = model_dictize.related_list_dictize(
-        related_items, context)
-    return related_list
-
-
 def member_list(context, data_dict=None):
     '''Return the members of a group.
 
@@ -1479,8 +1393,11 @@ def user_show(context, data_dict):
         (optional, default:``False``, limit:50)
     :type include_datasets: boolean
     :param include_num_followers: Include the number of followers the user has
-         (optional, default:``False``)
+        (optional, default:``False``)
     :type include_num_followers: boolean
+    :param include_password_hash: Include the stored password hash
+        (sysadmin only, optional, default:``False``)
+    :type include_password_hash: boolean
 
     :returns: the details of the user. Includes email_hash, number_of_edits and
         number_created_packages (which excludes draft or private datasets
@@ -1508,24 +1425,29 @@ def user_show(context, data_dict):
 
     # include private and draft datasets?
     requester = context.get('user')
+    sysadmin = False
     if requester:
+        sysadmin = authz.is_sysadmin(requester)
         requester_looking_at_own_account = requester == user_obj.name
-        include_private_and_draft_datasets = \
-            authz.is_sysadmin(requester) or \
-            requester_looking_at_own_account
+        include_private_and_draft_datasets = (
+            sysadmin or requester_looking_at_own_account)
     else:
         include_private_and_draft_datasets = False
     context['count_private_and_draft_datasets'] = \
         include_private_and_draft_datasets
 
-    user_dict = model_dictize.user_dictize(user_obj, context)
+    include_password_hash = sysadmin and asbool(
+        data_dict.get('include_password_hash', False))
+
+    user_dict = model_dictize.user_dictize(
+        user_obj, context, include_password_hash)
 
     if context.get('return_minimal'):
         log.warning('Use of the "return_minimal" in user_show is '
                     'deprecated.')
         return user_dict
 
-    if data_dict.get('include_datasets', False):
+    if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []
 
         fq = "+creator_user_id:{0}".format(user_dict['id'])
@@ -1543,7 +1465,7 @@ def user_show(context, data_dict):
                                                data_dict=search_dict) \
             .get('results')
 
-    if data_dict.get('include_num_followers', False):
+    if asbool(data_dict.get('include_num_followers', False)):
         user_dict['num_followers'] = logic.get_action('user_follower_count')(
             {'model': model, 'session': model.Session},
             {'id': user_dict['id']})
@@ -1768,7 +1690,8 @@ def package_search(context, data_dict):
         documentation, this is a comma-separated string of field names and
         sort-orderings.
     :type sort: string
-    :param rows: the number of matching rows to return.
+    :param rows: the number of matching rows to return. There is a hard limit
+        of 1000 datasets per query.
     :type rows: int
     :param start: the offset in the complete result for where the set of
         returned datasets should begin.
@@ -1790,6 +1713,10 @@ def package_search(context, data_dict):
         sysadmin will be returned all draft datasets. Optional, the default is
         ``False``.
     :type include_drafts: boolean
+    :param use_default_schema: use default package schema instead of
+        a custom schema defined with an IDatasetForm plugin (default: False)
+    :type use_default_schema: bool
+
 
     The following advanced Solr parameters are supported as well. Note that
     some of these are only available on particular Solr versions. See Solr's
@@ -1829,9 +1756,6 @@ def package_search(context, data_dict):
         "count", "display_name" and "name" entries.  The display_name is a
         form of the name that can be used in titles.
     :type search_facets: nested dict of dicts.
-    :param use_default_schema: use default package schema instead of
-        a custom schema defined with an IDatasetForm plugin (default: False)
-    :type use_default_schema: bool
 
     An example result: ::
 
@@ -1893,7 +1817,11 @@ def package_search(context, data_dict):
 
     results = []
     if not abort:
-        data_source = 'data_dict' if data_dict.get('use_default_schema') else 'validated_data_dict'
+        if asbool(data_dict.get('use_default_schema')):
+            data_source = 'data_dict'
+        else:
+            data_source = 'validated_data_dict'
+        data_dict.pop('use_default_schema', None)
         # return a list of package ids
         data_dict['fl'] = 'id {0}'.format(data_source)
 
@@ -1933,7 +1861,7 @@ def package_search(context, data_dict):
 
         for package in query.results:
             # get the package object
-            package, package_dict = package['id'], package.get(data_source)
+            package_dict = package.get(data_source)
             ## use data in search index if there
             if package_dict:
                 # the package_dict still needs translating when being viewed
@@ -1944,7 +1872,8 @@ def package_search(context, data_dict):
                         package_dict = item.before_view(package_dict)
                 results.append(package_dict)
             else:
-                results.append(model_dictize.package_dictize(pkg, context))
+                log.error('No package_dict is coming from solr for package '
+                          'id %s', package['id'])
 
         count = query.count
         facets = query.facets
@@ -1960,6 +1889,17 @@ def package_search(context, data_dict):
         'sort': data_dict['sort']
     }
 
+    # create a lookup table of group name to title for all the groups and
+    # organizations in the current search's facets.
+    group_names = []
+    for field_name in ('groups', 'organization'):
+        group_names.extend(facets.get(field_name, {}).keys())
+
+    groups = session.query(model.Group.name, model.Group.title) \
+                    .filter(model.Group.name.in_(group_names)) \
+                    .all()
+    group_titles_by_name = dict(groups)
+
     # Transform facets into a more useful data structure.
     restructured_facets = {}
     for key, value in facets.items():
@@ -1971,11 +1911,9 @@ def package_search(context, data_dict):
             new_facet_dict = {}
             new_facet_dict['name'] = key_
             if key in ('groups', 'organization'):
-                group = model.Group.get(key_)
-                if group:
-                    new_facet_dict['display_name'] = group.display_name
-                else:
-                    new_facet_dict['display_name'] = key_
+                display_name = group_titles_by_name.get(key_, key_)
+                display_name = display_name if display_name and display_name.strip() else key_
+                new_facet_dict['display_name'] = display_name
             elif key == 'license_id':
                 license = model.Package.get_license_register().get(key_)
                 if license:
@@ -3504,8 +3442,8 @@ def config_option_show(context, data_dict):
     :py:func:`~ckan.logic.action.get.config_option_list`), which can be updated with the
     :py:func:`~ckan.logic.action.update.config_option_update` action.
 
-    :param id: The configuration option key
-    :type id: string
+    :param key: The configuration option key
+    :type key: string
 
     :returns: The value of the config option from either the system_info table
         or ini file.

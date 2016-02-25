@@ -127,8 +127,6 @@ class GroupController(base.BaseController):
             idx = -2
 
         gt = parts[idx]
-        if gt == 'group':
-            gt = None
 
         return gt
 
@@ -154,7 +152,7 @@ class GroupController(base.BaseController):
         items_per_page = 21
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True,
+                   'user': c.user, 'for_view': True,
                    'with_private': False}
 
         q = c.q = request.params.get('q', '')
@@ -206,10 +204,10 @@ class GroupController(base.BaseController):
             id.split('@')[0])
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'type': group_type}
 
         # unicode format (decoded from utf8)
         c.q = request.params.get('q', '')
@@ -232,7 +230,7 @@ class GroupController(base.BaseController):
     def _read(self, id, limit, group_type):
         ''' This is common code used by both read and bulk_process'''
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True, 'extras_as_string': True}
 
@@ -247,10 +245,6 @@ class GroupController(base.BaseController):
             h.render_markdown(c.group_dict.get('description'))
 
         context['return_query'] = True
-
-        # c.group_admins is used by CKAN's legacy (Genshi) templates only,
-        # if we drop support for those then we can delete this line.
-        c.group_admins = authz.get_group_or_org_admin_ids(c.group.id)
 
         page = self._get_page_number(request.params)
 
@@ -395,10 +389,10 @@ class GroupController(base.BaseController):
         # check we are org admin
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'schema': self._db_to_form_schema(group_type=group_type),
                    'for_view': True, 'extras_as_string': True}
-        data_dict = {'id': id}
+        data_dict = {'id': id, 'type': group_type}
 
         try:
             # Do not query for the group datasets when dictizing, as they will
@@ -466,7 +460,7 @@ class GroupController(base.BaseController):
             data['type'] = group_type
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'save': 'save' in request.params,
                    'parent': request.params.get('parent', None)}
         try:
@@ -498,7 +492,7 @@ class GroupController(base.BaseController):
             id.split('@')[0])
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'save': 'save' in request.params,
                    'for_edit': True,
                    'parent': request.params.get('parent', None)
@@ -537,16 +531,6 @@ class GroupController(base.BaseController):
         c.form = render(self._group_form(group_type), extra_vars=vars)
         return render(self._edit_template(c.group.type),
                       extra_vars={'group_type': group_type})
-
-    def _get_group_type(self, id):
-        """
-        Given the id of a group it determines the type of a group given
-        a valid id/name for the group.
-        """
-        group = model.Group.get(id)
-        if not group:
-            return None
-        return group.type
 
     def _save_new(self, context, group_type=None):
         try:
@@ -614,7 +598,7 @@ class GroupController(base.BaseController):
 
         try:
             context = \
-                {'model': model, 'user': c.user or c.author, 'group': group}
+                {'model': model, 'user': c.user, 'group': group}
             self._check_access('group_edit_permissions', context)
             c.authz_editable = True
             c.group = context['group']
@@ -637,7 +621,7 @@ class GroupController(base.BaseController):
             self._redirect_to_this_controller(action='edit', id=id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
 
         try:
             self._check_access('group_delete', context, {'id': id})
@@ -666,7 +650,7 @@ class GroupController(base.BaseController):
         group_type = self._ensure_controller_matches_group_type(id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
 
         try:
             c.members = self._action('member_list')(
@@ -685,7 +669,7 @@ class GroupController(base.BaseController):
         group_type = self._ensure_controller_matches_group_type(id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
 
         #self._check_access('group_delete', context, {'id': id})
         try:
@@ -742,7 +726,7 @@ class GroupController(base.BaseController):
             self._redirect_to_this_controller(action='members', id=id)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
 
         try:
             self._check_access('group_member_delete', context, {'id': id})
@@ -784,7 +768,7 @@ class GroupController(base.BaseController):
                 h.redirect_to(controller='revision', action='diff', **params)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'schema': self._db_to_form_schema()}
         data_dict = {'id': id}
         try:
@@ -850,7 +834,7 @@ class GroupController(base.BaseController):
 
         group_type = self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'for_view': True}
+                   'user': c.user, 'for_view': True}
         try:
             c.group_dict = self._get_group_dict(id)
         except NotFound:
@@ -873,7 +857,7 @@ class GroupController(base.BaseController):
         self._ensure_controller_matches_group_type(id)
         context = {'model': model,
                    'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
         data_dict = {'id': id}
         try:
             get_action('follow_group')(context, data_dict)
@@ -893,7 +877,7 @@ class GroupController(base.BaseController):
         self._ensure_controller_matches_group_type(id)
         context = {'model': model,
                    'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
         data_dict = {'id': id}
         try:
             get_action('unfollow_group')(context, data_dict)
@@ -912,7 +896,7 @@ class GroupController(base.BaseController):
     def followers(self, id):
         group_type = self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
         c.group_dict = self._get_group_dict(id)
         try:
             c.followers = \
@@ -932,7 +916,7 @@ class GroupController(base.BaseController):
     def about(self, id):
         group_type = self._ensure_controller_matches_group_type(id)
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author}
+                   'user': c.user}
         c.group_dict = self._get_group_dict(id)
         group_type = c.group_dict['type']
         self._setup_template_variables(context, {'id': id},
@@ -944,7 +928,7 @@ class GroupController(base.BaseController):
         ''' returns the result of group_show action or aborts if there is a
         problem '''
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'for_view': True}
         try:
             return self._action('group_show')(

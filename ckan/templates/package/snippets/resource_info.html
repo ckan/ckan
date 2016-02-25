@@ -10,11 +10,11 @@ Example:
 #}
 <div class="module context-info">
   <div class="module-content">
-    <h1 class="heading">{{ res.name or res.id }}</h1>
+    <h1 class="heading">{{ h.resource_display_name(res) or res.id }}</h1>
     <div class="nums">
       <dl>
         <dt>{{ _('Format') }}</dt>
-        <dd>{{ res.format }}</dd>
+        <dd>{{ h.get_translated(res, 'format') }}</dd>
       </dl>
     </div>
   </div>

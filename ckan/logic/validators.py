@@ -241,20 +241,6 @@ def group_id_exists(group_id, context):
         raise Invalid('%s: %s' % (_('Not found'), _('Group')))
     return group_id
 
-
-def related_id_exists(related_id, context):
-    '''Raises Invalid if the given related_id does not exist in the model
-    given in the context, otherwise returns the given related_id.
-
-    '''
-    model = context['model']
-    session = context['session']
-
-    result = session.query(model.Related).get(related_id)
-    if not result:
-        raise Invalid('%s: %s' % (_('Not found'), _('Related')))
-    return related_id
-
 def group_id_or_name_exists(reference, context):
     '''
     Raises Invalid if a group identified by the name or id cannot be found.
@@ -305,9 +291,6 @@ object_id_validators = {
     'changed organization' : group_id_exists,
     'deleted organization' : group_id_exists,
     'follow group' : group_id_exists,
-    'new related item': related_id_exists,
-    'deleted related item': related_id_exists,
-    'changed related item': related_id_exists,
     }
 
 def object_id_validator(key, activity_dict, errors, context):
@@ -618,6 +601,11 @@ def user_passwords_match(key, data, errors, context):
 def user_password_not_empty(key, data, errors, context):
     '''Only check if password is present if the user is created via action API.
        If not, user_both_passwords_entered will handle the validation'''
+
+    # sysadmin may provide password_hash directly for importing users
+    if (data.get(('password_hash',), missing) is not missing and
+            authz.is_sysadmin(context.get('user'))):
+        return
 
     if not ('password1',) in data and not ('password2',) in data:
         password = data.get(('password',),None)

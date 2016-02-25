@@ -17,10 +17,6 @@ class TestGroup(FunctionalTestCase):
         model.Session.remove()
         CreateTestData.create()
 
-        # reduce extraneous logging
-        from ckan.lib import activity_streams_session_extension
-        activity_streams_session_extension.logger.level = 100
-
     @classmethod
     def teardown_class(self):
         model.repo.rebuild_db()

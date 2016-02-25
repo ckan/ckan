@@ -19,7 +19,7 @@ class HomeController(base.BaseController):
     def __before__(self, action, **env):
         try:
             base.BaseController.__before__(self, action, **env)
-            context = {'model': model, 'user': c.user or c.author,
+            context = {'model': model, 'user': c.user,
                        'auth_user_obj': c.userobj}
             logic.check_access('site_read', context)
         except logic.NotAuthorized:
@@ -41,7 +41,7 @@ class HomeController(base.BaseController):
         try:
             # package search
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
             data_dict = {
                 'q': '*:*',
                 'facet.field': g.facets,
