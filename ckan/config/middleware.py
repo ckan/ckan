@@ -25,7 +25,7 @@ from flask import Flask
 from flask import abort as flask_abort
 from flask import request as flask_request
 from flask import _request_ctx_stack
-from werkzeug.routing import BuildError
+from werkzeug.exceptions import HTTPException
 from werkzeug.test import create_environ, run_wsgi_app
 
 from ckan.plugins import PluginImplementations
@@ -42,7 +42,7 @@ log = logging.getLogger(__name__)
 def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     # :::TODO::: like the flask app, make the pylons app respond to invites at
-    # /__invite__/, and handle can_handle_url requests.
+    # /__invite__/, and handle can_handle_request requests.
 
     pylons_app = make_pylons_stack(conf, full_stack, static_files, **app_conf)
     flask_app = make_flask_stack(conf)
@@ -207,9 +207,9 @@ def make_flask_stack(conf):
 
     app = CKANFlask(__name__)
 
-    @app.route('/flask_hello')
+    @app.route('/hello', methods=['GET'])
     def hello_world():
-        return 'Hello World!'
+        return 'Hello World, this is served by Flask'
 
     return app
 
@@ -219,7 +219,7 @@ class CKANFlask(Flask):
     '''Extend the Flask class with a special view to join the 'partyline'
     established by AskAppDispatcherMiddleware.
 
-    Also provide a 'can_handle_url' method.
+    Also provide a 'can_handle_request' method.
     '''
 
     def __init__(self, import_name, *args, **kwargs):
@@ -229,7 +229,8 @@ class CKANFlask(Flask):
         self.partyline = None
         self.connected = False
         self.invitation_context = None
-        self.app = None  # A label for the app handling this request (this app).
+        self.app_name = None  # A label for the app handling this request
+                              # (this app).
 
     def join_party(self, request=flask_request):
         # Bootstrap, turn the view function into a 404 after registering.
@@ -238,16 +239,27 @@ class CKANFlask(Flask):
             flask_abort(404)
         self.invitation_context = _request_ctx_stack.top
         self.partyline = request.environ.get(WSGIParty.partyline_key)
-        self.app = request.environ.get('partyline_handling_app')
-        self.partyline.connect('can_handle_url', self.can_handle_url)
+        self.app_name = request.environ.get('partyline_handling_app')
+        self.partyline.connect('can_handle_request', self.can_handle_request)
         self.connected = True
         return 'ok'
 
-    def can_handle_url(self, payload):
-        # :::TODO::: don't hardcode accepted url paths here, instead query the route map with .match()
-        if payload == '/flask_hello':
-            return (True, self.app)
-        else:
+    def can_handle_request(self, environ):
+        '''
+        Decides whether it can handle a request with the Flask app by
+        matching the request environ against the route mapper
+
+        Returns (True, 'flask_app') if this is the case.
+        '''
+
+        urls = self.url_map.bind_to_environ(environ)
+        try:
+            endpoint, args = urls.match()
+
+            log.debug('Flask route match, endpoint: {0}, args: {1}'.format(
+                endpoint, args))
+            return (True, self.app_name)
+        except HTTPException:
             raise HighAndDry()
 
 
@@ -260,12 +272,13 @@ class AskAppDispatcherMiddleware(WSGIParty):
     Used to help transition from Pylons to Flask, and should be removed once
     Pylons has been deprecated and all app requests are handled by Flask.
 
-    Each app should handle a call to 'can_handle_url(payload)', responding with a tuple:
+    Each app should handle a call to 'can_handle_request(environ)', responding
+    with a tuple:
         (<bool>, <app>, [<origin>])
     where:
-        `bool` is True if the app can handle the payload url,
-        `app` is the wsgi app returning the answer
-        `origin` is an optional string to determine where in the app the url
+       `bool` is True if the app can handle the payload url,
+       `app` is the wsgi app returning the answer
+       `origin` is an optional string to determine where in the app the url
         will be handled, e.g. 'core' or 'extension'.
 
     Order of precedence if more than one app can handle a url:
@@ -297,18 +310,22 @@ class AskAppDispatcherMiddleware(WSGIParty):
             run_wsgi_app(app, environ)
 
     def __call__(self, environ, start_response):
-        '''Determine which app to call by asking each app if can handle the
-        url at PATH_INFO'''
+        '''Determine which app to call by asking each app if it can handle the
+        url and method defined on the eviron'''
         # :::TODO::: Enforce order of precedence for dispatching to apps here.
-        url_path = environ.get('PATH_INFO', '')
 
         app_name = 'pylons_app'  # currently defaulting to pylons app
-        answers = self.ask_around('can_handle_url', url_path)
+        answers = self.ask_around('can_handle_request', environ)
         for answer in answers:
             can_handle, asked_app = answer
             if can_handle:
                 app_name = asked_app
                 break
+
+        log.debug('Route support answers for {0} {1}: {2}'.format(
+            environ.get('REQUEST_METHOD'), environ.get('PATH_INFO'),
+            answers))
+        log.debug('Serving request via {0} app'.format(app_name))
         return self.apps[app_name](environ, start_response)
 
 

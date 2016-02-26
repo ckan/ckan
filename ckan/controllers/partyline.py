@@ -1,4 +1,5 @@
 from pylons.controllers import WSGIController
+from pylons import config
 
 import ckan.lib.base as base
 from ckan.common import request, g
@@ -22,13 +23,33 @@ class PartylineController(WSGIController):
         if hasattr(g, 'partyline_connected'):
             base.abort(404)
         self.partyline = request.environ.get(WSGIParty.partyline_key)
-        self.app = request.environ.get('partyline_handling_app')
-        self.partyline.connect('can_handle_url', self._can_handle_url)
+        self.app_name = request.environ.get('partyline_handling_app')
+        self.partyline.connect('can_handle_request', self._can_handle_request)
         setattr(g, 'partyline_connected', True)
         return 'ok'
 
-    def _can_handle_url(self, payload):
-        if payload != '/flask_hello':
-            return (True, self.app)
+    def _can_handle_request(self, environ):
+        '''
+        Decides whether it can handle a request with the Pylons app by
+        matching the request environ against the route mapper
+
+        Returns (True, 'pylons_app') if this is the case.
+
+        NOTE: There is currently a catch all route for GET requests to
+        point arbitrary urls to templates with the same name:
+
+            map.connect('/*url', controller='template', action='view')
+
+        This means that this function will match all GET requests. This
+        does not cause issues as the Pylons core routes are the last to
+        take precedence so the current behaviour is kept, but it's worth
+        keeping in mind.
+        '''
+
+        pylons_mapper = config['routes.map']
+        match = pylons_mapper.match(environ=environ)
+        if match:
+            log.debug('Pylons route match: {0}'.format(match))
+            return (True, self.app_name)
         else:
             raise HighAndDry()
