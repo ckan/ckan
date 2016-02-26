@@ -252,10 +252,12 @@ class CKANFlask(Flask):
         Returns (True, 'flask_app') if this is the case.
         '''
 
+        # TODO: identify matching urls as core or extension. This will depend
+        # on how we setup routing in Flask
+
         urls = self.url_map.bind_to_environ(environ)
         try:
             endpoint, args = urls.match()
-
             log.debug('Flask route match, endpoint: {0}, args: {1}'.format(
                 endpoint, args))
             return (True, self.app_name)
@@ -316,15 +318,29 @@ class AskAppDispatcherMiddleware(WSGIParty):
 
         app_name = 'pylons_app'  # currently defaulting to pylons app
         answers = self.ask_around('can_handle_request', environ)
-        for answer in answers:
-            can_handle, asked_app = answer
-            if can_handle:
-                app_name = asked_app
-                break
-
         log.debug('Route support answers for {0} {1}: {2}'.format(
             environ.get('REQUEST_METHOD'), environ.get('PATH_INFO'),
             answers))
+        available_handlers = []
+        for answer in answers:
+            if len(answer) == 2:
+                can_handle, asked_app = answer
+                origin = 'core'
+            else:
+                can_handle, asked_app, origin = answer
+            if can_handle:
+                available_handlers.append('{0}_{1}'.format(asked_app, origin))
+
+        # Enforce order of precedence:
+        # Flask Extension > Pylons Extension > Flask Core > Pylons Core
+        if available_handlers:
+            if 'flask_app_extension' in available_handlers:
+                app_name = 'flask_app'
+            elif 'pylons_app_extension' in available_handlers:
+                app_name = 'pylons_app'
+            elif 'flask_app_core' in available_handlers:
+                app_name = 'flask_app'
+
         log.debug('Serving request via {0} app'.format(app_name))
         return self.apps[app_name](environ, start_response)
 

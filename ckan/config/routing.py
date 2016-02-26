@@ -88,15 +88,21 @@ def make_map():
 
     # The ErrorController route (handles 404/500 error pages); it should
     # likely stay at the top, ensuring it can always be resolved.
-    map.connect('/error/{action}', controller='error')
-    map.connect('/error/{action}/{id}', controller='error')
+    map.connect('/error/{action}', controller='error', core=True)
+    map.connect('/error/{action}/{id}', controller='error', core=True)
 
     map.connect('*url', controller='home', action='cors_options',
-                conditions=OPTIONS)
+                conditions=OPTIONS, core=True)
 
     # CUSTOM ROUTES HERE
     for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.before_map(map)
+
+    # Mark all routes added from extensions on the `before_map` extension point
+    # as non-core
+    for route in map.matchlist:
+        if 'core' not in route.defaults:
+            route.defaults['core'] = False
 
     map.connect('invite', '/__invite__/', controller='partyline', action='join_party')
 
@@ -415,8 +421,19 @@ def make_map():
         m.connect('/testing/primer', action='primer')
         m.connect('/testing/markup', action='markup')
 
+    # Mark all unmarked routes added up until now as core routes
+    for route in map.matchlist:
+        if 'core' not in route.defaults:
+            route.defaults['core'] = True
+
     for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.after_map(map)
+
+    # Mark all routes added from extensions on the `after_map` extension point
+    # as non-core
+    for route in map.matchlist:
+        if 'core' not in route.defaults:
+            route.defaults['core'] = False
 
     # sometimes we get requests for favicon.ico we should redirect to
     # the real favicon location.
@@ -424,6 +441,6 @@ def make_map():
 
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')
-    map.connect('/*url', controller='template', action='view')
+    map.connect('/*url', controller='template', action='view', core=True)
 
     return map

@@ -33,7 +33,10 @@ class PartylineController(WSGIController):
         Decides whether it can handle a request with the Pylons app by
         matching the request environ against the route mapper
 
-        Returns (True, 'pylons_app') if this is the case.
+        Returns (True, 'pylons_app', origin) if this is the case.
+
+        origin can be either 'core' or 'extension' depending on where
+        the route was defined.
 
         NOTE: There is currently a catch all route for GET requests to
         point arbitrary urls to templates with the same name:
@@ -49,7 +52,8 @@ class PartylineController(WSGIController):
         pylons_mapper = config['routes.map']
         match = pylons_mapper.match(environ=environ)
         if match:
+            origin = 'core' if match.get('core') == 'True' else 'extension'
             log.debug('Pylons route match: {0}'.format(match))
-            return (True, self.app_name)
+            return (True, self.app_name, origin)
         else:
             raise HighAndDry()
