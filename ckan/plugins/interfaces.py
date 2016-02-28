@@ -179,9 +179,21 @@ class IDomainObjectModification(Interface):
     """
 
     def notify(self, entity, operation):
+        '''
+        Give user a notify according to different user operation on current entity
+
+        :param entity: instance of module.Package
+        :param operation: instance of DomainObjectOperation
+        '''
         pass
 
     def notify_after_commit(self, entity, operation):
+        '''
+        Give user a notify according to different user operation on current entity after user action
+
+        :param entity: instance of module.Package
+        :param operation: instance of DomainObjectOperation
+        '''
         pass
 
 
