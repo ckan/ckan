@@ -40,9 +40,14 @@ class Mapper(_Mapper):
         :type highlight_actions: string
 
         '''
+
         ckan_icon = kw.pop('ckan_icon', None)
         highlight_actions = kw.pop('highlight_actions', kw.get('action', ''))
+        ckan_core = kw.pop('ckan_core', None)
         out = _Mapper.connect(self, *args, **kw)
+        route = self.matchlist[-1]
+        if ckan_core is not None:
+            route._ckan_core = ckan_core
         if len(args) == 1 or args[0].startswith('_redirect_'):
             return out
         # we have a named route
@@ -88,11 +93,11 @@ def make_map():
 
     # The ErrorController route (handles 404/500 error pages); it should
     # likely stay at the top, ensuring it can always be resolved.
-    map.connect('/error/{action}', controller='error', core=True)
-    map.connect('/error/{action}/{id}', controller='error', core=True)
+    map.connect('/error/{action}', controller='error', ckan_core=True)
+    map.connect('/error/{action}/{id}', controller='error', ckan_core=True)
 
     map.connect('*url', controller='home', action='cors_options',
-                conditions=OPTIONS, core=True)
+                conditions=OPTIONS, ckan_core=True)
 
     # CUSTOM ROUTES HERE
     for plugin in p.PluginImplementations(p.IRoutes):
@@ -101,8 +106,8 @@ def make_map():
     # Mark all routes added from extensions on the `before_map` extension point
     # as non-core
     for route in map.matchlist:
-        if 'core' not in route.defaults:
-            route.defaults['core'] = False
+        if not hasattr(route, '_ckan_core'):
+            route._ckan_core = False
 
     map.connect('invite', '/__invite__/', controller='partyline', action='join_party')
 
@@ -423,8 +428,8 @@ def make_map():
 
     # Mark all unmarked routes added up until now as core routes
     for route in map.matchlist:
-        if 'core' not in route.defaults:
-            route.defaults['core'] = True
+        if not hasattr(route, '_ckan_core'):
+            route._ckan_core = True
 
     for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.after_map(map)
@@ -432,8 +437,8 @@ def make_map():
     # Mark all routes added from extensions on the `after_map` extension point
     # as non-core
     for route in map.matchlist:
-        if 'core' not in route.defaults:
-            route.defaults['core'] = False
+        if not hasattr(route, '_ckan_core'):
+            route._ckan_core = False
 
     # sometimes we get requests for favicon.ico we should redirect to
     # the real favicon location.
@@ -441,6 +446,6 @@ def make_map():
 
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')
-    map.connect('/*url', controller='template', action='view', core=True)
+    map.connect('/*url', controller='template', action='view', ckan_core=True)
 
     return map
