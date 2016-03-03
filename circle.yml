@@ -2,6 +2,13 @@ machine:
 
     environment:
         PIP_USE_MIRRORS: true
+        CKAN_POSTGRES_DB: ckan_test
+        CKAN_POSTGRES_USER: ckan_default
+        CKAN_POSTGRES_PWD: pass
+        CKAN_DATASTORE_POSTGRES_DB: datastore_test
+        CKAN_DATASTORE_POSTGRES_WRITE_USER: ckan_default
+        CKAN_DATASTORE_POSTGRES_READ_USER: datastore_default
+        CKAN_DATASTORE_POSTGRES_READ_PWD: pass
 
 dependencies:
     override:
@@ -14,10 +21,8 @@ dependencies:
 
 database:
     post:
-        - sudo -u postgres psql -c "CREATE USER ckan_default WITH PASSWORD 'pass';"
-        - sudo -u postgres psql -c "CREATE USER datastore_default WITH PASSWORD 'pass';"
-        - sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckan_default;'
-        - sudo -u postgres psql -c 'CREATE DATABASE datastore_test WITH OWNER ckan_default;'
+        - sudo -E -u postgres ./bin/postgres_init/1_create_ckan_db.sh
+        - sudo -E -u postgres ./bin/postgres_init/2_create_ckan_datastore_db.sh
         - sed -i -e 's/.*datastore.read_url.*/ckan.datastore.read_url = postgresql:\/\/datastore_default:pass@\/datastore_test/' test-core.ini
         - paster datastore -c test-core.ini set-permissions | sudo -u postgres psql
 
