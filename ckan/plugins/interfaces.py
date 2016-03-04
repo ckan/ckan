@@ -179,21 +179,21 @@ class IDomainObjectModification(Interface):
     """
 
     def notify(self, entity, operation):
-        '''
-        Give user a notify according to different user operation on current entity
+        """
+        Give user a notify according to different user operation on current entity. If fail raise a Searc        hIndexError.
 
-        :param entity: instance of module.Package
-        :param operation: instance of DomainObjectOperation
-        '''
+        :param entity: instance of module.Package.
+        :param operation: instance of DomainObjectOperation, type enum, can be 'new', 'changed' or 'deleted'. 
+        """
         pass
 
     def notify_after_commit(self, entity, operation):
-        '''
-        Give user a notify according to different user operation on current entity after user action
+        """
+        Give user a notify according to different user operation on current entity after user action.
 
-        :param entity: instance of module.Package
-        :param operation: instance of DomainObjectOperation
-        '''
+        :param entity: instance of module.Package.
+        :param operation: instance of DomainObjectOperation, type enum, can be 'new', 'changed' or 'deleted'.
+        """
         pass
 
 
@@ -203,6 +203,11 @@ class IResourceUrlChange(Interface):
     """
 
     def notify(self, resource):
+        """
+        Give user a notify is resource url has changed.
+
+        :param resource, instance of model.Resource
+        """
         pass
 
 
