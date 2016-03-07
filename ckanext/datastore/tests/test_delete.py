@@ -79,7 +79,11 @@ class TestDatastoreDelete(tests.WsgiAppCase):
 
         # It's dangerous to build queries as someone could inject sql.
         # It's okay here as it is a test but don't use it anyhwere else!
-        results = c.execute(u"select 1 from pg_views where viewname = '{0}'".format(self.data['aliases']))
+        results = c.execute(
+            u"select 1 from pg_views where viewname = '{0}'".format(
+                self.data['aliases']
+            )
+        )
         assert results.rowcount == 0
 
         try:
@@ -181,9 +185,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
 
         data = {
             'resource_id': self.data['resource_id'],
-            'filters': {
-                'invalid-column-name': 'value'
-            }
+            'filters': []
         }
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.normal_user.apikey)}
