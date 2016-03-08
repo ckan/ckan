@@ -179,9 +179,21 @@ class IDomainObjectModification(Interface):
     """
 
     def notify(self, entity, operation):
+        """
+        Send a notification on entity modification.
+
+        :param entity: instance of module.Package.
+        :param operation: 'new', 'changed' or 'deleted'.
+        """
         pass
 
     def notify_after_commit(self, entity, operation):
+        """
+        Send a notification after entity modification.
+
+        :param entity: instance of module.Package.
+        :param operation: 'new', 'changed' or 'deleted'.
+        """
         pass
 
 
@@ -191,6 +203,11 @@ class IResourceUrlChange(Interface):
     """
 
     def notify(self, resource):
+        """
+        Give user a notify is resource url has changed.
+
+        :param resource, instance of model.Resource
+        """
         pass
 
 
