@@ -180,19 +180,19 @@ class IDomainObjectModification(Interface):
 
     def notify(self, entity, operation):
         """
-        Give user a notify according to different user operation on current entity. If fail raise a Searc        hIndexError.
+        Send a notification on entity modification.
 
         :param entity: instance of module.Package.
-        :param operation: instance of DomainObjectOperation, type enum, can be 'new', 'changed' or 'deleted'. 
+        :param operation: 'new', 'changed' or 'deleted'.
         """
         pass
 
     def notify_after_commit(self, entity, operation):
         """
-        Give user a notify according to different user operation on current entity after user action.
+        Send a notification after entity modification.
 
         :param entity: instance of module.Package.
-        :param operation: instance of DomainObjectOperation, type enum, can be 'new', 'changed' or 'deleted'.
+        :param operation: 'new', 'changed' or 'deleted'.
         """
         pass
 
