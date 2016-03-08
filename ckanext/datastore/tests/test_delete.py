@@ -196,3 +196,42 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         assert res_dict['error'].get('filters') is not None, res_dict['error']
 
         self._delete()
+
+    def test_delete_with_blank_filters(self):
+        self._create()
+
+        res = self.app.post(
+            '/api/action/datastore_delete',
+            params='{0}=1'.format(
+                json.dumps({
+                    'resource_id': self.data['resource_id'],
+                    'filters': {}
+                })
+            ),
+            extra_environ={
+                'Authorization': str(self.normal_user.apikey)
+            },
+            status=200
+        )
+
+        results = json.loads(res.body)
+        assert(results['success'] is True)
+
+        res = self.app.post(
+            '/api/action/datastore_search',
+            params='{0}=1'.format(
+                json.dumps({
+                    'resource_id': self.data['resource_id'],
+                })
+            ),
+            extra_environ={
+                'Authorization': str(self.normal_user.apikey)
+            },
+            status=200
+        )
+
+        results = json.loads(res.body)
+        assert(results['success'] is True)
+        assert(len(results['result']['records']) == 0)
+
+        self._delete()
