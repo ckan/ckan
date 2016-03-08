@@ -76,7 +76,9 @@ All the English strings in CKAN are extracted into the ``ckan.pot`` file, which 
 1. Preparation
 --------------
 
-This tutorial assumes you've got ckan installed as source in a virtualenv. Activate the virtualenv and cd to the ckan directory::
+This tutorial assumes you've got ckan installed as source in a virtualenv. Activate the virtualenv and cd to the ckan directory:
+
+   .. parsed-literal::
 
        |activate|
        cd |virtualenv|/src/ckan
@@ -138,9 +140,11 @@ This will result in a binary 'mo' file of your translation at ``ckan/i18n/YOUR_L
 
 This section explains how to deploy your translation to your CKAN server.
 
-Once you have a compiled translation file, copy it to your host::
+Once you have a compiled translation file, copy it to your host:
 
- scp ckan.mo |virtualenv|/src/ckan/ckan/i18n/hu/LC_MESSAGES/ckan.mo
+   .. parsed-literal::
+
+       scp ckan.mo |virtualenv|/src/ckan/ckan/i18n/hu/LC_MESSAGES/ckan.mo
 
 Adjust the path if you did not use the default location. This example is for language ``hu``.
 
