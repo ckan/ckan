@@ -430,7 +430,8 @@ def create_indexes(context, data_dict):
 
     if primary_key is not None:
         _drop_indexes(context, data_dict, True)
-        indexes.append(primary_key)
+        if primary_key not in indexes:
+            indexes.append(primary_key)
 
     for index in indexes:
         if not index:
