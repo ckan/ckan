@@ -211,6 +211,10 @@ def make_flask_stack(conf):
     def hello_world():
         return 'Hello World, this is served by Flask'
 
+    @app.route('/hello', methods=['POST'])
+    def hello_world_post():
+        return 'Hello World, this was posted to Flask'
+
     return app
 
 
