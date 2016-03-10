@@ -2,6 +2,7 @@ import logging
 from urllib import quote
 
 from pylons import config
+from paste.deploy.converters import asbool
 
 import ckan.lib.base as base
 import ckan.model as model
@@ -125,7 +126,7 @@ class UserController(base.BaseController):
 
         # The legacy templates have the user's activity stream on the user
         # profile page, new templates do not.
-        if h.asbool(config.get('ckan.legacy_templates', False)):
+        if asbool(config.get('ckan.legacy_templates', False)):
             c.user_activity_stream = get_action('user_activity_list_html')(
                 context, {'id': c.user_dict['id']})
 
@@ -310,7 +311,7 @@ class UserController(base.BaseController):
                                        data_dict)
 
         c.is_myself = True
-        c.show_email_notifications = h.asbool(
+        c.show_email_notifications = asbool(
             config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
 
@@ -395,7 +396,7 @@ class UserController(base.BaseController):
             return self.me()
         else:
             err = _('Login failed. Bad username or password.')
-            if h.asbool(config.get('ckan.legacy_templates', 'false')):
+            if asbool(config.get('ckan.legacy_templates', 'false')):
                 h.flash_error(err)
                 h.redirect_to(controller='user',
                               action='login', came_from=came_from)

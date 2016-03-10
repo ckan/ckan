@@ -6,8 +6,6 @@ import warnings
 from urlparse import urlparse
 import pytz
 
-import pylons
-from paste.deploy.converters import asbool
 import sqlalchemy
 from pylons import config
 
@@ -44,23 +42,8 @@ class _Helpers(object):
 
     def _setup(self):
         helpers = self.helpers
-        functions = {}
-        allowed = helpers.__allowed_functions__[:]
-        # list of functions due to be deprecated
-        self.deprecated = []
 
-        for helper in dir(helpers):
-            if helper not in allowed:
-                self.deprecated.append(helper)
-                continue
-            functions[helper] = getattr(helpers, helper)
-            if helper in allowed:
-                allowed.remove(helper)
-        self.functions = functions
-
-        if allowed:
-            raise Exception('Template helper function(s) `%s` not defined'
-                            % ', '.join(allowed))
+        self.functions = helpers.helper_functions.copy()
 
         # extend helper functions with ones supplied by plugins
         extra_helpers = []
@@ -70,26 +53,19 @@ class _Helpers(object):
                 if helper in extra_helpers:
                     raise Exception('overwritting extra helper %s' % helper)
                 extra_helpers.append(helper)
-                functions[helper] = helpers[helper]
+                self.functions[helper] = helpers[helper]
+
         # logging
         self.log = logging.getLogger('ckan.helpers')
 
     def __getattr__(self, name):
         ''' return the function/object requested '''
         if name in self.functions:
-            if name in self.deprecated:
-                msg = 'Template helper function `%s` is deprecated' % name
-                self.log.warn(msg)
             return self.functions[name]
         else:
-            if name in self.deprecated:
-                msg = ('Template helper function `{0}` is not available '
-                       'because it has been deprecated.'.format(name))
-                self.log.critical(msg)
-            else:
-                msg = 'Helper function `%s` could not be found\n ' \
-                      '(are you missing an extension?)' % name
-                self.log.critical(msg)
+            msg = 'Helper function `%s` could not be found\n ' \
+                  '(are you missing an extension?)' % name
+            self.log.critical(msg)
             return _null_function
 
 
@@ -116,11 +92,10 @@ class _HelpersNoMagic(object):
 
 
 def load_environment(global_conf, app_conf):
-    """Configure the Pylons environment via the ``pylons.config``
-    object.  This code should only need to be run once.
     """
-
-    ######  Pylons monkey-patch
+    Configure the Pylons environment via the ``pylons.config`` object. This
+    code should only need to be run once.
+    """
     # this must be run at a time when the env is semi-setup, thus inlined here.
     # Required by the deliverance plugin and iATI
     from pylons.wsgiapp import PylonsApp
@@ -140,7 +115,6 @@ def load_environment(global_conf, app_conf):
             return mycontroller
         return find_controller_generic(self, controller)
     PylonsApp.find_controller = find_controller
-    ###### END evil monkey-patch
 
     os.environ['CKAN_CONFIG'] = global_conf['__file__']
 
@@ -250,7 +224,7 @@ def update_config():
     config['ckan.favicon'] = favicon
 
     # Init SOLR settings and check if the schema is compatible
-    #from ckan.lib.search import SolrSettings, check_solr_schema_version
+    # from ckan.lib.search import SolrSettings, check_solr_schema_version
 
     # lib.search is imported here as we need the config enabled and parsed
     search.SolrSettings.init(config.get('solr_url'),
