@@ -246,7 +246,7 @@ def update_config():
         config['ckan.site_id'] = ckan_host
 
     # ensure that a favicon has been set
-    favicon = config.get('ckan.favicon', '/base/images/icons/ckan.ico')
+    favicon = config.get('ckan.favicon', '/base/images/ckan.ico')
     config['ckan.favicon'] = favicon
 
     # Init SOLR settings and check if the schema is compatible
