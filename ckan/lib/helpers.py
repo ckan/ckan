@@ -881,7 +881,7 @@ def linked_user(user, maxlength=0, avatar=20):
         if maxlength and len(user.display_name) > maxlength:
             displayname = displayname[:maxlength] + '...'
 
-        return u'{icon} {link}'.format(
+        return tags.literal(u'{icon} {link}'.format(
             icon=gravatar(
                 email_hash=user.email_hash,
                 size=avatar
@@ -890,7 +890,7 @@ def linked_user(user, maxlength=0, avatar=20):
                 displayname,
                 url_for(controller='user', action='read', id=name)
             )
-        )
+        ))
 
 
 @builtin_helper
