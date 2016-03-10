@@ -55,8 +55,6 @@ helper_functions = {}
 def builtin_helper(f, name=None):
     """
     Register a function as a builtin helper method.
-
-    This method can be used as a decorator, or take an iterable of functions.
     """
     def _get_name(func_or_class):
         # Handles both methods and class instances.
@@ -65,11 +63,8 @@ def builtin_helper(f, name=None):
         except AttributeError:
             return func_or_class.__class__.__name__
 
-    if hasattr(f, '__call__'):
-        helper_functions[name or _get_name(f)] = f
-        return f
-    else:
-        helper_functions.update((_get_name(func), func) for func in f)
+    helper_functions[name or _get_name(f)] = f
+    return f
 
 
 def _datestamp_to_datetime(datetime_):
@@ -2259,23 +2254,21 @@ def get_translated(data_dict, field):
 
 
 builtin_helper(flash, name='flash')
-builtin_helper((
-    localised_number,
-    localised_SI_number,
-    localised_nice_date,
-    localised_filesize,
-    # Useful additionsfrom the i18n library.
-    i18n.get_available_locales,
-    i18n.get_locales_dict,
-    # Useful additions from the webhelpers library.
-    tags.literal,
-    tags.link_to,
-    tags.file,
-    tags.submit,
-    tools.mail_to,
-    whtext.truncate,
-    # Useful additions from the paste library.
-    converters.asbool,
-    # Useful additions from the stdlib.
-    urlencode
-))
+builtin_helper(localised_number)
+builtin_helper(localised_SI_number)
+builtin_helper(localised_nice_date)
+builtin_helper(localised_filesize)
+# Useful additionsfrom the i18n library.
+builtin_helper(i18n.get_available_locales)
+builtin_helper(i18n.get_locales_dict)
+# Useful additions from the webhelpers library.
+builtin_helper(tags.literal)
+builtin_helper(tags.link_to)
+builtin_helper(tags.file)
+builtin_helper(tags.submit)
+builtin_helper(tools.mail_to)
+builtin_helper(whtext.truncate)
+# Useful additions from the paste library.
+builtin_helper(converters.asbool)
+# Useful additions from the stdlib.
+builtin_helper(urlencode)
