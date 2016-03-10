@@ -139,7 +139,7 @@ class TestTooFewToPage:
                 pkgs.append({
                     'name': u'testpackage_%s_%s' % (letter, i),
                     'title': u'%s Testpackage %s' % (letter, i),
-                    })
+                })
         cls.num_pkgs = len(pkgs)
         CreateTestData.create_arbitrary(pkgs)
 
