@@ -144,7 +144,7 @@ class TestBadSpellings(object):
                     bad = ', '.join(bad_words)
                     errors.append('ln:%s \t%s\n<%s>' % (count, line[:-1], bad))
                 count += 1
-            if errors and not filename in blacklist:
+            if errors and filename not in blacklist:
                 cls.fails[filename] = output_errors(filename, errors)
             elif not errors and filename in blacklist:
                 cls.passes.append(filename)
@@ -197,7 +197,7 @@ class TestNastyString(object):
                 if re_nasty_str.search(line):
                     errors.append('ln:%s \t%s' % (count, line[:-1]))
                 count += 1
-            if errors and not filename in blacklist:
+            if errors and filename not in blacklist:
                 cls.fails[filename] = output_errors(filename, errors)
             elif not errors and filename in blacklist:
                 cls.passes.append(filename)
@@ -227,7 +227,6 @@ class TestImportStar(object):
     # import * is bad for many reasons and should be avoided.
 
     IMPORT_STAR_BLACKLIST_FILES = [
-        'ckan/lib/helpers.py',
         'ckan/migration/versions/001_add_existing_tables.py',
         'ckan/migration/versions/002_add_author_and_maintainer.py',
         'ckan/migration/versions/003_add_user_object.py',
@@ -341,7 +340,7 @@ class TestImportStar(object):
                     errors.append('%s ln:%s import *\n\t%s'
                                   % (filename, count, line))
                 count += 1
-            if errors and not filename in blacklist:
+            if errors and filename not in blacklist:
                 cls.fails[filename] = output_errors(filename, errors)
             elif not errors and filename in blacklist:
                 cls.passes.append(filename)
@@ -643,7 +642,7 @@ class TestPep8(object):
         blacklist = cls.PEP8_BLACKLIST_FILES
         for path, filename in process_directory(base_path):
             errors = cls.find_pep8_errors(filename=path)
-            if errors and not filename in blacklist:
+            if errors and filename not in blacklist:
                 cls.fails[filename] = output_errors(filename, errors)
             elif not errors and filename in blacklist:
                 cls.passes.append(filename)
@@ -899,7 +898,7 @@ class TestBadExceptions(object):
                 if re_nasty_exception.search(line):
                     errors.append('ln:%s \t%s' % (count, line[:-1]))
                 count += 1
-            if errors and not filename in blacklist:
+            if errors and filename not in blacklist:
                 cls.fails[filename] = output_errors(filename, errors)
             elif not errors and filename in blacklist:
                 cls.passes.append(filename)
