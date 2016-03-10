@@ -606,7 +606,6 @@ class TestPep8(object):
         'ckan/tests/legacy/test_versions.py',
         'ckan/websetup.py',
         'ckanext/datastore/bin/datastore_setup.py',
-        'ckanext/datastore/logic/action.py',
         'ckanext/datastore/plugin.py',
         'ckanext/datastore/tests/test_create.py',
         'ckanext/datastore/tests/test_search.py',
