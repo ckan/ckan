@@ -4,7 +4,7 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.lib.base as base
 import ckan.lib.helpers as h
-from alphabet_paginate import AlphaPage
+from ckan.lib.alphabet_paginate import AlphaPage
 
 from ckan.common import _, request, c
 

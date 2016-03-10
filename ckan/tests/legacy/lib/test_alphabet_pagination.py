@@ -1,8 +1,8 @@
 import re
 
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_true, assert_in
 
-from alphabet_paginate import AlphaPage
+from ckan.lib.alphabet_paginate import AlphaPage
 from ckan.tests.legacy import regex_related
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
@@ -53,22 +53,25 @@ class TestPages:
             other_text=other,
         )
         pager = page.pager()
-        assert(
-            pager.startswith('<div class="pagination pagination-alphabet">'),
+        assert_true(
+            pager.startswith(
+                '<div class="pagination pagination-alphabet">'
+            ),
             pager
         )
-        assert(
-            '<li class="active"><a href="/tag?page=A">A</a></li>' in pager,
+        assert_in(
+            '<li class="active"><a href="/tag?page=A">A</a></li>',
+            pager,
             pager
         )
-        assert(
+        assert_true(
             re.search(
                 r'\<li\>\<a href="\/tag\?page=B"\>B\<\/a\>\<\/li\>',
                 pager
             ),
             pager
         )
-        assert(
+        assert_true(
             re.search(
                 r'\<li class="disabled"\>\<a href="\/tag\?page=E"\>E'
                 r'\<\/a\>\<\/li\>',
@@ -76,7 +79,7 @@ class TestPages:
             ),
             pager
         )
-        assert(
+        assert_true(
             re.search(
                 r'\<li\>\<a href="\/tag\?page=Other"\>Other\<\/a\>\<\/li\>',
                 pager
@@ -109,7 +112,7 @@ class TestPages:
         items = page.items
         assert len(items) == 20, [item.title for item in items]
         for item in items:
-            assert(
+            assert_true(
                 item.title.startswith('1') or item.title.startswith('2'),
                 item.title
             )
