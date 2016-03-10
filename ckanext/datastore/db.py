@@ -123,7 +123,7 @@ def _cache_types(context):
         if 'nested' not in _type_names:
             native_json = _pg_version_is_at_least(connection, '9.2')
 
-            log.info("Create nested type. Native JSON: {0}".format(
+            log.info("Create nested type. Native JSON: {0!r}".format(
                 native_json))
 
             data_dict = {
@@ -441,7 +441,7 @@ def create_indexes(context, data_dict):
             if field not in field_ids:
                 raise ValidationError({
                     'index': [
-                        (u'The field "{0}" is not a valid column name.').format(
+                        u'The field "{0}" is not a valid column name.'.format(
                             index)]
                 })
         fields_string = u', '.join(
@@ -1223,7 +1223,7 @@ def search_sql(context, data_dict):
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
 
         table_names = datastore_helpers.get_table_names_from_sql(context, sql)
-        log.debug('Tables involved in input SQL: {0}'.format(table_names))
+        log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
 
         system_tables = [t for t in table_names if t.startswith('pg_')]
         if len(system_tables):
@@ -1281,15 +1281,18 @@ def _change_privilege(context, data_dict, what):
             read_only_user)
     else:
         raise ValidationError({
-            'privileges': [u'Can only GRANT or REVOKE but not {0}'.format(what)]
+            'privileges': [
+                u'Can only GRANT or REVOKE but not {0}'.format(what)
+            ]
         })
     try:
         context['connection'].execute(sql)
     except ProgrammingError, e:
-        log.critical("Error making resource private. {0}".format(e.message))
+        log.critical("Error making resource private. {0!r}".format(e.message))
         raise ValidationError({
-            'privileges': [u'cannot make "{0}" private'.format(
-                           data_dict['resource_id'])],
+            'privileges': [
+                u'cannot make "{resource_id}" private'.format(**data_dict)
+            ],
             'info': {
                 'orig': str(e.orig),
                 'pgcode': e.orig.pgcode
@@ -1298,8 +1301,7 @@ def _change_privilege(context, data_dict, what):
 
 
 def make_private(context, data_dict):
-    log.info('Making resource {0} private'.format(
-        data_dict['resource_id']))
+    log.info('Making resource {resource_id!r} private'.format(**data_dict))
     engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
@@ -1311,8 +1313,7 @@ def make_private(context, data_dict):
 
 
 def make_public(context, data_dict):
-    log.info('Making resource {0} public'.format(
-        data_dict['resource_id']))
+    log.info('Making resource {resource_id!r} public'.format(**data_dict))
     engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
