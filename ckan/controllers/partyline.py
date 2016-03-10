@@ -2,7 +2,7 @@ from pylons.controllers import WSGIController
 from pylons import config
 
 import ckan.lib.base as base
-from ckan.common import request, g
+from ckan.common import request
 
 from wsgi_party import WSGIParty, HighAndDry
 
@@ -17,15 +17,16 @@ class PartylineController(WSGIController):
 
     def __init__(self, *args, **kwargs):
         super(PartylineController, self).__init__(*args, **kwargs)
-        self.app = None  # A reference to the main pylons app.
+        self.app_name = None  # A reference to the main pylons app.
+        self.partyline_connected = False
 
     def join_party(self):
-        if hasattr(g, 'partyline_connected'):
+        if self.partyline_connected:
             base.abort(404)
         self.partyline = request.environ.get(WSGIParty.partyline_key)
         self.app_name = request.environ.get('partyline_handling_app')
         self.partyline.connect('can_handle_request', self._can_handle_request)
-        setattr(g, 'partyline_connected', True)
+        self.partyline_connected = True
         return 'ok'
 
     def _can_handle_request(self, environ):

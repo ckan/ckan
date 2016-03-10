@@ -227,21 +227,21 @@ class CKANFlask(Flask):
         self.add_url_rule('/__invite__/', endpoint='partyline',
                           view_func=self.join_party)
         self.partyline = None
-        self.connected = False
+        self.partyline_connected = False
         self.invitation_context = None
         self.app_name = None  # A label for the app handling this request
                               # (this app).
 
     def join_party(self, request=flask_request):
         # Bootstrap, turn the view function into a 404 after registering.
-        if self.connected:
+        if self.partyline_connected:
             # This route does not exist at the HTTP level.
             flask_abort(404)
         self.invitation_context = _request_ctx_stack.top
         self.partyline = request.environ.get(WSGIParty.partyline_key)
         self.app_name = request.environ.get('partyline_handling_app')
         self.partyline.connect('can_handle_request', self.can_handle_request)
-        self.connected = True
+        self.partyline_connected = True
         return 'ok'
 
     def can_handle_request(self, environ):
