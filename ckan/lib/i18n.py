@@ -127,19 +127,19 @@ def _set_lang(lang):
     if config.get('ckan.i18n_directory'):
         fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
                        'pylons.package': config['pylons.package']}
-        i18n.set_lang(lang, pylons_config=fake_config, class_=Translations)
-    else:
+
+        try:
+            i18n.set_lang(lang, pylons_config=fake_config, class_=Translations)
+        except i18n.LanguageError:
+            pass
+    elif lang != 'en':
         i18n.set_lang(lang, class_=Translations)
-
-
 
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
         config.get('ckan.locale_default', 'en')
-    if lang != 'en':
-        set_lang(lang)
-
+    set_lang(lang)
 
     for plugin in PluginImplementations(ITranslation):
         if lang in plugin.i18n_locales():
@@ -172,7 +172,6 @@ def _add_extra_translations(dirname, locales, domain):
             environ['paste.registry'].replace(pylons.translator,
                                               translator)
 
-
 def get_lang():
     ''' Returns the current language. Based on babel.i18n.get_lang but
     works when set_lang has not been run (i.e. still in English). '''
@@ -186,5 +185,4 @@ def set_lang(language_code):
     ''' Wrapper to pylons call '''
     if language_code in non_translated_locals():
         language_code = config.get('ckan.locale_default', 'en')
-    if language_code != 'en':
-        _set_lang(language_code)
+    _set_lang(language_code)
