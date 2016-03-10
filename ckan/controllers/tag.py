@@ -4,6 +4,7 @@ import ckan.logic as logic
 import ckan.model as model
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+from alphabet_paginate import AlphaPage
 
 from ckan.common import _, request, c
 
@@ -49,7 +50,7 @@ class TagController(base.BaseController):
             )
             c.page.items = results
         else:
-            c.page = h.AlphaPage(
+            c.page = AlphaPage(
                 collection=results,
                 page=request.params.get('page', 'A'),
                 alpha_attribute='name',
