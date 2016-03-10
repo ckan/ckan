@@ -342,6 +342,7 @@ class AskAppDispatcherMiddleware(WSGIParty):
                 app_name = 'flask_app'
 
         log.debug('Serving request via {0} app'.format(app_name))
+        environ['ckan.app'] = app_name
         return self.apps[app_name](environ, start_response)
 
 
