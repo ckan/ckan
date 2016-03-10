@@ -1,4 +1,7 @@
+# encoding: utf-8
+
 from pylons import config
+from paste.deploy.converters import asbool
 
 import ckan.logic as logic
 import ckan.model as model
@@ -70,7 +73,7 @@ class TagController(base.BaseController):
         except logic.NotFound:
             base.abort(404, _('Tag not found'))
 
-        if h.asbool(config.get('ckan.legacy_templates', False)):
+        if asbool(config.get('ckan.legacy_templates', False)):
             return base.render('tag/read.html')
         else:
             h.redirect_to(controller='package', action='search',
