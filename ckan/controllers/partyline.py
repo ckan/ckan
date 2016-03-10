@@ -50,8 +50,9 @@ class PartylineController(WSGIController):
         '''
 
         pylons_mapper = config['routes.map']
-        match, route = pylons_mapper.routematch(environ=environ)
-        if match:
+        match_route = pylons_mapper.routematch(environ=environ)
+        if match_route:
+            match, route = match_route
             origin = 'core'
             if hasattr(route, '_ckan_core') and not route._ckan_core:
                 origin = 'extension'
