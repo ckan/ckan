@@ -72,13 +72,13 @@ class DatastorePlugin(p.SingletonPlugin):
     def configure(self, config):
         self.config = config
         # check for ckan.datastore.write_url and ckan.datastore.read_url
-        if 'ckan.datastore.write_url' not in config:
+        if (not 'ckan.datastore.write_url' in config):
             error_msg = 'ckan.datastore.write_url not found in config'
             raise DatastoreException(error_msg)
 
-        # Legacy mode means that we have no read url. Consequently sql search
-        # is not available and permissions do not have to be changed. In legacy
-        # mode, the datastore runs on PG prior to 9.0 (for example 8.4).
+        # Legacy mode means that we have no read url. Consequently sql search is not
+        # available and permissions do not have to be changed. In legacy mode, the
+        # datastore runs on PG prior to 9.0 (for example 8.4).
         self.legacy_mode = _is_legacy_mode(self.config)
 
         # Check whether users have disabled datastore_search_sql
@@ -90,13 +90,10 @@ class DatastorePlugin(p.SingletonPlugin):
 
         # Check whether we are running one of the paster commands which means
         # that we should ignore the following tests.
-        if sys.argv[0].split('/')[-1] == 'paster':
-            if 'datastore' in sys.argv[1:]:
-                log.warn(
-                    'Omitting permission checks because you are running'
-                    'paster commands.'
-                )
-                return
+        if sys.argv[0].split('/')[-1] == 'paster' and 'datastore' in sys.argv[1:]:
+            log.warn('Omitting permission checks because you are '
+                     'running paster commands.')
+            return
 
         self.ckan_url = self.config['sqlalchemy.url']
         self.write_url = self.config['ckan.datastore.write_url']
@@ -182,9 +179,7 @@ class DatastorePlugin(p.SingletonPlugin):
 
     def _same_ckan_and_datastore_db(self):
         '''Returns True if the CKAN and DataStore db are the same'''
-        ckan_db = self._get_db_from_url(self.ckan_url)
-        datastore_db = self._get_db_from_url(self.read_url)
-        return ckan_db == datastore_db
+        return self._get_db_from_url(self.ckan_url) == self._get_db_from_url(self.read_url)
 
     def _get_db_from_url(self, url):
         db_url = sa_url.make_url(url)
@@ -209,13 +204,9 @@ class DatastorePlugin(p.SingletonPlugin):
         try:
             write_connection.execute(u'CREATE TEMP TABLE _foo ()')
             for privilege in ['INSERT', 'UPDATE', 'DELETE']:
-                test_privilege_sql = (
-                    u'SELECT has_table_privilege(%s, \'_foo\', %s)'
-                )
+                test_privilege_sql = u"SELECT has_table_privilege(%s, '_foo', %s)"
                 have_privilege = write_connection.execute(
-                    test_privilege_sql,
-                    (read_connection_user, privilege)
-                ).first()[0]
+                    test_privilege_sql, (read_connection_user, privilege)).first()[0]
                 if have_privilege:
                     return False
         finally:
@@ -243,55 +234,44 @@ class DatastorePlugin(p.SingletonPlugin):
                 dependee.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname='public')
             ORDER BY dependee.oid DESC;
         '''
-        create_alias_table_sql = (
-            u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'
-        ).format(mapping_sql)
-
+        create_alias_table_sql = u'CREATE OR REPLACE VIEW "_table_metadata" AS {0}'.format(mapping_sql)
         try:
-            connection = db._get_engine({
-                'connection_url': self.write_url
-            }).connect()
+            connection = db._get_engine(
+                {'connection_url': self.write_url}).connect()
             connection.execute(create_alias_table_sql)
         finally:
             connection.close()
 
     def get_actions(self):
-        actions = {
-            'datastore_create': action.datastore_create,
-            'datastore_upsert': action.datastore_upsert,
-            'datastore_delete': action.datastore_delete,
-            'datastore_search': action.datastore_search,
-            'datastore_info': action.datastore_info,
-        }
+        actions = {'datastore_create': action.datastore_create,
+                   'datastore_upsert': action.datastore_upsert,
+                   'datastore_delete': action.datastore_delete,
+                   'datastore_search': action.datastore_search,
+                   'datastore_info': action.datastore_info,
+                  }
         if not self.legacy_mode:
             if self.enable_sql_search:
                 # Only enable search_sql if the config does not disable it
-                actions.update({
-                    'datastore_search_sql': action.datastore_search_sql
-                })
+                actions.update({'datastore_search_sql':
+                                 action.datastore_search_sql})
             actions.update({
                 'datastore_make_private': action.datastore_make_private,
-                'datastore_make_public': action.datastore_make_public
-            })
+                'datastore_make_public': action.datastore_make_public})
         return actions
 
     def get_auth_functions(self):
-        return {
-            'datastore_create': auth.datastore_create,
-            'datastore_upsert': auth.datastore_upsert,
-            'datastore_delete': auth.datastore_delete,
-            'datastore_info': auth.datastore_info,
-            'datastore_search': auth.datastore_search,
-            'datastore_search_sql': auth.datastore_search_sql,
-            'datastore_change_permissions': auth.datastore_change_permissions
-        }
+        return {'datastore_create': auth.datastore_create,
+                'datastore_upsert': auth.datastore_upsert,
+                'datastore_delete': auth.datastore_delete,
+                'datastore_info': auth.datastore_info,
+                'datastore_search': auth.datastore_search,
+                'datastore_search_sql': auth.datastore_search_sql,
+                'datastore_change_permissions': auth.datastore_change_permissions}
 
     def before_map(self, m):
-        m.connect(
-            '/datastore/dump/{resource_id}',
-            controller='ckanext.datastore.controller:DatastoreController',
-            action='dump'
-        )
+        m.connect('/datastore/dump/{resource_id}',
+                  controller='ckanext.datastore.controller:DatastoreController',
+                  action='dump')
         return m
 
     def before_show(self, resource_dict):
@@ -522,40 +502,21 @@ class DatastorePlugin(p.SingletonPlugin):
         rank_alias = self._ts_rank_alias(field)
         lang_literal = literal_string(lang)
         query_literal = literal_string(query)
-
         if plain:
-            statement = (
-                u'plainto_tsquery({lang_literal}, '
-                u'{query_literal}) {query_alias}'
-            )
+            statement = u"plainto_tsquery({lang_literal}, {query_literal}) {query_alias}"
         else:
-            statement = (
-                u'to_tsquery({lang_literal}, {query_literal}) {query_alias}'
-            )
-
-        statement = statement.format(
-            lang_literal=lang_literal,
-            query_literal=query_literal,
-            query_alias=query_alias
-        )
-
+            statement = u"to_tsquery({lang_literal}, {query_literal}) {query_alias}"
+        statement = statement.format(lang_literal=lang_literal,
+            query_literal=query_literal, query_alias=query_alias)
         if field is None:
             rank_field = '_full_text'
         else:
-            rank_field = (
-                u'to_tsvector({lang_literal}, cast("{field}" as text))'
-            ).format(
-                lang_literal=lang_literal,
-                field=field
-            )
-
-        rank_statement = (
-            u'ts_rank({rank_field}, {query_alias}, 32) AS {alias}'
-        ).format(
-            rank_field=rank_field,
-            query_alias=query_alias,
-            alias=rank_alias
-        )
+            rank_field = u'to_tsvector({lang_literal}, cast("{field}" as text))'
+            rank_field = rank_field.format(lang_literal=lang_literal, field=field)
+        rank_statement = u'ts_rank({rank_field}, {query_alias}, 32) AS {alias}'
+        rank_statement = rank_statement.format(rank_field=rank_field,
+                                               query_alias=query_alias,
+                                               alias=rank_alias)
         return statement, rank_statement
 
     def _ts_query_alias(self, field=None):
