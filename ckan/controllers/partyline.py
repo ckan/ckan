@@ -25,11 +25,11 @@ class PartylineController(WSGIController):
             base.abort(404)
         self.partyline = request.environ.get(WSGIParty.partyline_key)
         self.app_name = request.environ.get('partyline_handling_app')
-        self.partyline.connect('can_handle_request', self._can_handle_request)
+        self.partyline.connect('can_handle_request', self.can_handle_request)
         self.partyline_connected = True
         return 'ok'
 
-    def _can_handle_request(self, environ):
+    def can_handle_request(self, environ):
         '''
         Decides whether it can handle a request with the Pylons app by
         matching the request environ against the route mapper

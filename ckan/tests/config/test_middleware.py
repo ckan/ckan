@@ -6,7 +6,8 @@ from routes import url_for
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
 
-from ckan.config.middleware import AskAppDispatcherMiddleware
+from ckan.config.middleware import AskAppDispatcherMiddleware, CKANFlask
+from ckan.controllers.partyline import PartylineController
 
 
 class TestPylonsResponseCleanupMiddleware(helpers.FunctionalTestBase):
@@ -30,12 +31,76 @@ class TestPylonsResponseCleanupMiddleware(helpers.FunctionalTestBase):
         )
 
 
-class TestWSGIParty(helpers.FunctionalTestBase):
+class TestAppDispatcherPlain(object):
+    '''
+    These tests need the test app to be created at specific times to not affect
+    the mocks, so they don't extend FunctionalTestBase
+    '''
+
+    def test_invitations_are_sent(self):
+
+        with mock.patch.object(AskAppDispatcherMiddleware, 'send_invitations') as \
+                mock_send_invitations:
+
+            # This will create the whole WSGI stack
+            helpers._get_test_app()
+
+            assert mock_send_invitations.called
+            eq_(len(mock_send_invitations.call_args[0]), 1)
+
+            eq_(sorted(mock_send_invitations.call_args[0][0].keys()),
+                ['flask_app', 'pylons_app'])
+
+    def test_flask_can_handle_request_is_called_with_environ(self):
+
+        with mock.patch.object(CKANFlask, 'can_handle_request') as \
+                mock_can_handle_request:
+            # We need set this otherwise the mock object is returned
+            mock_can_handle_request.return_value = (False, 'flask_app')
+
+            app = helpers._get_test_app()
+            # We want our CKAN app, not the WebTest one
+            ckan_app = app.app
+
+            environ = {
+                'PATH_INFO': '/',
+            }
+            wsgiref.util.setup_testing_defaults(environ)
+            start_response = mock.MagicMock()
+
+            ckan_app(environ, start_response)
+
+            assert mock_can_handle_request.called_with(environ)
+
+    def test_pylons_can_handle_request_is_called_with_environ(self):
+
+        with mock.patch.object(PartylineController, 'can_handle_request') as \
+                mock_can_handle_request:
+
+            # We need set this otherwise the mock object is returned
+            mock_can_handle_request.return_value = (True, 'pylons_app', 'core')
+
+            app = helpers._get_test_app()
+            # We want our CKAN app, not the WebTest one
+            ckan_app = app.app
+
+            environ = {
+                'PATH_INFO': '/',
+            }
+            wsgiref.util.setup_testing_defaults(environ)
+            start_response = mock.MagicMock()
+
+            ckan_app(environ, start_response)
+
+            assert mock_can_handle_request.called_with(environ)
+
+
+class TestAppDispatcher(helpers.FunctionalTestBase):
 
     @classmethod
     def setup_class(cls):
 
-        super(TestWSGIParty, cls).setup_class()
+        super(TestAppDispatcher, cls).setup_class()
 
         # Add a custom route to the Flask app
         app = cls._get_test_app()
@@ -350,29 +415,6 @@ class TestWSGIParty(helpers.FunctionalTestBase):
 
         eq_(res.environ['ckan.app'], 'flask_app')
         eq_(res.body, 'This was served from Flask')
-
-# TODO: can we make these work? :(
-#
-#    def test_flask_can_handle_request_is_called(self):
-#
-#        from ckan.config.middleware import CKANFlask
-#        app = self._get_test_app()
-#        with mock.patch.object(CKANFlask, 'can_handle_request') as \
-#                mock_can_handle_request:
-#
-#            app.get('/')
-#
-#            assert mock_can_handle_request.called
-#
-#    def test_pylons_can_handle_request_is_called(self):
-#        from ckan.controllers.partyline import PartylineController
-#
-#        app = self._get_test_app()
-#        with mock.patch.object(PartylineController, '_can_handle_request') as \
-#                mock_pylons_handler:
-#            app.get('/')
-#
-#            assert mock_pylons_handler.called
 
 
 class MockRoutingPlugin(p.SingletonPlugin):
