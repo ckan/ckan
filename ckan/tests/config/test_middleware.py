@@ -1,5 +1,5 @@
 import mock
-from wsgiref.util import setup_testing_defaults
+import wsgiref
 from nose.tools import assert_equals, assert_not_equals, eq_
 from routes import url_for
 
@@ -67,7 +67,7 @@ class TestWSGIParty(helpers.FunctionalTestBase):
 
         environ = {}
         start_response = mock.MagicMock()
-        setup_testing_defaults(environ)
+        wsgiref.util.setup_testing_defaults(environ)
 
         with mock.patch.object(AskAppDispatcherMiddleware, 'ask_around') as \
                 mock_ask_around:
@@ -87,7 +87,7 @@ class TestWSGIParty(helpers.FunctionalTestBase):
             'PATH_INFO': '/hello',
             'REQUEST_METHOD': 'GET',
         }
-        setup_testing_defaults(environ)
+        wsgiref.util.setup_testing_defaults(environ)
 
         answers = app.ask_around('can_handle_request', environ)
 
@@ -110,7 +110,7 @@ class TestWSGIParty(helpers.FunctionalTestBase):
             'PATH_INFO': '/hello',
             'REQUEST_METHOD': 'POST',
         }
-        setup_testing_defaults(environ)
+        wsgiref.util.setup_testing_defaults(environ)
 
         answers = app.ask_around('can_handle_request', environ)
 
@@ -133,7 +133,7 @@ class TestWSGIParty(helpers.FunctionalTestBase):
             'PATH_INFO': '/dataset',
             'REQUEST_METHOD': 'GET',
         }
-        setup_testing_defaults(environ)
+        wsgiref.util.setup_testing_defaults(environ)
 
         answers = app.ask_around('can_handle_request', environ)
 
@@ -153,7 +153,7 @@ class TestWSGIParty(helpers.FunctionalTestBase):
             'PATH_INFO': '/dataset/new',
             'REQUEST_METHOD': 'POST',
         }
-        setup_testing_defaults(environ)
+        wsgiref.util.setup_testing_defaults(environ)
 
         answers = app.ask_around('can_handle_request', environ)
 
@@ -176,7 +176,7 @@ class TestWSGIParty(helpers.FunctionalTestBase):
             'PATH_INFO': '/from_pylons_extension_before_map',
             'REQUEST_METHOD': 'GET',
         }
-        setup_testing_defaults(environ)
+        wsgiref.util.setup_testing_defaults(environ)
 
         answers = app.ask_around('can_handle_request', environ)
 
@@ -201,7 +201,7 @@ class TestWSGIParty(helpers.FunctionalTestBase):
             'PATH_INFO': '/from_pylons_extension_before_map_post_only',
             'REQUEST_METHOD': 'POST',
         }
-        setup_testing_defaults(environ)
+        wsgiref.util.setup_testing_defaults(environ)
 
         answers = app.ask_around('can_handle_request', environ)
 
@@ -226,7 +226,7 @@ class TestWSGIParty(helpers.FunctionalTestBase):
             'PATH_INFO': '/from_pylons_extension_before_map_post_only',
             'REQUEST_METHOD': 'GET',
         }
-        setup_testing_defaults(environ)
+        wsgiref.util.setup_testing_defaults(environ)
 
         answers = app.ask_around('can_handle_request', environ)
 
@@ -253,7 +253,7 @@ class TestWSGIParty(helpers.FunctionalTestBase):
             'PATH_INFO': '/from_pylons_extension_after_map',
             'REQUEST_METHOD': 'GET',
         }
-        setup_testing_defaults(environ)
+        wsgiref.util.setup_testing_defaults(environ)
 
         answers = app.ask_around('can_handle_request', environ)
 
@@ -278,7 +278,7 @@ class TestWSGIParty(helpers.FunctionalTestBase):
             'PATH_INFO': '/pylons_and_flask',
             'REQUEST_METHOD': 'GET',
         }
-        setup_testing_defaults(environ)
+        wsgiref.util.setup_testing_defaults(environ)
 
         answers = app.ask_around('can_handle_request', environ)
         answers = sorted(answers, key=lambda a: a[1])
