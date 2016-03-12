@@ -7,7 +7,7 @@ refer to the routes manual at http://routes.groovie.org/docs/
 """
 import re
 
-from pylons import config
+from ckan.common import config
 from routes.mapper import SubMapper, Mapper as _Mapper
 
 import ckan.plugins as p
@@ -81,7 +81,7 @@ def make_map():
     import ckan.lib.plugins as lib_plugins
     lib_plugins.reset_package_plugins()
 
-    map = Mapper(directory=config['pylons.paths']['controllers'],
+    map = Mapper(directory=config.pylons_config['pylons.paths']['controllers'],
                  always_scan=config['debug'])
     map.minimization = False
     map.explicit = True

@@ -10,7 +10,7 @@ import re
 
 import solr
 
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 
 from common import SearchIndexError, make_connection

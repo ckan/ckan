@@ -1,5 +1,5 @@
 import paste.fixture
-from pylons import config
+from ckan.common import config
 from ckan.config.middleware import make_app
 
 class StatsFixture(object):
@@ -8,7 +8,7 @@ class StatsFixture(object):
     def setup_class(cls):
         cls._original_config = config.copy()
         config['ckan.plugins'] = 'stats'
-        wsgiapp = make_app(config['global_conf'], **config)
+        wsgiapp = make_app(config.pylons_config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod

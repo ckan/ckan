@@ -12,13 +12,15 @@ from paste.cascade import Cascade
 from paste.registry import RegistryManager
 from paste.urlparser import StaticURLParser
 from paste.deploy.converters import asbool
-from pylons import config
+from pylons import config as pylons_config
 from pylons.middleware import ErrorHandler, StatusCodeRedirect
 from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 from fanstatic import Fanstatic
+
+from ckan.common import config
 
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
@@ -27,6 +29,9 @@ import ckan.lib.uploader as uploader
 
 from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
+
+from ckan_app import create_app as create_flask_app
+
 
 log = logging.getLogger(__name__)
 
@@ -54,19 +59,30 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         defaults to main).
 
     """
+
+    # The Flask WSGI app
+    flask_app = create_flask_app()
+
+    # Set up CKAN config with references to both app configs
+    config.initialize(pylons_config=pylons_config,
+                      flask_config=flask_app.config)
+
     # Configure the Pylons environment
     load_environment(conf, app_conf)
 
     # The Pylons WSGI app
     app = PylonsApp()
+
+
     # set pylons globals
     app_globals.reset()
+
 
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
 
     # Routing/Session/Cache Middleware
-    app = RoutesMiddleware(app, config['routes.map'])
+    app = RoutesMiddleware(app, pylons_config['routes.map'])
     # we want to be able to retrieve the routes middleware to be able to update
     # the mapper.  We store it in the pylons config to allow this.
     config['routes.middleware'] = app
@@ -106,7 +122,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
 
     if asbool(full_stack):
         # Handle Python exceptions
-        app = ErrorHandler(app, conf, **config['pylons.errorware'])
+        app = ErrorHandler(app, conf, **pylons_config['pylons.errorware'])
 
         # Display error documents for 401, 403, 404 status codes (and
         # 500 when debug is disabled)
@@ -142,7 +158,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
         static_max_age = None if not asbool(config.get('ckan.cache_enabled')) \
             else int(config.get('ckan.static_max_age', 3600))
 
-        static_app = StaticURLParser(config['pylons.paths']['static_files'],
+        static_app = StaticURLParser(pylons_config['pylons.paths']['static_files'],
                                      cache_max_age=static_max_age)
         static_parsers = [static_app, app]
 
@@ -177,7 +193,64 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     if asbool(config.get('ckan.tracking_enabled', 'false')):
         app = TrackingMiddleware(app, config)
 
+    app = FlaskDispatcher(app, setup_flask_app(flask_app, who_parser))
     return app
+
+
+def setup_flask_app(flask_app, who_parser):
+    """ This has to pass the flask app through all the same
+    middleware that Pylons used """
+
+    for plugin in PluginImplementations(IMiddleware):
+        flask_app = plugin.make_middleware(flask_app, config)
+
+    flask_app = SessionMiddleware(flask_app, config)
+    flask_app = CacheMiddleware(flask_app, config)
+
+    for plugin in PluginImplementations(IMiddleware):
+        try:
+            flask_app = plugin.make_error_log_middleware(flask_app, config)
+        except AttributeError:
+            log.critical('Middleware class {0} is missing the method'
+                         'make_error_log_middleware.'.format(plugin.__class__.__name__))
+
+    flask_app = PluggableAuthenticationMiddleware(
+        flask_app,
+        who_parser.identifiers,
+        who_parser.authenticators,
+        who_parser.challengers,
+        who_parser.mdproviders,
+        who_parser.request_classifier,
+        who_parser.challenge_decider,
+        logging.getLogger('repoze.who'),
+        logging.WARN,  # ignored
+        who_parser.remote_user_key
+    )
+    return flask_app
+
+
+class FlaskDispatcher(object):
+    """
+    Dispatches requests either to the CKAN Pylons app, or
+    if the request path starts with one known by Flask, the
+    Flask app.
+    """
+
+    FLASK_PATHS = (
+        "/api/3/action",
+    )
+
+    def __init__(self, default_app, flask_app):
+        self.default_app = default_app
+        self.flask_app = flask_app
+
+    def __call__(self, environ, start_response):
+        path = environ["PATH_INFO"]
+        if path.startswith(FlaskDispatcher.FLASK_PATHS):
+            return self.flask_app(environ, start_response)
+
+        return self.default_app(environ, start_response)
+
 
 
 class I18nMiddleware(object):

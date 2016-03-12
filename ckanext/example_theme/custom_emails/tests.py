@@ -1,5 +1,5 @@
 import os
-from pylons import config
+from ckan.common import config
 from ckan import plugins
 import ckan.model as model
 import ckan.lib.mailer as mailer

@@ -1,7 +1,7 @@
 import math
 import os
 
-from pylons import config
+from ckan.common import config
 from repoze.who.plugins import auth_tkt as repoze_auth_tkt
 
 _bool = repoze_auth_tkt._bool

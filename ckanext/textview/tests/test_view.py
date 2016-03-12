@@ -1,5 +1,5 @@
 import paste.fixture
-import pylons.config as config
+from ckan.common import config
 import urlparse
 
 import ckan.model as model
@@ -34,7 +34,7 @@ class TestTextView(tests.WsgiAppCase):
     def setup_class(cls):
         cls.config_templates = config['ckan.legacy_templates']
         config['ckan.legacy_templates'] = 'false'
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
+        wsgiapp = middleware.make_app(config.pylons_config['global_conf'], **config)
         plugins.load('text_view')
         cls.app = paste.fixture.TestApp(wsgiapp)
         cls.p = plugin.TextView()

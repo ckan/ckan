@@ -12,7 +12,7 @@ import paste
 import paste.deploy
 import pylons.test
 
-from pylons import config
+from ckan.common import config
 
 class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         pylons_controller.PylonsTestCase):
@@ -333,7 +333,7 @@ class TestEmailNotificationsIniSetting(
         # Disable the email notifications feature.
         config['ckan.activity_streams_email_notifications'] = False
 
-        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
+        wsgiapp = ckan.config.middleware.make_app(config.pylons_config['global_conf'],
                 **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
@@ -417,7 +417,7 @@ class TestEmailNotificationsSinceIniSetting(
         # microsecond.
         config['ckan.email_notifications_since'] = '.000001'
 
-        wsgiapp = ckan.config.middleware.make_app(config['global_conf'],
+        wsgiapp = ckan.config.middleware.make_app(config.pylons_config['global_conf'],
                 **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 

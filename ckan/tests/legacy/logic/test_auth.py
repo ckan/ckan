@@ -1,5 +1,5 @@
 import paste
-from pylons import config
+from ckan.common import config
 import ckan.config.middleware
 import ckan.tests.legacy as tests
 from ckan.logic import get_action
@@ -32,7 +32,7 @@ class TestAuth(tests.WsgiAppCase):
         config['ckan.auth.roles_that_cascade_to_sub_groups'] = 'admin'
 
         wsgiapp = ckan.config.middleware.make_app(
-            config['global_conf'], **config)
+            config.pylons_config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod
@@ -254,7 +254,7 @@ class TestAuthOrgHierarchy(TestAuth):
         config['ckan.auth.roles_that_cascade_to_sub_groups'] = 'admin'
 
         wsgiapp = ckan.config.middleware.make_app(
-            config['global_conf'], **config)
+            config.pylons_config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
         CreateTestData.create_arbitrary(

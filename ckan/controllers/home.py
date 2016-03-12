@@ -1,4 +1,4 @@
-from pylons import config, cache
+from pylons import cache
 import sqlalchemy.exc
 
 import ckan.logic as logic

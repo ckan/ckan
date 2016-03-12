@@ -5,7 +5,7 @@ import datetime
 import time
 import json
 
-from pylons import config
+from ckan.common import config
 import paste.deploy.converters as converters
 
 import ckan.plugins as plugins

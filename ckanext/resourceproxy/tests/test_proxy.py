@@ -6,7 +6,7 @@ import httpretty
 import nose
 
 import paste.fixture
-from pylons import config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.tests.legacy as tests
@@ -55,7 +55,7 @@ class TestProxyPrettyfied(tests.WsgiAppCase, unittest.TestCase):
     def setup_class(cls):
         cls._original_config = config.copy()
         config['ckan.plugins'] = 'resource_proxy'
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
+        wsgiapp = middleware.make_app(config.pylons_config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         create_test_data.CreateTestData.create()
         # Httpretty crashes with Solr on Python 2.6,

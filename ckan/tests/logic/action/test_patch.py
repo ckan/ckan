@@ -3,7 +3,7 @@ import datetime
 
 from nose.tools import assert_equals, assert_raises
 import mock
-import pylons.config as config
+from ckan.common import config
 
 from ckan.tests import helpers, factories
 

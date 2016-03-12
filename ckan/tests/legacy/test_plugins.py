@@ -4,7 +4,7 @@ Tests for plugin loading via PCA
 from nose.tools import raises, assert_equal
 from unittest import TestCase
 from pyutilib.component.core import PluginGlobals
-from pylons import config
+from ckan.common import config
 
 import ckan.logic as logic
 import ckan.authz as authz

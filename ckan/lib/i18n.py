@@ -5,7 +5,7 @@ from babel import Locale, localedata
 from babel.core import LOCALE_ALIASES
 from babel.support import Translations
 from paste.deploy.converters import aslist
-from pylons import config
+from ckan.common import config
 from pylons import i18n
 import pylons
 

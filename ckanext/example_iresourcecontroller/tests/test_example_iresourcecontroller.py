@@ -1,7 +1,7 @@
 '''Tests for the ckanext.example_iauthfunctions extension.
 
 '''
-import pylons.config as config
+from ckan.common import config
 import webtest
 
 import ckan.model as model
@@ -21,7 +21,7 @@ class TestExampleIResourceController(object):
     def setup(self):
         # Set up the test app
         self.app = ckan.config.middleware.make_app(
-            config['global_conf'], **config)
+            config.pylons_config['global_conf'], **config)
         self.app = webtest.TestApp(self.app)
 
     def teardown(self):

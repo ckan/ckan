@@ -3,7 +3,7 @@
 '''
 import paste.fixture
 import pylons.test
-import pylons.config as config
+from ckan.common import config
 import webtest
 
 import ckan.model as model
@@ -23,7 +23,7 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
             users_can_create_groups)
 
         # Return a test app with the custom config.
-        app = ckan.config.middleware.make_app(config['global_conf'], **config)
+        app = ckan.config.middleware.make_app(config.pylons_config['global_conf'], **config)
         app = webtest.TestApp(app)
 
         ckan.plugins.load('example_iauthfunctions_v5_custom_config_setting')

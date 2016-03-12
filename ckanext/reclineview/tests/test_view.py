@@ -1,5 +1,5 @@
 import paste.fixture
-import pylons.config as config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.tests.legacy as tests
@@ -17,7 +17,7 @@ class BaseTestReclineViewBase(tests.WsgiAppCase):
     def setup_class(cls):
         cls.config_templates = config['ckan.legacy_templates']
         config['ckan.legacy_templates'] = 'false'
-        wsgiapp = middleware.make_app(config['global_conf'], **config)
+        wsgiapp = middleware.make_app(config.pylons_config['global_conf'], **config)
         p.load(cls.view_type)
 
         cls.app = paste.fixture.TestApp(wsgiapp)
@@ -92,7 +92,7 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
         app_config['ckan.legacy_templates'] = 'false'
         app_config['ckan.plugins'] = 'recline_view datastore'
         app_config['ckan.views.default_views'] = 'recline_view'
-        wsgiapp = middleware.make_app(config['global_conf'], **app_config)
+        wsgiapp = middleware.make_app(config.pylons_config['global_conf'], **app_config)
         cls.app = paste.fixture.TestApp(wsgiapp)
 
     @classmethod

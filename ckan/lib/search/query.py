@@ -1,7 +1,7 @@
 import re
 import logging
 
-from pylons import config
+from ckan.common import config
 from solr import SolrException
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict

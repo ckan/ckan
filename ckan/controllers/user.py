@@ -1,7 +1,7 @@
 import logging
 from urllib import quote
 
-from pylons import config
+from ckan.common import config
 
 import ckan.lib.base as base
 import ckan.model as model

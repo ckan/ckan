@@ -3,7 +3,7 @@ import pylons
 import nose
 import mock
 
-from pylons import config
+from ckan.common import config
 
 import ckan.tests.legacy as tests
 import ckanext.datastore.db as db

@@ -4,7 +4,7 @@ import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.lib.datapreview as datapreview
 import urlparse
-from pylons import config
+from ckan.common import config
 
 log = getLogger(__name__)
 

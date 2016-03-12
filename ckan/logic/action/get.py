@@ -6,7 +6,7 @@ import json
 import datetime
 import socket
 
-from pylons import config
+from ckan.common import config
 import sqlalchemy
 from paste.deploy.converters import asbool
 

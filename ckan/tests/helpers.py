@@ -18,7 +18,7 @@ This module is reserved for these very useful functions.
 
 '''
 import webtest
-from pylons import config
+from ckan.common import config
 import nose.tools
 
 import ckan.lib.search as search
@@ -147,7 +147,8 @@ def _get_test_app():
 
     '''
     config['ckan.legacy_templates'] = False
-    app = ckan.config.middleware.make_app(config['global_conf'], **config)
+    app = ckan.config.middleware.make_app(config.pylons_config['global_conf'],
+                                          **config)
     app = webtest.TestApp(app)
     return app
 
@@ -289,7 +290,7 @@ def webtest_maybe_follow(response, **kw):
 
 
 def change_config(key, value):
-    '''Decorator to temporarily changes Pylons' config to a new value
+    '''Decorator to temporarily changes CKAN config to a new value
 
     This allows you to easily create tests that need specific config values to
     be set, making sure it'll be reverted to what it was originally, after your
