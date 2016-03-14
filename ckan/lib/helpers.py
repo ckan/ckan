@@ -40,6 +40,7 @@ import ckan.lib.datapreview as datapreview
 import ckan.logic as logic
 import ckan.lib.uploader as uploader
 import ckan.authz as authz
+import ckan.plugins as p
 
 from ckan.common import _, ungettext, g, c, request, session, json
 
@@ -48,8 +49,16 @@ from ckan.common import _, ungettext, g, c, request, session, json
 
 log = logging.getLogger(__name__)
 
+
+class AttributeDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttributeDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
+
 # Builtin helper functions.
-helper_functions = {}
+_builtin_functions = {}
+helper_functions = AttributeDict()
 
 
 def builtin_helper(f, name=None):
@@ -63,7 +72,7 @@ def builtin_helper(f, name=None):
         except AttributeError:
             return func_or_class.__class__.__name__
 
-    helper_functions[name or _get_name(f)] = f
+    _builtin_functions[name or _get_name(f)] = f
     return f
 
 
@@ -2272,3 +2281,16 @@ builtin_helper(whtext.truncate)
 builtin_helper(converters.asbool)
 # Useful additions from the stdlib.
 builtin_helper(urlencode)
+
+
+def load_plugin_helpers():
+    """
+    (Re)loads the list of helpers provided by plugins.
+    """
+    global helper_functions
+
+    helper_functions.clear()
+    helper_functions.update(_builtin_functions)
+
+    for plugin in p.PluginImplementations(p.ITemplateHelpers):
+        helper_functions.update(plugin.get_helpers())

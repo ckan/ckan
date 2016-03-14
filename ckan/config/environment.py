@@ -12,7 +12,7 @@ from pylons import config
 import ckan.config.routing as routing
 import ckan.model as model
 import ckan.plugins as p
-import ckan.lib.helpers as h
+import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
 import ckan.lib.render as render
 import ckan.lib.search as search
@@ -28,67 +28,6 @@ log = logging.getLogger(__name__)
 
 # Suppress benign warning 'Unbuilt egg for setuptools'
 warnings.simplefilter('ignore', UserWarning)
-
-
-class _Helpers(object):
-    ''' Helper object giving access to template helpers stopping
-    missing functions from causing template exceptions. Useful if
-    templates have helper functions provided by extensions that have
-    not been enabled. '''
-    def __init__(self, helpers):
-        self.helpers = helpers
-        self._setup()
-        self.no_magic = _HelpersNoMagic(self)
-
-    def _setup(self):
-        helpers = self.helpers
-
-        self.functions = helpers.helper_functions.copy()
-
-        # extend helper functions with ones supplied by plugins
-        extra_helpers = []
-        for plugin in p.PluginImplementations(p.ITemplateHelpers):
-            helpers = plugin.get_helpers()
-            for helper in helpers:
-                if helper in extra_helpers:
-                    raise Exception('overwritting extra helper %s' % helper)
-                extra_helpers.append(helper)
-                self.functions[helper] = helpers[helper]
-
-        # logging
-        self.log = logging.getLogger('ckan.helpers')
-
-    def __getattr__(self, name):
-        ''' return the function/object requested '''
-        if name in self.functions:
-            return self.functions[name]
-        else:
-            msg = 'Helper function `%s` could not be found\n ' \
-                  '(are you missing an extension?)' % name
-            self.log.critical(msg)
-            return _null_function
-
-
-def _null_function(*args, **kw):
-    ''' This function is returned if no helper is found. The idea is
-    to try to allow templates to be rendered even if helpers are
-    missing.  Returning the empty string seems to work well.'''
-    return ''
-
-
-class _HelpersNoMagic(object):
-    """
-    Access helper.functions as attributes, but raise AttributeError
-    for missing functions instead of returning null_function
-    """
-    def __init__(self, helpers):
-        self._helpers = helpers
-
-    def __getattr__(self, name):
-        fn = getattr(self._helpers, name)
-        if fn is _null_function:
-            raise AttributeError("No helper found named '%s'" % name)
-        return fn
 
 
 def load_environment(global_conf, app_conf):
@@ -242,9 +181,8 @@ def update_config():
     # initialise the globals
     config['pylons.app_globals']._init()
 
-    # add helper functions
-    helpers = _Helpers(h)
-    config['pylons.h'] = helpers
+    helpers.load_plugin_helpers()
+    config['pylons.h'] = helpers.helper_functions
 
     jinja2_templates_path = os.path.join(root, 'templates')
     template_paths = [jinja2_templates_path]
