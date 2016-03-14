@@ -47,9 +47,15 @@ def load_environment(global_conf, app_conf):
             return self.controller_classes[controller]
         # Check to see if its a dotted name
         if '.' in controller or ':' in controller:
-            mycontroller = pkg_resources \
-                .EntryPoint \
-                .parse('x=%s' % controller).load(False)
+            ep = pkg_resources.EntryPoint.parse('x={0}'.format(controller))
+
+            if hasattr(ep, 'resolve'):
+                # setuptools >= 10.2
+                mycontroller = ep.resolve()
+            else:
+                # setuptools >= 11.3
+                mycontroller = ep.load(False)
+
             self.controller_classes[controller] = mycontroller
             return mycontroller
         return find_controller_generic(self, controller)
