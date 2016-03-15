@@ -70,3 +70,12 @@ class TestResource(object):
         length = len(resources)
         assert length == 1, 'Expected 1 resource, but got %d' % length
         assert_equals([resources[0].id], [resource_id])
+
+    def test_resource_count(self):
+        '''Resource.count() should return a count of instances of Resource
+        class'''
+        assert_equals(Resource.count(), 0)
+        factories.Resource()
+        factories.Resource()
+        factories.Resource()
+        assert_equals(Resource.count(), 3)
