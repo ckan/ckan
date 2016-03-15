@@ -1674,10 +1674,13 @@ RE_MD_HTML_TAGS = re.compile('<[^><]*>')
 def html_auto_link(data):
     '''Linkifies HTML
 
-    tag:... converted to a tag link
-    dataset:... converted to a dataset link
-    group:... converted to a group link
-    http://... converted to a link
+    `tag` converted to a tag link
+
+    `dataset` converted to a dataset link
+
+    `group` converted to a group link
+
+    `http://` converted to a link
     '''
 
     LINK_FNS = {
