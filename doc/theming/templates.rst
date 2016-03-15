@@ -293,7 +293,7 @@ config file you would put this code in any template file:
    CKAN's :ref:`template helper functions <template helper functions>` and any
    :ref:`custom template helper functions <custom template helper functions>`
    provided by your extension,
-   and use any of the 
+   and use any of the
    `literals and operators <http://jinja.pocoo.org/docs/templates/#expressions>`_
    that Jinja provides.
 
@@ -680,7 +680,7 @@ use the right HTML tags and CSS classes.
 
 There are two places to look for CSS classes available in CKAN:
 
-1. The `Bootstrap 2.3.2 docs <bootstrap>`_. All of the HTML, CSS and JavaScript
+1. The `Bootstrap 2.3.2 docs <http://getbootstrap.com/2.3.2/components.html>`_. All of the HTML, CSS and JavaScript
    provided by Bootstrap is available to use in CKAN.
 
 2. CKAN's development primer page, which can be found on any CKAN site at

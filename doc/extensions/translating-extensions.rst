@@ -96,7 +96,7 @@ Manually create translations
 
 We will create translation files for the ``fr`` locale. Create the translation
 PO files for the locale that you are translating for by running `init_catalog
-<http://babel.pocoo.org/docs/setup/#init-catalog>`_::
+<http://babel.pocoo.org/en/latest/setup.html#init-catalog>`_::
 
     python setup.py init_catalog -l fr
 
