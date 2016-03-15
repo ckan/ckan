@@ -453,7 +453,7 @@ def datastore_search_sql(context, data_dict):
     The datastore_search_sql action allows a user to search data in a resource
     or connect multiple resources with join expressions. The underlying SQL
     engine is the
-    `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_.
+    `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
     DataStore resource that belong to a private CKAN resource cannot be searched with
     this action. Use :meth:`~ckanext.datastore.logic.action.datastore_search` instead.

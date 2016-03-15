@@ -89,7 +89,7 @@ class IRoutes(Interface):
 class IMapper(Interface):
     """
     A subset of the SQLAlchemy mapper extension hooks.
-    See http://www.sqlalchemy.org/docs/05/reference/orm/interfaces.html#sqlalchemy.orm.interfaces.MapperExtension
+    See http://docs.sqlalchemy.org/en/rel_0_9/orm/deprecated.html#sqlalchemy.orm.interfaces.MapperExtension
 
     Example::
 
