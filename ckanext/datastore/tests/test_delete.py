@@ -79,7 +79,11 @@ class TestDatastoreDelete(tests.WsgiAppCase):
 
         # It's dangerous to build queries as someone could inject sql.
         # It's okay here as it is a test but don't use it anyhwere else!
-        results = c.execute(u"select 1 from pg_views where viewname = '{0}'".format(self.data['aliases']))
+        results = c.execute(
+            u"select 1 from pg_views where viewname = '{0}'".format(
+                self.data['aliases']
+            )
+        )
         assert results.rowcount == 0
 
         try:
@@ -181,9 +185,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
 
         data = {
             'resource_id': self.data['resource_id'],
-            'filters': {
-                'invalid-column-name': 'value'
-            }
+            'filters': []
         }
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.normal_user.apikey)}
@@ -192,5 +194,44 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
         assert res_dict['error'].get('filters') is not None, res_dict['error']
+
+        self._delete()
+
+    def test_delete_with_blank_filters(self):
+        self._create()
+
+        res = self.app.post(
+            '/api/action/datastore_delete',
+            params='{0}=1'.format(
+                json.dumps({
+                    'resource_id': self.data['resource_id'],
+                    'filters': {}
+                })
+            ),
+            extra_environ={
+                'Authorization': str(self.normal_user.apikey)
+            },
+            status=200
+        )
+
+        results = json.loads(res.body)
+        assert(results['success'] is True)
+
+        res = self.app.post(
+            '/api/action/datastore_search',
+            params='{0}=1'.format(
+                json.dumps({
+                    'resource_id': self.data['resource_id'],
+                })
+            ),
+            extra_environ={
+                'Authorization': str(self.normal_user.apikey)
+            },
+            status=200
+        )
+
+        results = json.loads(res.body)
+        assert(results['success'] is True)
+        assert(len(results['result']['records']) == 0)
 
         self._delete()
