@@ -143,7 +143,7 @@ def datastore_create(context, data_dict):
         raise p.toolkit.ValidationError(str(err))
 
     # Set the datastore_active flag on the resource if necessary
-    if not resource.extras.get('datastore_active') is True:
+    if resource.extras.get('datastore_active') is not True:
         log.debug(
             'Setting datastore_active=True on resource {0}'.format(resource.id)
         )
