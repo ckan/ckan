@@ -189,6 +189,47 @@ class TestDatastoreCreateNewTests(object):
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
         return session.connection().execute(sql, *args)
 
+    def test_sets_datastore_active_on_resource_on_create(self):
+        resource = factories.Resource()
+
+        assert_equal(resource['datastore_active'], False)
+
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'book': 'annakarenina', 'author': 'tolstoy'}
+            ]
+        }
+
+        helpers.call_action('datastore_create', **data)
+
+        resource = helpers.call_action('resource_show', id=resource['id'])
+
+        assert_equal(resource['datastore_active'], True)
+
+    def test_sets_datastore_active_on_resource_on_delete(self):
+        resource = factories.Resource(datastore_active=True)
+
+        assert_equal(resource['datastore_active'], True)
+
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'book': 'annakarenina', 'author': 'tolstoy'}
+            ]
+        }
+
+        helpers.call_action('datastore_create', **data)
+
+        helpers.call_action('datastore_delete', resource_id=resource['id'],
+                            force=True)
+
+        resource = helpers.call_action('resource_show', id=resource['id'])
+
+        assert_equal(resource['datastore_active'], False)
+
 
 class TestDatastoreCreate(tests.WsgiAppCase):
     sysadmin_user = None
