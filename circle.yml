@@ -9,8 +9,6 @@ machine:
         CKAN_DATASTORE_POSTGRES_WRITE_USER: ckan_default
         CKAN_DATASTORE_POSTGRES_READ_USER: datastore_default
         CKAN_DATASTORE_POSTGRES_READ_PWD: pass
-        CKAN_SOLR_CORE: ckan
-        CKAN_SOLR_SCHEMA: $HOME/ckan/ckan/config/solr/schema.xml
         SOLR_HOME: $HOME/solr
 
 dependencies:
