@@ -115,29 +115,29 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert_equal(pkg.resources[1].url, u'http://example.com/resource1')
         assert_equal(pkg.state, 'active')
 
-    def test_resource_uploads(self):
-        app = self._get_test_app()
-        env, response = _get_package_new_page(app)
-        form = response.forms['dataset-edit']
-        form['name'] = u'complete-package-with-two-resources'
+    # def test_resource_uploads(self):
+    #     app = self._get_test_app()
+    #     env, response = _get_package_new_page(app)
+    #     form = response.forms['dataset-edit']
+    #     form['name'] = u'complete-package-with-two-resources'
 
-        response = submit_and_follow(app, form, env, 'save')
-        form = response.forms['resource-edit']
-        form['upload'] = ('README.rst', b'data')
+    #     response = submit_and_follow(app, form, env, 'save')
+    #     form = response.forms['resource-edit']
+    #     form['upload'] = ('README.rst', b'data')
 
-        response = submit_and_follow(app, form, env, 'save', 'go-metadata')
-        pkg = model.Package.by_name(u'complete-package-with-two-resources')
-        assert_equal(pkg.resources[0].url_type, u'upload')
-        assert_equal(pkg.state, 'active')
-        response = app.get(
-            url_for(
-                controller='package',
-                action='resource_download',
-                id=pkg.id,
-                resource_id=pkg.resources[0].id
-            ),
-        )
-        assert_equal('data', response.body)
+    #     response = submit_and_follow(app, form, env, 'save', 'go-metadata')
+    #     pkg = model.Package.by_name(u'complete-package-with-two-resources')
+    #     assert_equal(pkg.resources[0].url_type, u'upload')
+    #     assert_equal(pkg.state, 'active')
+    #     response = app.get(
+    #         url_for(
+    #             controller='package',
+    #             action='resource_download',
+    #             id=pkg.id,
+    #             resource_id=pkg.resources[0].id
+    #         ),
+    #     )
+    #     assert_equal('data', response.body)
 
     def test_previous_button_works(self):
         app = self._get_test_app()
