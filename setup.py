@@ -1,3 +1,8 @@
+# Avoid problem releasing to pypi from vagrant
+import os
+if os.environ.get('USER', '') == 'vagrant':
+    del os.link
+
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -96,6 +101,7 @@ entry_points = {
         'example_idatasetform_v3 = ckanext.example_idatasetform.plugin_v3:ExampleIDatasetFormPlugin',
         'example_idatasetform_v4 = ckanext.example_idatasetform.plugin_v4:ExampleIDatasetFormPlugin',
         'example_igroupform = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin',
+        'example_igroupform_default_group_type = ckanext.example_igroupform.plugin:ExampleIGroupFormPlugin_DefaultGroupType',
         'example_iauthfunctions_v1 = ckanext.example_iauthfunctions.plugin_v1:ExampleIAuthFunctionsPlugin',
         'example_iauthfunctions_v2 = ckanext.example_iauthfunctions.plugin_v2:ExampleIAuthFunctionsPlugin',
         'example_iauthfunctions_v3 = ckanext.example_iauthfunctions.plugin_v3:ExampleIAuthFunctionsPlugin',
@@ -124,9 +130,11 @@ entry_points = {
         'example_theme_v20_pubsub = ckanext.example_theme.v20_pubsub.plugin:ExampleThemePlugin',
         'example_theme_v21_custom_jquery_plugin = ckanext.example_theme.v21_custom_jquery_plugin.plugin:ExampleThemePlugin',
         'example_theme_custom_config_setting = ckanext.example_theme.custom_config_setting.plugin:ExampleThemePlugin',
+        'example_theme_custom_emails = ckanext.example_theme.custom_emails.plugin:ExampleCustomEmailsPlugin',
         'example_iresourcecontroller = ckanext.example_iresourcecontroller.plugin:ExampleIResourceControllerPlugin',
         'example_ivalidators = ckanext.example_ivalidators.plugin:ExampleIValidatorsPlugin',
         'example_iconfigurer = ckanext.example_iconfigurer.plugin:ExampleIConfigurerPlugin',
+        'example_itranslation = ckanext.example_itranslation.plugin:ExampleITranslationPlugin',
         'example_iconfigurer_v1 = ckanext.example_iconfigurer.plugin_v1:ExampleIConfigurerPlugin',
         'example_iconfigurer_v2 = ckanext.example_iconfigurer.plugin_v2:ExampleIConfigurerPlugin',
     ],
@@ -148,6 +156,8 @@ entry_points = {
         'test_json_resource_preview = tests.legacy.ckantestplugins:JsonMockResourcePreviewExtension',
         'sample_datastore_plugin = ckanext.datastore.tests.sample_datastore_plugin:SampleDataStorePlugin',
         'test_datastore_view = ckan.tests.lib.test_datapreview:MockDatastoreBasedResourceView',
+        'test_datapusher_plugin = ckanext.datapusher.tests.test_interfaces:FakeDataPusherPlugin',
+        'test_routing_plugin = ckan.tests.config.test_middleware:MockRoutingPlugin',
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',
@@ -181,25 +191,15 @@ setup(
             ('**.js', 'javascript', None),
             ('templates/importer/**', 'ignore', None),
             ('templates/**.html', 'ckan', None),
+            ('templates/**.txt', 'ckan', None),
             ('templates_legacy/**.html', 'ckan', None),
-            ('ckan/templates/home/language.js', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
-            ('templates/**.txt', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
-            ('templates_legacy/**.txt', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
             ('public/**', 'ignore', None),
         ],
         'ckanext': [
             ('**.py', 'python', None),
+            ('**.js', 'javascript', None),
             ('**.html', 'ckan', None),
             ('multilingual/solr/*.txt', 'ignore', None),
-            ('**.txt', 'genshi', {
-                'template_class': 'genshi.template:TextTemplate'
-            }),
         ]
     },
     entry_points=entry_points,

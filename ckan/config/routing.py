@@ -31,7 +31,8 @@ class Mapper(_Mapper):
         Also takes some additional params:
 
         :param ckan_icon: name of the icon to be associated with this route,
-            e.g. 'group', 'time'
+            e.g. 'group', 'time'. Available icons are listed here:
+            http://fortawesome.github.io/Font-Awesome/3.2.1/icons/
         :type ckan_icon: string
         :param highlight_actions: space-separated list of controller actions
             that should be treated as the same as this named route for menu
@@ -39,9 +40,14 @@ class Mapper(_Mapper):
         :type highlight_actions: string
 
         '''
+
         ckan_icon = kw.pop('ckan_icon', None)
         highlight_actions = kw.pop('highlight_actions', kw.get('action', ''))
+        ckan_core = kw.pop('ckan_core', None)
         out = _Mapper.connect(self, *args, **kw)
+        route = self.matchlist[-1]
+        if ckan_core is not None:
+            route._ckan_core = ckan_core
         if len(args) == 1 or args[0].startswith('_redirect_'):
             return out
         # we have a named route
@@ -87,15 +93,23 @@ def make_map():
 
     # The ErrorController route (handles 404/500 error pages); it should
     # likely stay at the top, ensuring it can always be resolved.
-    map.connect('/error/{action}', controller='error')
-    map.connect('/error/{action}/{id}', controller='error')
+    map.connect('/error/{action}', controller='error', ckan_core=True)
+    map.connect('/error/{action}/{id}', controller='error', ckan_core=True)
 
     map.connect('*url', controller='home', action='cors_options',
-                conditions=OPTIONS)
+                conditions=OPTIONS, ckan_core=True)
 
     # CUSTOM ROUTES HERE
     for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.before_map(map)
+
+    # Mark all routes added from extensions on the `before_map` extension point
+    # as non-core
+    for route in map.matchlist:
+        if not hasattr(route, '_ckan_core'):
+            route._ckan_core = False
+
+    map.connect('invite', '/__invite__/', controller='partyline', action='join_party')
 
     map.connect('home', '/', controller='home', action='index')
     map.connect('about', '/about', controller='home', action='about')
@@ -107,7 +121,6 @@ def make_map():
         'resource',
         'tag',
         'group',
-        'related',
         'revision',
         'licenses',
         'rating',
@@ -194,17 +207,6 @@ def make_map():
     map.redirect('/package', '/dataset')
     map.redirect('/package/{url:.*}', '/dataset/{url}')
 
-    with SubMapper(map, controller='related') as m:
-        m.connect('related_new', '/dataset/{id}/related/new', action='new')
-        m.connect('related_edit', '/dataset/{id}/related/edit/{related_id}',
-                  action='edit')
-        m.connect('related_delete', '/dataset/{id}/related/delete/{related_id}',
-                  action='delete')
-        m.connect('related_list', '/dataset/{id}/related', action='list',
-                  ckan_icon='picture')
-        m.connect('related_read', '/related/{id}', action='read')
-        m.connect('related_dashboard', '/related', action='dashboard')
-
     with SubMapper(map, controller='package') as m:
         m.connect('search', '/dataset', action='search',
                   highlight_actions='index search')
@@ -244,7 +246,6 @@ def make_map():
         m.connect('/dataset/activity/{id}/{offset}', action='activity')
         m.connect('dataset_groups', '/dataset/groups/{id}',
                   action='groups', ckan_icon='group')
-        m.connect('/dataset/{id}.{format}', action='read')
         m.connect('dataset_resources', '/dataset/resources/{id}',
                   action='resources', ckan_icon='reorder')
         m.connect('dataset_read', '/dataset/{id}', action='read',
@@ -327,7 +328,7 @@ def make_map():
                       'member_delete',
                       'history'
                   ])))
-        m.connect('organization_activity', '/organization/activity/{id}',
+        m.connect('organization_activity', '/organization/activity/{id}/{offset}',
                   action='activity', ckan_icon='time')
         m.connect('organization_read', '/organization/{id}', action='read')
         m.connect('organization_about', '/organization/about/{id}',
@@ -415,29 +416,7 @@ def make_map():
                 action='trash', ckan_icon='trash')
     map.connect('ckanadmin', '/ckan-admin/{action}', controller='admin')
 
-    # Storage routes
-    with SubMapper(map, controller='ckan.controllers.storage:StorageAPIController') as m:
-        m.connect('storage_api', '/api/storage', action='index')
-        m.connect('storage_api_set_metadata', '/api/storage/metadata/{label:.*}',
-                  action='set_metadata', conditions=PUT_POST)
-        m.connect('storage_api_get_metadata', '/api/storage/metadata/{label:.*}',
-                  action='get_metadata', conditions=GET)
-        m.connect('storage_api_auth_request',
-                  '/api/storage/auth/request/{label:.*}',
-                  action='auth_request')
-        m.connect('storage_api_auth_form',
-                  '/api/storage/auth/form/{label:.*}',
-                  action='auth_form')
-
     with SubMapper(map, controller='ckan.controllers.storage:StorageController') as m:
-        m.connect('storage_upload', '/storage/upload',
-                  action='upload')
-        m.connect('storage_upload_handle', '/storage/upload_handle',
-                  action='upload_handle')
-        m.connect('storage_upload_success', '/storage/upload/success',
-                  action='success')
-        m.connect('storage_upload_success_empty', '/storage/upload/success_empty',
-                  action='success_empty')
         m.connect('storage_file', '/storage/f/{label:.*}',
                   action='file')
 
@@ -447,8 +426,19 @@ def make_map():
         m.connect('/testing/primer', action='primer')
         m.connect('/testing/markup', action='markup')
 
+    # Mark all unmarked routes added up until now as core routes
+    for route in map.matchlist:
+        if not hasattr(route, '_ckan_core'):
+            route._ckan_core = True
+
     for plugin in p.PluginImplementations(p.IRoutes):
         map = plugin.after_map(map)
+
+    # Mark all routes added from extensions on the `after_map` extension point
+    # as non-core
+    for route in map.matchlist:
+        if not hasattr(route, '_ckan_core'):
+            route._ckan_core = False
 
     # sometimes we get requests for favicon.ico we should redirect to
     # the real favicon location.
@@ -456,6 +446,6 @@ def make_map():
 
     map.redirect('/*(url)/', '/{url}',
                  _redirect_code='301 Moved Permanently')
-    map.connect('/*url', controller='template', action='view')
+    map.connect('/*url', controller='template', action='view', ckan_core=True)
 
     return map

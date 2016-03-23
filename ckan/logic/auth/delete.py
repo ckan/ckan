@@ -1,6 +1,6 @@
 import ckan.logic as logic
 import ckan.authz as authz
-from ckan.logic.auth import get_group_object, get_related_object
+from ckan.logic.auth import get_group_object
 from ckan.logic.auth import get_resource_object
 import ckan.logic.auth.create as _auth_create
 import ckan.logic.auth.update as _auth_update
@@ -16,6 +16,10 @@ def package_delete(context, data_dict):
     # Defer authorization for package_delete to package_update, as deletions
     # are essentially changing the state field
     return _auth_update.package_update(context, data_dict)
+
+def dataset_purge(context, data_dict):
+    # Only sysadmins are authorized to purge datasets
+    return {'success': False}
 
 def resource_delete(context, data_dict):
     model = context['model']
@@ -56,30 +60,6 @@ def resource_view_delete(context, data_dict):
 def resource_view_clear(context, data_dict):
     # sysadmins only
     return {'success': False}
-
-
-def related_delete(context, data_dict):
-    model = context['model']
-    user = context['user']
-    if not user:
-        return {'success': False, 'msg': _('Only the owner can delete a related item')}
-
-    related = get_related_object(context, data_dict)
-    userobj = model.User.get( user )
-
-    if related.datasets:
-        package = related.datasets[0]
-
-        pkg_dict = { 'id': package.id }
-        authorized = package_delete(context, pkg_dict).get('success')
-        if authorized:
-            return {'success': True}
-
-    if not userobj or userobj.id != related.owner_id:
-        return {'success': False, 'msg': _('Only the owner can delete a related item')}
-
-    return {'success': True}
-
 
 def package_relationship_delete(context, data_dict):
     user = context['user']

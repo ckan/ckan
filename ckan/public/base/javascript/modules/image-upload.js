@@ -1,6 +1,6 @@
 /* Image Upload
- * 
- */  
+ *
+ */
 this.ckan.module('image-upload', function($, _) {
   return {
     /* options object can be extended using data-module-* attributes */
@@ -10,6 +10,7 @@ this.ckan.module('image-upload', function($, _) {
       field_upload: 'image_upload',
       field_url: 'image_url',
       field_clear: 'clear_upload',
+      field_name: 'name',
       upload_label: '',
       i18n: {
         upload: _('Upload'),
@@ -20,6 +21,12 @@ this.ckan.module('image-upload', function($, _) {
         url_tooltip: _('Link to a URL on the internet (you can also link to an API)')
       }
     },
+
+    /* Should be changed to true if user modifies resource's name
+     *
+     * @type {Boolean}
+     */
+    _nameIsDirty: false,
 
     /* Initialises the module setting up elements and event listeners.
      *
@@ -33,11 +40,13 @@ this.ckan.module('image-upload', function($, _) {
       var field_upload = 'input[name="' + options.field_upload + '"]';
       var field_url = 'input[name="' + options.field_url + '"]';
       var field_clear = 'input[name="' + options.field_clear + '"]';
+      var field_name = 'input[name="' + options.field_name + '"]';
 
       this.input = $(field_upload, this.el);
       this.field_url = $(field_url, this.el).parents('.control-group');
       this.field_image = this.input.parents('.control-group');
       this.field_url_input = $('input', this.field_url);
+      this.field_name = this.el.parents('form').find(field_name);
 
       // Is there a clear checkbox on the form already?
       var checkbox = $(field_clear, this.el);
@@ -85,6 +94,15 @@ this.ckan.module('image-upload', function($, _) {
         .add(this.field_url)
         .add(this.field_image);
 
+      // Disables autoName if user modifies name field
+      this.field_name
+        .on('change', this._onModifyName);
+      // Disables autoName if resource name already has value,
+      // i.e. we on edit page
+      if (this.field_name.val()){
+        this._nameIsDirty = true;
+      }
+
       if (options.is_url) {
         this._showOnlyFieldUrl();
       } else if (options.is_upload) {
@@ -101,7 +119,8 @@ this.ckan.module('image-upload', function($, _) {
      */
     _onFromWeb: function() {
       this._showOnlyFieldUrl();
-      this.field_url_input.focus();
+      this.field_url_input.focus()
+        .on('blur', this._onFromWebBlur);
       if (this.options.is_upload) {
         this.field_clear.val('true');
       }
@@ -128,6 +147,7 @@ this.ckan.module('image-upload', function($, _) {
       this.field_url_input.prop('readonly', true);
       this.field_clear.val('');
       this._showOnlyFieldUrl();
+      this._autoName(file_name);
     },
 
     /* Show only the buttons, hiding all others
@@ -166,7 +186,36 @@ this.ckan.module('image-upload', function($, _) {
      */
     _onInputMouseOut: function() {
       this.button_upload.removeClass('hover');
-    }
+    },
 
+    /* Event listener for changes in resource's name by direct input from user
+     *
+     * Returns nothing
+     */
+    _onModifyName: function() {
+      this._nameIsDirty = true;
+    },
+
+    /* Event listener for when someone loses focus of URL field
+     *
+     * Returns nothing
+     */
+    _onFromWebBlur: function() {
+      var url = this.field_url_input.val().match(/([^\/]+)\/?$/)
+      if (url) {
+        this._autoName(url.pop());
+      }
+    },
+
+    /* Automatically add file name into field Name
+     *
+     * Select by attribute [name] to be on the safe side and allow to change field id
+     * Returns nothing
+     */
+     _autoName: function(name) {
+        if (!this._nameIsDirty){
+          this.field_name.val(name);
+        }
+     }
   };
 });

@@ -79,7 +79,7 @@ def get_table_names_from_sql(context, sql):
         return table_names
 
     result = context['connection'].execute(
-        'EXPLAIN (FORMAT JSON) {0}'.format(sql)).fetchone()
+        'EXPLAIN (FORMAT JSON) {0}'.format(sql.encode('utf-8'))).fetchone()
 
     table_names = []
 
@@ -93,3 +93,17 @@ def get_table_names_from_sql(context, sql):
         log.error('Could not parse query plan')
 
     return table_names
+
+
+def literal_string(s):
+    """
+    Return s as a postgres literal string
+    """
+    return u"'" + s.replace(u"'", u"''").replace(u'\0', '') + u"'"
+
+
+def identifier(s):
+    """
+    Return s as a quoted postgres identifier
+    """
+    return u'"' + s.replace(u'"', u'""').replace(u'\0', '') + u'"'

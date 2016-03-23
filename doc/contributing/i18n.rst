@@ -30,16 +30,16 @@ If your language is present, you can switch the default language simply by setti
 If your language is not supported yet, the remainder of this section section provides instructions on how to prepare a translation file and add it to CKAN. 
 
 
----------------------
-Adding a new language
----------------------
+----------------------------------------------------------
+Adding a new language or improving an existing translation
+----------------------------------------------------------
 
-If you want to add an entirely new language to CKAN, you have two options.
+If you want to add an entirely new language to CKAN or update an existing translation, you have two options.
 
-* :ref:`i18n-transifex`. Creating translation files using Transifex, the open source translation software. 
+* :ref:`i18n-transifex`. Creating or updating translation files using Transifex, the open source translation software. To add a language you need to request it from the Transifex dashboard: https://www.transifex.com/okfn/ckan/dashboard/ Alternatively to update an existing language you need to request to join the appropriate CKAN language team. If you don't hear back from the CKAN administrators, contact them via the ckan-dev list.
 * :ref:`i18n-manual`. Creating translation files manually in your own branch.
 
-.. note:: Translating CKAN in Transifex is only enabled when a 'call for translations' is issued.
+.. note:: If you choose not to contribute your translation back via Transifex then you must ensure you make it public in another way, as per the requirements of CKAN's AGPL license.
 
 .. _i18n-transifex:
 
@@ -51,24 +51,15 @@ Transifex, the open translation platform, provides a simple web interface for wr
 
 Using Transifex makes it easier to handle collaboration, with an online editor that makes the process more accessible.
 
-Existing CKAN translation projects can be found at: https://www.transifex.net/projects/p/ckan/teams/
+Existing CKAN translation projects can be found at: https://www.transifex.com/okfn/ckan/content/
 
-When leading up to a CKAN release, the strings are loaded onto Transifex and ckan-discuss list is emailed to encourage translation work. When the release is done, the latest translations on Transifex are checked back into CKAN.
+When leading up to a CKAN release, the strings are loaded onto Transifex and ckan-dev list is emailed to encourage translation work. When the release is done, the latest translations on Transifex are checked back into CKAN.
 
 
 Transifex administration
 ------------------------
 
-The Transifex workflow is as follows:
-
-* Install transifex command-line utilities
-* ``tx init`` in CKAN to connect to Transifex
-* Run ``python setup.py extract_messages`` on the CKAN source
-* Upload the local .pot file via command-line ``tx push``
-* Get people to complete translations on Transifex
-* Pull locale .po files via ``tx pull``
-* ``python setup.py compile_catalog``
-* Git Commit and push po and mo files
+The Transifex workflow is described in the :doc:`release-process`
 
 
 .. _i18n-manual:
@@ -82,21 +73,27 @@ All the English strings in CKAN are extracted into the ``ckan.pot`` file, which 
 
 .. note:: For information, the pot file was created with the ``babel`` command ``python setup.py extract_messages``.
 
-0. Install Babel
+1. Preparation
+--------------
+
+This tutorial assumes you've got ckan installed as source in a virtualenv. Activate the virtualenv and cd to the ckan directory:
+
+   .. parsed-literal::
+
+       |activate|
+       cd |virtualenv|/src/ckan
+
+2. Install Babel
 ----------------
 
 You need Python's ``babel`` library (Debian package ``python-pybabel``). Install it as follows with pip::
 
- pip -E pyenv install babel
+ pip install --upgrade Babel
 
-1. Create a 'po' file for your language
+3. Create a 'po' file for your language
 ---------------------------------------
 
-First, grab the CKAN i18n repository::
- 
- hg clone http://bitbucket.org/bboissin/ckan-i18n/
-
-Then create a translation file for your language (a po file) using the pot file::
+Then create a translation file for your language (a po file) using the pot file (containing all the English strings)::
 
  python setup.py init_catalog --locale YOUR_LANGUAGE
 
@@ -116,13 +113,12 @@ We recommend using a translation tool, such as `poedit <http://www.poedit.net/>`
 3. Commit the translation
 -------------------------
 
-When the po is complete, create a branch in your source, then commit it to the CKAN i18n repo::
- 
- git checkout master
- git branch translation-YOUR_LANGUAGE
+When the po is complete, create a branch in your source, then commit it to your own fork of the CKAN repo::
+
  git add ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po
  git commit -m '[i18n]: New language po added: YOUR_LANGUAGE' ckan/i18n/YOUR_LANGUAGE/LC_MESSAGES/ckan.po
- git push origin translation-YOUR_LANGUAGE
+
+NB it is not appropriate to do a Pull Request to the main ckan repo, since that takes its translations from Transifex.
 
 4. Compile a translation
 ------------------------
@@ -142,19 +138,15 @@ This will result in a binary 'mo' file of your translation at ``ckan/i18n/YOUR_L
 5. (optional) Deploy the translation
 ------------------------------------
 
-This section explains how to deploy your translation automatically to your host, if you are using a remote host.
+This section explains how to deploy your translation to your CKAN server.
 
-It assumes a standard layout on the server (you may want to check before you upload!) and that you are deploying to ``hu.ckan.net`` for language ``hu``.
+Once you have a compiled translation file, copy it to your host:
 
-Once you have a compiled translation file, for automated deployment to your host do::
+   .. parsed-literal::
 
- fab config_0:hu.ckan.net upload_i18n:hu
+       scp ckan.mo |virtualenv|/src/ckan/ckan/i18n/hu/LC_MESSAGES/ckan.mo
 
-See the ``config_0`` options if more configuration is needed e.g. of host or location.
-
-Alternatively, if you do not want to use fab, you can just scp::
-
- scp ckan.mo /home/okfn/var/srvc/hu.ckan.net/pyenv/src/ckan/ckan/i18n/hu/LC_MESSAGES/ckan.mo
+Adjust the path if you did not use the default location. This example is for language ``hu``.
 
 6. Configure the language
 -------------------------
@@ -172,28 +164,13 @@ translations or submit a new one. At the same time we need to ensure the
 stability between CKAN releases, so the following guidelines apply when
 managing translations:
 
-* Translations are open on Transifex as soon as a release branch for a minor
-  version is created. At this point the strings are not yet freezed and can
-  still change, but hopefully not too much. An announcement email will be sent
-  to the mailing list and via Transifex.
+* About 3 weeks before a CKAN release, CKAN is branched, and the English
+  strings are frozen, and an announcement is made on ckan-dev to call for
+  translation work. They are given 2 weeks to translate any new strings in this
+  release.
 
-* 2-3 weeks before the actual release the strings are frozen. This means that
-  no new strings will be added on this release line. A second announce email is
-  sent at this point.
-
-* The translations will be kept open on Transifex after the release, and will be
-  updated on each patch release, provided that:
-
-    - They pass a review like any other change merged into a patch release (ie
-      they must not introducde backwards incompatible changes).
-    - Big changes like whole new languages (specially ones that introduce
-      new features like RTL supporti, etc) should be tested and reviewed on a
-      separate branch first.
-    - Ultimately is up to the commiters and the release manager to decide if a
-      new or updated translation is included in a patch release or needs to
-      wait until the next minor release.
-
-* The *master* branch is not currently translated. Translations from the latest
-  stable line (see :ref:`releases`) are cherry-picked into master after each
-  minor or patch release.
+* During this period, translation is done on a 'resource' on Transifex which is
+  named to match the new CKAN version. It has been created as a copy of the
+  next most recent resource, so any new languages create or other updates done
+  on Transifex since the last release automatically go into the new release.
 

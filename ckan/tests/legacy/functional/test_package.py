@@ -1,7 +1,6 @@
 import datetime
 
 from pylons import config, c
-from genshi.core import escape as genshi_escape
 from difflib import unified_diff
 from nose.tools import assert_equal
 
@@ -143,8 +142,8 @@ class TestPackageForm(TestPackageBase):
         for num, (key, value, deleted) in enumerate(sorted(extras)):
             key_in_html_body = self.escape_for_html_body(key)
             value_in_html_body = self.escape_for_html_body(value)
-            key_escaped = genshi_escape(key)
-            value_escaped = genshi_escape(value)
+            key_escaped = key
+            value_escaped = value
             self.check_tag(main_res, 'extras__%s__key' % num, key_in_html_body)
             self.check_tag(main_res, 'extras__%s__value' % num, value_escaped)
             if deleted:
@@ -285,7 +284,6 @@ class TestReadAtRevision(FunctionalTestCase, HtmlCheckMethods):
         rev.timestamp = cls.date1
         pkg = model.Package(name=cls.pkg_name, title=u'title1')
         model.Session.add(pkg)
-        model.setup_default_user_roles(pkg)
         model.repo.commit_and_remove()
 
         # edit dataset
@@ -410,7 +408,6 @@ class TestEdit(TestPackageForm):
              'resources':[{'url':u'url escape: & umlaut: \xfc quote: "',
                           'description':u'description escape: & umlaut: \xfc quote "',
                           }],
-             'admins':[u'testadmin'],
              })
 
         self.editpkg = model.Package.by_name(self.editpkg_name)
@@ -671,7 +668,6 @@ class TestNonActivePackages(TestPackageBase):
 
         pkg = model.Session.query(model.Package).filter_by(name=self.non_active_name).one()
         admin = model.User.by_name(u'joeadmin')
-        model.setup_default_user_roles(pkg, [admin])
         model.repo.commit_and_remove()
 
         model.repo.new_revision()
@@ -686,7 +682,7 @@ class TestNonActivePackages(TestPackageBase):
 
     def test_read(self):
         offset = url_for(controller='package', action='read', id=self.non_active_name)
-        res = self.app.get(offset, status=[302, 401])
+        res = self.app.get(offset, status=[404])
 
 
     def test_read_as_admin(self):
@@ -707,7 +703,6 @@ class TestRevisions(TestPackageBase):
         cls.pkg1 = model.Package(name=cls.name)
         cls.pkg1.notes = cls.notes[0]
         model.Session.add(cls.pkg1)
-        model.setup_default_user_roles(cls.pkg1)
         model.repo.commit_and_remove()
 
         # edit pkg

@@ -148,8 +148,8 @@
       </table>
     </section>
 
-    <section id="stats-most-owned" class="module-content tab-content">
-      <h2>{{ _('Users Owning Most Datasets') }}</h2>
+    <section id="stats-most-create" class="module-content tab-content">
+      <h2>{{ _('Users Creating Most Datasets') }}</h2>
       <table class="table table-chunky table-bordered table-striped">
         <thead>
           <tr>
@@ -158,7 +158,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for user, num_packages in c.top_package_owners %}
+          {% for user, num_packages in c.top_package_creators %}
             <tr>
               <td class="media">{{ h.linked_user(user) }}</td>
               <td class="metric">{{ num_packages }}</td>
@@ -181,7 +181,7 @@
         <li class="nav-item"><a href="#stats-most-edited" data-toggle="tab">{{ _('Most Edited Datasets') }}</a></li>
         <li class="nav-item"><a href="#stats-largest-groups" data-toggle="tab">{{ _('Largest Groups') }}</a></li>
         <li class="nav-item"><a href="#stats-top-tags" data-toggle="tab">{{ _('Top Tags') }}</a></li>
-        <li class="nav-item"><a href="#stats-most-owned" data-toggle="tab">{{ _('Users Owning Most Datasets') }}</a></li>
+        <li class="nav-item"><a href="#stats-most-create" data-toggle="tab">{{ _('Users Creating Most Datasets') }}</a></li>
       </ul>
     </nav>
   </section>

@@ -1,5 +1,6 @@
 import json
 import httpretty
+import httpretty.core
 import nose
 import sys
 import datetime
@@ -17,6 +18,40 @@ import ckan.config.middleware as middleware
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
+
+
+class HTTPrettyFix(httpretty.core.fakesock.socket):
+    """
+    Monkey-patches HTTPretty with a fix originally suggested in PR #161
+    from 2014 (still open).
+
+    Versions of httpretty < 0.8.10 use a bufsize of 16 *bytes*, and
+    an infinite timeout. This makes httpretty unbelievably slow, and because
+    the httpretty decorator monkey patches *all* requests (like solr),
+    the performance impact is massive.
+
+    While this is fixed in versions >= 0.8.10, newer versions of HTTPretty
+    break SOLR and other database wrappers (See #265).
+    """
+    def __init__(self, *args, **kwargs):
+        super(HTTPrettyFix, self).__init__(*args, **kwargs)
+        self._bufsize = 4096
+
+        original_socket = self.truesock
+        self.truesock.settimeout(3)
+
+        # We also patch the "real" socket itself to prevent HTTPretty
+        # from changing it to infinite which it tries to do in real_sendall.
+        class SetTimeoutPatch(object):
+            def settimeout(self, *args, **kwargs):
+                pass
+
+            def __getattr__(self, attr):
+                return getattr(original_socket, attr)
+
+        self.truesock = SetTimeoutPatch()
+
+httpretty.core.fakesock.socket = HTTPrettyFix
 
 
 # avoid hanging tests https://github.com/gabrielfalcao/HTTPretty/issues/34
@@ -47,11 +82,20 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
+        # Httpretty crashes with Solr on Python 2.6,
+        # skip the tests
+        if (sys.version_info[0] == 2 and sys.version_info[1] == 6):
+            raise nose.SkipTest()
+
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
         p.unload('datapusher')
+        # Reenable Solr indexing
+        if (sys.version_info[0] == 2 and sys.version_info[1] == 6
+                and not p.plugin_loaded('synchronous_search')):
+            p.load('synchronous_search')
 
     def test_create_ckan_resource_in_package(self):
         package = model.Package.get('annakarenina')
@@ -83,8 +127,11 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         package = model.Package.get('annakarenina')
 
         tests.call_action_api(
-            self.app, 'datastore_create', apikey=self.sysadmin_user.apikey,
-            resource=dict(package_id=package.id, url='demo.ckan.org'))
+            self.app,
+            'datastore_create',
+            apikey=self.sysadmin_user.apikey,
+            resource=dict(package_id=package.id, url='demo.ckan.org')
+        )
 
         assert len(package.resources) == 4, len(package.resources)
         resource = package.resources[3]

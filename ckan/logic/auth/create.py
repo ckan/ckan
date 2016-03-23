@@ -43,24 +43,6 @@ def file_upload(context, data_dict=None):
         return {'success': False, 'msg': _('User %s not authorized to create packages') % user}
     return {'success': True}
 
-def related_create(context, data_dict=None):
-    '''Users must be logged-in to create related items.
-
-    To create a featured item the user must be a sysadmin.
-    '''
-    model = context['model']
-    user = context['user']
-    userobj = model.User.get( user )
-
-    if userobj:
-        if data_dict.get('featured', 0) != 0:
-            return {'success': False,
-                    'msg': _('You must be a sysadmin to create a featured '
-                             'related item')}
-        return {'success': True}
-
-    return {'success': False, 'msg': _('You must be logged in to add a related item')}
-
 
 def resource_create(context, data_dict):
     model = context['model']
@@ -223,7 +205,7 @@ def _check_group_auth(context, data_dict):
 def package_create_rest(context, data_dict):
     model = context['model']
     user = context['user']
-    if user in (model.PSEUDO_USER__VISITOR, ''):
+    if not user:
         return {'success': False, 'msg': _('Valid API key needed to create a package')}
 
     return package_create(context, data_dict)
@@ -231,7 +213,7 @@ def package_create_rest(context, data_dict):
 def group_create_rest(context, data_dict):
     model = context['model']
     user = context['user']
-    if user in (model.PSEUDO_USER__VISITOR, ''):
+    if not user:
         return {'success': False, 'msg': _('Valid API key needed to create a group')}
 
     return group_create(context, data_dict)

@@ -5,9 +5,11 @@ import ckan.plugins as p
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.logic.schema as schema
+from ckan.lib.search.common import SearchError
 
 
 eq = nose.tools.eq_
+assert_raises = nose.tools.assert_raises
 
 
 class TestPackageShow(helpers.FunctionalTestBase):
@@ -34,6 +36,32 @@ class TestPackageShow(helpers.FunctionalTestBase):
                                        context={'schema': custom_schema})
 
         eq(dataset2['new_field'], 'foo')
+
+    def test_package_show_with_custom_schema_return_default_schema(self):
+        dataset1 = factories.Dataset()
+        from ckan.logic.schema import default_show_package_schema
+        custom_schema = default_show_package_schema()
+
+        def foo(key, data, errors, context):
+            data[key] = 'foo'
+        custom_schema['new_field'] = [foo]
+
+        dataset2 = helpers.call_action('package_show', id=dataset1['id'],
+                                       use_default_schema=True,
+                                       context={'schema': custom_schema})
+
+        assert 'new_field' not in dataset2
+
+    def test_package_show_is_lazy(self):
+        dataset1 = factories.Dataset()
+
+        dataset2 = helpers.call_action(
+            'package_show',
+            id=dataset1['id'],
+            context=dict(return_type='LazyJSONObject'))
+
+        # LazyJSONObject passed through without being expanded
+        assert dataset2._json_dict is None
 
 
 class TestGroupList(helpers.FunctionalTestBase):
@@ -128,8 +156,6 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         expected_group = dict(group.items()[:])
         for field in ('users', 'tags', 'extras', 'groups'):
-            if field in group_list[0]:
-                del group_list[0][field]
             del expected_group[field]
 
         assert group_list[0] == expected_group
@@ -148,6 +174,17 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         eq(group_list[0]['extras'], group['extras'])
         eq(group_list[0]['extras'][0]['key'], 'key1')
+
+    def test_group_list_users_returned(self):
+        user = factories.User()
+        group = factories.Group(users=[{'name': user['name'],
+                                        'capacity': 'admin'}])
+
+        group_list = helpers.call_action('group_list', all_fields=True,
+                                         include_users=True)
+
+        eq(group_list[0]['users'], group['users'])
+        eq(group_list[0]['users'][0]['name'], group['users'][0]['name'])
 
     # NB there is no test_group_list_tags_returned because tags are not in the
     # group_create schema (yet)
@@ -169,6 +206,49 @@ class TestGroupList(helpers.FunctionalTestBase):
         expected_parent_group = dict(parent_group.items()[:])
 
         eq([g['name'] for g in child_group_returned['groups']], [expected_parent_group['name']])
+
+    def test_group_list_limit(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', limit=1)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group1['name'])
+
+    def test_group_list_offset(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', offset=2)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group3['name'])
+
+    def test_group_list_limit_and_offset(self):
+
+        group1 = factories.Group()
+        group2 = factories.Group()
+        group3 = factories.Group()
+
+        group_list = helpers.call_action('group_list', offset=1, limit=1)
+
+        eq(len(group_list), 1)
+        eq(group_list[0], group2['name'])
+
+    def test_group_list_wrong_limit(self):
+
+        assert_raises(logic.ValidationError, helpers.call_action, 'group_list',
+                      limit='a')
+
+    def test_group_list_wrong_offset(self):
+
+        assert_raises(logic.ValidationError, helpers.call_action, 'group_list',
+                      offset='-2')
 
 
 class TestGroupShow(helpers.FunctionalTestBase):
@@ -437,7 +517,6 @@ class TestUserList(helpers.FunctionalTestBase):
         user = factories.User()
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         got_user = got_users[0]
@@ -466,7 +545,6 @@ class TestUserList(helpers.FunctionalTestBase):
                             **dataset)
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         got_user = got_users[0]
@@ -479,7 +557,6 @@ class TestUserList(helpers.FunctionalTestBase):
         factories.User(state='deleted')
 
         got_users = helpers.call_action('user_list')
-        remove_pseudo_users(got_users)
 
         assert len(got_users) == 1
         assert got_users[0]['name'] == user['name']
@@ -507,6 +584,7 @@ class TestUserShow(helpers.FunctionalTestBase):
         assert 'apikey' not in got_user
         assert 'email' not in got_user
         assert 'datasets' not in got_user
+        assert 'password_hash' not in got_user
 
     def test_user_show_keep_email(self):
 
@@ -534,6 +612,16 @@ class TestUserShow(helpers.FunctionalTestBase):
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
+    def test_user_show_normal_user_no_password_hash(self):
+
+        user = factories.User()
+
+        got_user = helpers.call_action('user_show',
+                                       id=user['id'],
+                                       include_password_hash=True)
+
+        assert 'password_hash' not in got_user
+
     def test_user_show_for_myself(self):
 
         user = factories.User()
@@ -559,6 +647,23 @@ class TestUserShow(helpers.FunctionalTestBase):
 
         assert got_user['email'] == user['email']
         assert got_user['apikey'] == user['apikey']
+        assert 'password' not in got_user
+        assert 'reset_key' not in got_user
+
+    def test_user_show_sysadmin_password_hash(self):
+
+        user = factories.User(password='test')
+
+        sysadmin = factories.User(sysadmin=True)
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': sysadmin['name']},
+                                       id=user['id'],
+                                       include_password_hash=True)
+
+        assert got_user['email'] == user['email']
+        assert got_user['apikey'] == user['apikey']
+        assert 'password_hash' in got_user
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
@@ -631,69 +736,6 @@ class TestUserShow(helpers.FunctionalTestBase):
         datasets_got = set([user_['name'] for user_ in got_user['datasets']])
         assert dataset_deleted['name'] not in datasets_got
         eq(got_user['number_created_packages'], 3)
-
-
-class TestRelatedList(helpers.FunctionalTestBase):
-
-    def test_related_list_with_no_params(self):
-        '''
-        Test related_list with no parameters and default sort
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list')
-        assert len(related_list) == 2
-        assert related1 in related_list
-        assert related2 in related_list
-
-    def test_related_list_type_filter(self):
-        '''
-        Test related_list with type filter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list',
-                                           type_filter='application')
-        assert ([related2] == related_list)
-
-    def test_related_list_sorted(self):
-        '''
-        Test related_list with sort parameter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list', sort='created_desc')
-        assert ([related2, related1] == related_list)
-
-    def test_related_list_invalid_sort_parameter(self):
-        '''
-        Test related_list with invalid value for sort parameter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list', sort='invalid')
-        assert ([related1, related2] == related_list)
-
-    def test_related_list_featured(self):
-        '''
-        Test related_list with no featured filter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list', featured=True)
-        assert ([related1] == related_list)
-        # TODO: Create related items associated with a dataset and test
-        # related_list with them
 
 
 class TestCurrentPackageList(helpers.FunctionalTestBase):
@@ -782,12 +824,103 @@ class TestPackageAutocomplete(helpers.FunctionalTestBase):
 
 class TestPackageSearch(helpers.FunctionalTestBase):
 
+    def test_search(self):
+        factories.Dataset(title='Rivers')
+        factories.Dataset(title='Lakes')  # decoy
+
+        search_result = helpers.call_action('package_search', q='rivers')
+
+        eq(search_result['results'][0]['title'], 'Rivers')
+        eq(search_result['count'], 1)
+
+    def test_search_all(self):
+        factories.Dataset(title='Rivers')
+        factories.Dataset(title='Lakes')
+
+        search_result = helpers.call_action('package_search')  # no q
+
+        eq(search_result['count'], 2)
+
+    def test_bad_action_parameter(self):
+        nose.tools.assert_raises(
+            SearchError,
+            helpers.call_action,
+            'package_search', weird_param=1)
+
+    def test_bad_solr_parameter(self):
+        nose.tools.assert_raises(
+            SearchError,
+            helpers.call_action,
+            'package_search', sort='metadata_modified')
+            # SOLR doesn't like that we didn't specify 'asc' or 'desc'
+        # SOLR error is 'Missing sort order' or 'Missing_sort_order',
+        # depending on the solr version.
+
+    def test_facets(self):
+        org = factories.Organization(name='test-org-facet', title='Test Org')
+        factories.Dataset(owner_org=org['id'])
+        factories.Dataset(owner_org=org['id'])
+
+        data_dict = {'facet.field': ['organization']}
+        search_result = helpers.call_action('package_search', **data_dict)
+
+        eq(search_result['count'], 2)
+        eq(search_result['search_facets'],
+           {'organization': {'items': [{'count': 2,
+                                        'display_name': u'Test Org',
+                                        'name': 'test-org-facet'}],
+                             'title': 'organization'}})
+
+    def test_facet_limit(self):
+        group1 = factories.Group(name='test-group-fl1', title='Test Group 1')
+        group2 = factories.Group(name='test-group-fl2', title='Test Group 2')
+        factories.Dataset(groups=[{'name': group1['name']},
+                                  {'name': group2['name']}])
+        factories.Dataset(groups=[{'name': group1['name']}])
+        factories.Dataset()
+
+        data_dict = {'facet.field': ['groups'],
+                     'facet.limit': 1}
+        search_result = helpers.call_action('package_search', **data_dict)
+
+        eq(len(search_result['search_facets']['groups']['items']), 1)
+        eq(search_result['search_facets'],
+           {'groups': {'items': [{'count': 2,
+                                  'display_name': u'Test Group 1',
+                                  'name': 'test-group-fl1'}],
+                       'title': 'groups'}})
+
+    def test_facet_no_limit(self):
+        group1 = factories.Group()
+        group2 = factories.Group()
+        factories.Dataset(groups=[{'name': group1['name']},
+                                  {'name': group2['name']}])
+        factories.Dataset(groups=[{'name': group1['name']}])
+        factories.Dataset()
+
+        data_dict = {'facet.field': ['groups'],
+                     'facet.limit': -1}  # no limit
+        search_result = helpers.call_action('package_search', **data_dict)
+
+        eq(len(search_result['search_facets']['groups']['items']), 2)
+
+    def test_sort(self):
+        factories.Dataset(name='test0')
+        factories.Dataset(name='test1')
+        factories.Dataset(name='test2')
+
+        search_result = helpers.call_action('package_search',
+                                            sort='metadata_created desc')
+
+        result_names = [result['name'] for result in search_result['results']]
+        eq(result_names, [u'test2', u'test1', u'test0'])
+
     def test_package_search_on_resource_name(self):
         '''
         package_search() should allow searching on resource name field.
         '''
         resource_name = 'resource_abc'
-        package = factories.Resource(name=resource_name)
+        factories.Resource(name=resource_name)
 
         search_result = helpers.call_action('package_search', q='resource_abc')
         eq(search_result['results'][0]['resources'][0]['name'], resource_name)
@@ -1071,6 +1204,45 @@ class TestPackageSearch(helpers.FunctionalTestBase):
 
         eq(len(results), 1)
         eq(results[0]['name'], private_dataset['name'])
+
+    def test_package_works_without_user_in_context(self):
+        '''
+        package_search() should work even if user isn't in the context (e.g.
+        ckanext-showcase tests.
+        '''
+        logic.get_action('package_search')({}, dict(q='anything'))
+
+    def test_custom_schema_returned(self):
+        if not p.plugin_loaded('example_idatasetform'):
+            p.load('example_idatasetform')
+
+        dataset1 = factories.Dataset(custom_text='foo')
+
+        query = helpers.call_action('package_search',
+                                    q='id:{0}'.format(dataset1['id']))
+
+        eq(query['results'][0]['id'], dataset1['id'])
+        eq(query['results'][0]['custom_text'], 'foo')
+
+        p.unload('example_idatasetform')
+
+    def test_custom_schema_not_returned(self):
+
+        if not p.plugin_loaded('example_idatasetform'):
+            p.load('example_idatasetform')
+
+        dataset1 = factories.Dataset(custom_text='foo')
+
+        query = helpers.call_action('package_search',
+                                    q='id:{0}'.format(dataset1['id']),
+                                    use_default_schema=True)
+
+        eq(query['results'][0]['id'], dataset1['id'])
+        assert 'custom_text' not in query['results'][0]
+        eq(query['results'][0]['extras'][0]['key'], 'custom_text')
+        eq(query['results'][0]['extras'][0]['value'], 'foo')
+
+        p.unload('example_idatasetform')
 
 
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
@@ -1642,3 +1814,88 @@ class TestTagList(helpers.FunctionalTestBase):
         nose.tools.assert_raises(
             logic.NotFound,
             helpers.call_action, 'tag_list', vocabulary_id='does-not-exist')
+
+
+class TestRevisionList(helpers.FunctionalTestBase):
+
+    @classmethod
+    def setup_class(cls):
+        super(TestRevisionList, cls).setup_class()
+        helpers.reset_db()
+
+    # Error cases
+
+    def test_date_instead_of_revision(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action,
+            'revision_list',
+            since_id='2010-01-01T00:00:00')
+
+    def test_date_invalid(self):
+        nose.tools.assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'revision_list',
+            since_time='2010-02-31T00:00:00')
+
+    def test_revision_doesnt_exist(self):
+        nose.tools.assert_raises(
+            logic.NotFound,
+            helpers.call_action,
+            'revision_list',
+            since_id='1234')
+
+    def test_sort_param_not_valid(self):
+        nose.tools.assert_raises(
+            logic.ValidationError,
+            helpers.call_action,
+            'revision_list',
+            sort='invalid')
+
+    # Normal usage
+
+    @classmethod
+    def _create_revisions(cls, num_revisions):
+        from ckan import model
+        rev_ids = []
+        for i in xrange(num_revisions):
+            rev = model.repo.new_revision()
+            rev.id = unicode(i)
+            model.Session.commit()
+            rev_ids.append(rev.id)
+        return rev_ids
+
+    def test_all_revisions(self):
+        rev_ids = self._create_revisions(2)
+        revs = helpers.call_action('revision_list')
+        # only test the 2 newest revisions, since the system creates one at
+        # start-up.
+        eq(revs[:2], rev_ids[::-1])
+
+    def test_revisions_since_id(self):
+        self._create_revisions(4)
+        revs = helpers.call_action('revision_list', since_id='1')
+        eq(revs, ['3', '2'])
+
+    def test_revisions_since_time(self):
+        from ckan import model
+        self._create_revisions(4)
+
+        rev1 = model.Session.query(model.Revision).get('1')
+        revs = helpers.call_action('revision_list',
+                                   since_time=rev1.timestamp.isoformat())
+        eq(revs, ['3', '2'])
+
+    def test_revisions_returned_are_limited(self):
+        self._create_revisions(55)
+        revs = helpers.call_action('revision_list', since_id='1')
+        eq(len(revs), 50)  # i.e. limited to 50
+        eq(revs[0], '54')
+        eq(revs[-1], '5')
+
+    def test_sort_asc(self):
+        self._create_revisions(4)
+        revs = helpers.call_action('revision_list', since_id='1',
+                                   sort='time_asc')
+        eq(revs, ['2', '3'])

@@ -3,7 +3,7 @@ from nose.tools import assert_equal
 from pylons import config
 import hashlib
 
-from ckan.tests.legacy import search_related, CreateTestData
+from ckan.tests.legacy import CreateTestData
 from ckan.tests.legacy.html_check import HtmlCheckMethods
 from ckan.tests.legacy.pylons_controller import PylonsTestCase
 from ckan.tests.legacy.mock_mail_server import SmtpServerHarness

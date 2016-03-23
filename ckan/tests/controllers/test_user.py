@@ -55,7 +55,7 @@ class TestRegisterUser(helpers.FunctionalTestBase):
         form['password2'] = ''
 
         response = form.submit('save')
-        assert_true('The passwords you entered do not match')
+        assert_true('The passwords you entered do not match' in response)
 
 
 class TestLoginView(helpers.FunctionalTestBase):
@@ -121,6 +121,23 @@ class TestLoginView(helpers.FunctionalTestBase):
         final_response.mustcontain(no='<a href="/dashboard">Dashboard</a>'),
         final_response.mustcontain(no='<span class="username">{0}</span>'
                                    .format(user['fullname']))
+
+
+class TestLogout(helpers.FunctionalTestBase):
+
+    def test_user_logout_url_redirect(self):
+        '''_logout url redirects to logged out page.
+
+        Note: this doesn't test the actual logout of a logged in user, just
+        the associated redirect.
+        '''
+        app = self._get_test_app()
+
+        logout_url = url_for(controller='user', action='logout')
+        logout_response = app.get(logout_url, status=302)
+        final_response = helpers.webtest_maybe_follow(logout_response)
+
+        assert_true('You are now logged out.' in final_response)
 
 
 class TestUser(helpers.FunctionalTestBase):
@@ -228,6 +245,37 @@ class TestUserEdit(helpers.FunctionalTestBase):
         assert_equal(user.email, 'new@example.com')
         assert_equal(user.about, 'new about')
         assert_equal(user.activity_streams_email_notifications, True)
+
+    def test_email_change_without_password(self):
+
+        app = self._get_test_app()
+        env, response, user = _get_user_edit_page(app)
+
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['email'] = 'new@example.com'
+
+        # factory returns user with password 'pass'
+        form.fields['old_password'][0].value = 'wrong-pass'
+
+        response = webtest_submit(form, 'save', status=200, extra_environ=env)
+        assert_true('Old Password: incorrect password' in response)
+
+    def test_email_change_with_password(self):
+        app = self._get_test_app()
+        env, response, user = _get_user_edit_page(app)
+
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['email'] = 'new@example.com'
+
+        # factory returns user with password 'pass'
+        form.fields['old_password'][0].value = 'pass'
+
+        response = submit_and_follow(app, form, env, 'save')
+        assert_true('Profile updated' in response)
 
     def test_perform_reset_for_key_change(self):
         password = 'password'
@@ -414,8 +462,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
 
         user_response_html = BeautifulSoup(user_response.body)
         user_list = user_response_html.select('ul.user-list li')
-        # two pseudo users + the users we've added
-        assert_equal(len(user_list), 2 + 3)
+        assert_equal(len(user_list), 3)
 
         user_names = [u.text.strip() for u in user_list]
         assert_true('User One' in user_names)
@@ -434,8 +481,7 @@ class TestUserSearch(helpers.FunctionalTestBase):
 
         user_response_html = BeautifulSoup(user_response.body)
         user_list = user_response_html.select('ul.user-list li')
-        # two pseudo users + the users we've added
-        assert_equal(len(user_list), 2 + 2)
+        assert_equal(len(user_list), 2)
 
         user_names = [u.text.strip() for u in user_list]
         assert_true('User One' not in user_names)

@@ -123,7 +123,7 @@ def _cache_types(context):
         if 'nested' not in _type_names:
             native_json = _pg_version_is_at_least(connection, '9.2')
 
-            log.info("Create nested type. Native JSON: {0}".format(
+            log.info("Create nested type. Native JSON: {0!r}".format(
                 native_json))
 
             data_dict = {
@@ -264,12 +264,12 @@ def check_fields(context, fields):
     for field in fields:
         if field.get('type') and not _is_valid_pg_type(context, field['type']):
             raise ValidationError({
-                'fields': ['"{0}" is not a valid field type'.format(
+                'fields': [u'"{0}" is not a valid field type'.format(
                     field['type'])]
             })
         elif not _is_valid_field_name(field['id']):
             raise ValidationError({
-                'fields': ['"{0}" is not a valid field name'.format(
+                'fields': [u'"{0}" is not a valid field name'.format(
                     field['id'])]
             })
 
@@ -312,9 +312,16 @@ def create_table(context, data_dict):
         if 'type' not in field:
             if not records or field['id'] not in records[0]:
                 raise ValidationError({
-                    'fields': ['"{0}" type not guessable'.format(field['id'])]
+                    'fields': [u'"{0}" type not guessable'.format(field['id'])]
                 })
             field['type'] = _guess_type(records[0][field['id']])
+
+    # Check for duplicate fields
+    unique_fields = set([f['id'] for f in supplied_fields])
+    if not len(unique_fields) == len(supplied_fields):
+        raise ValidationError({
+            'field': ['Duplicate column names are not supported']
+        })
 
     if records:
         # check record for sanity
@@ -390,7 +397,7 @@ def create_alias(context, data_dict):
             if e.orig.pgcode in [_PG_ERR_CODE['duplicate_table'],
                                  _PG_ERR_CODE['duplicate_alias']]:
                 raise ValidationError({
-                    'alias': ['"{0}" already exists'.format(alias)]
+                    'alias': [u'"{0}" already exists'.format(alias)]
                 })
 
 
@@ -434,7 +441,7 @@ def create_indexes(context, data_dict):
             if field not in field_ids:
                 raise ValidationError({
                     'index': [
-                        ('The field "{0}" is not a valid column name.').format(
+                        u'The field "{0}" is not a valid column name.'.format(
                             index)]
                 })
         fields_string = u', '.join(
@@ -561,8 +568,8 @@ def alter_table(context, data_dict):
         if num < len(current_fields):
             if field['id'] != current_fields[num]['id']:
                 raise ValidationError({
-                    'fields': [('Supplied field "{0}" not '
-                                'present or in wrong order').format(
+                    'fields': [(u'Supplied field "{0}" not '
+                                u'present or in wrong order').format(
                         field['id'])]
                 })
             ## no need to check type as field already defined.
@@ -571,7 +578,7 @@ def alter_table(context, data_dict):
         if 'type' not in field:
             if not records or field['id'] not in records[0]:
                 raise ValidationError({
-                    'fields': ['"{0}" type not guessable'.format(field['id'])]
+                    'fields': [u'"{0}" type not guessable'.format(field['id'])]
                 })
             field['type'] = _guess_type(records[0][field['id']])
         new_fields.append(field)
@@ -1216,7 +1223,7 @@ def search_sql(context, data_dict):
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
 
         table_names = datastore_helpers.get_table_names_from_sql(context, sql)
-        log.debug('Tables involved in input SQL: {0}'.format(table_names))
+        log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
 
         system_tables = [t for t in table_names if t.startswith('pg_')]
         if len(system_tables):
@@ -1274,14 +1281,18 @@ def _change_privilege(context, data_dict, what):
             read_only_user)
     else:
         raise ValidationError({
-            'privileges': 'Can only GRANT or REVOKE but not {0}'.format(what)})
+            'privileges': [
+                u'Can only GRANT or REVOKE but not {0}'.format(what)
+            ]
+        })
     try:
         context['connection'].execute(sql)
     except ProgrammingError, e:
-        log.critical("Error making resource private. {0}".format(e.message))
+        log.critical("Error making resource private. {0!r}".format(e.message))
         raise ValidationError({
-            'privileges': [u'cannot make "{0}" private'.format(
-                           data_dict['resource_id'])],
+            'privileges': [
+                u'cannot make "{resource_id}" private'.format(**data_dict)
+            ],
             'info': {
                 'orig': str(e.orig),
                 'pgcode': e.orig.pgcode
@@ -1290,8 +1301,7 @@ def _change_privilege(context, data_dict, what):
 
 
 def make_private(context, data_dict):
-    log.info('Making resource {0} private'.format(
-        data_dict['resource_id']))
+    log.info('Making resource {resource_id!r} private'.format(**data_dict))
     engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
@@ -1303,8 +1313,7 @@ def make_private(context, data_dict):
 
 
 def make_public(context, data_dict):
-    log.info('Making resource {0} public'.format(
-        data_dict['resource_id']))
+    log.info('Making resource {resource_id!r} public'.format(**data_dict))
     engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     trans = context['connection'].begin()

@@ -45,8 +45,10 @@
   {% endblock %}
 
   {% block search_title %}
-    {% if not no_title %}
+    {% if not error %}
       <h2>{% snippet 'snippets/search_result_text.html', query=query, count=count, type=type %}</h2>
+    {% else %}
+      <h2>Error</h2>
     {% endif %}
   {% endblock %}
 
@@ -74,7 +76,7 @@
 
 </form>
 
-{% if show_empty and count == 0 %}
+{% if show_empty and count == 0 and not error %}
   {% trans %}
     <p class="extra">Please try another search.</p>
   {% endtrans %}
@@ -82,6 +84,6 @@
 
 {% if error %}
   {% trans %}
-    <p><strong>There was an error while searching.</strong> Please try again.</p>
+    <p id="search-error"><strong>There was an error while searching.</strong> Please try again.</p>
   {% endtrans %}
 {% endif %}

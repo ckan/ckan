@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from nose.tools import (
     assert_equal,
     assert_not_equal,
@@ -16,6 +17,7 @@ import ckan.tests.factories as factories
 from ckan.tests.helpers import assert_in
 
 
+assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
@@ -611,26 +613,22 @@ class TestPackageRead(helpers.FunctionalTestBase):
         assert_in('Unauthorized to read package', response.body)
 
     def test_read_rdf(self):
+        ''' The RDF outputs now live in ckanext-dcat'''
         dataset1 = factories.Dataset()
 
         offset = url_for(controller='package', action='read',
                          id=dataset1['name']) + ".rdf"
         app = self._get_test_app()
-        res = app.get(offset, status=200)
-
-        assert 'dcat' in res, res
-        assert '{{' not in res, res
+        app.get(offset, status=404)
 
     def test_read_n3(self):
+        ''' The RDF outputs now live in ckanext-dcat'''
         dataset1 = factories.Dataset()
 
         offset = url_for(controller='package', action='read',
                          id=dataset1['name']) + ".n3"
         app = self._get_test_app()
-        res = app.get(offset, status=200)
-
-        assert 'dcat' in res, res
-        assert '{{' not in res, res
+        app.get(offset, status=404)
 
 
 class TestPackageDelete(helpers.FunctionalTestBase):
@@ -735,7 +733,7 @@ class TestPackageDelete(helpers.FunctionalTestBase):
         )
         assert_equal(200, response.status_int)
         message = 'Are you sure you want to delete dataset - {name}?'
-        response.mustcontain(message.format(name=dataset['name']))
+        response.mustcontain(message.format(name=dataset['title']))
 
         form = response.forms['confirm-dataset-delete-form']
         response = form.submit('cancel')
@@ -1311,9 +1309,6 @@ class TestSearch(helpers.FunctionalTestBase):
         super(cls, cls).setup_class()
         helpers.reset_db()
 
-    def setup(self):
-        model.repo.rebuild_db()
-
     def test_search_basic(self):
         dataset1 = factories.Dataset()
 
@@ -1331,6 +1326,40 @@ class TestSearch(helpers.FunctionalTestBase):
         app = self._get_test_app()
         app.get(offset)
 
+    def test_search_sort_by_bad(self):
+        factories.Dataset()
+
+        # bad spiders try all sorts of invalid values for sort. They should get
+        # a 400 error with specific error message. No need to alert the
+        # administrator.
+        offset = url_for(controller='package', action='search') + \
+            '?sort=gvgyr_fgevat+nfp'
+        app = self._get_test_app()
+        response = app.get(offset, status=[200, 400])
+        if response.status == 200:
+            import sys
+            sys.stdout.write(response.body)
+            raise Exception("Solr returned an unknown error message. "
+                            "Please check the error handling "
+                            "in ckan/lib/search/query.py:run")
+
+    def test_search_solr_syntax_error(self):
+        factories.Dataset()
+
+        # SOLR raises SyntaxError when it can't parse q (or other fields?).
+        # Whilst this could be due to a bad user input, it could also be
+        # because CKAN mangled things somehow and therefore we flag it up to
+        # the administrator and give a meaningless error, just in case
+        offset = url_for(controller='package', action='search') + \
+            '?q=--included'
+        app = self._get_test_app()
+        search_response = app.get(offset)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        err_msg = search_response_html.select('#search-error')
+        err_msg = ''.join([n.text for n in err_msg])
+        assert_in('error while searching', err_msg)
+
     def test_search_plugin_hooks(self):
         with p.use_plugin('test_package_controller_plugin') as plugin:
 
@@ -1341,6 +1370,128 @@ class TestSearch(helpers.FunctionalTestBase):
             # get redirected ...
             assert plugin.calls['before_search'] == 1, plugin.calls
             assert plugin.calls['after_search'] == 1, plugin.calls
+
+    def test_search_page_request(self):
+        '''Requesting package search page returns list of datasets.'''
+        app = self._get_test_app()
+        factories.Dataset(name="dataset-one", title='Dataset One')
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url)
+
+        assert_true('3 datasets found' in search_response)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [n.string for n in ds_titles]
+
+        assert_equal(len(ds_titles), 3)
+        assert_true('Dataset One' in ds_titles)
+        assert_true('Dataset Two' in ds_titles)
+        assert_true('Dataset Three' in ds_titles)
+
+    def test_search_page_results(self):
+        '''Searching for datasets returns expected results.'''
+        app = self._get_test_app()
+        factories.Dataset(name="dataset-one", title='Dataset One')
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url)
+
+        search_form = search_response.forms['dataset-search-form']
+        search_form['q'] = 'One'
+        search_results = webtest_submit(search_form)
+
+        assert_true('1 dataset found' in search_results)
+
+        search_response_html = BeautifulSoup(search_results.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [n.string for n in ds_titles]
+
+        assert_equal(len(ds_titles), 1)
+        assert_true('Dataset One' in ds_titles)
+
+    def test_search_page_no_results(self):
+        '''Search with non-returning phrase returns no results.'''
+        app = self._get_test_app()
+        factories.Dataset(name="dataset-one", title='Dataset One')
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url)
+
+        search_form = search_response.forms['dataset-search-form']
+        search_form['q'] = 'Nout'
+        search_results = webtest_submit(search_form)
+
+        assert_true('No datasets found for &#34;Nout&#34;' in search_results)
+
+        search_response_html = BeautifulSoup(search_results.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [n.string for n in ds_titles]
+
+        assert_equal(len(ds_titles), 0)
+
+    def test_search_page_results_tag(self):
+        '''Searching with a tag returns expected results.'''
+        app = self._get_test_app()
+        factories.Dataset(name="dataset-one", title='Dataset One',
+                          tags=[{'name': 'my-tag'}])
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url)
+
+        assert_true('/dataset?tags=my-tag' in search_response)
+
+        tag_search_response = app.get('/dataset?tags=my-tag')
+
+        assert_true('1 dataset found' in tag_search_response)
+
+        search_response_html = BeautifulSoup(tag_search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [n.string for n in ds_titles]
+
+        assert_equal(len(ds_titles), 1)
+        assert_true('Dataset One' in ds_titles)
+
+    def test_search_page_results_private(self):
+        '''Private datasets don't show up in dataset search results.'''
+        app = self._get_test_app()
+        org = factories.Organization()
+
+        factories.Dataset(name="dataset-one", title='Dataset One',
+                          owner_org=org['id'], private=True)
+        factories.Dataset(name="dataset-two", title='Dataset Two')
+        factories.Dataset(name="dataset-three", title='Dataset Three')
+
+        search_url = url_for(controller='package', action='search')
+        search_response = app.get(search_url)
+
+        search_response_html = BeautifulSoup(search_response.body)
+        ds_titles = search_response_html.select('.dataset-list '
+                                                '.dataset-item '
+                                                '.dataset-heading a')
+        ds_titles = [n.string for n in ds_titles]
+
+        assert_equal(len(ds_titles), 2)
+        assert_true('Dataset One' not in ds_titles)
+        assert_true('Dataset Two' in ds_titles)
+        assert_true('Dataset Three' in ds_titles)
 
 
 class TestPackageFollow(helpers.FunctionalTestBase):

@@ -16,11 +16,11 @@ import ckan.model as model
 import ckan.tests.legacy as tests
 from ckan.tests.legacy import WsgiAppCase
 from ckan.tests.legacy.functional.api import assert_dicts_equal_ignoring_ordering
-from ckan.tests.legacy import setup_test_search_index, search_related
+from ckan.tests.legacy import setup_test_search_index
 from ckan.tests.legacy import StatusCodes
 from ckan.logic import get_action, NotAuthorized
 from ckan.logic.action import get_domain_object
-from ckan.tests.legacy import TestRoles, call_action_api
+from ckan.tests.legacy import call_action_api
 import ckan.lib.search as search
 
 from ckan import plugins
@@ -35,7 +35,7 @@ class TestAction(WsgiAppCase):
     @classmethod
     def setup_class(cls):
         model.repo.rebuild_db()
-        search.clear()
+        search.clear_all()
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
@@ -782,114 +782,6 @@ class TestAction(WsgiAppCase):
         assert_equal(get_domain_object(model, group.name).name, group.name)
         assert_equal(get_domain_object(model, group.id).name, group.name)
 
-    def test_33_roles_show(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        postparams = '%s=1' % json.dumps({'domain_object': anna.id})
-        res = self.app.post('/api/action/roles_show', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-        results = json.loads(res.body)['result']
-        anna = model.Package.by_name(u'annakarenina')
-        assert_equal(results['domain_object_id'], anna.id)
-        assert_equal(results['domain_object_type'], 'Package')
-        roles = results['roles']
-        assert len(roles) > 2, results
-        assert set(roles[0].keys()) > set(('user_id', 'package_id', 'role',
-                                           'context', 'user_object_role_id'))
-
-    def test_34_roles_show_for_user(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        postparams = '%s=1' % json.dumps({'domain_object': anna.id,
-                                          'user': 'annafan'})
-        res = self.app.post('/api/action/roles_show', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-        results = json.loads(res.body)['result']
-        anna = model.Package.by_name(u'annakarenina')
-        assert_equal(results['domain_object_id'], anna.id)
-        assert_equal(results['domain_object_type'], 'Package')
-        roles = results['roles']
-        assert_equal(len(roles), 1)
-        assert set(roles[0].keys()) > set(('user_id', 'package_id', 'role',
-                                           'context', 'user_object_role_id'))
-
-
-    def test_35_user_role_update(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        roles_before = get_action('roles_show') \
-                                 ({'model': model, 'session': model.Session}, \
-                                  {'domain_object': anna.id,
-                                   'user': 'tester'})
-        postparams = '%s=1' % json.dumps({'user': 'tester',
-                                          'domain_object': anna.id,
-                                          'roles': ['reader']})
-
-        res = self.app.post('/api/action/user_role_update', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-        results = json.loads(res.body)['result']
-        assert_equal(len(results['roles']), 1)
-        anna = model.Package.by_name(u'annakarenina')
-        tester = model.User.by_name(u'tester')
-        assert_equal(results['roles'][0]['role'], 'reader')
-        assert_equal(results['roles'][0]['package_id'], anna.id)
-        assert_equal(results['roles'][0]['user_id'], tester.id)
-
-        roles_after = get_action('roles_show') \
-                      ({'model': model, 'session': model.Session}, \
-                       {'domain_object': anna.id,
-                        'user': 'tester'})
-        assert_equal(results['roles'], roles_after['roles'])
-
-
-    def test_37_user_role_update_disallowed(self):
-        # Roles are no longer used so ignore this test
-        raise SkipTest
-        anna = model.Package.by_name(u'annakarenina')
-        postparams = '%s=1' % json.dumps({'user': 'tester',
-                                          'domain_object': anna.id,
-                                          'roles': ['editor']})
-        # tester has no admin priviledges for this package
-        res = self.app.post('/api/action/user_role_update', params=postparams,
-                            extra_environ={'Authorization': 'tester'},
-                            status=403)
-
-    def test_38_user_role_bulk_update(self):
-        anna = model.Package.by_name(u'annakarenina')
-        annafan = model.User.by_name(u'annafan')
-        all_roles_before = TestRoles.get_roles(anna.id)
-        user_roles_before = TestRoles.get_roles(anna.id, user_ref=annafan.name)
-        roles_before = get_action('roles_show') \
-                                 ({'model': model, 'session': model.Session}, \
-                                  {'domain_object': anna.id})
-        postparams = '%s=1' % json.dumps({'domain_object': anna.id,
-                                          'user_roles': [
-                    {'user': 'annafan',
-                     'roles': ('admin', 'editor')},
-                    {'user': 'russianfan',
-                     'roles': ['editor']},
-                                              ]})
-
-        res = self.app.post('/api/action/user_role_bulk_update', params=postparams,
-                            extra_environ={'Authorization': str(annafan.apikey)},
-                            status=200)
-        results = json.loads(res.body)['result']
-
-        # check there are 2 new roles (not 3 because annafan is already admin)
-        all_roles_after = TestRoles.get_roles(anna.id)
-        user_roles_after = TestRoles.get_roles(anna.id, user_ref=annafan.name)
-        assert_equal(set(all_roles_before) ^ set(all_roles_after),
-                     set([u'"annafan" is "editor" on "annakarenina"',
-                          u'"russianfan" is "editor" on "annakarenina"']))
-
-        roles_after = get_action('roles_show') \
-                      ({'model': model, 'session': model.Session}, \
-                       {'domain_object': anna.id})
-        assert_equal(results['roles'], roles_after['roles'])
-
     def test_40_task_resource_status(self):
 
         try:
@@ -1161,173 +1053,6 @@ class TestActionTermTranslation(WsgiAppCase):
             json.loads(res.body)
 
 
-
-
-class TestActionPackageSearch(WsgiAppCase):
-
-    @classmethod
-    def setup_class(cls):
-        setup_test_search_index()
-        CreateTestData.create()
-        cls.sysadmin_user = model.User.get('testsysadmin')
-
-    @classmethod
-    def teardown_class(self):
-        model.repo.rebuild_db()
-
-    def test_1_basic(self):
-        params = {
-                'q':'tolstoy',
-                'facet.field': ['groups', 'tags', 'res_format', 'license'],
-                'rows': 20,
-                'start': 0,
-            }
-        postparams = '%s=1' % json.dumps(params)
-        res = self.app.post('/api/action/package_search', params=postparams)
-        res = json.loads(res.body)
-        result = res['result']
-        assert_equal(res['success'], True)
-        assert_equal(result['count'], 1)
-        assert_equal(result['results'][0]['name'], 'annakarenina')
-
-        # Test GET request
-        params_json_list = params
-        params_json_list['facet.field'] = json.dumps(params['facet.field'])
-        url_params = urllib.urlencode(params_json_list)
-        res = self.app.get('/api/action/package_search?{0}'.format(url_params))
-        res = json.loads(res.body)
-        result = res['result']
-        assert_equal(res['success'], True)
-        assert_equal(result['count'], 1)
-        assert_equal(result['results'][0]['name'], 'annakarenina')
-
-    def test_1_facet_limit(self):
-        params = {
-                'q':'*:*',
-                'facet.field': ['groups', 'tags', 'res_format', 'license'],
-                'rows': 20,
-                'start': 0,
-            }
-        postparams = '%s=1' % json.dumps(params)
-        res = self.app.post('/api/action/package_search', params=postparams)
-        res = json.loads(res.body)
-        assert_equal(res['success'], True)
-
-        assert_equal(len(res['result']['search_facets']['groups']['items']), 2)
-
-        params = {
-                'q':'*:*',
-                'facet.field': ['groups', 'tags', 'res_format', 'license'],
-                'facet.limit': 1,
-                'rows': 20,
-                'start': 0,
-            }
-        postparams = '%s=1' % json.dumps(params)
-        res = self.app.post('/api/action/package_search', params=postparams)
-        res = json.loads(res.body)
-        assert_equal(res['success'], True)
-
-        assert_equal(len(res['result']['search_facets']['groups']['items']), 1)
-
-        params = {
-                'q':'*:*',
-                'facet.field': ['groups', 'tags', 'res_format', 'license'],
-                'facet.limit': -1, # No limit
-                'rows': 20,
-                'start': 0,
-            }
-        postparams = '%s=1' % json.dumps(params)
-        res = self.app.post('/api/action/package_search', params=postparams)
-        res = json.loads(res.body)
-        assert_equal(res['success'], True)
-
-        assert_equal(len(res['result']['search_facets']['groups']['items']), 2)
-
-    def test_1_basic_no_params(self):
-        postparams = '%s=1' % json.dumps({})
-        res = self.app.post('/api/action/package_search', params=postparams)
-        res = json.loads(res.body)
-        result = res['result']
-        assert_equal(res['success'], True)
-        assert_equal(result['count'], 2)
-        assert result['results'][0]['name'] in ('annakarenina', 'warandpeace')
-
-        # Test GET request
-        res = self.app.get('/api/action/package_search')
-        res = json.loads(res.body)
-        result = res['result']
-        assert_equal(res['success'], True)
-        assert_equal(result['count'], 2)
-        assert result['results'][0]['name'] in ('annakarenina', 'warandpeace')
-
-    def test_2_bad_param(self):
-        postparams = '%s=1' % json.dumps({
-                'sort':'metadata_modified',
-            })
-        res = self.app.post('/api/action/package_search', params=postparams,
-                            status=409)
-        assert '"message": "Search error:' in res.body, res.body
-        assert 'SOLR returned an error' in res.body, res.body
-        # solr error is 'Missing sort order' or 'Missing_sort_order',
-        # depending on the solr version.
-        assert 'sort' in res.body, res.body
-
-    def test_3_bad_param(self):
-        postparams = '%s=1' % json.dumps({
-                'weird_param':True,
-            })
-        res = self.app.post('/api/action/package_search', params=postparams,
-                            status=400)
-        assert '"message": "Search Query is invalid:' in res.body, res.body
-        assert '"Invalid search parameters: [\'weird_param\']' in res.body, res.body
-
-    def test_4_sort_by_metadata_modified(self):
-        search_params = '%s=1' % json.dumps({
-            'q': '*:*',
-            'fl': 'name, metadata_modified',
-            'sort': u'metadata_modified desc'
-        })
-
-        # modify warandpeace, check that it is the first search result
-        rev = model.repo.new_revision()
-        pkg = model.Package.get('warandpeace')
-        pkg.title = "War and Peace [UPDATED]"
-
-        pkg.metadata_modified = datetime.datetime.utcnow()
-        model.repo.commit_and_remove()
-
-        res = self.app.post('/api/action/package_search', params=search_params)
-        result = json.loads(res.body)['result']
-        result_names = [r['name'] for r in result['results']]
-        assert result_names == ['warandpeace', 'annakarenina'], result_names
-
-        # modify annakarenina, check that it is the first search result
-        rev = model.repo.new_revision()
-        pkg = model.Package.get('annakarenina')
-        pkg.title = "A Novel By Tolstoy [UPDATED]"
-        pkg.metadata_modified = datetime.datetime.utcnow()
-        model.repo.commit_and_remove()
-
-        res = self.app.post('/api/action/package_search', params=search_params)
-        result = json.loads(res.body)['result']
-        result_names = [r['name'] for r in result['results']]
-        assert result_names == ['annakarenina', 'warandpeace'], result_names
-
-        # add a tag to warandpeace, check that it is the first result
-        pkg = model.Package.get('warandpeace')
-        pkg_params = '%s=1' % json.dumps({'id': pkg.id})
-        res = self.app.post('/api/action/package_show', params=pkg_params)
-        pkg_dict = json.loads(res.body)['result']
-        pkg_dict['tags'].append({'name': 'new-tag'})
-        pkg_params = '%s=1' % json.dumps(pkg_dict)
-        res = self.app.post('/api/action/package_update', params=pkg_params,
-                            extra_environ={'Authorization':  str(self.sysadmin_user.apikey)})
-
-        res = self.app.post('/api/action/package_search', params=search_params)
-        result = json.loads(res.body)['result']
-        result_names = [r['name'] for r in result['results']]
-        assert result_names == ['warandpeace', 'annakarenina'], result_names
-
 class MockPackageSearchPlugin(SingletonPlugin):
     implements(IPackageController, inherit=True)
 
@@ -1457,7 +1182,7 @@ class TestBulkActions(WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        search.clear()
+        search.clear_all()
         model.Session.add_all([
             model.User(name=u'sysadmin', apikey=u'sysadmin',
                        password=u'sysadmin', sysadmin=True),
@@ -1544,7 +1269,7 @@ class TestResourceAction(WsgiAppCase):
 
     @classmethod
     def setup_class(cls):
-        search.clear()
+        search.clear_all()
         CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
 
@@ -1637,69 +1362,3 @@ class TestMember(WsgiAppCase):
         group_ids = [g.id for g in groups]
         assert res['success'] is True, res
         assert group.id in group_ids, (group, user_groups)
-
-
-class TestRelatedAction(WsgiAppCase):
-
-    sysadmin_user = None
-
-    normal_user = None
-
-    @classmethod
-    def setup_class(cls):
-        search.clear()
-        CreateTestData.create()
-        cls.sysadmin_user = model.User.get('testsysadmin')
-
-    @classmethod
-    def teardown_class(cls):
-        model.repo.rebuild_db()
-
-    def _add_basic_package(self, package_name=u'test_package', **kwargs):
-        package = {
-            'name': package_name,
-            'title': u'A Novel By Tolstoy',
-            'resources': [{
-                'description': u'Full text.',
-                'format': u'plain text',
-                'url': u'http://datahub.io/download/'
-            }]
-        }
-        package.update(kwargs)
-
-        postparams = '%s=1' % json.dumps(package)
-        res = self.app.post('/api/action/package_create', params=postparams,
-                            extra_environ={'Authorization': 'tester'})
-        return json.loads(res.body)['result']
-
-    def test_update_add_related_item(self):
-        package = self._add_basic_package()
-        related_item = {
-            "description": "Testing a Description",
-            "url": "http://example.com/image.png",
-            "title": "Testing",
-            "featured": 0,
-            "image_url": "http://example.com/image.png",
-            "type": "idea",
-            "dataset_id": package['id'],
-        }
-        related_item_json = json.dumps(related_item)
-        res_create = self.app.post('/api/action/related_create',
-                                   params=related_item_json,
-                                   extra_environ={'Authorization': 'tester'})
-        assert res_create.json['success']
-
-        related_update = res_create.json['result']
-        related_update = {'id': related_update['id'], 'title': 'Updated'}
-        related_update_json = json.dumps(related_update)
-        res_update = self.app.post('/api/action/related_update',
-                                   params=related_update_json,
-                                   extra_environ={'Authorization': 'tester'})
-        assert res_update.json['success']
-        res_update_json = res_update.json['result']
-        assert res_update_json['title'] == related_update['title']
-
-        related_item.pop('title')
-        related_item.pop('dataset_id')
-        for field in related_item:
-            assert related_item[field] == res_update_json[field]

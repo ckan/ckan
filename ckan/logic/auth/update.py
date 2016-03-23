@@ -129,28 +129,6 @@ def organization_update(context, data_dict):
         return {'success': True}
 
 
-def related_update(context, data_dict):
-    model = context['model']
-    user = context['user']
-    if not user:
-        return {'success': False,
-                'msg': _('Only the owner can update a related item')}
-
-    related = logic_auth.get_related_object(context, data_dict)
-    userobj = model.User.get(user)
-    if not userobj or userobj.id != related.owner_id:
-        return {'success': False,
-                'msg': _('Only the owner can update a related item')}
-
-    # Only sysadmins can change the featured field.
-    if ('featured' in data_dict and data_dict['featured'] != related.featured):
-        return {'success': False,
-                'msg': _('You must be a sysadmin to change a related item\'s '
-                         'featured field.')}
-
-    return {'success': True}
-
-
 def group_change_state(context, data_dict):
     user = context['user']
     group = logic_auth.get_group_object(context, data_dict)
@@ -276,7 +254,7 @@ def send_email_notifications(context, data_dict):
 def package_update_rest(context, data_dict):
     model = context['model']
     user = context['user']
-    if user in (model.PSEUDO_USER__VISITOR, ''):
+    if not user:
         return {'success': False,
                 'msg': _('Valid API key needed to edit a package')}
 
@@ -286,7 +264,7 @@ def package_update_rest(context, data_dict):
 def group_update_rest(context, data_dict):
     model = context['model']
     user = context['user']
-    if user in (model.PSEUDO_USER__VISITOR, ''):
+    if not user:
         return {'success': False,
                 'msg': _('Valid API key needed to edit a group')}
 

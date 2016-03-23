@@ -69,6 +69,7 @@ def datastore_create(context, data_dict):
     records = data_dict.pop('records', None)
     resource = data_dict.pop('resource', None)
     data_dict, errors = _validate(data_dict, schema, context)
+    resource_dict = None
     if records:
         data_dict['records'] = records
     if resource:
@@ -92,9 +93,9 @@ def datastore_create(context, data_dict):
         has_url = 'url' in data_dict['resource']
         # A datastore only resource does not have a url in the db
         data_dict['resource'].setdefault('url', '_datastore_only_resource')
-        res = p.toolkit.get_action('resource_create')(context,
-                                                      data_dict['resource'])
-        data_dict['resource_id'] = res['id']
+        resource_dict = p.toolkit.get_action('resource_create')(
+            context, data_dict['resource'])
+        data_dict['resource_id'] = resource_dict['id']
 
         # create resource from file
         if has_url:
@@ -102,7 +103,7 @@ def datastore_create(context, data_dict):
                 raise p.toolkit.ValidationError({'resource': [
                     'The datapusher has to be enabled.']})
             p.toolkit.get_action('datapusher_submit')(context, {
-                'resource_id': res['id'],
+                'resource_id': resource_dict['id'],
                 'set_url_type': True
             })
             # since we'll overwrite the datastore resource anyway, we
@@ -112,8 +113,8 @@ def datastore_create(context, data_dict):
         # create empty resource
         else:
             # no need to set the full url because it will be set in before_show
-            res['url_type'] = 'datastore'
-            p.toolkit.get_action('resource_update')(context, res)
+            resource_dict['url_type'] = 'datastore'
+            p.toolkit.get_action('resource_update')(context, resource_dict)
     else:
         if not data_dict.pop('force', False):
             resource_id = data_dict['resource_id']
@@ -140,6 +141,10 @@ def datastore_create(context, data_dict):
         result = db.create(context, data_dict)
     except db.InvalidDataError as err:
         raise p.toolkit.ValidationError(str(err))
+
+    # Set the datastore_active flag on the resource if necessary
+    p.toolkit.get_action('resource_patch')(
+        context, {'id': data_dict['resource_id'], 'datastore_active': True})
 
     result.pop('id', None)
     result.pop('private', None)
@@ -301,10 +306,20 @@ def datastore_delete(context, data_dict):
 
     '''
     schema = context.get('schema', dsschema.datastore_upsert_schema())
+
+    # Remove any applied filters before running validation.
     filters = data_dict.pop('filters', None)
     data_dict, errors = _validate(data_dict, schema, context)
-    if filters:
+
+    if filters is not None:
+        if not isinstance(filters, dict):
+            raise p.toolkit.ValidationError({
+                'filters': [
+                    'filters must be either a dict or null.'
+                ]
+            })
         data_dict['filters'] = filters
+
     if errors:
         raise p.toolkit.ValidationError(errors)
 
@@ -328,6 +343,12 @@ def datastore_delete(context, data_dict):
         ))
 
     result = db.delete(context, data_dict)
+
+    # Set the datastore_active flag on the resource if necessary
+    if not data_dict.get('filters'):
+        p.toolkit.get_action('resource_patch')(
+            context, {'id': data_dict['resource_id'], 'datastore_active': False})
+
     result.pop('id', None)
     result.pop('connection_url')
     return result
@@ -432,7 +453,7 @@ def datastore_search_sql(context, data_dict):
     The datastore_search_sql action allows a user to search data in a resource
     or connect multiple resources with join expressions. The underlying SQL
     engine is the
-    `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_.
+    `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
     DataStore resource that belong to a private CKAN resource cannot be searched with
     this action. Use :meth:`~ckanext.datastore.logic.action.datastore_search` instead.

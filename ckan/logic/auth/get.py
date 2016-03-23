@@ -2,7 +2,7 @@ import ckan.logic as logic
 import ckan.authz as authz
 from ckan.lib.base import _
 from ckan.logic.auth import (get_package_object, get_group_object,
-                            get_resource_object, get_related_object)
+                            get_resource_object)
 
 
 def sysadmin(context, data_dict):
@@ -119,9 +119,6 @@ def package_show(context, data_dict):
         return {'success': False, 'msg': _('User %s not authorized to read package %s') % (user, package.id)}
     else:
         return {'success': True}
-
-def related_show(context, data_dict=None):
-    return {'success': True}
 
 
 def resource_show(context, data_dict):
