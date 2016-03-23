@@ -590,11 +590,9 @@ class TestPackageRead(helpers.FunctionalTestBase):
         app = helpers._get_test_app()
         response = app.get(
             url_for(controller='package', action='read', id=dataset['name']),
+            status=404
         )
-        # get redirected if you are not logged in
-        response = response.follow()
-        assert_in('Unauthorized to read package {0}'.format(dataset['name']),
-                  response.body)
+        assert_equal(404, response.status_int)
 
     def test_user_not_in_organization_cannot_read_private_datasets(self):
         user = factories.User()
@@ -607,10 +605,9 @@ class TestPackageRead(helpers.FunctionalTestBase):
         response = app.get(
             url_for(controller='package', action='read', id=dataset['name']),
             extra_environ={'REMOTE_USER': user['name'].encode('ascii')},
-            expect_errors=True
+            status=404
         )
-        assert_equal(401, response.status_int)
-        assert_in('Unauthorized to read package', response.body)
+        assert_equal(404, response.status_int)
 
     def test_read_rdf(self):
         ''' The RDF outputs now live in ckanext-dcat'''
@@ -1168,13 +1165,9 @@ class TestResourceRead(helpers.FunctionalTestBase):
         app = helpers._get_test_app()
         response = app.get(
             url_for(controller='package', action='read', id=dataset['name']),
+            status=404
         )
-        # get redirected if you are not logged in
-        response = response.follow()
-        assert_in(
-            'Unauthorized to read package {0}'.format(dataset['name']),
-            response.body
-        )
+        assert_equal(404, response.status_int)
 
 
 class TestResourceDelete(helpers.FunctionalTestBase):
