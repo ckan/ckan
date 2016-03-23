@@ -121,16 +121,21 @@ def _set_lang(lang):
     if config.get('ckan.i18n_directory'):
         fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
                        'pylons.package': config['pylons.package']}
-        i18n.set_lang(lang, pylons_config=fake_config)
-    else:
+
+        try:
+            i18n.set_lang(lang, pylons_config=fake_config)
+        except i18n.LanguageError:
+            pass
+    elif lang != 'en':
         i18n.set_lang(lang)
 
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
         config.get('ckan.locale_default', 'en')
-    if lang != 'en':
-        set_lang(lang)
+
+    set_lang(lang)
+
     tmpl_context.language = lang
     return lang
 
@@ -147,5 +152,4 @@ def set_lang(language_code):
     ''' Wrapper to pylons call '''
     if language_code in non_translated_locals():
         language_code = config.get('ckan.locale_default', 'en')
-    if language_code != 'en':
-        _set_lang(language_code)
+    _set_lang(language_code)
