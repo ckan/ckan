@@ -176,6 +176,9 @@ def datapusher_hook(context, data_dict):
 
     task['state'] = status
     task['last_updated'] = str(datetime.datetime.now())
+
+    resubmit = False
+
     if status == 'complete':
         # Create default views for resource if necessary (only the ones that
         # require data to be in the DataStore)
@@ -196,7 +199,6 @@ def datapusher_hook(context, data_dict):
                 'create_datastore_views': True,
             })
 
-        resubmit = False
         # Check if the uploaded file has been modified in the meantime
         if (resource_dict.get('last_modified') and
                 metadata.get('task_created')):
