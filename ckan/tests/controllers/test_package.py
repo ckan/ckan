@@ -379,7 +379,7 @@ class TestPackageEdit(helpers.FunctionalTestBase):
     def setup_class(cls):
         super(cls, cls).setup_class()
         helpers.reset_db()
-        search.clear()
+        search.clear_all()
 
     def test_organization_admin_can_edit(self):
         user = factories.User()
@@ -1033,7 +1033,7 @@ class TestResourceRead(helpers.FunctionalTestBase):
     def setup_class(cls):
         super(TestResourceRead, cls).setup_class()
         helpers.reset_db()
-        search.clear()
+        search.clear_all()
 
     def setup(self):
         model.repo.rebuild_db()
