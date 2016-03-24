@@ -230,8 +230,6 @@ def datapusher_hook(context, data_dict):
                                                   {'resource_id': res_id})
 
 
-
-
 def datapusher_status(context, data_dict):
     ''' Get the status of a datapusher job for a certain resource.
 
