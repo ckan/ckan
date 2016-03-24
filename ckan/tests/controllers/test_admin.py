@@ -223,6 +223,7 @@ class TestConfig(helpers.FunctionalTestBase):
         style_tag = reset_intro_response_html.select('head style')
         assert_equal(len(style_tag), 0)
 
+    @helpers.change_config('debug', True)
     def test_homepage_style(self):
         '''Select a homepage style'''
         app = self._get_test_app()
@@ -255,6 +256,7 @@ class TestConfig(helpers.FunctionalTestBase):
 class TestTrashView(helpers.FunctionalTestBase):
     '''View tests for permanently deleting datasets with Admin Trash.'''
 
+    @helpers.change_config('debug', True)
     def test_trash_view_anon_user(self):
         '''An anon user shouldn't be able to access trash view.'''
         app = self._get_test_app()

@@ -75,8 +75,9 @@ def render_snippet(template_name, **kw):
     cache_force = kw.pop('cache_force', None)
     output = render(template_name, extra_vars=kw, cache_force=cache_force,
                     renderer='snippet')
-    output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
-        template_name, output, template_name)
+    if config.get('debug'):
+        output = ('\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n'
+                  % (template_name, output, template_name))
     return literal(output)
 
 
