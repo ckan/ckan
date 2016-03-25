@@ -1369,6 +1369,23 @@ running on port 8800. If you want to manually install the DataPusher, follow
 the installation `instructions <http://docs.ckan.org/projects/datapusher>`_.
 
 
+User Settings
+-------------------------
+
+.. _ckan.user_list_limit:
+
+ckan.user_list_limit
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.user_list_limit = 50
+
+Default value: ``20``
+
+This controls the number of users to show in the Users list. By default, it shows 20 users.
+
+
 Activity Streams Settings
 -------------------------
 
