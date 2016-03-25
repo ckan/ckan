@@ -85,8 +85,6 @@ class UserController(base.BaseController):
                        handler_name)
 
     def index(self):
-        LIMIT = 20
-
         page = self._get_page_number(request.params)
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
@@ -96,6 +94,10 @@ class UserController(base.BaseController):
 
         data_dict = {'q': c.q,
                      'order_by': c.order_by}
+
+        limit = int(
+            request.params.get('limit', config.get('ckan.user_list_limit', 20))
+        )
         try:
             check_access('user_list', context, data_dict)
         except NotAuthorized:
@@ -108,7 +110,7 @@ class UserController(base.BaseController):
             page=page,
             url=h.pager_url,
             item_count=users_list.count(),
-            items_per_page=LIMIT
+            items_per_page=limit
         )
         return render('user/list.html')
 
