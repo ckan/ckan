@@ -207,7 +207,7 @@ def datapusher_hook(context, data_dict):
                     resource_dict['last_modified'])
                 task_created_datetime = parse_date(metadata['task_created'])
                 if last_modified_datetime > task_created_datetime:
-                    log.debug('Uploaded file more recent: {0} > {0}'.format(
+                    log.debug('Uploaded file more recent: {0} > {1}'.format(
                         last_modified_datetime, task_created_datetime))
                     resubmit = True
             except ValueError:
@@ -224,10 +224,10 @@ def datapusher_hook(context, data_dict):
     p.toolkit.get_action('task_status_update')(context, task)
 
     if resubmit:
-        log.debug('Resource {0} has been modified, '.format(res_id)
-                  + 'resubmitting to DataPusher')
-        p.toolkit.get_action('datapusher_submit')(context,
-                                                  {'resource_id': res_id})
+        log.debug('Resource {0} has been modified, '
+                  'resubmitting to DataPusher'.format(res_id))
+        p.toolkit.get_action('datapusher_submit')(
+            context, {'resource_id': res_id})
 
 
 def datapusher_status(context, data_dict):
