@@ -49,7 +49,7 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     abort response, and showing flash messages in the web interface.
 
     '''
-    if status_code == 401:
+    if status_code == 403:
         # Allow IAuthenticator plugins to alter the abort
         for item in p.PluginImplementations(p.IAuthenticator):
             result = item.abort(status_code, detail, headers, comment)

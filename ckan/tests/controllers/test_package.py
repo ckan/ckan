@@ -685,9 +685,8 @@ class TestPackageDelete(helpers.FunctionalTestBase):
         app = helpers._get_test_app()
         response = app.post(
             url_for(controller='package', action='delete', id=dataset['name']),
+            status=403,
         )
-        response = response.follow()
-        assert_equal(200, response.status_int)
         response.mustcontain('Unauthorized to delete package')
 
         deleted = helpers.call_action('package_show', id=dataset['id'])
@@ -708,7 +707,7 @@ class TestPackageDelete(helpers.FunctionalTestBase):
             extra_environ=env,
             expect_errors=True
         )
-        assert_equal(401, response.status_int)
+        assert_equal(403, response.status_int)
         response.mustcontain('Unauthorized to delete package')
 
     def test_confirm_cancel_delete(self):
@@ -734,7 +733,10 @@ class TestPackageDelete(helpers.FunctionalTestBase):
 
         form = response.forms['confirm-dataset-delete-form']
         response = form.submit('cancel')
-        response = helpers.webtest_maybe_follow(response)
+        response = helpers.webtest_maybe_follow(
+            response,
+            extra_environ=env,
+        )
         assert_equal(200, response.status_int)
 
 
@@ -1220,9 +1222,8 @@ class TestResourceDelete(helpers.FunctionalTestBase):
         response = app.post(
             url_for(controller='package', action='resource_delete',
                     id=dataset['name'], resource_id=resource['id']),
+            status=403,
         )
-        response = response.follow()
-        assert_equal(200, response.status_int)
         response.mustcontain('Unauthorized to delete package')
 
     def test_logged_in_users_cannot_delete_resources_they_do_not_own(self):
@@ -1244,7 +1245,7 @@ class TestResourceDelete(helpers.FunctionalTestBase):
             extra_environ=env,
             expect_errors=True
         )
-        assert_equal(401, response.status_int)
+        assert_equal(403, response.status_int)
         response.mustcontain('Unauthorized to delete package')
 
     def test_sysadmins_can_delete_any_resource(self):

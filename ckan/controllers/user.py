@@ -43,7 +43,7 @@ class UserController(base.BaseController):
             check_access('site_read', context)
         except NotAuthorized:
             if c.action not in ('login', 'request_reset', 'perform_reset',):
-                abort(401, _('Not authorized to see this page'))
+                abort(403, _('Not authorized to see this page'))
 
     ## hooks for subclasses
     new_user_form = 'user/new_user_form.html'
@@ -70,7 +70,7 @@ class UserController(base.BaseController):
         except NotFound:
             abort(404, _('User not found'))
         except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            abort(403, _('Not authorized to see this page'))
 
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
@@ -101,7 +101,7 @@ class UserController(base.BaseController):
         try:
             check_access('user_list', context, data_dict)
         except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            abort(403, _('Not authorized to see this page'))
 
         users_list = get_action('user_list')(context, data_dict)
 
@@ -146,7 +146,7 @@ class UserController(base.BaseController):
         try:
             check_access('user_create', context)
         except NotAuthorized:
-            abort(401, _('Unauthorized to register as a user.'))
+            abort(403, _('Unauthorized to register as a user.'))
 
         return self.new(data, errors, error_summary)
 
@@ -163,7 +163,7 @@ class UserController(base.BaseController):
         try:
             check_access('user_create', context)
         except NotAuthorized:
-            abort(401, _('Unauthorized to create a user'))
+            abort(403, _('Unauthorized to create a user'))
 
         if context['save'] and not data:
             return self._save_new(context)
@@ -195,7 +195,7 @@ class UserController(base.BaseController):
             h.redirect_to(user_index)
         except NotAuthorized:
             msg = _('Unauthorized to delete user with id "{user_id}".')
-            abort(401, msg.format(user_id=id))
+            abort(403, msg.format(user_id=id))
 
     def generate_apikey(self, id):
         '''Cycle the API key of a user'''
@@ -214,7 +214,7 @@ class UserController(base.BaseController):
         try:
             result = get_action('user_generate_apikey')(context, data_dict)
         except NotAuthorized:
-            abort(401, _('Unauthorized to edit user %s') % '')
+            abort(403, _('Unauthorized to edit user %s') % '')
         except NotFound:
             abort(404, _('User not found'))
 
@@ -229,7 +229,7 @@ class UserController(base.BaseController):
             captcha.check_recaptcha(request)
             user = get_action('user_create')(context, data_dict)
         except NotAuthorized:
-            abort(401, _('Unauthorized to create user %s') % '')
+            abort(403, _('Unauthorized to create user %s') % '')
         except NotFound, e:
             abort(404, _('User not found'))
         except DataError:
@@ -273,7 +273,7 @@ class UserController(base.BaseController):
         try:
             check_access('user_update', context, data_dict)
         except NotAuthorized:
-            abort(401, _('Unauthorized to edit a user.'))
+            abort(403, _('Unauthorized to edit a user.'))
 
         if (context['save']) and not data:
             return self._save_edit(id, context)
@@ -292,7 +292,7 @@ class UserController(base.BaseController):
             data = data or old_data
 
         except NotAuthorized:
-            abort(401, _('Unauthorized to edit user %s') % '')
+            abort(403, _('Unauthorized to edit user %s') % '')
         except NotFound:
             abort(404, _('User not found'))
 
@@ -300,7 +300,7 @@ class UserController(base.BaseController):
 
         if not (authz.is_sysadmin(c.user)
                 or c.user == user_obj.name):
-            abort(401, _('User %s not authorized to edit %s') %
+            abort(403, _('User %s not authorized to edit %s') %
                   (str(c.user), id))
 
         errors = errors or {}
@@ -344,7 +344,7 @@ class UserController(base.BaseController):
             h.flash_success(_('Profile updated'))
             h.redirect_to(controller='user', action='read', id=user['name'])
         except NotAuthorized:
-            abort(401, _('Unauthorized to edit user %s') % id)
+            abort(403, _('Unauthorized to edit user %s') % id)
         except NotFound, e:
             abort(404, _('User not found'))
         except DataError:
@@ -430,7 +430,7 @@ class UserController(base.BaseController):
         try:
             check_access('request_reset', context)
         except NotAuthorized:
-            abort(401, _('Unauthorized to request reset password.'))
+            abort(403, _('Unauthorized to request reset password.'))
 
         if request.method == 'POST':
             id = request.params.get('user')
@@ -485,7 +485,7 @@ class UserController(base.BaseController):
         try:
             check_access('user_reset', context)
         except NotAuthorized:
-            abort(401, _('Unauthorized to reset password.'))
+            abort(403, _('Unauthorized to reset password.'))
 
         try:
             data_dict = {'id': id}
@@ -549,7 +549,7 @@ class UserController(base.BaseController):
         try:
             c.followers = f(context, {'id': c.user_dict['id']})
         except NotAuthorized:
-            abort(401, _('Unauthorized to view followers %s') % '')
+            abort(403, _('Unauthorized to view followers %s') % '')
         return render('user/followers.html')
 
     def activity(self, id, offset=0):
@@ -563,7 +563,7 @@ class UserController(base.BaseController):
         try:
             check_access('user_show', context, data_dict)
         except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            abort(403, _('Not authorized to see this page'))
 
         self._setup_template_variables(context, data_dict)
 
@@ -605,11 +605,8 @@ class UserController(base.BaseController):
                 abort(404, _('Follow item not found'))
             try:
                 followee = action_function(context, data_dict)
-            except NotFound:
+            except (NotFound, NotAuthorized):
                 abort(404, _('{0} not found').format(filter_type))
-            except NotAuthorized:
-                abort(401, _('Unauthorized to read {0} {1}').format(
-                    filter_type, id))
 
             if followee is not None:
                 return {
