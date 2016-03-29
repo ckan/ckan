@@ -51,9 +51,6 @@ database:
         - paster db init -c test-core.ini
 
 test:
-    pre:
-        - mkdir -p $CIRCLE_TEST_REPORTS/nose
-
     override:
         - circleci-matrix:
             parallel: true
