@@ -1,0 +1,8 @@
+env:
+- TEST="ckan.tests.legacy"
+- TEST="ckan.tests.logic ckan.tests.model ckan.tests.models"
+- TEST="ckanext ckan.tests.functional"
+- TEST="ckan.tests.controllers ckan.tests.config ckan.tests.lib ckan.tests.i18n ckan.tests.misc ckan.tests.plugins ckan.tests.schema ckan.tests.test_*"
+
+command:
+- nosetests --ckan --reset-db --with-pylons=test-core.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/nose/junit.xml $TEST
