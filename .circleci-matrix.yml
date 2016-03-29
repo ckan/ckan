@@ -1,8 +1,8 @@
 env:
 - TEST="ckan.tests.legacy"
-- TEST="ckan.tests.logic ckan.tests.model ckan.tests.models"
-- TEST="ckanext ckan.tests.functional"
-- TEST="ckan.tests.controllers ckan.tests.config ckan.tests.lib ckan.tests.i18n ckan.tests.misc ckan.tests.plugins ckan.tests.schema ckan.tests.test_*"
+- TEST="ckan.tests.logic ckan.tests.model"
+- TEST="ckanext"
+- TEST="ckan.tests.test_coding_standards ckan.tests.controllers ckan.tests.config ckan.tests.lib ckan.tests.i18n ckan.tests.plugins ckan.tests.test_authz ckan.tests.test_factories"
 
 command:
 - mkdir -p $CIRCLE_TEST_REPORTS/nose
