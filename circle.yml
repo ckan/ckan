@@ -15,6 +15,11 @@ machine:
         version: 0.10.33
 
 dependencies:
+    pre:
+        - mkdir -p ~/.local/bin
+        - curl -fsSL https://raw.githubusercontent.com/michaelcontento/circleci-matrix/master/src/circleci-matrix.sh -o ~/.local/bin/circleci-matrix
+        - chmod +x ~/.local/bin/circleci-matrix
+
     override:
         - pip install -r requirements.txt --allow-all-external
         - pip install -r dev-requirements.txt --allow-all-external
@@ -50,7 +55,8 @@ test:
         - mkdir -p $CIRCLE_TEST_REPORTS/nose
 
     override:
-        - nosetests --ckan --reset-db --with-pylons=test-core.ini --nologcapture --with-coverage --cover-package=ckan --cover-package=ckanext --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/nose/junit.xml ckan ckanext
+        - circleci-matrix:
+            parallel: true
 
     post:
         - paster serve test-core.ini:
