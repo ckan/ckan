@@ -312,10 +312,11 @@ def change_config(key, value):
             _original_config = config.copy()
             config[key] = value
 
-            return_value = func(*args, **kwargs)
-
-            config.clear()
-            config.update(_original_config)
+            try:
+                return_value = func(*args, **kwargs)
+            finally:
+                config.clear()
+                config.update(_original_config)
 
             return return_value
         return nose.tools.make_decorator(func)(wrapper)
