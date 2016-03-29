@@ -537,7 +537,7 @@ class DefaultTranslation(object):
         i18n/
         '''
         # assume plugin is called ckanext.<myplugin>.<...>.PluginClass
-        extension_module_name = '.'.join(self.__module__.split('.')[0:2])
+        extension_module_name = '.'.join(self.__module__.split('.')[:3])
         module = sys.modules[extension_module_name]
         return os.path.join(os.path.dirname(module.__file__), 'i18n')
 
