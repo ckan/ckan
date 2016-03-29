@@ -369,9 +369,8 @@ class TestPackageNew(helpers.FunctionalTestBase):
         # provide REMOTE_ADDR to idenfity as remote user, see
         # BaseController._identify_user() for details
         response = app.post(url=url_for(controller='package', action='new'),
-                            extra_environ={'REMOTE_ADDR': '127.0.0.1'})
-        response = response.follow()
-        assert_in('Unauthorized to create a package', response.body)
+                            extra_environ={'REMOTE_ADDR': '127.0.0.1'},
+                            status=403)
 
 
 class TestPackageEdit(helpers.FunctionalTestBase):
@@ -436,9 +435,8 @@ class TestPackageEdit(helpers.FunctionalTestBase):
                     action='edit',
                     id=dataset['name']),
             extra_environ=env,
-            expect_errors=True
+            status=403,
         )
-        assert_equal(401, response.status_int)
 
     def test_user_not_in_organization_cannot_edit(self):
         user = factories.User()
@@ -451,21 +449,18 @@ class TestPackageEdit(helpers.FunctionalTestBase):
                     action='edit',
                     id=dataset['name']),
             extra_environ=env,
-            expect_errors=True
+            status=403,
         )
-        assert_equal(401, response.status_int)
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = app.get(
+        response = app.post(
             url_for(controller='package',
-                    action='post',
+                    action='edit',
                     id=dataset['name']),
             {'notes': 'edited description'},
             extra_environ=env,
+            status=403,
         )
-        response = response.follow()
-        assert_in('not authorized to edit {0}'.format(dataset['name']),
-                  response.body)
 
     def test_anonymous_user_cannot_edit(self):
         organization = factories.Organization()
@@ -475,23 +470,16 @@ class TestPackageEdit(helpers.FunctionalTestBase):
             url_for(controller='package',
                     action='edit',
                     id=dataset['name']),
+            status=403,
         )
-        # anonymous users get redirected to the login page
-        response = response.follow()
-        assert_in('not authorized to edit {0}'.format(dataset['name']),
-                  response.body)
 
         response = app.post(
             url_for(controller='package',
                     action='edit',
                     id=dataset['name']),
             {'notes': 'edited description'},
-            expect_errors=True,
-
+            status=403,
         )
-        response = response.follow()
-        assert_in('not authorized to edit {0}'.format(dataset['name']),
-                  response.body)
 
     def test_validation_errors_for_dataset_name_appear(self):
         '''fill out a bad dataset set name and make sure errors appear'''
@@ -904,9 +892,8 @@ class TestResourceNew(helpers.FunctionalTestBase):
                 id=dataset['id'],
             ),
             extra_environ=env,
-            expect_errors=True,
+            status=403,
         )
-        assert_equal(401, response.status_int)
 
         response = app.post(
             url_for(
@@ -916,9 +903,8 @@ class TestResourceNew(helpers.FunctionalTestBase):
             ),
             {'name': 'test', 'url': 'test', 'save': 'save', 'id': ''},
             extra_environ=env,
-            expect_errors=True,
+            status=403,
         )
-        assert_equal(401, response.status_int)
 
     def test_non_organization_users_cannot_add_new_resource(self):
         '''on an owned dataset'''
@@ -937,9 +923,8 @@ class TestResourceNew(helpers.FunctionalTestBase):
                 id=dataset['id'],
             ),
             extra_environ=env,
-            expect_errors=True,
+            status=403,
         )
-        assert_equal(401, response.status_int)
 
         response = app.post(
             url_for(
@@ -949,9 +934,8 @@ class TestResourceNew(helpers.FunctionalTestBase):
             ),
             {'name': 'test', 'url': 'test', 'save': 'save', 'id': ''},
             extra_environ=env,
-            expect_errors=True,
+            status=403,
         )
-        assert_equal(401, response.status_int)
 
     def test_anonymous_users_cannot_add_new_resource(self):
         organization = factories.Organization()
@@ -966,10 +950,8 @@ class TestResourceNew(helpers.FunctionalTestBase):
                 action='new_resource',
                 id=dataset['id'],
             ),
+            status=403,
         )
-        assert_equal(302, response.status_int)
-        response = response.follow()
-        assert_in('Unauthorized to create a resource', response)
 
         response = app.post(
             url_for(
@@ -978,11 +960,8 @@ class TestResourceNew(helpers.FunctionalTestBase):
                 id=dataset['id'],
             ),
             {'name': 'test', 'url': 'test', 'save': 'save', 'id': ''},
-            expect_errors=True,
+            status=403,
         )
-        assert_equal(302, response.status_int)
-        response = response.follow()
-        assert_in('Unauthorized to create a resource', response)
 
 
 class TestResourceView(helpers.FunctionalTestBase):
@@ -1116,11 +1095,8 @@ class TestResourceRead(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
         response = app.get(url,
-                           status=200,
-                           extra_environ=env,
-                           expect_errors=True)
-        assert_equal(401, response.status_int)
-        assert_in('Unauthorized to read dataset', response.body)
+                           status=404,
+                           extra_environ=env)
 
     def test_organization_members_can_read_resources_in_private_datasets(self):
         members = {
