@@ -220,6 +220,10 @@ def make_flask_stack(conf, **app_conf):
     def hello_world_post():
         return 'Hello World, this was posted to Flask'
 
+    # TODO: maybe we can automate this?
+    from ckan.views.api import ApiView
+    ApiView.register(app)
+
     # Start other middleware
 
     # Initialize repoze.who
