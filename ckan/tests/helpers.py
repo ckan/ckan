@@ -20,6 +20,7 @@ This module is reserved for these very useful functions.
 import webtest
 from pylons import config
 import nose.tools
+import mock
 
 import ckan.lib.search as search
 import ckan.config.middleware
@@ -319,5 +320,62 @@ def change_config(key, value):
                 config.update(_original_config)
 
             return return_value
+        return nose.tools.make_decorator(func)(wrapper)
+    return decorator
+
+
+def mock_action(action_name):
+    '''
+    Decorator to easily mock a CKAN action in the context of a test function
+
+    It adds a mock object for the provided action as a parameter to the test
+    function. The mock is discarded at the end of the function, even if there
+    is an exception raised.
+
+    Note that this mocks the action both when it's called directly via
+    ``ckan.logic.get_action`` and via ``ckan.plugins.toolkit.get_action``.
+
+    Usage::
+
+        @mock_action('user_list')
+        def test_mock_user_list(self, mock_user_list):
+
+            mock_user_list.return_value = 'hi'
+
+            # user_list is mocked
+            eq_(helpers.call_action('user_list', {}), 'hi')
+
+            assert mock_user_list.called
+
+    :param action_name: the name of the action to be mocked,
+        e.g. ``package_create``
+    :type action_name: string
+
+    '''
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            mock_action = mock.MagicMock()
+
+            from ckan.logic import get_action as original_get_action
+
+            def side_effect(called_action_name):
+                if called_action_name == action_name:
+                    return mock_action
+                else:
+                    return original_get_action(called_action_name)
+            try:
+                with mock.patch('ckan.logic.get_action') as mock_get_action, \
+                        mock.patch('ckan.plugins.toolkit.get_action') \
+                        as mock_get_action_toolkit:
+                    mock_get_action.side_effect = side_effect
+                    mock_get_action_toolkit.side_effect = side_effect
+
+                    new_args = args + tuple([mock_action])
+                    return_value = func(*new_args, **kwargs)
+            finally:
+                # Make sure to stop the mock, even with an exception
+                mock_action.stop()
+            return return_value
+
         return nose.tools.make_decorator(func)(wrapper)
     return decorator
