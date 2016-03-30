@@ -35,3 +35,5 @@ pytz==2012j
 tzlocal==1.2
 wsgi-party==0.1b1
 Flask==0.10.1
+Flask-Babel==0.9
+Flask-Classy==0.6.10
