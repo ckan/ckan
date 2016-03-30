@@ -118,7 +118,7 @@ def url(*args, **kw):
     wrapper for pylons.url'''
     locale = kw.pop('locale', None)
     my_url = _pylons_default_url(*args, **kw)
-    return _add_i18n_to_url(my_url, locale=locale, **kw)
+    return _local_url(my_url, locale=locale, **kw)
 
 
 def get_site_protocol_and_host():
@@ -176,7 +176,7 @@ def url_for(*args, **kw):
         kw['protocol'], kw['host'] = get_site_protocol_and_host()
     my_url = _routes_default_url_for(*args, **kw)
     kw['__ckan_no_root'] = no_root
-    return _add_i18n_to_url(my_url, locale=locale, **kw)
+    return _local_url(my_url, locale=locale, **kw)
 
 
 def url_for_static(*args, **kw):
@@ -211,8 +211,10 @@ def url_for_static_or_external(*args, **kw):
 
     if args:
         args = (fix_arg(args[0]), ) + args[1:]
+    if kw.get('qualified', False):
+        kw['protocol'], kw['host'] = get_site_protocol_and_host()
     my_url = _routes_default_url_for(*args, **kw)
-    return my_url
+    return _local_url(my_url, locale='default', **kw)
 
 
 def is_url(*args, **kw):
@@ -233,7 +235,7 @@ def is_url(*args, **kw):
     return url.scheme in (valid_schemes or default_valid_schemes)
 
 
-def _add_i18n_to_url(url_to_amend, **kw):
+def _local_url(url_to_amend, **kw):
     # If the locale keyword param is provided then the url is rewritten
     # using that locale .If return_to is provided this is used as the url
     # (as part of the language changing feature).

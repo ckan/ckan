@@ -35,6 +35,20 @@ class TestHelpersUrlForStatic(object):
         url = '//assets.ckan.org/ckan.jpg'
         nose.tools.assert_raises(CkanUrlException, h.url_for_static, url)
 
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_static_with_root_path_and_locale(self):
+        url = '/my/custom/path/foo/my-asset/file.txt'
+        generated_url = h.url_for_static('/my-asset/file.txt')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_static_qualified_with_root_path_and_locale(self):
+        url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
+        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        eq_(generated_url, url)
+
 
 class TestHelpersUrlForStaticOrExternal(object):
 
