@@ -27,6 +27,7 @@ from flask import request as flask_request
 from flask import _request_ctx_stack
 from werkzeug.exceptions import HTTPException
 from werkzeug.test import create_environ, run_wsgi_app
+from flask.ext.babel import Babel
 
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
@@ -45,7 +46,7 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     # /__invite__/, and handle can_handle_request requests.
 
     pylons_app = make_pylons_stack(conf, full_stack, static_files, **app_conf)
-    flask_app = make_flask_stack(conf)
+    flask_app = make_flask_stack(conf, **app_conf)
 
     app = AskAppDispatcherMiddleware({'pylons_app': pylons_app, 'flask_app': flask_app})
 
@@ -201,11 +202,15 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
     return app
 
 
-def make_flask_stack(conf):
+def make_flask_stack(conf, **app_conf):
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
 
     app = CKANFlask(__name__)
+
+    # Do all the Flask-specific stuff before adding other middlewares
+
+    Babel(app)
 
     @app.route('/hello', methods=['GET'])
     def hello_world():
@@ -214,6 +219,25 @@ def make_flask_stack(conf):
     @app.route('/hello', methods=['POST'])
     def hello_world_post():
         return 'Hello World, this was posted to Flask'
+
+    # Start other middleware
+
+    # Initialize repoze.who
+    who_parser = WhoConfig(conf['here'])
+    who_parser.parse(open(app_conf['who.config_file']))
+
+    app = PluggableAuthenticationMiddleware(
+        app,
+        who_parser.identifiers,
+        who_parser.authenticators,
+        who_parser.challengers,
+        who_parser.mdproviders,
+        who_parser.request_classifier,
+        who_parser.challenge_decider,
+        logging.getLogger('repoze.who'),
+        logging.WARN,  # ignored
+        who_parser.remote_user_key
+    )
 
     return app
 
