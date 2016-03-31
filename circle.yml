@@ -11,6 +11,9 @@ machine:
         CKAN_DATASTORE_POSTGRES_READ_PWD: pass
         SOLR_HOME: $HOME/solr
 
+    node:
+        version: 0.10.33
+
 dependencies:
     override:
         - pip install -r requirements.txt --allow-all-external
@@ -18,7 +21,14 @@ dependencies:
         - python setup.py develop
 
     post:
-        - npm install -g mocha-phantomjs@3.5.0 phantomjs@~1.9.1
+        - "[ -e ~/nvm/v0.10.33/lib/node_modules/mocha-phantomjs ]
+           || npm install -g mocha-phantomjs@3.5.0 phantomjs@~1.9.1"
+
+    cache_directories:
+        - ~/nvm/v0.10.33/lib/node_modules/mocha-phantomjs
+        - ~/nvm/v0.10.33/lib/node_modules/phantomjs
+        - ~/nvm/v0.10.33/bin/mocha-phantomjs
+        - ~/nvm/v0.10.33/bin/phantomjs
 
 database:
     post:
