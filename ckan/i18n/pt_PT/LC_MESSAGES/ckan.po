@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: CKAN\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-01-26 11:55+0000\n"
-"PO-Revision-Date: 2015-11-26 14:23+0000\n"
+"PO-Revision-Date: 2015-12-16 14:55+0000\n"
 "Last-Translator: Adrià Mercader <adria.mercader@okfn.org>\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/okfn/ckan/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
@@ -1466,7 +1466,7 @@ msgstr "Não é um formato texto"
 
 #: ckan/logic/validators.py:795
 msgid "This parent would create a loop in the hierarchy"
-msgstr ""
+msgstr "Este superior iria criar um ciclo na hierarquia"
 
 #: ckan/logic/validators.py:805
 msgid "\"filter_fields\" and \"filter_values\" should have the same length"
@@ -1492,12 +1492,12 @@ msgstr "REST API: Cria o objeto %s"
 #: ckan/logic/action/create.py:517
 #, python-format
 msgid "REST API: Create package relationship: %s %s %s"
-msgstr ""
+msgstr "REST API: Criar a relação do pacote: %s %s %s"
 
 #: ckan/logic/action/create.py:558
 #, python-format
 msgid "REST API: Create member object %s"
-msgstr ""
+msgstr "REST API: Criar objeto membro %s"
 
 #: ckan/logic/action/create.py:772
 msgid "Trying to create an organization as a group"
@@ -1569,7 +1569,7 @@ msgstr "Os dados não têm ID"
 #: ckan/logic/action/update.py:985
 #, python-format
 msgid "Could not find vocabulary \"%s\""
-msgstr ""
+msgstr "Não foi possível encontrar o vocabulário \"%s\""
 
 #: ckan/logic/action/delete.py:501
 #, python-format
@@ -1621,11 +1621,11 @@ msgstr "REST API: Atualizar objeto. %s"
 #: ckan/logic/action/update.py:437
 #, python-format
 msgid "REST API: Update package relationship: %s %s %s"
-msgstr ""
+msgstr "REST API: Atualizar a relação do pacote: %s %s %s"
 
 #: ckan/logic/action/update.py:789
 msgid "TaskStatus was not found."
-msgstr ""
+msgstr "TaskStatus não encontrado."
 
 #: ckan/logic/action/update.py:1180
 msgid "Organization was not found."
@@ -1947,17 +1947,17 @@ msgstr "está ligado desde %s"
 #: ckan/model/package_relationship.py:55
 #, python-format
 msgid "is a child of %s"
-msgstr ""
+msgstr "é um inferior de %s"
 
 #: ckan/model/package_relationship.py:55
 #, python-format
 msgid "is a parent of %s"
-msgstr ""
+msgstr "é um superior de %s"
 
 #: ckan/model/package_relationship.py:59
 #, python-format
 msgid "has sibling %s"
-msgstr ""
+msgstr "tem ao mesmo nível %s"
 
 #: ckan/public/base/javascript/modules/activity-stream.js:20
 #: ckan/public/base/javascript/modules/popover-context.js:45
@@ -2370,7 +2370,7 @@ msgstr "Query (via SQL)"
 
 #: ckan/templates/ajax_snippets/api_info.html:66
 msgid "Querying"
-msgstr ""
+msgstr "Pesquisar"
 
 #: ckan/templates/ajax_snippets/api_info.html:70
 msgid "Query example (first 5 results)"
@@ -2390,7 +2390,7 @@ msgstr "Exemplo: Javascript"
 
 #: ckan/templates/ajax_snippets/api_info.html:97
 msgid "A simple ajax (JSONP) request to the data API using jQuery."
-msgstr ""
+msgstr "Um pedido AJAX (JSONP) à API dos Dados usando jQuery."
 
 #: ckan/templates/ajax_snippets/api_info.html:118
 msgid "Example: Python"
@@ -2428,7 +2428,7 @@ msgstr "Mais detalhes ..."
 #: ckan/templates/dataviewer/snippets/no_preview.html:12
 #, python-format
 msgid "No handler defined for data type: %(type)s."
-msgstr ""
+msgstr "Nenhum tratamento definido para o tipo de dados: %(type)s."
 
 #: ckan/templates/development/snippets/form.html:5
 msgid "Standard"
@@ -2440,35 +2440,35 @@ msgstr "Entrada padrão "
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium"
-msgstr ""
+msgstr "Médio"
 
 #: ckan/templates/development/snippets/form.html:6
 msgid "Medium Width Input"
-msgstr ""
+msgstr "Largura média da entrada"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full"
-msgstr ""
+msgstr "Total"
 
 #: ckan/templates/development/snippets/form.html:7
 msgid "Full Width Input"
-msgstr ""
+msgstr "Largura total da entrada"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large"
-msgstr ""
+msgstr "Grande"
 
 #: ckan/templates/development/snippets/form.html:8
 msgid "Large Input"
-msgstr ""
+msgstr "Entrada grande"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend"
-msgstr ""
+msgstr "Prefixo"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend Input"
-msgstr ""
+msgstr "Prefixo de entrada"
 
 #: ckan/templates/development/snippets/form.html:13
 msgid "Custom Field (empty)"
@@ -2486,7 +2486,7 @@ msgstr "Personalizar Campo"
 
 #: ckan/templates/development/snippets/form.html:22
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: ckan/templates/development/snippets/form.html:23
 msgid "Textarea"
@@ -2882,7 +2882,7 @@ msgstr "Revisão"
 #: ckan/templates/revision/read.html:53
 #: ckan/templates/revision/snippets/revisions_list.html:5
 msgid "Timestamp"
-msgstr ""
+msgstr "Registo temporal"
 
 #: ckan/templates/group/snippets/revisions_table.html:9
 #: ckan/templates/package/snippets/additional_info.html:25
@@ -3300,7 +3300,7 @@ msgstr "Esta é uma revisão antiga deste conjunto de dados, está tal como edit
 
 #: ckan/templates/package/related_list.html:7
 msgid "Related Media for {dataset}"
-msgstr ""
+msgstr "Médias relacionados para {dataset}"
 
 #: ckan/templates/package/related_list.html:12
 msgid "No related items"
@@ -3338,7 +3338,7 @@ msgstr "Nunca"
 
 #: ckan/templates/package/resource_data.html:59
 msgid "Upload Log"
-msgstr ""
+msgstr "Registo de envios"
 
 #: ckan/templates/package/resource_data.html:71
 msgid "Details"
@@ -3415,14 +3415,14 @@ msgstr "Não foi criada nenhuma vista que seja adequada a este recurso"
 
 #: ckan/templates/package/resource_read.html:124
 msgid "The site administrators may not have enabled the relevant view plugins"
-msgstr ""
+msgstr "Os administradores do site podem não ter ativado os plugins de visualização relevantes"
 
 #: ckan/templates/package/resource_read.html:125
 msgid ""
 "If a view requires the DataStore, the DataStore plugin may not be enabled, "
 "or the data may not have been pushed to the DataStore, or the DataStore "
 "hasn't finished processing the data yet"
-msgstr ""
+msgstr "Se a visualização requer o DataStore, o plugin DataStore pode não estar ativo, ou os dados podem não ter sidos carregados no DataStore, ou o DataStore pode ainda não ter acabado o processamento."
 
 #: ckan/templates/package/resource_read.html:147
 msgid "Additional Information"
@@ -3490,7 +3490,7 @@ msgstr "Dosumentos API"
 
 #: ckan/templates/package/search.html:55
 msgid "full {format} dump"
-msgstr ""
+msgstr "descarregamento integral {format}"
 
 #: ckan/templates/package/search.html:56
 #, python-format
@@ -3657,7 +3657,7 @@ msgstr "Ficheiro"
 
 #: ckan/templates/package/snippets/resource_form.html:28
 msgid "eg. January 2011 Gold Prices"
-msgstr ""
+msgstr "pe. Preço do Ouro em janeiro de 2011"
 
 #: ckan/templates/package/snippets/resource_form.html:32
 msgid "Some useful notes about the data"
@@ -3741,7 +3741,7 @@ msgstr "Incorporar vista de recurso"
 msgid ""
 "You can copy and paste the embed code into a CMS or blog software that "
 "supports raw HTML"
-msgstr ""
+msgstr "Pode copiar e colar o código para embutir num CMS ou blogue que suporte a escrita de HTML"
 
 #: ckan/templates/package/snippets/resource_view.html:69
 msgid "Width"
@@ -3951,7 +3951,7 @@ msgstr "Diferenças"
 #: ckan/templates/revision/diff.html:13 ckan/templates/revision/diff.html:18
 #: ckan/templates/revision/diff.html:23
 msgid "Revision Differences"
-msgstr ""
+msgstr "Diferenças da revisão"
 
 #: ckan/templates/revision/diff.html:44
 msgid "Difference"
@@ -3972,7 +3972,7 @@ msgstr "Revisões"
 
 #: ckan/templates/revision/read.html:30
 msgid "Undelete"
-msgstr ""
+msgstr "Reverter"
 
 #: ckan/templates/revision/read.html:64
 msgid "Changes"
@@ -3992,11 +3992,11 @@ msgstr "Novo item de atividade"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:4
 msgid "Embed Data Viewer"
-msgstr ""
+msgstr "Visualizador de Dados Embutido"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:8
 msgid "Embed this view by copying this into your webpage:"
-msgstr ""
+msgstr "Embutir esta visualização copiando isto para a sua página:"
 
 #: ckan/templates/snippets/datapreview_embed_dialog.html:10
 msgid "Choose width and height in pixels:"
@@ -4012,11 +4012,11 @@ msgstr "Altura:"
 
 #: ckan/templates/snippets/datapusher_status.html:8
 msgid "Datapusher status: {status}."
-msgstr ""
+msgstr "Estado do Datapusher: {status}."
 
 #: ckan/templates/snippets/disqus_trackback.html:2
 msgid "Trackback URL"
-msgstr ""
+msgstr "Trackback URL"
 
 #: ckan/templates/snippets/facet_list.html:80
 msgid "Show More {facet_type}"
@@ -4570,7 +4570,7 @@ msgstr "p.ex. http://example.com/image.jpg (se estiver em branco use o URL do re
 
 #: ckanext/reclineview/plugin.py:82
 msgid "Data Explorer"
-msgstr ""
+msgstr "Explorador de dados"
 
 #: ckanext/reclineview/plugin.py:106
 msgid "Table"
@@ -4631,7 +4631,7 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
 msgid "Row offset"
-msgstr ""
+msgstr "Deslocamento da linha"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:3
 #: ckanext/reclineview/theme/templates/recline_map_form.html:3
@@ -4678,11 +4678,11 @@ msgstr "Campo GeoJSON"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:10
 msgid "Auto zoom to features"
-msgstr ""
+msgstr "Zoom automático às entidades"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:11
 msgid "Cluster markers"
-msgstr ""
+msgstr "Grupo de marcadores "
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 #: ckanext/stats/templates_legacy/ckanext/stats/index.html:57
