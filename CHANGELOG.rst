@@ -7,6 +7,21 @@
 Changelog
 ---------
 
+v2.4.3 2016-03-31
+=================
+
+Bug fixes:
+ * Use `resource.url` as raw_resource_url (#2873)
+ * Fix DomainObject.count() to return count (#2919)
+ * Add offset param to organization_activity (#2640)
+ * Prevent unicode/ascii conversion errors in DataStore
+ * Fix datastore_delete erasing the db when filters is blank (#2885)
+ * Avoid package_search exception when using use_default_schema (#2848)
+ * resource_edit incorrectly setting action to new instead of edit
+ * Encode EXPLAIN SQL before sending to datastore
+ * Use `ckan.site_url` to generate urls of resources (#2592)
+ * Don't hide actual exception on paster commands
+
 v2.4.2 2015-12-17
 =================
 
@@ -115,6 +130,19 @@ Changes and deprecations
 
 * Config option ``site_url`` is now required - CKAN will not abort during
   start-up if it is not set. (#1976)
+
+v2.3.4 2016-03-31
+=================
+
+Bug fixes:
+ * Use `resource.url` as raw_resource_url (#2873)
+ * Fix DomainObject.count() to return count (#2919)
+ * Prevent unicode/ascii conversion errors in DataStore
+ * Fix datastore_delete erasing the db when filters is blank (#2885)
+ * Avoid package_search exception when using use_default_schema (#2848)
+ * resource_edit incorrectly setting action to new instead of edit
+ * Use `ckan.site_url` to generate urls of resources (#2592)
+ * Don't hide actual exception on paster commands
 
 v2.3.3 2015-12-17
 =================
