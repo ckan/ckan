@@ -16,9 +16,10 @@ machine:
 
 dependencies:
     pre:
-        - mkdir -p ~/.local/bin
-        - curl -fsSL https://raw.githubusercontent.com/michaelcontento/circleci-matrix/master/src/circleci-matrix.sh -o ~/.local/bin/circleci-matrix
-        - chmod +x ~/.local/bin/circleci-matrix
+        - "[ -e ~/.local/bin/circleci-matrix ]
+           || mkdir -p ~/.local/bin
+           && curl -fsSL https://raw.githubusercontent.com/michaelcontento/circleci-matrix/master/src/circleci-matrix.sh -o ~/.local/bin/circleci-matrix
+           && chmod +x ~/.local/bin/circleci-matrix"
 
     override:
         - pip install -r requirements.txt --allow-all-external
@@ -30,6 +31,7 @@ dependencies:
            || npm install -g mocha-phantomjs@3.5.0 phantomjs@~1.9.1"
 
     cache_directories:
+        - ~/.local/bin/circleci-matrix
         - ~/nvm/v0.10.33/lib/node_modules/mocha-phantomjs
         - ~/nvm/v0.10.33/lib/node_modules/phantomjs
         - ~/nvm/v0.10.33/bin/mocha-phantomjs
