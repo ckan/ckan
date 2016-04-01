@@ -247,6 +247,10 @@ class BaseController(WSGIController):
             'new_activities',
             'Use `h.new_activities` instead.')
 
+        # Prevents the variable interfering with the root_path logic
+        if 'SCRIPT_NAME' in request.environ:
+            request.environ['SCRIPT_NAME'] = ''
+
     def _identify_user(self):
         '''Try to identify the user
         If the user is identified then:
