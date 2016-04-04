@@ -379,3 +379,36 @@ def mock_action(action_name):
 
         return nose.tools.make_decorator(func)(wrapper)
     return decorator
+
+
+def set_extra_environ(key, value):
+    '''Decorator to temporarily changes a single request environemnt value
+
+    Create a new test app and use the a side effect of making a request
+    to set an extra_environ value. Reset the value to '' after the test.
+
+    Usage::
+
+        @helpers.extra_environ('SCRIPT_NAME', '/myscript')
+        def test_ckan_thing_affected_by_script_name(self):
+            # ...
+
+    :param key: the extra_environ key to be changed, e.g. ``'SCRIPT_NAME'``
+    :type key: string
+
+    :param value: the new extra_environ key's value, e.g. ``'/myscript'``
+    :type value: string
+    '''
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            app = _get_test_app()
+            app.get('/', extra_environ={key: value})
+
+            try:
+                return_value = func(*args, **kwargs)
+            finally:
+                app.get('/', extra_environ={key: ''})
+
+            return return_value
+        return nose.tools.make_decorator(func)(wrapper)
+    return decorator
