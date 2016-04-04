@@ -20,7 +20,7 @@ class _Toolkit(object):
         '_',                    # i18n translation
         'ungettext',            # i18n translation (plural forms)
         'c',                    # template context
-        'h',                    # template helpers
+        #'h',                    # template helpers
         'request',              # http request object
         'render',               # template render function
         'render_snippet',       # snippet render function
@@ -141,7 +141,6 @@ available throughout the template and application code, and are local to the
 current request.
 
 '''
-        t['h'] = getattr(pylons.config['pylons.h'], 'no_magic', None)
         t['request'] = common.request
         self.docstring_overrides['request'] = '''The Pylons request object.
 
@@ -394,6 +393,9 @@ content type, cookies, etc.
         if name in self._toolkit:
             return self._toolkit[name]
         else:
+            if name == 'h':
+                import pylons
+                return getattr(pylons.config['pylons.h'], 'no_magic', None)
             if name == '__bases__':
                 return self.__class__.__bases__
             raise AttributeError('`%s` not found in plugins toolkit' % name)
