@@ -2292,5 +2292,5 @@ def load_plugin_helpers():
     helper_functions.clear()
     helper_functions.update(_builtin_functions)
 
-    for plugin in p.PluginImplementations(p.ITemplateHelpers):
+    for plugin in reversed(list(p.PluginImplementations(p.ITemplateHelpers))):
         helper_functions.update(plugin.get_helpers())
