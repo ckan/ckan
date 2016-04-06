@@ -244,7 +244,7 @@ The formatting is as follows::
      *   client.getTemplate('index.html', {limit: 1}, function (html) {
      *     module.el.html(html);
      *   });
-     * 
+     *
      * Returns describes what the object returns.
      */
 
@@ -268,7 +268,7 @@ For example::
      *   client.getTemplate('index.html', {limit: 1}, function (html) {
      *     module.el.html(html);
      *   });
-     * 
+     *
      * Returns a jqXHR promise object that can be used to attach callbacks.
      */
 
@@ -282,7 +282,7 @@ For unit testing we use the following libraries.
 -  `Sinon`_: Provides spies, stubs and mocks for methods and functions.
 -  `Chai`_: Provides common assertions.
 
-.. _Mocha: http://visionmedia.github.com/mocha/
+.. _Mocha: https://mochajs.org/
 .. _Sinon: http://chaijs.com/
 .. _Chai: http://sinonjs.org/docs/
 
@@ -317,7 +317,7 @@ Ajax
     Calls to the CKAN API from JavaScript should be done through the
     `CKAN client`_.
 
-.. _CKAN client: ./frontend-development.html#client
+.. _CKAN client: ./frontend/index.html#client
 
 Ajax requests can be used to improve the experience of submitting forms and
 other actions that require server interactions. Nearly all requests will

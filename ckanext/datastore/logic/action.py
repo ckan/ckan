@@ -143,8 +143,13 @@ def datastore_create(context, data_dict):
         raise p.toolkit.ValidationError(str(err))
 
     # Set the datastore_active flag on the resource if necessary
-    p.toolkit.get_action('resource_patch')(
-        context, {'id': data_dict['resource_id'], 'datastore_active': True})
+    if resource.extras.get('datastore_active') is not True:
+        log.debug(
+            'Setting datastore_active=True on resource {0}'.format(resource.id)
+        )
+        p.toolkit.get_action('resource_patch')(
+            context,
+            {'id': data_dict['resource_id'], 'datastore_active': True})
 
     result.pop('id', None)
     result.pop('private', None)
@@ -345,9 +350,17 @@ def datastore_delete(context, data_dict):
     result = db.delete(context, data_dict)
 
     # Set the datastore_active flag on the resource if necessary
-    if not data_dict.get('filters'):
+    model = _get_or_bust(context, 'model')
+    resource = model.Resource.get(data_dict['resource_id'])
+
+    if (not data_dict.get('filters') and
+            resource.extras.get('datastore_active') is True):
+        log.debug(
+            'Setting datastore_active=True on resource {0}'.format(resource.id)
+        )
         p.toolkit.get_action('resource_patch')(
-            context, {'id': data_dict['resource_id'], 'datastore_active': False})
+            context, {'id': data_dict['resource_id'],
+                      'datastore_active': False})
 
     result.pop('id', None)
     result.pop('connection_url')
@@ -453,7 +466,7 @@ def datastore_search_sql(context, data_dict):
     The datastore_search_sql action allows a user to search data in a resource
     or connect multiple resources with join expressions. The underlying SQL
     engine is the
-    `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/sql/.html>`_.
+    `PostgreSQL engine <http://www.postgresql.org/docs/9.1/interactive/>`_.
     There is an enforced timeout on SQL queries to avoid an unintended DOS.
     DataStore resource that belong to a private CKAN resource cannot be searched with
     this action. Use :meth:`~ckanext.datastore.logic.action.datastore_search` instead.

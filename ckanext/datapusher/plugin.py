@@ -53,10 +53,8 @@ class ResourceDataController(base.BaseController):
             toolkit.c.resource = p.toolkit.get_action('resource_show')(
                 None, {'id': resource_id}
             )
-        except logic.NotFound:
+        except (logic.NotFound, logic.NotAuthorized):
             base.abort(404, _('Resource not found'))
-        except logic.NotAuthorized:
-            base.abort(401, _('Unauthorized to edit this resource'))
 
         try:
             datapusher_status = p.toolkit.get_action('datapusher_status')(
@@ -65,7 +63,7 @@ class ResourceDataController(base.BaseController):
         except logic.NotFound:
             datapusher_status = {}
         except logic.NotAuthorized:
-            base.abort(401, _('Not authorized to see this page'))
+            base.abort(403, _('Not authorized to see this page'))
 
         return base.render('package/resource_data.html',
                            extra_vars={'status': datapusher_status})
@@ -109,6 +107,25 @@ class DatapusherPlugin(p.SingletonPlugin):
                         entity.url_type != 'datapusher'):
 
                     try:
+                        task = p.toolkit.get_action('task_status_show')(
+                            context, {
+                                'entity_id': entity.id,
+                                'task_type': 'datapusher',
+                                'key': 'datapusher'}
+                        )
+                        if task.get('state') == 'pending':
+                            # There already is a pending DataPusher submission,
+                            # skip this one ...
+                            log.debug(
+                                'Skipping DataPusher submission for '
+                                'resource {0}'.format(entity.id))
+                            return
+                    except p.toolkit.ObjectNotFound:
+                        pass
+
+                    try:
+                        log.debug('Submitting resource {0}'.format(entity.id) +
+                                  ' to DataPusher')
                         p.toolkit.get_action('datapusher_submit')(context, {
                             'resource_id': entity.id
                         })

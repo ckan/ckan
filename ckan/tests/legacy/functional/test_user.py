@@ -65,7 +65,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
         url = url_for(controller='user', action='delete', id=user.id)
         extra_environ = {'REMOTE_USER': 'an_unauthorized_user'}
 
-        self.app.get(url, status=401, extra_environ=extra_environ)
+        self.app.get(url, status=403, extra_environ=extra_environ)
 
     def test_user_read_without_id(self):
         offset = '/user/'
@@ -160,7 +160,7 @@ class TestUserController(FunctionalTestCase, HtmlCheckMethods, PylonsTestCase, S
                          action='perform_reset',
                          id=user.id,
                          key=user.reset_key)
-        res = self.app.post(offset, params=params, status=302)
+        res = self.app.post(offset, params=params, status=403)
 
         user = model.User.get(user.id)
         assert user.is_deleted(), user

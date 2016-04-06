@@ -1057,7 +1057,7 @@ def resource_show(context, data_dict):
         if resource_dict['id'] == id:
             break
     else:
-        log.error('Could not find resource ' + id)
+        log.error('Could not find resource %s after all', id)
         raise NotFound(_('Resource was not found.'))
 
     return resource_dict

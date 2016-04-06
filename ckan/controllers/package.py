@@ -139,7 +139,7 @@ class PackageController(base.BaseController):
                        'auth_user_obj': c.userobj}
             check_access('site_read', context)
         except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            abort(403, _('Not authorized to see this page'))
 
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', u'')
@@ -326,15 +326,13 @@ class PackageController(base.BaseController):
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
-            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+            abort(403, _('User %r not authorized to edit %s') % (c.user, id))
         # check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
 
         package_type = c.pkg_dict['type'] or 'dataset'
         self._setup_template_variables(context, {'id': id},
@@ -433,7 +431,7 @@ class PackageController(base.BaseController):
             c.pkg = context['package']
 
         except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % '')
+            abort(403, _('Unauthorized to read package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
 
@@ -501,7 +499,7 @@ class PackageController(base.BaseController):
         try:
             check_access('package_create', context)
         except NotAuthorized:
-            abort(401, _('Unauthorized to create a package'))
+            abort(403, _('Unauthorized to create a package'))
 
         if context['save'] and not data:
             return self._save_new(context, package_type=package_type)
@@ -571,7 +569,7 @@ class PackageController(base.BaseController):
                 return self.resource_edit(id, resource_id, data,
                                           errors, error_summary)
             except NotAuthorized:
-                abort(401, _('Unauthorized to edit this resource'))
+                abort(403, _('Unauthorized to edit this resource'))
             redirect(h.url_for(controller='package', action='resource_read',
                                id=id, resource_id=resource_id))
 
@@ -648,7 +646,7 @@ class PackageController(base.BaseController):
                 try:
                     data_dict = get_action('package_show')(context, {'id': id})
                 except NotAuthorized:
-                    abort(401, _('Unauthorized to update dataset'))
+                    abort(403, _('Unauthorized to update dataset'))
                 except NotFound:
                     abort(404, _('The dataset {id} could not be found.'
                                  ).format(id=id))
@@ -685,7 +683,7 @@ class PackageController(base.BaseController):
                 error_summary = e.error_summary
                 return self.new_resource(id, data, errors, error_summary)
             except NotAuthorized:
-                abort(401, _('Unauthorized to create a resource'))
+                abort(403, _('Unauthorized to create a resource'))
             except NotFound:
                 abort(404, _('The dataset {id} could not be found.'
                              ).format(id=id))
@@ -721,7 +719,7 @@ class PackageController(base.BaseController):
             check_access(
                 'resource_create', context, {"package_id": pkg_dict["id"]})
         except NotAuthorized:
-            abort(401, _('Unauthorized to create a resource for this package'))
+            abort(403, _('Unauthorized to create a resource for this package'))
 
         package_type = pkg_dict['type'] or 'dataset'
 
@@ -757,9 +755,7 @@ class PackageController(base.BaseController):
             if data:
                 old_data.update(data)
             data = old_data
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % '')
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
         # are we doing a multiphase add?
         if data.get('state', '').startswith('draft'):
@@ -774,7 +770,7 @@ class PackageController(base.BaseController):
         try:
             check_access('package_update', context)
         except NotAuthorized:
-            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+            abort(403, _('User %r not authorized to edit %s') % (c.user, id))
         # convert tags if not supplied in data
         if data and not data.get('tag_string'):
             data['tag_string'] = ', '.join(h.dict_list_reduce(
@@ -807,9 +803,7 @@ class PackageController(base.BaseController):
                    'revision_id': revision}
         try:
             data = get_action('package_show')(context, {'id': id})
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % '')
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
 
         data.pop('tags')
@@ -826,7 +820,7 @@ class PackageController(base.BaseController):
             pkg_revisions = get_action('package_revision_list')(
                 context, data_dict)
         except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % '')
+            abort(403, _('Unauthorized to read package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
 
@@ -927,7 +921,7 @@ class PackageController(base.BaseController):
             self._form_save_redirect(pkg_dict['name'], 'new',
                                      package_type=package_type)
         except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % '')
+            abort(403, _('Unauthorized to read package %s') % '')
         except NotFound, e:
             abort(404, _('Dataset not found'))
         except dict_fns.DataError:
@@ -975,7 +969,7 @@ class PackageController(base.BaseController):
             self._form_save_redirect(pkg['name'], 'edit',
                                      package_type=package_type)
         except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
+            abort(403, _('Unauthorized to read package %s') % id)
         except NotFound, e:
             abort(404, _('Dataset not found'))
         except dict_fns.DataError:
@@ -1027,7 +1021,7 @@ class PackageController(base.BaseController):
             c.pkg_dict = get_action('package_show')(context, {'id': id})
             dataset_type = c.pkg_dict['type'] or 'dataset'
         except NotAuthorized:
-            abort(401, _('Unauthorized to delete package %s') % '')
+            abort(403, _('Unauthorized to delete package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
         return render('package/confirm_delete.html',
@@ -1045,7 +1039,7 @@ class PackageController(base.BaseController):
         try:
             check_access('package_delete', context, {'id': id})
         except NotAuthorized:
-            abort(401, _('Unauthorized to delete package %s') % '')
+            abort(403, _('Unauthorized to delete package %s') % '')
 
         try:
             if request.method == 'POST':
@@ -1056,7 +1050,7 @@ class PackageController(base.BaseController):
                 context, {'id': resource_id})
             c.pkg_id = id
         except NotAuthorized:
-            abort(401, _('Unauthorized to delete resource %s') % '')
+            abort(403, _('Unauthorized to delete resource %s') % '')
         except NotFound:
             abort(404, _('Resource not found'))
         return render('package/confirm_delete_resource.html',
@@ -1070,10 +1064,8 @@ class PackageController(base.BaseController):
 
         try:
             c.package = get_action('package_show')(context, {'id': id})
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read dataset %s') % id)
 
         for resource in c.package.get('resources', []):
             if resource['id'] == resource_id:
@@ -1146,10 +1138,8 @@ class PackageController(base.BaseController):
         try:
             rsc = get_action('resource_show')(context, {'id': resource_id})
             get_action('package_show')(context, {'id': id})
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Resource not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read resource %s') % id)
 
         if rsc.get('url_type') == 'upload':
             upload = uploader.ResourceUpload(rsc)
@@ -1225,7 +1215,7 @@ class PackageController(base.BaseController):
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
-            abort(401, _('Unauthorized to read package %s') % id)
+            abort(403, _('Unauthorized to read package %s') % id)
 
         return render('package/followers.html',
                       {'dataset_type': dataset_type})
@@ -1238,10 +1228,8 @@ class PackageController(base.BaseController):
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             dataset_type = c.pkg_dict['type'] or 'dataset'
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read dataset %s') % id)
 
         if request.method == 'POST':
             new_group = request.POST.get('group_added')
@@ -1307,7 +1295,7 @@ class PackageController(base.BaseController):
         except NotFound:
             abort(404, _('Dataset not found'))
         except NotAuthorized:
-            abort(401, _('Unauthorized to read dataset %s') % id)
+            abort(403, _('Unauthorized to read dataset %s') % id)
 
         return render('package/activity.html',
                       {'dataset_type': dataset_type})
@@ -1334,10 +1322,8 @@ class PackageController(base.BaseController):
                 raise NotFound
             dataset_type = c.package['type'] or 'dataset'
 
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Resource not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read resource %s') % id)
 
         # Construct the recline state
         state_version = int(request.params.get('state_version', '1'))
@@ -1400,15 +1386,13 @@ class PackageController(base.BaseController):
         try:
             check_access('package_update', context, data_dict)
         except NotAuthorized:
-            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+            abort(403, _('User %r not authorized to edit %s') % (c.user, id))
         # check if package exists
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg = context['package']
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read dataset %s') % id)
 
         try:
             c.resource = get_action('resource_show')(context,
@@ -1419,7 +1403,7 @@ class PackageController(base.BaseController):
         except NotFound:
             abort(404, _('Resource not found'))
         except NotAuthorized:
-            abort(401, _('Unauthorized to read resource %s') % id)
+            abort(403, _('Unauthorized to read resource %s') % id)
 
         self._setup_template_variables(context, {'id': id},
                                        package_type=package_type)
@@ -1436,23 +1420,19 @@ class PackageController(base.BaseController):
         try:
             check_access('resource_update', context, {'id': resource_id})
         except NotAuthorized, e:
-            abort(401, _('User %r not authorized to edit %s') % (c.user, id))
+            abort(403, _('User %r not authorized to edit %s') % (c.user, id))
 
         # get resource and package data
         try:
             c.pkg_dict = get_action('package_show')(context, {'id': id})
             c.pkg = context['package']
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read dataset %s') % id)
         try:
             c.resource = get_action('resource_show')(context,
                                                      {'id': resource_id})
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Resource not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read resource %s') % id)
 
         data = {}
         errors = {}
@@ -1487,7 +1467,7 @@ class PackageController(base.BaseController):
             except NotAuthorized:
                 ## This should never happen unless the user maliciously changed
                 ## the resource_id in the url.
-                abort(401, _('Unauthorized to edit resource'))
+                abort(403, _('Unauthorized to edit resource'))
             else:
                 if not to_preview:
                     redirect(h.url_for(controller='package',
@@ -1504,10 +1484,8 @@ class PackageController(base.BaseController):
                 ## might as well preview when loading good existing view
                 if not errors:
                     to_preview = True
-            except NotFound:
+            except (NotFound, NotAuthorized):
                 abort(404, _('View not found'))
-            except NotAuthorized:
-                abort(401, _('Unauthorized to view View %s') % view_id)
 
         view_type = view_type or request.GET.get('view_type')
         data['view_type'] = view_type
@@ -1555,18 +1533,14 @@ class PackageController(base.BaseController):
 
         try:
             package = get_action('package_show')(context, {'id': id})
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read dataset %s') % id)
 
         try:
             resource = get_action('resource_show')(
                 context, {'id': resource_id})
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Resource not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read resource %s') % resource_id)
 
         view = None
         if request.params.get('resource_view', ''):
@@ -1578,11 +1552,8 @@ class PackageController(base.BaseController):
             try:
                 view = get_action('resource_view_show')(
                     context, {'id': view_id})
-            except NotFound:
+            except (NotFound, NotAuthorized):
                 abort(404, _('Resource view not found'))
-            except NotAuthorized:
-                abort(401,
-                      _('Unauthorized to read resource view %s') % view_id)
 
         if not view or not isinstance(view, dict):
             abort(404, _('Resource view not supplied'))
@@ -1619,10 +1590,8 @@ class PackageController(base.BaseController):
             preview_plugin.setup_template_variables(context, data_dict)
             c.resource_json = json.dumps(c.resource)
             dataset_type = c.package['type'] or 'dataset'
-        except NotFound:
+        except (NotFound, NotAuthorized):
             abort(404, _('Resource not found'))
-        except NotAuthorized:
-            abort(401, _('Unauthorized to read resource %s') % id)
         else:
             return render(preview_plugin.preview_template(context, data_dict),
                           extra_vars={'dataset_type': dataset_type})

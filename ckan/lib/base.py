@@ -49,7 +49,7 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     abort response, and showing flash messages in the web interface.
 
     '''
-    if status_code == 401:
+    if status_code == 403:
         # Allow IAuthenticator plugins to alter the abort
         for item in p.PluginImplementations(p.IAuthenticator):
             result = item.abort(status_code, detail, headers, comment)
@@ -75,8 +75,9 @@ def render_snippet(template_name, **kw):
     cache_force = kw.pop('cache_force', None)
     output = render(template_name, extra_vars=kw, cache_force=cache_force,
                     renderer='snippet')
-    output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
-        template_name, output, template_name)
+    if config.get('debug'):
+        output = ('\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n'
+                  % (template_name, output, template_name))
     return literal(output)
 
 
@@ -204,6 +205,10 @@ class BaseController(WSGIController):
         maintain.deprecate_context_item(
             'new_activities',
             'Use `h.new_activities` instead.')
+
+        # Prevents the variable interfering with the root_path logic
+        if 'SCRIPT_NAME' in request.environ:
+            request.environ['SCRIPT_NAME'] = ''
 
     def _identify_user(self):
         '''Try to identify the user

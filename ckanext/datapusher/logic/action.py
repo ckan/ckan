@@ -3,6 +3,8 @@ import json
 import urlparse
 import datetime
 
+from dateutil.parser import parse as parse_date
+
 import pylons
 import requests
 
@@ -37,7 +39,6 @@ def datapusher_submit(context, data_dict):
 
     :rtype: bool
     '''
-
     schema = context.get('schema', dpschema.datapusher_submit_schema())
     data_dict, errors = _validate(data_dict, schema, context)
     if errors:
@@ -46,6 +47,13 @@ def datapusher_submit(context, data_dict):
     res_id = data_dict['resource_id']
 
     p.toolkit.check_access('datapusher_submit', context, data_dict)
+
+    try:
+        resource_dict = p.toolkit.get_action('resource_show')(context, {
+            'id': res_id,
+        })
+    except logic.NotFound:
+        return False
 
     datapusher_url = pylons.config.get('ckan.datapusher.url')
 
@@ -100,7 +108,9 @@ def datapusher_submit(context, data_dict):
                     'ignore_hash': data_dict.get('ignore_hash', False),
                     'ckan_url': site_url,
                     'resource_id': res_id,
-                    'set_url_type': data_dict.get('set_url_type', False)
+                    'set_url_type': data_dict.get('set_url_type', False),
+                    'task_created': task['last_updated'],
+                    'original_url': resource_dict.get('url'),
                 }
             }))
         r.raise_for_status()
@@ -166,6 +176,9 @@ def datapusher_hook(context, data_dict):
 
     task['state'] = status
     task['last_updated'] = str(datetime.datetime.now())
+
+    resubmit = False
+
     if status == 'complete':
         # Create default views for resource if necessary (only the ones that
         # require data to be in the DataStore)
@@ -186,8 +199,35 @@ def datapusher_hook(context, data_dict):
                 'create_datastore_views': True,
             })
 
+        # Check if the uploaded file has been modified in the meantime
+        if (resource_dict.get('last_modified') and
+                metadata.get('task_created')):
+            try:
+                last_modified_datetime = parse_date(
+                    resource_dict['last_modified'])
+                task_created_datetime = parse_date(metadata['task_created'])
+                if last_modified_datetime > task_created_datetime:
+                    log.debug('Uploaded file more recent: {0} > {1}'.format(
+                        last_modified_datetime, task_created_datetime))
+                    resubmit = True
+            except ValueError:
+                pass
+        # Check if the URL of the file has been modified in the meantime
+        elif (resource_dict.get('url') and
+                metadata.get('original_url') and
+                resource_dict['url'] != metadata['original_url']):
+            log.debug('URLs are different: {0} != {1}'.format(
+                resource_dict['url'], metadata['original_url']))
+            resubmit = True
+
     context['ignore_auth'] = True
     p.toolkit.get_action('task_status_update')(context, task)
+
+    if resubmit:
+        log.debug('Resource {0} has been modified, '
+                  'resubmitting to DataPusher'.format(res_id))
+        p.toolkit.get_action('datapusher_submit')(
+            context, {'resource_id': res_id})
 
 
 def datapusher_status(context, data_dict):
