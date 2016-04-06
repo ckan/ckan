@@ -141,7 +141,7 @@ available throughout the template and application code, and are local to the
 current request.
 
 '''
-        t['h'] = pylons.config['pylons.h']
+        t['h'] = h.helper_functions
         t['request'] = common.request
         self.docstring_overrides['request'] = '''The Pylons request object.
 
