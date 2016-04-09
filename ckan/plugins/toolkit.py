@@ -384,8 +384,64 @@ content type, cookies, etc.
                 error = 'Requires ckan version %s or higher' % min_version
             else:
                 error = 'Requires ckan version between %s and %s' % \
-                            (min_version, max_version)
+                    (min_version, max_version)
             raise CkanVersionException(error)
+
+    @classmethod
+    def __delete_routes_by_path_func(cls, routes_map, match_func):
+        matches_to_delete = []
+        for match in routes_map.matchlist:
+            if match_func(match.routepath):
+                matches_to_delete.append(match)
+        for match in matches_to_delete:
+            routes_map.matchlist.remove(match)
+
+    @classmethod
+    def _delete_routes_by_path(cls, routes_map, paths):
+        '''Deletes routes from a map. It selects the routes whose path equals
+        the given strings.
+
+        :param routes_map: the existing routes, from which some will be deleted
+                           in-place.
+        :type routes_map: Routes map object, as provided by the IRoutes
+                          interface
+        :param paths: the paths to match the paths by for deletion.
+        :type paths: string or list of strings
+        '''
+        if isinstance(paths, basestring):
+            paths = [paths]
+        cls.__delete_route_by_func(lambda path: path in paths)
+
+    @classmethod
+    def _delete_routes_by_path_startswith(cls, routes_map, path_startswith):
+        '''Deletes routes from a map. It selects the routes whose path starts
+        with the given string.
+
+        :param routes_map: the existing routes, from which some will be deleted
+                           in-place.
+        :type routes_map: Routes map object, as provided by the IRoutes
+                          interface
+        :param path_startswith: the paths to match the routes by for deletion.
+        :type path_startswith: string
+        '''
+        cls.__delete_route_by_func(lambda path:
+                                   path.startswith(path_startswith))
+
+    @classmethod
+    def _delete_routes_by_name(cls, routes_map, route_names):
+        '''Deletes routes from a map. It selects the routes by name.
+
+        :param routes_map: the existing routes, from which some will be deleted
+                           in-place.
+        :type routes_map: Routes map object, as provided by the IRoutes
+                          interface
+        :param route_names: the names to match the routes by for deletion.
+        :type route_names: string or list of strings
+        '''
+        if isinstance(route_names, basestring):
+            route_names = [route_names]
+        for route_name in route_names:
+            del routes_map._routenames[route_name]
 
     def __getattr__(self, name):
         ''' return the function/object requested '''
