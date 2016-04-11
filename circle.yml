@@ -47,7 +47,7 @@ database:
         - cp -R /opt/solr-4.3.1 $SOLR_HOME
         - cd $SOLR_HOME/example; java -jar start.jar >> $HOME/solr.log:
             background: true
-        - sleep 5
+        - while ! grep "Started" $HOME/solr.log; do sleep 0.1; done
         - ./bin/solr_init/create_core.sh
 
         - paster db init -c test-core.ini
