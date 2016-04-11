@@ -50,14 +50,6 @@ from ckan.common import _, ungettext, g, c, request, session, json
 log = logging.getLogger(__name__)
 
 
-class HelperError(Exception):
-    """Raised if an attempt to access an undefined helper is made.
-
-    Normally, this would be a subclass of AttributeError, but Jinja2 will
-    catch and ignore them. We want this to be an explicit failure re #2908.
-    """
-
-
 class AttributeDict(dict):
     def __init__(self, *args, **kwargs):
         super(AttributeDict, self).__init__(*args, **kwargs)
@@ -67,7 +59,7 @@ class AttributeDict(dict):
         try:
             value = super(AttributeDict, self).__getitem__(self, key)
         except AttributeError:
-            raise HelperError(
+            raise ckan.exceptions.HelperError(
                 'Helper \'{key}\' has not been defined.'.format(
                     key=key
                 )
