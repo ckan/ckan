@@ -916,7 +916,7 @@ def user_create(context, data_dict):
     :param openid: (optional)
     :type openid: string
 
-    :returns: the newly created yser
+    :returns: the newly created user
     :rtype: dictionary
 
     '''
@@ -991,7 +991,7 @@ def user_invite(context, data_dict):
         or ``admin``
     :type role: string
 
-    :returns: the newly created yser
+    :returns: the newly created user
     :rtype: dictionary
     '''
     _check_access('user_invite', context, data_dict)
