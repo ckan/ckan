@@ -14,7 +14,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
+import re
 import os
 import subprocess
 
@@ -116,6 +116,75 @@ import ckan
 version = ckan.__version__.rstrip('abcdefgh')
 # The full version, including alpha/beta/rc tags.
 release = ckan.__version__
+version_re = None
+point_releases_ = None
+
+
+def release_tags():
+    git_tags = util.check_output(
+        ['git', 'tag', '-l'], stderr=subprocess.STDOUT).split()
+
+    release_tags_ = [tag for tag in git_tags if tag.startswith('ckan-')]
+
+    # git tag -l prints out the tags in the right order anyway, but don't rely
+    # on that, sort them again here for good measure.
+    release_tags_.sort()
+
+    return release_tags_
+
+
+def parse_version(version_):
+    '''Parses version string
+        ckan-2.1.3 -> ('2', '1', '3')
+        ckan-2.1   -> ('2', '1', None)  (the occasion when we didn't do semver)
+    '''
+    global version_re
+    if version_re is None:
+        version_re = re.compile('(?:ckan-)?(\d+)\.(\d+)(?:\.(\d+))?[a-z]?')
+    return version_re.match(version_).groups()
+
+
+def equivalent_point_release(version_):
+    '''Returns the equivalent point release of any given version.
+
+    e.g.
+        ckan-2.1.3 -> ckan-2.1
+        ckan-2.1   -> ckan-2.1  (the occasion when we didn't do semver)
+    '''
+    return 'ckan-%s.%s' % parse_version(version_)[:2]
+
+
+def point_releases():
+    '''
+    returns ['ckan-1.3', 'ckan-1.4', ... 'ckan-2.0', 'ckan-2.1', ...]
+    '''
+    global point_releases_
+    if point_releases_ is None:
+        releases = release_tags()
+        point_releases_ = []
+        for release in releases:
+            point_release = equivalent_point_release(release)
+            if point_release not in point_releases_:
+                point_releases_.append(point_release)
+    return point_releases_
+
+
+def status_of_this_version_():
+    '''Returns whether this release is supported or another category.
+    '''
+    equiv_point_release = equivalent_point_release(version)
+    point_releases_ = point_releases()
+    supported_point_releases = point_releases_[-3:]
+    if equiv_point_release in supported_point_releases:
+        return 'supported'
+    else:
+        return 'unsupported'
+
+
+# These variables are passed to the doc's jinja _templates
+html_context = dict(
+    status_of_this_version=status_of_this_version_(),
+    )
 
 
 def latest_release_tag():
@@ -126,18 +195,10 @@ def latest_release_tag():
     This requires git to be installed.
 
     '''
-    git_tags = util.check_output(
-        ['git', 'tag', '-l'], stderr=subprocess.STDOUT).split()
+    release_tags_ = release_tags()
 
-    # FIXME: We could do more careful pattern matching against ckan-X.Y.Z here.
-    release_tags = [tag for tag in git_tags if tag.startswith('ckan-')]
-
-    # git tag -l prints out the tags in the right order anyway, but don't rely
-    # on that, sort them again here for good measure.
-    release_tags.sort()
-
-    if release_tags:
-        return release_tags[-1]
+    if release_tags_:
+        return release_tags_[-1]
     else:
         return 'COULD_NOT_DETECT_VERSION_NUMBER'
 

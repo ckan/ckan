@@ -9,6 +9,8 @@ polib==1.0.3
 mock==1.0.1
 factory-boy==2.1.1
 coveralls
-sphinx-rtd-theme==0.1.9
+# sphinx-rtd-theme - we need commit eeff564 which missed the 0.1.9 release
+# (which is the latest at time of writing)
+-e git://github.com/snide/sphinx_rtd_theme.git@eeff5645dc4eeb7a5c4910d39c17131961045dce#egg=sphinx_rtd_theme
 beautifulsoup4==4.3.2
 pip-tools==1.1.2
