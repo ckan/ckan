@@ -241,12 +241,8 @@ pygments_style = 'sphinx'
 #'headfont': 'Trebuchet MS'
 #}
 sys.path.append(os.path.abspath('_themes'))
-html_theme_path = ['_themes']
-html_theme = 'sphinx-theme-okfn'
-html_theme_options = {
-        'logo_icon': 'ckanlogo.png',
-        'show_version': True
-    }
+html_theme_path = ['_themes/sphinx-theme-rtd-unsupported']
+html_theme = 'sphinx_rtd_theme'
 
 html_sidebars = {
     '**':  ['globaltoc.html'],

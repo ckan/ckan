@@ -1,3 +1,6 @@
 [submodule "doc/_themes/sphinx-theme-okfn"]
 	path = doc/_themes/sphinx-theme-okfn
 	url = https://github.com/okfn/sphinx-theme-okfn.git
+[submodule "doc/_themes/sphinx-theme-rtd-unsupported"]
+	path = doc/_themes/sphinx-theme-rtd-unsupported
+	url = https://github.com/ckan/sphinx_rtd_theme
