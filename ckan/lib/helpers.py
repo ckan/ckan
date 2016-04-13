@@ -50,14 +50,14 @@ from ckan.common import _, ungettext, g, c, request, session, json
 log = logging.getLogger(__name__)
 
 
-class AttributeDict(dict):
+class HelperAttributeDict(dict):
     def __init__(self, *args, **kwargs):
-        super(AttributeDict, self).__init__(*args, **kwargs)
+        super(HelperAttributeDict, self).__init__(*args, **kwargs)
         self.__dict__ = self
 
     def __getitem__(self, key):
         try:
-            value = super(AttributeDict, self).__getitem__(self, key)
+            value = super(HelperAttributeDict, self).__getitem__(self, key)
         except AttributeError:
             raise ckan.exceptions.HelperError(
                 'Helper \'{key}\' has not been defined.'.format(
@@ -69,7 +69,7 @@ class AttributeDict(dict):
 
 # Builtin helper functions.
 _builtin_functions = {}
-helper_functions = AttributeDict()
+helper_functions = HelperAttributeDict()
 
 
 def core_helper(f, name=None):
