@@ -16,48 +16,84 @@ class _Toolkit(object):
     # contents should describe the available functions/objects. We check
     # that this list matches the actual availables in the initialisation
     contents = [
-        ## Imported functions/objects ##
-        '_',                    # i18n translation
-        'ungettext',            # i18n translation (plural forms)
-        'c',                    # template context
-        'h',                    # template helpers
-        'request',              # http request object
-        'render',               # template render function
-        'render_snippet',       # snippet render function
-        'asbool',               # converts an object to a boolean
-        'asint',                # converts an object to an integer
-        'aslist',               # converts an object to a list
-        'literal',              # stop tags in a string being escaped
-        'get_action',           # get logic action function
-        'get_converter',        # get navl schema converter
-        'get_validator',        # get navl schema validator
-        'check_access',         # check logic function authorisation
-        'navl_validate',        # implements validate method with navl schema
-        'missing',              # placeholder for missing values for validation
-        'ObjectNotFound',       # action not found exception
-                                # (ckan.logic.NotFound)
-        'NotAuthorized',        # action not authorized exception
-        'UnknownValidator',     # validator not found exception
-        'ValidationError',      # model update validation error
-        'StopOnError',          # validation exception to stop further
-                                # validators from being called
-        'Invalid',              # validation invalid exception
-        'CkanCommand',          # class for providing cli interfaces
-        'DefaultDatasetForm',   # base class for IDatasetForm plugins
-        'DefaultGroupForm',     # base class for IGroupForm plugins
-        'DefaultOrganizationForm', # base class for IGroupForm plugins for orgs
-        'response',             # response object for cookies etc
-        'BaseController',       # Allow controllers to be created
-        'abort',                # abort actions
-        'redirect_to',          # allow redirections
-        'url_for',              # create urls
-        'get_or_bust',          # helpful for actions
-        'side_effect_free',     # actions can be accessed via api
-        'auth_sysadmins_check', # allow auth functions to be checked for sysadmins
-        'auth_allow_anonymous_access', # allow anonymous access to an auth function
-        'auth_disallow_anonymous_access', # disallow anonymous access to an auth function
+        # i18n translation
+        '_',
+        # i18n translation (plural form)
+        'ungettext',
+        # template context
+        'c',
+        # template helpers
+        'h',
+        # http request object
+        'request',
+        # template render function
+        'render',
+        # snippet render function
+        'render_snippet',
+        # converts an object to a boolean
+        'asbool',
+        # converts an object to an integer
+        'asint',
+        # converts an object to a list
+        'aslist',
+        # stop tags in a string being escaped
+        'literal',
+        # get logic action function
+        'get_action',
+        # get navl schema converter
+        'get_converter',
+        # get navl schema validator
+        'get_validator',
+        # check logic function authorisation
+        'check_access',
+        # implements validate method with navl schema
+        'navl_validate',
+        # placeholder for missing values for validation
+        'missing',
+        # action not found exception (ckan.logic.NotFound)
+        'ObjectNotFound',
+        # action not authorized exception
+        'NotAuthorized',
+        # validator not found exception
+        'UnknownValidator',
+        # model update validation error
+        'ValidationError',
+        # validation exception to stop further validators from being called
+        'StopOnError',
+        # validation invalid exception
+        'Invalid',
+        # class for providing cli interfaces
+        'CkanCommand',
+        # base class for IDatasetForm plugins
+        'DefaultDatasetForm',
+        # base class for IGroupForm plugins
+        'DefaultGroupForm',
+        # base class for IGroupForm plugins for orgs
+        'DefaultOrganizationForm',
+        # response object for cookies etc
+        'response',
+        # Allow controllers to be created
+        'BaseController',
+        # abort actions
+        'abort',
+        # allow redirections
+        'redirect_to',
+        # create urls
+        'url_for',
+        # helpful for actions
+        'get_or_bust',
+        # actions can be accessed via api
+        'side_effect_free',
+        # allow auth functions to be checked for sysadmins
+        'auth_sysadmins_check',
+        # allow anonymous access to an auth function
+        'auth_allow_anonymous_access',
+        # disallow anonymous access to an auth function
+        'auth_disallow_anonymous_access',
+        # Helper not found error.
+        'HelperError',
 
-        ## Fully defined in this file ##
+        # Fully defined in this file ##
         'add_template_directory',
         'add_resource',
         'add_public_directory',
@@ -90,13 +126,14 @@ class _Toolkit(object):
         import ckan.lib.cli as cli
         import ckan.lib.plugins as lib_plugins
         import ckan.common as common
-        import ckan.lib.datapreview as datapreview
-        from ckan.exceptions import CkanVersionException
+        from ckan.exceptions import (
+            CkanVersionException,
+            HelperError
+        )
 
         from paste.deploy import converters
         import pylons
         import webhelpers.html.tags
-
 
         # Allow class access to these modules
         self.__class__.ckan = ckan
@@ -141,7 +178,7 @@ available throughout the template and application code, and are local to the
 current request.
 
 '''
-        t['h'] = getattr(pylons.config['pylons.h'], 'no_magic', None)
+        t['h'] = h.helper_functions
         t['request'] = common.request
         self.docstring_overrides['request'] = '''The Pylons request object.
 
@@ -208,7 +245,9 @@ content type, cookies, etc.
         t['side_effect_free'] = logic.side_effect_free
         t['auth_sysadmins_check'] = logic.auth_sysadmins_check
         t['auth_allow_anonymous_access'] = logic.auth_allow_anonymous_access
-        t['auth_disallow_anonymous_access'] = logic.auth_disallow_anonymous_access
+        t['auth_disallow_anonymous_access'] = (
+            logic.auth_disallow_anonymous_access
+        )
 
         # class functions
         t['render_snippet'] = self._render_snippet
@@ -219,6 +258,7 @@ content type, cookies, etc.
         t['requires_ckan_version'] = self._requires_ckan_version
         t['check_ckan_version'] = self._check_ckan_version
         t['CkanVersionException'] = CkanVersionException
+        t['HelperError'] = HelperError
 
         # check contents list correct
         errors = set(t).symmetric_difference(set(self.contents))
@@ -383,8 +423,10 @@ content type, cookies, etc.
             if not max_version:
                 error = 'Requires ckan version %s or higher' % min_version
             else:
-                error = 'Requires ckan version between %s and %s' % \
-                            (min_version, max_version)
+                error = 'Requires ckan version between {0} and {1}'.format(
+                    min_version,
+                    max_version
+                )
             raise CkanVersionException(error)
 
     def __getattr__(self, name):
