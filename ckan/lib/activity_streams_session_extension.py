@@ -44,6 +44,8 @@ class DatasetActivitySessionExtension(SessionExtension):
         if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
             return
 
+        from ckan.model.activity import Activity
+
         session.flush()
 
         try:
@@ -142,6 +144,24 @@ class DatasetActivitySessionExtension(SessionExtension):
         for key, activity in activities.items():
             # Emitting activity
             session.add(activity)
+            if activity.data:
+                try:
+                    obj = activity.data['package']
+                except KeyError:
+                    continue
+
+                data = activity.data.copy()
+                data['real_object_id'] = activity.object_id
+
+                session.add(
+                    Activity(
+                        user_id=activity.user_id,
+                        object_id=obj['owner_org'],
+                        revision_id=activity.revision_id,
+                        activity_type=activity.activity_type,
+                        data=data
+                    )
+                )
 
         for key, activity_detail_list in activity_details.items():
             for activity_detail_obj in activity_detail_list:
