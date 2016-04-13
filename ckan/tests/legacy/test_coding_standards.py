@@ -513,7 +513,6 @@ class TestPep8(object):
         'ckan/authz.py',
         'ckan/pastertemplates/__init__.py',
         'ckan/plugins/interfaces.py',
-        'ckan/plugins/toolkit.py',
         'ckan/poo.py',
         'ckan/rating.py',
         'ckan/templates_legacy/home/__init__.py',
