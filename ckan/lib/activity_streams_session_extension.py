@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pylons import config
 from sqlalchemy.orm.session import SessionExtension
 from paste.deploy.converters import asbool
@@ -130,9 +131,9 @@ class DatasetActivitySessionExtension(SessionExtension):
                     activity_detail = activity_stream_detail(
                         obj, activity.id, activity_type)
                     if activity_detail is not None:
-                        if not package.id in activities:
+                        if package.id not in activities:
                             activities[package.id] = activity
-                        if activity_details.has_key(activity.id):
+                        if activity.id in activity_details:
                             activity_details[activity.id].append(
                                 activity_detail)
                         else:
