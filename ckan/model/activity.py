@@ -211,14 +211,12 @@ def _group_activity_query(group_id):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter("0=1")
 
-    dataset_ids = [dataset.id for dataset in group.packages()]
+    q = model.Session.query(
+        model.Activity
+    ).filter(
+        model.Activity.object_id == group_id
+    )
 
-    q = model.Session.query(model.Activity)
-    if dataset_ids:
-        q = q.filter(or_(model.Activity.object_id == group_id,
-            model.Activity.object_id.in_(dataset_ids)))
-    else:
-        q = q.filter(model.Activity.object_id == group_id)
     return q
 
 
