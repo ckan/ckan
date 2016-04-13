@@ -44,9 +44,6 @@ import ckan.plugins as p
 
 from ckan.common import _, ungettext, g, c, request, session, json
 
-# get_available_locales = i18n.get_available_locales
-# get_locales_dict = i18n.get_locales_dict
-
 log = logging.getLogger(__name__)
 
 
