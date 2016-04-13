@@ -393,6 +393,13 @@ a release.
    b. If it is the latest stable release, set it to be the Default Version and
       check it is displayed on http://docs.ckan.org.
 
+#. Rebuild the docs of 3 versions ago, so that it gets the 'not supported' banner.
+
+   Go to the
+   `Read the Docs build page <https://readthedocs.org/projects/ckan/builds/>`_,
+   from the drop-down select the version that is the 4th oldest (excluding
+   "latest") and then click 'Build'.
+
 #. Write a CKAN blog post and announce it to ckan-announce & ckan-dev & twitter.
 
    CKAN blog here: <http://ckan.org/wp-admin>`_

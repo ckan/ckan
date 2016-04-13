@@ -1,0 +1,8 @@
+{% extends "!layout.html" %}
+{% block extrabody %} 
+{% if status_of_this_version=='unsupported' %}
+  <div style="background-color: #FFBABA; color: #6A0E0E; position: fixed; min-width: 768px; top: 0; width: 100%; padding: 8px 20px 8px; font-size: 14px; line-height: 1.6; text-align: center; z-index: 300">
+    WARNING: This document is for an old version of CKAN that is no longer supported
+  </div>
+{% endif %}
+{% endblock %}
