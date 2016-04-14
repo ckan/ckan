@@ -352,10 +352,10 @@ class FeedController(base.BaseController):
             config.get('ckan.site_url', '').strip()
 
         # TODO language
-        feed = _FixedAtom1Feed(
-            title=feed_title,
-            link=feed_link,
-            description=feed_description,
+        feed = self.create_feed(
+            feed_title,
+            feed_link,
+            feed_description,
             language=u'en',
             author_name=author_name,
             author_link=author_link,
@@ -368,6 +368,8 @@ class FeedController(base.BaseController):
         )
 
         for pkg in results:
+            extras = self.get_item_extras(pkg)
+
             feed.add_item(
                 title=pkg.get('title', ''),
                 link=self.base_url + h.url_for(controller='package',
@@ -387,10 +389,17 @@ class FeedController(base.BaseController):
                                               id=pkg['name'],
                                               ver='2'),
                     unicode(len(json.dumps(pkg))),   # TODO fix this
-                    u'application/json')
+                    u'application/json'),
+                **extras
             )
         response.content_type = feed.mime_type
         return feed.writeString('utf-8')
+
+    def create_feed(self, title, link, description, **kwargs):
+        return _FixedAtom1Feed(title, link, description, **kwargs)
+
+    def get_item_extras(self, pkg):
+        return {}
 
     #### CLASS PRIVATE METHODS ####
 
