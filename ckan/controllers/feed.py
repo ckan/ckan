@@ -396,9 +396,15 @@ class FeedController(base.BaseController):
         return feed.writeString('utf-8')
 
     def create_feed(self, title, link, description, **kwargs):
+        """
+        Allows subclasses to override the feed class.
+        """
         return _FixedAtom1Feed(title, link, description, **kwargs)
 
     def get_item_extras(self, pkg):
+        """
+        Allows subclasses to set additional fields on a feed item.
+        """
         return {}
 
     #### CLASS PRIVATE METHODS ####
