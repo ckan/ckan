@@ -96,7 +96,6 @@ def redirect_to(*args, **kw):
         toolkit.redirect_to('dataset_read', id='changed')
 
     '''
-    kw['__ckan_no_root'] = True
     if are_there_flash_messages():
         kw['__no_cache__'] = True
     return _redirect_to(url_for(*args, **kw))
@@ -218,10 +217,8 @@ def _local_url(url_to_amend, **kw):
             default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
         except TypeError:
             default_locale = True
-    try:
-        root = request.environ.get('SCRIPT_NAME', '')
-    except TypeError:
-        root = ''
+
+    root = ''
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
         root = _routes_default_url_for('/', qualified=True)[:-1]
@@ -239,21 +236,17 @@ def _local_url(url_to_amend, **kw):
         # make sure we don't have a trailing / on the root
         if root_path[-1] == '/':
             root_path = root_path[:-1]
-        # TODO: this seems broken
-
-        url_path = url_to_amend[len(root):]
-        url = '%s%s%s' % (root, root_path, url_path)
     else:
         if default_locale:
-            url = url_to_amend
+            root_path = ''
         else:
-            # we need to strip the root from the url and the add it before
-            # the language specification.
-            url = url_to_amend[len(root):]
-            url = '%s/%s%s' % (root, locale, url)
+            root_path = '/' + str(locale)
+
+    url_path = url_to_amend[len(root):]
+    url = '%s%s%s' % (root, root_path, url_path)
 
     # stop the root being added twice in redirects
-    if no_root:
+    if no_root and url_to_amend.startswith(root):
         url = url_to_amend[len(root):]
         if not default_locale:
             url = '/%s%s' % (locale, url)
