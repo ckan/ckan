@@ -295,6 +295,20 @@ installed, we need to install and configure Solr.
 
         JAVA_HOME=/usr/lib/jvm/java-6-openjdk-i386/
 
+   .. note::
+
+    If you get the message ``HTTP ERROR 500... JSP support not configured.``
+    then you will need to install a solr-jetty bug fix. You do this by::
+
+        cd /tmp
+        wget https://launchpad.net/~vshn/+archive/ubuntu/solr/+files/solr-jetty-jsp-fix_1.0.2_all.deb
+        sudo dpkg -i solr-jetty-jsp-fix_1.0.2_all.deb
+        sudo service solr restart
+
+    You should now see a welcome page from Solr if you open
+    http://localhost:8983/solr/ in your web browser (replace localhost with
+    your server address if needed).
+
 #. Replace the default ``schema.xml`` file with a symlink to the CKAN schema
    file included in the sources.
 
