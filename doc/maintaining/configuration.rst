@@ -11,12 +11,12 @@ but some of them can also be set via `Environment variables`_ or at :ref:`runtim
 Environment variables
 *********************
 
-Some of the CKAN configuration options can be defined as `Environment variables <env-vars-wikipedia>`_
+Some of the CKAN configuration options can be defined as `Environment variables`_
 on the server operating system.
 
 These are generally low-level critical settings needed when setting up the application, like the database
 connection, the Solr server URL, etc. Sometimes it can be useful to define them as environment variables to
-automate and orchestrate deployments without having to first modify the `configuration file <CKAN configuration file>`_.
+automate and orchestrate deployments without having to first modify the `CKAN configuration file`_.
 
 These options are only read at startup time to update the ``config`` object used by CKAN,
 but they won't we accessed any more during the lifetime of the application.
@@ -26,14 +26,14 @@ and prefixed with `CKAN_` (this prefix is added even if
 the corresponding option in the ini file does not have it), and replacing dots with underscores.
 
 This is the list of currently supported environment variables, please refer to the entries in the
-`configuration file <CKAN configuration file>`_ section below for more details about each one:
+`CKAN configuration file`_ section below for more details about each one:
 
 .. literalinclude:: /../ckan/config/environment.py
     :language: python
     :start-after: Start CONFIG_FROM_ENV_VARS
     :end-before: End CONFIG_FROM_ENV_VARS
 
-.. _env-vars-wikipedia: http://en.wikipedia.org/wiki/Environment_variable
+.. _Environment variables: http://en.wikipedia.org/wiki/Environment_variable
 
 
 .. _runtime-config:
@@ -42,7 +42,7 @@ Updating configuration options during runtime
 *********************************************
 
 CKAN configuration options are generally defined before starting the web application (either in the
-`configuration file <CKAN configuration file>`_ or via `Environment variables`_).
+`CKAN configuration file`_ or via `Environment variables`_).
 
 A limited number of configuration options can also be edited during runtime. This can be done on the
 :ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.update.config_option_update`

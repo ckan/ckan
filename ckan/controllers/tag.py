@@ -1,9 +1,13 @@
+# encoding: utf-8
+
 from pylons import config
+from paste.deploy.converters import asbool
 
 import ckan.logic as logic
 import ckan.model as model
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+from ckan.lib.alphabet_paginate import AlphaPage
 
 from ckan.common import _, request, c
 
@@ -49,7 +53,7 @@ class TagController(base.BaseController):
             )
             c.page.items = results
         else:
-            c.page = h.AlphaPage(
+            c.page = AlphaPage(
                 collection=results,
                 page=request.params.get('page', 'A'),
                 alpha_attribute='name',
@@ -69,7 +73,7 @@ class TagController(base.BaseController):
         except logic.NotFound:
             base.abort(404, _('Tag not found'))
 
-        if h.asbool(config.get('ckan.legacy_templates', False)):
+        if asbool(config.get('ckan.legacy_templates', False)):
             return base.render('tag/read.html')
         else:
             h.redirect_to(controller='package', action='search',
