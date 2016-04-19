@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pylons import config
 from sqlalchemy.orm.session import SessionExtension
 from paste.deploy.converters import asbool
@@ -42,6 +43,8 @@ class DatasetActivitySessionExtension(SessionExtension):
     def before_commit(self, session):
         if not asbool(config.get('ckan.activity_streams_enabled', 'true')):
             return
+
+        from ckan.model.activity import Activity
 
         session.flush()
 
@@ -130,9 +133,9 @@ class DatasetActivitySessionExtension(SessionExtension):
                     activity_detail = activity_stream_detail(
                         obj, activity.id, activity_type)
                     if activity_detail is not None:
-                        if not package.id in activities:
+                        if package.id not in activities:
                             activities[package.id] = activity
-                        if activity_details.has_key(activity.id):
+                        if activity.id in activity_details:
                             activity_details[activity.id].append(
                                 activity_detail)
                         else:
@@ -141,6 +144,24 @@ class DatasetActivitySessionExtension(SessionExtension):
         for key, activity in activities.items():
             # Emitting activity
             session.add(activity)
+            if activity.data:
+                try:
+                    obj = activity.data['package']
+                except KeyError:
+                    continue
+
+                data = activity.data.copy()
+                data['real_object_id'] = activity.object_id
+
+                session.add(
+                    Activity(
+                        user_id=activity.user_id,
+                        object_id=obj['owner_org'],
+                        revision_id=activity.revision_id,
+                        activity_type=activity.activity_type,
+                        data=data
+                    )
+                )
 
         for key, activity_detail_list in activity_details.items():
             for activity_detail_obj in activity_detail_list:

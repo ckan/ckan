@@ -1,7 +1,15 @@
+# -*- coding: utf-8 -*-
 import datetime
 
 from sqlalchemy import (
-    orm, types, Column, Table, ForeignKey, desc, or_, union_all)
+    orm,
+    types,
+    Column,
+    Table,
+    ForeignKey,
+    desc,
+    union_all
+)
 
 import ckan.model
 import meta
@@ -14,7 +22,12 @@ __all__ = ['Activity', 'activity_table',
 
 activity_table = Table(
     'activity', meta.metadata,
-    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column(
+        'id',
+        types.UnicodeText,
+        primary_key=True,
+        default=_types.make_uuid
+    ),
     Column('timestamp', types.DateTime),
     Column('user_id', types.UnicodeText),
     Column('object_id', types.UnicodeText),
@@ -25,7 +38,12 @@ activity_table = Table(
 
 activity_detail_table = Table(
     'activity_detail', meta.metadata,
-    Column('id', types.UnicodeText, primary_key=True, default=_types.make_uuid),
+    Column(
+        'id',
+        types.UnicodeText,
+        primary_key=True,
+        default=_types.make_uuid
+    ),
     Column('activity_id', types.UnicodeText, ForeignKey('activity.id')),
     Column('object_id', types.UnicodeText),
     Column('object_type', types.UnicodeText),
@@ -33,10 +51,10 @@ activity_detail_table = Table(
     Column('data', _types.JsonDictType),
     )
 
-class Activity(domain_object.DomainObject):
 
+class Activity(domain_object.DomainObject):
     def __init__(self, user_id, object_id, revision_id, activity_type,
-            data=None):
+                 data=None):
         self.id = _types.make_uuid()
         self.timestamp = datetime.datetime.now()
         self.user_id = user_id
@@ -54,7 +72,7 @@ meta.mapper(Activity, activity_table)
 class ActivityDetail(domain_object.DomainObject):
 
     def __init__(self, activity_id, object_id, object_type, activity_type,
-            data=None):
+                 data=None):
         self.activity_id = activity_id
         self.object_id = object_id
         self.object_type = object_type
@@ -66,13 +84,23 @@ class ActivityDetail(domain_object.DomainObject):
 
     @classmethod
     def by_activity_id(cls, activity_id):
-        return ckan.model.Session.query(cls) \
-                .filter_by(activity_id = activity_id).all()
+        return ckan.model.Session.query(
+            cls
+        ).filter_by(
+            activity_id=activity_id
+        ).all()
 
 
-meta.mapper(ActivityDetail, activity_detail_table, properties = {
-    'activity':orm.relation ( Activity, backref=orm.backref('activity_detail'))
-    })
+meta.mapper(
+    ActivityDetail,
+    activity_detail_table,
+    properties={
+        'activity': orm.relation(
+            Activity,
+            backref=orm.backref('activity_detail')
+        )
+    }
+)
 
 
 def _activities_limit(q, limit, offset=None):
@@ -87,6 +115,7 @@ def _activities_limit(q, limit, offset=None):
         q = q.limit(limit)
     return q
 
+
 def _activities_union_all(*qlist):
     '''
     Return union of two or more queries sorted by timestamp,
@@ -95,13 +124,15 @@ def _activities_union_all(*qlist):
     import ckan.model as model
     return model.Session.query(model.Activity).select_entity_from(
         union_all(*[q.subquery().select() for q in qlist])
-        ).distinct(model.Activity.timestamp)
+    ).distinct(model.Activity.timestamp)
+
 
 def _activities_at_offset(q, limit, offset):
     '''
     Return a list of all activities at an offset with a limit.
     '''
     return _activities_limit(q, limit, offset).all()
+
 
 def _activities_from_user_query(user_id):
     '''Return an SQLAlchemy query for all activities from user_id.'''
@@ -180,14 +211,12 @@ def _group_activity_query(group_id):
         # Return a query with no results.
         return model.Session.query(model.Activity).filter("0=1")
 
-    dataset_ids = [dataset.id for dataset in group.packages()]
+    q = model.Session.query(
+        model.Activity
+    ).filter(
+        model.Activity.object_id == group_id
+    )
 
-    q = model.Session.query(model.Activity)
-    if dataset_ids:
-        q = q.filter(or_(model.Activity.object_id == group_id,
-            model.Activity.object_id.in_(dataset_ids)))
-    else:
-        q = q.filter(model.Activity.object_id == group_id)
     return q
 
 
@@ -297,6 +326,7 @@ def dashboard_activity_list(user_id, limit, offset):
     '''
     q = _dashboard_activity_query(user_id, limit + offset)
     return _activities_at_offset(q, limit, offset)
+
 
 def _changed_packages_activity_query():
     '''Return an SQLAlchemyu query for all changed package activities.
