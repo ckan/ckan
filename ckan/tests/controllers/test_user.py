@@ -140,6 +140,23 @@ class TestLogout(helpers.FunctionalTestBase):
         assert_true('You are now logged out.' in final_response)
 
 
+    @helpers.change_config('ckan.root_path', '/my/prefix')
+    def test_non_root_user_logout_url_redirect(self):
+        '''_logout url redirects to logged out page.
+
+        Note: this doesn't test the actual logout of a logged in user, just
+        the associated redirect.
+        '''
+        app = self._get_test_app()
+
+        logout_url = url_for(controller='user', action='logout')
+        logout_response = app.get(logout_url, status=302)
+        try:
+            final_response = helpers.webtest_maybe_follow(logout_response)
+        except Exception as e:
+            assert_true('/my/prefix/user/logout' in e.message)
+
+
 class TestUser(helpers.FunctionalTestBase):
 
     def test_own_datasets_show_up_on_user_dashboard(self):
