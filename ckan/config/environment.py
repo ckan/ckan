@@ -6,15 +6,13 @@ import warnings
 from urlparse import urlparse
 import pytz
 
-import pylons
-from paste.deploy.converters import asbool
 import sqlalchemy
 from pylons import config
 
 import ckan.config.routing as routing
 import ckan.model as model
 import ckan.plugins as p
-import ckan.lib.helpers as h
+import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
 import ckan.lib.render as render
 import ckan.lib.search as search
@@ -32,95 +30,11 @@ log = logging.getLogger(__name__)
 warnings.simplefilter('ignore', UserWarning)
 
 
-class _Helpers(object):
-    ''' Helper object giving access to template helpers stopping
-    missing functions from causing template exceptions. Useful if
-    templates have helper functions provided by extensions that have
-    not been enabled. '''
-    def __init__(self, helpers):
-        self.helpers = helpers
-        self._setup()
-        self.no_magic = _HelpersNoMagic(self)
-
-    def _setup(self):
-        helpers = self.helpers
-        functions = {}
-        allowed = helpers.__allowed_functions__[:]
-        # list of functions due to be deprecated
-        self.deprecated = []
-
-        for helper in dir(helpers):
-            if helper not in allowed:
-                self.deprecated.append(helper)
-                continue
-            functions[helper] = getattr(helpers, helper)
-            if helper in allowed:
-                allowed.remove(helper)
-        self.functions = functions
-
-        if allowed:
-            raise Exception('Template helper function(s) `%s` not defined'
-                            % ', '.join(allowed))
-
-        # extend helper functions with ones supplied by plugins
-        extra_helpers = []
-        for plugin in p.PluginImplementations(p.ITemplateHelpers):
-            helpers = plugin.get_helpers()
-            for helper in helpers:
-                if helper in extra_helpers:
-                    raise Exception('overwritting extra helper %s' % helper)
-                extra_helpers.append(helper)
-                functions[helper] = helpers[helper]
-        # logging
-        self.log = logging.getLogger('ckan.helpers')
-
-    def __getattr__(self, name):
-        ''' return the function/object requested '''
-        if name in self.functions:
-            if name in self.deprecated:
-                msg = 'Template helper function `%s` is deprecated' % name
-                self.log.warn(msg)
-            return self.functions[name]
-        else:
-            if name in self.deprecated:
-                msg = ('Template helper function `{0}` is not available '
-                       'because it has been deprecated.'.format(name))
-                self.log.critical(msg)
-            else:
-                msg = 'Helper function `%s` could not be found\n ' \
-                      '(are you missing an extension?)' % name
-                self.log.critical(msg)
-            return _null_function
-
-
-def _null_function(*args, **kw):
-    ''' This function is returned if no helper is found. The idea is
-    to try to allow templates to be rendered even if helpers are
-    missing.  Returning the empty string seems to work well.'''
-    return ''
-
-
-class _HelpersNoMagic(object):
-    """
-    Access helper.functions as attributes, but raise AttributeError
-    for missing functions instead of returning null_function
-    """
-    def __init__(self, helpers):
-        self._helpers = helpers
-
-    def __getattr__(self, name):
-        fn = getattr(self._helpers, name)
-        if fn is _null_function:
-            raise AttributeError("No helper found named '%s'" % name)
-        return fn
-
-
 def load_environment(global_conf, app_conf):
-    """Configure the Pylons environment via the ``pylons.config``
-    object.  This code should only need to be run once.
     """
-
-    ######  Pylons monkey-patch
+    Configure the Pylons environment via the ``pylons.config`` object. This
+    code should only need to be run once.
+    """
     # this must be run at a time when the env is semi-setup, thus inlined here.
     # Required by the deliverance plugin and iATI
     from pylons.wsgiapp import PylonsApp
@@ -133,14 +47,19 @@ def load_environment(global_conf, app_conf):
             return self.controller_classes[controller]
         # Check to see if its a dotted name
         if '.' in controller or ':' in controller:
-            mycontroller = pkg_resources \
-                .EntryPoint \
-                .parse('x=%s' % controller).load(False)
+            ep = pkg_resources.EntryPoint.parse('x={0}'.format(controller))
+
+            if hasattr(ep, 'resolve'):
+                # setuptools >= 10.2
+                mycontroller = ep.resolve()
+            else:
+                # setuptools >= 11.3
+                mycontroller = ep.load(False)
+
             self.controller_classes[controller] = mycontroller
             return mycontroller
         return find_controller_generic(self, controller)
     PylonsApp.find_controller = find_controller
-    ###### END evil monkey-patch
 
     os.environ['CKAN_CONFIG'] = global_conf['__file__']
 
@@ -250,7 +169,7 @@ def update_config():
     config['ckan.favicon'] = favicon
 
     # Init SOLR settings and check if the schema is compatible
-    #from ckan.lib.search import SolrSettings, check_solr_schema_version
+    # from ckan.lib.search import SolrSettings, check_solr_schema_version
 
     # lib.search is imported here as we need the config enabled and parsed
     search.SolrSettings.init(config.get('solr_url'),
@@ -268,9 +187,8 @@ def update_config():
     # initialise the globals
     config['pylons.app_globals']._init()
 
-    # add helper functions
-    helpers = _Helpers(h)
-    config['pylons.h'] = helpers
+    helpers.load_plugin_helpers()
+    config['pylons.h'] = helpers.helper_functions
 
     jinja2_templates_path = os.path.join(root, 'templates')
     template_paths = [jinja2_templates_path]

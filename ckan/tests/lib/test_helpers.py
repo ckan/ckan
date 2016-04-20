@@ -1,5 +1,4 @@
 import nose
-import i18n
 import pytz
 import tzlocal
 from babel import Locale
@@ -34,6 +33,28 @@ class TestHelpersUrlForStatic(object):
     def test_url_for_static_raises_when_called_with_protocol_relative(self):
         url = '//assets.ckan.org/ckan.jpg'
         nose.tools.assert_raises(CkanUrlException, h.url_for_static, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_static_with_root_path(self):
+        url = '/my/custom/path/foo/my-asset/file.txt'
+        generated_url = h.url_for_static('/my-asset/file.txt')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_static_qualified_with_root_path(self):
+        url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
+        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        eq_(generated_url, url)
+
+    @helpers.set_extra_environ('SCRIPT_NAME', '/my/custom/path')
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_static_with_root_path_and_script_name_env(self):
+        url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
+        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        eq_(generated_url, url)
 
 
 class TestHelpersUrlForStaticOrExternal(object):
@@ -126,6 +147,18 @@ class TestHelpersUrlFor(object):
     @helpers.change_config('ckan.site_url', 'http://example.com')
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_qualified_with_root_path_and_locale(self):
+        url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  qualified=True,
+                                  locale='de')
+        eq_(generated_url, url)
+
+    @helpers.set_extra_environ('SCRIPT_NAME', '/my/custom/path')
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_qualified_with_root_path_locale_and_script_name_env(self):
         url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
         generated_url = h.url_for(controller='package',
                                   action='read',

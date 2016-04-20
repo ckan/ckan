@@ -167,8 +167,8 @@ entry_points = {
 setup(
     name='ckan',
     version=__version__,
-    author='Open Knowledge Foundation',
-    author_email='info@okfn.org',
+    author='https://github.com/ckan/ckan/graphs/contributors',
+    author_email='info@ckan.org',
     license=__license__,
     url='http://ckan.org/',
     description=__description__,
