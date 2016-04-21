@@ -386,9 +386,19 @@ class ApiView(FlaskView):
                 out[key] = value[0] if len(value) == 1 else value
             return out
 
-        request_data = None
+        request_data = {}
         if request.form:
-            request_data = mixed(request.form)
+            if (len(request.form.values()) == 1 and
+                    request.form.values()[0] in [u'1', u'']):
+                try:
+                    request_data = json.loads(request.form.keys()[0])
+                except ValueError, e:
+                    raise ValueError('Error decoding JSON data. '
+                                     'Error: %r '
+                                     'JSON data extracted from the request: %r' %
+                                     (e, request_data))
+            else:
+                request_data = mixed(request.form)
         elif request.args and try_url_params:
             request_data = mixed(request.args)
         elif (request.data and request.data != '' and
