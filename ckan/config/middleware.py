@@ -5,6 +5,7 @@ import logging
 import json
 import hashlib
 import os
+import webob
 
 import sqlalchemy as sa
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -38,6 +39,28 @@ from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
 
 log = logging.getLogger(__name__)
+
+# This monkey-patches the webob request object because of the way it messes
+# with the WSGI environ.
+
+# Start of webob.requests.BaseRequest monkey patch
+original_charset__set = webob.request.BaseRequest._charset__set
+
+
+def custom_charset__set(self, charset):
+    original_charset__set(self, charset)
+    if self.environ.get('CONTENT_TYPE', '').startswith(';'):
+        self.environ['CONTENT_TYPE'] = ''
+
+webob.request.BaseRequest._charset__set = custom_charset__set
+
+webob.request.BaseRequest.charset = property(
+    webob.request.BaseRequest._charset__get,
+    custom_charset__set,
+    webob.request.BaseRequest._charset__del,
+    webob.request.BaseRequest._charset__get.__doc__)
+
+# End of webob.requests.BaseRequest monkey patch
 
 
 def make_app(conf, full_stack=True, static_files=True, **app_conf):
