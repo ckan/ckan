@@ -9,9 +9,6 @@ import ckan.tests.helpers as helpers
 from ckan.config.middleware import AskAppDispatcherMiddleware, CKANFlask
 from ckan.controllers.partyline import PartylineController
 
-import logging
-log = logging.getLogger(__name__)
-
 
 class TestPylonsResponseCleanupMiddleware(helpers.FunctionalTestBase):
     @classmethod
