@@ -387,7 +387,7 @@ class ApiView(FlaskView):
             return out
 
         request_data = {}
-        if request.form:
+        if request.method == 'POST' and request.form:
             if (len(request.form.values()) == 1 and
                     request.form.values()[0] in [u'1', u'']):
                 try:
