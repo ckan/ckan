@@ -52,8 +52,8 @@ def _identify_user():
     # TODO:
     # Authentication plugins get a chance to run here break as soon as a
     # user is identified.
-    #authenticators = p.PluginImplementations(p.IAuthenticator)
-    #if authenticators:
+    # authenticators = p.PluginImplementations(p.IAuthenticator)
+    # if authenticators:
     #    for item in authenticators:
     #        item.identify()
     #        if c.user:
@@ -105,8 +105,8 @@ def _identify_user_default():
             # User object.
 
             # TODO: this should not be done here
-            #session['lang'] = request.environ.get('CKAN_LANG')
-            #session.save()
+            # session['lang'] = request.environ.get('CKAN_LANG')
+            # session.save()
             ev = request.environ
             if 'repoze.who.plugins' in ev:
                 pth = getattr(ev['repoze.who.plugins']['friendlyform'],
@@ -191,7 +191,8 @@ class ApiView(FlaskView):
             try:
                 resource_location = str(resource_location)
             except Exception, inst:
-                msg = "Couldn't convert '%s' header value '%s' to string: %s" % \
+                msg = \
+                    "Couldn't convert '%s' header value '%s' to string: %s" % \
                     ('Location', resource_location, inst)
                 raise Exception(msg)
             headers = {'Location': resource_location}
@@ -240,11 +241,11 @@ class ApiView(FlaskView):
         model.Session()._context = context
 
 #        if g.user:
-#
-#            out = 'Action {0} found, user logged in: {1}'.format(logic_function, g.userobj.name)
+#            out = 'Action {0} found, user logged in: {1}' \
+#                .format(logic_function, g.userobj.name)
 #        else:
-#
-#            out = 'Action {0} found, user not logged in or not found'.format(logic_function)
+#            out = 'Action {0} found, user not logged in or not found' \
+#                .format(logic_function)
 
 #        return self._finish_ok(out)
 
@@ -393,10 +394,11 @@ class ApiView(FlaskView):
                 try:
                     request_data = json.loads(request.form.keys()[0])
                 except ValueError, e:
-                    raise ValueError('Error decoding JSON data. '
-                                     'Error: %r '
-                                     'JSON data extracted from the request: %r' %
-                                     (e, request_data))
+                    raise ValueError(
+                        'Error decoding JSON data. '
+                        'Error: %r '
+                        'JSON data extracted from the request: %r' %
+                        (e, request_data))
             else:
                 request_data = mixed(request.form)
         elif request.args and try_url_params:

@@ -38,6 +38,7 @@ class TestApi3(Api3TestCase, ApiTestCase):
         attempt to invoke with a http GET request is made.
         '''
         offset = self.offset('/action/package_create')
+        print(offset)
         data_dict = {
             'type': 'dataset',
             'name': 'a-name'
