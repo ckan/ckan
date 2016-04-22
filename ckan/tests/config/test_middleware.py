@@ -39,7 +39,8 @@ class TestAppDispatcherPlain(object):
 
     def test_invitations_are_sent(self):
 
-        with mock.patch.object(AskAppDispatcherMiddleware, 'send_invitations') as \
+        with mock.patch.object(AskAppDispatcherMiddleware,
+                               'send_invitations') as \
                 mock_send_invitations:
 
             # This will create the whole WSGI stack
@@ -98,14 +99,40 @@ class TestAppDispatcherPlain(object):
 class TestAppDispatcher(helpers.FunctionalTestBase):
 
     @classmethod
+    def _find_flask_app(cls, test_app):
+        '''Recursively search the wsgi stack until the flask_app is
+        discovered.
+
+        Relies on each layer of the stack having a reference to the app they
+        wrap in either a .app attribute or .apps list.
+        '''
+        if isinstance(test_app, CKANFlask):
+            return test_app
+
+        try:
+            app = test_app.apps['flask_app'].app
+        except (AttributeError, KeyError):
+            pass
+        else:
+            return cls._find_flask_app(app)
+
+        try:
+            app = test_app.app
+        except AttributeError:
+            print('No .app attribute. '
+                  'Have all layers of the stack got '
+                  'a reference to the app they wrap?')
+        else:
+            return cls._find_flask_app(app)
+
+    @classmethod
     def setup_class(cls):
 
         super(TestAppDispatcher, cls).setup_class()
 
         # Add a custom route to the Flask app
         app = cls._get_test_app()
-
-        flask_app = app.app.apps['flask_app']
+        flask_app = cls._find_flask_app(app)
 
         def test_view():
             return 'This was served from Flask'
