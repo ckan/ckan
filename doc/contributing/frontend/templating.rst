@@ -313,7 +313,7 @@ labels to inputs, error messages and other useful elements.
     error       - A list of error strings for the field or just true to highlight the field.
     classes     - An array of classes to apply to the control-group.
     attrs       - Dictionary of extra tag attributes
-    is_required - Boolean of whether this input is requred for the form to validate
+    is_required - Boolean of whether this input is required for the form to validate
 
 Examples:
 
@@ -337,7 +337,7 @@ Builds a single checkbox input.
     error       - An error string for the field or just true to highlight the field.
     classes     - An array of classes to apply to the control-group.
     attrs       - Dictionary of extra tag attributes
-    is_required - Boolean of whether this input is requred for the form to validate
+    is_required - Boolean of whether this input is required for the form to validate
 
 Example:
 
@@ -367,7 +367,7 @@ allow extension in future should extra options be required.
     error       - A list of error strings for the field or just true to highlight the field.
     classes     - An array of classes to apply to the control-group.
     attrs       - Dictionary of extra tag attributes
-    is_required - Boolean of whether this input is requred for the form to validate
+    is_required - Boolean of whether this input is required for the form to validate
 
 Examples:
 
@@ -392,7 +392,7 @@ matching labels to inputs, selected item and error messages.
     error       - A list of error strings for the field or just true to highlight the field.
     classes     - An array of classes to apply to the control-group.
     attrs       - Dictionary of extra tag attributes
-    is_required - Boolean of whether this input is requred for the form to validate
+    is_required - Boolean of whether this input is required for the form to validate
 
 Examples:
 
@@ -417,7 +417,7 @@ matching labels to inputs, selected item and error messages.
     error       - A list of error strings for the field or just true to highlight the field.
     classes     - An array of classes to apply to the control-group.
     attrs       - Dictionary of extra tag attributes
-    is_required - Boolean of whether this input is requred for the form to validate
+    is_required - Boolean of whether this input is required for the form to validate
 
 Examples:
 
@@ -445,7 +445,7 @@ the input information forms only part of the saved data.
     error       - A list of error strings for the field  or just true to highlight the field.
     classes     - An array of classes to apply to the control-group.
     attrs       - Dictionary of extra tag attributes
-    is_required - Boolean of whether this input is requred for the form to validate
+    is_required - Boolean of whether this input is required for the form to validate
 
 Examples:
 
@@ -474,7 +474,7 @@ values for the (key, value, delete) fields respectively.
     error       - A list of error strings for the field or just true to highlight the field.
     classes     - An array of classes to apply to the control-group.
     attrs       - Dictionary of extra tag attributes
-    is_required - Boolean of whether this input is requred for the form to validate
+    is_required - Boolean of whether this input is required for the form to validate
     
 
 Examples:
