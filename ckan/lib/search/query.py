@@ -5,6 +5,7 @@ from pylons import config
 import pysolr
 from paste.deploy.converters import asbool
 from paste.util.multidict import MultiDict
+import six
 
 from ckan.lib.search.common import make_connection, SearchError, SearchQueryError
 import ckan.logic as logic
@@ -360,30 +361,26 @@ class PackageSearchQuery(SearchQuery):
         self.results = solr_response.docs
 
 
-            # #1683 Filter out the last row that is sometimes out of order
-            self.results = self.results[:rows_to_return]
+        # #1683 Filter out the last row that is sometimes out of order
+        self.results = self.results[:rows_to_return]
 
-            # get any extras and add to 'extras' dict
-            for result in self.results:
-                extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
-                extras = {}
-                for extra_key in extra_keys:
-                    value = result.pop(extra_key)
-                    extras[extra_key[len('extras_'):]] = value
-                if extra_keys:
-                    result['extras'] = extras
+        # get any extras and add to 'extras' dict
+        for result in self.results:
+            extra_keys = filter(lambda x: x.startswith('extras_'), result.keys())
+            extras = {}
+            for extra_key in extra_keys:
+                value = result.pop(extra_key)
+                extras[extra_key[len('extras_'):]] = value
+            if extra_keys:
+                result['extras'] = extras
 
-            # if just fetching the id or name, return a list instead of a dict
-            if query.get('fl') in ['id', 'name']:
-                self.results = [r.get(query.get('fl')) for r in self.results]
+        # if just fetching the id or name, return a list instead of a dict
+        if query.get('fl') in ['id', 'name']:
+            self.results = [r.get(query.get('fl')) for r in self.results]
 
-            # get facets and convert facets list to a dict
-            self.facets = data.get('facet_counts', {}).get('facet_fields', {})
-            for field, values in self.facets.iteritems():
-                self.facets[field] = dict(zip(values[0::2], values[1::2]))
-        except Exception, e:
-            log.exception(e)
-            raise SearchError(e)
-        finally:
-            conn.close()
+        # get facets and convert facets list to a dict
+        self.facets = solr_response.facets.get('facet_fields', {})
+        for field, values in six.iteritems(self.facets):
+            self.facets[field] = dict(zip(values[0::2], values[1::2]))
+
         return {'results': self.results, 'count': self.count}
