@@ -351,9 +351,9 @@ class PackageSearchQuery(SearchQuery):
             # error messages depending on whether the SOLR JSON comes back
             # or Jetty gets in the way converting it to HTML - not sure why
             #
-            if "Can't determine a Sort Order" in e.body or \
-                    "Can't determine Sort Order" in e.body or \
-                    'Unknown sort order' in e.body:
+            if "Can't determine a Sort Order" in e.args[0] or \
+                    "Can't determine Sort Order" in e.args[0] or \
+                    'Unknown sort order' in e.args[0]:
                 raise SearchQueryError('Invalid "sort" parameter')
             raise SearchError('SOLR returned an error running query: %r Error: %r' %
                               (query, e))
