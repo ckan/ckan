@@ -144,7 +144,7 @@ class TestBadSpellings(object):
                     bad = ', '.join(bad_words)
                     errors.append('ln:%s \t%s\n<%s>' % (count, line[:-1], bad))
                 count += 1
-            if errors and not filename in blacklist:
+            if errors and filename not in blacklist:
                 cls.fails[filename] = output_errors(filename, errors)
             elif not errors and filename in blacklist:
                 cls.passes.append(filename)
@@ -197,7 +197,7 @@ class TestNastyString(object):
                 if re_nasty_str.search(line):
                     errors.append('ln:%s \t%s' % (count, line[:-1]))
                 count += 1
-            if errors and not filename in blacklist:
+            if errors and filename not in blacklist:
                 cls.fails[filename] = output_errors(filename, errors)
             elif not errors and filename in blacklist:
                 cls.passes.append(filename)
@@ -227,7 +227,6 @@ class TestImportStar(object):
     # import * is bad for many reasons and should be avoided.
 
     IMPORT_STAR_BLACKLIST_FILES = [
-        'ckan/lib/helpers.py',
         'ckan/migration/versions/001_add_existing_tables.py',
         'ckan/migration/versions/002_add_author_and_maintainer.py',
         'ckan/migration/versions/003_add_user_object.py',
@@ -290,7 +289,6 @@ class TestImportStar(object):
         'ckan/migration/versions/063_org_changes.py',
         'ckan/migration/versions/064_add_email_last_sent_column.py',
         'ckan/migration/versions/065_add_email_notifications_preference.py',
-        'ckan/new_authz.py',
         'ckan/plugins/__init__.py',
         'ckan/tests/legacy/functional/api/base.py',
         'ckan/tests/legacy/functional/api/test_api.py',
@@ -303,7 +301,6 @@ class TestImportStar(object):
         'ckan/tests/legacy/functional/test_package.py',
         'ckan/tests/legacy/functional/test_package_relationships.py',
         'ckan/tests/legacy/functional/test_tag.py',
-        'ckan/tests/legacy/lib/test_alphabet_pagination.py',
         'ckan/tests/legacy/lib/test_helpers.py',
         'ckan/tests/legacy/lib/test_resource_search.py',
         'ckan/tests/legacy/lib/test_tag_search.py',
@@ -317,7 +314,6 @@ class TestImportStar(object):
         'ckan/tests/legacy/models/test_revision.py',
         'ckan/tests/legacy/models/test_user.py',
         'ckan/tests/legacy/pylons_controller.py',
-        'ckan/tests/legacy/test_dumper.py',
         'fabfile.py',
     ]
     fails = {}
@@ -343,7 +339,7 @@ class TestImportStar(object):
                     errors.append('%s ln:%s import *\n\t%s'
                                   % (filename, count, line))
                 count += 1
-            if errors and not filename in blacklist:
+            if errors and filename not in blacklist:
                 cls.fails[filename] = output_errors(filename, errors)
             elif not errors and filename in blacklist:
                 cls.passes.append(filename)
@@ -378,8 +374,6 @@ class TestPep8(object):
         'ckan/config/sp_config.py',
         'ckan/controllers/admin.py',
         'ckan/controllers/revision.py',
-        'ckan/exceptions.py',
-        'ckan/i18n/check_po_files.py',
         'ckan/include/rcssmin.py',
         'ckan/include/rjsmin.py',
         'ckan/lib/activity_streams.py',
@@ -392,7 +386,6 @@ class TestPep8(object):
         'ckan/lib/dictization/__init__.py',
         'ckan/lib/dictization/model_dictize.py',
         'ckan/lib/dictization/model_save.py',
-        'ckan/lib/dumper.py',
         'ckan/lib/email_notifications.py',
         'ckan/lib/extract.py',
         'ckan/lib/fanstatic_extensions.py',
@@ -403,7 +396,6 @@ class TestPep8(object):
         'ckan/lib/i18n.py',
         'ckan/lib/jinja_extensions.py',
         'ckan/lib/jsonp.py',
-        'ckan/lib/mailer.py',
         'ckan/lib/maintain.py',
         'ckan/lib/navl/dictization_functions.py',
         'ckan/lib/navl/validators.py',
@@ -414,7 +406,6 @@ class TestPep8(object):
         'ckan/lib/search/index.py',
         'ckan/lib/search/query.py',
         'ckan/lib/search/sql.py',
-        'ckan/logic/__init__.py',
         'ckan/logic/action/__init__.py',
         'ckan/logic/action/delete.py',
         'ckan/logic/action/get.py',
@@ -509,7 +500,6 @@ class TestPep8(object):
         'ckan/model/package_extra.py',
         'ckan/model/package_relationship.py',
         'ckan/model/rating.py',
-        'ckan/model/related.py',
         'ckan/model/resource.py',
         'ckan/model/system_info.py',
         'ckan/model/tag.py',
@@ -523,7 +513,6 @@ class TestPep8(object):
         'ckan/authz.py',
         'ckan/pastertemplates/__init__.py',
         'ckan/plugins/interfaces.py',
-        'ckan/plugins/toolkit.py',
         'ckan/poo.py',
         'ckan/rating.py',
         'ckan/templates_legacy/home/__init__.py',
@@ -562,7 +551,6 @@ class TestPep8(object):
         'ckan/tests/legacy/functional/test_package_relationships.py',
         'ckan/tests/legacy/functional/test_pagination.py',
         'ckan/tests/legacy/functional/test_preview_interface.py',
-        'ckan/tests/legacy/functional/test_related.py',
         'ckan/tests/legacy/functional/test_revision.py',
         'ckan/tests/legacy/functional/test_search.py',
         'ckan/tests/legacy/functional/test_tag.py',
@@ -572,7 +560,6 @@ class TestPep8(object):
         'ckan/tests/legacy/html_check.py',
         'ckan/tests/legacy/lib/__init__.py',
         'ckan/tests/legacy/lib/test_accept.py',
-        'ckan/tests/legacy/lib/test_alphabet_pagination.py',
         'ckan/tests/legacy/lib/test_cli.py',
         'ckan/tests/legacy/lib/test_dictization.py',
         'ckan/tests/legacy/lib/test_email_notifications.py',
@@ -596,7 +583,6 @@ class TestPep8(object):
         'ckan/tests/legacy/misc/test_format_text.py',
         'ckan/tests/legacy/misc/test_mock_mail_server.py',
         'ckan/tests/legacy/misc/test_sync.py',
-        'ckan/tests/legacy/mock_mail_server.py',
         'ckan/tests/legacy/mock_plugin.py',
         'ckan/tests/legacy/models/test_extras.py',
         'ckan/tests/legacy/models/test_group.py',
@@ -611,7 +597,6 @@ class TestPep8(object):
         'ckan/tests/legacy/monkey.py',
         'ckan/tests/legacy/pylons_controller.py',
         'ckan/tests/legacy/schema/test_schema.py',
-        'ckan/tests/legacy/test_dumper.py',
         'ckan/tests/legacy/test_plugins.py',
         'ckan/tests/legacy/test_versions.py',
         'ckan/websetup.py',
@@ -653,7 +638,7 @@ class TestPep8(object):
         blacklist = cls.PEP8_BLACKLIST_FILES
         for path, filename in process_directory(base_path):
             errors = cls.find_pep8_errors(filename=path)
-            if errors and not filename in blacklist:
+            if errors and filename not in blacklist:
                 cls.fails[filename] = output_errors(filename, errors)
             elif not errors and filename in blacklist:
                 cls.passes.append(filename)
@@ -739,7 +724,6 @@ class TestActionAuth(object):
         'get: package_activity_list_html',
         'get: recently_changed_packages_activity_list',
         'get: recently_changed_packages_activity_list_html',
-        'get: related_list',
         'get: resource_search',
         'get: roles_show',
         'get: status_show',
@@ -910,7 +894,7 @@ class TestBadExceptions(object):
                 if re_nasty_exception.search(line):
                     errors.append('ln:%s \t%s' % (count, line[:-1]))
                 count += 1
-            if errors and not filename in blacklist:
+            if errors and filename not in blacklist:
                 cls.fails[filename] = output_errors(filename, errors)
             elif not errors and filename in blacklist:
                 cls.passes.append(filename)

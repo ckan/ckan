@@ -644,7 +644,7 @@ Wrong:
 * Libraries Available To Extensions
 
 For lots of examples of this done right, see
-`Django's table of contents <https://docs.djangoproject.com/en/1.5/contents/>`_.
+`Django's table of contents <https://docs.djangoproject.com/en/1.9/contents/>`_.
 
 In Sphinx, use the following section title styles::
 

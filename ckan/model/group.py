@@ -80,21 +80,13 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
     @classmethod
     def get(cls, reference):
         '''Returns a group object referenced by its id or name.'''
-        query = meta.Session.query(cls).filter(cls.id == reference)
-        member = query.first()
+        if not reference:
+            return None
+
+        member = meta.Session.query(cls).get(reference)
         if member is None:
             member = cls.by_name(reference)
         return member
-
-    def get_related(self, type):
-        """ TODO: Determine if this is useful
-            Get all objects that are members of the group of the specified
-            type.
-
-            Should the type be used to get table_name or should we use the
-            one in the constructor
-        """
-        pass
 
     def related_packages(self):
         # TODO do we want to return all related packages or certain ones?
@@ -104,11 +96,11 @@ class Member(vdm.sqlalchemy.RevisionedObjectMixin,
     def __unicode__(self):
         # refer to objects by name, not ID, to help debugging
         if self.table_name == 'package':
-            table_info = 'package=%s' % meta.Session.query(_package.Package).\
-                get(self.table_id).name
+            pkg = meta.Session.query(_package.Package).get(self.table_id)
+            table_info = 'package=%s' % pkg.name if pkg else 'None'
         elif self.table_name == 'group':
-            table_info = 'group=%s' % meta.Session.query(Group).\
-                get(self.table_id).name
+            group = meta.Session.query(Group).get(self.table_id)
+            table_info = 'group=%s' % group.name if group else 'None'
         else:
             table_info = 'table_name=%s table_id=%s' % (self.table_name,
                                                         self.table_id)

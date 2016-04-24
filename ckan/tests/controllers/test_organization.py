@@ -17,7 +17,7 @@ class TestOrganizationNew(helpers.FunctionalTestBase):
 
     def test_not_logged_in(self):
         self.app.get(url=url_for(controller='group', action='new'),
-                     status=302)
+                     status=403)
 
     def test_name_required(self):
         response = self.app.get(url=self.organization_new_url,
@@ -173,7 +173,7 @@ class TestOrganizationDelete(helpers.FunctionalTestBase):
         self.app.get(url=url_for(controller='organization',
                                  action='delete',
                                  id=self.organization['id']),
-                     status=401,
+                     status=403,
                      extra_environ=extra_environ)
 
         organization = helpers.call_action('organization_show',
@@ -184,7 +184,7 @@ class TestOrganizationDelete(helpers.FunctionalTestBase):
         self.app.get(url=url_for(controller='organization',
                                  action='delete',
                                  id=self.organization['id']),
-                     status=302)  # redirects to login form
+                     status=403)
 
         organization = helpers.call_action('organization_show',
                                            id=self.organization['id'])

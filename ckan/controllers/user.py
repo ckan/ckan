@@ -2,6 +2,7 @@ import logging
 from urllib import quote
 
 from pylons import config
+from paste.deploy.converters import asbool
 
 import ckan.lib.base as base
 import ckan.model as model
@@ -38,12 +39,12 @@ class UserController(base.BaseController):
     def __before__(self, action, **env):
         base.BaseController.__before__(self, action, **env)
         try:
-            context = {'model': model, 'user': c.user or c.author,
+            context = {'model': model, 'user': c.user,
                        'auth_user_obj': c.userobj}
             check_access('site_read', context)
         except NotAuthorized:
             if c.action not in ('login', 'request_reset', 'perform_reset',):
-                abort(401, _('Not authorized to see this page'))
+                abort(403, _('Not authorized to see this page'))
 
     ## hooks for subclasses
     new_user_form = 'user/new_user_form.html'
@@ -70,7 +71,7 @@ class UserController(base.BaseController):
         except NotFound:
             abort(404, _('User not found'))
         except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            abort(403, _('Not authorized to see this page'))
 
         c.user_dict = user_dict
         c.is_myself = user_dict['name'] == c.user
@@ -85,21 +86,23 @@ class UserController(base.BaseController):
                        handler_name)
 
     def index(self):
-        LIMIT = 20
-
         page = self._get_page_number(request.params)
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
-        context = {'return_query': True, 'user': c.user or c.author,
+        context = {'return_query': True, 'user': c.user,
                    'auth_user_obj': c.userobj}
 
         data_dict = {'q': c.q,
                      'order_by': c.order_by}
+
+        limit = int(
+            request.params.get('limit', config.get('ckan.user_list_limit', 20))
+        )
         try:
             check_access('user_list', context, data_dict)
         except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            abort(403, _('Not authorized to see this page'))
 
         users_list = get_action('user_list')(context, data_dict)
 
@@ -108,26 +111,24 @@ class UserController(base.BaseController):
             page=page,
             url=h.pager_url,
             item_count=users_list.count(),
-            items_per_page=LIMIT
+            items_per_page=limit
         )
         return render('user/list.html')
 
     def read(self, id=None):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'user': c.user, 'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id,
                      'user_obj': c.userobj,
                      'include_datasets': True,
                      'include_num_followers': True}
 
-        context['with_related'] = True
-
         self._setup_template_variables(context, data_dict)
 
         # The legacy templates have the user's activity stream on the user
         # profile page, new templates do not.
-        if h.asbool(config.get('ckan.legacy_templates', False)):
+        if asbool(config.get('ckan.legacy_templates', False)):
             c.user_activity_stream = get_action('user_activity_list_html')(
                 context, {'id': c.user_dict['id']})
 
@@ -146,7 +147,7 @@ class UserController(base.BaseController):
         try:
             check_access('user_create', context)
         except NotAuthorized:
-            abort(401, _('Unauthorized to register as a user.'))
+            abort(403, _('Unauthorized to register as a user.'))
 
         return self.new(data, errors, error_summary)
 
@@ -155,7 +156,7 @@ class UserController(base.BaseController):
            or POST the form data to actually do the user registration.
         '''
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'auth_user_obj': c.userobj,
                    'schema': self._new_form_to_db_schema(),
                    'save': 'save' in request.params}
@@ -163,7 +164,7 @@ class UserController(base.BaseController):
         try:
             check_access('user_create', context)
         except NotAuthorized:
-            abort(401, _('Unauthorized to create a user'))
+            abort(403, _('Unauthorized to create a user'))
 
         if context['save'] and not data:
             return self._save_new(context)
@@ -195,7 +196,7 @@ class UserController(base.BaseController):
             h.redirect_to(user_index)
         except NotAuthorized:
             msg = _('Unauthorized to delete user with id "{user_id}".')
-            abort(401, msg.format(user_id=id))
+            abort(403, msg.format(user_id=id))
 
     def generate_apikey(self, id):
         '''Cycle the API key of a user'''
@@ -214,7 +215,7 @@ class UserController(base.BaseController):
         try:
             result = get_action('user_generate_apikey')(context, data_dict)
         except NotAuthorized:
-            abort(401, _('Unauthorized to edit user %s') % '')
+            abort(403, _('Unauthorized to edit user %s') % '')
         except NotFound:
             abort(404, _('User not found'))
 
@@ -229,7 +230,7 @@ class UserController(base.BaseController):
             captcha.check_recaptcha(request)
             user = get_action('user_create')(context, data_dict)
         except NotAuthorized:
-            abort(401, _('Unauthorized to create user %s') % '')
+            abort(403, _('Unauthorized to create user %s') % '')
         except NotFound, e:
             abort(404, _('User not found'))
         except DataError:
@@ -273,7 +274,7 @@ class UserController(base.BaseController):
         try:
             check_access('user_update', context, data_dict)
         except NotAuthorized:
-            abort(401, _('Unauthorized to edit a user.'))
+            abort(403, _('Unauthorized to edit a user.'))
 
         if (context['save']) and not data:
             return self._save_edit(id, context)
@@ -292,7 +293,7 @@ class UserController(base.BaseController):
             data = data or old_data
 
         except NotAuthorized:
-            abort(401, _('Unauthorized to edit user %s') % '')
+            abort(403, _('Unauthorized to edit user %s') % '')
         except NotFound:
             abort(404, _('User not found'))
 
@@ -300,7 +301,7 @@ class UserController(base.BaseController):
 
         if not (authz.is_sysadmin(c.user)
                 or c.user == user_obj.name):
-            abort(401, _('User %s not authorized to edit %s') %
+            abort(403, _('User %s not authorized to edit %s') %
                   (str(c.user), id))
 
         errors = errors or {}
@@ -308,11 +309,11 @@ class UserController(base.BaseController):
 
         self._setup_template_variables({'model': model,
                                         'session': model.Session,
-                                        'user': c.user or c.author},
+                                        'user': c.user},
                                        data_dict)
 
         c.is_myself = True
-        c.show_email_notifications = h.asbool(
+        c.show_email_notifications = asbool(
             config.get('ckan.activity_streams_email_notifications'))
         c.form = render(self.edit_user_form, extra_vars=vars)
 
@@ -325,7 +326,10 @@ class UserController(base.BaseController):
             context['message'] = data_dict.get('log_message', '')
             data_dict['id'] = id
 
-            if data_dict['password1'] and data_dict['password2']:
+            email_changed = data_dict['email'] != c.userobj.email
+
+            if (data_dict['password1'] and data_dict['password2']) \
+                    or email_changed:
                 identity = {'login': c.user,
                             'password': data_dict['old_password']}
                 auth = authenticator.UsernamePasswordAuthenticator()
@@ -341,7 +345,7 @@ class UserController(base.BaseController):
             h.flash_success(_('Profile updated'))
             h.redirect_to(controller='user', action='read', id=user['name'])
         except NotAuthorized:
-            abort(401, _('Unauthorized to edit user %s') % id)
+            abort(403, _('Unauthorized to edit user %s') % id)
         except NotFound, e:
             abort(404, _('User not found'))
         except DataError:
@@ -394,7 +398,7 @@ class UserController(base.BaseController):
             return self.me()
         else:
             err = _('Login failed. Bad username or password.')
-            if h.asbool(config.get('ckan.legacy_templates', 'false')):
+            if asbool(config.get('ckan.legacy_templates', 'false')):
                 h.flash_error(err)
                 h.redirect_to(controller='user',
                               action='login', came_from=came_from)
@@ -427,7 +431,7 @@ class UserController(base.BaseController):
         try:
             check_access('request_reset', context)
         except NotAuthorized:
-            abort(401, _('Unauthorized to request reset password.'))
+            abort(403, _('Unauthorized to request reset password.'))
 
         if request.method == 'POST':
             id = request.params.get('user')
@@ -482,7 +486,7 @@ class UserController(base.BaseController):
         try:
             check_access('user_reset', context)
         except NotAuthorized:
-            abort(401, _('Unauthorized to reset password.'))
+            abort(403, _('Unauthorized to reset password.'))
 
         try:
             data_dict = {'id': id}
@@ -537,7 +541,7 @@ class UserController(base.BaseController):
         raise ValueError(_('You must provide a password'))
 
     def followers(self, id=None):
-        context = {'for_view': True, 'user': c.user or c.author,
+        context = {'for_view': True, 'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'id': id, 'user_obj': c.userobj,
                      'include_num_followers': True}
@@ -546,21 +550,21 @@ class UserController(base.BaseController):
         try:
             c.followers = f(context, {'id': c.user_dict['id']})
         except NotAuthorized:
-            abort(401, _('Unauthorized to view followers %s') % '')
+            abort(403, _('Unauthorized to view followers %s') % '')
         return render('user/followers.html')
 
     def activity(self, id, offset=0):
         '''Render this user's public activity stream page.'''
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'user': c.user, 'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj,
                      'include_num_followers': True}
         try:
             check_access('user_show', context, data_dict)
         except NotAuthorized:
-            abort(401, _('Not authorized to see this page'))
+            abort(403, _('Not authorized to see this page'))
 
         self._setup_template_variables(context, data_dict)
 
@@ -583,7 +587,7 @@ class UserController(base.BaseController):
         if (filter_type and filter_id):
             context = {
                 'model': model, 'session': model.Session,
-                'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                'user': c.user, 'auth_user_obj': c.userobj,
                 'for_view': True
             }
             data_dict = {'id': filter_id, 'include_num_followers': True}
@@ -602,11 +606,8 @@ class UserController(base.BaseController):
                 abort(404, _('Follow item not found'))
             try:
                 followee = action_function(context, data_dict)
-            except NotFound:
+            except (NotFound, NotAuthorized):
                 abort(404, _('{0} not found').format(filter_type))
-            except NotAuthorized:
-                abort(401, _('Unauthorized to read {0} {1}').format(
-                    filter_type, id))
 
             if followee is not None:
                 return {
@@ -627,7 +628,7 @@ class UserController(base.BaseController):
 
     def dashboard(self, id=None, offset=0):
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj,
+                   'user': c.user, 'auth_user_obj': c.userobj,
                    'for_view': True}
         data_dict = {'id': id, 'user_obj': c.userobj, 'offset': offset}
         self._setup_template_variables(context, data_dict)
@@ -651,21 +652,21 @@ class UserController(base.BaseController):
         return render('user/dashboard.html')
 
     def dashboard_datasets(self):
-        context = {'for_view': True, 'user': c.user or c.author,
+        context = {'for_view': True, 'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'user_obj': c.userobj, 'include_datasets': True}
         self._setup_template_variables(context, data_dict)
         return render('user/dashboard_datasets.html')
 
     def dashboard_organizations(self):
-        context = {'for_view': True, 'user': c.user or c.author,
+        context = {'for_view': True, 'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         return render('user/dashboard_organizations.html')
 
     def dashboard_groups(self):
-        context = {'for_view': True, 'user': c.user or c.author,
+        context = {'for_view': True, 'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
@@ -675,7 +676,7 @@ class UserController(base.BaseController):
         '''Start following this user.'''
         context = {'model': model,
                    'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'id': id, 'include_num_followers': True}
         try:
@@ -695,7 +696,7 @@ class UserController(base.BaseController):
         '''Stop following this user.'''
         context = {'model': model,
                    'session': model.Session,
-                   'user': c.user or c.author,
+                   'user': c.user,
                    'auth_user_obj': c.userobj}
         data_dict = {'id': id, 'include_num_followers': True}
         try:

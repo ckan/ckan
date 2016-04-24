@@ -55,7 +55,7 @@ class TestRegisterUser(helpers.FunctionalTestBase):
         form['password2'] = ''
 
         response = form.submit('save')
-        assert_true('The passwords you entered do not match')
+        assert_true('The passwords you entered do not match' in response)
 
 
 class TestLoginView(helpers.FunctionalTestBase):
@@ -192,10 +192,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
         app = self._get_test_app()
         response = app.get(
             url_for(controller='user', action='edit', id='unknown_person'),
-            status=302  # redirect to login page
+            status=403
         )
-        response = response.follow()
-        assert_true('Login' in response)
 
     def test_user_edit_not_logged_in(self):
         '''Attempt to read edit user for an existing, not-logged in user
@@ -205,10 +203,8 @@ class TestUserEdit(helpers.FunctionalTestBase):
         username = user['name']
         response = app.get(
             url_for(controller='user', action='edit', id=username),
-            status=302
+            status=403
         )
-        response = response.follow()
-        assert_true('Login' in response)
 
     def test_edit_user(self):
         user = factories.User(password='pass')
@@ -245,6 +241,37 @@ class TestUserEdit(helpers.FunctionalTestBase):
         assert_equal(user.email, 'new@example.com')
         assert_equal(user.about, 'new about')
         assert_equal(user.activity_streams_email_notifications, True)
+
+    def test_email_change_without_password(self):
+
+        app = self._get_test_app()
+        env, response, user = _get_user_edit_page(app)
+
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['email'] = 'new@example.com'
+
+        # factory returns user with password 'pass'
+        form.fields['old_password'][0].value = 'wrong-pass'
+
+        response = webtest_submit(form, 'save', status=200, extra_environ=env)
+        assert_true('Old Password: incorrect password' in response)
+
+    def test_email_change_with_password(self):
+        app = self._get_test_app()
+        env, response, user = _get_user_edit_page(app)
+
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['email'] = 'new@example.com'
+
+        # factory returns user with password 'pass'
+        form.fields['old_password'][0].value = 'pass'
+
+        response = submit_and_follow(app, form, env, 'save')
+        assert_true('Profile updated' in response)
 
     def test_perform_reset_for_key_change(self):
         password = 'password'

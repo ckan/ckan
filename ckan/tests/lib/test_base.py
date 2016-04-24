@@ -3,6 +3,21 @@ from nose import tools as nose_tools
 import ckan.tests.helpers as helpers
 
 
+class TestRenderSnippet(helpers.FunctionalTestBase):
+    """
+    Test ``ckan.lib.base.render_snippet``.
+    """
+    @helpers.change_config('debug', True)
+    def test_comment_present_if_debug_true(self):
+        response = self._get_test_app().get('/')
+        assert '<!-- Snippet ' in response
+
+    @helpers.change_config('debug', False)
+    def test_comment_absent_if_debug_false(self):
+        response = self._get_test_app().get('/')
+        assert '<!-- Snippet ' not in response
+
+
 class TestCORS(helpers.FunctionalTestBase):
 
     def test_options(self):

@@ -86,12 +86,6 @@ from rating import (
     MIN_RATING,
     MAX_RATING,
 )
-from related import (
-    Related,
-    RelatedDataset,
-    related_dataset_table,
-    related_table,
-)
 from package_relationship import (
     PackageRelationship,
     package_relationship_table,

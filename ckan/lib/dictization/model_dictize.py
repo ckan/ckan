@@ -71,16 +71,6 @@ def resource_list_dictize(res_list, context):
 
     return sorted(result_list, key=lambda x: x["position"])
 
-def related_list_dictize(related_list, context):
-    result_list = []
-    for res in related_list:
-        related_dict = related_dictize(res, context)
-        result_list.append(related_dict)
-    if context.get('sorted'):
-        return result_list
-    return sorted(result_list, key=lambda x: x["created"], reverse=True)
-
-
 def extras_dict_dictize(extras_dict, context):
     result_list = []
     for name, extra in extras_dict.iteritems():
@@ -126,9 +116,6 @@ def resource_dictize(res, context):
     elif not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
         resource['url'] = u'http://' + url.lstrip('/')
     return resource
-
-def related_dictize(rel, context):
-    return d.table_dictize(rel, context)
 
 
 def _execute(q, table, context):
@@ -556,7 +543,7 @@ def user_list_dictize(obj_list, context,
 def member_dictize(member, context):
     return d.table_dictize(member, context)
 
-def user_dictize(user, context):
+def user_dictize(user, context, include_password_hash=False):
 
     if context.get('with_capacity'):
         user, capacity = user
@@ -564,7 +551,7 @@ def user_dictize(user, context):
     else:
         result_dict = d.table_dictize(user, context)
 
-    del result_dict['password']
+    password_hash = result_dict.pop('password')
     del result_dict['reset_key']
 
     result_dict['display_name'] = user.display_name
@@ -590,19 +577,15 @@ def user_dictize(user, context):
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 
-    ## this should not really really be needed but tests need it
     if authz.is_sysadmin(requester):
         result_dict['apikey'] = apikey
         result_dict['email'] = email
 
+        if include_password_hash:
+            result_dict['password_hash'] = password_hash
+
     model = context['model']
     session = model.Session
-
-    if context.get('with_related'):
-        related_items = session.query(model.Related).\
-                        filter(model.Related.owner_id==user.id).all()
-        result_dict['related_items'] = related_list_dictize(related_items,
-                                                            context)
 
     return result_dict
 

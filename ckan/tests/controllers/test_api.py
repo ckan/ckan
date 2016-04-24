@@ -169,6 +169,38 @@ class TestApiController(helpers.FunctionalTestBase):
         assert_equal(len(results), 1)
         assert_equal(results[0]['title'], 'Simple dummy org')
 
+    def test_config_option_list_access_sysadmin(self):
+        user = factories.Sysadmin()
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='config_option_list',
+            ver='/3')
+        app = self._get_test_app()
+
+        app.get(
+            url=url,
+            params={},
+            extra_environ={'REMOTE_USER': user['name'].encode('ascii')},
+            status=200,
+        )
+
+    def test_config_option_list_access_sysadmin_jsonp(self):
+        user = factories.Sysadmin()
+        url = url_for(
+            controller='api',
+            action='action',
+            logic_function='config_option_list',
+            ver='/3')
+        app = self._get_test_app()
+
+        app.get(
+            url=url,
+            params={'callback': 'myfn'},
+            extra_environ={'REMOTE_USER': user['name'].encode('ascii')},
+            status=403,
+        )
+
 
 class TestRevisionSearch(helpers.FunctionalTestBase):
 

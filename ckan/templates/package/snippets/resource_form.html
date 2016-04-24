@@ -4,7 +4,7 @@
 {% set errors = errors or {} %}
 {% set action = form_action or h.url_for(controller='package', action='new_resource', id=pkg_name) %}
 
-<form id="resource-edit" class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data">
+<form id="resource-edit" class="dataset-form dataset-resource-form form-horizontal" method="post" action="{{ action }}" data-module="basic-form resource-form" enctype="multipart/form-data" novalidate>
   {% block stages %}
     {# An empty stages variable will not show the stages #}
     {% if stage %}
@@ -12,7 +12,7 @@
     {% endif %}
   {% endblock %}
 
-  {{ form.errors(error_summary) }}
+  {% block errors %}{{ form.errors(error_summary) }}{% endblock %}
 
   <input name="id" value="{{ data.id }}" type="hidden"/>
 

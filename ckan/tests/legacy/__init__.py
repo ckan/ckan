@@ -320,7 +320,7 @@ def setup_test_search_index():
     #from ckan import plugins
     if not is_search_supported():
         raise SkipTest("Search not supported")
-    search.clear()
+    search.clear_all()
     #plugins.load('synchronous_search')
 
 def is_search_supported():
@@ -342,13 +342,6 @@ def is_datastore_supported():
     # we assume that the datastore uses the same db engine that ckan uses
     is_supported_db = model.engine_is_pg()
     return is_supported_db
-
-def search_related(test):
-    def skip_test(*args):
-        raise SkipTest("Search not supported")
-    if not is_search_supported():
-        return make_decorator(test)(skip_test)
-    return test
 
 def regex_related(test):
     def skip_test(*args):

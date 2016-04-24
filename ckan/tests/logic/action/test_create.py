@@ -71,6 +71,22 @@ class TestUserInvite(object):
         self._invite_user_to_group(role=None)
 
     @mock.patch('ckan.lib.mailer.send_invite')
+    @nose.tools.raises(logic.NotFound)
+    def test_raises_not_found(self, _):
+        user = factories.User()
+
+        context = {
+            'user': user['name']
+        }
+        params = {
+            'email': 'a@example.com',
+            'group_id': 'group_not_found',
+            'role': 'admin'
+        }
+
+        helpers.call_action('user_invite', context, **params)
+
+    @mock.patch('ckan.lib.mailer.send_invite')
     @nose.tools.raises(logic.ValidationError)
     def test_requires_group_id(self, _):
         self._invite_user_to_group(group={'id': None})
@@ -636,3 +652,39 @@ class TestOrganizationCreate(helpers.FunctionalTestBase):
         assert sorted(created.keys()) == sorted(shown.keys())
         for k in created.keys():
             assert created[k] == shown[k], k
+
+
+class TestUserCreate(helpers.FunctionalTestBase):
+
+    def test_user_create_with_password_hash(self):
+        sysadmin = factories.Sysadmin()
+        context = {
+            'user': sysadmin['name'],
+        }
+
+        user = helpers.call_action(
+            'user_create',
+            context=context,
+            email='test@example.com',
+            name='test',
+            password_hash='pretend-this-is-a-valid-hash')
+
+        user_obj = model.User.get(user['id'])
+        assert user_obj.password == 'pretend-this-is-a-valid-hash'
+
+    def test_user_create_password_hash_not_for_normal_users(self):
+        normal_user = factories.User()
+        context = {
+            'user': normal_user['name'],
+        }
+
+        user = helpers.call_action(
+            'user_create',
+            context=context,
+            email='test@example.com',
+            name='test',
+            password='required',
+            password_hash='pretend-this-is-a-valid-hash')
+
+        user_obj = model.User.get(user['id'])
+        assert user_obj.password != 'pretend-this-is-a-valid-hash'

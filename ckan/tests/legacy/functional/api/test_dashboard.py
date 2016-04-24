@@ -30,6 +30,7 @@ class TestDashboard(object):
 
     @classmethod
     def setup_class(cls):
+        ckan.lib.search.clear_all()
         CreateTestData.create()
         cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
         joeadmin = ckan.model.User.get('joeadmin')

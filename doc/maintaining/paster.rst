@@ -330,21 +330,15 @@ data in the database!) and then load the file:
    includes API keys and other user data which may be regarded as private. So
    keep it secure, like your database server.
 
-Exporting Datasets to JSON or CSV
----------------------------------
+Exporting Datasets to JSON Lines
+--------------------------------
 
-You can export all of your CKAN site's datasets from your database to a JSON file
-using the ``db simple-dump-json`` command:
-
-.. parsed-literal::
-
- paster db simple-dump-json -c |production.ini| my_datasets.json
-
-To export the datasets in CSV format instead, use ``db simple-dump-csv``:
+You can export all of your CKAN site's datasets from your database to a JSON
+Lines file using the ``ckanapi dump datasets`` command:
 
 .. parsed-literal::
 
- paster db simple-dump-csv -c |production.ini| my_datasets.csv
+ ckanapi dump datasets -c |production.ini| -O my_datasets.jsonl
 
 This is useful to create a simple public listing of the datasets, with no user
 information. Some simple additions to the Apache config can serve the dump
@@ -365,15 +359,15 @@ virtual Apache config file (e.g. |apache_config_file|)::
    dump`` command), as those contain private user information such as email
    addresses and API keys.
 
-Exporting User Accounts to CSV
-------------------------------
+Exporting User Accounts to JSON Lines
+-------------------------------------
 
-You can export all of your CKAN site's user accounts from your database to a CSV file
-using the ``db user-dump-csv`` command:
+You can export all of your CKAN site's user accounts from your database to
+a JSON Lines file using the ``ckanapi dump users`` command:
 
 .. parsed-literal::
 
- paster db user-dump-csv -c |production.ini| my_database_users.csv
+ ckanapi dump users -c |production.ini| -O my_database_users.jsonl
 
 front-end-build: Creates and minifies css and JavaScript files
 ==============================================================

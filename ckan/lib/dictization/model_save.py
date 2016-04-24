@@ -449,13 +449,6 @@ def user_dict_save(user_dict, context):
     return user
 
 
-def related_dict_save(related_dict, context):
-    model = context['model']
-    session = context['session']
-
-    return d.table_dict_save(related_dict,model.Related, context)
-
-
 def package_api_to_dict(api1_dict, context):
 
     package = context.get("package")

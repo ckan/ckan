@@ -189,6 +189,47 @@ class TestDatastoreCreateNewTests(object):
         session = orm.scoped_session(orm.sessionmaker(bind=engine))
         return session.connection().execute(sql, *args)
 
+    def test_sets_datastore_active_on_resource_on_create(self):
+        resource = factories.Resource()
+
+        assert_equal(resource['datastore_active'], False)
+
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'book': 'annakarenina', 'author': 'tolstoy'}
+            ]
+        }
+
+        helpers.call_action('datastore_create', **data)
+
+        resource = helpers.call_action('resource_show', id=resource['id'])
+
+        assert_equal(resource['datastore_active'], True)
+
+    def test_sets_datastore_active_on_resource_on_delete(self):
+        resource = factories.Resource(datastore_active=True)
+
+        assert_equal(resource['datastore_active'], True)
+
+        data = {
+            'resource_id': resource['id'],
+            'force': True,
+            'records': [
+                {'book': 'annakarenina', 'author': 'tolstoy'}
+            ]
+        }
+
+        helpers.call_action('datastore_create', **data)
+
+        helpers.call_action('datastore_delete', resource_id=resource['id'],
+                            force=True)
+
+        resource = helpers.call_action('resource_show', id=resource['id'])
+
+        assert_equal(resource['datastore_active'], False)
+
 
 class TestDatastoreCreate(tests.WsgiAppCase):
     sysadmin_user = None
@@ -505,9 +546,9 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
             assert results == results_alias
 
-            sql = (u"select * from _table_metadata "
-                "where alias_of='{0}' and name='{1}'").format(resource.id, alias)
-            results = c.execute(sql)
+            sql = u"select * from _table_metadata " \
+                  "where alias_of=%s and name=%s"
+            results = c.execute(sql, resource.id, alias)
             assert results.rowcount == 1
         self.Session.remove()
 
@@ -617,14 +658,14 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         # new aliases should replace old aliases
         c = self.Session.connection()
         for alias in aliases:
-            sql = (u"select * from _table_metadata "
-                "where alias_of='{0}' and name='{1}'").format(resource.id, alias)
-            results = c.execute(sql)
+            sql = "select * from _table_metadata " \
+                  "where alias_of=%s and name=%s"
+            results = c.execute(sql, resource.id, alias)
             assert results.rowcount == 0
 
-        sql = (u"select * from _table_metadata "
-            "where alias_of='{0}' and name='{1}'").format(resource.id, 'another_alias')
-        results = c.execute(sql)
+        sql = "select * from _table_metadata " \
+              "where alias_of=%s and name=%s"
+        results = c.execute(sql, resource.id, 'another_alias')
         assert results.rowcount == 1
         self.Session.remove()
 

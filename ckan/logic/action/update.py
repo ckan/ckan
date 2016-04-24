@@ -39,72 +39,6 @@ ValidationError = logic.ValidationError
 _get_or_bust = logic.get_or_bust
 
 
-def related_update(context, data_dict):
-    '''Update a related item.
-
-    You must be the owner of a related item to update it.
-
-    For further parameters see
-    :py:func:`~ckan.logic.action.create.related_create`.
-
-    :param id: the id of the related item to update
-    :type id: string
-
-    :returns: the updated related item
-    :rtype: dictionary
-
-    '''
-    model = context['model']
-    id = _get_or_bust(data_dict, "id")
-
-    session = context['session']
-    schema = context.get('schema') or schema_.default_update_related_schema()
-
-    related = model.Related.get(id)
-    context["related"] = related
-
-    if not related:
-        log.error('Could not find related ' + id)
-        raise NotFound(_('Item was not found.'))
-
-    _check_access('related_update', context, data_dict)
-    data, errors = _validate(data_dict, schema, context)
-    if errors:
-        model.Session.rollback()
-        raise ValidationError(errors)
-
-    related = model_save.related_dict_save(data, context)
-
-    dataset_dict = None
-    if 'package' in context:
-        dataset = context['package']
-        dataset_dict = ckan.lib.dictization.table_dictize(dataset, context)
-
-    related_dict = model_dictize.related_dictize(related, context)
-    activity_dict = {
-        'user_id': context['user'],
-        'object_id': related.id,
-        'activity_type': 'changed related item',
-    }
-    activity_dict['data'] = {
-        'related': related_dict,
-        'dataset': dataset_dict,
-    }
-    activity_create_context = {
-        'model': model,
-        'user': context['user'],
-        'defer_commit': True,
-        'ignore_auth': True,
-        'session': session
-    }
-
-    _get_action('activity_create')(activity_create_context, activity_dict)
-
-    if not context.get('defer_commit'):
-        model.repo.commit()
-    return model_dictize.related_dictize(related, context)
-
-
 def resource_update(context, data_dict):
     '''Update a resource.
 
@@ -129,7 +63,7 @@ def resource_update(context, data_dict):
     context["resource"] = resource
 
     if not resource:
-        log.error('Could not find resource ' + id)
+        log.debug('Could not find resource %s', id)
         raise NotFound(_('Resource was not found.'))
 
     _check_access('resource_update', context, data_dict)
@@ -143,7 +77,7 @@ def resource_update(context, data_dict):
         if p['id'] == id:
             break
     else:
-        log.error('Could not find resource ' + id)
+        log.error('Could not find resource %s after all', id)
         raise NotFound(_('Resource was not found.'))
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
@@ -698,6 +632,10 @@ def user_update(context, data_dict):
     if errors:
         session.rollback()
         raise ValidationError(errors)
+
+    # user schema prevents non-sysadmins from providing password_hash
+    if 'password_hash' in data:
+        data['_password'] = data.pop('password_hash')
 
     user = model_save.user_dict_save(data, context)
 

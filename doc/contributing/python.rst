@@ -8,7 +8,7 @@ For Python code style follow `PEP 8`_ plus the guidelines below.
 
 Some good links about Python code style:
 
-- `Python Coding Standards <http://lists.osafoundation.org/pipermail/dev/2003-March/000479.html>`_ from Yahoo
+- `Guide to Python <http://docs.python-guide.org/en/latest/writing/style/>`_ from Hitchhiker's
 - `Google Python Style Guide <http://google-styleguide.googlecode.com/svn/trunk/pyguide.html>`_
 
 .. seealso::
@@ -316,7 +316,7 @@ Indicate optional arguments by ending their descriptions with ``(optional)`` in
 brackets. Where relevant also indicate the default value: ``(optional, default:
 5)``.
 
-.. _Sphinx field lists: http://sphinx.pocoo.org/markup/desc.html#info-field-lists
+.. _Sphinx field lists: http://www.sphinx-doc.org/en/stable/markup/misc.html
 
 You can also use a little inline `reStructuredText markup`_ in docstrings, e.g.
 ``*stars for emphasis*`` or ````double-backticks for literal text````

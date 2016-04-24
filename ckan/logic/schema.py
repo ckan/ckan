@@ -90,15 +90,13 @@ def default_resource_schema():
         'url_type': [ignore_missing, unicode],
         'mimetype': [ignore_missing, unicode],
         'mimetype_inner': [ignore_missing, unicode],
-        'webstore_url': [ignore_missing, unicode],
         'cache_url': [ignore_missing, unicode],
         'size': [ignore_missing, int_validator],
         'created': [ignore_missing, isodate],
         'last_modified': [ignore_missing, isodate],
         'cache_last_updated': [ignore_missing, isodate],
-        'webstore_last_updated': [ignore_missing, isodate],
         'tracking_summary': [ignore_missing],
-        'datastore_active': [ignore],
+        'datastore_active': [ignore_missing],
         '__extras': [ignore_missing, extras_unicode_convert, keep_extras],
     }
 
@@ -215,18 +213,15 @@ def default_show_package_schema():
         'position': [not_empty],
         'last_modified': [ckan.lib.navl.validators.ignore_missing],
         'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
-        'webstore_last_updated': [ckan.lib.navl.validators.ignore_missing],
         'revision_id': [],
         'package_id': [],
         'cache_last_updated': [],
-        'webstore_last_updated': [],
         'size': [],
         'state': [],
         'last_modified': [],
         'mimetype': [],
         'cache_url': [],
         'name': [],
-        'webstore_url': [],
         'mimetype_inner': [],
         'resource_type': [],
         'url_type': [],
@@ -348,31 +343,6 @@ def default_show_group_schema():
 
     return schema
 
-
-def default_related_schema():
-    schema = {
-        'id': [ignore_missing, unicode],
-        'title': [not_empty, unicode],
-        'description': [ignore_missing, unicode],
-        'type': [not_empty, unicode],
-        'image_url': [ignore_missing, unicode, url_validator],
-        'url': [ignore_missing, unicode, url_validator],
-        'owner_id': [not_empty, unicode],
-        'created': [ignore],
-        'featured': [ignore_missing, int],
-    }
-    return schema
-
-
-def default_update_related_schema():
-    schema = default_related_schema()
-    schema['id'] = [not_empty, unicode]
-    schema['title'] = [ignore_missing, unicode]
-    schema['type'] = [ignore_missing, unicode]
-    schema['owner_id'] = [ignore_missing, unicode]
-    return schema
-
-
 def default_extras_schema():
 
     schema = {
@@ -430,6 +400,7 @@ def default_user_schema():
         'name': [not_empty, name_validator, user_name_validator, unicode],
         'fullname': [ignore_missing, unicode],
         'password': [user_password_validator, user_password_not_empty, ignore_missing, unicode],
+        'password_hash': [ignore_missing, ignore_not_sysadmin, unicode],
         'email': [not_empty, unicode],
         'about': [ignore_missing, user_about_validator, unicode],
         'created': [ignore],

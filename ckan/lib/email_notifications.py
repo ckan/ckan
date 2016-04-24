@@ -98,7 +98,7 @@ def _notifications_for_activities(activities, user_dict):
     # certain types of activity to be sent in their own individual emails,
     # etc.
     subject = ungettext(
-        "1 new activity from {site_title}",
+        "{n} new activity from {site_title}",
         "{n} new activities from {site_title}",
         len(activities)).format(
                 site_title=pylons.config.get('ckan.site_title'),

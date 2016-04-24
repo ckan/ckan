@@ -1,5 +1,7 @@
 import nose
-import i18n
+import pytz
+import tzlocal
+from babel import Locale
 
 import ckan.lib.helpers as h
 import ckan.exceptions
@@ -31,6 +33,28 @@ class TestHelpersUrlForStatic(object):
     def test_url_for_static_raises_when_called_with_protocol_relative(self):
         url = '//assets.ckan.org/ckan.jpg'
         nose.tools.assert_raises(CkanUrlException, h.url_for_static, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_static_with_root_path(self):
+        url = '/my/custom/path/foo/my-asset/file.txt'
+        generated_url = h.url_for_static('/my-asset/file.txt')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_static_qualified_with_root_path(self):
+        url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
+        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        eq_(generated_url, url)
+
+    @helpers.set_extra_environ('SCRIPT_NAME', '/my/custom/path')
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_static_with_root_path_and_script_name_env(self):
+        url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
+        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        eq_(generated_url, url)
 
 
 class TestHelpersUrlForStaticOrExternal(object):
@@ -72,6 +96,14 @@ class TestHelpersUrlFor(object):
                                   action='read',
                                   id='my_dataset',
                                   locale='de')
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/foo/{{LANG}}')
+    def test_url_for_with_locale_object(self):
+        url = '/foo/de/dataset/my_dataset'
+        generated_url = h.url_for('/dataset/my_dataset',
+                                  locale=Locale('de'))
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
@@ -123,6 +155,18 @@ class TestHelpersUrlFor(object):
                                   locale='de')
         eq_(generated_url, url)
 
+    @helpers.set_extra_environ('SCRIPT_NAME', '/my/custom/path')
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
+    def test_url_for_qualified_with_root_path_locale_and_script_name_env(self):
+        url = 'http://example.com/my/custom/path/de/foo/dataset/my_dataset'
+        generated_url = h.url_for(controller='package',
+                                  action='read',
+                                  id='my_dataset',
+                                  qualified=True,
+                                  locale='de')
+        eq_(generated_url, url)
+
 
 class TestHelpersRenderMarkdown(object):
 
@@ -132,22 +176,27 @@ class TestHelpersRenderMarkdown(object):
 
     def test_render_markdown_not_allow_html(self):
         data = '<h1>moo</h1>'
-        output = '<p>moo\n</p>'
+        output = '<p>moo</p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link_without_path(self):
         data = 'http://example.com'
-        output = '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a>\n</p>'
+        output = '<p><a href="http://example.com" target="_blank" rel="nofollow">http://example.com</a></p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link(self):
         data = 'https://example.com/page.html'
-        output = '<p><a href="https://example.com/page.html" target="_blank" rel="nofollow">https://example.com/page.html</a>\n</p>'
+        output = '<p><a href="https://example.com/page.html" target="_blank" rel="nofollow">https://example.com/page.html</a></p>'
         eq_(h.render_markdown(data), output)
 
     def test_render_markdown_auto_link_ignoring_trailing_punctuation(self):
         data = 'My link: http://example.com/page.html.'
-        output = '<p>My link: <a href="http://example.com/page.html" target="_blank" rel="nofollow">http://example.com/page.html</a>.\n</p>'
+        output = '<p>My link: <a href="http://example.com/page.html" target="_blank" rel="nofollow">http://example.com/page.html</a>.</p>'
+        eq_(h.render_markdown(data), output)
+
+    def test_render_naughty_markdown(self):
+        data = u'* [Foo (http://foo.bar) * Bar] (http://foo.bar)'
+        output = u'<ul>\n<li>[Foo (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>) * Bar] (<a href="http://foo.bar" target="_blank" rel="nofollow">http://foo.bar</a>)</li>\n</ul>'
         eq_(h.render_markdown(data), output)
 
 
@@ -180,7 +229,21 @@ class TestLicenseOptions(object):
         eq_(licenses[0][0], 'some-old-license')
 
 
-class TestResourceFormat(object):
+class TestUnifiedResourceFormat(object):
+    def test_unified_resource_format_by_extension(self):
+        eq_(h.unified_resource_format('xls'), 'XLS')
+
+    def test_unified_resource_format_by_description(self):
+        eq_(h.unified_resource_format('Excel document'), 'XLS')
+
+    def test_unified_resource_format_by_primary_mimetype(self):
+        eq_(h.unified_resource_format('application/vnd.ms-excel'), 'XLS')
+
+    def test_unified_resource_format_by_alternative_description(self):
+        eq_(h.unified_resource_format('application/msexcel'), 'XLS')
+
+    def test_unified_resource_format_by_alternative_description2(self):
+        eq_(h.unified_resource_format('Excel'), 'XLS')
 
     def test_autodetect_tsv(self):
 
@@ -189,3 +252,17 @@ class TestResourceFormat(object):
         eq_(h.unified_resource_format('text/tab-separated-values'), 'TSV')
 
         eq_(h.unified_resource_format('text/tsv'), 'TSV')
+
+
+class TestGetDisplayTimezone(object):
+    @helpers.change_config('ckan.display_timezone', '')
+    def test_missing_config(self):
+        eq_(h.get_display_timezone(), pytz.timezone('utc'))
+
+    @helpers.change_config('ckan.display_timezone', 'server')
+    def test_server_timezone(self):
+        eq_(h.get_display_timezone(), tzlocal.get_localzone())
+
+    @helpers.change_config('ckan.display_timezone', 'America/New_York')
+    def test_named_timezone(self):
+        eq_(h.get_display_timezone(), pytz.timezone('America/New_York'))

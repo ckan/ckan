@@ -1,12 +1,23 @@
 CKAN: The Open Source Data Portal Software
 ==========================================
 
+.. image:: https://img.shields.io/badge/license-AGPL-blue.svg?style=flat
+    :target: https://opensource.org/licenses/AGPL-3.0
+    :alt: License
+
+.. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
+    :target: http://docs.ckan.org
+    :alt: Documentation
+.. image:: https://img.shields.io/badge/support-StackOverflow-yellowgreen.svg?style=flat
+    :target: https://stackoverflow.com/questions/tagged/ckan
+    :alt: Support on StackOverflow
+
 .. image:: https://secure.travis-ci.org/ckan/ckan.png?branch=master
     :target: http://travis-ci.org/ckan/ckan
     :alt: Build Status
 
-.. image:: https://coveralls.io/repos/ckan/ckan/badge.png?branch=master
-    :target: https://coveralls.io/r/ckan/ckan
+.. image:: https://coveralls.io/repos/github/ckan/ckan/badge.svg?branch=master
+    :target: https://coveralls.io/github/ckan/ckan?branch=master
     :alt: Coverage Status
 
 **CKAN is the world’s leading open-source data portal platform**.
@@ -32,6 +43,9 @@ question first).
 
 If you've found a bug in CKAN, open a new issue on CKAN's `GitHub Issues`_ (try
 searching first to see if there's already an issue for your bug).
+
+If you find a potential security vulnerability please email security@ckan.org,
+rather than creating a public issue on GitHub.
 
 
 .. _CKAN tag on Stack Overflow: http://stackoverflow.com/questions/tagged/ckan

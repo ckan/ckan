@@ -180,3 +180,5 @@ class TestHelpers(TestController):
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found'), None)
 
         assert_equal(h.get_pkg_dict_extra(pkg_dict, 'extra_not_found', 'default_value'), 'default_value')
+
+        model.repo.rebuild_db()
