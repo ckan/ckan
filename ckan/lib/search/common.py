@@ -67,23 +67,10 @@ def make_connection(decode_dates=True):
         return pysolr.Solr(solr_url)
 
 
-SOLR_DATETIME_REGEX = re.compile(
-    '''
-    ^(?P<year>\d{4})
-    -(?P<month>\d{2})
-    -(?P<day>\d{2})
-    T(?P<hour>\d{2})
-    :(?P<minute>\d{2})
-    :(?P<second>\d{2})(\.\d+)?Z$
-    ''',
-    re.VERBOSE
-)
-
-
 def solr_datetime_decoder(d):
     for k, v in d.items():
         if isinstance(v, basestring):
-            possible_datetime = re.search(SOLR_DATETIME_REGEX, v)
+            possible_datetime = re.search(pysolr.DATETIME_REGEX, v)
             if possible_datetime:
                 date_values = possible_datetime.groupdict()
                 for dk, dv in date_values.items():
