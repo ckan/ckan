@@ -1603,7 +1603,7 @@ Example::
 
 Default value: (none)
 
-If you wish to add extra translation strings and have them merged with the 
+If you wish to add extra translation strings and have them merged with the
 default ckan translations at runtime you can specify the location of the extra
 translations using this option.
 
@@ -1637,6 +1637,21 @@ Default value: (none)
 If you have set an extra i18n directory using ``ckan.18n.extra_directory``, you
 should specify the locales that have been translated in that directory in this
 option.
+
+.. _ckan.display_timezone:
+
+ckan.display_timezone
+^^^^^^^^^^^^^^^^^^^^^
+
+Example::
+
+  ckan.display_timezone = Europe/Zurich
+
+Default value: UTC
+
+By default, all datetimes are considered to be in the UTC timezone. Use this option to change the displayed dates on the frontend. Internally, the dates are always saved as UTC. This option only changes the way the dates are displayed.
+
+The valid values for this options [can be found at pytz](http://pytz.sourceforge.net/#helpers) (``pytz.all_timezones``). You can specify the special value `server` to use the timezone settings of the server, that is running CKAN.
 
 .. _ckan.display_timezone:
 

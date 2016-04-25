@@ -13,7 +13,6 @@ import os
 import pytz
 import tzlocal
 import urllib
-import urlparse
 import pprint
 import copy
 import urlparse
@@ -137,7 +136,7 @@ def url(*args, **kw):
     wrapper for pylons.url'''
     locale = kw.pop('locale', None)
     my_url = _pylons_default_url(*args, **kw)
-    return _add_i18n_to_url(my_url, locale=locale, **kw)
+    return _local_url(my_url, locale=locale, **kw)
 
 
 def get_site_protocol_and_host():
@@ -195,7 +194,7 @@ def url_for(*args, **kw):
         kw['protocol'], kw['host'] = get_site_protocol_and_host()
     my_url = _routes_default_url_for(*args, **kw)
     kw['__ckan_no_root'] = no_root
-    return _add_i18n_to_url(my_url, locale=locale, **kw)
+    return _local_url(my_url, locale=locale, **kw)
 
 
 def url_for_static(*args, **kw):
@@ -230,8 +229,10 @@ def url_for_static_or_external(*args, **kw):
 
     if args:
         args = (fix_arg(args[0]), ) + args[1:]
+    if kw.get('qualified', False):
+        kw['protocol'], kw['host'] = get_site_protocol_and_host()
     my_url = _routes_default_url_for(*args, **kw)
-    return my_url
+    return _local_url(my_url, locale='default', **kw)
 
 
 def is_url(*args, **kw):
@@ -249,16 +250,19 @@ def is_url(*args, **kw):
     return url.scheme in valid_schemes
 
 
-def _add_i18n_to_url(url_to_amend, **kw):
+def _local_url(url_to_amend, **kw):
     # If the locale keyword param is provided then the url is rewritten
     # using that locale .If return_to is provided this is used as the url
     # (as part of the language changing feature).
     # A locale of default will not add locale info to the url.
 
-    default_locale = False
-    locale = kw.pop('locale', None)
     no_root = kw.pop('__ckan_no_root', False)
     allowed_locales = ['default'] + i18n.get_locales()
+    default_locale = False
+    url_scheme, url_netloc, url_path, url_params, url_query, url_fragment = \
+        urlparse.urlparse(url_to_amend)
+
+    locale = kw.pop('locale', None)
     if locale and locale not in allowed_locales:
         locale = None
     if locale:
@@ -270,12 +274,10 @@ def _add_i18n_to_url(url_to_amend, **kw):
             default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
         except TypeError:
             default_locale = True
-    try:
-        root = request.environ.get('SCRIPT_NAME', '')
-    except TypeError:
-        root = ''
+
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
+
         protocol, host = get_site_protocol_and_host()
         root = _routes_default_url_for('/',
                                        qualified=True,
@@ -285,27 +287,23 @@ def _add_i18n_to_url(url_to_amend, **kw):
     # position in the url
     root_path = config.get('ckan.root_path', None)
     if root_path:
-        # FIXME this can be written better once the merge
-        # into the ecportal core is done - Toby
-        # we have a special root specified so use that
-        if default_locale:
-            root_path = re.sub('/{{LANG}}', '', root_path)
-        else:
-            root_path = re.sub('{{LANG}}', locale, root_path)
-        # make sure we don't have a trailing / on the root
-        if root_path[-1] == '/':
-            root_path = root_path[:-1]
+        if '{{LANG}}' not in root_path:
+            error = 'ckan.root_path must include {{LANG}}'
+            raise ckan.exceptions.CkanUrlException(error)
 
-        url_path = url_to_amend[len(root):]
-        url = '%s%s%s' % (root, root_path, url_path)
-    else:
         if default_locale:
-            url = url_to_amend
+            root = re.sub('/{{LANG}}', '', root_path)
         else:
-            # we need to strip the root from the url and the add it before
-            # the language specification.
-            url = url_to_amend[len(root):]
-            url = '%s/%s%s' % (root, locale, url)
+            root = re.sub('{{LANG}}', locale, root_path)
+        # make sure we don't have a trailing / on the root
+        if root[-1] == '/':
+            root = root[:-1]
+        url_path = '%s%s' % (root, url_path)
+    else:
+        if not default_locale:
+            url_path = '/%s%s' % (locale, url_path)
+    url = urlparse.urlunparse((url_scheme, url_netloc, url_path, url_params,
+                               url_query, url_fragment))
 
     # stop the root being added twice in redirects
     if no_root:
@@ -1006,6 +1004,19 @@ class Page(paginate.Page):
         current_page_link = self._pagerlink(self.page, text,
                                             extra_attributes=self.curpage_attr)
         return re.sub(current_page_span, current_page_link, html)
+
+
+def get_display_timezone():
+    ''' Returns a pytz timezone for the display_timezone setting in the
+    configuration file or UTC if not specified.
+    :rtype: timezone
+    '''
+    timezone_name = config.get('ckan.display_timezone') or 'utc'
+
+    if timezone_name == 'server':
+        return tzlocal.get_localzone()
+
+    return pytz.timezone(timezone_name)
 
 
 def render_datetime(datetime_, date_format=None, with_hours=False):
@@ -2155,6 +2166,7 @@ __allowed_functions__ = [
     'linked_gravatar',
     'gravatar',
     'pager_url',
+    'get_display_timezone',
     'render_datetime',
     'date_str_to_datetime',
     'parse_rfc_2822_date',
