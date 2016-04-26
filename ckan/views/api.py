@@ -221,7 +221,7 @@ class ApiView(FlaskView):
         return '%s(%s);' % (callback, response_msg)
 
     # TODO: Check multiple endpoints http://stackoverflow.com/a/7876088/105987
-    @route('/<ver>/action/<logic_function>', endpoint='action',
+    @route('/<int:ver>/action/<logic_function>', endpoint='action',
            methods=['GET', 'POST'])
     @route('/action/<logic_function>', methods=['GET', 'POST'],
            defaults={'ver': 3})
