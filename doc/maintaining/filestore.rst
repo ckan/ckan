@@ -149,7 +149,7 @@ an uploaded file. If some particular format is not included in the ones guessed
 by the ``mimetypes`` library, a default ``application/octet-stream`` value will be
 returned.
 
-Users can still register a more appropiate media type by using the ``mimetypes``
+Users can still register a more appropriate media type by using the ``mimetypes``
 library. A good way to do so is to use the ``IConfigurer`` interface so the
 custom types get registered on startup::
 
