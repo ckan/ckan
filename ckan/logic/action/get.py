@@ -24,7 +24,6 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
-import ckan.lib.lazyjson as lazyjson
 
 from ckan.common import _
 
@@ -1046,10 +1045,7 @@ def package_show(context, data_dict):
             use_validated_cache = 'schema' not in context
             if use_validated_cache and 'validated_data_dict' in search_result:
                 package_json = search_result['validated_data_dict']
-                if context.get('return_type') == 'LazyJSONObject':
-                    package_dict = lazyjson.LazyJSONObject(package_json)
-                else:
-                    package_dict = json.loads(package_json)
+                package_dict = json.loads(package_json)
                 package_dict_validated = True
             else:
                 package_dict = json.loads(search_result['data_dict'])

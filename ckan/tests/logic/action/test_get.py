@@ -37,16 +37,20 @@ class TestPackageShow(helpers.FunctionalTestBase):
 
         eq(dataset2['new_field'], 'foo')
 
-    def test_package_show_is_lazy(self):
+    def test_package_show_with_custom_schema_return_default_schema(self):
         dataset1 = factories.Dataset()
+        from ckan.logic.schema import default_show_package_schema
+        custom_schema = default_show_package_schema()
 
-        dataset2 = helpers.call_action(
-            'package_show',
-            id=dataset1['id'],
-            context=dict(return_type='LazyJSONObject'))
+        def foo(key, data, errors, context):
+            data[key] = 'foo'
+        custom_schema['new_field'] = [foo]
 
-        # LazyJSONObject passed through without being expanded
-        assert dataset2._json_dict is None
+        dataset2 = helpers.call_action('package_show', id=dataset1['id'],
+                                       use_default_schema=True,
+                                       context={'schema': custom_schema})
+
+        assert 'new_field' not in dataset2
 
 
 class TestGroupList(helpers.FunctionalTestBase):
