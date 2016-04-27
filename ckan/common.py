@@ -21,6 +21,9 @@ except ImportError:
 
 
 def _(text):
+    # TODO: Skip for now as there are problems with Flask-Babel
+    return text
+
     # TODO: As is this will only work in the context of a web request
     # Do we need something for non-web processes like paster commands?
     # Pylons have the translator object which we need to fake but maybe
