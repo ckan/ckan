@@ -1895,9 +1895,11 @@ def package_search(context, data_dict):
     for field_name in ('groups', 'organization'):
         group_names.extend(facets.get(field_name, {}).keys())
 
-    groups = session.query(model.Group.name, model.Group.title) \
-                    .filter(model.Group.name.in_(group_names)) \
-                    .all()
+    groups = (session.query(model.Group.name, model.Group.title)
+                     .filter(model.Group.name.in_(group_names))
+                     .all()
+              if group_names else [])
+
     group_titles_by_name = dict(groups)
 
     # Transform facets into a more useful data structure.
