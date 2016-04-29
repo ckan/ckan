@@ -635,7 +635,8 @@ class Sysadmin(CkanCommand):
     def list(self):
         import ckan.model as model
         print 'Sysadmins:'
-        sysadmins = model.Session.query(model.User).filter_by(sysadmin=True)
+        sysadmins = model.Session.query(model.User).filter_by(sysadmin=True,
+                                                              state='active')
         print 'count = %i' % sysadmins.count()
         for sysadmin in sysadmins:
             print '%s name=%s id=%s' % (sysadmin.__class__.__name__,
