@@ -53,12 +53,7 @@ ADD ./contrib/docker/my_init.d /etc/my_init.d
 ADD ./contrib/docker/svc /etc/service
 CMD ["/sbin/my_init"]
 
-# Volumes
-VOLUME ["/usr/lib/ckan/default"]
-VOLUME ["/etc/ckan/default"]
 VOLUME ["/var/lib/ckan"]
-
-# Expose Port
 EXPOSE 80
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
