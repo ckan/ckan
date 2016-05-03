@@ -7,11 +7,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y install default-jre-headless
 
 # Install Solr
 ENV SOLR_HOME /opt/solr/example/solr
-ENV SOLR_VERSION 4.8.1
-ENV SOLR solr-$SOLR_VERSION
+ENV SOLR_VERSION 6.0.0
+
 RUN mkdir -p /opt/solr
-ADD https://archive.apache.org/dist/lucene/solr/$SOLR_VERSION/$SOLR.tgz /opt/$SOLR.tgz
-RUN tar zxf /opt/$SOLR.tgz -C /opt/solr --strip-components 1
+ADD https://archive.apache.org/dist/lucene/solr/$SOLR_VERSION/solr-$SOLR_VERSION.tgz /opt/solr-$SOLR_VERSION.tgz
+RUN tar zxf /opt/solr-$SOLR_VERSION.tgz -C /opt/solr --strip-components 1
 
 # Install CKAN Solr core
 RUN cp -R $SOLR_HOME/collection1/ $SOLR_HOME/ckan/
