@@ -16,7 +16,7 @@ RUN tar zxf /opt/$SOLR.tgz -C /opt/solr --strip-components 1
 # Install CKAN Solr core
 RUN cp -R $SOLR_HOME/collection1/ $SOLR_HOME/ckan/
 RUN echo name=ckan > $SOLR_HOME/ckan/core.properties
-ADD schema.xml $SOLR_HOME/ckan/conf/schema.xml
+ADD https://raw.githubusercontent.com/ckan/ckan/master/ckan/config/solr/schema.xml $SOLR_HOME/ckan/conf/schema.xml
 
 EXPOSE 8983
 WORKDIR /opt/solr/example
