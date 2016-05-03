@@ -6,7 +6,7 @@ RUN apt-get -q -y update
 RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y install default-jre-headless
 
 # Install Solr
-ENV SOLR_HOME /opt/solr
+ENV SOLR_HOME /opt/solr/example/solr
 ENV SOLR_VERSION 4.8.1
 ENV SOLR solr-$SOLR_VERSION
 RUN mkdir -p /opt/solr
@@ -19,5 +19,5 @@ RUN echo name=ckan > $SOLR_HOME/ckan/core.properties
 ADD schema.xml $SOLR_HOME/ckan/conf/schema.xml
 
 EXPOSE 8983
-WORKDIR /opt/solr
+WORKDIR /opt/solr/example
 CMD ["java", "-jar", "start.jar"]
