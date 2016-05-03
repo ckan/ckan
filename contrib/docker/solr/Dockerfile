@@ -7,7 +7,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y install default-jre-headless
 
 # Install Solr
 ENV SOLR_HOME /opt/solr/example/solr
-ENV SOLR_VERSION 6.0.0
+ENV SOLR_VERSION 4.8.1
 
 RUN mkdir -p /opt/solr
 ADD https://archive.apache.org/dist/lucene/solr/$SOLR_VERSION/solr-$SOLR_VERSION.tgz /opt/solr-$SOLR_VERSION.tgz
