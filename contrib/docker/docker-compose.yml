@@ -1,11 +1,11 @@
 ckan:
-  image: 'deinok/ckan:latest'
+  image: 'ckan/ckan:latest'
   links:
     - db
     - solr
   ports:
     - '80:80'
 db:
-  image: 'deinok/postgresql:latest'
+  image: 'ckan/postgresql:latest'
 solr:
-  image: 'deinok/solr:latest'
+  image: 'ckan/solr:latest'
