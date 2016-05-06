@@ -755,6 +755,7 @@ class PackageController(base.BaseController):
         try:
             context['for_view'] = True
             c.pkg_dict = get_action('package_show')(context, {'id': id})
+            del context['for_view']
             context['for_edit'] = True
             old_data = get_action('package_show')(context, {'id': id})
             # old data is from the database and data is passed from the
