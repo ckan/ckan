@@ -418,6 +418,7 @@ class PackageController(base.BaseController):
                    'user': c.user or c.author, 'auth_user_obj': c.userobj}
         data_dict = {'id': id}
         try:
+            context['for_view']=True
             c.pkg_dict = get_action('package_show')(context, data_dict)
             c.pkg_revisions = get_action('package_revision_list')(context,
                                                                   data_dict)
@@ -648,6 +649,7 @@ class PackageController(base.BaseController):
                                        action='edit', id=id))
                 # see if we have added any resources
                 try:
+
                     data_dict = get_action('package_show')(context, {'id': id})
                 except NotAuthorized:
                     abort(401, _('Unauthorized to update dataset'))
@@ -716,6 +718,7 @@ class PackageController(base.BaseController):
         context = {'model': model, 'session': model.Session,
                    'user': c.user or c.author, 'auth_user_obj': c.userobj}
         try:
+            context['for_view'] = True
             pkg_dict = get_action('package_show')(context, {'id': id})
         except NotFound:
             abort(404, _('The dataset {id} could not be found.').format(id=id))
@@ -751,6 +754,7 @@ class PackageController(base.BaseController):
         if context['save'] and not data:
             return self._save_edit(id, context, package_type=package_type)
         try:
+            context['for_view'] = True
             c.pkg_dict = get_action('package_show')(context, {'id': id})
             context['for_edit'] = True
             old_data = get_action('package_show')(context, {'id': id})
@@ -763,12 +767,16 @@ class PackageController(base.BaseController):
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
+
+
+
         # are we doing a multiphase add?
         if data.get('state', '').startswith('draft'):
             c.form_action = h.url_for(controller='package', action='new')
             c.form_style = 'new'
             return self.new(data=data, errors=errors,
                             error_summary=error_summary)
+
 
         c.pkg = context.get("package")
         c.resources_json = h.json.dumps(data.get('resources', []))

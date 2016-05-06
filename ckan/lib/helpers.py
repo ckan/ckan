@@ -255,7 +255,7 @@ def _local_url(url_to_amend, **kw):
     # using that locale .If return_to is provided this is used as the url
     # (as part of the language changing feature).
     # A locale of default will not add locale info to the url.
-
+    root=''
     no_root = kw.pop('__ckan_no_root', False)
     allowed_locales = ['default'] + i18n.get_locales()
     default_locale = False
