@@ -649,7 +649,6 @@ class PackageController(base.BaseController):
                                        action='edit', id=id))
                 # see if we have added any resources
                 try:
-
                     data_dict = get_action('package_show')(context, {'id': id})
                 except NotAuthorized:
                     abort(401, _('Unauthorized to update dataset'))
@@ -767,16 +766,12 @@ class PackageController(base.BaseController):
             abort(401, _('Unauthorized to read package %s') % '')
         except NotFound:
             abort(404, _('Dataset not found'))
-
-
-
         # are we doing a multiphase add?
         if data.get('state', '').startswith('draft'):
             c.form_action = h.url_for(controller='package', action='new')
             c.form_style = 'new'
             return self.new(data=data, errors=errors,
                             error_summary=error_summary)
-
 
         c.pkg = context.get("package")
         c.resources_json = h.json.dumps(data.get('resources', []))
