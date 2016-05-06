@@ -753,9 +753,7 @@ class PackageController(base.BaseController):
         if context['save'] and not data:
             return self._save_edit(id, context, package_type=package_type)
         try:
-            context['for_view'] = True
-            c.pkg_dict = get_action('package_show')(context, {'id': id})
-            del context['for_view']
+            c.pkg_dict = get_action('package_show')(dict(context, for_view=True),{'id': id})
             context['for_edit'] = True
             old_data = get_action('package_show')(context, {'id': id})
             # old data is from the database and data is passed from the
