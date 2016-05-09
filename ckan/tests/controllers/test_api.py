@@ -222,7 +222,7 @@ class TestApiController(helpers.FunctionalTestBase):
         )
         assert re.match('my_callback\(.*\);', res.body), res
         # Unwrap JSONP callback (we want to look at the data).
-        msg = res.body[len('my_callback')+1:-2]
+        msg = res.body[len('my_callback') + 1:-2]
         res_dict = json.loads(msg)
         eq_(res_dict['success'], True)
         eq_(sorted(res_dict['result']),
