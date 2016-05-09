@@ -393,7 +393,6 @@ class TestPep8(object):
         'ckan/lib/formatters.py',
         'ckan/lib/hash.py',
         'ckan/lib/help/flash_messages.py',
-        'ckan/lib/i18n.py',
         'ckan/lib/jinja_extensions.py',
         'ckan/lib/jsonp.py',
         'ckan/lib/maintain.py',
