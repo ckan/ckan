@@ -389,6 +389,10 @@ class ApiView(FlaskView):
                 out[key] = value[0] if len(value) == 1 else value
             return out
 
+        if not try_url_params and request.method == 'GET':
+            raise ValueError('Invalid request. Please use POST method '
+                             'for your request')
+
         request_data = {}
         if request.method == 'POST' and request.form:
             if (len(request.form.values()) == 1 and

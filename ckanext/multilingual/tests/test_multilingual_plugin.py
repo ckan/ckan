@@ -1,4 +1,4 @@
-import ckan.plugins
+import ckan.plugins as p
 import ckanext.multilingual.plugin as mulilingual_plugin
 import ckan.lib.helpers
 import ckan.lib.create_test_data
@@ -18,9 +18,15 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
     @classmethod
     def setup(cls):
         cls.app = paste.fixture.TestApp(pylons.test.pylonsapp)
-        ckan.plugins.load('multilingual_dataset')
-        ckan.plugins.load('multilingual_group')
-        ckan.plugins.load('multilingual_tag')
+
+        if not p.plugin_loaded('multilingual_dataset'):
+            p.load('multilingual_dataset')
+
+        if not p.plugin_loaded('multilingual_group'):
+            p.load('multilingual_group')
+
+        if not p.plugin_loaded('multilingual_tag'):
+            p.load('multilingual_tag')
         ckan.tests.legacy.setup_test_search_index()
         _create_test_data.CreateTestData.create_translations_test_data()
 
@@ -54,9 +60,9 @@ class TestDatasetTermTranslation(ckan.tests.legacy.html_check.HtmlCheckMethods):
 
     @classmethod
     def teardown(cls):
-        ckan.plugins.unload('multilingual_dataset')
-        ckan.plugins.unload('multilingual_group')
-        ckan.plugins.unload('multilingual_tag')
+        p.unload('multilingual_dataset')
+        p.unload('multilingual_group')
+        p.unload('multilingual_tag')
         ckan.model.repo.rebuild_db()
         ckan.lib.search.clear_all()
 
@@ -139,8 +145,12 @@ class TestDatasetSearchIndex():
 
     @classmethod
     def setup_class(cls):
-        ckan.plugins.load('multilingual_dataset')
-        ckan.plugins.load('multilingual_group')
+
+        if not p.plugin_loaded('multilingual_dataset'):
+            p.load('multilingual_dataset')
+
+        if not p.plugin_loaded('multilingual_group'):
+            p.load('multilingual_group')
 
         data_dicts = [
             {'term': 'moo',
@@ -181,8 +191,8 @@ class TestDatasetSearchIndex():
 
     @classmethod
     def teardown(cls):
-        ckan.plugins.unload('multilingual_dataset')
-        ckan.plugins.unload('multilingual_group')
+        p.unload('multilingual_dataset')
+        p.unload('multilingual_group')
 
     def test_translate_terms(self):
 

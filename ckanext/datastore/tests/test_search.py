@@ -23,7 +23,8 @@ assert_raises = nose.tools.assert_raises
 class TestDatastoreSearchNewTest(object):
     @classmethod
     def setup_class(cls):
-        p.load('datastore')
+        if not p.plugin_loaded('datastore'):
+            p.load('datastore')
 
     @classmethod
     def teardown_class(cls):
@@ -112,7 +113,9 @@ class TestDatastoreSearch(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
-        p.load('datastore')
+
+        if not p.plugin_loaded('datastore'):
+            p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
