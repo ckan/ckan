@@ -166,8 +166,7 @@ class ApiController(base.BaseController):
                 _('Action name not known: %s') % logic_function)
 
         context = {'model': model, 'session': model.Session, 'user': c.user,
-                   'api_version': ver, 'return_type': 'LazyJSONObject',
-                   'auth_user_obj': c.userobj}
+                   'api_version': ver, 'auth_user_obj': c.userobj}
         model.Session()._context = context
 
         return_dict = {'help': h.url_for(controller='api',
