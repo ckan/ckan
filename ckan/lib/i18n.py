@@ -1,8 +1,7 @@
 import os
-import gettext
 
 from babel import Locale, localedata
-from babel.core import LOCALE_ALIASES
+from babel.core import LOCALE_ALIASES, get_locale_identifier
 from babel.support import Translations
 from paste.deploy.converters import aslist
 from pylons import config
@@ -116,7 +115,20 @@ def get_available_locales():
     global available_locales
     if not available_locales:
         available_locales = map(Locale.parse, get_locales())
+    # Add the full identifier (eg `pt_BR`) to the locale classes, as it does
+    # not offer a way of accessing it directly
+    for locale in available_locales:
+        setattr(locale, 'identifier', get_identifier_from_locale_class(locale))
     return available_locales
+
+
+def get_identifier_from_locale_class(locale):
+    return get_locale_identifier(
+            (locale.language,
+             locale.territory,
+             locale.script,
+             locale.variant))
+
 
 def _set_lang(lang):
     ''' Allows a custom i18n directory to be specified.

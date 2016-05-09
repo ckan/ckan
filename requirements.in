@@ -1,7 +1,7 @@
 # The file contains the direct ckan requirements.
 # Use pip-compile to create a requirements.txt file from this
 
-Babel>=0.9.6,<1.0.0  # newer versions cause problems with when switching languages
+Babel==2.3.4
 Jinja2==2.6  # newer version causes problem in CkanInternationalizationExtension.parse
 			 # when creating a new dataset
 Pylons==0.9.7
