@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-import nose
+from nose.tools import eq_
 from ckan.lib.helpers import url_for
 from bs4 import BeautifulSoup
 
 from ckan.tests import factories
 import ckan.tests.helpers as helpers
-
-eq_ = nose.tools.assert_equal
 
 
 class TestHome(helpers.FunctionalTestBase):
