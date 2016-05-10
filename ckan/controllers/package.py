@@ -351,7 +351,7 @@ class PackageController(base.BaseController):
                 {'id': id})
         except (NotFound, NotAuthorized):
             abort(404, _('Dataset not found'))
-        
+
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return h.json.dumps(self._convert_pkg_dict_to_datapackage(pkg_dict))
 
@@ -370,8 +370,12 @@ class PackageController(base.BaseController):
             'license': pkg_dict['license_title'],
             'description': pkg_dict['notes'],
             'sources': {'web': pkg_dict['url']}}
-        datapackage_dict['resources'] = [convert_resource(res) for res in pkg_dict['resources']]
-        
+
+        resources = []
+        for res in pkg_dict['resources']:
+            resources.append(convert_resource(res))
+        datapackage_dict['resources'] = resources
+
         return datapackage_dict
 
     def read(self, id):
