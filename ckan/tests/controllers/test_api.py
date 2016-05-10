@@ -6,15 +6,12 @@ import json
 import re
 
 from routes import url_for
-from nose.tools import assert_equal
+from nose.tools import assert_equal, eq_
 
 import ckan.tests.helpers as helpers
 from ckan.tests.helpers import assert_in
 from ckan.tests import factories
 from ckan import model
-
-
-eq_ = assert_equal
 
 
 class TestApiController(helpers.FunctionalTestBase):
