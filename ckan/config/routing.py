@@ -279,6 +279,7 @@ def make_map():
                   action='resource_view')
         m.connect('/dataset/{id}/resource/{resource_id}/view/',
                   action='resource_view')
+        m.connect('/dataset/{id}/datapackage.json', action='datapackage')
 
     # group
     map.redirect('/groups', '/group')

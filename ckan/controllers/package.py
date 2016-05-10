@@ -341,6 +341,39 @@ class PackageController(base.BaseController):
         return render('package/resources.html',
                       extra_vars={'dataset_type': package_type})
 
+    def datapackage(self, id):
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user, 'auth_user_obj': c.userobj}
+
+        try:
+            pkg_dict = get_action('package_show')(
+                dict(context),
+                {'id': id})
+        except (NotFound, NotAuthorized):
+            abort(404, _('Dataset not found'))
+        
+        response.headers['Content-Type'] = 'application/json;charset=utf-8'
+        return h.json.dumps(self._convert_pkg_dict_to_datapackage(pkg_dict))
+
+    def _convert_pkg_dict_to_datapackage(self, pkg_dict):
+        def convert_resource(resource):
+            return {
+                'url': resource['url'],
+                'name': resource['name'],
+                'format': resource['format']}
+
+        datapackage_dict = {
+            'name': pkg_dict['name'],
+            'title': pkg_dict['title'],
+            'homepage': config.get('ckan.site_url', '').rstrip('/'),
+            'version': pkg_dict['version'],
+            'license': pkg_dict['license_title'],
+            'description': pkg_dict['notes'],
+            'sources': {'web': pkg_dict['url']}}
+        datapackage_dict['resources'] = [convert_resource(res) for res in pkg_dict['resources']]
+        
+        return datapackage_dict
+
     def read(self, id):
         context = {'model': model, 'session': model.Session,
                    'user': c.user, 'for_view': True,
