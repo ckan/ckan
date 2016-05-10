@@ -415,7 +415,8 @@ class PackageController(base.BaseController):
                 h.redirect_to(controller='revision', action='diff', **params)
 
         context = {'model': model, 'session': model.Session,
-                   'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                   'user': c.user, 'auth_user_obj': c.userobj,
+                   'for_view': True}
         data_dict = {'id': id}
         try:
             c.pkg_dict = get_action('package_show')(context, data_dict)
@@ -751,7 +752,9 @@ class PackageController(base.BaseController):
         if context['save'] and not data:
             return self._save_edit(id, context, package_type=package_type)
         try:
-            c.pkg_dict = get_action('package_show')(context, {'id': id})
+            c.pkg_dict = get_action('package_show')(dict(context,
+                                                         for_view=True),
+                                                    {'id': id})
             context['for_edit'] = True
             old_data = get_action('package_show')(context, {'id': id})
             # old data is from the database and data is passed from the
