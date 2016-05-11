@@ -383,8 +383,8 @@ def _group_or_org_list(context, data_dict, is_org=False):
         ))
 
     query = query.filter(model.Group.is_organization == is_org)
-    if not is_org:
-        query = query.filter(model.Group.type == group_type)
+    query = query.filter(model.Group.type == group_type)
+
     if sort_info:
         sort_field = sort_info[0][0]
         sort_direction = sort_info[0][1]
@@ -520,7 +520,7 @@ def organization_list(context, data_dict):
     '''
     _check_access('organization_list', context, data_dict)
     data_dict['groups'] = data_dict.pop('organizations', [])
-    data_dict['type'] = 'organization'
+    data_dict.setdefault('type', 'organization')
     return _group_or_org_list(context, data_dict, is_org=True)
 
 

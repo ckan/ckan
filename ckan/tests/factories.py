@@ -278,7 +278,6 @@ class Organization(factory.Factory):
 
     # These are the default params that will be used to create new
     # organizations.
-    type = 'organization'
     is_organization = True
 
     title = 'Test Organization'
@@ -298,6 +297,8 @@ class Organization(factory.Factory):
             assert False, "Positional args aren't supported, use keyword args."
 
         context = {'user': _get_action_user_name(kwargs)}
+
+        kwargs.setdefault('type', 'organization')
 
         group_dict = helpers.call_action('organization_create',
                                          context=context,
