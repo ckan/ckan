@@ -1,8 +1,7 @@
 import os
-import gettext
 
 from babel import Locale, localedata
-from babel.core import LOCALE_ALIASES
+from babel.core import LOCALE_ALIASES, get_locale_identifier
 from babel.support import Translations
 from paste.deploy.converters import aslist
 from pylons import config
@@ -13,10 +12,10 @@ import ckan.i18n
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
 
-LOCALE_ALIASES['pt'] = 'pt_BR' # Default Portuguese language to
-                               # Brazilian territory, since
-                               # we don't have a Portuguese territory
-                               # translation currently.
+# Default Portuguese language to Brazilian territory, since
+# we don't have a Portuguese territory translation currently.
+LOCALE_ALIASES['pt'] = 'pt_BR'
+
 
 def get_locales_from_config():
     ''' despite the name of this function it gets the locales defined by
@@ -26,14 +25,19 @@ def get_locales_from_config():
     locale_default = config.get('ckan.locale_default', 'en')
     locale_order = config.get('ckan.locale_order', '').split()
     known_locales = get_locales()
-    all_locales = set(known_locales) | set(locales_offered) | set(locale_order) | set(locale_default)
+    all_locales = (set(known_locales) |
+                   set(locales_offered) |
+                   set(locale_order) |
+                   set(locale_default))
     all_locales -= set(filtered_out)
     return all_locales
+
 
 def _get_locales():
     # FIXME this wants cleaning up and merging with get_locales_from_config()
     assert not config.get('lang'), \
-            '"lang" config option not supported - please use ckan.locale_default instead.'
+        ('"lang" config option not supported - please use ckan.locale_default '
+         'instead.')
     locales_offered = config.get('ckan.locales_offered', '').split()
     filtered_out = config.get('ckan.locales_filtered_out', '').split()
     locale_default = config.get('ckan.locale_default', 'en')
@@ -47,7 +51,7 @@ def _get_locales():
     locales += [l for l in os.listdir(i18n_path) if localedata.exists(l)]
 
     assert locale_default in locales, \
-            'default language "%s" not available' % locale_default
+        'default language "%s" not available' % locale_default
 
     locale_list = []
     for locale in locales:
@@ -81,6 +85,7 @@ locales = None
 locales_dict = None
 _non_translated_locals = None
 
+
 def get_locales():
     ''' Get list of available locales
     e.g. [ 'en', 'de', ... ]
@@ -90,6 +95,7 @@ def get_locales():
         locales = _get_locales()
     return locales
 
+
 def non_translated_locals():
     ''' These are the locales that are available but for which there are
     no translations. returns a list like ['en', 'de', ...] '''
@@ -98,6 +104,7 @@ def non_translated_locals():
         locales = config.get('ckan.locale_order', '').split()
         _non_translated_locals = [x for x in locales if x not in get_locales()]
     return _non_translated_locals
+
 
 def get_locales_dict():
     ''' Get a dict of the available locales
@@ -110,13 +117,27 @@ def get_locales_dict():
             locales_dict[str(locale)] = Locale.parse(locale)
     return locales_dict
 
+
 def get_available_locales():
     ''' Get a list of the available locales
     e.g.  [ Locale('en'), Locale('de'), ... ] '''
     global available_locales
     if not available_locales:
         available_locales = map(Locale.parse, get_locales())
+    # Add the full identifier (eg `pt_BR`) to the locale classes, as it does
+    # not offer a way of accessing it directly
+    for locale in available_locales:
+        setattr(locale, 'identifier', get_identifier_from_locale_class(locale))
     return available_locales
+
+
+def get_identifier_from_locale_class(locale):
+    return get_locale_identifier(
+        (locale.language,
+         locale.territory,
+         locale.script,
+         locale.variant))
+
 
 def _set_lang(lang):
     ''' Allows a custom i18n directory to be specified.
@@ -132,14 +153,12 @@ def _set_lang(lang):
         i18n.set_lang(lang, class_=Translations)
 
 
-
 def handle_request(request, tmpl_context):
     ''' Set the language for the request '''
     lang = request.environ.get('CKAN_LANG') or \
         config.get('ckan.locale_default', 'en')
     if lang != 'en':
         set_lang(lang)
-
 
     for plugin in PluginImplementations(ITranslation):
         if lang in plugin.i18n_locales():
@@ -155,6 +174,7 @@ def handle_request(request, tmpl_context):
 
     tmpl_context.language = lang
     return lang
+
 
 def _add_extra_translations(dirname, locales, domain):
     translator = Translations.load(dirname=dirname, locales=locales,
@@ -181,6 +201,7 @@ def get_lang():
         return langs[0]
     else:
         return 'en'
+
 
 def set_lang(language_code):
     ''' Wrapper to pylons call '''

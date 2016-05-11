@@ -195,6 +195,8 @@ def url_for(*args, **kw):
 
     '''
     locale = kw.pop('locale', None)
+    if locale and isinstance(locale, i18n.Locale):
+        locale = i18n.get_identifier_from_locale_class(locale)
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
     # routes will get the wrong url for APIs if the ver is not provided
@@ -1882,7 +1884,8 @@ def format_resource_items(items):
                 value = formatters.localised_number(float(value))
             elif re.search(reg_ex_int, value):
                 value = formatters.localised_number(int(value))
-        elif isinstance(value, int) or isinstance(value, float):
+        elif ((isinstance(value, int) or isinstance(value, float))
+                and value not in (True, False)):
             value = formatters.localised_number(value)
         key = key.replace('_', ' ')
         output.append((key, value))
