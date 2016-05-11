@@ -1,9 +1,7 @@
 # The file contains the direct ckan requirements.
 # Use pip-compile to create a requirements.txt file from this
-
 Babel==2.3.4
-Jinja2==2.6  # newer version causes problem in CkanInternationalizationExtension.parse
-			 # when creating a new dataset
+Jinja2==2.8
 Pylons==0.9.7
 Beaker==1.7.0 # need to pin this because of https://github.com/bbangert/beaker/commit/fc511ceda4305fcf54919b3f081fed7790e2fef3
 bleach==1.4.2
