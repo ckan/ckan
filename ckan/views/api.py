@@ -418,9 +418,9 @@ class ApiView(FlaskView):
                                  'Error: %r '
                                  'JSON data extracted from the request: %r' %
                                  (e, request_data))
-            if not isinstance(request_data, dict):
-                raise ValueError('Request data JSON decoded to %r but '
-                                 'it needs to be a dictionary.' % request_data)
+        if not isinstance(request_data, dict):
+            raise ValueError('Request data JSON decoded to %r but '
+                             'it needs to be a dictionary.' % request_data)
         if request_data:
             # ensure unicode values
             for key, val in request_data.items():

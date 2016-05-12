@@ -193,6 +193,8 @@ class TestDatasetSearchIndex():
     def teardown(cls):
         p.unload('multilingual_dataset')
         p.unload('multilingual_group')
+        ckan.model.repo.rebuild_db()
+        ckan.lib.search.clear_all()
 
     def test_translate_terms(self):
 

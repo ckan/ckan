@@ -242,7 +242,7 @@ class TestAuthOrgHierarchy(TestAuth):
 
     @classmethod
     def setup_class(cls):
-#        TestAuth.setup_class()
+
         CreateTestData.create_group_hierarchy_test_data()
 
         cls.apikeys = {}
@@ -261,11 +261,6 @@ class TestAuthOrgHierarchy(TestAuth):
             package_dicts= [{'name': 'adataset',
                              'groups': ['national-health-service']}],
             extra_user_names=['john'])
-
-    @classmethod
-    def teardown_class(cls):
-        config.clear()
-        config.update(cls._original_config)
 
     def _reset_a_datasets_owner_org(self):
         rev = model.repo.new_revision()
