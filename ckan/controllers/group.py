@@ -380,10 +380,6 @@ class GroupController(base.BaseController):
         group_type = self._ensure_controller_matches_group_type(
             id.split('@')[0])
 
-        if group_type != 'organization':
-            # FIXME: better error
-            raise Exception('Must be an organization')
-
         # check we are org admin
 
         context = {'model': model, 'session': model.Session,
@@ -400,6 +396,10 @@ class GroupController(base.BaseController):
             c.group = context['group']
         except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
+
+        if not c.group_dict['is_organization']:
+            # FIXME: better error
+            raise Exception('Must be an organization')
 
         #use different form names so that ie7 can be detected
         form_names = set(["bulk_action.public", "bulk_action.delete",
@@ -443,9 +443,7 @@ class GroupController(base.BaseController):
             get_action(action_functions[action])(context, data_dict)
         except NotAuthorized:
             abort(403, _('Not authorized to perform bulk update'))
-        base.redirect(h.url_for(controller='organization',
-                                action='bulk_process',
-                                id=id))
+        self._redirect_to_this_controller(action='bulk_process', id=id)
 
     def new(self, data=None, errors=None, error_summary=None):
         if data and 'type' in data:
