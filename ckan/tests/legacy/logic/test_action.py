@@ -723,6 +723,36 @@ class TestAction(WsgiAppCase):
         resource_dict = resource_dictize(resource, {'model': model})
         assert result == resource_dict, (result, resource_dict)
 
+    def test_26_resource_show_with_empty_url(self):
+
+        ##create a package having a resource with empty url
+        package = {
+            'name': u'test_resource_show_with_empty_url',
+            'resources': [{
+                'alt_url': u'alt123',
+                'description': u'Full text.',
+                'extras': {u'alt_url': u'alt123', u'size': u'123'},
+                'format': u'plain text',
+                'hash': u'abc123',
+                'position': 0,
+                'url': u''
+            }],
+            'title': u'A resource with Empty URL',
+            'url': u'http://datahub1.io',
+        }
+
+        postparams = '%s=1' % json.dumps(package)
+        res = self.app.post('/api/action/package_create', params=postparams,
+                            extra_environ={'Authorization': str(self.sysadmin_user.apikey)})
+        created_resource = json.loads(res.body)['result']['resources'][0]
+
+        ##retrieve the resouce with its id
+        postparams = '%s=1' % json.dumps({'id':created_resource['id']})
+        res = self.app.post('/api/action/resource_show',params=postparams)
+        retrieved_resource = json.loads(res.body)['result']
+
+        assert not retrieved_resource['url']
+
     def test_27_get_site_user_not_authorized(self):
         assert_raises(NotAuthorized,
                      get_action('get_site_user'),
