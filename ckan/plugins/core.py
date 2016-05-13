@@ -13,8 +13,6 @@ from paste.deploy.converters import asbool
 
 import interfaces
 
-from flask import Request
-
 
 __all__ = [
     'PluginImplementations', 'implements',
