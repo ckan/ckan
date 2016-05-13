@@ -410,7 +410,14 @@ class TestResourceCreate(object):
             'package_id': dataset['id']
         }
 
-        helpers.call_action('resource_create', **data_dict)
+        new_resouce = helpers.call_action('resource_create', **data_dict)
+
+        data_dict={
+             'id':new_resouce['id']
+        }
+        stored_resource = helpers.call_action('resource_show', **data_dict)
+
+        assert not stored_resource['url']
 
 
 class TestMemberCreate(object):
