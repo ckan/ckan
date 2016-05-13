@@ -409,11 +409,10 @@ class TestResourceCreate(object):
         data_dict = {
             'package_id': dataset['id']
         }
-
         new_resouce = helpers.call_action('resource_create', **data_dict)
 
-        data_dict={
-             'id':new_resouce['id']
+        data_dict = {
+            'id': new_resouce['id']
         }
         stored_resource = helpers.call_action('resource_show', **data_dict)
 
