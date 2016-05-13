@@ -6,6 +6,7 @@ import json
 import hashlib
 import os
 import webob
+import itertools
 
 import sqlalchemy as sa
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -31,7 +32,7 @@ from werkzeug.test import create_environ, run_wsgi_app
 from flask.ext.babel import Babel
 
 from ckan.plugins import PluginImplementations
-from ckan.plugins.interfaces import IMiddleware
+from ckan.plugins.interfaces import IMiddleware, IRoutes
 from ckan.lib.i18n import get_locales_from_config
 import ckan.lib.uploader as uploader
 
@@ -237,6 +238,7 @@ def make_flask_stack(conf, **app_conf):
 
     Babel(app)
 
+    # A couple of test routes while we migrate to Flask
     @app.route('/hello', methods=['GET'])
     def hello_world():
         return 'Hello World, this is served by Flask'
@@ -248,6 +250,12 @@ def make_flask_stack(conf, **app_conf):
     # TODO: maybe we can automate this?
     from ckan.views.api import ApiView
     ApiView.register(app)
+
+    # Set up each iRoute extension as a Flask Blueprint
+    for plugin in PluginImplementations(IRoutes):
+        if hasattr(plugin, 'get_blueprint'):
+            app.register_blueprint(plugin.get_blueprint(),
+                                   prioritise_rules=True)
 
     # Start other middleware
 
@@ -320,6 +328,25 @@ class CKANFlask(Flask):
             return (True, self.app_name)
         except HTTPException:
             raise HighAndDry()
+
+    def register_blueprint(self, blueprint, prioritise_rules=False, **options):
+        '''
+        If prioritise_rules is True, add complexity to each url rule in the
+        blueprint, to ensure they will override similar existing rules.
+        '''
+
+        # Register the blueprint with the app.
+        super(CKANFlask, self).register_blueprint(blueprint, **options)
+        if prioritise_rules:
+            # Get the new blueprint rules
+            bp_rules = [v for k, v in self.url_map._rules_by_endpoint.items()
+                        if k.startswith(blueprint.name)]
+            bp_rules = list(itertools.chain.from_iterable(bp_rules))
+
+            # This compare key will ensure the rule will be near the top.
+            top_compare_key = False, -100, [(-2, 0)]
+            for r in bp_rules:
+                r.match_compare_key = lambda: top_compare_key
 
 
 class AskAppDispatcherMiddleware(WSGIParty):
