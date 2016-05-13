@@ -723,6 +723,77 @@ class TestResourceUpdate(object):
         assert_equals(res_returned['anotherfield'], 'second')
         assert 'newfield' not in res_returned
 
+    def test_datastore_active_is_persisted_if_true_and_not_provided(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://example.com',
+                                      datastore_active=True)
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://example.com',
+                                           name='Test')
+
+        assert_equals(res_returned['datastore_active'], True)
+
+    def test_datastore_active_is_persisted_if_false_and_not_provided(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://example.com',
+                                      datastore_active=False)
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://example.com',
+                                           name='Test')
+
+        assert_equals(res_returned['datastore_active'], False)
+
+    def test_datastore_active_is_updated_if_false_and_provided(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://example.com',
+                                      datastore_active=False)
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://example.com',
+                                           name='Test',
+                                           datastore_active=True)
+
+        assert_equals(res_returned['datastore_active'], True)
+
+    def test_datastore_active_is_updated_if_true_and_provided(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://example.com',
+                                      datastore_active=True)
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://example.com',
+                                           name='Test',
+                                           datastore_active=False)
+
+        assert_equals(res_returned['datastore_active'], False)
+
+    def test_datastore_active_not_present_if_not_provided_and_not_datastore_plugin_enabled(self):
+
+        assert not p.plugin_loaded('datastore')
+
+        dataset = factories.Dataset()
+        resource = factories.Resource(package=dataset,
+                                      url='http://example.com',
+                                      )
+
+        res_returned = helpers.call_action('resource_update',
+                                           id=resource['id'],
+                                           url='http://example.com',
+                                           name='Test',
+                                           )
+
+        assert 'datastore_active' not in res_returned
+
 
 class TestConfigOptionUpdate(object):
 
