@@ -268,8 +268,8 @@ def make_flask_stack(conf, **app_conf):
         return 'Hello World, this was posted to Flask'
 
     # TODO: maybe we can automate this?
-    from ckan.views.api import ApiView
-    ApiView.register(app)
+    from ckan.views.api import api
+    app.register_blueprint(api)
 
     # Start other middleware
 
