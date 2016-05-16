@@ -834,7 +834,7 @@ def organization_create(context, data_dict):
 
     '''
     # wrapper for creating organizations
-    data_dict['type'] = 'organization'
+    data_dict.setdefault('type', 'organization')
     _check_access('organization_create', context, data_dict)
     return _group_or_org_create(context, data_dict, is_org=True)
 
