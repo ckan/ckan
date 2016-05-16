@@ -1579,40 +1579,6 @@ def debug_inspect(arg):
 
 
 @core_helper
-def debug_full_info_as_list(debug_info):
-    ''' This dumps the template variables for debugging purposes only. '''
-    out = []
-    ignored_keys = ['c', 'app_globals', 'g', 'h', 'request', 'tmpl_context',
-                    'actions', 'translator', 'session', 'N_', 'ungettext',
-                    'config', 'response', '_']
-    ignored_context_keys = ['__class__', '__context', '__delattr__',
-                            '__dict__',
-                            '__doc__', '__format__', '__getattr__',
-                            '__getattribute__', '__hash__', '__init__',
-                            '__module__', '__new__', '__reduce__',
-                            '__reduce_ex__', '__repr__', '__setattr__',
-                            '__sizeof__', '__str__', '__subclasshook__',
-                            '__weakref__', 'action', 'environ', 'pylons',
-                            'start_response']
-    debug_vars = debug_info['vars']
-    for key in debug_vars.keys():
-        if key not in ignored_keys:
-            data = pprint.pformat(debug_vars.get(key))
-            data = data.decode('utf-8')
-            out.append((key, data))
-
-    if 'tmpl_context' in debug_vars:
-        for key in debug_info['c_vars']:
-
-            if key not in ignored_context_keys:
-                data = pprint.pformat(getattr(debug_vars['tmpl_context'], key))
-                data = data.decode('utf-8')
-                out.append(('c.%s' % key, data))
-
-    return out
-
-
-@core_helper
 def popular(type_, number, min=1, title=None):
     ''' display a popular icon. '''
     if type_ == 'views':
