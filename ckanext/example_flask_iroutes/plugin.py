@@ -1,4 +1,5 @@
 from flask import Blueprint
+from flask import render_template
 
 import ckan.plugins as p
 
@@ -10,8 +11,7 @@ def hello_plugin():
 
 def override_pylons_about():
     '''A simple replacement for the pylons About page.'''
-    return 'This is an about page served from an extention, ' \
-        'overriding the pylons url.'
+    return render_template('home/about.html')
 
 
 def override_flask_hello():
@@ -31,6 +31,7 @@ class ExampleFlaskIRoutesPlugin(p.SingletonPlugin):
 
         # Create Blueprint for plugin
         blueprint = Blueprint(self.name, self.__module__)
+        blueprint.template_folder = 'templates'
         # Add plugin url rules to Blueprint object
         rules = [
             ('/hello_plugin', 'hello_plugin', hello_plugin),

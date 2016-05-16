@@ -36,6 +36,7 @@ from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware, IRoutes
 from ckan.lib.i18n import get_locales_from_config
 import ckan.lib.uploader as uploader
+from ckan.lib import jinja_extensions
 
 from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
@@ -233,18 +234,37 @@ def make_flask_stack(conf, **app_conf):
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
 
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     app = CKANFlask(__name__)
+    app.template_folder = os.path.join(root, 'templates')
 
     # Do all the Flask-specific stuff before adding other middlewares
-
-    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(
-        os.path.dirname(__file__), '..', 'i18n')
-    app.config['BABEL_DOMAIN'] = 'ckan'
 
     # secret key needed for flask-debug-toolbar
     app.config['SECRET_KEY'] = '<replace with a secret key>'
     app.debug = True
     DebugToolbarExtension(app)
+
+    # Add jinja2 extensions and filters
+    extensions = [
+        'jinja2.ext.do', 'jinja2.ext.with_',
+        jinja_extensions.SnippetExtension,
+        jinja_extensions.CkanExtend,
+        jinja_extensions.CkanInternationalizationExtension,
+        jinja_extensions.LinkForExtension,
+        jinja_extensions.ResourceExtension,
+        jinja_extensions.UrlForStaticExtension,
+        jinja_extensions.UrlForExtension
+    ]
+    for extension in extensions:
+        app.jinja_env.add_extension(extension)
+    app.jinja_env.filters['empty_and_escape'] = \
+        jinja_extensions.empty_and_escape
+    app.jinja_env.filters['truncate'] = jinja_extensions.truncate
+
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(
+        os.path.dirname(__file__), '..', 'i18n')
+    app.config['BABEL_DOMAIN'] = 'ckan'
 
     babel = Babel(app)
 
