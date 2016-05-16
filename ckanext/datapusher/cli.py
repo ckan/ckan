@@ -14,6 +14,9 @@ class DatapusherCommand(cli.CkanCommand):
                     ignoring if their files haven't changed.
         submit <pkgname> - Submits all resources from the package
                          identified by pkgname (either the short name or ID).
+        submit_all  - Submit every package to the datastore.
+                      This is useful if you're setting up datastore
+                      for a ckan that already has datasets.
     '''
 
     summary = __doc__.split('\n')[0]
@@ -24,7 +27,12 @@ class DatapusherCommand(cli.CkanCommand):
             self._confirm_or_abort()
 
             self._load_config()
-            self._submit_all()
+            self._resubmit_all()
+        elif self.args and self.args[0] == 'submit_all':
+            self._confirm_or_abort()
+
+            self._load_config()
+            self._submit_all_packages()
         elif self.args and self.args[0] == 'submit':
             self._confirm_or_abort()
 
@@ -49,9 +57,17 @@ class DatapusherCommand(cli.CkanCommand):
             print "Aborting..."
             sys.exit(0)
 
-    def _submit_all(self):
+    def _resubmit_all(self):
         resources_ids = datastore_db.get_all_resources_ids_in_datastore()
         self._submit(resource_ids)
+
+    def _submit_all_packages(self):
+        # submit every package
+        # for each package in the package list, submit each resource w/ _submit_package
+        import ckan.model as model
+        package_list = p.toolkit.get_action('package_list')
+        for p_id in package_list({'model': model, 'ignore_auth': True}, {}):
+            self._submit_package(p_id)
 
     def _submit_package(self, pkg_id):
         import ckan.model as model
