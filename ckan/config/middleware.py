@@ -239,6 +239,10 @@ def make_flask_stack(conf, **app_conf):
         os.path.dirname(__file__), '..', 'i18n')
     app.config['BABEL_DOMAIN'] = 'ckan'
 
+    # secret key needed for flask-debug-toolbar
+    app.config['SECRET_KEY'] = '<replace with a secret key>'
+    app.debug = True
+
     babel = Babel(app)
 
     @babel.localeselector
