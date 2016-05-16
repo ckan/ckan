@@ -236,7 +236,27 @@ def make_flask_stack(conf, **app_conf):
 
     # Do all the Flask-specific stuff before adding other middlewares
 
-    Babel(app)
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(
+        os.path.dirname(__file__), '..', 'i18n')
+    app.config['BABEL_DOMAIN'] = 'ckan'
+
+    # secret key needed for flask-debug-toolbar
+    app.config['SECRET_KEY'] = '<replace with a secret key>'
+    app.debug = True
+
+    babel = Babel(app)
+
+    @babel.localeselector
+    def get_locale():
+        '''
+        Return the value of the `CKAN_LANG` key of the WSGI environ,
+        set by the I18nMiddleware based on the URL.
+        If no value is defined, it defaults to `ckan.locale_default` or `en`.
+        '''
+        from flask import request
+        return request.environ.get(
+            'CKAN_LANG',
+            config.get('ckan.locale_default', 'en'))
 
     # A couple of test routes while we migrate to Flask
     @app.route('/hello', methods=['GET'])
@@ -258,6 +278,8 @@ def make_flask_stack(conf, **app_conf):
                                    prioritise_rules=True)
 
     # Start other middleware
+
+    app = I18nMiddleware(app, config)
 
     # Initialize repoze.who
     who_parser = WhoConfig(conf['here'])
