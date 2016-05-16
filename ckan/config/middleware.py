@@ -30,6 +30,7 @@ from flask import _request_ctx_stack
 from werkzeug.exceptions import HTTPException
 from werkzeug.test import create_environ, run_wsgi_app
 from flask.ext.babel import Babel
+from flask_debugtoolbar import DebugToolbarExtension
 
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware, IRoutes
@@ -243,6 +244,7 @@ def make_flask_stack(conf, **app_conf):
     # secret key needed for flask-debug-toolbar
     app.config['SECRET_KEY'] = '<replace with a secret key>'
     app.debug = True
+    DebugToolbarExtension(app)
 
     babel = Babel(app)
 
