@@ -37,6 +37,8 @@ from ckan.plugins.interfaces import IMiddleware, IRoutes
 from ckan.lib.i18n import get_locales_from_config
 import ckan.lib.uploader as uploader
 from ckan.lib import jinja_extensions
+from ckan.lib import helpers
+from ckan.common import c
 
 from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
@@ -243,6 +245,7 @@ def make_flask_stack(conf, **app_conf):
     # secret key needed for flask-debug-toolbar
     app.config['SECRET_KEY'] = '<replace with a secret key>'
     app.debug = True
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     DebugToolbarExtension(app)
 
     # Add jinja2 extensions and filters
@@ -262,6 +265,17 @@ def make_flask_stack(conf, **app_conf):
         jinja_extensions.empty_and_escape
     app.jinja_env.filters['truncate'] = jinja_extensions.truncate
 
+    # Template context processors
+    @app.context_processor
+    def helper_functions():
+        helpers.load_plugin_helpers()
+        return dict(h=helpers.helper_functions)
+
+    @app.context_processor
+    def c_object():
+        return dict(c=c)
+
+    # Babel
     app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(
         os.path.dirname(__file__), '..', 'i18n')
     app.config['BABEL_DOMAIN'] = 'ckan'

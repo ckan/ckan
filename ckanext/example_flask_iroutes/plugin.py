@@ -1,5 +1,5 @@
 from flask import Blueprint
-from flask import render_template
+from flask import render_template, render_template_string
 
 import ckan.plugins as p
 
@@ -16,8 +16,17 @@ def override_pylons_about():
 
 def override_flask_hello():
     '''A simple replacement for the flash Hello view function.'''
-    return 'Hello World, this is served from an extension, ' \
-        'overriding the flask url.'
+    # return 'Hello World, this is served from an extension, ' \
+    #     'overriding the flask url.'
+    html = '''<!DOCTYPE html>
+    <html>
+        <head>
+            <title>Hello from Flask</title>
+        </head>
+        <body>Hello World, this is served from an extension</body>
+    </html>'''
+
+    return render_template_string(html)
 
 
 class ExampleFlaskIRoutesPlugin(p.SingletonPlugin):

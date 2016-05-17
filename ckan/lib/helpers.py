@@ -42,7 +42,7 @@ import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
 
-from ckan.common import _, ungettext, g, c, request, session, json
+from ckan.common import _, ungettext, g, c, session, json, request
 
 log = logging.getLogger(__name__)
 
