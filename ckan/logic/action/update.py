@@ -80,6 +80,11 @@ def resource_update(context, data_dict):
         log.error('Could not find resource %s after all', id)
         raise NotFound(_('Resource was not found.'))
 
+    # Persist the datastore_active extra if already present and not provided
+    if ('datastore_active' in resource.extras and
+            'datastore_active' not in data_dict):
+        data_dict['datastore_active'] = resource.extras['datastore_active']
+
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
 
