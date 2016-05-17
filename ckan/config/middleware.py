@@ -239,6 +239,7 @@ def make_flask_stack(conf, **app_conf):
     app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(
         os.path.dirname(__file__), '..', 'i18n')
     app.config['BABEL_DOMAIN'] = 'ckan'
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
     # secret key needed for flask-debug-toolbar
     app.config['SECRET_KEY'] = '<replace with a secret key>'

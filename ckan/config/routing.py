@@ -129,12 +129,6 @@ def make_map():
     ]
     register_list_str = '|'.join(register_list)
 
-    # /api ver 3 or none
-    with SubMapper(map, controller='api', path_prefix='/api{ver:/3|}',
-                   ver='/3') as m:
-        m.connect('/action/{logic_function}', action='action',
-                  conditions=GET_POST)
-
     # /api ver 1, 2, 3 or none
     with SubMapper(map, controller='api', path_prefix='/api{ver:/1|/2|/3|}',
                    ver='/1') as m:

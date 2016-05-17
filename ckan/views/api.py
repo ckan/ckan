@@ -25,6 +25,17 @@ CONTENT_TYPES = {
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
+API_DEFAULT_VERSION = 3
+API_MAX_VERSION = 3
+
+
+# Blueprint definition
+
+api = Blueprint('api', __name__, url_prefix='/api')
+
+
+# Private methods
+
 
 def _identify_user():
     '''Try to identify the user
@@ -307,14 +318,9 @@ def _get_request_data(try_url_params=False):
     return request_data
 
 
-api = Blueprint('api', __name__, url_prefix='/api')
+# View functions
 
-
-@api.route('/<int:ver>/action/<logic_function>', endpoint='action',
-           methods=['GET', 'POST'])
-@api.route('/action/<logic_function>', methods=['GET', 'POST'],
-           defaults={'ver': 3})
-def action(logic_function, ver=None):
+def action(logic_function, ver=API_DEFAULT_VERSION):
 
     try:
         function = get_action(logic_function)
@@ -418,3 +424,22 @@ def action(logic_function, ver=None):
         return_dict['success'] = False
         return _finish(500, return_dict, content_type='json')
     return _finish_ok(return_dict)
+
+
+def get_api(ver=1):
+    response_data = {
+        'version': ver
+    }
+    return _finish_ok(response_data)
+
+
+# Routing
+
+
+api.add_url_rule('/', view_func=get_api, strict_slashes=False)
+api.add_url_rule('/action/<logic_function>', methods=['GET', 'POST'],
+                 view_func=action)
+api.add_url_rule('/<int(min=3, max={0}):ver>/action/<logic_function>'.format(
+                 API_MAX_VERSION),
+                 methods=['GET', 'POST'],
+                 view_func=action)

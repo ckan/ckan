@@ -420,7 +420,7 @@ def call_action_api(app, action, apikey=None, status=200, **kwargs):
 
     '''
     params = json.dumps(kwargs)
-    response = app.post('/api/action/{0}'.format(action), params=params,
+    response = app.post('/api/3/action/{0}'.format(action), params=params,
             extra_environ={'Authorization': str(apikey)}, status=status)
     assert '/api/3/action/help_show?name={0}'.format(action) \
         in response.json['help']
