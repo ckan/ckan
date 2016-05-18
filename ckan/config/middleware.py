@@ -27,7 +27,6 @@ from flask import Flask
 from flask import abort as flask_abort
 from flask import request as flask_request
 from flask import _request_ctx_stack
-from flask import g as flask_g
 from flask.ctx import _AppCtxGlobals
 from werkzeug.exceptions import HTTPException
 from werkzeug.test import create_environ, run_wsgi_app
