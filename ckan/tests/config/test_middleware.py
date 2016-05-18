@@ -1,5 +1,6 @@
 import mock
 import wsgiref
+import nose
 from nose.tools import assert_equals, assert_not_equals, eq_
 from routes import url_for
 
@@ -97,51 +98,6 @@ class TestAppDispatcherPlain(object):
 
 
 class TestAppDispatcher(helpers.FunctionalTestBase):
-
-    @classmethod
-    def _find_flask_app(cls, test_app):
-        '''Recursively search the wsgi stack until the flask_app is
-        discovered.
-
-        Relies on each layer of the stack having a reference to the app they
-        wrap in either a .app attribute or .apps list.
-        '''
-        if isinstance(test_app, CKANFlask):
-            return test_app
-
-        try:
-            app = test_app.apps['flask_app'].app
-        except (AttributeError, KeyError):
-            pass
-        else:
-            return cls._find_flask_app(app)
-
-        try:
-            app = test_app.app
-        except AttributeError:
-            print('No .app attribute. '
-                  'Have all layers of the stack got '
-                  'a reference to the app they wrap?')
-        else:
-            return cls._find_flask_app(app)
-
-    @classmethod
-    def setup_class(cls):
-
-        super(TestAppDispatcher, cls).setup_class()
-
-        # Add a custom route to the Flask app
-        app = cls._get_test_app()
-        flask_app = cls._find_flask_app(app)
-
-        def test_view():
-            return 'This was served from Flask'
-
-        # This endpoint is defined both in Flask and in Pylons core
-        flask_app.add_url_rule('/about', view_func=test_view)
-
-        # This endpoint is defined both in Flask and a Pylons extension
-        flask_app.add_url_rule('/pylons_and_flask', view_func=test_view)
 
     def test_ask_around_is_called(self):
 
@@ -358,6 +314,9 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
     def test_ask_around_flask_core_and_pylons_extension_route(self):
 
+        # TODO: re-enable when we have a way for Flask extensions to add routes
+        raise nose.SkipTest()
+
         if not p.plugin_loaded('test_routing_plugin'):
             p.load('test_routing_plugin')
 
@@ -438,10 +397,9 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         '''
         app = self._get_test_app()
 
-        res = app.get('/about')
+        res = app.get('/api/action/status_show')
 
         eq_(res.environ['ckan.app'], 'flask_app')
-        eq_(res.body, 'This was served from Flask')
 
 
 class MockRoutingPlugin(p.SingletonPlugin):
