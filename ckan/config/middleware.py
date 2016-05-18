@@ -27,6 +27,8 @@ from flask import Flask
 from flask import abort as flask_abort
 from flask import request as flask_request
 from flask import _request_ctx_stack
+from flask import g as flask_g
+from flask.ctx import _AppCtxGlobals
 from werkzeug.exceptions import HTTPException
 from werkzeug.test import create_environ, run_wsgi_app
 from flask.ext.babel import Babel
@@ -232,6 +234,17 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
     return app
 
 
+class CKAN_AppCtxGlobals(_AppCtxGlobals):
+
+    '''Custom Flask AppCtxGlobal class (flask.g).'''
+
+    def __getattr__(self, name):
+        '''
+        If flask.g doesn't have attribute `name`, try the app_globals object.
+        '''
+        return getattr(app_globals.app_globals, name)
+
+
 def make_flask_stack(conf, **app_conf):
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
@@ -239,6 +252,7 @@ def make_flask_stack(conf, **app_conf):
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     app = CKANFlask(__name__)
     app.template_folder = os.path.join(root, 'templates')
+    app.app_ctx_globals_class = CKAN_AppCtxGlobals
 
     # Do all the Flask-specific stuff before adding other middlewares
 
