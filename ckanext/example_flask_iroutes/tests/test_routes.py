@@ -35,10 +35,16 @@ class TestFlaskIRoutes(helpers.FunctionalTestBase):
 
     def setup(self):
         self.app = helpers._get_test_app()
+        flask_app = self._find_flask_app(self.app)
+
+        # Blueprints can't be registered after the app has been setup. For
+        # some reason, if debug is True, the app will have exited its initial
+        # state, and can't have new registrations. Set debug=False to ensure
+        # we can continue to register blueprints.
+        flask_app.debug = False
         # Install plugin and register its blueprint
         if not plugins.plugin_loaded('example_flask_iroutes'):
             plugins.load('example_flask_iroutes')
-            flask_app = self._find_flask_app(self.app)
             plugin = plugins.get_plugin('example_flask_iroutes')
             flask_app.register_blueprint(plugin.get_blueprint(),
                                          prioritise_rules=True)
