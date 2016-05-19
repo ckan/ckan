@@ -1,4 +1,4 @@
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
 from ckan.config.middleware import CKANFlask
 import ckan.plugins as plugins
@@ -59,10 +59,28 @@ class TestFlaskIRoutes(helpers.FunctionalTestBase):
         '''Test extension overrides pylons core route.'''
         res = self.app.get('/about')
 
-        eq_('This is an about page served from an extention, overriding the pylons url.', res.body)
+        ok_('This is an about page served from an extention, overriding the pylons url.' in res.body)
 
     def test_plugin_route_core_flask_override(self):
         '''Test extension overrides flask core route.'''
         res = self.app.get('/hello')
 
-        eq_('Hello World, this is served from an extension, overriding the flask url.', res.body)
+        ok_('Hello World, this is served from an extension, overriding the flask url.' in res.body)
+
+    def test_plugin_route_with_helper(self):
+        '''
+        Test extension rendering with a helper method that exists shouldn't
+        raise an exception.
+        '''
+        res = self.app.get('/helper')
+
+        ok_('Hello World, helper here: en' in res.body)
+
+    def test_plugin_route_with_non_existent_helper(self):
+        '''
+        Test extension rendering with a helper method that doesn't exist
+        shouldn't raise an exception.
+        '''
+        res = self.app.get('/helper_not_here')
+
+        ok_('Hello World,  no helper here' in res.body)
