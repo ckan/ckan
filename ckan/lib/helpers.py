@@ -283,6 +283,7 @@ def _local_url(url_to_amend, **kw):
                                        qualified=True,
                                        host=host,
                                        protocol=protocol)[:-1]
+
     # ckan.root_path is defined when we have none standard language
     # position in the url
     root_path = config.get('ckan.root_path', None)
@@ -306,10 +307,14 @@ def _local_url(url_to_amend, **kw):
                                url_query, url_fragment))
 
     # stop the root being added twice in redirects
-    if no_root:
-        url = url_to_amend[len(root):]
+    if no_root and url_to_amend.startswith(root + root_path):
+        url = url[len(root + root_path):]
+
         if not default_locale:
-            url = '/%s%s' % (locale, url)
+            url = '%s%s%s' % (
+                root + root_path,
+                '' if default_locale else '/' + locale,
+                url[len(root+root_path):])
 
     if url == '/packages':
         error = 'There is a broken url being created %s' % kw
