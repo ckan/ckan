@@ -12,8 +12,8 @@ CKAN: The Open Source Data Portal Software
     :target: https://stackoverflow.com/questions/tagged/ckan
     :alt: Support on StackOverflow
 
-.. image:: https://secure.travis-ci.org/ckan/ckan.png?branch=master
-    :target: http://travis-ci.org/ckan/ckan
+.. image:: https://circleci.com/gh/ckan/ckan.svg?style=shield
+    :target: https://circleci.com/gh/ckan/ckan
     :alt: Build Status
 
 .. image:: https://coveralls.io/repos/github/ckan/ckan/badge.svg?branch=master
