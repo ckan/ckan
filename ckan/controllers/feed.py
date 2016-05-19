@@ -198,7 +198,7 @@ class FeedController(base.BaseController):
             title = u'%s - Organization: "%s"' %\
                 (g.site_title, obj_dict['title'])
 
-        else:  # is organization
+        else:  # is group
             guid = _create_atom_id(u'/feeds/group/%s.atom' %
                                    obj_dict['name'])
             alternate_url = self._alternate_url(params,
