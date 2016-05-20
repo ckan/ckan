@@ -26,7 +26,6 @@ import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
 
 from ckan.common import _
-from ckan.lib import base
 
 log = logging.getLogger('ckan.logic')
 
