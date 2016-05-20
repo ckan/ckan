@@ -1145,7 +1145,7 @@ class PackageController(base.BaseController):
             abort(404, _('Resource not found'))
 
         if rsc.get('url_type') == 'upload':
-            upload = uploader.ResourceUpload(rsc)
+            upload = uploader.get_resource_uploader(rsc)
             filepath = upload.get_path(rsc['id'])
             fileapp = paste.fileapp.FileApp(filepath)
             try:
