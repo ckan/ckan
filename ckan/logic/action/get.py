@@ -26,6 +26,7 @@ import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
 
 from ckan.common import _
+from ckan.lib import base
 
 log = logging.getLogger('ckan.logic')
 
@@ -518,10 +519,13 @@ def organization_list(context, data_dict):
     :rtype: list of strings
 
     '''
-    _check_access('organization_list', context, data_dict)
-    data_dict['groups'] = data_dict.pop('organizations', [])
-    data_dict.setdefault('type', 'organization')
-    return _group_or_org_list(context, data_dict, is_org=True)
+    try:
+        _check_access('organization_list', context, data_dict)
+        data_dict['groups'] = data_dict.pop('organizations', [])
+        data_dict.setdefault('type', 'organization')
+        return _group_or_org_list(context, data_dict, is_org=True)
+    except logic.NotAuthorized:
+        base.abort(403, _('You are not authorized to see a list of organizations'))
 
 
 def group_list_authz(context, data_dict):
