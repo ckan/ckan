@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from nose.tools import assert_equal, assert_true
 from routes import url_for
+from mock import patch
 
 from ckan.tests import factories, helpers
 from ckan.tests.helpers import webtest_submit, submit_and_follow, assert_in
@@ -70,10 +71,11 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         self.organization_list_url = url_for(controller='organization',
                                              action='index')
 
+    @patch('ckan.logic.auth.get.organization_list', return_value={'success': False})
     def test_error_message_shown_when_no_organization_list_permission(self, mock_check_access):
         response = self.app.get(url=self.organization_list_url,
-                                extra_environ=self.user_env)
-        assert response.status_int == 403
+                                extra_environ=self.user_env,
+                                status=403)
 
 
 class TestOrganizationRead(helpers.FunctionalTestBase):
