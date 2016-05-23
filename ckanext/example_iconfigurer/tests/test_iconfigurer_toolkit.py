@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose import tools as nosetools
 
 import ckan.tests.helpers as helpers

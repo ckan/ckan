@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckanext.datastore.logic.auth as auth
 
 

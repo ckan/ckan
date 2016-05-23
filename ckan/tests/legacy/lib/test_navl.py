@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan.lib.navl.dictization_functions import (flatten_schema,
                                    get_all_key_combinations,
                                    make_full_schema,

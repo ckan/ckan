@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import assert_equal
 
 from ckan.lib.munge import (munge_filename_legacy, munge_filename, munge_name,

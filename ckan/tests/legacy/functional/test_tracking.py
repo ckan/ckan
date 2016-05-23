@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Functional tests for CKAN's builtin page view tracking feature.'''
 
 import tempfile

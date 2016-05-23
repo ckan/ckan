@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import re
 from os import path
 import logging

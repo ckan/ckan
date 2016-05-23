@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from routes import url_for
 
 import ckan.plugins as p

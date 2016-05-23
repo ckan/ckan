@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+
 """Pylons environment configuration"""
 import os
 import logging

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''This is a collection of factory classes for building CKAN users, datasets,
 etc.
 

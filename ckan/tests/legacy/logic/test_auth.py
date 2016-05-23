@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import paste
 from pylons import config
 import ckan.config.middleware

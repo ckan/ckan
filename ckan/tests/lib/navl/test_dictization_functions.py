@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import nose
 from ckan.lib.navl.dictization_functions import validate
 

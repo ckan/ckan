@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import os
 
 from babel import Locale, localedata

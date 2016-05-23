@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import nose
 
 from ckan import authz as auth

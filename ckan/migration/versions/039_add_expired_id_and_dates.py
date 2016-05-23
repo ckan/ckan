@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from migrate import *
 import uuid
 import datetime

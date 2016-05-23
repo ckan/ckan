@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import re
 from jinja2.ext import babel_extract as extract_jinja2
 import lib.jinja_extensions

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """
 Provides bridges between the model and plugin PluginImplementationss
 """

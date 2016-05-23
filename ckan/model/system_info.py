@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 The system_info table and SystemInfo mapped class store runtime-editable
 configuration options.

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 from urllib import quote
 

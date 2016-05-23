@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import paste.fixture
 from pylons import config
 from ckan.config.middleware import make_app

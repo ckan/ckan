@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import __builtin__ as builtins
 
 import paste.fileapp

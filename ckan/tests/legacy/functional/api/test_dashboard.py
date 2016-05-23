@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Test for the dashboard API.
 
 This module tests the various functions of the user dashboard, such as the
