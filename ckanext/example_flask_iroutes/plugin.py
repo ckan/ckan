@@ -30,7 +30,7 @@ def override_flask_hello():
 def helper_not_here():
 
     '''A simple template with a helper that doesn't exist. Rendering with a
-    helper that doesn't exist shouldn't raise an exception.'''
+    helper that doesn't exist causes server error.'''
 
     html = '''<!DOCTYPE html>
     <html>

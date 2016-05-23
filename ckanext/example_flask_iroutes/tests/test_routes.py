@@ -70,7 +70,7 @@ class TestFlaskIRoutes(helpers.FunctionalTestBase):
     def test_plugin_route_with_helper(self):
         '''
         Test extension rendering with a helper method that exists shouldn't
-        raise an exception.
+        cause error.
         '''
         res = self.app.get('/helper')
 
@@ -79,8 +79,6 @@ class TestFlaskIRoutes(helpers.FunctionalTestBase):
     def test_plugin_route_with_non_existent_helper(self):
         '''
         Test extension rendering with a helper method that doesn't exist
-        shouldn't raise an exception.
+        causes server error.
         '''
-        res = self.app.get('/helper_not_here')
-
-        ok_('Hello World,  no helper here' in res.body)
+        self.app.get('/helper_not_here', status=500)
