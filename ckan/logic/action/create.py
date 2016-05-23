@@ -318,6 +318,16 @@ def resource_create(context, data_dict):
     updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = updated_pkg_dict['resources'][-1]
 
+    ##  Add the default views to the new resource
+    create_datastore_views = paste.deploy.converters.asbool(
+        data_dict.get('create_datastore_views', False))
+    ckan.lib.datapreview.add_views_to_resource(context,
+                                               resource,
+                                               None,
+                                               view_types=[],
+                                               create_datastore_views=
+                                               create_datastore_views)
+
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_create(context, resource)
 
