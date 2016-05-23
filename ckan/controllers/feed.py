@@ -145,7 +145,7 @@ def _create_atom_id(resource_path, authority_name=None, date_string=None):
         # This is best we can do, and if the site_url is not set, then
         # this still results in an invalid feed.
         site_url = config.get('ckan.site_url', '')
-        return '/'.join([site_url, resource_path])
+        return urlparse.urljoin(site_url, resource_path)
 
     tagging_entity = ','.join([authority_name, date_string])
     return ':'.join(['tag', tagging_entity, resource_path])

@@ -30,3 +30,8 @@ class TestFeedNew(helpers.FunctionalTestBase):
         app = self._get_test_app()
         res = app.get(offset, status=400)
         assert '"page" parameter must be a positive integer' in res, res
+
+    def test_atom_feed_page_creates_proper_ids(self):
+        from ckan.controllers.feed import _create_atom_id
+        atom_id = _create_atom_id('/dataset/123', authority_name='the_authority')
+        assert atom_id == 'http://test.ckan.net/dataset/123'
