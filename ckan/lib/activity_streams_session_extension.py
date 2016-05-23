@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from pylons import config
 from sqlalchemy.orm.session import SessionExtension
 from paste.deploy.converters import asbool

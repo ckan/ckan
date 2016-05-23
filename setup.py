@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # Avoid problem releasing to pypi from vagrant
 import os
 if os.environ.get('USER', '') == 'vagrant':

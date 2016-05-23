@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# encoding: utf-8
+
 '''Script for checking for common translation mistakes in po files, see:
 
     paster check-po-files --help

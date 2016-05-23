@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Tests for the ckanext.example_iauthfunctions extension.
 
 '''

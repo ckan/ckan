@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Example IDatasetFormPlugin'''
 import ckan.plugins as p
 import ckan.plugins.toolkit as tk

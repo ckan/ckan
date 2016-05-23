@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan.tests.legacy import assert_equal, assert_in, assert_not_in, CreateTestData
 
 import ckan.model as model

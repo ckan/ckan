@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import nose.tools as nt
 
 import pylons.config as config

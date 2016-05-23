@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """Pylons middleware initialization"""
 import urllib
 import urllib2

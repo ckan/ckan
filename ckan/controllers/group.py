@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 import datetime
 from urllib import urlencode

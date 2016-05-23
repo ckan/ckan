@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckan
 import pylons.test
 import paste.fixture

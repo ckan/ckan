@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan.tests.legacy.functional.api.base import *
 from ckan.tests.legacy import TestController as ControllerTestCase
 

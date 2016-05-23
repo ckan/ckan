@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+
 from nose.tools import eq_
 from ckan.lib.helpers import url_for
 from bs4 import BeautifulSoup

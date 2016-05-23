@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from paste.deploy.converters import asbool
 from ckan.tests.legacy.functional.api.base import *
 from ckan.lib.create_test_data import CreateTestData

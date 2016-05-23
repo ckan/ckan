@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 Based on webhelpers.paginator, but:
  * each page is for items beginning with a particular letter

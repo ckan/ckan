@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckan.lib.navl.dictization_functions as df
 
 from ckan.common import _

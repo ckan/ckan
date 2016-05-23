@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """
 The feed controller produces Atom feeds of datasets.
 

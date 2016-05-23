@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import os
 from ckan.tests.legacy import TestController
 

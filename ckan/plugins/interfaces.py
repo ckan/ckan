@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''A collection of interfaces that CKAN plugins can implement to customize and
 extend CKAN.
 

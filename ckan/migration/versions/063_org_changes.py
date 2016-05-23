@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from migrate import *
 
 def upgrade(migrate_engine):

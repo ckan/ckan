@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan.tests.legacy import TestController, CreateTestData, url_for
 import ckan.model as model
 
