@@ -6,6 +6,7 @@ import json
 import hashlib
 import os
 import webob
+import itertools
 
 import sqlalchemy as sa
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -26,15 +27,19 @@ from flask import Flask
 from flask import abort as flask_abort
 from flask import request as flask_request
 from flask import _request_ctx_stack
+from flask.ctx import _AppCtxGlobals
 from werkzeug.exceptions import HTTPException
 from werkzeug.test import create_environ, run_wsgi_app
 from flask.ext.babel import Babel
 from flask_debugtoolbar import DebugToolbarExtension
 
 from ckan.plugins import PluginImplementations
-from ckan.plugins.interfaces import IMiddleware
+from ckan.plugins.interfaces import IMiddleware, IRoutes
 from ckan.lib.i18n import get_locales_from_config
 import ckan.lib.uploader as uploader
+from ckan.lib import jinja_extensions
+from ckan.lib import helpers
+from ckan.common import c
 
 from ckan.config.environment import load_environment
 import ckan.lib.app_globals as app_globals
@@ -228,23 +233,65 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
     return app
 
 
+class CKAN_AppCtxGlobals(_AppCtxGlobals):
+
+    '''Custom Flask AppCtxGlobal class (flask.g).'''
+
+    def __getattr__(self, name):
+        '''
+        If flask.g doesn't have attribute `name`, try the app_globals object.
+        '''
+        return getattr(app_globals.app_globals, name)
+
+
 def make_flask_stack(conf, **app_conf):
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
 
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     app = CKANFlask(__name__)
+    app.template_folder = os.path.join(root, 'templates')
+    app.app_ctx_globals_class = CKAN_AppCtxGlobals
 
     # Do all the Flask-specific stuff before adding other middlewares
-
-    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(
-        os.path.dirname(__file__), '..', 'i18n')
-    app.config['BABEL_DOMAIN'] = 'ckan'
-    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
     # secret key needed for flask-debug-toolbar
     app.config['SECRET_KEY'] = '<replace with a secret key>'
     app.debug = True
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     DebugToolbarExtension(app)
+
+    # Add jinja2 extensions and filters
+    extensions = [
+        'jinja2.ext.do', 'jinja2.ext.with_',
+        jinja_extensions.SnippetExtension,
+        jinja_extensions.CkanExtend,
+        jinja_extensions.CkanInternationalizationExtension,
+        jinja_extensions.LinkForExtension,
+        jinja_extensions.ResourceExtension,
+        jinja_extensions.UrlForStaticExtension,
+        jinja_extensions.UrlForExtension
+    ]
+    for extension in extensions:
+        app.jinja_env.add_extension(extension)
+    app.jinja_env.filters['empty_and_escape'] = \
+        jinja_extensions.empty_and_escape
+    app.jinja_env.filters['truncate'] = jinja_extensions.truncate
+
+    # Template context processors
+    @app.context_processor
+    def helper_functions():
+        helpers.load_plugin_helpers()
+        return dict(h=helpers.helper_functions)
+
+    @app.context_processor
+    def c_object():
+        return dict(c=c)
+
+    # Babel
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(
+        os.path.dirname(__file__), '..', 'i18n')
+    app.config['BABEL_DOMAIN'] = 'ckan'
 
     babel = Babel(app)
 
@@ -260,6 +307,7 @@ def make_flask_stack(conf, **app_conf):
             'CKAN_LANG',
             config.get('ckan.locale_default', 'en'))
 
+    # A couple of test routes while we migrate to Flask
     @app.route('/hello', methods=['GET'])
     def hello_world():
         return 'Hello World, this is served by Flask'
@@ -271,6 +319,12 @@ def make_flask_stack(conf, **app_conf):
     # TODO: maybe we can automate this?
     from ckan.views.api import api
     app.register_blueprint(api)
+
+    # Set up each iRoute extension as a Flask Blueprint
+    for plugin in PluginImplementations(IRoutes):
+        if hasattr(plugin, 'get_blueprint'):
+            app.register_blueprint(plugin.get_blueprint(),
+                                   prioritise_rules=True)
 
     # Start other middleware
 
@@ -345,6 +399,25 @@ class CKANFlask(Flask):
             return (True, self.app_name)
         except HTTPException:
             raise HighAndDry()
+
+    def register_blueprint(self, blueprint, prioritise_rules=False, **options):
+        '''
+        If prioritise_rules is True, add complexity to each url rule in the
+        blueprint, to ensure they will override similar existing rules.
+        '''
+
+        # Register the blueprint with the app.
+        super(CKANFlask, self).register_blueprint(blueprint, **options)
+        if prioritise_rules:
+            # Get the new blueprint rules
+            bp_rules = [v for k, v in self.url_map._rules_by_endpoint.items()
+                        if k.startswith(blueprint.name)]
+            bp_rules = list(itertools.chain.from_iterable(bp_rules))
+
+            # This compare key will ensure the rule will be near the top.
+            top_compare_key = False, -100, [(-2, 0)]
+            for r in bp_rules:
+                r.match_compare_key = lambda: top_compare_key
 
 
 class AskAppDispatcherMiddleware(WSGIParty):

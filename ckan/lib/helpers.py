@@ -42,7 +42,7 @@ import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
 
-from ckan.common import _, ungettext, g, c, request, session, json
+from ckan.common import _, ungettext, g, c, session, json, request
 
 log = logging.getLogger(__name__)
 
@@ -54,8 +54,8 @@ class HelperAttributeDict(dict):
 
     def __getitem__(self, key):
         try:
-            value = super(HelperAttributeDict, self).__getitem__(self, key)
-        except AttributeError:
+            value = super(HelperAttributeDict, self).__getitem__(key)
+        except KeyError:
             raise ckan.exceptions.HelperError(
                 'Helper \'{key}\' has not been defined.'.format(
                     key=key
