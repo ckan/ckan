@@ -427,6 +427,21 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         assert (sorted(org_list) ==
                 sorted([g['name'] for g in [org1, org2]]))
 
+    def test_organization_list_return_custom_organization_type(self):
+        '''
+        Getting the org_list with a type defined should only return
+        orgs of that type.
+        '''
+        org1 = factories.Organization()
+        org2 = factories.Organization(type="custom_org")
+        factories.Group(type="custom")
+        factories.Group(type="custom")
+
+        org_list = helpers.call_action('organization_list', type='custom_org')
+
+        assert (sorted(org_list) ==
+                sorted([g['name'] for g in [org2]])), '{}'.format(org_list)
+
 
 class TestOrganizationShow(helpers.FunctionalTestBase):
 
