@@ -62,7 +62,10 @@ class CkanInternationalizationExtension(ext.InternationalizationExtension):
 
     def parse(self, parser):
         node = ext.InternationalizationExtension.parse(self, parser)
-        args = getattr(node.nodes[0], 'args', None)
+        if isinstance(node, list):
+            args = getattr(node[1].nodes[0], 'args', None)
+        else:
+            args = getattr(node.nodes[0], 'args', None)
         if args:
             for arg in args:
                 if isinstance(arg, nodes.Const):
