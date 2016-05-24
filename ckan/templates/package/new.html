@@ -1,3 +1,23 @@
 {% extends "package/base_form_page.html" %}
 
 {% block subtitle %}{{ _('Create Dataset') }}{% endblock %}
+
+
+{% if not h.organizations_available('create_dataset') %}
+
+{% block primary_content %}
+  <section class="module">
+    {% block page_header %}{% endblock %}
+    <div class="module-content">
+      {% block primary_content_inner %}
+        <p>{{ _('Before you can create a dataset you need to create an organization first.') }}</p>
+
+          <a class='btn btn-primary' href="{{ h.url_for(controller='organization', action='new') }}">
+            {{ _('Create a new organization') }}
+          </a>
+      {% endblock %}
+    </div>
+  </section>
+{% endblock %}
+
+{% endif  %}
