@@ -4,10 +4,14 @@ import tzlocal
 from babel import Locale
 
 import ckan.lib.helpers as h
+import ckan.plugins as p
 import ckan.exceptions
 from ckan.tests import helpers
+import ckan.lib.base as base
 
+ok_ = nose.tools.ok_
 eq_ = nose.tools.eq_
+raises = nose.tools.raises
 CkanUrlException = ckan.exceptions.CkanUrlException
 
 
@@ -266,3 +270,102 @@ class TestGetDisplayTimezone(object):
     @helpers.change_config('ckan.display_timezone', 'America/New_York')
     def test_named_timezone(self):
         eq_(h.get_display_timezone(), pytz.timezone('America/New_York'))
+
+
+class TestHelperException(helpers.FunctionalTestBase):
+
+    @raises(ckan.exceptions.HelperError)
+    def test_helper_exception_non_existing_helper_as_attribute(self):
+        '''Calling a non-existing helper on `h` raises a HelperException.'''
+        if not p.plugin_loaded('test_helpers_plugin'):
+            p.load('test_helpers_plugin')
+
+        app = self._get_test_app()
+
+        app.get('/broken_helper_as_attribute')
+
+        p.unload('test_helpers_plugin')
+
+    @raises(ckan.exceptions.HelperError)
+    def test_helper_exception_non_existing_helper_as_item(self):
+        '''Calling a non-existing helper on `h` raises a HelperException.'''
+        if not p.plugin_loaded('test_helpers_plugin'):
+            p.load('test_helpers_plugin')
+
+        app = self._get_test_app()
+
+        app.get('/broken_helper_as_item')
+
+        p.unload('test_helpers_plugin')
+
+    def test_helper_existing_helper_as_attribute(self):
+        '''Calling an existing helper on `h` doesn't raises a
+        HelperException.'''
+
+        if not p.plugin_loaded('test_helpers_plugin'):
+            p.load('test_helpers_plugin')
+
+        app = self._get_test_app()
+
+        res = app.get('/helper_as_attribute')
+
+        ok_('My lang is: en' in res.body)
+
+        p.unload('test_helpers_plugin')
+
+    def test_helper_existing_helper_as_item(self):
+        '''Calling an existing helper on `h` doesn't raises a
+        HelperException.'''
+
+        if not p.plugin_loaded('test_helpers_plugin'):
+            p.load('test_helpers_plugin')
+
+        app = self._get_test_app()
+
+        res = app.get('/helper_as_item')
+
+        ok_('My lang is: en' in res.body)
+
+        p.unload('test_helpers_plugin')
+
+
+class TestHelpersPlugin(p.SingletonPlugin):
+
+    p.implements(p.IRoutes, inherit=True)
+
+    controller = 'ckan.tests.lib.test_helpers:TestHelperController'
+
+    def after_map(self, _map):
+
+        _map.connect('/broken_helper_as_attribute',
+                     controller=self.controller,
+                     action='broken_helper_as_attribute')
+
+        _map.connect('/broken_helper_as_item',
+                     controller=self.controller,
+                     action='broken_helper_as_item')
+
+        _map.connect('/helper_as_attribute',
+                     controller=self.controller,
+                     action='helper_as_attribute')
+
+        _map.connect('/helper_as_item',
+                     controller=self.controller,
+                     action='helper_as_item')
+
+        return _map
+
+
+class TestHelperController(p.toolkit.BaseController):
+
+    def broken_helper_as_attribute(self):
+        return base.render('tests/broken_helper_as_attribute.html')
+
+    def broken_helper_as_item(self):
+        return base.render('tests/broken_helper_as_item.html')
+
+    def helper_as_attribute(self):
+        return base.render('tests/helper_as_attribute.html')
+
+    def helper_as_item(self):
+        return base.render('tests/helper_as_item.html')
