@@ -159,6 +159,7 @@ class GroupController(base.BaseController):
         sort_by = c.sort_by_selected = request.params.get('sort')
         try:
             self._check_access('site_read', context)
+            self._check_access('group_list', context)
         except NotAuthorized:
             abort(403, _('Not authorized to see this page'))
 
