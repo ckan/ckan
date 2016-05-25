@@ -653,6 +653,27 @@ class TestOrganizationCreate(helpers.FunctionalTestBase):
         for k in created.keys():
             assert created[k] == shown[k], k
 
+    def test_create_organization_custom_type(self):
+        custom_org_type = 'some-custom-type'
+        user = factories.User()
+        context = {
+            'user': user['name'],
+            'ignore_auth': True,
+        }
+
+        org = helpers.call_action(
+            'organization_create',
+            context=context,
+            name='test-organization',
+            type=custom_org_type
+        )
+
+        assert len(org['users']) == 1
+        assert org['display_name'] == u'test-organization'
+        assert org['package_count'] == 0
+        assert org['is_organization']
+        assert org['type'] == custom_org_type
+
 
 class TestUserCreate(helpers.FunctionalTestBase):
 

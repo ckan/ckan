@@ -52,17 +52,6 @@ class TestPackageShow(helpers.FunctionalTestBase):
 
         assert 'new_field' not in dataset2
 
-    def test_package_show_is_lazy(self):
-        dataset1 = factories.Dataset()
-
-        dataset2 = helpers.call_action(
-            'package_show',
-            id=dataset1['id'],
-            context=dict(return_type='LazyJSONObject'))
-
-        # LazyJSONObject passed through without being expanded
-        assert dataset2._json_dict is None
-
 
 class TestGroupList(helpers.FunctionalTestBase):
 
@@ -437,6 +426,21 @@ class TestOrganizationList(helpers.FunctionalTestBase):
 
         assert (sorted(org_list) ==
                 sorted([g['name'] for g in [org1, org2]]))
+
+    def test_organization_list_return_custom_organization_type(self):
+        '''
+        Getting the org_list with a type defined should only return
+        orgs of that type.
+        '''
+        org1 = factories.Organization()
+        org2 = factories.Organization(type="custom_org")
+        factories.Group(type="custom")
+        factories.Group(type="custom")
+
+        org_list = helpers.call_action('organization_list', type='custom_org')
+
+        assert (sorted(org_list) ==
+                sorted([g['name'] for g in [org2]])), '{}'.format(org_list)
 
 
 class TestOrganizationShow(helpers.FunctionalTestBase):
