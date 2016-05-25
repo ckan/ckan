@@ -97,10 +97,12 @@ def default_resource_schema():
 
     return schema
 
+
 def default_update_resource_schema():
     schema = default_resource_schema()
     schema['revision_id'] = [ignore]
     return schema
+
 
 def default_tags_schema():
     schema = {
@@ -116,6 +118,7 @@ def default_tags_schema():
         'display_name': [ignore],
     }
     return schema
+
 
 def default_create_tag_schema():
     schema = default_tags_schema()
@@ -169,6 +172,7 @@ def default_create_package_schema():
     }
     return schema
 
+
 def default_update_package_schema():
     schema = default_create_package_schema()
 
@@ -190,6 +194,7 @@ def default_update_package_schema():
     schema['owner_org'] = [ignore_missing, owner_org_validator, unicode]
 
     return schema
+
 
 def default_show_package_schema():
     schema = default_create_package_schema()
@@ -263,6 +268,7 @@ def default_show_package_schema():
 
     return schema
 
+
 def default_group_schema():
 
     schema = {
@@ -300,6 +306,7 @@ def default_group_schema():
     }
     return schema
 
+
 def group_form_schema():
     schema = default_group_schema()
     #schema['extras_validation'] = [duplicate_extras_key, ignore]
@@ -322,6 +329,7 @@ def default_update_group_schema():
     schema["name"] = [ignore_missing, group_name_validator, unicode]
     return schema
 
+
 def default_show_group_schema():
     schema = default_group_schema()
 
@@ -338,6 +346,7 @@ def default_show_group_schema():
 
     return schema
 
+
 def default_extras_schema():
 
     schema = {
@@ -351,6 +360,7 @@ def default_extras_schema():
     }
     return schema
 
+
 def default_relationship_schema():
 
     schema = {
@@ -363,6 +373,7 @@ def default_relationship_schema():
     }
     return schema
 
+
 def default_create_relationship_schema():
 
     schema = default_relationship_schema()
@@ -371,6 +382,7 @@ def default_create_relationship_schema():
     schema['object'] = [not_empty, unicode, package_id_or_name_exists]
 
     return schema
+
 
 def default_update_relationship_schema():
 
@@ -384,8 +396,6 @@ def default_update_relationship_schema():
     schema['type'] = [ignore_missing]
 
     return schema
-
-
 
 
 def default_user_schema():
@@ -408,6 +418,7 @@ def default_user_schema():
     }
     return schema
 
+
 def user_new_form_schema():
     schema = default_user_schema()
 
@@ -415,6 +426,7 @@ def user_new_form_schema():
     schema['password2'] = [unicode]
 
     return schema
+
 
 def user_edit_form_schema():
     schema = default_user_schema()
@@ -425,6 +437,7 @@ def user_edit_form_schema():
 
     return schema
 
+
 def default_update_user_schema():
     schema = default_user_schema()
 
@@ -433,11 +446,13 @@ def default_update_user_schema():
 
     return schema
 
+
 def default_generate_apikey_user_schema():
     schema = default_update_user_schema()
 
     schema['apikey'] = [not_empty, unicode]
     return schema
+
 
 def default_user_invite_schema():
     schema = {
@@ -446,6 +461,7 @@ def default_user_invite_schema():
         'role': [not_empty],
     }
     return schema
+
 
 def default_task_status_schema():
     schema = {
@@ -461,6 +477,7 @@ def default_task_status_schema():
     }
     return schema
 
+
 def default_vocabulary_schema():
     schema = {
         'id': [ignore_missing, unicode, vocabulary_id_exists],
@@ -469,16 +486,19 @@ def default_vocabulary_schema():
     }
     return schema
 
+
 def default_create_vocabulary_schema():
     schema = default_vocabulary_schema()
     schema['id'] = [empty]
     return schema
+
 
 def default_update_vocabulary_schema():
     schema = default_vocabulary_schema()
     schema['id'] = [ignore_missing, vocabulary_id_not_changed]
     schema['name'] = [ignore_missing, vocabulary_name_validator]
     return schema
+
 
 def default_create_activity_schema():
     schema = {
@@ -496,10 +516,12 @@ def default_create_activity_schema():
     }
     return schema
 
+
 def default_follow_user_schema():
     schema = {'id': [not_missing, not_empty, unicode,
         convert_user_name_or_id_to_id]}
     return schema
+
 
 def default_follow_dataset_schema():
     schema = {'id': [not_missing, not_empty, unicode,
