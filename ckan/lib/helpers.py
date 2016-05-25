@@ -1037,7 +1037,7 @@ def pager_url(page, partial=None, **kwargs):
     if routes_dict.get('id'):
         kwargs['id'] = routes_dict['id']
     kwargs['page'] = page
-    return url(**kwargs)
+    return url_for(**kwargs)
 
 
 class Page(paginate.Page):

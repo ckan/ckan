@@ -100,12 +100,12 @@ class TestPaginationGroup(TestController):
 
     def test_group_index(self):
         res = self.app.get(url_for(controller='group', action='index'))
-        assert 'href="/group?sort=&amp;q=&amp;page=2"' in res, res
+        assert 'href="/group?q=&amp;sort=&amp;page=2"' in res, res
         grp_numbers = scrape_search_results(res, 'group')
         assert_equal(['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'], grp_numbers)
 
         res = self.app.get(url_for(controller='group', action='index', page=2))
-        assert 'href="/group?sort=&amp;q=&amp;page=1"' in res
+        assert 'href="/group?q=&amp;sort=&amp;page=1"' in res
         grp_numbers = scrape_search_results(res, 'group')
         assert_equal(['21'], grp_numbers)
 
