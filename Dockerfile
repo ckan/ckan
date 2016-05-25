@@ -1,4 +1,4 @@
-FROM phusion/baseimage:latest
+FROM phusion/baseimage:0.9.15
 MAINTAINER Open Knowledge
 
 # Disable SSH
