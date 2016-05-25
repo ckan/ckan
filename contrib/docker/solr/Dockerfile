@@ -1,4 +1,4 @@
-FROM solr:latest
+FROM solr:6.0
 MAINTAINER Open Knowledge
 
 # Enviroment
