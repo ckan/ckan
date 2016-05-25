@@ -267,15 +267,13 @@ class BaseController(WSGIController):
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
             if c.userobj is None or not c.userobj.is_active():
+
                 # This occurs when a user that was still logged in is deleted,
-                # or when you are logged in, clean db
-                # and then restart (or when you change your username)
-                # There is no user object, so even though repoze thinks you
-                # are logged in and your cookie has ckan_display_name, we
-                # need to force user to logout and login again to get the
-                # User object.
-                session['lang'] = request.environ.get('CKAN_LANG')
-                session.save()
+                # or when you are logged in, clean db and then restart (or
+                # when you change your username) There is no user object, so
+                # even though repoze thinks you are logged in and your cookie
+                # has ckan_display_name, we need to force user to logout and
+                # login again to get the User object.
 
                 ev = request.environ
                 if 'repoze.who.plugins' in ev:
