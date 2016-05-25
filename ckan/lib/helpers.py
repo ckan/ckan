@@ -54,8 +54,8 @@ class HelperAttributeDict(dict):
 
     def __getitem__(self, key):
         try:
-            value = super(HelperAttributeDict, self).__getitem__(self, key)
-        except AttributeError:
+            value = super(HelperAttributeDict, self).__getitem__(key)
+        except KeyError:
             raise ckan.exceptions.HelperError(
                 'Helper \'{key}\' has not been defined.'.format(
                     key=key
