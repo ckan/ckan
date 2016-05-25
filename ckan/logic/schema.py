@@ -203,16 +203,16 @@ def default_show_package_schema():
     schema['id'] = []
 
     schema.update({
-        'tags': {'__extras': [ckan.lib.navl.validators.keep_extras]}})
+        'tags': {'__extras': [keep_extras]}})
 
     # Add several keys to the 'resources' subschema so they don't get stripped
     # from the resource dicts by validation.
     schema['resources'].update({
         'format': [ignore_missing, clean_format, unicode],
-        'created': [ckan.lib.navl.validators.ignore_missing],
+        'created': [ignore_missing],
         'position': [not_empty],
-        'last_modified': [ckan.lib.navl.validators.ignore_missing],
-        'cache_last_updated': [ckan.lib.navl.validators.ignore_missing],
+        'last_modified': [ignore_missing],
+        'cache_last_updated': [ignore_missing],
         'revision_id': [],
         'package_id': [],
         'size': [],
@@ -226,7 +226,7 @@ def default_show_package_schema():
     })
 
     schema.update({
-        'state': [ckan.lib.navl.validators.ignore_missing],
+        'state': [ignore_missing],
         'isopen': [ignore_missing],
         'license_url': [ignore_missing],
         'revision_id': [],
@@ -335,12 +335,12 @@ def default_show_group_schema():
     schema['num_followers'] = []
     schema['created'] = []
     schema['display_name'] = []
-    schema['extras'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['extras'] = {'__extras': [keep_extras]}
     schema['package_count'] = []
-    schema['packages'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['packages'] = {'__extras': [keep_extras]}
     schema['revision_id'] = []
     schema['state'] = []
-    schema['users'] = {'__extras': [ckan.lib.navl.validators.keep_extras]}
+    schema['users'] = {'__extras': [keep_extras]}
 
     return schema
 
