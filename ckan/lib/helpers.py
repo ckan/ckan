@@ -96,7 +96,6 @@ def redirect_to(*args, **kw):
         toolkit.redirect_to('dataset_read', id='changed')
 
     '''
-    kw['__ckan_no_root'] = True
     if are_there_flash_messages():
         kw['__no_cache__'] = True
     return _redirect_to(url_for(*args, **kw))
@@ -107,7 +106,7 @@ def url(*args, **kw):
     wrapper for pylons.url'''
     locale = kw.pop('locale', None)
     my_url = _pylons_default_url(*args, **kw)
-    return _add_i18n_to_url(my_url, locale=locale, **kw)
+    return _local_url(my_url, locale=locale, **kw)
 
 
 def url_for(*args, **kw):
@@ -141,7 +140,7 @@ def url_for(*args, **kw):
         kw['ver'] = '/%s' % ver
     my_url = _routes_default_url_for(*args, **kw)
     kw['__ckan_no_root'] = no_root
-    return _add_i18n_to_url(my_url, locale=locale, **kw)
+    return _local_url(my_url, locale=locale, **kw)
 
 
 def url_for_static(*args, **kw):
@@ -176,8 +175,10 @@ def url_for_static_or_external(*args, **kw):
 
     if args:
         args = (fix_arg(args[0]), ) + args[1:]
+    if kw.get('qualified', False):
+        kw['protocol'], kw['host'] = get_site_protocol_and_host()
     my_url = _routes_default_url_for(*args, **kw)
-    return my_url
+    return _local_url(my_url, locale='default', **kw)
 
 
 def is_url(*args, **kw):
@@ -195,7 +196,7 @@ def is_url(*args, **kw):
     return url.scheme in valid_schemes
 
 
-def _add_i18n_to_url(url_to_amend, **kw):
+def _local_url(url_to_amend, **kw):
     # If the locale keyword param is provided then the url is rewritten
     # using that locale .If return_to is provided this is used as the url
     # (as part of the language changing feature).
@@ -216,10 +217,8 @@ def _add_i18n_to_url(url_to_amend, **kw):
             default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
         except TypeError:
             default_locale = True
-    try:
-        root = request.environ.get('SCRIPT_NAME', '')
-    except TypeError:
-        root = ''
+
+    root = ''
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
         root = _routes_default_url_for('/', qualified=True)[:-1]
@@ -231,26 +230,23 @@ def _add_i18n_to_url(url_to_amend, **kw):
         # into the ecportal core is done - Toby
         # we have a special root specified so use that
         if default_locale:
-            root = re.sub('/{{LANG}}', '', root_path)
+            root_path = re.sub('/{{LANG}}', '', root_path)
         else:
-            root = re.sub('{{LANG}}', locale, root_path)
+            root_path = re.sub('{{LANG}}', locale, root_path)
         # make sure we don't have a trailing / on the root
-        if root[-1] == '/':
-            root = root[:-1]
-        url = url_to_amend[len(re.sub('/{{LANG}}', '', root_path)):]
-        url = '%s%s' % (root, url)
-        root = re.sub('/{{LANG}}', '', root_path)
+        if root_path[-1] == '/':
+            root_path = root_path[:-1]
     else:
         if default_locale:
-            url = url_to_amend
+            root_path = ''
         else:
-            # we need to strip the root from the url and the add it before
-            # the language specification.
-            url = url_to_amend[len(root):]
-            url = '%s/%s%s' % (root, locale, url)
+            root_path = '/' + str(locale)
+
+    url_path = url_to_amend[len(root):]
+    url = '%s%s%s' % (root, root_path, url_path)
 
     # stop the root being added twice in redirects
-    if no_root:
+    if no_root and url_to_amend.startswith(root):
         url = url_to_amend[len(root):]
         if not default_locale:
             url = '/%s%s' % (locale, url)
