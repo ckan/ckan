@@ -1,3 +1,7 @@
+from formencode.validators import OneOf
+
+import ckan.model
+import ckan.plugins as plugins
 from ckan.lib.navl.validators import (ignore_missing,
                                       keep_extras,
                                       not_empty,
@@ -7,10 +11,16 @@ from ckan.lib.navl.validators import (ignore_missing,
                                       not_missing,
                                       ignore_empty
                                      )
+from ckan.logic.converters import (convert_user_name_or_id_to_id,
+                                   convert_package_name_or_id_to_id,
+                                   convert_group_name_or_id_to_id,
+                                   convert_to_json_if_string,
+                                   convert_to_list_if_string,
+                                   remove_whitespace,
+                                   extras_unicode_convert,
+                                   )
 from ckan.logic.validators import (package_id_not_changed,
-                                   package_id_exists,
                                    package_id_or_name_exists,
-                                   resource_id_exists,
                                    name_validator,
                                    package_name_validator,
                                    package_version_validator,
@@ -23,7 +33,6 @@ from ckan.logic.validators import (package_id_not_changed,
                                    ignore_not_group_admin,
                                    ignore_not_sysadmin,
                                    no_http,
-                                   tag_not_uppercase,
                                    user_name_validator,
                                    user_password_validator,
                                    user_both_passwords_entered,
@@ -38,8 +47,6 @@ from ckan.logic.validators import (package_id_not_changed,
                                    vocabulary_name_validator,
                                    vocabulary_id_not_changed,
                                    vocabulary_id_exists,
-                                   user_id_exists,
-                                   user_id_or_name_exists,
                                    object_id_validator,
                                    activity_type_exists,
                                    resource_id_exists,
@@ -48,7 +55,6 @@ from ckan.logic.validators import (package_id_not_changed,
                                    owner_org_validator,
                                    user_name_exists,
                                    role_exists,
-                                   url_validator,
                                    datasets_with_no_organization_cannot_be_private,
                                    list_of_strings,
                                    if_empty_guess_format,
@@ -60,17 +66,6 @@ from ckan.logic.validators import (package_id_not_changed,
                                    empty_if_not_sysadmin,
                                    package_id_does_not_exist,
                                    )
-from ckan.logic.converters import (convert_user_name_or_id_to_id,
-                                   convert_package_name_or_id_to_id,
-                                   convert_group_name_or_id_to_id,
-                                   convert_to_json_if_string,
-                                   convert_to_list_if_string,
-                                   remove_whitespace,
-                                   extras_unicode_convert,
-                                   )
-from formencode.validators import OneOf
-import ckan.model
-import ckan.plugins as plugins
 
 
 def default_resource_schema():
