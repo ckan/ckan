@@ -6893,25 +6893,34 @@ textarea {
   -moz-box-shadow: none;
   box-shadow: none;
 }
-.js .image-upload #field-image-url {
-  padding-right: 29px;
+.js .image-upload #field-image-url,
+.js .data-upload #field-image-url,
+.js .image-upload #field-data-url,
+.js .data-upload #field-data-url {
+  padding-right: 90px;
 }
-.js .image-upload #field-image-upload {
+.js .image-upload #field-image-upload,
+.js .data-upload #field-image-upload,
+.js .image-upload #field-data-upload,
+.js .data-upload #field-data-upload {
   cursor: pointer;
   position: absolute;
   z-index: 1;
   opacity: 0;
   filter: alpha(opacity=0);
 }
-.js .image-upload .controls {
+.js .image-upload .controls,
+.js .data-upload .controls {
   position: relative;
 }
-.js .image-upload .btn {
+.js .image-upload .btn,
+.js .data-upload .btn {
   position: relative;
   top: 0;
   margin-right: 10px;
 }
-.js .image-upload .btn.hover {
+.js .image-upload .btn.hover,
+.js .data-upload .btn.hover {
   color: #333333;
   text-decoration: none;
   background-position: 0 -15px;
@@ -6920,18 +6929,31 @@ textarea {
   -o-transition: background-position 0.1s linear;
   transition: background-position 0.1s linear;
 }
-.js .image-upload .btn-remove-url {
+.js .image-upload .btn-remove-url,
+.js .data-upload .btn-remove-url,
+.js .image-upload .btn-remove-data,
+.js .data-upload .btn-remove-data {
   position: absolute;
   margin-right: 0;
   top: 4px;
   right: 5px;
-  padding: 0 4px;
   -webkit-border-radius: 100px;
   -moz-border-radius: 100px;
   border-radius: 100px;
 }
-.js .image-upload .btn-remove-url .icon-remove {
+.js .image-upload .btn-remove-url .icon-remove,
+.js .data-upload .btn-remove-url .icon-remove,
+.js .image-upload .btn-remove-data .icon-remove,
+.js .data-upload .btn-remove-data .icon-remove {
   margin-right: 0;
+}
+.js .image-upload .btn-remove-url,
+.js .data-upload .btn-remove-url {
+  padding: 0 4px;
+}
+.js .image-upload .btn-remove-data,
+.js .data-upload .btn-remove-data {
+  padding: 0 12px;
 }
 .add-member-form .control-label {
   width: 100%;
