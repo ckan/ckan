@@ -585,8 +585,11 @@ class UserController(base.BaseController):
 
         self._setup_template_variables(context, data_dict)
 
-        c.user_activity_stream = get_action('user_activity_list_html')(
-            context, {'id': c.user_dict['id'], 'offset': offset})
+        try:
+            c.user_activity_stream = get_action('user_activity_list_html')(
+                context, {'id': c.user_dict['id'], 'offset': offset})
+        except ValidationError:
+            base.abort(400)
 
         return render('user/activity_stream.html')
 
