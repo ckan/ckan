@@ -1,6 +1,5 @@
 from nose.tools import eq_, ok_
 
-from ckan.config.middleware import find_flask_app
 import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
 
@@ -9,7 +8,7 @@ class TestFlaskIRoutes(helpers.FunctionalTestBase):
 
     def setup(self):
         self.app = helpers._get_test_app()
-        flask_app = find_flask_app(self.app)
+        flask_app = helpers.find_flask_app(self.app)
 
         # Install plugin and register its blueprint
         if not plugins.plugin_loaded('example_flask_iroutes'):
