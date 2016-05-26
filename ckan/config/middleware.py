@@ -261,6 +261,11 @@ def make_flask_stack(conf, **app_conf):
 
     # Do all the Flask-specific stuff before adding other middlewares
 
+    # secret key needed for flask-debug-toolbar
+    app.config['SECRET_KEY'] = '<replace with a secret key>'
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+    DebugToolbarExtension(app)
+
     # Use Beaker as the Flask session interface
     class BeakerSessionInterface(SessionInterface):
         def open_session(self, app, request):
@@ -270,13 +275,17 @@ def make_flask_stack(conf, **app_conf):
         def save_session(self, app, session, response):
             session.save()
 
-    app.wsgi_app = SessionMiddleware(app.wsgi_app)
+    cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')
+    session_opts = {
+        'session.data_dir': '{data_dir}/sessions'.format(
+            data_dir=cache_dir),
+        'session.key': app_conf.get('beaker.session.key'),
+        'session.cookie_expires':
+            app_conf.get('beaker.session.cookie_expires'),
+        'session.secret': app_conf.get('beaker.session.secret')
+    }
+    app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
     app.session_interface = BeakerSessionInterface()
-
-    # secret key needed for flask-debug-toolbar
-    app.config['SECRET_KEY'] = '<replace with a secret key>'
-    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-    DebugToolbarExtension(app)
 
     # Add jinja2 extensions and filters
     extensions = [

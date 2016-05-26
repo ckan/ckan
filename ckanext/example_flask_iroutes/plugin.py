@@ -14,6 +14,14 @@ def override_pylons_about():
     return render_template('about.html')
 
 
+def override_pylons_about_with_core_template():
+    '''
+    Override the pylons about controller to render the core about page
+    template.
+    '''
+    return render_template('home/about.html')
+
+
 def override_flask_hello():
     '''A simple replacement for the flash Hello view function.'''
     html = '''<!DOCTYPE html>
@@ -75,6 +83,8 @@ class ExampleFlaskIRoutesPlugin(p.SingletonPlugin):
         rules = [
             ('/hello_plugin', 'hello_plugin', hello_plugin),
             ('/about', 'about', override_pylons_about),
+            ('/about_core', 'about_core',
+                override_pylons_about_with_core_template),
             ('/hello', 'hello', override_flask_hello),
             ('/helper_not_here', 'helper_not_here', helper_not_here),
             ('/helper', 'helper_here', helper_here),
