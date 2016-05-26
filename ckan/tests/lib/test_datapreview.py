@@ -271,7 +271,6 @@ class TestViewsCreation(object):
             eq_(len(views_list), 1)
             eq_(views_list[0]['view_type'], 'image_view')
 
-
     def test_default_views_created_on_resource_create(self):
 
         dataset_dict = factories.Dataset(
