@@ -245,11 +245,16 @@ class CKAN_AppCtxGlobals(_AppCtxGlobals):
 
 
 def make_flask_stack(conf, **app_conf):
-    """ This has to pass the flask app through all the same middleware that
-    Pylons used """
+    """
+    This passes the flask app through most of the same middleware that Pylons
+    uses.
+    """
+
+    debug = app_conf.get('debug', True)
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     app = CKANFlask(__name__)
+    app.debug = debug
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
 
@@ -257,7 +262,6 @@ def make_flask_stack(conf, **app_conf):
 
     # secret key needed for flask-debug-toolbar
     app.config['SECRET_KEY'] = '<replace with a secret key>'
-    app.debug = True
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     DebugToolbarExtension(app)
 
