@@ -415,7 +415,6 @@ class TestPep8(object):
         'ckan/logic/auth/get.py',
         'ckan/logic/auth/update.py',
         'ckan/logic/converters.py',
-        'ckan/logic/schema.py',
         'ckan/logic/validators.py',
         'ckan/migration/versions/001_add_existing_tables.py',
         'ckan/migration/versions/002_add_author_and_maintainer.py',

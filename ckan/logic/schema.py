@@ -10,7 +10,7 @@ from ckan.lib.navl.validators import (ignore_missing,
                                       if_empty_same_as,
                                       not_missing,
                                       ignore_empty
-                                     )
+                                      )
 from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    convert_package_name_or_id_to_id,
                                    convert_group_name_or_id_to_id,
@@ -19,64 +19,65 @@ from ckan.logic.converters import (convert_user_name_or_id_to_id,
                                    remove_whitespace,
                                    extras_unicode_convert,
                                    )
-from ckan.logic.validators import (package_id_not_changed,
-                                   package_id_or_name_exists,
-                                   name_validator,
-                                   package_name_validator,
-                                   package_version_validator,
-                                   group_name_validator,
-                                   tag_length_validator,
-                                   tag_name_validator,
-                                   tag_string_convert,
-                                   duplicate_extras_key,
-                                   ignore_not_package_admin,
-                                   ignore_not_group_admin,
-                                   ignore_not_sysadmin,
-                                   no_http,
-                                   user_name_validator,
-                                   user_password_validator,
-                                   user_both_passwords_entered,
-                                   user_passwords_match,
-                                   user_password_not_empty,
-                                   isodate,
-                                   int_validator,
-                                   natural_number_validator,
-                                   is_positive_integer,
-                                   boolean_validator,
-                                   user_about_validator,
-                                   vocabulary_name_validator,
-                                   vocabulary_id_not_changed,
-                                   vocabulary_id_exists,
-                                   object_id_validator,
-                                   activity_type_exists,
-                                   resource_id_exists,
-                                   tag_not_in_vocabulary,
-                                   group_id_exists,
-                                   owner_org_validator,
-                                   user_name_exists,
-                                   role_exists,
-                                   datasets_with_no_organization_cannot_be_private,
-                                   list_of_strings,
-                                   if_empty_guess_format,
-                                   clean_format,
-                                   no_loops_in_hierarchy,
-                                   filter_fields_and_values_should_have_same_length,
-                                   filter_fields_and_values_exist_and_are_valid,
-                                   extra_key_not_in_root_schema,
-                                   empty_if_not_sysadmin,
-                                   package_id_does_not_exist,
-                                   )
+from ckan.logic.validators import (
+    package_id_not_changed,
+    package_id_or_name_exists,
+    name_validator,
+    package_name_validator,
+    package_version_validator,
+    group_name_validator,
+    tag_length_validator,
+    tag_name_validator,
+    tag_string_convert,
+    duplicate_extras_key,
+    ignore_not_package_admin,
+    ignore_not_group_admin,
+    ignore_not_sysadmin,
+    no_http,
+    user_name_validator,
+    user_password_validator,
+    user_both_passwords_entered,
+    user_passwords_match,
+    user_password_not_empty,
+    isodate,
+    int_validator,
+    natural_number_validator,
+    is_positive_integer,
+    boolean_validator,
+    user_about_validator,
+    vocabulary_name_validator,
+    vocabulary_id_not_changed,
+    vocabulary_id_exists,
+    object_id_validator,
+    activity_type_exists,
+    resource_id_exists,
+    tag_not_in_vocabulary,
+    group_id_exists,
+    owner_org_validator,
+    user_name_exists,
+    role_exists,
+    datasets_with_no_organization_cannot_be_private,
+    list_of_strings,
+    if_empty_guess_format,
+    clean_format,
+    no_loops_in_hierarchy,
+    filter_fields_and_values_should_have_same_length,
+    filter_fields_and_values_exist_and_are_valid,
+    extra_key_not_in_root_schema,
+    empty_if_not_sysadmin,
+    package_id_does_not_exist,
+    )
 
 
 def default_resource_schema():
-
     schema = {
         'id': [ignore_empty, unicode],
         'revision_id': [ignore_missing, unicode],
         'package_id': [ignore],
         'url': [not_empty, unicode, remove_whitespace],
         'description': [ignore_missing, unicode],
-        'format': [if_empty_guess_format, ignore_missing, clean_format, unicode],
+        'format': [if_empty_guess_format, ignore_missing, clean_format,
+                   unicode],
         'hash': [ignore_missing, unicode],
         'state': [ignore],
         'position': [ignore],
@@ -111,7 +112,7 @@ def default_tags_schema():
                  unicode,
                  tag_length_validator,
                  tag_name_validator,
-                ],
+                 ],
         'vocabulary_id': [ignore_missing, unicode, vocabulary_id_exists],
         'revision_timestamp': [ignore],
         'state': [ignore],
@@ -126,7 +127,7 @@ def default_create_tag_schema():
     # vocabulary_id _must_ be given (you cannot create free tags via this
     # function).
     schema['vocabulary_id'] = [not_missing, not_empty, unicode,
-            vocabulary_id_exists, tag_not_in_vocabulary]
+                               vocabulary_id_exists, tag_not_in_vocabulary]
     # You're not allowed to specify your own ID when creating a tag.
     schema['id'] = [empty]
     return schema
@@ -135,7 +136,8 @@ def default_create_tag_schema():
 def default_create_package_schema():
     schema = {
         '__before': [duplicate_extras_key, ignore],
-        'id': [empty_if_not_sysadmin, ignore_missing, unicode, package_id_does_not_exist],
+        'id': [empty_if_not_sysadmin, ignore_missing, unicode,
+               package_id_does_not_exist],
         'revision_id': [ignore],
         'name': [not_empty, unicode, name_validator, package_name_validator],
         'title': [if_empty_same_as("name"), unicode],
@@ -145,14 +147,14 @@ def default_create_package_schema():
         'maintainer_email': [ignore_missing, unicode],
         'license_id': [ignore_missing, unicode],
         'notes': [ignore_missing, unicode],
-        'url': [ignore_missing, unicode],#, URL(add_http=False)],
+        'url': [ignore_missing, unicode],  # , URL(add_http=False)],
         'version': [ignore_missing, unicode, package_version_validator],
         'state': [ignore_not_package_admin, ignore_missing],
         'type': [ignore_missing, unicode],
         'owner_org': [owner_org_validator, unicode],
         'log_message': [ignore_missing, unicode, no_http],
         'private': [ignore_missing, boolean_validator,
-            datasets_with_no_organization_cannot_be_private],
+                    datasets_with_no_organization_cannot_be_private],
         '__extras': [ignore],
         '__junk': [empty],
         'resources': default_resource_schema(),
@@ -185,7 +187,7 @@ def default_update_package_schema():
     # Supplying the package name when updating a package is optional (you can
     # supply the id to identify the package instead).
     schema['name'] = [ignore_missing, name_validator, package_name_validator,
-            unicode]
+                      unicode]
 
     # Supplying the package title when updating a package is optional, if it's
     # not supplied the title will not be changed.
@@ -230,13 +232,13 @@ def default_show_package_schema():
         'isopen': [ignore_missing],
         'license_url': [ignore_missing],
         'revision_id': [],
-        })
+    })
 
     schema['groups'].update({
         'description': [ignore_missing],
         'display_name': [ignore_missing],
         'image_display_url': [ignore_missing],
-        })
+    })
 
     # Remove validators for several keys from the schema so validation doesn't
     # strip the keys from the package dicts if the values are 'missing' (i.e.
@@ -250,8 +252,8 @@ def default_show_package_schema():
     schema['url'] = []
     schema['version'] = []
 
-    # Add several keys that are missing from default_create_package_schema(), so
-    # validation doesn't strip the keys from the package dicts.
+    # Add several keys that are missing from default_create_package_schema(),
+    # so validation doesn't strip the keys from the package dicts.
     schema['metadata_created'] = []
     schema['metadata_modified'] = []
     schema['creator_user_id'] = []
@@ -268,7 +270,6 @@ def default_show_package_schema():
 
 
 def default_group_schema():
-
     schema = {
         'id': [ignore_missing, unicode],
         'revision_id': [ignore],
@@ -287,8 +288,8 @@ def default_group_schema():
         '__junk': [ignore],
         'packages': {
             "id": [not_empty, unicode, package_id_or_name_exists],
-            "title":[ignore_missing, unicode],
-            "name":[ignore_missing, unicode],
+            "title": [ignore_missing, unicode],
+            "name": [ignore_missing, unicode],
             "__extras": [ignore]
         },
         'users': {
@@ -307,7 +308,7 @@ def default_group_schema():
 
 def group_form_schema():
     schema = default_group_schema()
-    #schema['extras_validation'] = [duplicate_extras_key, ignore]
+    # schema['extras_validation'] = [duplicate_extras_key, ignore]
     schema['packages'] = {
         "name": [not_empty, unicode],
         "title": [ignore_missing],
@@ -346,7 +347,6 @@ def default_show_group_schema():
 
 
 def default_extras_schema():
-
     schema = {
         'id': [ignore],
         'key': [not_empty, extra_key_not_in_root_schema, unicode],
@@ -360,20 +360,19 @@ def default_extras_schema():
 
 
 def default_relationship_schema():
-
     schema = {
-         'id': [ignore_missing, unicode],
-         'subject': [ignore_missing, unicode],
-         'object': [ignore_missing, unicode],
-         'type': [not_empty, OneOf(ckan.model.PackageRelationship.get_all_types())],
-         'comment': [ignore_missing, unicode],
-         'state': [ignore],
+        'id': [ignore_missing, unicode],
+        'subject': [ignore_missing, unicode],
+        'object': [ignore_missing, unicode],
+        'type': [not_empty,
+                 OneOf(ckan.model.PackageRelationship.get_all_types())],
+        'comment': [ignore_missing, unicode],
+        'state': [ignore],
     }
     return schema
 
 
 def default_create_relationship_schema():
-
     schema = default_relationship_schema()
     schema['id'] = [empty]
     schema['subject'] = [not_empty, unicode, package_id_or_name_exists]
@@ -383,7 +382,6 @@ def default_create_relationship_schema():
 
 
 def default_update_relationship_schema():
-
     schema = default_relationship_schema()
     schema['id'] = [ignore_missing, package_id_not_changed]
 
@@ -397,12 +395,12 @@ def default_update_relationship_schema():
 
 
 def default_user_schema():
-
     schema = {
         'id': [ignore_missing, unicode],
         'name': [not_empty, name_validator, user_name_validator, unicode],
         'fullname': [ignore_missing, unicode],
-        'password': [user_password_validator, user_password_not_empty, ignore_missing, unicode],
+        'password': [user_password_validator, user_password_not_empty,
+                     ignore_missing, unicode],
         'password_hash': [ignore_missing, ignore_not_sysadmin, unicode],
         'email': [not_empty, unicode],
         'about': [ignore_missing, user_about_validator, unicode],
@@ -420,7 +418,8 @@ def default_user_schema():
 def user_new_form_schema():
     schema = default_user_schema()
 
-    schema['password1'] = [unicode,user_both_passwords_entered,user_password_validator,user_passwords_match]
+    schema['password1'] = [unicode, user_both_passwords_entered,
+                           user_password_validator, user_passwords_match]
     schema['password2'] = [unicode]
 
     return schema
@@ -430,8 +429,9 @@ def user_edit_form_schema():
     schema = default_user_schema()
 
     schema['password'] = [ignore_missing]
-    schema['password1'] = [ignore_missing,unicode,user_password_validator,user_passwords_match]
-    schema['password2'] = [ignore_missing,unicode]
+    schema['password1'] = [ignore_missing, unicode, user_password_validator,
+                           user_passwords_match]
+    schema['password2'] = [ignore_missing, unicode]
 
     return schema
 
@@ -439,8 +439,9 @@ def user_edit_form_schema():
 def default_update_user_schema():
     schema = default_user_schema()
 
-    schema['name'] = [ignore_missing, name_validator, user_name_validator, unicode]
-    schema['password'] = [user_password_validator,ignore_missing, unicode]
+    schema['name'] = [ignore_missing, name_validator, user_name_validator,
+                      unicode]
+    schema['password'] = [user_password_validator, ignore_missing, unicode]
 
     return schema
 
@@ -503,13 +504,13 @@ def default_create_activity_schema():
         'id': [ignore],
         'timestamp': [ignore],
         'user_id': [not_missing, not_empty, unicode,
-            convert_user_name_or_id_to_id],
+                    convert_user_name_or_id_to_id],
         'object_id': [not_missing, not_empty, unicode, object_id_validator],
         # We don't bother to validate revision ID, since it's always created
         # internally by the activity_create() logic action function.
         'revision_id': [],
         'activity_type': [not_missing, not_empty, unicode,
-            activity_type_exists],
+                          activity_type_exists],
         'data': [ignore_empty, ignore_missing],
     }
     return schema
@@ -517,13 +518,13 @@ def default_create_activity_schema():
 
 def default_follow_user_schema():
     schema = {'id': [not_missing, not_empty, unicode,
-        convert_user_name_or_id_to_id]}
+                     convert_user_name_or_id_to_id]}
     return schema
 
 
 def default_follow_dataset_schema():
     schema = {'id': [not_missing, not_empty, unicode,
-        convert_package_name_or_id_to_id]}
+                     convert_package_name_or_id_to_id]}
     return schema
 
 
@@ -538,7 +539,7 @@ def member_schema():
 
 def default_follow_group_schema():
     schema = {'id': [not_missing, not_empty, unicode,
-        convert_group_name_or_id_to_id]}
+                     convert_group_name_or_id_to_id]}
     return schema
 
 
@@ -591,8 +592,9 @@ def default_package_search_schema():
         'facet.mincount': [ignore_missing, natural_number_validator],
         'facet.limit': [ignore_missing, int_validator],
         'facet.field': [ignore_missing, convert_to_json_if_string,
-            list_of_strings],
-        'extras': [ignore_missing]  # Not used by Solr, but useful for extensions
+                        list_of_strings],
+        'extras': [ignore_missing]  # Not used by Solr,
+                                    # but useful for extensions
     }
     return schema
 
@@ -642,14 +644,13 @@ def default_update_resource_view_schema(resource_view):
         'id': [not_missing, not_empty, unicode],
         'resource_id': [ignore_missing, resource_id_exists],
         'title': [ignore_missing, unicode],
-        'view_type': [ignore],# can not change after create
+        'view_type': [ignore],  # cannot change after create
         'package_id': [ignore]
     })
     return schema
 
 
 def default_update_configuration_schema():
-
     schema = {
         'ckan.site_title': [unicode],
         'ckan.site_logo': [unicode],
