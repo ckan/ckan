@@ -1,23 +1,28 @@
-FROM ubuntu:14.04
+FROM solr:6.0
 MAINTAINER Open Knowledge
 
-# Install Java
-RUN apt-get -q -y update
-RUN DEBIAN_FRONTEND=noninteractive apt-get -q -y install default-jre-headless
+# Enviroment
+ENV SOLR_CORE ckan
 
-# Install Solr
-ENV SOLR_HOME /opt/solr/example/solr
-ENV SOLR_VERSION 4.8.1
+# User
+USER root
 
-RUN mkdir -p /opt/solr
-ADD https://archive.apache.org/dist/lucene/solr/$SOLR_VERSION/solr-$SOLR_VERSION.tgz /opt/solr-$SOLR_VERSION.tgz
-RUN tar zxf /opt/solr-$SOLR_VERSION.tgz -C /opt/solr --strip-components 1
+# Create Directories
+RUN mkdir -p /opt/solr/server/solr/$SOLR_CORE/conf
+RUN mkdir -p /opt/solr/server/solr/$SOLR_CORE/data
 
-# Install CKAN Solr core
-RUN cp -R $SOLR_HOME/collection1/ $SOLR_HOME/ckan/
-RUN echo name=ckan > $SOLR_HOME/ckan/core.properties
-ADD https://raw.githubusercontent.com/ckan/ckan/master/ckan/config/solr/schema.xml $SOLR_HOME/ckan/conf/schema.xml
+# Adding Files
+ADD ./solrconfig.xml \
+https://raw.githubusercontent.com/ckan/ckan/ckan-2.5.2/ckan/config/solr/schema.xml \
+https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.0.0/solr/server/solr/configsets/basic_configs/conf/currency.xml \
+https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.0.0/solr/server/solr/configsets/basic_configs/conf/synonyms.txt \
+https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.0.0/solr/server/solr/configsets/basic_configs/conf/stopwords.txt \
+https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.0.0/solr/server/solr/configsets/basic_configs/conf/protwords.txt \
+https://raw.githubusercontent.com/apache/lucene-solr/releases/lucene-solr/6.0.0/solr/server/solr/configsets/data_driven_schema_configs/conf/elevate.xml \
+/opt/solr/server/solr/$SOLR_CORE/conf/
 
-EXPOSE 8983
-WORKDIR /opt/solr/example
-CMD ["java", "-jar", "start.jar"]
+# Create Core.properties
+RUN echo name=$SOLR_CORE > /opt/solr/server/solr/$SOLR_CORE/core.properties
+
+# Giving ownership to Solr
+RUN chown -R $SOLR_USER:$SOLR_USER /opt/solr/server/solr/$SOLR_CORE
