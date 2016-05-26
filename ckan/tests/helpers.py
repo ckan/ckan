@@ -414,3 +414,31 @@ def set_extra_environ(key, value):
             return return_value
         return nose.tools.make_decorator(func)(wrapper)
     return decorator
+
+
+def find_flask_app(test_app):
+    '''
+    Helper function to recursively search the wsgi stack in `test_app` until
+    the flask_app is discovered.
+
+    Relies on each layer of the stack having a reference to the app they
+    wrap in either a .app attribute or .apps list.
+    '''
+    if isinstance(test_app, ckan.config.middleware.CKANFlask):
+        return test_app
+
+    try:
+        app = test_app.apps['flask_app'].app
+    except (AttributeError, KeyError):
+        pass
+    else:
+        return find_flask_app(app)
+
+    try:
+        app = test_app.app
+    except AttributeError:
+        print('No .app attribute. '
+              'Have all layers of the stack got '
+              'a reference to the app they wrap?')
+    else:
+        return find_flask_app(app)
