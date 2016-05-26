@@ -142,13 +142,13 @@ def redirect_to(*args, **kw):
     return _redirect_to(url_for(*args, **kw))
 
 
+@maintain.deprecated('h.url is deprecated please use h.url_for')
 @core_helper
 def url(*args, **kw):
-    '''Create url adding i18n information if selected
-    wrapper for pylons.url'''
-    locale = kw.pop('locale', None)
-    my_url = _pylons_default_url(*args, **kw)
-    return _local_url(my_url, locale=locale, **kw)
+    '''
+    Deprecated: please use `url_for` instead
+    '''
+    return url_for(*args, **kw)
 
 
 @core_helper
@@ -1039,7 +1039,7 @@ def pager_url(page, partial=None, **kwargs):
     if routes_dict.get('id'):
         kwargs['id'] = routes_dict['id']
     kwargs['page'] = page
-    return url(**kwargs)
+    return url_for(**kwargs)
 
 
 class Page(paginate.Page):
