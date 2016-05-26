@@ -28,6 +28,7 @@ from flask import abort as flask_abort
 from flask import request as flask_request
 from flask import _request_ctx_stack
 from flask.ctx import _AppCtxGlobals
+from flask.sessions import SessionInterface
 from werkzeug.exceptions import HTTPException
 from werkzeug.test import create_environ, run_wsgi_app
 from flask.ext.babel import Babel
@@ -259,6 +260,18 @@ def make_flask_stack(conf, **app_conf):
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
 
     # Do all the Flask-specific stuff before adding other middlewares
+
+    # Use Beaker as the Flask session interface
+    class BeakerSessionInterface(SessionInterface):
+        def open_session(self, app, request):
+            session = request.environ['beaker.session']
+            return session
+
+        def save_session(self, app, session, response):
+            session.save()
+
+    app.wsgi_app = SessionMiddleware(app.wsgi_app)
+    app.session_interface = BeakerSessionInterface()
 
     # secret key needed for flask-debug-toolbar
     app.config['SECRET_KEY'] = '<replace with a secret key>'
