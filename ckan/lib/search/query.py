@@ -250,8 +250,8 @@ class PackageSearchQuery(SearchQuery):
         Return a list of the IDs of all indexed packages.
         """
         query = "*:*"
-        fq = "+site_id:\"%s\" " % config.get('ckan.site_id')
-        fq += "+state:active "
+        fq = ['+site_id:"%s"' % config.get('ckan.site_id')]
+        fq.append('+state:active')
 
         conn = make_connection()
         data = conn.search(query, fq=fq, rows=max_results, fields='id')
@@ -309,14 +309,15 @@ class PackageSearchQuery(SearchQuery):
         query['rows'] = rows_to_query
 
         # show only results from this CKAN instance
-        fq = query.get('fq', '')
-        if not '+site_id:' in fq:
-            fq += ' +site_id:"%s"' % config.get('ckan.site_id')
+        fq = query.get('fq', [])
+        if not any('+site_id:' in item for item in fq):
+            fq.append('+site_id:"%s"' % config.get('ckan.site_id'))
 
         # filter for package status
-        if not '+state:' in fq:
-            fq += " +state:active"
-        query['fq'] = [fq]
+        if not any('+state:' in item for item in fq):
+            fq.append('+state:active')
+
+        query['fq'] = fq
 
         fq_list = query.get('fq_list', [])
         query['fq'].extend(fq_list)

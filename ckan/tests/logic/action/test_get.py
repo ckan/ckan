@@ -958,7 +958,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, state='draft')
         factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        fq = "capacity:private"
+        fq = ["capacity:private"]
         results = helpers.call_action('package_search', fq=fq)['results']
 
         eq(len(results), 1)
@@ -979,7 +979,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
-        fq = "state:draft"
+        fq = ["state:draft"]
         results = helpers.call_action('package_search', fq=fq)['results']
 
         eq(len(results), 0)
@@ -1089,7 +1089,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         other_draft_dataset = factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
-        fq = "creator_user_id:{0}".format(other_user['id'])
+        fq = ["creator_user_id:{0}".format(other_user['id'])]
         results = helpers.call_action('package_search', fq=fq,
                                       context={'user': user['name']})['results']
 
@@ -1115,7 +1115,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
-        fq = "(creator_user_id:{0} AND +state:draft)".format(other_user['id'])
+        fq = ["(creator_user_id:{0} AND +state:draft)".format(other_user['id'])]
         results = helpers.call_action('package_search', fq=fq,
                                       context={'user': user['name']})['results']
 
@@ -1136,7 +1136,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
-        fq = "(creator_user_id:{0} AND +state:draft)".format(other_user['id'])
+        fq = ["(creator_user_id:{0} AND +state:draft)".format(other_user['id'])]
         results = helpers.call_action('package_search', fq=fq, include_drafts=True,
                                       context={'user': user['name']})['results']
 
@@ -1157,7 +1157,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         other_draft_dataset = factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
-        fq = "creator_user_id:{0}".format(other_user['id'])
+        fq = ["creator_user_id:{0}".format(other_user['id'])]
         results = helpers.call_action('package_search', fq=fq, include_drafts=True,
                                       context={'user': user['name']})['results']
 
@@ -1181,7 +1181,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=other_user, state='draft', name="other-draft-dataset")
         factories.Dataset(user=user, private=True, owner_org=org['name'], name="private-dataset")
 
-        fq = "(creator_user_id:{0} AND +state:draft)".format(user['id'])
+        fq = ["(creator_user_id:{0} AND +state:draft)".format(user['id'])]
         results = helpers.call_action('package_search', fq=fq,
                                       context={'user': sysadmin['name']})['results']
 
@@ -1202,7 +1202,7 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         factories.Dataset(user=user, state='draft')
         private_dataset = factories.Dataset(user=user, private=True, owner_org=org['name'])
 
-        fq = '+capacity:"private"'
+        fq = ['+capacity:"private"']
         results = helpers.call_action('package_search', fq=fq,
                                       context={'ignore_capacity_check': True})['results']
 

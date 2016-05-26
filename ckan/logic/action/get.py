@@ -1332,7 +1332,7 @@ def group_package_show(context, data_dict):
     _check_access('group_show', context, data_dict)
 
     result = logic.get_action('package_search')(context, {
-        'fq': 'groups:{0}'.format(group.name),
+        'fq': ['groups:{0}'.format(group.name)],
         'rows': limit,
     })
 
@@ -1446,7 +1446,7 @@ def user_show(context, data_dict):
     if asbool(data_dict.get('include_datasets', False)):
         user_dict['datasets'] = []
 
-        fq = "+creator_user_id:{0}".format(user_dict['id'])
+        fq = ["+creator_user_id:{0}".format(user_dict['id'])]
 
         search_dict = {'rows': 50}
 
@@ -1679,8 +1679,8 @@ def package_search(context, data_dict):
     :param q: the solr query.  Optional.  Default: ``"*:*"``
     :type q: string
     :param fq: any filter queries to apply.  Note: ``+site_id:{ckan_site_id}``
-        is added to this string prior to the query being executed.
-    :type fq: string
+        is added to this list prior to the query being executed.
+    :type fq: list
     :param sort: sorting of the search results.  Optional.  Default:
         ``'relevance asc, metadata_modified desc'``.  As per the solr
         documentation, this is a comma-separated string of field names and
@@ -1728,7 +1728,7 @@ def package_search(context, data_dict):
     **Examples:**
 
     ``q=flood`` datasets containing the word `flood`, `floods` or `flooding`
-    ``fq=tags:economy`` datasets with the tag `economy`
+    ``fq=["tags:economy"]`` datasets with the tag `economy`
     ``facet.field=["tags"] facet.limit=10 rows=0`` top 10 tags
 
     **Results:**
@@ -1824,27 +1824,27 @@ def package_search(context, data_dict):
         # If this query hasn't come from a controller that has set this flag
         # then we should remove any mention of capacity from the fq and
         # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq', '')
+        fq = data_dict.get('fq', [])
         if not context.get('ignore_capacity_check', False):
-            fq = ' '.join(p for p in fq.split(' ')
-                          if 'capacity:' not in p)
-            data_dict['fq'] = fq + ' capacity:"public"'
+            fq = [p for p in fq if not 'capacity:' in p]
+            fq.append('capacity:"public"')
+            data_dict['fq'] = fq
 
         # Solr doesn't need 'include_drafts`, so pop it.
         include_drafts = data_dict.pop('include_drafts', False)
-        fq = data_dict.get('fq', '')
+        fq = data_dict.get('fq', [])
         if include_drafts:
             user_id = authz.get_user_id_for_username(user, allow_none=True)
             if authz.is_sysadmin(user):
-                data_dict['fq'] = fq + ' +state:(active OR draft)'
+                fq.append('+state:(active OR draft)')
             elif user_id:
                 # Query to return all active datasets, and all draft datasets
                 # for this user.
-                data_dict['fq'] = fq + \
-                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
-                    ' OR state:active)'.format(user_id)
+                fq.append('((creator_user_id:{0} AND +state:(draft OR active))'
+                          ' OR state:active)'.format(user_id))
         elif not authz.is_sysadmin(user):
-            data_dict['fq'] = fq + ' +state:active'
+            fq.append('+state:active')
+        data_dict['fq'] = fq
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)

@@ -570,7 +570,7 @@ class ApiController(base.BaseController):
                     # public
                     if 'fq' in params:
                         del params['fq']
-                    params['fq'] = '+capacity:public'
+                    params['fq'] = ['+capacity:public']
                     # if callback is specified we do not want to send that to
                     # the search
                     if 'callback' in params:
