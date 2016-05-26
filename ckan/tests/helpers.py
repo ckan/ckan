@@ -179,7 +179,7 @@ class FunctionalTestBase(object):
         # Make a copy of the Pylons config, so we can restore it in teardown.
         cls._original_config = dict(config)
         cls._apply_config_changes(config)
-        cls._get_test_app()
+        cls.app = cls._get_test_app()
 
     @classmethod
     def _apply_config_changes(cls, cfg):
