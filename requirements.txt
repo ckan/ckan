@@ -5,7 +5,7 @@
 #    pip-compile requirements.in
 #
 argparse==1.4.0           # via ofs
-Babel==0.9.6
+Babel==2.3.4
 Beaker==1.7.0
 bleach==1.4.2
 decorator==4.0.6          # via pylons, sqlalchemy-migrate
@@ -32,7 +32,7 @@ pysolr==3.4.0
 Pygments==2.1
 Pylons==0.9.7
 python-dateutil==1.5
-pytz==2012j
+pytz==2016.4
 pyutilib.component.core==4.5.3
 repoze.lru==0.6           # via routes
 repoze.who-friendlyform==1.0.8
@@ -45,7 +45,7 @@ sqlalchemy-migrate==0.9.1
 SQLAlchemy==0.9.6
 sqlparse==0.1.11
 Tempita==0.5.2
-tzlocal==1.2
+tzlocal==1.2.2
 unicodecsv==0.14.1
 vdm==0.13
 WebError==0.11
