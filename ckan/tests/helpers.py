@@ -140,6 +140,21 @@ def call_auth(auth_name, context, **kwargs):
     return logic.check_access(auth_name, context, data_dict=kwargs)
 
 
+class CKANTestApp(webtest.TestApp):
+    '''A wrapper around webtest.TestApp
+
+    It adds some convenience methods for CKAN
+    '''
+
+    _flask_app = None
+
+    @property
+    def flask_app(self):
+        if not self._flask_app:
+            self._flask_app = find_flask_app(self)
+        return self._flask_app
+
+
 def _get_test_app():
     '''Return a webtest.TestApp for CKAN, with legacy templates disabled.
 
@@ -149,7 +164,7 @@ def _get_test_app():
     '''
     config['ckan.legacy_templates'] = False
     app = ckan.config.middleware.make_app(config['global_conf'], **config)
-    app = webtest.TestApp(app)
+    app = CKANTestApp(app)
     return app
 
 
