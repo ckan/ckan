@@ -5560,9 +5560,6 @@ a.tag:hover {
 .js .tab-content.active {
   display: block;
 }
-.js .automatic-local-datetime {
-    display: none;
-}
 .box {
   background-color: #FFF;
   border: 1px solid #cccccc;
@@ -5633,11 +5630,6 @@ a.tag:hover {
   font-weight: bold;
   color: #000000;
 }
-.module .pagination {
-  height: 34px;
-  margin-bottom: 0;
-  border-top: 1px solid #dddddd;
-}
 .module-content .pagination {
   margin-left: -25px;
   margin-right: -25px;
@@ -5653,8 +5645,8 @@ a.tag:hover {
   border: 0;
 }
 .module .pagination li a {
-  border-top: none;
-  border-bottom: none;
+  border-top: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
   padding-top: 7px;
   padding-bottom: 7px;
 }
@@ -5663,16 +5655,6 @@ a.tag:hover {
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0;
-}
-.module .pagination li:first-child a {
-  border-left-width: 0;
-}
-.module .pagination li:last-child a {
-  border-right-width: 0;
-}
-.module .pagination li.active a {
-  border-left-width: 1px;
-  border-right-width: 1px;
 }
 .module-content-shallow {
   padding: 0;
@@ -8398,8 +8380,14 @@ h4 small {
   padding: 0 10px;
   line-height: 31px;
 }
-.account-masthead .account ul li a span.username {
+.account-masthead .account ul li a span.username,
+.account-masthead .account ul li a span.text {
   margin: 0 2px 0 4px;
+}
+.account-masthead .account ul li a span.text {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
 }
 .account-masthead .account ul li a:hover {
   color: #d9e7eb;
@@ -8413,7 +8401,7 @@ h4 small {
   vertical-align: 1px;
   margin-left: 3px;
 }
-.account-masthead .account .notifications a span {
+.account-masthead .account .notifications a span.badge {
   font-size: 12px;
   margin-left: 3px;
   padding: 1px 6px;
@@ -8421,12 +8409,14 @@ h4 small {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
+  text-shadow: none;
+  color: #bfd7de;
 }
 .account-masthead .account .notifications a:hover span {
   color: #ffffff;
   background-color: #000f14;
 }
-.account-masthead .account .notifications.notifications-important a span {
+.account-masthead .account .notifications.notifications-important a span.badge {
   color: #ffffff;
   background-color: #c9403a;
 }
