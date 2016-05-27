@@ -138,6 +138,7 @@ entry_points = {
         'example_itranslation = ckanext.example_itranslation.plugin:ExampleITranslationPlugin',
         'example_iconfigurer_v1 = ckanext.example_iconfigurer.plugin_v1:ExampleIConfigurerPlugin',
         'example_iconfigurer_v2 = ckanext.example_iconfigurer.plugin_v2:ExampleIConfigurerPlugin',
+        'example_iuploader = ckanext.example_iuploader.plugin:ExampleIUploader',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',
