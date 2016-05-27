@@ -108,6 +108,7 @@ entry_points = {
         'example_iauthfunctions_v3 = ckanext.example_iauthfunctions.plugin_v3:ExampleIAuthFunctionsPlugin',
         'example_iauthfunctions_v4 = ckanext.example_iauthfunctions.plugin_v4:ExampleIAuthFunctionsPlugin',
         'example_iauthfunctions_v5_custom_config_setting = ckanext.example_iauthfunctions.plugin_v5_custom_config_setting:ExampleIAuthFunctionsPlugin',
+        'example_iauthfunctions_v6_parent_auth_functions = ckanext.example_iauthfunctions.plugin_v6_parent_auth_functions:ExampleIAuthFunctionsPlugin',
         'example_theme_v01_empty_extension = ckanext.example_theme.v01_empty_extension.plugin:ExampleThemePlugin',
         'example_theme_v02_empty_template = ckanext.example_theme.v02_empty_template.plugin:ExampleThemePlugin',
         'example_theme_v03_jinja = ckanext.example_theme.v03_jinja.plugin:ExampleThemePlugin',

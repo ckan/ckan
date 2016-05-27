@@ -78,11 +78,11 @@ def resource_create(context, data_dict):
 
 
 def resource_view_create(context, data_dict):
-    return resource_create(context, {'id': data_dict['resource_id']})
+    return authz.is_authorized('resource_create', context, {'id': data_dict['resource_id']})
 
 
 def resource_create_default_resource_views(context, data_dict):
-    return resource_create(context, {'id': data_dict['resource']['id']})
+    return authz.is_authorized('resource_create', context, {'id': data_dict['resource']['id']})
 
 
 def package_create_default_resource_views(context, data_dict):
@@ -208,7 +208,7 @@ def package_create_rest(context, data_dict):
     if not user:
         return {'success': False, 'msg': _('Valid API key needed to create a package')}
 
-    return package_create(context, data_dict)
+    return authz.is_authorized('package_create', context, data_dict)
 
 def group_create_rest(context, data_dict):
     model = context['model']
@@ -216,7 +216,7 @@ def group_create_rest(context, data_dict):
     if not user:
         return {'success': False, 'msg': _('Valid API key needed to create a group')}
 
-    return group_create(context, data_dict)
+    return authz.is_authorized('group_create', context, data_dict)
 
 def vocabulary_create(context, data_dict):
     # sysadmins only
