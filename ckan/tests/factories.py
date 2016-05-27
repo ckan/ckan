@@ -245,7 +245,7 @@ class Group(factory.Factory):
 
     FACTORY_FOR = ckan.model.Group
 
-    name = factory.Sequence(lambda n: 'test_group_{n}'.format(n=n))
+    name = factory.Sequence(lambda n: 'test_group_{0:02d}'.format(n))
     title = factory.LazyAttribute(_generate_group_title)
     description = 'A test description for this test group.'
 
@@ -286,7 +286,7 @@ class Organization(factory.Factory):
     image_url = 'http://placekitten.com/g/200/100'
 
     # Generate a different group name param for each user that gets created.
-    name = factory.Sequence(lambda n: 'test_org_{n}'.format(n=n))
+    name = factory.Sequence(lambda n: 'test_org_{0:02d}'.format(n))
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):
