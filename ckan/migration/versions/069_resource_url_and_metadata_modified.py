@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 def upgrade(migrate_engine):
 
     update_schema = '''

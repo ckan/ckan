@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Functional tests for the public activity streams API.
 
 This module tests the contents of the various public activity streams:

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckan.logic as logic
 import ckan.authz as authz
 from ckan.lib.base import _

@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+
 import nose
 
 from ckan.i18n.check_po_files import (check_po_file,

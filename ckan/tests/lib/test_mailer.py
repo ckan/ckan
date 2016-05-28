@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import assert_equal, assert_raises
 from pylons import config
 from email.mime.text import MIMEText

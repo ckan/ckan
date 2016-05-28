@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import re
 
 from nose.tools import assert_equal

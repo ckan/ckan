@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''API functions for searching for and getting data from CKAN.'''
 
 import uuid

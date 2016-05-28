@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from sqlalchemy import *
 from sqlalchemy.sql import select, and_
 from migrate import *

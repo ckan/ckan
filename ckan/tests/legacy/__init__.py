@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """Pylons application test package
 
 When the test runner finds and executes tests within this directory,

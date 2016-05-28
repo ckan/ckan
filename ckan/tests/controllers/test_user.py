@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from bs4 import BeautifulSoup
 from nose.tools import assert_true, assert_false, assert_equal
 

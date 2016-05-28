@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.plugins import Plugin
 from inspect import isclass
 import hashlib

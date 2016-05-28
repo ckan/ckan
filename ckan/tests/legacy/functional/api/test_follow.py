@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Test for the follower API.
 
 This module tests following, unfollowing, getting a list of what you're

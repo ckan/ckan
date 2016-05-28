@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 ''' This module contains code that helps in maintaining the Ckan codebase. '''
 
 import inspect

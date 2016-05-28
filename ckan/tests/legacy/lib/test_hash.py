@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import assert_equals
 
 from ckan.lib.hash import get_message_hash, get_redirect

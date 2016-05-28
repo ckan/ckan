@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan.plugins.toolkit import Invalid
 from ckan import plugins
 

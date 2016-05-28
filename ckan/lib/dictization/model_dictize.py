@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 These dictize functions generally take a domain object (such as Package) and
 convert it to a dictionary, including related objects (e.g. for Package it

@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# encoding: utf-8
 
 import ckan.lib.helpers as h
 import ckan.logic as l

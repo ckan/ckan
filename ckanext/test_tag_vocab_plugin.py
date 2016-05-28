@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 ''' THIS PLUGIN IS FOR TESTING PURPOSES ONLY.
 Currently this is used in tests/functional/test_tag_vocab.py'''
 
