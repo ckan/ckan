@@ -25,12 +25,14 @@ def override_pylons_about_with_core_template():
 def override_flask_hello():
     '''A simple replacement for the flash Hello view function.'''
     html = '''<!DOCTYPE html>
-    <html>
-        <head>
-            <title>Hello from Flask</title>
-        </head>
-        <body>Hello World, this is served from an extension, overriding the flask url.</body>
-    </html>'''
+<html>
+    <head>
+        <title>Hello from Flask</title>
+    </head>
+    <body>
+    Hello World, this is served from an extension, overriding the flask url.
+    </body>
+</html>'''
 
     return render_template_string(html)
 
