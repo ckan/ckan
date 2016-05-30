@@ -825,10 +825,15 @@ class GroupController(base.BaseController):
         except (NotFound, NotAuthorized):
             abort(404, _('Group not found'))
 
-        # Add the group's activity stream (already rendered to HTML) to the
-        # template context for the group/read.html template to retrieve later.
-        c.group_activity_stream = self._action('group_activity_list_html')(
-            context, {'id': c.group_dict['id'], 'offset': offset})
+        try:
+            # Add the group's activity stream (already rendered to HTML) to the
+            # template context for the group/read.html
+            # template to retrieve later.
+            c.group_activity_stream = self._action('group_activity_list_html')(
+                context, {'id': c.group_dict['id'], 'offset': offset})
+
+        except ValidationError as error:
+            base.abort(400)
 
         return render(self._activity_template(group_type),
                       extra_vars={'group_type': group_type})

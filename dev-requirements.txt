@@ -13,3 +13,4 @@ sphinx-rtd-theme==0.1.9
 beautifulsoup4==4.3.2
 pip-tools==1.1.2
 Flask-DebugToolbar==0.10.0
+pyfakefs==2.7

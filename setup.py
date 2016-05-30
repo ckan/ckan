@@ -139,6 +139,7 @@ entry_points = {
         'example_iconfigurer_v1 = ckanext.example_iconfigurer.plugin_v1:ExampleIConfigurerPlugin',
         'example_iconfigurer_v2 = ckanext.example_iconfigurer.plugin_v2:ExampleIConfigurerPlugin',
         'example_flask_iroutes = ckanext.example_flask_iroutes.plugin:ExampleFlaskIRoutesPlugin'
+        'example_iuploader = ckanext.example_iuploader.plugin:ExampleIUploader',
     ],
     'ckan.system_plugins': [
         'domain_object_mods = ckan.model.modification:DomainObjectModificationExtension',

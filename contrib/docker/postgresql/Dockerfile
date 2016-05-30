@@ -1,4 +1,4 @@
-FROM postgres:latest
+FROM postgres:9.5
 MAINTAINER Open Knowledge
 
 # Customize default user/pass/db
