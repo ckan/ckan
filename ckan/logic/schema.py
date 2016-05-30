@@ -411,6 +411,7 @@ def default_user_schema():
         'reset_key': [ignore],
         'activity_streams_email_notifications': [ignore_missing],
         'state': [ignore_missing],
+        'extras': [ignore_missing, dict]
     }
     return schema
 
