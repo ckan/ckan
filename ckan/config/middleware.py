@@ -28,6 +28,7 @@ from flask import abort as flask_abort
 from flask import request as flask_request
 from flask import _request_ctx_stack
 from flask.ctx import _AppCtxGlobals
+from flask.sessions import SessionInterface
 from werkzeug.exceptions import HTTPException
 from werkzeug.test import create_environ, run_wsgi_app
 from flask.ext.babel import Babel
@@ -245,11 +246,16 @@ class CKAN_AppCtxGlobals(_AppCtxGlobals):
 
 
 def make_flask_stack(conf, **app_conf):
-    """ This has to pass the flask app through all the same middleware that
-    Pylons used """
+    """
+    This passes the flask app through most of the same middleware that Pylons
+    uses.
+    """
+
+    debug = app_conf.get('debug', True)
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     app = CKANFlask(__name__)
+    app.debug = debug
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
 
@@ -257,9 +263,29 @@ def make_flask_stack(conf, **app_conf):
 
     # secret key needed for flask-debug-toolbar
     app.config['SECRET_KEY'] = '<replace with a secret key>'
-    app.debug = True
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     DebugToolbarExtension(app)
+
+    # Use Beaker as the Flask session interface
+    class BeakerSessionInterface(SessionInterface):
+        def open_session(self, app, request):
+            session = request.environ['beaker.session']
+            return session
+
+        def save_session(self, app, session, response):
+            session.save()
+
+    cache_dir = app_conf.get('cache_dir') or app_conf.get('cache.dir')
+    session_opts = {
+        'session.data_dir': '{data_dir}/sessions'.format(
+            data_dir=cache_dir),
+        'session.key': app_conf.get('beaker.session.key'),
+        'session.cookie_expires':
+            app_conf.get('beaker.session.cookie_expires'),
+        'session.secret': app_conf.get('beaker.session.secret')
+    }
+    app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)
+    app.session_interface = BeakerSessionInterface()
 
     # Add jinja2 extensions and filters
     extensions = [

@@ -100,17 +100,14 @@ def _identify_user_default():
         g.user = g.user.decode('utf8')
         g.userobj = model.User.by_name(g.user)
         if g.userobj is None or not g.userobj.is_active():
-            # This occurs when a user that was still logged in is deleted,
-            # or when you are logged in, clean db
-            # and then restart (or when you change your username)
-            # There is no user object, so even though repoze thinks you
-            # are logged in and your cookie has ckan_display_name, we
-            # need to force user to logout and login again to get the
-            # User object.
 
-            # TODO: this should not be done here
-            # session['lang'] = request.environ.get('CKAN_LANG')
-            # session.save()
+            # This occurs when a user that was still logged in is deleted, or
+            # when you are logged in, clean db and then restart (or when you
+            # change your username). There is no user object, so even though
+            # repoze thinks you are logged in and your cookie has
+            # ckan_display_name, we need to force user to logout and login
+            # again to get the User object.
+
             ev = request.environ
             if 'repoze.who.plugins' in ev:
                 pth = getattr(ev['repoze.who.plugins']['friendlyform'],

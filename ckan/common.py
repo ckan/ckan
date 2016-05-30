@@ -12,7 +12,7 @@ import pylons
 from flask.ext.babel import gettext as flask_gettext
 from pylons.i18n import _ as pylons_gettext, ungettext
 
-from pylons import g, session, response
+from pylons import g, response
 import simplejson as json
 
 try:
@@ -87,3 +87,26 @@ class PylonsStyleContext(object):
 
 
 c = PylonsStyleContext()
+
+
+class Session():
+
+    def __getattr__(self, name):
+        if is_flask():
+            return getattr(flask.session, name, None)
+        else:
+            return getattr(pylons.session, name, None)
+
+    def __setattr__(self, name, value):
+        if is_flask():
+            return setattr(flask.session, name, value)
+        else:
+            return setattr(pylons.session, name, value)
+
+    def __delattr__(self, name):
+        if is_flask():
+            return delattr(flask.session, name, None)
+        else:
+            return delattr(pylons.session, name, None)
+
+session = Session()
