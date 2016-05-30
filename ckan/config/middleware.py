@@ -35,7 +35,7 @@ from flask.ext.babel import Babel
 from flask_debugtoolbar import DebugToolbarExtension
 
 from ckan.plugins import PluginImplementations
-from ckan.plugins.interfaces import IMiddleware, IRoutes
+from ckan.plugins.interfaces import IMiddleware, IBlueprint
 from ckan.lib.i18n import get_locales_from_config
 import ckan.lib.uploader as uploader
 from ckan.lib import jinja_extensions
@@ -347,7 +347,7 @@ def make_flask_stack(conf, **app_conf):
     app.register_blueprint(api)
 
     # Set up each iRoute extension as a Flask Blueprint
-    for plugin in PluginImplementations(IRoutes):
+    for plugin in PluginImplementations(IBlueprint):
         if hasattr(plugin, 'get_blueprint'):
             app.register_blueprint(plugin.get_blueprint(),
                                    prioritise_rules=True)
