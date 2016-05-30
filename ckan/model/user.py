@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import datetime
 import re
 from hashlib import sha1, md5
@@ -9,10 +11,8 @@ from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table
 import vdm.sqlalchemy
 
-import meta
-import core
-import types as _types
-import domain_object
+from ckan.model import types as _types
+from ckan.model import meta, core, domain_object
 
 
 user_table = Table(
