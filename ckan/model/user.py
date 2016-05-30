@@ -41,6 +41,11 @@ user_table = Table(
         default=False
     ),
     Column('sysadmin', types.Boolean, default=False),
+    # Internal user extras. This column can store any type that
+    # can be serialized to JSON. This isn't intended to be used
+    # for end-user key/values, but rather for extensions to store
+    # internal data, like a twitter username which it is then
+    # in charge of displaying.
     Column('extras', MutableDict.as_mutable(JSON))
 )
 
