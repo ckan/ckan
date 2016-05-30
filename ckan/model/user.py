@@ -9,6 +9,8 @@ from passlib.hash import pbkdf2_sha512
 from sqlalchemy.sql.expression import or_
 from sqlalchemy.orm import synonym
 from sqlalchemy import types, Column, Table
+from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.ext.mutable import MutableDict
 import vdm.sqlalchemy
 
 from ckan.model import types as _types
@@ -39,6 +41,7 @@ user_table = Table(
         default=False
     ),
     Column('sysadmin', types.Boolean, default=False),
+    Column('extras', MutableDict.as_mutable(JSON))
 )
 
 vdm.sqlalchemy.make_table_stateful(user_table)
