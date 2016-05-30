@@ -1,6 +1,5 @@
 import datetime
 import re
-import os
 from hashlib import sha1, md5
 
 import passlib.utils
@@ -16,22 +15,31 @@ import types as _types
 import domain_object
 
 
-user_table = Table('user', meta.metadata,
-        Column('id', types.UnicodeText, primary_key=True,
-               default=_types.make_uuid),
-        Column('name', types.UnicodeText, nullable=False, unique=True),
-        Column('openid', types.UnicodeText),
-        Column('password', types.UnicodeText),
-        Column('fullname', types.UnicodeText),
-        Column('email', types.UnicodeText),
-        Column('apikey', types.UnicodeText, default=_types.make_uuid),
-        Column('created', types.DateTime, default=datetime.datetime.now),
-        Column('reset_key', types.UnicodeText),
-        Column('about', types.UnicodeText),
-        Column('activity_streams_email_notifications', types.Boolean,
-            default=False),
-        Column('sysadmin', types.Boolean, default=False),
-        )
+user_table = Table(
+    'user',
+    meta.metadata,
+    Column(
+        'id',
+        types.UnicodeText,
+        primary_key=True,
+        default=_types.make_uuid
+    ),
+    Column('name', types.UnicodeText, nullable=False, unique=True),
+    Column('openid', types.UnicodeText),
+    Column('password', types.UnicodeText),
+    Column('fullname', types.UnicodeText),
+    Column('email', types.UnicodeText),
+    Column('apikey', types.UnicodeText, default=_types.make_uuid),
+    Column('created', types.DateTime, default=datetime.datetime.now),
+    Column('reset_key', types.UnicodeText),
+    Column('about', types.UnicodeText),
+    Column(
+        'activity_streams_email_notifications',
+        types.Boolean,
+        default=False
+    ),
+    Column('sysadmin', types.Boolean, default=False),
+)
 
 vdm.sqlalchemy.make_table_stateful(user_table)
 
@@ -130,7 +138,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         current_hash = passlib.utils.to_native_str(self.password[40:])
 
         if passlib.utils.consteq(hashed_pass.hexdigest(), current_hash):
-            #we've passed the old sha1 check, upgrade our password
+            # we've passed the old sha1 check, upgrade our password
             self._set_password(password)
             self.save()
             return True
@@ -164,8 +172,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         else:
             current_hash = pbkdf2_sha512.from_string(self.password)
             if (current_hash.rounds < pbkdf2_sha512.default_rounds or
-                len(current_hash.salt) < pbkdf2_sha512.default_salt_size):
-
+                    len(current_hash.salt) < pbkdf2_sha512.default_salt_size):
                 return self._verify_and_upgrade_pbkdf2(password)
             else:
                 return pbkdf2_sha512.verify(password, self.password)
@@ -174,15 +181,12 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
 
     @classmethod
     def check_name_valid(cls, name):
-        if not name \
-            or not len(name.strip()) \
-            or not cls.VALID_NAME.match(name):
-            return False
-        return True
+        name = name.strip()
+        return bool(cls.VALID_NAME.match(name))
 
     @classmethod
     def check_name_available(cls, name):
-        return cls.by_name(name) == None
+        return cls.by_name(name) is None
 
     def as_dict(self):
         _dict = domain_object.DomainObject.as_dict(self)
@@ -241,12 +245,20 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
     def get_groups(self, group_type=None, capacity=None):
         import ckan.model as model
 
-        q = meta.Session.query(model.Group)\
-            .join(model.Member, model.Member.group_id == model.Group.id and \
-                       model.Member.table_name == 'user').\
-               join(model.User, model.User.id == model.Member.table_id).\
-               filter(model.Member.state == 'active').\
-               filter(model.Member.table_id == self.id)
+        q = meta.Session.query(
+            model.Group
+        ).join(
+            model.Member,
+            model.Member.group_id == model.Group.id and
+            model.Member.table_name == 'user'
+        ).join(
+            model.User,
+            model.User.id == model.Member.table_id
+        ).filter(
+            model.Member.state == 'active',
+            model.Member.table_id == self.id
+        )
+
         if capacity:
             q = q.filter(model.Member.capacity == capacity)
             return q.all()
@@ -257,6 +269,7 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         groups = self._groups
         if group_type:
             groups = [g for g in groups if g.type == group_type]
+
         return groups
 
     @classmethod
@@ -292,6 +305,11 @@ class User(vdm.sqlalchemy.StatefulObjectMixin,
         return [user.id for user in query.all()]
 
 
-meta.mapper(User, user_table,
-    properties={'password': synonym('_password', map_column=True)},
-    order_by=user_table.c.name)
+meta.mapper(
+    User,
+    user_table,
+    properties={
+        'password': synonym('_password', map_column=True)
+    },
+    order_by=user_table.c.name
+)
