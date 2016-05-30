@@ -915,6 +915,8 @@ def user_create(context, data_dict):
     :type about: string
     :param openid: (optional)
     :type openid: string
+    :param extras: A dict of extra fields attached to this user. (optional)
+    :type extras: dict
 
     :returns: the newly created user
     :rtype: dictionary
