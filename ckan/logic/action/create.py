@@ -898,7 +898,7 @@ def user_create(context, data_dict):
 
     You must be authorized to create users.
 
-    :param name: the name of the new user, a string between 2 and 100
+    :param name: the name of the new user, a string between 3 and 255
         characters in length, containing only lowercase alphanumeric
         characters, ``-`` and ``_``
     :type name: string
