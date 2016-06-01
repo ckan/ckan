@@ -1180,3 +1180,116 @@ def remove_pseudo_users(user_list):
     pseudo_users = set(('logged_in', 'visitor'))
     user_list[:] = [user for user in user_list
                     if user['name'] not in pseudo_users]
+
+
+class TestMembersList():
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_dataset_delete_marks_membership_of_group_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        group = factories.Group()
+        dataset = factories.Dataset(groups=[{'name': group['name']}])
+        context = {'user': sysadmin['name']}
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='package')
+
+        eq(len(group_members), 1)
+        eq(group_members[0][0], dataset['id'])
+        eq(group_members[0][1], 'package')
+
+        helpers.call_action('package_delete', context, id=dataset['id'])
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='package')
+
+        eq(len(group_members), 0)
+
+    def test_dataset_delete_marks_membership_of_org_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        context = {'user': sysadmin['name']}
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='package')
+
+        eq(len(org_members), 1)
+        eq(org_members[0][0], dataset['id'])
+        eq(org_members[0][1], 'package')
+
+        helpers.call_action('package_delete', context, id=dataset['id'])
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='package')
+
+        eq(len(org_members), 0)
+
+    def test_user_delete_marks_membership_of_group_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        group = factories.Group()
+        user = factories.User()
+        context = {'user': sysadmin['name']}
+
+        member_dict = {
+            'username': user['id'],
+            'id': group['id'],
+            'role': 'member'
+        }
+        helpers.call_action('group_member_create', context, **member_dict)
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='user',
+                                            capacity='member')
+
+        eq(len(group_members), 1)
+        eq(group_members[0][0], user['id'])
+        eq(group_members[0][1], 'user')
+
+        helpers.call_action('user_delete', context, id=user['id'])
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='user',
+                                            capacity='member')
+
+        eq(len(group_members), 0)
+
+    def test_user_delete_marks_membership_of_org_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        user = factories.User()
+        context = {'user': sysadmin['name']}
+
+        member_dict = {
+            'username': user['id'],
+            'id': org['id'],
+            'role': 'member'
+        }
+        helpers.call_action('organization_member_create', context,
+                            **member_dict)
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='user',
+                                          capacity='member')
+
+        eq(len(org_members), 1)
+        eq(org_members[0][0], user['id'])
+        eq(org_members[0][1], 'user')
+
+        helpers.call_action('user_delete', context, id=user['id'])
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='user',
+                                          capacity='member')
+
+        eq(len(org_members), 0)
