@@ -5,7 +5,7 @@ this.ckan.module('image-upload', function($, _) {
   return {
     /* options object can be extended using data-module-* attributes */
     options: {
-      is_url: true,
+      is_url: false,
       is_upload: false,
       field_upload: 'image_upload',
       field_url: 'image_url',
@@ -17,6 +17,8 @@ this.ckan.module('image-upload', function($, _) {
         url: _('Link'),
         remove: _('Remove'),
         upload_label: _('Image'),
+        label_for_url: _('URL'),
+        label_for_upload: _('File'),
         upload_tooltip: _('Upload a file on your computer'),
         url_tooltip: _('Link to a URL on the internet (you can also link to an API)')
       }
@@ -38,20 +40,23 @@ this.ckan.module('image-upload', function($, _) {
 
       // firstly setup the fields
       var field_upload = 'input[name="' + options.field_upload + '"]';
-      var field_url = 'input[name="' + options.field_url + '"]';
-      var field_clear = 'input[name="' + options.field_clear + '"]';
-      var field_name = 'input[name="' + options.field_name + '"]';
+      var field_url    = 'input[name="' + options.field_url + '"]';
+      var field_clear  = 'input[name="' + options.field_clear + '"]';
+      var field_name   = 'input[name="' + options.field_name + '"]';
 
-      this.input = $(field_upload, this.el);
-      this.field_url = $(field_url, this.el).parents('.control-group');
-      this.field_image = this.input.parents('.control-group');
-      this.field_url_input = $('input', this.field_url);
-      this.field_name = this.el.parents('form').find(field_name);
+      this.input            = $(field_upload, this.el);
+      this.field_url        = $(field_url, this.el).parents('.control-group');
+      this.field_image      = this.input.parents('.control-group');
+      this.field_url_input  = $('input', this.field_url);
+      this.field_name       = this.el.parents('form').find(field_name);
+      // this is the location for the upload/link data/image label
+      this.label_location   = $('label[for="field-image-url"]');
+      // determines if the resource is a data resource
+      this.is_data_resource = (this.options.field_url == 'url') && (this.options.field_upload == 'upload');
 
       // Is there a clear checkbox on the form already?
       var checkbox = $(field_clear, this.el);
       if (checkbox.length > 0) {
-        options.is_upload = true;
         checkbox.parents('.control-group').remove();
       }
 
@@ -60,7 +65,7 @@ this.ckan.module('image-upload', function($, _) {
         .appendTo(this.el);
 
       // Button to set the field to be a URL
-      this.button_url = $('<a href="javascript:;" class="btn"><i class="icon-globe"></i> '+this.i18n('url')+'</a>')
+      this.button_url = $('<a href="javascript:;" class="btn"><i class="icon-globe"></i>'+this.i18n('url')+'</a>')
         .prop('title', this.i18n('url_tooltip'))
         .on('click', this._onFromWeb)
         .insertAfter(this.input);
@@ -70,12 +75,12 @@ this.ckan.module('image-upload', function($, _) {
         .insertAfter(this.input);
 
       // Button for resetting the form when there is a URL set
-      $('<a href="javascript:;" class="btn btn-danger btn-remove-url"><i class="icon-remove"></i></a>')
+      $('<a href="javascript:;" class="btn btn-danger btn-remove-url">'+this.i18n('remove')+'</a>')
         .prop('title', this.i18n('remove'))
         .on('click', this._onRemove)
         .insertBefore(this.field_url_input);
 
-      // Update the main label
+      // Update the main label (this is displayed when no data/image has been uploaded/linked)
       $('label[for="field-image-upload"]').text(options.upload_label || this.i18n('upload_label'));
 
       // Setup the file input
@@ -105,12 +110,54 @@ this.ckan.module('image-upload', function($, _) {
 
       if (options.is_url) {
         this._showOnlyFieldUrl();
+
+        this._updateUrlLabel(this.i18n('label_for_url'));
       } else if (options.is_upload) {
         this._showOnlyFieldUrl();
+
         this.field_url_input.prop('readonly', true);
+        // If the data is an uploaded file, the filename will display rather than whole url of the site
+        var filename = this._fileNameFromUpload(this.field_url_input.val());
+        this.field_url_input.val(filename);
+
+        this._updateUrlLabel(this.i18n('label_for_upload'));
       } else {
         this._showOnlyButtons();
       }
+    },
+
+    /* Quick way of getting just the filename from the uri of the resource data
+     *
+     * url - The url of the uploaded data file
+     *
+     * Returns String.
+     */
+    _fileNameFromUpload: function(url) {
+      // remove fragment (#)
+      url = url.substring(0, (url.indexOf("#") === -1) ? url.length : url.indexOf("#"));
+      // remove query string
+      url = url.substring(0, (url.indexOf("?") === -1) ? url.length : url.indexOf("?"));
+      // extract the filename
+      url = url.substring(url.lastIndexOf("/") + 1, url.length);
+
+      return url; // filename
+    },
+
+    /* Update the `this.label_location` text
+     *
+     * If the upload/link is for a data resource, rather than an image,
+     * the text for label[for="field-image-url"] will be updated.
+     *
+     * label_text - The text for the label of an uploaded/linked resource
+     *
+     * Returns nothing.
+     */
+    _updateUrlLabel: function(label_text) {
+      if (! this.is_data_resource) {
+        return;
+      }
+
+      this.label_location.text(label_text);
     },
 
     /* Event listener for when someone sets the field to URL mode
@@ -119,11 +166,15 @@ this.ckan.module('image-upload', function($, _) {
      */
     _onFromWeb: function() {
       this._showOnlyFieldUrl();
+
       this.field_url_input.focus()
         .on('blur', this._onFromWebBlur);
+
       if (this.options.is_upload) {
         this.field_clear.val('true');
       }
+
+      this._updateUrlLabel(this.i18n('label_for_url'));
     },
 
     /* Event listener for resetting the field back to the blank state
@@ -132,8 +183,10 @@ this.ckan.module('image-upload', function($, _) {
      */
     _onRemove: function() {
       this._showOnlyButtons();
+
       this.field_url_input.val('');
       this.field_url_input.prop('readonly', false);
+
       this.field_clear.val('true');
     },
 
@@ -145,9 +198,14 @@ this.ckan.module('image-upload', function($, _) {
       var file_name = this.input.val().split(/^C:\\fakepath\\/).pop();
       this.field_url_input.val(file_name);
       this.field_url_input.prop('readonly', true);
+
       this.field_clear.val('');
+
       this._showOnlyFieldUrl();
+
       this._autoName(file_name);
+
+      this._updateUrlLabel(this.i18n('label_for_upload'));
     },
 
     /* Show only the buttons, hiding all others
