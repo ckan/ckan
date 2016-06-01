@@ -1,7 +1,7 @@
 import os
 
 from babel import Locale, localedata
-from babel.core import LOCALE_ALIASES, get_locale_identifier
+from babel.core import LOCALE_ALIASES, get_locale_identifier, UnknownLocaleError
 from babel.support import Translations
 from paste.deploy.converters import aslist
 from pylons import config
@@ -48,7 +48,18 @@ def _get_locales():
         i18n_path = os.path.join(config.get('ckan.i18n_directory'), 'i18n')
     else:
         i18n_path = os.path.dirname(ckan.i18n.__file__)
-    locales += [l for l in os.listdir(i18n_path) if localedata.exists(l)]
+
+    # For every file in the ckan i18n directory see if babel can understan
+    # the locale. If yes, add it to the available locales
+    for locale in os.listdir(i18n_path):
+        try:
+            Locale.parse(locale)
+            locales.append(locale)
+        except (ValueError, UnknownLocaleError):
+            # Babel does not know how to make a locale out of this.
+            # This is fine since we are passing all files in the
+            # ckan.i18n_directory here which e.g. includes the __init__.py
+            pass
 
     assert locale_default in locales, \
         'default language "%s" not available' % locale_default
