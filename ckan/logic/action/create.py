@@ -3,6 +3,7 @@
 import logging
 import random
 import re
+from socket import error as socket_error
 
 from pylons import config
 import paste.deploy.converters
@@ -1028,8 +1029,17 @@ def user_invite(context, data_dict):
         _get_action('group_member_create')(context, member_dict)
         group_dict = _get_action('group_show')(context,
                                                {'id': data['group_id']})
+    try:
+        mailer.send_invite(user, group_dict, data['role'])
+    except (socket_error, mailer.MailerException) as error:
+        # Email could not be sent, delete the pending user
 
-    mailer.send_invite(user, group_dict, data['role'])
+        _get_action('user_delete')(context, {'id': user.id})
+
+        msg = _('Error sending the invite email, ' +
+                'the user was not created: {0}').format(error)
+        raise ValidationError({'message': msg}, error_summary=msg)
+
     return model_dictize.user_dictize(user, context)
 
 
