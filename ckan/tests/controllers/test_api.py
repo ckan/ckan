@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 NB Don't test logic functions here. This is just for the mechanics of the API
 controller itself.

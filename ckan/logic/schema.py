@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from formencode.validators import OneOf
 
 import ckan.model

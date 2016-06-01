@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import assert_raises
 from ckan.tests.legacy import *
 from ckan.tests.legacy import is_search_supported

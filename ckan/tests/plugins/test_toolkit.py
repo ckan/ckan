@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import assert_equal, assert_raises, assert_true, raises
 
 from ckan.plugins import toolkit as tk

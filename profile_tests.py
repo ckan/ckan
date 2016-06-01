@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # Runs all the tests and save a speed profile to ckan.tests.profile
 import nose
 import cProfile

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 import ckan.plugins as p
 

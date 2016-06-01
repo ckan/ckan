@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 The aim of these tests is to check and improve the coding standards in ckan.
 Common issues are tested for here and tests fail if they are discovered in

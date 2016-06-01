@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import pysolr
 from pylons import config
 from ckan import model

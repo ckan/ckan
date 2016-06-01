@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import vdm.sqlalchemy
 import vdm.sqlalchemy.stateful
 from sqlalchemy import orm, types, Column, Table, ForeignKey

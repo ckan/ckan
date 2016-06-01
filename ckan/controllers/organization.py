@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import re
 
 import ckan.controllers.group as group

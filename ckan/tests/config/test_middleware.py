@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import mock
 import wsgiref
 from nose.tools import assert_equals, assert_not_equals, eq_

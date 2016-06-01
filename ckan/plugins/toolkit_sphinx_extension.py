@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''A Sphinx extension to automatically document CKAN's crazy plugins toolkit,
 autodoc-style.
 

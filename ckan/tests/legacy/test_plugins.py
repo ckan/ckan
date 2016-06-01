@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """
 Tests for plugin loading via PCA
 """

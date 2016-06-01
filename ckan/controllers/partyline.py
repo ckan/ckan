@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from pylons.controllers import WSGIController
 from pylons import config
 

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 
 We *don't* write tests for the schemas defined in :py:mod:`ckan.logic.schema`.

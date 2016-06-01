@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import assert_equal
 from routes import url_for
 

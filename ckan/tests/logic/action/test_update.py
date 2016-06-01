@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Unit tests for ckan/logic/action/update.py.'''
 import datetime
 
