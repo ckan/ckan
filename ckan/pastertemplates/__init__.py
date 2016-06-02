@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """A Paste template for creating new CKAN extensions.
 
 Usage::

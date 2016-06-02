@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''API functions for deleting data from CKAN.'''
 
 import sqlalchemy as sqla

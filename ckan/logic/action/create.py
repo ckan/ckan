@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''API functions for adding data to CKAN.'''
 
 import logging

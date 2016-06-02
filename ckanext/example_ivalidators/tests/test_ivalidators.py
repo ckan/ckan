@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import assert_equals, assert_raises
 import pylons.config as config
 

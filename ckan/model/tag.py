@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import vdm.sqlalchemy
 from sqlalchemy.orm import relation
 from sqlalchemy import types, Column, Table, ForeignKey, and_, UniqueConstraint

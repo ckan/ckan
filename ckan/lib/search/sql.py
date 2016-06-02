@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from sqlalchemy import or_
 from ckan.lib.search.query import SearchQuery
 import ckan.model as model

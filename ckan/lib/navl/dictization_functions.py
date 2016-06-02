@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import copy
 import formencode as fe
 import inspect

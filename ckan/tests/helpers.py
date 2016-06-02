@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''This is a collection of helper functions for use in tests.
 
 We want to avoid sharing test helper functions between test modules as

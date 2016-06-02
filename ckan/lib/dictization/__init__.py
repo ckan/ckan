@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import datetime
 from sqlalchemy.orm import class_mapper
 import sqlalchemy

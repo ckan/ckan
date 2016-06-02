@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import decorator
 
 from ckan.common import json, request, response

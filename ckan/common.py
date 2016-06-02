@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # This file contains commonly used parts of external libraries. The idea is
 # to help in removing helpers from being used as a dependency by many files
 # but at the same time making it easy to change for example the json lib

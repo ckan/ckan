@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # Avoid problem releasing to pypi from vagrant
 import os
 if os.environ.get('USER', '') == 'vagrant':
@@ -182,14 +184,6 @@ setup(
     zip_safe=False,
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages=['ckanext', 'ckanext.stats'],
-    include_package_data=True,
-    package_data={'ckan': [
-        'i18n/*/LC_MESSAGES/*.mo',
-        'migration/migrate.cfg',
-        'migration/README',
-        'migration/tests/test_dumps/*',
-        'migration/versions/*',
-    ]},
     message_extractors={
         'ckan': [
             ('**.py', 'python', None),

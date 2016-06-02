@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan import logic
 import ckan.logic.auth.update as _update
 

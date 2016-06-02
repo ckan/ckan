@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """The base Controller API
 
 Provides the BaseController class for subclassing.

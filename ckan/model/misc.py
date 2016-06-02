@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """
 Contains miscelaneous set of DB-related functions
 """

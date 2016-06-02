@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from pprint import pprint, pformat
 
 from ckan.lib.create_test_data import CreateTestData

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import datetime
 
 from nose.tools import eq_

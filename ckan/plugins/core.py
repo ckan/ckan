@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 Provides plugin services to the CKAN
 '''
