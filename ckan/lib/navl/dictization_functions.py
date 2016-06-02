@@ -6,8 +6,6 @@ from pylons import config
 
 from ckan.common import _
 
-default_lang = config.get('ckan.locale_default', 'en')
-fe.api.set_stdtranslation(domain="FormEncode", languages=default_lang)
 
 class Missing(object):
     def __unicode__(self):
