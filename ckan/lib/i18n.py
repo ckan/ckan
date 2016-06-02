@@ -1,7 +1,9 @@
 import os
 
-from babel import Locale, localedata
-from babel.core import LOCALE_ALIASES, get_locale_identifier, UnknownLocaleError
+from babel import Locale
+from babel.core import (LOCALE_ALIASES,
+                        get_locale_identifier,
+                        UnknownLocaleError)
 from babel.support import Translations
 from paste.deploy.converters import aslist
 from pylons import config
