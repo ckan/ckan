@@ -224,6 +224,16 @@ class TestUserEdit(helpers.FunctionalTestBase):
             status=403
         )
 
+    def test_create_user_as_sysadmin(self):
+        sysadmin = factories.Sysadmin()
+        app = self._get_test_app()
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        response = app.get(
+            url=url_for(controller='user', action='register'),
+            extra_environ=env,
+        )
+        assert "user-register-form" in response.forms
+
     def test_edit_user(self):
         user = factories.User(password='pass')
         app = self._get_test_app()

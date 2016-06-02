@@ -180,7 +180,7 @@ class UserController(base.BaseController):
         if context['save'] and not data:
             return self._save_new(context)
 
-        if c.user and not data:
+        if c.user and not data and not authz.is_sysadmin(c.user):
             # #1799 Don't offer the registration form if already logged in
             return render('user/logout_first.html')
 
