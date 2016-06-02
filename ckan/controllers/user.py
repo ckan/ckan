@@ -166,7 +166,8 @@ class UserController(base.BaseController):
         '''GET to display a form for registering a new user.
            or POST the form data to actually do the user registration.
         '''
-        context = {'model': model, 'session': model.Session,
+        context = {'model': model,
+                   'session': model.Session,
                    'user': c.user,
                    'auth_user_obj': c.userobj,
                    'schema': self._new_form_to_db_schema(),
@@ -264,7 +265,14 @@ class UserController(base.BaseController):
             h.flash_success(_('User "%s" is now registered but you are still '
                             'logged in as "%s" from before') %
                             (data_dict['name'], c.user))
-            return render('user/logout_first.html')
+            if authz.is_sysadmin(c.user):
+                # the sysadmin created a new user. We redirect him to the
+                # activity page for the newly created user
+                h.redirect_to(controller='user',
+                              action='activity',
+                              id=data_dict['name'])
+            else:
+                return render('user/logout_first.html')
 
     def edit(self, id=None, data=None, errors=None, error_summary=None):
         context = {'save': 'save' in request.params,
