@@ -69,11 +69,12 @@ def helper_here():
     return render_template_string(html)
 
 
-class ExampleFlaskIRoutesPlugin(p.SingletonPlugin):
+class ExampleFlaskIBlueprintPlugin(p.SingletonPlugin):
     '''
-    An example IRoutes plugin to demonstrate Flask routing from an extension.
+    An example IBlueprint plugin to demonstrate Flask routing from an
+    extension.
     '''
-    p.implements(p.IRoutes, inherit=True)
+    p.implements(p.IBlueprint, inherit=True)
 
     def get_blueprint(self):
         '''Return a Flask Blueprint object to be registered by the app.'''

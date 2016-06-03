@@ -317,7 +317,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
     def test_ask_around_flask_core_and_pylons_extension_route(self):
 
         # TODO: re-enable when we have a way for Flask extensions to add routes
-        raise nose.SkipTest()
+        # raise nose.SkipTest()
 
         if not p.plugin_loaded('test_routing_plugin'):
             p.load('test_routing_plugin')
@@ -407,6 +407,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 class MockRoutingPlugin(p.SingletonPlugin):
 
     p.implements(p.IRoutes)
+    p.implements(p.IBlueprint)
 
     controller = 'ckan.tests.config.test_middleware:MockPylonsController'
 
@@ -430,6 +431,9 @@ class MockRoutingPlugin(p.SingletonPlugin):
                      controller=self.controller, action='view')
 
         return _map
+
+    def get_blueprint(self):
+        pass
 
 
 class MockPylonsController(p.toolkit.BaseController):
