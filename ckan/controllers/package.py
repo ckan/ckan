@@ -682,6 +682,9 @@ class PackageController(base.BaseController):
                 else:
                     get_action('resource_create')(context, data)
             except ValidationError, e:
+                if data.get('url_type') == 'upload':
+                    data.pop('url')
+                    data.pop('url_type')
                 errors = e.error_dict
                 error_summary = e.error_summary
                 return self.new_resource(id, data, errors, error_summary)
