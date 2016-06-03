@@ -7908,6 +7908,27 @@ h4 small {
   height: 35px;
   background-position: -320px -62px;
 }
+.format-label[data-format=jpg],
+.format-label[data-format*=jpg],
+.format-label[data-format=jpeg],
+.format-label[data-format*=jpeg],
+.format-label[data-format=png],
+.format-label[data-format*=png],
+.format-label[data-format=bmp],
+.format-label[data-format*=bmp],
+.format-label[data-format=tiff],
+.format-label[data-format*=tiff],
+.format-label[data-format=gif],
+.format-label[data-format*=gif],
+.format-label[data-format=image],
+.format-label[data-format*=image],
+.format-label[data-format=img],
+.format-label[data-format*=img] {
+  width: 32px;
+  height: 35px;
+  background-position: -352px -62px;
+}
+
 [class^="icon-"],
 [class*=" icon-"] {
   display: inline-block;
