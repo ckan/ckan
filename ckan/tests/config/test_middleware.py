@@ -437,13 +437,9 @@ class MockRoutingPlugin(p.SingletonPlugin):
     def get_blueprint(self):
         # Create Blueprint for plugin
         blueprint = Blueprint(self.name, self.__module__)
-        blueprint.template_folder = 'templates'
-        # Add plugin url rules to Blueprint object
-        rules = [
-            ('/pylons_and_flask', 'flask_plugin_view', flask_plugin_view),
-        ]
-        for rule in rules:
-            blueprint.add_url_rule(*rule)
+        # Add plugin url rule to Blueprint object
+        blueprint.add_url_rule('/pylons_and_flask', 'flask_plugin_view',
+                               flask_plugin_view)
 
         return blueprint
 
