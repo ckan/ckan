@@ -25,7 +25,8 @@ __all__ = [
     'IFacets',
     'IAuthenticator',
     'ITranslation',
-    'IUploader'
+    'IUploader',
+    'IBlueprint'
 ]
 
 from inspect import isclass
