@@ -405,15 +405,20 @@ class TestResourceCreate(object):
         assert_raises(logic.ValidationError, helpers.call_action,
                       'resource_create', **data_dict)
 
-    def test_it_requires_url(self):
+    def test_doesnt_require_url(self):
         user = factories.User()
         dataset = factories.Dataset(user=user)
         data_dict = {
             'package_id': dataset['id']
         }
+        new_resouce = helpers.call_action('resource_create', **data_dict)
 
-        assert_raises(logic.ValidationError, helpers.call_action,
-                      'resource_create', **data_dict)
+        data_dict = {
+            'id': new_resouce['id']
+        }
+        stored_resource = helpers.call_action('resource_show', **data_dict)
+
+        assert not stored_resource['url']
 
 
 class TestMemberCreate(object):
