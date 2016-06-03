@@ -5,6 +5,7 @@ import wsgiref
 import nose
 from nose.tools import assert_equals, assert_not_equals, eq_
 from routes import url_for
+from flask import Blueprint
 
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
@@ -314,15 +315,16 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
         p.unload('test_routing_plugin')
 
-    def test_ask_around_flask_core_and_pylons_extension_route(self):
+    def test_ask_around_flask_extension_and_pylons_extension_route(self):
 
-        # TODO: re-enable when we have a way for Flask extensions to add routes
-        # raise nose.SkipTest()
+        app = self._get_test_app()
+        flask_app = helpers.find_flask_app(app)
 
         if not p.plugin_loaded('test_routing_plugin'):
             p.load('test_routing_plugin')
-
-        app = self._get_test_app()
+            plugin = p.get_plugin('test_routing_plugin')
+            flask_app.register_blueprint(plugin.get_blueprint(),
+                                         prioritise_rules=True)
 
         # We want our CKAN app, not the WebTest one
         app = app.app
@@ -433,7 +435,21 @@ class MockRoutingPlugin(p.SingletonPlugin):
         return _map
 
     def get_blueprint(self):
-        pass
+        # Create Blueprint for plugin
+        blueprint = Blueprint(self.name, self.__module__)
+        blueprint.template_folder = 'templates'
+        # Add plugin url rules to Blueprint object
+        rules = [
+            ('/pylons_and_flask', 'flask_plugin_view', flask_plugin_view),
+        ]
+        for rule in rules:
+            blueprint.add_url_rule(*rule)
+
+        return blueprint
+
+
+def flask_plugin_view(self):
+    return 'Hello World, this is served from a Flask extension'
 
 
 class MockPylonsController(p.toolkit.BaseController):
