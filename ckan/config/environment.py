@@ -9,6 +9,7 @@ import pytz
 
 import sqlalchemy
 from pylons import config
+import formencode
 
 import ckan.config.routing as routing
 import ckan.model as model
@@ -199,6 +200,12 @@ def update_config():
         # must be first for them to override defaults
         template_paths = extra_template_paths.split(',') + template_paths
     config['pylons.app_globals'].template_paths = template_paths
+
+    # Set the default language for validation messages from formencode
+    # to what is set as the default locale in the config
+    default_lang = config.get('ckan.locale_default', 'en')
+    formencode.api.set_stdtranslation(domain="FormEncode",
+                                      languages=[default_lang])
 
     # Markdown ignores the logger config, so to get rid of excessive
     # markdown debug messages in the log, set it to the level of the
