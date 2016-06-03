@@ -74,7 +74,7 @@ class ExampleFlaskIBlueprintPlugin(p.SingletonPlugin):
     An example IBlueprint plugin to demonstrate Flask routing from an
     extension.
     '''
-    p.implements(p.IBlueprint, inherit=True)
+    p.implements(p.IBlueprint)
 
     def get_blueprint(self):
         '''Return a Flask Blueprint object to be registered by the app.'''
