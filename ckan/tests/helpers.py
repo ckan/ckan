@@ -441,7 +441,7 @@ def find_flask_app(test_app):
     Relies on each layer of the stack having a reference to the app they
     wrap in either a .app attribute or .apps list.
     '''
-    if isinstance(test_app, ckan.config.middleware.CKANFlask):
+    if isinstance(test_app, ckan.config.middleware.flask_app.CKANFlask):
         return test_app
 
     try:
