@@ -88,7 +88,7 @@ class ReclineView(ReclineViewBase):
         resource = data_dict['resource']
 
         if (resource.get('datastore_active') or
-                resource.get('url') == '_datastore_only_resource'):
+                '_datastore_only_resource' in resource.get('url', '')):
             return True
         resource_format = resource.get('format', None)
         if resource_format:
