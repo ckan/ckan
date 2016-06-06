@@ -1916,8 +1916,7 @@ def package_search(context, data_dict):
         # instead set it to only retrieve public datasets
         fq = data_dict.get('fq', '')
         if not context.get('ignore_capacity_check', False):
-            fq = ' '.join(p for p in fq.split(' ')
-                          if 'capacity:' not in p)
+            fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
             data_dict['fq'] = fq + ' capacity:"public"'
 
         # Solr doesn't need 'include_drafts`, so pop it.

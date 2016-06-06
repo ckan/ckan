@@ -459,7 +459,7 @@ def are_there_flash_messages():
 def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
     highlight_actions = kwargs.get('highlight_actions',
-                                   kwargs.get('action', '')).split(' ')
+                                   kwargs.get('action', '')).split()
     return (c.controller == kwargs.get('controller')
             and c.action in highlight_actions)
 
