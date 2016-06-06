@@ -99,6 +99,30 @@ class TestUserInvite(object):
 
         assert_equals(invited_user.name.split('-')[0], 'maria')
 
+    @helpers.change_config('smtp.server', 'email.example.com')
+    def test_smtp_error_returns_error_message(self):
+
+        sysadmin = factories.Sysadmin()
+        group = factories.Group()
+
+        context = {
+            'user': sysadmin['name']
+        }
+        params = {
+            'email': 'example-invited-user@example.com',
+            'group_id': group['id'],
+            'role': 'editor'
+        }
+
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'user_invite', context, **params)
+
+        # Check that the pending user was deleted
+        user = model.Session.query(model.User).filter(
+            model.User.name.like('example-invited-user%')).all()
+
+        assert_equals(user[0].state, 'deleted')
+
     def _invite_user_to_group(self, email='user@email.com',
                               group=None, role='member'):
         user = factories.User()
