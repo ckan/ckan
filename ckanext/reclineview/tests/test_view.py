@@ -107,7 +107,7 @@ class TestReclineViewDatastoreOnly(helpers.FunctionalTestBase):
     def test_create_datastore_only_view(self):
         dataset = factories.Dataset()
         data = {
-            'resource': {'package_id': dataset['id'], 'format': 'csv'},
+            'resource': {'package_id': dataset['id']},
             'fields': [{'id': 'a'}, {'id': 'b'}],
             'records': [{'a': 1, 'b': 'xyz'}, {'a': 2, 'b': 'zzz'}]
         }
