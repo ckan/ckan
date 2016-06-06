@@ -2,7 +2,6 @@
 
 import mock
 import wsgiref
-import nose
 from nose.tools import assert_equals, assert_not_equals, eq_
 from routes import url_for
 from flask import Blueprint
@@ -10,7 +9,8 @@ from flask import Blueprint
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
 
-from ckan.config.middleware import AskAppDispatcherMiddleware, CKANFlask
+from ckan.config.middleware import AskAppDispatcherMiddleware
+from ckan.config.middleware.flask_app import CKANFlask
 from ckan.controllers.partyline import PartylineController
 
 
