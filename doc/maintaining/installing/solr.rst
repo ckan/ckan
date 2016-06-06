@@ -8,13 +8,6 @@ installed, we need to install and configure Solr.
 
 .. note::
 
-   These instructions explain how to setup |solr| with a single core.
-   If you want multiple applications, or multiple instances of CKAN, to share
-   the same |solr| server then you probably want a multi-core |solr| setup
-   instead. See :doc:`/maintaining/solr-multicore`.
-
-.. note::
-
    These instructions explain how to deploy Solr using the Jetty web
    server, but CKAN doesn't require Jetty - you can deploy Solr to another web
    server, such as Tomcat, if that's convenient on your operating system.
