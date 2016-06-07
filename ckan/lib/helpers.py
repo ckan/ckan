@@ -29,6 +29,8 @@ from pylons import url as _pylons_default_url
 from pylons import config
 from routes import redirect_to as _redirect_to
 from routes import url_for as _routes_default_url_for
+from flask import url_for as _flask_default_url_for
+from werkzeug.routing import BuildError as FlaskRouteBuildError
 import i18n
 import ckan.exceptions
 
@@ -42,7 +44,7 @@ import ckan.lib.uploader as uploader
 import ckan.authz as authz
 import ckan.plugins as p
 
-from ckan.common import _, ungettext, g, c, session, json, request
+from ckan.common import _, ungettext, g, c, request, session, json
 
 log = logging.getLogger(__name__)
 
@@ -200,17 +202,53 @@ def url_for(*args, **kw):
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
     # routes will get the wrong url for APIs if the ver is not provided
-    if kw.get('controller') == 'api':
+    if kw.get('controller') == 'api' or args and args[0].startswith('api.'):
         ver = kw.get('ver')
         if not ver:
             raise Exception('api calls must specify the version! e.g. ver=3')
-        # fix ver to include the slash
-        kw['ver'] = '/%s' % ver
-    if kw.get('qualified', False):
-        kw['protocol'], kw['host'] = get_site_protocol_and_host()
-    my_url = _routes_default_url_for(*args, **kw)
-    kw['__ckan_no_root'] = no_root
-    return _local_url(my_url, locale=locale, **kw)
+
+    original_args = tuple(args)
+    original_kw = kw.copy()
+
+    if kw.get('qualified', False) or kw.get('_external', False):
+        original_kw['protocol'], original_kw['host'] = get_site_protocol_and_host()
+
+    # TODO: this probably does not cover all cases
+    if (len(args) and '_' in args[0]
+            and '.' not in args[0]
+            and not args[0].startswith('/')):
+        args = (args[0].replace('_', '.', 1), )
+    elif kw.get('controller') and kw.get('action'):
+        args = ('{0}.{1}'.format(kw.pop('controller'), kw.pop('action')),)
+
+    if kw.pop('qualified', False):
+        kw['_external'] = True
+
+    if (args[0].startswith('api.') and
+            isinstance(kw.get('ver'), basestring) and
+            kw['ver'].startswith('/')):
+        kw['ver'] = kw['ver'].replace('/', '')
+
+    try:
+        kw.pop('host', None)
+        kw.pop('protocol', None)
+
+        my_url = _flask_default_url_for(*args, **kw)
+
+    except FlaskRouteBuildError:
+        if original_kw.get('controller') == 'api' and original_kw.get('ver'):
+            if (isinstance(original_kw['ver'], int) or
+                    not original_kw['ver'].startswith('/')):
+                # fix ver to include the slash
+                original_kw['ver'] = '/%s' % ver
+
+        my_url = _routes_default_url_for(*original_args, **original_kw)
+
+    if kw.get('_external', False) and 'qualified' not in original_kw:
+        original_kw['qualified'] = True
+
+    original_kw['__ckan_no_root'] = no_root
+    return _local_url(my_url, locale=locale, **original_kw)
 
 
 @core_helper
@@ -298,6 +336,8 @@ def _local_url(url_to_amend, **kw):
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
         protocol, host = get_site_protocol_and_host()
+        # TODO: Use the Flask router once the home controller is migrated to a
+        # Flask view
         root = _routes_default_url_for('/',
                                        qualified=True,
                                        host=host,
