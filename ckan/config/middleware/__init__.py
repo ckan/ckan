@@ -97,8 +97,16 @@ class AskAppDispatcherMiddleware(WSGIParty):
         '''Call each app at the invite route to establish a partyline. Called
         on init.'''
         PATH = '/__invite__/'
+        # We need to send an environ tailored to `ckan.site_url`, otherwise
+        # Flask will return a 404 for the invite path (as we are using
+        # SERVER_NAME). Existance of `ckan.site_url` in config has already
+        # been checked.
+        parts = urlparse.urlparse(config.get('ckan.site_url'))
+        environ_overrides = {
+            'HTTP_HOST': parts.netloc,
+        }
         for app_name, app in apps.items():
-            environ = create_environ(path=PATH)
+            environ = create_environ(PATH, environ_overrides=environ_overrides)
             environ[self.partyline_key] = self.operator_class(self)
             # A reference to the handling app. Used to id the app when
             # responding to a handling request.
@@ -153,9 +161,9 @@ class AskAppDispatcherMiddleware(WSGIParty):
             return self.apps[app_name](environ, start_response)
         else:
             # Although this request will be served by Pylons we still
-            # need a request context (wich will create an app context) in order
-            # for the Flask URL builder to work
+            # need an application context in order for the Flask URL
+            # builder to work
             flask_app = self.apps['flask_app']._flask_app
 
-            with flask_app.test_request_context(environ_overrides=environ):
+            with flask_app.app_context():
                 return self.apps[app_name](environ, start_response)

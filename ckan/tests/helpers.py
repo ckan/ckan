@@ -19,6 +19,7 @@ potential drawbacks.
 This module is reserved for these very useful functions.
 
 '''
+import urlparse
 import webtest
 from pylons import config
 import nose.tools
@@ -164,9 +165,17 @@ def _get_test_app():
     Unit tests shouldn't need this.
 
     '''
+
     config['ckan.legacy_templates'] = False
     app = ckan.config.middleware.make_app(config['global_conf'], **config)
-    app = CKANTestApp(app)
+
+    # As we are setting SERVER_NAME, Flask needs the HTTP_HOST header to match
+    # it otherwise the route mapper does not work (returns 404)
+    parts = urlparse.urlparse(config.get('ckan.site_url'))
+    extra_environ = {'HTTP_HOST': str(parts.netloc)}
+
+    app = CKANTestApp(app, extra_environ)
+
     return app
 
 
