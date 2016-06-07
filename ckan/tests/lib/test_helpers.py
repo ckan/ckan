@@ -17,7 +17,26 @@ raises = nose.tools.raises
 CkanUrlException = ckan.exceptions.CkanUrlException
 
 
-class TestHelpersUrlForStatic(object):
+class BaseUrlFor(object):
+
+    @classmethod
+    def setup_class(cls):
+
+        cls.app = helpers._get_test_app(config_overrides={
+            'ckan.site_url': 'http://example.com'
+        })
+
+    def setup(self):
+
+        self.request_context = self.app.flask_app.test_request_context()
+        self.request_context.push()
+
+    def teardown(self):
+
+        self.request_context.pop()
+
+
+class TestHelpersUrlForStatic(BaseUrlFor):
 
     def test_url_for_static(self):
         url = '/assets/ckan.jpg'
@@ -63,7 +82,7 @@ class TestHelpersUrlForStatic(object):
         eq_(generated_url, url)
 
 
-class TestHelpersUrlForStaticOrExternal(object):
+class TestHelpersUrlForStaticOrExternal(BaseUrlFor):
 
     def test_url_for_static_or_external(self):
         url = '/assets/ckan.jpg'
@@ -87,7 +106,7 @@ class TestHelpersUrlForStaticOrExternal(object):
         eq_(h.url_for_static_or_external(url), url)
 
 
-class TestHelpersUrlFor(object):
+class TestHelpersUrlFor(BaseUrlFor):
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_default(self):
@@ -172,6 +191,55 @@ class TestHelpersUrlFor(object):
                                   qualified=True,
                                   locale='de')
         eq_(generated_url, url)
+
+
+class TestHelpersUrlForFlaskandPylons(BaseUrlFor):
+
+    def test_url_for_flask_route_new_syntax(self):
+        url = '/api/3/action/status_show'
+        generated_url = h.url_for('api.action', logic_function='status_show', ver=3)
+        eq_(generated_url, url)
+
+    def test_url_for_flask_route_old_syntax(self):
+        url = '/api/3/action/status_show'
+        generated_url = h.url_for(controller='api', action='action', logic_function='status_show', ver=3)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_new_syntax_external(self):
+        url = 'http://example.com/api/3/action/status_show'
+        generated_url = h.url_for('api.action', logic_function='status_show', ver=3, _external=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_old_syntax_external(self):
+        url = 'http://example.com/api/3/action/status_show'
+        generated_url = h.url_for(controller='api', action='action', logic_function='status_show', ver=3, _external=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_old_syntax_qualified(self):
+        url = 'http://example.com/api/3/action/status_show'
+        generated_url = h.url_for(controller='api', action='action', logic_function='status_show', ver=3, qualified=True)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_new_syntax_site_url(self):
+        url = '/api/3/action/status_show'
+        generated_url = h.url_for('api.action', logic_function='status_show', ver=3)
+        eq_(generated_url, url)
+
+    @helpers.change_config('ckan.site_url', 'http://example.com')
+    def test_url_for_flask_route_old_syntax_site_url(self):
+        url = '/api/3/action/status_show'
+        generated_url = h.url_for(controller='api', action='action', logic_function='status_show', ver=3)
+        eq_(generated_url, url)
+
+    def test_url_for_flask_route_new_syntax_request_context(self):
+        with self.app.flask_app.test_request_context():
+            url = '/api/3/action/status_show'
+            generated_url = h.url_for('api.action', logic_function='status_show', ver=3)
+            eq_(generated_url, url)
 
 
 class TestHelpersRenderMarkdown(object):
