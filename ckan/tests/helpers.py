@@ -158,20 +158,23 @@ class CKANTestApp(webtest.TestApp):
         return self._flask_app
 
 
-def _get_test_app():
+def _get_test_app(config_overrides=None):
     '''Return a webtest.TestApp for CKAN, with legacy templates disabled.
 
     For functional tests that need to request CKAN pages or post to the API.
     Unit tests shouldn't need this.
 
     '''
+    _config = config.copy()
+    _config['ckan.legacy_templates'] = False
+    if config_overrides and isinstance(config_overrides, dict):
+        _config.update(config_overrides)
 
-    config['ckan.legacy_templates'] = False
-    app = ckan.config.middleware.make_app(config['global_conf'], **config)
+    app = ckan.config.middleware.make_app(_config['global_conf'], **_config)
 
     # As we are setting SERVER_NAME, Flask needs the HTTP_HOST header to match
     # it otherwise the route mapper does not work (returns 404)
-    parts = urlparse.urlparse(config.get('ckan.site_url'))
+    parts = urlparse.urlparse(_config.get('ckan.site_url'))
     extra_environ = {'HTTP_HOST': str(parts.netloc)}
 
     app = CKANTestApp(app, extra_environ)
