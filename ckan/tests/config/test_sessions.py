@@ -58,11 +58,12 @@ class TestCrossFlaskPylonsFlashMessages(helpers.FunctionalTestBase):
 
 class FlashMessagePlugin(p.SingletonPlugin):
     '''
-    A Flask and Pylons compatible IRoutes plugin to add Flask views and Pylons
-    actions to display flash messages.
+    A Flask and Pylons compatible IRoutes/IBlueprint plugin to add Flask views
+    and Pylons actions to display flash messages.
     '''
 
     p.implements(p.IRoutes, inherit=True)
+    p.implements(p.IBlueprint)
 
     def flash_message_view(self):
         '''Flask view that renders the flash message html template.'''
@@ -83,7 +84,7 @@ class FlashMessagePlugin(p.SingletonPlugin):
 
         # Create Blueprint for plugin
         blueprint = Blueprint(self.name, self.__module__)
-        blueprint.template_folder = 'templates'
+        blueprint.template_folder = '../../templates'
         # Add plugin url rules to Blueprint object
         rules = [
             ('/flask_add_flash_message_redirect_to_flask', 'add_flash_message',
