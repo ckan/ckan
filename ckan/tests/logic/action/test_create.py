@@ -11,6 +11,7 @@ import ckan.tests.factories as factories
 import ckan.model as model
 import ckan.logic as logic
 import ckan.plugins as p
+import ckan.lib.mailer as mailer
 
 assert_equals = nose.tools.assert_equals
 assert_raises = nose.tools.assert_raises
@@ -80,6 +81,31 @@ class TestUserInvite(object):
         invited_user = self._invite_user_to_group(email='Maria@example.com')
 
         assert_equals(invited_user.name.split('-')[0], 'maria')
+
+    @helpers.change_config('smtp.server', 'email.example.com')
+    @mock.patch('ckan.lib.mailer.send_invite', side_effect=mailer.MailerException())
+    def test_smtp_error_returns_error_message(self, _):
+
+        sysadmin = factories.Sysadmin()
+        group = factories.Group()
+
+        context = {
+            'user': sysadmin['name']
+        }
+        params = {
+            'email': 'example-invited-user@example.com',
+            'group_id': group['id'],
+            'role': 'editor'
+        }
+
+        assert_raises(logic.ValidationError, helpers.call_action,
+                      'user_invite', context, **params)
+
+        # Check that the pending user was deleted
+        user = model.Session.query(model.User).filter(
+            model.User.name.like('example-invited-user%')).all()
+
+        assert_equals(user[0].state, 'deleted')
 
     def _invite_user_to_group(self, email='user@email.com',
                               group=None, role='member'):

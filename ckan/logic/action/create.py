@@ -21,6 +21,7 @@ import ckan.lib.uploader as uploader
 import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
+from socket import error as socket_error
 
 from ckan.common import _
 
@@ -1099,7 +1100,18 @@ def user_invite(context, data_dict):
         'role': data['role']
     }
     _get_action('group_member_create')(context, member_dict)
-    mailer.send_invite(user)
+
+    try:
+        mailer.send_invite(user)
+    except (socket_error, mailer.MailerException) as error:
+        # Email could not be sent, delete the pending user
+
+        _get_action('user_delete')(context, {'id': user.id})
+
+        msg = _('Error sending the invite email, ' +
+                'the user was not created: {0}').format(error)
+        raise ValidationError({'message': msg}, error_summary=msg)
+
     return model_dictize.user_dictize(user, context)
 
 
