@@ -27,7 +27,6 @@ from ckan.common import c
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint
 
-from ckan.config.middleware import common_middleware
 
 import logging
 log = logging.getLogger(__name__)
@@ -42,7 +41,7 @@ def make_flask_stack(conf, **app_conf):
     debug = app_conf.get('debug', True)
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    app = CKANFlask(__name__)
+    app = flask_app = CKANFlask(__name__)
     app.debug = debug
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
@@ -158,6 +157,9 @@ def make_flask_stack(conf, **app_conf):
         logging.WARN,  # ignored
         who_parser.remote_user_key
     )
+
+    # Add a reference to the actual Flask app so it's easier to access
+    setattr(app, '_flask_app', flask_app)
 
     return app
 
