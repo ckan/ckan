@@ -10,6 +10,8 @@ from wsgi_party import WSGIParty
 from ckan.config.middleware.flask_app import make_flask_stack
 from ckan.config.middleware.pylons_app import make_pylons_stack
 
+from ckan.config.middleware.common_middleware import I18nMiddleware
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -85,6 +87,8 @@ class AskAppDispatcherMiddleware(WSGIParty):
 
         self.send_invitations(apps)
 
+        self.i18n_middleware = I18nMiddleware()
+
     def send_invitations(self, apps):
         '''Call each app at the invite route to establish a partyline. Called
         on init.'''
@@ -101,6 +105,10 @@ class AskAppDispatcherMiddleware(WSGIParty):
         '''Determine which app to call by asking each app if it can handle the
         url and method defined on the eviron'''
         # :::TODO::: Enforce order of precedence for dispatching to apps here.
+
+        # Handle the i18n first, otherwise localized URLs (eg `/jp/about`)
+        # won't get recognized by the app route mappers
+        self.i18n_middleware(environ, start_response)
 
         app_name = 'pylons_app'  # currently defaulting to pylons app
         answers = self.ask_around('can_handle_request', environ)

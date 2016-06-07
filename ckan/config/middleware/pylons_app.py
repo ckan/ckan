@@ -133,8 +133,6 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
     # Establish the Registry for this application
     app = RegistryManager(app)
 
-    app = common_middleware.I18nMiddleware(app, config)
-
     if asbool(static_files):
         # Serve static files
         static_max_age = None if not asbool(config.get('ckan.cache_enabled')) \

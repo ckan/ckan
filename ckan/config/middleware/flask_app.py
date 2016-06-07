@@ -142,8 +142,6 @@ def make_flask_stack(conf, **app_conf):
 
     # Start other middleware
 
-    app = common_middleware.I18nMiddleware(app, config)
-
     # Initialize repoze.who
     who_parser = WhoConfig(conf['here'])
     who_parser.parse(open(app_conf['who.config_file']))
