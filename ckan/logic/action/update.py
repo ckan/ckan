@@ -307,13 +307,6 @@ def package_update(context, data_dict):
 
         item.after_update(context, data)
 
-    # Create default views for resources if necessary
-    if data.get('resources'):
-        logic.get_action('package_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
-             'ignore_auth': True},
-            {'package': data})
-
     if not context.get('defer_commit'):
         model.repo.commit()
 
