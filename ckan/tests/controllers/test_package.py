@@ -42,7 +42,7 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert_true('dataset-edit' in response.forms)
 
     @helpers.change_config('ckan.auth.create_unowned_dataset', 'false')
-    def test_needs_organization_but_no_organizations_has_button(self,):
+    def test_needs_organization_but_no_organizations_has_button(self):
         ''' Scenario: The settings say every dataset needs an organization
         but there are no organizations. If the user is allowed to create an
         organization they should be prompted to do so when they try to create
@@ -58,22 +58,17 @@ class TestPackageNew(helpers.FunctionalTestBase):
         assert 'dataset-edit' not in response.forms
         assert url_for(controller='organization', action='new') in response
 
+    @helpers.mock_auth('ckan.logic.auth.create.package_create')
     @helpers.change_config('ckan.auth.create_unowned_dataset', 'false')
     @helpers.change_config('ckan.auth.user_create_organizations', 'false')
-    def test_needs_organization_but_no_organizations_no_button(self):
+    def test_needs_organization_but_no_organizations_no_button(self,
+                                                               mock_p_create):
         ''' Scenario: The settings say every dataset needs an organization
         but there are no organizations. If the user is not allowed to create an
         organization they should be told to ask the admin but no link should be
         presented. Note: This cannot happen with the default ckan and requires
         a plugin to overwrite the package_create behavior'''
-
-        # Make sure that the patched `package_create` is actually looked at
-        # by the authentication functions.
-        from ckan.authz import clear_auth_functions_cache
-        p = patch('ckan.logic.auth.create.package_create',
-                  new=MagicMock(return_value={'success': True}))
-        p.start()
-        clear_auth_functions_cache()
+        mock_p_create.return_value = {'success': True}
 
         app = self._get_test_app()
         user = factories.User()
@@ -83,11 +78,6 @@ class TestPackageNew(helpers.FunctionalTestBase):
             url=url_for(controller='package', action='new'),
             extra_environ=env
         )
-
-        # Stop patching `package_create` and make sure that the other
-        # tests are not influenced by clearing the cache again
-        p.stop()
-        clear_auth_functions_cache()
 
         assert 'dataset-edit' not in response.forms
         assert url_for(controller='organization', action='new') not in response
