@@ -41,7 +41,8 @@ def make_flask_stack(conf, **app_conf):
 
     debug = app_conf.get('debug', True)
 
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    root = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     app = CKANFlask(__name__)
     app.debug = debug
     app.template_folder = os.path.join(root, 'templates')
@@ -103,8 +104,7 @@ def make_flask_stack(conf, **app_conf):
         return dict(c=c)
 
     # Babel
-    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(
-        os.path.dirname(__file__), '..', 'i18n')
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(root, 'i18n')
     app.config['BABEL_DOMAIN'] = 'ckan'
 
     babel = Babel(app)

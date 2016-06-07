@@ -84,7 +84,6 @@ class FlashMessagePlugin(p.SingletonPlugin):
 
         # Create Blueprint for plugin
         blueprint = Blueprint(self.name, self.__module__)
-        blueprint.template_folder = '../../templates'
         # Add plugin url rules to Blueprint object
         rules = [
             ('/flask_add_flash_message_redirect_to_flask', 'add_flash_message',
