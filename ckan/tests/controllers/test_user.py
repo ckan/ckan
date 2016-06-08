@@ -503,8 +503,8 @@ class TestUserFollow(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
         with app.flask_app.test_request_context():
             follow_url = url_for(controller='user',
-                             action='follow',
-                             id=user_two['id'])
+                                 action='follow',
+                                 id=user_two['id'])
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow()
         assert_true('You are now following {0}'
@@ -520,8 +520,8 @@ class TestUserFollow(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
         with app.flask_app.test_request_context():
             follow_url = url_for(controller='user',
-                             action='follow',
-                             id='not-here')
+                                 action='follow',
+                                 id='not-here')
         response = app.post(follow_url, extra_environ=env, status=302)
         response = response.follow(status=404)
         assert_true('User not found' in response)
@@ -535,13 +535,13 @@ class TestUserFollow(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
         with app.flask_app.test_request_context():
             follow_url = url_for(controller='user',
-                             action='follow',
-                             id=user_two['id'])
+                                 action='follow',
+                                 id=user_two['id'])
         app.post(follow_url, extra_environ=env, status=302)
 
         with app.flask_app.test_request_context():
             unfollow_url = url_for(controller='user', action='unfollow',
-                               id=user_two['id'])
+                                   id=user_two['id'])
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
         unfollow_response = unfollow_response.follow()
@@ -560,7 +560,7 @@ class TestUserFollow(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
         with app.flask_app.test_request_context():
             unfollow_url = url_for(controller='user', action='unfollow',
-                               id=user_two['id'])
+                                   id=user_two['id'])
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
         unfollow_response = unfollow_response.follow()
@@ -577,7 +577,7 @@ class TestUserFollow(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
         with app.flask_app.test_request_context():
             unfollow_url = url_for(controller='user', action='unfollow',
-                               id='not-here')
+                                   id='not-here')
         unfollow_response = app.post(unfollow_url, extra_environ=env,
                                      status=302)
         unfollow_response = unfollow_response.follow(status=404)
@@ -594,13 +594,13 @@ class TestUserFollow(helpers.FunctionalTestBase):
         env = {'REMOTE_USER': user_one['name'].encode('ascii')}
         with app.flask_app.test_request_context():
             follow_url = url_for(controller='user',
-                             action='follow',
-                             id=user_two['id'])
+                                 action='follow',
+                                 id=user_two['id'])
         app.post(follow_url, extra_environ=env, status=302)
 
         with app.flask_app.test_request_context():
             followers_url = url_for(controller='user', action='followers',
-                                id=user_two['id'])
+                                    id=user_two['id'])
 
         # Only sysadmins can view the followers list pages
         followers_response = app.get(followers_url, extra_environ=env,

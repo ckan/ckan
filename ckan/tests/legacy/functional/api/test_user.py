@@ -13,6 +13,7 @@ from ckan.tests.legacy.pylons_controller import PylonsTestCase
 from ckan.tests.legacy import url_for
 import ckan.config.middleware
 from ckan.common import json
+from ckan.tests import helpers
 
 
 class TestUserApi(ControllerTestCase):
@@ -25,8 +26,12 @@ class TestUserApi(ControllerTestCase):
         model.repo.rebuild_db()
 
     def test_autocomplete(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='user_autocomplete', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='user_autocomplete', ver=2),
+            url,
             params={
                'q': u'sysadmin',
             },
@@ -35,11 +40,15 @@ class TestUserApi(ControllerTestCase):
         print response.json
         assert set(response.json[0].keys()) == set(['id', 'name', 'fullname'])
         assert_equal(response.json[0]['name'], u'testsysadmin')
-        assert_equal(response.header('Content-Type'), 'application/json;charset=utf-8')
+        assert_equal(response.headers['Content-Type'], 'application/json;charset=utf-8')
 
     def test_autocomplete_multiple(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='user_autocomplete', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='user_autocomplete', ver=2),
+            url,
             params={
                'q': u'tes',
             },
@@ -49,8 +58,12 @@ class TestUserApi(ControllerTestCase):
         assert_equal(len(response.json), 2)
 
     def test_autocomplete_limit(self):
+
+        with self.app.flask_app.test_request_context():
+            url = url_for(controller='api', action='user_autocomplete', ver=2)
+
         response = self.app.get(
-            url=url_for(controller='api', action='user_autocomplete', ver=2),
+            url,
             params={
                'q': u'tes',
                'limit': 1
@@ -72,7 +85,7 @@ class TestCreateUserApiDisabled(PylonsTestCase):
         cls._original_config = config.copy()
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()
 
@@ -122,7 +135,7 @@ class TestCreateUserApiEnabled(PylonsTestCase):
         config['ckan.auth.create_user_via_api'] = True
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         PylonsTestCase.setup_class()
         cls.sysadmin_user = model.User.get('testsysadmin')
 
@@ -170,7 +183,7 @@ class TestCreateUserWebDisabled(PylonsTestCase):
         config['ckan.auth.create_user_via_web'] = False
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()
 
@@ -206,7 +219,7 @@ class TestCreateUserWebEnabled(PylonsTestCase):
         config['ckan.auth.create_user_via_web'] = True
         wsgiapp = ckan.config.middleware.make_app(
             config['global_conf'], **config)
-        cls.app = paste.fixture.TestApp(wsgiapp)
+        cls.app = helpers._get_test_app()
         cls.sysadmin_user = model.User.get('testsysadmin')
         PylonsTestCase.setup_class()
 
