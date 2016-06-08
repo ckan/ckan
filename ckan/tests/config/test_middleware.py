@@ -2,12 +2,15 @@
 
 import mock
 import wsgiref
-from nose.tools import assert_equals, assert_not_equals, eq_
+from nose.tools import assert_not_equals, eq_
 from routes import url_for
 from flask import Blueprint
+from flask import g
 
+import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
+import ckan.tests.factories as factories
 
 from ckan.config.middleware import AskAppDispatcherMiddleware
 from ckan.config.middleware.flask_app import CKANFlask
@@ -27,7 +30,7 @@ class TestPylonsResponseCleanupMiddleware(helpers.FunctionalTestBase):
         app = self._get_test_app()
         response = app.get(url=url_for(controller='home', action='index'))
 
-        assert_equals(200, response.status_int)
+        eq_(200, response.status_int)
         # make sure we haven't overwritten the response too early.
         assert_not_equals(
             'response cleared by pylons response cleanup middleware',
@@ -452,3 +455,62 @@ class MockPylonsController(p.toolkit.BaseController):
 
     def view(self):
         return 'Hello World, this is served from a Pylons extension'
+
+
+class TestUserIdentifiedInRequest(helpers.FunctionalTestBase):
+
+    '''Flask identifies user during each request.'''
+
+    def test_user_objects_in_g_normal_user(self):
+        '''
+        A normal logged in user request will have expected user objects added
+        to request.
+        '''
+        self.app = helpers._get_test_app()
+        flask_app = helpers.find_flask_app(self.app)
+        user = factories.User()
+        test_user_obj = model.User.by_name(user['name'])
+
+        with flask_app.test_request_context('/api/action/status_show'):
+            self.app.get(
+                '/api/action/status_show',
+                extra_environ={'REMOTE_USER': user['name'].encode('ascii')},)
+            eq_(g.user, user['name'])
+            eq_(g.userobj, test_user_obj)
+            eq_(g.author, user['name'])
+            eq_(g.remote_addr, 'Unknown IP Address')
+
+    def test_user_objects_in_g_anon_user(self):
+        '''
+        An anon user request will have expected user objects added to request.
+        '''
+        self.app = helpers._get_test_app()
+        flask_app = helpers.find_flask_app(self.app)
+
+        with flask_app.test_request_context('/api/action/status_show'):
+            self.app.get(
+                '/api/action/status_show',
+                extra_environ={'REMOTE_USER': ''},)
+            eq_(g.user, '')
+            eq_(g.userobj, None)
+            eq_(g.author, 'Unknown IP Address')
+            eq_(g.remote_addr, 'Unknown IP Address')
+
+    def test_user_objects_in_g_sysadmin(self):
+        '''
+        A sysadmin user request will have expected user objects added to
+        request.
+        '''
+        self.app = helpers._get_test_app()
+        flask_app = helpers.find_flask_app(self.app)
+        user = factories.Sysadmin()
+        test_user_obj = model.User.by_name(user['name'])
+
+        with flask_app.test_request_context('/api/action/status_show'):
+            self.app.get(
+                '/api/action/status_show',
+                extra_environ={'REMOTE_USER': user['name'].encode('ascii')},)
+            eq_(g.user, user['name'])
+            eq_(g.userobj, test_user_obj)
+            eq_(g.author, user['name'])
+            eq_(g.remote_addr, 'Unknown IP Address')

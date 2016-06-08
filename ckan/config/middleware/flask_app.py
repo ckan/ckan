@@ -4,8 +4,8 @@ import os
 import itertools
 
 from flask import Flask
-from flask import abort as flask_abort
-from flask import request as flask_request
+from flask import abort
+from flask import request, g, redirect
 from flask import _request_ctx_stack
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
@@ -20,12 +20,14 @@ from beaker.middleware import SessionMiddleware
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
 
+import ckan.model as model
 import ckan.lib.app_globals as app_globals
 from ckan.lib import jinja_extensions
 from ckan.lib import helpers
 from ckan.common import c
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint
+from ckan.views.api import APIKEY_HEADER_NAME_DEFAULT
 
 from ckan.config.middleware import common_middleware
 
@@ -92,6 +94,10 @@ def make_flask_stack(conf, **app_conf):
     app.jinja_env.filters['empty_and_escape'] = \
         jinja_extensions.empty_and_escape
     app.jinja_env.filters['truncate'] = jinja_extensions.truncate
+
+    @app.before_request
+    def ckan_before_request():
+        _identify_user()
 
     # Template context processors
     @app.context_processor
@@ -164,6 +170,113 @@ def make_flask_stack(conf, **app_conf):
     return app
 
 
+def _identify_user():
+    '''Try to identify the user
+    If the user is identified then:
+      g.user = user name (unicode)
+      g.userobj = user object
+      g.author = user name
+    otherwise:
+      g.user = None
+      g.userobj = None
+      g.author = user's IP address (unicode)'''
+    # see if it was proxied first
+    g.remote_addr = request.environ.get('HTTP_X_FORWARDED_FOR', '')
+    if not g.remote_addr:
+        g.remote_addr = request.environ.get('REMOTE_ADDR',
+                                            'Unknown IP Address')
+
+    # TODO:
+    # Authentication plugins get a chance to run here break as soon as a
+    # user is identified.
+    # authenticators = p.PluginImplementations(p.IAuthenticator)
+    # if authenticators:
+    #    for item in authenticators:
+    #        item.identify()
+    #        if c.user:
+    #            break
+
+    # We haven't identified the user so try the default methods
+    if not getattr(g, 'user', None):
+        _identify_user_default()
+
+    # If we have a user but not the userobj let's get the userobj.  This
+    # means that IAuthenticator extensions do not need to access the user
+    # model directly.
+    if g.user and not getattr(g, 'userobj', None):
+        g.userobj = model.User.by_name(g.user)
+
+    # general settings
+    if g.user:
+        g.author = g.user
+    else:
+        g.author = g.remote_addr
+    g.author = unicode(g.author)
+
+
+def _identify_user_default():
+    '''
+    Identifies the user using two methods:
+    a) If they logged into the web interface then repoze.who will
+       set REMOTE_USER.
+    b) For API calls they may set a header with an API key.
+    '''
+
+    # environ['REMOTE_USER'] is set by repoze.who if it authenticates a
+    # user's cookie. But repoze.who doesn't check the user (still) exists
+    # in our database - we need to do that here. (Another way would be
+    # with an userid_checker, but that would mean another db access.
+    # See: http://docs.repoze.org/who/1.0/narr.html#module-repoze.who\
+    # .plugins.sql )
+    g.user = request.environ.get('REMOTE_USER', '')
+    if g.user:
+        g.user = g.user.decode('utf8')
+        g.userobj = model.User.by_name(g.user)
+        if g.userobj is None or not g.userobj.is_active():
+
+            # This occurs when a user that was still logged in is deleted, or
+            # when you are logged in, clean db and then restart (or when you
+            # change your username). There is no user object, so even though
+            # repoze thinks you are logged in and your cookie has
+            # ckan_display_name, we need to force user to logout and login
+            # again to get the User object.
+
+            ev = request.environ
+            if 'repoze.who.plugins' in ev:
+                pth = getattr(ev['repoze.who.plugins']['friendlyform'],
+                              'logout_handler_path')
+                redirect(pth)
+    else:
+        g.userobj = _get_user_for_apikey()
+        if g.userobj is not None:
+            g.user = g.userobj.name
+
+
+def _get_user_for_apikey():
+    # TODO: use config
+    # apikey_header_name = config.get(APIKEY_HEADER_NAME_KEY,
+    #                                APIKEY_HEADER_NAME_DEFAULT)
+    apikey_header_name = APIKEY_HEADER_NAME_DEFAULT
+    apikey = request.headers.get(apikey_header_name, '')
+    if not apikey:
+        apikey = request.environ.get(apikey_header_name, '')
+    if not apikey:
+        # For misunderstanding old documentation (now fixed).
+        apikey = request.environ.get('HTTP_AUTHORIZATION', '')
+    if not apikey:
+        apikey = request.environ.get('Authorization', '')
+        # Forget HTTP Auth credentials (they have spaces).
+        if ' ' in apikey:
+            apikey = ''
+    if not apikey:
+        return None
+    log.debug("Received API Key: %s" % apikey)
+    apikey = unicode(apikey)
+    query = model.Session.query(model.User)
+    user = query.filter_by(apikey=apikey).first()
+    return user
+
+
 class CKAN_AppCtxGlobals(_AppCtxGlobals):
 
     '''Custom Flask AppCtxGlobal class (flask.g).'''
@@ -193,11 +306,11 @@ class CKANFlask(Flask):
         # A label for the app handling this request (this app).
         self.app_name = None
 
-    def join_party(self, request=flask_request):
+    def join_party(self, request=request):
         # Bootstrap, turn the view function into a 404 after registering.
         if self.partyline_connected:
             # This route does not exist at the HTTP level.
-            flask_abort(404)
+            abort(404)
         self.invitation_context = _request_ctx_stack.top
         self.partyline = request.environ.get(WSGIParty.partyline_key)
         self.app_name = request.environ.get('partyline_handling_app')
