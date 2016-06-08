@@ -1,7 +1,7 @@
 import cgi
 import logging
 
-from flask import Blueprint, request, make_response, g, redirect, url_for
+from flask import Blueprint, request, make_response, g, url_for
 from werkzeug.exceptions import BadRequest
 
 import ckan.model as model
@@ -10,7 +10,6 @@ from ckan.common import json, _
 from ckan.lib.navl.dictization_functions import DataError
 from ckan.logic import get_action, ValidationError, NotFound, NotAuthorized
 from ckan.lib.search import SearchError, SearchIndexError, SearchQueryError
-# import ckan.plugins as p
 
 
 log = logging.getLogger(__name__)
