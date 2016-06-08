@@ -207,13 +207,12 @@ def url_for(*args, **kw):
         if not ver:
             raise Exception('api calls must specify the version! e.g. ver=3')
 
+    if kw.get('qualified', False) or kw.get('_external', False):
+        kw['protocol'], kw['host'] = get_site_protocol_and_host()
+
     original_args = tuple(args)
     original_kw = kw.copy()
 
-    if kw.get('qualified', False) or kw.get('_external', False):
-        original_kw['protocol'], original_kw['host'] = get_site_protocol_and_host()
-
-    # TODO: this probably does not cover all cases
     if (len(args) and '_' in args[0]
             and '.' not in args[0]
             and not args[0].startswith('/')):
