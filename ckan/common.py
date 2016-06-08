@@ -42,6 +42,16 @@ class Request(object):
     Wraps the request object, returning attributes from either the Flask or
     Pylons request object, depending of whether flask.request is available.
     '''
+
+    @property
+    def params(self):
+        ''' Special case as request.params is used all over the place.
+        '''
+        if is_flask():
+            return flask.request.args
+        else:
+            return pylons.request.params
+
     def __getattr__(self, name):
         if is_flask():
             return getattr(flask.request, name, None)
