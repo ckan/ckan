@@ -31,7 +31,9 @@ def is_flask():
     Currently using the presence of `flask.request`, though we may want to
     change that for something more robust.
     '''
-    if flask.request:
+    if (flask.request and
+            (flask.request.environ.get('ckan.app') == 'flask_app' or
+             flask.request.environ.get('ckan.wsgiparty.setup'))):
         return True
     else:
         return False

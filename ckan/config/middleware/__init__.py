@@ -99,12 +99,19 @@ class AskAppDispatcherMiddleware(WSGIParty):
         PATH = '/__invite__/'
         # We need to send an environ tailored to `ckan.site_url`, otherwise
         # Flask will return a 404 for the invite path (as we are using
-        # SERVER_NAME). Existance of `ckan.site_url` in config has already
-        # been checked.
+        # SERVER_NAME on Flask config). Existance of `ckan.site_url` in config
+        # has already been checked.
+        # Also add a key to be able to identify this request environ as a WSGI
+        # party setup one.
         parts = urlparse.urlparse(config.get('ckan.site_url'))
         environ_overrides = {
-            'HTTP_HOST': parts.netloc,
+            'HTTP_HOST': str(parts.netloc),
+            'SERVER_NAME': str(parts.hostname),
+            'ckan.wsgiparty.setup': True,
         }
+        if parts.port:
+            environ_overrides['SERVER_PORT'] = str(parts.port)
+
         for app_name, app in apps.items():
             environ = create_environ(PATH, environ_overrides=environ_overrides)
             environ[self.partyline_key] = self.operator_class(self)
