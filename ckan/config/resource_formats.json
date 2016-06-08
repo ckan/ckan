@@ -49,7 +49,7 @@
   ["WMS", "Web Mapping Service", "WMS", ["wms"]],
   ["SVG", "SVG vector image", "image/svg+xml", ["svg"]],
   ["PPT", "Powerpoint Presentation", "application/vnd.ms-powerpoint", []],
-  ["ODP", "OpenDocument Presentation", "application/vnd.oasis.opendocument.presentation", []], 
+  ["ODP", "OpenDocument Presentation", "application/vnd.oasis.opendocument.presentation", []],
   ["JPEG", "JPG Image File", "image/jpeg", ["jpeg", "jpg"]],
   ["SPARQL", "SPARQL end-point", "application/sparql-results+xml", []],
   ["GIF", "GIF Image File", "image/gif", []],
@@ -72,5 +72,6 @@
   ["GeoJSON", "Geographic JavaScript Object Notation", null, []],
   ["SHP", "Shapefile", null, ["esri shapefile"]],
   ["TORRENT", "Torrent", "application/x-bittorrent", ["bittorrent"]],
-  ["ICS", "iCalendar", "text/calendar", ["ifb", "iCal"]]
+  ["ICS", "iCalendar", "text/calendar", ["ifb", "iCal"]],
+  ["GTFS", "General Transit Feed Specification", null, []]
 ]
