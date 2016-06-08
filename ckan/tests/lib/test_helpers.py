@@ -70,7 +70,8 @@ class TestHelpersUrlForStatic(BaseUrlFor):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_static_qualified_with_root_path(self):
         url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
-        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        generated_url = h.url_for_static('/my-asset/file.txt',
+                                         qualified=True)
         eq_(generated_url, url)
 
     @helpers.set_extra_environ('SCRIPT_NAME', '/my/custom/path')
@@ -78,7 +79,8 @@ class TestHelpersUrlForStatic(BaseUrlFor):
     @helpers.change_config('ckan.root_path', '/my/custom/path/{{LANG}}/foo')
     def test_url_for_static_with_root_path_and_script_name_env(self):
         url = 'http://example.com/my/custom/path/foo/my-asset/file.txt'
-        generated_url = h.url_for_static('/my-asset/file.txt', qualified=True)
+        generated_url = h.url_for_static('/my-asset/file.txt',
+                                         qualified=True)
         eq_(generated_url, url)
 
 
@@ -111,7 +113,8 @@ class TestHelpersUrlFor(BaseUrlFor):
     @helpers.change_config('ckan.site_url', 'http://example.com')
     def test_url_for_default(self):
         url = '/dataset/my_dataset'
-        generated_url = h.url_for(controller='package', action='read', id='my_dataset')
+        generated_url = h.url_for(controller='package', action='read',
+                                  id='my_dataset')
         eq_(generated_url, url)
 
     @helpers.change_config('ckan.site_url', 'http://example.com')
