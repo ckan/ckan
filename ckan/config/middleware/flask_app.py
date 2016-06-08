@@ -58,8 +58,8 @@ def make_flask_stack(conf, **app_conf):
     # Use Beaker as the Flask session interface
     class BeakerSessionInterface(SessionInterface):
         def open_session(self, app, request):
-            session = request.environ['beaker.session']
-            return session
+            if 'beaker.session' in request.environ:
+                return request.environ['beaker.session']
 
         def save_session(self, app, session, response):
             session.save()
