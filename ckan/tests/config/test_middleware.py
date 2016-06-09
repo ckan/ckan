@@ -2,12 +2,15 @@
 
 import mock
 import wsgiref
-from nose.tools import assert_equals, assert_not_equals, eq_
+from nose.tools import assert_not_equals, eq_
 from routes import url_for
 from flask import Blueprint
 
+import ckan.model as model
 import ckan.plugins as p
 import ckan.tests.helpers as helpers
+import ckan.tests.factories as factories
+from ckan.common import c
 
 from ckan.config.middleware import AskAppDispatcherMiddleware
 from ckan.config.middleware.flask_app import CKANFlask
@@ -27,7 +30,7 @@ class TestPylonsResponseCleanupMiddleware(helpers.FunctionalTestBase):
         app = self._get_test_app()
         response = app.get(url=url_for(controller='home', action='index'))
 
-        assert_equals(200, response.status_int)
+        eq_(200, response.status_int)
         # make sure we haven't overwritten the response too early.
         assert_not_equals(
             'response cleared by pylons response cleanup middleware',
@@ -404,6 +407,146 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         res = app.get('/api/action/status_show')
 
         eq_(res.environ['ckan.app'], 'flask_app')
+
+
+class TestFlaskUserIdentifiedInRequest(helpers.FunctionalTestBase):
+
+    '''Flask identifies user during each request.
+
+    API route has been migrated to Flask, so using as an example.
+    '''
+
+    def test_user_objects_in_g_normal_user(self):
+        '''
+        A normal logged in user request will have expected user objects added
+        to request.
+        '''
+        self.app = helpers._get_test_app()
+        flask_app = helpers.find_flask_app(self.app)
+        user = factories.User()
+        test_user_obj = model.User.by_name(user['name'])
+
+        with flask_app.test_request_context('/api/action/status_show'):
+            self.app.get(
+                '/api/action/status_show',
+                extra_environ={'REMOTE_USER': user['name'].encode('ascii')},)
+            eq_(c.user, user['name'])
+            eq_(c.userobj, test_user_obj)
+            eq_(c.author, user['name'])
+            eq_(c.remote_addr, 'Unknown IP Address')
+
+    def test_user_objects_in_g_anon_user(self):
+        '''
+        An anon user request will have expected user objects added to request.
+        '''
+        self.app = helpers._get_test_app()
+        flask_app = helpers.find_flask_app(self.app)
+
+        with flask_app.test_request_context('/api/action/status_show'):
+            self.app.get(
+                '/api/action/status_show',
+                extra_environ={'REMOTE_USER': ''},)
+            eq_(c.user, '')
+            eq_(c.userobj, None)
+            eq_(c.author, 'Unknown IP Address')
+            eq_(c.remote_addr, 'Unknown IP Address')
+
+    def test_user_objects_in_g_sysadmin(self):
+        '''
+        A sysadmin user request will have expected user objects added to
+        request.
+        '''
+        self.app = helpers._get_test_app()
+        flask_app = helpers.find_flask_app(self.app)
+        user = factories.Sysadmin()
+        test_user_obj = model.User.by_name(user['name'])
+
+        with flask_app.test_request_context('/api/action/status_show'):
+            self.app.get(
+                '/api/action/status_show',
+                extra_environ={'REMOTE_USER': user['name'].encode('ascii')},)
+            eq_(c.user, user['name'])
+            eq_(c.userobj, test_user_obj)
+            eq_(c.author, user['name'])
+            eq_(c.remote_addr, 'Unknown IP Address')
+
+
+class TestPylonsUserIdentifiedInRequest(helpers.FunctionalTestBase):
+
+    '''Pylons identifies user during each request.
+
+    Using a route setup via an extension to ensure we're always testing a
+    Pylons-flavoured request.
+    '''
+
+    def test_user_objects_in_c_normal_user(self):
+        '''
+        A normal logged in user request will have expected user objects added
+        to request.
+        '''
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+
+        app = self._get_test_app()
+        user = factories.User()
+        test_user_obj = model.User.by_name(user['name'])
+
+        resp = app.get(
+            '/from_pylons_extension_before_map',
+            extra_environ={'REMOTE_USER': user['name'].encode('ascii')})
+
+        # tmpl_context available on response
+        eq_(resp.tmpl_context.user, user['name'])
+        eq_(resp.tmpl_context.userobj, test_user_obj)
+        eq_(resp.tmpl_context.author, user['name'])
+        eq_(resp.tmpl_context.remote_addr, 'Unknown IP Address')
+
+        p.unload('test_routing_plugin')
+
+    def test_user_objects_in_c_anon_user(self):
+        '''
+        An anon user request will have expected user objects added to request.
+        '''
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+
+        app = self._get_test_app()
+
+        resp = app.get(
+            '/from_pylons_extension_before_map',
+            extra_environ={'REMOTE_USER': ''})
+
+        # tmpl_context available on response
+        eq_(resp.tmpl_context.user, '')
+        eq_(resp.tmpl_context.userobj, None)
+        eq_(resp.tmpl_context.author, 'Unknown IP Address')
+        eq_(resp.tmpl_context.remote_addr, 'Unknown IP Address')
+
+        p.unload('test_routing_plugin')
+
+    def test_user_objects_in_c_sysadmin(self):
+        '''
+        A sysadmin user request will have expected user objects added to
+        request.
+        '''
+        if not p.plugin_loaded('test_routing_plugin'):
+            p.load('test_routing_plugin')
+
+        app = self._get_test_app()
+        user = factories.Sysadmin()
+        test_user_obj = model.User.by_name(user['name'])
+
+        resp = app.get(
+            '/from_pylons_extension_before_map',
+            extra_environ={'REMOTE_USER': user['name'].encode('ascii')})
+
+        # tmpl_context available on response
+        eq_(resp.tmpl_context.user, user['name'])
+        eq_(resp.tmpl_context.userobj, test_user_obj)
+        eq_(resp.tmpl_context.author, user['name'])
+        eq_(resp.tmpl_context.remote_addr, 'Unknown IP Address')
+
+        p.unload('test_routing_plugin')
 
 
 class MockRoutingPlugin(p.SingletonPlugin):
