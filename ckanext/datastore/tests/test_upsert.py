@@ -14,7 +14,6 @@ import ckan.tests.legacy as tests
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 
-
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
@@ -85,12 +84,16 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        set_url_type(
-            model.Package.get('annakarenina').resources, cls.sysadmin_user)
+
+        with cls.app.flask_app.test_request_context():
+            set_url_type(
+                model.Package.get('annakarenina').resources, cls.sysadmin_user)
         resource = model.Package.get('annakarenina').resources[0]
         cls.data = {
             'resource_id': resource.id,
@@ -328,7 +331,6 @@ class TestDatastoreUpsert(tests.WsgiAppCase):
                      data['records'][0]['nested'])
 
 
-
 class TestDatastoreInsert(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
@@ -337,33 +339,32 @@ class TestDatastoreInsert(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        set_url_type(
-            model.Package.get('annakarenina').resources, cls.sysadmin_user)
-        resource = model.Package.get('annakarenina').resources[0]
-        cls.data = {
-            'resource_id': resource.id,
-            'fields': [{'id': u'b\xfck', 'type': 'text'},
-                       {'id': 'author', 'type': 'text'},
-                       {'id': 'nested', 'type': 'json'},
-                       {'id': 'characters', 'type': 'text[]'},
-                       {'id': 'published'}],
-            'primary_key': u'b\xfck',
-            'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
-                        'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
-                        {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
-                        'nested': {'a':'b'}}
-                       ]
-            }
-        postparams = '%s=1' % json.dumps(cls.data)
-        auth = {'Authorization': str(cls.sysadmin_user.apikey)}
-        res = cls.app.post('/api/action/datastore_create', params=postparams,
-                           extra_environ=auth)
-        res_dict = json.loads(res.body)
-        assert res_dict['success'] is True
+        with cls.app.flask_app.test_request_context():
+            set_url_type(
+                model.Package.get('annakarenina').resources, cls.sysadmin_user)
+            resource = model.Package.get('annakarenina').resources[0]
+            cls.data = {
+                'resource_id': resource.id,
+                'fields': [{'id': u'b\xfck', 'type': 'text'},
+                           {'id': 'author', 'type': 'text'},
+                           {'id': 'nested', 'type': 'json'},
+                           {'id': 'characters', 'type': 'text[]'},
+                           {'id': 'published'}],
+                'primary_key': u'b\xfck',
+                'records': [{u'b\xfck': 'annakarenina', 'author': 'tolstoy',
+                            'published': '2005-03-01', 'nested': ['b', {'moo': 'moo'}]},
+                            {u'b\xfck': 'warandpeace', 'author': 'tolstoy',
+                            'nested': {'a':'b'}}
+                           ]
+                }
+
+            helpers.call_action('datastore_create', **cls.data)
 
         engine = db._get_engine(
             {'connection_url': pylons.config['ckan.datastore.write_url']})
@@ -439,12 +440,15 @@ class TestDatastoreUpdate(tests.WsgiAppCase):
     def setup_class(cls):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
+
+        cls.app = helpers._get_test_app()
         p.load('datastore')
         ctd.CreateTestData.create()
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
-        set_url_type(
-            model.Package.get('annakarenina').resources, cls.sysadmin_user)
+        with cls.app.flask_app.test_request_context():
+            set_url_type(
+                model.Package.get('annakarenina').resources, cls.sysadmin_user)
         resource = model.Package.get('annakarenina').resources[0]
         hhguide = u"hitchhiker's guide to the galaxy"
         cls.data = {

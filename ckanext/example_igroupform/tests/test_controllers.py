@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from nose.tools import assert_equal
-from routes import url_for
+from ckan.lib.helpers import url_for
 
 import ckan.plugins as plugins
 import ckan.tests.helpers as helpers
@@ -19,8 +19,10 @@ group_type = u'group'
 def _get_group_new_page(app, group_type):
     user = factories.User()
     env = {'REMOTE_USER': user['name'].encode('ascii')}
+    with app.flask_app.test_request_context():
+        url = url_for('%s_new' % group_type)
     response = app.get(
-        url_for('%s_new' % group_type),
+        url,
         extra_environ=env,
     )
     return env, response
@@ -43,7 +45,9 @@ class TestGroupController(helpers.FunctionalTestBase):
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_about' % custom_group_type,
+
+        with app.flask_app.test_request_context():
+            url = url_for('%s_about' % custom_group_type,
                       id=group_name)
         response = app.get(url=url, extra_environ=env)
         response.mustcontain(group_name)
@@ -54,8 +58,10 @@ class TestGroupController(helpers.FunctionalTestBase):
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_bulk_process' % custom_group_type,
-                      id=group_name)
+
+        with app.flask_app.test_request_context():
+            url = url_for('%s_bulk_process' % custom_group_type,
+                          id=group_name)
         try:
             response = app.get(url=url, extra_environ=env)
         except Exception as e:
@@ -69,8 +75,10 @@ class TestGroupController(helpers.FunctionalTestBase):
         group = factories.Group(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_action' % custom_group_type, action='delete',
-                      id=group_name)
+
+        with app.flask_app.test_request_context():
+            url = url_for('%s_action' % custom_group_type, action='delete',
+                          id=group_name)
         response = app.get(url=url, extra_environ=env)
 
 
@@ -91,8 +99,10 @@ class TestOrganizationController(helpers.FunctionalTestBase):
         group = factories.Organization(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_about' % custom_group_type,
-                      id=group_name)
+
+        with app.flask_app.test_request_context():
+            url = url_for('%s_about' % custom_group_type,
+                          id=group_name)
         response = app.get(url=url, extra_environ=env)
         response.mustcontain(group_name)
 
@@ -102,8 +112,10 @@ class TestOrganizationController(helpers.FunctionalTestBase):
         group = factories.Organization(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_bulk_process' % custom_group_type,
-                      id=group_name)
+
+        with app.flask_app.test_request_context():
+            url = url_for('%s_bulk_process' % custom_group_type,
+                          id=group_name)
         response = app.get(url=url, extra_environ=env)
 
     def test_delete(self):
@@ -112,8 +124,10 @@ class TestOrganizationController(helpers.FunctionalTestBase):
         group = factories.Organization(user=user, type=custom_group_type)
         group_name = group['name']
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_action' % custom_group_type, action='delete',
-                      id=group_name)
+
+        with app.flask_app.test_request_context():
+            url = url_for('%s_action' % custom_group_type, action='delete',
+                          id=group_name)
         response = app.get(url=url, extra_environ=env)
 
 
@@ -137,7 +151,7 @@ class TestGroupControllerNew(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, 'save')
         # check correct redirect
         assert_equal(response.req.url,
-                     'http://localhost/%s/saved' % custom_group_type)
+                     'http://test.ckan.net/%s/saved' % custom_group_type)
         # check saved ok
         group = model.Group.by_name(u'saved')
         assert_equal(group.title, u'')
@@ -173,7 +187,7 @@ class TestGroupControllerNew_DefaultGroupType(helpers.FunctionalTestBase):
         response = submit_and_follow(app, form, env, 'save')
         # check correct redirect
         assert_equal(response.req.url,
-                     'http://localhost/%s/saved' % group_type)
+                     'http://test.ckan.net/%s/saved' % group_type)
         # check saved ok
         group = model.Group.by_name(u'saved')
         assert_equal(group.title, u'')
@@ -195,8 +209,9 @@ def _get_group_edit_page(app, group_type, group_name=None):
         group = factories.Group(user=user, type=group_type)
         group_name = group['name']
     env = {'REMOTE_USER': user['name'].encode('ascii')}
-    url = url_for('%s_edit' % group_type,
-                  id=group_name)
+    with app.flask_app.test_request_context():
+        url = url_for('%s_edit' % group_type,
+                      id=group_name)
     response = app.get(url=url, extra_environ=env)
     return env, response, group_name
 
@@ -216,8 +231,10 @@ class TestGroupControllerEdit(helpers.FunctionalTestBase):
         app = self._get_test_app()
         user = factories.User()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_edit' % custom_group_type,
-                      id='doesnt_exist')
+
+        with app.flask_app.test_request_context():
+            url = url_for('%s_edit' % custom_group_type,
+                          id='doesnt_exist')
         app.get(url=url, extra_environ=env,
                 status=404)
 
@@ -257,8 +274,10 @@ class TestGroupControllerEdit_DefaultGroupType(helpers.FunctionalTestBase):
         app = self._get_test_app()
         user = factories.User()
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        url = url_for('%s_edit' % group_type,
-                      id='doesnt_exist')
+
+        with app.flask_app.test_request_context():
+            url = url_for('%s_edit' % group_type,
+                          id='doesnt_exist')
         app.get(url=url, extra_environ=env,
                 status=404)
 

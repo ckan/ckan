@@ -2,8 +2,6 @@
 
 import os
 
-from ckan.tests.legacy import url_for
-
 from ckanext.stats.tests import StatsFixture
 
 class TestStatsPlugin(StatsFixture):
