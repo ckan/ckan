@@ -287,15 +287,18 @@ Default value:  (an explicit value is mandatory)
 Set this to the URL of your CKAN site. Many CKAN features that need an absolute URL to your
 site use this setting.
 
-.. important:: It is mandatory to complete this setting
+This setting should only contain the protocol (e.g. ``http://``), host (e.g.
+``www.example.com``) and (optionally) the port (e.g. ``:8080``). In particular,
+if you have mounted CKAN at a path other than ``/`` then the mount point must
+*not* be included in ``ckan.site_url``. Instead, you need to set
+:ref:`ckan.root_path`.
 
-.. note:: If you want to mount CKAN at a path other than /, then this setting
-  should reflect that, but the URL you mount it at is determined by your
-  apache config (your WSGIScriptAlias path) (or equivalent for other servers).
+.. important:: It is mandatory to complete this setting
 
 .. warning::
 
   This setting should not have a trailing / on the end.
+
 
 .. _apikey_header_name:
 
@@ -1661,10 +1664,27 @@ Example::
 
 Default value: (none)
 
-By default, the URLs are formatted as ``/some/url``, when using the default
-locale, or ``/de/some/url`` when using the "de" locale, for example. This
-lets you change this. You can use any path that you want, adding ``{{LANG}}``
-where you want the locale code to go.
+This setting is used to construct URLs inside CKAN. It specifies two things:
+
+* *At which path CKAN is mounted:* By default it is assumed that CKAN is mounted
+  at ``/``, i.e. at the root of your web server. If you have configured your
+  web server to serve CKAN from a different mount point then you need to
+  duplicate that setting here.
+
+* *Where the locale is added to an URL:* By default, URLs are formatted as
+  ``/some/url`` when using the default locale, or ``/de/some/url`` when using
+  the ``de`` locale, for example. When ``ckan.root_path`` is set it must
+  include the string ``{{LANG}}``, which will be replaced by the locale.
+
+.. important::
+
+    The setting must contain ``{{LANG}}`` exactly as written here. Do not add
+    spaces between the brackets.
+
+.. seealso::
+
+    The host of your CKAN installation can be set via :ref:`ckan.site_url`.
+
 
 .. _ckan.resource_formats:
 
