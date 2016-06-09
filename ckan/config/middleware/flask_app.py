@@ -70,8 +70,8 @@ def make_flask_stack(conf, **app_conf):
         'session.data_dir': '{data_dir}/sessions'.format(
             data_dir=cache_dir),
         'session.key': app_conf.get('beaker.session.key'),
-        'session.cookie_expires':
-            app_conf.get('beaker.session.cookie_expires'),
+        'session.cookie_expires': app_conf.get(
+            'beaker.session.cookie_expires'),
         'session.secret': app_conf.get('beaker.session.secret')
     }
     app.wsgi_app = SessionMiddleware(app.wsgi_app, session_opts)

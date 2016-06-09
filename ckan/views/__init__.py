@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from flask import redirect
 
 import ckan.model as model
