@@ -5,8 +5,8 @@ import itertools
 import urlparse
 
 from flask import Flask
-from flask import abort as flask_abort
-from flask import request as flask_request
+from flask import abort
+from flask import request
 from flask import _request_ctx_stack
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
@@ -27,6 +27,7 @@ from ckan.lib import helpers
 from ckan.common import c
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint
+from ckan.views import identify_user
 
 
 import logging
@@ -41,7 +42,9 @@ def make_flask_stack(conf, **app_conf):
 
     debug = app_conf.get('debug', True)
 
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    root = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
     app = flask_app = CKANFlask(__name__)
     app.debug = debug
     app.template_folder = os.path.join(root, 'templates')
@@ -109,6 +112,10 @@ def make_flask_stack(conf, **app_conf):
         jinja_extensions.empty_and_escape
     app.jinja_env.filters['truncate'] = jinja_extensions.truncate
 
+    @app.before_request
+    def ckan_before_request():
+        identify_user()
+
     # Template context processors
     @app.context_processor
     def helper_functions():
@@ -120,8 +127,7 @@ def make_flask_stack(conf, **app_conf):
         return dict(c=c)
 
     # Babel
-    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(
-        os.path.dirname(__file__), '..', 'i18n')
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = os.path.join(root, 'i18n')
     app.config['BABEL_DOMAIN'] = 'ckan'
 
     babel = Babel(app)
@@ -211,11 +217,11 @@ class CKANFlask(Flask):
         # A label for the app handling this request (this app).
         self.app_name = None
 
-    def join_party(self, request=flask_request):
+    def join_party(self, request=request):
         # Bootstrap, turn the view function into a 404 after registering.
         if self.partyline_connected:
             # This route does not exist at the HTTP level.
-            flask_abort(404)
+            abort(404)
         self.invitation_context = _request_ctx_stack.top
         self.partyline = request.environ.get(WSGIParty.partyline_key)
         self.app_name = request.environ.get('partyline_handling_app')
