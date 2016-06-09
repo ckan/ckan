@@ -72,6 +72,7 @@ def _identify_user_default():
     if c.user:
         c.user = c.user.decode('utf8')
         c.userobj = model.User.by_name(c.user)
+
         if c.userobj is None or not c.userobj.is_active():
 
             # This occurs when a user that was still logged in is deleted, or
