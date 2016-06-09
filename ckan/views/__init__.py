@@ -1,8 +1,8 @@
-from flask import request, redirect
+from flask import redirect
 
 import ckan.model as model
 from ckan.views.api import APIKEY_HEADER_NAME_DEFAULT
-from ckan.common import c
+from ckan.common import c, request
 import ckan.plugins as p
 
 import logging
