@@ -27,7 +27,6 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
         # Make a copy of the Pylons config, so we can restore it in teardown.
         cls._original_config = dict(config)
 
-
     def _get_app(self, users_can_create_groups):
 
         config['ckan.plugins'] = 'example_iauthfunctions_v5_custom_config_setting'

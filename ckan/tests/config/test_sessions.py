@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import ok_
 
 from flask import Blueprint

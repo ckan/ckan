@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import eq_, ok_
 
 import ckan.plugins as plugins

@@ -22,7 +22,7 @@ class TestExampleITranslationPlugin(helpers.FunctionalTestBase):
 
         with app.flask_app.test_request_context():
             url = plugins.toolkit.url_for(controller='home', action='index',
-                                        locale='fr')
+                                          locale='fr')
 
         response = app.get(url)
         assert_true('This is a itranslated string' in response.body)
@@ -42,7 +42,7 @@ class TestExampleITranslationPlugin(helpers.FunctionalTestBase):
 
         with app.flask_app.test_request_context():
             url = plugins.toolkit.url_for(controller='home', action='index',
-                                        locale='fr')
+                                          locale='fr')
 
         response = app.get(url)
         assert_true('Overwritten string in ckan.mo' in response.body)
@@ -61,7 +61,7 @@ class TestExampleITranslationPlugin(helpers.FunctionalTestBase):
 
         with app.flask_app.test_request_context():
             url = plugins.toolkit.url_for(controller='home', action='index',
-                                        locale='de')
+                                          locale='de')
 
         response = app.get(url)
         assert_true('Einloggen' in response.body)

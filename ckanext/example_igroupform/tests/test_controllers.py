@@ -48,7 +48,7 @@ class TestGroupController(helpers.FunctionalTestBase):
 
         with app.flask_app.test_request_context():
             url = url_for('%s_about' % custom_group_type,
-                      id=group_name)
+                          id=group_name)
         response = app.get(url=url, extra_environ=env)
         response.mustcontain(group_name)
 
