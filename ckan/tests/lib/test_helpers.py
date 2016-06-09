@@ -5,6 +5,7 @@ import pytz
 import tzlocal
 from babel import Locale
 
+from pylons import config
 import ckan.lib.helpers as h
 import ckan.plugins as p
 import ckan.exceptions
@@ -22,9 +23,10 @@ class BaseUrlFor(object):
     @classmethod
     def setup_class(cls):
 
-        cls.app = helpers._get_test_app(config_overrides={
-            'ckan.site_url': 'http://example.com'
-        })
+        # Make a copy of the Pylons config, so we can restore it in teardown.
+        cls._original_config = dict(config)
+        config['ckan.site_url'] = 'http://example.com'
+        cls.app = helpers._get_test_app()
 
     def setup(self):
 
@@ -34,6 +36,12 @@ class BaseUrlFor(object):
     def teardown(self):
 
         self.request_context.pop()
+
+    @classmethod
+    def teardown_class(cls):
+        # Restore the config to its original values
+        config.clear()
+        config.update(cls._original_config)
 
 
 class TestHelpersUrlForStatic(BaseUrlFor):
