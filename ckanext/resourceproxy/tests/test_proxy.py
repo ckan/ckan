@@ -55,6 +55,9 @@ class TestProxyPrettyfied(object):
     def setup_class(cls):
         cls._original_config = config.copy()
         config['ckan.plugins'] = 'resource_proxy'
+        if not p.plugin_loaded('resource_proxy'):
+            p.load('resource_proxy')
+
         cls.app = helpers._get_test_app()
         create_test_data.CreateTestData.create()
         # Httpretty crashes with Solr on Python 2.6,
@@ -64,13 +67,15 @@ class TestProxyPrettyfied(object):
 
     @classmethod
     def teardown_class(cls):
-        config.clear()
-        config.update(cls._original_config)
+
+        p.unload('resource_proxy')
         model.repo.rebuild_db()
         # Reenable Solr indexing
         if (sys.version_info[0] == 2 and sys.version_info[1] == 6
                 and not p.plugin_loaded('synchronous_search')):
             p.load('synchronous_search')
+        config.clear()
+        config.update(cls._original_config)
 
     def setup(self):
         self.url = 'http://www.ckan.org/static/example.json'
