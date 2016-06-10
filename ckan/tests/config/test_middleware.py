@@ -5,6 +5,7 @@ import wsgiref
 from nose.tools import assert_not_equals, eq_
 from routes import url_for
 from flask import Blueprint
+import flask
 
 import ckan.model as model
 import ckan.plugins as p
@@ -426,14 +427,14 @@ class TestFlaskUserIdentifiedInRequest(helpers.FunctionalTestBase):
         user = factories.User()
         test_user_obj = model.User.by_name(user['name'])
 
-        with flask_app.test_request_context('/api/action/status_show'):
+        with flask_app.app_context():
             self.app.get(
                 '/api/action/status_show',
                 extra_environ={'REMOTE_USER': user['name'].encode('ascii')},)
-            eq_(c.user, user['name'])
-            eq_(c.userobj, test_user_obj)
-            eq_(c.author, user['name'])
-            eq_(c.remote_addr, 'Unknown IP Address')
+            eq_(flask.g.user, user['name'])
+            eq_(flask.g.userobj, test_user_obj)
+            eq_(flask.g.author, user['name'])
+            eq_(flask.g.remote_addr, 'Unknown IP Address')
 
     def test_user_objects_in_g_anon_user(self):
         '''
@@ -442,14 +443,14 @@ class TestFlaskUserIdentifiedInRequest(helpers.FunctionalTestBase):
         self.app = helpers._get_test_app()
         flask_app = helpers.find_flask_app(self.app)
 
-        with flask_app.test_request_context('/api/action/status_show'):
+        with flask_app.app_context():
             self.app.get(
                 '/api/action/status_show',
                 extra_environ={'REMOTE_USER': ''},)
-            eq_(c.user, '')
-            eq_(c.userobj, None)
-            eq_(c.author, 'Unknown IP Address')
-            eq_(c.remote_addr, 'Unknown IP Address')
+            eq_(flask.g.user, '')
+            eq_(flask.g.userobj, None)
+            eq_(flask.g.author, 'Unknown IP Address')
+            eq_(flask.g.remote_addr, 'Unknown IP Address')
 
     def test_user_objects_in_g_sysadmin(self):
         '''
@@ -461,14 +462,14 @@ class TestFlaskUserIdentifiedInRequest(helpers.FunctionalTestBase):
         user = factories.Sysadmin()
         test_user_obj = model.User.by_name(user['name'])
 
-        with flask_app.test_request_context('/api/action/status_show'):
+        with flask_app.app_context():
             self.app.get(
                 '/api/action/status_show',
                 extra_environ={'REMOTE_USER': user['name'].encode('ascii')},)
-            eq_(c.user, user['name'])
-            eq_(c.userobj, test_user_obj)
-            eq_(c.author, user['name'])
-            eq_(c.remote_addr, 'Unknown IP Address')
+            eq_(flask.g.user, user['name'])
+            eq_(flask.g.userobj, test_user_obj)
+            eq_(flask.g.author, user['name'])
+            eq_(flask.g.remote_addr, 'Unknown IP Address')
 
 
 class TestPylonsUserIdentifiedInRequest(helpers.FunctionalTestBase):
