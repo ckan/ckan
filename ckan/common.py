@@ -31,9 +31,16 @@ def is_flask():
     Currently using the presence of `flask.request`, though we may want to
     change that for something more robust.
     '''
+    try:
+        pylons.request.environ
+        pylons_request_available = True
+    except TypeError:
+        pylons_request_available = False
+
     if (flask.request and
             (flask.request.environ.get('ckan.app') == 'flask_app' or
-             flask.request.environ.get('ckan.wsgiparty.setup'))):
+             flask.request.environ.get('ckan.wsgiparty.setup') or
+             not pylons_request_available)):
         return True
     else:
         return False
