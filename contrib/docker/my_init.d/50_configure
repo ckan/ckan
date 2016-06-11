@@ -23,7 +23,7 @@ write_config () {
   "$CKAN_HOME"/bin/paster --plugin=ckan config-tool "$CONFIG" -e \
       "sqlalchemy.url = ${DATABASE_URL}" \
       "solr_url = ${SOLR_URL}" \
-      "ckan.storage_path = /var/lib/ckan" \
+      "ckan.storage_path = ${CKAN_DATA}" \
       "email_to = disabled@example.com" \
       "error_email_from = ckan@$(hostname -f)" \
       "ckan.site_url = http://192.168.0.6"
@@ -52,12 +52,12 @@ link_solr_url () {
 if [ ! -e "$CONFIG" ]; then
   if [ -z "$DATABASE_URL" ]; then
     if ! DATABASE_URL=$(link_postgres_url); then
-      abort "no DATABASE_URL specified and linked container called 'db' was not found"
+      abort "[ERROR] No DATABASE_URL specified and linked container called 'db' was not found"
     fi
   fi
   if [ -z "$SOLR_URL" ]; then
     if ! SOLR_URL=$(link_solr_url); then
-      abort "no SOLR_URL specified and linked container called 'solr' was not found"
+      abort "[ERROR] no SOLR_URL specified and linked container called 'solr' was not found"
     fi
   fi
   write_config
