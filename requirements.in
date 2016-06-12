@@ -16,7 +16,7 @@ passlib==1.6.5
 psycopg2==2.4.5
 pysolr==3.5.0
 python-dateutil>=1.5.0,<2.0.0
-pyutilib.component.core==4.5.3
+pyutilib.component.core==4.6.4
 repoze.who-friendlyform==1.0.8
 repoze.who==2.0
 requests==2.7.0
