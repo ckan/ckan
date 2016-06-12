@@ -43,7 +43,7 @@ simplejson==3.8.2         # via pylons HAND-FIXED FOR NOW #2681
 six==1.10.0               # via bleach, html5lib, pastescript, sqlalchemy-migrate
 sqlalchemy-migrate==0.9.1
 SQLAlchemy==0.9.6
-sqlparse==0.1.11
+sqlparse==0.1.19
 Tempita==0.5.2
 tzlocal==1.2.2
 unicodecsv==0.14.1
