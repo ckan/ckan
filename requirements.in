@@ -10,7 +10,7 @@ fanstatic==0.12
 Markdown==2.6.6
 ofs==0.4.2
 ordereddict==1.1
-Pairtree==0.7.1-T
+Pairtree==0.5.8
 paste==1.7.5.1
 passlib==1.6.2
 psycopg2==2.4.5
