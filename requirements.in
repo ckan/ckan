@@ -8,7 +8,7 @@ bleach==1.4.3
 WebTest==1.4.3  # need to pin this so that Pylons does not install a newer version that conflicts with WebOb==1.0.8
 fanstatic==0.12
 Markdown==2.6.6
-ofs==0.4.1
+ofs==0.4.2
 ordereddict==1.1
 Pairtree==0.7.1-T
 paste==1.7.5.1
