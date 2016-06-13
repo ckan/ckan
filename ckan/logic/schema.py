@@ -45,6 +45,7 @@ from ckan.logic.validators import (package_id_not_changed,
                                    resource_id_exists,
                                    tag_not_in_vocabulary,
                                    group_id_exists,
+                                   group_id_or_name_exists,
                                    owner_org_validator,
                                    user_name_exists,
                                    role_exists,
@@ -543,8 +544,8 @@ def default_follow_dataset_schema():
 
 def member_schema():
     schema = {
-        'id': [not_missing, not_empty, group_id_exists, unicode],
-        'username': [not_missing, user_name_exists, unicode],
+        'id': [not_missing, not_empty, group_id_or_name_exists, unicode],
+        'username': [not_missing, user_id_or_name_exists, unicode],
         'role': [not_missing, role_exists, unicode],
     }
     return schema
