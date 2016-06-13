@@ -28,8 +28,6 @@ from ckan.logic.validators import (
     package_name_validator,
     package_version_validator,
     group_name_validator,
-    tag_length_validator,
-    tag_name_validator,
     tag_string_convert,
     duplicate_extras_key,
     ignore_not_package_admin,
@@ -111,9 +109,7 @@ def default_tags_schema():
     schema = {
         'name': [not_missing,
                  not_empty,
-                 unicode,
-                 tag_length_validator,
-                 tag_name_validator,
+                 unicode
                  ],
         'vocabulary_id': [ignore_missing, unicode, vocabulary_id_exists],
         'revision_timestamp': [ignore],
