@@ -7,7 +7,7 @@ factory-boy==2.1.1
 httpretty==0.8.3
 mock==2.0.0
 pep8==1.4.6
-pip-tools==1.1.2
+pip-tools==1.6.5
 polib==1.0.3
 pyfakefs==2.7
 Sphinx==1.2.3
