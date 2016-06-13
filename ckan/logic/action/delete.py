@@ -117,6 +117,8 @@ def dataset_purge(context, data_dict):
     :type id: string
 
     '''
+    from sqlalchemy import or_
+
     model = context['model']
     id = _get_or_bust(data_dict, 'id')
 
@@ -133,6 +135,11 @@ def dataset_purge(context, data_dict):
     if members.count() > 0:
         for m in members.all():
             m.purge()
+
+    for r in model.Session.query(model.PackageRelationship).filter(
+            or_(model.PackageRelationship.subject_package_id == pkg.id,
+                model.PackageRelationship.object_package_id == pkg.id)).all():
+        r.purge()
 
     pkg = model.Package.get(id)
     # no new_revision() needed since there are no object_revisions created
