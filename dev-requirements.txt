@@ -1,7 +1,7 @@
 # These are packages that required when running ckan tests and building the docs
 
 beautifulsoup4==4.3.2
-coveralls
+coveralls==1.1
 docutils==0.8.1
 factory-boy==2.1.1
 httpretty==0.8.3
