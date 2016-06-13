@@ -2,7 +2,7 @@
 
 beautifulsoup4==4.4.1
 coveralls==1.1
-docutils==0.8.1
+docutils==0.12
 factory-boy==2.1.1
 httpretty==0.8.3
 mock==1.0.1
