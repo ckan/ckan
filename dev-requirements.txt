@@ -1,15 +1,19 @@
 # These are packages that required when running ckan tests and building the docs
 
-docutils==0.8.1
-httpretty==0.8.3
-# nose==1.3.0  # already in requirements.txt
-pep8==1.4.6
-Sphinx==1.2.3
-polib==1.0.3
-mock==1.0.1
-factory-boy==2.1.1
-coveralls
-sphinx-rtd-theme==0.1.9
 beautifulsoup4==4.3.2
+coveralls
+docutils==0.8.1
+factory-boy==2.1.1
+httpretty==0.8.3
+mock==1.0.1
+pep8==1.4.6
 pip-tools==1.1.2
+polib==1.0.3
 pyfakefs==2.7
+Sphinx==1.2.3
+sphinx-rtd-theme==0.1.9
+
+# nose==1.3.0  # already in requirements.txt
+
+
+
