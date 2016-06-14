@@ -309,9 +309,15 @@ class BaseController(WSGIController):
                         is_valid_cookie_data = True
                         break
                 if not is_valid_cookie_data:
-                    response.delete_cookie(cookie)
-                    self.log.debug('No session data any more - '
-                                   'deleting session cookie')
+                    if session.id:
+                        self.log.debug('No valid session data - '
+                                       'deleting session')
+                        self.log.debug('Session: %r', session.items())
+                        session.delete()
+                    else:
+                        self.log.debug('No session id - '
+                                       'deleting session cookie')
+                        response.delete_cookie(cookie)
             # Remove auth_tkt repoze.who cookie if user not logged in.
             elif cookie == 'auth_tkt' and not session.id:
                 response.delete_cookie(cookie)
