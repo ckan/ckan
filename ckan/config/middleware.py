@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """Pylons middleware initialization"""
 import urllib
 import urllib2
@@ -85,6 +87,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
 
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
+
+    app = RootPathMiddleware(app, config)
 
     # Routing/Session/Cache Middleware
     app = RoutesMiddleware(app, config['routes.map'])
@@ -348,6 +352,25 @@ class AskAppDispatcherMiddleware(WSGIParty):
         log.debug('Serving request via {0} app'.format(app_name))
         environ['ckan.app'] = app_name
         return self.apps[app_name](environ, start_response)
+
+
+class RootPathMiddleware(object):
+    '''
+    Prevents the SCRIPT_NAME server variable conflicting with the ckan.root_url
+    config. The routes package uses the SCRIPT_NAME variable and appends to the
+    path and ckan addes the root url causing a duplication of the root path.
+
+    This is a middleware to ensure that even redirects use this logic.
+    '''
+    def __init__(self, app, config):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        # Prevents the variable interfering with the root_path logic
+        if 'SCRIPT_NAME' in environ:
+            environ['SCRIPT_NAME'] = ''
+
+        return self.app(environ, start_response)
 
 
 class I18nMiddleware(object):

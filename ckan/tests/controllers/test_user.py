@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from bs4 import BeautifulSoup
 from nose.tools import assert_true, assert_false, assert_equal
 
@@ -139,6 +141,22 @@ class TestLogout(helpers.FunctionalTestBase):
 
         assert_true('You are now logged out.' in final_response)
 
+    @helpers.change_config('ckan.root_path', '/my/prefix')
+    def test_non_root_user_logout_url_redirect(self):
+        '''_logout url redirects to logged out page.
+
+        Note: this doesn't test the actual logout of a logged in user, just
+        the associated redirect.
+        '''
+        app = self._get_test_app()
+
+        logout_url = url_for(controller='user', action='logout')
+        logout_response = app.get(logout_url, status=302)
+        try:
+            final_response = helpers.webtest_maybe_follow(logout_response)
+        except Exception as e:
+            assert_true('/my/prefix/user/logout' in e.message)
+
 
 class TestUser(helpers.FunctionalTestBase):
 
@@ -272,6 +290,100 @@ class TestUserEdit(helpers.FunctionalTestBase):
 
         response = submit_and_follow(app, form, env, 'save')
         assert_true('Profile updated' in response)
+
+    def test_edit_user_logged_in_username_change(self):
+
+        user_pass = 'pass'
+        user = factories.User(password=user_pass)
+        app = self._get_test_app()
+
+        # Have to do an actual login as this test relys on repoze cookie handling.
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+        # fill it in
+        login_form['login'] = user['name']
+        login_form['password'] = user_pass
+        # submit it
+        login_form.submit()
+
+        # Now the cookie is set, run the test
+        response = app.get(
+            url=url_for(controller='user', action='edit'),
+        )
+        # existing values in the form
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['name'] = 'new-name'
+        response = submit_and_follow(app, form, name='save')
+        response = helpers.webtest_maybe_follow(response)
+
+        expected_url = url_for(controller='user', action='read', id='new-name')
+        assert response.request.path == expected_url
+
+    def test_edit_user_logged_in_username_change_by_name(self):
+        user_pass = 'pass'
+        user = factories.User(password=user_pass)
+        app = self._get_test_app()
+
+        # Have to do an actual login as this test relys on repoze cookie handling.
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+        # fill it in
+        login_form['login'] = user['name']
+        login_form['password'] = user_pass
+        # submit it
+        login_form.submit()
+
+        # Now the cookie is set, run the test
+        response = app.get(
+            url=url_for(controller='user', action='edit', id=user['name']),
+        )
+        # existing values in the form
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['name'] = 'new-name'
+        response = submit_and_follow(app, form, name='save')
+        response = helpers.webtest_maybe_follow(response)
+
+        expected_url = url_for(controller='user', action='read', id='new-name')
+        assert response.request.path == expected_url
+
+    def test_edit_user_logged_in_username_change_by_id(self):
+        user_pass = 'pass'
+        user = factories.User(password=user_pass)
+        app = self._get_test_app()
+
+        # Have to do an actual login as this test relys on repoze cookie handling.
+        # get the form
+        response = app.get('/user/login')
+        # ...it's the second one
+        login_form = response.forms[1]
+        # fill it in
+        login_form['login'] = user['name']
+        login_form['password'] = user_pass
+        # submit it
+        login_form.submit()
+
+        # Now the cookie is set, run the test
+        response = app.get(
+            url=url_for(controller='user', action='edit', id=user['id']),
+        )
+        # existing values in the form
+        form = response.forms['user-edit-form']
+
+        # new values
+        form['name'] = 'new-name'
+        response = submit_and_follow(app, form, name='save')
+        response = helpers.webtest_maybe_follow(response)
+
+        expected_url = url_for(controller='user', action='read', id='new-name')
+        assert response.request.path == expected_url
 
     def test_perform_reset_for_key_change(self):
         password = 'password'

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''This is a collection of helper functions for use in tests.
 
 We want to avoid sharing test helper functions between test modules as
@@ -188,6 +190,8 @@ class FunctionalTestBase(object):
     def setup(self):
         '''Reset the database and clear the search indexes.'''
         reset_db()
+        if hasattr(self, '_test_app'):
+            self._test_app.reset()
         search.clear_all()
 
     @classmethod

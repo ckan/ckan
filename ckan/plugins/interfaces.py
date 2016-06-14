@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''A collection of interfaces that CKAN plugins can implement to customize and
 extend CKAN.
 
@@ -1492,7 +1494,7 @@ class IUploader(Interface):
     upload resources and group images.
     '''
 
-    def get_uploader(self):
+    def get_uploader(self, upload_to, old_filename):
         '''Return an uploader object to upload general files that must
         implement the following methods:
 

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''A module for coding standards tests.
 
 These are tests that are not functional- or unit-testing any particular piece
@@ -6,6 +8,11 @@ there are no errors in the Sphinx build, that there are no PEP8 problems,
 etc.
 
 '''
+
+import io
+import os
+import os.path
+import re
 import subprocess
 
 import ckan.lib.util as util
@@ -66,3 +73,54 @@ def test_building_the_docs():
     if new_warnings:
         assert False, ("Don't add any new warnings to the Sphinx build: "
                        "{warnings}".format(warnings=new_warnings))
+
+
+def test_source_files_specify_encoding():
+    '''
+    Test that *.py files have a PEP 263 UTF-8 encoding specification.
+
+    Empty files and files that only contain comments are ignored.
+    '''
+    root_dir = os.path.join(os.path.dirname(__file__), '..', '..')
+    test_dirs = ['ckan', 'ckanext']
+    ignored_dirs = ['ckan/include']
+    pattern = re.compile(r'#.*?coding[:=][ \t]*utf-?8')
+    decode_errors = []
+    no_specification = []
+
+    def check_file(filename):
+        try:
+            with io.open(filename, encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if pattern.match(line):
+                        # Pattern found
+                        return
+                    elif line and not line.startswith('#'):
+                        # File contains non-empty non-comment line
+                        no_specification.append(os.path.relpath(filename,
+                                                root_dir))
+                        return
+        except UnicodeDecodeError:
+            decode_errors.append(filename)
+
+    for test_dir in test_dirs:
+        base_dir = os.path.join(root_dir, test_dir)
+        for root, dirnames, filenames in os.walk(base_dir):
+            dirnames[:] = [d for d in dirnames if not
+                           os.path.relpath(os.path.join(root, d), root_dir)
+                           in ignored_dirs]
+            for filename in filenames:
+                if not filename.endswith('.py'):
+                    continue
+                check_file(os.path.join(root, filename))
+
+    msgs = []
+    if no_specification:
+        msgs.append('The following files are missing an encoding '
+                    + 'specification: {}'.format(no_specification))
+    if decode_errors:
+        msgs.append('The following files are not valid UTF-8: {}'.format(
+                    decode_errors))
+    if msgs:
+        assert False, '\n\n'.join(msgs)

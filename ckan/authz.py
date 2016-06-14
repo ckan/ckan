@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import sys
 import re
 from logging import getLogger

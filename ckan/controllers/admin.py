@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from pylons import config
 
 import ckan.lib.base as base
@@ -16,7 +18,8 @@ _ = base._
 
 
 def get_sysadmins():
-    q = model.Session.query(model.User).filter(model.User.sysadmin==True)
+    q = model.Session.query(model.User).filter(model.User.sysadmin == True,
+                                               model.User.state == 'active')
     return q.all()
 
 

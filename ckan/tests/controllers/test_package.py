@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from bs4 import BeautifulSoup
 from nose.tools import (
     assert_equal,
@@ -1569,3 +1571,17 @@ class TestPackageFollow(helpers.FunctionalTestBase):
         followers_response = app.get(followers_url, extra_environ=env,
                                      status=200)
         assert_true(user_one['display_name'] in followers_response)
+
+
+class TestDatasetRead(helpers.FunctionalTestBase):
+
+    def test_dataset_read(self):
+        app = self._get_test_app()
+
+        dataset = factories.Dataset()
+
+        url = url_for(controller='package',
+                      action='read',
+                      id=dataset['id'])
+        response = app.get(url)
+        assert_in(dataset['title'], response)

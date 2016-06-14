@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 Code for generating email notifications for users (e.g. email notifications for
 new activities in your dashboard activity stream) and emailing them to the

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''API functions for searching for and getting data from CKAN.'''
 
 import uuid
@@ -24,7 +26,6 @@ import ckan.lib.plugins as lib_plugins
 import ckan.lib.activity_streams as activity_streams
 import ckan.lib.datapreview as datapreview
 import ckan.authz as authz
-import ckan.lib.lazyjson as lazyjson
 
 from ckan.common import _
 
@@ -384,8 +385,8 @@ def _group_or_org_list(context, data_dict, is_org=False):
         ))
 
     query = query.filter(model.Group.is_organization == is_org)
-    if not is_org:
-        query = query.filter(model.Group.type == group_type)
+    query = query.filter(model.Group.type == group_type)
+
     if sort_info:
         sort_field = sort_info[0][0]
         sort_direction = sort_info[0][1]
@@ -521,7 +522,7 @@ def organization_list(context, data_dict):
     '''
     _check_access('organization_list', context, data_dict)
     data_dict['groups'] = data_dict.pop('organizations', [])
-    data_dict['type'] = 'organization'
+    data_dict.setdefault('type', 'organization')
     return _group_or_org_list(context, data_dict, is_org=True)
 
 
@@ -960,10 +961,7 @@ def package_show(context, data_dict):
             use_validated_cache = 'schema' not in context
             if use_validated_cache and 'validated_data_dict' in search_result:
                 package_json = search_result['validated_data_dict']
-                if context.get('return_type') == 'LazyJSONObject':
-                    package_dict = lazyjson.LazyJSONObject(package_json)
-                else:
-                    package_dict = json.loads(package_json)
+                package_dict = json.loads(package_json)
                 package_dict_validated = True
             else:
                 package_dict = json.loads(search_result['data_dict'])
@@ -1830,8 +1828,7 @@ def package_search(context, data_dict):
         # instead set it to only retrieve public datasets
         fq = data_dict.get('fq', '')
         if not context.get('ignore_capacity_check', False):
-            fq = ' '.join(p for p in fq.split(' ')
-                          if 'capacity:' not in p)
+            fq = ' '.join(p for p in fq.split() if 'capacity:' not in p)
             data_dict['fq'] = fq + ' capacity:"public"'
 
         # Solr doesn't need 'include_drafts`, so pop it.
@@ -1895,9 +1892,10 @@ def package_search(context, data_dict):
     for field_name in ('groups', 'organization'):
         group_names.extend(facets.get(field_name, {}).keys())
 
-    groups = session.query(model.Group.name, model.Group.title) \
-                    .filter(model.Group.name.in_(group_names)) \
+    groups = (session.query(model.Group.name, model.Group.title)
+                    .filter(model.Group.name.in_(group_names))
                     .all()
+              if group_names else [])
     group_titles_by_name = dict(groups)
 
     # Transform facets into a more useful data structure.

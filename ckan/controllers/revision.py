@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from datetime import datetime, timedelta
 
 from pylons.i18n import get_lang

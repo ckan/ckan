@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import sys
 
 import ckan.lib.cli as cli

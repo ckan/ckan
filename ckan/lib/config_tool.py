@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import re
 
 INSERT_NEW_SECTIONS_BEFORE_SECTION = 'app:main'

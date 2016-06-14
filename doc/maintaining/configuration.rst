@@ -11,12 +11,12 @@ but some of them can also be set via `Environment variables`_ or at :ref:`runtim
 Environment variables
 *********************
 
-Some of the CKAN configuration options can be defined as `Environment variables <env-vars-wikipedia>`_
+Some of the CKAN configuration options can be defined as `Environment variables`_
 on the server operating system.
 
 These are generally low-level critical settings needed when setting up the application, like the database
 connection, the Solr server URL, etc. Sometimes it can be useful to define them as environment variables to
-automate and orchestrate deployments without having to first modify the `configuration file <CKAN configuration file>`_.
+automate and orchestrate deployments without having to first modify the `CKAN configuration file`_.
 
 These options are only read at startup time to update the ``config`` object used by CKAN,
 but they won't we accessed any more during the lifetime of the application.
@@ -26,14 +26,14 @@ and prefixed with `CKAN_` (this prefix is added even if
 the corresponding option in the ini file does not have it), and replacing dots with underscores.
 
 This is the list of currently supported environment variables, please refer to the entries in the
-`configuration file <CKAN configuration file>`_ section below for more details about each one:
+`CKAN configuration file`_ section below for more details about each one:
 
 .. literalinclude:: /../ckan/config/environment.py
     :language: python
     :start-after: Start CONFIG_FROM_ENV_VARS
     :end-before: End CONFIG_FROM_ENV_VARS
 
-.. _env-vars-wikipedia: http://en.wikipedia.org/wiki/Environment_variable
+.. _Environment variables: http://en.wikipedia.org/wiki/Environment_variable
 
 
 .. _runtime-config:
@@ -42,7 +42,7 @@ Updating configuration options during runtime
 *********************************************
 
 CKAN configuration options are generally defined before starting the web application (either in the
-`configuration file <CKAN configuration file>`_ or via `Environment variables`_).
+`CKAN configuration file`_ or via `Environment variables`_).
 
 A limited number of configuration options can also be edited during runtime. This can be done on the
 :ref:`administration interface <admin page>` or using the :py:func:`~ckan.logic.action.update.config_option_update`
@@ -287,15 +287,18 @@ Default value:  (an explicit value is mandatory)
 Set this to the URL of your CKAN site. Many CKAN features that need an absolute URL to your
 site use this setting.
 
-.. important:: It is mandatory to complete this setting
+This setting should only contain the protocol (e.g. ``http://``), host (e.g.
+``www.example.com``) and (optionally) the port (e.g. ``:8080``). In particular,
+if you have mounted CKAN at a path other than ``/`` then the mount point must
+*not* be included in ``ckan.site_url``. Instead, you need to set
+:ref:`ckan.root_path`.
 
-.. note:: If you want to mount CKAN at a path other than /, then this setting
-  should reflect that, but the URL you mount it at is determined by your
-  apache config (your WSGIScriptAlias path) (or equivalent for other servers).
+.. important:: It is mandatory to complete this setting
 
 .. warning::
 
   This setting should not have a trailing / on the end.
+
 
 .. _apikey_header_name:
 
@@ -1661,10 +1664,27 @@ Example::
 
 Default value: (none)
 
-By default, the URLs are formatted as ``/some/url``, when using the default
-locale, or ``/de/some/url`` when using the "de" locale, for example. This
-lets you change this. You can use any path that you want, adding ``{{LANG}}``
-where you want the locale code to go.
+This setting is used to construct URLs inside CKAN. It specifies two things:
+
+* *At which path CKAN is mounted:* By default it is assumed that CKAN is mounted
+  at ``/``, i.e. at the root of your web server. If you have configured your
+  web server to serve CKAN from a different mount point then you need to
+  duplicate that setting here.
+
+* *Where the locale is added to an URL:* By default, URLs are formatted as
+  ``/some/url`` when using the default locale, or ``/de/some/url`` when using
+  the ``de`` locale, for example. When ``ckan.root_path`` is set it must
+  include the string ``{{LANG}}``, which will be replaced by the locale.
+
+.. important::
+
+    The setting must contain ``{{LANG}}`` exactly as written here. Do not add
+    spaces between the brackets.
+
+.. seealso::
+
+    The host of your CKAN installation can be set via :ref:`ckan.site_url`.
+
 
 .. _ckan.resource_formats:
 

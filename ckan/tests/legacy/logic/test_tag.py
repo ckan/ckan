@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import json
 from nose.tools import assert_equal
 import ckan.lib.search as search

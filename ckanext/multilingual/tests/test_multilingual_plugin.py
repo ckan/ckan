@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckan.plugins
 import ckanext.multilingual.plugin as mulilingual_plugin
 import ckan.lib.helpers

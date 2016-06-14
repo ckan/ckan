@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import os
 from pylons import config
 from ckan import plugins

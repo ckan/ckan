@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 ''' The application's Globals object '''
 
 import logging

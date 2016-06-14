@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from routes import url_for
 from nose.tools import assert_equal
 from pylons import config

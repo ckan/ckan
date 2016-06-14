@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''API functions for updating existing data in CKAN.'''
 
 import logging
@@ -58,6 +60,8 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
+    if not data_dict.get('url'):
+        data_dict['url'] = ''
 
     resource = model.Resource.get(id)
     context["resource"] = resource
@@ -79,6 +83,11 @@ def resource_update(context, data_dict):
     else:
         log.error('Could not find resource %s after all', id)
         raise NotFound(_('Resource was not found.'))
+
+    # Persist the datastore_active extra if already present and not provided
+    if ('datastore_active' in resource.extras and
+            'datastore_active' not in data_dict):
+        data_dict['datastore_active'] = resource.extras['datastore_active']
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.before_update(context, pkg_dict['resources'][n], data_dict)
@@ -297,13 +306,6 @@ def package_update(context, data_dict):
         item.edit(pkg)
 
         item.after_update(context, data)
-
-    # Create default views for resources if necessary
-    if data.get('resources'):
-        logic.get_action('package_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
-             'ignore_auth': True},
-            {'package': data})
 
     if not context.get('defer_commit'):
         model.repo.commit()

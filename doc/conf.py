@@ -331,7 +331,7 @@ htmlhelp_basename = 'CKANdoc'
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
   ('contents', 'CKAN.tex', ur'CKAN documentation',
-   ur'Open Knowledge Foundation', 'manual'),
+   ur'CKAN contributors', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

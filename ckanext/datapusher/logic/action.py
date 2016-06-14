@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 import json
 import urlparse
@@ -74,7 +76,7 @@ def datapusher_submit(context, data_dict):
         'entity_id': res_id,
         'entity_type': 'resource',
         'task_type': 'datapusher',
-        'last_updated': str(datetime.datetime.now()),
+        'last_updated': str(datetime.datetime.utcnow()),
         'state': 'submitting',
         'key': 'datapusher',
         'value': '{}',
@@ -119,7 +121,7 @@ def datapusher_submit(context, data_dict):
                  'details': str(e)}
         task['error'] = json.dumps(error)
         task['state'] = 'error'
-        task['last_updated'] = str(datetime.datetime.now()),
+        task['last_updated'] = str(datetime.datetime.utcnow()),
         p.toolkit.get_action('task_status_update')(context, task)
         raise p.toolkit.ValidationError(error)
 
@@ -134,7 +136,7 @@ def datapusher_submit(context, data_dict):
                  'status_code': r.status_code}
         task['error'] = json.dumps(error)
         task['state'] = 'error'
-        task['last_updated'] = str(datetime.datetime.now()),
+        task['last_updated'] = str(datetime.datetime.utcnow()),
         p.toolkit.get_action('task_status_update')(context, task)
         raise p.toolkit.ValidationError(error)
 
@@ -143,7 +145,7 @@ def datapusher_submit(context, data_dict):
 
     task['value'] = value
     task['state'] = 'pending'
-    task['last_updated'] = str(datetime.datetime.now()),
+    task['last_updated'] = str(datetime.datetime.utcnow()),
     p.toolkit.get_action('task_status_update')(context, task)
 
     return True
@@ -175,7 +177,7 @@ def datapusher_hook(context, data_dict):
     })
 
     task['state'] = status
-    task['last_updated'] = str(datetime.datetime.now())
+    task['last_updated'] = str(datetime.datetime.utcnow())
 
     resubmit = False
 

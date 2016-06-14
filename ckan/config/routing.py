@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """Routes configuration
 
 The more specific and detailed routes should be defined first so they
