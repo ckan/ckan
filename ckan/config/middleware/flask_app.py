@@ -26,7 +26,7 @@ from ckan.lib import helpers
 from ckan.common import c
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IBlueprint
-from ckan.views import identify_user
+from ckan.views import identify_user, set_cors_headers_for_response
 
 from ckan.config.middleware import common_middleware
 
@@ -97,6 +97,11 @@ def make_flask_stack(conf, **app_conf):
     @app.before_request
     def ckan_before_request():
         identify_user()
+
+    @app.after_request
+    def ckan_after_request(response):
+        set_cors_headers_for_response(response)
+        return response
 
     # Template context processors
     @app.context_processor
