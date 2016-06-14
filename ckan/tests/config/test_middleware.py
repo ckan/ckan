@@ -5,6 +5,7 @@ import wsgiref
 from nose.tools import assert_not_equals, eq_
 from routes import url_for
 from flask import Blueprint
+import flask
 
 import ckan.model as model
 import ckan.plugins as p
@@ -413,62 +414,72 @@ class TestFlaskUserIdentifiedInRequest(helpers.FunctionalTestBase):
 
     '''Flask identifies user during each request.
 
-    API route has been migrated to Flask, so using as an example.
+    Flask route provided by test.helpers.SimpleFlaskPlugin.
     '''
+
+    @classmethod
+    def setup_class(cls):
+        super(TestFlaskUserIdentifiedInRequest, cls).setup_class()
+        cls.app = cls._get_test_app()
+        cls.flask_app = helpers.find_flask_app(cls.app)
+
+        if not p.plugin_loaded('test_simple_flask_plugin'):
+            p.load('test_simple_flask_plugin')
+            plugin = p.get_plugin('test_simple_flask_plugin')
+            cls.flask_app.register_blueprint(plugin.get_blueprint(),
+                                             prioritise_rules=True)
+
+    @classmethod
+    def teardown_class(cls):
+        super(TestFlaskUserIdentifiedInRequest, cls).teardown_class()
+        p.unload('test_simple_flask_plugin')
 
     def test_user_objects_in_g_normal_user(self):
         '''
         A normal logged in user request will have expected user objects added
         to request.
         '''
-        self.app = helpers._get_test_app()
-        flask_app = helpers.find_flask_app(self.app)
         user = factories.User()
         test_user_obj = model.User.by_name(user['name'])
 
-        with flask_app.test_request_context('/api/action/status_show'):
+        with self.flask_app.app_context():
             self.app.get(
-                '/api/action/status_show',
+                '/simple_flask',
                 extra_environ={'REMOTE_USER': user['name'].encode('ascii')},)
-            eq_(c.user, user['name'])
-            eq_(c.userobj, test_user_obj)
-            eq_(c.author, user['name'])
-            eq_(c.remote_addr, 'Unknown IP Address')
+            eq_(flask.g.user, user['name'])
+            eq_(flask.g.userobj, test_user_obj)
+            eq_(flask.g.author, user['name'])
+            eq_(flask.g.remote_addr, 'Unknown IP Address')
 
     def test_user_objects_in_g_anon_user(self):
         '''
         An anon user request will have expected user objects added to request.
         '''
-        self.app = helpers._get_test_app()
-        flask_app = helpers.find_flask_app(self.app)
-
-        with flask_app.test_request_context('/api/action/status_show'):
+        with self.flask_app.app_context():
             self.app.get(
-                '/api/action/status_show',
+                '/simple_flask',
                 extra_environ={'REMOTE_USER': ''},)
-            eq_(c.user, '')
-            eq_(c.userobj, None)
-            eq_(c.author, 'Unknown IP Address')
-            eq_(c.remote_addr, 'Unknown IP Address')
+            eq_(flask.g.user, '')
+            eq_(flask.g.userobj, None)
+            eq_(flask.g.author, 'Unknown IP Address')
+            eq_(flask.g.remote_addr, 'Unknown IP Address')
 
     def test_user_objects_in_g_sysadmin(self):
         '''
         A sysadmin user request will have expected user objects added to
         request.
         '''
-        self.app = helpers._get_test_app()
-        flask_app = helpers.find_flask_app(self.app)
         user = factories.Sysadmin()
         test_user_obj = model.User.by_name(user['name'])
 
-        with flask_app.test_request_context('/api/action/status_show'):
+        with self.flask_app.app_context():
             self.app.get(
-                '/api/action/status_show',
+                '/simple_flask',
                 extra_environ={'REMOTE_USER': user['name'].encode('ascii')},)
-            eq_(c.user, user['name'])
-            eq_(c.userobj, test_user_obj)
-            eq_(c.author, user['name'])
-            eq_(c.remote_addr, 'Unknown IP Address')
+            eq_(flask.g.user, user['name'])
+            eq_(flask.g.userobj, test_user_obj)
+            eq_(flask.g.author, user['name'])
+            eq_(flask.g.remote_addr, 'Unknown IP Address')
 
 
 class TestPylonsUserIdentifiedInRequest(helpers.FunctionalTestBase):
