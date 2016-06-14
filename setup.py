@@ -165,6 +165,7 @@ entry_points = {
         'test_routing_plugin = ckan.tests.config.test_middleware:MockRoutingPlugin',
         'test_flash_plugin = ckan.tests.config.test_sessions:FlashMessagePlugin',
         'test_helpers_plugin = ckan.tests.lib.test_helpers:TestHelpersPlugin',
+        'test_simple_flask_plugin = ckan.tests.helpers:SimpleFlaskPlugin',
     ],
     'babel.extractors': [
         'ckan = ckan.lib.extract:extract_ckan',

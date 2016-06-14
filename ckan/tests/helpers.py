@@ -24,11 +24,13 @@ import webtest
 from pylons import config
 import nose.tools
 import mock
+from flask import Blueprint
 
 import ckan.lib.search as search
 import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
+import ckan.plugins as p
 
 
 try:
@@ -468,3 +470,26 @@ def find_flask_app(test_app):
               'a reference to the app they wrap?')
     else:
         return find_flask_app(app)
+
+
+class SimpleFlaskPlugin(p.SingletonPlugin):
+
+    '''
+    A simple extension that implements the Flask IBlueprint interface.
+
+    This is useful to test a route that we know will be served by Flask.
+    '''
+
+    p.implements(p.IBlueprint)
+
+    def flask_plugin_view(self):
+        return 'Hello World, this is served from a simple Flask extension.'
+
+    def get_blueprint(self):
+        # Create Blueprint for plugin
+        blueprint = Blueprint(self.name, self.__module__)
+        # Add plugin url rule to Blueprint object
+        blueprint.add_url_rule('/simple_flask', 'flask_plugin_view',
+                               self.flask_plugin_view)
+
+        return blueprint
