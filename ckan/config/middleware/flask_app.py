@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 import os
+import time
 import itertools
 
 from flask import Flask
@@ -96,11 +97,18 @@ def make_flask_stack(conf, **app_conf):
 
     @app.before_request
     def ckan_before_request():
+        c._request_timer = time.time()
         identify_user()
 
     @app.after_request
     def ckan_after_request(response):
         set_cors_headers_for_response(response)
+
+        # log time between before and after view
+        r_time = time.time() - c._request_timer
+        url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
+        log.info('{url} render time {r_time:.3f} seconds'.format(
+            url=url, r_time=r_time))
         return response
 
     # Template context processors
