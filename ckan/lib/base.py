@@ -26,7 +26,9 @@ import ckan.lib.app_globals as app_globals
 import ckan.plugins as p
 import ckan.model as model
 import ckan.lib.maintain as maintain
-from ckan.views import identify_user, set_cors_headers_for_response
+from ckan.views import (identify_user,
+                        set_cors_headers_for_response,
+                        check_session_cookie)
 
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
@@ -246,30 +248,7 @@ class BaseController(WSGIController):
         finally:
             model.Session.remove()
 
-        for cookie in request.cookies:
-            # Remove the ckan session cookie if not used e.g. logged out
-            if cookie == 'ckan' and not c.user:
-                # Check session for valid data (including flash messages)
-                # (DGU also uses session for a shopping basket-type behaviour)
-                is_valid_cookie_data = False
-                for key, value in session.items():
-                    if not key.startswith('_') and value:
-                        is_valid_cookie_data = True
-                        break
-                if not is_valid_cookie_data:
-                    if session.id:
-                        if not session.get('lang'):
-                            self.log.debug('No session data any more - '
-                                           'deleting session')
-                            self.log.debug('Session: %r', session.items())
-                            session.delete()
-                    else:
-                        response.delete_cookie(cookie)
-                        self.log.debug('No session data any more - '
-                                       'deleting session cookie')
-            # Remove auth_tkt repoze.who cookie if user not logged in.
-            elif cookie == 'auth_tkt' and not session.id:
-                response.delete_cookie(cookie)
+        check_session_cookie(response)
 
         return res
 
