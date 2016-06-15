@@ -534,7 +534,7 @@ def default_follow_dataset_schema():
 
 def member_schema():
     schema = {
-        'id': [not_missing, not_empty, group_id_or_name_exists, unicode],
+        'id': [not_missing, group_id_or_name_exists, unicode],
         'username': [not_missing, user_id_or_name_exists, unicode],
         'role': [not_missing, role_exists, unicode],
     }
