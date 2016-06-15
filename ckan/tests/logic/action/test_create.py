@@ -135,7 +135,7 @@ class TestResourceViewCreate(object):
 
     @classmethod
     def teardown_class(cls):
-
+        p.unload('image_view')
         helpers.reset_db()
 
     def setup(self):
