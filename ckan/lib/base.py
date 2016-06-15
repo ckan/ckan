@@ -274,10 +274,8 @@ class BaseController(WSGIController):
         return res
 
     def __after__(self, action, **params):
-        # Do we have CORS settings in config?
-        if config.get('ckan.cors.origin_allow_all') \
-                and request.headers.get('Origin'):
-            set_cors_headers_for_response(response)
+        set_cors_headers_for_response(response)
+
         r_time = time.time() - c.__timer
         url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
         log.info(' %s render time %.3f seconds' % (url, r_time))
