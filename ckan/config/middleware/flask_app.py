@@ -100,6 +100,7 @@ def make_flask_stack(conf, **app_conf):
     @app.before_request
     def ckan_before_request():
         c._request_timer = time.time()
+        app_globals.app_globals._check_uptodate()
         identify_user()
 
     @app.after_request
