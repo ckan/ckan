@@ -103,3 +103,17 @@ class SolrIndexer(plugins.SingletonPlugin):
                 object_hook=solr_datetime_decoder
             )
         )
+
+
+class SolrCloudIndexer(SolrIndexer):
+    """
+    An indexer for zookeeper/SolrCloud-backed Solr.
+
+    Two values are expected in your configuration:
+
+        - solr_url = the array of zookeeper domains
+        - solr_collection = the name of the solr collection to use
+    """
+    def _get_connection(self):
+        zookeeper = pysolr.Zookeeper(config['solr_url'])
+        return pysolr.SolrCloud(zookeeper, config['solr_collection'])
