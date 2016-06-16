@@ -130,13 +130,14 @@ class PackageController(base.BaseController):
         return pt
 
     def search(self):
-        from ckan.lib.search import SearchError, SearchQueryError
-
         package_type = self._guess_package_type()
 
         try:
-            context = {'model': model, 'user': c.user,
-                       'auth_user_obj': c.userobj}
+            context = {
+                'model': model,
+                'user': c.user,
+                'auth_user_obj': c.userobj
+            }
             check_access('site_read', context)
         except NotAuthorized:
             abort(403, _('Not authorized to see this page'))
@@ -199,101 +200,85 @@ class PackageController(base.BaseController):
 
         c.search_url_params = urlencode(_encode_params(params_nopage))
 
-        try:
-            c.fields = []
-            # c.fields_grouped will contain a dict of params containing
-            # a list of values eg {'tags':['tag1', 'tag2']}
-            c.fields_grouped = {}
-            search_extras = {}
-            fq = ''
-            for (param, value) in request.params.items():
-                if param not in ['q', 'page', 'sort'] \
-                        and len(value) and not param.startswith('_'):
-                    if not param.startswith('ext_'):
-                        c.fields.append((param, value))
-                        fq += ' %s:"%s"' % (param, value)
-                        if param not in c.fields_grouped:
-                            c.fields_grouped[param] = [value]
-                        else:
-                            c.fields_grouped[param].append(value)
+        c.fields = []
+        # c.fields_grouped will contain a dict of params containing
+        # a list of values eg {'tags':['tag1', 'tag2']}
+        c.fields_grouped = {}
+        search_extras = {}
+        fq = ''
+        for (param, value) in request.params.items():
+            if param not in ['q', 'page', 'sort'] \
+                    and len(value) and not param.startswith('_'):
+                if not param.startswith('ext_'):
+                    c.fields.append((param, value))
+                    fq += ' %s:"%s"' % (param, value)
+                    if param not in c.fields_grouped:
+                        c.fields_grouped[param] = [value]
                     else:
-                        search_extras[param] = value
-
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user, 'for_view': True,
-                       'auth_user_obj': c.userobj}
-
-            if package_type and package_type != 'dataset':
-                # Only show datasets of this particular type
-                fq += ' +dataset_type:{type}'.format(type=package_type)
-            else:
-                # Unless changed via config options, don't show non standard
-                # dataset types on the default search page
-                if not asbool(
-                        config.get('ckan.search.show_all_types', 'False')):
-                    fq += ' +dataset_type:dataset'
-
-            facets = OrderedDict()
-
-            default_facet_titles = {
-                'organization': _('Organizations'),
-                'groups': _('Groups'),
-                'tags': _('Tags'),
-                'res_format': _('Formats'),
-                'license_id': _('Licenses'),
-                }
-
-            for facet in g.facets:
-                if facet in default_facet_titles:
-                    facets[facet] = default_facet_titles[facet]
+                        c.fields_grouped[param].append(value)
                 else:
-                    facets[facet] = facet
+                    search_extras[param] = value
 
-            # Facet titles
-            for plugin in p.PluginImplementations(p.IFacets):
-                facets = plugin.dataset_facets(facets, package_type)
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user, 'for_view': True,
+                   'auth_user_obj': c.userobj}
 
-            c.facet_titles = facets
+        if package_type and package_type != 'dataset':
+            # Only show datasets of this particular type
+            fq += ' +dataset_type:{type}'.format(type=package_type)
+        else:
+            # Unless changed via config options, don't show non standard
+            # dataset types on the default search page
+            if not asbool(
+                    config.get('ckan.search.show_all_types', 'False')):
+                fq += ' +dataset_type:dataset'
 
-            data_dict = {
-                'q': q,
-                'fq': fq.strip(),
-                'facet.field': facets.keys(),
-                'rows': limit,
-                'start': (page - 1) * limit,
-                'sort': sort_by,
-                'extras': search_extras
+        facets = OrderedDict()
+
+        default_facet_titles = {
+            'organization': _('Organizations'),
+            'groups': _('Groups'),
+            'tags': _('Tags'),
+            'res_format': _('Formats'),
+            'license_id': _('Licenses'),
             }
 
-            query = get_action('package_search')(context, data_dict)
-            c.sort_by_selected = query['sort']
+        for facet in g.facets:
+            if facet in default_facet_titles:
+                facets[facet] = default_facet_titles[facet]
+            else:
+                facets[facet] = facet
 
-            c.page = h.Page(
-                collection=query['results'],
-                page=page,
-                url=pager_url,
-                item_count=query['count'],
-                items_per_page=limit
-            )
-            c.facets = query['facets']
-            c.search_facets = query['search_facets']
-            c.page.items = query['results']
-        except SearchQueryError, se:
-            # User's search parameters are invalid, in such a way that is not
-            # achievable with the web interface, so return a proper error to
-            # discourage spiders which are the main cause of this.
-            log.info('Dataset search query rejected: %r', se.args)
-            abort(400, _('Invalid search query: {error_message}')
-                  .format(error_message=str(se)))
-        except SearchError, se:
-            # May be bad input from the user, but may also be more serious like
-            # bad code causing a SOLR syntax error, or a problem connecting to
-            # SOLR
-            log.error('Dataset search error: %r', se.args)
-            c.query_error = True
-            c.facets = {}
-            c.search_facets = {}
-            c.page = h.Page(collection=[])
+        # Facet titles
+        for plugin in p.PluginImplementations(p.IFacets):
+            facets = plugin.dataset_facets(facets, package_type)
+
+        c.facet_titles = facets
+
+        data_dict = {
+            'q': q,
+            'fq': fq.strip(),
+            'facet.field': facets.keys(),
+            'rows': limit,
+            'start': (page - 1) * limit,
+            'sort': sort_by,
+            'extras': search_extras
+        }
+
+        query = get_action('package_search')(context, data_dict)
+        c.sort_by_selected = query['sort']
+
+        c.page = h.Page(
+            collection=query['results'],
+            page=page,
+            url=pager_url,
+            item_count=query['count'],
+            items_per_page=limit
+        )
+        c.facets = query['facets']
+        c.search_facets = query['search_facets']
+        c.page.items = query['results']
+
         c.search_facets_limits = {}
         for facet in c.search_facets.keys():
             try:

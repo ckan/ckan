@@ -1,9 +1,10 @@
-from pylons import config, cache
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from pylons import cache
 import sqlalchemy.exc
 
 import ckan.logic as logic
 import ckan.lib.maintain as maintain
-import ckan.lib.search as search
 import ckan.lib.base as base
 import ckan.model as model
 import ckan.lib.helpers as h
@@ -38,41 +39,37 @@ class HomeController(base.BaseController):
                 raise
 
     def index(self):
-        try:
-            # package search
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user, 'auth_user_obj': c.userobj}
-            data_dict = {
-                'q': '*:*',
-                'facet.field': g.facets,
-                'rows': 4,
-                'start': 0,
-                'sort': 'views_recent desc',
-                'fq': 'capacity:"public"'
-            }
-            query = logic.get_action('package_search')(
-                context, data_dict)
-            c.search_facets = query['search_facets']
-            c.package_count = query['count']
-            c.datasets = query['results']
+        # package search
+        context = {'model': model, 'session': model.Session,
+                   'user': c.user, 'auth_user_obj': c.userobj}
+        data_dict = {
+            'q': '*:*',
+            'facet.field': g.facets,
+            'rows': 4,
+            'start': 0,
+            'sort': 'views_recent desc',
+            'fq': 'capacity:"public"'
+        }
+        query = logic.get_action('package_search')(
+            context, data_dict)
+        c.search_facets = query['search_facets']
+        c.package_count = query['count']
+        c.datasets = query['results']
 
-            c.facets = query['facets']
-            maintain.deprecate_context_item(
-                'facets',
-                'Use `c.search_facets` instead.')
+        c.facets = query['facets']
+        maintain.deprecate_context_item(
+            'facets',
+            'Use `c.search_facets` instead.')
 
-            c.search_facets = query['search_facets']
+        c.search_facets = query['search_facets']
 
-            c.facet_titles = {
-                'organization': _('Organizations'),
-                'groups': _('Groups'),
-                'tags': _('Tags'),
-                'res_format': _('Formats'),
-                'license': _('Licenses'),
-            }
-
-        except search.SearchError:
-            c.package_count = 0
+        c.facet_titles = {
+            'organization': _('Organizations'),
+            'groups': _('Groups'),
+            'tags': _('Tags'),
+            'res_format': _('Formats'),
+            'license': _('Licenses'),
+        }
 
         if c.userobj and not c.userobj.email:
             url = h.url_for(controller='user', action='edit')

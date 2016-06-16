@@ -328,6 +328,7 @@ def _get_members(context, group, member_type):
 
 def get_group_dataset_counts():
     '''For all public groups, return their dataset counts, as a SOLR facet'''
+    return 0
     query = search.PackageSearchQuery()
     q = {'q': '+capacity:public',
          'fl': 'groups', 'facet.field': ['groups', 'owner_org'],

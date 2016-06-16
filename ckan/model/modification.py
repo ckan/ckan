@@ -1,7 +1,5 @@
 import logging
 
-from ckan.lib.search import SearchIndexError
-
 import ckan.plugins as plugins
 import domain_object
 import package as _package
@@ -84,11 +82,6 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 plugins.IDomainObjectModification):
             try:
                 observer.notify(entity, operation)
-            except SearchIndexError, search_error:
-                log.exception(search_error)
-                # Reraise, since it's pretty crucial to ckan if it can't index
-                # a dataset
-                raise
             except Exception, ex:
                 log.exception(ex)
                 # Don't reraise other exceptions since they are generally of
@@ -99,11 +92,6 @@ class DomainObjectModificationExtension(plugins.SingletonPlugin):
                 plugins.IDomainObjectModification):
             try:
                 observer.notify_after_commit(entity, operation)
-            except SearchIndexError, search_error:
-                log.exception(search_error)
-                # Reraise, since it's pretty crucial to ckan if it can't index
-                # a dataset
-                raise
             except Exception, ex:
                 log.exception(ex)
                 # Don't reraise other exceptions since they are generally of

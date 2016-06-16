@@ -29,7 +29,6 @@ entry_points = {
         'sysadmin = ckan.lib.cli:Sysadmin',
         'user = ckan.lib.cli:UserCmd',
         'dataset = ckan.lib.cli:DatasetCmd',
-        'search-index = ckan.lib.cli:SearchIndexCommand',
         'ratings = ckan.lib.cli:Ratings',
         'notify = ckan.lib.cli:Notification',
         'celeryd = ckan.lib.cli:Celery',
@@ -60,12 +59,7 @@ entry_points = {
         'group = ckan.forms.group:get_group_fieldset',
         'package_group = ckan.forms.group:get_package_group_fieldset',
     ],
-    'ckan.search': [
-        'sql = ckan.lib.search.sql:SqlSearchBackend',
-        'solr = ckan.lib.search.solr_backend:SolrSearchBackend',
-    ],
     'ckan.plugins': [
-        'synchronous_search = ckan.lib.search:SynchronousSearchPlugin',
         'stats = ckanext.stats.plugin:StatsPlugin',
         'publisher_form = ckanext.publisher_form.forms:PublisherForm',
         'publisher_dataset_form = ckanext.publisher_form.forms:PublisherDatasetForm',
@@ -86,6 +80,10 @@ entry_points = {
         'recline_map_view = ckanext.reclineview.plugin:ReclineMapView',
         'image_view = ckanext.imageview.plugin:ImageView',
         'webpage_view = ckanext.webpageview.plugin:WebPageView',
+        # Search indexer plugins.
+        'no_indexer = ckanext.search:NoIndexer',
+        'postgres_indexer = ckanext.search:PostgresIndexer',
+        'solr_indexer = ckanext.search.solr:SolrIndexer',
         # FIXME: Remove deprecated resource previews below. You should use the
         # versions as *_view instead.
         'text_preview = ckanext.textview.plugin:TextView',

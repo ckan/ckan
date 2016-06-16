@@ -2,9 +2,7 @@
 
 import uuid
 import logging
-import json
 import datetime
-import socket
 
 from pylons import config
 import sqlalchemy
@@ -86,7 +84,7 @@ def _activity_stream_get_filtered_users():
 def _package_list_with_resources(context, package_revision_list):
     package_list = []
     for package in package_revision_list:
-        result_dict = model_dictize.package_dictize(package,context)
+        result_dict = model_dictize.package_dictize(package, context)
         package_list.append(result_dict)
     return package_list
 
@@ -138,7 +136,7 @@ def package_list(context, data_dict):
     if offset:
         query = query.offset(offset)
 
-    ## Returns the first field in each result record
+    # Returns the first field in each result record
     return [r[0] for r in query.execute()]
 
 
@@ -162,12 +160,11 @@ def current_package_list_with_resources(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    model = context["model"]
     limit = data_dict.get('limit')
     offset = data_dict.get('offset', 0)
     user = context['user']
 
-    if not 'offset' in data_dict and 'page' in data_dict:
+    if 'offset' not in data_dict and 'page' in data_dict:
         log.warning('"page" parameter is deprecated.  '
                     'Use the "offset" parameter instead')
         page = data_dict['page']
@@ -591,11 +588,12 @@ def organization_list_for_user(context, data_dict):
     '''Return the organizations that the user has a given permission for.
 
     By default this returns the list of organizations that the currently
-    authorized user can edit, i.e. the list of organizations that the user is an
-    admin of.
+    authorized user can edit, i.e. the list of organizations that the user is
+    an admin of.
 
     Specifically it returns the list of organizations that the currently
-    authorized user has a given permission (for example: "manage_group") against.
+    authorized user has a given permission (for example: "manage_group")
+    against.
 
     When a user becomes a member of an organization in CKAN they're given a
     "capacity" (sometimes called a "role"), for example "member", "editor" or
@@ -851,7 +849,7 @@ def user_list(context, data_dict):
     # Filter deleted users
     query = query.filter(model.User.state != model.State.DELETED)
 
-    ## hack for pagination
+    # hack for pagination
     if context.get('return_query'):
         return query
 
@@ -878,7 +876,7 @@ def package_relationships_list(context, data_dict):
     :rtype: list of dictionaries
 
     '''
-    ##TODO needs to work with dictization layer
+    # TODO needs to work with dictization layer
     model = context['model']
     api = context.get('api_version')
 
@@ -909,8 +907,9 @@ def package_relationships_list(context, data_dict):
                        % (id, rel, id2))
 
     relationship_dicts = [
-        rel.as_dict(pkg1, ref_package_by=ref_package_by)
-        for rel in relationships]
+        rrel.as_dict(pkg1, ref_package_by=ref_package_by)
+        for rrel in relationships
+    ]
 
     return relationship_dicts
 
@@ -947,29 +946,6 @@ def package_show(context, data_dict):
     include_tracking = asbool(data_dict.get('include_tracking', False))
 
     package_dict = None
-    use_cache = (context.get('use_cache', True)
-                 and not 'revision_id' in context
-                 and not 'revision_date' in context)
-    if use_cache:
-        try:
-            search_result = search.show(name_or_id)
-        except (search.SearchError, socket.error):
-            pass
-        else:
-            use_validated_cache = 'schema' not in context
-            if use_validated_cache and 'validated_data_dict' in search_result:
-                package_json = search_result['validated_data_dict']
-                package_dict = json.loads(package_json)
-                package_dict_validated = True
-            else:
-                package_dict = json.loads(search_result['data_dict'])
-                package_dict_validated = False
-            metadata_modified = pkg.metadata_modified.isoformat()
-            search_metadata_modified = search_result['metadata_modified']
-            # solr stores less precice datetime,
-            # truncate to 22 charactors to get good enough match
-            if metadata_modified[:22] != search_metadata_modified[:22]:
-                package_dict = None
 
     if not package_dict:
         package_dict = model_dictize.package_dictize(pkg, context)
@@ -1046,8 +1022,13 @@ def resource_show(context, data_dict):
 
     pkg_dict = logic.get_action('package_show')(
         dict(context),
-        {'id': resource.package.id,
-        'include_tracking': asbool(data_dict.get('include_tracking', False))})
+        {
+            'id': resource.package.id,
+            'include_tracking': asbool(
+                data_dict.get('include_tracking', False)
+            )
+        }
+    )
 
     for resource_dict in pkg_dict['resources']:
         if resource_dict['id'] == id:
@@ -1100,7 +1081,7 @@ def resource_view_list(context, data_dict):
     context['resource'] = resource
     _check_access('resource_view_list', context, data_dict)
     q = model.Session.query(model.ResourceView).filter_by(resource_id=id)
-    ## only show views when there is the correct plugin enabled
+    # only show views when there is the correct plugin enabled
     resource_views = [
         resource_view for resource_view
         in q.order_by(model.ResourceView.order).all()
@@ -1123,6 +1104,7 @@ def resource_status_show(context, data_dict):
 
     try:
         import ckan.lib.celery_app as celery_app
+        assert celery_app
     except ImportError:
         return {'message': 'queue is not installed on this instance'}
 
@@ -1645,10 +1627,13 @@ def organization_autocomplete(context, data_dict):
     _check_access('organization_autocomplete', context, data_dict)
 
     q = data_dict['q']
-    limit = data_dict.get('limit', 20)
     model = context['model']
 
-    query = model.Group.search_by_name_or_title(q, group_type=None, is_org=True)
+    query = model.Group.search_by_name_or_title(
+        q,
+        group_type=None,
+        is_org=True
+    )
 
     organization_list = []
     for organization in query.all():
@@ -1777,164 +1762,33 @@ def package_search(context, data_dict):
         query cannot be changed.  CKAN always returns the matched datasets as
         dictionary objects.
     '''
-    # sometimes context['schema'] is None
-    schema = (context.get('schema') or
-              logic.schema.default_package_search_schema())
-    data_dict, errors = _validate(data_dict, schema, context)
-    # put the extras back into the data_dict so that the search can
-    # report needless parameters
-    data_dict.update(data_dict.get('__extras', {}))
-    data_dict.pop('__extras', None)
-    if errors:
-        raise ValidationError(errors)
-
-    model = context['model']
-    session = context['session']
-    user = context.get('user')
-
+    # Ensure the user/agent can call package_search.
     _check_access('package_search', context, data_dict)
 
-    # Move ext_ params to extras and remove them from the root of the search
-    # params, so they don't cause and error
-    data_dict['extras'] = data_dict.get('extras', {})
-    for key in [key for key in data_dict.keys() if key.startswith('ext_')]:
-        data_dict['extras'][key] = data_dict.pop(key)
+    # Load and validate the schema.
+    schema = (
+        context.get('schema') or
+        logic.schema.default_package_search_schema()
+    )
+    data_dict, errors = _validate(data_dict, schema, context)
 
-    # check if some extension needs to modify the search params
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        data_dict = item.before_search(data_dict)
+    # The new-style sort arguments should be a list of tuples in the form
+    # (<key>, <order>) where order is either desc or asc.
+    sort = data_dict.get('sort')
+    if sort and isinstance(sort, basestring):
+        sort = [
+            (k.strip(), o.strip()) for k, o in (
+                pair.strip().split(' ') for pair in sort.split(',')
+            )
+        ]
 
-    # the extension may have decided that it is not necessary to perform
-    # the query
-    abort = data_dict.get('abort_search', False)
-
-    if data_dict.get('sort') in (None, 'rank'):
-        data_dict['sort'] = 'score desc, metadata_modified desc'
-
-    results = []
-    if not abort:
-        if asbool(data_dict.get('use_default_schema')):
-            data_source = 'data_dict'
-        else:
-            data_source = 'validated_data_dict'
-        data_dict.pop('use_default_schema', None)
-        # return a list of package ids
-        data_dict['fl'] = 'id {0}'.format(data_source)
-
-        # If this query hasn't come from a controller that has set this flag
-        # then we should remove any mention of capacity from the fq and
-        # instead set it to only retrieve public datasets
-        fq = data_dict.get('fq', '')
-        if not context.get('ignore_capacity_check', False):
-            fq = ' '.join(p for p in fq.split(' ')
-                          if 'capacity:' not in p)
-            data_dict['fq'] = fq + ' capacity:"public"'
-
-        # Solr doesn't need 'include_drafts`, so pop it.
-        include_drafts = data_dict.pop('include_drafts', False)
-        fq = data_dict.get('fq', '')
-        if include_drafts:
-            user_id = authz.get_user_id_for_username(user, allow_none=True)
-            if authz.is_sysadmin(user):
-                data_dict['fq'] = fq + ' +state:(active OR draft)'
-            elif user_id:
-                # Query to return all active datasets, and all draft datasets
-                # for this user.
-                data_dict['fq'] = fq + \
-                    ' ((creator_user_id:{0} AND +state:(draft OR active))' \
-                    ' OR state:active)'.format(user_id)
-        elif not authz.is_sysadmin(user):
-            data_dict['fq'] = fq + ' +state:active'
-
-        # Pop these ones as Solr does not need them
-        extras = data_dict.pop('extras', None)
-
-        query = search.query_for(model.Package)
-        query.run(data_dict)
-
-        # Add them back so extensions can use them on after_search
-        data_dict['extras'] = extras
-
-        for package in query.results:
-            # get the package object
-            package_dict = package.get(data_source)
-            ## use data in search index if there
-            if package_dict:
-                # the package_dict still needs translating when being viewed
-                package_dict = json.loads(package_dict)
-                if context.get('for_view'):
-                    for item in plugins.PluginImplementations(
-                            plugins.IPackageController):
-                        package_dict = item.before_view(package_dict)
-                results.append(package_dict)
-            else:
-                log.error('No package_dict is coming from solr for package '
-                          'id %s', package['id'])
-
-        count = query.count
-        facets = query.facets
-    else:
-        count = 0
-        facets = {}
-        results = []
-
-    search_results = {
-        'count': count,
-        'facets': facets,
-        'results': results,
-        'sort': data_dict['sort']
-    }
-
-    # create a lookup table of group name to title for all the groups and
-    # organizations in the current search's facets.
-    group_names = []
-    for field_name in ('groups', 'organization'):
-        group_names.extend(facets.get(field_name, {}).keys())
-
-    groups = (session.query(model.Group.name, model.Group.title)
-                    .filter(model.Group.name.in_(group_names))
-                    .all()
-              if group_names else [])
-    group_titles_by_name = dict(groups)
-
-    # Transform facets into a more useful data structure.
-    restructured_facets = {}
-    for key, value in facets.items():
-        restructured_facets[key] = {
-            'title': key,
-            'items': []
-        }
-        for key_, value_ in value.items():
-            new_facet_dict = {}
-            new_facet_dict['name'] = key_
-            if key in ('groups', 'organization'):
-                display_name = group_titles_by_name.get(key_, key_)
-                display_name = display_name if display_name and display_name.strip() else key_
-                new_facet_dict['display_name'] = display_name
-            elif key == 'license_id':
-                license = model.Package.get_license_register().get(key_)
-                if license:
-                    new_facet_dict['display_name'] = license.title
-                else:
-                    new_facet_dict['display_name'] = key_
-            else:
-                new_facet_dict['display_name'] = key_
-            new_facet_dict['count'] = value_
-            restructured_facets[key]['items'].append(new_facet_dict)
-    search_results['search_facets'] = restructured_facets
-
-    # check if some extension needs to modify the search results
-    for item in plugins.PluginImplementations(plugins.IPackageController):
-        search_results = item.after_search(search_results, data_dict)
-
-    # After extensions have had a chance to modify the facets, sort them by
-    # display name.
-    for facet in search_results['search_facets']:
-        search_results['search_facets'][facet]['items'] = sorted(
-            search_results['search_facets'][facet]['items'],
-            key=lambda facet: facet['display_name'], reverse=True)
-
-    return search_results
+    # Run the actual search and return the results.
+    return search.query(
+        data_dict.get('q', '*'),
+        facets=data_dict.get('facet.field'),
+        limit=min(1000, int(data_dict.get('rows', 1000))),
+        sort=sort
+    )
 
 
 @logic.validate(logic.schema.default_resource_search_schema)

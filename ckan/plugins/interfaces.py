@@ -23,6 +23,7 @@ __all__ = [
     'IFacets',
     'IAuthenticator',
     'ITranslation',
+    'IIndexer',
     'IUploader'
 ]
 
@@ -1566,3 +1567,38 @@ class IUploader(Interface):
         :type id: string
 
         '''
+
+class IIndexer(Interface):
+    """
+    Extensions implementing this interface can implement custom indexing and
+    search methods, such as implmeneting support for ElasticSearch, Sphinx,
+    etc...
+    """
+    def index(self, package):
+        """
+        Indexes the provided package.
+        """
+
+    def query(self, search_query, facets=None, limit=1000, sort=None):
+        """
+        Search for `search_query`, optionally limited by `facets`, and return the
+        results.
+
+        :param search_query: The query to search on.
+        :param facets: The facets to filter on.
+        :param limit: The maximum number of results to return
+        :param sort: A list of tuples in the form `(<sort key>, <sort order>)`.
+        """
+
+    def reindex(self, cursor):
+        """
+        Reindex all of the packages returned by `cursor`, a package
+        interator.
+        """
+        for package in cursor:
+            self.index(package)
+
+    def remove(self, package):
+        """
+        Remove the given package from the search index.
+        """
