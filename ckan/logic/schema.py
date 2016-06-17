@@ -618,7 +618,7 @@ def create_schema_for_required_keys(keys):
     ''' helper function that creates a schema definition where
     each key from keys is validated against ``not_missing``.
     '''
-    schema = dict([(x, [not_missing]) for x in keys])
+    schema = {x: [not_missing] for x in keys}
     return schema
 
 
