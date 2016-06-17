@@ -310,7 +310,7 @@ class FeedController(base.BaseController):
                 search_params[param] = value
                 fq += ' %s:"%s"' % (param, value)
 
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
 
         limit = ITEMS_LIMIT
         data_dict = {
@@ -455,7 +455,7 @@ class FeedController(base.BaseController):
         Returns the constructed search-query dict, and the valid URL
         query parameters.
         """
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
 
         limit = ITEMS_LIMIT
         data_dict = {

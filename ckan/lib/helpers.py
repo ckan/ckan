@@ -1082,6 +1082,27 @@ class Page(paginate.Page):
 
 
 @core_helper
+def get_page_number(params, key='page', default=1):
+    '''
+    Return the page number from the provided params after verifying that it is
+    an positive integer.
+
+    If it fails it will abort the request with a 400 error.
+    '''
+    p = params.get(key, default)
+
+    try:
+        p = int(p)
+        if p < 1:
+            raise ValueError("Negative number not allowed")
+    except ValueError:
+        import ckan.lib.base as base
+        base.abort(400, ('"page" parameter must be a positive integer'))
+
+    return p
+
+
+@core_helper
 def get_display_timezone():
     ''' Returns a pytz timezone for the display_timezone setting in the
     configuration file or UTC if not specified.
