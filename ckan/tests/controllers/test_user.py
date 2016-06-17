@@ -174,7 +174,9 @@ class TestLogout(helpers.FunctionalTestBase):
 
     @helpers.change_config('ckan.root_path', '/my/prefix')
     def test_non_root_user_logout_url_redirect(self):
-        '''_logout url redirects to logged out page.
+        '''
+        _logout url redirects to logged out page with `ckan.root_path`
+        prefixed.
 
         Note: this doesn't test the actual logout of a logged in user, just
         the associated redirect.
@@ -183,10 +185,8 @@ class TestLogout(helpers.FunctionalTestBase):
 
         logout_url = url_for(controller='user', action='logout')
         logout_response = app.get(logout_url, status=302)
-        try:
-            final_response = helpers.webtest_maybe_follow(logout_response)
-        except Exception as e:
-            assert_true('/my/prefix/user/logout' in e.message)
+        assert_equal(logout_response.status_int, 302)
+        assert_true('/my/prefix/user/logout' in logout_response.location)
 
 
 class TestUser(helpers.FunctionalTestBase):
