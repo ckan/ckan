@@ -34,8 +34,6 @@ from ckan.common import json, _, ungettext, c, g, request, response
 
 log = logging.getLogger(__name__)
 
-PAGINATE_ITEMS_PER_PAGE = 50
-
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
