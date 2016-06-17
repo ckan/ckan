@@ -190,7 +190,8 @@ def make_changes(input_lines, new_sections, changes):
             for option in changes.get(section, 'add'):
                 write_option(option)
             options_to_edit_in_this_section = {option.key: option
-                 for option in changes.get(section, 'edit')}
+                                               for option
+                                               in changes.get(section, 'edit')}
             continue
         existing_option = parse_option_string(section, line)
         if not existing_option:
