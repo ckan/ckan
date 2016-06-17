@@ -6,6 +6,7 @@ import paste.fileapp
 from mock import patch
 from nose.tools import (
     assert_equal,
+    assert_in,
     assert_is_instance
 )
 from pyfakefs import fake_filesystem
@@ -19,7 +20,6 @@ import ckan.tests.factories as factories
 import ckan.tests.helpers as helpers
 import ckanext.example_iuploader.plugin as plugin
 
-assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 

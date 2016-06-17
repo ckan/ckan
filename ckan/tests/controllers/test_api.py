@@ -7,10 +7,9 @@ controller itself.
 import json
 
 from routes import url_for
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_in
 
 import ckan.tests.helpers as helpers
-from ckan.tests.helpers import assert_in
 from ckan.tests import factories
 from ckan import model
 

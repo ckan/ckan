@@ -22,23 +22,13 @@ This module is reserved for these very useful functions.
 import webtest
 from pylons import config
 import nose.tools
+from nose.tools import assert_in, assert_not_in
 import mock
 
 import ckan.lib.search as search
 import ckan.config.middleware
 import ckan.model as model
 import ckan.logic as logic
-
-
-try:
-    from nose.tools import assert_in, assert_not_in
-except ImportError:
-    # Python 2.6 doesn't have these, so define them here
-    def assert_in(a, b, msg=None):
-        assert a in b, msg or '%r was not in %r' % (a, b)
-
-    def assert_not_in(a, b, msg=None):
-        assert a not in b, msg or '%r was in %r' % (a, b)
 
 
 def reset_db():
