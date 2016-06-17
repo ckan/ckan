@@ -37,8 +37,6 @@ log = logging.getLogger(__name__)
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
 
-ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
-
 
 def abort(status_code=None, detail='', headers=None, comment=None):
     '''Abort the current request immediately by returning an HTTP exception.
