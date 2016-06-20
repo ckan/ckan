@@ -11,7 +11,7 @@
 import flask
 import pylons
 
-from flask.ext.babel import gettext as flask_gettext
+from flask_babel import gettext as flask_gettext
 from pylons.i18n import _ as pylons_gettext, ungettext
 
 from pylons import g, response

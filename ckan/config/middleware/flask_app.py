@@ -13,7 +13,7 @@ from flask.sessions import SessionInterface
 from werkzeug.exceptions import HTTPException
 
 from wsgi_party import WSGIParty, HighAndDry
-from flask.ext.babel import Babel
+from flask_babel import Babel
 from flask_debugtoolbar import DebugToolbarExtension
 from pylons import config
 
