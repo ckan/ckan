@@ -204,7 +204,7 @@ class Package(vdm.sqlalchemy.RevisionedObjectMixin,
         groups = [getattr(group, ref_group_by) for group in self.get_groups()]
         groups.sort()
         _dict['groups'] = groups
-        _dict['extras'] = dict([(key, value) for key, value in self.extras.items()])
+        _dict['extras'] = {key: value for key, value in self.extras.items()}
         _dict['ratings_average'] = self.get_average_rating()
         _dict['ratings_count'] = len(self.ratings)
         _dict['resources'] = [res.as_dict(core_columns_only=False) \

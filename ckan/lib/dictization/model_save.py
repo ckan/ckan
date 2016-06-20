@@ -157,10 +157,8 @@ def package_tag_list_save(tag_dicts, package, context):
                             for package_tag in
                             package.package_tag_all)
 
-    tag_package_tag_inactive = dict(
-        [ (tag,pt) for tag,pt in tag_package_tag.items() if
-            pt.state in ['deleted'] ]
-        )
+    tag_package_tag_inactive = {tag: pt for tag,pt in tag_package_tag.items() if
+            pt.state in ['deleted']}
 
     tag_name_vocab = set()
     tags = set()
