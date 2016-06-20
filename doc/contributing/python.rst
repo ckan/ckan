@@ -74,7 +74,7 @@ Imports
 Logging
 -------
 
-We use `the Python standard library's logging module <http://docs.python.org/2.6/library/logging.html>`_
+We use `the Python standard library's logging module <https://docs.python.org/2.7/library/logging.html>`_
 to log messages in CKAN, e.g.::
 
     import logging
