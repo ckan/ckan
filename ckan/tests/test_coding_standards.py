@@ -15,8 +15,6 @@ import os.path
 import re
 import subprocess
 
-import ckan.lib.util as util
-
 
 def test_building_the_docs():
     '''There should be no warnings or errors when building the Sphinx docs.
@@ -28,8 +26,12 @@ def test_building_the_docs():
 
     '''
     try:
-        output = util.check_output(
-            ['python', 'setup.py', 'build_sphinx', '--all-files', '--fresh-env'],
+        output = subprocess.check_output(
+            ['python',
+             'setup.py',
+             'build_sphinx',
+             '--all-files',
+             '--fresh-env'],
             stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as err:
         assert False, (

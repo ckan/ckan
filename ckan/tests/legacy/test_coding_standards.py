@@ -488,7 +488,6 @@ class TestPep8(object):
         'ckan/model/authz.py',
         'ckan/model/dashboard.py',
         'ckan/model/domain_object.py',
-        'ckan/model/extension.py',
         'ckan/model/follower.py',
         'ckan/model/group.py',
         'ckan/model/group_extra.py',

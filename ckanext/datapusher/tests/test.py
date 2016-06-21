@@ -4,7 +4,6 @@ import json
 import httpretty
 import httpretty.core
 import nose
-import sys
 import datetime
 
 import pylons
@@ -56,19 +55,12 @@ class HTTPrettyFix(httpretty.core.fakesock.socket):
 httpretty.core.fakesock.socket = HTTPrettyFix
 
 
-# avoid hanging tests https://github.com/gabrielfalcao/HTTPretty/issues/34
-if sys.version_info < (2, 7, 0):
-    import socket
-    socket.setdefaulttimeout(1)
-
-
 class TestDatastoreCreate(tests.WsgiAppCase):
     sysadmin_user = None
     normal_user = None
 
     @classmethod
     def setup_class(cls):
-
         wsgiapp = middleware.make_app(config['global_conf'], **config)
         cls.app = paste.fixture.TestApp(wsgiapp)
         if not tests.is_datastore_supported():
@@ -84,20 +76,11 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
 
-        # Httpretty crashes with Solr on Python 2.6,
-        # skip the tests
-        if (sys.version_info[0] == 2 and sys.version_info[1] == 6):
-            raise nose.SkipTest()
-
     @classmethod
     def teardown_class(cls):
         rebuild_all_dbs(cls.Session)
         p.unload('datastore')
         p.unload('datapusher')
-        # Reenable Solr indexing
-        if (sys.version_info[0] == 2 and sys.version_info[1] == 6
-                and not p.plugin_loaded('synchronous_search')):
-            p.load('synchronous_search')
 
     def test_create_ckan_resource_in_package(self):
         package = model.Package.get('annakarenina')

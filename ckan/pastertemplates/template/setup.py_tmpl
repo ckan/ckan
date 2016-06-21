@@ -43,7 +43,6 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
     ],
 

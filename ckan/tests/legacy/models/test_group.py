@@ -1,8 +1,11 @@
 # encoding: utf-8
 
-from ckan.tests.legacy import assert_equal, assert_in, assert_not_in, CreateTestData
+from nose.tools import assert_in, assert_not_in, assert_equal
+
+from ckan.tests.legacy import CreateTestData
 
 import ckan.model as model
+
 
 class TestGroup(object):
 

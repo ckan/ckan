@@ -3,16 +3,12 @@
 import datetime
 import hashlib
 import json
-import nose.tools
 import nose
+from nose.tools import assert_equal, assert_in, assert_not_in
 
 from pylons import config
 import ckan.lib.search as search
 import ckan.tests.helpers as helpers
-
-assert_equal = nose.tools.assert_equal
-assert_in = helpers.assert_in
-assert_not_in = helpers.assert_not_in
 
 
 class TestSearchIndex(object):

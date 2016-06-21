@@ -6,6 +6,7 @@ from nose.tools import (
     assert_not_equal,
     assert_raises,
     assert_true,
+    assert_in
 )
 
 from mock import patch, MagicMock
@@ -17,10 +18,8 @@ from ckan.lib import search
 
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
-from ckan.tests.helpers import assert_in
 
 
-assert_in = helpers.assert_in
 webtest_submit = helpers.webtest_submit
 submit_and_follow = helpers.submit_and_follow
 
