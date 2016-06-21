@@ -10,7 +10,7 @@
       <i class="icon-code"></i>
       {{ _("Embed") }}
     </a>
-    <p class="desc">{{ resource_view['description'] }}</p>
+    <p class="desc">{{ h.render_markdown(resource_view['description']) }}</p>
     <div class="m-top ckanext-datapreview">
       {% if not to_preview and h.resource_view_is_filterable(resource_view) %}
         {% snippet 'package/snippets/resource_view_filters.html', resource=resource %}
