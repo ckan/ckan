@@ -11,6 +11,7 @@ from flask import _request_ctx_stack
 from flask.ctx import _AppCtxGlobals
 from flask.sessions import SessionInterface
 from werkzeug.exceptions import HTTPException
+from werkzeug.routing import Rule
 
 from wsgi_party import WSGIParty, HighAndDry
 from flask_babel import Babel
@@ -51,6 +52,7 @@ def make_flask_stack(conf, **app_conf):
     app.debug = debug
     app.template_folder = os.path.join(root, 'templates')
     app.app_ctx_globals_class = CKAN_AppCtxGlobals
+    app.url_rule_class = CKAN_Rule
 
     # Do all the Flask-specific stuff before adding other middlewares
 
@@ -159,8 +161,7 @@ def make_flask_stack(conf, **app_conf):
     # Set up each iRoute extension as a Flask Blueprint
     for plugin in PluginImplementations(IBlueprint):
         if hasattr(plugin, 'get_blueprint'):
-            app.register_blueprint(plugin.get_blueprint(),
-                                   prioritise_rules=True)
+            app.register_extension_blueprint(plugin.get_blueprint())
 
     # Start other middleware
 
@@ -184,6 +185,15 @@ def make_flask_stack(conf, **app_conf):
     )
 
     return app
+
+
+class CKAN_Rule(Rule):
+
+    '''Custom Flask url_rule_class.'''
+
+    def __init__(self, *args, **kwargs):
+        self.ckan_core = True
+        super(CKAN_Rule, self).__init__(*args, **kwargs)
 
 
 class CKAN_AppCtxGlobals(_AppCtxGlobals):
@@ -232,36 +242,45 @@ class CKANFlask(Flask):
         Decides whether it can handle a request with the Flask app by
         matching the request environ against the route mapper
 
-        Returns (True, 'flask_app') if this is the case.
-        '''
+        Returns (True, 'flask_app', origin) if this is the case.
 
-        # TODO: identify matching urls as core or extension. This will depend
-        # on how we setup routing in Flask
+        `origin` can be either 'core' or 'extension' depending on where
+        the route was defined.
+        '''
 
         urls = self.url_map.bind_to_environ(environ)
         try:
-            endpoint, args = urls.match()
-            log.debug('Flask route match, endpoint: {0}, args: {1}'.format(
-                endpoint, args))
-            return (True, self.app_name)
+            rule, args = urls.match(return_rule=True)
+            origin = 'core'
+            if hasattr(rule, 'ckan_core') and not rule.ckan_core:
+                origin = 'extension'
+            log.debug('Flask route match, endpoint: {0}, args: {1}, '
+                      'origin: {2}'.format(rule.endpoint, args, origin))
+            return (True, self.app_name, origin)
         except HTTPException:
             raise HighAndDry()
 
-    def register_blueprint(self, blueprint, prioritise_rules=False, **options):
+    def register_extension_blueprint(self, blueprint, **kwargs):
         '''
+        This method should be used to register blueprints that come from
+        extensions, so there's an opportunity to add extension-specific
+        options.
+
         If prioritise_rules is True, add complexity to each url rule in the
         blueprint, to ensure they will override similar existing rules.
+
+        Sets the rule property `ckan_core` to False, to indicate that the rule
+        applies to an extension route.
         '''
+        self.register_blueprint(blueprint, **kwargs)
 
-        # Register the blueprint with the app.
-        super(CKANFlask, self).register_blueprint(blueprint, **options)
-        if prioritise_rules:
-            # Get the new blueprint rules
-            bp_rules = [v for k, v in self.url_map._rules_by_endpoint.items()
-                        if k.startswith(blueprint.name)]
-            bp_rules = list(itertools.chain.from_iterable(bp_rules))
+        # Get the new blueprint rules
+        bp_rules = [v for k, v in self.url_map._rules_by_endpoint.items()
+                    if k.startswith(blueprint.name)]
+        bp_rules = list(itertools.chain.from_iterable(bp_rules))
 
-            # This compare key will ensure the rule will be near the top.
-            top_compare_key = False, -100, [(-2, 0)]
-            for r in bp_rules:
-                r.match_compare_key = lambda: top_compare_key
+        # This compare key will ensure the rule will be near the top.
+        top_compare_key = False, -100, [(-2, 0)]
+        for r in bp_rules:
+            r.ckan_core = False
+            r.match_compare_key = lambda: top_compare_key
