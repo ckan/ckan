@@ -63,7 +63,8 @@ class DatapusherCommand(cli.CkanCommand):
 
     def _submit_all_packages(self):
         # submit every package
-        # for each package in the package list, submit each resource w/ _submit_package
+        # for each package in the package list,
+        #   submit each resource w/ _submit_package
         import ckan.model as model
         package_list = p.toolkit.get_action('package_list')
         for p_id in package_list({'model': model, 'ignore_auth': True}, {}):
