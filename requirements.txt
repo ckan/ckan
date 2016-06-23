@@ -38,7 +38,6 @@ pytz==2016.4
 pyutilib.component.core==4.6.4
 repoze.lru==0.6           # via routes
 repoze.who-friendlyform==1.0.8
-<<<<<<< HEAD
 repoze.who==2.3
 requests==2.10.0
 Routes==1.13              # via pylons
