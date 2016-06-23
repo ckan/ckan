@@ -104,7 +104,7 @@ class TestAppDispatcherPlain(object):
             assert mock_can_handle_request.called_with(environ)
 
 
-class TestAppDispatcher(helpers.FunctionalTestBase):
+class TestAppDispatcherAskAround(helpers.FunctionalTestBase):
 
     def test_ask_around_is_called(self):
 
@@ -151,8 +151,9 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         # the same name, so we get two positive answers
         eq_(len(answers), 2)
         eq_([a[0] for a in answers], [True, True])
-        eq_(sorted([a[1] for a in answers]), ['flask_app', 'pylons_app'])
-        # TODO: check origin (core/extension) when that is in place
+        # Check the app and origin
+        eq_(sorted([(a[1], a[2]) for a in answers]), [('flask_app', 'core'),
+                                                      ('pylons_app', 'core')])
 
     def test_ask_around_flask_core_route_post(self):
 
@@ -174,8 +175,9 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         # the same name, so we get two positive answers
         eq_(len(answers), 2)
         eq_([a[0] for a in answers], [True, True])
-        eq_(sorted([a[1] for a in answers]), ['flask_app', 'pylons_app'])
-        # TODO: check origin (core/extension) when that is in place
+        # Check the app and origin
+        eq_(sorted([(a[1], a[2]) for a in answers]), [('flask_app', 'core'),
+                                                      ('pylons_app', 'core')])
 
     def test_ask_around_pylons_core_route_get(self):
 
@@ -327,8 +329,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         if not p.plugin_loaded('test_routing_plugin'):
             p.load('test_routing_plugin')
             plugin = p.get_plugin('test_routing_plugin')
-            flask_app.register_blueprint(plugin.get_blueprint(),
-                                         prioritise_rules=True)
+            flask_app.register_extension_blueprint(plugin.get_blueprint())
 
         # We want our CKAN app, not the WebTest one
         app = app.app
@@ -345,23 +346,39 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
         eq_(len(answers), 2)
         eq_([a[0] for a in answers], [True, True])
         eq_([a[1] for a in answers], ['flask_app', 'pylons_app'])
-
-        # TODO: we still can't distinguish between Flask core and extension
-        # eq_(answers[0][2], 'extension')
-
-        eq_(answers[1][2], 'extension')
+        eq_([a[2] for a in answers], ['extension', 'extension'])
 
         p.unload('test_routing_plugin')
+
+
+class TestAppDispatcher(helpers.FunctionalTestBase):
 
     def test_flask_core_route_is_served_by_flask(self):
 
         app = self._get_test_app()
 
-        res = app.get('/hello')
+        # api served from core flask
+        res = app.get('/api/action/status_show')
 
         eq_(res.environ['ckan.app'], 'flask_app')
 
-    # TODO: test flask extension route
+    def test_flask_extension_route_is_served_by_flask(self):
+
+        app = self._get_test_app()
+        flask_app = helpers.find_flask_app(app)
+
+        # Install plugin and register its blueprint
+        if not p.plugin_loaded('test_simple_flask_plugin'):
+            p.load('test_simple_flask_plugin')
+            plugin = p.get_plugin('test_simple_flask_plugin')
+            flask_app.register_extension_blueprint(plugin.get_blueprint())
+
+        # api served from extension flask
+        res = app.get('/simple_flask')
+
+        eq_(res.environ['ckan.app'], 'flask_app')
+
+        p.unload('test_simple_flask_plugin')
 
     def test_pylons_core_route_is_served_by_pylons(self):
 
@@ -392,7 +409,7 @@ class TestAppDispatcher(helpers.FunctionalTestBase):
 
         app = self._get_test_app()
 
-        res = app.get('/pylons_and_flask')
+        res = app.get('/hello')
 
         eq_(res.environ['ckan.app'], 'pylons_app')
         eq_(res.body, 'Hello World, this is served from a Pylons extension')
@@ -426,8 +443,7 @@ class TestFlaskUserIdentifiedInRequest(helpers.FunctionalTestBase):
         if not p.plugin_loaded('test_simple_flask_plugin'):
             p.load('test_simple_flask_plugin')
             plugin = p.get_plugin('test_simple_flask_plugin')
-            cls.flask_app.register_blueprint(plugin.get_blueprint(),
-                                             prioritise_rules=True)
+            cls.flask_app.register_extension_blueprint(plugin.get_blueprint())
 
     @classmethod
     def teardown_class(cls):
@@ -575,10 +591,13 @@ class MockRoutingPlugin(p.SingletonPlugin):
         _map.connect('/from_pylons_extension_before_map_post_only',
                      controller=self.controller, action='view',
                      conditions={'method': 'POST'})
-        # This one conflicts with a core Flask route
+        # This one conflicts with an extension Flask route
         _map.connect('/pylons_and_flask',
                      controller=self.controller, action='view')
 
+        # This one conflicts with a core Flask route
+        _map.connect('/hello',
+                     controller=self.controller, action='view')
         return _map
 
     def after_map(self, _map):

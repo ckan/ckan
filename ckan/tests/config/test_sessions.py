@@ -28,8 +28,7 @@ class TestCrossFlaskPylonsFlashMessages(helpers.FunctionalTestBase):
         if not p.plugin_loaded('test_flash_plugin'):
             p.load('test_flash_plugin')
             plugin = p.get_plugin('test_flash_plugin')
-            self.flask_app.register_blueprint(plugin.get_blueprint(),
-                                              prioritise_rules=True)
+            self.flask_app.register_extension_blueprint(plugin.get_blueprint())
 
     def test_flash_populated_by_flask_redirect_to_flask(self):
         '''

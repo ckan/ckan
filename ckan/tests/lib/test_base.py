@@ -174,8 +174,7 @@ class TestCORSFlask(helpers.FunctionalTestBase):
         if not p.plugin_loaded('test_simple_flask_plugin'):
             p.load('test_simple_flask_plugin')
             plugin = p.get_plugin('test_simple_flask_plugin')
-            flask_app.register_blueprint(plugin.get_blueprint(),
-                                         prioritise_rules=True)
+            flask_app.register_extension_blueprint(plugin.get_blueprint())
 
     @classmethod
     def teardown_class(cls):

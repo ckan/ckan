@@ -32,5 +32,5 @@ unicodecsv>=0.9
 pytz==2016.4
 tzlocal==1.2.2
 wsgi-party==0.1b1
-Flask==0.10.1
+Flask==0.11.1
 Flask-Babel==0.10.0
