@@ -16,8 +16,7 @@ class TestFlaskIBlueprint(helpers.FunctionalTestBase):
         if not plugins.plugin_loaded('example_flask_iblueprint'):
             plugins.load('example_flask_iblueprint')
             plugin = plugins.get_plugin('example_flask_iblueprint')
-            flask_app.register_blueprint(plugin.get_blueprint(),
-                                         prioritise_rules=True)
+            flask_app.register_extension_blueprint(plugin.get_blueprint())
 
     def test_plugin_route(self):
         '''Test extension sets up a unique route.'''
