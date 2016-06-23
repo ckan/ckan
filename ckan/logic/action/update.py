@@ -385,22 +385,23 @@ def _update_package_relationship(relationship, comment, context):
                                     ref_package_by=ref_package_by)
     return rel_dict
 
+
 def package_relationship_update(context, data_dict):
     '''Update a relationship between two datasets (packages).
 
+    The subject, object and type parameters are required to identify the
+    relationship. Only the comment can be updated.
+
     You must be authorized to edit both the subject and the object datasets.
 
-    :param id: the id of the package relationship to update
-    :type id: string
     :param subject: the name or id of the dataset that is the subject of the
-        relationship (optional)
+        relationship
     :type subject: string
     :param object: the name or id of the dataset that is the object of the
-        relationship (optional)
+        relationship
     :param type: the type of the relationship, one of ``'depends_on'``,
         ``'dependency_of'``, ``'derives_from'``, ``'has_derivation'``,
         ``'links_to'``, ``'linked_from'``, ``'child_of'`` or ``'parent_of'``
-        (optional)
     :type type: string
     :param comment: a comment about the relationship (optional)
     :type comment: string
@@ -410,7 +411,8 @@ def package_relationship_update(context, data_dict):
 
     '''
     model = context['model']
-    schema = context.get('schema') or schema_.default_update_relationship_schema()
+    schema = context.get('schema') \
+        or schema_.default_update_relationship_schema()
 
     id, id2, rel = _get_or_bust(data_dict, ['subject', 'object', 'type'])
 
