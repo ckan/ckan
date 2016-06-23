@@ -129,10 +129,11 @@ def make_flask_stack(conf, **app_conf):
         response = set_cors_headers_for_response(response)
 
         # log time between before and after view
-        r_time = time.time() - c._request_timer
-        url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
-        log.info('{url} render time {r_time:.3f} seconds'.format(
-            url=url, r_time=r_time))
+        if request.environ.get('CKAN_CURRENT_URL'):
+            r_time = time.time() - c._request_timer
+            url = request.environ['CKAN_CURRENT_URL'].split('?')[0]
+            log.info('{url} render time {r_time:.3f} seconds'.format(
+                url=url, r_time=r_time))
         return response
 
     # Template context processors
