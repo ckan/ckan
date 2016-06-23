@@ -22,6 +22,7 @@ from pylons import config
 from beaker.middleware import SessionMiddleware
 from repoze.who.config import WhoConfig
 from repoze.who.middleware import PluggableAuthenticationMiddleware
+from fanstatic import Fanstatic
 
 import ckan.lib.app_globals as app_globals
 from ckan.lib import jinja_extensions
@@ -183,6 +184,25 @@ def make_flask_stack(conf, **app_conf):
             app.register_extension_blueprint(plugin.get_blueprint())
 
     # Start other middleware
+
+    # Fanstatic
+    if debug:
+        fanstatic_config = {
+            'versioning': True,
+            'recompute_hashes': True,
+            'minified': False,
+            'bottom': True,
+            'bundle': False,
+        }
+    else:
+        fanstatic_config = {
+            'versioning': True,
+            'recompute_hashes': False,
+            'minified': True,
+            'bottom': True,
+            'bundle': True,
+        }
+    app = Fanstatic(app, **fanstatic_config)
 
     # Initialize repoze.who
     who_parser = WhoConfig(conf['here'])

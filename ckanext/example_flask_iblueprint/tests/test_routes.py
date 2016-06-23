@@ -36,6 +36,15 @@ class TestFlaskIBlueprint(helpers.FunctionalTestBase):
 
         ok_('Hello World, this is served from an extension, overriding the flask url.' in res.body)
 
+    def test_plugin_route_core_flask_override_with_template(self):
+        '''
+        Test extension overrides a python core route, rendering a core
+        template (home/about.html).
+        '''
+        res = self.app.get('/about_core')
+
+        ok_('<title>About - CKAN</title>' in res.body)
+
     def test_plugin_route_with_helper(self):
         '''
         Test extension rendering with a helper method that exists shouldn't
