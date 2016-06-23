@@ -55,8 +55,10 @@ from ckan.logic.validators import (
     resource_id_exists,
     tag_not_in_vocabulary,
     group_id_exists,
+    group_id_or_name_exists,
     owner_org_validator,
     user_name_exists,
+    user_id_or_name_exists,
     role_exists,
     datasets_with_no_organization_cannot_be_private,
     list_of_strings,
@@ -76,7 +78,7 @@ def default_resource_schema():
         'id': [ignore_empty, unicode],
         'revision_id': [ignore_missing, unicode],
         'package_id': [ignore],
-        'url': [not_empty, unicode, remove_whitespace],
+        'url': [ignore_missing, unicode, remove_whitespace],
         'description': [ignore_missing, unicode],
         'format': [if_empty_guess_format, ignore_missing, clean_format,
                    unicode],
@@ -532,9 +534,9 @@ def default_follow_dataset_schema():
 
 def member_schema():
     schema = {
-        'id': [group_id_exists, unicode],
-        'username': [user_name_exists, unicode],
-        'role': [role_exists, unicode],
+        'id': [not_missing, group_id_or_name_exists, unicode],
+        'username': [not_missing, user_id_or_name_exists, unicode],
+        'role': [not_missing, role_exists, unicode],
     }
     return schema
 
@@ -616,7 +618,7 @@ def create_schema_for_required_keys(keys):
     ''' helper function that creates a schema definition where
     each key from keys is validated against ``not_missing``.
     '''
-    schema = dict([(x, [not_missing]) for x in keys])
+    schema = {x: [not_missing] for x in keys}
     return schema
 
 

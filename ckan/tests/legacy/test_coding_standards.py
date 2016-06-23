@@ -566,7 +566,6 @@ class TestPep8(object):
         'ckan/tests/legacy/lib/test_email_notifications.py',
         'ckan/tests/legacy/lib/test_hash.py',
         'ckan/tests/legacy/lib/test_helpers.py',
-        'ckan/tests/legacy/lib/test_i18n.py',
         'ckan/tests/legacy/lib/test_mailer.py',
         'ckan/tests/legacy/lib/test_munge.py',
         'ckan/tests/legacy/lib/test_navl.py',
@@ -779,7 +778,7 @@ class TestActionAuth(object):
     def process(cls):
         def get_functions(module_root):
             fns = {}
-            for auth_module_name in ['get', 'create', 'update', 'delete']:
+            for auth_module_name in ['get', 'create', 'update', 'delete', 'patch']:
                 module_path = '%s.%s' % (module_root, auth_module_name,)
                 try:
                     module = __import__(module_path)

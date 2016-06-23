@@ -8,6 +8,7 @@ from pylons import config
 
 from ckan.common import _
 
+
 class Missing(object):
     def __unicode__(self):
         raise Invalid(_('Missing value'))

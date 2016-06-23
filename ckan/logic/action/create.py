@@ -5,6 +5,7 @@
 import logging
 import random
 import re
+from socket import error as socket_error
 
 from pylons import config
 import paste.deploy.converters
@@ -278,7 +279,8 @@ def resource_create(context, data_dict):
     user = context['user']
 
     package_id = _get_or_bust(data_dict, 'package_id')
-    _get_or_bust(data_dict, 'url')
+    if not data_dict.get('url'):
+        data_dict['url'] = ''
 
     pkg_dict = _get_action('package_show')(
         dict(context, return_type='dict'),
@@ -314,6 +316,16 @@ def resource_create(context, data_dict):
     ##  Run package show again to get out actual last_resource
     updated_pkg_dict = _get_action('package_show')(context, {'id': package_id})
     resource = updated_pkg_dict['resources'][-1]
+
+    ##  Add the default views to the new resource
+    logic.get_action('resource_create_default_resource_views')(
+        {'model': context['model'],
+         'user': context['user'],
+         'ignore_auth': True
+         },
+        {'resource': resource,
+         'package': updated_pkg_dict
+         })
 
     for plugin in plugins.PluginImplementations(plugins.IResourceController):
         plugin.after_create(context, resource)
@@ -1030,8 +1042,17 @@ def user_invite(context, data_dict):
         _get_action('group_member_create')(context, member_dict)
         group_dict = _get_action('group_show')(context,
                                                {'id': data['group_id']})
+    try:
+        mailer.send_invite(user, group_dict, data['role'])
+    except (socket_error, mailer.MailerException) as error:
+        # Email could not be sent, delete the pending user
 
-    mailer.send_invite(user, group_dict, data['role'])
+        _get_action('user_delete')(context, {'id': user.id})
+
+        msg = _('Error sending the invite email, ' +
+                'the user was not created: {0}').format(error)
+        raise ValidationError({'message': msg}, error_summary=msg)
+
     return model_dictize.user_dictize(user, context)
 
 
@@ -1351,6 +1372,9 @@ def _group_or_org_member_create(context, data_dict, is_org=False):
 
     schema = ckan.logic.schema.member_schema()
     data, errors = _validate(data_dict, schema, context)
+    if errors:
+        model.Session.rollback()
+        raise ValidationError(errors)
 
     username = _get_or_bust(data_dict, 'username')
     role = data_dict.get('role')

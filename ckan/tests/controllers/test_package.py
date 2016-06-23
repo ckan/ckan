@@ -41,6 +41,48 @@ class TestPackageNew(helpers.FunctionalTestBase):
         env, response = _get_package_new_page(app)
         assert_true('dataset-edit' in response.forms)
 
+    @helpers.change_config('ckan.auth.create_unowned_dataset', 'false')
+    def test_needs_organization_but_no_organizations_has_button(self):
+        ''' Scenario: The settings say every dataset needs an organization
+        but there are no organizations. If the user is allowed to create an
+        organization they should be prompted to do so when they try to create
+        a new dataset'''
+        app = self._get_test_app()
+        sysadmin = factories.Sysadmin()
+
+        env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
+        response = app.get(
+            url=url_for(controller='package', action='new'),
+            extra_environ=env
+        )
+        assert 'dataset-edit' not in response.forms
+        assert url_for(controller='organization', action='new') in response
+
+    @helpers.mock_auth('ckan.logic.auth.create.package_create')
+    @helpers.change_config('ckan.auth.create_unowned_dataset', 'false')
+    @helpers.change_config('ckan.auth.user_create_organizations', 'false')
+    def test_needs_organization_but_no_organizations_no_button(self,
+                                                               mock_p_create):
+        ''' Scenario: The settings say every dataset needs an organization
+        but there are no organizations. If the user is not allowed to create an
+        organization they should be told to ask the admin but no link should be
+        presented. Note: This cannot happen with the default ckan and requires
+        a plugin to overwrite the package_create behavior'''
+        mock_p_create.return_value = {'success': True}
+
+        app = self._get_test_app()
+        user = factories.User()
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        response = app.get(
+            url=url_for(controller='package', action='new'),
+            extra_environ=env
+        )
+
+        assert 'dataset-edit' not in response.forms
+        assert url_for(controller='organization', action='new') not in response
+        assert 'Ask a system administrator' in response
+
     def test_name_required(self):
         app = self._get_test_app()
         env, response = _get_package_new_page(app)

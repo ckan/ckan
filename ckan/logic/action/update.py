@@ -60,6 +60,8 @@ def resource_update(context, data_dict):
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, "id")
+    if not data_dict.get('url'):
+        data_dict['url'] = ''
 
     resource = model.Resource.get(id)
     context["resource"] = resource
@@ -304,13 +306,6 @@ def package_update(context, data_dict):
         item.edit(pkg)
 
         item.after_update(context, data)
-
-    # Create default views for resources if necessary
-    if data.get('resources'):
-        logic.get_action('package_create_default_resource_views')(
-            {'model': context['model'], 'user': context['user'],
-             'ignore_auth': True},
-            {'package': data})
 
     if not context.get('defer_commit'):
         model.repo.commit()
