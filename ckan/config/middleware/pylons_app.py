@@ -19,8 +19,6 @@ from fanstatic import Fanstatic
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
 import ckan.lib.uploader as uploader
-from ckan.config.environment import load_environment
-import ckan.lib.app_globals as app_globals
 from ckan.config.middleware import common_middleware
 
 import logging
@@ -50,13 +48,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
         defaults to main).
 
     """
-    # Configure the Pylons environment
-    load_environment(conf, app_conf)
-
     # The Pylons WSGI app
     app = PylonsApp()
-    # set pylons globals
-    app_globals.reset()
 
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
@@ -71,7 +64,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     # app = QueueLogMiddleware(app)
-    if asbool(config.get('ckan.use_pylons_response_cleanup_middleware', True)):
+    if asbool(config.get('ckan.use_pylons_response_cleanup_middleware',
+                         True)):
         app = execute_on_completion(app, config,
                                     cleanup_pylons_response_string)
 
@@ -137,11 +131,13 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
 
     if asbool(static_files):
         # Serve static files
-        static_max_age = None if not asbool(config.get('ckan.cache_enabled')) \
+        static_max_age = None if not asbool(
+            config.get('ckan.cache_enabled')) \
             else int(config.get('ckan.static_max_age', 3600))
 
-        static_app = StaticURLParser(config['pylons.paths']['static_files'],
-                                     cache_max_age=static_max_age)
+        static_app = StaticURLParser(
+            config['pylons.paths']['static_files'],
+            cache_max_age=static_max_age)
         static_parsers = [static_app, app]
 
         storage_directory = uploader.get_storage_path()
@@ -159,7 +155,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
 
         # Configurable extra static file paths
         extra_static_parsers = []
-        for public_path in config.get('extra_public_paths', '').split(','):
+        for public_path in config.get(
+                'extra_public_paths', '').split(','):
             if public_path.strip():
                 extra_static_parsers.append(
                     StaticURLParser(public_path.strip(),

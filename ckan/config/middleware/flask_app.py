@@ -13,11 +13,15 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def make_flask_stack(conf):
+def make_flask_stack(conf, **app_conf):
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
 
     app = CKANFlask(__name__)
+
+    # Update Flask config with the CKAN values
+    app.config.update(conf)
+    app.config.update(app_conf)
 
     @app.route('/hello', methods=['GET'])
     def hello_world():
