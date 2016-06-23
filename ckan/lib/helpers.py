@@ -180,8 +180,9 @@ def get_site_protocol_and_host():
 def url_for(*args, **kw):
     '''Return the URL for an endpoint given some parameters.
 
-     This is a wrapper for :py:func:`flask.url_for` and
-    :py:func:`routes.url_for` that adds some extra features that CKAN needs.
+    This is a wrapper for :py:func:`flask.url_for`
+    and :py:func:`routes.url_for` that adds some extra features that CKAN
+    needs.
 
     To build a URL for a Flask view, pass the name of the blueprint and the
     view function separated by a period ``.``, plus any URL parameters::
@@ -190,7 +191,7 @@ def url_for(*args, **kw):
         # Returns /api/3/action/status_show
 
     For a fully qualified URL pass the ``_external=True`` parameter. This
-    takes the ``ckan.site_url`` and ``ckan.root_path`` settings into account.
+    takes the ``ckan.site_url`` and ``ckan.root_path`` settings into account::
 
         url_for('api.action', ver=3, logic_function='status_show',
                 _external=True)
