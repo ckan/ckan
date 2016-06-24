@@ -3,6 +3,7 @@
     "description": "CKAN is the world’s leading open-source data portal platform",
     "license": "AGPL",
     "dependencies": {
+        "jquery": "1.10.2",
         "bootstrap": "2.3.2",
         "fontawesome": "3.2.1"
     }
