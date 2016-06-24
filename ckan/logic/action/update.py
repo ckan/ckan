@@ -348,6 +348,7 @@ def package_update(context, data_dict):
     context_org_update = context.copy()
     context_org_update['ignore_auth'] = True
     context_org_update['defer_commit'] = True
+    context_org_update['add_revision'] = False
     _get_action('package_owner_org_update')(context_org_update,
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})
@@ -1171,6 +1172,7 @@ def package_owner_org_update(context, data_dict):
     :type id: string
     '''
     model = context['model']
+    user = context['user']
     name_or_id = data_dict.get('id')
     organization_id = data_dict.get('organization_id')
 
@@ -1190,10 +1192,17 @@ def package_owner_org_update(context, data_dict):
         org = None
         pkg.owner_org = None
 
+    if context.get('add_revision', True):
+        rev = model.repo.new_revision()
+        rev.author = user
+        if 'message' in context:
+            rev.message = context['message']
+        else:
+            rev.message = _(u'REST API: Update object %s') % pkg.get("name")
 
     members = model.Session.query(model.Member) \
-            .filter(model.Member.table_id == pkg.id) \
-            .filter(model.Member.capacity == 'organization')
+        .filter(model.Member.table_id == pkg.id) \
+        .filter(model.Member.capacity == 'organization')
 
     need_update = True
     for member_obj in members:
