@@ -4,6 +4,7 @@
     "license": "AGPL",
     "dependencies": {
         "jquery": "1.10.2",
+        "jquery-ui":"1.10.3",
         "bootstrap": "2.3.2",
         "fontawesome": "3.2.1"
     }
