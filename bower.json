@@ -9,6 +9,7 @@
         "bootstrap": "2.3.2",
         "fontawesome": "3.2.1",
         "select2":"3.4.8",
-        "moment": "2.10.3"
+        "moment": "2.10.3",
+        "jed": "0.5.0"
     }
 }

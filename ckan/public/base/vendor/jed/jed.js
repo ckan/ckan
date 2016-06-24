@@ -68,7 +68,9 @@ in order to offer easy upgrades -- jsgettext.berlios.de
     extend : function( obj ) {
       this.forEach( slice.call( arguments, 1 ), function ( source ) {
         for ( var prop in source ) {
-          obj[prop] = source[prop];
+          if (source[prop] !== void 0) {
+            obj[prop] = source[prop];
+          }
         }
       });
       return obj;
@@ -224,7 +226,7 @@ in order to offer easy upgrades -- jsgettext.berlios.de
       // Default the value to the singular case
       val = typeof val == 'undefined' ? 1 : val;
 
-      var fallback;
+      var fallack;
 
       // Handle special cases
 
