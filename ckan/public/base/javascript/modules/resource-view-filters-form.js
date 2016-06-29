@@ -10,7 +10,7 @@ ckan.module('resource-view-filters-form', function (jQuery) {
       width: 'resolve',
       minimumInputLength: 0,
       ajax: {
-        url: '/api/3/action/datastore_search',
+        url: ckan.url('/api/3/action/datastore_search'),
         datatype: 'json',
         quietMillis: 200,
         cache: true,
