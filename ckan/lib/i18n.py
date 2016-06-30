@@ -186,5 +186,4 @@ def set_lang(language_code):
     ''' Wrapper to pylons call '''
     if language_code in non_translated_locals():
         language_code = config.get('ckan.locale_default', 'en')
-    if language_code != 'en':
-        _set_lang(language_code)
+    _set_lang(language_code)

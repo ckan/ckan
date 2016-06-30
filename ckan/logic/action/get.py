@@ -1963,14 +1963,17 @@ def package_search(context, data_dict):
 
         count = query.count
         facets = query.facets
+        facet_ranges = query.facet_ranges
     else:
         count = 0
         facets = {}
+        facet_ranges = None
         results = []
 
     search_results = {
         'count': count,
         'facets': facets,
+        'facet_ranges': facet_ranges,
         'results': results,
         'sort': data_dict['sort']
     }

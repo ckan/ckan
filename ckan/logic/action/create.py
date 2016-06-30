@@ -23,6 +23,7 @@ import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
 
 from ckan.common import _
+from ckan import new_authz
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship

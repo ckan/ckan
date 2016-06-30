@@ -126,7 +126,6 @@ def redirect_to(*args, **kw):
         toolkit.redirect_to('dataset_read', id='changed')
 
     '''
-    kw['__ckan_no_root'] = True
     if are_there_flash_messages():
         kw['__no_cache__'] = True
     return _redirect_to(url_for(*args, **kw))
@@ -137,7 +136,29 @@ def url(*args, **kw):
     wrapper for pylons.url'''
     locale = kw.pop('locale', None)
     my_url = _pylons_default_url(*args, **kw)
-    return _add_i18n_to_url(my_url, locale=locale, **kw)
+    return _local_url(my_url, locale=locale, **kw)
+
+
+def get_site_protocol_and_host():
+    '''Return the protocol and host of the configured `ckan.site_url`.
+    This is needed to generate valid, full-qualified URLs.
+
+    If `ckan.site_url` is set like this::
+
+        ckan.site_url = http://example.com
+    
+    Then this function would return a tuple `('http', 'example.com')`
+    If the setting is missing, `(None, None)` is returned instead.
+
+    '''
+    site_url = config.get('ckan.site_url', None)
+    if site_url is not None:
+        parsed_url = urlparse.urlparse(site_url)
+        return (
+            parsed_url.scheme.encode('utf-8'),
+            parsed_url.netloc.encode('utf-8')
+        )
+    return (None, None)
 
 
 def get_site_protocol_and_host():
@@ -195,7 +216,7 @@ def url_for(*args, **kw):
         kw['protocol'], kw['host'] = get_site_protocol_and_host()
     my_url = _routes_default_url_for(*args, **kw)
     kw['__ckan_no_root'] = no_root
-    return _add_i18n_to_url(my_url, locale=locale, **kw)
+    return _local_url(my_url, locale=locale, **kw)
 
 
 def url_for_static(*args, **kw):
@@ -230,8 +251,10 @@ def url_for_static_or_external(*args, **kw):
 
     if args:
         args = (fix_arg(args[0]), ) + args[1:]
+    if kw.get('qualified', False):
+        kw['protocol'], kw['host'] = get_site_protocol_and_host()
     my_url = _routes_default_url_for(*args, **kw)
-    return my_url
+    return _local_url(my_url, locale='default', **kw)
 
 
 def is_url(*args, **kw):
@@ -249,7 +272,7 @@ def is_url(*args, **kw):
     return url.scheme in valid_schemes
 
 
-def _add_i18n_to_url(url_to_amend, **kw):
+def _local_url(url_to_amend, **kw):
     # If the locale keyword param is provided then the url is rewritten
     # using that locale .If return_to is provided this is used as the url
     # (as part of the language changing feature).
@@ -270,10 +293,8 @@ def _add_i18n_to_url(url_to_amend, **kw):
             default_locale = request.environ.get('CKAN_LANG_IS_DEFAULT', True)
         except TypeError:
             default_locale = True
-    try:
-        root = request.environ.get('SCRIPT_NAME', '')
-    except TypeError:
-        root = ''
+
+    root = ''
     if kw.get('qualified', False):
         # if qualified is given we want the full url ie http://...
         protocol, host = get_site_protocol_and_host()
@@ -296,19 +317,17 @@ def _add_i18n_to_url(url_to_amend, **kw):
         if root_path[-1] == '/':
             root_path = root_path[:-1]
 
-        url_path = url_to_amend[len(root):]
-        url = '%s%s%s' % (root, root_path, url_path)
     else:
         if default_locale:
-            url = url_to_amend
+            root_path = ''
         else:
-            # we need to strip the root from the url and the add it before
-            # the language specification.
-            url = url_to_amend[len(root):]
-            url = '%s/%s%s' % (root, locale, url)
+            root_path = '/' + str(locale)
+
+    url_path = url_to_amend[len(root):]
+    url = '%s%s%s' % (root, root_path, url_path)
 
     # stop the root being added twice in redirects
-    if no_root:
+    if no_root and url_to_amend.startswith(root):
         url = url_to_amend[len(root):]
         if not default_locale:
             url = '/%s%s' % (locale, url)
@@ -954,7 +973,7 @@ def gravatar(email_hash, size=100, default=None):
         default = urllib.quote(default, safe='')
 
     return literal('''<img src="//gravatar.com/avatar/%s?s=%d&amp;d=%s"
-        class="gravatar" width="%s" height="%s" />'''
+        class="gravatar" width="%s" height="%s" alt="" />'''
                    % (email_hash, size, default, size, size)
                    )
 
@@ -1169,8 +1188,8 @@ def button_attr(enable, type='primary'):
 
 def dataset_display_name(package_or_package_dict):
     if isinstance(package_or_package_dict, dict):
-        return package_or_package_dict.get('title', '') or \
-            package_or_package_dict.get('name', '')
+        return get_translated(package_or_package_dict, 'title') or \
+            get_translated(package_or_package_dict, 'name')
     else:
         return package_or_package_dict.title or package_or_package_dict.name
 
@@ -1189,8 +1208,8 @@ def dataset_link(package_or_package_dict):
 
 # TODO: (?) support resource objects as well
 def resource_display_name(resource_dict):
-    name = resource_dict.get('name', None)
-    description = resource_dict.get('description', None)
+    name = get_translated(resource_dict, 'name')
+    description = get_translated(resource_dict, 'description')
     if name:
         return name
     elif description:
@@ -1440,6 +1459,16 @@ def remove_url_param(key, value=None, replace=None, controller=None,
     return _create_url_with_params(params=params, controller=controller,
                                    action=action, extras=extras)
 
+def canonical_search_url():
+    ''' Return a url with all parameters removed except for the pagination parameter
+    This is useful for creating canonical urls for search pages, so that search engines do not
+    index many multiples of different search pages due to other search and faceting parameters
+    '''
+    try:
+        page_param = [(k, v) for k, v in request.params.items() if k == 'page']
+        return _search_url(page_param)
+    except ckan.exceptions.CkanUrlException:
+        return _search_url(None)
 
 def include_resource(resource):
     r = getattr(fanstatic_resources, resource)
@@ -2123,6 +2152,15 @@ def license_options(existing_license_id=None):
         for license_id in license_ids]
 
 
+def get_translated(data_dict, field):
+    language = i18n.get_lang()
+    try:
+        return data_dict[field+'_translated'][language]
+    except KeyError:
+        return data_dict.get(field, '')
+
+
+
 # these are the functions that will end up in `h` template helpers
 __allowed_functions__ = [
     # functions defined in ckan.lib.helpers
@@ -2188,6 +2226,7 @@ __allowed_functions__ = [
     'debug_full_info_as_list',
     'get_facet_title',
     'get_param_int',
+    'get_translated',
     'sorted_extras',
     'follow_button',
     'follow_count',

@@ -25,10 +25,8 @@ fi
 sudo service postgresql restart
 
 # Setup postgres' users and databases
-sudo -u postgres psql -c "CREATE USER ckan_default WITH PASSWORD 'pass';"
-sudo -u postgres psql -c "CREATE USER datastore_default WITH PASSWORD 'pass';"
-sudo -u postgres psql -c 'CREATE DATABASE ckan_test WITH OWNER ckan_default;'
-sudo -u postgres psql -c 'CREATE DATABASE datastore_test WITH OWNER ckan_default;'
+sudo -E -u postgres ./bin/postgres_init/1_create_ckan_db.sh
+sudo -E -u postgres ./bin/postgres_init/2_create_ckan_datastore_db.sh
 
 export PIP_USE_MIRRORS=true
 pip install -r requirements.txt --allow-all-external

@@ -25,6 +25,7 @@ import ckan.lib.app_globals as app_globals
 
 
 from ckan.common import _, request
+from ckan import new_authz
 
 log = logging.getLogger(__name__)
 
