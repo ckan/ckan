@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from sqlalchemy import *
 from sqlalchemy import types
 from migrate import *

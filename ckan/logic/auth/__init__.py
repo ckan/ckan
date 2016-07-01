@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 Helper functions to be used in the auth check functions
 '''

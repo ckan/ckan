@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from pylons import config
 
 import ckan.lib.base as base

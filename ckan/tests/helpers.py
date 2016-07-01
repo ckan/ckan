@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''This is a collection of helper functions for use in tests.
 
 We want to avoid sharing test helper functions between test modules as
@@ -188,6 +190,8 @@ class FunctionalTestBase(object):
     def setup(self):
         '''Reset the database and clear the search indexes.'''
         reset_db()
+        if hasattr(self, '_test_app'):
+            self._test_app.reset()
         search.clear_all()
 
     @classmethod
@@ -320,6 +324,53 @@ def change_config(key, value):
                 config.update(_original_config)
 
             return return_value
+        return nose.tools.make_decorator(func)(wrapper)
+    return decorator
+
+
+def mock_auth(auth_function_path):
+    '''
+    Decorator to easily mock a CKAN auth method in the context of a test
+     function
+
+    It adds a mock object for the provided auth_function_path as a parameter to
+     the test function.
+
+    Essentially it makes sure that `ckan.authz.clear_auth_functions_cache` is
+     called before and after to make sure that the auth functions pick up
+     the newly changed values.
+
+    Usage::
+
+        @helpers.mock_auth('ckan.logic.auth.create.package_create')
+        def test_mock_package_create(self, mock_package_create):
+            from ckan import logic
+            mock_package_create.return_value = {'success': True}
+
+            # package_create is mocked
+            eq_(logic.check_access('package_create', {}), True)
+
+            assert mock_package_create.called
+
+    :param action_name: the full path to the auth function to be mocked,
+        e.g. ``ckan.logic.auth.create.package_create``
+    :type action_name: string
+
+    '''
+    from ckan.authz import clear_auth_functions_cache
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+
+            try:
+                with mock.patch(auth_function_path) as mocked_auth:
+                    clear_auth_functions_cache()
+                    new_args = args + tuple([mocked_auth])
+                    return_value = func(*new_args, **kwargs)
+            finally:
+                clear_auth_functions_cache()
+            return return_value
+
         return nose.tools.make_decorator(func)(wrapper)
     return decorator
 

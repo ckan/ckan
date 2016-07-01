@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''Shared utility functions for any Python code to use.
 
 Unlike :py:mod:`ckan.lib.helpers`, the functions in this module are not

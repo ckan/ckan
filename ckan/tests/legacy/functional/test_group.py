@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import mock
 
 import ckan.model as model

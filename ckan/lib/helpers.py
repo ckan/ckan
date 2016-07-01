@@ -1,4 +1,4 @@
-# coding=UTF-8
+# encoding: utf-8
 
 '''Helper functions
 
@@ -54,8 +54,8 @@ class HelperAttributeDict(dict):
 
     def __getitem__(self, key):
         try:
-            value = super(HelperAttributeDict, self).__getitem__(self, key)
-        except AttributeError:
+            value = super(HelperAttributeDict, self).__getitem__(key)
+        except KeyError:
             raise ckan.exceptions.HelperError(
                 'Helper \'{key}\' has not been defined.'.format(
                     key=key
@@ -142,13 +142,13 @@ def redirect_to(*args, **kw):
     return _redirect_to(url_for(*args, **kw))
 
 
+@maintain.deprecated('h.url is deprecated please use h.url_for')
 @core_helper
 def url(*args, **kw):
-    '''Create url adding i18n information if selected
-    wrapper for pylons.url'''
-    locale = kw.pop('locale', None)
-    my_url = _pylons_default_url(*args, **kw)
-    return _local_url(my_url, locale=locale, **kw)
+    '''
+    Deprecated: please use `url_for` instead
+    '''
+    return url_for(*args, **kw)
 
 
 @core_helper
@@ -195,6 +195,8 @@ def url_for(*args, **kw):
 
     '''
     locale = kw.pop('locale', None)
+    if locale and isinstance(locale, i18n.Locale):
+        locale = i18n.get_identifier_from_locale_class(locale)
     # remove __ckan_no_root and add after to not pollute url
     no_root = kw.pop('__ckan_no_root', False)
     # routes will get the wrong url for APIs if the ver is not provided
@@ -483,7 +485,7 @@ def are_there_flash_messages():
 def _link_active(kwargs):
     ''' creates classes for the link_to calls '''
     highlight_actions = kwargs.get('highlight_actions',
-                                   kwargs.get('action', '')).split(' ')
+                                   kwargs.get('action', '')).split()
     return (c.controller == kwargs.get('controller')
             and c.action in highlight_actions)
 
@@ -718,7 +720,8 @@ def get_facet_items_dict(facet, limit=None, exclude_active=False):
             facets.append(dict(active=False, **facet_item))
         elif not exclude_active:
             facets.append(dict(active=True, **facet_item))
-    facets = sorted(facets, key=lambda item: item['count'], reverse=True)
+    # Sort descendingly by count and ascendingly by case-sensitive display name
+    facets.sort(key=lambda it: (-it['count'], it['display_name'].lower()))
     if c.search_facets_limits and limit is None:
         limit = c.search_facets_limits.get(facet)
     # zero treated as infinite for hysterical raisins
@@ -1036,7 +1039,7 @@ def pager_url(page, partial=None, **kwargs):
     if routes_dict.get('id'):
         kwargs['id'] = routes_dict['id']
     kwargs['page'] = page
-    return url(**kwargs)
+    return url_for(**kwargs)
 
 
 class Page(paginate.Page):
@@ -1578,40 +1581,6 @@ def debug_inspect(arg):
 
 
 @core_helper
-def debug_full_info_as_list(debug_info):
-    ''' This dumps the template variables for debugging purposes only. '''
-    out = []
-    ignored_keys = ['c', 'app_globals', 'g', 'h', 'request', 'tmpl_context',
-                    'actions', 'translator', 'session', 'N_', 'ungettext',
-                    'config', 'response', '_']
-    ignored_context_keys = ['__class__', '__context', '__delattr__',
-                            '__dict__',
-                            '__doc__', '__format__', '__getattr__',
-                            '__getattribute__', '__hash__', '__init__',
-                            '__module__', '__new__', '__reduce__',
-                            '__reduce_ex__', '__repr__', '__setattr__',
-                            '__sizeof__', '__str__', '__subclasshook__',
-                            '__weakref__', 'action', 'environ', 'pylons',
-                            'start_response']
-    debug_vars = debug_info['vars']
-    for key in debug_vars.keys():
-        if key not in ignored_keys:
-            data = pprint.pformat(debug_vars.get(key))
-            data = data.decode('utf-8')
-            out.append((key, data))
-
-    if 'tmpl_context' in debug_vars:
-        for key in debug_info['c_vars']:
-
-            if key not in ignored_context_keys:
-                data = pprint.pformat(getattr(debug_vars['tmpl_context'], key))
-                data = data.decode('utf-8')
-                out.append(('c.%s' % key, data))
-
-    return out
-
-
-@core_helper
 def popular(type_, number, min=1, title=None):
     ''' display a popular icon. '''
     if type_ == 'views':
@@ -1882,7 +1851,8 @@ def format_resource_items(items):
                 value = formatters.localised_number(float(value))
             elif re.search(reg_ex_int, value):
                 value = formatters.localised_number(int(value))
-        elif isinstance(value, int) or isinstance(value, float):
+        elif ((isinstance(value, int) or isinstance(value, float))
+                and value not in (True, False)):
             value = formatters.localised_number(value)
         key = key.replace('_', ' ')
         output.append((key, value))

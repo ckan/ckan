@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 These dictize functions generally take a domain object (such as Package) and
 convert it to a dictionary, including related objects (e.g. for Package it
@@ -113,7 +115,7 @@ def resource_dictize(res, context):
                                     resource_id=res.id,
                                     filename=cleaned_name,
                                     qualified=True)
-    elif not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
+    elif resource['url'] and not urlparse.urlsplit(url).scheme and not context.get('for_edit'):
         resource['url'] = u'http://' + url.lstrip('/')
     return resource
 

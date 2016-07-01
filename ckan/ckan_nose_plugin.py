@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.plugins import Plugin
 from inspect import isclass
 import hashlib
@@ -127,7 +129,7 @@ class CkanNose(Plugin):
 ##
 ##        testname = str(test)
 ##        #if ' ' in testname:
-##        #    testname = testname.split(' ')[1]
+##        #    testname = testname.split()[1]
 ##
 ##        f.write('%s,%s\n' % (testname, str(runtime)))
 ##

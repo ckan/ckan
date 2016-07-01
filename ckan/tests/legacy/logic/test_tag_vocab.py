@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckan.model as model
 import ckan.logic as logic
 import ckan.logic.converters as converters

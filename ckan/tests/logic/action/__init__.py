@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''**All action functions should have tests.**
 
 Most action function tests will be high-level tests that both test the code in

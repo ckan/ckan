@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import collections
 import csv
 import multiprocessing as mp

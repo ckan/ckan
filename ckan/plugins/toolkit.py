@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import sys
 
 
@@ -30,11 +32,11 @@ class _Toolkit(object):
         'render',
         # snippet render function
         'render_snippet',
-        # converts an object to a boolean
+        # converts a string to a boolean
         'asbool',
-        # converts an object to an integer
+        # converts a string to an integer
         'asint',
-        # converts an object to a list
+        # converts a string to a list
         'aslist',
         # stop tags in a string being escaped
         'literal',
@@ -189,8 +191,8 @@ request body variables, cookies, the request URL, etc.
 '''
         t['render'] = base.render
         t['asbool'] = converters.asbool
-        self.docstring_overrides['asbool'] = '''Convert a string from the
-config file into a boolean.
+        self.docstring_overrides['asbool'] = '''Convert a string (e.g. 1,
+true, True) from the config file into a boolean.
 
 For example: ``if toolkit.asbool(config.get('ckan.legacy_templates', False)):``
 
@@ -203,8 +205,8 @@ For example: ``bar = toolkit.asint(config.get('ckan.foo.bar', 0))``
 
 '''
         t['aslist'] = converters.aslist
-        self.docstring_overrides['aslist'] = '''Convert a string from the
-config file into a list.
+        self.docstring_overrides['aslist'] = '''Convert a space-separated
+string from the config file into a list.
 
 For example: ``bar = toolkit.aslist(config.get('ckan.foo.bar', []))``
 

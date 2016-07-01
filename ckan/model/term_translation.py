@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from sqlalchemy import Column, Table
 from sqlalchemy.types import UnicodeText
 import meta

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """Pylons middleware initialization"""
 import urllib
 import urllib2
@@ -85,6 +87,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
 
     for plugin in PluginImplementations(IMiddleware):
         app = plugin.make_middleware(app, config)
+
+    app = RootPathMiddleware(app, config)
 
     # Routing/Session/Cache Middleware
     app = RoutesMiddleware(app, config['routes.map'])
@@ -197,8 +201,6 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
     # Tracking
     if asbool(config.get('ckan.tracking_enabled', 'false')):
         app = TrackingMiddleware(app, config)
-
-    app = RootPathMiddleware(app, config)
 
     return app
 

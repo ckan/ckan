@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import nose.tools
 
 import ckan.tests.helpers as helpers
@@ -448,6 +450,30 @@ class TestDatasetPurge(object):
 
         # No Revision objects were purged or created
         assert_equals(num_revisions_after - num_revisions_before, 0)
+
+    def test_purged_dataset_removed_from_relationships(self):
+        child = factories.Dataset()
+        parent = factories.Dataset()
+        grandparent = factories.Dataset()
+
+        helpers.call_action('package_relationship_create',
+                            subject=child['id'],
+                            type='child_of',
+                            object=parent['id'])
+
+        helpers.call_action('package_relationship_create',
+                            subject=parent['id'],
+                            type='child_of',
+                            object=grandparent['id'])
+
+        assert_equals(len(
+            model.Session.query(model.PackageRelationship).all()), 2)
+
+        helpers.call_action('dataset_purge',
+                            context={'ignore_auth': True},
+                            id=parent['name'])
+
+        assert_equals(model.Session.query(model.PackageRelationship).all(), [])
 
     def test_missing_id_returns_error(self):
         assert_raises(logic.ValidationError,

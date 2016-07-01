@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import ckan.lib.helpers as h
 
 class TestFormatText:

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # Note these functions are similar to, but separate from name/title mungers
 # found in the ckanext importer. That one needs to be stable to prevent
 # packages changing name on reimport, but these ones can be changed and
@@ -139,7 +141,7 @@ def munge_filename(filename):
     # clean up
     filename = substitute_ascii_equivalents(filename)
     filename = filename.lower().strip()
-    filename = re.sub(r'[^a-zA-Z0-9. -]', '', filename).replace(' ', '-')
+    filename = re.sub(r'[^a-zA-Z0-9_. -]', '', filename).replace(' ', '-')
     # resize if needed but keep extension
     name, ext = os.path.splitext(filename)
     # limit overly long extensions

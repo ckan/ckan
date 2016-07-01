@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import pylons.config as config
 
 import ckan.plugins as plugins

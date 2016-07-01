@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import copy
 import formencode as fe
 import inspect
@@ -5,6 +7,7 @@ import json
 from pylons import config
 
 from ckan.common import _
+
 
 class Missing(object):
     def __unicode__(self):

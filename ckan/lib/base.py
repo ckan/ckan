@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """The base Controller API
 
 Provides the BaseController class for subclassing.
@@ -267,15 +269,13 @@ class BaseController(WSGIController):
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
             if c.userobj is None or not c.userobj.is_active():
+
                 # This occurs when a user that was still logged in is deleted,
-                # or when you are logged in, clean db
-                # and then restart (or when you change your username)
-                # There is no user object, so even though repoze thinks you
-                # are logged in and your cookie has ckan_display_name, we
-                # need to force user to logout and login again to get the
-                # User object.
-                session['lang'] = request.environ.get('CKAN_LANG')
-                session.save()
+                # or when you are logged in, clean db and then restart (or
+                # when you change your username) There is no user object, so
+                # even though repoze thinks you are logged in and your cookie
+                # has ckan_display_name, we need to force user to logout and
+                # login again to get the User object.
 
                 ev = request.environ
                 if 'repoze.who.plugins' in ev:
@@ -310,15 +310,14 @@ class BaseController(WSGIController):
                         break
                 if not is_valid_cookie_data:
                     if session.id:
-                        if not session.get('lang'):
-                            self.log.debug('No session data any more - '
-                                           'deleting session')
-                            self.log.debug('Session: %r', session.items())
-                            session.delete()
+                        self.log.debug('No valid session data - '
+                                       'deleting session')
+                        self.log.debug('Session: %r', session.items())
+                        session.delete()
                     else:
-                        response.delete_cookie(cookie)
-                        self.log.debug('No session data any more - '
+                        self.log.debug('No session id - '
                                        'deleting session cookie')
+                        response.delete_cookie(cookie)
             # Remove auth_tkt repoze.who cookie if user not logged in.
             elif cookie == 'auth_tkt' and not session.id:
                 response.delete_cookie(cookie)
@@ -344,7 +343,7 @@ class BaseController(WSGIController):
             cors_origin_allowed = "*"
         elif config.get('ckan.cors.origin_whitelist') and \
                 request.headers.get('Origin') \
-                in config['ckan.cors.origin_whitelist'].split(" "):
+                in config['ckan.cors.origin_whitelist'].split():
             # set var to the origin to allow it.
             cors_origin_allowed = request.headers.get('Origin')
 

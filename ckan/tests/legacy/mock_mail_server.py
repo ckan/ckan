@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import threading
 import asyncore
 import socket

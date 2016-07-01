@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+
 '''Unit tests for ckan/logic/converters.py.
 
 '''

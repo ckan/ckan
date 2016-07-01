@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 ''' The application's Globals object '''
 
 import logging
@@ -167,13 +169,9 @@ def reset():
     for key in schema.keys():
         get_config_value(key)
 
-    # cusom styling
+    # custom styling
     main_css = get_config_value('ckan.main_css', '/base/css/main.css')
     set_main_css(main_css)
-    # site_url_nice
-    site_url_nice = app_globals.site_url.replace('http://', '')
-    site_url_nice = site_url_nice.replace('www.', '')
-    app_globals.site_url_nice = site_url_nice
 
     if app_globals.site_logo:
         app_globals.header_class = 'header-image'

@@ -1,0 +1,11 @@
+ckan:
+  image: ckan/ckan:latest
+  links:
+    - db
+    - solr
+  ports:
+    - "80:80"
+db:
+  image: ckan/postgresql:latest
+solr:
+  image: ckan/solr:latest
