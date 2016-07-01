@@ -10,7 +10,7 @@ import ckan.tests.helpers as helpers
 
 from ckan.config.middleware import AskAppDispatcherMiddleware
 from ckan.config.middleware.flask_app import CKANFlask
-from ckan.controllers.partyline import PartylineController
+from ckan.config.middleware.pylons_app import CKANPylonsApp
 
 
 class TestPylonsResponseCleanupMiddleware(helpers.FunctionalTestBase):
@@ -63,7 +63,7 @@ class TestAppDispatcherPlain(object):
 
     def test_pylons_can_handle_request_is_called_with_environ(self):
 
-        with mock.patch.object(PartylineController, 'can_handle_request') as \
+        with mock.patch.object(CKANPylonsApp, 'can_handle_request') as \
                 mock_can_handle_request:
 
             # We need set this otherwise the mock object is returned
