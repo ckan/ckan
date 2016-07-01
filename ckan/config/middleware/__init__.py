@@ -5,7 +5,6 @@
 import webob
 
 from werkzeug.test import create_environ, run_wsgi_app
-from wsgi_party import WSGIParty
 
 from ckan.config.middleware.flask_app import make_flask_stack
 from ckan.config.middleware.pylons_app import make_pylons_stack
@@ -51,11 +50,11 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     return app
 
 
-class AskAppDispatcherMiddleware(WSGIParty):
+class AskAppDispatcherMiddleware(object):
 
     '''
-    Establish a 'partyline' to each provided app. Select which app to call
-    by asking each if they can handle the requested path at PATH_INFO.
+    Dispatches incoming requests to either the Flask or Pylons apps depending
+    on the WSGI environ.
 
     Used to help transition from Pylons to Flask, and should be removed once
     Pylons has been deprecated and all app requests are handled by Flask.
@@ -73,40 +72,31 @@ class AskAppDispatcherMiddleware(WSGIParty):
         Flask Extension > Pylons Extension > Flask Core > Pylons Core
     '''
 
-    def __init__(self, apps=None, invites=(), ignore_missing_services=False):
+    def __init__(self, apps=None):
         # Dict of apps managed by this middleware {<app_name>: <app_obj>, ...}
         self.apps = apps or {}
 
-        # A dict of service name => handler mappings.
-        self.handlers = {}
+    def ask_around(self, environ):
+        '''Checks with all apps whether they can handle the incoming request
+        '''
+        answers = [
+            app._wsgi_app.can_handle_request(environ)
+            for name, app in self.apps.iteritems()
+        ]
+        # Sort answers by app name
+        answers = sorted(answers, key=lambda x: x[1])
+        log.debug('Route support answers for {0} {1}: {2}'.format(
+            environ.get('REQUEST_METHOD'), environ.get('PATH_INFO'),
+            answers))
 
-        # If True, suppress :class:`NoSuchServiceName` errors. Default: False.
-        self.ignore_missing_services = ignore_missing_services
-
-        self.send_invitations(apps)
-
-    def send_invitations(self, apps):
-        '''Call each app at the invite route to establish a partyline. Called
-        on init.'''
-        PATH = '/__invite__/'
-        for app_name, app in apps.items():
-            environ = create_environ(path=PATH)
-            environ[self.partyline_key] = self.operator_class(self)
-            # A reference to the handling app. Used to id the app when
-            # responding to a handling request.
-            environ['partyline_handling_app'] = app_name
-            run_wsgi_app(app, environ)
+        return answers
 
     def __call__(self, environ, start_response):
         '''Determine which app to call by asking each app if it can handle the
         url and method defined on the eviron'''
-        # :::TODO::: Enforce order of precedence for dispatching to apps here.
 
         app_name = 'pylons_app'  # currently defaulting to pylons app
-        answers = self.ask_around('can_handle_request', environ)
-        log.debug('Route support answers for {0} {1}: {2}'.format(
-            environ.get('REQUEST_METHOD'), environ.get('PATH_INFO'),
-            answers))
+        answers = self.ask_around(environ)
         available_handlers = []
         for answer in answers:
             if len(answer) == 2:

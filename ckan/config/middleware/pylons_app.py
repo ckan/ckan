@@ -54,7 +54,8 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
     load_environment(conf, app_conf)
 
     # The Pylons WSGI app
-    app = PylonsApp()
+    app = pylons_app = CKANPylonsApp()
+
     # set pylons globals
     app_globals.reset()
 
@@ -177,7 +178,49 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
 
     app = common_middleware.RootPathMiddleware(app, config)
 
+    # Add a reference to the actual Pylons app so it's easier to access
+    setattr(app, '_wsgi_app', pylons_app)
+
     return app
+
+
+class CKANPylonsApp(PylonsApp):
+
+    app_name = 'pylons_app'
+
+    def can_handle_request(self, environ):
+        '''
+        Decides whether it can handle a request with the Pylons app by
+        matching the request environ against the route mapper
+
+        Returns (True, 'pylons_app', origin) if this is the case.
+
+        origin can be either 'core' or 'extension' depending on where
+        the route was defined.
+
+        NOTE: There is currently a catch all route for GET requests to
+        point arbitrary urls to templates with the same name:
+
+            map.connect('/*url', controller='template', action='view')
+
+        This means that this function will match all GET requests. This
+        does not cause issues as the Pylons core routes are the last to
+        take precedence so the current behaviour is kept, but it's worth
+        keeping in mind.
+        '''
+
+        pylons_mapper = config['routes.map']
+        match_route = pylons_mapper.routematch(environ=environ)
+        if match_route:
+            match, route = match_route
+            origin = 'core'
+            if hasattr(route, '_ckan_core') and not route._ckan_core:
+                origin = 'extension'
+            log.debug('Pylons route match: {0} Origin: {1}'.format(
+                match, origin))
+            return (True, self.app_name, origin)
+        else:
+            return (False, self.app_name)
 
 
 def generate_close_and_callback(iterable, callback, environ):
