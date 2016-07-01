@@ -22,12 +22,6 @@ import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
 
 
-# avoid hanging tests https://github.com/gabrielfalcao/HTTPretty/issues/34
-if sys.version_info < (2, 7, 0):
-    import socket
-    socket.setdefaulttimeout(1)
-
-
 class TestDatastoreCreateNewTests(object):
     @classmethod
     def setup_class(cls):

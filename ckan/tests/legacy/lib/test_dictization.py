@@ -1,10 +1,10 @@
 # encoding: utf-8
 
-from ckan.tests.legacy import assert_equal, assert_not_in, assert_in
+from nose.tools import assert_equal, assert_not_in, assert_in
 from pprint import pprint, pformat
 from difflib import unified_diff
-import ckan.lib.search as search
 
+import ckan.lib.search as search
 from ckan.lib.create_test_data import CreateTestData
 from ckan import model
 from ckan.lib.dictization import (table_dictize,
