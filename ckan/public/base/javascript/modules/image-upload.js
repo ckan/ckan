@@ -40,19 +40,19 @@ this.ckan.module('image-upload', function($, _) {
 
       // firstly setup the fields
       var field_upload = 'input[name="' + options.field_upload + '"]';
-      var field_url    = 'input[name="' + options.field_url + '"]';
-      var field_clear  = 'input[name="' + options.field_clear + '"]';
-      var field_name   = 'input[name="' + options.field_name + '"]';
+      var field_url = 'input[name="' + options.field_url + '"]';
+      var field_clear = 'input[name="' + options.field_clear + '"]';
+      var field_name = 'input[name="' + options.field_name + '"]';
 
-      this.input            = $(field_upload, this.el);
-      this.field_url        = $(field_url, this.el).parents('.control-group');
-      this.field_image      = this.input.parents('.control-group');
-      this.field_url_input  = $('input', this.field_url);
-      this.field_name       = this.el.parents('form').find(field_name);
+      this.input = $(field_upload, this.el);
+      this.field_url = $(field_url, this.el).parents('.control-group');
+      this.field_image = this.input.parents('.control-group');
+      this.field_url_input = $('input', this.field_url);
+      this.field_name = this.el.parents('form').find(field_name);
       // this is the location for the upload/link data/image label
-      this.label_location   = $('label[for="field-image-url"]');
+      this.label_location = $('label[for="field-image-url"]');
       // determines if the resource is a data resource
-      this.is_data_resource = (this.options.field_url == 'url') && (this.options.field_upload == 'upload');
+      this.is_data_resource = (this.options.field_url === 'url') && (this.options.field_upload === 'upload');
 
       // Is there a clear checkbox on the form already?
       var checkbox = $(field_clear, this.el);
