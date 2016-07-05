@@ -39,7 +39,6 @@ entry_points = {
         'tracking = ckan.lib.cli:Tracking',
         'plugin-info = ckan.lib.cli:PluginInfo',
         'profile = ckan.lib.cli:Profile',
-        'color = ckan.lib.cli:CreateColorSchemeCommand',
         'check-po-files = ckan.i18n.check_po_files:CheckPoFiles',
         'trans = ckan.lib.cli:TranslationsCommand',
         'minify = ckan.lib.cli:MinifyCommand',
