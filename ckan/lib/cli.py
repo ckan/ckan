@@ -26,9 +26,9 @@ import paste.script
 from paste.registry import Registry
 from paste.script.util.logging_config import fileConfig
 
-#NB No CKAN imports are allowed until after the config file is loaded.
-#   i.e. do the imports in methods, after _load_config is called.
-#   Otherwise loggers get disabled.
+# NB No CKAN imports are allowed until after the config file is loaded.
+# i.e. do the imports in methods, after _load_config is called.
+# Otherwise loggers get disabled.
 
 
 def parse_db_config(config_key='sqlalchemy.url'):
@@ -59,8 +59,8 @@ def parse_db_config(config_key='sqlalchemy.url'):
     return db_details
 
 
-## from http://code.activestate.com/recipes/577058/ MIT licence.
-## Written by Trent Mick
+# from http://code.activestate.com/recipes/577058/ MIT licence.
+# Written by Trent Mick
 def query_yes_no(question, default="yes"):
     """Ask a yes/no question via raw_input() and return their answer.
 
@@ -90,7 +90,7 @@ def query_yes_no(question, default="yes"):
         elif choice in valid.keys():
             return valid[choice]
         else:
-            sys.stdout.write("Please respond with 'yes' or 'no' "\
+            sys.stdout.write("Please respond with 'yes' or 'no' "
                              "(or 'y' or 'n').\n")
 
 
@@ -108,7 +108,8 @@ class MockTranslator(object):
 
 
 class CkanCommand(paste.script.command.Command):
-    '''Base class for classes that implement CKAN paster commands to inherit.'''
+    '''Base class for classes that implement CKAN paster commands to
+    inherit.'''
     parser = paste.script.command.Command.standard_parser(verbose=True)
     parser.add_option('-c', '--config', dest='config',
                       default='development.ini', help='Config file to use.')
@@ -162,12 +163,14 @@ class CkanCommand(paste.script.command.Command):
 
             self.registry.register(pylons.c, c)
 
-            self.site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+            self.site_user = logic.get_action('get_site_user')({
+                'ignore_auth': True
+            }, {})
 
             pylons.c.user = self.site_user['name']
             pylons.c.userobj = model.User.get(self.site_user['name'])
 
-        ## give routes enough information to run url_for
+        # give routes enough information to run url_for
         parsed = urlparse.urlparse(conf.get('ckan.site_url', 'http://0.0.0.0'))
         request_config = routes.request_config()
         request_config.host = parsed.netloc + parsed.path
@@ -191,8 +194,10 @@ class ManageDb(CkanCommand):
     db load FILE_PATH              - load a pg_dump from a file
     db load-only FILE_PATH         - load a pg_dump from a file but don\'t do
                                      the schema upgrade or search indexing
-    db create-from-model           - create database from the model (indexes not made)
-    db migrate-filestore           - migrate all uploaded data from the 2.1 filesore.
+    db create-from-model           - create database from the model (the
+                                     indexes are not created)
+    db migrate-filestore           - migrate all uploaded data from the 2.1
+                                     filesore.
     '''
     summary = __doc__.split('\n')[0]
     usage = __doc__
@@ -202,7 +207,7 @@ class ManageDb(CkanCommand):
     def command(self):
         cmd = self.args[0]
 
-        self._load_config(cmd!='upgrade')
+        self._load_config(cmd != 'upgrade')
         import ckan.model as model
         import ckan.lib.search as search
 
@@ -254,11 +259,18 @@ class ManageDb(CkanCommand):
     def _get_postgres_cmd(self, command):
         self.db_details = self._get_db_config()
         if self.db_details.get('db_type') not in ('postgres', 'postgresql'):
-            raise AssertionError('Expected postgres database - not %r' % self.db_details.get('db_type'))
+            raise AssertionError(
+                'Expected postgres database - not {0!r}'.format(
+                    self.db_details.get('db_type')
+                )
+            )
         pg_cmd = command
         pg_cmd += ' -U %(db_user)s' % self.db_details
         if self.db_details.get('db_pass') not in (None, ''):
-            pg_cmd = 'export PGPASSWORD=%(db_pass)s && ' % self.db_details + pg_cmd
+            pg_cmd = (
+                'export PGPASSWORD=%(db_pass)s && '
+                % self.db_details + pg_cmd
+            )
         if self.db_details.get('db_host') not in (None, ''):
             pg_cmd += ' -h %(db_host)s' % self.db_details
         if self.db_details.get('db_port') not in (None, ''):
@@ -279,7 +291,9 @@ class ManageDb(CkanCommand):
 
     def _postgres_load(self, filepath):
         import ckan.model as model
-        assert not model.repo.are_tables_created(), "Tables already found. You need to 'db clean' before a load."
+        assert not model.repo.are_tables_created(), (
+            'Tables already found. You need to \'db clean\' before a load.'
+        )
         pg_cmd = self._get_psql_cmd() + ' -f %s' % filepath
         self._run_cmd(pg_cmd)
         print 'Loaded CKAN database: %s' % filepath
@@ -295,9 +309,7 @@ class ManageDb(CkanCommand):
             print 'Need pg_dump filepath'
             return
         dump_path = self.args[1]
-
-        psql_cmd = self._get_psql_cmd() + ' -f %s'
-        pg_cmd = self._postgres_dump(dump_path)
+        self._postgres_dump(dump_path)
 
     def load(self, only_load=False):
         if len(self.args) < 2:
@@ -305,8 +317,8 @@ class ManageDb(CkanCommand):
             return
         dump_path = self.args[1]
 
-        psql_cmd = self._get_psql_cmd() + ' -f %s'
-        pg_cmd = self._postgres_load(dump_path)
+        self._get_psql_cmd() + ' -f %s'
+        self._postgres_load(dump_path)
         if not only_load:
             print 'Upgrading DB'
             import ckan.model as model
@@ -316,17 +328,22 @@ class ManageDb(CkanCommand):
             import ckan.lib.search
             ckan.lib.search.rebuild()
         else:
-            print 'Now remember you have to call \'db upgrade\' and then \'search-index rebuild\'.'
-        print 'Done'
+            print(
+                'Now remember you have to call \'db upgrade\''
+                'and then \'search-index rebuild\'.'
+            )
+        print('Done')
 
     def migrate_filestore(self):
         from ckan.model import Session
         import requests
         from ckan.lib.uploader import ResourceUpload
-        results = Session.execute("select id, revision_id, url from resource "
-                                  "where resource_type = 'file.upload' "
-                                  "and (url_type <> 'upload' or url_type is null)"
-                                  "and url like '%storage%'")
+        results = Session.execute(
+            "select id, revision_id, url from resource "
+            "where resource_type = 'file.upload' "
+            "and (url_type <> 'upload' or url_type is null)"
+            "and url like '%storage%'"
+        )
         for id, revision_id, url in results:
             response = requests.get(url, stream=True)
             if response.status_code != 200:
@@ -334,14 +351,16 @@ class ManageDb(CkanCommand):
                                                         response.status_code)
                 continue
             resource_upload = ResourceUpload({'id': id})
-            assert resource_upload.storage_path, "no storage configured aborting"
+            assert resource_upload.storage_path, (
+                'no storage configured aborting'
+            )
 
             directory = resource_upload.get_directory(id)
             filepath = resource_upload.get_path(id)
             try:
                 os.makedirs(directory)
             except OSError, e:
-                ## errno 17 is file already exists
+                # errno 17 is file already exists
                 if e.errno != 17:
                     raise
 
@@ -361,21 +380,27 @@ class ManageDb(CkanCommand):
 
     def version(self):
         from ckan.model import Session
-        print Session.execute('select version from migrate_version;').fetchall()
+        print(Session.execute(
+            'select version from migrate_version;'
+        ).fetchall())
 
 
 class SearchIndexCommand(CkanCommand):
     '''Creates a search index for all datasets
 
     Usage:
-      search-index [-i] [-o] [-r] [-e] [-q] rebuild [dataset_name]  - reindex dataset_name if given, if not then rebuild
-                                                                    full search index (all datasets)
-      search-index rebuild_fast                                     - reindex using multiprocessing using all cores.
-                                                                    This acts in the same way as rubuild -r [EXPERIMENTAL]
-      search-index check                                            - checks for datasets not indexed
-      search-index show DATASET_NAME                                - shows index of a dataset
-      search-index clear [dataset_name]                             - clears the search index for the provided dataset or
-                                                                    for the whole ckan instance
+      search-index [-i] [-o] [-r] [-e]      - reindex dataset_name if given, if
+        [-q] rebuild [dataset_name]           not then rebuild the full search
+                                              index (all datasets)
+      search-index rebuild_fast             - reindex using multiprocessing
+                                              using all cores. This acts in
+                                              the same way as rebuild -r
+                                              [EXPERIMENTAL]
+      search-index check                    - checks for datasets not indexed
+      search-index show DATASET_NAME        - shows index of a dataset
+      search-index clear [dataset_name]     - clears the search index for the
+                                              provided dataset or for the whole
+                                              ckan instance
     '''
 
     summary = __doc__.split('\n')[0]
@@ -386,27 +411,56 @@ class SearchIndexCommand(CkanCommand):
     def __init__(self, name):
         super(SearchIndexCommand, self).__init__(name)
 
-        self.parser.add_option('-i', '--force', dest='force',
-                               action='store_true', default=False,
-                               help='Ignore exceptions when rebuilding the index')
+        self.parser.add_option(
+            '-i',
+            '--force',
+            dest='force',
+            action='store_true',
+            default=False,
+            help='Ignore exceptions when rebuilding the index'
+        )
 
-        self.parser.add_option('-o', '--only-missing', dest='only_missing',
-                               action='store_true', default=False,
-                               help='Index non indexed datasets only')
+        self.parser.add_option(
+            '-o',
+            '--only-missing',
+            dest='only_missing',
+            action='store_true',
+            default=False,
+            help='Index non indexed datasets only'
+        )
 
-        self.parser.add_option('-r', '--refresh', dest='refresh',
-                               action='store_true', default=False,
-                               help='Refresh current index (does not clear the existing one)')
+        self.parser.add_option(
+            '-r',
+            '--refresh',
+            dest='refresh',
+            action='store_true',
+            default=False,
+            help=(
+                'Refresh current index (does not clear the existing one)'
+            )
+        )
 
-        self.parser.add_option('-q', '--quiet', dest='quiet',
-                               action='store_true', default=False,
-                               help='Do not output index rebuild progress')
+        self.parser.add_option(
+            '-q',
+            '--quiet',
+            dest='quiet',
+            action='store_true',
+            default=False,
+            help='Do not output index rebuild progress'
+        )
 
-        self.parser.add_option('-e', '--commit-each', dest='commit_each',
-                               action='store_true', default=False, help=
-'''Perform a commit after indexing each dataset. This ensures that changes are
-immediately available on the search, but slows significantly the process.
-Default is false.''')
+        self.parser.add_option(
+            '-e',
+            '--commit-each',
+            dest='commit_each',
+            action='store_true',
+            default=False,
+            help=(
+                'Perform a commit after indexing each dataset. This ensures'
+                'that changes are immediately available on the search, but'
+                'significantly slows the process.  Default is false.'
+            )
+        )
 
     def command(self):
         if not self.args:
@@ -472,20 +526,22 @@ Default is false.''')
             clear(package_id)
 
     def rebuild_fast(self):
-        ###  Get out config but without starting pylons environment ####
+        #  Get out config but without starting pylons environment
         conf = self._get_config()
 
-        ### Get ids using own engine, otherwise multiprocess will balk
+        # Get ids using own engine, otherwise multiprocess will balk
         db_url = conf['sqlalchemy.url']
         engine = sa.create_engine(db_url)
         package_ids = []
-        result = engine.execute("select id from package where state = 'active';")
+        result = engine.execute(
+            'select id from package where state = \'active\';'
+        )
         for row in result:
             package_ids.append(row[0])
 
         def start(ids):
-            ## load actual enviroment for each subprocess, so each have thier own
-            ## sa session
+            # load actual enviroment for each subprocess, so each have thier
+            # own sa session
             self._load_config()
             from ckan.lib.search import rebuild, commit
             rebuild(package_ids=ids)
@@ -513,7 +569,8 @@ Default is false.''')
 class Notification(CkanCommand):
     '''Send out modification notifications.
 
-    In "replay" mode, an update signal is sent for each dataset in the database.
+    In "replay" mode, an update signal is sent for each dataset in the
+    database.
 
     Usage:
       notify replay                        - send out modification signals
@@ -579,11 +636,20 @@ class RDFExport(CkanCommand):
             os.makedirs(out_folder)
 
         fetch_url = config['ckan.site_url']
-        user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
-        context = {'model': model, 'session': model.Session, 'user': user['name']}
+        user = logic.get_action('get_site_user')({
+            'model': model,
+            'ignore_auth': True
+        }, {})
+        context = {
+            'model': model,
+            'session': model.Session,
+            'user': user['name']
+        }
         dataset_names = logic.get_action('package_list')(context, {})
         for dataset_name in dataset_names:
-            dd = logic.get_action('package_show')(context, {'id': dataset_name})
+            dd = logic.get_action('package_show')(context, {
+                'id': dataset_name
+            })
             if not dd['state'] == 'active':
                 continue
 
@@ -622,7 +688,6 @@ class Sysadmin(CkanCommand):
 
     def command(self):
         self._load_config()
-        import ckan.model as model
 
         cmd = self.args[0] if self.args else None
         if cmd is None or cmd == 'list':
@@ -711,8 +776,6 @@ class UserCmd(CkanCommand):
 
     def command(self):
         self._load_config()
-        import ckan.model as model
-
         if not self.args:
             self.list()
         else:
@@ -806,19 +869,29 @@ class UserCmd(CkanCommand):
                 field, value = arg.split('=', 1)
                 data_dict[field] = value
             except ValueError:
-                raise ValueError('Could not parse arg: %r (expected "<option>=<value>)"' % arg)
+                raise ValueError(
+                    'Could not parse arg: %{0!r} '
+                    '(expected "<option>=<value>)"'.format(
+                        arg
+                    )
+                )
 
         if 'password' not in data_dict:
             data_dict['password'] = self.password_prompt()
 
         if 'fullname' in data_dict:
-            data_dict['fullname'] = data_dict['fullname'].decode(sys.getfilesystemencoding())
+            data_dict['fullname'] = data_dict['fullname'].decode(
+                sys.getfilesystemencoding()
+            )
 
         print('Creating user: %r' % username)
 
         try:
             import ckan.logic as logic
-            site_user = logic.get_action('get_site_user')({'model': model, 'ignore_auth': True}, {})
+            site_user = logic.get_action('get_site_user')({
+                'model': model,
+                'ignore_auth': True
+            }, {})
             context = {
                 'model': model,
                 'session': model.Session,
@@ -887,13 +960,20 @@ class DatasetCmd(CkanCommand):
         datasets = model.Session.query(model.Package)
         print 'count = %i' % datasets.count()
         for dataset in datasets:
-            state = ('(%s)' % dataset.state) if dataset.state != 'active' else ''
+            if dataset.state != 'active':
+                state = '({0})'.format(dataset.state)
+            else:
+                state = ''
             print '%s %s %s' % (dataset.id, dataset.name, state)
 
     def _get_dataset(self, dataset_ref):
         import ckan.model as model
         dataset = model.Package.get(unicode(dataset_ref))
-        assert dataset, 'Could not find dataset matching reference: %r' % dataset_ref
+        assert dataset, (
+            'Could not find dataset matching reference: {0!r}'.format(
+                dataset_ref
+            )
+        )
         return dataset
 
     def show(self, dataset_ref):
@@ -906,7 +986,7 @@ class DatasetCmd(CkanCommand):
         dataset = self._get_dataset(dataset_ref)
         old_state = dataset.state
 
-        rev = model.repo.new_revision()
+        model.repo.new_revision()
         dataset.delete()
         model.repo.commit_and_remove()
         dataset = self._get_dataset(dataset_ref)
@@ -917,7 +997,9 @@ class DatasetCmd(CkanCommand):
         dataset = self._get_dataset(dataset_ref)
         name = dataset.name
 
-        site_user = logic.get_action('get_site_user')({'ignore_auth': True}, {})
+        site_user = logic.get_action('get_site_user')({
+            'ignore_auth': True
+        }, {})
         context = {'user': site_user['name']}
         logic.get_action('dataset_purge')(
             context, {'id': dataset_ref})
@@ -1020,8 +1102,6 @@ class Ratings(CkanCommand):
 
     def command(self):
         self._load_config()
-        import ckan.model as model
-
         cmd = self.args[0]
         if cmd == 'count':
             self.count()
@@ -1052,7 +1132,7 @@ class Ratings(CkanCommand):
         model.repo.commit_and_remove()
 
 
-## Used by the Tracking class
+# Used by the Tracking class
 _ViewCount = collections.namedtuple("ViewCount", "id name count")
 
 
@@ -1142,7 +1222,12 @@ class Tracking(CkanCommand):
                GROUP BY p.id, p.name
                ORDER BY total_views DESC
         '''
-        return [_ViewCount(*t) for t in engine.execute(sql, measure_from=str(measure_from)).fetchall()]
+        return [
+            _ViewCount(*t) for t in engine.execute(
+                sql,
+                measure_from=str(measure_from)
+            ).fetchall()
+        ]
 
     def export_tracking(self, engine, output_filename):
         '''Write tracking summary to a csv file.'''
@@ -1161,11 +1246,13 @@ class Tracking(CkanCommand):
             f_out = csv.writer(fh)
             f_out.writerow(HEADINGS)
             recent_views_for_id = dict((r.id, r.count) for r in recent_views)
-            f_out.writerows([(r.id,
-                              r.name,
-                              r.count,
-                              recent_views_for_id.get(r.id, 0))
-                              for r in total_views])
+            f_out.writerows([(
+                r.id,
+                r.name,
+                r.count,
+                recent_views_for_id.get(r.id, 0))
+                for r in total_views
+            ])
 
     def update_tracking(self, engine, summary_date):
         PACKAGE_URL = '/dataset/'
@@ -1194,7 +1281,10 @@ class Tracking(CkanCommand):
         sql = '''UPDATE tracking_summary t
                  SET package_id = COALESCE(
                         (SELECT id FROM package p
-                        WHERE p.name = regexp_replace(' ' || t.url, '^[ ]{1}(/\w{2}){0,1}' || %s, ''))
+                        WHERE p.name = regexp_replace(
+                        ' ' || t.url,
+                        '^[ ]{1}(/\w{2}){0,1}' || %s,
+                        ''))
                      ,'~~not~found~~')
                  WHERE t.package_id IS NULL
                  AND tracking_type = 'page';'''
@@ -1212,7 +1302,8 @@ class Tracking(CkanCommand):
                     SELECT sum(count)
                     FROM tracking_summary t2
                     WHERE t1.url = t2.url
-                    AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
+                    AND t2.tracking_date <= t1.tracking_date
+                    AND t2.tracking_date >= t1.tracking_date - 14
                  )
                  WHERE t1.running_total = 0 AND tracking_type = 'resource';'''
         engine.execute(sql)
@@ -1229,7 +1320,8 @@ class Tracking(CkanCommand):
                     SELECT sum(count)
                     FROM tracking_summary t2
                     WHERE t1.package_id = t2.package_id
-                    AND t2.tracking_date <= t1.tracking_date AND t2.tracking_date >= t1.tracking_date - 14
+                    AND t2.tracking_date <= t1.tracking_date
+                    AND t2.tracking_date >= t1.tracking_date - 14
                  )
                  WHERE t1.running_total = 0 AND tracking_type = 'page'
                  AND t1.package_id IS NOT NULL
@@ -1248,7 +1340,11 @@ class Tracking(CkanCommand):
 
         total = len(package_ids)
         not_found = 0
-        print '%i package index%s to be rebuilt starting from %s' % (total, '' if total < 2 else 'es', start_date)
+        print('{0} package index{1} to be rebuilt starting from {2}'.format(
+            total,
+            '' if total < 2 else 'es',
+            start_date
+        ))
 
         from ckan.lib.search import rebuild
         for package_id in package_ids:
@@ -1262,7 +1358,9 @@ class Tracking(CkanCommand):
                 return
             except:
                 raise
-        print 'search index rebuilding done.' + (' %i not found.' % (not_found) if not_found else "")
+        print('search index rebuilding done.')
+        if not_found:
+            print('{0} not found'.format(not_found))
 
 
 class PluginInfo(CkanCommand):
@@ -1366,7 +1464,8 @@ class CreateTestDataCommand(CkanCommand):
     create-test-data search       - realistic data to test search
     create-test-data gov          - government style data
     create-test-data family       - package relationships data
-    create-test-data user         - create a user 'tester' with api key 'tester'
+    create-test-data user         - create a user 'tester' with api key
+                                    'tester'
     create-test-data translations - annakarenina, warandpeace, and some test
                                     translations of terms
     create-test-data vocabs       - annakerenina, warandpeace, and some test
@@ -1381,7 +1480,6 @@ class CreateTestDataCommand(CkanCommand):
     def command(self):
         self._load_config()
         self._setup_app()
-        from ckan import plugins
         from create_test_data import CreateTestData
 
         if self.args:
@@ -1394,8 +1492,14 @@ class CreateTestDataCommand(CkanCommand):
             CreateTestData.create_basic_test_data()
         elif cmd == 'user':
             CreateTestData.create_test_user()
-            print 'Created user %r with password %r and apikey %r' % ('tester',
-                                                                      'tester', 'tester')
+            print(
+                'Created user {0!r} with password {1!r} '
+                'and apikey {2!r}'.format(
+                    'tester',
+                    'tester',
+                    'tester'
+                )
+            )
         elif cmd == 'search':
             CreateTestData.create_search_test_data()
         elif cmd == 'gov':
@@ -1445,7 +1549,11 @@ class Profile(CkanCommand):
             raise self.BadCommand(msg)
         self.filename = os.path.abspath(self.options.config)
         if not os.path.exists(self.filename):
-            raise AssertionError('Config filename %r does not exist.' % self.filename)
+            raise AssertionError(
+                'Config filename {0!r} does not exist.'.format(
+                    self.filename
+                )
+            )
         fileConfig(self.filename)
 
         wsgiapp = loadapp('config:' + self.filename)
@@ -1466,8 +1574,13 @@ class Profile(CkanCommand):
 
         def profile_url(url):
             try:
-                res = self.app.get(url, status=[200],
-                                   extra_environ={'REMOTE_USER': user})
+                self.app.get(
+                    url,
+                    status=[200],
+                    extra_environ={
+                        'REMOTE_USER': user
+                    }
+                )
             except paste.fixture.AppError:
                 print 'App error: ', url.strip()
             except KeyboardInterrupt:
@@ -1477,9 +1590,16 @@ class Profile(CkanCommand):
                 traceback.print_exc()
                 print 'Unknown error: ', url.strip()
 
-        output_filename = 'ckan%s.profile' % re.sub('[/?]', '.', url.replace('/', '.'))
+        output_filename = 'ckan{0}.profile'.format(
+            re.sub('[/?]', '.', url.replace('/', '.'))
+        )
         profile_command = "profile_url('%s')" % url
-        cProfile.runctx(profile_command, globals(), locals(), filename=output_filename)
+        cProfile.runctx(
+            profile_command,
+            globals(),
+            locals(),
+            filename=output_filename
+        )
         import pstats
         stats = pstats.Stats(output_filename)
         stats.sort_stats('cumulative')
@@ -1491,7 +1611,8 @@ class Profile(CkanCommand):
 class CreateColorSchemeCommand(CkanCommand):
     '''Create or remove a color scheme.
 
-    After running this, you'll need to regenerate the css files. See paster's less command for details.
+    After running this, you'll need to regenerate the css files. See paster's
+    less command for details.
 
     color               - creates a random color scheme
     color clear         - clears any color scheme
@@ -1663,7 +1784,8 @@ class CreateColorSchemeCommand(CkanCommand):
         'yellowgreen': '#9acd32',
     }
 
-    def create_colors(self, hue, num_colors=5, saturation=None, lightness=None):
+    def create_colors(self, hue, num_colors=5, saturation=None,
+                      lightness=None):
         if saturation is None:
             saturation = 0.9
         if lightness is None:
@@ -1700,7 +1822,14 @@ class CreateColorSchemeCommand(CkanCommand):
         lightness = None
 
         path = os.path.dirname(__file__)
-        path = os.path.join(path, '..', 'public', 'base', 'less', 'custom.less')
+        path = os.path.join(
+            path,
+            '..',
+            'public',
+            'base',
+            'less',
+            'custom.less'
+        )
 
         if self.args:
             arg = self.args[0]
@@ -1736,7 +1865,11 @@ class CreateColorSchemeCommand(CkanCommand):
             hue = random.random()
         if hue is not None:
             f = open(path, 'w')
-            colors = self.create_colors(hue, saturation=saturation, lightness=lightness)
+            colors = self.create_colors(
+                hue,
+                saturation=saturation,
+                lightness=lightness
+            )
             for i in xrange(len(self.rules)):
                 f.write('%s: %s;\n' % (self.rules[i], colors[i]))
                 print '%s: %s;\n' % (self.rules[i], colors[i])
@@ -1940,7 +2073,7 @@ class MinifyCommand(CkanCommand):
                     self.minify_file(base_path)
             elif os.path.isdir(base_path):
                 for root, dirs, files in os.walk(base_path):
-                    dirs[:] = [d for d in dirs if not d in self.exclude_dirs]
+                    dirs[:] = [d for d in dirs if d not in self.exclude_dirs]
                     for filename in files:
                         path = os.path.join(root, filename)
                         if clean:
@@ -2051,7 +2184,13 @@ class LessCommand(CkanCommand):
         ''' Compile less files '''
         import subprocess
         command = 'npm bin'
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        process = subprocess.Popen(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True
+        )
         output = process.communicate()
         directory = output[0].strip()
         less_bin = os.path.join(directory, 'lessc')
@@ -2065,7 +2204,10 @@ class LessCommand(CkanCommand):
             f.close()
             self.compile_less(root, less_bin, color)
         f = open(custom_less, 'w')
-        f.write('// This file is needed in order for ./bin/less to compile in less 1.3.1+\n')
+        f.write(
+            '// This file is needed in order for ./bin/less'
+            ' to compile in less 1.3.1+\n'
+        )
         f.close()
         self.compile_less(root, less_bin, 'main')
 
@@ -2077,8 +2219,14 @@ class LessCommand(CkanCommand):
 
         command = '%s %s %s' % (less_bin, main_less, main_css)
 
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        output = process.communicate()
+        process = subprocess.Popen(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True
+        )
+        process.communicate()
 
 
 class FrontEndBuildCommand(CkanCommand):
@@ -2111,7 +2259,12 @@ class FrontEndBuildCommand(CkanCommand):
         cmd.options = self.options
         root = os.path.join(os.path.dirname(__file__), '..', 'public', 'base')
         root = os.path.abspath(root)
-        ckanext = os.path.join(os.path.dirname(__file__), '..', '..', 'ckanext')
+        ckanext = os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            '..',
+            'ckanext'
+        )
         ckanext = os.path.abspath(ckanext)
         cmd.args = (root, ckanext)
         cmd.command()
@@ -2236,10 +2389,11 @@ Not used when using the `-d` option.''')
                                  set(loaded_view_plugins))
 
         if plugins_not_found:
-            msg = ('View plugin(s) not found : {0}. '.format(plugins_not_found)
-                   + 'Have they been added to the `ckan.plugins` configuration'
-                   + ' option?')
-            log.error(msg)
+            log.error(
+                'View plugin(s) not found : {0}.'
+                'Have they been added to the `ckan.plugins` configuration'
+                ' option?'.format(plugins_not_found)
+            )
             sys.exit(1)
 
         return loaded_view_plugins
@@ -2482,7 +2636,10 @@ Not used when using the `-d` option.''')
         for row in results:
             print '%s of type %s' % (row[1], row[0])
 
-        result = query_yes_no('Do you want to delete these resource views:', default='no')
+        result = query_yes_no(
+            'Do you want to delete these resource views:',
+            default='no'
+        )
 
         if result == 'no':
             print 'Not Deleting.'
