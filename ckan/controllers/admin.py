@@ -8,7 +8,6 @@ import ckan.lib.app_globals as app_globals
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.model as model
 import ckan.logic as logic
-import ckan.plugins as plugins
 from home import CACHE_PARAMETERS
 
 
@@ -18,9 +17,10 @@ _ = base._
 
 
 def get_sysadmins():
-    q = model.Session.query(model.User).filter(model.User.sysadmin == True,
-                                               model.User.state == 'active')
-    return q.all()
+    return model.Session.query(model.User).filter(
+        model.User.sysadmin.is_(True),
+        model.User.state == 'active'
+    ).all()
 
 
 class AdminController(base.BaseController):
@@ -35,19 +35,60 @@ class AdminController(base.BaseController):
         c.revision_change_state_allowed = True
 
     def _get_config_form_items(self):
-        homepages = [{'value': '1', 'text': 'Introductory area, search, featured group and featured organization'},
-                     {'value': '2', 'text': 'Search, stats, introductory area, featured organization and featured group'},
-                     {'value': '3', 'text': 'Search, introductory area and stats'}]
+        homepages = [{
+            'value': '1',
+            'text': (
+                'Introductory area, search, featured '
+                'group and featured organization'
+            )
+        }, {
+            'value': '2',
+            'text': (
+                'Search, stats, introductory area, '
+                'featured organization and featured group'
+            )
+        }, {
+            'value': '3',
+            'text': 'Search, introductory area and stats'
+        }]
 
-        items = [
-            {'name': 'ckan.site_title', 'control': 'input', 'label': _('Site Title'), 'placeholder': ''},
-            {'name': 'ckan.site_description', 'control': 'input', 'label': _('Site Tag Line'), 'placeholder': ''},
-            {'name': 'ckan.site_logo', 'control': 'input', 'label': _('Site Tag Logo'), 'placeholder': ''},
-            {'name': 'ckan.site_about', 'control': 'markdown', 'label': _('About'), 'placeholder': _('About page text')},
-            {'name': 'ckan.site_intro_text', 'control': 'markdown', 'label': _('Intro Text'), 'placeholder': _('Text on home page')},
-            {'name': 'ckan.site_custom_css', 'control': 'textarea', 'label': _('Custom CSS'), 'placeholder': _('Customisable css inserted into the page header')},
-            {'name': 'ckan.homepage_style', 'control': 'select', 'options': homepages, 'label': _('Homepage'), 'placeholder': ''},
-        ]
+        items = [{
+            'name': 'ckan.site_title',
+            'control': 'input',
+            'label': _('Site Title'),
+            'placeholder': ''
+        }, {
+            'name': 'ckan.site_description',
+            'control': 'input',
+            'label': _('Site Tag Line'),
+            'placeholder': ''
+        }, {
+            'name': 'ckan.site_logo',
+            'control': 'input',
+            'label': _('Site Tag Logo'),
+            'placeholder': ''
+        }, {
+            'name': 'ckan.site_about',
+            'control': 'markdown',
+            'label': _('About'),
+            'placeholder': _('About page text')
+        }, {
+            'name': 'ckan.site_intro_text',
+            'control': 'markdown',
+            'label': _('Intro Text'),
+            'placeholder': _('Text on home page')
+        }, {
+            'name': 'ckan.site_custom_css',
+            'control': 'textarea',
+            'label': _('Custom CSS'),
+            'placeholder': _('Customisable css inserted into the page header')
+        }, {
+            'name': 'ckan.homepage_style',
+            'control': 'select',
+            'options': homepages,
+            'label': _('Homepage'),
+            'placeholder': ''
+        }]
         return items
 
     def reset_config(self):
@@ -110,11 +151,10 @@ class AdminController(base.BaseController):
                            extra_vars=vars)
 
     def index(self):
-        #now pass the list of sysadmins
+        # now pass the list of sysadmins
         c.sysadmins = [a.name for a in get_sysadmins()]
 
         return base.render('admin/index.html')
-
 
     def trash(self):
         c.deleted_revisions = model.Session.query(
