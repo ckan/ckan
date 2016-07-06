@@ -179,7 +179,7 @@ def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
     app = common_middleware.RootPathMiddleware(app, config)
 
     # Add a reference to the actual Pylons app so it's easier to access
-    setattr(app, '_wsgi_app', pylons_app)
+    app._wsgi_app = pylons_app
 
     return app
 

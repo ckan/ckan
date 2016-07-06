@@ -23,7 +23,7 @@ def make_flask_stack(conf):
         return 'Hello World, this was posted to Flask'
 
     # Add a reference to the actual Flask app so it's easier to access
-    setattr(app, '_wsgi_app', flask_app)
+    app._wsgi_app = flask_app
 
     return app
 
