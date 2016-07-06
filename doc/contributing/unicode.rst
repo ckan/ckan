@@ -83,7 +83,7 @@ When opening text (not binary) files you should use `io.open`_ instead of
 
     import io
 
-    with io.open(b'my_file.txt', u'r', encoding=u'utf-8') as f:
+    with io.open(u'my_file.txt', u'r', encoding=u'utf-8') as f:
         text = f.read()  # contents is automatically decoded
                          # to unicode using UTF-8
 
@@ -144,6 +144,14 @@ flag::
     >>> print re.match(ur'^\w$', u'ö', re.U)
     <_sre.SRE_Match object at 0xb60ea2f8>
 
+.. note::
+
+    Some functions (e.g. ``re.split`` and ``re.sub``) take additional optional
+    parameters before the flags, so you should pass the flag via a keyword
+    argument::
+
+        replaced = re.sub(ur'\W', u'_', original, flags=re.U)
+
 The type of the values returned by ``re.split``, ``re.MatchObject.group``, etc.
 depends on the type of the input string::
 
@@ -157,4 +165,76 @@ Note that the type of the *pattern string* does not influence the return type.
 
 .. _re: https://docs.python.org/2/library/re.html
 .. _re.U: https://docs.python.org/2/library/re.html#re.U
+
+
+Filenames
+`````````
+Like all other strings, filenames should be stored as Unicode strings
+internally. However, some filesystem operations return or expect byte strings,
+so filenames have to be encoded/decoded appropriately. Unfortunately, different
+operating systems use different encodings for their filenames, and on some of
+them (e.g. Linux) the file system encoding is even configurable by the user.
+
+To make decoding and encoding of filenames easier, the ``ckan.lib.io`` module
+therefore contains the functions ``decode_path`` and ``encode_path``, which
+automatically use the correct encoding::
+
+    import io
+    import json
+
+    from ckan.lib.io import decode_path
+
+    # __file__ is a byte string, so we decode it
+    MODULE_FILE = decode_path(__file__)
+    print(u'Running from ' + MODULE_FILE)
+
+    # The functions in os.path return unicode if given unicode
+    MODULE_DIR = os.path.dirname(MODULE_FILE)
+    DATA_FILE = os.path.join(MODULE_DIR, u'data.json')
+
+    # Most of Python's built-in I/O-functions accept Unicode filenames as input
+    # and encode them automatically
+    with io.open(DATA_FILE, encoding='utf-8') as f:
+        data = json.load(f)
+
+Note that almost all Python's built-in I/O-functions accept Unicode filenames
+as input and encode them automatically, so using ``encode_path`` is usually not
+necessary.
+
+The return type of some of Python's I/O-functions (e.g. os.listdir_ and
+os.walk_) depends on the type of their input: If passed byte strings they
+return byte strings and if passed Unicode they automatically decode the raw
+filenames to Unicode before returning them. Other functions exist in two
+variants that return byte strings (e.g. os.getcwd_) and Unicode (os.getcwdu_),
+respectively.
+
+.. warning::
+
+    Some of Python's I/O-functions may return *both* byte and Unicode strings
+    for *a single* call. For example, os.listdir_ will normally return Unicode
+    when passed Unicode, but filenames that cannot be decoded using the
+    filesystem encoding will still be returned as byte strings!
+
+    Note that if the filename of an existing file cannot be decoded using the
+    filesystem's encoding then the environment Python is running in is most
+    probably incorrectly set up.
+
+The instructions above are meant for the names of existing files that are
+obtained using Python's I/O functions. However, sometimes one also wants to
+create new files whose names are generated from unknown sources (e.g. user
+input). To make sure that the generated filename is safe to use and can be
+represented using the filesystem's encoding use
+``ckan.lib.munge.munge_filename``::
+
+    >> ckan.lib.munge.munge_filename(u'Data from Linköping (year: 2016).txt')
+    u'data-from-linkoping-year-2016.txt'
+
+.. note::
+
+    ``munge_filename`` will remove a leading path from the filename.
+
+.. _os.listdir: https://docs.python.org/2/library/os.html#os.listdir
+.. _os.walk: https://docs.python.org/2/library/os.html#os.walk
+.. _os.getcwd: https://docs.python.org/2/library/os.html#os.getcwd
+.. _os.getcwdu: https://docs.python.org/2/library/os.html#os.getcwdu
 
