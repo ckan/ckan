@@ -992,7 +992,7 @@ web interface. For example::
 
   ckan.dumps_url = http://ckan.net/dump/
 
-For more information on using dumpfiles, see :ref:`paster db`.
+For more information on using dumpfiles, see :ref:`datasets dump`.
 
 .. _ckan.dumps_format:
 
