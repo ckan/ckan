@@ -31,6 +31,18 @@ from paste.script.util.logging_config import fileConfig
 #   Otherwise loggers get disabled.
 
 
+def deprecation_warning(message=None):
+    '''
+    Print a deprecation warning to STDERR.
+
+    If ``message`` is given it is also printed to STDERR.
+    '''
+    sys.stderr.write(u'WARNING: This function is deprecated.')
+    if message:
+        sys.stderr.write(u' ' + message.strip())
+    sys.stderr.write(u'\n')
+
+
 def parse_db_config(config_key='sqlalchemy.url'):
     ''' Takes a config key for a database connection url and parses it into
     a dictionary. Expects a url like:
@@ -187,10 +199,10 @@ class ManageDb(CkanCommand):
                                      search index
     db upgrade [version no.]       - Data migrate
     db version                     - returns current version of data schema
-    db dump FILE_PATH              - dump to a pg_dump file
-    db load FILE_PATH              - load a pg_dump from a file
+    db dump FILE_PATH              - dump to a pg_dump file [DEPRECATED]
+    db load FILE_PATH              - load a pg_dump from a file [DEPRECATED]
     db load-only FILE_PATH         - load a pg_dump from a file but don\'t do
-                                     the schema upgrade or search indexing
+                                     the schema upgrade or search indexing [DEPRECATED]
     db create-from-model           - create database from the model (indexes not made)
     db migrate-filestore           - migrate all uploaded data from the 2.1 filesore.
     '''
@@ -291,6 +303,7 @@ class ManageDb(CkanCommand):
             raise SystemError('Command exited with errorcode: %i' % retcode)
 
     def dump(self):
+        deprecation_warning(u"Use PostgreSQL's pg_dump instead.")
         if len(self.args) < 2:
             print 'Need pg_dump filepath'
             return
@@ -300,6 +313,7 @@ class ManageDb(CkanCommand):
         pg_cmd = self._postgres_dump(dump_path)
 
     def load(self, only_load=False):
+        deprecation_warning(u"Use PostgreSQL's pg_restore instead.")
         if len(self.args) < 2:
             print 'Need pg_dump filepath'
             return

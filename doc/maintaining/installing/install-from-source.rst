@@ -325,7 +325,7 @@ installed, we need to install and configure Solr.
 -------------------------
 
 Now that you have a configuration file that has the correct settings for your
-database, you can create the database tables:
+database, you can :ref:`create the database tables <db init>`:
 
 .. parsed-literal::
 
