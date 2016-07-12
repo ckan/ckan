@@ -17,7 +17,7 @@ def make_flask_stack(conf, **app_conf):
     """ This has to pass the flask app through all the same middleware that
     Pylons used """
 
-    app = CKANFlask(__name__)
+    app = flask_app = CKANFlask(__name__)
 
     # Update Flask config with the CKAN values
     app.config.update(conf)
@@ -30,6 +30,9 @@ def make_flask_stack(conf, **app_conf):
     @app.route('/hello', methods=['POST'])
     def hello_world_post():
         return 'Hello World, this was posted to Flask'
+
+    # Add a reference to the actual Flask app so it's easier to access
+    app._wsgi_app = flask_app
 
     return app
 

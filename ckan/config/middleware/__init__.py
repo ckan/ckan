@@ -132,4 +132,13 @@ class AskAppDispatcherMiddleware(WSGIParty):
 
         log.debug('Serving request via {0} app'.format(app_name))
         environ['ckan.app'] = app_name
-        return self.apps[app_name](environ, start_response)
+        if app_name == 'flask_app':
+            return self.apps[app_name](environ, start_response)
+        else:
+            # Although this request will be served by Pylons we still
+            # need an application context in order for the Flask URL
+            # builder to work and to be able to access the Flask config
+            flask_app = self.apps['flask_app']._wsgi_app
+
+            with flask_app.app_context():
+                return self.apps[app_name](environ, start_response)
