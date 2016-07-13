@@ -72,8 +72,17 @@ def load_environment(global_conf, app_conf):
                  static_files=os.path.join(root, 'public'),
                  templates=[])
 
-    # Initialize Pylons config with the basic options
+    # Initialize main CKAN config object
+    config.update(global_conf)
+    config.update(app_conf)
+
+    # Initialize Pylons own config object
     pylons_config.init_app(global_conf, app_conf, package='ckan', paths=paths)
+
+    # Update the main CKAN config object with the Pylons specific stuff, as it
+    # quite hard to keep them separated. This should be removed once Pylons
+    # support is dropped
+    config.update(pylons_config)
 
     # Setup the SQLAlchemy database engine
     # Suppress a couple of sqlalchemy warnings

@@ -2,7 +2,6 @@
 
 import os
 
-from pylons import config
 from pylons.wsgiapp import PylonsApp
 
 from beaker.middleware import CacheMiddleware, SessionMiddleware
@@ -20,12 +19,14 @@ from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import IMiddleware
 import ckan.lib.uploader as uploader
 from ckan.config.middleware import common_middleware
+from ckan.common import config
 
 import logging
 log = logging.getLogger(__name__)
 
 
-def make_pylons_stack(conf, full_stack=True, static_files=True, **app_conf):
+def make_pylons_stack(conf, full_stack=True, static_files=True,
+                      **app_conf):
     """Create a Pylons WSGI application and return it
 
     ``conf``
