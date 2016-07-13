@@ -54,6 +54,9 @@ class TestConfigObject(object):
 
     def test_clear_works(self):
 
+        # Keep a copy of the original Pylons config
+        _original_pylons_config = pylons.config.copy()
+
         my_conf = CKANConfig()
 
         my_conf[u'test_key_1'] = u'Test value 1'
@@ -64,6 +67,9 @@ class TestConfigObject(object):
         my_conf.clear()
 
         eq_(len(my_conf.keys()), 0)
+
+        # Restore Pylons config
+        pylons.config.update(_original_pylons_config)
 
     def test_for_in_works(self):
 
