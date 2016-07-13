@@ -53,7 +53,6 @@ WebHelpers==1.3
 WebOb==1.0.8
 WebTest==1.4.3
 Werkzeug==0.11.10
-wsgi-party==0.1b1
 zope.interface==4.2.0
 
 # The following packages are commented out because they are

@@ -19,9 +19,7 @@ your CKAN 1.x site, or on a different machine) and then manually migrate your
 database and any custom configuration, extensions or templates to your new CKAN
 2.x site. We will outline the main steps for migrating below.
 
-#. Create a dump of your CKAN 1.x database::
-
-    sudo -u ckanstd /var/lib/ckan/std/pyenv/bin/paster --plugin=ckan db dump db-1.x.dump --config=/etc/ckan/std/std.ini
+#. :ref:`Create a dump <db dumping and loading>` of your CKAN 1.x database.
 
 #. If you want to install CKAN 2.x on the same server that your CKAN 1.x site
    was on, uninstall the CKAN 1.x package first::
@@ -46,15 +44,9 @@ database and any custom configuration, extensions or templates to your new CKAN
     |activate|
     cd |virtualenv|/src/ckan
 
-   Now, load your database. **This will delete any data already present in your
-   new CKAN 2.x database**. If you've installed CKAN 2.x on a different
-   machine from 1.x, first copy the database dump file to that machine.
-   Then run these commands:
-
-   .. parsed-literal::
-
-     paster db clean -c |production.ini|
-     paster db load -c |production.ini| db-1.x.dump
+   Now :ref:`load your database dump <db dumping and loading>` into CKAN 2.x.
+   If you've installed CKAN 2.x on a different machine from 1.x, first copy the
+   database dump file to that machine.
 
 #. If you had any custom config settings in your CKAN 1.x instance that you
    want to copy across to your CKAN 2.x instance, then update your CKAN 2.x
