@@ -2,7 +2,7 @@
 
 import datetime
 
-from pylons import config, c
+from ckan.common import config, c
 from difflib import unified_diff
 from nose.tools import assert_equal
 
@@ -612,7 +612,7 @@ class TestNew(TestPackageForm):
         plugins.unload('test_package_controller_plugin')
 
     def test_new_indexerror(self):
-        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        bad_solr_url = 'http://example.com/badsolrurl'
         solr_url = SolrSettings.get()[0]
         try:
             SolrSettings.init(bad_solr_url)

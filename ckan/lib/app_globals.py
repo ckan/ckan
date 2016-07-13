@@ -8,7 +8,7 @@ from threading import Lock
 import re
 
 from paste.deploy.converters import asbool
-from pylons import config
+from ckan.common import config
 
 import ckan
 import ckan.model as model

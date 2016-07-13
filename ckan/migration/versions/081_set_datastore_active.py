@@ -4,7 +4,7 @@ import json
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 from sqlalchemy.exc import SQLAlchemyError
-from pylons import config
+from ckan.common import config
 
 
 def upgrade(migrate_engine):

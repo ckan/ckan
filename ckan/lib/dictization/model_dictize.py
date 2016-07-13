@@ -14,7 +14,7 @@ which builds the dictionary by iterating over the table columns.
 import datetime
 import urlparse
 
-from pylons import config
+from ckan.common import config
 from sqlalchemy.sql import select
 
 import ckan.logic as logic

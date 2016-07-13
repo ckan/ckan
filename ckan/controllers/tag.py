@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 
 import ckan.logic as logic

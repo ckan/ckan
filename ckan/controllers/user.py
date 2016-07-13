@@ -3,7 +3,7 @@
 import logging
 from urllib import quote
 
-from pylons import config
+from ckan.common import config
 from paste.deploy.converters import asbool
 
 import ckan.lib.base as base

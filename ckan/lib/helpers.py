@@ -26,7 +26,7 @@ import webhelpers.date as date
 from markdown import markdown
 from bleach import clean as clean_html
 from pylons import url as _pylons_default_url
-from pylons import config
+from ckan.common import config
 from routes import redirect_to as _redirect_to
 from routes import url_for as _routes_default_url_for
 import i18n

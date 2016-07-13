@@ -1,11 +1,10 @@
 # encoding: utf-8
 
 import unittest
-import pylons
 import nose
 import mock
 
-from pylons import config
+from ckan.common import config
 
 import ckan.tests.legacy as tests
 import ckanext.datastore.db as db
@@ -37,7 +36,7 @@ class TestTypeGetters(unittest.TestCase):
         if not tests.is_datastore_supported():
             raise nose.SkipTest("Datastore not supported")
         engine = db._get_engine(
-            {'connection_url': pylons.config['sqlalchemy.url']})
+            {'connection_url': config['sqlalchemy.url']})
         connection = engine.connect()
         assert db._pg_version_is_at_least(connection, '8.0')
         assert not db._pg_version_is_at_least(connection, '10.0')

@@ -25,7 +25,7 @@ import logging
 import urlparse
 
 import webhelpers.feedgenerator
-from pylons import config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.lib.base as base

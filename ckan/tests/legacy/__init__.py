@@ -18,7 +18,7 @@ from nose.tools import assert_equal, assert_not_equal, make_decorator
 from nose.plugins.skip import SkipTest
 import time
 
-from pylons import config
+from ckan.common import config
 from pylons.test import pylonsapp
 from paste.script.appinstall import SetupCommand
 
