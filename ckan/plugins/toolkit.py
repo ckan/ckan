@@ -366,7 +366,6 @@ content type, cookies, etc.
         # update the config with the updated admin_tabs dict
         config.update({config_var: admin_tabs_dict})
 
-#        import ipdb; ipdb.set_trace()
     @classmethod
     def _version_str_2_list(cls, v_str):
         ''' convert a version string into a list of ints
