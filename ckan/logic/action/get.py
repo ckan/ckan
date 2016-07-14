@@ -17,6 +17,7 @@ import ckan.logic as logic
 import ckan.logic.action
 import ckan.logic.schema
 import ckan.lib.dictization.model_dictize as model_dictize
+import ckan.lib.jobs as jobs
 import ckan.lib.navl.dictization_functions
 import ckan.model as model
 import ckan.model.misc as misc
@@ -3500,3 +3501,29 @@ def config_option_list(context, data_dict):
     schema = ckan.logic.schema.update_configuration_schema()
 
     return schema.keys()
+
+
+def job_list(context, data_dict):
+    '''List enqueued background jobs.
+
+    :returns: The currently enqueued background jobs.
+    :rtype: list
+    '''
+    _check_access('job_list', context, data_dict)
+    return [jobs.dictize_job(job) for job in jobs.queue.jobs]
+
+
+def job_show(context, data_dict):
+    '''Show details for a background job.
+
+    :param string id: The ID of the background job.
+
+    :returns: Details about the background job.
+    :rtype: dict
+    '''
+    _check_access(u'job_show', context, data_dict)
+    id = _get_or_bust(data_dict, u'id')
+    try:
+        return jobs.dictize_job(jobs.from_id(id))
+    except KeyError:
+        raise NotFound

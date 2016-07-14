@@ -43,6 +43,16 @@ def deprecation_warning(message=None):
     sys.stderr.write(u'\n')
 
 
+def error(msg):
+    '''
+    Print an error message to STDOUT and exit with return code 1.
+    '''
+    sys.stderr.write(msg)
+    if not msg.endswith('\n'):
+        sys.stderr.write('\n')
+    sys.exit(1)
+
+
 def parse_db_config(config_key='sqlalchemy.url'):
     ''' Takes a config key for a database connection url and parses it into
     a dictionary. Expects a url like:
@@ -257,8 +267,7 @@ class ManageDb(CkanCommand):
         elif cmd == 'migrate-filestore':
             self.migrate_filestore()
         else:
-            print 'Command %s not recognized' % cmd
-            sys.exit(1)
+            error('Command %s not recognized' % cmd)
 
     def _get_db_config(self):
         return parse_db_config()
@@ -610,9 +619,8 @@ class RDFExport(CkanCommand):
                     r = urllib2.urlopen(url).read()
                 except urllib2.HTTPError, e:
                     if e.code == 404:
-                        print ('Please install ckanext-dcat and enable the ' +
-                               '`dcat` plugin to use the RDF serializations')
-                        sys.exit(1)
+                        error('Please install ckanext-dcat and enable the ' +
+                              '`dcat` plugin to use the RDF serializations')
                 with open(fname, 'wb') as f:
                     f.write(r)
             except IOError, ioe:
@@ -801,16 +809,14 @@ class UserCmd(CkanCommand):
             password1 = getpass.getpass('Password: ')
         password2 = getpass.getpass('Confirm password: ')
         if password1 != password2:
-            print 'Passwords do not match'
-            sys.exit(1)
+            error('Passwords do not match')
         return password1
 
     def add(self):
         import ckan.model as model
 
         if len(self.args) < 2:
-            print 'Need name of the user.'
-            sys.exit(1)
+            error('Need name of the user.')
         username = self.args[1]
 
         # parse args into data_dict
@@ -842,8 +848,7 @@ class UserCmd(CkanCommand):
             user_dict = logic.get_action('user_create')(context, data_dict)
             pprint(user_dict)
         except logic.ValidationError, e:
-            print e
-            sys.exit(1)
+            error(e)
 
     def remove(self):
         import ckan.model as model
@@ -965,8 +970,7 @@ class Celery(CkanCommand):
             elif cmd == 'clean':
                 self.clean()
             else:
-                print 'Command %s not recognized' % cmd
-                sys.exit(1)
+                error('Command %s not recognized' % cmd)
 
     def run_(self):
         default_ini = os.path.join(os.getcwd(), 'development.ini')
@@ -976,8 +980,7 @@ class Celery(CkanCommand):
         elif os.path.isfile(default_ini):
             os.environ['CKAN_CONFIG'] = default_ini
         else:
-            print 'No .ini specified and none was found in current directory'
-            sys.exit(1)
+            error('No .ini specified and none was found in current directory')
 
         from ckan.lib.celery_app import celery
         celery_args = []
@@ -1013,8 +1016,7 @@ class Celery(CkanCommand):
         print '%i of %i tasks deleted' % (tasks_initially - tasks_afterwards,
                                           tasks_initially)
         if tasks_afterwards:
-            print 'ERROR: Failed to delete all tasks'
-            sys.exit(1)
+            error('Failed to delete all tasks')
         model.repo.commit_and_remove()
 
 
@@ -1094,15 +1096,13 @@ class Tracking(CkanCommand):
             self.update_all(engine, start_date)
         elif cmd == 'export':
             if len(self.args) <= 1:
-                print self.__class__.__doc__
-                sys.exit(1)
+                error(self.__class__.__doc__)
             output_file = self.args[1]
             start_date = self.args[2] if len(self.args) > 2 else None
             self.update_all(engine, start_date)
             self.export_tracking(engine, output_file)
         else:
-            print self.__class__.__doc__
-            sys.exit(1)
+            error(self.__class__.__doc__)
 
     def update_all(self, engine, start_date=None):
         if start_date:
@@ -2250,11 +2250,9 @@ Not used when using the `-d` option.''')
                                  set(loaded_view_plugins))
 
         if plugins_not_found:
-            msg = ('View plugin(s) not found : {0}. '.format(plugins_not_found)
-                   + 'Have they been added to the `ckan.plugins` configuration'
-                   + ' option?')
-            log.error(msg)
-            sys.exit(1)
+            error('View plugin(s) not found : {0}. '.format(plugins_not_found)
+                  + 'Have they been added to the `ckan.plugins` configuration'
+                  + ' option?')
 
         return loaded_view_plugins
 
@@ -2338,8 +2336,7 @@ Not used when using the `-d` option.''')
         try:
             user_search_params = json.loads(self.options.search_params)
         except ValueError, e:
-            log.error('Unable to parse JSON search parameters: {0}'.format(e))
-            sys.exit(1)
+            error('Unable to parse JSON search parameters: {0}'.format(e))
 
         if user_search_params.get('q'):
             search_data_dict['q'] = user_search_params['q']
@@ -2413,8 +2410,7 @@ Not used when using the `-d` option.''')
             query = self._search_datasets(page, loaded_view_plugins)
 
             if page == 1 and query['count'] == 0:
-                log.info('No datasets to create resource views on, exiting...')
-                sys.exit(1)
+                error('No datasets to create resource views on, exiting...')
 
             elif page == 1 and not self.options.assume_yes:
 
@@ -2426,8 +2422,7 @@ Not used when using the `-d` option.''')
                                                   loaded_view_plugins))
 
                 if confirm == 'no':
-                    log.info('Command aborted by user')
-                    sys.exit(1)
+                    error('Command aborted by user')
 
             if query['results']:
                 for dataset_dict in query['results']:
@@ -2472,8 +2467,7 @@ Not used when using the `-d` option.''')
             result = query_yes_no(msg, default='no')
 
             if result == 'no':
-                log.info('Command aborted by user')
-                sys.exit(1)
+                error('Command aborted by user')
 
         context = {'user': self.site_user['name']}
         logic.get_action('resource_view_clear')(
@@ -2551,15 +2545,88 @@ class ConfigToolCommand(paste.script.command.Command):
         if options:
             for option in options:
                 if '=' not in option:
-                    sys.stderr.write(
+                    error(
                         'An option does not have an equals sign: %r '
                         'It should be \'key=value\'. If there are spaces '
                         'you\'ll need to quote the option.\n' % option)
-                    sys.exit(1)
             try:
                 config_tool.config_edit_using_option_strings(
                     config_filepath, options, self.options.section,
                     edit=self.options.edit)
             except config_tool.ConfigToolError, e:
-                sys.stderr.write(e.message)
-                sys.exit(1)
+                error(e)
+
+
+class JobsCommand(CkanCommand):
+    '''Manage background jobs
+
+    Usage:
+
+        paster jobs worker         - Start a worker that fetches jobs
+                                     from the queue and executes them
+        paster jobs list           - List currently enqueued jobs
+        paster jobs cancel <ID>    - Cancel a specific job
+        paster jobs clear          - Cancel all jobs
+        paster jobs test           - Enqueue a test job
+
+    See also the `worker` command for running workers that fetch
+    and execute jobs.
+    '''
+
+    summary = __doc__.split(u'\n')[0]
+    usage = __doc__
+    min_args = 0
+
+    def command(self):
+        self._load_config()
+        from ckan.lib.jobs import init_queue
+        self.queue = init_queue()
+
+        if not self.args:
+            print(self.__doc__)
+            sys.exit(0)
+
+        cmd = self.args.pop(0)
+        if cmd == 'worker':
+            self.worker()
+        elif cmd == u'list':
+            self.list()
+        elif cmd == u'cancel':
+            self.cancel()
+        elif cmd == u'clear':
+            self.clear()
+        elif cmd == u'test':
+            self.test()
+        else:
+            error(u'Unknown command "{}"'.format(cmd))
+
+    def worker(self):
+        from ckan.lib.jobs import init_queue, Worker
+        worker = Worker(self.queue)
+        worker.work()
+
+    def list(self):
+        jobs = p.toolkit.get_action('job_list')({}, {})
+        for job in jobs:
+            if job['title'] is None:
+                job['title'] = ''
+            print('{created} {id} {title}'.format(**job))
+
+    def cancel(self):
+        if not self.args:
+            error('You must specify a job ID')
+        id = self.args[0]
+        try:
+            p.toolkit.get_action('job_cancel')({}, {'id': id})
+        except logic.NotFound:
+            error('There is no job with ID "{}"'.format(id))
+        print('Cancelled job {}'.format(id))
+
+    def clear(self):
+        p.toolkit.get_action('job_clear')({}, {})
+        print('Cleared the job queue')
+
+    def test(self):
+        from ckan.lib.jobs import enqueue, test_job
+        job = enqueue(test_job, ['A test job'], title='A test job')
+        print('Enqueued test job {}'.format(job.id))

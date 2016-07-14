@@ -49,6 +49,7 @@ entry_points = {
         'front-end-build = ckan.lib.cli:FrontEndBuildCommand',
         'views = ckan.lib.cli:ViewsCommand',
         'config-tool = ckan.lib.cli:ConfigToolCommand',
+        'jobs = ckan.lib.cli:JobsCommand',
     ],
     'console_scripts': [
         'ckan-admin = bin.ckan_admin:Command',

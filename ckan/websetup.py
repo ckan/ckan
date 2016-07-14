@@ -10,9 +10,11 @@ log = logging.getLogger(__name__)
 def setup_app(command, conf, vars):
     """Place any commands to setup ckan here"""
     load_environment(conf.global_conf, conf.local_conf)
-    
+
     from ckan import model
     log.debug('Creating tables')
     model.repo.create_db()
     log.info('Creating tables: SUCCESS')
 
+    from ckan.lib.jobs import init_queue
+    init_queue()

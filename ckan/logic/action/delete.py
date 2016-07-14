@@ -2,8 +2,11 @@
 
 '''API functions for deleting data from CKAN.'''
 
+import logging
+
 import sqlalchemy as sqla
 
+import ckan.lib.jobs as jobs
 import ckan.logic
 import ckan.logic.action
 import ckan.plugins as plugins
@@ -11,6 +14,9 @@ import ckan.lib.dictization.model_dictize as model_dictize
 from ckan import authz
 
 from ckan.common import _
+
+
+log = logging.getLogger('ckan.logic')
 
 validate = ckan.lib.navl.dictization_functions.validate
 
@@ -701,3 +707,29 @@ def unfollow_group(context, data_dict):
             ckan.logic.schema.default_follow_group_schema())
     _unfollow(context, data_dict, schema,
             context['model'].UserFollowingGroup)
+
+
+def job_clear(context, data_dict):
+    '''Clear all enqueued background jobs.
+
+    Does not affect jobs that are already being processed.
+    '''
+    _check_access('job_clear', context, data_dict)
+    jobs.queue.empty()
+    log.warn('Cleared background job queue')
+
+
+def job_cancel(context, data_dict):
+    '''Cancel a queued background job.
+
+    Removes the job from the queue.
+
+    :param string id: The ID of the background job.
+    '''
+    _check_access(u'job_cancel', context, data_dict)
+    id = _get_or_bust(data_dict, u'id')
+    try:
+        jobs.from_id(id).cancel()
+        log.warn('Cancelled background job {}'.format(id))
+    except KeyError:
+        raise NotFound

@@ -343,3 +343,13 @@ def config_option_show(context, data_dict):
 def config_option_list(context, data_dict):
     '''List runtime-editable configuration options. Only sysadmins.'''
     return {'success': False}
+
+
+def job_list(context, data_dict):
+    '''List background jobs. Only sysadmins.'''
+    return {'success': False}
+
+
+def job_show(context, data_dict):
+    '''Show background job. Only sysadmins.'''
+    return {'success': False}
