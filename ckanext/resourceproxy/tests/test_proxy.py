@@ -7,7 +7,7 @@ import httpretty
 import nose
 
 import paste.fixture
-from pylons import config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.tests.legacy as tests

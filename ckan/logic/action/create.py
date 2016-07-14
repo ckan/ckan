@@ -7,7 +7,6 @@ import random
 import re
 from socket import error as socket_error
 
-from pylons import config
 import paste.deploy.converters
 from sqlalchemy import func
 
@@ -25,7 +24,7 @@ import ckan.lib.navl.validators as validators
 import ckan.lib.mailer as mailer
 import ckan.lib.datapreview
 
-from ckan.common import _
+from ckan.common import _, config
 
 # FIXME this looks nasty and should be shared better
 from ckan.logic.action.update import _update_package_relationship

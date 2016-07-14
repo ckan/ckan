@@ -6,8 +6,6 @@ import httpretty.core
 import nose
 import datetime
 
-import pylons
-from pylons import config
 import sqlalchemy.orm as orm
 import paste.fixture
 
@@ -16,6 +14,8 @@ import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
 import ckan.config.middleware as middleware
+
+from ckan.common import config
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
@@ -71,7 +71,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
         cls.sysadmin_user = model.User.get('testsysadmin')
         cls.normal_user = model.User.get('annafan')
         engine = db._get_engine(
-            {'connection_url': pylons.config['ckan.datastore.write_url']})
+            {'connection_url': config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
@@ -102,7 +102,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @httpretty.activate
     def test_providing_res_with_url_calls_datapusher_correctly(self):
-        pylons.config['datapusher.url'] = 'http://datapusher.ckan.org'
+        config['datapusher.url'] = 'http://datapusher.ckan.org'
         httpretty.HTTPretty.register_uri(
             httpretty.HTTPretty.POST,
             'http://datapusher.ckan.org/job',
@@ -128,7 +128,7 @@ class TestDatastoreCreate(tests.WsgiAppCase):
 
     @httpretty.activate
     def test_pass_the_received_ignore_hash_param_to_the_datapusher(self):
-        pylons.config['datapusher.url'] = 'http://datapusher.ckan.org'
+        config['datapusher.url'] = 'http://datapusher.ckan.org'
         httpretty.HTTPretty.register_uri(
             httpretty.HTTPretty.POST,
             'http://datapusher.ckan.org/job',

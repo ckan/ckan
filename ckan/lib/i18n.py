@@ -8,10 +8,11 @@ from babel.core import (LOCALE_ALIASES,
                         UnknownLocaleError)
 from babel.support import Translations
 from paste.deploy.converters import aslist
-from pylons import config
 from pylons import i18n
 import pylons
 
+
+from ckan.common import config
 import ckan.i18n
 from ckan.plugins import PluginImplementations
 from ckan.plugins.interfaces import ITranslation
@@ -173,7 +174,7 @@ def _set_lang(lang):
     if config.get('ckan.i18n_directory'):
         fake_config = {'pylons.paths': {'root': config['ckan.i18n_directory']},
                        'pylons.package': config['pylons.package']}
-        i18n.set_lang(lang, pylons_config=fake_config, class_=Translations)
+        i18n.set_lang(lang, config=fake_config, class_=Translations)
     else:
         i18n.set_lang(lang, class_=Translations)
 

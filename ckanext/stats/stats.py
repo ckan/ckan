@@ -2,7 +2,7 @@
 
 import datetime
 
-from pylons import config
+from ckan.common import config
 from sqlalchemy import Table, select, join, func, and_
 
 import ckan.plugins as p

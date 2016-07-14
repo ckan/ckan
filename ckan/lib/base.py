@@ -8,7 +8,7 @@ import logging
 import time
 
 from paste.deploy.converters import asbool
-from pylons import cache, config, session
+from pylons import cache, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.controllers.util import redirect_to, redirect
@@ -30,7 +30,7 @@ import ckan.lib.maintain as maintain
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
 # plugins.toolkit for extensions.
-from ckan.common import json, _, ungettext, c, g, request, response
+from ckan.common import json, _, ungettext, c, g, request, response, config
 
 log = logging.getLogger(__name__)
 
@@ -334,6 +334,7 @@ class BaseController(WSGIController):
         True, or the request Origin is in the origin_whitelist.
         '''
         cors_origin_allowed = None
+
         if asbool(config.get('ckan.cors.origin_allow_all')):
             cors_origin_allowed = "*"
         elif config.get('ckan.cors.origin_whitelist') and \
@@ -341,7 +342,6 @@ class BaseController(WSGIController):
                 in config['ckan.cors.origin_whitelist'].split():
             # set var to the origin to allow it.
             cors_origin_allowed = request.headers.get('Origin')
-
         if cors_origin_allowed is not None:
             response.headers['Access-Control-Allow-Origin'] = \
                 cors_origin_allowed

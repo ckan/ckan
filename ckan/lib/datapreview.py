@@ -8,7 +8,7 @@ Functions and data structures that are needed for the ckan data preview.
 import urlparse
 import logging
 
-import pylons.config as config
+from ckan.common import config
 
 import ckan.plugins as p
 from ckan import logic

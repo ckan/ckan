@@ -8,7 +8,7 @@ import sys
 import re
 import pkg_resources
 from paste.deploy import loadapp
-from pylons import config
+from ckan.common import config
 import unittest
 import time
 

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-"""Pylons environment configuration"""
+'''CKAN environment configuration'''
 import os
 import logging
 import warnings
@@ -8,7 +8,7 @@ from urlparse import urlparse
 import pytz
 
 import sqlalchemy
-from pylons import config
+from pylons import config as pylons_config
 import formencode
 
 import ckan.config.routing as routing
@@ -22,7 +22,7 @@ import ckan.logic as logic
 import ckan.authz as authz
 import ckan.lib.jinja_extensions as jinja_extensions
 
-from ckan.common import _, ungettext
+from ckan.common import _, ungettext, config
 from ckan.exceptions import CkanConfigurationException
 
 log = logging.getLogger(__name__)
@@ -72,8 +72,17 @@ def load_environment(global_conf, app_conf):
                  static_files=os.path.join(root, 'public'),
                  templates=[])
 
-    # Initialize config with the basic options
-    config.init_app(global_conf, app_conf, package='ckan', paths=paths)
+    # Initialize main CKAN config object
+    config.update(global_conf)
+    config.update(app_conf)
+
+    # Initialize Pylons own config object
+    pylons_config.init_app(global_conf, app_conf, package='ckan', paths=paths)
+
+    # Update the main CKAN config object with the Pylons specific stuff, as it
+    # quite hard to keep them separated. This should be removed once Pylons
+    # support is dropped
+    config.update(pylons_config)
 
     # Setup the SQLAlchemy database engine
     # Suppress a couple of sqlalchemy warnings
@@ -85,8 +94,9 @@ def load_environment(global_conf, app_conf):
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
     # load all CKAN plugins
-    p.load_all(config)
+    p.load_all()
 
+    app_globals.reset()
 
 # A mapping of config settings that can be overridden by env vars.
 # Note: Do not remove the following lines, they are used in the docs
@@ -184,10 +194,11 @@ def update_config():
     # The RoutesMiddleware needs its mapper updating if it exists
     if 'routes.middleware' in config:
         config['routes.middleware'].mapper = routes_map
+    # routes.named_routes is a CKAN thing
     config['routes.named_routes'] = routing.named_routes
     config['pylons.app_globals'] = app_globals.app_globals
     # initialise the globals
-    config['pylons.app_globals']._init()
+    app_globals.app_globals._init()
 
     helpers.load_plugin_helpers()
     config['pylons.h'] = helpers.helper_functions

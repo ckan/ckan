@@ -6,6 +6,7 @@ import webob
 
 from werkzeug.test import create_environ, run_wsgi_app
 
+from ckan.config.environment import load_environment
 from ckan.config.middleware.flask_app import make_flask_stack
 from ckan.config.middleware.pylons_app import make_pylons_stack
 
@@ -41,8 +42,11 @@ def make_app(conf, full_stack=True, static_files=True, **app_conf):
     middleware.
     '''
 
-    pylons_app = make_pylons_stack(conf, full_stack, static_files, **app_conf)
-    flask_app = make_flask_stack(conf)
+    load_environment(conf, app_conf)
+
+    pylons_app = make_pylons_stack(conf, full_stack, static_files,
+                                   **app_conf)
+    flask_app = make_flask_stack(conf, **app_conf)
 
     app = AskAppDispatcherMiddleware({'pylons_app': pylons_app,
                                       'flask_app': flask_app})
@@ -119,4 +123,13 @@ class AskAppDispatcherMiddleware(object):
 
         log.debug('Serving request via {0} app'.format(app_name))
         environ['ckan.app'] = app_name
-        return self.apps[app_name](environ, start_response)
+        if app_name == 'flask_app':
+            return self.apps[app_name](environ, start_response)
+        else:
+            # Although this request will be served by Pylons we still
+            # need an application context in order for the Flask URL
+            # builder to work and to be able to access the Flask config
+            flask_app = self.apps['flask_app']._wsgi_app
+
+            with flask_app.app_context():
+                return self.apps[app_name](environ, start_response)

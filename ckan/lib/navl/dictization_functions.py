@@ -4,7 +4,7 @@ import copy
 import formencode as fe
 import inspect
 import json
-from pylons import config
+from ckan.common import config
 
 from ckan.common import _
 

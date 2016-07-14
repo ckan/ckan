@@ -5,7 +5,6 @@
 '''
 import paste.fixture
 import pylons.test
-import pylons.config as config
 import webtest
 
 from nose.tools import assert_raises
@@ -16,6 +15,7 @@ import ckan.tests.legacy as tests
 import ckan.plugins
 import ckan.tests.factories as factories
 import ckan.logic as logic
+from ckan.common import config
 
 
 class TestExampleIAuthFunctionsPluginV6ParentAuthFunctions(object):
@@ -89,7 +89,7 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
     '''
     def _get_app(self, users_can_create_groups):
 
-        # Set the custom config option in pylons.config.
+        # Set the custom config option in config.
         config['ckan.iauthfunctions.users_can_create_groups'] = (
             users_can_create_groups)
 
@@ -103,7 +103,7 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
 
     def teardown(self):
 
-        # Remove the custom config option from pylons.config.
+        # Remove the custom config option from config.
         del config['ckan.iauthfunctions.users_can_create_groups']
 
         # Delete any stuff that's been created in the db, so it doesn't

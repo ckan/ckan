@@ -5,7 +5,7 @@ import datetime
 
 import nose.tools
 import mock
-import pylons.config as config
+from ckan.common import config
 
 import ckan.logic as logic
 import ckan.lib.app_globals as app_globals

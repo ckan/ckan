@@ -7,7 +7,7 @@ import datetime
 import time
 import json
 
-from pylons import config
+from ckan.common import config
 import paste.deploy.converters as converters
 
 import ckan.plugins as plugins
@@ -1248,7 +1248,7 @@ def config_option_update(context, data_dict):
         # Save value in database
         model.set_system_info(key, value)
 
-        # Update the pylons `config` object
+        # Update CKAN's `config` object
         config[key] = value
 
         # Only add it to the app_globals (`g`) object if explicitly defined
