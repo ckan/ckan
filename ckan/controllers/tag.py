@@ -36,7 +36,7 @@ class TagController(base.BaseController):
         data_dict = {'all_fields': True}
 
         if c.q:
-            page = self._get_page_number(request.params)
+            page = h.get_page_number(request.params)
             data_dict['q'] = c.q
             data_dict['limit'] = LIMIT
             data_dict['offset'] = (page - 1) * LIMIT

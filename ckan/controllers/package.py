@@ -146,7 +146,7 @@ class PackageController(base.BaseController):
         # unicode format (decoded from utf8)
         q = c.q = request.params.get('q', u'')
         c.query_error = False
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
 
         limit = g.datasets_per_page
 

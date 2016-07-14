@@ -34,12 +34,8 @@ from ckan.common import json, _, ungettext, c, g, request, response
 
 log = logging.getLogger(__name__)
 
-PAGINATE_ITEMS_PER_PAGE = 50
-
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
-
-ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
 
 def abort(status_code=None, detail='', headers=None, comment=None):
@@ -375,24 +371,6 @@ class BaseController(WSGIController):
         query = model.Session.query(model.User)
         user = query.filter_by(apikey=apikey).first()
         return user
-
-    def _get_page_number(self, params, key='page', default=1):
-        """
-        Returns the page number from the provided params after
-        verifies that it is an integer.
-
-        If it fails it will abort the request with a 400 error
-        """
-        p = params.get(key, default)
-
-        try:
-            p = int(p)
-            if p < 1:
-                raise ValueError("Negative number not allowed")
-        except ValueError, e:
-            abort(400, ('"page" parameter must be a positive integer'))
-
-        return p
 
 
 # Include the '_' function in the public names

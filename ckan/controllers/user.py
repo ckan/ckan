@@ -97,7 +97,7 @@ class UserController(base.BaseController):
                        handler_name)
 
     def index(self):
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
         c.q = request.params.get('q', '')
         c.order_by = request.params.get('order_by', 'name')
 
