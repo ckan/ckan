@@ -1097,7 +1097,8 @@ def get_page_number(params, key='page', default=1):
             raise ValueError("Negative number not allowed")
     except ValueError:
         import ckan.lib.base as base
-        base.abort(400, ('"{key}" parameter must be a positive integer'))
+        base.abort(400, ('"{key}" parameter must be a positive integer'
+                   .format(key=key)))
 
     return p
 
