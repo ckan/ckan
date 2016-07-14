@@ -197,7 +197,6 @@ class BaseController(WSGIController):
 
     def __before__(self, action, **params):
         c.__timer = time.time()
-        c.__version__ = ckan.__version__
         app_globals.app_globals._check_uptodate()
 
         self._identify_user()
