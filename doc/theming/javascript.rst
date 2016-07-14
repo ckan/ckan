@@ -1,3 +1,5 @@
+.. _javascript_modules:
+
 =============================
 Customizing CKAN's JavaScript
 =============================
@@ -521,10 +523,7 @@ clicked it turns green:
 Internationalization
 --------------------
 
-.. todo::
-
-   Show how to Internationalize a JavaScript module.
-
+See :ref:`javascript_i18n`.
 
 --------------------------
 Testing JavaScript modules

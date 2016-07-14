@@ -163,3 +163,13 @@ implement the ``ITranslation`` interface yourself.
    ~ckan.plugins.interfaces.ITranslation.i18n_directory
    ~ckan.plugins.interfaces.ITranslation.i18n_locales
    ~ckan.plugins.interfaces.ITranslation.i18n_domain
+
+----------
+JavaScript
+----------
+Extensions currently `cannot provide their own translations for JavaScript
+strings <https://github.com/ckan/ideas-and-roadmap/issues/176>`_.
+
+However, they can re-use existing JavaScript translations from CKAN. See
+:ref:`javascript_i18n` for details.
+

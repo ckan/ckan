@@ -185,9 +185,8 @@ Modules
 Modules are the core of the CKAN website, every component that is
 interactive on the page should be a module. These are then initialized
 by including a ``data-module`` attribute on an element on the page. For
-example:
+example::
 
-::
     <select name="format" data-module="autocomplete"></select>
 
 The idea is to create small isolated components that can easily be
@@ -331,39 +330,7 @@ useful in the future.
 Internationalization
 ====================
 
-All strings within modules should be internationalized. Strings can be
-set in the ``options.i18n`` object and there is a ``.i18n()`` helper for
-retrieving them.
-
-::
-
-    ckan.module('language-picker', function (jQuery, _) {
-      return {
-        options: {
-          i18n: {
-            hello_1: _('Hello'),
-            hello_2: _('Hello %(name)s'),
-            apples: function (params) {
-              var n = params.num;
-              return _('I have %(num)d apple').isPlural(n, 'I have %(num)d apples');
-            }
-          }
-        },
-        initialize: function () {
-          // Standard example
-          this.i18n('hello_1'); // "Hello"
-
-          // String interpolation example
-          var name = 'Dave';
-          this.i18n('hello_2', {name: name}); // "Hello Dave"
-
-          // Plural example
-          var total = 1;
-          this.i18n('apples', {num: total}); // "I have 1 apple"
-          this.i18n('apples', {num: 3});     // "I have 3 apples"
-        }
-      }
-    });
+See :ref:`javascript_i18n`.
 
 
 jQuery plugins
