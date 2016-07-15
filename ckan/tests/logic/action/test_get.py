@@ -2018,3 +2018,46 @@ class TestMembersList():
                                           capacity='member')
 
         eq(len(org_members), 0)
+
+
+class TestFollow(helpers.FunctionalTestBase):
+
+    def test_followee_list(self):
+
+        group1 = factories.Group(title='Finance')
+        group2 = factories.Group(title='Environment')
+        group3 = factories.Group(title='Education')
+
+        user = factories.User()
+
+        context = {'user': user['name']}
+
+        helpers.call_action('follow_group', context, id=group1['id'])
+        helpers.call_action('follow_group', context, id=group2['id'])
+
+        followee_list = helpers.call_action('followee_list', context,
+                                            id=user['name'])
+
+        eq(len(followee_list), 2)
+        eq(sorted([f['display_name'] for f in followee_list]),
+           ['Environment', 'Finance'])
+
+    def test_followee_list_with_q(self):
+
+        group1 = factories.Group(title='Finance')
+        group2 = factories.Group(title='Environment')
+        group3 = factories.Group(title='Education')
+
+        user = factories.User()
+
+        context = {'user': user['name']}
+
+        helpers.call_action('follow_group', context, id=group1['id'])
+        helpers.call_action('follow_group', context, id=group2['id'])
+
+        followee_list = helpers.call_action('followee_list', context,
+                                            id=user['name'],
+                                            q='E')
+
+        eq(len(followee_list), 1)
+        eq(followee_list[0]['display_name'], 'Environment')
