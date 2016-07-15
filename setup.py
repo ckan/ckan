@@ -200,8 +200,11 @@ setup(
             ('multilingual/solr/*.txt', 'ignore', None),
         ]
     },
-    entry_points=entry_points,
+    entry_points=entry_points,   
     # setup.py test command needs a TestSuite so does not work with py.test
     # test_suite = 'nose.collector',
     # tests_require=[ 'py >= 0.8.0-alpha2' ]
 )
+
+
+#Add by Dan Luo
