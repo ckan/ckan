@@ -3510,7 +3510,7 @@ def job_list(context, data_dict):
     :rtype: list
     '''
     _check_access('job_list', context, data_dict)
-    return [jobs.dictize_job(job) for job in jobs.queue.jobs]
+    return [jobs.dictize_job(job) for job in jobs.get_queue().jobs]
 
 
 def job_show(context, data_dict):

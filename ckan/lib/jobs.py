@@ -11,7 +11,7 @@ module but via the various ``job_*`` API functions.
 import logging
 
 from pylons import config
-from redis import Redis
+from redis import ConnectionPool, Redis
 from rq import Queue, Worker as RqWorker
 from rq.connections import push_connection
 
@@ -22,26 +22,63 @@ REDIS_URL_SETTING_NAME = u'ckan.jobs.redis_url'
 
 REDIS_URL_DEFAULT_VALUE = u'redis://localhost:6379/0'
 
-queue = None
+# Redis connection pool. Do not use this directly, use ``connect_to_redis``
+# instead.
+_connection_pool = None
+
+# RQ job queue. Do not use this directly, use ``get_queue`` instead.
+_queue = None
 
 
-def init_queue():
+def connect_to_redis():
     u'''
-    Initialize the job queue.
+    (Lazily) connect to Redis.
 
-    :returns: The queue.
+    The connection is set up but not actually established. The latter
+    happens automatically once the connection is used.
+
+    :returns: A lazy Redis connection.
+    :rtype: ``redis.Redis``
+    '''
+    global _connection_pool
+    if _connection_pool is None:
+        url = config.get(REDIS_URL_SETTING_NAME, REDIS_URL_DEFAULT_VALUE)
+        log.debug(u'Using Redis at {}'.format(url))
+        _connection_pool = ConnectionPool.from_url(url)
+    return Redis(connection_pool=_connection_pool)
+
+
+def is_available():
+    u'''
+    Check whether Redis is available.
+
+    :returns: The availability of Redis.
+    :rtype: boolean
+    '''
+    redis_conn = connect_to_redis()
+    try:
+        return redis_conn.ping()
+    except Exception:
+        log.exception(u'Redis is not available')
+        return False
+
+
+def get_queue():
+    u'''
+    Get the job queue.
+
+    The job queue is initialized if that hasn't happened before.
+
+    :returns: The job queue.
     :rtype: ``rq.queue.Queue``
     '''
-    global queue
-    if queue is not None:
-        return
-    redis_url = config.get(REDIS_URL_SETTING_NAME, REDIS_URL_DEFAULT_VALUE)
-    log.warn(u'Initializing background job queue at {}'.format(redis_url))
-    redis_conn = Redis.from_url(redis_url)
-    redis_conn.ping()  # Force connection check
-    queue = Queue(connection=redis_conn)
-    push_connection(redis_conn)  # See https://github.com/nvie/rq/issues/479
-    return queue
+    global _queue
+    if _queue is None:
+        log.debug(u'Initializing the background job queue')
+        redis_conn = connect_to_redis()
+        _queue = Queue(connection=redis_conn)
+        push_connection(redis_conn)  # https://github.com/nvie/rq/issues/479
+    return _queue
 
 
 def enqueue(fn, args=None, title=None):
@@ -60,7 +97,7 @@ def enqueue(fn, args=None, title=None):
     '''
     if args is None:
         args = []
-    job = queue.enqueue_call(func=fn, args=args)
+    job = get_queue().enqueue_call(func=fn, args=args)
     job.meta[u'title'] = title
     job.save()
     if title:
@@ -82,10 +119,10 @@ def from_id(id):
 
     :raises KeyError: if no job with that ID exists.
     '''
-    for job in queue.jobs:
+    for job in get_queue().jobs:
         if job.id == id:
             return job
-    raise KeyError('No such job: "{}"'.format(id))
+    raise KeyError(u'No such job: "{}"'.format(id))
 
 
 def dictize_job(job):
@@ -101,9 +138,9 @@ def dictize_job(job):
     :rtype: dict
     '''
     return {
-        'id': job.id,
-        'title': job.meta.get('title'),
-        'created': job.created_at.isoformat(),
+        u'id': job.id,
+        u'title': job.meta.get(u'title'),
+        u'created': job.created_at.isoformat(),
     }
 
 
@@ -111,27 +148,40 @@ def test_job(*args):
     u'''Test job.
 
     A test job for debugging purposes. Prints out any arguments it
-    receives.
+    receives. Can be scheduled via ``paster jobs test``.
     '''
     print(args)
 
 
 class Worker(RqWorker):
     u'''
-    Custom worker with CKAN-specific logging.
+    CKAN-specific worker.
     '''
+    def __init__(self, queues=None, *args, **kwargs):
+        u'''
+        Constructor.
+
+        Accepts the same arguments as the constructor of
+        ``rq.worker.Worker``. However, ``queues`` defaults to the CKAN
+        background job queue.
+        '''
+        if queues is None:
+            queues = get_queue()
+        super(Worker, self).__init__(queues, *args, **kwargs)
+
     def register_birth(self, *args, **kwargs):
         result = super(Worker, self).register_birth(*args, **kwargs)
-        log.info('Worker {} has started (PID: {})'.format(self.key, self.pid))
+        log.info(u'Worker {} has started (PID: {})'.format(self.key, self.pid))
         return result
 
     def execute_job(self, job, *args, **kwargs):
-        log.info('Worker {} starts to execute job {}'.format(self.key, job.id))
+        log.info(u'Worker {} starts executing job {}'.format(self.key, job.id))
         result = super(Worker, self).execute_job(job, *args, **kwargs)
-        log.info('Worker {} has finished executing job {}'.format(self.key, job.id))
+        log.info(u'Worker {} has finished executing job {}'.format(
+                 self.key, job.id))
         return result
 
     def register_death(self, *args, **kwargs):
         result = super(Worker, self).register_death(*args, **kwargs)
-        log.info('Worker {} has stopped'.format(self.key))
+        log.info(u'Worker {} has stopped'.format(self.key))
         return result

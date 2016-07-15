@@ -2579,8 +2579,6 @@ class JobsCommand(CkanCommand):
 
     def command(self):
         self._load_config()
-        from ckan.lib.jobs import init_queue
-        self.queue = init_queue()
 
         if not self.args:
             print(self.__doc__)
@@ -2601,9 +2599,8 @@ class JobsCommand(CkanCommand):
             error(u'Unknown command "{}"'.format(cmd))
 
     def worker(self):
-        from ckan.lib.jobs import init_queue, Worker
-        worker = Worker(self.queue)
-        worker.work()
+        from ckan.lib.jobs import Worker
+        Worker().work()
 
     def list(self):
         jobs = p.toolkit.get_action('job_list')({}, {})

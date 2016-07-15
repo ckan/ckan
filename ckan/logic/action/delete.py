@@ -715,7 +715,7 @@ def job_clear(context, data_dict):
     Does not affect jobs that are already being processed.
     '''
     _check_access('job_clear', context, data_dict)
-    jobs.queue.empty()
+    jobs.get_queue().empty()
     log.warn('Cleared background job queue')
 
 
