@@ -1880,6 +1880,8 @@ def format_resource_items(items):
                 value = formatters.localised_number(float(value))
             elif re.search(reg_ex_int, value):
                 value = formatters.localised_number(int(value))
+        elif isinstance(value, bool):
+            continue
         elif ((isinstance(value, int) or isinstance(value, float))
                 and value not in (True, False)):
             value = formatters.localised_number(value)
