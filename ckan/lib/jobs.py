@@ -185,3 +185,8 @@ class Worker(RqWorker):
         result = super(Worker, self).register_death(*args, **kwargs)
         log.info(u'Worker {} has stopped'.format(self.key))
         return result
+
+    def handle_exception(self, job, *exc_info):
+        log.exception((u'Worker {} raised an exception while executing '
+                      u'job {}: {}').format(self.key, job.id, exc_info[1]))
+        return super(Worker, self).handle_exception(job, *exc_info)
