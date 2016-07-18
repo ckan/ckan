@@ -1114,6 +1114,8 @@ def resource_view_list(context, data_dict):
 def resource_status_show(context, data_dict):
     '''Return the statuses of a resource's tasks.
 
+    This function is DEPRECATED.
+
     :param id: the id of the resource
     :type id: string
 

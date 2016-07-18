@@ -946,6 +946,8 @@ class DatasetCmd(CkanCommand):
 class Celery(CkanCommand):
     '''Celery daemon
 
+    This command is DEPRECATED, use `paster jobs` instead.
+
     Usage:
         celeryd <run>            - run the celery daemon
         celeryd run concurrency  - run the celery daemon with
@@ -973,6 +975,7 @@ class Celery(CkanCommand):
                 error('Command %s not recognized' % cmd)
 
     def run_(self):
+        deprecation_warning(u'Use `paster jobs worker` instead.')
         default_ini = os.path.join(os.getcwd(), 'development.ini')
 
         if self.options.config:
@@ -989,6 +992,7 @@ class Celery(CkanCommand):
         celery.worker_main(argv=['celeryd', '--loglevel=INFO'] + celery_args)
 
     def view(self):
+        deprecation_warning(u'Use `paster jobs list` instead.')
         self._load_config()
         import ckan.model as model
         from kombu.transport.sqlalchemy.models import Message
@@ -1003,6 +1007,7 @@ class Celery(CkanCommand):
                 print '%i: Invisible Sent:%s' % (message.id, message.sent_at)
 
     def clean(self):
+        deprecation_warning(u'Use `paster jobs clear` instead.')
         self._load_config()
         import ckan.model as model
         query = model.Session.execute("select * from kombu_message")
