@@ -695,6 +695,28 @@ Default value: ``None``
 List of the extra resource fields that would be used when searching.
 
 
+Redis Settings
+---------------
+
+.. _redis_url:
+
+redis_url
+^^^^^^^^^
+
+Example::
+
+    redis_url = redis://localhost:7000/1
+
+Default value: ``redis://localhost:6379/0``
+
+URL to your Redis instance, including the database to be used.
+
+.. note::
+
+    If you're hosting multiple CKAN instances then you need to use a separate
+    Redis database for each of them.
+
+
 CORS Settings
 -------------
 
