@@ -1,0 +1,14 @@
+{
+  "name": "html5shiv",
+  "homepage": "https://github.com/aFarkas/html5shiv",
+  "version": "3.6.2",
+  "_release": "3.6.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "3.6.2",
+    "commit": "f65f9b0d776ae3b88d4c7f0b27c64e384aee47aa"
+  },
+  "_source": "https://github.com/aFarkas/html5shiv.git",
+  "_target": "3.6.2",
+  "_originalSource": "html5shiv"
+}

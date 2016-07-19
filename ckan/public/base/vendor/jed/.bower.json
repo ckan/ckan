@@ -1,0 +1,14 @@
+{
+  "name": "jed",
+  "homepage": "https://github.com/SlexAxton/Jed",
+  "version": "0.5.0",
+  "_release": "0.5.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.5.0",
+    "commit": "6583af11f1fdb58a9d14ac1ac7fcb2f9723cf97b"
+  },
+  "_source": "https://github.com/SlexAxton/Jed.git",
+  "_target": "0.5.0",
+  "_originalSource": "jed"
+}

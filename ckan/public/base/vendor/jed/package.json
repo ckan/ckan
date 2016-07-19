@@ -1,0 +1,27 @@
+{
+  "name": "jed",
+  "version": "0.5.0",
+  "author": "Alex Sexton <alexsexton@gmail.com>",
+  "description": "Gettext Style i18n for Modern JavaScript Apps",
+  "repository": {
+    "type": "git",
+    "url": "https://SlexAxton@github.com/SlexAxton/Jed.git"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "main": "./jed",
+  "keywords": [
+    "i18n",
+    "Jed",
+    "gettext",
+    "internationalization"
+  ],
+  "dependencies" : {},
+  "devDependencies" : {
+    "mocha" : "*",
+    "expect.js" : "*",
+    "serve": "*"
+  },
+  "license": "Use: WTFPL, Contribute: Dojo CLA"
+}
