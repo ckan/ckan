@@ -5,12 +5,20 @@ from logging import getLogger
 from ckan.common import json
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
+from pylons import config
 
 log = getLogger(__name__)
 ignore_empty = p.toolkit.get_validator('ignore_empty')
 natural_number_validator = p.toolkit.get_validator('natural_number_validator')
 Invalid = p.toolkit.Invalid
 
+def get_mapview_config():
+    '''
+        Extracts and returns map view configuration of the reclineview extension.
+    '''
+    namespace = 'ckanext.reclineview.mapview.'
+    return dict([(k.replace(namespace, ''), v) for k, v in config.iteritems()
+                 if k.startswith(namespace)])
 
 def in_list(list_possible_values):
     '''
@@ -174,6 +182,8 @@ class ReclineMapView(ReclineViewBase):
     This extension views resources using a Recline map.
     '''
 
+    p.implements(p.ITemplateHelpers, inherit=True)
+
     map_field_types = [{'value': 'lat_long',
                         'text': 'Latitude / Longitude fields'},
                        {'value': 'geojson', 'text': 'GeoJSON'}]
@@ -234,3 +244,8 @@ class ReclineMapView(ReclineViewBase):
 
     def form_template(self, context, data_dict):
         return 'recline_map_form.html'
+
+    def get_helpers(self):
+        return {
+            'get_mapview_config': get_mapview_config
+        }

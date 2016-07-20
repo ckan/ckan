@@ -46,7 +46,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
         }
       }
 
-      var errorMsg, dataset;
+      var errorMsg, dataset, map_config;
 
       if (!resourceData.datastore_active) {
           recline.Backend.DataProxy.timeout = 10000;
@@ -57,6 +57,8 @@ this.ckan.module('recline_view', function (jQuery, _) {
       }
 
       dataset = new recline.Model.Dataset(resourceData);
+
+      map_config = this.options.map_config;
 
       var query = new recline.Model.Query();
       query.set({ size: reclineView.limit || 100 });
@@ -119,9 +121,9 @@ this.ckan.module('recline_view', function (jQuery, _) {
           state.lonField = reclineView.longitude_field;
         }
 
-        view = new recline.View.Map({model: dataset, state: state});
+        view = new ckan.MapView({model: dataset, state: state, mapConfig: map_config});
       } else if(reclineView.view_type === "recline_view") {
-        view = this._newDataExplorer(dataset);
+        view = this._newDataExplorer(dataset, this.options.map_config);
       } else {
         // default to Grid
         view = new recline.View.SlickGrid({model: dataset});
@@ -148,7 +150,7 @@ this.ckan.module('recline_view', function (jQuery, _) {
       }
     },
 
-    _newDataExplorer: function (dataset) {
+    _newDataExplorer: function (dataset, map_config) {
       var views = [
         {
           id: 'grid',
@@ -167,8 +169,9 @@ this.ckan.module('recline_view', function (jQuery, _) {
         {
           id: 'map',
           label: 'Map',
-          view: new recline.View.Map({
-            model: dataset
+          view: new ckan.MapView({
+            model: dataset, 
+            mapConfig: map_config
           })
         }
       ];
