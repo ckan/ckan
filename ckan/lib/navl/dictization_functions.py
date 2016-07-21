@@ -40,6 +40,9 @@ class DictizationError(Exception):
             return repr(self.error)
         return ''
 
+    def __unicode__(self):
+        return unicode(str(self))
+
 class Invalid(DictizationError):
     '''Exception raised by some validator, converter and dictization functions
     when the given value is invalid.
