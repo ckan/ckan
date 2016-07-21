@@ -62,8 +62,24 @@ def flattened_order_key(key):
     return tuple([len(key)] + list(key))
 
 def flatten_schema(schema, flattened=None, key=None):
-    '''convert schema into flat dict where the keys are tuples'''
+    '''convert schema into flat dict, where the keys become tuples
 
+    e.g.
+    {
+      "toplevel": [validators],
+      "parent": {
+        "child1": [validators],
+        "child2": [validators],
+        }
+    }
+    becomes:
+    {
+      ('toplevel',): [validators],
+      ('parent', 'child1'): [validators],
+      ('parent', 'child2'): [validators],
+    }
+    See also: test_flatten_schema()
+    '''
     flattened = flattened or {}
     old_key = key or []
 
@@ -76,21 +92,21 @@ def flatten_schema(schema, flattened=None, key=None):
 
     return flattened
 
-def get_all_key_combinations(data, flattented_schema):
+def get_all_key_combinations(data, flattened_schema):
     '''Compare the schema against the given data and get all valid tuples that
     match the schema ignoring the last value in the tuple.
 
     '''
-    schema_prefixes = set([key[:-1] for key in flattented_schema])
+    schema_prefixes = set([key[:-1] for key in flattened_schema])
     combinations = set([()])
 
     for key in sorted(data.keys(), key=flattened_order_key):
-        ## make sure the tuple key is a valid one in the schema
+        # make sure the tuple key is a valid one in the schema
         key_prefix = key[:-1:2]
         if key_prefix not in schema_prefixes:
             continue
-        ## make sure the parent key exists, this is assured by sorting the keys
-        ## first
+        # make sure the parent key exists, this is assured by sorting the keys
+        # first
         if tuple(tuple(key[:-3])) not in combinations:
             continue
         combinations.add(tuple(key[:-1]))
@@ -101,9 +117,9 @@ def make_full_schema(data, schema):
     '''make schema by getting all valid combinations and making sure that all keys
     are available'''
 
-    flattented_schema = flatten_schema(schema)
+    flattened_schema = flatten_schema(schema)
 
-    key_combinations = get_all_key_combinations(data, flattented_schema)
+    key_combinations = get_all_key_combinations(data, flattened_schema)
 
     full_schema = {}
 
@@ -119,27 +135,35 @@ def make_full_schema(data, schema):
     return full_schema
 
 def augment_data(data, schema):
-    '''add missing, extras and junk data'''
-    flattented_schema = flatten_schema(schema)
-    key_combinations = get_all_key_combinations(data, flattented_schema)
+    '''Takes 'flattened' data, compares it with the schema, and returns it with
+    any problems marked, as follows:
+
+    * keys in the data not in the schema are moved into a list under new key
+      ('__junk')
+    * keys in the schema but not data are added as keys with value 'missing'
+
+    '''
+    flattened_schema = flatten_schema(schema)
+    key_combinations = get_all_key_combinations(data, flattened_schema)
 
     full_schema = make_full_schema(data, schema)
 
     new_data = copy.copy(data)
 
-    ## fill junk and extras
+    # fill junk and extras
 
     for key, value in new_data.items():
         if key in full_schema:
             continue
 
-        ## check if any thing naugthy is placed against subschemas
+        # check if any thing naughty is placed against subschemas
         initial_tuple = key[::2]
         if initial_tuple in [initial_key[:len(initial_tuple)]
-                             for initial_key in flattented_schema]:
-            if data[key] <> []:
+                             for initial_key in flattened_schema]:
+            if data[key] != []:
                 raise DataError('Only lists of dicts can be placed against '
-                                'subschema %s, not %s' % (key,type(data[key])))
+                                'subschema %s, not %s' %
+                                (key, type(data[key])))
 
         if key[:-1] in key_combinations:
             extras_key = key[:-1] + ('__extras',)
@@ -152,7 +176,7 @@ def augment_data(data, schema):
             new_data[("__junk",)] = junk
         new_data.pop(key)
 
-    ## add missing
+    # add missing
 
     for key, value in full_schema.items():
         if key not in new_data and not key[-1].startswith("__"):
