@@ -81,11 +81,7 @@ ckan.site_id = default
 
 ## Redis Settings
 
-# URL to your Redis instance, including the database to be used. Note
-# that you cannot use the same Redis database for more than one CKAN
-# instance (although you can use separate databases on the same Redis
-# instance).
-
+# URL to your Redis instance, including the database to be used.
 #redis_url = redis://localhost:6379/0
 
 

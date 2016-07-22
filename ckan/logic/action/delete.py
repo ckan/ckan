@@ -709,14 +709,29 @@ def unfollow_group(context, data_dict):
             context['model'].UserFollowingGroup)
 
 
+@ckan.logic.validate(ckan.logic.schema.job_clear_schema)
 def job_clear(context, data_dict):
-    '''Clear all enqueued background jobs.
+    '''Clear background job queues.
 
     Does not affect jobs that are already being processed.
+
+    :param list queues: The queues to clear. If not given then ALL
+        queues are cleared.
+
+    :returns: The cleared queues.
+    :rtype: list
     '''
-    _check_access('job_clear', context, data_dict)
-    jobs.get_queue().empty()
-    log.warn('Cleared background job queue')
+    _check_access(u'job_clear', context, data_dict)
+    queues = data_dict.get(u'queues')
+    if queues:
+        queues = [jobs.get_queue(q) for q in queues]
+    else:
+        queues = jobs.get_all_queues()
+    names = [jobs.remove_queue_name_prefix(queue.name) for queue in queues]
+    for queue, name in zip(queues, names):
+        queue.empty()
+        log.warn(u'Cleared background job queue "{}"'.format(name))
+    return names
 
 
 def job_cancel(context, data_dict):
@@ -730,6 +745,6 @@ def job_cancel(context, data_dict):
     id = _get_or_bust(data_dict, u'id')
     try:
         jobs.from_id(id).cancel()
-        log.warn('Cancelled background job {}'.format(id))
+        log.warn(u'Cancelled background job {}'.format(id))
     except KeyError:
         raise NotFound

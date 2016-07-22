@@ -3505,14 +3505,27 @@ def config_option_list(context, data_dict):
     return schema.keys()
 
 
+@logic.validate(logic.schema.job_list_schema)
 def job_list(context, data_dict):
     '''List enqueued background jobs.
+
+    :param list queues: Queues to list jobs from. If not given then the
+        jobs from all queues are listed.
 
     :returns: The currently enqueued background jobs.
     :rtype: list
     '''
-    _check_access('job_list', context, data_dict)
-    return [jobs.dictize_job(job) for job in jobs.get_queue().jobs]
+    _check_access(u'job_list', context, data_dict)
+    dictized_jobs = []
+    queues = data_dict.get(u'queues')
+    if queues:
+        queues = [jobs.get_queue(q) for q in queues]
+    else:
+        queues = jobs.get_all_queues()
+    for queue in queues:
+        for job in queue.jobs:
+            dictized_jobs.append(jobs.dictize_job(job))
+    return dictized_jobs
 
 
 def job_show(context, data_dict):
