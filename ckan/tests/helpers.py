@@ -19,6 +19,13 @@ potential drawbacks.
 This module is reserved for these very useful functions.
 
 '''
+
+import collections
+import contextlib
+import functools
+import logging
+import re
+
 import webtest
 import nose.tools
 from nose.tools import assert_in, assert_not_in
@@ -316,21 +323,41 @@ def change_config(key, value):
 
     :param value: the new config key's value, e.g. ``'My Test CKAN'``
     :type value: string
+
+    .. seealso:: :py:func:`changed_config`
     '''
     def decorator(func):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            _original_config = config.copy()
-            config[key] = value
-
-            try:
-                return_value = func(*args, **kwargs)
-            finally:
-                config.clear()
-                config.update(_original_config)
-
-            return return_value
-        return nose.tools.make_decorator(func)(wrapper)
+            with changed_config(key, value):
+                return func(*args, **kwargs)
+        return wrapper
     return decorator
+
+
+@contextlib.contextmanager
+def changed_config(key, value):
+    '''
+    Context manager for temporarily changing a config value.
+
+    Allows you to temporarily change the value of a CKAN configuration
+    option. The original value is restored once the context manager is
+    left.
+
+    Usage::
+
+        with changed_config(u'ckan.site_title', u'My Test CKAN'):
+            assert config[u'ckan.site_title'] == u'My Test CKAN'
+
+    .. seealso:: :py:func:`change_config`
+    '''
+    _original_config = config.copy()
+    config[key] = value
+    try:
+        yield
+    finally:
+        config.clear()
+        config.update(_original_config)
 
 
 def mock_auth(auth_function_path):
@@ -468,3 +495,50 @@ def set_extra_environ(key, value):
             return return_value
         return nose.tools.make_decorator(func)(wrapper)
     return decorator
+
+
+class CapturingLogHandler(logging.Handler):
+    u'''
+    Log handler to check for expected logs.
+
+    Automatically attaches itself to the root logger or to ``logger`` if
+    given. ``logger`` can be a string with the logger's name or an
+    actual ``logging.Logger`` instance.
+    '''
+    def __init__(self, logger=None, *args, **kwargs):
+        super(CapturingLogHandler, self).__init__(*args, **kwargs)
+        self.clear()
+        if logger is None:
+            logger = logging.getLogger()
+        elif not isinstance(logger, logging.Logger):
+            logger = logging.getLogger(logger)
+        logger.addHandler(self)
+
+    def emit(self, record):
+        self.messages[record.levelname.lower()].append(record.getMessage())
+
+    def assert_log(self, level, pattern, msg=None):
+        u'''
+        Assert that a certain message has been logged.
+
+        :param string pattern: A regex which the message has to match.
+            The match is done using ``re.search``.
+
+        :param string level: The message level (``'debug'``, ...).
+
+        :param string msg: Optional failure message in case the expected
+            log message was not logged.
+
+        :raises AssertionError: If the expected message was not logged.
+        '''
+        pattern = re.compile(pattern)
+        for log_msg in self.messages[level]:
+            if pattern.search(log_msg):
+                return
+        raise AssertionError(msg)
+
+    def clear(self):
+        u'''
+        Clear all captured log messages.
+        '''
+        self.messages = collections.defaultdict(list)

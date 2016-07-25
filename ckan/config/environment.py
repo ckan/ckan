@@ -16,7 +16,7 @@ import ckan.model as model
 import ckan.plugins as p
 import ckan.lib.helpers as helpers
 import ckan.lib.app_globals as app_globals
-import ckan.lib.jobs as jobs
+from ckan.lib.redis import is_redis_available
 import ckan.lib.render as render
 import ckan.lib.search as search
 import ckan.logic as logic
@@ -95,9 +95,8 @@ def load_environment(global_conf, app_conf):
         warnings.filterwarnings('ignore', msg, sqlalchemy.exc.SAWarning)
 
     # Check Redis availability
-    if not jobs.is_available():
-        log.critical('Could not connect to Redis. The background job queue '
-                     'will not be available.')
+    if not is_redis_available():
+        log.critical('Could not connect to Redis.')
 
     # load all CKAN plugins
     p.load_all()

@@ -19,29 +19,35 @@ prefixed names. Use the functions ``add_queue_name_prefix`` and
 import logging
 
 from pylons import config
-from redis import ConnectionPool, Redis
 from rq import Queue, Worker as RqWorker
 from rq.connections import push_connection
+from rq.exceptions import NoSuchJobError
+from rq.job import Job
 from rq.utils import ensure_list
+
+from ckan.lib.redis import connect_to_redis
 
 
 log = logging.getLogger(__name__)
 
-REDIS_URL_SETTING_NAME = u'redis_url'
-
-REDIS_URL_DEFAULT_VALUE = u'redis://localhost:6379/0'
-
 DEFAULT_QUEUE_NAME = u'default'
-
-# Redis connection pool. Do not use this directly, use ``connect_to_redis``
-# instead.
-_connection_pool = None
 
 # RQ job queues. Do not use this directly, use ``get_queue`` instead.
 _queues = {}
 
 
-def get_queue_name_prefix():
+def _connect():
+    u'''
+    Connect to Redis and tell RQ about it.
+
+    Workaround for https://github.com/nvie/rq/issues/479.
+    '''
+    conn = connect_to_redis()
+    push_connection(conn)
+    return conn
+
+
+def _get_queue_name_prefix():
     u'''
     Get the queue name prefix.
     '''
@@ -55,71 +61,34 @@ def add_queue_name_prefix(name):
 
     .. seealso:: :py:func:`remove_queue_name_prefix`
     '''
-    return get_queue_name_prefix() + name
+    return _get_queue_name_prefix() + name
 
 
 def remove_queue_name_prefix(name):
     u'''
     Remove a queue name's prefix.
 
+    :raises ValueError: if the given name is not prefixed.
+
     .. seealso:: :py:func:`add_queue_name_prefix`
     '''
-    prefix = get_queue_name_prefix()
-    if name.startswith(prefix):
-        name = name[len(prefix):]
-    return name
-
-
-def connect_to_redis():
-    u'''
-    (Lazily) connect to Redis.
-
-    The connection is set up but not actually established. The latter
-    happens automatically once the connection is used.
-
-    :returns: A lazy Redis connection.
-    :rtype: ``redis.Redis``
-
-    .. seealso:: :py:func:`is_available`
-    '''
-    global _connection_pool
-    if _connection_pool is None:
-        url = config.get(REDIS_URL_SETTING_NAME, REDIS_URL_DEFAULT_VALUE)
-        log.debug(u'Using Redis at {}'.format(url))
-        _connection_pool = ConnectionPool.from_url(url)
-    conn = Redis(connection_pool=_connection_pool)
-    push_connection(conn)  # https://github.com/nvie/rq/issues/479
-    return conn
-
-
-def is_available():
-    u'''
-    Check whether Redis is available.
-
-    :returns: The availability of Redis.
-    :rtype: boolean
-
-    .. seealso:: :py:func:`connect_to_redis`
-    '''
-    redis_conn = connect_to_redis()
-    try:
-        return redis_conn.ping()
-    except Exception:
-        log.exception(u'Redis is not available')
-        return False
+    prefix = _get_queue_name_prefix()
+    if not name.startswith(prefix):
+        raise ValueError(u'Queue name "{}" is not prefixed.'.format(name))
+    return name[len(prefix):]
 
 
 def get_all_queues():
     u'''
-    Return all job queues.
+    Return all (non-empty) job queues.
 
     :returns: A list of all queues.
     :rtype: List of ``rq.queue.Queue`` instances
 
     .. seealso:: :py:func:`get_queue`
     '''
-    redis_conn = connect_to_redis()
-    prefix = get_queue_name_prefix()
+    redis_conn = _connect()
+    prefix = _get_queue_name_prefix()
     return [q for q in Queue.all(connection=redis_conn) if
             q.name.startswith(prefix)]
 
@@ -144,12 +113,12 @@ def get_queue(name=DEFAULT_QUEUE_NAME):
         return _queues[fullname]
     except KeyError:
         log.debug(u'Initializing background job queue "{}"'.format(name))
-        redis_conn = connect_to_redis()
+        redis_conn = _connect()
         queue = _queues[fullname] = Queue(fullname, connection=redis_conn)
         return queue
 
 
-def enqueue(fn, args=None, title=None, queue=DEFAULT_QUEUE_NAME):
+def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME):
     u'''
     Enqueue a job to be run in the background.
 
@@ -157,6 +126,10 @@ def enqueue(fn, args=None, title=None, queue=DEFAULT_QUEUE_NAME):
 
     :param list args: List of arguments to be passed to the function.
         Pass an empty list if there are no arguments (default).
+
+    :param dict kwargs: Dict of keyword arguments to be passed to the
+        function. Pass an empty dict if there are no keyword arguments
+        (default).
 
     :param string title: Optional human-readable title of the job.
 
@@ -168,7 +141,9 @@ def enqueue(fn, args=None, title=None, queue=DEFAULT_QUEUE_NAME):
     '''
     if args is None:
         args = []
-    job = get_queue(queue).enqueue_call(func=fn, args=args)
+    if kwargs is None:
+        kwargs = {}
+    job = get_queue(queue).enqueue_call(func=fn, args=args, kwargs=kwargs)
     job.meta[u'title'] = title
     job.save()
     msg = u'Added background job {}'.format(job.id)
@@ -190,11 +165,10 @@ def from_id(id):
 
     :raises KeyError: if no job with that ID exists.
     '''
-    for queue in get_all_queues():
-        for job in queue.jobs:
-            if job.id == id:
-                return job
-    raise KeyError(u'No such job: "{}"'.format(id))
+    try:
+        return Job.fetch(id, connection=_connect())
+    except NoSuchJobError:
+        raise KeyError(u'There is no job with ID "{}".'.format(id))
 
 
 def dictize_job(job):
@@ -256,11 +230,11 @@ class Worker(RqWorker):
 
     def execute_job(self, job, *args, **kwargs):
         queue = remove_queue_name_prefix(job.origin)
-        log.info(u'Worker {} starts executing job {} from queue "{}"'.format(
+        log.info(u'Worker {} has started job {} from queue "{}"'.format(
                  self.key, job.id, queue))
         result = super(Worker, self).execute_job(job, *args, **kwargs)
-        log.info(u'Worker {} has finished executing job {}'.format(
-                 self.key, job.id))
+        log.info(u'Worker {} has finished job {} from queue "{}"'.format(
+                 self.key, job.id, queue))
         return result
 
     def register_death(self, *args, **kwargs):
@@ -269,6 +243,6 @@ class Worker(RqWorker):
         return result
 
     def handle_exception(self, job, *exc_info):
-        log.exception((u'Worker {} raised an exception while executing '
-                      u'job {}: {}').format(self.key, job.id, exc_info[1]))
+        log.exception(u'Job {} on worker {} raised an exception: {}'.format(
+                      job.id, self.key, exc_info[1]))
         return super(Worker, self).handle_exception(job, *exc_info)

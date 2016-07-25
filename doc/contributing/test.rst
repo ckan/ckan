@@ -60,6 +60,8 @@ Create test databases:
 This database connection is specified in the ``test-core.ini`` file by the
 ``sqlalchemy.url`` parameter.
 
+You should also make sure that the :ref:`Redis database <redis_url>` configured
+in ``test-core.ini`` is different from your production database.
 
 ~~~~~~~~~~~~~
 Run the tests
