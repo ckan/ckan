@@ -11,7 +11,7 @@ from pylons import config
 import rq
 
 import ckan.lib.jobs as jobs
-from ckan.tests.helpers import CapturingLogHandler, changed_config, RQTestBase
+from ckan.tests.helpers import changed_config, recorded_logs, RQTestBase
 
 
 class TestQueueNamePrefixes(RQTestBase):
@@ -149,9 +149,9 @@ class TestWorker(RQTestBase):
         '''
         queue = u'my_queue'
         job = self.enqueue(queue=queue)
-        logs = CapturingLogHandler(u'ckan.lib.jobs')
-        worker = jobs.Worker([queue])
-        worker.work(burst=True)
+        with recorded_logs(u'ckan.lib.jobs') as logs:
+            worker = jobs.Worker([queue])
+            worker.work(burst=True)
         messages = logs.messages[u'info']
         # We expect 4 log messages: Worker start, job start, job end,
         # worker end.
@@ -169,16 +169,16 @@ class TestWorker(RQTestBase):
         Test that exceptions in a job are logged.
         '''
         job = self.enqueue(failing_job)
-        logs = CapturingLogHandler(u'ckan.lib.jobs')
         worker = jobs.Worker()
 
         # Prevent worker from forking so that we can capture log
         # messages from within the job
         def execute_job(*args, **kwargs):
             return worker.perform_job(*args, **kwargs)
-        worker.execute_job = execute_job
 
-        worker.work(burst=True)
+        worker.execute_job = execute_job
+        with recorded_logs(u'ckan.lib.jobs') as logs:
+            worker.work(burst=True)
         logs.assert_log(u'error', u'JOB FAILURE')
 
     def test_worker_default_queue(self):

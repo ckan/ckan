@@ -514,8 +514,8 @@ class TestJobClear(helpers.FunctionalRQTestBase):
         job2 = self.enqueue(queue=u'q1')
         job3 = self.enqueue(queue=u'q1')
         job4 = self.enqueue(queue=u'q2')
-        logs = helpers.CapturingLogHandler(u'ckan.logic')
-        queues = helpers.call_action(u'job_clear', queues=[u'q1', u'q2'])
+        with helpers.recorded_logs(u'ckan.logic') as logs:
+            queues = helpers.call_action(u'job_clear', queues=[u'q1', u'q2'])
         eq({u'q1', u'q2'}, set(queues))
         all_jobs = self.all_jobs()
         eq(len(all_jobs), 1)
@@ -532,8 +532,8 @@ class TestJobCancel(helpers.FunctionalRQTestBase):
         '''
         job1 = self.enqueue(queue=u'q')
         job2 = self.enqueue(queue=u'q')
-        logs = helpers.CapturingLogHandler(u'ckan.logic')
-        helpers.call_action(u'job_cancel', id=job1.id)
+        with helpers.recorded_logs(u'ckan.logic') as logs:
+            helpers.call_action(u'job_cancel', id=job1.id)
         all_jobs = self.all_jobs()
         eq(len(all_jobs), 1)
         eq(all_jobs[0], job2)

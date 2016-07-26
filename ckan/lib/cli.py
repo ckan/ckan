@@ -11,20 +11,23 @@ import re
 import itertools
 import json
 import logging
+import urlparse
+from optparse import OptionConflictError
+
+import sqlalchemy as sa
+import routes
+import paste.script
+from paste.registry import Registry
+from paste.script.util.logging_config import fileConfig
+
 import ckan.logic as logic
 import ckan.model as model
 import ckan.include.rjsmin as rjsmin
 import ckan.include.rcssmin as rcssmin
 import ckan.lib.fanstatic_resources as fanstatic_resources
 import ckan.plugins as p
-import sqlalchemy as sa
-import urlparse
-import routes
 from ckan.common import config
 
-import paste.script
-from paste.registry import Registry
-from paste.script.util.logging_config import fileConfig
 
 #NB No CKAN imports are allowed until after the config file is loaded.
 #   i.e. do the imports in methods, after _load_config is called.
@@ -2567,7 +2570,7 @@ class JobsCommand(CkanCommand):
 
     Usage:
 
-        paster jobs worker [QUEUES]
+        paster jobs worker [--burst] [QUEUES]
 
             Start a worker that fetches jobs from queues and executes
             them. If no queue names are given then the worker listens
@@ -2584,6 +2587,9 @@ class JobsCommand(CkanCommand):
             and some others then you must list the default queue explicitly:
 
                 paster jobs worker default my-custom-queue
+
+            If the `--burst` option is given then the worker will exit
+            as soon as all its queues are empty.
 
         paster jobs list [QUEUES]
 
@@ -2610,6 +2616,17 @@ class JobsCommand(CkanCommand):
     usage = __doc__
     min_args = 0
 
+
+    def __init__(self, *args, **kwargs):
+        super(JobsCommand, self).__init__(*args, **kwargs)
+        try:
+            self.parser.add_option(u'--burst', action='store_true',
+                                   default=False,
+                                   help=u'Start worker in burst mode.')
+        except OptionConflictError:
+            # Option has already been added in previous call
+            pass
+
     def command(self):
         self._load_config()
         try:
@@ -2632,7 +2649,7 @@ class JobsCommand(CkanCommand):
 
     def worker(self):
         from ckan.lib.jobs import Worker
-        Worker(self.args).work()
+        Worker(self.args).work(burst=self.options.burst)
 
     def list(self):
         data_dict = {

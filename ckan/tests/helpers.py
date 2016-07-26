@@ -22,9 +22,12 @@ This module is reserved for these very useful functions.
 
 import collections
 import contextlib
+import errno
 import functools
 import logging
+import os
 import re
+import tempfile
 
 import webtest
 import nose.tools
@@ -543,22 +546,88 @@ def set_extra_environ(key, value):
     return decorator
 
 
-class CapturingLogHandler(logging.Handler):
+@contextlib.contextmanager
+def recorded_logs(logger=None, level=logging.DEBUG,
+                  override_disabled=True, override_global_level=True):
     u'''
-    Log handler to check for expected logs.
+    Context manager for recording log messages.
 
-    Automatically attaches itself to the root logger or to ``logger`` if
-    given. ``logger`` can be a string with the logger's name or an
-    actual ``logging.Logger`` instance.
+    :param logger: The logger to record messages from. Can either be a
+        :py:class:`logging.Logger` instance or a string with the
+        logger's name. Defaults to the root logger.
+
+    :param int level: Temporary log level for the target logger while
+        the context manager is active. Pass ``None`` if you don't want
+        the level to be changed. The level is automatically reset to its
+        original value when the context manager is left.
+
+    :param bool override_disabled: A logger can be disabled by setting
+        its ``disabled`` attribute. By default, this context manager
+        sets that attribute to ``False`` at the beginning of its
+        execution and resets it when the context manager is left. Set
+        ``override_disabled`` to ``False`` to keep the current value
+        of the attribute.
+
+    :param bool override_global_level: The ``logging.disable`` function
+        allows one to install a global minimum log level that takes
+        precedence over a logger's own level. By default, this context
+        manager makes sure that the global limit is at most ``level``,
+        and reduces it if necessary during its execution. Set
+        ``override_global_level`` to ``False`` to keep the global limit.
+
+    :returns: A recording log handler that listens to ``logger`` during
+        the execution of the context manager.
+    :rtype: :py:class:`RecordingLogHandler`
+
+    Example::
+
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        with recorded_logs(logger) as logs:
+            logger.info(u'Hello, world!')
+
+        logs.assert_log(u'info', u'world')
     '''
-    def __init__(self, logger=None, *args, **kwargs):
-        super(CapturingLogHandler, self).__init__(*args, **kwargs)
+    if logger is None:
+        logger = logging.getLogger()
+    elif not isinstance(logger, logging.Logger):
+        logger = logging.getLogger(logger)
+    handler = RecordingLogHandler()
+    old_level = logger.level
+    manager_level = logger.manager.disable
+    disabled = logger.disabled
+    logger.addHandler(handler)
+    try:
+        if level is not None:
+            logger.setLevel(level)
+        if override_disabled:
+            logger.disabled = False
+        if override_global_level:
+            if (level is None) and (manager_level > old_level):
+                logger.manager.disable = old_level
+            elif (level is not None) and (manager_level > level):
+                logger.manager.disable = level
+        yield handler
+    finally:
+        logger.handlers.remove(handler)
+        logger.setLevel(old_level)
+        logger.disabled = disabled
+        logger.manager.disable = manager_level
+
+
+class RecordingLogHandler(logging.Handler):
+    u'''
+    Log handler that records log messages for later inspection.
+
+    You can inspect the recorded messages via the ``messages`` attribute
+    (a dict that maps log levels to lists of messages) or by using
+    ``assert_log``.
+    '''
+    def __init__(self, *args, **kwargs):
+        super(RecordingLogHandler, self).__init__(*args, **kwargs)
         self.clear()
-        if logger is None:
-            logger = logging.getLogger()
-        elif not isinstance(logger, logging.Logger):
-            logger = logging.getLogger(logger)
-        logger.addHandler(self)
 
     def emit(self, record):
         self.messages[record.levelname.lower()].append(record.getMessage())
@@ -577,10 +646,19 @@ class CapturingLogHandler(logging.Handler):
 
         :raises AssertionError: If the expected message was not logged.
         '''
-        pattern = re.compile(pattern)
+        compiled_pattern = re.compile(pattern)
         for log_msg in self.messages[level]:
-            if pattern.search(log_msg):
+            if compiled_pattern.search(log_msg):
                 return
+        if not msg:
+            if self.messages[level]:
+                lines = u'\n    '.join(self.messages[level])
+                msg = (u'Pattern "{}" was not found in the log messages for '
+                       + u'level "{}":\n    {}').format(pattern, level, lines)
+            else:
+                msg = (u'Pattern "{}" was not found in the log messages for '
+                       + u'level "{}" (no messages were recorded for that '
+                       + u'level).').format(pattern, level)
         raise AssertionError(msg)
 
     def clear(self):
@@ -588,3 +666,27 @@ class CapturingLogHandler(logging.Handler):
         Clear all captured log messages.
         '''
         self.messages = collections.defaultdict(list)
+
+
+@contextlib.contextmanager
+def temp_file(*args, **kwargs):
+    u'''
+    Context manager that provides a temporary file.
+
+    The temporary file is named and open. It is automatically deleted
+    when the context manager is left if it still exists at that point.
+
+    Any arguments are passed on to
+    :py:func:`tempfile.NamedTemporaryFile`.
+    '''
+    kwargs['delete'] = False
+    f = tempfile.NamedTemporaryFile(*args, **kwargs)
+    try:
+        yield f
+    finally:
+        f.close()
+        try:
+            os.remove(f.name)
+        except OSError as e:
+            if e.errno != errno.ENOENT:
+                raise
