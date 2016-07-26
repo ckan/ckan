@@ -11,53 +11,10 @@ from pylons import config
 import rq
 
 import ckan.lib.jobs as jobs
-from ckan.lib.redis import connect_to_redis
-from ckan.tests.helpers import CapturingLogHandler, changed_config
+from ckan.tests.helpers import CapturingLogHandler, changed_config, RQTestBase
 
 
-def _delete_rq_queue(queue):
-    u'''
-    Delete an RQ queue.
-
-    The queue is emptied before it is deleted.
-
-    :param rq.queue.Queue queue: The RQ queue.
-    '''
-    # See https://github.com/nvie/rq/issues/731
-    queue.empty()
-    redis_conn = connect_to_redis()
-    redis_conn.srem(rq.Queue.redis_queues_keys, queue._key)
-    redis_conn.delete(queue._key)
-
-
-class RQTests(object):
-
-    def setUp(self):
-        # Delete all RQ queues
-        redis_conn = connect_to_redis()
-        for queue in rq.Queue.all(connection=redis_conn):
-            _delete_rq_queue(queue)
-
-    def all_jobs(self):
-        u'''
-        Get a list of all RQ jobs.
-        '''
-        jobs = []
-        redis_conn = connect_to_redis()
-        for queue in rq.Queue.all(connection=redis_conn):
-            jobs.extend(queue.jobs)
-        return jobs
-
-    def enqueue(self, job=None, *args, **kwargs):
-        u'''
-        Enqueue a test job.
-        '''
-        if job is None:
-            job = jobs.test_job
-        return jobs.enqueue(job, *args, **kwargs)
-
-
-class TestQueueNamePrefixes(RQTests):
+class TestQueueNamePrefixes(RQTestBase):
 
     def test_queue_name_prefix_contains_site_id(self):
         prefix = jobs.add_queue_name_prefix(u'')
@@ -73,7 +30,7 @@ class TestQueueNamePrefixes(RQTests):
         jobs.remove_queue_name_prefix(u'foobar')
 
 
-class TestEnqueue(RQTests):
+class TestEnqueue(RQTestBase):
 
     def test_enqueue_return_value(self):
         job = self.enqueue()
@@ -114,7 +71,7 @@ class TestEnqueue(RQTests):
                      jobs.add_queue_name_prefix(u'my_queue'))
 
 
-class TestGetAllQueues(RQTests):
+class TestGetAllQueues(RQTestBase):
 
     def test_foreign_queues_are_ignored(self):
         u'''
@@ -127,15 +84,15 @@ class TestGetAllQueues(RQTests):
         with changed_config(u'ckan.site_id', u'some-other-ckan-instance'):
             self.enqueue(queue=u'q2')
         # Create queue not related to CKAN
-        rq.Queue('q4').enqueue_call(jobs.test_job)
+        rq.Queue(u'q4').enqueue_call(jobs.test_job)
         all_queues = jobs.get_all_queues()
         names = {jobs.remove_queue_name_prefix(q.name) for q in all_queues}
         assert_equal(names, {u'q1', u'q2'})
 
 
-class TestGetQueue(RQTests):
+class TestGetQueue(RQTestBase):
 
-    def  test_get_queue_default_queue(self):
+    def test_get_queue_default_queue(self):
         u'''
         Test that the default queue is returned if no queue is given.
         '''
@@ -151,20 +108,20 @@ class TestGetQueue(RQTests):
         assert_equal(jobs.remove_queue_name_prefix(q.name), u'my_queue')
 
 
-class TestFromID(RQTests):
+class TestJobFromID(RQTestBase):
 
-    def test_from_id_existing(self):
+    def test_job_from_id_existing(self):
         job = self.enqueue()
-        assert_equal(jobs.from_id(job.id), job)
+        assert_equal(jobs.job_from_id(job.id), job)
         job = self.enqueue(queue=u'my_queue')
-        assert_equal(jobs.from_id(job.id), job)
+        assert_equal(jobs.job_from_id(job.id), job)
 
     @raises(KeyError)
-    def test_from_id_not_existing(self):
-        jobs.from_id(u'does-not-exist')
+    def test_job_from_id_not_existing(self):
+        jobs.job_from_id(u'does-not-exist')
 
 
-class TestDictizeJob(RQTests):
+class TestDictizeJob(RQTestBase):
 
     def test_dictize_job(self):
         job = self.enqueue(title=u'Title', queue=u'my_queue')
@@ -172,7 +129,7 @@ class TestDictizeJob(RQTests):
         assert_equal(d[u'id'], job.id)
         assert_equal(d[u'title'], u'Title')
         assert_equal(d[u'queue'], u'my_queue')
-        dt = datetime.datetime.strptime(d[u'created'], u'%Y-%m-%dT%H:%M:%S.%f')
+        dt = datetime.datetime.strptime(d[u'created'], u'%Y-%m-%dT%H:%M:%S')
         now = datetime.datetime.utcnow()
         ok_(abs((now - dt).total_seconds()) < 10)
 
@@ -184,7 +141,7 @@ def failing_job():
     raise RuntimeError(u'JOB FAILURE')
 
 
-class TestWorker(RQTests):
+class TestWorker(RQTestBase):
 
     def test_worker_logging_lifecycle(self):
         u'''

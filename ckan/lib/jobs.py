@@ -80,9 +80,9 @@ def remove_queue_name_prefix(name):
 
 def get_all_queues():
     u'''
-    Return all (non-empty) job queues.
+    Return all job queues currently in use.
 
-    :returns: A list of all queues.
+    :returns: The queues.
     :rtype: List of ``rq.queue.Queue`` instances
 
     .. seealso:: :py:func:`get_queue`
@@ -154,7 +154,7 @@ def enqueue(fn, args=None, kwargs=None, title=None, queue=DEFAULT_QUEUE_NAME):
     return job
 
 
-def from_id(id):
+def job_from_id(id):
     u'''
     Look up an enqueued job by its ID.
 
@@ -186,7 +186,7 @@ def dictize_job(job):
     return {
         u'id': job.id,
         u'title': job.meta.get(u'title'),
-        u'created': job.created_at.isoformat(),
+        u'created': job.created_at.strftime(u'%Y-%m-%dT%H:%M:%S'),
         u'queue': remove_queue_name_prefix(job.origin),
     }
 

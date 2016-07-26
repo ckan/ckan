@@ -730,21 +730,21 @@ def job_clear(context, data_dict):
     names = [jobs.remove_queue_name_prefix(queue.name) for queue in queues]
     for queue, name in zip(queues, names):
         queue.empty()
-        log.warn(u'Cleared background job queue "{}"'.format(name))
+        log.info(u'Cleared background job queue "{}"'.format(name))
     return names
 
 
 def job_cancel(context, data_dict):
     '''Cancel a queued background job.
 
-    Removes the job from the queue.
+    Removes the job from the queue and deletes it.
 
     :param string id: The ID of the background job.
     '''
     _check_access(u'job_cancel', context, data_dict)
     id = _get_or_bust(data_dict, u'id')
     try:
-        jobs.from_id(id).cancel()
-        log.warn(u'Cancelled background job {}'.format(id))
+        jobs.job_from_id(id).delete()
+        log.info(u'Cancelled background job {}'.format(id))
     except KeyError:
         raise NotFound

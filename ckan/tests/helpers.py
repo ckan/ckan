@@ -30,8 +30,11 @@ import webtest
 import nose.tools
 from nose.tools import assert_in, assert_not_in
 import mock
+import rq
 
 from ckan.common import config
+import ckan.lib.jobs as jobs
+from ckan.lib.redis import connect_to_redis
 import ckan.lib.search as search
 import ckan.config.middleware
 import ckan.model as model
@@ -214,6 +217,49 @@ class FunctionalTestBase(object):
         config.update(cls._original_config)
 
 
+class RQTestBase(object):
+    '''
+    Base class for tests of RQ functionality.
+    '''
+    def setup(self):
+        u'''
+        Delete all RQ queues and jobs.
+        '''
+        # See https://github.com/nvie/rq/issues/731
+        redis_conn = connect_to_redis()
+        for queue in rq.Queue.all(connection=redis_conn):
+            queue.empty()
+            redis_conn.srem(rq.Queue.redis_queues_keys, queue._key)
+            redis_conn.delete(queue._key)
+
+    def all_jobs(self):
+        u'''
+        Get a list of all RQ jobs.
+        '''
+        jobs = []
+        redis_conn = connect_to_redis()
+        for queue in rq.Queue.all(connection=redis_conn):
+            jobs.extend(queue.jobs)
+        return jobs
+
+    def enqueue(self, job=None, *args, **kwargs):
+        u'''
+        Enqueue a test job.
+        '''
+        if job is None:
+            job = jobs.test_job
+        return jobs.enqueue(job, *args, **kwargs)
+
+
+class FunctionalRQTestBase(FunctionalTestBase, RQTestBase):
+    '''
+    Base class for functional tests of RQ functionality.
+    '''
+    def setup(self):
+        FunctionalTestBase.setup(self)
+        RQTestBase.setup(self)
+
+
 def submit_and_follow(app, form, extra_environ=None, name=None,
                       value=None, **args):
     '''
@@ -324,7 +370,7 @@ def change_config(key, value):
     :param value: the new config key's value, e.g. ``'My Test CKAN'``
     :type value: string
 
-    .. seealso:: :py:func:`changed_config`
+    .. seealso:: The context manager :py:func:`changed_config`
     '''
     def decorator(func):
         @functools.wraps(func)
@@ -349,7 +395,7 @@ def changed_config(key, value):
         with changed_config(u'ckan.site_title', u'My Test CKAN'):
             assert config[u'ckan.site_title'] == u'My Test CKAN'
 
-    .. seealso:: :py:func:`change_config`
+    .. seealso:: The decorator :py:func:`change_config`
     '''
     _original_config = config.copy()
     config[key] = value

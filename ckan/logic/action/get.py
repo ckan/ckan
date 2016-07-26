@@ -3539,6 +3539,6 @@ def job_show(context, data_dict):
     _check_access(u'job_show', context, data_dict)
     id = _get_or_bust(data_dict, u'id')
     try:
-        return jobs.dictize_job(jobs.from_id(id))
+        return jobs.dictize_job(jobs.job_from_id(id))
     except KeyError:
         raise NotFound
