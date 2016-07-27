@@ -2596,6 +2596,10 @@ class JobsCommand(CkanCommand):
                 List currently enqueued jobs from the given queues. If no queue
                 names are given then the jobs from all queues are listed.
 
+        paster jobs show ID
+
+                Show details about a specific job.
+
         paster jobs cancel ID
 
                 Cancel a specific job.
@@ -2638,6 +2642,8 @@ class JobsCommand(CkanCommand):
             self.worker()
         elif cmd == u'list':
             self.list()
+        elif cmd == u'show':
+            self.show()
         elif cmd == u'cancel':
             self.cancel()
         elif cmd == u'clear':
@@ -2662,6 +2668,23 @@ class JobsCommand(CkanCommand):
             else:
                 job[u'title'] = u'"{}"'.format(job[u'title'])
             print(u'{created} {id} {queue} {title}'.format(**job))
+
+    def show(self):
+        if not self.args:
+            error(u'You must specify a job ID')
+        id = self.args[0]
+        try:
+            job = p.toolkit.get_action(u'job_show')({}, {u'id': id})
+        except logic.NotFound:
+            error(u'There is no job with ID "{}"'.format(id))
+        print(u'ID:      {}'.format(job[u'id']))
+        if job[u'title'] is None:
+            title = u'None'
+        else:
+            title = u'"{}"'.format(job[u'title'])
+        print(u'Title:   {}'.format(title))
+        print(u'Created: {}'.format(job[u'created']))
+        print(u'Queue:   {}'.format(job[u'queue']))
 
     def cancel(self):
         if not self.args:

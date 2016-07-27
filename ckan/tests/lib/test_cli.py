@@ -192,6 +192,28 @@ class TestJobsList(helpers.RQTestBase):
         assert_not_in(u'q3', stdout)
 
 
+class TestJobShow(helpers.RQTestBase):
+    '''
+    Tests for ``paster jobs show``.
+    '''
+    def test_show_existing(self):
+        '''
+        Test ``jobs show`` for an existing job.
+        '''
+        job = self.enqueue(queue=u'my_queue', title=u'My Title')
+        stdout = paster(u'jobs', u'show', job.id)[1]
+        assert_in(job.id, stdout)
+        assert_in(jobs.remove_queue_name_prefix(job.origin), stdout)
+
+    def test_show_missing_id(self):
+        '''
+        Test ``jobs show`` with a missing ID.
+        '''
+        code, stdout, stderr = paster(u'jobs', u'show', fail_on_error=False)
+        neq(code, 0)
+        ok(stderr)
+
+
 class TestJobsCancel(helpers.RQTestBase):
     '''
     Tests for ``paster jobs cancel``.
@@ -216,6 +238,14 @@ class TestJobsCancel(helpers.RQTestBase):
                                       fail_on_error=False)
         neq(code, 0)
         assert_in(u'does-not-exist', stderr)
+
+    def test_cancel_missing_id(self):
+        '''
+        Test ``jobs cancel`` with a missing ID.
+        '''
+        code, stdout, stderr = paster(u'jobs', u'cancel', fail_on_error=False)
+        neq(code, 0)
+        ok(stderr)
 
 
 class TestJobsClear(helpers.RQTestBase):
