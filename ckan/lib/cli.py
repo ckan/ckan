@@ -947,7 +947,7 @@ class DatasetCmd(CkanCommand):
 
 
 class Celery(CkanCommand):
-    '''Celery daemon
+    '''Celery daemon [DEPRECATED]
 
     This command is DEPRECATED, use `paster jobs` instead.
 
@@ -2602,7 +2602,9 @@ class JobsCommand(CkanCommand):
 
         paster jobs cancel ID
 
-                Cancel a specific job.
+                Cancel a specific job. Jobs can only be canceled while they are
+                enqueued. Once a worker has started executing a job it cannot
+                be aborted anymore.
 
         paster jobs clear [QUEUES]
 

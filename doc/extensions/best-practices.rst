@@ -74,6 +74,10 @@ the name of your extension. For example:
   with the name of your extension. For example
   ``my_extension_foobarize_everything``.
 
+* The names of *background job queues* introduced by your extension should
+  begin with the name of your extension. For example
+  ``my_extension:super-special-job-queue``.
+
 In some situations, resources like databases may even be shared between
 multiple CKAN *instances*, which requires an even higher degree of uniqueness
 for the corresponding names. In that case, you should also prefix your

@@ -248,6 +248,17 @@ You should now be able to visit your server in a web browser and see your new
 CKAN instance.
 
 
+--------------------------------------
+10. Setup a worker for background jobs
+--------------------------------------
+CKAN uses asynchronous :ref:`background jobs` for long tasks. These jobs are
+executed by a separate process which is called a :ref:`worker <background jobs
+workers>`.
+
+To run the worker in a robust way, :ref:`install and configure Supervisor
+<background jobs supervisor>`.
+
+
 ---------------
 Troubleshooting
 ---------------

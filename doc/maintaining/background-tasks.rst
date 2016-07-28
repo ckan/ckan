@@ -1,175 +1,349 @@
-================
-Background tasks
-================
+.. _background jobs:
 
-.. version-added: 1.5.1
-
-CKAN allows you to create tasks that run in the 'background', that is
-asynchronously and without blocking the main application (these tasks can also
-be automatically retried in the case of transient failures). Such tasks can be
+===============
+Background jobs
+===============
+CKAN allows you to create jobs that run in the 'background', i.e.
+asynchronously and without blocking the main application. Such jobs can be
 created in :doc:`Extensions </extensions/index>` or in core CKAN.
 
-Background tasks can be essential to providing certain kinds of functionality,
+Background jobs can be essential to providing certain kinds of functionality,
 for example:
 
-* Creating webhooks that notify other services when certain changes occur (for
+* Creating web-hooks that notify other services when certain changes occur (for
   example a dataset is updated)
+
 * Performing processing or validation or on data (as done by the Archiver and
   DataStorer Extensions)
 
+Basically, any piece of work that takes too long to perform while the main
+application is waiting is a good candidate for a background job.
 
-Enabling background tasks
-=========================
+.. note::
 
-To manage and run background tasks requires a job queue and CKAN uses celery_
-(plus the CKAN database) for this purpose. Thus, to use background tasks you
-need to install and run celery_.
+    The current background job system is based on RQ_ and was introduced in
+    CKAN 2.6. See :ref:`background jobs migration` for details on how to
+    migrate your jobs from the previous system introduced in CKAN 1.5.
 
-Installation of celery_ will normally be taken care of by whichever component
-or extension utilizes it so we skip that here.
-
-.. _celery: http://celeryproject.org/
-
-To run the celery daemon you have two options:
-
-1. In development setup you can just use paster. This can be done as simply
-   as::
-
-     paster celeryd
-
-   This only works if you have a ``development.ini`` file in ckan root.
-
-2. In production, the daemon should be run with a different ini file and be run
-   as an init script. The simplest way to do this is to install supervisor::
-
-     apt-get install supervisor
-
-   Using this file as a template and copy to ``/etc/supservisor/conf.d``::
-
-     https://github.com/ckan/ckan/blob/master/ckan/config/celery-supervisor.conf
-
-   Alternatively, you can run::
-
-     paster celeryd --config=/path/to/file.ini
+    .. _RQ: http://python-rq.org
 
 
-Writing background tasks
-==========================
+.. _background jobs writing:
 
-These instructions should show you how to write an background task and how to
-call it from inside CKAN or another extension using celery.
+Writing and enqueuing background jobs
+=====================================
 
-Examples
---------
+.. note::
 
-Here are some existing real examples of writing CKAN tasks:
+    This section is only relevant for developers working on CKAN or an
+    extension.
 
-* https://github.com/ckan/ckanext-archiver
-* https://github.com/ckan/ckanext-qa
-* https://github.com/ckan/ckanext-datastorer
+The core of a background job is a regular Python function. For example, here's
+a very simply job function that logs a message::
 
-Setup
------
+    import logging
 
-An entry point is required inside the ``setup.py`` for your extension, and so
-you should add something resembling the following that points to a function in
-a module. In this case the function is called task_imports in the
-``ckanext.NAME.celery_import`` module::
-
-  entry_points = """
-    [ckan.celery_task]
-    tasks = ckanext.NAME.celery_import:task_imports
-  """
-
-The function, in this case ``task_imports`` should be a function that returns
-fully qualified module paths to modules that contain the defined task (see the
-next section).  In this case we will put all of our tasks in a file called
-``tasks.py`` and so ``task_imports`` should be in a file called
-``ckanext/NAME/celery_import.py``::
-
-  def task_imports():
-    return ['ckanext.NAME.tasks']
-
-This returns an iterable of all of the places to look to find tasks, in this
-example we are only putting them in one place.
+    def log_job(msg, level=logging.INFO, logger=u'ckan'):
+        u'''
+        Background job to log a message.
+        '''
+        logger = logging.getLogger(logger)
+        logger.log(level, msg)
 
 
-Implementing the tasks
-----------------------
+And that's it. Your job function can use all the usual Python features. Just
+keep in mind that your function will be run in a separate process by a
+:ref:`worker <background jobs workers>`, so your function should not depend on
+the current state of global variables, etc. Ideally your job function should
+receive all the information it needs via its arguments.
 
-The most straightforward way of defining tasks in our ``tasks.py`` module, is
-to use the decorators provided by celery. These decorators make it easy to just
-define a function and then give it a name and make it accessible to celery.
-Make sure you import celery from ckan.lib.celery_app::
+In addition, the module that contains your job function must be importable by
+the worker, which must also be able to get the function from its module. This
+means that nested functions, lambdas and instance methods cannot be used as job
+functions. While class methods of top-level classes can be used it's best to
+stick to ordinary module-level functions.
 
-  from ckan.lib.celery_app import celery
+.. note::
 
-Implement your function, specifying the arguments you wish it to take. For our
-sample we will use a simple echo task that will print out its argument to the
-console::
+    Background jobs do not support return values (since they run asynchronously
+    there is no place to return those values to). If your job function produces
+    a result then it needs to store that result, for example in a file or in
+    CKAN's database.
 
-  def echo( message ):
-    print message
+Once you have a job function, all you need to do is to use
+``ckan.lib.jobs.enqueue`` to create an actual job out of it::
 
-Next it is important to decorate your function with the celery task decorator.
-You should give the task a name, which is used later on when calling the task::
+    import ckan.lib.jobs as jobs
 
-  @celery.task(name = "NAME.echofunction")
-  def echo( message ):
-    print message
+    jobs.enqueue(log_job, [u'My log message'])
 
-That's it, your function is ready to be run asynchronously outside of the main
-execution of the CKAN app.  Next you should make sure you run ``python setup.py
-develop`` in your extensions folder and then go to your CKAN installation
-folder (normally pyenv/src/ckan/) to run the following command::
+This will place a job on the :ref:`job queue <background jobs queues>` where it
+can be picked up and executed by a worker.
 
-  paster celeryd
+The first argument to ``enqueue`` is the job function to use. The second is a
+list of the arguments which should be passed to the function. You can omit it
+in which case no arguments will be passed. You can also pass keyword arguments
+in a dict as the third argument::
 
-Once you have done this your task name ``NAME.echofunction`` should appear in
-the list of tasks loaded. If it is there then you are all set and ready to go.
-If not then you should try the following to try and resolve the problem:
+    jobs.enqueue(log_job, [u'My log message'], {u'logger': u'ckanext.foo'})
 
-1. Make sure the entry point is defined correctly in your ``setup.py`` and that
-   you have executed ``python setup.py develop``
-2. Check that your task_imports function returns an iterable with valid module
-   names in
-3. Ensure that the decorator marks the functions (if there is more than one
-   decorator, make sure the celery.task is the first one - which means it will
-   execute last).
-4. If none of the above helps, go into #ckan on irc.freenode.net where there
-   should be people who can help you resolve your issue.
+You can also give the job a title which can be useful for identifying it when
+:ref:`managing the job queue <background jobs management>`::
 
-Calling the task
-----------------
-
-Now that the task is defined, and has been loaded by celery it is ready to be
-called.  To call a background task you need to know only the name of the task,
-and the arguments that it expects as well as providing it a task id.::
-
-  import uuid
-  from ckan.lib.celery_app import celery
-  celery.send_task("NAME.echofunction", args=["Hello World"], task_id=str(uuid.uuid4()))
-
-After executing this code you should see the message printed in the console
-where you ran ``paster celeryd``.
+    jobs.enqueue(log_job, [u'My log message'], title=u'My log job')
 
 
-Retrying on errors
-------------------
+.. _background jobs workers:
 
-Should your task fail to complete because of a transient error, it is possible
-to ask celery to retry the task, after some period of time.  The default wait
-before retrying is three minutes, but you can optionally specify this in the
-call to retry via the countdown parameter, and you can also specify the
-exception that triggered the failure.  For our example the call to retry would
-look like the following - note that it calls the function name, not the task
-name given in the decorator::
+Running background jobs
+=======================
+Jobs are placed on the :ref:`job queue <background jobs queues>`, from which
+they can be retrieved and executed. Since jobs are designed to run
+asynchronously that happens in a separate process called a *worker*.
 
-  try:
-    ... some work that may fail, http request?
-  except Exception, e:
-    # Retry again in 2 minutes
-    echo.retry(args=(message), exc=e, countdown=120, max_retries=10)
+After it has been started, a worker listens on the queue until a job is
+enqueued. The worker then removes the job from the queue and executes it.
+Afterwards the worker waits again for the next job to be enqueued.
 
-If you don't want to wait a period of time you can use the eta datetime
-parameter to specify an explicit time to run the task (i.e. 9AM tomorrow)
+.. note::
+
+    Executed jobs are discarded. In particular, no information about past jobs
+    is kept.
+
+Workers can be started using the :ref:`paster jobs worker` command::
+
+    paster --plugin=ckan jobs worker --config=/etc/ckan/default/development.ini
+
+The worker process will run indefinitely (you can stop it using ``CTRL+C``).
+
+.. note::
+
+    You can run multiple workers if your setup uses many or particularly long
+    background jobs.
+
+
+.. _background jobs supervisor:
+
+Using Supervisor
+^^^^^^^^^^^^^^^^
+In a production setting, the worker should be run in a more robust way. One
+possibility is to use Supervisor_.
+
+.. _Supervisor: http://supervisord.org/
+
+First install Supervisor::
+
+    sudo apt-get install supervisor
+
+Next copy the configuration file template::
+
+    sudo cp /usr/lib/ckan/default/src/ckan/ckan/config/supervisor-ckan-worker.conf /etc/supervisor/conf.d
+
+Open ``/etc/supervisor/conf.d/supervisor-ckan-worker.conf`` in your favourite
+text editor and make sure all the settings suit your needs. If you installed
+CKAN in a non-default location (somewhere other than ``/usr/lib/ckan/default``)
+then you will need to update the paths in the config file (see the comments in
+the file for details).
+
+Restart Supervisor::
+
+    sudo service supervisor restart
+
+The worker should now be running. To check its status, use
+
+::
+
+    sudo supervisorctl status
+
+You can restart the worker via
+
+::
+
+    sudo supervisorctl restart ckan-worker:*
+
+To test that background jobs are processed correctly you can enqueue a test job
+via
+
+::
+
+    paster --plugin=ckan jobs test -c /etc/ckan/default/production.ini
+
+The worker's log (``/var/log/ckan-worker.log``) should then show how the job
+was processed by the worker.
+
+In case you run into problems, make sure to check the logs of Supervisor and
+the worker::
+
+    cat /var/log/supervisor/supervisord.log
+    cat /var/log/ckan-worker.log
+
+
+
+.. _background jobs management:
+
+Managing background jobs
+========================
+Once they are enqueued, background jobs can be managed via
+:ref:`paster <paster>` and the :ref:`web API <action api>`.
+
+List enqueues jobs
+^^^^^^^^^^^^^^^^^^
+* :ref:`paster jobs list <paster jobs list>`
+* :py:func:`ckan.logic.action.get.job_list`
+
+Show details about a job
+^^^^^^^^^^^^^^^^^^^^^^^^
+* :ref:`paster jobs show <paster jobs show>`
+* :py:func:`ckan.logic.action.get.job_show`
+
+Cancel a job
+^^^^^^^^^^^^
+A job that hasn't been processed yet can be canceled via
+
+* :ref:`paster jobs cancel <paster jobs cancel>`
+* :py:func:`ckan.logic.action.delete.job_cancel`
+
+Clear all enqueued jobs
+^^^^^^^^^^^^^^^^^^^^^^^
+* :ref:`paster jobs clear <paster jobs clear>`
+* :py:func:`ckan.logic.action.delete.job_clear`
+
+Logging
+^^^^^^^
+Information about enqueued and processed background jobs is automatically
+logged to the CKAN logs. You may need to update your logging configuration to
+record messages at the *INFO* level for the messages to be stored.
+
+.. _background jobs queues:
+
+Background job queues
+=====================
+By default, all functionality related to background jobs uses a single job
+queue that is specific to the current CKAN instance. However, in some
+situations it is useful to have more than one queue. For example, you might
+want to distinguish between short, urgent jobs and longer, less urgent ones.
+The urgent jobs should be processed even if a long and less urgent job is
+already running.
+
+For such scenarios, the job system supports multiple queues. To use a different
+queue, all you have to do is pass the (arbitrary) queue name. For example, to
+enqueue a job at a non-default queue::
+
+    jobs.enqueue(log_job, [u"I'm from a different queue!"],
+                 queue=u'my-own-queue')
+
+Similarly, to start a worker that only listens to the queue you just posted a
+job to::
+
+    paster --plugin=ckan jobs worker my-own-queue --config=/etc/ckan/default/development.ini
+
+See the documentation of the various functions and commands for details on how
+to use non-standard queues.
+
+.. note::
+
+    If you create a custom queue in your extension then you should prefix the
+    queue name using your extension's name. See :ref:`avoid name clashes`.
+
+    Queue names are internally automatically prefixed with the CKAN site ID,
+    so multiple parallel CKAN instances are not a problem.
+
+
+.. _background jobs migration:
+
+Migrating from CKAN's previous background job system
+====================================================
+Before version 2.6 (starting from 1.5), CKAN offered a different background job
+system built around Celery_. That system is still available but deprecated and
+will be removed in future versions of CKAN. You should therefore update your
+code to use the new system described above.
+
+.. _Celery: http://celeryproject.org/
+
+Migrating existing job functions is easy. In the old system, a job function
+would look like this::
+
+    @celery.task(name=u'my_extension.echofunction')
+    def echo(message):
+        print message
+
+As :ref:`described above <background jobs writing>`, under the new system the
+same function would be simply written as
+
+::
+
+    def echo(message):
+        print message
+
+There is no need for a special decorator. In the new system there is also no
+need for registering your tasks via ``setup.py``.
+
+Migrating the code that enqueues a task is also easy. Previously it would look
+like this::
+
+    celery.send_task(u'my_extension.echofunction', args=[u'Hello World'],
+                     task_id=str(uuid.uuid4()))
+
+With the new system, it looks as follows::
+
+    import ckan.lib.jobs as jobs
+
+    jobs.enqueue(ckanext.my_extension.plugin.echo, [u'Hello World'])
+
+As you can see, the new system does not use strings to identify job functions
+but uses the functions directly instead. There is also no need for creating a
+job ID, that will be done automatically for you.
+
+
+Supporting both systems at once
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Not all CKAN installations will immediately update to CKAN 2.6. It might
+therefore make sense for you to support both the new and the old job system.
+That way you are ready when the old system is removed but can continue to
+support older CKAN installations.
+
+Such a setup might look as follows. First split your Celery-based job
+functions into the job itself and its Celery handler. That is, change
+
+::
+
+    @celery.task(name=u'my_extension.echofunction')
+    def echo(message):
+        print message
+
+to
+
+::
+
+    def echo(message):
+        print message
+
+    @celery.task(name=u'my_extension.echofunction')
+    def echo_celery(*args, **kwargs):
+      echo(*args, **kwargs)
+
+That way, you can call ``echo`` using the new system and use the name for
+Celery.
+
+Then use the new system if it is available and fall back to Celery otherwise::
+
+    def compat_enqueue(name, fn, args=None):
+        u'''
+        Enqueue a background job using Celery or RQ.
+        '''
+        try:
+            # Try to use RQ
+            from ckan.lib.jobs import enqueue
+            enqueue(fn, args=args)
+        except ImportError:
+            # Fallback to Celery
+            import uuid
+            from ckan.lib.celery_app import celery
+            celery.send_task(name, args=args, task_id=str(uuid.uuid4()))
+
+Use that function as follows for enqueuing a job::
+
+    compat_enqueue(u'my_extension.echofunction',
+                   ckanext.my_extension.plugin.echo,
+                   [u'Hello World'])
+
