@@ -720,6 +720,8 @@ def job_clear(context, data_dict):
 
     :returns: The cleared queues.
     :rtype: list
+
+    .. versionadded:: 2.6
     '''
     _check_access(u'job_clear', context, data_dict)
     queues = data_dict.get(u'queues')
@@ -740,6 +742,8 @@ def job_cancel(context, data_dict):
     Removes the job from the queue and deletes it.
 
     :param string id: The ID of the background job.
+
+    .. versionadded:: 2.6
     '''
     _check_access(u'job_cancel', context, data_dict)
     id = _get_or_bust(data_dict, u'id')

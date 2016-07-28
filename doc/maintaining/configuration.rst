@@ -711,6 +711,8 @@ Default value: ``redis://localhost:6379/0``
 
 URL to your Redis instance, including the database to be used.
 
+.. versionadded:: 2.6
+
 
 CORS Settings
 -------------

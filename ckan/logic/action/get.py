@@ -3514,6 +3514,8 @@ def job_list(context, data_dict):
 
     :returns: The currently enqueued background jobs.
     :rtype: list
+
+    .. versionadded:: 2.6
     '''
     _check_access(u'job_list', context, data_dict)
     dictized_jobs = []
@@ -3535,6 +3537,8 @@ def job_show(context, data_dict):
 
     :returns: Details about the background job.
     :rtype: dict
+
+    .. versionadded:: 2.6
     '''
     _check_access(u'job_show', context, data_dict)
     id = _get_or_bust(data_dict, u'id')
