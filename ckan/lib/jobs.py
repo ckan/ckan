@@ -19,7 +19,7 @@ prefixed names. Use the functions ``add_queue_name_prefix`` and
 import logging
 
 from pylons import config
-from rq import Queue, Worker as RqWorker
+import rq
 from rq.connections import push_connection
 from rq.exceptions import NoSuchJobError
 from rq.job import Job
@@ -89,7 +89,7 @@ def get_all_queues():
     '''
     redis_conn = _connect()
     prefix = _get_queue_name_prefix()
-    return [q for q in Queue.all(connection=redis_conn) if
+    return [q for q in rq.Queue.all(connection=redis_conn) if
             q.name.startswith(prefix)]
 
 
@@ -114,7 +114,7 @@ def get_queue(name=DEFAULT_QUEUE_NAME):
     except KeyError:
         log.debug(u'Initializing background job queue "{}"'.format(name))
         redis_conn = _connect()
-        queue = _queues[fullname] = Queue(fullname, connection=redis_conn)
+        queue = _queues[fullname] = rq.Queue(fullname, connection=redis_conn)
         return queue
 
 
@@ -200,7 +200,7 @@ def test_job(*args):
     print(args)
 
 
-class Worker(RqWorker):
+class Worker(rq.Worker):
     u'''
     CKAN-specific worker.
     '''
@@ -218,6 +218,7 @@ class Worker(RqWorker):
         '''
         queues = queues or [DEFAULT_QUEUE_NAME]
         queues = [get_queue(q) for q in ensure_list(queues)]
+        rq.worker.logger.setLevel(logging.INFO)
         super(Worker, self).__init__(queues, *args, **kwargs)
 
     def register_birth(self, *args, **kwargs):
