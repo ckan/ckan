@@ -2266,7 +2266,7 @@ msgstr "Tạo"
 
 #: ckan/templates/ajax_snippets/api_info.html:46
 msgid "Update / Insert"
-msgstr "Cậ nhật/Chèn"
+msgstr "Cập nhật/Chèn"
 
 #: ckan/templates/ajax_snippets/api_info.html:50
 msgid "Query"
@@ -2278,7 +2278,7 @@ msgstr "Truy vấn (thông qua ngôn ngữ truy vấn mang tính cấu trúc)"
 
 #: ckan/templates/ajax_snippets/api_info.html:66
 msgid "Querying"
-msgstr "Đang hỏi"
+msgstr "Đang truy vấn"
 
 #: ckan/templates/ajax_snippets/api_info.html:70
 msgid "Query example (first 5 results)"
@@ -2372,7 +2372,7 @@ msgstr "Đầu vào lớn"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend"
-msgstr "Hàm bổ sung Tiền tố"
+msgstr "Hàm bổ sung tiền tố"
 
 #: ckan/templates/development/snippets/form.html:9
 msgid "Prepend Input"
@@ -2394,7 +2394,7 @@ msgstr "Trường chỉnh sửa"
 
 #: ckan/templates/development/snippets/form.html:22
 msgid "Markdown"
-msgstr "Giảm "
+msgstr "Giảm"
 
 #: ckan/templates/development/snippets/form.html:23
 msgid "Textarea"
@@ -2571,7 +2571,7 @@ msgstr "Nếu bạn muốn thêm một người sử dụng hiện có, hãy tì
 #: ckan/templates/group/member_new.html:38
 #: ckan/templates/organization/member_new.html:40
 msgid "or"
-msgstr "Hoặc"
+msgstr "hoặc"
 
 #: ckan/templates/group/member_new.html:42
 #: ckan/templates/organization/member_new.html:44
@@ -2849,7 +2849,7 @@ msgstr ""
 
 #: ckan/templates/home/snippets/search.html:6
 msgid "Search data"
-msgstr ""
+msgstr "Tìm kiếm dữ liệu"
 
 #: ckan/templates/home/snippets/search.html:16
 msgid "Popular tags"
@@ -3316,11 +3316,11 @@ msgstr "Không thấy chế độ xem dữ liệu bạn yêu cầu?"
 
 #: ckan/templates/package/resource_read.html:121
 msgid "Here are some reasons you may not be seeing expected views:"
-msgstr ""
+msgstr "Đây là một số lý do bạn có thể không xem được view mong muốn"
 
 #: ckan/templates/package/resource_read.html:123
 msgid "No view has been created that is suitable for this resource"
-msgstr ""
+msgstr "Không có view nào được tao ra phù hợp với tài nguyên này"
 
 #: ckan/templates/package/resource_read.html:124
 msgid "The site administrators may not have enabled the relevant view plugins"
@@ -3375,11 +3375,11 @@ msgstr "Giấy phép"
 
 #: ckan/templates/package/resource_views.html:10
 msgid "New view"
-msgstr ""
+msgstr "View mới"
 
 #: ckan/templates/package/resource_views.html:28
 msgid "This resource has no views"
-msgstr ""
+msgstr "Tài nguyên này không có view nào"
 
 #: ckan/templates/package/resources.html:8
 msgid "Add new resource"
@@ -3460,7 +3460,7 @@ msgstr "Tình trạng"
 
 #: ckan/templates/package/snippets/additional_info.html:62
 msgid "Last Updated"
-msgstr ""
+msgstr "Cập nhật mới nhất"
 
 #: ckan/templates/package/snippets/data_api_button.html:10
 msgid "Data API"
@@ -3705,15 +3705,15 @@ msgstr ""
 
 #: ckan/templates/package/snippets/view_form_filters.html:16
 msgid "Add Filter"
-msgstr ""
+msgstr "Thêm bộ lọc"
 
 #: ckan/templates/package/snippets/view_form_filters.html:28
 msgid "Remove Filter"
-msgstr ""
+msgstr "Xoá bộ lọc"
 
 #: ckan/templates/package/snippets/view_form_filters.html:46
 msgid "Filters"
-msgstr ""
+msgstr "Bộ lọc"
 
 #: ckan/templates/package/snippets/view_help.html:2
 msgid "What's a view?"
@@ -4345,19 +4345,19 @@ msgstr ""
 
 #: ckanext/reclineview/plugin.py:84
 msgid "Data Explorer"
-msgstr ""
+msgstr "Khám phá dữ liệu"
 
 #: ckanext/reclineview/plugin.py:111
 msgid "Table"
-msgstr ""
+msgstr "Bảng"
 
 #: ckanext/reclineview/plugin.py:154
 msgid "Graph"
-msgstr ""
+msgstr "Đồ thị"
 
 #: ckanext/reclineview/plugin.py:214
 msgid "Map"
-msgstr ""
+msgstr "Bản đồ"
 
 #: ckanext/reclineview/theme/public/recline_view.js:34
 msgid "error loading view"
@@ -4376,7 +4376,7 @@ msgstr ""
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
 msgid "Number of rows"
-msgstr ""
+msgstr "Số lượng dòng"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:4
 #: ckanext/reclineview/theme/templates/recline_map_form.html:4
@@ -4385,7 +4385,7 @@ msgstr ""
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:6
 msgid "Graph type"
-msgstr ""
+msgstr "Loại đồ thị"
 
 #: ckanext/reclineview/theme/templates/recline_graph_form.html:7
 msgid "Group (Axis 1)"
@@ -4401,11 +4401,11 @@ msgstr ""
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:7
 msgid "Latitude field"
-msgstr ""
+msgstr "Trường vĩ độ"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:8
 msgid "Longitude field"
-msgstr ""
+msgstr "Trường kinh độ"
 
 #: ckanext/reclineview/theme/templates/recline_map_form.html:9
 msgid "GeoJSON field"
@@ -4505,7 +4505,7 @@ msgstr "Số bộ dữ liệu"
 #: ckanext/stats/templates/ckanext/stats/index.html:152
 #: ckanext/stats/templates/ckanext/stats/index.html:184
 msgid "Users Creating Most Datasets"
-msgstr ""
+msgstr "Những người dùng tạo nhiều tập dữ liệu nhất"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:175
 msgid "Statistics Menu"
@@ -4522,7 +4522,7 @@ msgstr ""
 #: ckanext/textview/theme/public/text_view.js:5
 #, python-format
 msgid "An error occurred: %(text)s %(error)s"
-msgstr ""
+msgstr "Một lỗi xuất hiện: %(text)s %(error)s"
 
 #: ckanext/webpageview/plugin.py:19 ckanext/webpageview/plugin.py:24
 msgid "Website"
