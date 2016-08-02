@@ -1,6 +1,6 @@
 {% extends "package/base.html" %}
 
-{% block subtitle %}{{ pkg.title or pkg.name }} - {{ super() }}{% endblock %}
+{% block subtitle %}{{ h.dataset_display_name(pkg) }} - {{ super() }}{% endblock %}
 
 {% block head_extras -%}
   {{ super() }}
@@ -27,7 +27,7 @@
         <div class="module info alert alert-info">
           <p class="module-content">
             {% set timestamp = h.render_datetime(c.revision_date, with_hours=True) %}
-            {% set url = h.url(controller='package', action='read', id=pkg.name) %}
+            {% set url = h.url_for(controller='package', action='read', id=pkg.name) %}
 
             {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
           </p>

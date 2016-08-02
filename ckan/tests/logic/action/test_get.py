@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import nose.tools
 
 import ckan.logic as logic
@@ -37,16 +39,20 @@ class TestPackageShow(helpers.FunctionalTestBase):
 
         eq(dataset2['new_field'], 'foo')
 
-    def test_package_show_is_lazy(self):
+    def test_package_show_with_custom_schema_return_default_schema(self):
         dataset1 = factories.Dataset()
+        from ckan.logic.schema import default_show_package_schema
+        custom_schema = default_show_package_schema()
 
-        dataset2 = helpers.call_action(
-            'package_show',
-            id=dataset1['id'],
-            context=dict(return_type='LazyJSONObject'))
+        def foo(key, data, errors, context):
+            data[key] = 'foo'
+        custom_schema['new_field'] = [foo]
 
-        # LazyJSONObject passed through without being expanded
-        assert dataset2._json_dict is None
+        dataset2 = helpers.call_action('package_show', id=dataset1['id'],
+                                       use_default_schema=True,
+                                       context={'schema': custom_schema})
+
+        assert 'new_field' not in dataset2
 
 
 class TestGroupList(helpers.FunctionalTestBase):
@@ -124,7 +130,7 @@ class TestGroupList(helpers.FunctionalTestBase):
 
         eq(group_list, ['bb', 'aa'])
 
-    def assert_equals_expected(self, expected_dict, result_dict):
+    def eq_expected(self, expected_dict, result_dict):
         superfluous_keys = set(result_dict) - set(expected_dict)
         assert not superfluous_keys, 'Did not expect key: %s' % \
             ' '.join(('%s=%s' % (k, result_dict[k]) for k in superfluous_keys))
@@ -423,6 +429,21 @@ class TestOrganizationList(helpers.FunctionalTestBase):
         assert (sorted(org_list) ==
                 sorted([g['name'] for g in [org1, org2]]))
 
+    def test_organization_list_return_custom_organization_type(self):
+        '''
+        Getting the org_list with a type defined should only return
+        orgs of that type.
+        '''
+        org1 = factories.Organization()
+        org2 = factories.Organization(type="custom_org")
+        factories.Group(type="custom")
+        factories.Group(type="custom")
+
+        org_list = helpers.call_action('organization_list', type='custom_org')
+
+        assert (sorted(org_list) ==
+                sorted([g['name'] for g in [org2]])), '{}'.format(org_list)
+
 
 class TestOrganizationShow(helpers.FunctionalTestBase):
 
@@ -569,6 +590,7 @@ class TestUserShow(helpers.FunctionalTestBase):
         assert 'apikey' not in got_user
         assert 'email' not in got_user
         assert 'datasets' not in got_user
+        assert 'password_hash' not in got_user
 
     def test_user_show_keep_email(self):
 
@@ -596,6 +618,16 @@ class TestUserShow(helpers.FunctionalTestBase):
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
+    def test_user_show_normal_user_no_password_hash(self):
+
+        user = factories.User()
+
+        got_user = helpers.call_action('user_show',
+                                       id=user['id'],
+                                       include_password_hash=True)
+
+        assert 'password_hash' not in got_user
+
     def test_user_show_for_myself(self):
 
         user = factories.User()
@@ -621,6 +653,23 @@ class TestUserShow(helpers.FunctionalTestBase):
 
         assert got_user['email'] == user['email']
         assert got_user['apikey'] == user['apikey']
+        assert 'password' not in got_user
+        assert 'reset_key' not in got_user
+
+    def test_user_show_sysadmin_password_hash(self):
+
+        user = factories.User(password='test')
+
+        sysadmin = factories.User(sysadmin=True)
+
+        got_user = helpers.call_action('user_show',
+                                       context={'user': sysadmin['name']},
+                                       id=user['id'],
+                                       include_password_hash=True)
+
+        assert got_user['email'] == user['email']
+        assert got_user['apikey'] == user['apikey']
+        assert 'password_hash' in got_user
         assert 'password' not in got_user
         assert 'reset_key' not in got_user
 
@@ -693,69 +742,6 @@ class TestUserShow(helpers.FunctionalTestBase):
         datasets_got = set([user_['name'] for user_ in got_user['datasets']])
         assert dataset_deleted['name'] not in datasets_got
         eq(got_user['number_created_packages'], 3)
-
-
-class TestRelatedList(helpers.FunctionalTestBase):
-
-    def test_related_list_with_no_params(self):
-        '''
-        Test related_list with no parameters and default sort
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list')
-        assert len(related_list) == 2
-        assert related1 in related_list
-        assert related2 in related_list
-
-    def test_related_list_type_filter(self):
-        '''
-        Test related_list with type filter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list',
-                                           type_filter='application')
-        assert ([related2] == related_list)
-
-    def test_related_list_sorted(self):
-        '''
-        Test related_list with sort parameter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list', sort='created_desc')
-        assert ([related2, related1] == related_list)
-
-    def test_related_list_invalid_sort_parameter(self):
-        '''
-        Test related_list with invalid value for sort parameter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list', sort='invalid')
-        assert ([related1, related2] == related_list)
-
-    def test_related_list_featured(self):
-        '''
-        Test related_list with no featured filter
-        '''
-        user = factories.User()
-        related1 = factories.Related(user=user, featured=True)
-        related2 = factories.Related(user=user, type='application')
-
-        related_list = helpers.call_action('related_list', featured=True)
-        assert ([related1] == related_list)
-        # TODO: Create related items associated with a dataset and test
-        # related_list with them
 
 
 class TestCurrentPackageList(helpers.FunctionalTestBase):
@@ -1231,6 +1217,38 @@ class TestPackageSearch(helpers.FunctionalTestBase):
         ckanext-showcase tests.
         '''
         logic.get_action('package_search')({}, dict(q='anything'))
+
+    def test_custom_schema_returned(self):
+        if not p.plugin_loaded('example_idatasetform'):
+            p.load('example_idatasetform')
+
+        dataset1 = factories.Dataset(custom_text='foo')
+
+        query = helpers.call_action('package_search',
+                                    q='id:{0}'.format(dataset1['id']))
+
+        eq(query['results'][0]['id'], dataset1['id'])
+        eq(query['results'][0]['custom_text'], 'foo')
+
+        p.unload('example_idatasetform')
+
+    def test_custom_schema_not_returned(self):
+
+        if not p.plugin_loaded('example_idatasetform'):
+            p.load('example_idatasetform')
+
+        dataset1 = factories.Dataset(custom_text='foo')
+
+        query = helpers.call_action('package_search',
+                                    q='id:{0}'.format(dataset1['id']),
+                                    use_default_schema=True)
+
+        eq(query['results'][0]['id'], dataset1['id'])
+        assert 'custom_text' not in query['results'][0]
+        eq(query['results'][0]['extras'][0]['key'], 'custom_text')
+        eq(query['results'][0]['extras'][0]['value'], 'foo')
+
+        p.unload('example_idatasetform')
 
 
 class TestBadLimitQueryParameters(helpers.FunctionalTestBase):
@@ -1887,3 +1905,159 @@ class TestRevisionList(helpers.FunctionalTestBase):
         revs = helpers.call_action('revision_list', since_id='1',
                                    sort='time_asc')
         eq(revs, ['2', '3'])
+
+
+class TestMembersList():
+
+    def setup(self):
+        helpers.reset_db()
+
+    def test_dataset_delete_marks_membership_of_group_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        group = factories.Group()
+        dataset = factories.Dataset(groups=[{'name': group['name']}])
+        context = {'user': sysadmin['name']}
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='package')
+
+        eq(len(group_members), 1)
+        eq(group_members[0][0], dataset['id'])
+        eq(group_members[0][1], 'package')
+
+        helpers.call_action('package_delete', context, id=dataset['id'])
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='package')
+
+        eq(len(group_members), 0)
+
+    def test_dataset_delete_marks_membership_of_org_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org=org['id'])
+        context = {'user': sysadmin['name']}
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='package')
+
+        eq(len(org_members), 1)
+        eq(org_members[0][0], dataset['id'])
+        eq(org_members[0][1], 'package')
+
+        helpers.call_action('package_delete', context, id=dataset['id'])
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='package')
+
+        eq(len(org_members), 0)
+
+    def test_user_delete_marks_membership_of_group_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        group = factories.Group()
+        user = factories.User()
+        context = {'user': sysadmin['name']}
+
+        member_dict = {
+            'username': user['id'],
+            'id': group['id'],
+            'role': 'member'
+        }
+        helpers.call_action('group_member_create', context, **member_dict)
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='user',
+                                            capacity='member')
+
+        eq(len(group_members), 1)
+        eq(group_members[0][0], user['id'])
+        eq(group_members[0][1], 'user')
+
+        helpers.call_action('user_delete', context, id=user['id'])
+
+        group_members = helpers.call_action('member_list', context,
+                                            id=group['id'],
+                                            object_type='user',
+                                            capacity='member')
+
+        eq(len(group_members), 0)
+
+    def test_user_delete_marks_membership_of_org_as_deleted(self):
+        sysadmin = factories.Sysadmin()
+        org = factories.Organization()
+        user = factories.User()
+        context = {'user': sysadmin['name']}
+
+        member_dict = {
+            'username': user['id'],
+            'id': org['id'],
+            'role': 'member'
+        }
+        helpers.call_action('organization_member_create', context,
+                            **member_dict)
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='user',
+                                          capacity='member')
+
+        eq(len(org_members), 1)
+        eq(org_members[0][0], user['id'])
+        eq(org_members[0][1], 'user')
+
+        helpers.call_action('user_delete', context, id=user['id'])
+
+        org_members = helpers.call_action('member_list', context,
+                                          id=org['id'],
+                                          object_type='user',
+                                          capacity='member')
+
+        eq(len(org_members), 0)
+
+
+class TestFollow(helpers.FunctionalTestBase):
+
+    def test_followee_list(self):
+
+        group1 = factories.Group(title='Finance')
+        group2 = factories.Group(title='Environment')
+        group3 = factories.Group(title='Education')
+
+        user = factories.User()
+
+        context = {'user': user['name']}
+
+        helpers.call_action('follow_group', context, id=group1['id'])
+        helpers.call_action('follow_group', context, id=group2['id'])
+
+        followee_list = helpers.call_action('followee_list', context,
+                                            id=user['name'])
+
+        eq(len(followee_list), 2)
+        eq(sorted([f['display_name'] for f in followee_list]),
+           ['Environment', 'Finance'])
+
+    def test_followee_list_with_q(self):
+
+        group1 = factories.Group(title='Finance')
+        group2 = factories.Group(title='Environment')
+        group3 = factories.Group(title='Education')
+
+        user = factories.User()
+
+        context = {'user': user['name']}
+
+        helpers.call_action('follow_group', context, id=group1['id'])
+        helpers.call_action('follow_group', context, id=group2['id'])
+
+        followee_list = helpers.call_action('followee_list', context,
+                                            id=user['name'],
+                                            q='E')
+
+        eq(len(followee_list), 1)
+        eq(followee_list[0]['display_name'], 'Environment')

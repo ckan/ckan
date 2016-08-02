@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import json
 import datetime
 import os
@@ -9,7 +11,6 @@ import pprint
 import copy
 import hashlib
 
-import pylons
 import distutils.version
 import sqlalchemy
 from sqlalchemy.exc import (ProgrammingError, IntegrityError,
@@ -20,7 +21,7 @@ import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
 import ckanext.datastore.interfaces as interfaces
 import ckanext.datastore.helpers as datastore_helpers
-from ckan.common import OrderedDict
+from ckan.common import OrderedDict, config
 
 log = logging.getLogger(__name__)
 
@@ -102,9 +103,8 @@ def _get_engine(data_dict):
     engine = _engines.get(connection_url)
 
     if not engine:
-        import pylons
         extras = {'url': connection_url}
-        engine = sqlalchemy.engine_from_config(pylons.config,
+        engine = sqlalchemy.engine_from_config(config,
                                                'ckan.datastore.sqlalchemy.',
                                                **extras)
         _engines[connection_url] = engine
@@ -123,11 +123,11 @@ def _cache_types(context):
         if 'nested' not in _type_names:
             native_json = _pg_version_is_at_least(connection, '9.2')
 
-            log.info("Create nested type. Native JSON: {0}".format(
+            log.info("Create nested type. Native JSON: {0!r}".format(
                 native_json))
 
             data_dict = {
-                'connection_url': pylons.config['ckan.datastore.write_url']}
+                'connection_url': config['ckan.datastore.write_url']}
             engine = _get_engine(data_dict)
             with engine.begin() as connection:
                 connection.execute(
@@ -255,7 +255,7 @@ def json_get_values(obj, current_list=None):
     elif isinstance(obj, dict):
         json_get_values(obj.items(), current_list)
     elif obj:
-        current_list.append(str(obj))
+        current_list.append(unicode(obj))
     return current_list
 
 
@@ -264,12 +264,12 @@ def check_fields(context, fields):
     for field in fields:
         if field.get('type') and not _is_valid_pg_type(context, field['type']):
             raise ValidationError({
-                'fields': ['"{0}" is not a valid field type'.format(
+                'fields': [u'"{0}" is not a valid field type'.format(
                     field['type'])]
             })
         elif not _is_valid_field_name(field['id']):
             raise ValidationError({
-                'fields': ['"{0}" is not a valid field name'.format(
+                'fields': [u'"{0}" is not a valid field name'.format(
                     field['id'])]
             })
 
@@ -312,7 +312,7 @@ def create_table(context, data_dict):
         if 'type' not in field:
             if not records or field['id'] not in records[0]:
                 raise ValidationError({
-                    'fields': ['"{0}" type not guessable'.format(field['id'])]
+                    'fields': [u'"{0}" type not guessable'.format(field['id'])]
                 })
             field['type'] = _guess_type(records[0][field['id']])
 
@@ -397,7 +397,7 @@ def create_alias(context, data_dict):
             if e.orig.pgcode in [_PG_ERR_CODE['duplicate_table'],
                                  _PG_ERR_CODE['duplicate_alias']]:
                 raise ValidationError({
-                    'alias': ['"{0}" already exists'.format(alias)]
+                    'alias': [u'"{0}" already exists'.format(alias)]
                 })
 
 
@@ -441,7 +441,7 @@ def create_indexes(context, data_dict):
             if field not in field_ids:
                 raise ValidationError({
                     'index': [
-                        ('The field "{0}" is not a valid column name.').format(
+                        u'The field "{0}" is not a valid column name.'.format(
                             index)]
                 })
         fields_string = u', '.join(
@@ -469,7 +469,7 @@ def _build_fts_indexes(connection, data_dict, sql_index_str_method, fields):
     fts_indexes = []
     resource_id = data_dict['resource_id']
     # FIXME: This is repeated on the plugin.py, we should keep it DRY
-    default_fts_lang = pylons.config.get('ckan.datastore.default_fts_lang')
+    default_fts_lang = config.get('ckan.datastore.default_fts_lang')
     if default_fts_lang is None:
         default_fts_lang = u'english'
     fts_lang = data_dict.get('lang', default_fts_lang)
@@ -504,7 +504,7 @@ def _generate_index_name(resource_id, field):
 
 
 def _get_fts_index_method():
-    method = pylons.config.get('ckan.datastore.default_fts_index_method')
+    method = config.get('ckan.datastore.default_fts_index_method')
     return method or 'gist'
 
 
@@ -568,8 +568,8 @@ def alter_table(context, data_dict):
         if num < len(current_fields):
             if field['id'] != current_fields[num]['id']:
                 raise ValidationError({
-                    'fields': [('Supplied field "{0}" not '
-                                'present or in wrong order').format(
+                    'fields': [(u'Supplied field "{0}" not '
+                                u'present or in wrong order').format(
                         field['id'])]
                 })
             ## no need to check type as field already defined.
@@ -578,7 +578,7 @@ def alter_table(context, data_dict):
         if 'type' not in field:
             if not records or field['id'] not in records[0]:
                 raise ValidationError({
-                    'fields': ['"{0}" type not guessable'.format(field['id'])]
+                    'fields': [u'"{0}" type not guessable'.format(field['id'])]
                 })
             field['type'] = _guess_type(records[0][field['id']])
         new_fields.append(field)
@@ -1223,7 +1223,7 @@ def search_sql(context, data_dict):
             u'SET LOCAL statement_timeout TO {0}'.format(timeout))
 
         table_names = datastore_helpers.get_table_names_from_sql(context, sql)
-        log.debug('Tables involved in input SQL: {0}'.format(table_names))
+        log.debug('Tables involved in input SQL: {0!r}'.format(table_names))
 
         system_tables = [t for t in table_names if t.startswith('pg_')]
         if len(system_tables):
@@ -1281,14 +1281,18 @@ def _change_privilege(context, data_dict, what):
             read_only_user)
     else:
         raise ValidationError({
-            'privileges': 'Can only GRANT or REVOKE but not {0}'.format(what)})
+            'privileges': [
+                u'Can only GRANT or REVOKE but not {0}'.format(what)
+            ]
+        })
     try:
         context['connection'].execute(sql)
     except ProgrammingError, e:
-        log.critical("Error making resource private. {0}".format(e.message))
+        log.critical("Error making resource private. {0!r}".format(e.message))
         raise ValidationError({
-            'privileges': [u'cannot make "{0}" private'.format(
-                           data_dict['resource_id'])],
+            'privileges': [
+                u'cannot make "{resource_id}" private'.format(**data_dict)
+            ],
             'info': {
                 'orig': str(e.orig),
                 'pgcode': e.orig.pgcode
@@ -1297,8 +1301,7 @@ def _change_privilege(context, data_dict, what):
 
 
 def make_private(context, data_dict):
-    log.info('Making resource {0} private'.format(
-        data_dict['resource_id']))
+    log.info('Making resource {resource_id!r} private'.format(**data_dict))
     engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
@@ -1310,8 +1313,7 @@ def make_private(context, data_dict):
 
 
 def make_public(context, data_dict):
-    log.info('Making resource {0} public'.format(
-        data_dict['resource_id']))
+    log.info('Making resource {resource_id!r} public'.format(**data_dict))
     engine = _get_engine(data_dict)
     context['connection'] = engine.connect()
     trans = context['connection'].begin()
@@ -1323,8 +1325,8 @@ def make_public(context, data_dict):
 
 
 def get_all_resources_ids_in_datastore():
-    read_url = pylons.config.get('ckan.datastore.read_url')
-    write_url = pylons.config.get('ckan.datastore.write_url')
+    read_url = config.get('ckan.datastore.read_url')
+    write_url = config.get('ckan.datastore.write_url')
     data_dict = {
         'connection_url': read_url or write_url
     }

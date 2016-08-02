@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import copy
 
 from nose.tools import assert_equal, assert_raises
@@ -251,7 +253,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         """
         Test that we can't add a package if Solr is down.
         """
-        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        bad_solr_url = 'http://example.com/badsolrurl'
         original_settings = SolrSettings.get()[0]
         try:
             SolrSettings.init(bad_solr_url)
@@ -641,7 +643,7 @@ class PackagesTestCase(BaseModelApiTestCase):
         """
         Test that we can't update a package if Solr is down.
         """
-        bad_solr_url = 'http://127.0.0.1/badsolrurl'
+        bad_solr_url = 'http://example.com/badsolrurl'
         original_settings = SolrSettings.get()[0]
         try:
             SolrSettings.init(bad_solr_url)

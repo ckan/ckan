@@ -1,7 +1,9 @@
+# encoding: utf-8
+
 import hmac
 import hashlib
 
-from pylons import config, request
+from ckan.common import config, request
 
 secret = None
 

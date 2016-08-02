@@ -1,5 +1,7 @@
+# encoding: utf-8
+
 import paste
-from pylons import config
+from ckan.common import config
 from nose.tools import assert_equal
 
 import ckan.logic as logic

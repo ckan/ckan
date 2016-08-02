@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import datetime
 import uuid
 import logging
@@ -155,10 +157,8 @@ def package_tag_list_save(tag_dicts, package, context):
                             for package_tag in
                             package.package_tag_all)
 
-    tag_package_tag_inactive = dict(
-        [ (tag,pt) for tag,pt in tag_package_tag.items() if
-            pt.state in ['deleted'] ]
-        )
+    tag_package_tag_inactive = {tag: pt for tag,pt in tag_package_tag.items() if
+            pt.state in ['deleted']}
 
     tag_name_vocab = set()
     tags = set()
@@ -447,13 +447,6 @@ def user_dict_save(user_dict, context):
     user = d.table_dict_save(user_dict, User, context)
 
     return user
-
-
-def related_dict_save(related_dict, context):
-    model = context['model']
-    session = context['session']
-
-    return d.table_dict_save(related_dict,model.Related, context)
 
 
 def package_api_to_dict(api1_dict, context):

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import sqlalchemy as sa
 
 import meta
@@ -24,8 +26,12 @@ class ResourceView(domain_object.DomainObject):
     @classmethod
     def get(cls, reference):
         '''Returns a ResourceView object referenced by its id.'''
-        query = meta.Session.query(cls).filter(cls.id == reference)
-        return query.first()
+        if not reference:
+            return None
+
+        view = meta.Session.query(cls).get(reference)
+
+        return view
 
     @classmethod
     def get_columns(cls):

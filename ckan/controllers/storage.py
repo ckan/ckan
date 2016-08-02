@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 
 Note: This is the old file store controller for CKAN < 2.2.

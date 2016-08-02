@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''
 Provides plugin services to the CKAN
 '''
@@ -12,6 +14,9 @@ from pyutilib.component.core import Plugin as _pca_Plugin
 from paste.deploy.converters import asbool
 
 import interfaces
+
+from ckan.common import config
+
 
 __all__ = [
     'PluginImplementations', 'implements',
@@ -116,7 +121,7 @@ def plugins_update():
     environment.update_config()
 
 
-def load_all(config):
+def load_all():
     '''
     Load all plugins listed in the 'ckan.plugins' config directive.
     '''
@@ -151,10 +156,6 @@ def load(*plugins):
         service.activate()
         for observer_plugin in observers:
             observer_plugin.after_load(service)
-
-        if interfaces.IGenshiStreamFilter in service.__interfaces__:
-            log.warn("Plugin '%s' is using deprecated interface "
-                     'IGenshiStreamFilter' % plugin)
 
         _PLUGINS.append(plugin)
         _PLUGINS_CLASS.append(service.__class__)

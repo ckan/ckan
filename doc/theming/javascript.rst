@@ -1,3 +1,5 @@
+.. _javascript_modules:
+
 =============================
 Customizing CKAN's JavaScript
 =============================
@@ -460,7 +462,7 @@ with the following contents:
 
 If this JavaScript code looks a little confusing at first, it's probably
 because it's using the
-`Immediately-Invoked Function Expression (IIFE) <http://stage.learn.jquery.com/javascript-101/functions/#immediately-invoked-function-expression-iife>`_
+`Immediately-Invoked Function Expression (IIFE) <https://en.wikipedia.org/wiki/Immediately-invoked_function_expression>`_
 pattern. This is a common JavaScript code pattern in which an anonymous
 function is created and then immediately called once, in a single expression.
 In the example above, we create an unnamed function that takes a single
@@ -521,10 +523,7 @@ clicked it turns green:
 Internationalization
 --------------------
 
-.. todo::
-
-   Show how to Internationalize a JavaScript module.
-
+See :ref:`javascript_i18n`.
 
 --------------------------
 Testing JavaScript modules

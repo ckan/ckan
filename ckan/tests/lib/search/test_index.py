@@ -1,16 +1,14 @@
+# encoding: utf-8
+
 import datetime
 import hashlib
 import json
-import nose.tools
 import nose
+from nose.tools import assert_equal, assert_in, assert_not_in
 
-from pylons import config
+from ckan.common import config
 import ckan.lib.search as search
 import ckan.tests.helpers as helpers
-
-assert_equal = nose.tools.assert_equal
-assert_in = helpers.assert_in
-assert_not_in = helpers.assert_not_in
 
 
 class TestSearchIndex(object):
@@ -47,20 +45,20 @@ class TestSearchIndex(object):
 
         self.package_index.index_package(self.base_package_dict)
 
-        response = self.solr_client.query('name:monkey', fq=self.fq)
+        response = self.solr_client.search(q='name:monkey', fq=self.fq)
 
         assert_equal(len(response), 1)
 
-        assert_equal(response.results[0]['id'], 'test-index')
-        assert_equal(response.results[0]['name'], 'monkey')
-        assert_equal(response.results[0]['title'], 'Monkey')
+        assert_equal(response.docs[0]['id'], 'test-index')
+        assert_equal(response.docs[0]['name'], 'monkey')
+        assert_equal(response.docs[0]['title'], 'Monkey')
 
         index_id = hashlib.md5(
             '{0}{1}'.format(self.base_package_dict['id'],
                             config['ckan.site_id'])
         ).hexdigest()
 
-        assert_equal(response.results[0]['index_id'], index_id)
+        assert_equal(response.docs[0]['index_id'], index_id)
 
     def test_no_state_no_index(self):
         pkg_dict = self.base_package_dict.copy()
@@ -70,7 +68,7 @@ class TestSearchIndex(object):
 
         self.package_index.index_package(pkg_dict)
 
-        response = self.solr_client.query('name:monkey', fq=self.fq)
+        response = self.solr_client.search(q='name:monkey', fq=self.fq)
 
         assert_equal(len(response), 0)
 
@@ -80,7 +78,7 @@ class TestSearchIndex(object):
 
         self.package_index.clear()
 
-        response = self.solr_client.query('name:monkey', fq=self.fq)
+        response = self.solr_client.search(q='name:monkey', fq=self.fq)
         assert_equal(len(response), 0)
 
     def test_index_illegal_xml_chars(self):
@@ -92,10 +90,10 @@ class TestSearchIndex(object):
         })
         self.package_index.index_package(pkg_dict)
 
-        response = self.solr_client.query('name:monkey', fq=self.fq)
+        response = self.solr_client.search(q='name:monkey', fq=self.fq)
 
         assert_equal(len(response), 1)
-        assert_equal(response.results[0]['title'],
+        assert_equal(response.docs[0]['title'],
                      u'\u00c3altimo n\u00famero penguin')
 
     def test_index_date_field(self):
@@ -110,15 +108,15 @@ class TestSearchIndex(object):
 
         self.package_index.index_package(pkg_dict)
 
-        response = self.solr_client.query('name:monkey', fq=self.fq)
+        response = self.solr_client.search(q='name:monkey', fq=self.fq)
 
         assert_equal(len(response), 1)
 
-        assert isinstance(response.results[0]['test_date'], datetime.datetime)
-        assert_equal(response.results[0]['test_date'].strftime('%Y-%m-%d'),
+        assert isinstance(response.docs[0]['test_date'], datetime.datetime)
+        assert_equal(response.docs[0]['test_date'].strftime('%Y-%m-%d'),
                      '2014-03-22')
         assert_equal(
-            response.results[0]['test_tim_date'].strftime('%Y-%m-%d %H:%M:%S'),
+            response.docs[0]['test_tim_date'].strftime('%Y-%m-%d %H:%M:%S'),
             '2014-03-22 05:42:14'
         )
 
@@ -134,12 +132,12 @@ class TestSearchIndex(object):
 
         self.package_index.index_package(pkg_dict)
 
-        response = self.solr_client.query('name:monkey', fq=self.fq)
+        response = self.solr_client.search(q='name:monkey', fq=self.fq)
 
         assert_equal(len(response), 1)
 
-        assert 'test_wrong_date' not in response.results[0]
-        assert 'test_another_wrong_date' not in response.results[0]
+        assert 'test_wrong_date' not in response.docs[0]
+        assert 'test_another_wrong_date' not in response.docs[0]
 
     def test_index_date_field_empty_value(self):
 
@@ -152,11 +150,11 @@ class TestSearchIndex(object):
 
         self.package_index.index_package(pkg_dict)
 
-        response = self.solr_client.query('name:monkey', fq=self.fq)
+        response = self.solr_client.search(q='name:monkey', fq=self.fq)
 
         assert_equal(len(response), 1)
 
-        assert 'test_empty_date' not in response.results[0]
+        assert 'test_empty_date' not in response.docs[0]
 
 
 class TestPackageSearchIndex:

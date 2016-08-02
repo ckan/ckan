@@ -1,9 +1,12 @@
+# encoding: utf-8
+
 from bs4 import BeautifulSoup
-from nose.tools import assert_equal, assert_true
+from nose.tools import assert_equal, assert_true, assert_in
 from routes import url_for
+from mock import patch
 
 from ckan.tests import factories, helpers
-from ckan.tests.helpers import webtest_submit, submit_and_follow, assert_in
+from ckan.tests.helpers import webtest_submit, submit_and_follow
 
 
 class TestOrganizationNew(helpers.FunctionalTestBase):
@@ -17,7 +20,7 @@ class TestOrganizationNew(helpers.FunctionalTestBase):
 
     def test_not_logged_in(self):
         self.app.get(url=url_for(controller='group', action='new'),
-                     status=302)
+                     status=403)
 
     def test_name_required(self):
         response = self.app.get(url=self.organization_new_url,
@@ -59,6 +62,22 @@ class TestOrganizationNew(helpers.FunctionalTestBase):
         group = helpers.call_action('organization_show', id='all-fields-saved')
         assert_equal(group['title'], u'Science')
         assert_equal(group['description'], 'Sciencey datasets')
+
+
+class TestOrganizationList(helpers.FunctionalTestBase):
+    def setup(self):
+        super(TestOrganizationList, self).setup()
+        self.app = helpers._get_test_app()
+        self.user = factories.User()
+        self.user_env = {'REMOTE_USER': self.user['name'].encode('ascii')}
+        self.organization_list_url = url_for(controller='organization',
+                                             action='index')
+
+    @patch('ckan.logic.auth.get.organization_list', return_value={'success': False})
+    def test_error_message_shown_when_no_organization_list_permission(self, mock_check_access):
+        response = self.app.get(url=self.organization_list_url,
+                                extra_environ=self.user_env,
+                                status=403)
 
 
 class TestOrganizationRead(helpers.FunctionalTestBase):
@@ -173,7 +192,7 @@ class TestOrganizationDelete(helpers.FunctionalTestBase):
         self.app.get(url=url_for(controller='organization',
                                  action='delete',
                                  id=self.organization['id']),
-                     status=401,
+                     status=403,
                      extra_environ=extra_environ)
 
         organization = helpers.call_action('organization_show',
@@ -184,7 +203,7 @@ class TestOrganizationDelete(helpers.FunctionalTestBase):
         self.app.get(url=url_for(controller='organization',
                                  action='delete',
                                  id=self.organization['id']),
-                     status=302)  # redirects to login form
+                     status=403)
 
         organization = helpers.call_action('organization_show',
                                            id=self.organization['id'])

@@ -1,4 +1,6 @@
-from pylons import config
+# encoding: utf-8
+
+from ckan.common import config
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -16,7 +18,8 @@ _ = base._
 
 
 def get_sysadmins():
-    q = model.Session.query(model.User).filter(model.User.sysadmin==True)
+    q = model.Session.query(model.User).filter(model.User.sysadmin == True,
+                                               model.User.state == 'active')
     return q.all()
 
 
@@ -28,7 +31,7 @@ class AdminController(base.BaseController):
         try:
             logic.check_access('sysadmin', context, {})
         except logic.NotAuthorized:
-            base.abort(401, _('Need to be system administrator to administer'))
+            base.abort(403, _('Need to be system administrator to administer'))
         c.revision_change_state_allowed = True
 
     def _get_config_form_items(self):

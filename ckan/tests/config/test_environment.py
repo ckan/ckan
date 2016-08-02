@@ -1,11 +1,14 @@
+# encoding: utf-8
+
 import os
 from nose import tools as nosetools
 
-from pylons import config
+from ckan.common import config
 
 import ckan.tests.helpers as h
 import ckan.plugins as p
 from ckan.config import environment
+from ckan.exceptions import CkanConfigurationException
 
 from ckan.tests import helpers
 
@@ -95,3 +98,10 @@ class TestSiteUrlMandatory(object):
         environment.update_config()
         nosetools.assert_equals(config['ckan.site_url'],
                                 'http://demo.ckan.org')
+
+
+class TestDisplayTimezone(object):
+
+    @helpers.change_config('ckan.display_timezone', 'Krypton/Argo City')
+    def test_missing_timezone(self):
+        nosetools.assert_raises(CkanConfigurationException, environment.update_config)

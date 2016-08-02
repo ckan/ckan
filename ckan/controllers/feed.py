@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """
 The feed controller produces Atom feeds of datasets.
 
@@ -23,7 +25,7 @@ import logging
 import urlparse
 
 import webhelpers.feedgenerator
-from pylons import config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.lib.base as base
@@ -46,7 +48,7 @@ def _package_search(data_dict):
      * unless overridden, sets a default item limit
     """
     context = {'model': model, 'session': model.Session,
-               'user': c.user or c.author, 'auth_user_obj': c.userobj}
+               'user': c.user, 'auth_user_obj': c.userobj}
 
     if 'sort' not in data_dict or not data_dict['sort']:
         data_dict['sort'] = 'metadata_modified desc'
@@ -188,22 +190,24 @@ class FeedController(base.BaseController):
                                   action=group_type,
                                   id=obj_dict['name'])
 
-        guid = _create_atom_id(u'/feeds/group/%s.atom' %
-                               obj_dict['name'])
-        alternate_url = self._alternate_url(params, groups=obj_dict['name'])
-        desc = u'Recently created or updated datasets on %s by group: "%s"' %\
-            (g.site_title, obj_dict['title'])
-        title = u'%s - Group: "%s"' %\
-            (g.site_title, obj_dict['title'])
-
         if is_org:
             guid = _create_atom_id(u'/feeds/organization/%s.atom' %
                                    obj_dict['name'])
             alternate_url = self._alternate_url(params,
                                                 organization=obj_dict['name'])
-            desc = u'Recently created or  updated datasets on %s '\
+            desc = u'Recently created or updated datasets on %s '\
                 'by organization: "%s"' % (g.site_title, obj_dict['title'])
             title = u'%s - Organization: "%s"' %\
+                (g.site_title, obj_dict['title'])
+
+        else:  # is group
+            guid = _create_atom_id(u'/feeds/group/%s.atom' %
+                                   obj_dict['name'])
+            alternate_url = self._alternate_url(params,
+                                                groups=obj_dict['name'])
+            desc = u'Recently created or updated datasets on %s '\
+                'by group: "%s"' % (g.site_title, obj_dict['title'])
+            title = u'%s - Group: "%s"' %\
                 (g.site_title, obj_dict['title'])
 
         return self.output_feed(results,
@@ -217,7 +221,7 @@ class FeedController(base.BaseController):
     def group(self, id):
         try:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
             group_dict = logic.get_action('group_show')(context, {'id': id})
         except logic.NotFound:
             base.abort(404, _('Group not found'))
@@ -227,7 +231,7 @@ class FeedController(base.BaseController):
     def organization(self, id):
         try:
             context = {'model': model, 'session': model.Session,
-                       'user': c.user or c.author, 'auth_user_obj': c.userobj}
+                       'user': c.user, 'auth_user_obj': c.userobj}
             group_dict = logic.get_action('organization_show')(context,
                                                                {'id': id})
         except logic.NotFound:
@@ -306,7 +310,7 @@ class FeedController(base.BaseController):
                 search_params[param] = value
                 fq += ' %s:"%s"' % (param, value)
 
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
 
         limit = ITEMS_LIMIT
         data_dict = {
@@ -451,7 +455,7 @@ class FeedController(base.BaseController):
         Returns the constructed search-query dict, and the valid URL
         query parameters.
         """
-        page = self._get_page_number(request.params)
+        page = h.get_page_number(request.params)
 
         limit = ITEMS_LIMIT
         data_dict = {

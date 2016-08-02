@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import datetime
 
 from sqlalchemy import orm, types, Column, Table, ForeignKey

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan import model
 import ckan.lib.search as search
 

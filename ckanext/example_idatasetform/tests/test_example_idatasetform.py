@@ -1,6 +1,8 @@
+# encoding: utf-8
+
 import nose.tools as nt
 
-import pylons.config as config
+from ckan.common import config
 
 import ckan.model as model
 import ckan.plugins as plugins

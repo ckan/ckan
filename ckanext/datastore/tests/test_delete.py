@@ -1,7 +1,8 @@
+# encoding: utf-8
+
 import json
 import nose
 
-import pylons
 import sqlalchemy
 import sqlalchemy.orm as orm
 
@@ -9,6 +10,7 @@ import ckan.plugins as p
 import ckan.lib.create_test_data as ctd
 import ckan.model as model
 import ckan.tests.legacy as tests
+from ckan.common import config
 
 import ckanext.datastore.db as db
 from ckanext.datastore.tests.helpers import rebuild_all_dbs, set_url_type
@@ -41,7 +43,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         }
 
         engine = db._get_engine(
-            {'connection_url': pylons.config['ckan.datastore.write_url']})
+            {'connection_url': config['ckan.datastore.write_url']})
         cls.Session = orm.scoped_session(orm.sessionmaker(bind=engine))
         set_url_type(
             model.Package.get('annakarenina').resources, cls.sysadmin_user)
@@ -79,7 +81,11 @@ class TestDatastoreDelete(tests.WsgiAppCase):
 
         # It's dangerous to build queries as someone could inject sql.
         # It's okay here as it is a test but don't use it anyhwere else!
-        results = c.execute(u"select 1 from pg_views where viewname = '{0}'".format(self.data['aliases']))
+        results = c.execute(
+            u"select 1 from pg_views where viewname = '{0}'".format(
+                self.data['aliases']
+            )
+        )
         assert results.rowcount == 0
 
         try:
@@ -181,9 +187,7 @@ class TestDatastoreDelete(tests.WsgiAppCase):
 
         data = {
             'resource_id': self.data['resource_id'],
-            'filters': {
-                'invalid-column-name': 'value'
-            }
+            'filters': []
         }
         postparams = '%s=1' % json.dumps(data)
         auth = {'Authorization': str(self.normal_user.apikey)}
@@ -192,5 +196,44 @@ class TestDatastoreDelete(tests.WsgiAppCase):
         res_dict = json.loads(res.body)
         assert res_dict['success'] is False
         assert res_dict['error'].get('filters') is not None, res_dict['error']
+
+        self._delete()
+
+    def test_delete_with_blank_filters(self):
+        self._create()
+
+        res = self.app.post(
+            '/api/action/datastore_delete',
+            params='{0}=1'.format(
+                json.dumps({
+                    'resource_id': self.data['resource_id'],
+                    'filters': {}
+                })
+            ),
+            extra_environ={
+                'Authorization': str(self.normal_user.apikey)
+            },
+            status=200
+        )
+
+        results = json.loads(res.body)
+        assert(results['success'] is True)
+
+        res = self.app.post(
+            '/api/action/datastore_search',
+            params='{0}=1'.format(
+                json.dumps({
+                    'resource_id': self.data['resource_id'],
+                })
+            ),
+            extra_environ={
+                'Authorization': str(self.normal_user.apikey)
+            },
+            status=200
+        )
+
+        results = json.loads(res.body)
+        assert(results['success'] is True)
+        assert(len(results['result']['records']) == 0)
 
         self._delete()

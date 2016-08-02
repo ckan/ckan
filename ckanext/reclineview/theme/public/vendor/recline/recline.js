@@ -3222,13 +3222,7 @@ my.SlickGrid = Backbone.View.extend({
     }
 
     function sanitizeFieldName(name) {
-      var sanitized;
-      try{
-        sanitized = $(name).text();
-      } catch(e) {
-        sanitized = '';
-      }
-      return (name !== sanitized && sanitized !== '') ? sanitized : name;
+      return $('<div>').text(name).html();
     }
 
     _.each(this.model.fields.toJSON(),function(field){

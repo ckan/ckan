@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from ckan import plugins
 from ckan.tests import helpers
 
@@ -27,14 +29,6 @@ class TestExampleITranslationPlugin(helpers.FunctionalTestBase):
         # double check the untranslated strings
         response = app.get(
             url=plugins.toolkit.url_for(controller='home', action='index'),
-        )
-        assert_true('This is an untranslated string' in response.body)
-        assert_false('This is a itranslated string' in response.body)
-
-        # check that we have only overwritten 'fr'
-        response = app.get(
-            url=plugins.toolkit.url_for(controller='home', action='index',
-                                        locale='es'),
         )
         assert_true('This is an untranslated string' in response.body)
         assert_false('This is a itranslated string' in response.body)

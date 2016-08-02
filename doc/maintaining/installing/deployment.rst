@@ -112,7 +112,7 @@ CKAN to run in).
 6. Create the Apache config file
 --------------------------------
 
-Create your site's Apache config file at |apache_config_file|, with the
+Create your site's Apache config file at ``|apache_config_file|``, with the
 following contents:
 
 .. parsed-literal::
@@ -138,10 +138,25 @@ following contents:
             RPAFsethostname On
             RPAFproxy_ips 127.0.0.1
         </IfModule>
+
+        <Directory />
+            Require all granted
+        </Directory>
+
     </VirtualHost>
 
 Replace ``default.ckanhosted.com`` and ``www.default.ckanhosted.com`` with the
 domain name for your site.
+
+.. note::
+
+    If you are running |apache| 2.2 or lower (eg on Ubuntu 12.04), remove this directive,
+    as it is not supported::
+
+        <Directory />
+            Require all granted
+        </Directory>
+
 
 This tells the Apache modwsgi module to redirect any requests to the web server
 to the WSGI script that you created above. Your WSGI script in turn directs the
@@ -151,24 +166,44 @@ requests to your CKAN instance.
 7. Modify the Apache ports.conf file
 ------------------------------------
 
-Open ``/etc/apache2/ports.conf``. Look in the file for the following lines:
+Open ``/etc/apache2/ports.conf``. We need to replace the default port 80 with the 8080 one.
 
-.. parsed-literal::
 
-    NameVirtualHost \*:80
-    Listen 80
+   - On Apache 2.4 (eg Ubuntu 14.04 or RHEL 7):
 
-Change the entries from ``80`` to ``8080`` to look like the following:
+     Replace this line:
 
-.. parsed-literal::
-    NameVirtualHost \*:8080
-    Listen 8080
+        .. parsed-literal::
+
+            Listen 80
+
+     With this one:
+
+        .. parsed-literal::
+
+            Listen 8080
+
+
+   - On Apache 2.2 (eg Ubuntu 12.04 or RHEL 6):
+
+     Replace these lines:
+
+        .. parsed-literal::
+
+            NameVirtualHost \*:80
+            Listen 80
+
+     With these ones:
+
+        .. parsed-literal::
+            NameVirtualHost \*:8080
+            Listen 8080
 
 -------------------------------
 8. Create the Nginx config file
 -------------------------------
 
-Create your site's Nginx config file at |nginx_config_file|, with the
+Create your site's Nginx config file at ``|nginx_config_file|``, with the
 following contents:
 
 .. parsed-literal::
@@ -203,7 +238,7 @@ To prevent conflicts, disable your default nginx and apache sites.  Finally, ena
 .. parsed-literal::
 
     sudo a2ensite ckan_default
-    sudo a2dissite default
+    sudo a2dissite 000-default
     sudo rm -vi /etc/nginx/sites-enabled/default
     sudo ln -s |nginx_config_file| /etc/nginx/sites-enabled/ckan_default
     |reload_apache|

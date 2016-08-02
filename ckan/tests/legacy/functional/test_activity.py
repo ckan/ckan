@@ -1,4 +1,6 @@
-from pylons import config
+# encoding: utf-8
+
+from ckan.common import config
 from pylons.test import pylonsapp
 from paste.deploy.converters import asbool
 import paste.fixture

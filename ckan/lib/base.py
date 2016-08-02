@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """The base Controller API
 
 Provides the BaseController class for subclassing.
@@ -6,15 +8,13 @@ import logging
 import time
 
 from paste.deploy.converters import asbool
-from pylons import cache, config, session
+from pylons import cache, session
 from pylons.controllers import WSGIController
 from pylons.controllers.util import abort as _abort
 from pylons.controllers.util import redirect_to, redirect
 from pylons.decorators import jsonify
 from pylons.i18n import N_, gettext, ngettext
 from pylons.templating import cached_template, pylons_globals
-from genshi.template import MarkupTemplate
-from genshi.template.text import NewTextTemplate
 from webhelpers.html import literal
 
 import ckan.exceptions
@@ -30,16 +30,12 @@ import ckan.lib.maintain as maintain
 # These imports are for legacy usages and will be removed soon these should
 # be imported directly from ckan.common for internal ckan code and via the
 # plugins.toolkit for extensions.
-from ckan.common import json, _, ungettext, c, g, request, response
+from ckan.common import json, _, ungettext, c, g, request, response, config
 
 log = logging.getLogger(__name__)
 
-PAGINATE_ITEMS_PER_PAGE = 50
-
 APIKEY_HEADER_NAME_KEY = 'apikey_header_name'
 APIKEY_HEADER_NAME_DEFAULT = 'X-CKAN-API-Key'
-
-ALLOWED_FIELDSET_PARAMS = ['package_form', 'restrict']
 
 
 def abort(status_code=None, detail='', headers=None, comment=None):
@@ -51,7 +47,7 @@ def abort(status_code=None, detail='', headers=None, comment=None):
     abort response, and showing flash messages in the web interface.
 
     '''
-    if status_code == 401:
+    if status_code == 403:
         # Allow IAuthenticator plugins to alter the abort
         for item in p.PluginImplementations(p.IAuthenticator):
             result = item.abort(status_code, detail, headers, comment)
@@ -77,25 +73,10 @@ def render_snippet(template_name, **kw):
     cache_force = kw.pop('cache_force', None)
     output = render(template_name, extra_vars=kw, cache_force=cache_force,
                     renderer='snippet')
-    output = '\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n' % (
-        template_name, output, template_name)
+    if config.get('debug'):
+        output = ('\n<!-- Snippet %s start -->\n%s\n<!-- Snippet %s end -->\n'
+                  % (template_name, output, template_name))
     return literal(output)
-
-
-def render_text(template_name, extra_vars=None, cache_force=None):
-    '''Render a Genshi :py:class:`NewTextTemplate`.
-
-    This is just a wrapper function that lets you render a Genshi
-    :py:class:`NewTextTemplate` without having to pass ``method='text'`` or
-    ``loader_class=NewTextTemplate`` (it passes them to
-    :py:func:`~ckan.plugins.toolkit.render` for you).
-
-    '''
-    return render(template_name,
-                  extra_vars=extra_vars,
-                  cache_force=cache_force,
-                  method='text',
-                  loader_class=NewTextTemplate)
 
 
 def render_jinja2(template_name, extra_vars):
@@ -105,8 +86,7 @@ def render_jinja2(template_name, extra_vars):
 
 
 def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
-           cache_expire=None, method='xhtml', loader_class=MarkupTemplate,
-           cache_force=None, renderer=None):
+           cache_expire=None, cache_force=None, renderer=None):
     '''Render a template and return the output.
 
     This is CKAN's main template rendering function.
@@ -144,29 +124,8 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
                 request.environ['CKAN_DEBUG_INFO'] = []
             request.environ['CKAN_DEBUG_INFO'].append(debug_info)
 
-        # Jinja2 templates
-        if template_type == 'jinja2':
-            # We don't want to have the config in templates it should be
-            # accessed via g (app_globals) as this gives us flexability such
-            # as changing via database settings.
-            del globs['config']
-            # TODO should we raise error if genshi filters??
-            return render_jinja2(template_name, globs)
-
-        # Genshi templates
-        template = globs['app_globals'].genshi_loader.load(
-            template_name.encode('utf-8'), cls=loader_class
-        )
-        stream = template.generate(**globs)
-
-        for item in p.PluginImplementations(p.IGenshiStreamFilter):
-            stream = item.filter(stream)
-
-        if loader_class == NewTextTemplate:
-            return literal(stream.render(method="text", encoding=None))
-
-        return literal(stream.render(method=method, encoding=None,
-                                     strip_whitespace=True))
+        del globs['config']
+        return render_jinja2(template_name, globs)
 
     if 'Pragma' in response.headers:
         del response.headers["Pragma"]
@@ -188,7 +147,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
     # Don't cache if we have set the __no_cache__ param in the query string.
     elif request.params.get('__no_cache__'):
         allow_cache = False
-    # Don't cache if we have extra vars containing data.
+   # Don't cache if we have extra vars containing data.
     elif extra_vars:
         for k, v in extra_vars.iteritems():
             allow_cache = False
@@ -212,8 +171,7 @@ def render(template_name, extra_vars=None, cache_key=None, cache_type=None,
 
     # Render Time :)
     try:
-        return cached_template(template_name, render_template,
-                               loader_class=loader_class)
+        return cached_template(template_name, render_template)
     except ckan.exceptions.CkanUrlException, e:
         raise ckan.exceptions.CkanUrlException(
             '\nAn Exception has been raised for template %s\n%s' %
@@ -235,7 +193,6 @@ class BaseController(WSGIController):
 
     def __before__(self, action, **params):
         c.__timer = time.time()
-        c.__version__ = ckan.__version__
         app_globals.app_globals._check_uptodate()
 
         self._identify_user()
@@ -307,15 +264,13 @@ class BaseController(WSGIController):
             c.user = c.user.decode('utf8')
             c.userobj = model.User.by_name(c.user)
             if c.userobj is None or not c.userobj.is_active():
+
                 # This occurs when a user that was still logged in is deleted,
-                # or when you are logged in, clean db
-                # and then restart (or when you change your username)
-                # There is no user object, so even though repoze thinks you
-                # are logged in and your cookie has ckan_display_name, we
-                # need to force user to logout and login again to get the
-                # User object.
-                session['lang'] = request.environ.get('CKAN_LANG')
-                session.save()
+                # or when you are logged in, clean db and then restart (or
+                # when you change your username) There is no user object, so
+                # even though repoze thinks you are logged in and your cookie
+                # has ckan_display_name, we need to force user to logout and
+                # login again to get the User object.
 
                 ev = request.environ
                 if 'repoze.who.plugins' in ev:
@@ -350,15 +305,14 @@ class BaseController(WSGIController):
                         break
                 if not is_valid_cookie_data:
                     if session.id:
-                        if not session.get('lang'):
-                            self.log.debug('No session data any more - '
-                                           'deleting session')
-                            self.log.debug('Session: %r', session.items())
-                            session.delete()
+                        self.log.debug('No valid session data - '
+                                       'deleting session')
+                        self.log.debug('Session: %r', session.items())
+                        session.delete()
                     else:
-                        response.delete_cookie(cookie)
-                        self.log.debug('No session data any more - '
+                        self.log.debug('No session id - '
                                        'deleting session cookie')
+                        response.delete_cookie(cookie)
             # Remove auth_tkt repoze.who cookie if user not logged in.
             elif cookie == 'auth_tkt' and not session.id:
                 response.delete_cookie(cookie)
@@ -380,14 +334,14 @@ class BaseController(WSGIController):
         True, or the request Origin is in the origin_whitelist.
         '''
         cors_origin_allowed = None
+
         if asbool(config.get('ckan.cors.origin_allow_all')):
             cors_origin_allowed = "*"
         elif config.get('ckan.cors.origin_whitelist') and \
                 request.headers.get('Origin') \
-                in config['ckan.cors.origin_whitelist'].split(" "):
+                in config['ckan.cors.origin_whitelist'].split():
             # set var to the origin to allow it.
             cors_origin_allowed = request.headers.get('Origin')
-
         if cors_origin_allowed is not None:
             response.headers['Access-Control-Allow-Origin'] = \
                 cors_origin_allowed
@@ -417,24 +371,6 @@ class BaseController(WSGIController):
         query = model.Session.query(model.User)
         user = query.filter_by(apikey=apikey).first()
         return user
-
-    def _get_page_number(self, params, key='page', default=1):
-        """
-        Returns the page number from the provided params after
-        verifies that it is an integer.
-
-        If it fails it will abort the request with a 400 error
-        """
-        p = params.get(key, default)
-
-        try:
-            p = int(p)
-            if p < 1:
-                raise ValueError("Negative number not allowed")
-        except ValueError, e:
-            abort(400, ('"page" parameter must be a positive integer'))
-
-        return p
 
 
 # Include the '_' function in the public names

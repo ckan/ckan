@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import logging
 import os
 import sys
@@ -178,7 +180,7 @@ def register_group_plugins(map):
                         '/%s/{action}/{id}' % group_type,
                         controller=group_controller,
                         requirements=dict(action='|'.join(
-                            ['edit', 'authz', 'history', 'member_new',
+                            ['edit', 'authz', 'delete', 'history', 'member_new',
                              'member_delete', 'followers', 'follow',
                              'unfollow', 'admins', 'activity'])))
             map.connect('%s_edit' % group_type, '/%s/edit/{id}' % group_type,
@@ -193,6 +195,13 @@ def register_group_plugins(map):
                         '/%s/activity/{id}/{offset}' % group_type,
                         controller=group_controller,
                         action='activity', ckan_icon='time'),
+            map.connect('%s_about' % group_type, '/%s/about/{id}' % group_type,
+                        controller=group_controller,
+                        action='about', ckan_icon='info-sign')
+            map.connect('%s_bulk_process' % group_type,
+                        '/%s/bulk_process/{id}' % group_type,
+                        controller=group_controller,
+                        action='bulk_process', ckan_icon='sitemap')
 
             if group_type in _group_plugins:
                 raise ValueError("An existing IGroupForm is "
@@ -201,12 +210,16 @@ def register_group_plugins(map):
             _group_plugins[group_type] = plugin
             _group_controllers[group_type] = group_controller
 
+            controller_obj = None
+            # If using one of the default controllers, tell it that it is allowed
+            # to handle other group_types.
+            # Import them here to avoid circular imports.
             if group_controller == 'group':
-                # Tell the default group controller that it is allowed to
-                # handle other group_types.
-                # Import it here to avoid circular imports.
-                from ckan.controllers.group import GroupController
-                GroupController.add_group_type(group_type)
+                from ckan.controllers.group import GroupController as controller_obj
+            elif group_controller == 'organization':
+                from ckan.controllers.organization import OrganizationController as controller_obj
+            if controller_obj is not None:
+                controller_obj.add_group_type(group_type)
 
     # Setup the fallback behaviour if one hasn't been defined.
     if _default_group_plugin is None:
@@ -275,10 +288,6 @@ class DefaultDatasetForm(object):
         maintain.deprecate_context_item('licences', 'Use `c.licenses` instead')
         c.is_sysadmin = ckan.authz.is_sysadmin(c.user)
 
-        if c.pkg:
-            # Used by the disqus plugin
-            c.related_count = c.pkg.related_count
-
         if context.get('revision_id') or context.get('revision_date'):
             if context.get('revision_id'):
                 rev = base.model.Session.query(base.model.Revision) \
@@ -341,6 +350,9 @@ class DefaultGroupForm(object):
     Note - this isn't a plugin implementation. This is deliberate, as we
            don't want this being registered.
     """
+    def group_controller(self):
+        return 'group'
+
     def new_template(self):
         """
         Returns a string representing the location of the template to be
@@ -491,6 +503,9 @@ class DefaultGroupForm(object):
 
 
 class DefaultOrganizationForm(DefaultGroupForm):
+    def group_controller(self):
+        return 'organization'
+
     def group_form(self):
         return 'organization/new_organization_form.html'
 
@@ -535,7 +550,7 @@ class DefaultTranslation(object):
         i18n/
         '''
         # assume plugin is called ckanext.<myplugin>.<...>.PluginClass
-        extension_module_name = '.'.join(self.__module__.split('.')[0:2])
+        extension_module_name = '.'.join(self.__module__.split('.')[:3])
         module = sys.modules[extension_module_name]
         return os.path.join(os.path.dirname(module.__file__), 'i18n')
 

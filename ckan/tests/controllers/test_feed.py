@@ -1,6 +1,7 @@
+# encoding: utf-8
+
 from routes import url_for
 
-from ckan import model
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 

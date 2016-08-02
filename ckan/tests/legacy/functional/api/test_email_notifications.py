@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import time
 
 import ckan.model as model
@@ -12,7 +14,8 @@ import paste
 import paste.deploy
 import pylons.test
 
-from pylons import config
+from ckan.common import config
+
 
 class TestEmailNotifications(mock_mail_server.SmtpServerHarness,
         pylons_controller.PylonsTestCase):

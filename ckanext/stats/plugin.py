@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from logging import getLogger
 
 import ckan.plugins as p

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 from nose.tools import assert_raises
 import ckan.model as model
 import ckan.logic as logic

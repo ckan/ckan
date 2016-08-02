@@ -55,23 +55,8 @@ respectively.
      you will need to manually reinstall it.
 
 #. If there have been changes in the database schema (check the
-   :doc:`/changelog` to find out) you need to update your CKAN database's
-   schema using the ``db upgrade`` command.
-
-   .. warning ::
-
-     To avoid problems during the database upgrade, comment out any plugins
-     that you have enabled in your ini file. You can uncomment them again when
-     the upgrade finishes.
-
-   For example:
-
-   .. parsed-literal::
-
-    paster db upgrade --config=\ |development.ini|
-
-   See :ref:`paster db` for details of the ``db upgrade``
-   command.
+   :doc:`/changelog` to find out) you need to :ref:`upgrade your database
+   schema <db upgrade>`.
 
 #. If there have been changes in the Solr schema (check the :doc:`/changelog`
    to find out) you need to restart Jetty for the changes to take effect:

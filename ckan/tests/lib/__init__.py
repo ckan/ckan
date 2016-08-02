@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 '''**All lib functions should have tests**.
 
 .. todo::
