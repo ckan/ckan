@@ -655,11 +655,6 @@ h3 small {
 h4 small {
   font-size: 14px;
 }
-.page-header {
-  padding-bottom: 9px;
-  margin: 20px 0 30px;
-  border-bottom: 1px solid #eeeeee;
-}
 ul,
 ol {
   padding: 0;
@@ -7501,6 +7496,8 @@ textarea {
 }
 .page-header {
   *zoom: 1;
+  padding-bottom: 9px;
+  margin: 20px 0 30px;
   border-bottom: 1px solid #dddddd;
   background-color: #f6f6f6;
   -webkit-border-radius: 0 3px 0 0;
