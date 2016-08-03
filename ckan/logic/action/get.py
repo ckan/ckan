@@ -3256,7 +3256,8 @@ def _group_or_org_followee_list(context, data_dict, is_org=False):
 
 @logic.validate(logic.schema.default_pagination_schema)
 def dashboard_activity_list(context, data_dict):
-    '''Return the authorized user's dashboard activity stream.
+    '''Return the authorized (via login or API key) user's dashboard activity
+       stream.
 
     Unlike the activity dictionaries returned by other ``*_activity_list``
     actions, these activity dictionaries have an extra boolean value with key
@@ -3310,13 +3311,12 @@ def dashboard_activity_list(context, data_dict):
 
 @logic.validate(ckan.logic.schema.default_pagination_schema)
 def dashboard_activity_list_html(context, data_dict):
-    '''Return the authorized user's dashboard activity stream as HTML.
+    '''Return the authorized (via login or API key) user's dashboard activity
+       stream as HTML.
 
     The activity stream is rendered as a snippet of HTML meant to be included
     in an HTML page, i.e. it doesn't have any HTML header or footer.
 
-    :param id: the id or name of the user
-    :type id: string
     :param offset: where to start getting activity items from
         (optional, default: 0)
     :type offset: int
