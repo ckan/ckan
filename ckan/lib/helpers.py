@@ -236,6 +236,7 @@ def url_for(*args, **kw):
         flask_kw = kw.copy()
 
         my_url = _url_for_flask(*flask_args, **flask_kw)
+        import ipdb; ipdb.set_trace()
 
     except FlaskRouteBuildError:
         # If it doesn't succeed, fallback to the Pylons router, using the

@@ -17,9 +17,9 @@ from ckan.lib.search import SearchError, SearchIndexError, SearchQueryError
 log = logging.getLogger(__name__)
 
 CONTENT_TYPES = {
-    'text': 'text/plain;charset=utf-8',
-    'html': 'text/html;charset=utf-8',
-    'json': 'application/json;charset=utf-8',
+    u'text': u'text/plain;charset=utf-8',
+    u'html': u'text/html;charset=utf-8',
+    u'json': u'application/json;charset=utf-8',
 }
 
 
@@ -29,45 +29,45 @@ API_MAX_VERSION = 3
 
 # Blueprint definition
 
-api = Blueprint('api', __name__, url_prefix='/api')
+api = Blueprint(u'api', __name__, url_prefix=u'/api')
 
 
 # Private methods
 
 
 def _finish(status_int, response_data=None,
-            content_type='text', headers=None):
-    '''When a controller method has completed, call this method
+            content_type=u'text', headers=None):
+    u'''When a controller method has completed, call this method
     to prepare the response.
     @return response message - return this value from the controller
                                method
              e.g. return _finish(404, 'Package not found')
     '''
     assert(isinstance(status_int, int))
-    response_msg = ''
+    response_msg = u''
     if headers is None:
         headers = {}
     if response_data is not None:
-        headers['Content-Type'] = CONTENT_TYPES[content_type]
-        if content_type == 'json':
+        headers[u'Content-Type'] = CONTENT_TYPES[content_type]
+        if content_type == u'json':
             response_msg = json.dumps(
                 response_data,
                 for_json=True)  # handle objects with for_json methods
         else:
             response_msg = response_data
         # Support "JSONP" callback.
-        if (status_int == 200 and 'callback' in request.args and
-                request.method == 'GET'):
+        if (status_int == 200 and u'callback' in request.args and
+                request.method == u'GET'):
             # escape callback to remove '<', '&', '>' chars
-            callback = cgi.escape(request.args['callback'])
+            callback = cgi.escape(request.args[u'callback'])
             response_msg = _wrap_jsonp(callback, response_msg)
     return make_response((response_msg, status_int, headers))
 
 
 def _finish_ok(response_data=None,
-               content_type='json',
+               content_type=u'json',
                resource_location=None):
-    '''If a controller method has completed successfully then
+    u'''If a controller method has completed successfully then
     calling this method will prepare the response.
     @param resource_location - specify this if a new
        resource has just been created.
@@ -83,41 +83,41 @@ def _finish_ok(response_data=None,
             resource_location = str(resource_location)
         except Exception, inst:
             msg = \
-                "Couldn't convert '%s' header value '%s' to string: %s" % \
-                ('Location', resource_location, inst)
+                u"Couldn't convert '%s' header value '%s' to string: %s" % \
+                (u'Location', resource_location, inst)
             raise Exception(msg)
-        headers = {'Location': resource_location}
+        headers = {u'Location': resource_location}
 
     return _finish(status_int, response_data, content_type, headers)
 
 
 def _finish_not_authz(extra_msg=None):
-    response_data = _('Access denied')
+    response_data = _(u'Access denied')
     if extra_msg:
-        response_data = '%s - %s' % (response_data, extra_msg)
-    return _finish(403, response_data, 'json')
+        response_data = u'%s - %s' % (response_data, extra_msg)
+    return _finish(403, response_data, u'json')
 
 
 def _finish_not_found(extra_msg=None):
-    response_data = _('Not found')
+    response_data = _(u'Not found')
     if extra_msg:
-        response_data = '%s - %s' % (response_data, extra_msg)
-    return _finish(404, response_data, 'json')
+        response_data = u'%s - %s' % (response_data, extra_msg)
+    return _finish(404, response_data, u'json')
 
 
 def _finish_bad_request(extra_msg=None):
-    response_data = _('Bad request')
+    response_data = _(u'Bad request')
     if extra_msg:
-        response_data = '%s - %s' % (response_data, extra_msg)
-    return _finish(400, response_data, 'json')
+        response_data = u'%s - %s' % (response_data, extra_msg)
+    return _finish(400, response_data, u'json')
 
 
 def _wrap_jsonp(callback, response_msg):
-    return '%s(%s);' % (callback, response_msg)
+    return u'%s(%s);' % (callback, response_msg)
 
 
 def _get_request_data(try_url_params=False):
-    '''Returns a dictionary, extracted from a request.
+    u'''Returns a dictionary, extracted from a request.
 
     If there is no data, None or "" is returned.
     ValueError will be raised if the data is not a JSON-formatted dict.
@@ -139,7 +139,7 @@ def _get_request_data(try_url_params=False):
 
     '''
     def make_unicode(entity):
-        '''Cast bare strings and strings in lists or dicts to Unicode. '''
+        u'''Cast bare strings and strings in lists or dicts to Unicode. '''
         if isinstance(entity, str):
             return unicode(entity)
         elif isinstance(entity, list):
@@ -156,7 +156,7 @@ def _get_request_data(try_url_params=False):
             return entity
 
     def mixed(multi_dict):
-        '''Return a dict with values being lists if they have more than one
+        u'''Return a dict with values being lists if they have more than one
            item or a string otherwise
         '''
         out = {}
@@ -164,19 +164,19 @@ def _get_request_data(try_url_params=False):
             out[key] = value[0] if len(value) == 1 else value
         return out
 
-    if not try_url_params and request.method == 'GET':
-        raise ValueError('Invalid request. Please use POST method '
+    if not try_url_params and request.method == u'GET':
+        raise ValueError(u'Invalid request. Please use POST method '
                          'for your request')
 
     request_data = {}
-    if request.method == 'POST' and request.form:
+    if request.method == u'POST' and request.form:
         if (len(request.form.values()) == 1 and
                 request.form.values()[0] in [u'1', u'']):
             try:
                 request_data = json.loads(request.form.keys()[0])
             except ValueError, e:
                 raise ValueError(
-                    'Error decoding JSON data. '
+                    u'Error decoding JSON data. '
                     'Error: %r '
                     'JSON data extracted from the request: %r' %
                     (e, request_data))
@@ -184,17 +184,17 @@ def _get_request_data(try_url_params=False):
             request_data = mixed(request.form)
     elif request.args and try_url_params:
         request_data = mixed(request.args)
-    elif (request.data and request.data != '' and
-          request.content_type != 'multipart/form-data'):
+    elif (request.data and request.data != u'' and
+          request.content_type != u'multipart/form-data'):
         try:
             request_data = request.get_json()
         except BadRequest, e:
-            raise ValueError('Error decoding JSON data. '
+            raise ValueError(u'Error decoding JSON data. '
                              'Error: %r '
                              'JSON data extracted from the request: %r' %
                              (e, request_data))
     if not isinstance(request_data, dict):
-        raise ValueError('Request data JSON decoded to %r but '
+        raise ValueError(u'Request data JSON decoded to %r but '
                          'it needs to be a dictionary.' % request_data)
     if request_data:
         # ensure unicode values
@@ -202,7 +202,7 @@ def _get_request_data(try_url_params=False):
             # if val is str then assume it is ascii, since json converts
             # utf8 encoded JSON to unicode
             request_data[key] = make_unicode(val)
-    log.debug('Request data extracted: %r', request_data)
+    log.debug(u'Request data extracted: %r', request_data)
     return request_data
 
 
@@ -213,107 +213,107 @@ def action(logic_function, ver=API_DEFAULT_VERSION):
     try:
         function = get_action(logic_function)
     except KeyError:
-        msg = 'Action name not known: {0}'.format(logic_function)
+        msg = u'Action name not known: {0}'.format(logic_function)
         log.info(msg)
         return _finish_bad_request(msg)
 
-    context = {'model': model, 'session': model.Session, 'user': g.user,
-               'api_version': ver, 'auth_user_obj': g.userobj}
+    context = {u'model': model, u'session': model.Session, u'user': g.user,
+               u'api_version': ver, u'auth_user_obj': g.userobj}
     model.Session()._context = context
 
     # TODO: backwards-compatible named routes?
-    return_dict = {'help': url_for('api.action',
-                                   logic_function='help_show',
-                                   ver=ver,
-                                   name=logic_function,
-                                   _external=True,
-                                   )
+    return_dict = {u'help': url_for(u'api.action',
+                                    logic_function=u'help_show',
+                                    ver=ver,
+                                    name=logic_function,
+                                    _external=True,
+                                    )
                    }
     try:
-        side_effect_free = getattr(function, 'side_effect_free', False)
+        side_effect_free = getattr(function, u'side_effect_free', False)
 
         request_data = _get_request_data(
             try_url_params=side_effect_free)
     except ValueError, inst:
-        log.info('Bad Action API request data: %s', inst)
+        log.info(u'Bad Action API request data: %s', inst)
         return _finish_bad_request(
-            _('JSON Error: %s') % inst)
+            _(u'JSON Error: %s') % inst)
     if not isinstance(request_data, dict):
         # this occurs if request_data is blank
-        log.info('Bad Action API request data - not dict: %r',
+        log.info(u'Bad Action API request data - not dict: %r',
                  request_data)
         return _finish_bad_request(
-            _('Bad request data: %s') %
-            'Request data JSON decoded to %r but '
-            'it needs to be a dictionary.' % request_data)
+            _(u'Bad request data: %s') %
+            u'Request data JSON decoded to %r but '
+            u'it needs to be a dictionary.' % request_data)
 
     # if callback is specified we do not want to send that to the search
-    if 'callback' in request_data:
-        del request_data['callback']
+    if u'callback' in request_data:
+        del request_data[u'callback']
         g.user = None
         g.userobj = None
-        context['user'] = None
-        context['auth_user_obj'] = None
+        context[u'user'] = None
+        context[u'auth_user_obj'] = None
     try:
         result = function(context, request_data)
-        return_dict['success'] = True
-        return_dict['result'] = result
+        return_dict[u'success'] = True
+        return_dict[u'result'] = result
     except DataError, e:
-        log.info('Format incorrect (Action API): %s - %s',
+        log.info(u'Format incorrect (Action API): %s - %s',
                  e.error, request_data)
-        return_dict['error'] = {'__type': 'Integrity Error',
-                                'message': e.error,
-                                'data': request_data}
-        return_dict['success'] = False
-        return _finish(400, return_dict, content_type='json')
+        return_dict[u'error'] = {u'__type': u'Integrity Error',
+                                 u'message': e.error,
+                                 u'data': request_data}
+        return_dict[u'success'] = False
+        return _finish(400, return_dict, content_type=u'json')
     except NotAuthorized, e:
-        return_dict['error'] = {'__type': 'Authorization Error',
-                                'message': _('Access denied')}
-        return_dict['success'] = False
+        return_dict[u'error'] = {u'__type': u'Authorization Error',
+                                 u'message': _(u'Access denied')}
+        return_dict[u'success'] = False
 
         if unicode(e):
-            return_dict['error']['message'] += u': %s' % e
+            return_dict[u'error'][u'message'] += u': %s' % e
 
-        return _finish(403, return_dict, content_type='json')
+        return _finish(403, return_dict, content_type=u'json')
     except NotFound, e:
-        return_dict['error'] = {'__type': 'Not Found Error',
-                                'message': _('Not found')}
+        return_dict[u'error'] = {u'__type': u'Not Found Error',
+                                 u'message': _(u'Not found')}
         if unicode(e):
-            return_dict['error']['message'] += u': %s' % e
-        return_dict['success'] = False
-        return _finish(404, return_dict, content_type='json')
+            return_dict[u'error'][u'message'] += u': %s' % e
+        return_dict[u'success'] = False
+        return _finish(404, return_dict, content_type=u'json')
     except ValidationError, e:
         error_dict = e.error_dict
-        error_dict['__type'] = 'Validation Error'
-        return_dict['error'] = error_dict
-        return_dict['success'] = False
+        error_dict[u'__type'] = u'Validation Error'
+        return_dict[u'error'] = error_dict
+        return_dict[u'success'] = False
         # CS nasty_string ignore
-        log.info('Validation error (Action API): %r', str(e.error_dict))
-        return _finish(409, return_dict, content_type='json')
+        log.info(u'Validation error (Action API): %r', str(e.error_dict))
+        return _finish(409, return_dict, content_type=u'json')
     except SearchQueryError, e:
-        return_dict['error'] = {'__type': 'Search Query Error',
-                                'message': 'Search Query is invalid: %r' %
-                                e.args}
-        return_dict['success'] = False
-        return _finish(400, return_dict, content_type='json')
+        return_dict[u'error'] = {u'__type': u'Search Query Error',
+                                 u'message': u'Search Query is invalid: %r' %
+                                 e.args}
+        return_dict[u'success'] = False
+        return _finish(400, return_dict, content_type=u'json')
     except SearchError, e:
-        return_dict['error'] = {'__type': 'Search Error',
-                                'message': 'Search error: %r' % e.args}
-        return_dict['success'] = False
-        return _finish(409, return_dict, content_type='json')
+        return_dict[u'error'] = {u'__type': u'Search Error',
+                                 u'message': u'Search error: %r' % e.args}
+        return_dict[u'success'] = False
+        return _finish(409, return_dict, content_type=u'json')
     except SearchIndexError, e:
-        return_dict['error'] = {
-            '__type': 'Search Index Error',
-            'message': 'Unable to add package to search index: %s' %
+        return_dict[u'error'] = {
+            u'__type': u'Search Index Error',
+            u'message': u'Unable to add package to search index: %s' %
                        str(e)}
-        return_dict['success'] = False
-        return _finish(500, return_dict, content_type='json')
+        return_dict[u'success'] = False
+        return _finish(500, return_dict, content_type=u'json')
     return _finish_ok(return_dict)
 
 
 def get_api(ver=1):
     response_data = {
-        'version': ver
+        u'version': ver
     }
     return _finish_ok(response_data)
 
@@ -321,10 +321,10 @@ def get_api(ver=1):
 # Routing
 
 
-api.add_url_rule('/', view_func=get_api, strict_slashes=False)
-api.add_url_rule('/action/<logic_function>', methods=['GET', 'POST'],
+api.add_url_rule(u'/', view_func=get_api, strict_slashes=False)
+api.add_url_rule(u'/action/<logic_function>', methods=[u'GET', u'POST'],
                  view_func=action)
-api.add_url_rule('/<int(min=3, max={0}):ver>/action/<logic_function>'.format(
+api.add_url_rule(u'/<int(min=3, max={0}):ver>/action/<logic_function>'.format(
                  API_MAX_VERSION),
-                 methods=['GET', 'POST'],
+                 methods=[u'GET', u'POST'],
                  view_func=action)

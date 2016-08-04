@@ -88,9 +88,10 @@ class TestRegisterUser(helpers.FunctionalTestBase):
         # submit it
         login_form.submit('save')
 
-        response = app.get(
-            url=url_for(controller='user', action='register'),
-        )
+        with app.flask_app.test_request_context():
+            response = app.get(
+                url=url_for(controller='user', action='register'),
+            )
         assert "user-register-form" in response.forms
         form = response.forms['user-register-form']
         form['name'] = 'newestuser'

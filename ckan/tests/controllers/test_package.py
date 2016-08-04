@@ -51,12 +51,15 @@ class TestPackageNew(helpers.FunctionalTestBase):
         sysadmin = factories.Sysadmin()
 
         env = {'REMOTE_USER': sysadmin['name'].encode('ascii')}
-        response = app.get(
-            url=url_for(controller='package', action='new'),
-            extra_environ=env
-        )
-        assert 'dataset-edit' not in response.forms
-        assert url_for(controller='organization', action='new') in response
+
+        with app.flask_app.test_request_context():
+            response = app.get(
+                url=url_for(controller='package', action='new'),
+                extra_environ=env
+            )
+            assert 'dataset-edit' not in response.forms
+
+            assert url_for(controller='organization', action='new') in response
 
     @helpers.mock_auth('ckan.logic.auth.create.package_create')
     @helpers.change_config('ckan.auth.create_unowned_dataset', 'false')
@@ -74,14 +77,16 @@ class TestPackageNew(helpers.FunctionalTestBase):
         user = factories.User()
 
         env = {'REMOTE_USER': user['name'].encode('ascii')}
-        response = app.get(
-            url=url_for(controller='package', action='new'),
-            extra_environ=env
-        )
 
-        assert 'dataset-edit' not in response.forms
-        assert url_for(controller='organization', action='new') not in response
-        assert 'Ask a system administrator' in response
+        with app.flask_app.test_request_context():
+            response = app.get(
+                url=url_for(controller='package', action='new'),
+                extra_environ=env
+            )
+
+            assert 'dataset-edit' not in response.forms
+            assert url_for(controller='organization', action='new') not in response
+            assert 'Ask a system administrator' in response
 
     def test_name_required(self):
         app = self._get_test_app()
@@ -1169,12 +1174,14 @@ class TestResourceView(helpers.FunctionalTestBase):
 
     def test_resource_view_description_is_rendered_as_markdown(self):
         resource_view = factories.ResourceView(description="Some **Markdown**")
-        url = url_for(controller='package',
-                      action='resource_read',
-                      id=resource_view['package_id'],
-                      resource_id=resource_view['resource_id'],
-                      view_id=resource_view['id'])
+
         app = self._get_test_app()
+        with app.flask_app.test_request_context():
+            url = url_for(controller='package',
+                          action='resource_read',
+                          id=resource_view['package_id'],
+                          resource_id=resource_view['resource_id'],
+                          view_id=resource_view['id'])
         response = app.get(url)
         response.mustcontain('Some <strong>Markdown</strong>')
 

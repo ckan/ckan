@@ -86,10 +86,6 @@ class TestExampleIAuthFunctionsCustomConfigSetting(object):
 
     '''
 
-        # Set the custom config option in config.
-        config['ckan.iauthfunctions.users_can_create_groups'] = (
-            users_can_create_groups)
-
     @classmethod
     def setup_class(cls):
 

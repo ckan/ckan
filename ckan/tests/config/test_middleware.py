@@ -132,9 +132,7 @@ class TestAppDispatcherAskAround(helpers.FunctionalTestBase):
         # Even though this route is defined in Flask, there is catch all route
         # in Pylons for all requests to point arbitrary urls to templates with
         # the same name, so we get two positive answers
-        eq_(answers, [(True, 'flask_app'), (True, 'pylons_app', 'core')])
-        # TODO: check Flask origin (core/extension) when that is in place
-        # (also on the following tests)
+        eq_(answers, [(True, 'flask_app', 'core'), (True, 'pylons_app', 'core')])
 
     def test_ask_around_flask_core_route_post(self):
 
@@ -154,7 +152,7 @@ class TestAppDispatcherAskAround(helpers.FunctionalTestBase):
         # Even though this route is defined in Flask, there is catch all route
         # in Pylons for all requests to point arbitrary urls to templates with
         # the same name, so we get two positive answers
-        eq_(answers, [(True, 'flask_app'), (True, 'pylons_app', 'core')])
+        eq_(answers, [(True, 'flask_app', 'core'), (True, 'pylons_app', 'core')])
 
     def test_ask_around_pylons_core_route_get(self):
 
@@ -302,7 +300,7 @@ class TestAppDispatcherAskAround(helpers.FunctionalTestBase):
         answers = app.ask_around(environ)
         answers = sorted(answers, key=lambda a: a[1])
 
-        eq_(answers, [(True, 'flask_app'), (True, 'pylons_app', 'extension')])
+        eq_(answers, [(True, 'flask_app', 'extension'), (True, 'pylons_app', 'extension')])
 
 
 class TestAppDispatcher(helpers.FunctionalTestBase):

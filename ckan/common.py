@@ -28,7 +28,7 @@ except ImportError:
 
 
 def is_flask():
-    '''
+    u'''
     A centralised way to determine whether to return flask versions of common
     functions, or Pylon versions.
 
@@ -42,8 +42,8 @@ def is_flask():
         pylons_request_available = False
 
     if (flask.request and
-            (flask.request.environ.get('ckan.app') == 'flask_app' or
-             flask.request.environ.get('ckan.wsgiparty.setup') or
+            (flask.request.environ.get(u'ckan.app') == u'flask_app' or
+             flask.request.environ.get(u'ckan.wsgiparty.setup') or
              not pylons_request_available)):
         return True
     else:
@@ -51,14 +51,14 @@ def is_flask():
 
 
 class Request(object):
-    '''
+    u'''
     Wraps the request object, returning attributes from either the Flask or
     Pylons request object, depending of whether flask.request is available.
     '''
 
     @property
     def params(self):
-        ''' Special case as request.params is used all over the place.
+        u''' Special case as request.params is used all over the place.
         '''
         if is_flask():
             return flask.request.args
@@ -82,8 +82,8 @@ def _(text):
     if is_flask():
         # TODO: For some reasone the Flask gettext changes 'String %s' to
         # 'String {}' (maybe it's the babel version?)
-        if '%s' in text:
-            return flask_gettext(text).replace('{}', '%s')
+        if u'%s' in text:
+            return flask_gettext(text).replace(u'{}', u'%s')
         else:
             return flask_gettext(text)
     else:
@@ -135,6 +135,7 @@ class Session():
             return delattr(pylons.session, name, None)
 
 session = Session()
+
 
 class CKANConfig(MutableMapping):
     u'''Main CKAN configuration object
